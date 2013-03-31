@@ -1,0 +1,38 @@
+Options +FollowSymlinks
+
+RewriteEngine On
+
+# Scalar pages have default views that are called when a URI has no file extension
+# Turn off the MultiView option (if it's on) so it doesn't conflict
+Options -MultiViews
+
+# To route all requests to a maintenance page, uncomment these lines
+#RewriteCond %{REQUEST_FILENAME} !maintenance.html [NC]
+#RewriteRule (.*) maintenance.html [L]
+
+# To route the home page (book index) to some place else, uncomment these lines
+#RewriteCond %{REQUEST_FILENAME} ^/Library/WebServer/scalar\.usc\.edu/anvc/index\.php$
+#RewriteRule (.*) /Library/WebServer/scalar.usc.edu/anvc_site/ [L]
+#RewriteCond %{REQUEST_FILENAME} ^/Library/WebServer/scalar\.usc\.edu/anvc/$
+#RewriteRule (.*) /Library/WebServer/scalar.usc.edu/anvc_site/ [L]
+
+# Route to codeigniter if file or directory doesn't exist
+RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*) codeigniter.php/$1 [L]
+RewriteRule ^$ codeigniter.php [L]
+
+# If a directory, don't send to codeigniter if it's the root folder
+# the server in turn will add the trailing slash and things are back to normal
+# This is to overcome what appears to be an old server setting on Vectors
+# and/or not being able to change DirectorySlash
+RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^/(.*)$ - [L]
+
+# Pass through directory
+RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule (.*) codeigniter.php/$1 [L]
+

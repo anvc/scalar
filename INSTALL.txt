@@ -1,0 +1,68 @@
+--------------------------------
+Scalar Installation Instructions
+--------------------------------
+
+Scalar is a PHP and MySQL application built with CodeIgniter.
+ 
+* Note that mod_rewrite (.htaccess) must be enabled in Apache config.
+
+1) 
+
+Run the SQL script on a fresh MySQL database (e.g., "scalar_store"):
+
+system/application/config/scalar_store.sql
+
+Note that five additional tables will be added after Scalar's first use.
+
+Update database fields (hostname, database, username and password) at:
+
+system/application/config/database.php
+
+2)
+
+Add a new salt string, reCAPTCHA key (for you domain, http://www.google.com/recaptcha/whyrecaptcha), 
+registration key, and SoundCloud key (for your domain) at:
+
+system/application/config/local_settings.php
+
+For further customization, change cookie/sesion variables ($config['cookie_prefix'] = "";) at:
+
+system/application/config/config.php
+
+3) 
+
+By default, the home page (book index) will display "Scalar" as the page title; this can be updated at:
+
+system/application/language/en/content_lang.php
+
+4) 
+
+All should be set to visit your site at its URL and see a basic home page with the Scalar title at left and login at right.
+
+If you experience MySQL connection problems (say, there was a typo in the the connection parameters), correct, then refresh your page,
+you might notice an error from Session.php involving num_rows().  In this case, clear your browser cache & cookies and refresh.
+
+5) 
+
+You can register your new account using the 'register' link.
+
+To make your user (after it is register) a "super admin", requires direct access to MySQL (e.g., phpMyAdmin). In the database table
+"scalar_store_users" edit your user row then set the "is_super" bit to 1. After refreshing Scalar, you will have access to all
+Scalar books and additional admin tabs in the "Manage content" area
+
+Note that even super admins can't save changes to others' books unless they are explicitly provided "author" privilege in
+the "Users" tab of the book's "Manage content" area.
+
+Enjoy!
+
+-------------------------------------------------------------------------------------------
+Updates we've made to incorporated libraries, kept here for reference if they need updating
+-------------------------------------------------------------------------------------------
+
+ARC2:
+1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
+2) ARC2_RDFJSONSerializer.php->jsonEscape(): replace "return trim(json_encode($v), '"');" with return substr(json_encode($v), 1, -1);
+In the GitHub distro, #2 is corrected
+
+Froogaloop:
+1) Changed $f=g to froogaloop=g
