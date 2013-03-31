@@ -1,0 +1,19 @@
+
+/* Stylesheet used by WYSIWYG when editing */
+
+a {text-decoration:none; color:#026697;}
+img {border:0;}
+
+.note {color:#129A5E;}
+
+.inline {
+	display:block; height:150px; 
+	background:#cccccc; border:solid 20px #eeeeee; margin-right:20px;
+}
+
+pre {background:#dddddd; padding:10px;}
+
+/* Generic inline media styles */
+.inlineMediaLeft { float:left; margin-right:20px; margin-bottom:10px; }
+.inlineMediaRight { float:right; margin-left:20px; margin-bottom:10px; }
+.inlineMediaCenter { display:block; margin-left:auto; margin-right:auto; margin-top:10px; }

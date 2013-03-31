@@ -1,0 +1,532 @@
+
+.mediaelement {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif !important; font-size:13px;
+	white-space: normal;
+	line-height:100%;
+	overflow:hidden;
+	position:relative; top:0px; left:0px;
+	z-index:7;
+}
+
+.mediaContainer {
+	background-color: #e5e5e5;
+	border-top: 1px solid #cbcbcb;
+	border-right: 1px solid #cbcbcb;
+	border-left: 1px solid #cbcbcb;
+	z-index:7;
+	background-image: url(loading_msg.png);
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+.mediaContainer iframe {
+	background-color: #fff;
+	border: 1px solid #cbcbcb;
+}
+
+.annotationToggle {
+	display:block;
+}
+
+.mediaContainerAutoWidth {
+	position:absolute;
+	left:0px;
+	top:30px;  /* header */
+	right:250px; /* sidebar */
+	bottom:0px;
+}
+
+.mediaObject {
+	z-index:7;
+}
+
+.mediaObject img {
+	display:none;
+}
+
+.loadingMessage {
+	padding:20px;
+	color:#666;
+}
+
+.mediaElementHeader {
+	/*padding: 0px 7px 0px 7px;*/
+	height: 28px;
+	overflow:hidden;
+	line-height: 28px;
+}
+
+.mediaElementHeader p {                  /* block DOM element's top margin is usually ignored when at the top of a div */
+	margin:0;
+}
+
+.mediaElementFooter {
+	height:26px;
+	clear:both;
+	font-size:10px;
+	line-height:26px;
+	background-color: #e5e5e5;
+	border-bottom: 1px solid #cbcbcb;
+	border-right: 1px solid #cbcbcb;
+	border-left: 1px solid #cbcbcb;
+}
+
+.mediaElementFooter p {
+	margin:0;
+	padding: 0px 4px 0px 7px;
+}
+
+.mediaElementAnnotationFooter {
+	clear:both;
+	background-color:#aaa;
+	padding:10px;
+	display:none;
+}
+
+.mediaElementAnnotationSidebar {
+	width:250px;
+	float:left;
+	display:none;
+	font-size: 12px;
+	text-align:left;
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-color: #e5e5e5;
+	border-top: 1px solid #cbcbcb;
+	border-left: 1px solid #cbcbcb;
+	/*border-right: 1px solid #e5e5e5;*/
+}
+
+.mediaElementAlignLeft {
+	float:left;
+	text-align:left;
+	width:100%;
+	overflow:hidden;
+}
+.mediaElementAlignLeftDetails {
+	width:45% !important;	
+}
+
+.mediaElementAlignRight {
+	font-size:10px;
+	float:right;
+	text-align:right;
+	width:19%;
+	white-space:nowrap;
+}
+.mediaElementAlignRightDetails {
+	width:45%;	
+}
+.mediaElementAlignRight #viewPageLink {
+	display:none;	
+}
+
+.mediaelement_warning {
+	position: relative;
+	padding-right: 8px;
+	left: 10px;
+	top: 10px;
+	color: #888;
+}
+
+/* Top tab bar */
+/* Added by Craig for use in maxmized view */
+
+.mediaElementHeaderWithNavBar {
+	background:#c8c8c8; padding-left:0px; padding-right:0px; height:30px;
+}
+.mediaElementHeader .nav_bar_options {
+	float:left; list-style-type:none; margin:0; padding:0; background:#c8c8c8;
+	font-size:10px; font-weight: bold;
+}
+.mediaElementHeader .nav_bar_options li {
+	display:inline; margin:0px 3px 0px 3px; padding:4px 9px 5px 9px; cursor:pointer; line-height: 18px;
+}
+.mediaElementHeader .nav_bar_options li.disabled {
+	 color:#999999; background:white;
+}
+.mediaElementHeader .nav_bar_options li.sel {
+	background:#717171; color:white;
+}
+.mediaElementHeader .nav_bar_options .downArrow {
+	padding-bottom: .5px;
+}
+
+/*.mediaContainerWithNavBar { background-color: #000; }*/
+
+/* Other sidebar areas (works with Navigation bar) */
+/* Added by Craig for use in maxmized view */
+
+.annotationSidebarWithNavBar { width:250px; }
+
+.mediaElementSidebarDesc {padding:10px 10px 20px 10px;}
+.mediaElementSidebarDesc .desc_title {font-weight:bold; margin-bottom:20px;}
+
+.mediaElementSidebarMeta {padding:10px 10px 20px 10px; display:none; }
+.mediaElementSidebarMeta > table td {padding:0px 0px 0px 0px; font-size:10px; text-align:left;}
+.mediaElementSidebarMeta > table td.value {padding-top:4px; padding-bottom:16px; word-wrap: break-word;}
+.mediaElementSidebarMeta > table td.value ul {list-style-type:none; margin:0px 0px 0px 0px; padding:0px 0px 0px 0px;}
+.mediaElementSidebarMeta > table td.value li {margin-bottom:3px; margin-top:3px;}
+
+.posterFrame {
+	background: #444;
+	z-index: 8;
+	position: absolute;
+	overflow: hidden;
+}
+
+/* Annotations */
+
+.annotationDisplay {
+	clear:both;
+	height:26px;
+	background-color:#5c7586;
+	overflow:hidden;
+	position:absolute;
+	text-align:left;
+	color:#fff;
+}
+
+.annotationDisplay p {
+	padding: 0px 4px 0px 7px;
+}
+
+.annotationChip {
+	padding:10px;
+	cursor: pointer;
+	line-height: 140%;
+}
+
+.annotationChip.light {
+	background-color: #eee;
+}
+
+.annotationChip.dark {
+	/*background-color: #eee;*/
+}
+
+.annotationChip:hover {
+	background-color: #ccc;
+}
+
+
+.selectedAnnotation {
+	background-color:#a5c0d2 !important;
+}
+
+.annotationExtents {
+	margin-bottom:5px;
+	font-size: 10px;
+}
+
+.annotationTitle {
+	margin-bottom:3px;
+}
+
+.download_link {
+	text-align: center;
+	margin-top: 50px;
+	display: none;
+}
+
+/*
+ * Skin for jPlayer Plugin (jQuery JavaScript Library)
+ * http://www.happyworm.com/jquery/jplayer
+ *
+ * Skin Name: Blue Monday
+ *
+ * Copyright (c) 2010 Happyworm Ltd
+ * Dual licensed under the MIT and GPL licenses.
+ *  - http://www.opensource.org/licenses/mit-license.php
+ *  - http://www.gnu.org/copyleft/gpl.html
+ *
+ * Author: Silvia Benvenuti
+ * Skin Version: 3.0 (jPlayer 2.0.0)
+ * Date: 20th December 2010
+ */
+
+div.jp-audio {
+
+	/* Edit the font-size to counteract inherited font sizing.
+	 * Eg. 1.25em = 1 / 0.8em
+	 */
+
+	font-size:1.25em;
+
+	/*font-family:Verdana, Arial, sans-serif;*/
+	line-height:1.6;
+	color: #666;
+	border: 1px solid #ccc;
+}
+div.jp-audio {
+	width:420px;
+}
+div.jp-type-single {
+}
+div.jp-interface {
+	position: relative;
+	background-color:#eee;
+	/* width:418px; 
+	width:100%;
+	/*border:1px solid #009be3;*/
+}
+div.jp-audio div.jp-type-single div.jp-interface {
+	height:60px;
+	border-bottom:none;
+}
+div.jp-audio div.jp-type-playlist div.jp-interface {
+	height:60px;
+}
+div.jp-interface ul.jp-controls {
+	list-style-type:none;
+	padding:0;
+	margin: 0;
+}
+div.jp-interface ul.jp-controls li {
+	/* position: absolute; */
+	display:inline;
+}
+div.jp-interface ul.jp-controls a {
+	position: absolute;
+	overflow:hidden;
+	text-indent:-9999px;
+}
+a.jp-play,
+a.jp-pause {
+	width:40px;
+	height:40px;
+	z-index:1;
+}
+div.jp-audio div.jp-type-single a.jp-play,
+div.jp-audio div.jp-type-single a.jp-pause {
+	top:10px;
+	left:10px;
+}
+div.jp-audio div.jp-type-playlist a.jp-play,
+div.jp-audio div.jp-type-playlist a.jp-pause {
+	top:10px;
+	left:18px;
+}
+a.jp-play {
+	background: url("jplayer.blue.monday.jpg") 0 0 no-repeat;
+}
+a.jp-play:hover {
+	background: url("jplayer.blue.monday.jpg") -41px 0 no-repeat;
+}
+a.jp-pause {
+	background: url("jplayer.blue.monday.jpg") 0 -42px no-repeat;
+	display: none;
+}
+a.jp-pause:hover {
+	background: url("jplayer.blue.monday.jpg") -41px -42px no-repeat;
+}
+div.jp-audio div.jp-type-single a.jp-stop {
+	top:6px;
+	left:60px;
+}
+div.jp-audio div.jp-type-playlist a.jp-stop {
+	top:16px;
+	left:96px;
+}
+a.jp-stop {
+	background: url("jplayer.blue.monday.jpg") 0 -83px no-repeat;
+	width:28px;
+	height:28px;
+	z-index:1;
+}
+a.jp-stop:hover {
+	background: url("jplayer.blue.monday.jpg") -29px -83px no-repeat;
+}
+div.jp-audio div.jp-type-playlist a.jp-previous {
+	left:10px;
+	top:16px;
+}
+a.jp-previous {
+	background: url("jplayer.blue.monday.jpg") 0 -112px no-repeat;
+	width:28px;
+	height:28px;
+}
+a.jp-previous:hover {
+	background: url("jplayer.blue.monday.jpg") -29px -112px no-repeat;
+}
+div.jp-audio div.jp-type-playlist a.jp-next {
+	left:88px;
+	top:26px;
+}
+a.jp-next {
+	background: url("jplayer.blue.monday.jpg") 0 -141px no-repeat;
+	width:28px;
+	height:28px;
+}
+a.jp-next:hover {
+	background: url("jplayer.blue.monday.jpg") -29px -141px no-repeat;
+}
+div.jp-progress {
+	position: absolute;
+	overflow:hidden;
+	background-color: #ddd;
+}
+div.jp-audio div.jp-type-single div.jp-progress {
+	top:15px;
+	left:60px;
+	width:192px;
+	height:15px;
+}
+div.jp-audio div.jp-type-playlist div.jp-progress {
+	top:32px;
+	left:164px;
+	width:122px;
+	height:15px;
+}
+div.jp-seek-bar {
+	background: url("jplayer.blue.monday.jpg") 0 -202px repeat-x;
+	width:0px;
+	/* height:15px; */
+	height:100%;
+	cursor: pointer;
+}
+div.jp-play-bar {
+	background: url("jplayer.blue.monday.jpg") 0 -218px repeat-x ;
+	width:0px;
+	/* height:15px; */
+	height:100%;
+}
+
+/* The seeking class is added/removed inside jPlayer */
+div.jp-seeking-bg {
+	background: url("pbar-ani.gif");
+}
+
+a.jp-mute,
+a.jp-unmute {
+	width:18px;
+	height:15px;
+}
+div.jp-audio div.jp-type-single a.jp-mute,
+div.jp-audio div.jp-type-single a.jp-unmute {
+	top:22px;
+	right:65px;
+}
+div.jp-audio div.jp-type-playlist a.jp-mute,
+div.jp-audio div.jp-type-playlist a.jp-unmute {
+	top:22px;
+	right:65px;
+}
+a.jp-mute {
+	background: url("jplayer.blue.monday.jpg") 0 -186px no-repeat;
+}
+a.jp-mute:hover {
+	background: url("jplayer.blue.monday.jpg") -19px -170px no-repeat;
+}
+a.jp-unmute {
+	background: url("jplayer.blue.monday.jpg") 0 -170px no-repeat;
+	display: none;
+}
+a.jp-unmute:hover {
+	background: url("jplayer.blue.monday.jpg") -19px -186px no-repeat;
+}
+div.jp-volume-bar {
+	position: absolute;
+	overflow:hidden;
+	background: url("jplayer.blue.monday.jpg") 0 -250px repeat-x;
+	width:46px;
+	height:5px;
+	cursor: pointer;
+}
+div.jp-audio div.jp-type-single div.jp-volume-bar {
+	top:27px;
+	right:10px;
+}
+div.jp-audio div.jp-type-playlist div.jp-volume-bar {
+	top:27px;
+	right:10px;
+}
+div.jp-volume-bar-value {
+	background: url("jplayer.blue.monday.jpg") 0 -256px repeat-x;
+	width:0px;
+	height:5px;
+}
+div.jp-current-time,
+div.jp-duration {
+	position: absolute;
+	font-size:.64em;
+	/*font-style:oblique;*/
+}
+div.jp-duration {
+	text-align: right;
+}
+div.jp-audio div.jp-type-single div.jp-current-time {
+	top:32px;
+	left:60px;
+	width:122px;
+	text-align: left;
+}
+div.jp-audio div.jp-type-single div.jp-duration {
+	top:32px;
+	right:97px;
+	width:122px;
+}
+div.jp-audio div.jp-type-playlist div.jp-current-time,
+div.jp-audio div.jp-type-playlist div.jp-duration {
+	top:39px;
+	left:60px;
+	width:122px;
+}
+div.jp-playlist {
+	/* width:418px; */
+	width:100%;
+	background-color:#ccc;
+	border:1px solid #009be3;
+	border-top:none;
+}
+div.jp-playlist ul {
+	list-style-type:none;
+	margin:0;
+	padding:0 20px;
+	/* background-color:#ccc; */
+	/* border:1px solid #009be3; */
+	/* border-top:none; */
+	/* width:378px; */
+	font-size:.72em;
+}
+
+
+div.jp-type-single div.jp-playlist li {
+	padding:5px 0 5px 20px;
+	font-weight:bold;
+}
+div.jp-type-playlist div.jp-playlist li {
+	padding:5px 0 4px 20px;
+	border-bottom:1px solid #eee;
+}
+div.jp-type-playlist div.jp-playlist li.jp-playlist-last {
+	padding:5px 0 5px 20px;
+	border-bottom:none;
+}
+div.jp-type-playlist div.jp-playlist li.jp-playlist-current {
+	list-style-type:square;
+	list-style-position:inside;
+	padding-left:8px;
+}
+div.jp-type-playlist div.jp-playlist a {
+	color: #666;
+	text-decoration: none;
+}
+div.jp-type-playlist div.jp-playlist a:hover {
+	color:#0d88c1;
+}
+div.jp-type-playlist div.jp-playlist a.jp-playlist-current {
+	color:#0d88c1;
+}
+div.jp-type-playlist div.jp-playlist div.jp-free-media {
+	display:inline;
+	margin-left:20px;
+}
+
+div.jp-jplayer {
+	width:0px;
+	height:0px;
+}
+div.jp-jplayer {
+	background-color: #000000;
+}

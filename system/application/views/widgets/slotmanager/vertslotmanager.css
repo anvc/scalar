@@ -1,0 +1,108 @@
+
+object, embed {margin:0; padding:0;}
+
+.content_title {margin-right:300px;}
+
+#content {
+	margin-right:300px;
+	min-height:300px;
+	padding-left: 0;
+	padding-right: 1em;
+	padding-top: 0 !important;
+}
+
+#path_list { padding-left: 0; }
+
+.category_description {
+	margin-right:300px;
+}
+
+/* This is a hack until the whole middle column can be margin'd */
+#path_list, #annotation_of_list, #tag_of_list {
+	/* margin-right:300px; */
+}
+
+.vert_slots {
+	margin-left:40px; background:white; float:right; width:272px;
+	position:relative; top:0px; left:0px; z-index:4;
+}
+
+.slot_container {
+	position:absolute; overflow:hidden; top:0px; left:0px; z-index:5;
+}
+
+.slot_fixer {
+	width:272px;  z-index:5;
+}
+
+.slot_slider {
+	 position:absolute; top:0px; left:0px; width:100%; z-index:6;
+}
+
+.slot_controls {
+	position:absolute; z-index:7; right:0px; top:0px; background:white; width:272px;
+	padding-bottom:4px; text-align:center;
+}
+
+.slot_controls .control_bar {
+	/*background:#e5e5e5;*/
+	padding-top:6px; padding-bottom:3px;
+	border-top: 1px solid #CBCBCB;
+	/*-webkit-border-radius:5px; -moz-border-radius:5px; border-radius:5px;*/
+}
+
+.slot_controls .control_bar_items {
+	height:18px;
+	margin:0px auto 0px auto;
+}
+
+.slot_controls .spacer {
+	font-size:1px; width:8px; overflow:hidden; height:18px;
+}
+
+.slot_controls .up {
+	background-image:url(images/up_btn.png); background-repeat:no-repeat; background-position: 50% 50%; width:13px;
+	float:left; font-size:1px; overflow:hidden;
+	cursor:pointer;
+}
+
+.slot_controls .down {
+	background-image:url(images/down_btn.png); background-repeat:no-repeat; background-position: 50% 50%; width:13px;
+	float:left; font-size:1px; overflow:hidden;
+	cursor:pointer;
+}
+
+.slot_controls .slot_count {
+	color:#555555;
+	font-size: 12px;
+}
+
+.slot {
+	margin-bottom:15px; position:relative; z-index:9;
+	/* border-top:solid 2px white;
+	border-bottom:solid 2px white; */
+}
+
+.slot_highlight {
+	border-top:solid 2px blue;
+	border-bottom:solid 2px blue;
+}
+
+#reply_list {
+	padding-left: 0;
+}
+
+.background_audio {margin-right:20px;}
+
+/* Live Annotations */
+
+.live_annotation {  
+	margin-left:24px;
+}
+.live_annotation .annotation_content {
+	margin-top:3px;
+}
+.live_annotation .arrow {
+ 	background-image:url(../liveannotations/live_anno_right_arrow.png); background-position:center right; background-repeat:no-repeat;
+ 	position:absolute; top:20px; left:0px; right:-15px; height:68px;  z-index:0;
+}

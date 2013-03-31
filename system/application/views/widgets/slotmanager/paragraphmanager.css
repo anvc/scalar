@@ -1,0 +1,17 @@
+
+#content_wrapper {
+	padding-left:56px; padding-right:56px;
+}
+
+.slot_row {margin:10px auto 0px auto;}
+/*.rev_slot_row {margin-top:10px;}*/
+.slot_row > .slot {float:left; margin:10px 10px 20px 10px; padding:0px 0px 0px 0px;}
+
+.mediaelement {z-index:0;}
+
+/* Live Annotations */
+
+.live_annotation .arrow {
+ 	background-image:url(../liveannotations/live_anno_up_arrow.png); background-position:center top; background-repeat:no-repeat;
+ 	position:absolute; top:-15px; left:0px; right:0px; height:17px; 
+}

@@ -1,0 +1,71 @@
+/* Styles for code excerpts shown in mediaelement */
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+pre {
+	margin: 0;
+}
+
+.code {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+.code li {
+	line-height: 0px;  to remove white border issue 
+	white-space: pre;
+}
+ 
+.code { counter-reset: li; }
+.code li:before {
+	counter-increment: li;
+	content: counter(li) ". ";
+	background: #ececec;
+	border-right: 1px solid #cccccc;
+	color: #999;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+	line-height: 24px;
+	margin-right: 20px;
+	padding-right: 5px;
+	text-align: right;
+	width: 35px;
+	font-size: 12px;
+}
+
+.plain {
+	font-family: 'Georgia', serif;
+	list-style-type: none;
+	margin: 0px;
+	padding: 5px 0px;
+}
+
+.plain li {
+	padding: 5px 10px ;
+}
+
+/*
+.code li:nth-child(odd) { background: #ffffff; }
+.code li:nth-child(even) { background: #f5f5f5; }
+.code .odd { background: #ffffff; }
+.code .even { background: #f5f5f5; }
+*/
+
+.highlightLight {
+	background-color:#c5dae7 !important;
+	/*background: #fffdd9 !important;*/
+	cursor: pointer !important;
+}
+
+.highlightLight:hover {
+	background-color:#a5c0d2 !important;
+}
+
+.highlightDark {
+	background: #f5f2d0 !important;
+	cursor: pointer;
+}

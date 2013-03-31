@@ -1,0 +1,356 @@
+/*
+
+	Linen
+	A style sheet for Scalar
+	Designed by Alexei Taylor
+	
+	BUG: scalar vis radial rollover isn't in right place
+	
+*/
+
+@import url(http://fonts.googleapis.com/css?family=Questrial);
+
+body {
+    background-color: #e2dfd7;
+    background-repeat: repeat-y; 
+	background-image: url(images/linen_background.png);
+	font-family: 'Questrial', sans-serif;
+}
+
+.generic_button {
+	padding-top: 4px;
+	font-family: 'Questrial', sans-serif;
+}
+
+th { 
+	font-weight: normal;
+}
+
+.cover {
+	padding: 15px 0 14px 0;
+	line-height: 100%;
+}
+
+.cover a {
+	color: #818285;
+}
+
+.cover_title {
+	font-family: Georgia, serif;
+	font-style: italic;
+	font-weight: normal;
+	font-size: 32px;
+	margin-bottom: 0;
+	margin-left:1.0em;
+}
+.cover_subtitle {
+	margin-left:2.4em;
+	margin-top:4px; margin-bottom:4px;
+}
+.cover_authors {margin-left:2.4em;}
+
+.authors {
+	color: #818285;
+	font-size: 14px;
+}
+
+.authors a {
+	color: #333;
+} 
+
+.login {
+	color: #bdbec0;
+	line-height: 140%;
+	padding-right:2.0em;
+}
+
+#scalarnav {
+	background: none !important;
+	color: #58585a;
+	font-size: 12px;
+}
+
+#scalarnav a {
+	color: #58585a;
+}
+
+#scalarnav b {
+	font-weight: normal;
+	color: black;
+}
+
+#scalarnav .header {
+	font-size: 15px;
+}
+
+#scalarnav .icon_link {
+	font-weight: normal;
+}
+
+#scalarnav .button {
+	border-radius: 0;
+}
+
+#scalarnav input {
+	font-family: Palatino, Georgia, serif;
+	font-size: 12px;
+	color: #bdbec0;
+}
+
+a.utility_button {
+	border: none !important;
+	background: none !important;
+	font-size: 14px !important;
+	border-radius: 0 !important;
+	padding: 3px 3px !important;
+}
+
+a.utility_button:first-child {
+	border-right: 1px solid #a8a59e !important;
+}
+
+a.utility_button:last-child {
+	border-left: 1px solid #a8a59e !important;
+}
+
+.pulldown {
+	font-size: 14px;
+}
+
+.pulldown-content {
+	color: black;
+}
+
+.pulldown-content li {
+	color: black !important;
+}
+
+.pulldown.viewMenu ul {
+	width: 180px !important;
+}
+
+#history_tabs {
+	font-size: 13px !important;
+	font-weight: normal;
+}
+
+.downArrow {
+	padding-bottom: 5px !important;
+}
+
+.pulldown-content li.disabled {
+	color: #999 !important;
+}
+
+#history_tabs li.sel {
+	color: white !important;
+}
+
+#scalarnav .home {
+	font-family: Georgia, serif;
+	font-size: 15px;
+	font-weight: normal;
+	font-style: italic;
+	padding-bottom: 3px;
+	border-bottom: 1px solid #a8a59e;
+	line-height: 120%;
+	padding-top: 17px;
+}
+
+#scalarnav .body {
+	background: none !important;
+	border: none !important;
+}
+
+.nav_bar_options {
+	font-size: 12px !important;
+	font-weight: normal !important;
+}
+
+.mediaElementSidebarMeta > table td {
+	font-size: 12px;
+}
+
+.mediaElementSidebarMeta b {
+	font-weight: normal;
+}
+
+.annotationExtents {
+	font-size: 12px !important;
+}
+
+.mediaElementSidebarDesc .desc_title {
+	font-weight: normal;
+}
+
+.discussion {
+	font-family: Palatino, Georgia, serif;
+}
+
+#content {
+	font-family: Palatino, Georgia, serif;
+}
+
+.versionbrowser_content {
+	font-family: Palatino, Georgia, serif;
+}
+
+.middle {
+	margin-left: 168px;
+	max-width: 783px;
+}
+
+.saved {
+	max-width: 763px;
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+}
+
+.error {
+	max-width: 786px;
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+}
+.error > p {
+	margin-left:20px;
+	margin-right:20px;
+}
+
+.notice {
+	margin-bottom:20px;
+	max-width: 786px;
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+	position:relative;
+	z-index:2;
+}
+.notice > p {
+	margin-left:20px;
+	margin-right:20px;
+}
+
+.pathnavs {
+	background-image: url(images/linen_pathbar_background.png);
+	background-repeat: repeat-x;
+	background-color:white;
+	font-family: Georgia, serif;
+	font-style: italic;
+	color: #818285;
+	height:77px;
+	padding-left:30px;
+	padding-right:30px;
+	padding-top:12px;
+}
+
+.pathnavs a {color:#333333;}
+
+.path_bottom {
+	border: none;
+}
+
+#content_wrapper {
+    background-color:white;
+	padding: 4px 30px 0 30px;
+}
+
+.content_title {
+	font-size: 15px;
+	font-weight: normal;
+}
+
+.content_title img {
+	margin-top: 1px;
+}
+
+.mediaelement {
+	font-family: 'Questrial', sans-serif !important;
+	font-size: 15px;
+}
+
+.mediaelement #maximizeLink {
+	padding-top: 2px;
+}
+
+.annotationDisplay {
+	font-size: 13px !important;
+}
+
+.mediaElementHeader {
+	font-family: 'Questrial', sans-serif !important;
+}
+
+.mediaElementFooter {
+	font-family: 'Questrial', sans-serif !important;
+	font-size: 12px !important;
+}
+
+.mediaElementAnnotationSidebar {
+	font-size: 13px !important;
+	font-family: 'Questrial', sans-serif !important;
+}
+
+.mediaElementAlignRight {
+	font-size: 12px !important;
+}
+
+.live_annotation {
+	font-family: 'Questrial', sans-serif !important;
+}
+
+.live_annotation .annotation_text {
+	font-family: Palatino, Georgia, serif;
+}
+
+.live_annotation .title {
+	font-weight: normal;
+}
+
+.preview_title {
+	font-weight: normal !important;
+}
+
+.path_table {
+	font-family: Georgia, serif;
+	font-style: italic;
+	padding-bottom: 15px;
+	/* border-bottom: 1px solid #bfbfbf; */
+	color: #818285;
+}
+
+.path_table a {
+	color: #333;
+}
+
+.footer {
+	background: none;
+	max-width: 723px;
+	padding: 0 30px 0 30px;
+	color: #bdbec0;
+}
+
+.footer a {
+	color: #818285;
+}
+
+#footer {
+	padding: 3px 0 17px 0;
+}
+
+.scalar_logo_wrapper {
+	background-position: 0px 4px;
+}
+
+.addthis_toolbox {
+	width: 137px;
+}
+
+.inline_icon_link.reply {
+	display: block;
+}
+
+.form_fields {
+	width: 450px !important;
+}

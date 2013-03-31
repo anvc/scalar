@@ -1,0 +1,13 @@
+
+.texto_wrapper     {clear:both;}
+
+.texteo_icon       {background-repeat:no-repeat;}
+
+.texteo_icon_audio {background-image:url(images/audio.png); background-position:2px 4px; padding-left:20px;}
+.texteo_icon_video {background-image:url(images/video.png); background-position:2px 4px; padding-left:20px;}
+.texteo_icon_image {background-image:url(images/image.png); background-position:2px 4px; padding-left:20px;}
+.texteo_icon_generic_resource {background-image:url(images/generic-media.png); background-position:2px 4px; padding-left:20px;}
+.texteo_icon_note {background-image:url(images/note.png); background-position:2px 4px; padding-left:20px;}
+
+.texteo_icon_external {background-image:url(images/external.png); background-position:2px 4px;; padding-left:21px;}
+.texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 4px;; padding-left:21px;}

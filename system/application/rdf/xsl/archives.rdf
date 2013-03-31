@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<rdf:RDF 
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:dcterms="http://purl.org/dc/terms/"
+	xmlns:ctag="http://commontag.org/ns#"
+	xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#"
+	xmlns:sioc="http://rdfs.org/sioc/ns#"
+	xmlns:sioctypes="http://rdfs.org/sioc/types#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#">	
+	
+	<rdf:Description rdf:about="http://criticalcommons.org/cc/playlist">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Critical Commons</dc:title>
+		<dcterms:description>Critical Commons is a non-profit advocacy coalition that supports the use of media for scholarship, reasearch and teaching, providing resources, information and tools for scholars, students, educators and creators. (From Critical Commons)</dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/critical_commons_2.xsl" />
+		<scalar:getStr><![CDATA[SearchableText=$1]]></scalar:getStr>
+	</rdf:Description>		
+		
+	<rdf:Description rdf:about="http://www.archive.org/advancedsearch.php">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Internet Archive</dc:title>
+		<dcterms:description>The Internet Archive is a non-profit digital library with the stated mission: "universal access to all knowledge." It offers permanent storage and access to collections of digitized materials, including websites, music, moving images, and books. The Internet Archive was founded by Brewster Kahle in 1996. (From Wikipedia)</dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/internet_archive.xsl" />
+		<scalar:getStr><![CDATA[q=$1&fl[]=avg_rating&fl[]=call_number&fl[]=collection&fl[]=contributor&fl[]=coverage&fl[]=creator&fl[]=date&fl[]=description&fl[]=downloads&fl[]=foldoutcount&fl[]=format&fl[]=headerImage&fl[]=identifier&fl[]=imagecount&fl[]=language&fl[]=licenseurl&fl[]=mediatype&fl[]=month&fl[]=num_reviews&fl[]=oai_updatedate&fl[]=publicdate&fl[]=publisher&fl[]=rights&fl[]=scanningcentre&fl[]=source&fl[]=subject&fl[]=title&fl[]=type&fl[]=volume&fl[]=week&fl[]=year&sort[]=&sort[]=&sort[]=&rows=50&page=$2&callback=callback&output=xml#raw]]></scalar:getStr>
+	</rdf:Description>			
+	
+	<rdf:Description rdf:about="http://gdata.youtube.com/feeds/api/videos">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>YouTube</dc:title>
+		<dcterms:description>Search for and import media from YouTube by typing a keyword below.</dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/youtube.xsl" />
+		<scalar:getStr><![CDATA[q=$1&v=1&start-index=$2&max-results=50]]></scalar:getStr>
+	</rdf:Description>		
+	
+	<rdf:Description rdf:about="http://vimeo.com/api/v2/$1/videos.xml">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Vimeo</dc:title>
+		<dcterms:description><![CDATA[<b style="color:#760000;">Note that the Vimeo import tool will only search by Vimeo user ID.</b><br />Your Vimeo user ID can be found in the URL of your user's video page. For example, the <a href="http://vimeo.com/iml/videos">IML</a>'s Vimeo user ID is bolded in the following URL: http://vimeo.com/<b>iml</b>/videos<br />Videos must be public to be viewable in the search results.<br />Only three pages of results can be retrieved using the Vimeo Simple API.<br />Please enter your (or someone else's) Vimeo user ID below.]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/vimeo.xsl" />
+		<scalar:getStr><![CDATA[page=$2]]></scalar:getStr>
+	</rdf:Description>					
+		
+	<rdf:Description rdf:about="http://search.prezi.com/explore/">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Prezi</dc:title>
+		<dcterms:description><![CDATA[Prezi is a presentation tool that helps you organize and share your ideas. (Prezi.com)]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/prezi.xsl" />
+		<scalar:getStr><![CDATA[search=$1&order_by=relevance&limit=12&offset=$2]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
+	</rdf:Description>		
+	
+	<rdf:Description rdf:about="http://hidvl.nyu.edu/search/">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Hemispheric Institute</dc:title>
+		<dcterms:description><![CDATA[The <a href="http://hemi.nyu.edu/hidvl/index.html">Hemispheric Institute Digital Video Library</a> (HIDVL) brings together in one place materials that have been available only in small, little-known archives that are inaccessible to scholars and that lack the resources to properly care for and provide access to these extraordinary cultural documents.<br /><br />Please note that HIDVL content cannot be viewed on iOS devices at this time.]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/hemispheric_institute.xsl" />
+		<scalar:getStr><![CDATA[fq=&q=$1&start=$2(50)]]></scalar:getStr>
+	</rdf:Description>		
+	
+	<rdf:Description rdf:about="http://hypercities.ats.ucla.edu/provider/collections/$1.kml?t=collection">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>HyperCities</dc:title>
+		<dcterms:description><![CDATA[HyperCities is a collaborative research and educational platform for traveling back in time to explore the historical layers of city spaces in an interactive, hypermedia environment. (hypercities.com)<br /><br />Please note that HyperCities content cannot be viewed on iOS devices.<br /><br /><span style="color:#760000;font-weight:bold;">The importer is set to search based on a HyperCities Collection URL or ID.</span>&nbsp; Object search is pending.<br />To find a collection, enter the collection URL found by clicking "Link" in the upper right of a collection panel.<br />Example URL: <span style="color:#48488b;">http://hypercities.ats.ucla.edu/?collections/50106</span><br />Without sidebar: <span style="color:#48488b;">http://hypercities.ats.ucla.edu/?collections/50106#width=0</span><br />Specific object: <span style="color:#48488b;">http://hypercities.ats.ucla.edu/?collections/50106#object=7</span><br />Combined params: <span style="color:#48488b;">http://hypercities.ats.ucla.edu/?collections/50106#width=0&amp;object=7</span>]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/hypercities_collections.xsl" />
+		<scalar:match><![CDATA[^.*?(\d+?)$]]></scalar:match>
+		<scalar:keep_hash_var>width</scalar:keep_hash_var>
+		<scalar:keep_hash_var>object</scalar:keep_hash_var>
+		<scalar:remove_hash_vars>1</scalar:remove_hash_vars>
+		<scalar:description>Search HyperCities Collections</scalar:description>
+	</rdf:Description>		
+	
+	<rdf:Description rdf:about="http://vhaonline.usc.edu/WebServices/ScalarService.asmx/Project">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Shoah Foundation VHA Online</dc:title>
+		<dcterms:description><![CDATA[<span style="color:#760000;font-weight:bold;">The input bar below is set to search based on a VHA Online XML feed URL.</span> The feed URL is provided by your VHA Online collection (accessing YouTube videos), by clicking the "XML for Scalar" link.<br />Example URL: <span style="color:#48488b;">http://vhaonline.usc.edu/WebServices/ScalarService.asmx/Project?uid=6047&pid=1612393</span>]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/shoah_foundation_vha_online.xsl" />
+		<scalar:getStr><![CDATA[$1]]></scalar:getStr>
+		<scalar:match><![CDATA[^.*\?(.*)$]]></scalar:match>
+	</rdf:Description>	
+	
+	<rdf:Description rdf:about="http://vha.usc.edu/WebServices/ScalarService.asmx/Project">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Shoah Foundation VHA</dc:title>
+		<dcterms:description><![CDATA[<span style="color:#760000;font-weight:bold;">The input bar below is set to search based on a VHA XML feed URL.</span> The feed URL is provided by your VHA Online collection, by clicking the "XML for Scalar" link.<br />Example URL: <span style="color:#48488b;">http://vha.usc.edu/WebServices/ScalarService.asmx/Project?uid=6047&pid=1612514</span><br /><b>Please note that you must be located at a <a href="http://dornsife.usc.edu/vhi/testimoniesaroundtheworld/">VHA partner site</a> to access the VHA.</b>]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/shoah_foundation_vha.xsl" />
+		<scalar:getStr><![CDATA[$1]]></scalar:getStr>
+		<scalar:match><![CDATA[^.*\?(.*)$]]></scalar:match>
+	</rdf:Description>				
+	
+	<rdf:Description rdf:about="https://api.soundcloud.com/v1/tracks">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>SoundCloud</dc:title>
+		<dcterms:description><![CDATA[SoundCloud is the "the world's largest community of sound creators." (SoundCloud.com)]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/soundcloud.xsl" />
+		<scalar:getStr><![CDATA[q=$1&limit=50&offset=$2&consumer_key=55070ba50cb72b8e26f220916c4d54a3]]></scalar:getStr>
+	</rdf:Description>		
+	
+	<rdf:Description rdf:about="http://www.play.annenberginnovationlab.org/play2.0/api/search.php">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>PLAY! (Annenberg Innovation Lab)</dc:title>
+		<dcterms:identifier>play</dcterms:identifier>
+		<dcterms:description><![CDATA[Import PLAY! preview objects]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/play.xsl" />
+		<scalar:getStr><![CDATA[tags=$1]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
+	</rdf:Description>							
+	
+</rdf:RDF>	

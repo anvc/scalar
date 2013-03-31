@@ -1,0 +1,46 @@
+
+#content_wrapper {
+	padding-left:56px !important; padding-right:56px !important;
+}
+
+#content {
+	padding-top: 0 !important;
+}
+
+object, embed {margin:0; padding:0;}
+
+.horiz_slots {
+	text-align:center;
+	overflow:hidden; position:relative; top:0px; left:0px; z-index:1;
+	line-height:0; 
+}
+
+.slot_slider {
+	position:relative; top:0px; left:0px; width:100%; white-space:nowrap;
+}
+
+.slot_nav {
+	font-size:13px; padding:8px 4px 0px 4px; line-height:150%;
+}
+
+.slot {
+	display:inline-block; text-align:center; margin:0; padding:0;
+}
+
+.prev {float:left; width:28%; text-align:left;}
+.current {float:left; width:42%; text-align:center;}
+.next {float:right; width:28%; text-align:right;}
+
+/* Live Annotations */
+
+.live_annotation {
+	border-top:solid 12px transparent;  /* bump the annotation down to make room for horiz slot nav */
+}
+.live_annotation .annotation_content {
+	padding-left:56px; padding-right:56px; 
+}
+.live_annotation .arrow {
+ 	background-image:url(../liveannotations/live_anno_up_arrow.png); background-position:center top; background-repeat:no-repeat;
+ 	position:absolute; top:-15px; left:0px; right:0px; height:17px; z-index:8;
+}
+

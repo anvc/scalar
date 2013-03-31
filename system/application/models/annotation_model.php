@@ -1,0 +1,122 @@
+<?php
+/**
+ * @projectDescription	Model for annotation database table
+ * @author				Craig Dietrich
+ * @version				2.2
+ */
+
+class Annotation_model extends MY_Model {
+
+	private $urn_template = 'urn:scalar:anno:$1:$2';
+
+    public function __construct() {
+    	
+        parent::__construct();
+        
+    }    
+    
+  	public function rdf($row, $prefix='') {
+  		
+  		$row->type = 'http://www.openannotation.org/ns/Annotation';
+  		return parent::rdf($row);
+  		
+  	}       
+    
+	public function urn($pk_1=0, $pk_2=0) {
+		
+		$return = str_replace('$1', $pk_1, $this->urn_template);
+		$return = str_replace('$2', $pk_2, $return);
+		return $return;
+		
+	}   	
+  	
+    public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $version_datetime=null) {
+    
+    	return parent::get_all($this->annotations_table, $book_id, $type, $category, $is_live, $version_datetime);
+    
+    }
+    
+	public function get_parents($child_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+
+		return parent::get_parents($this->annotations_table, $child_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+		
+	}
+	
+	public function get_children($parent_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+		
+		return parent::get_children($this->annotations_table, $parent_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+		
+	}         
+    
+    public function save_children($parent_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array()) { 	
+    	
+    	// Inser new relationships
+    	$j = 0;
+    	foreach ($array as $version_urn) {
+    		
+    		if (isURN($version_urn)) $child_version_id = $this->page_urn_to_content_id($version_urn);
+    		if (empty($child_version_id)) continue;
+    		
+    		$_start_seconds = (!empty($start_seconds[$j])) ? $start_seconds[$j] : 0;
+    		$_end_seconds   = (!empty($end_seconds[$j])) ? $end_seconds[$j] : 0;
+    		$_start_line_num = (!empty($start_line_nums[$j])) ? $start_line_nums[$j] : 0;
+    		$_end_line_num   = (!empty($end_line_nums[$j])) ? $end_line_nums[$j] : 0;        		
+    		$_points        = (!empty($points[$j])) ? $points[$j] : '';	
+    		
+			$data = array(
+ 				'parent_version_id' => $parent_version_id,
+ 				'child_version_id' => $child_version_id,
+ 				'start_seconds' => $_start_seconds,
+ 				'end_seconds' => $_end_seconds,
+	 			'start_line_num' => $_start_line_num,
+	 			'end_line_num' => $_end_line_num,	 				
+ 				'points' => $_points
+            );
+
+			$this->db->insert($this->annotations_table, $data);    		
+			if (mysql_errno()!=0) echo 'MySQL ERROR: '.mysql_error()."\n";
+			
+			$j++;
+    		
+    	}
+    	return true;
+    	
+    }   
+    
+    public function save_parents($child_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array()) {
+
+    	// Inser new relationships
+    	$j = 0;
+    	foreach ($array as $version_urn) {
+    		
+    		if (isURN($version_urn)) $parent_version_id = $this->version_urn_to_version_id($version_urn);
+    		if (empty($parent_version_id)) continue;
+
+    		$_start_seconds  = (isset($start_seconds[$j])) ? $start_seconds[$j] : 0;
+    		$_end_seconds    = (isset($end_seconds[$j])) ? $end_seconds[$j] : 0;
+    		$_start_line_num = (isset($start_line_nums[$j])) ? $start_line_nums[$j] : 0;
+    		$_end_line_num   = (isset($end_line_nums[$j])) ? $end_line_nums[$j] : 0;    		
+    		$_points         = (isset($points[$j])) ? $points[$j] : '';		
+    		
+			$data = array(
+	 			'parent_version_id' => $parent_version_id,
+	 			'child_version_id' => $child_version_id,
+	 			'start_seconds' => $_start_seconds,
+	 			'end_seconds' => $_end_seconds,
+	 			'start_line_num' => $_start_line_num,
+	 			'end_line_num' => $_end_line_num,	 			
+	 			'points' => $_points,
+	           );
+
+			$this->db->insert($this->annotations_table, $data);    		
+			if (mysql_errno()!=0) echo 'MySQL ERROR: '.mysql_error()."\n";
+			
+			$j++;
+
+    	}
+    	return true;
+    	
+    }        
+
+}
+?>

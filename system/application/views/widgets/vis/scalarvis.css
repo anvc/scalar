@@ -1,0 +1,173 @@
+#visualization {
+	text-align: left;
+}
+
+#progressbar {
+	width: 300px;
+	height: 8px;
+	margin-bottom: 5px;
+}
+
+#loadingMsg {
+	width: 300px;
+	margin: 10px;
+	vertical-align: middle;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#scalarvis {
+	margin-top:10px;
+	margin-bottom:10px; /* Added by Craig 6 April 2012 */
+	border: 1px solid #ccc;
+	padding: 10px;
+	min-height: 568px;
+	background-color: #fff;
+}
+
+#visualization form {
+	float:right;
+	margin-left: 10px;
+}
+
+.ui-button-text {
+	font-size: 12px;
+}
+
+.ui-buttonset {
+	margin-right: 0;
+}
+
+.rollover {
+	display: none;
+  	font: 10px sans-serif;
+  	font-weight: bold;
+	position:absolute;
+	padding: 5px 8px;
+	color: white;
+	background: black;
+	border-radius: 10px;
+}
+
+.typeLabel {
+	/*font-weight: bold;*/
+	font-size: 12px;
+}
+
+.rowLabel {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: pointer;
+}
+/*
+.selectedLabel {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+}
+
+.legend {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+}
+
+.indexLabel {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+}*/
+
+svg {
+  font: 10px 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+}
+
+.viscanvas {
+	fill: #fff;
+}
+
+.link {
+}
+
+.link.tag {
+	fill: #ff0000;
+	/*stroke: #ff0000;*/
+}
+
+.pathLink {
+	fill: none;
+	stroke-width: 2;
+}
+
+.link.mediaFile {
+	fill: #0000ff;
+	/*stroke: #0000ff;*/
+}
+
+.node {
+	cursor: pointer;
+	stroke: #fff;
+	stroke-width: 2;
+}
+
+.label {
+	cursor: default;
+	pointer-events: none;
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+}
+
+.clusternode circle {
+  fill: #fff;
+}
+
+.clusternode {
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.clusterlink {
+  fill: none;
+  stroke: #ddd;
+  stroke-width: 1.5px;
+}
+
+.cipher {
+	display: none;
+}
+
+.info_box {
+	position: absolute;
+	width: 100px;
+	margin-left: -50px;
+}
+
+.info_box .content {
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+	border-radius: 5px;
+	background-color: rgba(0,0,0,0.7);
+	box-shadow: 1px 1px 3px #888888;
+	color: white;
+	text-align: center;
+	font-size: 10px;
+	padding: 8px 5px 2px 5px;
+}
+
+.info_box .arrow {
+	background-image: url(vis_up_arrow.png);
+	background-position: center top;
+	background-repeat: no-repeat;
+	height: 7px;
+}
+
+.info_box a {
+	margin: 4px 0 4px 0;
+	padding: 5px;
+	border-radius: 3px;
+	background-color: #888;
+	color: black;
+}
+
+.info_box a:hover {
+	background-color: #aaa;
+	text-decoration: none;
+}
