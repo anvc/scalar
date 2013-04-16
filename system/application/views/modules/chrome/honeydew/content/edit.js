@@ -631,6 +631,7 @@ function add_annotation_of_item($list, title, scalar_url, source_url, content_ur
 			break;
 		case "html":
 		case "text":
+		case "document":
 			str += 'Start line #: <input type="text" style="width:75px;" name="annotation_of_start_line_num" value="" />';
 			str += '&nbsp; End line #: <input type="text" style="width:75px;" name="annotation_of_end_line_num" value="" />';	
 			str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
@@ -646,7 +647,7 @@ function add_annotation_of_item($list, title, scalar_url, source_url, content_ur
 			str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 			break;
 		default:
-			alert('One or more selected media or of a type where annotations are not presently supported.');
+			alert('One or more selected media are of a type not presently supported for annotation.');
 			return false;						
 	}
 	str += '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
