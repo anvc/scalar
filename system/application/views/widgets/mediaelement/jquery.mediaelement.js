@@ -1282,7 +1282,7 @@ function handleFlashVideoMetadata(data) {
 		 * Begins playback of time-based media.	
 		 */
 		jQuery.MediaElementView.prototype.play = function() {
-			if ((this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'text')) {
+			if ((this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'document')) {
 				this.mediaObjectView.play();
  				this.overrideAutoSeek = false;
 			}
@@ -1318,7 +1318,7 @@ function handleFlashVideoMetadata(data) {
 
 			// if we've reached the end of the annotation we were directed to seek to, then
 			// pause playback
-			if (me.playingSeekAnnotation && (me.model.mediaSource.contentType != 'text') && (currentPosition > me.model.seekAnnotation.properties.end)) {
+			if (me.playingSeekAnnotation && (me.model.mediaSource.contentType != 'document') && (currentPosition > me.model.seekAnnotation.properties.end)) {
 				me.playingSeekAnnotation = false;
 				me.pause();
 			}
@@ -1351,7 +1351,7 @@ function handleFlashVideoMetadata(data) {
 							liveCount++;
 							
 							// generate a display title for the annotation
-							if (me.model.mediaSource.contentType == 'text') {
+							if (me.model.mediaSource.contentType == 'document') {
 								annoTitle = 'Line '+currentPosition+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
 							} else {
 								annoTitle = scalarapi.decimalSecondsToHMMSS(me.getCurrentTime())+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
@@ -1415,7 +1415,7 @@ function handleFlashVideoMetadata(data) {
 						case 'fadeOut':
 						if ((liveCount == 0) && (me.annotationDisplay.find('.annoSeekMessage').length == 0)) {
 							me.annotationDisplay.fadeOut();
-							if (me.model.mediaSource.contentType == 'text') {
+							if (me.model.mediaSource.contentType == 'document') {
 								$('body').trigger('hide_annotation'); // Added by Craig for Live Annotations
 							}
 						}
@@ -1462,7 +1462,7 @@ function handleFlashVideoMetadata(data) {
 		 * Pauses playback of time-based media.
 		 */
 		jQuery.MediaElementView.prototype.pause = function() {
-			if ((this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'text')) {
+			if ((this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'document')) {
 				this.mediaObjectView.pause();
 			}
 		}
@@ -1501,7 +1501,7 @@ function handleFlashVideoMetadata(data) {
  				handleTimer();
  				break;
  				
- 				case 'text':
+ 				case 'document':
 				this.overrideAutoSeek = true;
  				this.mediaObjectView.seek(annotation.properties.start);
  				break;
@@ -1597,7 +1597,7 @@ function handleFlashVideoMetadata(data) {
 		 * @return	Returns the current playback time for temporal media in seconds.
 		 */
 		this.getCurrentTime = function() {
-			if ((this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'text')) {
+			if ((this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'document')) {
 				return this.mediaObjectView.getCurrentTime();
 			} else {
 				return null;
@@ -1630,7 +1630,7 @@ function handleFlashVideoMetadata(data) {
 				}				
 			}
 			
-			if ((this.model.mediaSource.contentType == 'text') && this.mediaObjectView.hasFrameLoaded) {
+			if ((this.model.mediaSource.contentType == 'document') && this.mediaObjectView.hasFrameLoaded) {
 				this.mediaObjectView.highlightAnnotatedLines();
 			}
 
@@ -1708,7 +1708,7 @@ function handleFlashVideoMetadata(data) {
 						});
 						break;
 						
-						case 'text':
+						case 'document':
 						extents = $('<p class="annotationExtents"></p>');
 						var link = $('<a href="javascript:;">'+annotation.startString+annotation.separator+annotation.endString+'</a>').appendTo(extents);
 
@@ -1721,7 +1721,7 @@ function handleFlashVideoMetadata(data) {
 						});
 
 						annotationChip.append(extents);
-						annotationChip.append('<p class="annotationTitle"><strong>'+annotation.body.getDisplayTitle()+'</strong></p><span class="annotationDescription">'+annotation.body.current.description+' <a href="'+annotation.body.url+'">More &gt;</a></span>');
+						annotationChip.append('<p class="annotationTitle"><strong>'+annotation.body.getDisplayTitle()+'</strong></p>');
 						break;
 
 					}
@@ -1729,7 +1729,8 @@ function handleFlashVideoMetadata(data) {
 					var annoText = $('<span class="annotationDescription"></span>');
 					
 					// if the annotation has a description, then show it
-					if (annotation.body.current.description) {
+					if (annotation.body.current.description != null) {
+						
 						annoText.append(annotation.body.current.description);
 						
 						// if the annotation has body content, then include a link to it
@@ -3276,7 +3277,6 @@ function handleFlashVideoMetadata(data) {
 		 * @param {Number} height		The new height of the media.
 		 */
 		jQuery.HyperCitiesObjectView.prototype.resize = function(width, height) {
-			console.log('resize hypercities '+width+' '+height);
 			if (this.map) {
 				this.map.width(width+'px');
 				this.map.height(height+'px');
@@ -3522,7 +3522,7 @@ function handleFlashVideoMetadata(data) {
 			var annotation;
 			for (i=0; i<n; i++) {
 				annotation = this.parentView.annotations[i];
-				if (this.model.mediaSource.contentType == 'text') {
+				if (this.model.mediaSource.contentType == 'document') {
 					textAnnotations.push(annotation);
 				}
 			}
