@@ -1682,15 +1682,17 @@ ScalarAPI.prototype.parsePage = function(json) {
 	var nodes = scalarapi.model.parseNodes(json);
 	scalarapi.model.parseRelations(json);
 	
-	var url = nodes[0].url;
-	scalarapi.loadPageStatus[url].isLoading = false;
-	var i;
-	var n = scalarapi.loadPageStatus[url].queuedSuccessCallbacks.length;
-	for (i=0; i<n; i++) {
-		scalarapi.loadPageStatus[url].queuedSuccessCallbacks[i](json);
+	if (nodes.length > 0) {
+		var url = nodes[0].url;
+		scalarapi.loadPageStatus[url].isLoading = false;
+		var i;
+		var n = scalarapi.loadPageStatus[url].queuedSuccessCallbacks.length;
+		for (i=0; i<n; i++) {
+			scalarapi.loadPageStatus[url].queuedSuccessCallbacks[i](json);
+		}
+		scalarapi.loadPageStatus[url].queuedSuccessCallbacks = [];
+		scalarapi.loadPageStatus[url].queuedErrorCallbacks = [];
 	}
-	scalarapi.loadPageStatus[url].queuedSuccessCallbacks = [];
-	scalarapi.loadPageStatus[url].queuedErrorCallbacks = [];
 }
 
 /**
