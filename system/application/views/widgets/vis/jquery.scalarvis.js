@@ -27,6 +27,25 @@ function handleViewTypeClick(radioBtn) {
 }
 
 /**
+ * Scalar    
+ * Copyright 2013 The Alliance for Networking Visual Culture.
+ * http://scalar.usc.edu/scalar
+ * Alliance4NVC@gmail.com
+ *
+ * Licensed under the Educational Community License, Version 2.0 
+ * (the "License"); you may not use this file except in compliance 
+ * with the License. You may obtain a copy of the License at
+ * 
+ * http://www.osedu.org/licenses /ECL-2.0 
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.       
+ */  
+
+/**
  * @projectDescription		The ScalarVis plug-in visualizes Scalar projects.
  *							Scalar is a project of The Alliance for Networking Visual Culture (http://scalar.usc.edu).
  * @author					Erik Loyer
@@ -259,7 +278,6 @@ function handleViewTypeClick(radioBtn) {
 		this.indexTypeStrings = ['path', 'page', 'media', 'tag', 'annotation', 'commentary', 'review', 'comment', 'person'];
 		this.selectedRadioBtn = "radio1";						// id of the currently selected radio button
 		this.lastSelectedRadioBtn;								// id of the last selected radio button
-		this.vis = null;										// the protovis panel for the visualization
 		this.scaleFactorH = 1;									// available width multiplier
 		this.hasSelectedCurrentContent = false;					// has the current content been selected by default yet?
 		this.selectedNodes = [];								// currently selected nodes
