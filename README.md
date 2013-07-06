@@ -7,3 +7,5 @@ If you just want to create a Scalar project, the easiest route is to work from o
 
 We are also very grateful for all feedback based on your experiences using Scalar. We are especially interested to know where and how you are using it, innovative or unexpected uses of Scalar, requests for features, opportunities for future development, potential press, archive or scholarly society partnerships, as well as reports on any bugs or difficulties you may experience.
 Learn more at http://scalar.usc.edu/scalar/
+
+As we update the software, we periodically make changes to Scalar's config files. If you have installed Scalar on your own server and are planning to update from GitHub, you'll likely need to make updates to your local config files. We're keeping track of the config changes on the wiki: https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time/ . 
