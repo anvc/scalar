@@ -40,10 +40,6 @@
 	z-index:7;
 }
 
-.mediaObject img {
-	display:none;
-}
-
 .loadingMessage {
 	padding:20px;
 	color:#666;

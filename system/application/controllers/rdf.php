@@ -49,22 +49,25 @@ class Rdf extends MY_Controller {
 		
 		// Determine the current book being asked for (if applicable)
 		$this->scope = (strtolower(get_class($this)) == strtolower($this->uri->segment('1'))) ? null : strtolower($this->uri->segment('1'));
-		if (empty($this->scope)) {  // TODO: For now, don't allow queries across all books
-			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_UNAUTHORIZED));  
-			exit;
-		}
+		//if (empty($this->scope)) {  // TODO: For now, don't allow queries across all books
+		//	header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_UNAUTHORIZED));  
+		//	exit;
+		//}
 		// Load book beind asked for (if applicable)
 		$this->data['book'] = (!empty($this->scope)) ? $this->books->get_by_slug($this->scope) : null;
 		if (empty($this->data['book'])) {  // Book couldn't be found
-			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
-			exit;			
+			//header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
+			//exit;		
+			$this->data['base_uri'] = confirm_slash(base_url());
+		} else {
+			$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
+			// Protect book; TODO: provide api_key authentication like api.php
+			$this->set_user_book_perms(); 
+			if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) {
+				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
+				exit;				
+			};			
 		}
-		// Protect book; TODO: provide api_key authentication like api.php
-		$this->set_user_book_perms(); 
-		if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) {
-			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
-			exit;				
-		};
 		// Format (e.g., 'xml', 'json')
 		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
 		$this->data['format'] = (isset($_REQUEST['format']) && array_key_exists($_REQUEST['format'],$allowable_formats)) ? $allowable_formats[$_REQUEST['format']] : $allowable_formats[key($allowable_formats)];
@@ -78,29 +81,37 @@ class Rdf extends MY_Controller {
 		$this->data['restrict'] = (isset($_REQUEST['res']) && in_array(plural(strtolower($_REQUEST['res'])), $this->models)) ? (string) plural(strtolower($_REQUEST['res'])) : null;		
 		// Display all versions?	
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;		
-		// Base URI (require a book to be present)
-		$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
+		// Search terms
+		$this->data['sq'] = (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) ? search_split_terms($_REQUEST['sq']) : null;
 		
 	}
 	
 	/**
-	 * Output information about the book including table of contents
+	 * Output information about the system or book (depending on whether 'scope' is set)
 	 */
 	
 	public function index() {
 		
-		if (empty($this->data['book'])) {
-			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
-			exit;
-		}
-		try {		
-			$this->rdf_object->book(
-									$this->data['content'], 
-									$this->data['book'], 
-									$this->users->get_all($this->data['book']->book_id, true), 
-									$this->data['base_uri']
-								   );
-			$this->rdf_object->serialize($this->data['content'], $this->data['format']);					   
+		try {	
+			if (empty($this->data['book'])) {
+				$system = new stdClass;
+				$system->type = 'system';
+				$system->title = $this->lang->line('install_name');
+				$this->rdf_object->system(
+										  $this->data['content'],
+										  $system,
+										  $this->books->get_all(null, true),
+										  $this->data['base_uri']
+										 );
+			} else {
+				$this->rdf_object->book(
+										$this->data['content'], 
+										$this->data['book'], 
+										$this->users->get_all($this->data['book']->book_id, true), 
+										$this->data['base_uri']
+									   );		
+			}			   
+			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
 		} catch (Exception $e) {
 			throw new Exception(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 		}
@@ -135,6 +146,7 @@ class Rdf extends MY_Controller {
 			                         $this->data['base_uri'],
 			                         $this->data['restrict'],
 			                         RDF_Object::REL_ALL,
+			                         RDF_Object::NO_SEARCH,
 			                         (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 			                         (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
 			                         $this->data['recursion']
@@ -191,7 +203,7 @@ class Rdf extends MY_Controller {
 					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
 					exit;		
 			}
-			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true);
+			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true);	
 			$this->rdf_object->index(
 			                         $this->data['content'], 
 			                         $this->data['book'], 
@@ -199,6 +211,7 @@ class Rdf extends MY_Controller {
 			                         $this->data['base_uri'],
 			                         $this->data['restrict'],
 			                         $rel,
+			                         $this->data['sq'],
 			                         (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 			                         (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
 			                         $this->data['recursion']

@@ -37,17 +37,20 @@ User has been added
 
 		function checkAddUserForm(the_form) {
 			var $form = $(the_form);
-			var book_title = $form.find("input[tabindex='3']");
-			if (book_title.val() == 'title of first book (optional)') book_title.val('');
+			var password = $form.find("input[tabindex='3']");
+			if (password.val() == 'password') password.val('');
+			var book_title = $form.find("input[tabindex='4']");
+			if (book_title.val() == 'title of first book (optional)') book_title.val('');		
 		}
 		</script>		
 		
 		<form  action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-users" method="post" onsubmit="checkAddUserForm(this);">
 		<input type="hidden" name="zone" value="all-users" />
 		<input type="hidden" name="action" value="do_add_user" />
-		Add new user: <input tabindex="1" type="text" name="fullname" value="full name" style="width:200px;" onfocus="if (this.value=='full name') this.value='';" />&nbsp; 
-		<input tabindex="2" type="text" name="email" value="email" style="width:200px;" onfocus="if (this.value=='email') this.value='';" />&nbsp; 
-		<input tabindex="3" type="text" name="book_title" value="title of first book (optional)" style="width:200px;" onfocus="if (this.value=='title of first book (optional)') this.value='';" />&nbsp; 
+		Add new user: <input tabindex="1" type="text" name="fullname" value="full name" style="width:180px;" onfocus="if (this.value=='full name') this.value='';" />&nbsp; 
+		<input tabindex="2" type="text" name="email" value="email" style="width:180px;" onfocus="if (this.value=='email') this.value='';" />&nbsp; 
+		<input tabindex="3" type="text" name="password" value="password" style="width:180px;" onfocus="if (this.value=='password') {this.value=''; this.type='password';}" />&nbsp; 		
+		<input tabindex="4" type="text" name="book_title" value="title of first book (optional)" style="width:180px;" onfocus="if (this.value=='title of first book (optional)') this.value='';" />&nbsp; 
 		<input type="submit" value="Go" class="generic_button" />
 		</form>				
 		

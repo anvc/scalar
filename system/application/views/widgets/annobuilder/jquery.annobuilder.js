@@ -30,8 +30,11 @@ jQuery.fn.annobuilder = function(options) {
 		var element = $(this);
 
 		$.annobuilder.model.init(element, options);
-		var the_test = $.annobuilder.controller.init();
-		$('body').bind('mediaElementReady', the_test);
+		if ($.annobuilder.model.mediaElement.model.node != null) {
+			$.annobuilder.controller.init();
+		} else {
+			$('body').bind('mediaElementMetadataHandled', $.annobuilder.controller.init);
+		}
 
 		if ($.annobuilder.model.isTesting) console.log(options);
 
@@ -121,7 +124,6 @@ jQuery.AnnoBuilderModel = function() {
 	this.selectedAnnotation = null;			// currently selected annotation
 	this.lastSelectedURL = null;			// uri of the last selected annotation
 	this.isTesting = false;					// are we in testing mode?
-	this.mediaSource = null;				// describes the source type of the media file
 
 	/**
 	 * Initializes the model.
@@ -149,12 +151,12 @@ jQuery.AnnoBuilderModel = function() {
 	 */
 	jQuery.AnnoBuilderModel.prototype.setup = function() {
 
+		this.node = this.mediaElement.model.node;
 		this.base_dir = this.mediaElement.model.base_dir;
 		this.path = this.mediaElement.model.path;
 		this.meta = this.mediaElement.model.meta;
 		this.filename = this.mediaElement.model.filename;
 		this.extension = this.mediaElement.model.extension;
-		this.mediaSource = this.mediaElement.model.mediaSource;
 
 	}
 
@@ -294,7 +296,7 @@ jQuery.AnnoBuilderView = function() {
 	jQuery.AnnoBuilderView.prototype.setup = function(json) {
 
 		// create the interface view that we need
-		switch ($.annobuilder.model.mediaSource.contentType) {
+		switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 
 			case "audio":
 			case "video":
@@ -303,7 +305,7 @@ jQuery.AnnoBuilderView = function() {
 			break;
 			
 			case "document":
-			if ($.annobuilder.model.mediaSource.name == 'PlainText') {
+			if ($.annobuilder.model.node.current.mediaSource.name == 'PlainText') {
 				this.container = $('<div class="annobuilderWarning">To create a new annotation for this text file, click the "New" button below and follow the annotation instructions in the "Relationships" section.</div>');
 			} else {
 				this.container = $('<div class="annobuilderWarning">This type of media cannot be annotated in Scalar.</div>');
@@ -397,7 +399,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		this.annotationForm = $('<div class="annotationForm"><table class="form_fields"><tbody></tbody></table></div>').appendTo(this.container);
 		this.annotationForm.find('tbody').append('<tr><td class="field">Title</td><td class="value"><input id="annotationTitle" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditTitle()" onkeyup="$.annobuilder.view.builder.handleEditTitle()"/></td></tr>');
 		
-		switch ($.annobuilder.model.mediaSource.contentType) {
+		switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 		
 			case 'audio':
 			case 'video':
@@ -420,7 +422,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		$('<div class="annotationInstructions"><p>&nbsp;</p></div>').appendTo($.annobuilder.model.element);
 		
 		var footerRight = $('<span class="annotationFooterRight"></span>').appendTo(this.footerControls);
-		if ($.annobuilder.model.mediaSource.contentType == 'video') {
+		if ($.annobuilder.model.node.current.mediaSource.contentType == 'video') {
 			var footerLeft = $('<p class="smaller" style="margin-top:7px;">Note: Video annotations are not supported on iOS devices.</p>').appendTo(this.footerControls);
 		}
 		
@@ -504,7 +506,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			annotationChip.click( function() {
 				var annotation = $(this).data('annotation');
 				var edits = $(this).data('edits');
-				switch ($.annobuilder.model.mediaSource.contentType) {
+				switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 
 					case 'video':
 					case 'audio':
@@ -524,7 +526,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			});
 			
 			// restore unsaved edits
-			switch ($.annobuilder.model.mediaSource.contentType) {
+			switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 
 				case 'video':
 				case 'audio':
@@ -680,7 +682,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					row.addClass('selectedAnnotationRow');
 					var edits = row.data('edits');
 					
-					switch ($.annobuilder.model.mediaSource.contentType) {
+					switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 
 						case 'video':
 						case 'audio':
@@ -696,7 +698,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							$('#annotationTitle').val(annotation.body.current.title);
 							$('#startTime').text(scalarapi.decimalSecondsToHMMSS(annotation.properties.start, true));
 							$('#startTime').data('value', annotation.properties.start);
-							$('#endTime').text(scalarapi.decimalSecondsToHMMSS(annotation.properties.start, true));
+							$('#endTime').text(scalarapi.decimalSecondsToHMMSS(annotation.properties.end, true));
 							$('#endTime').data('value', annotation.properties.end);
 							$('#annotationDescription').val(annotation.body.current.description);
 							$('#annotationContent').val(annotation.body.current.content);
@@ -883,7 +885,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	
 		$('#annotationTitle').val('');
 		
-		switch ($.annobuilder.model.mediaSource.contentType) {
+		switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 		
 			case 'video':
 			case 'audio':
@@ -1107,7 +1109,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	
 		$('.annotationList > .annotationChip').sortElements(function(a, b) {
 		
-			switch ($.annobuilder.model.mediaSource.contentType) {
+			switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 			
 				case 'video':
 				case 'audio':
@@ -1169,7 +1171,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			var index = $.annobuilder.view.builder.indexForAnnotation(annotation);
 			var row = this.annotationList.find('.annotationChip').eq(index);
 			var edits;
-			switch ($.annobuilder.model.mediaSource.contentType) {
+			switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 			
 				case 'video':
 				case 'audio':
@@ -1298,7 +1300,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.handleAdd = function(event) {
 		
 		var data;
-		switch ($.annobuilder.model.mediaSource.contentType) {
+		switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 		
 			case 'video':
 			case 'audio':
@@ -1406,7 +1408,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite'
 					};
 					relationData = {};
-					switch ($.annobuilder.model.mediaSource.contentType) {
+					switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 					
 						case 'video':
 						case 'audio':

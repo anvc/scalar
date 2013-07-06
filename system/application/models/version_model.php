@@ -76,12 +76,17 @@ class Version_model extends MY_Model {
     	
     }       
     
-    public function get_all($content_id=0, $version_datetime=null, $limit=null, $is_live=true) {
+    public function get_all($content_id=0, $version_datetime=null, $limit=null, $sq='') {
 
 		$ci =& get_instance();  // for use with the RDF Store
      	if (!empty($content_id)) $this->db->where('content_id',$content_id);
     	$this->db->order_by('version_num', 'desc');
     	if (!empty($version_datetime)) $this->db->where('created <=', $version_datetime);
+    	if (!empty($sq)) {
+    		foreach ($sq as $term) {
+    			$this->db->where("(title LIKE '%".$term."%' OR description LIKE '%".$term."%' OR content LIKE '%".$term."%')");
+    		}
+    	}
     	if (!empty($limit)) $this->db->limit($limit);
     	$query = $this->db->get($this->versions_table);
     	if (mysql_errno()!=0) die(mysql_error());

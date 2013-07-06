@@ -1,0 +1,8 @@
+#header .breadcrumb { display: none; }
+
+h1, h2, h3, h4 { padding-left: 2rem; padding-right: 2rem; }
+.body_copy { padding-left: 2rem; padding-right: 2rem; }
+.relationships ol,p { padding-left: 2rem; padding-right: 2rem; }
+.full .mediaElementFooter { padding-left: 2rem; padding-right: 2rem; }
+.slot.right { margin-right: 2rem; }
+.slot.left { margin-left: 2rem; }

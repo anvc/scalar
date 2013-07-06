@@ -19,7 +19,7 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 <option value="0">Select a book to manage</option>
 <?
 foreach ($books as $row) {
-	echo '<option value="'.$row->book_id.'"'.(($book->book_id==$row->book_id)?' SELECTED':'').'>';
+	echo '<option value="'.$row->book_id.'"'.((@$book->book_id==$row->book_id)?' SELECTED':'').'>';
 	echo $row->title;
 	echo '</option>';
 }
@@ -46,6 +46,7 @@ foreach ($books as $row) {
 		<? if ($login_is_super): ?>
 		<li><a href="#tabs-all-users" style="color:#7d1d1d;">All users</a></li>
 		<li><a href="#tabs-all-books" style="color:#7d1d1d;">All books</a></li>
+		<li><a href="#tabs-tools" style="color:#7d1d1d;">Tools</a></li>
 		<? endif ?>			
 	</ul>
 	
@@ -74,6 +75,7 @@ foreach ($books as $row) {
 	<? if ($login_is_super): ?>	
 	<div id="tabs-all-users"><? if ('all-users'==$zone) { $this->load->view('modules/dashboard/all-users'); } else {echo 'Loading...';} ?></div>	
 	<div id="tabs-all-books"><? if ('all-books'==$zone) { $this->load->view('modules/dashboard/all-books'); } else {echo 'Loading...';} ?></div>	
+	<div id="tabs-tools"><? if ('tools'==$zone) { $this->load->view('modules/dashboard/tools'); } else {echo 'Loading...';} ?></div>	
 	<? endif ?>	
 
 </div>

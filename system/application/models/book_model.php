@@ -52,7 +52,7 @@ class Book_model extends MY_Model {
     
   	public function rdf($row) {
   		
-  		$row->type = 'book';
+  		if (!isset($row->type) || empty($row->type)) $row->type = 'book';
   		return parent::rdf($row);
   		
   	}    
@@ -114,6 +114,10 @@ class Book_model extends MY_Model {
     	if (!empty($user_id)) {
     		$this->db->join($this->user_book_table, $this->books_table.'.book_id='.$this->user_book_table.'.book_id');
     		$this->db->where($this->user_book_table.'.user_id',$user_id);
+    	}
+    	if (!empty($is_live)) {
+    		$this->db->where($this->books_table.'.url_is_public',1);
+    		$this->db->where($this->books_table.'.display_in_index',1);
     	}
     	$this->db->order_by($orderby, $orderdir); 
     	

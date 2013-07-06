@@ -168,6 +168,7 @@ $(window).ready(function() {
 			echo '<option value="linen"'.(($row->stylesheet=='linen')?' SELECTED':'').'>Linen</option>';
 			echo '<option value="gloss"'.(($row->stylesheet=='gloss')?' SELECTED':'').'>Gloss</option>';
 			echo '<option value="fathom"'.(($row->stylesheet=='fathom')?' SELECTED':'').'>Fathom</option>';
+			echo '<option value="shale"'.(($row->stylesheet=='shale')?' SELECTED':'').'>Shale</option>';
 			echo '</select>';
 			echo ' <img id="img_stylesheet" style="vertical-align:top;margin-left:10px;" src="'.confirm_slash(base_url()).'system/application/views/modules/dashboard/honeydew/theme_'.$row->stylesheet.'.jpg" />';
 			echo '</p>';

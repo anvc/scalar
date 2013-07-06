@@ -217,7 +217,6 @@
 			
 			// if we still have more data to load, then load it
 			if (this.loadIndex < this.loadSequence.length) {
-				//console.log('load '+this.loadSequence[this.loadIndex]);
 				scalarapi.loadPagesByType(this.loadSequence[this.loadIndex], true, me.parseIndexData, null, 1, true);
 			}
 			
@@ -525,6 +524,9 @@
 				me.modeViewElement.html(me.currentModeView.element);
 			}
 			
+			// fire an event that the view has been updated
+			$('body').trigger('scalarnav_modeview_updated');
+			
 		}
 	
 		/**
@@ -703,7 +705,7 @@
 	}
 	
 	/**
-	 * Main menu mode view. Shows content designated for the main menu in the Manage Content area.
+	 * Main menu mode view. Shows content designated for the main menu in the Dashboard area.
 	 * @constructor
 	 *
 	 * @param {Object} model		Instance of the model.
@@ -1140,7 +1142,7 @@
 			if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
 				var guideBtn = $('<div class="button"><p><b>User\'s Guide</b></p></div>');
 				guideBtn.data('url', 'http://scalar.usc.edu/works/guide/');
-				guideBtn.click(function() { window.location = $(this).data('url'); });
+				guideBtn.click(function() { window.open($(this).data('url'), '_blank'); });
 				this.element = this.element.add(guideBtn);
 			}
 			
@@ -1185,6 +1187,7 @@
 			} else {
 				button = $('<div class="button"><p class="subhead"><b>Affiliated archives</b></p></div>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/critical_commons"><b>Critical Commons</b></a></p>');
+				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/cuban_theater_digital_archive"><b>Cuban Theater Digital Archive</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/hemispheric_institute"><b>Hemispheric Institute Digital Video Library</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/hypercities"><b>HyperCities</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/internet_archive"><b>Internet Archive</b></a></p>');
@@ -1246,6 +1249,12 @@
 			internetFilesBtn.data('url', scalarapi.model.urlPrefix+'new.edit#type=media');
 			internetFilesBtn.click(function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(internetFilesBtn);
+			
+			// other Scalar books button
+			var scalarBooksBtn = $('<div class="button"><p><b>Other Scalar books</b></p></div>');
+			scalarBooksBtn.data('url', scalarapi.model.urlPrefix+'import/system');
+			scalarBooksBtn.click(function() { window.location = $(this).data('url'); });
+			this.element = this.element.add(scalarBooksBtn);
 			
 		}
 		

@@ -53,7 +53,8 @@ Class Api extends Controller {
 	//Defaults
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
-	private $allowable_metadata_prefixes = array('dcterms', 'art', 'shoah');	
+	private $allowable_metadata_prefixes = array('dcterms', 'art', 'shoah', 'scalar');	
+	private $disallowable_metadata_prefixes = array('scalar:metadata');	
 	protected $data;
 	
 	public function __construct(){
@@ -491,11 +492,19 @@ Class Api extends Controller {
 		}
 		
 		foreach ($this->data as $key => $value) {
+			$key_is_allowable = false;
 			foreach ($this->allowable_metadata_prefixes as $prefix) {
-				if (substr($key, 0, strlen($prefix))==$prefix) $save[$key] = $value;
+				if (substr($key, 0, strlen($prefix))==$prefix) $key_is_allowable = true;
 			}
+			foreach ($this->disallowable_metadata_prefixes as $prefix) {
+				if (substr($key, 0, strlen($prefix))==$prefix) $key_is_allowable = false;
+			}	
+			foreach ($this->add_fields as $predicate) {
+				if ($key==$predicate) $key_is_allowable = false;
+			}		
+			if ($key_is_allowable) $save[$key] = $value;
 		}		
-	
+
 		return $save;
 	}
 	

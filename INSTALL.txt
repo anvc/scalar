@@ -21,11 +21,11 @@ system/application/config/database.php
 2)
 
 Add a new salt string, reCAPTCHA key (for you domain, http://www.google.com/recaptcha/whyrecaptcha), 
-registration key, and SoundCloud key (for your domain) at:
+registration key, SoundCloud key, and a few other keys:
 
 system/application/config/local_settings.php
 
-For further customization, change cookie/sesion variables ($config['cookie_prefix'] = "";) at:
+Add session encryption key ($config['encryption_key']) and cookie/sesion variable ($config['cookie_prefix'] = "";) at:
 
 system/application/config/config.php
 
@@ -48,10 +48,10 @@ You can register your new account using the 'register' link.
 
 To make your user (after it is register) a "super admin", requires direct access to MySQL (e.g., phpMyAdmin). In the database table
 "scalar_store_users" edit your user row then set the "is_super" bit to 1. After refreshing Scalar, you will have access to all
-Scalar books and additional admin tabs in the "Manage content" area
+Scalar books and additional admin tabs in the "Dashboard" area
 
 Note that even super admins can't save changes to others' books unless they are explicitly provided "author" privilege in
-the "Users" tab of the book's "Manage content" area.
+the "Users" tab of the book's "Dashboard" area.
 
 Enjoy!
 

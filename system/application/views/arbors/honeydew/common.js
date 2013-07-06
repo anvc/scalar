@@ -277,10 +277,12 @@ function isIPhone(){
 }
 
 function basename(path) {
+	if ('undefined'==typeof(path) || !path.length) return '';
     return path.replace(/\\/g,'/').replace( /.*\//, '' );
 }
  
 function dirname(path) {
+	if ('undefined'==typeof(path) || !path.length) return '';
     return path.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');;
 }
 

@@ -20,13 +20,6 @@
 	max-width:790px; margin-left:auto; margin-right:auto;
 }
 
-.maximize .close_link {padding-right:5px; float:right;}
-.maximize .close_link a {
-	padding-right:0px; padding-left:30px;
-	background-image:url(close_icon.png); background-repeat:no-repeat; background-position:right top;
-}
-.maximize .close_link a:hover {text-decoration:none}
-
 .maximize_content .mediaelement {
 	/*background:#C8C8C8;*/
 	-webkit-border-radius: 0px;

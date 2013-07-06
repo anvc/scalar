@@ -19,16 +19,21 @@
  */                            
  
 /**
- * @projectDescription		System controller for displaying book index and handling admin tasks such as login and manage content area
+ * @projectDescription		System controller for displaying book index and handling admin tasks such as login and dashboard area
  * @author					Craig Dietrich
  * @version					2.2
  */
 
 class System extends MY_Controller {
 
+	private $base_url;
+	
 	public function System() {
 
 		parent::__construct();
+		
+		$segs = $this->uri->segment_array();
+		$this->base_url = confirm_slash(base_url()).implode('/',$segs);
 
 	}
 	
@@ -36,8 +41,8 @@ class System extends MY_Controller {
 
 		$this->load->model('book_model', 'books');
 
-		$this->data['title'] = $this->lang->line('install_name');;
-		$this->data['cover_title']  = $this->lang->line('install_name');;
+		$this->data['title'] = $this->lang->line('install_name');
+		$this->data['cover_title']  = $this->lang->line('install_name');
 		$this->data['books'] = $this->books->get_all();
 		
 		$this->template->set_template('admin');
@@ -80,7 +85,7 @@ class System extends MY_Controller {
 			$action =@ $_POST['action'];		
 			if ('do_register'==$action) {
 				// Validate register key
-				if ($this->data['register_key'] && !in_array($_POST['registration_key'], $register_keys)) throw new Exception('Invalid registration key');
+				if (!empty($register_keys) && !empty($this->data['register_key']) && !in_array($_POST['registration_key'], $register_keys)) throw new Exception('Invalid registration key');
 				// Register new user
 				$this->load->model('book_model', 'books');
 				$user_id = $this->users->register($_POST);
@@ -154,7 +159,7 @@ class System extends MY_Controller {
 			} else {
 				$user = $this->users->get_by_email_and_reset_string($email, $reset_string);
 				if (!$user) {
-					$this->data['create_login_error'] = 'The email address does not match the registration key';
+					$this->data['create_login_error'] = 'The email address does not match the reset key';
 				} else {
 					try {
 						$this->users->set_password_from_form_fields($user->user_id, $_POST);
@@ -205,26 +210,26 @@ class System extends MY_Controller {
 	 	// Save
 	 	try {
 		 	switch ($action) { 		
-		 		case 'do_save_style': 
+		 		case 'do_save_style': // Book Properties
 		 			$array = $_POST;
 		 			unset($array['action']);
 		 			unset($array['zone']);
 		 			$this->books->save($array);			
-					header('Location: '.$this->data['uri'].'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_style_saved');
+					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_style_saved');
 					exit;			 		
-		 		case 'do_save_user':   
+		 		case 'do_save_user':  // My Account
 		 			$array = $_POST;
 		 			if ($this->users->email_exists_for_different_user($array['email'], $this->data['login']->user_id)) {
-			 			header('Location: '.$this->data['uri'].'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=email_exists');
+			 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=email_exists');
 		 				exit;		 					
 		 			}		 			
 		 			if (!empty($array['password'])) {
 		 				if (!$this->users->get_by_email_and_password($array['email'], $array['old_password'])) {
-		 					header('Location: '.$this->data['uri'].'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=incorrect_password');
+		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=incorrect_password');
 		 					exit;		 					
 		 				}
 		 				if ($array['password']!=$array['password_2']) {
-		 					header('Location: '.$this->data['uri'].'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=password_match');
+		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=password_match');
 		 					exit;
 		 				}			
 		 				$this->users->set_password($this->data['login']->user_id, $array['password']);	
@@ -235,34 +240,44 @@ class System extends MY_Controller {
 		 			unset($array['password_2']);
 		 			$this->users->save($array);
 		 			$this->set_login_params();	 				
-		 			header('Location: '.$this->data['uri'].'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
+		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
 		 			exit;	
-				case 'do_add_book':  
+				case 'do_add_book':   // Admin: All Books
 					$book_id = (int) $this->books->add($_POST);
 					$user_id = (int) $_REQUEST['user_id'];
 					if (!empty($user_id)) $this->books->save_users($book_id, array($user_id), 'author');
-					header('Location: '.$this->data['uri'].'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					exit; 			 					 			
-				case 'do_add_user':   
+				case 'do_add_user':  // Admin: All Users
 					if (!$this->data['login_is_super']) $this->kickout();
 					$array = $_POST;
-					$book_title = (isset($array['book_title'])  && !empty($array['book_title']) && '(title of first book)'!=$array['book_title']) ? trim($array['book_title']) : null;
+					$book_title = (isset($array['book_title'])  && !empty($array['book_title']) && 'title of first book (optional)'!=$array['book_title']) ? trim($array['book_title']) : null;
 					$user_id = (int) $this->users->add($array);
 					if (!empty($user_id) && !empty($book_title)) {
 						$book_id = $this->books->add(array('title'=>$book_title));
 						if (!empty($book_id)) $this->books->save_users($book_id, array($user_id), 'author');
 					}
-					header('Location: '.$this->data['uri'].'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					exit; 											
-				case 'do_delete':    
+				case 'do_delete':    // Admin: All Users & All Books
 					if (!$this->data['login_is_super']) $this->kickout();
 					$zone = $this->data['zone'];
 					$delete = (int) $_REQUEST['delete'];
 					$type = $_REQUEST['type'];
 					if (!is_object($this->$type)) show_error('Invalid section');
 					if (!$this->$type->delete($delete)) show_error('There was a problem deleting. Please try again');		
-					header('Location: '.$this->data['uri'].'?action=deleted&zone='.$zone.'#tabs-'.$zone);
-					exit;								
+					header('Location: '.$this->base_url.'?action=deleted&zone='.$zone.'#tabs-'.$zone);
+					exit;			
+				case "get_email_list":
+					if (!$this->data['login_is_super']) $this->kickout();
+					$users = $this->users->get_all();
+					$this->data['email_list'] = array();
+		 			foreach ($users as $user) {
+						if (empty($user->email)) continue;
+						$this->data['email_list'][] = trim($user->email);
+					}
+					unset($user); 
+					break;
 		 	}
 	 	} catch (Exception $e) {
 			show_error($e->getMessage());
@@ -270,7 +285,7 @@ class System extends MY_Controller {
 	
 		// Books and current book
 		$this->data['books'] = ($this->data['login_is_super']) ? $this->books->get_all() : $this->books->get_all($this->data['login']->user_id);
-		$this->data['my_books'] = $this->books->get_all($this->data['login']->user_id, true);		 
+		$this->data['my_books'] = $this->books->get_all($this->data['login']->user_id, false);		 
 		$this->data['book'] = ($book_id) ? $this->books->get($book_id) : array();
 		$this->data['title'] = (!empty($this->data['book'])) ? $this->data['book']->title.' Dashboard' : $this->config->item('install_name').': Dashboard';
 		$this->data['cover_title'] = 'Dashboard';
@@ -353,11 +368,14 @@ class System extends MY_Controller {
 			switch ($this->data['zone']) {
 			 	case 'all-users':	
 			 	case 'all-books':  
-				$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();	
-				for ($j = 0; $j < count($this->data['users']); $j++) {
-					$this->data['users'][$j]->books = $this->books->get_all($this->data['users'][$j]->user_id, true);
-				}		 	  		    	
-				break;				
+					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();	
+					for ($j = 0; $j < count($this->data['users']); $j++) {
+						$this->data['users'][$j]->books = $this->books->get_all($this->data['users'][$j]->user_id, true);
+					}		 	  		    	
+					break;	
+			 	case 'tools':
+
+			 		break;
 			}
 		}
 

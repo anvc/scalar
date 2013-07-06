@@ -135,6 +135,7 @@ Book has been added
 					<th style="white-space:nowrap;">URI</th>
 					<th style="white-space:nowrap;">Public</th>
 					<th style="white-space:nowrap;">In index</th>
+					<th style="white-space:nowrap;">Featured</th>
 					<th style="white-space:nowrap;">Contributors</th>
 					<th style="white-space:nowrap;">Created</th>
 				</tr>
@@ -160,6 +161,7 @@ Book has been added
 				echo '<td class="editable has_link" property="slug"><a href="'.confirm_slash(base_url()).$row->slug.'">'.$row->slug."</a></td>\n";
 				echo '<td class="editable boolean" property="url_is_public">'.$row->url_is_public."</td>\n";
 				echo '<td class="editable boolean" property="display_in_index">'.$row->display_in_index."</td>\n";
+				echo '<td class="editable boolean" property="is_featured">'.$row->is_featured."</td>\n";
 				echo '<td style="width=150px;" id="save_book_users_'.$row->book_id.'">';
 				foreach ($row->users as $user) {
 					echo '<span id="'.$user->user_id.'">'.$user->fullname.'</span>';

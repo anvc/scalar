@@ -27,7 +27,7 @@ $template['active_template'] = 'honeydew';
 |--------------------------------------------------------------------------
 */
 
-// Admin wrapper including book index page, login, and manage content area
+// Admin wrapper including book index page, login, and dashboard area
 $template['admin']['template'] = 'arbors/admin/wrapper';
 $template['admin']['regions'] = array('cover', 'content', 'footer');
 
@@ -46,6 +46,10 @@ $template['honeydew']['regions'] = array('cover', 'content', 'footer', 'nav');
 // Scalar's second wrapper (2012-)
 $template['cantaloupe']['template'] = 'arbors/cantaloupe/wrapper';
 $template['cantaloupe']['regions'] = array('vis', 'content');
+
+// Scalar's second wrapper (2012-)
+$template['sstory']['template'] = 'arbors/sstory/wrapper';
+$template['sstory']['regions'] = array('content');
 
 /* End of file template.php */
 /* Location: ./system/application/config/template.php */

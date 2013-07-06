@@ -13,7 +13,7 @@
 
 	<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
 	<span property="dcterms:description"><?=$page->versions[$page->version_index]->description?></span>
-	<span property="art:url"><a href="<?=$page->versions[$page->version_index]->url?>"><?=$page->versions[$page->version_index]->url?></a></span>
+	<span property="art:url"><?=$page->versions[$page->version_index]->url?></span>
 	<span property="sioc:content"><?=nl2br($page->versions[$page->version_index]->content)?></span>
 	<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
 	

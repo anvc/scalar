@@ -1,6 +1,12 @@
 <?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
 
+<?
+	if (empty($book)):
+		echo 'Please select a book to manage using the pulldown menu above';
+	else:	
+?>	
+
 		<script>
 		$(document).ready(function() {
 			$(".tablesorter").tablesorter({ 
@@ -156,4 +162,4 @@
 		<input type="submit" value="Delete selected content" class="generic_button large" />
 		&nbsp; <small>Caution: will delete checked annotation relationship <b>and the annotation page</b></small>
 		</form>				
-		
+<? endif ?>

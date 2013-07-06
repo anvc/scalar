@@ -4,7 +4,7 @@
 
 <div style="float:left; width:20%;">
 
-<h4 class="content_title">Import Media Files</h4>
+<h4 class="content_title">Import Local Media Files</h4>
 
 </div>
 
@@ -12,13 +12,13 @@
 
 <?=(!empty($content)) ? $content.'<br /><br />' : ''?>
 
-Use this form to upload media from your local drive for use in Scalar.
+Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than 2 MB in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).
 <br /><br />
 
-<b>Recommended formats (most compatible):</b><br />css, gif, java, jpg, js, m4v, mp3, mp4, txt, xml, wav, pdf, png
+<b>Recommended formats (most compatible):</b><br />css, gif, html, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml 
 <br /><br />
 
-Other supported formats: aif, oga, tif, 3gp, flv, mov, mpg, webm
+Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm
 <br />
 
 <br />

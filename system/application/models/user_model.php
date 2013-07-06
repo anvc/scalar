@@ -153,8 +153,7 @@ class User_model extends My_Model {
     public function get_by_email_and_reset_string($email='', $reset_string='') {
     	
     	$this->db->select('*');
-    	$this->db->from($this->user_book_table);
-    	$this->db->join($this->users_table, $this->users_table.'.user_id='.$this->user_book_table.'.user_id');
+    	$this->db->from($this->users_table);
     	$this->db->where($this->users_table.'.email', $email);
     	$this->db->where($this->users_table.'.reset_string', $reset_string);
     	$query = $this->db->get();
@@ -324,18 +323,17 @@ class User_model extends My_Model {
 		if (empty($array['email'])) throw new Exception('Email is a required field');
 		if ($this->get_by_email($array['email'])) throw new Exception('Email already in use');
 		if (empty($array['fullname'])) throw new Exception('Full name is a required field');
-
+		if (empty($array['password'])) throw new Exception('Password is a required field');
+		
 		$fullname = trim($array['fullname']);
 		$email = trim($array['email']);
-
-    	if (empty($fullname)) throw new Exception('Could not result fullname');
+    	if (empty($fullname)) throw new Exception('Could not resolve fullname');  // E.g., a fullname of all spaces
     
-		$data = array('fullname' => $fullname );
-		if (!empty($email)) $data['email'] = $email;
+		$data = array('fullname' => $fullname, 'email' => $email);
 		$this->db->insert($this->users_table, $data); 
 		$user_id = mysql_insert_id();
 		
-		if (isset($array['password']) && !empty($array['password'])) $this->save_password($user_id, $array['password']);
+		$this->save_password($user_id, $array['password']);  // Hashes the string
 		
     	return $user_id;
     	
@@ -385,7 +383,7 @@ class User_model extends My_Model {
 		$email =@ $array['email'];
 		if (!empty($email)) {
 			$email_user = $this->get_by_email($email);
-			if ($email_user->user_id != $user_id) throw new Exception('Email already in use');
+			if (!empty($email_user) && $email_user->user_id != $user_id) throw new Exception('Email already in use');
 		}
 		
     	// Remove password for saving seperately

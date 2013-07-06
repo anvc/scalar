@@ -42,9 +42,9 @@ class Tag_model extends MY_Model {
 		
 	}     
     
-    public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $version_datetime=null) {
+    public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $version_datetime=null) {
     
-    	return parent::get_all($this->tags_table, $book_id, $type, $category, $is_live, $version_datetime);
+    	return parent::get_all($this->tags_table, $book_id, $type, $category, $is_live, $sq, $version_datetime);
     
     }     
     

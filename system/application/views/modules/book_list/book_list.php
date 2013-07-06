@@ -1,6 +1,33 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_css(path_from_file(__FILE__).'book_list.css')?>
 
+<?
+function print_books($books, $is_large=false) {
+	echo '<ul class="book_icons">';
+	foreach ($books as $row) {
+		$uri 		   = confirm_slash(base_url()).$row->slug;
+		$title		   = trim($row->title);
+		$book_id       = (int) $row->book_id;
+		$thumbnail     = (!empty($row->thumbnail)) ? confirm_slash($row->slug).$row->thumbnail : null;
+		$is_live       = ($row->display_in_index) ? true : false; 
+		if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = path_from_file(__FILE__).'default_book_logo.png';
+		$authors = array();
+		foreach ($row->users as $user) {
+			if ($user->relationship!=strtolower('author')) continue;
+			if (!$user->list_in_index) continue;
+			$authors[] = $user->fullname;
+		}
+		echo '<li><a href="'.$uri.'"><img class="book_icon'.(($is_large)?'':' small').'" src="'.confirm_base($thumbnail).'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
+		if (count($authors)) {
+			echo implode(', ',$authors);
+			echo "<br />";
+		}
+		echo '</li>';
+	}
+	echo '</ul>';	
+}
+?>
+
 <?if ('1'==@$_REQUEST['user_created']): ?>
 <div class="saved">
   Thank you for registering your <?=$cover_title?> account
@@ -20,14 +47,19 @@
 <? endif ?>
 <?
 $user_books = array();
+$featured_books = array();
 $other_books = array();
 
 foreach ($books as $row) {
 
-	$book_id       = (int) $row->book_id;
-	$is_live       = ($row->display_in_index) ? true : false;
+	$book_id       =@ (int) $row->book_id;
+	$is_live       =@ ($row->display_in_index) ? true : false;
+	$is_featured   =@ ($row->is_featured) ? true : false;
+	$hide_other    =  ($this->config->item('index_hide_published')) ? true : false;
 	
-	if ($is_live || $login_is_super) {
+	if ($is_featured && $is_live) {
+		$featured_books[] = $row;
+	} elseif ($is_live || $login_is_super) {
 		$other_books[] = $row;
 	}
 	
@@ -38,37 +70,15 @@ foreach ($books as $row) {
 }
 ?>
 <?
-if ($login->is_logged_in) {
-	echo '<div id="other_books">';
-} else {
-	echo '<div id="other_books" class="wide">';
+echo '<div id="other_books"'.(($login->is_logged_in)?'':' class="wide"').'>';
+if (count($featured_books) > 0) {
+	echo '<h3>Featured Books</h3>';
+	print_books($featured_books);
+	echo '<br clear="both" />';
 }
 if (count($other_books) > 0) {
-	echo '<h3>Public Books</h3><ul class="book_icons">';
-	foreach ($other_books as $row) {
-	
-		$uri 		   = confirm_slash(base_url()).$row->slug;
-		$title		   = trim($row->title);
-		$book_id       = (int) $row->book_id;
-		$thumbnail     = (!empty($row->thumbnail)) ? confirm_slash($row->slug).$row->thumbnail : null;
-		$is_live       = ($row->display_in_index) ? true : false; 
-		if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = path_from_file(__FILE__).'default_book_logo.png';
-		
-		$authors = array();
-		foreach ($row->users as $user) {
-			if ($user->relationship!=strtolower('author')) continue;
-			if (!$user->list_in_index) continue;
-			$authors[] = $user->fullname;
-		}
-	
-		echo '<li><a href="'.$uri.'"><img class="book_icon small" src="'.confirm_base($thumbnail).'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
-		if (count($authors)) {
-			echo implode(', ',$authors);
-			echo "<br />";
-		}
-		echo '</li>';
-	}
-	echo '</ul>';
+	echo '<h3>'.((!empty($featured_books))?'Other ':'').'Public Books</h3>';
+	print_books($other_books);
 }
 echo '</div>';
 ?>
@@ -77,30 +87,7 @@ if ($login->is_logged_in) {
 	echo '<div id="user_books"><h3>Your Books</h3>';
 	if (count($user_books) > 0) {
 		echo '<ul class="book_icons">';
-		foreach ($user_books as $row) {
-		
-			$uri 		   = confirm_slash(base_url()).$row->slug;
-			$title		   = trim($row->title);
-			$book_id       = (int) $row->book_id;
-			$thumbnail     = (!empty($row->thumbnail)) ? confirm_slash($row->slug).$row->thumbnail : null;
-			$is_live       = ($row->display_in_index) ? true : false; 
-			if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = path_from_file(__FILE__).'default_book_logo.png';
-			
-			$authors = array();
-			foreach ($row->users as $user) {
-				if ($user->relationship!=strtolower('author')) continue;
-				if (!$user->list_in_index) continue;
-				$authors[] = $user->fullname;
-			}
-		
-			echo '<li><a href="'.$uri.'"><img class="book_icon" src="'.confirm_base($thumbnail).'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
-			if (count($authors)) {
-				echo implode(', ',$authors);
-				echo "<br />";
-			}
-			echo '</li>';
-		}
-		echo '</ul>';
+		print_books($user_books, true);
 	} else {
 		echo '<p>You haven\'t created any books yet.</p>';
 	}

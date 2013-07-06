@@ -2,6 +2,12 @@
 <?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
 
+<?
+	if (empty($book)):
+		echo 'Please select a book to manage using the pulldown menu above';
+	else:	
+?>	
+
 	<script>
 	
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
@@ -186,6 +192,7 @@
 		<div style="padding-top:10px;padding-left:4px;">
 			Import page quick links<br /> 
 			<a href="<?=$url_base?>import/critical_commons">Critical Commons</a>,&nbsp; 
+			<a href="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a>,&nbsp; 
 			<a href="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</a>,&nbsp; 
 			<a href="<?=$url_base?>import/hypercities">HyperCities</a>,&nbsp; 
 			<a href="<?=$url_base?>import/internet_archive">Internet Archive</a>,&nbsp; 
@@ -197,7 +204,8 @@
 			<a href="<?=$url_base?>import/vimeo">Vimeo</a>,&nbsp;
 			<a href="<?=$url_base?>import/youtube">YouTube</a>&nbsp; |&nbsp; 
 			<a href="<?=$url_base?>upload">Upload file</a>,&nbsp;
-			<a href="<?=$url_base?>new.edit#type=media">Internet URL</a>
+			<a href="<?=$url_base?>new.edit#type=media">Internet URL</a>,&nbsp; 
+			<a href="<?=$url_base?>import/system">Another Scalar book</a>
 		</div>
 <? 		endif; ?>
 		
@@ -248,3 +256,4 @@
 		<form onsubmit="deleteFiles();return false;">
 		<input type="submit" value="Delete selected files" class="generic_button large" />
 		</form>	
+<? endif ?>

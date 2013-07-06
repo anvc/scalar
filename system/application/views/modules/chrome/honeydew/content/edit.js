@@ -223,12 +223,12 @@ function validate_form($form) {
 		return false;
 	}
 
-	// Make sure slug is present if the page has already been created (otherwise the API will create from the title)
+	// Make sure slug is present if the page has already been created (otherwise the API will create)
 	var action = $('input[name="action"]').val().toLowerCase();
 	if ('add'!=action) {
 		var slug = $('#slug').val();
 		if (slug.length==0) {
-			alert('Page URL is a required field.  Please enter a URL segment towards the top of the form.');
+			alert('Page URL is a required field.  Please enter a URL segment in the Metadata tab at the bottom of the page.');
 			return false;
 		}	
 	}

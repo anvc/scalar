@@ -124,13 +124,14 @@ fieldset.form_section legend {padding-left:10px; padding-right:10px;}
 .search_archive_results .title {font-weight:bold; margin:0px 0px 4px 0px; padding:0; background:0; font-size:13px; padding:0; height:inherit;}
 .search_archive_results .desc {font-weight:normal; margin:0px 0px 4px 0px; padding:0;}
 .search_archive_results .creator {font-weight:normal; margin:0px 0px 4px 0px; font-size:smaller; padding:0;}
-.search_archive_results .filename {font-weight:normal; font-size:smaller; padding:0; margin-bottom: 5px; line-height: 200%;}
+.search_archive_results .filename {font-weight:normal; font-size:smaller; padding:0; margin-bottom: 1px; line-height: 200%;}
+.search_archive_results .import_error {font-weight:normal; font-size:smaller; padding:0; margin-bottom: 0px; line-height: 200%;}
 .search_archive_results .preview { padding-right: 10px; }
 .search_archive_results .other_in_group {background-color:#eeeeee; display:none;}
 .search_archive_results .more_in_group {font-weight:normal; margin:6px 0px 0px 5px; font-size:smaller; padding:0;}
 .search_archive_results .more_in_group img {margin:3px 6px 0px 0px;}
 .search_archive_results .to_hide {display:none;}
-.search_archive_results .no_filename {background-color:#ffeded;}
+.search_archive_results .file_error {background-color:#ffeded;}
 
 .search_results {margin-left:0; padding-left:0;}
 .search_results li {margin:0px 0px 12px 0px;}
@@ -158,6 +159,13 @@ fieldset.form_section legend {padding-left:10px; padding-right:10px;}
 .versions_list li { padding-bottom: 10px; }
 .listview_thick_header {background:#eeeeee; padding:6px 0px 6px 0px; margin-bottom:8px;}
 .listview_annotation_of, .listview .listview_tag_of {margin-bottom:20px;}
+
+.close_link {padding-right:5px; float:right;}
+.close_link a {
+	padding-right:0px; padding-left:30px;
+	background-image:url(images/close_icon.png); background-repeat:no-repeat; background-position:right top;
+}
+.close_link a:hover {text-decoration:none}
 
 /* Cover */
 
@@ -351,6 +359,14 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 }
 .generic_button.icon.path {
 	background-image: url(images/path_icon.png); 
+}
+.generic_input {
+	font-size: 10px;
+	padding: 3px 2px;
+}
+.generic_input.large {
+	font-size: 12px;
+	padding: 5px 4px;
 }
 .editbar {
 	border-top:solid 1px #ccc;
