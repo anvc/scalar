@@ -60,8 +60,8 @@ Updates we've made to incorporated libraries, kept here for reference if they ne
 -------------------------------------------------------------------------------------------
 
 ARC2:
-1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
-2) ARC2_RDFJSONSerializer.php->jsonEscape(): replace "return trim(json_encode($v), '"');" with return substr(json_encode($v), 1, -1);
+1) ARC2_Resource.php->getProps(): commented out "if (!isset($this->index[$s])) $this->fetchData($s);"
+2) ARC2_RDFJSONSerializer.php->jsonEscape(): replaced "return trim(json_encode($v), '"');" with return substr(json_encode($v), 1, -1);
 In the GitHub distro, #2 is corrected
 
 Froogaloop:
