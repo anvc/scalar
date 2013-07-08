@@ -48,7 +48,7 @@ $db['default']['database'] = '';
 
 $db['default']['dbdriver'] = "mysql";
 
-$db['default']['dbprefix'] = 'scalar_db_';  
+$db['default']['dbprefix'] = 'scalar_db_';  // At the moment there are a couple places where this is hard-coded, so don't change for now
 $db['default']['pconnect'] = false;
 
 $db['default']['db_debug'] = false;
@@ -58,7 +58,7 @@ $db['default']['char_set'] = "utf8";
 $db['default']['dbcollat'] = "utf8_general_ci";
 
 // Added fields for ARC2
-$db['default']['ARC_dbprefix'] = 'scalar_store_';  
+$db['default']['ARC_dbprefix'] = 'scalar_store_';  // At the moment there are a couple places where this is hard-coded, so don't change for now
 
 /* End of file database.php */
 /* Location: ./system/application/config/database.php */

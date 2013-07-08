@@ -50,6 +50,7 @@ $route['(.*)\.rdf$'] = "rdf/node/$1";        // .rdf extension
 $route['(.*)\.rdfxml$'] = "rdf/node/$1";     // .rdfxml extension
 $route['(.*)\.json$'] = "rdf/node/$1";       // .json  extension
 $route['(.*)\.rdfjson$'] = "rdf/node/$1";    // .rdfjson  extension
+$route['^rdf$'] = "rdf/index";               // rdf/ (system)
 $route['(.*)/rdf$'] = "rdf/index";           // rdf/
 $route['rdf/(.*)'] = "rdf/$1";               // rdf/
 $route['(.*)/rdf/(.*)'] = "rdf/$2";          // rdf/

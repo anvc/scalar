@@ -10,7 +10,7 @@ function search_split_terms($terms){
 
 	if (empty($terms)) return $terms;
 
-	$terms = preg_replace("/\"(.*?)\"/e", "search_transform_term('\$1')", $terms);
+	$terms = preg_replace("/\"(.*?)\"/e", "search_transform_term('\$1')", trim($terms));
 	$terms = preg_split("/\s+|,/", $terms);
 
 	$out = array();

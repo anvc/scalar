@@ -2,6 +2,12 @@
 <?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
 
+<?
+	if (empty($book)):
+		echo 'Please select a book to manage using the pulldown menu above';
+	else:	
+?>	
+
 	<script>
 	
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
@@ -227,3 +233,4 @@
 		<input type="submit" value="Delete selected content" class="generic_button large" />
 		 <a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" class="generic_button large">Create new page</a>
 		</form>
+<? endif ?>

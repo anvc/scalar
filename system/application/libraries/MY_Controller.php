@@ -100,7 +100,7 @@ abstract class MY_Controller extends Controller {
 	}
 	
 	/**
-	 * Set information about whether a logged-in user can edit a book or manage content
+	 * Set information about whether a logged-in user can edit a book or open the dashboard
 	 * @requires	$this->data
 	 * @return 		null
 	 */	
@@ -243,8 +243,15 @@ abstract class MY_Controller extends Controller {
 	
    	protected function redirect_url() {
    		
+   		// A specific redirect URL has been sent via GET/POST
    		if (isset($_REQUEST{'redirect_url'}) && !empty($_REQUEST['redirect_url'])) return urldecode(trim($_REQUEST{'redirect_url'}));
-    	return base_url(); 
+    	// Book is present and might have a page slug
+    	if (isset($this->data['book']) && isset($this->data['book']->slug) && !empty($this->data['book']->slug)) {
+   			$segs = $this->uri->segment_array();
+    		return confirm_slash(base_url()).implode('/',$segs);
+    	}
+   		// Default to the install index
+   		return base_url(); 
    		
    	}		
 	

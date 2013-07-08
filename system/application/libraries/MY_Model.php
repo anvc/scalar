@@ -64,7 +64,7 @@ abstract class MY_Model extends Model {
 	 * @return $result
 	 */
 	
-    public function get_all($table='', $book_id=null, $type=null, $category=null, $is_live=true, $version_datetime=null) {
+    public function get_all($table='', $book_id=null, $type=null, $category=null, $is_live=true, $sq, $version_datetime=null) {
 
     	// Get annotations that connect to the current book
     	$this->db->distinct();
@@ -302,7 +302,7 @@ abstract class MY_Model extends Model {
 
     	return $adj_slug;
     	
-    }
+    }    
     
     /**
      * Return the top version for a content node

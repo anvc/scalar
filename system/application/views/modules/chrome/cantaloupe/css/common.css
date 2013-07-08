@@ -15,98 +15,180 @@ section ol {margin:0px 0px 10px 26px; padding:0px 0px 0px 0px;}
 
 @import url(http://fonts.googleapis.com/css?family=Lato:900,400);
 
-article {
-	background-color: white;
-	border-left: 1px solid #ccc;
-	border-right: 1px solid #ccc;
-	max-width: 1040px;
-	margin: 0px auto;
-	padding: 48px 72px;
-	min-height: 100%;
-	box-shadow: 0px 0px 10px #666;
-	line-height: 24px;
-}
 
+
+/* Fonts */
+.primary_text { font-family: Georgia, Times, serif; }
+.secondary_text { font-family: 'Lato', Arial, sans-serif; }
+/*body { font-family: Georgia, Times, serif; visibility: hidden; }
+h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata { font-family: 'Lato', Arial, sans-serif; }*/
+body { visibility: hidden; background-attachment: fixed; }
+
+/* Base elements */
+
+h1, h2, h3, h4 { padding-left: 7.2rem; padding-right: 7.2rem; }
+.body_copy h1,.body_copy h2,.body_copy h3,.body_copy h4 { padding-left: 0; padding-right: 0; }
 h1 {
-	font-family: 'Lato', Arial, sans-serif;
-    font-size: 49px;
-    line-height: 60px;
-    margin-top: 24px;
-    margin-bottom: 48px;
+    font-size: 4.9rem;
+    line-height: 6rem;
+    margin-top: 2.4rem;
+    margin-bottom: 4.8rem;
+    font-weight: 900;
 }
 
 h2 {
-	font-family: 'Lato', Arial, sans-serif;
-    font-size: 28px;
-    line-height: 48px;
-    margin-top: 48px;
-    margin-bottom: 24px;
+    font-size: 2.8rem;
+    line-height: 4.8rem;
+    margin-top: 4.8rem;
+    margin-bottom: 2.4rem;
+    font-weight: 900;
 }
 
 h3 {
-	font-family: 'Lato', Arial, sans-serif;
-    font-size: 21px;
-    line-height: 24px;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    font-size: 2.1rem;
+    line-height: 2.4rem;
+    margin-top: 2.4rem;
+    margin-bottom: 1.2rem;
+    font-weight: 900;
 }
 
 h4 {
-	font-family: 'Lato', Arial, sans-serif;
-    font-size: 16px;
-    line-height: 24px;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    font-size: 1.6rem;
+    line-height: 2.4rem;
+    margin-top: 2.4rem;
+    margin-bottom: 1.2rem;
+    font-weight: 900;
 }
 
-section {
+* { box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; }
+
+blockquote { padding-left: 3.6rem; padding-right: 3.6rem; font-style: italic; }
+i,em { font-style: italic; }
+b,strong { font-weight: bold; }
+sub {
+	vertical-align: sub;
+	font-size: smaller;
+}
+sup {
+	vertical-align: super;
+	font-size: smaller;
+}
+
+/* Header */
+#header {
+	color: #a6a6a6;
+	position: fixed;
+	background-color: white;
+	z-index: 9999;
+	width: 100%;
+	top: 0;
+	left: 0;
+	border-bottom: 1px solid #ddd;
+	/*box-shadow: 0px 0px 10px #666;*/
+}
+
+#header #home_menu_link { 
+	padding: 1rem .4rem; 
+	display: inline-block; 
+	cursor: pointer;
+	/* For IE 7 */
+	zoom: 1;
+	*display: inline; 
+}
+#header #home_menu_link:hover { background-color: #eee; }
+#header #book-title { font-weight: 900; }
+#header img { vertical-align: -28%; }
+#header img { margin: 0 .6rem; }
+#header a { color: #a6a6a6; text-decoration: none; }
+#header a:hover { text-decoration: underline; color: #8a8c8f;}
+#header .vrule { 
+	width: 1px; height: 3rem; margin: 0 1rem;
+}
+#header .right { float: right; padding: 1rem; }
+#header.menu { left: 0; top: .5rem; }
+.menu {
+	position: absolute;
+	background-color: white;
+	cursor: pointer;
+	display: none;
+	z-index: 10;
+	box-shadow: 3px 3px 5px #ccc;
+}
+.menu li {
+	padding: 1rem 1.2rem;
+	border-top: 1px solid #ddd;
+}
+.menu li:hover {
+	background-color: #eee;
+	color: #444;
+}
+
+/* --- PAGE --- */
+
+.page {
+	background-color: white;
+	max-width: 104rem;
+	margin: 0 auto;
+	padding: 7.8rem 0 7.8rem 0;
+	min-height: 100%;
+	/*box-shadow: 0px 0px 10px #666;*/
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	line-height: 2.4rem;
+	position: relative;
+}
+section ol,ul {margin-bottom: 1rem;}
+section.relationships { 
+	max-width: 85.4rem;
+	clear:both; 
+}
+.relationships ol,ul,p {
+	padding-left: 7.2rem;
+	padding-right: 7.2rem;
+}
+
+/*section {
 	clear:both;
-}
+}*/
 
-p, ul {
-    margin-top: 0px;
-    margin-bottom: 24px;
+p {
+    margin-top: 0;
+    margin-bottom: 2.4rem;
 }
 
 small, aside {
-    font-size: 12px;
-}
-
-h1,h2,h3,h4 {
-	font-weight: 900;
+    font-size: 1.2rem;
 }
 
 a { color: #026697; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-b,strong { font-weight: 900; }
 
-aside { display: none; }
+/* Body copy */
+.paragraph_wrapper { max-width: none !important; /*clear: both;*/ }
+.body_copy { max-width: 85.4rem; padding-left: 7.2rem; padding-right: 7.2rem; }
 
-span[property="dcterms:description"] { display: none; }
+/* --- MEDIA --- */
 
-#header {
-	font-family: 'Lato', Arial, sans-serif;
-	color: #a6a6a6;
-	font-weight: 900;
-	line-height: 24px;
-	background: url(images/book.png) no-repeat;
-	padding-left: 40px;
-	margin-bottom: 24px;
-}
+/**
+  *	These styles are only every applied to temporary elements that are removed after Javascript measures their width;
+  * this is how we use CSS to specify dimensions for media.
+  */
+.small_dim { width: 20.6rem; display: none; }
+.medium_dim { width: 41.2rem; display: none; }
+.large_dim { width: 62.0rem; display: none; }
+.full_dim { width: 103.8rem; display: none; }
 
-#header a {
-	color: #a6a6a6;
-	text-decoration: none;
-}
+.full { margin-top: 4rem; }
+.full .mediaElementFooter { padding: 1rem 7.2rem 0 7.2rem; max-width: 85.4rem; }
 
-#header a:hover {
-	text-decoration: underline;
-	color: #a6a6a6;
-}
+/* So the top-most media element aligns with the top of its paragraph */
+.slot.top { margin-top: .5rem !important; clear: both; }
 
-.mediaelement {
-	margin-bottom: 24px;
+.mediaelement { 
+	margin-bottom: 2.4rem; 
+	font-weight: normal;
+	font-style: normal;
 }
 
 .mediaContainer,.mediaElementFooter {
@@ -115,65 +197,221 @@ span[property="dcterms:description"] { display: none; }
 }
 
 .mediaElementFooter {
-	margin-top: 12px;
+	/*margin-top: 1.2rem;*/
 	height: auto;
 }
 
 .mediaElementFooter div {
-	font-size: 12px;
-	line-height: 16px;
-	font-family: 'Lato', Arial, sans-serif;
+	font-size: 1.2rem;
+	line-height: 1.6rem;
 	color: #666;
 }
 
-.mediaElementHeader {
+a.media_info {
+	border-radius: 0.9rem;
+	border: 1px solid #666;
+	/*background-color: #666;*/
+	color: #666;
+	width: 1.8rem;
+	height: 1.8rem;
+	display: inline-block;
+	text-align: center;
+	line-height: 1.8rem;
+	cursor: pointer;
+	float: left;
+	margin-top: .2rem;
+	margin-right: 1.0rem;
+	margin-bottom: .5rem;
+}
+
+.media_description {
 	display: none;
 }
 
-/*[property="sioc:content"] div,p {
-	max-width: 620px;
-}*/
-
-.body_copy {
-	max-width: 620px;
+.media_annotations {
+	display: none;
+	max-height: 300px;
 }
 
+.mediaElementFooter table {
+	width: 100%;
+}
+
+.media_annotations tr {
+	cursor: pointer;
+}
+
+.media_annotations tr:hover {
+	background-color: #eee;
+}
+
+.media_annotations tr.current {
+	background-color: #c5dceb;
+}
+
+.current_annotation { background-color: #c5dceb; margin-bottom: 1.0rem; display: none; }
+
+.mediaElementFooter h4 { font-size: 1.2rem; margin:0; line-height: 1.6rem; padding: 0 .4rem 0 .7rem; }
+
+.media_annotations table {
+	border-left: 1px solid #ddd; 
+	border-right: 1px solid #ddd;
+}
+.media_annotations td:first-child,.current_annotation td:first-child {
+	padding-left: .8rem;
+	width: 6rem;
+}
+.media_annotations td:last-child,.current_annotation td:last-child {
+	padding-right: .8rem;
+}
+
+.media_metadata {
+	display: none;
+	max-height: 300px;
+}
+
+/*.media_metadata {
+	position: absolute;
+	max-width: 400px;
+	max-height: 300px;
+	border-radius: .8rem;
+	background-color: #eee;
+	padding: 1.0rem;
+	font-size: 1.2rem;
+	z-index: 99;
+	line-height: 100%;
+}*/
+
+.mediaElementFooter td {
+	padding: .5rem 0;
+}
+
+.mediaElementFooter td:first-child { font-weight: bold; padding-right: .5rem; }
+
+.media_tab {
+	padding: .2rem 1.0rem;
+	text-transform: uppercase;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.media_tabs {
+	display: none;
+	margin-top: 1.2rem;
+	margin-bottom: -0.6rem;
+}
+
+.media_tab.select {
+	background-color: #b2b3b6;
+	color: white;
+}
+
+.pane {
+	margin-top: 1.2rem;
+}
+
+.mediaObject { background-color: black; }
+
 .slot.right {
-	margin-top: 10px;
-	margin-left: 48px;
+	margin-top: 4.0rem;
+	margin-left: 4.8rem;
+	margin-right: 7.2rem;
 	float: right;
 	clear: right;
 }
 
 .slot.left {
-	margin-top: 10px;
-	margin-right: 48px;
+	margin-top: 4.0rem;
+	margin-right: 4.8rem;
+	margin-left: 7.2rem;
 	float: left;
 	clear: left;
 }
 
-.slot.left .mediaElementFooter {
-	max-width: 212px;
+.slot.left .mediaElementFooter { max-width: 21.2rem; }
+
+.media_link { background-color: #eee; }
+
+
+
+#footer {
+	clear: both;
+	padding-left: 7.2rem; padding-right: 7.2rem;
 }
 
-.paragraph_wrapper {
-	max-width: none !important;
-	/*clear: both;*/
-}
-
-.float_spacer {
-	width: 206px;
-	height: 72px;
+#footer-right {
 	float: right;
 }
 
-.mediaObject {
-	background-color: black;
+#comment {
+	color: #a6a6a6;
+	font-weight: 900;
+	background: url(images/comments.png) no-repeat;
+	line-height: 2.7rem;
+	padding-left: 4rem;
+	float: left;
+	cursor: pointer;
 }
 
-.dropcap {
-	float: left;
-	font-size: 76px;
-	line-height: 76px;
-	margin: 0 15px 5px 0;
+.edit {
+	background: url(images/edit.png) no-repeat;
+	width: 3.1rem;
+	height: 2.9rem;
+	/*float: right;*/
+	margin-right: 1.5rem;
+	cursor: pointer;
+	display: inline-block;
 }
+
+.design {
+	background: url(images/design.png) no-repeat bottom;
+	width: 3.1rem;
+	height: 2.9rem;
+	/*float: right;*/
+	cursor: pointer;
+	display: inline-block;
+}
+
+a.nav_btn {
+	padding: 1rem;
+	text-decoration: none;
+	background-color: #026697;
+	color: white;
+	line-height: 3.9rem;
+}
+a.nav_btn:hover {
+	background-color: black;
+	/*color: #026697;
+	border: 1px solid #026697;*/
+}
+
+
+#graph {
+	position: fixed;
+}
+
+.graphNodeViewer {
+	position: absolute;
+	background: white;
+	border: 1px solid black;
+	display: none;
+}
+
+#zoomControls {
+	position: absolute;
+	bottom: 10px;
+	left: 50%;
+	width: 100px;
+	text-align: center;
+	margin-left: -50px;
+}
+
+#zoomControls svg {
+	cursor: pointer;
+}
+
+
+/* Hidden elements */
+aside { display: none; }
+span[property="dcterms:description"] { display: none; }
+.mediaElementHeader { display: none; }

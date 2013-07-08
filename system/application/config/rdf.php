@@ -35,6 +35,7 @@ $config['rdf_fields'] = array(
 		'has_version' =>			'dcterms:hasVersion',
 		'version_of' =>				'dcterms:isVersionOf',
 		'part_of' =>				'dcterms:isPartOf',
+		'has_part' =>				'dcterms:hasPart',
 		'references' => 			'dcterms:references',
 		'has_reference' =>			'dcterms:isReferencedBy',
 		'replaces' =>				'dcterms:replaces',

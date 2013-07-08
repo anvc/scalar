@@ -115,16 +115,20 @@ class Book extends MY_Controller {
 					if (!empty($version)) $version_datetime = $version->created;
 				}	
 				// Build nested array of page relationship
-				$this->data['page'] = $this->rdf_object->index(
+				$index = $this->rdf_object->index(
 			                         	$this->data['book'], 
 			                         	$page, 
 			                         	$this->data['base_uri'],
 			                         	RDF_Object::RESTRICT_NONE,
 			                         	RDF_Object::REL_ALL,
+			                         	RDF_Object::NO_SEARCH,
 			                         	RDF_Object::VERSIONS_MOST_RECENT,
 			                         	RDF_Object::REFERENCES_ALL,
 			                         	$max_recursions
-			                          );                      
+			                          );    
+			    if (!count($index)) throw new Exception('Problem getting page index');     
+			    $this->data['page'] = $index[0];
+			    unset($index);  
 				// Set the view based on the page's default view
 				$this->data['view'] = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
 				// Page creator
@@ -243,30 +247,49 @@ class Book extends MY_Controller {
 		
 	}
 	
-	// Import (import from an external archive)
+	// Import
 	private function import() {
 		
 		if (!$this->login_is_book_admin()) $this->kickout();
 
-		// Translate the import URL to information about the archive
 		$archive = $this->uri->segment(3);
-		$archive_title = str_replace('_',' ',$archive);
-		$archives_rdf_url = confirm_slash(APPPATH).'rdf/xsl/archives.rdf';
-		$archives_rdf = file_get_contents($archives_rdf_url);
-		$archives_rdf = str_replace('{$base_url}', confirm_slash($this->data['app_root']), $archives_rdf);
-		$archives =  $this->rdf_store->parse($archives_rdf);
-		$found = array();
-		foreach ($archives as $archive_uri => $archive) {
-			$title = $archive['http://purl.org/dc/elements/1.1/title'][0]['value'];
-			$identifier =@ $archive['http://purl.org/dc/terms/identifier'][0]['value'];
-			if (strtolower($title) == strtolower($archive_title)) $found[$archive_uri] = $archive;
-			if (!isset($found[$archive_uri]) && strtolower($identifier) == strtolower($archive_title)) $found[$archive_uri] = $archive;
-		}
-		if (!$found) die('Could not find archive');
-		$this->data['external'] = $this->rdf_store->helper($found);
-
-		$this->data['view'] = __FUNCTION__;
 		$this->data['hide_edit_bar'] = true;
+		
+		switch ($archive) {
+			
+			case 'system':
+			
+				// Import from another Scalar book on the same install
+				$this->data['view'] = 'import_system';
+				break;
+			
+			default:
+			
+				// Translate the import URL to information about the archive
+				$archive_title = str_replace('_',' ',$archive);
+				$archives_rdf_url = confirm_slash(APPPATH).'rdf/xsl/archives.rdf';
+				$archives_rdf = file_get_contents($archives_rdf_url);
+				$archives_rdf = str_replace('{$base_url}', confirm_slash($this->data['app_root']), $archives_rdf);
+				$archives =  $this->rdf_store->parse($archives_rdf);
+				$found = array();
+				foreach ($archives as $archive_uri => $archive) {
+					$title = $archive['http://purl.org/dc/elements/1.1/title'][0]['value'];
+					$identifier =@ $archive['http://purl.org/dc/terms/identifier'][0]['value'];
+					if (strtolower($title) == strtolower($archive_title)) $found[$archive_uri] = $archive;
+					if (!isset($found[$archive_uri]) && strtolower($identifier) == strtolower($archive_title)) $found[$archive_uri] = $archive;
+				}
+				if (!$found) die('Could not find archive');
+				$this->data['external'] = $this->rdf_store->helper($found);
+		
+				// API key from config if applicable
+				$id = $this->data['external']->getPropValue('http://purl.org/dc/terms/identifier');
+				if (empty($id)) $id = $this->data['external']->getPropValue('http://purl.org/dc/elements/1.1/title');
+				$id = strtolower($id);
+				$archive_api_key = $this->config->item($id.'_key');
+				$this->data['archive_api_key'] = (!empty($archive_api_key)) ? trim($archive_api_key) : null;
+				$this->data['view'] = __FUNCTION__;
+			
+		}
 
 	}
 
@@ -508,7 +531,8 @@ class Book extends MY_Controller {
 			$this->data['page_url'] = ltrim($this->uri->uri_string(),'/');
 			if (substr($this->data['page_url'], 0, strlen($this->data['book']->slug))==$this->data['book']->slug) $this->data['page_url'] = substr($this->data['page_url'], strlen($this->data['book']->slug));
 			$this->data['page_url'] = ltrim($this->data['page_url'], '/');
-			$this->data['page_url'] = rtrim($this->data['page_url'], '.edit');
+			// Don't use rtrim(..., '.edit'.), seems to have a bug with "workscited.edit" => "worksc"
+			if ('.edit'==substr($this->data['page_url'], -5, 5)) $this->data['page_url'] = substr($this->data['page_url'], 0, -5);
 		}
 
 		// Page view options

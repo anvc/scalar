@@ -53,17 +53,21 @@ class Page_model extends MY_Model {
     
     public function get_all($book_id=null, $type=null, $category=null, $is_live=true) {
 
-     	if (!empty($type)) $this->db->where('type',$type);
-     	if (!empty($category)) $this->db->where('category',$category);
-     	if (!empty($book_id)) $this->db->where('book_id',$book_id);
-     	if (!empty($is_live)) $this->db->where('is_live', 1);
-    	$this->db->order_by('slug', 'asc');
-    	$query = $this->db->get($this->pages_table);
+    	$this->db->distinct();
+    	$this->db->select($this->pages_table.'.*');
+    	$this->db->from($this->pages_table);
+     	if (!empty($type)) $this->db->where($this->pages_table.'.type',$type);
+     	if (!empty($category)) $this->db->where($this->pages_table.'.category',$category);
+     	if (!empty($book_id)) $this->db->where($this->pages_table.'.book_id',$book_id);
+     	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
+    	$this->db->order_by($this->pages_table.'.slug', 'asc');
+    	$query = $this->db->get();
     	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->urn = $this->urn($result[$j]->content_id);
     	}
+
     	return $result;    	
     	
     }  

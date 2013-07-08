@@ -8,6 +8,8 @@
 .texteo_icon_image {background-image:url(images/image.png); background-position:2px 4px; padding-left:20px;}
 .texteo_icon_generic_resource {background-image:url(images/generic-media.png); background-position:2px 4px; padding-left:20px;}
 .texteo_icon_note {background-image:url(images/note.png); background-position:2px 4px; padding-left:20px;}
+.texteo_icon_map {background-image:url(images/map.png); background-position:2px 4px; padding-left:20px;}
+.texteo_icon_document {background-image:url(images/page.png); background-position:2px 4px; padding-left:20px;}
 
-.texteo_icon_external {background-image:url(images/external.png); background-position:2px 4px;; padding-left:21px;}
-.texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 4px;; padding-left:21px;}
+.texteo_icon_external {background-image:url(images/external.png); background-position:2px 4px; padding-left:21px;}
+.texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 4px; padding-left:21px;}

@@ -240,7 +240,7 @@ $config['cache_path'] = '';
 | enabled you MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = "abcdefghijk";
+$config['encryption_key'] = "";
 
 /*
 |--------------------------------------------------------------------------
@@ -259,7 +259,7 @@ $config['sess_expiration']		= 7200;
 $config['sess_encrypt_cookie']	= TRUE;
 $config['sess_use_database']	= TRUE;
 $config['sess_table_name']		= 'scalar_db_sessions';
-$config['sess_match_ip']		= FALSE;   
+$config['sess_match_ip']		= FALSE;   // For use at NYU, set this to FALSE (they send invalid IP addresses)
 $config['sess_match_useragent']	= TRUE;
 $config['sess_time_to_update'] 	= 400;
 

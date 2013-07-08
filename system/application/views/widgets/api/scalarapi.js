@@ -19,6 +19,10 @@
 
 var scalarapi = new ScalarAPI();
 
+function is_array(input){
+  return typeof(input)=='object'&&(input instanceof Array);
+}
+
 /**
  * Creates a new instance of the API utility. You do not need to
  * call this constructor; the utility calls it itself and places
@@ -314,6 +318,19 @@ function ScalarAPI() {
 				'Safari': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true}
+			}},
+		'KML': {
+			name:'KML', 
+			extensions:['kml','kmz'],
+			isProprietary:false,
+			contentType:'map',
+			browserSupport: {
+				'Mozilla': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
+				'Explorer': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
+				'MobileSafari': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
+				'Safari': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
+				'Chrome': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
+				'Other': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false}
 			}},
 		'M4V': {
 			name:'M4V',
@@ -686,7 +703,13 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 			
 		} else if (uri.indexOf('http://soundcloud.com') != -1) {
 			source = this.mediaSources['SoundCloud'];
-	
+			
+		} else if (uri.indexOf('soundcloud.com') != -1) {
+			source = this.mediaSources['SoundCloud'];
+			
+		} else if (uri.indexOf('output=kml') != -1) {
+			source = this.mediaSources['KML'];
+			
 		// override if the path makes reference to HyperCities		
 		} else if (uri.substr(uri.length - 4) == 'h264') {
 			source = this.mediaSources['MPEG-4'];
@@ -1489,9 +1512,9 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
  */
 ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 
-	var action_types = ['ADD', 'UPDATE', 'DELETE', 'UNDELETE'];  // As the DELETE commend doesn't actually delete but sets is_live=0, 'saving' makes semantic sense
+	var action_types = ['ADD', 'UPDATE', 'DELETE', 'UNDELETE'];  // As the DELETE command doesn't actually delete but sets is_live=0, 'saving' makes semantic sense
 	var required_fields = ['action', 'native', 'id', 'api_key'];
-	var add_update_required_fields = ['rdf:type', 'sioc:content', 'dcterms:title', 'dcterms:description'];
+	var add_update_required_fields = ['rdf:type', 'sioc:content', 'dcterms:title'];
 	var tosend = {};
 	var tosend_formatted = [];
 
@@ -1522,7 +1545,7 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 		if (!tosend['native'] && !tosend['api_key'].length) throw "Empty required user field 'api_key'";			
 		if ('http://'==data['scalar:metadata:url']) data['scalar:metadata:url'] = '';  // default value
 		
-		// Add  additional metadata being passed through
+		// Add additional metadata being passed through
 		for (var j in data) {
 			if (tosend.hasOwnProperty(j)) continue;
 			if (-1==j.indexOf(':')) continue;  // Simple test for a pnode
@@ -1604,7 +1627,6 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
 	scalarapi.nodeExistsCallback(propCount > 0);
 }
 
-
 // TODO: Provide rudimentary jsonp error handling (it's not supported via jQuery),
 // perhaps using this: http://code.google.com/p/jquery-jsonp/
 
@@ -1621,7 +1643,7 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
  * @param	relation			If populated, will return only relations of the specified type
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation) {
+ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation) {
 
 	var url = this.model.urlPrefix+uriSegment;
 	var node = this.model.nodesByURL[this.model.urlPrefix+uriSegment];
@@ -1695,7 +1717,7 @@ ScalarAPI.prototype.handleLoadPageError = function(XMLHttpRequest, textStatus, e
  * @param	json		JSON data about the loaded page.
  */
 ScalarAPI.prototype.parsePage = function(json) {
-	this.model.deleteRelationsForNodes(this.model.urlPrefix+this.basepath(document.location.href));
+	//this.model.deleteRelationsForNodes(this.model.urlPrefix+this.basepath(document.location.href));
 	
 	var nodes = scalarapi.model.parseNodes(json);
 	scalarapi.model.parseRelations(json);
@@ -1727,7 +1749,7 @@ ScalarAPI.prototype.parsePage = function(json) {
  * @param	relation			If true, will return only relations of the named type
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadCurrentPage = function(forceReload, successCallback, errorCallback, depth, references, relation) {
+ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = function(forceReload, successCallback, errorCallback, depth, references, relation) {
 
 	// TODO: Potentially rejigger this to call loadPage or loadMedia
 	
@@ -1759,7 +1781,6 @@ ScalarAPI.prototype.loadCurrentPage = function(forceReload, successCallback, err
 				error:[this.handleLoadCurrentPageError, errorCallback]
 			});
 			this.loadCurrentPageStatus.isLoading = true;
-			//console.log('loading '+this.model.urlPrefix+'rdf/node/'+this.basepath(document.location.href)+'?format=json'+expandString);
 			return 'loading';
 			
 		// otherwise, add the callbacks to the list of those to be called when the load completes
@@ -1806,6 +1827,26 @@ ScalarAPI.prototype.parseCurrentPage = function(json) {
 	}
 	scalarapi.loadCurrentPageStatus.queuedSuccessCallbacks = [];
 	scalarapi.loadCurrentPageStatus.queuedErrorCallbacks = [];
+}
+
+/**
+ * Returns the page identified by the supplied URI segment.
+ *
+ * @param	uriSegment			The URI segment identifying the page to be retrieved.
+ * @return						The node for the desired page, if found.
+ */
+ScalarAPI.prototype.getNode = function(uriSegment) {
+	return this.model.nodesByURL[this.model.urlPrefix+uriSegment];
+}
+
+/**
+ * Sets the urlPrefix to be used in subsequent calls to the API to the book
+ * referenced in the supplied URL.
+ *
+ * @param	scalarURL			A URL from a Scalar book.
+ */
+ScalarAPI.prototype.setBook = function(scalarURL) {
+	this.model.urlPrefix = scalarURL.split('/').slice(0,5).join('/')+'/';
 }
 
 /**
@@ -1895,7 +1936,7 @@ ScalarAPI.prototype.parseBook = function(json) {
  * @param	relation			If true, will return only relations of the named type
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation) {
+ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation) {
 
 	var nodes = this.model.getNodesWithProperty('scalarType', type);
 	
@@ -2029,6 +2070,7 @@ function ScalarModel(options) {
 		{property:'contributor', uri:'http://purl.org/dc/terms/contributor', type:'string'},
 		{property:'source', uri:'http://purl.org/dc/terms/source', type:'string'},
 		{property:'thumbnail', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail', type:'string'},
+		{property:'thumbnail', uri:'artstor:thumbnail', type:'string'},
 		{property:'sourceLocation', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#sourceLocation', type:'string'},
 		{property:'urn', uri:'http://scalar.usc.edu/2012/01/scalar-ns#urn', type:'string'},
 		{property:'sortNumber', uri:'http://scalar.usc.edu/2012/01/scalar-ns#sort_number', type:'int'},
@@ -2046,7 +2088,8 @@ function ScalarModel(options) {
 		'review':{id:'review', body:'review', bodyPlural:'reviews', target:'item', targetPlural:'items', incoming:'has', outgoing:'is a review of'},
 		'author':{id:'author', body:'book', bodyPlural:'books', target:'author', targetPlural:'authors', incoming:'written by', outgoing:'has written'},
 		'commentator':{id:'commentator', body:'book', bodyPlural:'book', target:'commentator', targetPlural:'commentators', incoming:'responded to by', outgoing:'has responded to'},
-		'reviewer':{id:'reviewer', body:'book', bodyPlural:'books', target:'reviewer', targetPlural:'reviewers', incoming:'reviewed by', outgoing:'has reviewed'}
+		'reviewer':{id:'reviewer', body:'book', bodyPlural:'books', target:'reviewer', targetPlural:'reviewers', incoming:'reviewed by', outgoing:'has reviewed'},
+		'unknown':{id:'unknown', body:'item', bodyPlural:'items', target:'item', targetPlural:'items', incoming:'linked to', outgoing:'linked to'}
 	}
 	
 	this.scalarTypes = {
@@ -2173,8 +2216,6 @@ ScalarModel.prototype.parseNodes = function(json) {
 		
 	}	
 	
-	//console.log(resultNodes);
-	
 	return resultNodes;
 	
 }	
@@ -2212,8 +2253,6 @@ ScalarModel.prototype.parseRelations = function(json) {
 		if (this.nodes[i].current) this.nodes[i].current.parseRelations();
 	}
 	
-	//console.log(resultRelations);
-	
 	//return resultRelations;
 }	
 		
@@ -2242,9 +2281,6 @@ ScalarModel.prototype.deleteRelationsForNodes = function(nodeRefSpec) {
 	var index;
 	var shouldDelete;
 	
-	//console.log('try to delete');
-	//console.log(nodeRefs);
-	
 	for (var id in this.relationsById) {
 	
 		relation = this.relationsById[id];
@@ -2263,12 +2299,10 @@ ScalarModel.prototype.deleteRelationsForNodes = function(nodeRefSpec) {
 					// delete all relations of that type (TODO: protect against case where
 					// a node has the same name as one of our relation types)
 					if (relation.body.scalarTypes[ref] || relation.target.scalarTypes[ref]) {
-						//console.log('type delete');
 						shouldDelete = true;
 						
 					// otherwise, assume the string is a node url
 					} else if ((relation.body.url == ref) || (relation.target.url == ref)) {
-						//console.log('url delete');
 						shouldDelete = true;
 					}
 					
@@ -2278,7 +2312,6 @@ ScalarModel.prototype.deleteRelationsForNodes = function(nodeRefSpec) {
 				}
 	
 				if (shouldDelete) {
-					//console.log(relation);
 					index = relation.body.outgoingRelations.indexOf(relation);
 					relation.body.outgoingRelations.splice(index, 1);
 					index = relation.target.incomingRelations.indexOf(relation);
@@ -2406,8 +2439,6 @@ ScalarModel.prototype.getNodesWithProperty = function(property, value, sort) {
 		}
 	}
 	
-	//console.log('looking for nodes where '+property+' = '+value);
-	
 	n = results.length;
 	switch (sort) {
 	
@@ -2432,8 +2463,6 @@ ScalarModel.prototype.getNodesWithProperty = function(property, value, sort) {
 		break;
 	
 	}
-	
-	//console.log('found '+n+' nodes');
 
 	return results;
 }
@@ -2546,15 +2575,9 @@ ScalarNode.prototype.parseData = function(json, versionData) {
 			this.versions.push(new ScalarVersion(versionData[i], this));
 		}
 		
-		/*
-		console.log(this.url);
-		console.log('replaced old, created '+n+' new versions');
-		console.log(versionData);
-		console.log(this.versions);*/
-		
 		// sort versions by version number, descending
 		this.versions.sort(function(a,b) {
-			return b.versionNumber - a.versionNumber;
+			return parseFloat(b.versionNumber) - parseFloat(a.versionNumber);
 		});
 		
 		this.current = this.versions[0];
@@ -2610,15 +2633,13 @@ ScalarNode.prototype.parseRelations = function() {
 			body = this;
 			target = scalarapi.model.nodesByURL[scalarapi.stripAllExtensions(arr[i].value)];
 			anchorVars = scalarapi.getAnchorVars(arr[i].value);
-			//console.log(body.url+target.url);
-			//console.log(scalarapi.model.relationsById[body.url+target.url]);
 			if ((body && target) && (scalarapi.model.relationsById[body.url+target.url] == undefined)) {
 				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.referee);
 				//scalarapi.model.relations.push(relation);
-				//console.log('*** '+relation.id);
 				scalarapi.model.relationsById[relation.id] = relation;
 				for (var prop in anchorVars) {
 					relation.properties[prop] = anchorVars[prop];
+					if (prop == 'index') relation.index = anchorVars[prop];
 				}
 			}
 		}
@@ -2687,7 +2708,6 @@ ScalarNode.prototype.addRelation = function(relation) {
 				}
 			}
 			if (!foundExisting) {
-				//console.log('add relation '+relation.body.url+' '+relation.target.url+' body');
 				this.outgoingRelations.push(relation);
 			}
 			
@@ -2712,7 +2732,6 @@ ScalarNode.prototype.addRelation = function(relation) {
 				}
 			}
 			if (!foundExisting) {
-				//console.log('add relation '+relation.body.url+' '+relation.target.url+' target');
 				this.incomingRelations.push(relation);
 			}
 		}
@@ -2871,8 +2890,8 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 	}
 	
 	relations.sort(function(a,b) {
-		if (a.index < b.index) return -1;
-		if (a.index > b.index) return 1;
+		if (parseInt(a.index) < parseInt(b.index)) return -1;
+		if (parseInt(a.index) > parseInt(b.index)) return 1;
 	})
 	
 	n = relations.length;
@@ -2944,8 +2963,8 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 	
 		case 'index':
 		results.sort(function(a,b) {
-			if (a.index < b.index) return -1;
-			if (a.index > b.index) return 1;
+			if (parseInt(a.index) < parseInt(b.index)) return -1;
+			if (parseInt(a.index) > parseInt(b.index)) return 1;
 		})
 		break;
 	
@@ -3030,7 +3049,24 @@ ScalarVersion.prototype.parseData = function(data, node) {
 	}
 
 	if (node.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media') {
+	
 		this.mediaSource = scalarapi.parseMediaSource(this.sourceFile);
+		
+		// if we couldn't parse the media type from the URL, look for dc:type
+		if (this.mediaSource == scalarapi.mediaSources.Unsupported) {
+			var dctype;
+			if (this.properties['http://purl.org/dc/terms/type']) dctype = this.properties['http://purl.org/dc/terms/type'][0].value;
+			if (dctype != undefined) {
+				if (dctype.indexOf('image') != -1) {
+					this.mediaSource = scalarapi.mediaSources.JPEG;
+				} else if (dctype.indexOf('sound') != -1) {
+					this.mediaSource = scalarapi.mediaSources.MP3;
+				} else if (dctype.indexOf('text') != -1) {
+					this.mediaSource = scalarapi.mediaSources.PlainText;
+				}
+			}
+		}
+		
 	} else {
 		this.mediaSource = scalarapi.mediaSources.HTML;
 	}
@@ -3043,10 +3079,6 @@ ScalarVersion.prototype.parseData = function(data, node) {
  * @private
  */
 ScalarVersion.prototype.parseRelations = function() {
-
-	/*console.log(this.url);
-	console.log(this.data.json);
-	console.log(this.data.json['http://purl.org/dc/terms/references']);*/
 
 	var arr = this.data.json['http://purl.org/dc/terms/references'];
 	var relation;
@@ -3187,6 +3219,7 @@ function ScalarRelation(json, body, target, type) {
 						break;
 						
 					}
+					break;
 				
 				}				
 			
@@ -3199,7 +3232,11 @@ function ScalarRelation(json, body, target, type) {
 		this.body = body;
 		this.target = target;
 		this.id = this.body.url+this.target.url;
-		this.type = type;
+		if (type != undefined) {
+			this.type = type;
+		} else {
+			this.type = scalarapi.model.relationTypes.unknown;
+		}
 	}
 	
 	if (this.body && this.target){

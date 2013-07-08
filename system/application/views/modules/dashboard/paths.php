@@ -1,6 +1,12 @@
 <?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
 
+<?
+	if (empty($book)):
+		echo 'Please select a book to manage using the pulldown menu above';
+	else:	
+?>	
+
 		<script>
 		$(document).ready(function() {
 			$(".tablesorter").tablesorter({ 
@@ -205,4 +211,5 @@
 		<form onsubmit="deleteContent();return false;">
 		<input type="submit" value="Delete selected content" class="generic_button large" />
 		&nbsp; <small>Caution: will delete checked path relationship <b>and the path page</b></small>
-		</form>		
+		</form>	
+<? endif ?>	

@@ -65,6 +65,14 @@ $(window).load(function() {
  */   
 $(window).ready(function() {
 	
+	if ($('.scalarnotice').length) {
+      yepnope([
+        {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/notice/jquery.scalarnotice.js'], complete:function() {
+        	$('.scalarnotice').scalarnotice();
+        }},   		        
+      ]);
+	};	
+	
 	yepnope([
  
 		  // Scalar API

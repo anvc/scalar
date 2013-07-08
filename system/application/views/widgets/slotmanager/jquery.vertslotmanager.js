@@ -150,7 +150,7 @@
 						onScreenTags.push(j); // store indexes of on-screen tags for later
 					}
 				}
-				
+
 				// if there's at least one tag on screen, then
 				if (onScreenTags.length > 0) {
 					var tagIndex;
@@ -164,6 +164,10 @@
 					//unhighlight_all($this.data('tags'));
 					//$tags[onScreenTags[tagIndex]].slotmanager_highlight();
 					$tags[onScreenTags[tagIndex]].slotmanager_move_to($scrollable_element, $this);
+				
+				// otherwise, scroll to the top element
+				} else {
+					$tags[0].slotmanager_move_to($scrollable_element, $this);
 				}
 				
 			});				
@@ -274,7 +278,7 @@
      */			
 	
 	$.fn.slotmanager_move_to = function($scrollable_element, $slot_container) {
-	
+
 		$tag = $(this);
 		if ('undefined'==typeof($tag.data('slot'))) return;
 		$slider = $tag.data('slot').parent();
@@ -515,7 +519,7 @@
 				controls_top = ( window_height - top_offset + scrolltop ) - controls_height;			
 			} 
 			
-			$container.css('clip', 'rect(0px,'+innerWidth+'px,'+(controls_top)+'px,0px)');
+			// $container.css('clip', 'rect(0px,'+innerWidth+'px,'+(controls_top)+'px,0px)');
 	
 			$controls.css('top', controls_top+'px');
 

@@ -319,8 +319,7 @@ function handleFlashVideoMetadata(data) {
 		
 			this.link = link; 															// encapsulates the original hyperlink and other data
 			this.sidebarWidth = 270;  			   										// width of the annotation sidebar
-			this.mediaSource = scalarapi.parseMediaSource(this.link.data('path'));		// data about the type of media being presented
-			
+
 			// path to the media file
 			this.path = (this.link.data('path')) ? this.link.data('path') : '';	
 			this.path = (this.path.indexOf('://')==-1) ? scalarapi.model.urlPrefix + this.path : this.path;
@@ -377,6 +376,7 @@ function handleFlashVideoMetadata(data) {
 		jQuery.MediaElementController.prototype.handleMetadata = function(json) {
 			
 			me.model.node = scalarapi.model.nodesByURL[me.model.meta];
+			me.model.mediaSource = me.model.node.current.mediaSource;
 			me.view.beginSetup();
 			
 			// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
@@ -456,6 +456,7 @@ function handleFlashVideoMetadata(data) {
 		this.annotationTimerRunning = false;						// true if the timer that checks for annotation seek success is running
 		this.seekAttemptCount = 0;									// number of times we've tried to seek
 		this.cachedPlayCommand = false;								// if true, then we should play after a successful seek
+		this.currentAnnotation = null;								// currently active annotation
 
 		/**
 		 * Starts the process of initializing the view.
@@ -805,12 +806,8 @@ function handleFlashVideoMetadata(data) {
 				this.footer.hide();
 				this.footer.remove();
 				
-			// show description of media if in 'chromeless' mode
-			} else if (this.model.isChromeless) {
-				this.footer.append('<div>'+this.model.node.current.description+'</div>');
-				
 			// standard footer
-			} else {
+			} else if (!this.model.isChromeless) {
 			
 				// show number of annotations if we're in vertical layout and not in the annotation editor
 				if (this.model.containerLayout == "vertical") {
@@ -960,6 +957,10 @@ function handleFlashVideoMetadata(data) {
 					}
 					break;
 					
+					case 'KML':
+					this.mediaObjectView = new $.GoogleMapsObjectView(this.model, this);
+					break;
+					
 				}
 				break;
 				
@@ -1051,8 +1052,10 @@ function handleFlashVideoMetadata(data) {
 				}
 				
 				// update horizontal margins around media element
-				hMargin = (this.initialContainerWidth - parseFloat(this.model.element.width())) * .5;
-				this.model.element.css('margin-left', hMargin);
+				if (!this.model.isChromeless) {
+					hMargin = (this.initialContainerWidth - parseFloat(this.model.element.width())) * .5;
+					this.model.element.css('margin-left', hMargin);
+				}
 			} else {
 				if (this.model.isChromeless) {
 					this.model.element.width(this.resizedDim.x);
@@ -1071,7 +1074,8 @@ function handleFlashVideoMetadata(data) {
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
-				this.containerDim.x = this.initialContainerWidth - 1;
+				this.containerDim.x = this.initialContainerWidth;
+				if (!this.model.isChromeless) this.containerDim.x--;
 				if (this.annotationsVisible) {
 					this.containerDim.x -= (parseInt(this.annotationSidebar.width()) + (this.gutterSize * 2));
 				}
@@ -1088,7 +1092,8 @@ function handleFlashVideoMetadata(data) {
 				break;
 
 				case "vertical":
- 				this.containerDim.x = parseInt(this.model.options.width) - 2;
+				this.containerDim.x = parseInt(this.model.options.width)
+ 				if (!this.model.isChromeless) this.containerDim.x -=2;
  				if (this.controllerOnly) {
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
@@ -1157,10 +1162,18 @@ function handleFlashVideoMetadata(data) {
 			//console.log(this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
 			
 			if (mediaAR > containerAR) {
-				this.resizedDim.x = this.containerDim.x - (this.gutterSize * 2);
+				if (this.model.isChromeless) {
+					this.resizedDim.x = this.containerDim.x;
+				} else {
+					this.resizedDim.x = this.containerDim.x - (this.gutterSize * 2);
+				}
 				this.resizedDim.y = this.resizedDim.x / mediaAR + this.controllerOffset;
 			} else {
-				this.resizedDim.y = this.containerDim.y - (this.gutterSize * 2);
+				if (this.model.isChromeless) {
+					this.resizedDim.y = this.containerDim.y;
+				} else {
+					this.resizedDim.y = this.containerDim.y - (this.gutterSize * 2);
+				}
 				this.resizedDim.x = (this.resizedDim.y - this.controllerOffset) * mediaAR;
 			}
 		
@@ -1283,8 +1296,10 @@ function handleFlashVideoMetadata(data) {
 			}
 			
 			// update horizontal margins around media element
-			var hMargin = Math.max(0, (this.initialContainerWidth - parseFloat(this.model.element.width())) * .5);
-			this.model.element.css('margin-left', hMargin);
+			if (!this.model.isChromeless) {
+				var hMargin = Math.max(0, (this.initialContainerWidth - parseFloat(this.model.element.width())) * .5);
+				this.model.element.css('margin-left', hMargin);
+			}
 			
 			this.doInstantUpdate();	
 	
@@ -1352,6 +1367,7 @@ function handleFlashVideoMetadata(data) {
 				var chip;
 				var startPosition;
 				var endPosition;
+				var newCurrentAnnotation;
 				var i;
 				var n = me.annotations.length;
 				
@@ -1366,7 +1382,7 @@ function handleFlashVideoMetadata(data) {
 						chip = me.annotationSidebar.find('div.annotationChip').eq(i);
 						
 						// if this annotation is active,
-						if ((currentPosition >= startPosition) && (currentPosition <= endPosition)) {
+						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
 							
 							// generate a display title for the annotation
@@ -1376,7 +1392,7 @@ function handleFlashVideoMetadata(data) {
 								annoTitle = scalarapi.decimalSecondsToHMMSS(me.getCurrentTime())+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
 							}
 							
-							annoObject = annotation;
+							newCurrentAnnotation = annotation;
 							
 							// if we just arrived at this annotation, then set up highlighting
 							if (!chip.hasClass('selectedAnnotation')) {
@@ -1403,13 +1419,13 @@ function handleFlashVideoMetadata(data) {
 					} else {
 						
 						// if this annotation is active, set up highlighting
-						if ((currentPosition >= startPosition) && (currentPosition <= endPosition)) {
+						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
 							
 							// generate a display title for the annotation
 							annoTitle = scalarapi.decimalSecondsToHMMSS(me.getCurrentTime())+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
 							
-							annoObject = annotation;
+							newCurrentAnnotation = annotation;
 							action = 'fadeIn';
 							if (annotation == me.model.seekAnnotation) {
 								me.playingSeekAnnotation = true;
@@ -1421,7 +1437,7 @@ function handleFlashVideoMetadata(data) {
 						}
 					}
 				}
-
+				
 				if (me.annotationDisplay) {
 				
 					// annotation highlight bar behavior
@@ -1435,7 +1451,7 @@ function handleFlashVideoMetadata(data) {
 						if ((liveCount == 0) && (me.annotationDisplay.find('.annoSeekMessage').length == 0)) {
 							me.annotationDisplay.fadeOut();
 							if (me.model.mediaSource.contentType == 'document') {
-								$('body').trigger('hide_annotation'); // Added by Craig for Live Annotations
+								$('body').trigger('hide_annotation', [this.currentAnnotation, me]); // Added by Craig for Live Annotations
 							}
 						}
 						break;
@@ -1453,16 +1469,43 @@ function handleFlashVideoMetadata(data) {
 								// this prevents Vimeo videos generated from linked annotations from displaying
 								// their live annotation when cueing up on page load
 								if ((me.mediaObjectView.initialPauseDone) && (me.intervalId != null)) {
-									$('body').trigger('show_annotation', [annoObject, me]); // show live annotation
+									$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
 								}
 							} else {
-								$('body').trigger('show_annotation', [annoObject, me]); // show live annotation
+								$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
 							}
 						}
 					} 
 		
 					if ((scrollTop != null) && (me.annotationsVisible)) me.annotationSidebar.animate({scrollTop:scrollTop}, 500);
+					
+				} else if (me.model.isChromeless) {
+					
+					if (liveCount > 0) {
+						if ((me.model.mediaSource.name == 'Vimeo') ||(me.model.mediaSource.name == 'SoundCloud')) {
+							// this prevents Vimeo videos generated from linked annotations from displaying
+							// their live annotation when cueing up on page load
+							if ((me.mediaObjectView.initialPauseDone) && (me.intervalId != null)) {
+								$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
+							}
+						} else {
+							$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
+						}
+						if (this.currentAnnotation != null) {
+							if (newCurrentAnnotation.body.url != this.currentAnnotation.body.url) {
+								$('body').trigger('hide_annotation', [this.currentAnnotation, me]);
+							}
+						}
+					} else {
+						$('body').trigger('hide_annotation', [this.currentAnnotation, me]);
+					}
 				}
+			}
+			
+			if (liveCount == 0) {
+				this.currentAnnotation = null;
+			} else {
+				this.currentAnnotation = newCurrentAnnotation;
 			}
 
 		}
@@ -1849,7 +1892,13 @@ function handleFlashVideoMetadata(data) {
  		
 			this.wrapper = $('<div class="mediaObject"></div>');
 			this.image = new Image();
+			if (this.model.node.current.description != undefined) {
+				this.image.alt = this.model.node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+			} else {
+				this.image.alt = '';
+			}			
 			$(this.image).appendTo(this.wrapper);
+			$(this.image).css('display', 'none');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
 
 			// setup actions to be taken on image load
@@ -2400,6 +2449,7 @@ function handleFlashVideoMetadata(data) {
 				
 				// finding the right thumbnail Critical Commons thumbnail image
 				if ((this.model.mediaSource.name == 'CriticalCommons-LegacyVideo') || (this.model.mediaSource.name == 'CriticalCommons-Video')) {
+					thumbnailURL = thumbnailURL.replace('thumbnailImage_thumb', 'thumbnailImage');
 					thumbnailURL = thumbnailURL.replace('thumbnailImage_small', 'thumbnailImage');
 				}
 				
@@ -2920,7 +2970,7 @@ function handleFlashVideoMetadata(data) {
  			
  			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.swf", {
  			
- 				key: '#$095b1678109acb79c61',
+ 				key: $('#flowplayer_key').attr('href'),
 
 			    clip: {
 			        url: this.model.path,
@@ -3089,7 +3139,7 @@ function handleFlashVideoMetadata(data) {
  			var theElement = $('<div class="mediaObject" id="'+this.bsn+'_mediaObject'+this.model.id+'"/>"').appendTo(this.parentView.mediaContainer);
  			var thePlayer = $f(this.bsn+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.swf", {
 
- 				key: '#$095b1678109acb79c61',
+ 				key: $('#flowplayer_key').attr('href'),
 
 			    clip: {
 			        urlResolvers: 'bwcheck',
@@ -4051,6 +4101,63 @@ function handleFlashVideoMetadata(data) {
 			return this.isAudioPlaying;
 		}
 
+	}
+
+	/**
+	 * View for Google Maps content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.GoogleMapsObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.isLiquid = true;					// media will expand to fill available space
+
+		/**
+		 * Creates the video media object.
+		 */
+		jQuery.GoogleMapsObjectView.prototype.createObject = function() {
+		
+			var approot = $('link#approot').attr('href');
+			
+			this.mediaObject = $('<div class="mediaObject" id="googlemaps'+me.model.id+'"></div>').appendTo(this.parentView.mediaContainer);
+
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+			
+			var mapOptions = {
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			}
+			var map = new google.maps.Map(document.getElementById('googlemaps'+me.model.id), mapOptions);
+			var kmlLayer = new google.maps.KmlLayer(this.model.path);
+			kmlLayer.setMap(map);
+			
+			return;
+		}
+
+		// These functions are basically irrelevant for HTML pages
+		jQuery.GoogleMapsObjectView.prototype.play = function() { }
+		jQuery.GoogleMapsObjectView.prototype.pause = function() { }
+		jQuery.GoogleMapsObjectView.prototype.seek = function(time) { }
+		jQuery.GoogleMapsObjectView.prototype.getCurrentTime = function() { }
+		jQuery.GoogleMapsObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.GoogleMapsObjectView.prototype.resize = function(width, height) {
+			$('#googlemaps'+me.model.id).width(Math.round(width));
+			$('#googlemaps'+me.model.id).height(Math.round(height));
+		}
+		
 	}
 				
 }) (jQuery);

@@ -55,6 +55,7 @@ echo doctype('html5')."\n"
 <? if ($login_is_super || $this->users->is_a($user_level,'commentator')): ?>
 <link id="user_level" href="scalar:<?=(($login_is_super)?'Author':ucwords($user_level))?>" />
 <? endif ?>
+<link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_link_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.css')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>
@@ -62,6 +63,7 @@ echo doctype('html5')."\n"
 <?=template_script_tag_relative(__FILE__, 'common.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudsdk.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudapi.js')."\n"?>
+<?="<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=".$this->config->item('google_maps_key')."&sensor=false\"></script>"."\n"?>
 <?=template_script_tag_relative(__FILE__, 'yepnope.1.5.3-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'yepnope.css.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'main.js')."\n"?>

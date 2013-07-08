@@ -48,24 +48,34 @@ function jsonToXMLNodes($row) {
 	foreach ($row as $field => $value) {
 		if (is_numeric($field)) $field = 'node';
 		$field = str_replace(' ','_',$field);
+		$field = str_replace('@','',$field);
+		$field = str_replace('#','',$field);
+		$field = str_replace(':','',$field);
 		$return .= '<'.$field.'>';
 		if ('array'==gettype($value)) {
 			$return .= jsonToXMLNodes($value);
 		} else {
+			if ('null'==$value) $value = '';
 			$return .= '<![CDATA['.trim($value).']]>';
 		}
 		$return .= '</'.$field.'>';
 	}
 	return $return;
 }
+function json_clean_line_breaks($str) {
+	$str = str_replace("\r\n", "\n", $str);
+    $str = str_replace("\r", "\n", $str);
+    $str = str_replace("\n", "\\n", $str);
+	return $str;
+}
 
 if ('json'==$format) {
-	$json = json_decode(file_get_contents($uri), true);
+	$json = json_decode(json_clean_line_breaks(file_get_contents($uri)), true);
 	$xml = jsonToXML($json);
 } else {
 	$xml = file_get_contents($uri);
 }
-if ($xml===false) {
+if (false===$xml) {
 	echo '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"></rdf:RDF>';
 	exit;
 }

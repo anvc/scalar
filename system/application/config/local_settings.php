@@ -16,8 +16,24 @@ $config['register_key'] = array();
 // Soundcloud key
 $config['soundcloud_key'] = '';
 
+// Digital Public Library of America key
+$config['dpla_key'] = '';
+
+// Flowplayer key
+$config['flowplayer_key'] = '';
+
+// Google Maps key
+$config['google_maps_key'] = '';
+
 // Custom message for the book index page (leave blank for no message)				   
 $config['index_msg'] = '';
+
+// Custom message displayed inside a book. Will remain hidden after user closes the popup for the first time.
+$config['book_msg'] = '';
+$config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
+
+// If true, keep self-published books on the book index page hidden under a tab
+$config['index_hide_published'] = true;
 
 // Redlisted domains that won't let themselves be included in expernal.php's iframe
 $config['iframe_redlist'] = array('youtube.com'); 

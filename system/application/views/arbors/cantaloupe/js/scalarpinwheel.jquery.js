@@ -1,473 +1,31 @@
+(function($) {
 
-var scalarview = new ScalarView();
-
-function nl2br (str) {
-	var breakTag = '<br>'; 
-	str = (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+breakTag+'$2'); 
-	str = (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, ''); 
-	return str;
-} 
-
-// TODO: Use SVG to draw circular backgrounds behind icon buttons
-// TODO: Enable zooming in basin
-// TODO: Show history with colored highlights in basin (current vs. all)
-
-/**
- * Creates a new instance of the ScalarView class. You do not need to
- * call this constructor; this file calls it itself and places
- * the resulting instance in the global variable sclarview.
- * @class 		Handles configuration and display of the Scalar interface.
- * @author		Erik Loyer
- *
- * @property {Number} windowWidth			Width of the current window.
- * @property {Array} visitedURLs			Array of all visited URLs in the book.
- * @property {Array} markedURLs				Array of all marked URLs in the book.
- * @property {Object} basin					Navigation interface.
- * @property {Object} surface				Reading interface.
- * @property {Boolean} marginsCollapsed		Are horizontal margins currently collapsed?
- */
-function ScalarView() {
-
-	var me = this;
+	$.scalarpinwheel = function(e, options) {
 	
-	this.visitedURLs = [];
-	this.markedURLs = [];
-	this.singlePageMode = false;
-	
-}
-
-ScalarView.prototype.state = null;
-ScalarView.prototype.surface = null;
-ScalarView.prototype.basin = null;
-ScalarView.prototype.pinwheel = null;
-ScalarView.prototype.windowWidth = null;
-ScalarView.prototype.marginsCollapsed = null;
-ScalarView.prototype.currentURL = null;
-ScalarView.prototype.visitedURLs = null;
-ScalarView.prototype.markedURLs = null;
-ScalarView.prototype.currentNode = null;
-ScalarView.prototype.tocNode = null;
-ScalarView.prototype.stateProperties = null;
-ScalarView.prototype.startTime = null;
-ScalarView.prototype.transitionDuration = null;
-ScalarView.prototype.transitionTimer = null;
-ScalarView.prototype.viewType = null;
-ScalarView.prototype.singlePageMode = null;
-ScalarView.prototype.instance = null;
-ScalarView.prototype.book = null;
-
-/*
-ScalarView.prototype.surfaceMargin = null;
-ScalarView.prototype.collapsedSurfaceMargin = null;
-ScalarView.prototype.visScaleY = null;
-ScalarView.prototype.editor = null;
-ScalarView.prototype.editorPlates = null;
-ScalarView.prototype.wysiwyg = null;
-ScalarView.prototype.pageScroll = null;
-ScalarView.prototype.startValues = null;
-ScalarView.prototype.changeAmounts = null;
-ScalarView.prototype.surfaceMarginCollapsed = null;
-ScalarView.prototype.index = null;
-ScalarView.prototype.navmap = null;
-ScalarView.prototype.marker = null;
-ScalarView.prototype.maxSurfaceWidth = null;
-ScalarView.prototype.diagram = null;
-ScalarView.prototype.footer = null;
-*/
-
-
-/**
- * Shows a dialog box which prompts the user to enter the URL
- * of a Scalar book to render in the interface.
- */
-ScalarView.prototype.showBookDialog = function(errorMessage) {
-
-	dialog = $('<div id="book_dialog"><h1><img src="images/scalar_logo.png" alt="scalar_logo" width="76" height="70"> Scalar Interface Explorer</h1><p class="explanation">You can use this utility to test how existing Scalar books will function when rendered in the new reading interfaces we&rsquo;re currently exploring.</p><p><strong>To get started, copy and paste any URL from your book here.</strong></p><p>(The book&rsquo;s URL must be set to public.)</p><p><input id="bookUrl" type="text" onKeyPress="scalarview.handleBookDialogKeyPress(this, event)" size="80"></p><p>Select a view: <select id="viewType"><option value="standardView">Single column, linked media</option><option value="textOnlyView">Single column, no linked media</option><option value="fullScreenMedia">Single column, linked media only</option><option value="multiColumnView">Multi-column</option><option value="fullScreenTitle">Title only</option><option value="tagVisualization">Tag visualization</option></select></p><p><input type="button" class="button" value="Launch book with alternate interface" onclick="scalarview.launchBook(this, event, $(\'#viewType\').val())"></p><div id="link_list"><p>Or, try these books:</p><ul><li><a href="javascript:;">Filmic Texts and the Rise of the Fifth Estate</a>, by Virginia Kuhn</li><li><a href="javascript:;">The Knotted Line</a>, by Evan Bissell</li><li>&ldquo;<a href="javascript:;">We Are All Children of Algeria&rdquo;: Visuality and Countervisuality 1954-2011</a>, by Nicholas Mirzoeff</li><li><a href="javascript:;">The Nicest Kids in Town</a>, by Matthew F. Delmont</li></ul></div></div>').appendTo('body');
-	
-	$('#link_list > ul > li > a').each(function(index) { 
-	
-		switch (index) {
+		var element = e;
 		
-			case 0:
-			$(this).click(function() { 
-				$('#bookUrl').val('http://scalar.usc.edu/anvc/kuhn/');
-				scalarview.launchBook(this, event, $('#viewType').val()); 
-			});
-			break;
+		var basin = {
 		
-			case 1:
-			$(this).click(function() { 
-				$('#bookUrl').val('http://scalar.usc.edu/anvc/the-knotted-line/');
-				scalarview.launchBook(this, event, $('#viewType').val()); 
-			});
-			break;
-		
-			case 2:
-			$(this).click(function() { 
-				$('#bookUrl').val('http://scalar.usc.edu/nehvectors/mirzoeff/');
-				scalarview.launchBook(this, event, $('#viewType').val()); 
-			});
-			break;
-		
-			case 3:
-			$(this).click(function() { 
-				$('#bookUrl').val('http://scalar.usc.edu/nehvectors/nicest-kids/');
-				scalarview.launchBook(this, event, $('#viewType').val()); 
-			});
-			break;
-		
+			options: $.extend({}, options)
+			
 		}
 		
-	});
-	
-	if (errorMessage != undefined) {
-		dialog.append('<div class="error_message">'+errorMessage+'</div>');
-	}
- 
-	dialog.fadeIn();
-	
-}
-
-/**
- * Handles key presses in the book dialog box.
- *
- * @param {Object} control		The text field where the key press occurred.
- * @param {Object} event		The key press event.
- */
-ScalarView.prototype.handleBookDialogKeyPress = function(control, event) {
-
-	if ((event.which && event.which == 13) || (event.keyCode && event.keyCode == 13)) {
-		this.launchBook();
-	}
-
-}
-
-/**
- * Initializes the view.
- */
-ScalarView.prototype.init = function() {
-	
-	this.windowWidth = $(window).width();
-	$(window).resize(function() { scalarview.setState(scalarview.state, 0); });
-	window.onorientationchange = function() { scalarview.setState(scalarview.state, 0); };
-
-}
-
-/**
- * Launches the book whose URL was entered in the book dialog box.
- */
-ScalarView.prototype.launchBook = function(view, event, viewType) {
-
-	var scalarInstallId;
-	var bookId;
-	if ($('#bookUrl').val().indexOf('http://') != -1) {
-		scalarInstallId = $('#bookUrl').val().split('/')[3];
-		bookId = $('#bookUrl').val().split('/')[4];
-	} else {
-		scalarInstallId = $('#bookUrl').val().split('/')[1];
-		bookId = $('#bookUrl').val().split('/')[2];
-	}
-	
-	this.viewType = viewType;
-	this.setBook('http://scalar.usc.edu/'+scalarInstallId+'/'+bookId+'/');
-	this.setPage('index');
-	
-	$('#book_dialog').fadeOut();
-
-}
-
-/**
- * Sets the current book to be rendered in the interface.
- */
-ScalarView.prototype.setBook = function(bookUrl) {
-
-	this.singlePageMode = true;
-	scalarapi.model.urlPrefix = bookUrl;
-	
-	var path = scalarapi.stripAllExtensions(bookUrl);
-	var arr = path.split('://');
-	var str;
-	if (arr.length > 1) {
-		str = arr[1];
-	} else {
-		str = arr[0];
-	}
-	arr = str.split('/');
-	
-	this.instance = arr[1];
-	this.book = arr[2];
-
-}
-
-/**
- * Sets the current page to be rendered in the interface.
- */
-ScalarView.prototype.setPage = function(pageId) {
-	
-	$('body').empty();
-	
-	this.currentURL = scalarapi.model.urlPrefix+pageId;
-	if (pageId != 'toc') {
-		if (scalarapi.loadPage(pageId, true, this.handlePageLoad, null, 2, false) == 'loaded') this.handlePageLoad();
-	} else {
-		if (scalarapi.loadBook(false, this.handleBookLoad, null) == 'loaded') this.handleBookLoad();
-	}
-
-}
-
-/**
- * Parses the specified url and returns an object containing its Scalar
- * instance, book, and page.
- *
- * @param {String} url		The url to parse.
- * @param {String} parent	The parent book url
- */
-ScalarView.prototype.scalarInfoFromURL = function(url, parent) {
-
-	if (!url || !parent) return null;
-	if (parent!=url.substr(0,parent.length)) return null;
-	
-	var info = {};
-	
-	// Get the current page slug (which could have multiple / of its own) by subtracting the parent
-	if ('/'!=parent.substr(-1, 1)) parent += '/';
-	info.page = scalarapi.stripAllExtensions(url.substr(parent.length));
-	if (!info.page.length) info.page = 'index';
-
-	// Assume the last segment of the parent is the book slug
-	if ('/'==parent.substr(-1, 1)) parent = parent.substr(0, parent.length-1);
-	info.book = parent.substr(parent.lastIndexOf('/')+1);
-	
-	// TODO: Assuming the instance var is only needed for prototyping ... highly dangerous to trust the URL segments as Scalar gets distributed
-	var arr = parent.split('/');   // won't have trailing slash because of book slug call above
-	info.instance = arr[arr.length-2];
+		var pinwheel = new ScalarPinwheel();
+		pinwheel.render();
 		
-	return info;
-
-	/*if (url.indexOf('http://scalar.usc.edu') != -1) {
-	
-		var info = {};
-
-		var path = scalarapi.stripAllExtensions(url);
-		var arr = path.split('://');
-		var str;
-		if (arr.length > 1) {
-			str = arr[1];
-		} else {
-			str = arr[0];
-		}
-		arr = str.split('/');
-		
-		info.instance = arr[1];
-		info.book = arr[2];
-		
-		info.page = scalarapi.basepath(url);
-		if (info.page = '') info.page = 'index';
-		
-		return info;
-	}
-
-	return null;*/
-}
-
-ScalarView.prototype.reloadForScalarPage = function(uri) {
-
-	var path = scalarapi.stripAllExtensions(uri);
-	var arr = path.split('://');
-	var str;
-	if (arr.length > 1) {
-		str = arr[1];
-	} else {
-		str = arr[0];
-	}
-	arr = str.split('/');
-
-	var instance = arr[1];
-	if (instance == null) instance = scalarview.instance;
-	var book = arr[2];
-	if (book == null) book = scalarview.book;
-	
-	var page = scalarapi.basepath(uri);
-	if ((page == '') && (uri.indexOf('/') == -1)) {
-		page = uri;
-	} else {
-		page = 'index';
+		return pinwheel;
 	}
 	
-	//console.log('reload: '+scalarapi.stripAllExtensions(document.URL)+'.html#instance='+instance+'&book='+book+'&page='+page);
-	
-	window.location = scalarapi.stripAllExtensions(document.URL)+'.html#instance='+instance+'&book='+book+'&page='+page;
-	window.location.reload();
-	
-}
-
-/**
- * Handles processing of the data for the current page.
- */
-ScalarView.prototype.handlePageLoad = function() {
-	scalarview.currentNode = scalarapi.model.nodesByURL[scalarview.currentURL];
-	if (scalarapi.loadBook(false, scalarview.handleBookLoad, null) == 'loaded') scalarview.handleBookLoad();
-}
-
-/**
- * Handles processing of the data for the current book.
- */
-ScalarView.prototype.handleBookLoad = function() {
-
-	scalarview.tocNode = scalarapi.model.nodesByURL[scalarapi.model.urlPrefix+'toc'];
-
-	if (scalarview.currentURL == (scalarapi.model.urlPrefix+'toc')) {
-		scalarview.currentNode = scalarview.tocNode;
-	}
-
-	var visited = $.cookie('scalarvisited');
-	if (visited) {
-		scalarview.visitedURLs = visited.split('|');
-		if (scalarview.visitedURLs.indexOf(scalarview.currentURL) == -1) {
-			visited += '|'+scalarview.currentURL;
-		}
-	} else {
-		visited = scalarview.currentURL;
-	}
-	$.cookie('scalarvisited', scalarview.visitedURLs.join('|'), {path:"/"});
-	
-	var marked = $.cookie('scalarmarked');
-	if (marked) {
-		this.markedURLs = marked.split('|');
-	}
-	
-	var currentZoom = -1;
-	if (scalarview.pinwheel) {
-		currentZoom = scalarview.pinwheel.currentZoom;
-	}
-	
-	scalarview.basin = new ScalarBasin();
-	scalarview.pinwheel = new ScalarPinwheel();
-	scalarview.surface = new ScalarSurface();
-	
-	if (currentZoom != -1) {
-		scalarview.pinwheel.currentZoom = currentZoom;
-	}
-	
-	//scalarview.navmap = new NavigationMap();
-	
-	scalarview.basin.render();
-	scalarview.pinwheel.render();
-	scalarview.surface.render(scalarview.viewType);
-	//scalarview.surface.render('fullScreenMedia');
-	
-	// restore last state, if any
-	var currentState = $.cookie('viewstate');
-	if (currentState == null) currentState = 'reading';
-	scalarview.setState(currentState, 0, true);
-	//scalarview.surface.render('fullScreenTitle');
-	
-	scalarview.setState(currentState, 0, false);
-	
-}
-
-/**
- * Sets the current state of the page.
- *
- * @param	newState 	The new state.
- * @param	duration	Duration of the transition to the new state.
- * @param	propsOnly	If true, modify properties only, not dom elements.
- */
-ScalarView.prototype.setState = function(newState, duration, propsOnly) {
-
-	if (duration == 'fast') duration = 300;
-	
-	this.stateProperties = [];
-	
-	switch (newState) {
-	
-		case 'reading':
-		if ((this.state == 'editing') || (this.state == 'designing')) {
-			scrollTo(0,0);
-		}
-		break;
-		
-		case 'navigating':
-		break;
-		
-		case 'editing':
-		if (this.state == 'reading') {
-			scrollTo(0,0);
-		}
-		break;
-		
-		case 'designing':
-		break;
-	
-	}
-	
-	this.basin.setState(newState, duration, propsOnly);
-	this.surface.setState(newState, duration, propsOnly);
-	this.pinwheel.setState(newState, duration, propsOnly);
-
-	this.state = newState;
-	
-	this.marginsCollapsed = (this.windowWidth < (1024 - (this.surface.defaultMargin * 2) + 20));
-	
-	if (!propsOnly) {
-		this.startTransition(this.stateProperties, duration);
-	} else {
-		var i;
-		var n = this.stateProperties.length;
-		var propData;
-		for (i=0; i<n; i++) {
-			propData = this.stateProperties[i];
-			propData.context[propData.property] = propData.value;
-		}
-	}
-	
-	$.cookie('viewstate', this.state, {path: '/'});
-	
-	this.update();
-
-}
-
-/**
- * Updates layout of items in the view.
- *
- * @param	duration		Duration of the update.
- */
-ScalarView.prototype.update = function(duration) {
-	this.windowWidth = $(window).width();
-	this.basin.update(duration);
-	this.surface.update(duration);
-	this.pinwheel.update(duration);
-}
-
-/**
- * Sets up an animated property transition on the view.
- */
-ScalarView.prototype.startTransition = function(propertyList, duration) {
-
-	var currentTime = new Date();
-	this.startTime = currentTime.getTime();
-	this.transitionDuration = duration;
-	this.transitionTimer = setTimeout('handleTransitionStep()', 13);
-	
-	var i;
-	var n = this.stateProperties.length;
-	var propData;
-	for (i=0; i<n; i++) {
-		propData = this.stateProperties[i];
-		propData.start = propData.context[propData.property];
-		propData.change = propData.value - propData.context[propData.property];
-	}
-
-}
+})(jQuery);
 
 /**
  * @param t a raphael text shape
- * @param width - pixels to wrapp text width
+ * @param width - pixels to wrap text width
  * @param textAnchor - desired end state of text anchor (added by Erik)
  * modify t text adding new lines characters for wrapping it to given width.
  * source: http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
  */
-ScalarView.prototype.wrapText = function(t, width, textAnchor) {
+function wrapText(t, width, textAnchor) {
     var content = t.attr("text");
     var abc="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     t.attr({'text-anchor': 'start', "text": abc});
@@ -492,40 +50,15 @@ ScalarView.prototype.wrapText = function(t, width, textAnchor) {
 	t.attr('y', t.attr('y')+(boxHeight * .5));
 };
 
-function handleTransitionStep() {
-
-	var currentTime = new Date();
-	var progress = (currentTime.getTime() - scalarview.startTime) / scalarview.transitionDuration;
-	var value;
-	var i;
-	var n = scalarview.stateProperties.length;
-	var propData;
-
-	if (progress < 1) {
-		for (i=0; i<n; i++) {
-			propData = scalarview.stateProperties[i];
-			value = swingEasing(progress, propData.start, propData.change);
-			propData.context[propData.property] = value;
-		}
-		scalarview.transitionTimer = setTimeout('handleTransitionStep()', 13);
-	} else {
-		for (i=0; i<n; i++) {
-			propData = scalarview.stateProperties[i];
-			propData.context[propData.property] = propData.value;
-		}
-	}
-	
-	scalarview.update(0);
-
-}
 
 // G: progress, E: start value, F: change in value
 function swingEasing(G,E,F) {
 	return ((-Math.cos(G*Math.PI)/2)+0.5)*F+E;
 }
 
-function ScalarPinwheel() {
+function ScalarPinwheel(element) {
 
+	this.element = element;
 	this.nodeGraph = [];
 	this.relationsToDraw = ['path','tag'];
 	this.showHistory = false;
@@ -554,14 +87,28 @@ ScalarPinwheel.prototype.filter = null;
 ScalarPinwheel.prototype.pathGraphs = null;
 ScalarPinwheel.prototype.pathGraphCount = null;
 ScalarPinwheel.prototype.viewer = null;
+ScalarPinwheel.prototype.currentMargin = null;
 
 ScalarPinwheel.prototype.render = function() {
+
+	var me = this;
+	
+	/*var colorThief = new ColorThief();
+	var backgroundImage = new Image();
+	var url = $('body').css('backgroundImage');
+	url = url.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+	backgroundImage.src = url;
+	$(backgroundImage).load(function() {
+		console.log('loaded');
+		var dominantColor = colorThief.getColor(this);
+		console.log(dominantColor);
+	});*/
 	
 	//console.log('**** RENDER ****');
 
-	this.element = $('<div id="graph"></div>').appendTo('body');
+	//this.element = $('<div id="graph"></div>').appendTo('body');
 	
-	var handleBackgroundClick = function(e) {
+	/*var handleBackgroundClick = function(e) {
 	
 		switch (scalarview.state) {
 		
@@ -585,10 +132,10 @@ ScalarPinwheel.prototype.render = function() {
 		
 	}
 	
-	this.element.click(handleBackgroundClick);
+	this.element.click(handleBackgroundClick);*/
 	
 	viewerElement = $('<div id="gnViewer" class="graphNodeViewer"></div>').appendTo('body');
-	this.viewer = new GraphNodeViewer('gnViewer');
+	this.viewer = new GraphNodeViewer('gnViewer', this);
 	
 	//this.element.css('display', 'none');
 
@@ -598,29 +145,19 @@ ScalarPinwheel.prototype.render = function() {
 	this.zoomIn = Raphael('zoomControls', 32, 32);
 	this.zoomIn.path('M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z').attr({fill: '#000', stroke: 'none'}).click(function(event) {
 		event.stopImmediatePropagation();
-		if (scalarview.pinwheel.currentZoom > 0) {
-			scalarview.pinwheel.currentZoom--;
+		if (me.currentZoom > 0) {
+			me.currentZoom--;
 		}
-		scalarview.pinwheel.buildGraph();
+		me.buildGraph();
 	});
 	this.zoomOut = Raphael('zoomControls', 32, 32);
 	this.zoomOut.path('M25.979,12.896,5.979,12.896,5.979,19.562,25.979,19.562z').attr({fill: '#000', stroke: 'none'}).click(function(event) {
 		event.stopImmediatePropagation();
-		if (scalarview.pinwheel.currentZoom < 6) {
-			scalarview.pinwheel.currentZoom++;
+		if (me.currentZoom < 6) {
+			me.currentZoom++;
 		}
-		scalarview.pinwheel.buildGraph();
+		me.buildGraph();
 	})
-	
-	/*
-	var circle = this.canvas.circle(50, 40, 10);
-	circle.attr('fill', '#f00');
-	circle.attr('stroke', '#fff');
-	
-	var path = this.canvas.path('M65 144 q 126 0 252 144 q 126 144 252 144');
-	path.attr('stroke', '#f00');
-	path.attr('stroke-width', '5');
-	*/
 	
 	this.buildGraph();
 	
@@ -637,7 +174,7 @@ ScalarPinwheel.prototype.buildGraph = function() {
 	
 	this.calculateDimensions();
 
-	var graphNode = this.createGraphNode([scalarview.currentNode], {x:0, y:0}, 'none', {type:'current', data: null});
+	var graphNode = this.createGraphNode([currentNode], {x:0, y:0}, 'none', {type:'current', data: null});
 	
 	this.resetNodeGraphDrawing();
 	this.canvas.setStart();
@@ -706,8 +243,11 @@ ScalarPinwheel.prototype.calculateDimensions = function() {
 		y: $(window).height() * .5
 	};
 	
+	this.currentMargin = ($(window).width() - $('.page').width()) * .5;
+	
 	this.unitSize = {
-		x: (($(window).width() * .5) - (scalarview.surface.currentMargin * .5)) / (this.currentZoom + 1),
+		/*x: (($(window).width() * .5) - (scalarview.surface.currentMargin * .5)) / (this.currentZoom + 1),*/
+		x: (($(window).width() * .5) - (this.currentMargin * .5)) / (this.currentZoom + 1),
 		y: Math.round($(window).height() / (((this.currentZoom + 1) * 2) + 1))
 	}  
 
@@ -743,7 +283,7 @@ ScalarPinwheel.prototype.createGraphNode = function(nodes, graphPosition, graphV
 	// TODO: figure out some way to sort the vectors based on the type of relationship being expressed (i.e. paths before tags, etc.)  
 	
 	if (nodes.length > 0) {  
- 		var graphNode = new GraphNode(nodes, graphPosition, reason); 
+ 		var graphNode = new GraphNode(nodes, graphPosition, reason, this); 
 		this.addNodeToGraph(graphNode, graphVector); 
 		return graphNode;     
 	}   
@@ -771,9 +311,10 @@ ScalarPinwheel.prototype.addNodeToGraph = function(graphNode, graphVector) {
 
 ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDepth) {   
 
-	//console.log('add relations for '+graphNode.nodes[0].getDisplayTitle()+' at depth '+currentDepth);
+	//console.log('add relations for '+glraphNode.nodes[0].getDisplayTitle()+' at depth '+currentDepth);
 	
 	//console.log('  -- add relations for graph node "'+graphNode.getDisplayTitle()+'" ----');
+	//console.log(graphNode.nodes);
 	
 	if (((this.currentZoom == 0) && (currentDepth <= this.currentZoom)) || ((this.currentZoom > 0) && (currentDepth <= 6))) {
 		
@@ -981,7 +522,7 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 				this.addGraphNodeRelations(newGraphNode, currentDepth+1);       
 			}
 			
-			//if ((graphNode.nodes.length == 1) && (graphNode.nodes[0] == scalarview.currentNode)) {
+			//if ((graphNode.nodes.length == 1) && (graphNode.nodes[0] == currentNode)) {
 			
 				// add older step-siblings
 				stepSiblings = graphNode.getNextOlderStepSiblings();
@@ -1194,7 +735,8 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 		
 		var labelWidth;
 		if (this.currentZoom == 0) {
-			labelWidth = scalarview.surface.currentMargin * .8;
+			//labelWidth = scalarview.surface.currentMargin * .8;
+			labelWidth = this.currentMargin * .8;
 		} else {
 			labelWidth = this.unitSize.x * .8;
 		}
@@ -1223,18 +765,22 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 		
 		graphNode.drawing = this.canvas.set();
 		var outerCircle;
+		var outerRadius;
 		var innerCircle;
 		var label;
 		var i;
 		
 		var goToPage = function(event) { 
+			console.log('go to page');
 			event.stopImmediatePropagation();
-			if (scalarview.state == 'navigating') {
+			if (state == ViewState.Navigating) {
 				me.canvasSet.animate({'transform':'t'+(-me.unitSize.x*graphNode.position.x)+','+(-me.unitSize.y*graphNode.position.y)}, 350, '<>', function() {
-					scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url)); 
+					//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url)); 
+					window.location = graphNode.nodes[0].url+'?template=cantaloupe'; // TODO: make this dynamic
 				})
 			} else {
-				scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url));
+				//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url));
+				window.location = graphNode.nodes[0].url+'?template=cantaloupe';
 			}
 		};
 
@@ -1244,7 +790,9 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 			
 			if (graphNode.nodes.length > 1) {
 		
-				outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 16);
+				outerRadius = 16;
+				if (graphNode.children.length > 0) outerRadius += 6;
+				outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 			
 				if (!this.showIcons) {
 					// draw homogenous multi-node
@@ -1259,7 +807,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					if (drawLabels) {
 						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
-						scalarview.wrapText(label, labelWidth, 'middle');
+						wrapText(label, labelWidth, 'middle');
 						graphNode.drawing.push(label);
 					}
 					outerCircle.click(function() { 
@@ -1269,17 +817,19 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					// draw heterogeneous multi-node
 				}
 				
-			} else if (graphNode.nodes[0] == scalarview.currentNode) {    
+			} else if (graphNode.nodes[0] == currentNode) {    
 		
-				if (scalarview.currentNode.color) {
-					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 18);
+				if (currentNode.color) {
+					outerRadius = 18;
 				} else {
-					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 16);
+					outerRadius = 16;
 				}
+				if (graphNode.children.length > 0) outerRadius += 6;
+				outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 			 
 				if (!this.showIcons) {
 					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
-					if (scalarview.currentNode.color) {
+					if (currentNode.color) {
 						color = Raphael.getRGB(graphNode.nodes[0].color);
 						color = Raphael.rgb2hsl(color.r, color.g, color.b);
 						color.l = Math.max(0, color.l - .1);
@@ -1293,7 +843,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					if (drawLabels) {
 						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
-						scalarview.wrapText(label, labelWidth, 'middle');
+						wrapText(label, labelWidth, 'middle');
 						graphNode.drawing.push(label);
 					}
 				} else {
@@ -1303,7 +853,11 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 			} else {  
 			
 				if (this.currentZoom == 0) {
-					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 18);
+		
+					outerRadius = 18;
+					if (graphNode.children.length > 0) outerRadius += 6;
+					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
+					
 					var rotationString = '';
 					if (graphNode.position.x < 0) {
 						if (graphNode.position.y < 0) {
@@ -1313,7 +867,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 						}
 					} else {
 						if (graphNode.position.y > 0) {
-							rotationString = 'r90t0,0.5';
+							//rotationString = 'r90t0,0.5';
 						}
 					}
 					var transformString = 't'+canvasPosition.x+','+canvasPosition.y+rotationString;
@@ -1321,7 +875,13 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					innerCircle = this.canvas.path(pathString);
 					
 				} else {
-					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 16);
+					
+					if (graphNode.children.length > 0) {
+						outerRadius = 22;
+					} else {
+						outerRadius = 16;
+					}
+					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
 				}
 				
@@ -1341,8 +901,10 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					//outerCircle.attr({'fill':'#fff', 'stroke':Raphael.hsl2rgb(color).hex, 'stroke-width':4, 'cursor':'pointer'});
 					//innerCircle.attr({'fill':'#666', 'stroke':'none', 'cursor':'pointer'});
 					
-					outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
-					innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
+					outerCircle.attr({'stroke':Raphael.hsl2rgb(color).hex, 'fill':'#eee', 'stroke-width':3, 'cursor':'pointer'});
+					innerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'none', 'cursor':'pointer'});
+					//outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
+					//innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
 					
 					//outerCircle.attr({'fill':graphNode.reason.data.nodes[0].color, 'stroke-width':2, 'cursor':'pointer'});
 					//innerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});*/
@@ -1350,11 +912,11 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					outerCircle.attr({'fill':color, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
 					outerCircle.data('node', graphNode);
 					/*outerCircle.mouseover(function() {
-						scalarview.pinwheel.filter = this.data('node');
-						scalarview.pinwheel.update();
+						this.pinwheel.filter = this.data('node');
+						this.pinwheel.update();
 					});
 					outerCircle.mouseout(function() {
-						scalarview.pinwheel.filter = null;
+						this.pinwheel.filter = null;
 					});*/
 					innerCircle.attr({'fill':'#eee', 'stroke':'none', 'cursor':'pointer'});
 				} else {
@@ -1372,16 +934,21 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				
 				graphNode.drawing.push(outerCircle, innerCircle);
 				if (drawLabels) {
-					label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.nodes[0].getDisplayTitle());
-					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
-					scalarview.wrapText(label, labelWidth, 'middle');
-					graphNode.drawing.push(label);
+					var labelOffsetV = 20;
+					if (graphNode.children.length > 0) labelOffsetV = 26;
+					label = this.canvas.text(canvasPosition.x, canvasPosition.y+labelOffsetV, graphNode.nodes[0].getDisplayTitle());
+					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer', 'fill':'#ffffff'});
+					if (graphNode.children.length > 0) {
+						label.attr({'font-weight':'bold'});
 					}
+					wrapText(label, labelWidth, 'middle');
+					graphNode.drawing.push(label);
+				}
 					
 				/*} else if (!this.showIcons) {
 					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
-					if (scalarview.currentNode.color) {
-						outerCircle.attr({'fill':scalarview.currentNode.color, 'stroke':'none'});
+					if (currentNode.color) {
+						outerCircle.attr({'fill':currentNode.color, 'stroke':'none'});
 						innerCircle.attr({'fill':'#eee', 'stroke':'none'});
 					} else if (drawAsContainer) {
 						outerCircle.attr({'fill':color, 'stroke':'none'});
@@ -1483,15 +1050,21 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 	var path;
 	var pathString = '';
 	var color;
-	var strokeWidth = 2;
+	var strokeWidth = 2; // nee 4
 	var arrowPosition;
 
 	switch (type) {
 	
 		case 'path_parent':
 		pathString += 'M'+destPos.x+' '+destPos.y;
+		// horizontal s curve
 		pathString += 'q'+qtrW+' '+0+' '+halfW+' '+halfH;
 		pathString += 'q'+qtrW+' '+halfH+' '+halfW+' '+halfH;
+		
+		// vertical s curve
+		//pathString += 'q'+0+' '+halfH+' '+halfW+' '+halfH;
+		//pathString += 'q'+halfW+' '+0+' '+halfW+' '+halfH;
+		
 		//var path = this.canvas.path('M65 144 q 126 0 252 144 q 126 144 252 144');
 		if (destGraphNodeData.node.nodes.length > 1) {
 			color = '#000';
@@ -1646,7 +1219,7 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 				color = '#888';
 			}
 		}
-		strokeWidth = 4;
+		strokeWidth = 2;
 		break;
 	
 	}
@@ -1697,6 +1270,7 @@ ScalarPinwheel.prototype.getGraphNodeSiblings = function(graphNode, siblings) {
 	return siblings;
 } 
 
+
 function PathGraph(pathNode, offset) {
 	
 	this.pathNode = pathNode;
@@ -1705,20 +1279,25 @@ function PathGraph(pathNode, offset) {
 	
 }
 
-function GraphNodeViewer(elementName) {
+function GraphNodeViewer(elementName, pinwheel) {
 
 	this.element = $('body').find('#'+elementName);
 	this.canvas = Raphael(elementName, 100, 100);
+	this.pinwheel = pinwheel;
 
 }
 
 GraphNodeViewer.prototype.element = null;
+GraphNodeViewer.prototype.canvas = null;
+GraphNodeViewer.prototype.pinwheel = null;
 
 GraphNodeViewer.prototype.showForGraphNode = function(graphNode) {
 
 	var canvasPosition = {
-		x: scalarview.pinwheel.center.x + (graphNode.position.x * scalarview.pinwheel.unitSize.x),
-		y: scalarview.pinwheel.center.y + (graphNode.position.y * scalarview.pinwheel.unitSize.y) 
+		//x: this.pinwheel.center.x + (graphNode.position.x * this.pinwheel.unitSize.x),
+		//y: this.pinwheel.center.y + (graphNode.position.y * this.pinwheel.unitSize.y) 
+		x: 300 + (graphNode.position.x * 100),
+		y: 300 + (graphNode.position.y * 100) 
 	}
 	
 	this.element.css('left', canvasPosition.x);
@@ -1731,7 +1310,7 @@ GraphNodeViewer.prototype.hide = function() {
 	
 }
 
-function GraphNode(nodes, position, reason) {
+function GraphNode(nodes, position, reason, pinwheel) {
 	
 	this.nodes = nodes; 
 	this.position = position;   
@@ -1744,6 +1323,7 @@ function GraphNode(nodes, position, reason) {
 	this.drawing = null;
 	this.hasBeenDrawn = false;
 	this.reason = reason;
+	this.pinwheel = pinwheel;
 	
 	GraphNode.prototype.getNewParentsForRelation = function(relationName, direction, currentDepth) {
 	
@@ -1770,7 +1350,7 @@ function GraphNode(nodes, position, reason) {
 		
 			relation = allRelations[i];
 			
-			if (scalarview.pinwheel.graphNodeForScalarNode(relation.body) == null) {
+			if (this.pinwheel.graphNodeForScalarNode(relation.body) == null) {
 				if (this.currentZoom > 0) {
 					if (this.currentZoom == currentDepth) {
 						allRelatedNodes.push(relation);
@@ -1800,9 +1380,9 @@ function GraphNode(nodes, position, reason) {
 			if (isNew) {
 				newRelatedNodes.push(node);
 				if (relationName == 'path') {
-					if (scalarview.pinwheel.pathGraphs[node.url] == undefined) {
-						scalarview.pinwheel.pathGraphs[node.url] = new PathGraph(node, {x:allRelatedNodes[i].index, y:scalarview.pinwheel.pathGraphCount});
-						scalarview.pinwheel.pathGraphCount++;
+					if (this.pinwheel.pathGraphs[node.url] == undefined) {
+						this.pinwheel.pathGraphs[node.url] = new PathGraph(node, {x:allRelatedNodes[i].index, y:this.pinwheel.pathGraphCount});
+						this.pinwheel.pathGraphCount++;
 					}
 				}
 			}
@@ -1822,7 +1402,7 @@ function GraphNode(nodes, position, reason) {
 	}   
 	
 	GraphNode.prototype.isCurrentNode = function() {
-		return (this.nodes.indexOf(scalarview.currentNode != -1));
+		return (this.nodes.indexOf(currentNode != -1));
 	}
 	
 	GraphNode.prototype.sharesColumnWithNode = function(graphNode) {
@@ -1916,7 +1496,7 @@ function GraphNode(nodes, position, reason) {
 		// if this is a path, and a member of the path is already registered
 		// as a child, then don't return any other children
 		
-		//if (relatedNodes.length > 0) console.log('     found new '+relationName+'-'+direction+' child of "'+this.getDisplayTitle()+'"');
+		if (relatedNodes.length > 0) console.log('     found new '+relationName+'-'+direction+' child of "'+this.getDisplayTitle()+'"');
 		
 		//console.log('returning '+relatedNodes.length+' nodes');
 		
@@ -1966,7 +1546,7 @@ function GraphNode(nodes, position, reason) {
 			
 		}
 		
-		//if (sibling != null) console.log('     found older sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
+		if (sibling != null) console.log('     found older sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
 		
 		return sibling;
 	}
@@ -2115,7 +1695,7 @@ function GraphNode(nodes, position, reason) {
 			
 		}
 		
-		//if (sibling != null) console.log('     found younger sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
+		if (sibling != null) console.log('     found younger sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
 		
 		return sibling;
 	}
@@ -2202,7 +1782,7 @@ function GraphNode(nodes, position, reason) {
 			
 		}
 		
-		//if (siblings.length > 0) console.log('     found '+siblings.length+' older step-siblings');
+		if (siblings.length > 0) console.log('     found '+siblings.length+' older step-siblings');
 		
 		return siblings;
 	}
@@ -2300,1093 +1880,3 @@ function GraphNode(nodes, position, reason) {
 	}
 	
 } 
-
-/**
- * Creates a new ScalarBasin.
- * @class		Manages the primary navigation interface for a Scalar book.
- *
- * @property {Object} element		Root DOM element for the basin.
- * @property {Number} visScaleY		Vertical scaling applied to the basin visualization.
- * @property {Object} navMap		Data which drives the layout of the basin visualization.
- */
-function ScalarBasin() {
-
-	this.visScaleY = 1;
-
-}
-
-ScalarBasin.prototype.element = null;
-ScalarBasin.prototype.visScaleY = null;
-ScalarBasin.prototype.navMap = null;
-ScalarBasin.prototype.diagram = null;
-ScalarBasin.prototype.editor = null;
-ScalarBasin.prototype.editorPlates = null;
-ScalarBasin.prototype.wysiwyg = null;
-
-/**
- * Initial construction of the basin.
- */
-ScalarBasin.prototype.render = function() {
-
-	this.element = $('<div id="basin"></div>').appendTo('body');
-	
-	// get page title
-	var title;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		title = 'Contents';
-	} else {
-		title = scalarview.currentNode.getDisplayTitle();
-	}
-	
-	this.navmap = new NavigationMap();
-	
-	var handleBasinClick = function(e) {
-	
-		switch (scalarview.state) {
-		
-			case 'reading':
-			scalarview.setState('navigating', 'fast', false);
-			break;
-			
-			case 'navigating':
-			scalarview.setState('reading', 'fast', false);
-			break;
-			
-			case 'editing':
-			scalarview.setState('reading', 'fast', false);
-			break;
-			
-			case 'designing':
-			scalarview.setState('reading', 'fast', false);
-			break;
-			
-		}
-		
-	}
-	
-	this.element.click(handleBasinClick);
-	
-	this.editor = $('<div id="editor"><div class="header">'+title+'</div><div class="controls"><div class="edit"></div><div class="design"></div></div><div id="editor-plates"></div></div>').appendTo('body');
-	this.editorPlates = $('#editor-plates');
-	
-	var htmlContent = $('<div id="content"></div>');
-	if (scalarview.currentNode.current) {
-		if (scalarview.currentNode.current.content != null) {
-			htmlContent = $('<div id="content">'+nl2br(scalarview.currentNode.current.content)+'</div>');
-		}
-	}
-	this.wysiwyg = $('<div class="plate"><div class="sidebar"><p>[ Formatting options ]</p><br/><p>[ Media options ]</p></div><div class="body"><div class="wysiwyg"></div></div></div><div class="spacer"></div>').appendTo(this.editorPlates);
-	this.wysiwyg.find('.wysiwyg').append(htmlContent.html());
-	this.wysiwyg.children().height('500px');
-	$('.wysiwyg').height('480px');
-	
-	this.editorPlates.append('<div class="plate"><div class="sidebar" style="height:460px;"></div><div class="body">[Linked media configuration]</div></div><div class="spacer"></div><div class="plate"><div class="sidebar" style="height:460px;"></div><div class="body">[Relationship editor]</div></div><div class="spacer"></div>');
-	
-	this.editor.find('.edit').click(function(event) {
-		event.stopImmediatePropagation();
-		scalarview.setState('editing', 'fast', false);
-	});
-	
-	this.index = $('<div id="index"><div class="item-btn path">11</div><div class="item-btn page">115</div><div class="item-btn media">216</div><div class="item-btn tag">13</div><div class="item-btn annotation">22</div><div class="item-btn comment">17</div></div>').appendTo(this.element);
-	
-	this.diagram = $('<svg xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>').appendTo(this.element);
-
-	this.buildNavigation();
-	this.layoutNavigation(0);
-
-}
-
-/**
- * Updates layout of items in the basin.
- *
- * @param	duration		Duration of the update.
- */
-ScalarBasin.prototype.update = function(duration) {
-
-	this.editor.css('left', scalarview.surface.currentMargin);
-	this.editor.css('right', scalarview.surface.currentMargin);
-	$('.plate>.body').width(this.windowWidth - (scalarview.surface.currentMargin * 2) - 255);
-	
-	this.layoutNavigation(duration);
-
-}
-
-/**
- * Sets the current state of the page.
- *
- * @param	newState 	The new state.
- * @param	duration	Duration of the transition to the new state.
- * @param	propsOnly	If true, modify properties only, not dom elements.
- */
-ScalarBasin.prototype.setState = function(newState, duration, propsOnly) {
-
-	switch (newState) {
-	
-		case 'reading':
-		if (!propsOnly) {
-			$('#editor-plates').fadeOut(duration);
-			this.element.css('position', 'fixed');
-			this.element.css('height', '100%');
-		}
-		scalarview.stateProperties.push({context:this, property:'visScaleY', value:1});
-		break;
-		
-		case 'navigating':
-		if (!propsOnly) {
-			$('#editor-plates').fadeOut(duration);
-			this.element.css('position', 'absolute');
-			this.element.css('height', '100%');
-		}
-		scalarview.stateProperties.push({context:this, property:'visScaleY', value:1});
-		break;
-		
-		case 'editing':
-		if (!propsOnly) {
-			$('#editor-plates').fadeIn(duration);
-			this.element.css('position', 'absolute');
-			this.element.css('height', this.editor.height() + parseInt(this.editor.css('top')));
-		}
-		scalarview.stateProperties.push({context:this, property:'visScaleY', value:.5});
-		break;
-		
-		case 'designing':
-		if (!propsOnly) {
-			$('#editor-plates').fadeOut(duration);
-			this.element.css('position', 'fixed');
-			this.element.css('height', '100%');
-		}
-		scalarview.stateProperties.push({context:this, property:'visScaleY', value:.5});
-		break;
-	
-	}
-
-}
-
-/**
- * Create the navigation elements.
- */
-ScalarBasin.prototype.buildNavigation = function() {
-	
-	var me = this;
-	
-	var row;
-	var col;
-	var btnType;
-	var button;
-	var label;
-	var contentArr;
-	var content;
-	var path;
-	
-	for (row=0; row<3; row++) {
-		
-		for (col=0; col<3; col++) {
-			
-			contentArr = this.navmap.content[row][col];
-
-			if (contentArr.length > 0) {
-			
-				content = contentArr[0];
-				
-				var title;
-				if (content == scalarview.tocNode) {
-					title = 'Contents';
-				} else {
-					title = content.getDisplayTitle();
-				}
-				
-				// create navigation button
-				if (this.navmap.btnType[row][col] != 'self') {
-					button = $('<div id="r'+row+'c'+col+'" class="nav-btn '+this.navmap.btnType[row][col]+'"><div class="nav-label">'+title+'</div></div>').appendTo(this.element);
-				} else {
-					button = $('<div id="r'+row+'c'+col+'" class="nav-btn '+this.navmap.btnType[row][col]+'"></div>').appendTo(this.element);
-				}
-				button.data('url', scalarapi.basename(content.url));
-				button.data('row', row);
-				button.data('col', col);
-				button.click(function(event) {
-					event.stopImmediatePropagation();
-					if (scalarview.singlePageMode) {
-						scalarview.reloadForScalarPage($(this).data('url'));
-					} else {
-						scalarview.setPage($(this).data('url'));
-					}
-				});
-				
-				// button label state
-				label = button.find('.nav-label');
-				if (scalarview.marginsCollapsed) {
-					label.css('display', 'none');
-				} else {
-					label.css('display', 'block');
-				}
-				
-				// create svg diagram
-				path = document.createElementNS('http://www.w3.org/2000/svg','path');
-				path.setAttribute('stroke', '#a6a6a6');
-				path.setAttribute('id', 'r'+row+'c'+col+'curve');
-				path.setAttribute('fill', 'none');
-				path.setAttribute('stroke-width', '5');
-				path.setAttribute('stroke-dasharray', '4,2');
-				this.diagram[0].appendChild(path);
-			}
-			
-		}
-	}
-		
-	// set default button state
-	var buttonIndices = [{row:2, col:2}, {row:1, col:2}, {row:0, col:0}];
-	var quadrant;
-	var j;
-	var o;
-	var data;
-	var foundDefault = false;
-	n = buttonIndices.length;
-	for (i=0; i<n; i++) {
-		quadrant = this.navmap.content[buttonIndices[i].row][buttonIndices[i].col];
-		o = quadrant.length;
-		for (j=0; j<o; j++) {
-			data = quadrant[j];
-			
-			//if ((data.attr('visited') != 'true') || (i == (n-1))) {
-				button = $('#r'+buttonIndices[i].row+'c'+buttonIndices[i].col);
-				path = $('#r'+buttonIndices[i].row+'c'+buttonIndices[i].col+'curve')[0];
-				label = button.find('.nav-label');
-				button.addClass('default');
-				label.addClass('default-choice');
-				path.setAttribute('stroke', '#000000');
-				foundDefault = true;
-				break;
-			//}
-		}
-		if (foundDefault) break;
-	}
-	
-}
-
-/**
- * Layout the navigation elements.
- *
- * @param	duration		Duration of the update.
- */
-ScalarBasin.prototype.layoutNavigation = function(duration) {
-
-	var me = this;
-	
-	var unitWidth = (scalarview.windowWidth * .5) - (scalarview.surface.currentMargin * .5);
-	var unitHeight = Math.round($(window).height() / 6) * this.visScaleY;
-	
-	var row;
-	var col;
-	var btnType;
-	var top;
-	var left;
-	var button;
-	var label;
-	var isCollapsed;
-	var content;
-	
-	this.editor.css('top', unitHeight * 3);
-	
-	for (row=0; row<3; row++) {
-		
-		top = unitHeight + ((row * 2) * unitHeight);
-		
-		for (col=0; col<3; col++) {
-		
-			left = Math.round(scalarview.surface.currentMargin * .5) + (col * unitWidth);
-
-			if (this.navmap.content[row][col].length > 0) {
-			
-				button = $('#r'+row+'c'+col);
-				button.css('left', left);
-				button.css('top', top);
-				label = button.find('.nav-label');
-				// TODO: make this not be a fade (i.e. interpolate property instead)
-				if (scalarview.marginsCollapsed && (scalarview.state == 'reading')) {
-					label.fadeOut(duration);
-				} else {
-					label.fadeIn(duration);
-				}
-		
-				var path = $('#r'+row+'c'+col+'curve')[0];
-					
-				if (col == 0) {
-				
-					// line from center left to center
-					if (row == 1) {
-						path.setAttribute(
-							'd', 'M'+left+' '+top+
-							' L '+(scalarview.windowWidth * .5)+' '+top
-						);
-						
-					// line from top left to center (maybe bottom left too?)
-					} else {
-						path.setAttribute(
-							'd', 'M'+left+' '+top+
-							' q '+(unitWidth * .25)+' 0 '+(unitWidth * .5)+' '+unitHeight+
-							' q '+(unitWidth * .25)+' '+unitHeight+' '+(unitWidth * .5)+' '+unitHeight
-						);
-					}
-					
-				} else if (col == 2) {
-				
-					// line from center right to center
-					if (row == 1) {
-						path.setAttribute(
-							'd', 'M'+left+' '+top+
-							' L '+(scalarview.windowWidth * .5)+' '+top
-						);
-						
-					// line from bottom left to center (maybe top left too?) 
-					} else {
-						path.setAttribute(
-							'd', 'M'+left+' '+top+
-							' q '+(unitWidth * -.25)+' 0 '+(unitWidth * -.5)+' '+(unitHeight * -1)+
-							' q '+(unitWidth * -.25)+' '+(unitHeight * -1)+' '+(unitWidth * -.5)+' '+(unitHeight * -1)
-						);
-					}
-				}
-			}
-			
-		}
-	}
-	
-}
-
-
-/**
- * Defines a local navigation map.
- *
- * @param	data		The page data from which the map should be generated.
- * @param	model		The model.
- */
-function NavigationMap() {
-
-	this.content = [
-		[[],[],[]],
-		[[],[scalarview.currentNode],[]],
-		[[],[],[]]
-	]
-	this.btnType = [
-		['up','up','up'],
-		['left','self','right'],
-		['down','down','down']
-	]
-	this.enclosingPaths = [];
-	
-	var containedNodes;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		containedNodes = scalarview.currentNode.getRelatedNodes('referee', 'outgoing', true);
-	} else {
-		containedNodes = scalarview.currentNode.getRelatedNodes('path', 'outgoing');
-	}
-	if (containedNodes.length > 0) {
-		this.content[2][2].push(containedNodes[0]);
-	}
-	
-	var containingNodes = scalarview.currentNode.getRelatedNodes('path', 'incoming');
-	if (containingNodes.length > 0) {
-	
-		// what if we're contained by more than one path?
-	
-		var containingNode = containingNodes[0];
-		this.content[0][0].push(containingNode);
-		
-		containedNodes = containingNode.getRelatedNodes('path', 'outgoing');
-		
-		var i;
-		var n = containedNodes.length;
-		var node;
-		var pageIndex = -2;
-		for (i=0; i<n; i++) {
-			node = containedNodes[i];
-			if (node == scalarview.currentNode) {
-				pageIndex = i;
-				if (i > 0) {
-					this.content[1][0].push(containedNodes[i-1]);
-				}
-			}
-			if (i == (pageIndex + 1)) {
-				this.content[1][2].push(node);
-				break;
-			}
-		}
-
-	} else if (scalarview.currentNode != scalarview.tocNode) {
-		this.content[0][0].push(scalarview.tocNode);
-	}
-	
-}
-
-NavigationMap.prototype.model = null;
-NavigationMap.prototype.navmap = null;
-NavigationMap.prototype.enclosingPaths = null;
-
-
-/**
- * Creates a new ScalarSurface.
- * @class		Manages the primary reading interface for a Scalar book.
- *
- * @property {Object} element				Root DOM element for the surface.
- * @property {Number} defaultMargin			Minimum width of the default horizontal margin of the surface.
- * @property {Number} collapsedMargin		Minimum width of the collapsed margin of the surface (used only when space is at a premium).
- * @property {Number} currentMargin			Current margin of the surface.
- * @property {Number} maxWidth				Maximum width of the surface.
- */
-function ScalarSurface() {
-
-	this.defaultMargin = 130;
-	this.collapsedMargin = 65;
-	this.currentMargin = 130;
-	this.maxWidth = 960;
-
-}
-
-ScalarSurface.prototype.element = null;
-ScalarSurface.prototype.defaultMargin = null;
-ScalarSurface.prototype.collapsedMargin = null;
-ScalarSurface.prototype.currentMargin = null;
-ScalarSurface.prototype.maxWidth = null;
-
-/**
- * Updates layout of items in the view.
- *
- * @param	duration		Duration of the update.
- */
-ScalarSurface.prototype.update = function(duration) {
-	this.element.css('left', this.currentMargin);
-	this.element.css('right', this.currentMargin);
-}
-
-/**
- * Sets the current state of the page.
- *
- * @param	newState 	The new state.
- * @param	duration	Duration of the transition to the new state.
- * @param	propsOnly	If true, modify properties only, not dom elements.
- */
-ScalarSurface.prototype.setState = function(newState, duration, propsOnly) {
-
-	switch (newState) {
-	
-		case 'reading':
-		if (!propsOnly) {
-			this.element.fadeIn(duration);
-		}
-		break;
-		
-		case 'navigating':
-		if (!propsOnly) {
-			if (this.element.css('display') != 'none') this.element.fadeOut(duration);
-		}
-		break;
-		
-		case 'editing':
-		if (!propsOnly) {
-			if (this.element.css('display') != 'none') this.element.fadeOut(duration);
-		}
-		break;
-		
-		case 'designing':
-		if (!propsOnly) {
-			if (this.element.css('display') != 'none') this.element.fadeOut(duration);
-		}
-		break;
-	
-	}
-	
-	// surface layout
-	if (scalarview.marginsCollapsed && (newState == 'reading')) {
-		scalarview.stateProperties.push({context:this, property:'currentMargin', value:this.collapsedMargin});
-	} else {
-		var currentSurfaceWidth = Math.min(scalarview.windowWidth - (this.defaultMargin * 2), this.maxWidth);
-		scalarview.stateProperties.push({context:this, property:'currentMargin', value:Math.round((scalarview.windowWidth - currentSurfaceWidth) * .5)});
-	}
-
-}
-
-/**
- * Initial construction of the surface.
- *
- * @param {String} viewType		Name of the view to be used to render the page.
- */
-ScalarSurface.prototype.render = function(viewType) {
-
-	var me = this;
-	
-	this.element = $('<div id="surface"></div>').appendTo('body');
-
-	this[viewType]();
-
-}
-
-/**
- * The default view renderer.
- */
-ScalarSurface.prototype.textOnlyView = function() {
-	
-	// visibility
-	var surfaceVisible = $.cookie('surface visible');
-	if (surfaceVisible != null) {
-		$('#surface').css('display', surfaceVisible);
-	}
-	
-	// get page title
-	var title;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		title = 'Contents';
-	} else {
-		title = scalarview.currentNode.getDisplayTitle();
-	}
-	
-	// window title
-	document.title = scalarapi.model.bookNode.title +' : '+ title;
-
-	// book icon and link to home
-	var bookTitle = $('<div id="header">'+scalarapi.model.bookNode.title+'</div>').appendTo(this.element);
-	bookTitle.click(function() {
-		scalarview.setPage('index');
-	});
-	
-	// marker
-	this.element.append('<h1>'+title+'<div class="marker"></div></h1>');
-	this.marker = $('.marker');
-	this.marker.data('id', scalarview.currentNode.url);
-	this.marker.click(function() {
-		
-		var marked = $.cookie('scalarmarked');
-		var id = $(this).data('id');
-		var model = $(this).data('model');
-		
-		var index = scalarview.markedURLs.indexOf(scalarview.currentNode.url);
-		if (index != -1) {
-			scalarview.markedURLs.splice(index, 1);
-			$(this).removeClass('marked');
-		} else {
-			scalarview.markedURLs.push(scalarview.currentNode.url);
-			$(this).addClass('marked');
-		}
-		$.cookie('scalarmarked', scalarview.markedURLs.join('|'), {path:"/"});
-		
-	});
-	if (scalarview.visitedURLs.indexOf(scalarview.currentNode.url) != -1) {
-		this.marker.addClass('visited');
-	}
-	if (scalarview.markedURLs.indexOf(scalarview.currentNode.url) != -1) {
-		this.marker.addClass('marked');
-	}
-	
-	// body content
-	var htmlContent = $('<div id="content"></div>');
-	if (scalarview.currentNode.current) {
-		if (scalarview.currentNode.current.content != null) {
-			htmlContent = $('<div id="content">'+nl2br(scalarview.currentNode.current.content)+'</div>');
-		}
-	}
-	this.element.append(htmlContent);
-	htmlContent.find('a').each(function() {
-		if ($(this).attr('href').indexOf('://') == -1) {
-			$(this).data('url', $(this).attr('href'));
-			$(this).attr('href', 'javascript:;');
-			$(this).click(function(event) {
-				event.stopImmediatePropagation();
-				if (scalarview.singlePageMode) {
-					scalarview.reloadForScalarPage($(this).data('url'));
-				} else {
-					scalarview.setPage($(this).data('url'));
-				}
-			});
-		}
-	});
-	$('#content').css('display', 'block');
-	
-	// footer
-	var comments = scalarview.currentNode.getRelatedNodes('comment', 'incoming');
-	this.footer = $('<div id="footer"><div id="comment">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"><div class="edit"></div><div class="design"></div></div></div>').appendTo(this.element);
-	this.footer.find('.edit').click(function() {
-		scalarview.setState('editing', 'fast', false);
-	});
-	
-	// path items or content items
-	var relatedNodes;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		relatedNodes = scalarview.currentNode.getRelatedNodes('referee', 'outgoing', true);
-	} else {
-		relatedNodes = scalarview.currentNode.getRelatedNodes('path', 'outgoing');
-	}
-	if (relatedNodes.length > 0) {
-		
-		$('#content').append('<ol></ol>');
-		var i;
-		var n = relatedNodes.length;
-		var node;
-		var listItem;
-		for (i=0; i<n; i++) {
-			node = relatedNodes[i];
-			listItem = $('<li><a href="javascript:;">'+node.getDisplayTitle()+'</a></li>').appendTo('#content>ol');
-			listItem.data('url', scalarapi.basename(node.url));
-			listItem.click(function() {
-				if (scalarview.singlePageMode) {
-					scalarview.reloadForScalarPage($(this).data('url'));
-				} else {
-					scalarview.setPage($(this).data('url'));
-				}
-			});
-		}
-	}	
-	
-}
-
-/**
- * The standard view renderer.
- */
-ScalarSurface.prototype.standardView = function() {
-	
-	// visibility
-	var surfaceVisible = $.cookie('surface visible');
-	if (surfaceVisible != null) {
-		$('#surface').css('display', surfaceVisible);
-	}
-	
-	// get page title
-	var title;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		title = 'Contents';
-	} else {
-		title = scalarview.currentNode.getDisplayTitle();
-	}
-	
-	// window title
-	document.title = scalarapi.model.bookNode.title +' : '+ title;
-
-	// book icon and link to home
-	var bookTitle = $('<div id="header">'+scalarapi.model.bookNode.title+'</div>').appendTo(this.element);
-	bookTitle.click(function() {
-		scalarview.setPage('index');
-	});
-	
-	// marker
-	this.element.append('<h1>'+title+'<div class="marker"></div></h1>');
-	this.marker = $('.marker');
-	this.marker.data('id', scalarview.currentNode.url);
-	this.marker.click(function() {
-		
-		var marked = $.cookie('scalarmarked');
-		var id = $(this).data('id');
-		var model = $(this).data('model');
-		
-		var index = scalarview.markedURLs.indexOf(scalarview.currentNode.url);
-		if (index != -1) {
-			scalarview.markedURLs.splice(index, 1);
-			$(this).removeClass('marked');
-		} else {
-			scalarview.markedURLs.push(scalarview.currentNode.url);
-			$(this).addClass('marked');
-		}
-		$.cookie('scalarmarked', scalarview.markedURLs.join('|'), {path:"/"});
-		
-	});
-	if (scalarview.visitedURLs.indexOf(scalarview.currentNode.url) != -1) {
-		this.marker.addClass('visited');
-	}
-	if (scalarview.markedURLs.indexOf(scalarview.currentNode.url) != -1) {
-		this.marker.addClass('marked');
-	}
-	
-	// body content
-	var htmlContent = $('<div id="content"></div>');
-	if (scalarview.currentNode.current) {
-		if (scalarview.currentNode.current.content != null) {
-			htmlContent = $('<div id="content"><div id="interior">'+nl2br(scalarview.currentNode.current.content)+'</div></div>');
-		}
-	}
-	//console.log(htmlContent);
-	this.element.append(htmlContent);
-	htmlContent.find('a').each(function() {
-		/*if ($(this).attr('resource')) {
-			var temp = $(this).attr('href').split('.');
-			temp.pop()
-			var url = temp.join('.')+'.mp4';
-			$(this).parent().before('<video style="margin-bottom:30px;" controls="controls" width="100%"><source src="'+url+'" type="video/mp4">');
-		}*/
-		if ($(this).attr('href') != null) {
-			if ($(this).attr('href').indexOf('://') == -1) {
-				$(this).data('url', $(this).attr('href'));
-				$(this).attr('href', 'javascript:;');
-				$(this).click(function(event) {
-					event.stopImmediatePropagation();
-					scalarview.setPage($(this).data('url'));
-				});
-			}
-		} else if ($(this).attr('resource')) {
-			var slot ;
-			if (Math.random() < .75) {
-				slot = $(this).slotmanager_create_slot(300 + (Math.round((Math.random() * 5)) * 50), {url_attributes: ['href', 'src']});
-			} else {
-				slot = $(this).slotmanager_create_slot(820, {url_attributes: ['href', 'src']});
-			}
-			if (slot) slot.addClass('right');
-			//$(this).before(slot);
-			/*
-			var className;
-			var rand = Math.random();
-			if (rand < .4) {
-				className = "media_file right";
-			} else if (rand < .8) {
-				className = "media_file right";
-			} else {
-				className = "media_file right";
-			}
-			var mediaFileHTML = '<div class="'+className+'">'+$(this).attr('resource')+'</div>';
-			$(this).before(mediaFileHTML);*/
-			
-			if ($(this).parent('li').length > 0) {
-				$(this).parent('li').before(slot);
-			} else if ($(this).prev('br').length > 0) {
-				$(this).prev('br').before(slot);
-			} else {
-				$(this).parent().prepend(slot);
-			}
-		}
-	});
-	$('#content').css('display', 'block');
-	
-	// footer
-	var comments = scalarview.currentNode.getRelatedNodes('comment', 'incoming');
-	this.footer = $('<div id="footer"><div id="comment">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"><div class="edit"></div><div class="design"></div></div></div>').appendTo(this.element);
-	this.footer.find('.edit').click(function() {
-		scalarview.setState('editing', 'fast', false);
-	});
-	
-	// path items or content items
-	var relatedNodes;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		relatedNodes = scalarview.currentNode.getRelatedNodes('referee', 'outgoing', true);
-	} else {
-		relatedNodes = scalarview.currentNode.getRelatedNodes('path', 'outgoing');
-	}
-	if (relatedNodes.length > 0) {
-		
-		$('#content').append('<ol></ol>');
-		var i;
-		var n = relatedNodes.length;
-		var node;
-		var listItem;
-		for (i=0; i<n; i++) {
-			node = relatedNodes[i];
-			listItem = $('<li><a href="javascript:;">'+node.getDisplayTitle()+'</a></li>').appendTo('#content>ol');
-			listItem.data('url', scalarapi.basename(node.url));
-			listItem.click(function() {
-				scalarview.setPage($(this).data('url'));
-			});
-		}
-	}	
-	
-}
-
-/**
- * The multi-column view renderer.
- */
-ScalarSurface.prototype.multiColumnView = function() {
-	
-	// visibility
-	var surfaceVisible = $.cookie('surface visible');
-	if (surfaceVisible != null) {
-		$('#surface').css('display', surfaceVisible);
-	}
-	
-	// get page title
-	var title;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		title = 'Contents';
-	} else {
-		title = scalarview.currentNode.getDisplayTitle();
-	}
-	
-	// window title
-	document.title = scalarapi.model.bookNode.title +' : '+ title;
-
-	// book icon and link to home
-	var bookTitle = $('<div id="header">'+scalarapi.model.bookNode.title+'</div>').appendTo(this.element);
-	bookTitle.click(function() {
-		scalarview.setPage('index');
-	});
-	
-	// marker
-	this.element.append('<h1>'+title+'<div class="marker"></div></h1>');
-	this.marker = $('.marker');
-	this.marker.data('id', scalarview.currentNode.url);
-	this.marker.click(function() {
-		
-		var marked = $.cookie('scalarmarked');
-		var id = $(this).data('id');
-		var model = $(this).data('model');
-		
-		var index = scalarview.markedURLs.indexOf(scalarview.currentNode.url);
-		if (index != -1) {
-			scalarview.markedURLs.splice(index, 1);
-			$(this).removeClass('marked');
-		} else {
-			scalarview.markedURLs.push(scalarview.currentNode.url);
-			$(this).addClass('marked');
-		}
-		$.cookie('scalarmarked', scalarview.markedURLs.join('|'), {path:"/"});
-		
-	});
-	if (scalarview.visitedURLs.indexOf(scalarview.currentNode.url) != -1) {
-		this.marker.addClass('visited');
-	}
-	if (scalarview.markedURLs.indexOf(scalarview.currentNode.url) != -1) {
-		this.marker.addClass('marked');
-	}
-	
-	// body content
-	var htmlContent = $('<div id="content"></div>');
-	if (scalarview.currentNode.current) {
-		if (scalarview.currentNode.current.content != null) {
-			htmlContent = $('<div id="content"><div id="multiColumn">'+nl2br(scalarview.currentNode.current.content)+'</div></div>');
-		}
-	}
-	//console.log(htmlContent);
-	this.element.append(htmlContent);
-	htmlContent.find('a').each(function() {
-		/*if ($(this).attr('resource')) {
-			var temp = $(this).attr('href').split('.');
-			temp.pop()
-			var url = temp.join('.')+'.mp4';
-			$(this).parent().before('<video style="margin-bottom:30px;" controls="controls" width="100%"><source src="'+url+'" type="video/mp4">');
-		}*/
-		if ($(this).attr('href').indexOf('://') == -1) {
-			$(this).data('url', $(this).attr('href'));
-			$(this).attr('href', 'javascript:;');
-			$(this).click(function(event) {
-				event.stopImmediatePropagation();
-				scalarview.setPage($(this).data('url'));
-			});
-		} else if ($(this).attr('resource')) {
-			var slot ;
-			slot = $(this).slotmanager_create_slot(260, {url_attributes: ['href', 'src']});
-			if ($(this).parent('li').length > 0) {
-				$(this).parent('li').parent('ul').before(slot);
-			} else if ($(this).prev('br').length > 0) {
-				$(this).prev('br').before(slot);
-			} else {
-				$(this).parent().prepend(slot);
-			}
-		}
-	});
-	$('#content').css('display', 'block');
-	
-	// footer
-	var comments = scalarview.currentNode.getRelatedNodes('comment', 'incoming');
-	this.footer = $('<div id="footer"><div id="comment">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"><div class="edit"></div><div class="design"></div></div></div>').appendTo(this.element);
-	this.footer.find('.edit').click(function() {
-		scalarview.setState('editing', 'fast', false);
-	});
-	
-	// path items or content items
-	var relatedNodes;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		relatedNodes = scalarview.currentNode.getRelatedNodes('referee', 'outgoing', true);
-	} else {
-		relatedNodes = scalarview.currentNode.getRelatedNodes('path', 'outgoing');
-	}
-	if (relatedNodes.length > 0) {
-		
-		$('#content').append('<ol></ol>');
-		var i;
-		var n = relatedNodes.length;
-		var node;
-		var listItem;
-		for (i=0; i<n; i++) {
-			node = relatedNodes[i];
-			listItem = $('<li><a href="javascript:;">'+node.getDisplayTitle()+'</a></li>').appendTo('#content>ol');
-			listItem.data('url', scalarapi.basename(node.url));
-			listItem.click(function() {
-				scalarview.setPage($(this).data('url'));
-			});
-		}
-	}	
-	
-}
-
-/**
- * Experimental view.
- */
-ScalarSurface.prototype.fullScreenTitle = function() {
-	
-	// get page title
-	var title;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		title = 'Contents';
-	} else {
-		title = scalarview.currentNode.getDisplayTitle();
-	}
-	
-	// window title
-	document.title = scalarapi.model.bookNode.title +' : '+ title;
-	
-	var title = $('<div><h1>'+title+'<h1></div>').appendTo(this.element);
-	title.css('color', 'white');
-	this.element.css('background-color', '#000');
-	//this.element.css('max-width', '100%');
-	//this.element.css('width', '100%');
-	//this.element.css('margin', '0');
-	this.element.css('padding-top', '100px');
-	this.element.css('text-align', 'center');
-
-}
-
-/**
- * Experimental view.
- */
-ScalarSurface.prototype.fullScreenMedia = function() {
-
-	var me = this;
-	
-	// get page title
-	var title;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		title = 'Contents';
-	} else {
-		title = scalarview.currentNode.getDisplayTitle();
-	}
-	
-	// window title
-	document.title = scalarapi.model.bookNode.title +' : '+ title;
-	
-	this.element.css('background-color', '#333');
-	/*this.element.css('max-width', '100%');
-	this.element.css('width', '100%');*/
-	//this.element.css('margin', '0');
-	this.element.css('text-align', 'center');
-	//this.element.css('padding', '0');
-	
-	// body content
-	var htmlContent = $('<div id="content"></div>');
-	if (scalarview.currentNode.current) {
-		if (scalarview.currentNode.current.content != null) {
-			htmlContent = $('<div id="content"><div id="interior">'+nl2br(scalarview.currentNode.current.content)+'</div></div>');
-		}
-	}
-	$(htmlContent).find('a').each(function() {
-		if ($(this).attr('href').indexOf('://') == -1) {
-			$(this).data('url', $(this).attr('href'));
-			$(this).attr('href', 'javascript:;');
-			$(this).click(function(event) {
-				event.stopImmediatePropagation();
-				scalarview.setPage($(this).data('url'));
-			});
-		} else if ($(this).attr('resource')) {
-			var slot = $(this).slotmanager_create_slot(820, {url_attributes: ['href', 'src']});
-			me.element.append(slot);
-		}
-	});
-	$('#content').css('display', 'block');
-
-}
-
-
-
-/**
- * Experimental view.
- */
-ScalarSurface.prototype.tagVisualization = function() {
-
-	// get page title
-	var title;
-	if (scalarview.currentNode == scalarview.tocNode) {
-		title = 'Contents';
-	} else {
-		title = scalarview.currentNode.getDisplayTitle();
-	}
-	
-	// window title
-	document.title = scalarapi.model.bookNode.title +' : '+ title;
-	
-	this.element.width('960px');
-	this.element.css('padding', '0');
-	this.element.css('max-width', '960px');
-	
-	this.element.append('<div id="visualization"></div>');
-	
-	var options = {parent_uri:scalarapi.model.urlPrefix, default_tab:'vistag'}; 
-	$('#visualization').scalarvis(options);
-	
-}
-
-/**
- * Get paths to script and style directories
- */
-var script_uri = document.getElementsByTagName("script")[0].src;
-var base_uri = script_uri.substr(0, script_uri.lastIndexOf('/'));
-var arbors_uri = base_uri.substr(0, base_uri.lastIndexOf('/'));
-var views_uri = arbors_uri.substr(0, arbors_uri.lastIndexOf('/'));
-var modules_uri = views_uri+'/modules';
-var widgets_uri = views_uri+'/widgets';
-
-/*
- * $.fn.slotmanager_create_slot
- * Create a slot and attach to a tag
- * @param obj options, required 'url_attributes' 
- */	
-
-$.fn.slotmanager_create_slot = function(width, options) {
-
-	$tag = $(this); 
-	if ($tag.hasClass('inline')) return;
-	$tag.data( 'slot', $('<div class="slot"></div>') );
-	var url = null;
-	
-	// Get URL
-	
-	var url = null;
-	for (var k in options['url_attributes']) {;
-		if ('undefined'==typeof($tag.attr(options['url_attributes'][k]))) continue;
-		if ($tag.attr(options['url_attributes'][k]).length>0) {
-			url = $tag.attr(options['url_attributes'][k]);
-			break;
-		}
-	}
-	if (!url) return;
-	
-	// Seperate seek hash if present
-	
-	var annotation_url = null;
-	var uri_components = url.split('#');
-	
-	// TODO: Special case for hypercities #, until we correctly variable-ify #'s
-	if (uri_components.length>1 && uri_components[0].toLowerCase().indexOf('hypercities')!=-1) {
-		// keep URL as it is
-	} else if (uri_components.length>1) {
-		var url = uri_components[0];
-		annotation_url = uri_components[1];	
-		//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;	
-		// modified by Erik below to remove duplicated 'annotations/' in url
-		if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;	
-	}
-
-	// Metadata resource
-	var resource = $tag.attr('resource');		
-	
-	// Create media element object
-	
-	var opts = {};
-	opts.width = width; 
-	opts.player_dir = $('link#approot').attr('href')+'static/players/';
-	opts.base_dir = scalarapi.model.urlPrefix;
-	opts.seek = annotation_url;
-	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);		
-	$tag.data('path', url);
-	$tag.data('meta', resource);
-	$tag.mediaelement(opts);
-	
-	// Insert media element's embed markup
-	
-	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
-	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
-
-	return $tag.data('slot');
-
-}

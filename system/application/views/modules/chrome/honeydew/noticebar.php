@@ -80,7 +80,7 @@ elseif (!empty($page->category)) {
 
 // Page isn't visible
 if (isset($page->is_live) && !$page->is_live) {
-	echo '<div class="error"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible below or in Manage content.</p></div>';
+	echo '<div class="error"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible below or in the Dashboard.</p></div>';
 }
 
 // Message for delete and save
@@ -97,3 +97,8 @@ endif;
 <div class="error"><p>This site requires Javascript to be turned on. Please <a href="http://www.btny.purdue.edu/enablejavascript.html">enable Javascript</a> and reload the page.</p></div>
 </noscript>
 <div class="error" id="ie_warning"><p>You appear to be using an older verion of Internet Explorer.  For the best experience please upgrade your IE version or switch to a another web browser.</p></div>
+<? 
+$msg = $this->config->item('book_msg');
+$cookie = $this->config->item("book_msg_cookie_name");
+if (!empty($msg)) echo "<div class=\"scalarnotice\" style=\"display:none;\" data-cookie=\"".((!empty($cookie))?$cookie:'scalar_hide_book_msg')."\">$msg</div>\n";
+?>
