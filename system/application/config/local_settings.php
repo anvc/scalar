@@ -13,8 +13,8 @@ $config['recaptcha_private_key'] = '';
 // Register key (leave blank if no register key required, e.g., array())
 $config['register_key'] = array();
 
-// Soundcloud key
-$config['soundcloud_key'] = '';
+// Soundcloud client id
+$config['soundcloud_id'] = '';
 
 // Digital Public Library of America key
 $config['dpla_key'] = '';
