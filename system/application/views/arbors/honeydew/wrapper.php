@@ -56,6 +56,7 @@ echo doctype('html5')."\n"
 <link id="user_level" href="scalar:<?=(($login_is_super)?'Author':ucwords($user_level))?>" />
 <? endif ?>
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
+<link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_link_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.css')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>

@@ -539,7 +539,7 @@ function handleFlashVideoMetadata(data) {
 				} else if (this.model.mediaSource.name == 'SoundCloud') {
 					
 					if (!soundCloudInitialized) {
-						SC.initialize({client_id: '8c90ff385dd49a3dce8a11abcb01d87f'});
+						SC.initialize({client_id: $('#soundcloud_id').attr('href')});
 						soundCloudInitialized = true;
 					}
 					
