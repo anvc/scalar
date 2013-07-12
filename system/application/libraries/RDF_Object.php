@@ -38,6 +38,7 @@ class RDF_Object {
 	const REFERENCES_ALL = 1;
 	const REFERENCES_NONE = 0;
 	const NO_SEARCH = null;
+	const NO_PAGINATION = null;
 	public $ns = array();
 	private $version_cache = array();
 	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');	
@@ -99,15 +100,15 @@ class RDF_Object {
     	
     }    
     
-    public function index(&$arg0=null, $arg1=null, $arg2=null, $arg3=null, $arg4=null, $arg5=null, $arg6=null, $arg7=null, $arg8=null, $arg9=null) {
+    public function index(&$arg0=null, $arg1=null, $arg2=null, $arg3=null, $arg4=null, $arg5=null, $arg6=null, $arg7=null, $arg8=null, $arg9=null, $arg10=null) {
 
     	$numargs = func_num_args();
 		if (8>$numargs) throw new Exception('Invalid arguments');
 
 		if ('string'!=gettype($arg2)) {
-			$this->_index_by_ref($arg0, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7, $arg8, $arg9);
+			$this->_index_by_ref($arg0, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7, $arg8, $arg9, $arg10);
 		} else {
-			return $this->_index($arg0, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7, $arg8);
+			return $this->_index($arg0, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7, $arg8, $arg9);
 		}
     	
     }
@@ -196,34 +197,44 @@ class RDF_Object {
     	
     }    
     
-    private function _index($book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $max_recurses=0, $num_recurses=0) {
+    private function _index($book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		if (empty($content)) return $content;
 		if (!is_array($content)) $content = array($content);
+		if (!empty($pagination) && $pagination['start']>0) $content = array_slice($content, $pagination['start']);
+		$count = 0;		
 
 		foreach ($content as $row) {
-			$index = $this->_content($book, $row, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses);
-			if (!empty($index)) $return[] = $index;
+			if (!empty($pagination) && $count >= $pagination['results']) break;
+			$index = $this->_content($book, $row, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses);
+			if (!empty($index)) {
+				$return[] = $index;
+				$count++;
+			}
 		}
 		
 		return $return;    	
     	
     }
     
-    private function _index_by_ref(&$return, $book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $max_recurses=0, $num_recurses=0) {
+    private function _index_by_ref(&$return, $book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		if (empty($content)) return;
 		if (!is_array($content)) $content = array($content);	
+		if (!empty($pagination) && $pagination['start']>0) $content = array_slice($content, $pagination['start']);
+		$count = 0;
 
 		foreach ($content as $row) {
-			$this->_content_by_ref($return, $book, $row, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses, $num_recurses);
+			if (!empty($pagination) && $count >= $pagination['results']) break;
+			$this->_content_by_ref($return, $book, $row, $base_uri, $restrict, $rel, $sq, $versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses);
 			if (!isset($this->version_cache[$row->content_id])) continue;
-			$this->_relationships_by_ref($return, $book, $this->version_cache[$row->content_id], $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses, $num_recurses);
+			$this->_relationships_by_ref($return, $book, $this->version_cache[$row->content_id], $base_uri, $restrict, $rel, self::NO_SEARCH, $versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses);
+			$count++;
 		}
 		    	
     }
     
-	private function _content($book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $max_recurses=0, $num_recurses=0) {
+	private function _content($book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');	
@@ -255,7 +266,7 @@ class RDF_Object {
 					$content->versions[$j]->$name = array();
 					$nodes = $CI->$model->get_parents($version_id, null, null, null, 1);
 					foreach ($nodes as $node) {
-						array_push($content->versions[$j]->$name, $this->_annotation_parent($book, $node, $base_uri, $model, $rel, $sq, $versions, $ref, $max_recurses, $num_recurses));
+						array_push($content->versions[$j]->$name, $this->_annotation_parent($book, $node, $base_uri, $model, $rel, self::NO_SEARCH, $versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses));
 					}
 				}
 				if ($rel == self::REL_CHILDREN_ONLY || $rel == self::REL_ALL) {
@@ -263,7 +274,7 @@ class RDF_Object {
 					$content->versions[$j]->$name = array();
 					$nodes = $CI->$model->get_children($version_id, null, null, null, 1);
 					foreach ($nodes as $node) {
-						array_push($content->versions[$j]->$name, $this->_annotation_child($book, $node, $base_uri, $model, $rel, $sq, $versions, $ref, $max_recurses, $num_recurses));
+						array_push($content->versions[$j]->$name, $this->_annotation_child($book, $node, $base_uri, $model, $rel, self::NO_SEARCH, $versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses));
 					}	
 				}			
 			}		
@@ -275,7 +286,7 @@ class RDF_Object {
 		 
 	}    
     
-    private function _content_by_ref(&$return, $book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $display_versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $max_recurses=0, $num_recurses=0) {
+    private function _content_by_ref(&$return, $book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $display_versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		if ($this->_uri_exists($return, $base_uri.$content->slug)) return;
 		
@@ -288,6 +299,7 @@ class RDF_Object {
 		// Versions attached to each node
 		$versions = $CI->versions->get_all($content->content_id, null, $display_versions, $sq);
 		if (!count($versions)) return;
+		
 		$content->version = $base_uri.$content->slug.'.'.$versions[0]->version_num; 
 		foreach ($versions as $key => $version) {
 			$content->has_version[] = $base_uri.$content->slug.'.'.$version->version_num;
@@ -326,15 +338,15 @@ class RDF_Object {
 				if (isset($version->has_reference)) {
 					foreach ($version->has_reference as $parent_content_uri) {
 						if ($this->_uri_exists($return, $parent_content_uri)) continue;
-						$content = $CI->pages->get_by_slug($book->book_id, substr($parent_content_uri, strlen($base_uri))); 
-						if (!empty($content)) $this->_content_by_ref($return, $book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $display_versions, $ref, $max_recurses, ++$num_recurses);
+						$ref_content = $CI->pages->get_by_slug($book->book_id, substr($parent_content_uri, strlen($base_uri))); 
+						if (!empty($ref_content)) $this->_content_by_ref($return, $book, $ref_content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, self::NO_SEARCH, $display_versions, $ref, self::NO_PAGINATION, $max_recurses, ++$num_recurses);
 					}	
 				}					
 				if (isset($version->references)) {
 					foreach ($version->references as $child_content_uri) {
 						if ($this->_uri_exists($return, $child_content_uri)) continue;
-						$content = $CI->pages->get_by_slug($book->book_id, substr($child_content_uri, strlen($base_uri))); 
-						if (!empty($content)) $this->_content_by_ref($return, $book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $display_versions, $ref, $max_recurses, ++$num_recurses);
+						$ref_content = $CI->pages->get_by_slug($book->book_id, substr($child_content_uri, strlen($base_uri))); 
+						if (!empty($ref_content)) $this->_content_by_ref($return, $book, $ref_content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, self::NO_SEARCH, $display_versions, $ref, self::NO_PAGINATION, $max_recurses, ++$num_recurses);
 					}	
 				}				
 			}
@@ -345,7 +357,7 @@ class RDF_Object {
 			if (!empty($version->category)) {
 				$this->_annotation_category_by_ref($return, $version, $base_uri);
 			}	
-		}	    	
+		}	  
     	
     }
     
@@ -423,7 +435,7 @@ class RDF_Object {
 		
 	}    
     
-    private function _relationships_by_ref(&$return, $book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $max_recurses=0, $num_recurses=0) {
+    private function _relationships_by_ref(&$return, $book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		if (empty($content)) return;
 		if ($num_recurses >= $max_recurses) return;
@@ -445,13 +457,13 @@ class RDF_Object {
 				if (empty($rel) || $rel == self::REL_PARENTS_ONLY) {
 					$nodes = $CI->$model->get_parents($row->version_id, null, null, null, true);
 					foreach ($nodes as $node) {
-						$this->_annotation_parent_by_ref($return, $book, $node, $uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses, $num_recurses);
+						$this->_annotation_parent_by_ref($return, $book, $node, $uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses, $num_recurses);
 					}
 				}
 				if (empty($rel) || $rel == self::REL_CHILDREN_ONLY) {
 					$nodes = $CI->$model->get_children($row->version_id, null, null, null, true);
 					foreach ($nodes as $node) {
-						$this->_annotation_child_by_ref($return, $book, $node, $uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses, $num_recurses);	
+						$this->_annotation_child_by_ref($return, $book, $node, $uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses, $num_recurses);	
 					}
 				}		
 			}		
@@ -459,13 +471,13 @@ class RDF_Object {
     	
     } 
     
-	private function _annotation_parent($book, $annotation, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $max_recurses=0, $num_recurses=0) {
+	private function _annotation_parent($book, $annotation, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');		
 		
 		$content = $CI->pages->get_by_slug($book->book_id, $annotation->parent_content_slug);
-		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $versions, $ref, $max_recurses, ++$num_recurses);
+		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $versions, $ref, $pagination, $max_recurses, ++$num_recurses);
 		foreach ($this->rel_fields as $field) {
 			if (isset($annotation->$field)) {
 				$content->versions[$content->version_index]->$field = $annotation->$field;
@@ -476,7 +488,7 @@ class RDF_Object {
 
 	}	    
     
-	private function _annotation_parent_by_ref(&$return, $book, $annotation, $target_uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses=0, $num_recurses=0) {
+	private function _annotation_parent_by_ref(&$return, $book, $annotation, $target_uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses=0, $num_recurses=0) {
 
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -489,18 +501,18 @@ class RDF_Object {
 		// Target should already exist because it's what pulled its annotations
 		if (!$this->_uri_exists($return, $annotation->has_body)) {
 			$content = $CI->pages->get_by_slug($book->book_id, $annotation->parent_content_slug);
-			$this->_index_by_ref($return, $book, $content, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses, ++$num_recurses);
+			$this->_index_by_ref($return, $book, $content, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses, ++$num_recurses);
 		}		
 		
 	}	
 	
-	private function _annotation_child($book, $annotation, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $max_recurses=0, $num_recurses=0) {
+	private function _annotation_child($book, $annotation, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');				
 		
 		$content = $CI->pages->get_by_slug($book->book_id, $annotation->child_content_slug);
-		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $versions, $ref, $max_recurses, ++$num_recurses);
+		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $versions, $ref, $pagination, $max_recurses, ++$num_recurses);
 		foreach ($this->rel_fields as $field) {
 			if (isset($annotation->$field)) {
 				$content->versions[$content->version_index]->$field = $annotation->$field;
@@ -511,7 +523,7 @@ class RDF_Object {
 		
 	}		
 	
-	private function _annotation_child_by_ref(&$return, $book, $annotation, $body_uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses=0, $num_recurses=0) {
+	private function _annotation_child_by_ref(&$return, $book, $annotation, $body_uri, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses=0, $num_recurses=0) {
 		
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -525,7 +537,7 @@ class RDF_Object {
 		// Body should already exist because it's what pulled its annotations
 		if (!$this->_uri_exists($return, $target_base)) {
 			$content = $CI->pages->get_by_slug($book->book_id, $annotation->child_content_slug); 		
-			$this->_index_by_ref($return, $book, $content, $base_uri, $restrict, $rel, $sq, $versions, $ref, $max_recurses, ++$num_recurses);	
+			$this->_index_by_ref($return, $book, $content, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses, ++$num_recurses);	
 		}			
 		
 	}	    

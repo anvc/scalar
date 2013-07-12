@@ -124,6 +124,7 @@ class Book extends MY_Controller {
 			                         	RDF_Object::NO_SEARCH,
 			                         	RDF_Object::VERSIONS_MOST_RECENT,
 			                         	RDF_Object::REFERENCES_ALL,
+			                         	RDF_Object::NO_PAGINATION,
 			                         	$max_recursions
 			                          );    
 			    if (!count($index)) throw new Exception('Problem getting page index');     

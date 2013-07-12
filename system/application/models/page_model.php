@@ -67,7 +67,6 @@ class Page_model extends MY_Model {
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->urn = $this->urn($result[$j]->content_id);
     	}
-
     	return $result;    	
     	
     }  

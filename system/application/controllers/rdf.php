@@ -22,7 +22,7 @@
  * @projectDescription		RDF API controller for displaying RDF graphs based on REST (GET) queries
  * @return					On success outputs RDF-JSON or RDF-XML; errors are processed as HTTP response codes
  * @author					Craig Dietrich
- * @version					3.0
+ * @version					3.1
  */
 
 class Rdf extends MY_Controller {
@@ -49,17 +49,11 @@ class Rdf extends MY_Controller {
 		
 		// Determine the current book being asked for (if applicable)
 		$this->scope = (strtolower(get_class($this)) == strtolower($this->uri->segment('1'))) ? null : strtolower($this->uri->segment('1'));
-		//if (empty($this->scope)) {  // TODO: For now, don't allow queries across all books
-		//	header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_UNAUTHORIZED));  
-		//	exit;
-		//}
 		// Load book beind asked for (if applicable)
 		$this->data['book'] = (!empty($this->scope)) ? $this->books->get_by_slug($this->scope) : null;
 		if (empty($this->data['book'])) {  // Book couldn't be found
-			//header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
-			//exit;		
 			$this->data['base_uri'] = confirm_slash(base_url());
-		} else {
+		} else {  // Book was found
 			$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
 			// Protect book; TODO: provide api_key authentication like api.php
 			$this->set_user_book_perms(); 
@@ -83,7 +77,14 @@ class Rdf extends MY_Controller {
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;		
 		// Search terms
 		$this->data['sq'] = (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) ? search_split_terms($_REQUEST['sq']) : null;
-		
+		// Pagination
+		$start = (isset($_REQUEST['start'])) ? (int) $_REQUEST['start'] : null;
+		$results = (isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? (int) $_REQUEST['results'] : null;
+		if (empty($results)) $start = $results = null;
+		$this->data['pagination'] = array();
+		if (!empty($start)||$start===0) $this->data['pagination']['start'] = $start;
+		if (!empty($results)) $this->data['pagination']['results'] = $results;
+
 	}
 	
 	/**
@@ -149,6 +150,7 @@ class Rdf extends MY_Controller {
 			                         RDF_Object::NO_SEARCH,
 			                         (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 			                         (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+			                         $this->data['pagination'],
 			                         $this->data['recursion']
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
@@ -214,6 +216,7 @@ class Rdf extends MY_Controller {
 			                         $this->data['sq'],
 			                         (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 			                         (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+			                         $this->data['pagination'],
 			                         $this->data['recursion']
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);			

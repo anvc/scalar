@@ -78,27 +78,47 @@ class Version_model extends MY_Model {
     
     public function get_all($content_id=0, $version_datetime=null, $limit=null, $sq='') {
 
-		$ci =& get_instance();  // for use with the RDF Store
+		$ci =& get_instance();  // for use with the rdf_store
+		
      	if (!empty($content_id)) $this->db->where('content_id',$content_id);
     	$this->db->order_by('version_num', 'desc');
     	if (!empty($version_datetime)) $this->db->where('created <=', $version_datetime);
-    	if (!empty($sq)) {
-    		foreach ($sq as $term) {
-    			$this->db->where("(title LIKE '%".$term."%' OR description LIKE '%".$term."%' OR content LIKE '%".$term."%')");
-    		}
-    	}
+    	// Don't run $sq here because it might return an older version than the most recent
     	if (!empty($limit)) $this->db->limit($limit);
     	$query = $this->db->get($this->versions_table);
     	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
-    	for ($j = 0; $j < count($result); $j++) {
-    		$result[$j]->urn = $this->urn($result[$j]->version_id);
-    		$result[$j]->attribution = unserialize($result[$j]->attribution);
-    		$result[$j]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$j]->version_id);
+  
+        if (!empty($sq)) {
+    		for ($j = (count($result)-1); $j >= 0; $j--) {
+    			if (!self::filter_result_i($result[$j], $sq)) unset($result[$j]);
+    		}
     	}
+
+    	foreach ($result as $key => $value) {
+    		$result[$key]->urn = $this->urn($result[$key]->version_id);
+    		$result[$key]->attribution = unserialize($result[$key]->attribution);
+    		$result[$key]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$key]->version_id);
+    	}
+    	
     	return $result;    	
     	
     }     
+    
+    public function filter_result_i($result, $sq) {
+    	
+    	$result = (array) $result;
+    	$results = array();
+        
+        foreach ($sq as $term) {
+    		foreach($result as $key => $value) { 
+        		if (stristr($value,$term)) $results[] = $term; 
+    		}   
+        }
+        if (count($results)==count($sq)) return true;
+        return false;
+    	
+    }
     
     public function get_by_version_num($content_id=0, $version_num=0) {
     	
