@@ -21,6 +21,8 @@ $lang['login.privileges']      = 'privileges';
 $lang['login.back_to_book']    = 'Back to book';
 $lang['login.back_to_index']   = 'Back to index';
 $lang['login.manage_content']  = 'Dashboard';
+$lang['login.index']  		   = 'Index';
+$lang['login.guide']  		   = 'Guide';
 $lang['login.confirm_sign_out'] = 'Are you sure you wish to sign out?';
 $lang['login.choose_new_lang'] = 'Please choose language';
 

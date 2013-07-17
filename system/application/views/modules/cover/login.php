@@ -21,7 +21,7 @@ if ($login->is_logged_in):
 	} elseif (!empty($book) && $user_level!='Author') {
 		// echo '<span class="disabled_link">'.lang('login.manage_content').'</span>'."\n";	
 	} else {
-		echo '<a href="'.confirm_slash(base_url()).'system/dashboard?book_id='.@$book->book_id.'&zone=style#tabs-style">'.lang('login.manage_content').'</a> | <a href="'.confirm_slash(base_url()).'">Index</a>'."\n | <a href=\"http://scalar.usc.edu/works/guide\">Guide</a>";
+		echo '<a href="'.confirm_slash(base_url()).'system/dashboard?book_id='.@$book->book_id.'&zone=style#tabs-style">'.lang('login.manage_content').'</a> | <a href="'.confirm_slash(base_url()).'">'.lang('login.index').'</a>'.' | <a href="http://scalar.usc.edu/works/guide">'.lang('login.guide').'</a>';
 	}
 // Not logged in
 else:
