@@ -85,7 +85,7 @@
 					}
 				}
 				
-				$('#home_menu_link').mouseover(function() {
+				$('#home_menu_link').mouseenter(function() {
 					$('#header > .menu').show();
 				});
 				

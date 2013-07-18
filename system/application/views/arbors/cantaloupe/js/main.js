@@ -206,7 +206,7 @@ $(window).ready(function() {
 		  
 		  // Background visualization layer
 		  {load: [/*widgets_uri+'/vis/scalarvis2.css',
-		          widgets_uri+'/vis/jquery.scalarvis2.js',*/widgets_uri+'/vis/color-thief.js'], complete:function() {  
+		          widgets_uri+'/vis/jquery.scalarvis2.js',widgets_uri+'/vis/color-thief.js'*/], complete:function() {  
 			  	// TODO: Background visualization initialization here
 		  }},  		  
 		  
@@ -231,14 +231,15 @@ $(window).ready(function() {
 			  	$('#book-title').parent().wrap('<div></div>');
 			  	$('article').before($('#book-title').parent().parent());
 				header = $.scalarheader($('#book-title').parent().parent(), {'root_url':arbors_uri+'/cantaloupe'});
-				page = $.scalarpage($('article'));
+				page = $.scalarpage($('article'));
+
 				pinwheel = $.scalarpinwheel($('body').prepend('<div id="graph"></div>'));
 				
 				var savedState = $.cookie('viewstate');
 				if (savedState != null) {
 					setState(savedState, true);
 				}
-		
+				
 				$('body').css('visibility', 'visible');
 
 		  }},

@@ -22,7 +22,7 @@ section ol {margin:0px 0px 10px 26px; padding:0px 0px 0px 0px;}
 .secondary_text { font-family: 'Lato', Arial, sans-serif; }
 /*body { font-family: Georgia, Times, serif; visibility: hidden; }
 h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata { font-family: 'Lato', Arial, sans-serif; }*/
-body { visibility: hidden; background-attachment: fixed; }
+body { visibility: hidden; background-attachment: fixed; background-repeat: no-repeat; background-position: -9999px -9999px; }
 
 /* Base elements */
 
@@ -139,8 +139,9 @@ sup {
 }
 section ol,ul {margin-bottom: 1rem;}
 section.relationships { 
+    margin-top: 2.4rem;
 	max-width: 85.4rem;
-	clear:both; 
+	clear:both;
 }
 .relationships ol,ul,p {
 	padding-left: 7.2rem;
@@ -167,6 +168,22 @@ a:hover { text-decoration: underline; }
 /* Body copy */
 .paragraph_wrapper { max-width: none !important; /*clear: both;*/ }
 .body_copy { max-width: 85.4rem; padding-left: 7.2rem; padding-right: 7.2rem; }
+
+/* --- SPLASH --- */
+
+.splash { max-width: inherit; width:100%; height:100%; background-color: black; color: white; border: none; background-size: cover; background-position: center center; }
+.splash h1 { margin-bottom: 0; }
+.splash h2 { margin-top: 0; font-weight: normal; }
+.title_card { position: absolute; width: 100%; bottom: 0; padding: 10.8rem 7.2rem 3.6rem 7.2rem; text-align: center; display: none;
+background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.5) 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(30%,rgba(0,0,0,0.5)), color-stop(100%,rgba(0,0,0,0.5))); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 30%,rgba(0,0,0,0.5) 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 30%,rgba(0,0,0,0.5) 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 30%,rgba(0,0,0,0.5) 100%); /* IE10+ */
+background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 30%,rgba(0,0,0,0.5) 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#80000000',GradientType=0 ); /* IE6-9 */
+ }
+.title_card .relationships { max-width: inherit; }
 
 /* --- MEDIA --- */
 

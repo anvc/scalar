@@ -140,125 +140,161 @@
 					}				
 				}
 			
+			},
+			
+			addRelationshipNavigation: function(showLists) {
+				
+				var pathOptionCount = 0;
+				$('.path_of').each(function() {
+					if ($(this).parent().is('section')) {
+						var pathSection = $(this).parent();
+						pathSection.addClass('relationships');
+						pathSection.find('h3').text('Path contents');
+						pathSection.show();
+						
+						if (!showLists) {
+							pathSection.find('h3').hide();
+							pathSection.find('ol').hide();
+						}
+				
+						var path_nodes = currentNode.getRelatedNodes('path', 'outgoing');
+						if (path_nodes.length > 0) {
+							pathSection.append('<p><a class="nav_btn" href="'+path_nodes[0].url+'">Begin this path at “'+path_nodes[0].getDisplayTitle()+'”</a></p>');
+							pathOptionCount++;
+						}
+						
+						var i;
+						var index;
+					}
+				});
+				
+				var containing_paths = currentNode.getRelatedNodes('path', 'incoming');
+				//console.log(containing_paths);
+				if (containing_paths.length > 0) {
+					for (i in containing_paths) {
+						var section = $('<section class="relationships"></section').appendTo('article');
+						var sibling_nodes = containing_paths[i].getRelatedNodes('path', 'outgoing');
+						//console.log(sibling_nodes);
+						index = sibling_nodes.indexOf(currentNode);
+						if (index < (sibling_nodes.length - 1)) {
+							if (pathOptionCount > 0) {
+								section.append('<p><a class="nav_btn" href="'+sibling_nodes[index+1].url+'">Or, continue on to “'+sibling_nodes[index+1].getDisplayTitle()+'”</a></p>');
+							} else {
+								section.append('<p><a class="nav_btn" href="'+sibling_nodes[index+1].url+'">Continue to “'+sibling_nodes[index+1].getDisplayTitle()+'”</a></p>');
+							}
+							pathOptionCount++;
+						}
+					}
+				}
+				
+				
+				$('.tag_of').each(function() {
+					if ($(this).parent().is('section')) {
+						var tagSection = $(this).parent();
+						tagSection.addClass('relationships');
+						tagSection.find('h3').text('Tag contents');
+						tagSection.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+						tagSection.show();
+						
+						if (!showLists) {
+							tagSection.find('h3').hide();
+							tagSection.find('ul').hide();
+						}
+						
+						var tag_nodes = currentNode.getRelatedNodes('tag', 'outgoing');
+						if (tag_nodes.length > 1) {
+							tagSection.append('<p><a class="nav_btn" href="'+tag_nodes[Math.floor(Math.random() * tag_nodes.length)].url+'">Visit a random tagged page</a></p>');
+						}
+					}
+				});			
+			
 			}
 			
 		};
 		
 		element.addClass('page');
 		
-		$('body').bind('setState', page.handleSetState);
-		
 		page.wrapOrphanParagraphs($('[property="sioc:content"]'));
 	  	
 	  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
-	  	
-	  	$('body').bind('mediaElementMetadataHandled', page.handleMediaElementMetadata);
-	  	
-	  	// add mediaelements
-		$('a').each(function() {
-		
-			// resource property signifies a media link
-			if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
-			
-				var slot;
-				var slotDOMElement;
-				var slotMediaElement;
-				var count;
-				var parent;
-				
-				if ($(this).attr('resource') == undefined) {
-					$(this).attr('href', currentNode.current.sourceFile);
-					$(this).attr('resource', currentNode.slug);
-					$(this).attr('data-size', 'full');
-					parent = $(this);
-				} else {
-					parent = $(this).parent('p,div');
-				}
-								
-				$(this).addClass('media_link');
-				
-				page.addMediaElementForLink($(this), parent);
-				
-			}
-		});
-		
-		$('[property="art:url"]').each(function() {
-		
-			if ($(this).text().length > 0) {
-			
-				$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
-				page.addMediaElementForLink($(this).find('a'), $(this));
-				$(this).css('display', 'none');
-			
-			}
-		
-		});
-				
-
 		
 		$('section').hide(); // TODO: Make this more targeted	
-				
-		var pathOptionCount = 0;
-		$('.path_of').each(function() {
-			if ($(this).parent().is('section')) {
-				var pathSection = $(this).parent();
-				pathSection.addClass('relationships');
-				pathSection.find('h3').text('Path contents');
-				pathSection.show();
 		
-				var path_nodes = currentNode.getRelatedNodes('path', 'outgoing');
-				if (path_nodes.length > 0) {
-					pathSection.append('<p><a class="nav_btn" href="'+path_nodes[0].url+'">Begin this path at “'+path_nodes[0].getDisplayTitle()+'”</a></p>');
-					pathOptionCount++;
-				}
-				
-				var i;
-				var index;
-			}
-		});
+		//var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+		var viewType = 'plain';
+		switch (viewType) {
+			
+			case 'splash':
+			element.addClass('splash');
+			$('h1').wrap('<div class="title_card"></div>');
+			$('.title_card').append('<h2>By Steve Anderson</h2>');
+			$('.title_card').delay(500).fadeIn(2000);
+			$('[property="art:url"]').hide();
+			element.css('backgroundImage', $('body').css('backgroundImage'));
+			$('body').css('backgroundImage', 'none');
+			$('.paragraph_wrapper').remove();
+			page.addRelationshipNavigation(false);
+			$('.relationships').appendTo('.title_card');
+			break;
 		
-		var containing_paths = currentNode.getRelatedNodes('path', 'incoming');
-		//console.log(containing_paths);
-		if (containing_paths.length > 0) {
-			for (i in containing_paths) {
-				var sibling_nodes = containing_paths[i].getRelatedNodes('path', 'outgoing');
-				//console.log(sibling_nodes);
-				index = sibling_nodes.indexOf(currentNode);
-				if (index < (sibling_nodes.length - 1)) {
-					if (pathOptionCount > 0) {
-						$('article').append('<p><a class="nav_btn" href="'+sibling_nodes[index+1].url+'">Or, continue on to “'+sibling_nodes[index+1].getDisplayTitle()+'”</a></p>');
+			default:
+		  	
+		  	$('body').bind('mediaElementMetadataHandled', page.handleMediaElementMetadata);
+		  	
+		  	// add mediaelements
+			$('a').each(function() {
+			
+				// resource property signifies a media link
+				if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
+				
+					var slot;
+					var slotDOMElement;
+					var slotMediaElement;
+					var count;
+					var parent;
+					
+					if ($(this).attr('resource') == undefined) {
+						$(this).attr('href', currentNode.current.sourceFile);
+						$(this).attr('resource', currentNode.slug);
+						$(this).attr('data-size', 'full');
+						parent = $(this);
 					} else {
-						$('article').append('<br/><p><a class="nav_btn" href="'+sibling_nodes[index+1].url+'">Continue to “'+sibling_nodes[index+1].getDisplayTitle()+'”</a></p>');
+						parent = $(this).parent('p,div');
 					}
-					pathOptionCount++;
+									
+					$(this).addClass('media_link');
+					
+					page.addMediaElementForLink($(this), parent);
+					
 				}
-			}
-		}
-		
-		
-		$('.tag_of').each(function() {
-			if ($(this).parent().is('section')) {
-				var tagSection = $(this).parent();
-				tagSection.addClass('relationships');
-				tagSection.find('h3').text('Tag contents');
-				tagSection.find('ol').contents().unwrap().wrapAll('<ul></ul>');
-				tagSection.show();
+			});
+			
+			$('[property="art:url"]').each(function() {
+			
+				if ($(this).text().length > 0) {
 				
-				var tag_nodes = currentNode.getRelatedNodes('tag', 'outgoing');
-				if (tag_nodes.length > 1) {
-					tagSection.append('<p><a class="nav_btn" href="'+tag_nodes[Math.floor(Math.random() * tag_nodes.length)].url+'">Visit a random tagged page</a></p>');
+					$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
+					page.addMediaElementForLink($(this).find('a'), $(this));
+					$(this).css('display', 'none');
+				
 				}
-			}
-		});
-
+			
+			});
+					
+			page.addRelationshipNavigation(true);
+			
+			var comments = currentNode.getRelatedNodes('comment', 'incoming');
+			$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
+		  	
+			break;
 		
+		}
+			
 		addTemplateLinks($('article'), 'cantaloupe');
-		
-		var comments = currentNode.getRelatedNodes('comment', 'incoming');
-		$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
-	  	
+
 	  	$('body').addClass('primary_text');
 	  	$('h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata').addClass('secondary_text');
+		
 	
 	}
 
