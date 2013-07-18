@@ -257,7 +257,7 @@ abstract class MY_Controller extends Controller {
    	
    	/**
    	 * Determine if a melon (skin) exists
-   	 */
+   	 */ 
 	
    	protected function melon_exists($name='') {
    		
