@@ -5,6 +5,7 @@ Scalar Installation Instructions
 Scalar is a PHP and MySQL application built with CodeIgniter.
  
 * Note that mod_rewrite (.htaccess) must be enabled in Apache config.
+* Scalar creates new folders and writes files in the Scalar root folder. Please make sure that the root folder is writable by the web server and PHP.
 
 1) 
 

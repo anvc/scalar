@@ -1,3 +1,4 @@
+<?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?=doctype('html5')."\n"?>
 <html>
 <head>
@@ -7,7 +8,7 @@
 </head>
 <body>
 
-<? echo $content ?>
+<?=$content?>
 
 </body>
 </html>

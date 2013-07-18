@@ -1,0 +1,208 @@
+/*
+
+cornice
+
+	Untitled
+	A style sheet for Scalar
+	Designed by Alexei Taylor
+	
+*/
+
+body { background-color: white; }
+.middle { border-radius: 0; }
+.cover { 
+	background: white;
+	border-bottom: solid 1px #ccc;
+	border-left: solid 1px #ccc;
+	border-right: solid 1px #ccc;
+	padding-bottom: 20px;
+}
+.cover_subtitle {
+	margin-left:1.9em;
+	font-size:14px;
+	margin-bottom:5px !important;
+}
+.pathnavs {
+	border-radius: 0;
+	margin-bottom: 0px;
+	border-bottom:solid 1px #cccccc; 
+}
+.path_right {padding-right:10px;}
+.path_nav_color { top: 7px; }
+.path_nav_color_primary { top: 1px; }
+.path_nav_color_expand_height { height: 45px; }
+.tagbar {border-bottom:0; border-top:solid 1px #cccccc;}
+.editbar {
+	border-left:solid 1px #cccccc;
+	border-right:solid 1px #cccccc;
+}
+.content { margin-top: 0; }
+#content_wrapper { 
+	padding:2.2em 2.2em 0em 25px;
+	background-color:white;
+}
+.scalar_logo_wrapper { margin-left: 2.2em; }
+.addthis_toolbox { margin-right: 2.2em; }
+.saved {
+	border-top: none;
+	margin-bottom: 0;
+}
+.saved > p {
+	padding-left:20px;
+	padding-right:20px;
+}
+.error {
+	border-top: none;
+	margin-bottom: 0;
+}
+.error > p {
+	padding-left:20px;
+	padding-right:20px;
+}
+.notice {
+	border-bottom:solid 1px #cccccc;
+	margin-bottom: 0;
+}
+.notice > p {
+	padding-left:20px;
+	padding-right:20px;
+}
+a { color: #999; }
+.annotationExtents a {color: #777; }
+.cover_title {
+	font-family:  "Trebuchet MS" ,Helvetica, sans-serif; 
+	text-transform: uppercase;   
+	font-style: normal!important; 
+	font-weight: bold; 
+	letter-spacing: 4px;
+	font-size: 57px;
+	margin-left: 25px;
+	line-height: 50px;
+}
+.login {
+	margin-right:2.7em;
+	font-family: Georgia, serif;
+	font-style: italic;
+	font-size: 11px;
+	color: #555;
+}
+.login a { color: #555; }
+.cover_authors {
+	font-family: Georgia, serif;
+	font-style: italic;
+	font-size: 14px;
+	color: #777;
+	margin: 20px 0 0 25px;
+}
+.cover a { color: #777; }
+.content_title {
+	margin-top: 0 !important;
+	font-family:  "Trebuchet MS" ,Helvetica, sans-serif; 
+	text-transform: uppercase;   
+	font-style: normal!important; 
+	font-weight: bold; 
+	letter-spacing: 2px;
+	font-size: 23px;
+	margin-left: 0px;
+	color: #000;
+}
+.footer {
+	border-left: solid 1px #ccc;
+	border-right: solid 1px #ccc;
+	border-bottom: solid 1px #ccc;
+	font-family:  "Trebuchet MS" , Helvetica, sans-serif; 
+	font-style: italic;
+	font-size: 11px;
+	color: #999;
+	line-height: 11px;
+}
+.footer a { color: #888; }
+.cover { border:none!important; }
+#middle_column{
+	padding: 0; 
+	margin-top:0px;
+	background-color: white;
+	border:none!important;
+	font-size: 16px!important;
+}
+.footer { border:none!important; }
+.edit_options { border:none!important; background:#E53A05!important; }
+.icon_link {
+	font-family:  "Trebuchet MS" , Helvetica, sans-serif; 
+	font-style: normal;
+	font-size: 11px;
+}
+#content {
+	font-family: Georgia, serif;
+	font-style: normal;
+	color: #555;
+	margin-bottom: 30px;
+	line-height: 160%;
+}
+#scalarnav {
+	border: solid 1px;
+	border-color: #ccc;
+	font-family:  "Trebuchet MS" ,Helvetica, sans-serif;
+	font-style: normal;
+	font-size: 13px;
+	-webkit-border-top-left-radius: 15px !important;
+	-webkit-border-bottom-right-radius: 15px !important;;
+	-moz-border-radius-topleft: 15px !important;;
+	-moz-border-radius-bottomright: 15px !important;;
+	border-top-left-radius: 15px !important;;
+	border-bottom-right-radius: 15px !important;;
+	-webkit-border-top-right-radius: 0px !important;;
+	-webkit-border-bottom-left-radius: 0px !important;;
+	-moz-border-radius-topright: 0px !important;;
+	-moz-border-radius-bottomleft: 0px !important;;
+	border-top-right-radius: 0px !important;;
+	border-bottom-left-radius: 0px !important;;
+}
+#scalarnav .pulldown viewMenu{ display:none; }
+.screen-version, .title-authors{
+	display:none;
+}
+.poweredby{
+	font-family: Georgia, serif;
+	font-style: italic;
+	font-size: 11px;
+	color: #555;
+	line-height: 15px;
+	margin-top: -15px;
+	display: block;
+}
+.texteo_icon { background-position: 2px 6px !important; }
+.mediaElementHeader, .mediaElementFooter { font-family:  "Trebuchet MS" , Helvetica, sans-serif !important; }
+/*CAPTIONS*/
+.mediaElementAlignLeft {
+	float: left;
+	text-align: left;
+	width: 100%;
+	margin-bottom: 5px;
+	overflow: hidden;
+	font-style: italic;
+	font-size: 11px;
+	color: #555;
+}
+.generic_button.icon.path {
+	background: url(images/path_icon.png) #000;
+	font-family:  "Trebuchet MS" , Helvetica, sans-serif; 
+	text-transform: uppercase;   
+	font-style: normal!important; 
+	letter-spacing: 2px;
+	font-size: 14px;
+	color: #fff;
+}
+#path_of_list li a{
+	font-weight: bold; 
+	color: #000;
+}
+.pullquote {
+	font-size: 30px;
+	font-style: italic;
+	color: #000;
+	line-height: 36px;
+}
+.bar_button {
+	padding: 0;
+}

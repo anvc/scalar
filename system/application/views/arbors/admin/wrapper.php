@@ -15,20 +15,13 @@
 </head>
 <body>
 
-<div class="system_wrapper system_cover">
-<?=$cover?>
-</div>
-
-<br clear="both" />
+<?=((!empty($cover))?$cover:'')?>
 
 <div class="system_wrapper">
 	<div class="content">
 	<?=$content?>
 	</div>
 	<br clear="both" />
-	<div class="footer">
-	<?=$footer?>
-	</div>
 </div>
 
 </body>

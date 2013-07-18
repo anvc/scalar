@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/scalar4b/!svn/ver/251/system/application/views/modules/login
+END
+forgot_password.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/scalar4b/!svn/ver/251/system/application/views/modules/login/forgot_password.php
+END
+create_password.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/scalar4b/!svn/ver/251/system/application/views/modules/login/create_password.php
+END
+register_box.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/scalar4b/!svn/ver/251/system/application/views/modules/login/register_box.php
+END
+scalar_logo.png
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/scalar4b/!svn/ver/251/system/application/views/modules/login/scalar_logo.png
+END
+login_box.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/scalar4b/!svn/ver/251/system/application/views/modules/login/login_box.php
+END
