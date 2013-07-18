@@ -81,7 +81,7 @@ abstract class MY_Controller extends Controller {
 		}			
 		
 
-	}
+	}		
 	
 	/**
 	 * Set information about the logged-in user such as the books they are attached to
@@ -254,7 +254,29 @@ abstract class MY_Controller extends Controller {
    		return base_url(); 
    		
    	}		
+   	
+   	/**
+   	 * Determine if a melon (skin) exists
+   	 */
 	
+   	protected function melon_exists($name='') {
+   		
+   		$path = confirm_slash(APPPATH).'views/melons/'.$name;
+   		if (!file_exists($path)) return false;
+   		return true;
+   		
+   	}
+   	
+   	/**
+   	 * Load info about a melon (skin)
+   	 */
+   	
+   	protected function load_melon_config($name='') {
+
+   		$this->config->load('../views/melons/'.$name.'/config');
+   		
+   	} 	
+   	
 } 
 
 ?>
