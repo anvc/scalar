@@ -33,7 +33,7 @@ class RDF_Object {
     const REL_ALL = null;
 	const REL_CHILDREN_ONLY = 1;
 	const REL_PARENTS_ONLY = 2;
-	const VERSIONS_ALL = null;
+	const VERSIONS_ALL = 0;
 	const VERSIONS_MOST_RECENT = 1;
 	const REFERENCES_ALL = 1;
 	const REFERENCES_NONE = 0;
@@ -234,7 +234,7 @@ class RDF_Object {
 		    	
     }
     
-	private function _content($book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
+	private function _content($book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $display_versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
 
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');	
@@ -249,7 +249,13 @@ class RDF_Object {
 		if (!empty($ref_models)) $models = array_merge($models, $ref_models);	
 		
 		// Versions attached to each content
-		$content->versions = $CI->versions->get_all($content->content_id, null, $versions, $sq);
+		// TODO: version_datetime
+		$content->versions = $CI->versions->get_all(
+													$content->content_id, 
+													((is_int($display_versions))?null:$display_versions), 
+													((is_int($display_versions))?$display_versions:1), 
+													$sq
+												   );
 		if (!count($content->versions)) return null;
 		$content->version_index = 0; 
 		if (null!==$max_recurses && $num_recurses==$max_recurses) return $content;
@@ -266,7 +272,7 @@ class RDF_Object {
 					$content->versions[$j]->$name = array();
 					$nodes = $CI->$model->get_parents($version_id, null, null, null, 1);
 					foreach ($nodes as $node) {
-						array_push($content->versions[$j]->$name, $this->_annotation_parent($book, $node, $base_uri, $model, $rel, self::NO_SEARCH, $versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses));
+						array_push($content->versions[$j]->$name, $this->_annotation_parent($book, $node, $base_uri, $model, $rel, self::NO_SEARCH, $display_versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses));
 					}
 				}
 				if ($rel == self::REL_CHILDREN_ONLY || $rel == self::REL_ALL) {
@@ -274,7 +280,7 @@ class RDF_Object {
 					$content->versions[$j]->$name = array();
 					$nodes = $CI->$model->get_children($version_id, null, null, null, 1);
 					foreach ($nodes as $node) {
-						array_push($content->versions[$j]->$name, $this->_annotation_child($book, $node, $base_uri, $model, $rel, self::NO_SEARCH, $versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses));
+						array_push($content->versions[$j]->$name, $this->_annotation_child($book, $node, $base_uri, $model, $rel, self::NO_SEARCH, $display_versions, $ref, self::NO_PAGINATION, $max_recurses, $num_recurses));
 					}	
 				}			
 			}		
@@ -295,9 +301,14 @@ class RDF_Object {
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');	
 		if ('object'!=gettype($CI->references)) $CI->load->model('reference_model','references');	
-		
+
 		// Versions attached to each node
-		$versions = $CI->versions->get_all($content->content_id, null, $display_versions, $sq);
+		$versions = $CI->versions->get_all(
+											$content->content_id, 
+											((is_int($display_versions))?null:$display_versions), 
+											((is_int($display_versions))?$display_versions:1), 
+											$sq
+										  );
 		if (!count($versions)) return;
 		
 		$content->version = $base_uri.$content->slug.'.'.$versions[0]->version_num; 
