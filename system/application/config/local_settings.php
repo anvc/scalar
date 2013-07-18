@@ -3,6 +3,9 @@
  * @projectDescription	Application config for Scalar installations
 */
 
+// Default melon (Scalar skin), must have a corresponding folder in system/application/views/mellons/ 
+$config['active_melon'] = 'honeydew';
+
 // SALT, any string you want as long as it is complicated
 $config['shasalt'] = '';
 
@@ -13,7 +16,7 @@ $config['recaptcha_private_key'] = '';
 // Register key (leave blank if no register key required, e.g., array())
 $config['register_key'] = array();
 
-// Soundcloud client id
+// Soundcloud key
 $config['soundcloud_id'] = '';
 
 // Digital Public Library of America key
@@ -45,8 +48,8 @@ $config['default_stylesheet'] = 'minimal';
 $config['user_history_max_records'] = 20; 
 
 // Emails
-$config['email_replyto_address'] = ''; 
-$config['email_replyto_name'] = '';
+$config['email_replyto_address'] = 'usc.vectors@gmail.com'; 
+$config['email_replyto_name'] = 'Vectors Journal';
 $config['email_send_live_books_to_admins'] = true;
 					   
 ?>

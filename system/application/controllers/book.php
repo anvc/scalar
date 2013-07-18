@@ -21,7 +21,7 @@
 /**
  * @projectDescription		Book controller for outputting the HTML for Scalar's front-end
  * @author					Craig Dietrich
- * @version					2.3
+ * @version					2.4
  */
 
 function sortSearchResults($a, $b) {
@@ -36,6 +36,9 @@ class Book extends MY_Controller {
 	private $models = array('annotations', 'paths', 'tags', 'replies', 'references');
 	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
 	private $vis_views = array('vis', 'visindex', 'vispath', 'vismedia', 'vistag');
+	private $fallback_melon = 'honeydew';
+	private $fallback_page = 'index';
+	private $max_recursions = 2;
 
 	/**
 	 * Load the current book
@@ -65,16 +68,20 @@ class Book extends MY_Controller {
 		if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) $this->require_login(1); // Protect book
 		$this->data['book']->contributors = $this->books->get_users($this->data['book']->book_id);
 		$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
-		// Template
-		$this->data['template'] = $this->template->config['active_template'];
-		if (isset($_GET['template']) && array_key_exists($_GET['template'], array_slice($this->template->config, 1))) {
-			$this->data['template'] = $_GET['template'];    
-		} elseif ($this->data['book']->template != $this->data['template'] && in_array($this->data['book']->template, $this->template->config['selectable_templates'])) {
-			$this->data['template'] = $this->data['book']->template; 
+		// Melon (skin)
+		$this->data['melon'] = $this->config->item('active_melon');
+		if (!$this->melon_exists($this->data['melon'])) $this->data['melon'] = null;
+		if (isset($_GET['m']) && $this->melon_exists($_GET['m'])) {
+			$this->data['melon'] = $_GET['m'];    
+		} elseif ($this->melon_exists($this->data['book']->template)) {  // TODO: rename DB field
+			$this->data['melon'] = $this->data['book']->template; 
 		}
+		if (empty($this->data['melon'])) $this->data['melon'] = $this->fallback_melon;
+		$this->load_melon_config($this->data['melon']);
 		// Init
-		$this->data['no_content_author'] = 'Content hasn\'t yet been added to this page, click Edit below to add some.';
-		$this->data['no_content'] = 'Content hasn\'t yet been added to this page.';
+		$views = $this->config->item('views');
+		$this->data['view'] = $views[0];
+		unset($views);
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null;
 		$this->data['can_edit'] = $this->login_is_book_admin('reviewer');
@@ -89,16 +96,12 @@ class Book extends MY_Controller {
 	public function _remap() {
 
 		try {
-
-			// Defaults
-			$max_recursions   = 2;
-			$default_view     = 'plain';
 			// URI segment
 			$uri = explode('.',implode('/',array_slice($this->uri->segments, 1)));
 			$slug = $uri[0];
 			$slug_first_segment = (strpos($slug,'/')) ? substr($slug, 0, strpos($slug,'/')) : $slug;
 			if (empty($slug)) {
-				header('Location: '.$this->data['base_uri'].'index');
+				header('Location: '.$this->data['base_uri'].$this->fallback_page);
 				exit;
 			}				
 			// Ajax login check
@@ -110,11 +113,13 @@ class Book extends MY_Controller {
 				if (!$page->is_live) $this->protect_book('Reader');
 				// Version being asked for
 				$version_num = (int) get_version($this->uri->uri_string());
+				$version_datetime = null;
 				if (!empty($version_num)) {
 					$version = $this->versions->get_by_version_num($page->content_id, $version_num);
-					if (!empty($version)) $version_datetime = $version->created;
+					if (!empty($version)) $version_datetime = $version->created; 
 				}	
 				// Build nested array of page relationship
+				// TODO: not sending through request for older version of page?
 				$index = $this->rdf_object->index(
 			                         	$this->data['book'], 
 			                         	$page, 
@@ -122,30 +127,28 @@ class Book extends MY_Controller {
 			                         	RDF_Object::RESTRICT_NONE,
 			                         	RDF_Object::REL_ALL,
 			                         	RDF_Object::NO_SEARCH,
-			                         	RDF_Object::VERSIONS_MOST_RECENT,
+			                         	((!empty($version_datetime))?$version_datetime:RDF_Object::VERSIONS_MOST_RECENT),
 			                         	RDF_Object::REFERENCES_ALL,
 			                         	RDF_Object::NO_PAGINATION,
-			                         	$max_recursions
+			                         	$this->max_recursions
 			                          );    
 			    if (!count($index)) throw new Exception('Problem getting page index');     
 			    $this->data['page'] = $index[0];
 			    unset($index);  
 				// Set the view based on the page's default view
-				$this->data['view'] = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
+				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
+				if (in_array($default_view, $this->config->item('views'))) $this->data['view'] = $default_view;
 				// Page creator
 				$this->set_page_user_fields(); 
 			}
-			
-			// View and view-specific method
-			if ($ext = get_ext($this->uri->uri_string())) {
-				$this->data['view'] = $ext;
-			} elseif (!isset($this->data['view'])) {
-				$this->data['view'] = $default_view;
-			}
+			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
+			if (in_array(get_ext($this->uri->uri_string()), $this->config->item('views'))) $this->data['view'] = get_ext($this->uri->uri_string());
 			if (in_array($this->data['view'], $this->vis_views)) {
 				$this->data['viz_view'] = $this->data['view'];  // Keep a record of the specific viz view being asked for
 				$this->data['view'] = $this->vis_views[0];  // There's only one viz page (Javascript handles the specific viz types)
 			}
+			// View-specific method
+			// TODO: move this to methods.php
 			$method_name = $this->data['view'].'_view';
 			if (method_exists($this, $method_name)) $this->$method_name();	
 			// URI segment method
@@ -156,10 +159,10 @@ class Book extends MY_Controller {
 			exit;
 		}	
 
-		if ($this->template_has_rendered) return;
-		$this->template->set_template($this->data['template']);
+		if ($this->template_has_rendered) return;  // Template might be rendered in one of the methods below
+		$this->template->set_template($this->config->item('arbor'));
 		foreach ($this->template->template['regions'] as $region) {
-			$this->template->write_view($region, 'modules/chrome/'.$this->data['template'].'/'.$region, $this->data);
+			$this->template->write_view($region, 'melons/'.$this->data['melon'].'/'.$region, $this->data);
 		}
 		$this->template->render();		
 
@@ -209,7 +212,7 @@ class Book extends MY_Controller {
 		}	
 
 		$this->template->set_template('external');
-		$this->template->write_view('content', 'modules/chrome/'.$this->data['template'].'/external', $this->data);
+		$this->template->write_view('content', 'melons/'.$this->data['melon'].'/external', $this->data);
 		$this->template->render();	
 		$this->template_has_rendered = true;
 		

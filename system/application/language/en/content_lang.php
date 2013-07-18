@@ -33,6 +33,9 @@ $lang['form.begin']           = 'begin';
 $lang['welcome.search_book']   = "Search Books";
 $lang['welcome.showing_books'] = 'Showing your books and others that have been revealed as live by their authors';
 
+$lang['page.no_content_author'] = 'Content hasn\'t yet been added to this page, click Edit below to add some.';
+$lang['page.no_content']        = 'Content hasn\'t yet been added to this page.';
+
 $lang['email.forgot_password_subject'] = 'Password Reset';
 $lang['email.admin_intro'] = 'You are receiving this email because you are a Scalar admin'."\n\n";
 $lang['email.forgot_password_intro'] = 'You are receiving this email because you provided your email address in Scalar\'s forgot password form.  Please follow the link below to reset your password.'."\n\n".'The link may be broken due to a line break, in which case please cut-and-paste the full URL into your browser window.'."\n\n";

@@ -46,7 +46,7 @@ class System extends MY_Controller {
 		$this->data['books'] = $this->books->get_all();
 		
 		$this->template->set_template('admin');
-		$this->template->write_view('cover', 'modules/cover/index_cover', $this->data);
+		$this->template->write_view('cover', 'modules/cover/dashboard_cover', $this->data);
 		$this->template->write_view('content', 'modules/book_list/book_list', $this->data);
 		$this->template->render();
 		
