@@ -515,7 +515,7 @@
 		
 			// if data about the Scalar has been loaded, display its title
 			if (scalarapi.model.bookNode) {
-				me.home_link.text(scalarapi.model.bookNode.getDisplayTitle());
+				me.home_link.html(scalarapi.model.bookNode.getDisplayTitle());
 			}
 			
 			// update and display the current mode view
