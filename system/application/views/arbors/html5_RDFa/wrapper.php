@@ -80,13 +80,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
 			<a rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
 			<a rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>	
-		</span>		
+		</span>	
+		<span id="book-id" property=""><?=$book->book_id?></span>
 	</header>
 
 	<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
 	<span property="dcterms:description"><?=$page->versions[$page->version_index]->description?></span>
 	<span property="art:url"><?=$page->versions[$page->version_index]->url?></span>
 	<span property="sioc:content"><?=nl2br($page->versions[$page->version_index]->content)?></span>
+	<span property="scalar:defaultView"><?=$page->versions[$page->version_index]->default_view?></span>
 	<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
 	
 <?

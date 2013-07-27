@@ -85,19 +85,35 @@
 					}
 				}
 				
-				$('#home_menu_link').mouseenter(function() {
-					$('#header > .menu').show();
-				});
 				
-				$('body').click(function() {
-					$('#header > .menu').hide();
-				});
+				setTimeout(function() {
+				
+					$('#home_menu_link').mouseenter(function(e) {
+						$(this).css('backgroundColor', '#eee');
+						$('#header > .menu').show();
+					});
+					
+					$('#header > .menu').mouseleave(function() {
+						$('#home_menu_link').css('backgroundColor', 'inherit');
+						$('#header > .menu').hide();
+					})
+					
+					$('body').click(function() {
+						$('#home_menu_link').css('backgroundColor', 'inherit');
+						$('#header > .menu').hide();
+					});
+				
+				}, 1000);
+				
 			
 			}
 		};
 		
 		element.attr('id', 'header');
 		element.data('state', 'maximized');
+		
+		var bookId = parseInt($('#book-id').text());
+		$('header').hide();
 		
 		$(window).scroll(function() {
 			var currentScroll = $('body').scrollTop();
@@ -114,10 +130,11 @@
 		});
 		
 		
-		var img_url_1 = header.options.root_url+'/images/home_icon.png';
-		element.prepend('<div id="home_menu_link"><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div> ');
+		//var img_url_1 = header.options.root_url+'/images/home_icon.png';
+		//element.prepend('<div id="home_menu_link"><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div> ');
 		
-		$('#book-title').parent().wrap('<span class="breadcrumb"></span>');
+		$('#book-title').parent().wrap('<span id="home_menu_link"></span>');
+		//$('#book-title').parent().wrap('<span class="breadcrumb"></span>');
 		//element.find('.breadcrumb').append('<span class="leaves"> &nbsp;&gt;&nbsp; <a href="#">Filmic Texts</a> &nbsp;&gt;&nbsp; The Limits of Television</span>');
 		addTemplateLinks($('.breadcrumb'), 'cantaloupe');
 		
@@ -129,11 +146,14 @@
 		
 		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
 			buttons.append('<img class="vrule" src="'+header.options.root_url+'/images/'+'gray1x1.gif"/>');
-			header.addIconBtn(buttons, 'new_icon.png', 'new_icon_hover.png', 'New', scalarapi.model.urlPrefix+'new.edit');
-			header.addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit');
-			//header.addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate');
+			header.addIconBtn(buttons, 'new_icon.png', 'new_icon_hover.png', 'New', scalarapi.model.urlPrefix+'new.edit?'+template_getvar+'=honeydew');
+			header.addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
+			
+			if (currentNode.getDominantScalarType().id == 'media') {
+				header.addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate', scalarapi.basepath(window.location.href)+'.annotation_editor?'+template_getvar+'=honeydew');
+			}
 			header.addIconBtn(buttons, 'delete_icon.png', 'delete_icon_hover.png', 'Delete');
-			header.addIconBtn(buttons, 'options_icon.png', 'options_icon_hover.png', 'Options');
+			header.addIconBtn(buttons, 'options_icon.png', 'options_icon_hover.png', 'Options', system_uri+'/dashboard?book_id='+bookId+'&zone=style#tabs-style');
 		}
 		header.addIconBtn(buttons, 'user_icon.gif', 'user_icon_hover.gif', 'User');
 		

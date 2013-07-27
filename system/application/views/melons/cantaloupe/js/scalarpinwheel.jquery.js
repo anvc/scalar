@@ -69,6 +69,9 @@ function ScalarPinwheel(element) {
 	this.filter = null;
 	this.pathGraphs = {};
 	this.pathGraphCount = 0;
+	
+	$(window).resize(this.update);
+	window.onorientationchange = this.update;
 
 }
 
@@ -92,17 +95,6 @@ ScalarPinwheel.prototype.currentMargin = null;
 ScalarPinwheel.prototype.render = function() {
 
 	var me = this;
-	
-	/*var colorThief = new ColorThief();
-	var backgroundImage = new Image();
-	var url = $('body').css('backgroundImage');
-	url = url.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
-	backgroundImage.src = url;
-	$(backgroundImage).load(function() {
-		console.log('loaded');
-		var dominantColor = colorThief.getColor(this);
-		console.log(dominantColor);
-	});*/
 	
 	//console.log('**** RENDER ****');
 
@@ -193,12 +185,12 @@ ScalarPinwheel.prototype.update = function(duration) {
 	
 	//console.log('**** UPDATE ****');
 	
-	this.calculateDimensions();
-	this.canvas.setSize($(window).width(), $(window).height());
-	this.resetNodeGraphDrawing();
-	this.canvas.setStart();
-	this.drawGraphNode(this.nodeGraph[0]);
-	this.canvasSet = this.canvas.setFinish();
+	pinwheel.calculateDimensions();
+	pinwheel.canvas.setSize($(window).width(), $(window).height());
+	pinwheel.resetNodeGraphDrawing();
+	pinwheel.canvas.setStart();
+	pinwheel.drawGraphNode(pinwheel.nodeGraph[0]);
+	pinwheel.canvasSet = pinwheel.canvas.setFinish();
 
 }
 
@@ -790,7 +782,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 			
 			if (graphNode.nodes.length > 1) {
 		
-				outerRadius = 16;
+				outerRadius = 18;
 				if (graphNode.children.length > 0) outerRadius += 6;
 				outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 			
@@ -806,6 +798,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					graphNode.drawing.push(outerCircle, innerCircle, innerCircleA, innerCircleB);
 					if (drawLabels) {
 						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
+						// replace with css fonts
 						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
 						wrapText(label, labelWidth, 'middle');
 						graphNode.drawing.push(label);
@@ -819,12 +812,12 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				
 			} else if (graphNode.nodes[0] == currentNode) {    
 		
-				if (currentNode.color) {
+				/*if (currentNode.color) {
 					outerRadius = 18;
-				} else {
-					outerRadius = 16;
-				}
-				if (graphNode.children.length > 0) outerRadius += 6;
+				} else {*/
+					outerRadius = 18;
+				//}
+				//if (graphNode.children.length > 0) outerRadius += 6;
 				outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 			 
 				if (!this.showIcons) {
@@ -833,15 +826,16 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 						color = Raphael.getRGB(graphNode.nodes[0].color);
 						color = Raphael.rgb2hsl(color.r, color.g, color.b);
 						color.l = Math.max(0, color.l - .1);
-						outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':2, 'cursor':'pointer'});
+						outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
 						innerCircle.attr({'fill':'#eee', 'stroke':'none', 'cursor':'pointer'});
 					} else {
-						outerCircle.attr({'fill':'#fff', 'stroke-width':2, 'cursor':'pointer'});
+						outerCircle.attr({'fill':'#fff', 'stroke-width':3, 'cursor':'pointer'});
 						innerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
 					}
 					graphNode.drawing.push(outerCircle, innerCircle);
 					if (drawLabels) {
 						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
+						// replace with css fonts
 						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
 						wrapText(label, labelWidth, 'middle');
 						graphNode.drawing.push(label);
@@ -855,7 +849,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				if (this.currentZoom == 0) {
 		
 					outerRadius = 18;
-					if (graphNode.children.length > 0) outerRadius += 6;
+					//if (graphNode.children.length > 0) outerRadius += 6;
 					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 					
 					var rotationString = '';
@@ -876,11 +870,11 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					
 				} else {
 					
-					if (graphNode.children.length > 0) {
+					/*if (graphNode.children.length > 0) {
 						outerRadius = 22;
-					} else {
-						outerRadius = 16;
-					}
+					} else {*/
+						outerRadius = 18;
+					//}
 					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
 				}
@@ -889,7 +883,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					color = Raphael.getRGB(graphNode.nodes[0].color);
 					color = Raphael.rgb2hsl(color.r, color.g, color.b);
 					color.l = Math.max(0, color.l - .1);
-					outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
+					outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':1, 'cursor':'pointer'});
 					innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
 					
 				} else if (((graphNode.reason.type == 'child') || (graphNode.reason.type == 'youngerSibling') || (graphNode.reason.type == 'olderSibling'))) {
@@ -937,10 +931,11 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					var labelOffsetV = 20;
 					if (graphNode.children.length > 0) labelOffsetV = 26;
 					label = this.canvas.text(canvasPosition.x, canvasPosition.y+labelOffsetV, graphNode.nodes[0].getDisplayTitle());
-					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer', 'fill':'#ffffff'});
-					if (graphNode.children.length > 0) {
+					// replace with css fonts
+					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer', 'fill':'#000000'});
+					/*if (graphNode.children.length > 0) {
 						label.attr({'font-weight':'bold'});
-					}
+					}*/
 					wrapText(label, labelWidth, 'middle');
 					graphNode.drawing.push(label);
 				}

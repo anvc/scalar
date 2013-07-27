@@ -212,16 +212,20 @@
 			
 		};
 		
+		$('body').bind('setState', page.handleSetState);
+		
 		element.addClass('page');
 		
 		page.wrapOrphanParagraphs($('[property="sioc:content"]'));
 	  	
+	  	$('[property="scalar:defaultView"]').hide();
 	  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
 		
 		$('section').hide(); // TODO: Make this more targeted	
 		
-		//var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
-		var viewType = 'plain';
+		
+		//console.log(currentNode.current.properties);
+		var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
 		switch (viewType) {
 			
 			case 'splash':
@@ -240,6 +244,11 @@
 			default:
 		  	
 		  	$('body').bind('mediaElementMetadataHandled', page.handleMediaElementMetadata);
+
+			var screen = $('<div class="bg_screen">&nbsp;</div>').prependTo('body');
+			screen.css('backgroundImage', $('body').css('backgroundImage'));
+	
+			$('body').css('backgroundImage', 'none');
 		  	
 		  	// add mediaelements
 			$('a').each(function() {
@@ -292,8 +301,8 @@
 			
 		addTemplateLinks($('article'), 'cantaloupe');
 
-	  	$('body').addClass('primary_text');
-	  	$('h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata').addClass('secondary_text');
+	  	$('body').addClass('body_font');
+	  	$('h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font');
 		
 	
 	}

@@ -15,6 +15,7 @@ var ViewState = {
  */
 var script_uri = document.getElementsByTagName("script")[0].src;
 var base_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-2).join('/');
+var system_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-6).join('/');
 var arbors_uri = base_uri.substr(0, base_uri.lastIndexOf('/'));
 var views_uri = arbors_uri.substr(0, arbors_uri.lastIndexOf('/'));
 var modules_uri = views_uri+'/melons';
@@ -24,6 +25,7 @@ var header = null;
 var page = null;
 var pinwheel = null;
 var state = ViewState.Reading;
+var template_getvar = 'm';
 
 /**
  * Not an easy way to wait for a CSS file to load (even with yepnope doing a good job in Firefox)
@@ -56,9 +58,9 @@ function addTemplateLinks(element, templateName) {
 		var href = $(this).attr('href');
 		if ((href.indexOf(scalarapi.model.urlPrefix.substr(0, scalarapi.model.urlPrefix.length-1)) != -1) || (href.indexOf('http://') == -1)) {
 			if (href.split('?').length > 1) {
-				href += '&m='+templateName;
+				href += '&'+template_getvar+'='+templateName;
 			} else {
-				href += '?m='+templateName;
+				href += '?'+template_getvar+'='+templateName;
 			}
 			$(this).attr('href', href);
 		}
@@ -205,10 +207,10 @@ $(window).ready(function() {
 		  }},   
 		  
 		  // Background visualization layer
-		  {load: [/*widgets_uri+'/vis/scalarvis2.css',
-		          widgets_uri+'/vis/jquery.scalarvis2.js',widgets_uri+'/vis/color-thief.js'*/], complete:function() {  
+		  /*{load: [widgets_uri+'/vis/scalarvis2.css',
+		          widgets_uri+'/vis/jquery.scalarvis2.js',widgets_uri+'/vis/color-thief.js'], complete:function() {  
 			  	// TODO: Background visualization initialization here
-		  }},  		  
+		  }}, */ 		  
 		  
 		  // Mediaelement
 		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',
@@ -219,21 +221,17 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/annotation.css',
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
 		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
-			  	// TODO
-		  }},
-		  
-		  // Slot managers
-		  {load: [widgets_uri+'/slotmanager/jquery.texteo.js',
-		          widgets_uri+'/slotmanager/texteo.css',
-		          widgets_uri+'/slotmanager/jquery.inlineslotmanager.js'], complete:function() {
-			  	// TODO
-			  	
+		          
 			  	$('#book-title').parent().wrap('<div></div>');
 			  	$('article').before($('#book-title').parent().parent());
 				header = $.scalarheader($('#book-title').parent().parent(), {'root_url':modules_uri+'/cantaloupe'});
 				page = $.scalarpage($('article'));
 
-				pinwheel = $.scalarpinwheel($('body').prepend('<div id="graph"></div>'));
+				if ($('.bg_screen').length > 0) {
+					pinwheel = $.scalarpinwheel($('.bg_screen').after('<div id="graph"></div>'));
+				} else {
+					pinwheel = $.scalarpinwheel($('body').prepend('<div id="graph"></div>'));
+				}
 				
 				var savedState = $.cookie('viewstate');
 				if (savedState != null) {
@@ -241,17 +239,26 @@ $(window).ready(function() {
 				}
 				
 				$('body').css('visibility', 'visible');
-
-		  }},
-
-		  // Content preview
-		  {load: [widgets_uri+'/contentpreview/jquery.scalarcontentpreview.js'], complete:function() {
-			  	// TODO: content preview
+				
 		  }},
 		  
+		  /*// Slot managers
+		  {load: [widgets_uri+'/slotmanager/jquery.texteo.js',
+		          widgets_uri+'/slotmanager/texteo.css',
+		          widgets_uri+'/slotmanager/jquery.inlineslotmanager.js'], complete:function() {
+			  	// TODO
+			  	
+
+		  }},*/
+
+		  // Content preview
+		  /*{load: [widgets_uri+'/contentpreview/jquery.scalarcontentpreview.js'], complete:function() {
+			  	// TODO: content preview
+		  }},*/
+		  
 		  // Maximize + comments
-		  {load: [widgets_uri+'/maximize/maximize.css',
-		          widgets_uri+'/maximize/jquery.scalarmaximize.js',
+		  {load: [/*widgets_uri+'/maximize/maximize.css',
+		          widgets_uri+'/maximize/jquery.scalarmaximize.js',*/
 		          '//www.google.com/recaptcha/api/js/recaptcha_ajax.js',
 		          widgets_uri+'/replies/replies.js'], complete:function() {
 				$('.reply_link').click(function() {

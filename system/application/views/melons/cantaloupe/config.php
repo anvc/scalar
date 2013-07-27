@@ -5,7 +5,8 @@ $config['arbor'] = 'html5_RDFa';
 
 // Array of views that can be set as the default view
 $config['views'] = array(
-			'plain'
+			'plain',
+			'splash'
 		);
 
 // Default view

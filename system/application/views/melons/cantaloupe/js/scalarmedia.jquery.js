@@ -229,7 +229,7 @@
 		link.addClass('texteo_icon');
 		link.addClass('texteo_icon_'+mediaelement.model.node.current.mediaSource.contentType);
 		
-	  	$('.mediaElementFooter, .media_metadata').addClass('secondary_text');
+	  	$('.mediaElementFooter, .media_metadata').addClass('caption_font');
 		
 	}
 	
