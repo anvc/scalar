@@ -540,20 +540,27 @@ class Book extends MY_Controller {
 		}
 
 		// Page view options
-		$this->data['page_views'] = array(
-			'plain' => 'Single column',
-			'text' => 'Text emphasis',
-			'media' => 'Media emphasis',
-			'split' => 'Split emphasis',
-			'par' => 'Media per paragraph (above)',
-		    'revpar' => 'Media per paragraph (below)',
-			'vis' => 'Visualization: Radial',
-			'visindex' => 'Visualization: Index',
-			'vispath' => 'Visualization: Paths',
-			'vismedia' => 'Visualization: Media',
-			'vistag' => 'Visualization: Tags',
-			'history' => 'History browser'
-		);
+		if ($this->data['book']->template == 'cantaloupe') {
+			$this->data['page_views'] = array(
+				'plain' => 'Basic',
+				'splash' => 'Splash'
+			);
+		} else {
+			$this->data['page_views'] = array(
+				'plain' => 'Single column',
+				'text' => 'Text emphasis',
+				'media' => 'Media emphasis',
+				'split' => 'Split emphasis',
+				'par' => 'Media per paragraph (above)',
+			    'revpar' => 'Media per paragraph (below)',
+				'vis' => 'Visualization: Radial',
+				'visindex' => 'Visualization: Index',
+				'vispath' => 'Visualization: Paths',
+				'vismedia' => 'Visualization: Media',
+				'vistag' => 'Visualization: Tags',
+				'history' => 'History browser'
+			);
+		}
 
 		// Metadata terms
 		$this->data['ontologies'] = $this->config->item('ontologies');
