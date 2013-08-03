@@ -723,7 +723,7 @@ function handleFlashVideoMetadata(data) {
 				case "horizontal":
 				if ((this.mediaContainer.closest('.slot').length > 0) || (this.model.options.header == 'nav_bar')) {
 					// only set the height of the container if we're in a slot manager
-					this.mediaContainer.height(this.containerDim.y);
+					if (model.options.width == null) this.mediaContainer.height(this.containerDim.y);
 				}
 				if (this.model.options.header != 'nav_bar') {
 					this.mediaContainer.css('max-width', this.containerDim.x);
@@ -1075,11 +1075,13 @@ function handleFlashVideoMetadata(data) {
 
 				case "horizontal":
 				this.containerDim.x = this.initialContainerWidth;
-				if (!this.model.isChromeless) this.containerDim.x--;
+				if (!this.model.isChromeless) {
+					this.containerDim.x--;
+					this.mediaContainer.css('float', 'right'); // needed to prevent vertical offsets for wide media
+				}
 				if (this.annotationsVisible) {
 					this.containerDim.x -= (parseInt(this.annotationSidebar.width()) + (this.gutterSize * 2));
 				}
-				this.mediaContainer.css('float', 'right'); // needed to prevent vertical offsets for wide media
 				if ((this.controllerOnly && (this.mediaContainer.closest('.slot').length == 0)) && (this.model.options.header != 'nav_bar'))  {
  					this.containerDim.y = this.controllerHeight + (this.gutterSize * 2);
  				} else {
@@ -1271,7 +1273,7 @@ function handleFlashVideoMetadata(data) {
 						if (this.controllerOnly || (this.model.options.header != 'nav_bar')) {
 							this.containerDim.y = parseInt(this.model.options.height) - parseInt(this.header.height()) + 1;
 						}
-						this.mediaContainer.height(this.containerDim.y);
+						if (model.options.width == null) this.mediaContainer.height(this.containerDim.y);
 					}
 				}
 			} else {
@@ -1310,6 +1312,7 @@ function handleFlashVideoMetadata(data) {
 		 */
 		jQuery.MediaElementView.prototype.removeLoadingMessage = function() {
 			this.mediaContainer.css('background-image', 'url()');
+			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
 		}
 				
 		/**
@@ -2044,6 +2047,15 @@ function handleFlashVideoMetadata(data) {
 		 * @param {Number} height		The new height of the image.
 		 */
 		jQuery.ImageObjectView.prototype.resize = function(width, height) {
+			if ((this.model.containerLayout == 'horizontal') && (this.model.options.width != null)) {
+				if ((width < this.model.options.width) && (width > (1040 - 144))) {
+					var scaleFactor = (1040 - 144) / width;
+					width *= scaleFactor;
+					height *= scaleFactor;
+					console.log("adasd");
+				}
+				
+			}
 			$(this.image).parent().width(width+'px');
 			$(this.image).parent().height(height+'px');
 			if (this.hasLoaded) {

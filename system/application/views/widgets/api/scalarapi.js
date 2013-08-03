@@ -2830,6 +2830,16 @@ ScalarNode.prototype.getDominantScalarType = function() {
 }
 
 /**
+ * Returns true if the node is of the Scalar type.
+ *
+ * @param {String} typeName		The name of the type to look for.
+ * @return						A boolean indicating if the type is associated with the node.
+ */
+ScalarNode.prototype.hasScalarType = function(typeName) {
+	return (this.scalarTypes[typeName] != undefined);
+}
+
+/**
  * Returns an array of nodes related to this node with the specified relation
  * type and in the specified direction.
  *

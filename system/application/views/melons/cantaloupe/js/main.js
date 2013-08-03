@@ -1,4 +1,23 @@
 /**
+ * Scalar    
+ * Copyright 2013 The Alliance for Networking Visual Culture.
+ * http://scalar.usc.edu/scalar
+ * Alliance4NVC@gmail.com
+ *
+ * Licensed under the Educational Community License, Version 2.0 
+ * (the "License"); you may not use this file except in compliance 
+ * with the License. You may obtain a copy of the License at
+ * 
+ * http://www.osedu.org/licenses /ECL-2.0 
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.       
+ */  
+
+/**
  * @projectDescription  Boot Scalar Javascript/jQuery using yepnope.js
  * @author              Craig Dietrich
  * @version             Cantaloupe 1.0
@@ -26,6 +45,7 @@ var page = null;
 var pinwheel = null;
 var state = ViewState.Reading;
 var template_getvar = 'm';
+var maxMediaHeight = 650;
 
 /**
  * Not an easy way to wait for a CSS file to load (even with yepnope doing a good job in Firefox)
@@ -67,13 +87,23 @@ function addTemplateLinks(element, templateName) {
 	});
 }
 
+			
+function addIconBtn(element, filename, hoverFilename, title, url) {
+	var img_url_1 = modules_uri+'/cantaloupe/images/'+filename;
+	var img_url_2 = modules_uri+'/cantaloupe/images/'+hoverFilename;
+	if (url == undefined) url = 'javascript:;';
+	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" alt="Search" width="30" height="30" /></a>').appendTo(element);
+	return button;
+}
+
+
 /*
  * $.fn.slotmanager_create_slot
  * Create a slot and attach to a tag
  * @param obj options, required 'url_attributes' 
  */	
 
-$.fn.slotmanager_create_slot = function(width, options) {
+$.fn.slotmanager_create_slot = function(width, height, options) {
 
 	$tag = $(this); 
 	//if ($tag.hasClass('inline')) return;
@@ -114,7 +144,8 @@ $.fn.slotmanager_create_slot = function(width, options) {
 	// Create media element object
 	
 	var opts = {};
-	opts.width = width; 
+	if (width != null) opts.width = width; 
+	if (height != null) opts.height = height; 
 	opts.player_dir = $('link#approot').attr('href')+'static/players/';
 	opts.base_dir = scalarapi.model.urlPrefix;
 	opts.seek = annotation_url;
@@ -224,7 +255,7 @@ $(window).ready(function() {
 		          
 			  	$('#book-title').parent().wrap('<div></div>');
 			  	$('article').before($('#book-title').parent().parent());
-				header = $.scalarheader($('#book-title').parent().parent(), {'root_url':modules_uri+'/cantaloupe'});
+				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 				page = $.scalarpage($('article'));
 
 				if ($('.bg_screen').length > 0) {

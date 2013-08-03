@@ -543,7 +543,8 @@ class Book extends MY_Controller {
 		if ($this->data['book']->template == 'cantaloupe') {
 			$this->data['page_views'] = array(
 				'plain' => 'Basic',
-				'splash' => 'Splash'
+				'splash' => 'Splash',
+				'structured_gallery' => 'Structured Media Gallery'
 			);
 		} else {
 			$this->data['page_views'] = array(

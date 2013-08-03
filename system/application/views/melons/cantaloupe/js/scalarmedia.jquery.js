@@ -1,13 +1,34 @@
+/**
+ * Scalar    
+ * Copyright 2013 The Alliance for Networking Visual Culture.
+ * http://scalar.usc.edu/scalar
+ * Alliance4NVC@gmail.com
+ *
+ * Licensed under the Educational Community License, Version 2.0 
+ * (the "License"); you may not use this file except in compliance 
+ * with the License. You may obtain a copy of the License at
+ * 
+ * http://www.osedu.org/licenses /ECL-2.0 
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.       
+ */  
+
 (function($) {
 
-	$.scalarmedia = function(l, options) {
+	$.scalarmedia = function(m, e, options) {
 	
-		var link = l;
-		var mediaelement = link.data('mediaelement');
+		var mediaelement = m;
+		var element = e;
 		
 		var media = {
 		
-			options: $.extend({}, options),
+			options: $.extend({
+				'shy':true
+			}, options),
 			
 			showAnnotation: function(e, relation, m, forceShow) {
 				
@@ -112,17 +133,17 @@
 		
 		//if (node.current.description != null) mediaelement.view.footer.append('<div><a class="media_info" href="javascript:;">i</a> '+node.current.description+'</div>');
 		
-		var currentAnnotation = $('<div class="current_annotation"><table></table></div>').appendTo(mediaelement.view.footer);
+		var currentAnnotation = $('<div class="current_annotation"><table></table></div>').appendTo(element);
 		
 		var currentRelation = null;
 		
-		var mediaTabs = $('<div class="media_tabs"></div>').appendTo(mediaelement.view.footer);
+		var mediaTabs = $('<div class="media_tabs"></div>').appendTo(element);
 		
 		var foundAuxContent = false;
 		
 		if (node.current.description != null) {
-			var descriptionPane = $('<div class="media_description pane">'+node.current.description+'</div>').appendTo(mediaelement.view.footer);
-			var descriptionTab = $('<div class="media_tab select">Caption</div>').appendTo(mediaTabs);
+			var descriptionPane = $('<div class="media_description pane">'+node.current.description+'</div>').appendTo(element);
+			var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
 			descriptionTab.click(function() {
 				$(this).parent().parent().find('.pane').hide();
 				media.minimizeAnnotationPane();
@@ -133,7 +154,7 @@
 					media.showAnnotation(null, currentRelation, mediaelement, true);
 				}
 			});
-			mediaelement.view.footer.find('.media_description').show();
+			element.find('.media_description').show();
 			foundAuxContent = true;
 		}
 		
@@ -154,7 +175,7 @@
 					//media.hideAnnotation(null, null, mediaelement, true);
 				}
 			});
-			var annotationPane = $('<div class="media_annotations pane"></div>').appendTo(mediaelement.view.footer);
+			var annotationPane = $('<div class="media_annotations pane"></div>').appendTo(element);
 			var table = $('<table></table>').appendTo(annotationPane);
 			for (i in annotations) {
 				annotation = annotations[i];
@@ -167,14 +188,14 @@
 				});
 			}
 			if (!foundAuxContent) {
-				mediaelement.view.footer.find('.media_annotations').show();
+				element.find('.media_annotations').show();
 				annotationTab.addClass('select');
 				foundAuxContent = true;
 			}
 		}
 		
 		var metadataTab = $('<div class="media_tab">Metadata</div>').appendTo(mediaTabs);
-		var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(mediaelement.view.footer);
+		var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
 		metadataTab.click(function() {
 			$(this).parent().parent().find('.pane').hide();
 			media.minimizeAnnotationPane();
@@ -192,26 +213,30 @@
 		table.append('<tr><td>created</td><td>'+node.current.created+'</td></tr>');
 		table.append('<tr><td>content type</td><td>'+node.current.mediaSource.contentType+' ('+node.current.mediaSource.name+')</td></tr>');
 		if (!foundAuxContent) {
-			mediaelement.view.footer.find('.media_metadata').show();
+			element.find('.media_metadata').show();
 			metadataTab.addClass('select');
 			foundAuxContent = true;
 		}
 		
-		mediaelement.model.element.mouseenter(function() {
-			var timeout = $(this).data('timeout');
-			if (timeout != null) {
-				clearTimeout(timeout);
-			}
-			mediaTabs.slideDown();
-		})
-		mediaelement.model.element.mouseleave(function() {
-			var timeout = $(this).data('timeout');
-			if (timeout != null) {
-				clearTimeout(timeout);
-			}
-			var timeout = setTimeout(function() { mediaTabs.slideUp(); }, 1000)
-			$(this).data('timeout', timeout);
-		})
+		if (media.options.shy) {
+			mediaelement.model.element.mouseenter(function() {
+				var timeout = $(this).data('timeout');
+				if (timeout != null) {
+					clearTimeout(timeout);
+				}
+				mediaTabs.slideDown();
+			})
+			mediaelement.model.element.mouseleave(function() {
+				var timeout = $(this).data('timeout');
+				if (timeout != null) {
+					clearTimeout(timeout);
+				}
+				var timeout = setTimeout(function() { mediaTabs.slideUp(); }, 1000)
+				$(this).data('timeout', timeout);
+			})
+		} else {
+			mediaTabs.show();
+		}
 		
 		/*mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
 			var position = $(e.currentTarget).parent().parent().parent().offset();
@@ -225,11 +250,10 @@
 		$('body').bind('show_annotation', media.showAnnotation);
 		
 		$('body').bind('hide_annotation', media.hideAnnotation);
-
-		link.addClass('texteo_icon');
-		link.addClass('texteo_icon_'+mediaelement.model.node.current.mediaSource.contentType);
 		
-	  	$('.mediaElementFooter, .media_metadata').addClass('caption_font');
+		element.addClass('caption_font');
+		element.addClass('mediainfo');
+	  	$('.media_metadata').addClass('caption_font');
 		
 	}
 	

@@ -1,16 +1,4 @@
 
-/* Craig's basic HTML5 styles 
-body {background-color:#fff6ab;}
-section {padding-bottom:10px;}
-section h4 {margin:10px 0px 10px 0px; padding:0px 0px 0px 0px;}
-section ol {margin:0px 0px 10px 26px; padding:0px 0px 0px 0px;}
-.color {padding-left:9px; padding-right:9px; background-color:#cccccc; margin-right:8px;}
-.current-page {background-color:#d4d4d4;}
-.prev-page {background-color:#ffbebe;}
-.next-page {background-color:#c4ffbe;}
-.color {padding-left:9px; padding-right:9px; background-color:#cccccc; margin-right:8px;}
-*/
-
 /* Cantaloupe styles */
 
 @import url(http://fonts.googleapis.com/css?family=Lato:900,400);
@@ -57,6 +45,9 @@ h4 {
     margin-bottom: 1.2rem;
     font-weight: 900;
 }
+
+.page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
+.left_margin { min-width: 7.2rem; float: left; }
 
 * { box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; }
 
@@ -184,6 +175,49 @@ a:hover { text-decoration: underline; }
 .paragraph_wrapper { max-width: none !important; /*clear: both;*/ }
 .body_copy { max-width: 85.4rem; padding-left: 7.2rem; padding-right: 7.2rem; }
 
+.control_bar {
+	line-height: 4.8rem;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	margin: 2.0rem 7.2rem 1.0rem 7.2rem;
+}
+.control_bar .right { float: right; padding: 1rem 0 1rem 0; }
+.control_bar img { margin-left: 1.2rem; }
+.toggle_btn { font-weight: 900; padding: .4rem 1.2rem .4rem 1.2rem; border-radius: 1.4rem; cursor: pointer; }
+.toggle_btn.on { background-color: #b3b5b7; }
+
+#gallery_content { margin: 0 7.2rem 0 7.2rem; max-width: none; }
+#gallery_content .thumbnail { margin-right: 0.7rem; cursor: pointer; }
+#gallery_content .thumbnail:hover { opacity:0.65; }
+#gallery_content h3 { margin: 1.5rem 0 1rem 0; padding: 0; }
+
+.one_line_description { 
+	/*color: #96989a; 
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;*/
+	margin-bottom: 1rem;
+}
+
+.media_placeholder { display: inline-block; margin-right: 0.7rem; text-align: center; background-color: #eee; vertical-align: top; }
+.media_placeholder img { position: relative; top: 50%; margin-top: -15px; }
+
+.minor_message { color: #96989a; font-size: 1.2rem; font-style: italic; margin-top: 1rem; }
+/*
+.page.structured_gallery { padding-top: 0; }
+.structured_gallery h1 { margin-top: 7.8rem; margin-bottom: 2rem; }
+.fixed_header { position: fixed; }*/
+
+.media_details { position: absolute; top: 0px; left: 0px; right: 0px; height: 100%; margin: 0px 0px 0px 0px; z-index: 10; display: none; }
+.media_details .blackout { background: black; position: fixed; top:0px; left:0px; right:0px; height: 100%; /*opacity: 0.7;*/ }
+/*.media_details .content { position: absolute; top: 8.2rem; right: 3.6rem; left: 3.6rem; background: white; padding: 3.6rem 3.6rem 4.4rem 3.6rem; }*/
+.media_details .content { position: absolute; top: 8.2rem; right: 3.6rem; left: 3.6rem; background: black; padding: 0; color: white; }
+.media_details .source_header { font-size: 1.8rem; color: #b2b3b6; margin-bottom: 1rem; }
+
+.slot_slider { position: relative; top: 0px; width: 100%; white-space: nowrap; }
+.slot_slider .slot { display: inline-block; text-align: center; margin: 0; padding: 0; }
+.manual_slideshow { border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; text-align: center; padding: 2rem 0 0 0; height: 62rem; overflow: auto; }
+
 /* --- SPLASH --- */
 
 .splash { 
@@ -243,10 +277,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
 	height: auto;
 }
 
-.mediaElementFooter div {
+.mediainfo div {
 	font-size: 1.2rem;
 	line-height: 1.6rem;
 	color: #666;
+	text-align: left;
 }
 
 a.media_info {
@@ -275,7 +310,7 @@ a.media_info {
 	max-height: 300px;
 }
 
-.mediaElementFooter table {
+.mediainfo table {
 	width: 100%;
 }
 
@@ -293,7 +328,7 @@ a.media_info {
 
 .current_annotation { background-color: #c5dceb; margin-bottom: 1.0rem; display: none; }
 
-.mediaElementFooter h4 { font-size: 1.2rem; margin:0; line-height: 1.6rem; padding: 0 .4rem 0 .7rem; }
+.mediainfo h4 { font-size: 1.2rem; margin:0; line-height: 1.6rem; padding: 0 .4rem 0 .7rem; }
 
 .media_annotations table {
 	border-left: 1px solid #ddd; 
@@ -324,11 +359,11 @@ a.media_info {
 	line-height: 100%;
 }*/
 
-.mediaElementFooter td {
+.mediainfo td {
 	padding: .5rem 0;
 }
 
-.mediaElementFooter td:first-child { font-weight: bold; padding-right: .5rem; }
+.mediainfo td:first-child { font-weight: bold; padding-right: .5rem; }
 
 .media_tab {
 	padding: .2rem 1.0rem;
@@ -352,7 +387,7 @@ a.media_info {
 	margin-top: 1.2rem;
 }
 
-.mediaObject { background-color: black; }
+/*.mediaObject { background-color: black; }*/
 
 .slot.right {
 	margin-top: 4.0rem;

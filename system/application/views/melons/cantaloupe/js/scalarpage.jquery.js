@@ -1,3 +1,22 @@
+/**
+ * Scalar    
+ * Copyright 2013 The Alliance for Networking Visual Culture.
+ * http://scalar.usc.edu/scalar
+ * Alliance4NVC@gmail.com
+ *
+ * Licensed under the Educational Community License, Version 2.0 
+ * (the "License"); you may not use this file except in compliance 
+ * with the License. You may obtain a copy of the License at
+ * 
+ * http://www.osedu.org/licenses /ECL-2.0 
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.       
+ */  
+
 (function($) {
 
 	$.scalarpage = function(e, options) {
@@ -51,7 +70,26 @@
 			 * @param {Object} link				The link which spawned the mediaelement, and which contains its data.
 			 */
 			handleMediaElementMetadata: function(event, link) {
-				$.scalarmedia(link);
+				var mediaelement = link.data('mediaelement');
+				//console.log(mediaelement);
+				//console.log(parseInt(mediaelement.model.element.find('.mediaObject').width())+' '+(mediaelement.view.initialContainerWidth - 144));
+				//mediaelement.view.adjustMediaWidth(300);
+				if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
+					//console.log('prepend');
+					mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
+				}
+				if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null)) {
+					var infoElement = $('<div class="page_margins"></div>');
+					mediaelement.model.element.parent().after(infoElement);
+					mediaelement.model.element.css('marginBottom','0');
+					mediaelement.view.footer.hide();
+					$.scalarmedia(mediaelement, infoElement, {'shy':false});
+				} else {
+					$.scalarmedia(mediaelement, mediaelement.view.footer, {'shy':false});
+				}
+				mediaelement.model.element.css('visibility','visible');
+				link.addClass('texteo_icon');
+				link.addClass('texteo_icon_'+mediaelement.model.node.current.mediaSource.contentType);
 			},
 			
 			handleSetState: function(event, data) {
@@ -122,10 +160,15 @@
 				var width = parseInt(temp.width());
 				temp.remove();
 				
-				slot = link.slotmanager_create_slot(width, {url_attributes: ['href', 'src']});
+				var height = null;
+				if (size == 'full') {
+					height = maxMediaHeight;
+				}
+				slot = link.slotmanager_create_slot(width, height, {url_attributes: ['href', 'src']});
 				if (slot) {
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
+					slotMediaElement.model.element.css('visibility','hidden');
 					if ($(slot).hasClass('inline')) {
 						link.after(slotDOMElement);
 						link.hide();
@@ -208,6 +251,19 @@
 					}
 				});			
 			
+			},
+			
+			setupScreenedBackground: function() {
+				var screen = $('<div class="bg_screen">&nbsp;</div>').prependTo('body');
+				screen.css('backgroundImage', $('body').css('backgroundImage'));
+				$('body').css('backgroundImage', 'none');
+			},
+			
+			addIconBtn: function(element, filename, hoverFilename, title, url) {
+				var img_url_1 = header.options.root_url+'/images/'+filename;
+				var img_url_2 = header.options.root_url+'/images/'+hoverFilename;
+				if (url == undefined) url = 'javascript:;';
+				element.append('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" alt="Search" width="30" height="30" /></a>');
 			}
 			
 		};
@@ -223,6 +279,7 @@
 		
 		$('section').hide(); // TODO: Make this more targeted	
 		
+		var i,node;
 		
 		//console.log(currentNode.current.properties);
 		var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
@@ -240,15 +297,30 @@
 			page.addRelationshipNavigation(false);
 			$('.relationships').appendTo('.title_card');
 			break;
+			
+			case 'gallery':
+			break;
+			
+			case 'structured_gallery':
+			page.setupScreenedBackground();
+			//$('.page').addClass('structured_gallery');
+			//$('h1').eq(0).css('marginTop', $('.page').css('paddingTop'));
+			//$('.page').css('paddingTop', '0');
+			
+			/*element.children().wrapAll('<div class="fixed_header"></div>');
+			var fixed_header = element.find('.fixed_header');
+			fixed_header.css('backgroundColor', $('.page').css('backgroundColor'));*/
+			
+			var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
+			//gallery.css('paddingTop', fixed_header.height());
+			
+			break;
 		
 			default:
-		  	
-		  	$('body').bind('mediaElementMetadataHandled', page.handleMediaElementMetadata);
+		  	//$('body').bind('mediaElementMetadataHandled', page.handleMediaElementMetadata);
+		  	$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
-			var screen = $('<div class="bg_screen">&nbsp;</div>').prependTo('body');
-			screen.css('backgroundImage', $('body').css('backgroundImage'));
-	
-			$('body').css('backgroundImage', 'none');
+			page.setupScreenedBackground();
 		  	
 		  	// add mediaelements
 			$('a').each(function() {
