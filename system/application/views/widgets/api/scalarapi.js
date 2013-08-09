@@ -109,8 +109,8 @@ function ScalarAPI() {
 			},
 			{
 				string: navigator.userAgent,
-				subString: "Mozilla",
-				identity: "Mozilla"
+				subString: "Firefox",
+				identity: "Firefox"
 			},
 			{
 				string: navigator.vendor,
