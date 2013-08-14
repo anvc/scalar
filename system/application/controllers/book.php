@@ -73,6 +73,8 @@ class Book extends MY_Controller {
 		if (!$this->melon_exists($this->data['melon'])) $this->data['melon'] = null;
 		if (isset($_GET['m']) && $this->melon_exists($_GET['m'])) {
 			$this->data['melon'] = $_GET['m'];    
+		} elseif (isset($_GET['template']) && $this->melon_exists($_GET['template'])) {
+			$this->data['melon'] = $_GET['template'];    			
 		} elseif ($this->melon_exists($this->data['book']->template)) {  // TODO: rename DB field
 			$this->data['melon'] = $this->data['book']->template; 
 		}

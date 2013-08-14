@@ -23,7 +23,7 @@ $template['blank']['regions'] = array('content');
 
 // External wrapper for loading external pages in an iframe
 $template['external']['template'] = 'arbors/external/wrapper';
-$template['blank']['regions'] = array('content');
+$template['external']['regions'] = array('content');
 
 // Admin wrapper including book index page, login, and dashboard area
 $template['admin']['template'] = 'arbors/admin/wrapper';
