@@ -787,11 +787,11 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 			if (state == ViewState.Navigating) {
 				me.canvasSet.animate({'transform':'t'+(-me.unitSize.x*graphNode.position.x)+','+(-me.unitSize.y*graphNode.position.y)}, 350, '<>', function() {
 					//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url)); 
-					window.location = graphNode.nodes[0].url+'?m=cantaloupe'; // TODO: make this dynamic
+					window.location = addTemplateToURL(graphNode.nodes[0].url, 'cantaloupe'); // TODO: make this dynamic
 				})
 			} else {
 				//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url));
-				window.location = graphNode.nodes[0].url+'?m=cantaloupe';
+				window.location = addTemplateToURL(graphNode.nodes[0].url, 'cantaloupe');
 			}
 		};
 

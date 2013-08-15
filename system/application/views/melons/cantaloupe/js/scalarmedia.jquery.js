@@ -133,127 +133,130 @@
 		
 		//if (node.current.description != null) mediaelement.view.footer.append('<div><a class="media_info" href="javascript:;">i</a> '+node.current.description+'</div>');
 		
-		var currentAnnotation = $('<div class="current_annotation"><table></table></div>').appendTo(element);
-		
-		var currentRelation = null;
-		
-		var mediaTabs = $('<div class="media_tabs"></div>').appendTo(element);
-		
-		var foundAuxContent = false;
-		
-		if (node.current.description != null) {
-			var descriptionPane = $('<div class="media_description pane">'+node.current.description+'</div>').appendTo(element);
-			var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
-			descriptionTab.click(function() {
-				$(this).parent().parent().find('.pane').hide();
-				media.minimizeAnnotationPane();
-				descriptionPane.show();
-				$(this).parent().find('.media_tab').removeClass('select');
-				descriptionTab.addClass('select');
-				if (currentRelation != null) {
-					media.showAnnotation(null, currentRelation, mediaelement, true);
-				}
-			});
-			element.find('.media_description').show();
-			foundAuxContent = true;
-		}
-		
-		var i;
-		var annotation;
-		var row;
-		var annotations = node.getRelations('annotation', 'incoming', 'index');
-		if (annotations.length > 0) {
-			var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
-			annotationTab.click(function() {
-				$(this).parent().parent().find('.pane').hide();
-				annotationPane.show();
-				$(this).parent().find('.media_tab').removeClass('select');
-				annotationTab.addClass('select');
-				if (currentRelation != null) {
-					currentAnnotation.slideUp();
-					media.showAnnotation(null, currentRelation, mediaelement, true);
-					//media.hideAnnotation(null, null, mediaelement, true);
-				}
-			});
-			var annotationPane = $('<div class="media_annotations pane"></div>').appendTo(element);
-			var table = $('<table></table>').appendTo(annotationPane);
-			for (i in annotations) {
-				annotation = annotations[i];
-				row = $('<tr><td>'+annotation.startString+'</td><td><p>'+annotation.body.getDisplayTitle()+'</p></td></tr>').appendTo(table);
-				row.data('relation', annotation);
-				row.click(function() {
-					var relation = $(this).data('relation');
-					mediaelement.seek(relation.properties.start); // TODO - handle other media types
-					mediaelement.play();
+		if (element != null) {
+			var currentAnnotation = $('<div class="current_annotation"><table></table></div>').appendTo(element);
+			
+			var currentRelation = null;
+			
+			var mediaTabs = $('<div class="media_tabs"></div>').appendTo(element);
+			
+			var foundAuxContent = false;
+			
+			if (node.current.description != null) {
+				var descriptionPane = $('<div class="media_description pane">'+node.current.description+'</div>').appendTo(element);
+				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
+				descriptionTab.click(function() {
+					$(this).parent().parent().find('.pane').hide();
+					media.minimizeAnnotationPane();
+					descriptionPane.show();
+					$(this).parent().find('.media_tab').removeClass('select');
+					descriptionTab.addClass('select');
+					if (currentRelation != null) {
+						media.showAnnotation(null, currentRelation, mediaelement, true);
+					}
 				});
-			}
-			if (!foundAuxContent) {
-				element.find('.media_annotations').show();
-				annotationTab.addClass('select');
+				element.find('.media_description').show();
 				foundAuxContent = true;
 			}
-		}
-		
-		var metadataTab = $('<div class="media_tab">Metadata</div>').appendTo(mediaTabs);
-		var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
-		metadataTab.click(function() {
-			$(this).parent().parent().find('.pane').hide();
-			media.minimizeAnnotationPane();
-			metadataPane.show();
-			$(this).parent().find('.media_tab').removeClass('select');
-			metadataTab.addClass('select');
-			if (currentRelation != null) {
-				media.showAnnotation(null, currentRelation, mediaelement, true);
+			
+			var i;
+			var annotation;
+			var row;
+			var annotations = node.getRelations('annotation', 'incoming', 'index');
+			if (annotations.length > 0) {
+				var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
+				annotationTab.click(function() {
+					$(this).parent().parent().find('.pane').hide();
+					annotationPane.show();
+					$(this).parent().find('.media_tab').removeClass('select');
+					annotationTab.addClass('select');
+					if (currentRelation != null) {
+						currentAnnotation.slideUp();
+						media.showAnnotation(null, currentRelation, mediaelement, true);
+						//media.hideAnnotation(null, null, mediaelement, true);
+					}
+				});
+				var annotationPane = $('<div class="media_annotations pane"></div>').appendTo(element);
+				var table = $('<table></table>').appendTo(annotationPane);
+				for (i in annotations) {
+					annotation = annotations[i];
+					row = $('<tr><td>'+annotation.startString+'</td><td><p>'+annotation.body.getDisplayTitle()+'</p></td></tr>').appendTo(table);
+					row.data('relation', annotation);
+					row.click(function() {
+						var relation = $(this).data('relation');
+						mediaelement.seek(relation.properties.start); // TODO - handle other media types
+						mediaelement.play();
+					});
+				}
+				if (!foundAuxContent) {
+					element.find('.media_annotations').show();
+					annotationTab.addClass('select');
+					foundAuxContent = true;
+				}
 			}
-		});
-		var table = $('<table></table>').appendTo(metadataPane);
-		table.append('<tr><td>title</td><td>'+node.getDisplayTitle()+'</td></tr>');
-		table.append('<tr><td>version number</td><td>'+node.current.number+'</td></tr>');
-		table.append('<tr><td>url</td><td>'+node.current.url+'</td></tr>');
-		table.append('<tr><td>created</td><td>'+node.current.created+'</td></tr>');
-		table.append('<tr><td>content type</td><td>'+node.current.mediaSource.contentType+' ('+node.current.mediaSource.name+')</td></tr>');
-		if (!foundAuxContent) {
-			element.find('.media_metadata').show();
-			metadataTab.addClass('select');
-			foundAuxContent = true;
-		}
-		
-		if (media.options.shy) {
-			mediaelement.model.element.mouseenter(function() {
-				var timeout = $(this).data('timeout');
-				if (timeout != null) {
-					clearTimeout(timeout);
+			
+			var metadataTab = $('<div class="media_tab">Metadata</div>').appendTo(mediaTabs);
+			var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
+			metadataTab.click(function() {
+				$(this).parent().parent().find('.pane').hide();
+				media.minimizeAnnotationPane();
+				metadataPane.show();
+				$(this).parent().find('.media_tab').removeClass('select');
+				metadataTab.addClass('select');
+				if (currentRelation != null) {
+					media.showAnnotation(null, currentRelation, mediaelement, true);
 				}
-				mediaTabs.slideDown();
-			})
-			mediaelement.model.element.mouseleave(function() {
-				var timeout = $(this).data('timeout');
-				if (timeout != null) {
-					clearTimeout(timeout);
-				}
-				var timeout = setTimeout(function() { mediaTabs.slideUp(); }, 1000)
-				$(this).data('timeout', timeout);
-			})
-		} else {
-			mediaTabs.show();
-		}
-		
-		/*mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
-			var position = $(e.currentTarget).parent().parent().parent().offset();
-			metadata.css({
-				'right': (parseInt($(window).width()) - position.left + 10)+'px',
-				'top': position.top+'px'
 			});
-			metadata.fadeIn();
-		})*/
-		
-		$('body').bind('show_annotation', media.showAnnotation);
-		
-		$('body').bind('hide_annotation', media.hideAnnotation);
-		
-		element.addClass('caption_font');
-		element.addClass('mediainfo');
-	  	$('.media_metadata').addClass('caption_font');
+			var table = $('<table></table>').appendTo(metadataPane);
+			table.append('<tr><td>Title</td><td>'+node.getDisplayTitle()+'</td></tr>');
+			table.append('<tr><td>Scalar url</td><td><a href="'+node.url+'">'+node.url+'</a></td></tr>');
+			table.append('<tr><td>Version number</td><td>'+node.current.number+'</td></tr>');
+			table.append('<tr><td>Created</td><td>'+node.current.created+'</td></tr>');
+			table.append('<tr><td>Content type</td><td>'+node.current.mediaSource.contentType+' ('+node.current.mediaSource.name+')</td></tr>');
+			table.append('<tr><td>Source file</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a></td></tr>');
+			if (!foundAuxContent) {
+				element.find('.media_metadata').show();
+				metadataTab.addClass('select');
+				foundAuxContent = true;
+			}
+			
+			if (media.options.shy) {
+				mediaelement.model.element.mouseenter(function() {
+					var timeout = $(this).data('timeout');
+					if (timeout != null) {
+						clearTimeout(timeout);
+					}
+					mediaTabs.slideDown();
+				})
+				mediaelement.model.element.mouseleave(function() {
+					var timeout = $(this).data('timeout');
+					if (timeout != null) {
+						clearTimeout(timeout);
+					}
+					var timeout = setTimeout(function() { mediaTabs.slideUp(); }, 1000)
+					$(this).data('timeout', timeout);
+				})
+			} else {
+				mediaTabs.show();
+			}
+			
+			/*mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
+				var position = $(e.currentTarget).parent().parent().parent().offset();
+				metadata.css({
+					'right': (parseInt($(window).width()) - position.left + 10)+'px',
+					'top': position.top+'px'
+				});
+				metadata.fadeIn();
+			})*/
+			
+			$('body').bind('show_annotation', media.showAnnotation);
+			
+			$('body').bind('hide_annotation', media.hideAnnotation);
+			
+			element.addClass('caption_font');
+			element.addClass('mediainfo');
+		  	$('.media_metadata').addClass('caption_font');
+		}
 		
 	}
 	

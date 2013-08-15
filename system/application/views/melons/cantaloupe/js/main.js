@@ -44,8 +44,11 @@ var header = null;
 var page = null;
 var pinwheel = null;
 var state = ViewState.Reading;
-var template_getvar = 'm';
-var maxMediaHeight = 650;
+var template_getvar = 'template';
+var maxMediaHeight = 1040;
+var isMobile = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i))));
+var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
+var isNative = (document.location.href.indexOf('=cantaloupe') == -1);
 
 /**
  * Not an easy way to wait for a CSS file to load (even with yepnope doing a good job in Firefox)
@@ -74,17 +77,52 @@ function setState(newState, instantaneous) {
 				
 // rewrite Scalar hyperlinks to point to the cantaloupe melon
 function addTemplateLinks(element, templateName) {
-	element.find('a').each(function() {
-		var href = $(this).attr('href');
-		if ((href.indexOf(scalarapi.model.urlPrefix.substr(0, scalarapi.model.urlPrefix.length-1)) != -1) || (href.indexOf('http://') == -1)) {
-			if (href.split('?').length > 1) {
-				href += '&'+template_getvar+'='+templateName;
-			} else {
-				href += '?'+template_getvar+'='+templateName;
+	if (!isNative) {
+		element.find('a').each(function() {
+			var href = $(this).attr('href');
+			if (href !== undefined) {
+				if ((href.indexOf(scalarapi.model.urlPrefix.substr(0, scalarapi.model.urlPrefix.length-1)) != -1) || (href.indexOf('http://') == -1)) {
+					if (href.split('?').length > 1) {
+						href += '&'+template_getvar+'='+templateName;
+					} else {
+						href += '?'+template_getvar+'='+templateName;
+					}
+					$(this).attr('href', href);
+				}
 			}
-			$(this).attr('href', href);
+		});
+	}
+}
+
+// rewrite Scalar urls to point to the cantaloupe melon
+function addTemplateToURL(url, templateName) {
+	if (!isNative) {
+		if ((url.indexOf(scalarapi.model.urlPrefix.substr(0, scalarapi.model.urlPrefix.length-1)) != -1) || (url.indexOf('http://') == -1)) {
+			if (url.split('?').length > 1) {
+				url += '&'+template_getvar+'='+templateName;
+			} else {
+				url += '?'+template_getvar+'='+templateName;
+			}
+			return url;
 		}
-	});
+	}
+	return url;
+}
+
+// TODO: Consider moving this into scalarapi
+function getChildrenOfType(node, type) {
+	var children = [];
+	var i,j,childNodes,childNode,relationship;
+	var relationships = ['path', 'tag'];
+	for (j in relationships) {
+		relationship = relationships[j];
+		childNodes = node.getRelatedNodes(relationship, 'outgoing');
+		for (i in childNodes) {
+			childNode = childNodes[i];
+			if (childNode.hasScalarType(type) && (children.indexOf(childNode) == -1)) children.push(childNode);
+		}
+	}	
+	return children;		
 }
 
 			
@@ -92,8 +130,38 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 	var img_url_1 = modules_uri+'/cantaloupe/images/'+filename;
 	var img_url_2 = modules_uri+'/cantaloupe/images/'+hoverFilename;
 	if (url == undefined) url = 'javascript:;';
-	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" alt="Search" width="30" height="30" /></a>').appendTo(element);
+	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" /></a>').appendTo(element);
 	return button;
+}
+			
+/**
+ * Finds all contiguous elements that aren't paragraphs or divs and wraps them
+ * in divs.
+ *
+ * @param {Object} selection		The jQuery selection to modify.
+ */
+function wrapOrphanParagraphs(selection) {
+	selection.each(function() {
+	  	var buffer = null;
+	  	$(this).contents().each(function() {
+	  		if ($(this).is('p,div')) {
+	  			if (buffer != null) {
+	  				$(buffer).wrapAll('<div></div>');
+	  				buffer = null;
+	  			}
+	  		} else {
+	  			if (buffer == null) {
+	  				buffer = $(this);
+	  			} else {
+	  				buffer = buffer.add(this);
+	  			}
+	  		}
+	  	});
+		if (buffer != null) {
+			$(buffer).wrapAll('<div></div>');
+			buffer = null;
+		}
+	});
 }
 
 
@@ -159,6 +227,8 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	
 	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
 	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
+		
+	$tag.data('mediaelement').model.element.addClass('caption_font');
 
 	return $tag;
 
@@ -199,7 +269,7 @@ $(window).ready(function() {
 				scalarapi.model.urlPrefix = document.location.href.split('/').slice(0,5).join('/')+'/';
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
-				currentNode = scalarapi.model.nodesByURL[scalarapi.stripAllExtensions(document.location.href)];
+				currentNode = scalarapi.model.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];
 				//console.log(JSON.stringify(rdf_json));
 				/**
 				 * Navigating the RDFa using jquery.RDFa.js' methods if needed
@@ -238,10 +308,9 @@ $(window).ready(function() {
 		  }},   
 		  
 		  // Background visualization layer
-		  /*{load: [widgets_uri+'/vis/scalarvis2.css',
-		          widgets_uri+'/vis/jquery.scalarvis2.js',widgets_uri+'/vis/color-thief.js'], complete:function() {  
+		  /*{load: [widgets_uri+'/d3/d3.v2.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {  
 			  	// TODO: Background visualization initialization here
-		  }}, */ 		  
+		  }},*/		  
 		  
 		  // Mediaelement
 		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',
@@ -251,7 +320,10 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/mediaelement.css',
 		          widgets_uri+'/mediaelement/annotation.css',
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
-		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
+		          widgets_uri+'/mediaelement/jquery.jplayer.min.js',
+		          widgets_uri+'/d3/d3.v2.js',
+		          widgets_uri+'/vis/scalarvis.css',
+		          widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {
 		          
 			  	$('#book-title').parent().wrap('<div></div>');
 			  	$('article').before($('#book-title').parent().parent());

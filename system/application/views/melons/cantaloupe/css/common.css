@@ -4,9 +4,9 @@
 @import url(http://fonts.googleapis.com/css?family=Lato:900,400);
 
 /* Fonts */
-.heading_font { font-family: 'Lato', Arial, sans-serif; }
-.body_font { font-family: Georgia, Times, serif; }
-.caption_font { font-family: 'Lato', Arial, sans-serif; }
+.heading_font { font-family: 'Lato', Arial, sans-serif !important; }
+.body_font { font-family: Georgia, Times, serif !important; }
+.caption_font { font-family: 'Lato', Arial, sans-serif !important; }
 
 body { visibility: hidden; background-repeat: no-repeat; background-position: -9999px -9999px; }
 
@@ -77,7 +77,7 @@ sup {
 }
 
 #header #home_menu_link { 
-	padding: 0 1.6rem 0 1.6rem; 
+	padding: 0 0.6rem 0 0.6rem; 
 	display: inline-block; 
 	cursor: pointer;
 	line-height: 5rem;
@@ -94,7 +94,7 @@ sup {
 #header .vrule { 
 	width: 1px; height: 3rem; margin: 0 1rem;
 }
-#header .right { float: right; padding: 1rem; }
+#header .right, .index .right, .help .right { float: right; padding: 1rem; }
 #header.menu { left: 0; top: .5rem; }
 .menu {
 	position: absolute;
@@ -104,11 +104,14 @@ sup {
 	z-index: 10;
 	box-shadow: 3px 3px 5px rgba(0,0,0,.2);
 }
-.menu li {
-	padding: 1rem 1.2rem;
+.menu li,.menu p {
+	padding: 1rem 1.2rem !important;
 	border-top: 1px solid #ddd;
+	margin: 0 !important;
+	text-align: left;
 }
-.menu li:hover {
+.menu.unordered li { list-style-type: none; }
+.menu li:hover, .menu p:hover {
 	background-color: #eee;
 	color: #444;
 }
@@ -133,7 +136,7 @@ section.relationships {
 	max-width: 85.4rem;
 	clear:both;
 }
-.relationships ol,ul,p {
+.relationships ol,.relationships ul,.relationships p {
 	padding-left: 7.2rem;
 	padding-right: 7.2rem;
 }
@@ -179,8 +182,9 @@ a:hover { text-decoration: underline; }
 	line-height: 4.8rem;
 	border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
-	margin: 2.0rem 7.2rem 1.0rem 7.2rem;
+	margin: 2.0rem 0 1.0rem 0;
 }
+.page .control_bar { margin-left: 7.2rem; margin-right: 7.2rem; }
 .control_bar .right { float: right; padding: 1rem 0 1rem 0; }
 .control_bar img { margin-left: 1.2rem; }
 .toggle_btn { font-weight: 900; padding: .4rem 1.2rem .4rem 1.2rem; border-radius: 1.4rem; cursor: pointer; }
@@ -208,15 +212,62 @@ a:hover { text-decoration: underline; }
 .structured_gallery h1 { margin-top: 7.8rem; margin-bottom: 2rem; }
 .fixed_header { position: fixed; }*/
 
-.media_details { position: absolute; top: 0px; left: 0px; right: 0px; height: 100%; margin: 0px 0px 0px 0px; z-index: 10; display: none; }
+.media_details { position: fixed; top: 0px; left: 0px; right: 0px; height: 100%; margin: 0px 0px 0px 0px; z-index: 10; display: none; }
 .media_details .blackout { background: black; position: fixed; top:0px; left:0px; right:0px; height: 100%; /*opacity: 0.7;*/ }
 /*.media_details .content { position: absolute; top: 8.2rem; right: 3.6rem; left: 3.6rem; background: white; padding: 3.6rem 3.6rem 4.4rem 3.6rem; }*/
-.media_details .content { position: absolute; top: 8.2rem; right: 3.6rem; left: 3.6rem; background: black; padding: 0; color: white; }
-.media_details .source_header { font-size: 1.8rem; color: #b2b3b6; margin-bottom: 1rem; }
+.media_details .content { position: absolute; /*padding: 8.2rem 3.6rem 3.6rem 3.6rem;*/ width: 100%; height: 100%; /*top: 8.2rem; right: 3.6rem; left: 3.6rem;*/ background: #333; color: white; }
+.media_details a { color: #b5d5ff; }
+.media_details .source_header { 
+	position: fixed; 
+	width: 100%; 
+	background-color: #333; 
+	font-size: 1.8rem; 
+	color: #b2b3b6; 
+	/*margin: 0 3.6rem 0 3.6rem;*/
+	padding: 8.2rem 3.6rem 0 3.6rem; 
+	/*border-bottom: 1px solid #666; */
+	z-index: 100; 
+}
+.source_header .right { float: right; }
+.source_header hr { clear:both; border: 0; border-bottom: 1px solid #666; margin-bottom: 0; }
+.help hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
+.media_details .citations { margin-top: 3rem; }
 
-.slot_slider { position: relative; top: 0px; width: 100%; white-space: nowrap; }
-.slot_slider .slot { display: inline-block; text-align: center; margin: 0; padding: 0; }
-.manual_slideshow { border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; text-align: center; padding: 2rem 0 0 0; height: 62rem; overflow: auto; }
+.media_sidebar { width: 30%; color: #b2b3b6; margin-right: 3.6rem; padding-bottom: 5rem; text-align: left; float: left; clear: both; }
+.media_sidebar h2,.media_sidebar h3 { margin: 0 0 .2rem 0; padding: 0; line-height: 100%; color: white; }
+.media_sidebar h2 { font-size: 2.1rem; }
+.media_sidebar h3 { font-size: 1.8rem; font-weight: normal; margin-bottom: 1rem; }
+.media_sidebar p { margin: 0 0 1rem 0; padding: 0; line-height: 1.8rem; }
+.media_sidebar blockquote { /*padding: 0 1.8rem 0 1.8rem;*/ padding: 0; margin: 0 0 .5rem 0; line-height: 1.8rem; font-size: 90%; }
+.media_sidebar .annotation_extents { font-size: 80%; }
+.media_sidebar .attribution { text-align: right; margin-bottom: 2rem; }
+.manual_slideshow .slot { clear: both; /*border-bottom: 1px solid #666; padding-top: 2rem;*/ }
+.manual_slideshow .mediaelement { margin-bottom: 5rem; }
+
+.media_sidebar table {
+	border-left: 1px solid #666 !important; 
+	border-right: 1px solid #666 !important;
+	width: 100%;
+}
+
+.media_sidebar tr:hover {
+	background-color: #555 !important;
+}
+
+
+/*.slot_slider { position: relative; top: 0px; width: 100%; white-space: nowrap; overflow-x: auto; overflow-y: hidden; vertical-align: top; }
+.slot_slider .slot { display: inline-block; text-align: left; margin: 0; padding: 0; }*/
+.manual_slideshow { 
+	clear: both; 
+	text-align: center; 
+	position: absolute; 
+	top: 0; 
+	padding: 14rem 3.6rem 0 3.6rem; 
+	height: 100%; 
+	overflow-y: scroll; 
+	-webkit-overflow-scrolling: touch;
+	width: 100%;
+}
 
 /* --- SPLASH --- */
 
@@ -333,10 +384,12 @@ a.media_info {
 .media_annotations table {
 	border-left: 1px solid #ddd; 
 	border-right: 1px solid #ddd;
+	font-size: 1.2rem;
 }
 .media_annotations td:first-child,.current_annotation td:first-child {
 	padding-left: .8rem;
 	width: 6rem;
+	font-weight: bold;
 }
 .media_annotations td:last-child,.current_annotation td:last-child {
 	padding-right: .8rem;
@@ -485,6 +538,72 @@ a.nav_btn:hover {
 #zoomControls svg {
 	cursor: pointer;
 }
+
+/* Index */
+
+.index { 
+	position: fixed; 
+	top: 8.6rem; 
+	left: 3.6rem; 
+	right: 3.6rem; 
+	bottom: 3.6rem;
+	background-color: white; 
+	padding: 3rem 4rem 3rem 4rem; 
+	z-index: 30; 
+	box-shadow: 3px 3px 8px rgba(0,0,0,.2);
+	overflow-y: auto;
+	display: none;
+}
+.help { 
+	position: fixed; 
+	top: 8.6rem; 
+	width: 90rem;
+	margin-left: -45rem;
+	left: 50%; 
+	bottom: 3.6rem;
+	background-color: #eee; 
+	padding: 3rem 4rem 3rem 4rem; 
+	z-index: 30; 
+	box-shadow: 3px 3px 8px rgba(0,0,0,.2);
+	overflow-y: auto;
+	display: none;
+}
+.help ul { margin-left: 3.6rem; margin-bottom: 2rem; }
+.help p { margin-bottom: 1rem; margin-top: 1rem; }
+
+.index h2, .help h2 { display: inline-block; padding-left: 0; padding-right: 0; margin-top: 0; margin-bottom: 0; }
+
+.pagination {
+	line-height: 4.8rem;
+	border-top: 1px solid #ddd;
+	margin: 2.0rem 0 1.0rem 0;
+}
+
+.disabled { opacity: 0.25; }
+
+/*.results_list { max-height: 48rem; overflow-y: auto; }*/
+.results_list table { width: 100%; }
+.results_list td { height: 3rem; overflow: hidden; padding: .5rem; }
+.results_list td:first-child { max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
+.results_list td:last-child { color: #b2b3b6; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
+.results_list tr:hover { background: #eee; cursor: pointer; }
+
+/* Media icons */
+
+.texto_wrapper     {clear:both;}
+
+.texteo_icon       {background-repeat:no-repeat;}
+
+.texteo_icon_audio {background-image:url(images/audio.png); background-position:2px 5px; padding-left:20px;}
+.texteo_icon_video {background-image:url(images/video.png); background-position:2px 5px; padding-left:20px;}
+.texteo_icon_image {background-image:url(images/image.png); background-position:2px 4px; padding-left:20px;}
+.texteo_icon_generic_resource {background-image:url(images/generic-media.png); background-position:2px 5px; padding-left:20px;}
+.texteo_icon_note {background-image:url(images/note.png); background-position:2px 5px; padding-left:20px;}
+.texteo_icon_map {background-image:url(images/map.png); background-position:2px 5px; padding-left:20px;}
+.texteo_icon_document {background-image:url(images/page.png); background-position:2px 5px; padding-left:20px;}
+
+.texteo_icon_external {background-image:url(images/external.png); background-position:2px 5px; padding-left:21px;}
+.texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 5px; padding-left:21px;}
 
 
 /* Hidden elements */

@@ -155,9 +155,9 @@
 						header = $('<div id="path_'+sourceNode.slug+'" class="child_header"></div>').appendTo(mediaContainer);
 						header.data('node', sourceNode);
 						//header.append('<h3 class="heading_font">'+sourceNode.getDisplayTitle()+' &raquo;</h3>');
-						header.append('<h3 class="heading_font"><a href="'+sourceNode.url+'">'+sourceNode.getDisplayTitle()+'</a></h3>');
+						header.append('<h3 class="heading_font"><a href="'+addTemplateToURL(sourceNode.url, 'cantaloupe')+'">'+sourceNode.getDisplayTitle()+'</a></h3>');
 						if (sourceNode.current.description != null) {
-							header.append(' <div class="one_line_description">'+sourceNode.current.description+' <a href="'+sourceNode.url+'"><img src="'+modules_uri+'/cantaloupe/images/permalink_icon.png" alt="permalink_icon" width="16" height="16" /></a></div>');
+							header.append(' <div class="one_line_description">'+sourceNode.current.description+' <a href="'+addTemplateToURL(sourceNode.url, 'cantaloupe')+'"><img src="'+modules_uri+'/cantaloupe/images/permalink_icon.png" alt="permalink_icon" width="16" height="16" /></a></div>');
 						}
 						childNodes = sourceNode.getRelatedNodes(relationship, 'outgoing');
 						for (j in childNodes) {
@@ -176,9 +176,13 @@
 			
 			},
 			
-			resizeThumbnails: function() {
-				mediaContainer.find('img').not('.media_placeholder > img').attr('height', (thumbnailHeight * currentScale));
-				mediaContainer.find('.media_placeholder').height((thumbnailHeight * currentScale)).width((thumbnailHeight * currentScale));
+			resizeThumbnails: function(isAnimated) {
+				if (!isAnimated) {
+					mediaContainer.find('.thumbnail').attr('height', (thumbnailHeight * currentScale));
+				} else {
+					mediaContainer.find('.thumbnail').animate({'height': (thumbnailHeight * currentScale)});
+				}
+				//mediaContainer.find('.media_placeholder').height((thumbnailHeight * currentScale)).width((thumbnailHeight * currentScale));
 			},
 			
 			sortCollection: function(collection, method) {
@@ -204,12 +208,12 @@
 			
 			decrementGalleryScale: function() {
 				currentScale *= .5;
-				gallery.resizeThumbnails();
+				gallery.resizeThumbnails(true);
 			},
 			
 			incrementGalleryScale: function() {
 				currentScale *= 2.0;
-				gallery.resizeThumbnails();
+				gallery.resizeThumbnails(true);
 			},
 			
 			setDisplayMode: function(mode) {
@@ -249,14 +253,12 @@
 		scalarapi.loadPage(currentNode.slug, true, function() {
 			childPaths = gallery.getChildrenOfType(currentNode, 'path');
 			childTags = gallery.getChildrenOfType(currentNode, 'tag');
-			console.log(childPaths);
-			console.log(childTags);
 			mediaCollection = gallery.gatherChildMedia(currentNode, 2);
 			gallery.sortCollection(mediaCollection, SortMethod.Alpha);
 			gallery.build(mediaCollection);
 		}, function() {
 			console.log('an error occurred while retrieving structured gallery info.');
-		}, 3, false);
+		}, 3, true);
 	
 	}
 

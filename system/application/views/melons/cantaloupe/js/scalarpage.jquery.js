@@ -71,7 +71,6 @@
 			 */
 			handleMediaElementMetadata: function(event, link) {
 				var mediaelement = link.data('mediaelement');
-				//console.log(mediaelement);
 				//console.log(parseInt(mediaelement.model.element.find('.mediaObject').width())+' '+(mediaelement.view.initialContainerWidth - 144));
 				//mediaelement.view.adjustMediaWidth(300);
 				if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
@@ -79,7 +78,7 @@
 					mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
 				}
 				if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null)) {
-					var infoElement = $('<div class="page_margins"></div>');
+					var infoElement = $('<div class="body_copy"></div>');
 					mediaelement.model.element.parent().after(infoElement);
 					mediaelement.model.element.css('marginBottom','0');
 					mediaelement.view.footer.hide();
@@ -114,36 +113,6 @@
 				
 				}
 			
-			},
-			
-			/**
-			 * Finds all contiguous elements that aren't paragraphs or divs and wraps them
-			 * in divs.
-			 *
-			 * @param {Object} selection		The jQuery selection to modify.
-			 */
-			wrapOrphanParagraphs: function(selection) {
-				selection.each(function() {
-				  	var buffer = null;
-				  	$(this).contents().each(function() {
-				  		if ($(this).is('p,div')) {
-				  			if (buffer != null) {
-				  				$(buffer).wrapAll('<div></div>');
-				  				buffer = null;
-				  			}
-				  		} else {
-				  			if (buffer == null) {
-				  				buffer = $(this);
-				  			} else {
-				  				buffer = buffer.add(this);
-				  			}
-				  		}
-				  	});
-					if (buffer != null) {
-						$(buffer).wrapAll('<div></div>');
-						buffer = null;
-					}
-				});
 			},
 			
 			addMediaElementForLink: function(link, parent) {
@@ -253,6 +222,11 @@
 			
 			},
 			
+			addComments: function() {
+				var comments = currentNode.getRelatedNodes('comment', 'incoming');
+				$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
+			},
+			
 			setupScreenedBackground: function() {
 				var screen = $('<div class="bg_screen">&nbsp;</div>').prependTo('body');
 				screen.css('backgroundImage', $('body').css('backgroundImage'));
@@ -272,14 +246,14 @@
 		
 		element.addClass('page');
 		
-		page.wrapOrphanParagraphs($('[property="sioc:content"]'));
+		wrapOrphanParagraphs($('[property="sioc:content"]'));
 	  	
 	  	$('[property="scalar:defaultView"]').hide();
 	  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
 		
 		$('section').hide(); // TODO: Make this more targeted	
 		
-		var i,node;
+		var i, node, nodes, link;
 		
 		//console.log(currentNode.current.properties);
 		var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
@@ -299,6 +273,29 @@
 			break;
 			
 			case 'gallery':
+			$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+			scalarapi.loadPage(currentNode.slug, true, function() {
+				var i,node,link,
+					nodes = getChildrenOfType(currentNode, 'media');
+				$('article > h1').after('<div id="gallery"></div>');
+				var gallery = $('#gallery');
+				for (i in nodes) {
+					node = nodes[i];
+					link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
+					page.addMediaElementForLink(link.find('a'), link);
+					link.css('display', 'none');
+				} 
+				page.addRelationshipNavigation(true);
+				page.addComments();		  	
+			}, function() {
+				console.log('an error occurred while retrieving gallery info.');
+			}, 1, true);
+			break;
+			
+			case 'visualization':
+			var options = {parent_uri:scalarapi.urlPrefix, default_tab:'visindex'}; 
+			var visualization = $('<div id="#visualization"></div>').appendTo(element);
+			visualization.scalarvis(options);	
 			break;
 			
 			case 'structured_gallery':
@@ -314,6 +311,8 @@
 			var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 			//gallery.css('paddingTop', fixed_header.height());
 			
+			page.addRelationshipNavigation(true);
+			page.addComments();		  	
 			break;
 		
 			default:
@@ -353,7 +352,7 @@
 			$('[property="art:url"]').each(function() {
 			
 				if ($(this).text().length > 0) {
-				
+					console.log(this);
 					$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
 					page.addMediaElementForLink($(this).find('a'), $(this));
 					$(this).css('display', 'none');
@@ -363,10 +362,7 @@
 			});
 					
 			page.addRelationshipNavigation(true);
-			
-			var comments = currentNode.getRelatedNodes('comment', 'incoming');
-			$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
-		  	
+			page.addComments();		  	
 			break;
 		
 		}
