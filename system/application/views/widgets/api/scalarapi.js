@@ -1641,9 +1641,11 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
  * @param	depth				Number of levels of recursion to use in gathering data.
  * @param	references			If true, will return 'references' relationships
  * @param	relation			If populated, will return only relations of the specified type
+ * @param	start				Result number to start with
+ * @param	results				Number of results to return
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation) {
+ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results) {
 
 	var url = this.model.urlPrefix+uriSegment;
 	var node = this.model.nodesByURL[this.model.urlPrefix+uriSegment];
@@ -1658,8 +1660,14 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 		ref = references ? 1 : 0;
 	}
 	queryString += '&ref='+ref;
-	if (relation != undefined) {
+	if (relation !== null) {
 		queryString += '&res='+relation;
+	}
+	if (start != undefined) {
+		queryString += '&start='+start;
+	}
+	if (results != undefined) {
+		queryString += '&results='+results;
 	}
 
 	if (this.loadPageStatus[url] == undefined) {
@@ -1830,13 +1838,16 @@ ScalarAPI.prototype.parseCurrentPage = function(json) {
 }
 
 /**
- * Returns the page identified by the supplied URI segment.
+ * Returns the node identified by the supplied URI or slug.
  *
- * @param	uriSegment			The URI segment identifying the page to be retrieved.
+ * @param	uriOrSlug			Either the URI or the slug identifying the node.
  * @return						The node for the desired page, if found.
  */
-ScalarAPI.prototype.getNode = function(uriSegment) {
-	return this.model.nodesByURL[this.model.urlPrefix+uriSegment];
+ScalarAPI.prototype.getNode = function(uriOrSlug) {
+	if (uriOrSlug.indexOf('http://') != -1) {
+		return this.model.nodesByURL[uriOrSlug];
+	}
+	return this.model.nodesByURL[this.model.urlPrefix+uriOrSlug];
 }
 
 /**
@@ -1934,9 +1945,11 @@ ScalarAPI.prototype.parseBook = function(json) {
  * @param	errorCallback		Handler to be called when the data failed to load.
  * @param	references			If true, will return 'references' relationships
  * @param	relation			If true, will return only relations of the named type
+ * @param	start				Result number to start with
+ * @param	results				Number of results to return
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation) {
+ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results) {
 
 	var nodes = this.model.getNodesWithProperty('scalarType', type);
 	
@@ -1950,8 +1963,14 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 		ref = references ? 1 : 0;
 	}
 	queryString += '&ref='+ref;
-	if (relation != undefined) {
+	if (relation !== null) {
 		queryString += '&res='+relation;
+	}
+	if (start != undefined) {
+		queryString += '&start='+start;
+	}
+	if (results != undefined) {
+		queryString += '&results='+results;
 	}
 
 	// if we're forcing the data to load, or no nodes of the given type have already been loaded, then
