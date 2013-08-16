@@ -24,7 +24,13 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 	}
 ?></h4>
 
-<form id="edit_form" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this));">
+<?
+if ($book->template == 'cantaloupe') {
+	echo('<form id="edit_form" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), true);">');
+} else {
+	echo('<form id="edit_form" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), false);">');
+}
+?>
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
