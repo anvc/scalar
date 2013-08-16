@@ -45,7 +45,7 @@
 		var mediaCollection;
 		var childPaths;
 		var childTags;
-		var relationships = ['path', 'tag'];
+		var relationships = ['path', 'tag', 'referee'];
 		var mediaDetails;
 			
 		var gallery = {
@@ -124,7 +124,7 @@
 				$('.child_header').remove();
 				$('.minor_message').remove();
 				
-				var i,j,n,path,header,childNodes,childNode,thumbnail;
+				var i,j,k,n,path,header,childNodes,childNode,grandchildNodes,grandchildNode,thumbnail;
 				switch (this.currentDisplayMode) {
 				
 					case DisplayMode.All:
@@ -161,11 +161,21 @@
 						}
 						childNodes = sourceNode.getRelatedNodes(relationship, 'outgoing');
 						for (j in childNodes) {
+						
 							childNode = childNodes[j];
 							thumbnail = $('#img-'+childNode.slug);
 							thumbnail.show();
 							mediaContainer.append(thumbnail);
 							if (thumbnail.length > 0) visibleMedia.push(thumbnail[0]);
+							
+							grandchildNodes = childNode.getRelatedNodes( 'referee', 'outgoing' );
+							for ( k in grandchildNodes ) {
+								grandchildNode = grandchildNodes[k];
+								thumbnail = $('#img-'+grandchildNode.slug);
+								thumbnail.show();
+								mediaContainer.append(thumbnail);
+								if (thumbnail.length > 0) visibleMedia.push(thumbnail[0]);
+							}
 						}
 					}
 					mediaContainer.children('img').not(visibleMedia).hide();

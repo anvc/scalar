@@ -240,14 +240,14 @@
 				mediaTabs.show();
 			}
 			
-			/*mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
+			mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
 				var position = $(e.currentTarget).parent().parent().parent().offset();
 				metadata.css({
 					'right': (parseInt($(window).width()) - position.left + 10)+'px',
 					'top': position.top+'px'
 				});
 				metadata.fadeIn();
-			})*/
+			})
 			
 			$('body').bind('show_annotation', media.showAnnotation);
 			

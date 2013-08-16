@@ -84,7 +84,7 @@
 					mediaelement.view.footer.hide();
 					$.scalarmedia(mediaelement, infoElement, {'shy':false});
 				} else {
-					$.scalarmedia(mediaelement, mediaelement.view.footer, {'shy':false});
+					$.scalarmedia(mediaelement, mediaelement.view.footer, {'shy':true});
 				}
 				mediaelement.model.element.css('visibility','visible');
 				link.addClass('texteo_icon');
@@ -311,7 +311,6 @@
 			var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 			//gallery.css('paddingTop', fixed_header.height());
 			
-			page.addRelationshipNavigation(true);
 			page.addComments();		  	
 			break;
 		

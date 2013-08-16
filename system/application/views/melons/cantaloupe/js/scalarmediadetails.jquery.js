@@ -32,7 +32,6 @@
 			
 			showMedia: function(node, source, collection) {
 			
-				console.log('----');
 				mediaDetails.targetNode = node;
 				mediaDetails.collection = collection;
 				mediaDetails.source = source;
