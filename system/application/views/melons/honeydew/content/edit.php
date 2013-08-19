@@ -160,7 +160,7 @@ endif;
 						}
 						$count++;
 					}
-					echo' <li>';
+					echo '<li>';
 					echo '<input type="hidden" name="has_container" value="'.$node->versions[0]->urn.'" />';
 					echo '<input type="hidden" name="has_container_sort_number" value="'.$rel_sort_number.'" />';
 					echo '<a class="rel_link" href="'.$rel_uri.'" title="'.$rel_uri.'">'.$title.'</a> (page '.$rel_sort_number.')';

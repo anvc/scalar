@@ -202,8 +202,8 @@ class RDF_Object {
 		if (empty($content)) return $content;
 		if (!is_array($content)) $content = array($content);
 		if (!empty($pagination) && $pagination['start']>0) $content = array_slice($content, $pagination['start']);
-		$count = 0;		
-
+		$count = 0;	
+		
 		foreach ($content as $row) {
 			if (!empty($pagination) && $count >= $pagination['results']) break;
 			$index = $this->_content($book, $row, $base_uri, $restrict, $rel, $sq, $versions, $ref, $pagination, $max_recurses);
@@ -235,7 +235,6 @@ class RDF_Object {
     }
     
 	private function _content($book, $content, $base_uri='', $restrict=null, $rel=self::REL_ALL, $sq=null, $display_versions=self::VERSIONS_MOST_RECENT, $ref=self::REFERENCES_ALL, $pagination=self::NO_PAGINATION, $max_recurses=0, $num_recurses=0) {
-
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');	
 		$models = $CI->config->item('rel');	
@@ -287,7 +286,6 @@ class RDF_Object {
 		}	
 
 		$content = $this->_relationship_pagination($content);
-
 		return $content;
 		 
 	}    
@@ -488,7 +486,8 @@ class RDF_Object {
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');		
 		
 		$content = $CI->pages->get_by_slug($book->book_id, $annotation->parent_content_slug);
-		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $versions, $ref, $pagination, $max_recurses, ++$num_recurses);
+		// Changed the versions param to VERSIONS_MOST_RECENT here; passing the incoming value through was causing problems
+		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, self::VERSIONS_MOST_RECENT, $ref, $pagination, $max_recurses, ++$num_recurses);
 		foreach ($this->rel_fields as $field) {
 			if (isset($annotation->$field)) {
 				$content->versions[$content->version_index]->$field = $annotation->$field;
@@ -523,7 +522,8 @@ class RDF_Object {
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');				
 		
 		$content = $CI->pages->get_by_slug($book->book_id, $annotation->child_content_slug);
-		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, $versions, $ref, $pagination, $max_recurses, ++$num_recurses);
+		// Changed the versions param to VERSIONS_MOST_RECENT here; passing the incoming value through was causing problems
+		$content = $this->_content($book, $content, $base_uri, $restrict, self::REL_CHILDREN_ONLY, $sq, self::VERSIONS_MOST_RECENT, $ref, $pagination, $max_recurses, ++$num_recurses);
 		foreach ($this->rel_fields as $field) {
 			if (isset($annotation->$field)) {
 				$content->versions[$content->version_index]->$field = $annotation->$field;
