@@ -20,7 +20,8 @@ $config['views'] = array(
 			'history',
 			'meta',
 			'rdfjson',
-			'edit'
+			'edit',
+			'annotation_editor'
 		);
 
 // Default view
