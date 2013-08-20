@@ -32,7 +32,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <html xml:lang="en" lang="en" xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:oac="http://www.openannotation.org/ns/" xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#">
 <head>
 <title><?=strip_tags($title)?></title>
-<base href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>" />
+<base href="<?=$base_uri.((isset($page)&&!empty($page))?$page->slug.'.'.$page->versions[$page->version_index]->version_num:$slug.'.0')?>" />
 <meta name="description" content="<?=htmlspecialchars(strip_tags($description))?>" />
 <meta name="viewport" content="width=620, maximum-scale=1.0" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -69,6 +69,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <body<?=(!empty($background))?' style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
 
 <?php echo $content ?>
+
+<?php if (isset($page) && !empty($page)):?>
 
 <article>
 
@@ -248,6 +250,8 @@ if (!empty($has_references)): ?>
 <? endif; ?>
 		
 </article>
+
+<?php endif?>
 
 </body>
 </html>

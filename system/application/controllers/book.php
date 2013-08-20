@@ -142,6 +142,8 @@ class Book extends MY_Controller {
 				if (in_array($default_view, $this->config->item('views'))) $this->data['view'] = $default_view;
 				// Page creator
 				$this->set_page_user_fields(); 
+			} else {
+				$this->data['slug'] = $slug;
 			}
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
 			if (in_array(get_ext($this->uri->uri_string()), $this->config->item('views'))) $this->data['view'] = get_ext($this->uri->uri_string());
