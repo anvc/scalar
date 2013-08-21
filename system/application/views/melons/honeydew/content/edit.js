@@ -52,6 +52,7 @@
 
 function escpaeLastURISegment(uri) {
 	if (!uri || 'undefined'==typeof(uri) || -1==uri.indexOf('/')) return uri;
+	if (uri.indexOf('%')!=-1) return uri;
 	var segments = uri.split('/');
 	var filename_segments = segments[segments.length-1].split('?');
 	var filename = filename_segments[0];

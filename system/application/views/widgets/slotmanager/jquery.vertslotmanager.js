@@ -60,9 +60,9 @@
 			});
 			$(window).scroll(function() {
 				manage_height($this, $container, $fixer, $controls);
-				$slider.data('current_tag').slotmanager_move_to($scrollable_element, $this);
-			});			
-	
+				//$slider.data('current_tag').slotmanager_move_to($scrollable_element, $this);
+			});		
+			
 			// Listen for tag clicks, and run play or pause actions
 
 			$('body').bind('texteoTagClicked', function(event, $link, clickEvent) {
