@@ -119,8 +119,7 @@ label {cursor:pointer;}
 #listeditor_editbox .content tr:hover {background:#ddd;}
 #listeditor_editbox .content thead tr:hover {background:#eee !important;}
 #listeditor_editbox .content .descr {color: #888;}	
-#listeditor_editbox .loading_not_complete {font-weight:bold; color:#e32626;}
-#listeditor_editbox .loading_complete {display:none;}
+#listeditor_editbox .content_loading {display:none; font-weight:bold; color:#e32626;}
 
 #alignment_popup {
 	position:absolute;top:0px;z-index:9;border:solid 2px #999999; background:white;
