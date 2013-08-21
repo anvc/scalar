@@ -112,7 +112,7 @@ class Version_model extends MY_Model {
         
         foreach ($sq as $term) {
     		foreach($result as $key => $value) { 
-        		if (stristr($value,$term)) $results[] = $term; 
+        		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term; 
     		}   
         }
         if (count($results)==count($sq)) return true;
