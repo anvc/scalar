@@ -2487,30 +2487,38 @@ ScalarModel.prototype.getNodesWithProperty = function(property, value, sort) {
 	var i;
 	var n = this.nodes.length;
 	var node;
-	for (i=0; i<n; i++) {
-		node = this.nodes[i];
-		switch (property) {
+	
+	// 'content' returns everything
+	if ((property == 'scalarType') && (value == 'content')) {
+		results = this.nodes.concat();
 		
-			case 'scalarType':
-			if (node.scalarTypes[value]) results.push(node);
-			break;
+	} else {
+		for (i=0; i<n; i++) {
+			node = this.nodes[i];
+			switch (property) {
 			
-			case 'dominantScalarType':
-			if (node.getDominantScalarType() == this.scalarTypes[value]) results.push(node);
-			break;
-			
-			case 'mediaSource':
-			if (node.scalarTypes.media && (node.current.mediaSource.name == value)) results.push(node);
-			break;
-			
-			case 'contentType':
-			if (node.scalarTypes.media && (node.current.mediaSource.contentType == value)) results.push(node);
-			break;
-			
-			default:
-			if (node[property] == value) results.push(node);
-			break;
-			
+				case 'scalarType':
+				if (value == 'reply') value = 'comment'; // internally called 'reply', colloquially called 'comment'; handle both
+				if (node.scalarTypes[value]) results.push(node);
+				break;
+				
+				case 'dominantScalarType':
+				if (node.getDominantScalarType() == this.scalarTypes[value]) results.push(node);
+				break;
+				
+				case 'mediaSource':
+				if (node.scalarTypes.media && (node.current.mediaSource.name == value)) results.push(node);
+				break;
+				
+				case 'contentType':
+				if (node.scalarTypes.media && (node.current.mediaSource.contentType == value)) results.push(node);
+				break;
+				
+				default:
+				if (node[property] == value) results.push(node);
+				break;
+				
+			}
 		}
 	}
 	
