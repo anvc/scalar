@@ -167,42 +167,23 @@ function checkTypeSelect() {
  * Lazy load the book's content via the API to make available for the content selector box
  */
 
-function load_content(key) {
-
-	if ('undefined'==typeof(key)) key = 0;
-	if ('undefined'==typeof(content_array_pages_loaded_key)) content_array_pages_loaded_key = 1; // global
-	if ('undefined'==typeof(content_array_complete)) content_array_pages = false; // global
-	if ('undefined'==typeof(content_array_complete)) content_array_complete = false; // global	
-	if ('undefined'==typeof(content_array_complete_types)) content_array_complete_types = []; // global	
+function load_content(content_type, $div, $list, _insert_func, default_type, only_default_type, select_single) {               
 	
-	var load_seq = [
-		{type:'page',depth:0},
-		{type:'media',depth:0},
-		{type:'path',depth:1},
-		{type:'tag',depth:1},
-		{type:'annotation',depth:1},
-		{type:'reply',depth:1}
-	];
+	$('.content_loading').fadeIn('fast');
 	
-	if (key > content_array_pages_loaded_key) {
-		content_array_pages = true;
-	}
+	var debth_chart = {
+	        		'page':0,
+	        		'media':0,
+	        		'path':1,
+	        		'tag':1,
+	        		'annotation':1,
+	        		'reply':1
+					  };	
 	
-	if (key > 0 && 'undefined'!=typeof(load_seq[(key-1)])) {
-		content_array_complete_types.push(load_seq[(key-1)].type);
-	}	                 
-	
-	if (key >= load_seq.length) {
-		content_array_complete = true;
-		$('body').trigger('content_array_completed');
-		return;
-	} else {
-		$('body').trigger('content_array_partial');
-	}
-	
-	scalarapi.loadPagesByType(load_seq[key].type, true, function() {
-		load_content(++key);
-	}, null, load_seq[key].depth);	
+	scalarapi.loadPagesByType(content_type, true, function() {
+		listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single);
+		$('.content_loading').hide();
+	}, null, debth_chart[content_type]);	
 
 }
 
@@ -210,12 +191,15 @@ function load_content(key) {
  * Request specific content
  */
 
-function search_for_content(sq) {
+function search_for_content(sq, $div, $list, _insert_func, default_type, only_default_type, select_single) {
 		
+	$('.content_loading').fadeIn('fast');
+	
 	scalarapi.nodeSearch(sq, function() {
 		content_array_complete_types = ['page','media','path','tag','annotation','reply']; // global	
 		content_array_complete = true; // global		
-		$('body').trigger('content_array_completed');
+		listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single);
+		$('.content_loading').hide();
 	});	
 	
 }
@@ -318,15 +302,8 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 		return false;
 	}); 	
 	// Options
-	$fetch_options = $('<div class="fetch_options"><span style="color:red;">New!</span>&nbsp; Search for content: <form id="search_for_content" style="display:inline;"><input type="text" name="sq" value="" /> <input type="submit" value="Go" /></form>&nbsp; Or, load all content: <input type="button" id="fetch_all_content" value="All content" /></div>');
+	$fetch_options = $('<div class="fetch_options"><span style="color:red;">New!</span>&nbsp; &nbsp; Search for content:&nbsp; <form id="search_for_content" style="display:inline;"><input type="text" name="sq" value="" /> <input type="submit" value="Go" /></form>&nbsp; &nbsp; Or, choose a content type below:</div>');
 	$div.append($fetch_options);
-	if ('undefined'!=typeof(content_array_pages)) $fetch_options.find('#fetch_all_content').attr("disabled", "disabled");
-	$fetch_options.find('#fetch_all_content').click(function() {
-		$(this).attr("disabled", "disabled");
-		listeditor_filter_reset($div);
-		$div.find('.filters').fadeIn('fast');
-		load_content();		
-	});
 	$fetch_options.find('#search_for_content').submit(function() {
 		var sq = $fetch_options.find('input[name="sq"]').val();
 		if (!sq.length) {
@@ -335,44 +312,16 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 		}
 		listeditor_filter_reset($div);
 		$div.find('.filters').fadeIn('fast');
-		search_for_content(sq);
+		search_for_content(sq, $div, $list, _insert_func, default_type, only_default_type, select_single);
 		return false;
 	});
 	// Filters
-	var $filters = $('<div class="filters"><span class="loading_complete page"><input type="radio" name="filter" checked="checked" value="" id="all" /> <label for="all">All</label>&nbsp; &nbsp; </span><span class="loading_complete page"><input type="radio" name="filter" value="page" id="pages" /> <label for="pages">Pages</label>&nbsp; &nbsp; </span><span class="loading_complete media"><input type="radio" name="filter" value="media" id="media" /> <label for="media">Media</label>&nbsp; &nbsp; </span><span class="loading_complete path"><input type="radio" name="filter" value="path" id="paths" /> <label for="paths">Paths</label>&nbsp; &nbsp; </span><span class="loading_complete tag"><input type="radio" name="filter" value="tag" id="tags" /> <label for="tags">Tags</label>&nbsp; &nbsp; </span><span class="loading_complete annotation"><input type="radio" name="filter" value="annotation" id="annotations" /> <label for="annotations">Annotations</label>&nbsp; &nbsp; </span><span class="loading_complete reply"><input type="radio" name="filter" value="comment" id="replies" /> <label for="replies">Comments</label></span><span class="loading_not_complete"><div id="loading_spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> Content loading</span></div>');
+	var $filters = $('<div class="filters"><span class="loading_complete page"><input type="radio" name="filter" value="content" id="all" /> <label for="all">All</label>&nbsp; &nbsp; </span><span class="loading_complete page"><input type="radio" name="filter" value="page" id="pages" /> <label for="pages">Pages</label>&nbsp; &nbsp; </span><span class="loading_complete media"><input type="radio" name="filter" value="media" id="media" /> <label for="media">Media</label>&nbsp; &nbsp; </span><span class="loading_complete path"><input type="radio" name="filter" value="path" id="paths" /> <label for="paths">Paths</label>&nbsp; &nbsp; </span><span class="loading_complete tag"><input type="radio" name="filter" value="tag" id="tags" /> <label for="tags">Tags</label>&nbsp; &nbsp; </span><span class="loading_complete annotation"><input type="radio" name="filter" value="annotation" id="annotations" /> <label for="annotations">Annotations</label>&nbsp; &nbsp; </span><span class="loading_complete reply"><input type="radio" name="filter" value="reply" id="replies" /> <label for="replies">Comments</label></span>&nbsp; &nbsp; <span class="content_loading">Content loading</span></div>');
 	$filters.find('input').click(function() {
-		listeditor_fill_table($div, $list, _insert_func, default_type, only_default_type, select_single);
-		listeditor_filter_options($div);
+		var content_type = $(this).val();
+		load_content(content_type, $div, $list, _insert_func, default_type, only_default_type, select_single);
 	});
-	$div.append($filters);
-	if ('undefined'==typeof(content_array_pages)) $filters.hide();
-	// Spinner
-	if (window['Spinner']) {
-		var opts = {
-		  lines: 10, // The number of lines to draw
-		  length: 5, // The length of each line
-		  width: 2, // The line thickness
-		  radius: 3, // The radius of the inner circle
-		  rotate: 0, // The rotation offset
-		  color: '#000', // #rgb or #rrggbb
-		  speed: 1, // Rounds per second
-		  trail: 40, // Afterglow percentage
-		  shadow: false, // Whether to render a shadow
-		  hwaccel: false, // Whether to use hardware acceleration
-		  className: 'spinner', // The CSS class to assign to the spinner
-		  zIndex: 2e9, // The z-index (defaults to 2000000000)
-		  top: 'auto', // Top position relative to parent in px
-		  right: 'auto' // Left position relative to parent in px
-		};
-		var target = document.getElementById('loading_spinner_wrapper');
-		var spinner = new Spinner(opts).spin(target);
-	}	
-	$('body').bind('content_array_partial', function() {		
-		listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single);	
-	});	
-	$('body').bind('content_array_completed', function() {		
-		listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single);	
-	});		
+	$div.append($filters);	
 	// Content wrapper (for overflow)
 	var $content_wrapper = $('<div class="content_wrapper"></div>');
 	$div.append($content_wrapper);
@@ -412,8 +361,14 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	// Table to contain the content
 	var $table = $('<table class="content" cellspacing="0" cellpadding="0"><thead class="descr"><td style="'+((select_single)?'display:none':'')+'">Select</td><td>Title</td><td>Description</td></thead></table>');
 	$content_wrapper.append($table);
-
-	listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single);	
+	
+	// Invoke a radio button if appropriate
+	if (default_type) {
+		$filters.find('input[value="'+default_type+'"]').attr('checked',true);
+		if (only_default_type) $filters.find(':not(input[value="'+default_type+'"])').attr('disabled',true);
+		load_content(default_type, $div, $list, _insert_func, default_type, only_default_type, select_single);
+	}	
+	
 
 }
 
@@ -434,41 +389,12 @@ function listeditor_position($content_wrapper, $div) {
 function listeditor_filter_reset($div) {
 	
 	var $filters = $div.find('.filters');	
-	$filters.find('.loading_not_complete').show();
-	$filters.find('.loading_complete').hide();
-	$('#listeditor_editbox table').find('tr:not(:first)').remove();
-	$('#fetch_all_content').removeAttr('disabled');
+	$filters.find('input').attr("checked", false);
 	scalarapi.model.removeNodes();
-	
-	key = 0;
-	content_array_pages_loaded_key = 1;
-	content_array_pages = false; 
-	content_array_complete = false; 	
-	content_array_complete_types = []; 
 	
 }
 
-function listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single) {
-
-	var $filters = $div.find('.filters');	
-	
-	$filters.find('.loading_complete').each(function() {
-		var $this = $(this);
-		var className = $this.attr('class').replace('loading_complete ','');
-		if (content_array_complete_types.indexOf(className)!=-1) {
-			$filters.show();
-			$this.fadeIn('fast');
-		}
-	});
-	
-	if (content_array_complete) {
-		$filters.find('.loading_not_complete').hide();
-	}
-
-	if (default_type) {
-		$filters.find('input[value="'+default_type+'"]').attr('checked',true);
-		if (only_default_type) $filters.find(':not(input[value="'+default_type+'"])').attr('disabled',true);
-	}		
+function listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single) {		
 	
 	listeditor_fill_table($div, $list, _insert_func, default_type, only_default_type, select_single);	
 
@@ -477,7 +403,7 @@ function listeditor_filter_options($div, $list, _insert_func, default_type, only
 function listeditor_fill_table($div, $list, _insert_func, default_type, only_default_type, select_single) {
 
 	var value = $div.find("input:radio[name=filter]:checked").val();
-	if (!value.length) {
+	if ('undefined'==typeof(value) || !value.length) {
 		var nodes = scalarapi.model.getNodes();
 	} else {
 		var nodes = scalarapi.model.getNodesWithProperty('scalarType', value);
