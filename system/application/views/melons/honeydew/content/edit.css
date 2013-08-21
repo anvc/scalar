@@ -94,6 +94,7 @@ label {cursor:pointer;}
 #listeditor_editbox .remove_link {float:right; font-weight:bold; font-size:18px; padding-right:10px;}
 #listeditor_editbox .input_text {width:250px;}
 #listeditor_editbox .filters {margin-top:12px;}
+#listeditor_editbox .fetch_options {font-weight:bold;}
 
 #listeditor_editbox .content_wrapper {overflow-y:auto; margin-top:10px; border: 1px solid #ccc; -webkit-overflow-scrolling: touch;}
 #listeditor_editbox .content {margin:0px 0px 0px 0px; padding:0px 0px 0px 0px; }

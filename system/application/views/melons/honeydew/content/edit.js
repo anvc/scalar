@@ -207,6 +207,20 @@ function load_content(key) {
 }
 
 /**
+ * Request specific content
+ */
+
+function search_for_content(sq) {
+		
+	scalarapi.nodeSearch(sq, function() {
+		content_array_complete_types = ['page','media','path','tag','annotation','reply']; // global	
+		content_array_complete = true; // global		
+		$('body').trigger('content_array_completed');
+	});	
+	
+}
+
+/**
  * Validate form data before sending to Scalar's save API
  */
 
@@ -275,7 +289,7 @@ function validate_form($form, ignoreViewCheck) {
 function listeditor_add($list, _insert_func, default_type, only_default_type, select_single) {
 
 	if ('undefined'==typeof(content_array_pages)) {
-		load_content();
+		//load_content();
 	}
 
 	if ('undefined'==default_type) default_type = null;
@@ -292,24 +306,46 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	$div.show();
 	// Title
 	var $title = $('<div class="select_header"><h3>Select content</h3></div>');
-	$div.append($title);
+	//$div.append($title);
 	// Search box
 	var $search = $('<form class="search"><input class="input_text"type="text" value="Search" onfocus="if ($(this).val()==\'Search\') $(this).val(\'\')" /> <a class="generic_button" href="javascript:;" onclick="$(this).parent().submit();return false;">Search</a>&nbsp; &nbsp; <span id="search_count"></span></form>');
 	$search.find('#search_count').html('Found 0');
-	$div.append($search);
+	//$div.append($search);
 	$search.submit(function() {
 		var sq = $search.find("input[type='text']:first").val().toLowerCase();
 		if (sq.length==0 || sq=='Search') return;
 		listeditor_search(sq);
 		return false;
 	}); 	
+	// Options
+	$fetch_options = $('<div class="fetch_options"><span style="color:red;">New!</span>&nbsp; Search for content: <form id="search_for_content" style="display:inline;"><input type="text" name="sq" value="" /> <input type="submit" value="Go" /></form>&nbsp; Or, load all content: <input type="button" id="fetch_all_content" value="All content" /></div>');
+	$div.append($fetch_options);
+	if ('undefined'!=typeof(content_array_pages)) $fetch_options.find('#fetch_all_content').attr("disabled", "disabled");
+	$fetch_options.find('#fetch_all_content').click(function() {
+		$(this).attr("disabled", "disabled");
+		listeditor_filter_reset($div);
+		$div.find('.filters').fadeIn('fast');
+		load_content();		
+	});
+	$fetch_options.find('#search_for_content').submit(function() {
+		var sq = $fetch_options.find('input[name="sq"]').val();
+		if (!sq.length) {
+			alert('Please enter a search term');
+			return;
+		}
+		listeditor_filter_reset($div);
+		$div.find('.filters').fadeIn('fast');
+		search_for_content(sq);
+		return false;
+	});
 	// Filters
-	var $filters = $('<div class="filters">Filter results: <span class="loading_complete page"><input type="radio" name="filter" checked="checked" value="" id="all" /> <label for="all">All</label>&nbsp; &nbsp; </span><span class="loading_complete page"><input type="radio" name="filter" value="page" id="pages" /> <label for="pages">Pages</label>&nbsp; &nbsp; </span><span class="loading_complete media"><input type="radio" name="filter" value="media" id="media" /> <label for="media">Media</label>&nbsp; &nbsp; </span><span class="loading_complete path"><input type="radio" name="filter" value="path" id="paths" /> <label for="paths">Paths</label>&nbsp; &nbsp; </span><span class="loading_complete tag"><input type="radio" name="filter" value="tag" id="tags" /> <label for="tags">Tags</label>&nbsp; &nbsp; </span><span class="loading_complete annotation"><input type="radio" name="filter" value="annotation" id="annotations" /> <label for="annotations">Annotations</label>&nbsp; &nbsp; </span><span class="loading_complete reply"><input type="radio" name="filter" value="comment" id="replies" /> <label for="replies">Comments</label></span><span class="loading_not_complete"><div id="loading_spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> Content loading</span></div>');
+	var $filters = $('<div class="filters"><span class="loading_complete page"><input type="radio" name="filter" checked="checked" value="" id="all" /> <label for="all">All</label>&nbsp; &nbsp; </span><span class="loading_complete page"><input type="radio" name="filter" value="page" id="pages" /> <label for="pages">Pages</label>&nbsp; &nbsp; </span><span class="loading_complete media"><input type="radio" name="filter" value="media" id="media" /> <label for="media">Media</label>&nbsp; &nbsp; </span><span class="loading_complete path"><input type="radio" name="filter" value="path" id="paths" /> <label for="paths">Paths</label>&nbsp; &nbsp; </span><span class="loading_complete tag"><input type="radio" name="filter" value="tag" id="tags" /> <label for="tags">Tags</label>&nbsp; &nbsp; </span><span class="loading_complete annotation"><input type="radio" name="filter" value="annotation" id="annotations" /> <label for="annotations">Annotations</label>&nbsp; &nbsp; </span><span class="loading_complete reply"><input type="radio" name="filter" value="comment" id="replies" /> <label for="replies">Comments</label></span><span class="loading_not_complete"><div id="loading_spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> Content loading</span></div>');
 	$filters.find('input').click(function() {
 		listeditor_fill_table($div, $list, _insert_func, default_type, only_default_type, select_single);
 		listeditor_filter_options($div);
 	});
 	$div.append($filters);
+	if ('undefined'==typeof(content_array_pages)) $filters.hide();
 	// Spinner
 	if (window['Spinner']) {
 		var opts = {
@@ -395,6 +431,23 @@ function listeditor_position($content_wrapper, $div) {
 	
 }
 
+function listeditor_filter_reset($div) {
+	
+	var $filters = $div.find('.filters');	
+	$filters.find('.loading_not_complete').show();
+	$filters.find('.loading_complete').hide();
+	$('#listeditor_editbox table').find('tr:not(:first)').remove();
+	$('#fetch_all_content').removeAttr('disabled');
+	scalarapi.model.removeNodes();
+	
+	key = 0;
+	content_array_pages_loaded_key = 1;
+	content_array_pages = false; 
+	content_array_complete = false; 	
+	content_array_complete_types = []; 
+	
+}
+
 function listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single) {
 
 	var $filters = $div.find('.filters');	
@@ -403,6 +456,7 @@ function listeditor_filter_options($div, $list, _insert_func, default_type, only
 		var $this = $(this);
 		var className = $this.attr('class').replace('loading_complete ','');
 		if (content_array_complete_types.indexOf(className)!=-1) {
+			$filters.show();
 			$this.fadeIn('fast');
 		}
 	});

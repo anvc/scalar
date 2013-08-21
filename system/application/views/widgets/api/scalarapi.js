@@ -2007,6 +2007,53 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 }
 
 /**
+ * Loads data for pages of the given type.
+ *
+ * @param	sq					Search string
+ * @param	successCallback		Handler to be called when the data has successfully loaded.
+ * @param	errorCallback		Handler to be called when the data failed to load.
+ * @param	references			If true, will return 'references' relationships
+ * @param	relation			If true, will return only relations of the named type
+ * @param	start				Result number to start with
+ * @param	results				Number of results to return
+ * @return						A string indicating the state of the request.
+ */
+ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results) {
+
+	var queryString = 'sq='+encodeURIComponent(sq)+'&format=json';
+
+	if (depth == undefined) depth = 0;
+	queryString += '&rec='+depth;
+	var ref;
+	if (references == undefined) {
+		ref = 0;
+	} else {
+		ref = references ? 1 : 0;
+	}
+	queryString += '&ref='+ref;
+	if (relation) {
+		queryString += '&res='+relation;
+	}
+	if (start != undefined) {
+		queryString += '&start='+start;
+	}
+	if (results != undefined) {
+		queryString += '&results='+results;
+	}
+	
+	$.ajax({
+		type:"GET",
+		url:this.model.urlPrefix+'rdf/instancesof/content?'+queryString,
+		dataType:"jsonp",
+		success:[this.parsePagesByType, successCallback],
+		error:[this.handleLoadPagesByTypeError, errorCallback]
+	});
+	this.loadPagesByTypeStatus.isLoading = true;
+	return 'loading';
+	
+}
+
+/**
  * Handles errors when loading data for pages of a given type.
  * @private
  */
@@ -2234,7 +2281,7 @@ ScalarModel.prototype.parseNodes = function(json) {
 		}
 		
 	}	
-	
+
 	return resultNodes;
 	
 }	
@@ -2365,6 +2412,15 @@ ScalarModel.prototype.addNode = function(node) {
 		}
 		
 	}
+	
+}
+
+ScalarModel.prototype.removeNodes = function() {
+	
+	this.nodes = [];							// all known nodes
+	this.nodesByURL = {};						// all known nodes, indexed by their URLs
+	this.nodesByURN = {};						// all known nodes, indexed by their URNs
+	this.relationsById = {};					// all known relations, indexed by their ids
 	
 }
 
