@@ -94,7 +94,7 @@ sup {
 #header .vrule { 
 	width: 1px; height: 3rem; margin: 0 1rem;
 }
-#header .right, .index .right, .help .right { float: right; padding: 1rem; }
+#header .right, .index .right, .help .right, .search .right { float: right; padding: 1rem; }
 #header.menu { left: 0; top: .5rem; }
 .menu {
 	position: absolute;
@@ -115,6 +115,61 @@ sup {
 	background-color: #eee;
 	color: #444;
 }
+
+.search_control {
+	display: inline;
+}
+
+.search_input {
+	width: 0;
+	overflow: hidden;
+	-webkit-appearance: none;
+    -webkit-border-radius: 0px;
+    border: none;
+    outline: none;
+    border: 1px solid;
+    border-color: #fff;
+    margin-top: -2px;
+    padding: 5px 0 5px 0;
+    font-size: 1.4rem;
+}
+
+.search_control form {
+	display: inline;
+}
+
+.search_submit {
+	display: none;
+}
+
+/*input[type="search"].search_input {
+	-webkit-appearance: none;
+	-webkit-border-radius: 0px;
+}*/
+
+/*.search_submit {
+	width: 30px;
+	height: 30px;
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	padding: 0;
+	margin: 0;
+	line-height: 30px;
+	text-align: center;
+	cursor: pointer;
+	background: #fff;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; /* IE 8 *
+    filter: alpha(opacity=0); /* IE 5-7 *
+    opacity: 0;
+    color: transparent;
+    border: none;
+    outline: none;
+	z-index: -1;
+}
+
+.search_control.search_open */
 
 /* --- PAGE --- */
 
@@ -230,7 +285,7 @@ a:hover { text-decoration: underline; }
 }
 .source_header .right { float: right; }
 .source_header hr { clear:both; border: 0; border-bottom: 1px solid #666; margin-bottom: 0; }
-.help hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
+.help hr, .search hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 .media_details .citations { margin-top: 3rem; }
 
 .media_sidebar { width: 30%; color: #b2b3b6; margin-right: 3.6rem; padding-bottom: 5rem; text-align: left; float: left; clear: both; }
@@ -542,7 +597,7 @@ a.nav_btn:hover {
 
 /* Index */
 
-.index { 
+.index, .search { 
 	position: fixed; 
 	top: 8.6rem; 
 	left: 3.6rem; 
@@ -550,10 +605,12 @@ a.nav_btn:hover {
 	bottom: 3.6rem;
 	background-color: white; 
 	padding: 3rem 4rem 3rem 4rem; 
-	z-index: 30; 
 	box-shadow: 3px 3px 8px rgba(0,0,0,.2);
 	overflow-y: auto;
 	display: none;
+}
+.search {
+	z-index: 31; 
 }
 .help { 
 	position: fixed; 
@@ -572,7 +629,7 @@ a.nav_btn:hover {
 .help ul { margin-left: 3.6rem; margin-bottom: 2rem; }
 .help p { margin-bottom: 1rem; margin-top: 1rem; }
 
-.index h2, .help h2 { display: inline-block; padding-left: 0; padding-right: 0; margin-top: 0; margin-bottom: 0; }
+.index h2, .help h2, .search h2 { display: inline-block; padding-left: 0; padding-right: 0; margin-top: 0; margin-bottom: 0; }
 
 .pagination {
 	line-height: 4.8rem;

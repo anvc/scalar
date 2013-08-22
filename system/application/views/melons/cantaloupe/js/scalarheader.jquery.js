@@ -36,7 +36,8 @@
 	}
 	
 	ScalarHeader.prototype.index = null;		// Scalar index plugin
-	ScalarHeader.prototype.help = null;		// Scalar help plugin
+	ScalarHeader.prototype.help = null;			// Scalar help plugin
+	ScalarHeader.prototype.search = null;		// Scalar search plugin
 	
 	/**
 	 * DOM setup for the header.
@@ -87,7 +88,28 @@
 		var buttons = $('<div class="right"></div>').appendTo(this.element);
 		
 		// various feature buttons
-		//addIconBtn(buttons, 'search_icon.png', 'search_icon_hover.png', 'Search');
+		var searchControl = $('<div class="search_control"></div>').appendTo(buttons);
+		addIconBtn(searchControl, 'search_icon.png', 'search_icon_hover.png', 'Search');
+		searchControl.append('<form><input class="search_input caption_font" placeholder="Search this book…" type="search" value="" name="search" id="search"/><input class="search_submit" type="submit" value=""></form>');
+		$('.search_input').keydown(function(e) {
+			if (e.keyCode == 13) {
+				me.search.data('plugin_scalarsearch').doSearch(this.value);
+				console.log(e.keyCode);
+				e.preventDefault();
+				return false;
+			}
+		});
+		var searchElement = $('<div></div>').appendTo('body');
+		this.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
+		searchControl.find('img').click(function() {
+			if (parseInt($('.search_input').width()) == 0) {
+				$('.search_input').animate({'width': '150%', 'borderColor': '#ddd'}, 250).focus();
+			} else {
+				$('.search_input').animate({'width': '0', 'borderColor': '#fff'}, 250).blur();
+			}
+		});
+		
+		
 		addIconBtn(buttons, 'visualization_icon.png', 'visualization_icon_hover.png', 'Visualizations');
 		//addIconBtn(buttons, 'api_icon.png', 'api_icon_hover.png', 'Data');
 		addIconBtn(buttons, 'help_icon.png', 'help_icon_hover.png', 'Help');
@@ -102,7 +124,7 @@
 		var helpElement = $('<div></div>').appendTo('body');
 		this.help = helpElement.scalarhelp( { root_url: modules_uri+'/cantaloupe'} );
 		$('[title="Help"]').click(function() {
-			me.help.data('plugin_scalarhelp').showHelp();
+			me.help.data('plugin_scalarhelp').toggleHelp();
 		});
 		
 		// editing buttons

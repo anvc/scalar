@@ -77,6 +77,14 @@
 	ScalarHelp.prototype.hideHelp = function() {
 		this.element.hide();
 	}
+	
+	ScalarHelp.prototype.toggleHelp = function() {
+		if (this.element.css('display') != 'none') {
+			this.hideHelp();
+		} else {
+			this.showHelp();
+		}
+	}
 			
     $.fn[pluginName] = function ( options ) {
         return this.each(function () {
