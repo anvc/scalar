@@ -94,7 +94,6 @@
 		$('.search_input').keydown(function(e) {
 			if (e.keyCode == 13) {
 				me.search.data('plugin_scalarsearch').doSearch(this.value);
-				console.log(e.keyCode);
 				e.preventDefault();
 				return false;
 			}
@@ -133,9 +132,9 @@
 			addIconBtn(buttons, 'new_icon.png', 'new_icon_hover.png', 'New', scalarapi.model.urlPrefix+'new.edit?'+template_getvar+'=honeydew');
 			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
 			
-			/*if (currentNode.getDominantScalarType().id == 'media') {
-				addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate', scalarapi.basepath(window.location.href)+'.annotation_editor?'+template_getvar+'=honeydew');
-			}*/
+			if (currentNode.hasScalarType('media')) {
+				addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate', scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.annotation_editor?'+template_getvar+'=honeydew');
+			}
 			//addIconBtn(buttons, 'delete_icon.png', 'delete_icon_hover.png', 'Delete');
 			addIconBtn(buttons, 'options_icon.png', 'options_icon_hover.png', 'Options', system_uri+'/dashboard?book_id='+bookId+'&zone=style#tabs-style');
 		}
