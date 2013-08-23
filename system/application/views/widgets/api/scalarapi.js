@@ -1729,7 +1729,7 @@ ScalarAPI.prototype.parsePage = function(json) {
 	
 	var nodes = scalarapi.model.parseNodes(json);
 	scalarapi.model.parseRelations(json);
-	
+
 	var i, n, node;
 	for (var j in nodes) {
 		node = nodes[j];
@@ -2097,6 +2097,7 @@ function ScalarModel(options) {
 	var me = this;
 
 	this.urlPrefix;								// home page of the book
+	this.parent_uri = options['parent_uri'];	// parent uri of the book
 	this.logged_in = options['logged_in'];		// is the user currently logged in
 	this.user_level = options['user_level'];	// level of the current user
 	this.nodes = [];							// all known nodes
@@ -2782,7 +2783,6 @@ ScalarNode.prototype.addRelation = function(relation) {
 		
 		// don't add duplicates; replace instead
 		if (this.outgoingRelations.indexOf(relation) == -1) {
-		
 			n = this.outgoingRelations.length;
 			for (i=0; i<n; i++) {
 				if (this.outgoingRelations[i].id == relation.id) {
@@ -3060,6 +3060,13 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 			if (parseInt(a.index) > parseInt(b.index)) return 1;
 		})
 		break;
+		
+		case 'reverseindex':
+		results.sort(function(a,b) {
+			if (parseInt(a.index) > parseInt(b.index)) return -1;
+			if (parseInt(a.index) < parseInt(b.index)) return 1;
+		})
+		break;
 	
 	}	
 	
@@ -3211,7 +3218,7 @@ function ScalarRelation(json, body, target, type) {
 	// parse OA-formatted JSON to create the relation
 	if (json) {
 
-		this.id = json['http://www.openannotation.org/ns/hasBody'][0].value+json['http://www.openannotation.org/ns/hasTarget'][0].value;
+		this.id = scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasBody'][0].value)+scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value);
 		this.body = scalarapi.model.nodesByURL[scalarapi.stripVersion(json['http://www.openannotation.org/ns/hasBody'][0].value)];
 		this.target = scalarapi.model.nodesByURL[scalarapi.stripVersion(scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value))];
 		
@@ -3290,9 +3297,7 @@ function ScalarRelation(json, body, target, type) {
 					case 'datetime':
 					if (!this.type) this.type = scalarapi.model.relationTypes.comment;
 					this.properties.datetime = anchorVars[prop];
-					var temp = this.properties.datetime.split('T');
-					var temp2 = temp[0].split('-');			
-					var date = new Date(Number(temp2[0]), Number(temp2[1]) - 1, Number(temp2[2]));
+					var date = new Date(this.properties.datetime);
 					this.startString = date.toDateString();
 					this.endString = '';
 					this.separator = '';
