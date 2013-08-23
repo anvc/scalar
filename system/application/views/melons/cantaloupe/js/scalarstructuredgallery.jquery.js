@@ -45,25 +45,52 @@
 		var mediaCollection;
 		var childPaths;
 		var childTags;
-		var relationships = ['path', 'tag', 'referee'];
-		var mediaDetails;
+		var mediaDetails, children;
+		var relationships = ['path', 'tag', 'referee'],
+			childRelationships = ['path', 'tag'],
+			childLoadIndex = -1;
 			
 		var gallery = {
 			options: $.extend({
 			}, options),
 			
+			addNodeToCollection: function( collection, parentNode, relationship, node ) {
+				if (collection.all.indexOf(node) == -1) {
+					collection.all.push(node);
+				}
+				if ( collection[parentNode.slug+'-'+relationship] == undefined ) {
+					collection[parentNode.slug+'-'+relationship] = [node];
+				} else {
+					collection[parentNode.slug+'-'+relationship].push(node);
+				}
+			},
+			
 			gatherChildMedia: function(node, maxDepth, currentDepth, collection) {
+			
 				if (currentDepth == undefined) currentDepth = 0;
-				if (collection == undefined) collection = [];
-				var i,j,childNodes,childNode,relationship;
-				for (j in relationships) {
-					relationship = relationships[j];
+				if (collection == undefined) collection = { all: [] };
+				
+				var i,j,k,childNodes,childNode,relationship,refereeNodes,refereeNode;
+				
+				for (i in childRelationships) {
+				
+					relationship = childRelationships[i];
 					childNodes = node.getRelatedNodes(relationship, 'outgoing');
-					//console.log('checking '+relationship+' relationship');
-					for (i in childNodes) {
-						childNode = childNodes[i];
-						if ((childNode.hasScalarType('media')) && (collection.indexOf(childNode) == -1)) {
-							collection.push(childNode);
+					
+					for (j in childNodes) {
+						childNode = childNodes[j];
+						if (childNode.hasScalarType('media')) {
+							gallery.addNodeToCollection( collection, node, relationship, childNode );
+							
+						} else {
+							refereeNodes = childNode.getRelatedNodes('referee', 'outgoing');
+							
+							for (k in refereeNodes) {
+								refereeNode = refereeNodes[k];
+								if (refereeNode.hasScalarType('media')) {
+									gallery.addNodeToCollection( collection, node, relationship, refereeNode );
+								}
+							}
 						}
 						if (currentDepth < maxDepth) {
 							gallery.gatherChildMedia(childNode, maxDepth, currentDepth+1, collection);
@@ -71,6 +98,22 @@
 					}
 				}
 				return collection;
+			},
+			
+			loadNextChild: function() {
+				childLoadIndex++;
+				if ( childLoadIndex < ( children.length - 1 )) {
+					scalarapi.loadPage(children[childLoadIndex].slug, true, function() {
+						childPaths = gallery.getChildrenOfType(currentNode, 'path');
+						childTags = gallery.getChildrenOfType(currentNode, 'tag');
+						mediaCollection = gallery.gatherChildMedia(currentNode, 2);
+						gallery.sortCollection(mediaCollection, SortMethod.Alpha);
+						gallery.update(mediaCollection);
+						gallery.loadNextChild();
+					}, function() {
+						console.log('an error occurred while retrieving structured gallery info.');
+					}, 1, true);
+				}
 			},
 			
 			getChildrenOfType: function(node, type) {
@@ -81,13 +124,19 @@
 					childNodes = node.getRelatedNodes(relationship, 'outgoing');
 					for (i in childNodes) {
 						childNode = childNodes[i];
-						if (childNode.hasScalarType(type) && (children.indexOf(childNode) == -1)) children.push(childNode);
+						if ( type == 'all' ) {
+							if ( children.indexOf( childNode ) == -1 ) {
+								children.push(childNode);
+							}
+						} else if (childNode.hasScalarType(type) && (children.indexOf(childNode) == -1)) {
+							children.push(childNode);
+						}
 					}
 				}	
 				return children;		
 			},
 			
-			build: function(collection) {
+			/*build: function(collection) {
 			
 				var i,node,alttext,thumbnail;
 				for (i in mediaCollection) {
@@ -117,9 +166,91 @@
 				
 				gallery.resizeThumbnails();
 			
+			},*/
+			
+			addThumbnailForNode: function(element, node) {
+			
+				var alttext, thumbnail,
+					me = this;
+					
+				if (node.current.description != undefined) {
+					alttext = node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+				} else {
+					alttext = '';
+				}		
+					
+				if (node.thumbnail != undefined) {
+					thumbnail = $('<img id="img-'+node.slug+'" class="thumbnail" src="'+node.thumbnail+'" alt="'+alttext+'"/>').appendTo(element);
+				} else {
+					thumbnail = $('<img id="img-'+node.slug+'" class="thumbnail" src="'+modules_uri+'/cantaloupe/images/media_icon_chip.png" alt="'+alttext+'"/>').appendTo(element);
+				}
+				thumbnail.data('node', node);
+				
+				thumbnail.click(function() {
+					if (me.currentDisplayMode != DisplayMode.All) {
+						var source = $(this).prevAll('.child_header').eq(0);
+						me.mediaDetails.show($(this).data('node'), source.data('node'), source.nextUntil('.child_header', 'img'));
+					} else {
+						me.mediaDetails.show($(this).data('node'));
+					}
+				});
 			},
 			
 			update: function(collection) {
+				
+				mediaContainer.empty();
+				
+				var i,j,k,n,path,header,node,childNodes,childNode,grandchildNodes,grandchildNode,thumbnail;
+				switch (this.currentDisplayMode) {
+				
+					case DisplayMode.All:
+					for (i in collection.all) {
+						node = collection.all[i];
+						if (node.hasScalarType('media')) {
+							gallery.addThumbnailForNode(mediaContainer, node);
+						}
+					}
+					break;
+					
+					case DisplayMode.Path:
+					case DisplayMode.Tag:
+					
+					var sourceNodes,sourceNode,relationship;
+					if (this.currentDisplayMode == DisplayMode.Path) {
+						sourceNodes = childPaths;
+						relationship = 'path';
+					} else {
+						sourceNodes = childTags;
+						relationship = 'tag';
+					}
+					
+					var visibleMediaCount = 0;;
+					for (i in sourceNodes) {
+						node = sourceNodes[i];
+						header = $('<div id="path_'+node.slug+'" class="child_header"></div>').appendTo(mediaContainer);
+						header.data('node', node);
+						header.append('<h3 class="heading_font"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
+						if (node.current.description != null) {
+							header.append(' <div class="one_line_description">'+node.current.description+' <a href="'+addTemplateToURL(node.url, 'cantaloupe')+'"><img src="'+modules_uri+'/cantaloupe/images/permalink_icon.png" alt="permalink_icon" width="16" height="16" /></a></div>');
+						}
+						//childNodes = node.getRelatedNodes(relationship, 'outgoing');
+						childNodes = collection[node.slug+'-'+relationship];
+						for (j in childNodes) {
+							childNode = childNodes[j];
+							gallery.addThumbnailForNode(mediaContainer, childNode);
+							visibleMediaCount++;
+						}
+					}
+					mediaContainer.append('<div class="minor_message caption_font">'+(mediaCollection.all.length - visibleMediaCount)+' media files not shown because they are not referenced by any '+relationship+'s.</div>');
+					break;
+				
+				}
+				
+				gallery.resizeThumbnails();
+			
+			},
+			
+			/*update: function(collection) {
 			
 				$('.child_header').remove();
 				$('.minor_message').remove();
@@ -184,7 +315,7 @@
 				
 				}
 			
-			},
+			},*/
 			
 			resizeThumbnails: function(isAnimated) {
 				if (!isAnimated) {
@@ -199,8 +330,8 @@
 			
 				switch (method) {
 				
-					case 'alpha':
-					collection.sort(function(a, b) {
+					case SortMethod.Alpha:
+					collection.all.sort(function(a, b) {
 						var sortTitleA = a.getSortTitle();
 						var sortTitleB = b.getSortTitle();
 						if (sortTitleA > sortTitleB) {
@@ -210,6 +341,7 @@
 						}
 						return 0;
 					});
+					console.log(collection.all);
 					break;
 				
 				}
@@ -232,7 +364,7 @@
 					this.currentDisplayMode = mode;
 					controlBar.find('.toggle_btn').removeClass('on');
 					$('#'+mode.toLowerCase()+'Btn').addClass('on');
-					gallery.update();
+					gallery.update(mediaCollection);
 				}
 			
 			}
@@ -263,12 +395,14 @@
 		scalarapi.loadPage(currentNode.slug, true, function() {
 			childPaths = gallery.getChildrenOfType(currentNode, 'path');
 			childTags = gallery.getChildrenOfType(currentNode, 'tag');
+			children = gallery.getChildrenOfType(currentNode, 'all');
 			mediaCollection = gallery.gatherChildMedia(currentNode, 2);
 			gallery.sortCollection(mediaCollection, SortMethod.Alpha);
-			gallery.build(mediaCollection);
+			gallery.update(mediaCollection);
+			gallery.loadNextChild();
 		}, function() {
 			console.log('an error occurred while retrieving structured gallery info.');
-		}, 3, true);
+		}, 1, true);
 	
 	}
 
