@@ -341,7 +341,6 @@
 						}
 						return 0;
 					});
-					console.log(collection.all);
 					break;
 				
 				}
