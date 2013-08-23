@@ -25,7 +25,7 @@
 		};
 	
 	/**
-	 * Manages the index dialog.
+	 * Manages the search results dialog.
 	 */
 	function ScalarSearch( element, options ) {
 	
@@ -38,22 +38,24 @@
 		
 	}
 	
+	ScalarSearch.prototype.bodyContent = null;			// body content container
 	ScalarSearch.prototype.resultsTable = null;			// Table for the results
 	
 	ScalarSearch.prototype.init = function () {
 	
 		var me = this;
 	
-		this.element.addClass('search');
+		this.element.addClass('dialog search');
 		
-		var header = $('<div class="heading_font"></div>').appendTo(this.element);
+		var header = $('<div class="dialog_header heading_font"></div>').appendTo(this.element);
 		header.append('<h2 class="heading_font">Search results</h2>');
 		var buttons = $('<div class="right"></div>').appendTo(header);
 		addIconBtn(buttons, 'close_icon.png', 'close_icon_hover.png', 'Close');
 		buttons.find('[title="Close"]').click( function() { me.hideSearch(); } );
-		header.append('<hr><br>');
+		header.append('<hr>');
 		
-		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.element );
+		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
+		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
 		this.resultsTable = $( '<table></table>' ).appendTo( resultsDiv );
 		
 	}
@@ -89,7 +91,6 @@
 		
 		for ( i in nodes ) {
 			node = nodes[i];
-			console.log(node);
 			if (node.current != null) {
 				description = node.current.description;
 			}

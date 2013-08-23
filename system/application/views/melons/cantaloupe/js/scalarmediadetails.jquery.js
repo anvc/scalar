@@ -71,13 +71,13 @@
 					});
 				}
 				
-				var slideshowHeader = $('<div class="source_header heading_font"></div>').prependTo(mediaDetails.contentElement);
+				var slideshowHeader = $('<div class="dialog_header heading_font"></div>').prependTo(mediaDetails.contentElement);
 				if (source != undefined) {
 					slideshowHeader.html('Media from the '+source.getDominantScalarType().singular+' <a href="'+source.url+'">&ldquo;'+source.getDisplayTitle()+'&rdquo;</a>:');
 				} else {
 					slideshowHeader.html('Media file');
 				}
-				//mediaDetails.contentElement.prepend('<div class="source_header heading_font">From &ldquo;'+source.getDisplayTitle()+'&rdquo;:</div>');
+				//mediaDetails.contentElement.prepend('<div class="dialog_header heading_font">From &ldquo;'+source.getDisplayTitle()+'&rdquo;:</div>');
 				var buttons = $('<div class="right"></div>').appendTo(slideshowHeader);
 				slideshowHeader.append('<hr>');
 				addIconBtn(buttons, 'close_icon_dark.png', 'close_icon_dark_hover.png', 'Close');

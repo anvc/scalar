@@ -47,6 +47,7 @@
 		
 	}
 	
+	ScalarIndex.prototype.bodyContent = null;			// body content container
 	ScalarIndex.prototype.currentMode = null;			// Current display mode
 	ScalarIndex.prototype.currentPage = null;			// Current page of results being displayed
 	ScalarIndex.prototype.resultsTable = null;			// Table for the results
@@ -63,14 +64,15 @@
 		this.resultsPerPage = 10;
 		this.firstRun = true;
 	
-		this.element.addClass('index');
+		this.element.addClass('dialog index');
 		
-		this.element.append('<h2 class="heading_font">Index</h2>');
-		var buttons = $('<div class="right"></div>').appendTo(this.element);
+		var header = $('<div class="dialog_header heading_font"></div>').appendTo(this.element);
+		header.append('<h2 class="heading_font">Index</h2>');
+		var buttons = $('<div class="right"></div>').appendTo(header);
 		addIconBtn(buttons, 'close_icon.png', 'close_icon_hover.png', 'Close');
 		buttons.find('[title="Close"]').click( function() { me.hideIndex(); } );
 		
-		this.controlBar = $('<div class="control_bar"></div>').appendTo(this.element);
+		this.controlBar = $('<div class="control_bar"></div>').appendTo(header);
 		var pathBtn = $('<span id="pathBtn" class="toggle_btn on caption_font">Paths</span>').appendTo(this.controlBar);
 		var pageBtn = $('<span id="pageBtn" class="toggle_btn caption_font">Pages</span>').appendTo(this.controlBar);
 		var mediaBtn = $('<span id="mediaBtn" class="toggle_btn caption_font">Media</span>').appendTo(this.controlBar);
@@ -85,10 +87,11 @@
 		annotationBtn.click(function () { me.setDisplayMode( me.DisplayMode.Annotation ); });
 		commentBtn.click(function () { me.setDisplayMode( me.DisplayMode.Comment ); });
 		
-		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.element );
+		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
+		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
 		this.resultsTable = $( '<table></table>' ).appendTo( resultsDiv );
 		
-		this.pagination = $( '<div class="pagination caption_font">Page '+this.currentPage+'</div>' ).appendTo( this.element );
+		this.pagination = $( '<div class="pagination caption_font">Page '+this.currentPage+'</div>' ).appendTo( this.bodyContent );
 		
 	}
 	

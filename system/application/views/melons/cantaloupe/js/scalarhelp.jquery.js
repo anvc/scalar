@@ -37,21 +37,21 @@
 		this.init();
 		
 	}
-	
+		
 	ScalarHelp.prototype.init = function () {
 	
 		var me = this;
 	
-		this.element.addClass('help');
+		this.element.addClass('dialog help');
 		
-		var header = $('<div class="heading_font"></div>').appendTo(this.element);
+		var header = $('<div class="dialog_header heading_font"></div>').appendTo(this.element);
 		header.append('<h2 class="heading_font">Help</h2>');
 		var buttons = $('<div class="right"></div>').appendTo(header);
 		addIconBtn(buttons, 'close_icon.png', 'close_icon_hover.png', 'Close');
 		buttons.find('[title="Close"]').click( function() { me.hideHelp(); } );
-		header.append('<hr><br>');
+		header.append('<hr>');
 		
-		var content = $('<div</div>').appendTo(this.element);
+		var content = $('<div class="body_copy"></div>').appendTo(this.element);
 		content.append('<p>This Scalar book is being presented using an experimental new interface designed to streamline and enhance the reading experience. It\'s a work in progress, but here are some tips for getting around.</p>');
 		content.append('<p>The header bar at the top of the screen gives you access to utilities for navigating and (if you have editing privileges) editing. If the header bar is currently hidden, scroll upwards to make it appear.</p>');
 
