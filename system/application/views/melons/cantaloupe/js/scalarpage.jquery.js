@@ -41,6 +41,7 @@
 		*/
 	
 		var element = e;
+		var commentDialog;
 		
 		var page = {
 		
@@ -225,6 +226,11 @@
 			addComments: function() {
 				var comments = currentNode.getRelatedNodes('comment', 'incoming');
 				$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
+				var commentDialogElement = $('<div></div>').appendTo('body');
+				commentDialog = commentDialogElement.scalarcomments( { root_url: modules_uri+'/cantaloupe'} );
+				$('.reply_link').click(function() {
+					commentDialog.data('plugin_scalarcomments').showComments();
+				});
 			},
 			
 			setupScreenedBackground: function() {
