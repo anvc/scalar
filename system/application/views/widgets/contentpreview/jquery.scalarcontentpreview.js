@@ -20,7 +20,7 @@
 /**
  * @projectDescription  Advanced tooltip for links in a Scalar page, with methods to grab the title and desc of pages being linked to
  * @author              Craig Dietrich
- * @version             2.0
+ * @version             2.1
  */
 
 (function($) {
@@ -35,6 +35,7 @@
 				var $link = $(this);
 				if (!$link.is('a, span')) return;
 				if ($link.hasClass('nopreview')) return;
+				if ($link.closest('.inline_slot').length) return;
 				var is_note = (($link.hasClass('note')) ? true : false);
 	
 				// Box properties
