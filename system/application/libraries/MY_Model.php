@@ -226,7 +226,7 @@ abstract class MY_Model extends Model {
 	 * @return $return
 	 */
 
-	public function rdf($row) {
+	public function rdf($row, $base_uri='') {
 
 		$return = array();
 		foreach ($row as $field => $values) { 
@@ -247,6 +247,10 @@ abstract class MY_Model extends Model {
 				}
 			}
 		} 
+		// Creator
+		if (!empty($base_uri) && isset($row->user)) {
+			$return['foaf:homepage'][0] = $this->rdf_value(confirm_slash($base_uri).'users/'.$row->user);
+		}
 		return $return;
 		
 	}
