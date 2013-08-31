@@ -141,8 +141,16 @@ foreach ($models as $rel):
 						if ($key===$inward_item->versions[0]->prev_index) $family_rel = 'prev-page';
 						if ($key===$inward_item->versions[0]->next_index) $family_rel = 'next-page';
 						//$page->versions[$page->version_index]->sort_number =@ (int) $inward_item->versions[$inward_item->version_index]->page_index;
-						if ('paths'==$rel) $outward_item->versions[0]->sort_number = ($key+1);;
-						if ('replies'==$rel) $outward_item->versions[0]->datetime =@ $outward_item->versions[$outward_item->version_index]->created;
+						if ('paths'==$rel) {
+							$outward_item->versions[0]->sort_number = ($key+1);
+						} else {
+							$outward_item->versions[0]->sort_number = null;
+						}
+						if ('replies'==$rel) {
+							$outward_item->versions[0]->datetime =@ $outward_item->versions[$outward_item->version_index]->created;
+						} else {
+							$outward_item->versions[0]->datetime = null;
+						}
 ?>
 						<li class="<?=$family_rel?>" resource="urn:scalar:<?=singular($rel)?>:<?=$outward_item->versions[$outward_item->version_index]->version_id?>:<?=$inward_item->versions[$inward_item->version_index]->version_id?>" typeof="oac:Annotation">
 							<a rel="oac:hasBody" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
