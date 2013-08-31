@@ -116,7 +116,7 @@ $config['ontologies']['dcterms'] = array(
 			'type', 
 			'valid'
 );	
-$config['ontologies']['artstor'] = array(
+$config['ontologies']['art'] = array(
 			'authority', 
 			'geographic', 
 			'hasMediaFile', 

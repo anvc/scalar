@@ -152,7 +152,7 @@ $(window).ready(function() {
 			echo '</td>'."\n";
 			echo '<td>';
 			echo '<p>';
-			echo '<input type="hidden" name="template" value="honeydew" />';
+			//echo '<input type="hidden" name="template" value="honeydew" />';
 			/*
 			echo 'Template: <select name="template" id="select_template">';
 			foreach ($this->template->config['selectable_templates'] as $template):

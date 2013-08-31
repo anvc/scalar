@@ -189,7 +189,7 @@ class RDF_Object {
 			foreach ($row->versions as $version) {
 				$row->has_version[] = $base_uri.$row->slug.'.'.$version->version_num;
 			}		
-			$return[$base_uri.$row->slug] = $CI->pages->rdf($row);
+			$return[$base_uri.$row->slug] = $CI->pages->rdf($row, $base_uri);
 			foreach ($row->versions as $version) {	
 				$return[$base_uri.$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version);
 			}
@@ -336,7 +336,7 @@ class RDF_Object {
 		unset($versions);
 			
 		// Write page RDF before version RDF so they show up in the correct human-readable order
-		$return[$base_uri.$content->slug] = $CI->pages->rdf($content);
+		$return[$base_uri.$content->slug] = $CI->pages->rdf($content, $base_uri);
 		foreach ($this->version_cache[$content->content_id] as $version) {
 			$return[$base_uri.$content->slug.'.'.$version->version_num] = $CI->versions->rdf($version);
 		}								
