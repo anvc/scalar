@@ -788,6 +788,15 @@ ScalarAPI.prototype.getAnchorSegment = function(uri) {
 	return '';
 }
 
+ScalarAPI.prototype.getQuerySegment = function(uri) {
+	var temp = uri.split('?');
+	if (temp.length > 1) {
+		temp = temp[ temp.length - 1 ].split( '#' );
+		return temp[ 0 ];
+	}
+	return '';
+}
+
 /**
  * Returns an object the properties of which match 
  * the variables specified in the anchor portion of the given uri.
@@ -806,6 +815,30 @@ ScalarAPI.prototype.getAnchorVars = function(uri) {
 	
 		obj = {};
 		varChunks = anchorSeg.split('&');
+		
+		var i;
+		var n = varChunks.length;
+		for (i=0; i<n; i++) {
+			propChunks = varChunks[i].split('=');
+			obj[propChunks[0]] = propChunks[1];
+		}
+	}
+
+	return obj;
+}
+
+ScalarAPI.prototype.getQueryVars = function(uri) {
+
+	var obj = {};
+	var varChunks;
+	var propChunks;
+	
+	var querySeg = scalarapi.getQuerySegment(uri);
+	
+	if (querySeg != '') {
+	
+		obj = {};
+		varChunks = querySeg.split('&');
 		
 		var i;
 		var n = varChunks.length;
@@ -2144,6 +2177,71 @@ function ScalarModel(options) {
 		{property:'continueTo', uri:'http://scalar.usc.edu/2012/01/scalar-ns#continue_to_content_id', type:'int'}
 	];
 	
+	this.auxPropertyMap = [
+		{property:'abstract', uri:'http://purl.org/dc/terms/abstract', type:'string'},
+		{property:'accessRights', uri:'http://purl.org/dc/terms/accessRights', type:'string'},
+		{property:'accrualMethod', uri:'http://purl.org/dc/terms/accrualMethod', type:'string'},
+		{property:'accrualPeriodicity', uri:'http://purl.org/dc/terms/accrualPeriodicity', type:'string'},
+		{property:'accrualPolicy', uri:'http://purl.org/dc/terms/accrualPolicy', type:'string'},
+		{property:'alternative', uri:'http://purl.org/dc/terms/alternative', type:'string'},
+		{property:'audience', uri:'http://purl.org/dc/terms/audience', type:'string'},
+		{property:'authority', uri:'artstor:authority', type:'string'},
+		{property:'available', uri:'http://purl.org/dc/terms/available', type:'string'},
+		{property:'bibliographicCitation', uri:'http://purl.org/dc/terms/bibliographicCitation', type:'string'},
+		{property:'conformsTo', uri:'http://purl.org/dc/terms/conformsTo', type:'string'},
+		{property:'contributor', uri:'http://purl.org/dc/terms/contributor', type:'string'},
+		{property:'coverage', uri:'http://purl.org/dc/terms/coverage', type:'string'},
+		{property:'date', uri:'http://purl.org/dc/terms/date', type:'string'},
+		{property:'dateAccepted', uri:'http://purl.org/dc/terms/dateAccepted', type:'string'},
+		{property:'dateCopyrighted', uri:'http://purl.org/dc/terms/dateCopyrighted', type:'string'},
+		{property:'dateSubmitted', uri:'http://purl.org/dc/terms/dateSubmitted', type:'string'},
+		{property:'educationLevel', uri:'http://purl.org/dc/terms/educationLevel', type:'string'},
+		{property:'extent', uri:'http://purl.org/dc/terms/extent', type:'string'},
+		{property:'format', uri:'http://purl.org/dc/terms/format', type:'string'},
+		{property:'geographic', uri:'artstor:geographic', type:'string'},
+		{property:'hasFormat', uri:'http://purl.org/dc/terms/hasFormat', type:'string'},
+		{property:'hasMediaFile', uri:'artstor:hasMediaFile', type:'string'},
+		{property:'height', uri:'artstor:height', type:'string'},
+		{property:'identifier', uri:'http://purl.org/dc/terms/identifier', type:'string'},
+		{property:'imageId', uri:'artstor:imageId', type:'string'},
+		{property:'imageSource', uri:'artstor:imageSource', type:'string'},
+		{property:'inCollection', uri:'artstor:inCollection', type:'string'},
+		{property:'instructionalMethod', uri:'http://purl.org/dc/terms/instructionalMethod', type:'string'},
+		{property:'isFormatOf', uri:'http://purl.org/dc/terms/isFormatOf', type:'string'},
+		{property:'isRequiredBy', uri:'http://purl.org/dc/terms/isRequiredBy', type:'string'},
+		{property:'issued', uri:'http://purl.org/dc/terms/issued', type:'string'},
+		{property:'language', uri:'http://purl.org/dc/terms/language', type:'string'},
+		{property:'license', uri:'http://purl.org/dc/terms/license', type:'string'},
+		{property:'lps', uri:'artstor:lps', type:'string'},
+		{property:'lpsid', uri:'artstor:lpsid', type:'string'},
+		{property:'mediafileFormat', uri:'artstor:mediafileFormat', type:'string'},
+		{property:'mediator', uri:'http://purl.org/dc/terms/mediator', type:'string'},
+		{property:'medium', uri:'http://purl.org/dc/terms/medium', type:'string'},
+		{property:'metadataCreationDate', uri:'artstor:metadataCreationDate', type:'string'},
+		{property:'metadataUpdateDate', uri:'artstor:metadataUpdateDate', type:'string'},
+		{property:'modified', uri:'http://purl.org/dc/terms/modified', type:'string'},
+		{property:'nationality', uri:'artstor:nationality', type:'string'},
+		{property:'objectId', uri:'artstor:objectId', type:'string'},
+		{property:'provenance', uri:'http://purl.org/dc/terms/provenance', type:'string'},
+		{property:'publisher', uri:'http://purl.org/dc/terms/publisher', type:'string'},
+		{property:'relation', uri:'http://purl.org/dc/terms/relation', type:'string'},
+		{property:'requires', uri:'http://purl.org/dc/terms/requires', type:'string'},
+		{property:'resolution', uri:'artstor:resolution', type:'string'},
+		{property:'rights', uri:'http://purl.org/dc/terms/rights', type:'string'},
+		{property:'rightsHolder', uri:'http://purl.org/dc/terms/rightsHolder', type:'string'},
+		{property:'serverurl', uri:'artstor:serverurl', type:'string'},
+		{property:'source', uri:'http://purl.org/dc/terms/source', type:'string'},
+		{property:'sourceLocation', uri:'artstor:sourceLocation', type:'string'},
+		{property:'spatial', uri:'http://purl.org/dc/terms/spatial', type:'string'},
+		{property:'subject', uri:'http://purl.org/dc/terms/subject', type:'string'},
+		{property:'temporal', uri:'http://purl.org/dc/terms/temporal', type:'string'},
+		{property:'topic', uri:'artstor:topic', type:'string'},
+		{property:'type', uri:'http://purl.org/dc/terms/type', type:'string'},
+		{property:'vitalDates', uri:'artstor:vitalDates', type:'string'},
+		{property:'valid', uri:'http://purl.org/dc/terms/valid', type:'string'},
+		{property:'width', uri:'artstor:width', type:'string'}
+	];
+	
 	// metadata about each relation type
 	this.relationTypes = {
 		'tag':{id:'tag', body:'tag', bodyPlural:'tags', target:'item', targetPlural:'items', incoming:'has', outgoing:'tags'},
@@ -2215,6 +2313,7 @@ ScalarModel.prototype.relationsById = null;
 ScalarModel.prototype.crossDomain = null;
 ScalarModel.prototype.nodePropertyMap = null;
 ScalarModel.prototype.versionPropertyMap = null;
+ScalarModel.prototype.auxPropertyMap = null;
 ScalarModel.prototype.currentPageNode = null;
 ScalarModel.prototype.bookNode = null;
 ScalarModel.prototype.scalarTypes = null;
@@ -2614,10 +2713,9 @@ ScalarNode.prototype.properties = null;
 ScalarNode.prototype.parseData = function(json, versionData) {
 	
 	// collect various pre-approved properties
-	var i;
-	var n = scalarapi.model.nodePropertyMap.length;
-	var propertyData;
-	for (i=0; i<n; i++) {
+	var i, propertyData,
+		n = scalarapi.model.nodePropertyMap.length;
+	for ( i = 0; i < n; i++ ) {
 		propertyData = scalarapi.model.nodePropertyMap[i];
 		if (json[propertyData.uri]) {
 			if (propertyData.type == 'int') {
@@ -2633,19 +2731,6 @@ ScalarNode.prototype.parseData = function(json, versionData) {
 	var prop;
 	for (prop in json) {
 		this.properties[prop] = json[prop];
-		/*
-		this was done for convenience, so properties map directly to values or arrays of values,
-		but in some cases the 'type' param is useful as well, so now we just store the raw json
-		n = json[prop].length;
-		if (n == 1) {
-			this.properties[prop] = json[prop][0].value;
-		} else {
-			this.properties[prop] = [];
-			for (i=0; i<n; i++) {
-				this.properties[prop].push(json[prop][i].value);
-			}
-		}
-		*/
 	}
 	
 	if (versionData) {
@@ -3084,6 +3169,8 @@ function ScalarVersion(data, node) {
 
 	var me = this;
 	
+	this.auxProperties = {};
+	
 	this.parseData(data, node);
 	
 }
@@ -3103,6 +3190,7 @@ ScalarVersion.prototype.number = null;
 ScalarVersion.prototype.defaultView = null;
 ScalarVersion.prototype.color = null;
 ScalarVersion.prototype.properties = null;
+ScalarVersion.prototype.auxProperties = null;
 
 /**
  * Parses the data for the version, updating properties as needed.
@@ -3117,8 +3205,8 @@ ScalarVersion.prototype.parseData = function(data, node) {
 	this.url = data.url;
 	
 	// populate pre-approved properties
-	var i;
-	var n = scalarapi.model.versionPropertyMap.length;
+	var i,
+		n = scalarapi.model.versionPropertyMap.length;
 	var propertyData;
 	for (i=0; i<n; i++) {
 		propertyData = scalarapi.model.versionPropertyMap[i];
@@ -3131,21 +3219,24 @@ ScalarVersion.prototype.parseData = function(data, node) {
 		}
 	}
 	
+	// populate auxiliary properties
+	n = scalarapi.model.auxPropertyMap.length;
+	for ( i = 0; i < n; i++ ) {
+		propertyData = scalarapi.model.auxPropertyMap[i];
+		if (data.json[propertyData.uri]) {
+			if (propertyData.type == 'int') {
+				this.auxProperties[propertyData.property] = parseInt(data.json[propertyData.uri][0].value);
+			} else {
+				this.auxProperties[propertyData.property] = data.json[propertyData.uri][0].value;
+			}
+		}
+	}
+	
 	// store all properties by uri
 	this.properties = {};
 	var prop;
 	for (prop in data.json) {
 		this.properties[prop] = data.json[prop];
-		/*
-		n = data.json[prop].length;
-		if (n == 1) {
-			this.properties[prop] = data.json[prop][0].value;
-		} else {
-			this.properties[prop] = [];
-			for (i=0; i<n; i++) {
-				this.properties[prop].push(data.json[prop][i].value);
-			}
-		}*/
 	}
 
 	if (node.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media') {
