@@ -142,26 +142,26 @@
 			
 			var foundAuxContent = false;
 			
-			if (node.current.description != null) {
-				var descriptionPane = $('<div class="media_description pane">'+node.current.description+'</div>').appendTo(element);
-				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
-				descriptionTab.click(function() {
-					$(this).parent().parent().find('.pane').hide();
-					media.minimizeAnnotationPane();
-					descriptionPane.show();
-					$(this).parent().find('.media_tab').removeClass('select');
-					descriptionTab.addClass('select');
-					if (currentRelation != null) {
-						media.showAnnotation(null, currentRelation, mediaelement, true);
-					}
-				});
-				element.find('.media_description').show();
-				foundAuxContent = true;
+			var description = node.current.description;
+			if ( description == null ) {
+				description = '<i>No description available.</i>';
 			}
+			var descriptionPane = $('<div class="media_description pane">'+description+'</div>').appendTo(element);
+			var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
+			descriptionTab.click(function() {
+				$(this).parent().parent().find('.pane').hide();
+				media.minimizeAnnotationPane();
+				descriptionPane.show();
+				$(this).parent().find('.media_tab').removeClass('select');
+				descriptionTab.addClass('select');
+				if (currentRelation != null) {
+					media.showAnnotation(null, currentRelation, mediaelement, true);
+				}
+			});
+			element.find('.media_description').show();
+			foundAuxContent = true;
 			
-			var i;
-			var annotation;
-			var row;
+			var i, annotation, row, prop, value;
 			var annotations = node.getRelations('annotation', 'incoming', 'index');
 			if (annotations.length > 0) {
 				var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
@@ -207,13 +207,25 @@
 					media.showAnnotation(null, currentRelation, mediaelement, true);
 				}
 			});
-			var table = $('<table></table>').appendTo(metadataPane);
+			var table = $( '<table></table>' ).appendTo( metadataPane );
+			
+			// basic Scalar properties
 			table.append('<tr><td>Title</td><td>'+node.getDisplayTitle()+'</td></tr>');
 			table.append('<tr><td>Scalar url</td><td><a href="'+node.url+'">'+node.url+'</a></td></tr>');
 			table.append('<tr><td>Version number</td><td>'+node.current.number+'</td></tr>');
 			table.append('<tr><td>Created</td><td>'+node.current.created+'</td></tr>');
 			table.append('<tr><td>Content type</td><td>'+node.current.mediaSource.contentType+' ('+node.current.mediaSource.name+')</td></tr>');
 			table.append('<tr><td>Source file</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a></td></tr>');
+			
+			// API links
+			table.append('<tr><td>RDF</td><td><a href="'+node.url+'.rdf">'+node.url+'.rdf</a></td></tr>');
+			table.append('<tr><td>JSON</td><td><a href="'+node.url+'.json">'+node.url+'.json</a></td></tr>');
+
+			// auxiliary properties
+			for ( prop in node.current.auxProperties ) {
+				value = node.current.auxProperties[ prop ];
+				table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
+			}
 			if (!foundAuxContent) {
 				element.find('.media_metadata').show();
 				metadataTab.addClass('select');

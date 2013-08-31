@@ -10,6 +10,7 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarhelp.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarcomments.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarsearch.jquery.js')?>
+<?$this->template->add_js(path_from_file(__FILE__).'js/scalarvisualizations.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarstructuredgallery.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarpinwheel.jquery.js')?>
 <?

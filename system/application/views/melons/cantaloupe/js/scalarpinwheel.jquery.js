@@ -45,7 +45,12 @@
  * source: http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
  */
 function wrapText(t, width, textAnchor) {
+
     var content = t.attr("text");
+    
+    // prevents HTML entities from being passed through
+	content = $( '<div/>' ).html( content ).text();
+	
     var abc="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     t.attr({'text-anchor': 'start', "text": abc});
     var letterWidth=t.getBBox().width / abc.length;
@@ -77,6 +82,8 @@ function swingEasing(G,E,F) {
 
 function ScalarPinwheel(element) {
 
+	var me = this;
+
 	this.element = element;
 	this.nodeGraph = [];
 	this.relationsToDraw = ['path','tag'];
@@ -89,8 +96,33 @@ function ScalarPinwheel(element) {
 	this.pathGraphs = {};
 	this.pathGraphCount = 0;
 	
-	$(window).resize(this.update);
+	var timeout;
+	
+	this.dashArrayOptions = [ '', '--..', '-', '--.', '.', '- .', '-.', '--', '-..', '- ', '. ' ];
+	this.dashArrayNodes = {};
+	this.queryVars = scalarapi.getQueryVars( document.location.href );
+
+	$(window).resize( function() {
+		clearTimeout( timeout );
+		timeout = setTimeout( me.update, 100 );
+	});
+	
 	window.onorientationchange = this.update;
+	
+	$( 'body' ).bind( 'setState', function( event, data ) {
+	
+		switch ( data.state ) {
+		
+			case ViewState.Reading:
+			if ( me.currentZoom != 0 ) {
+				me.currentZoom = 0;
+			}
+			me.update();
+			break;
+		
+		}
+	
+	});
 
 }
 
@@ -110,6 +142,9 @@ ScalarPinwheel.prototype.pathGraphs = null;
 ScalarPinwheel.prototype.pathGraphCount = null;
 ScalarPinwheel.prototype.viewer = null;
 ScalarPinwheel.prototype.currentMargin = null;
+ScalarPinwheel.prototype.dashArrayOptions = null;
+ScalarPinwheel.prototype.dashArrayNodes = null;
+ScalarPinwheel.prototype.queryVars = null;
 
 ScalarPinwheel.prototype.render = function() {
 
@@ -119,31 +154,29 @@ ScalarPinwheel.prototype.render = function() {
 
 	//this.element = $('<div id="graph"></div>').appendTo('body');
 	
-	/*var handleBackgroundClick = function(e) {
+	var handleBackgroundClick = function(e) {
 	
-		switch (scalarview.state) {
+		switch (state) {
 		
 			case 'reading':
-			scalarview.setState('navigating', 'fast', false);
+			setState(ViewState.Navigating);
 			break;
 			
 			case 'navigating':
-			scalarview.setState('reading', 'fast', false);
+			setState(ViewState.Reading);
 			break;
 			
 			case 'editing':
-			scalarview.setState('reading', 'fast', false);
+			setState(ViewState.Reading);
 			break;
 			
 			case 'designing':
-			scalarview.setState('reading', 'fast', false);
+			setState(ViewState.Reading);
 			break;
 			
 		}
 		
 	}
-	
-	this.element.click(handleBackgroundClick);*/
 	
 	viewerElement = $('<div id="gnViewer" class="graphNodeViewer"></div>').appendTo('body');
 	this.viewer = new GraphNodeViewer('gnViewer', this);
@@ -158,19 +191,21 @@ ScalarPinwheel.prototype.render = function() {
 		event.stopImmediatePropagation();
 		if (me.currentZoom > 0) {
 			me.currentZoom--;
+			me.buildGraph();
 		}
-		me.buildGraph();
 	});
 	this.zoomOut = Raphael('zoomControls', 32, 32);
 	this.zoomOut.path('M25.979,12.896,5.979,12.896,5.979,19.562,25.979,19.562z').attr({fill: '#000', stroke: 'none'}).click(function(event) {
 		event.stopImmediatePropagation();
 		if (me.currentZoom < 6) {
 			me.currentZoom++;
+			me.buildGraph();
 		}
-		me.buildGraph();
 	})
 	
 	this.buildGraph();
+	
+	$('svg').click(handleBackgroundClick);
 	
 	//console.log('---- current node graph ----');
 	//console.log(this.nodeGraph);
@@ -185,17 +220,20 @@ ScalarPinwheel.prototype.buildGraph = function() {
 	
 	this.calculateDimensions();
 
-	var graphNode = this.createGraphNode([currentNode], {x:0, y:0}, 'none', {type:'current', data: null});
+	var graphNode = this.createGraphNode( [currentNode], {x:0, y:0}, 'none', {type:'current', data: null} );
 	
 	this.resetNodeGraphDrawing();
+	
+	// start a new set of SVG elements
 	this.canvas.setStart();
 	
-	if (graphNode != null) {
-		this.addGraphNodeRelations(graphNode, 0);
+	if ( graphNode != null ) {
+		this.addGraphNodeRelations( graphNode, 0 );
 		//this.makeSiblingsLateral();
-		this.drawGraphNode(graphNode);
+		this.drawGraphNode( graphNode );
 	}
 	
+	// close the set of SVG elements
 	this.canvasSet = this.canvas.setFinish();
 
 }
@@ -224,17 +262,20 @@ ScalarPinwheel.prototype.setState = function(newState, duration, propsOnly) {
 
 	switch (newState) {
 	
-		case 'reading':
-		if (this.currentZoom != 0) {
+		case ViewState.Reading:
+		if ( this.currentZoom != 0 ) {
 			this.currentZoom = 0;
-			this.update(duration);
 		}
+		this.update();
 		break;
 	
 	}
 
 }
 
+/**
+ * Resets all of the graph nodes to an "undrawn" state.
+ */
 ScalarPinwheel.prototype.resetNodeGraphDrawing = function() {
 
 	this.canvas.clear();
@@ -254,7 +295,11 @@ ScalarPinwheel.prototype.calculateDimensions = function() {
 		y: $(window).height() * .5
 	};
 	
-	this.currentMargin = ($(window).width() - $('.page').width()) * .5;
+	if ( ($(window).width() - $('.page').width()) == 0 ) {
+		this.currentMargin = 150;
+	} else {
+		this.currentMargin = ($(window).width() - $('.page').width()) * .5;
+	}
 	
 	this.unitSize = {
 		/*x: (($(window).width() * .5) - (scalarview.surface.currentMargin * .5)) / (this.currentZoom + 1),*/
@@ -302,59 +347,69 @@ ScalarPinwheel.prototype.createGraphNode = function(nodes, graphPosition, graphV
 	return null;
 }          
 
-ScalarPinwheel.prototype.addNodeToGraph = function(graphNode, graphVector) { 
+ScalarPinwheel.prototype.addNodeToGraph = function( graphNode, graphVector ) { 
 	
-	var existingNode = this.graphNodeAtPosition(graphNode);    
+	var existingNode = this.graphNodeAtPosition( graphNode );    
 	
-	if (existingNode != null) {
-		if (existingNode.isCurrentNode()) {
-			this.moveGraphNode(graphNode, this.invertGraphVector(graphVector));
+	// if there's already a node in the desired position, then
+	if ( existingNode != null ) {
+	
+		// if the node represents the current page, then move the new node
+		if ( existingNode.isCurrentNode() ) {
+			this.moveGraphNode( graphNode, this.invertGraphVector(graphVector) );
+			
+		// otherwise, move the existing node
 		} else {
-			this.moveGraphNode(existingNode, graphVector);
+			this.moveGraphNode( existingNode, graphVector );
 		}
 	}
 	
 	//console.log('---- add graph node "'+graphNode.getDisplayTitle()+'" at '+graphNode.position.x+','+graphNode.position.y+' ----');
 	
-	this.nodeGraph.push(graphNode);
+	// add the new node
+	this.nodeGraph.push( graphNode );
 	
 } 
 
 ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDepth) {   
 
-	//console.log('add relations for '+glraphNode.nodes[0].getDisplayTitle()+' at depth '+currentDepth);
+	var me = this;
+
+	//console.log('add relations for '+graphNode.nodes[0].getDisplayTitle()+' at depth '+currentDepth);
 	
 	//console.log('  -- add relations for graph node "'+graphNode.getDisplayTitle()+'" ----');
 	//console.log(graphNode.nodes);
 	
-	if (((this.currentZoom == 0) && (currentDepth <= this.currentZoom)) || ((this.currentZoom > 0) && (currentDepth <= 6))) {
+	// if currentZoom is 0 (default), only look for adjacent relations, otherwise look six steps deep
+	if ((( this.currentZoom == 0 ) && ( currentDepth <= this.currentZoom )) || (( this.currentZoom > 0 ) && ( currentDepth <= 6 ))) {
 		
- 		var parentNodes = 0;     
-		var childNodes = 0;
-		var olderSiblingNodes = -1;     
-		var youngerSiblingNodes = -1;     
-
-		var position;     
-		var newGraphNode; 
-		var parents;
-		var parent;
-		var relation;
-		var pathGraph;
-		var children;   
-		var sibling;      
-		var stepSiblings; 
-		var index;  
-		var okToProceed;
-		var i;
-		var j;
+		var position, newGraphNode, parents, parent, relation, pathGraph, children;   
+		var sibling, stepSiblings, index, okToProceed, i, j,
+			parentNodes = 0,
+ 			childNodes = 0,
+ 			olderSiblingNodes = -1,
+ 			youngerSiblingNodes = -1;     
 		
-		if (graphNode.nodes.length == 1) {
+		// this graph node represents only one Scalar node
+		if ( graphNode.nodes.length == 1 ) {
 
-			// add parents  
-			if ((graphNode.reason.type == 'current') || (graphNode.reason.type == 'parent')) {
+			// add parents if this is the center or an ancestor
+			if (( graphNode.reason.type == 'current' ) || ( graphNode.reason.type == 'parent' )) {
+			
 				for (i=0; i<this.relationsToDraw.length; i++) {
+				
 					parents = graphNode.getNewParentsForRelation(this.relationsToDraw[i], 'incoming', currentDepth); 
 					if (parents.length > 0) {
+					
+						// if we're on one of the container paths, make it first in the list
+						parents.sort( function( a, b ) {
+							if ( a.slug == me.queryVars.path ) {
+								return -1;
+							} else if ( b.slug == me.queryVars.path ) {
+								return 1;
+							}
+							return 0;
+						});
 		
 						/*
 						// separate all expanded nodes into their own nodes  
@@ -370,6 +425,9 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 		   					}
 						}  
 						*/
+						
+						
+						// if there are few enough parents, they get tracked individually
 						if (parents.length < 6) {
 							for (j=0; j<parents.length; j++) {
 								parentNodes++;        
@@ -377,8 +435,11 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 								newGraphNode = this.createGraphNode([parents[j]], position, 'none', {type:'parent', data:null}); 
 								graphNode.parents.push({relation:this.relationsToDraw[i], node:newGraphNode});
 								newGraphNode.children.push({relation:this.relationsToDraw[i], node:graphNode});
+								//console.log('parent');
 								this.addGraphNodeRelations(newGraphNode, currentDepth+1);
 							}
+							
+						// otherwise, they get combined into a group
 						} else {
 							parentNodes++;        
 							position = {x:graphNode.position.x - 1, y:graphNode.position.y - parentNodes};
@@ -400,9 +461,11 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 				}
 			}
 	
-			// add children    
+			// add children if this is the center or its child  
 			if ((graphNode.reason.type == 'current') || (graphNode.reason.type == 'child')) {
+			
 				for (i=0; i<this.relationsToDraw.length; i++) {
+				
 					children = graphNode.getNewChildrenForRelation(this.relationsToDraw[i], 'outgoing'); 
 					if (children.length > 0) {
 						
@@ -420,26 +483,39 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 		   					}
 						} */
 						
-						/*
-						for (j=0; j<children.length; j++) {
+						// TODO: limit number of drawn children as with parents above?
+						if (children.length < 6) {
+							for (j=0; j<children.length; j++) {
+								childNodes++;
+								position = {x:graphNode.position.x + 1, y:graphNode.position.y + childNodes};
+								newGraphNode = this.createGraphNode([children[j]], position, 'none', {type:'child', data:graphNode});
+								graphNode.children.push({relation:this.relationsToDraw[i], node:newGraphNode});
+								newGraphNode.parents.push({relation:this.relationsToDraw[i], node:graphNode});
+								//console.log('child');
+								/*if (children.length == 1)*/ this.addGraphNodeRelations(newGraphNode, currentDepth+1);
+							}
+						} else {
 							childNodes++;
 							position = {x:graphNode.position.x + 1, y:graphNode.position.y + childNodes};
-							newGraphNode = this.createGraphNode([children[j]], position, {type:'child', data:null});
+							newGraphNode = this.createGraphNode(children, position, 'none', {type:'child', data:graphNode});
 							graphNode.children.push({relation:this.relationsToDraw[i], node:newGraphNode});
 							newGraphNode.parents.push({relation:this.relationsToDraw[i], node:graphNode});
-							if (children.length == 1) this.addGraphNodeRelations(newGraphNode, currentDepth+1);
+						}
+						
+						/*if ((currentDepth+1) < this.currentZoom) {
+							newGraphNode = this.createGraphNode([children[0]], position, 'none', {type:'child', data:null});
+						} else {
+							newGraphNode = this.createGraphNode(children, position, 'none', {type:'child', data:graphNode});
 						}*/
 						
-						childNodes++;
+						// this code is if we only want to show one child
+						/*childNodes++;
 						position = {x:graphNode.position.x + 1, y:graphNode.position.y + childNodes};
-						/*if ((currentDepth+1) < this.currentZoom) {
-							newGraphNode = this.createGraphNode([children[0]], position, {type:'child', data:null});
-						} else {*/
-							newGraphNode = this.createGraphNode(children, position, 'none', {type:'child', data:graphNode});
-						//}
+						newGraphNode = this.createGraphNode(children, position, 'none', {type:'child', data:graphNode});*/
+						
 						graphNode.children.push({relation:this.relationsToDraw[i], node:newGraphNode});
 						newGraphNode.parents.push({relation:this.relationsToDraw[i], node:graphNode});
-						if (newGraphNode.nodes.length == 1) this.addGraphNodeRelations(newGraphNode, currentDepth+1);
+						//if (newGraphNode.nodes.length == 1) this.addGraphNodeRelations(newGraphNode, currentDepth+1);
 					}     
 				}
 			}
@@ -465,6 +541,7 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 	 					newGraphNode = this.createGraphNode([sibling.node], position, 'left', {type:'olderSibling', data:parent});
 						graphNode.olderStepSiblings.push({node:newGraphNode});  
 						newGraphNode.youngerStepSiblings.push({node:graphNode});
+						//console.log('current older sibling');
  						this.addGraphNodeRelations(newGraphNode, currentDepth+1);
 					}
  					
@@ -475,6 +552,7 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 	 					newGraphNode = this.createGraphNode([sibling.node], position, 'left', {type:'youngerSibling', data:parent});
 						graphNode.youngerStepSiblings.push({node:newGraphNode});  
 						newGraphNode.olderStepSiblings.push({node:graphNode});
+						//console.log('current younger sibling');
  						this.addGraphNodeRelations(newGraphNode, currentDepth+1);
 					}
  				}
@@ -488,6 +566,7 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
  					newGraphNode = this.createGraphNode([sibling.node], position, 'left', {type:'olderSibling', data:parent});
 					graphNode.olderStepSiblings.push({node:newGraphNode});  
 					newGraphNode.youngerStepSiblings.push({node:graphNode});
+					//console.log('older sibling');
 					this.addGraphNodeRelations(newGraphNode, currentDepth+1);
 				}
  				break;
@@ -500,10 +579,23 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
  					newGraphNode = this.createGraphNode([sibling.node], position, 'left', {type:'youngerSibling', data:parent});
 					graphNode.youngerStepSiblings.push({node:newGraphNode});  
 					newGraphNode.olderStepSiblings.push({node:graphNode});
+					//console.log('younger sibling');
 					this.addGraphNodeRelations(newGraphNode, currentDepth+1);
 				}
  				break;
- 			
+ 				
+  				case 'child':
+				parent = graphNode.reason.data;
+				sibling = graphNode.getNextYoungerSiblingForParent(parent);
+				if (sibling != null) {
+ 					position = {x:graphNode.position.x+1, y:graphNode.position.y};
+ 					newGraphNode = this.createGraphNode([sibling.node], position, 'left', {type:'youngerSibling', data:parent});
+					graphNode.youngerStepSiblings.push({node:newGraphNode});  
+					newGraphNode.olderStepSiblings.push({node:graphNode});
+					this.addGraphNodeRelations(newGraphNode, currentDepth+1);
+				}
+ 				break;
+			
  			}
  			
  			/*
@@ -578,7 +670,9 @@ ScalarPinwheel.prototype.addGraphNodeRelations = function(graphNode, currentDept
 
 		// TODO: collapse successive siblings with no changes in parentage and no children into single graph nodes if currentZoom > 0, and expand any expanded nodes within that
 		
-   }
+    } else {
+   		//console.log(' -- FULL STOP ----');
+    }
 	
 	//console.log('  -- done adding relations for graph node "'+graphNode.getDisplayTitle()+'" ----');
 	
@@ -760,7 +854,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				if (graphNode.nodes[0].color) {
 					color = graphNode.nodes[0].color;
 				} else {
-					color = '#888';
+					color = '#000';
 				}
 			}
 		}
@@ -782,16 +876,30 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 		var i;
 		
 		var goToPage = function(event) { 
-			console.log('go to page');
+			//console.log(graphNode);
 			event.stopImmediatePropagation();
+			var url;
+			switch ( graphNode.reason.type ) {
+			
+				case 'youngerSibling':
+				case 'olderSibling':
+				case 'child':
+				url = graphNode.nodes[0].url + '?path=' + graphNode.reason.data.nodes[0].slug;
+				break;
+				
+				default:
+				url = graphNode.nodes[0].url;
+				break;
+				
+			}
 			if (state == ViewState.Navigating) {
 				me.canvasSet.animate({'transform':'t'+(-me.unitSize.x*graphNode.position.x)+','+(-me.unitSize.y*graphNode.position.y)}, 350, '<>', function() {
 					//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url)); 
-					window.location = addTemplateToURL(graphNode.nodes[0].url, 'cantaloupe'); // TODO: make this dynamic
+					window.location = addTemplateToURL(url, 'cantaloupe'); // TODO: make this dynamic
 				})
 			} else {
 				//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url));
-				window.location = addTemplateToURL(graphNode.nodes[0].url, 'cantaloupe');
+				window.location = addTemplateToURL(url, 'cantaloupe');
 			}
 		};
 
@@ -810,7 +918,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
 					var innerCircleA = this.canvas.circle(canvasPosition.x - 9, canvasPosition.y, 3.5);
 					var innerCircleB = this.canvas.circle(canvasPosition.x + 9, canvasPosition.y, 3.5);
-					outerCircle.attr({'fill':'#fff', 'stroke':'#000', 'stroke-width':2, 'cursor':'pointer'});
+					outerCircle.attr({'fill':'#fff', 'stroke-width':2, 'cursor':'pointer'});
 					innerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
 					innerCircleA.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
 					innerCircleB.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
@@ -845,8 +953,8 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 						color = Raphael.getRGB(graphNode.nodes[0].color);
 						color = Raphael.rgb2hsl(color.r, color.g, color.b);
 						color.l = Math.max(0, color.l - .1);
-						outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
-						innerCircle.attr({'fill':'#eee', 'stroke':'none', 'cursor':'pointer'});
+						outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':Raphael.hsl2rgb(color).hex, 'stroke-width':3, 'cursor':'pointer'});
+						innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
 					} else {
 						outerCircle.attr({'fill':'#fff', 'stroke-width':3, 'cursor':'pointer'});
 						innerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
@@ -865,7 +973,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				
 			} else {  
 			
-				if (this.currentZoom == 0) {
+				if ((this.currentZoom == 0) && (((graphNode.position.x < 0) && (graphNode.position.y <= 0)) || ((graphNode.position.x > 0) && (graphNode.position.y >= 0)))) {
 		
 					outerRadius = 18;
 					//if (graphNode.children.length > 0) outerRadius += 6;
@@ -902,7 +1010,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					color = Raphael.getRGB(graphNode.nodes[0].color);
 					color = Raphael.rgb2hsl(color.r, color.g, color.b);
 					color.l = Math.max(0, color.l - .1);
-					outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':1, 'cursor':'pointer'});
+					outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':Raphael.hsl2rgb(color).hex, 'stroke-width':1, 'cursor':'pointer'});
 					innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
 					
 				} else if (((graphNode.reason.type == 'child') || (graphNode.reason.type == 'youngerSibling') || (graphNode.reason.type == 'olderSibling'))) {
@@ -914,7 +1022,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					//outerCircle.attr({'fill':'#fff', 'stroke':Raphael.hsl2rgb(color).hex, 'stroke-width':4, 'cursor':'pointer'});
 					//innerCircle.attr({'fill':'#666', 'stroke':'none', 'cursor':'pointer'});
 					
-					outerCircle.attr({'stroke':Raphael.hsl2rgb(color).hex, 'fill':'#eee', 'stroke-width':3, 'cursor':'pointer'});
+					outerCircle.attr({'stroke':Raphael.hsl2rgb(color).hex, 'fill':'#fff', 'stroke-width':3, 'cursor':'pointer'});
 					innerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'none', 'cursor':'pointer'});
 					//outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
 					//innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
@@ -922,7 +1030,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					//outerCircle.attr({'fill':graphNode.reason.data.nodes[0].color, 'stroke-width':2, 'cursor':'pointer'});
 					//innerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});*/
 				} else if (drawAsContainer) {
-					outerCircle.attr({'fill':color, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
+					outerCircle.attr({'fill':color, 'stroke':color, 'stroke-width':3, 'cursor':'pointer'});
 					outerCircle.data('node', graphNode);
 					/*outerCircle.mouseover(function() {
 						this.pinwheel.filter = this.data('node');
@@ -931,7 +1039,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					outerCircle.mouseout(function() {
 						this.pinwheel.filter = null;
 					});*/
-					innerCircle.attr({'fill':'#eee', 'stroke':'none', 'cursor':'pointer'});
+					innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
 				} else {
 					/*if (this.currentZoom == 0) {
 						outerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
@@ -942,7 +1050,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					//}
 				}
 				
-				outerCircle.click(goToPage);
+				outerCircle.click(goToPage);	
 				innerCircle.click(goToPage);
 				
 				graphNode.drawing.push(outerCircle, innerCircle);
@@ -1037,6 +1145,24 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 	
 }
 
+
+ScalarPinwheel.prototype.getDashArrayForNode = function( node ) {
+
+	var dashArray;
+	
+	if ( this.dashArrayOptions.length > 0 ) {
+		dashArray = this.dashArrayOptions[ 0 ];
+		this.dashArrayOptions.splice( 0, 1 );
+		this.dashArrayNodes[ node.slug ] = dashArray;
+		
+	} else {
+		dashArray = '';
+	}
+
+	return dashArray;
+}
+
+
 ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGraphNodeData) {  
 		
 	var sourcePos = {
@@ -1063,9 +1189,10 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 	
 	var path;
 	var pathString = '';
-	var color;
+	var color, dashArray, slug;
 	var strokeWidth = 2; // nee 4
-	var arrowPosition;
+	var arrowPosition,
+		defaultColor = '#777';
 
 	switch (type) {
 	
@@ -1085,7 +1212,14 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 		} else if (destGraphNodeData.node.nodes[0].color) {
 			color = destGraphNodeData.node.nodes[0].color;
 		} else {
-			color = '#888';
+			color = defaultColor;
+		}
+		
+		slug = destGraphNodeData.node.nodes[0].slug;
+		if ( this.dashArrayNodes[ slug ] != null ) {
+			dashArray = this.dashArrayNodes[slug];
+		} else {
+			dashArray = this.getDashArrayForNode( destGraphNodeData.node.nodes[0] );
 		}
 		arrowPosition = 'arrow-start';
 		break;
@@ -1099,7 +1233,13 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 		} else if (destGraphNodeData.node.nodes[0].color) {
 			color = destGraphNodeData.node.nodes[0].color;
 		} else {
-			color = '#888';
+			color = defaultColor;
+		}
+		slug = destGraphNodeData.node.nodes[0].slug;
+		if ( this.dashArrayNodes[ slug ] != null ) {
+			dashArray = this.dashArrayNodes[slug];
+		} else {
+			dashArray = this.getDashArrayForNode( destGraphNodeData.node.nodes[0] );
 		}
 		arrowPosition = 'arrow-start';
 		break;
@@ -1222,7 +1362,13 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 				//color = destGraphNodeData.scalarParent.color;
 				color = destGraphNodeData.node.reason.data.nodes[0].color;
 			} else {
-				color = '#888';
+				color = defaultColor;
+			}
+			slug = destGraphNodeData.node.reason.data.nodes[ 0 ].slug;
+			if ( this.dashArrayNodes[ slug ] != null ) {
+				dashArray = this.dashArrayNodes[ slug ];
+			} else {
+				dashArray = this.getDashArrayForNode( destGraphNodeData.node.reason.data.nodes[ 0 ] );
 			}
 		} else {
 			if (sourceGraphNode.reason.data.nodes[0].color) {
@@ -1230,9 +1376,17 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 				//color = destGraphNodeData.scalarParent.color;
 				color = sourceGraphNode.reason.data.nodes[0].color;
 			} else {
-				color = '#888';
+				color = defaultColor;
+			}
+			slug = sourceGraphNode.reason.data.nodes[ 0 ].slug;
+			if ( this.dashArrayNodes[ slug ] != null ) {
+				dashArray = this.dashArrayNodes[ slug ];
+			} else {
+				dashArray = this.getDashArrayForNode( sourceGraphNode.reason.data.nodes[ 0 ] );
 			}
 		}
+		
+		
 		strokeWidth = 2;
 		break;
 	
@@ -1250,9 +1404,9 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 		
 		path = this.canvas.path(pathString);
 		if (arrowPosition == 'arrow-start') {
-			path.attr({/*'arrow-start':'class-wide-long',*/ 'stroke':color, 'stroke-width':strokeWidth});
+			path.attr({/*'arrow-start':'class-wide-long',*/ 'stroke':color, 'stroke-width':strokeWidth, 'stroke-dasharray':dashArray});
 		} else {
-			path.attr({/*'arrow-end':'class-wide-long',*/ 'stroke':color, 'stroke-width':strokeWidth});
+			path.attr({/*'arrow-end':'class-wide-long',*/ 'stroke':color, 'stroke-width':strokeWidth, 'stroke-dasharray':dashArray});
 		}
 		path.toBack();
 	}
@@ -1340,20 +1494,14 @@ function GraphNode(nodes, position, reason, pinwheel) {
 	this.pinwheel = pinwheel;
 	
 	GraphNode.prototype.getNewParentsForRelation = function(relationName, direction, currentDepth) {
-	
-		var allRelations = [];
-		var allRelatedNodes = [];
-		var newRelatedNodes = [];
 		
-		var i;
-		var j;
-		var n;
-		var o;
-		var isNew;
-		var node;
-		var relation;
-		var index;
+		var i, j, n, o, isNew, node, relation, index;
+		var allRelations = [],
+			visibleRelations = [],
+			newRelatedNodes = [],
+			me = this;
 		
+		// collect all the specified relations passing through this graph node's Scalar nodes
 		n = this.nodes.length;
 		for (i=0; i<n; i++) {
 			allRelations = allRelations.concat(this.nodes[i].getRelations(relationName, direction));
@@ -1364,24 +1512,42 @@ function GraphNode(nodes, position, reason, pinwheel) {
 		
 			relation = allRelations[i];
 			
+			// if a node doesn't already exist for the origin of the relation, then
 			if (this.pinwheel.graphNodeForScalarNode(relation.body) == null) {
+			
+				// if we're zoomed out further than the default, then check depth before 
+				// adding the relation to the array of relations to draw
 				if (this.currentZoom > 0) {
 					if (this.currentZoom == currentDepth) {
-						allRelatedNodes.push(relation);
+						visibleRelations.push(relation);
 					}
+					
+				// otherwise, just add it
 				} else {
-					allRelatedNodes.push(relation);
+					visibleRelations.push(relation);
 				}
 			}
 			
 		}
+	
+		// if we're on one of the container paths, make it first in the list
+		visibleRelations.sort( function( a, b ) {
+			if ( a.body.slug == me.pinwheel.queryVars.path ) {
+				return -1;
+			} else if ( b.body.slug == me.pinwheel.queryVars.path ) {
+				return 1;
+			}
+			return 0;
+		});
 		
-		n = allRelatedNodes.length;
+		n = visibleRelations.length;
 		for (i=0; i<n; i++) {
 		
 			isNew = true;
-			node = allRelatedNodes[i].body;
+			node = visibleRelations[i].body;
 			
+			// if this Scalar node is already represented by an existing
+			// parent of this graph node, then it's not new
 			if (isNew) {
 				o = this.parents.length;
 				for (j=0; j<o; j++) {
@@ -1391,11 +1557,14 @@ function GraphNode(nodes, position, reason, pinwheel) {
 				}
 			}
 			
+			// if it is new after all, then
 			if (isNew) {
 				newRelatedNodes.push(node);
+				
+				// make a path graph for it
 				if (relationName == 'path') {
 					if (this.pinwheel.pathGraphs[node.url] == undefined) {
-						this.pinwheel.pathGraphs[node.url] = new PathGraph(node, {x:allRelatedNodes[i].index, y:this.pinwheel.pathGraphCount});
+						this.pinwheel.pathGraphs[node.url] = new PathGraph(node, {x:visibleRelations[i].index, y:this.pinwheel.pathGraphCount});
 						this.pinwheel.pathGraphCount++;
 					}
 				}
@@ -1510,7 +1679,7 @@ function GraphNode(nodes, position, reason, pinwheel) {
 		// if this is a path, and a member of the path is already registered
 		// as a child, then don't return any other children
 		
-		if (relatedNodes.length > 0) console.log('     found new '+relationName+'-'+direction+' child of "'+this.getDisplayTitle()+'"');
+		//if (relatedNodes.length > 0) console.log('     found new '+relationName+'-'+direction+' child of "'+this.getDisplayTitle()+'"');
 		
 		//console.log('returning '+relatedNodes.length+' nodes');
 		
@@ -1560,7 +1729,7 @@ function GraphNode(nodes, position, reason, pinwheel) {
 			
 		}
 		
-		if (sibling != null) console.log('     found older sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
+		//if (sibling != null) console.log('     found older sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
 		
 		return sibling;
 	}
@@ -1709,7 +1878,7 @@ function GraphNode(nodes, position, reason, pinwheel) {
 			
 		}
 		
-		if (sibling != null) console.log('     found younger sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
+		//if (sibling != null) console.log('     found younger sibling of "'+this.getDisplayTitle()+'": "'+sibling.node.getDisplayTitle()+'"');
 		
 		return sibling;
 	}
@@ -1796,7 +1965,7 @@ function GraphNode(nodes, position, reason, pinwheel) {
 			
 		}
 		
-		if (siblings.length > 0) console.log('     found '+siblings.length+' older step-siblings');
+		//if (siblings.length > 0) console.log('     found '+siblings.length+' older step-siblings');
 		
 		return siblings;
 	}

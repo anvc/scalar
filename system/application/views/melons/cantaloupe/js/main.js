@@ -278,7 +278,7 @@ $(window).ready(function() {
 				console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
 				console.log( 'current page description: '+rdf.predicate('http://purl.org/dc/terms/description') );
 				console.log( 'current page content: '+rdf.predicate('http://rdfs.org/sioc/ns#content') );
-				console.log('------- Relationships from RDFa  -------------');*/
+				console.log('------- Relationships from RDFa  -------------');*
 				// Tags
 				var rel = rdf.relations('in').nodes_by_type();
 				//for (var uri in rel) console.log('has tag: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
@@ -303,7 +303,7 @@ $(window).ready(function() {
 				var rel = rdf.predicates('http://purl.org/dc/terms/isReferencedBy');
 				//for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
 				var rel = rdf.predicates('http://purl.org/dc/terms/references');
-				//for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));	
+				//for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));	*/
 						  
 		  }},   
 		  
@@ -311,6 +311,23 @@ $(window).ready(function() {
 		  /*{load: [widgets_uri+'/d3/d3.v2.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {  
 			  	// TODO: Background visualization initialization here
 		  }},*/		  
+		  
+		  {load: [widgets_uri+'/spinner/spin.min.js',
+		          widgets_uri+'/d3/d3.v2.js',
+		          /*widgets_uri+'/vis/scalarvis.css',
+		          widgets_uri+'/vis/jquery.scalarvis.js'*/], complete:function() { 
+		   
+			  	$('#book-title').parent().wrap('<div></div>');
+			  	$('article').before($('#book-title').parent().parent());
+				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
+		
+				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
+				
+				$( '[property="art:url"]' ).css( 'display', 'none' );
+				
+				$('body').css('visibility', 'visible');
+			  	
+		  }},		  
 		  
 		  // Mediaelement
 		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',
@@ -320,28 +337,19 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/mediaelement.css',
 		          widgets_uri+'/mediaelement/annotation.css',
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
-		          widgets_uri+'/mediaelement/jquery.jplayer.min.js',
-		          widgets_uri+'/d3/d3.v2.js',
-		          widgets_uri+'/vis/scalarvis.css',
-		          widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {
-		          
-			  	$('#book-title').parent().wrap('<div></div>');
-			  	$('article').before($('#book-title').parent().parent());
-				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-				page = $.scalarpage($('article'));
+		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
 
 				if ($('.bg_screen').length > 0) {
 					pinwheel = $.scalarpinwheel($('.bg_screen').after('<div id="graph"></div>'));
 				} else {
 					pinwheel = $.scalarpinwheel($('body').prepend('<div id="graph"></div>'));
 				}
+				page.addMediaElements();
 				
 				var savedState = $.cookie('viewstate');
-				if (savedState != null) {
+				/*if (savedState != null) {
 					setState(savedState, true);
-				}
-				
-				$('body').css('visibility', 'visible');
+				}*/
 				
 		  }},
 		  

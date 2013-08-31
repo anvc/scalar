@@ -45,10 +45,11 @@
 		var mediaCollection;
 		var childPaths;
 		var childTags;
-		var mediaDetails, children;
+		var mediaDetails, children, interval;
 		var relationships = ['path', 'tag', 'referee'],
 			childRelationships = ['path', 'tag'],
-			childLoadIndex = -1;
+			childLoadIndex = -1,
+			contentBlocks = [];
 			
 		var gallery = {
 			options: $.extend({
@@ -168,39 +169,11 @@
 			
 			},*/
 			
-			addThumbnailForNode: function(element, node) {
-			
-				var alttext, thumbnail,
-					me = this;
-					
-				if (node.current.description != undefined) {
-					alttext = node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
-				} else {
-					alttext = '';
-				}		
-					
-				if (node.thumbnail != undefined) {
-					thumbnail = $('<img id="img-'+node.slug+'" class="thumbnail" src="'+node.thumbnail+'" alt="'+alttext+'"/>').appendTo(element);
-				} else {
-					thumbnail = $('<img id="img-'+node.slug+'" class="thumbnail" src="'+modules_uri+'/cantaloupe/images/media_icon_chip.png" alt="'+alttext+'"/>').appendTo(element);
-				}
-				thumbnail.data('node', node);
-				
-				thumbnail.click(function() {
-					if (me.currentDisplayMode != DisplayMode.All) {
-						var source = $(this).prevAll('.child_header').eq(0);
-						me.mediaDetails.show($(this).data('node'), source.data('node'), source.nextUntil('.child_header', 'img'));
-					} else {
-						me.mediaDetails.show($(this).data('node'));
-					}
-				});
-			},
-			
-			update: function(collection) {
+			/*update: function(collection) {
 				
 				mediaContainer.empty();
 				
-				var i,j,k,n,path,header,node,childNodes,childNode,grandchildNodes,grandchildNode,thumbnail;
+				var i,j,k,n,block,path,header,node,childNodes,childNode,grandchildNodes,grandchildNode,thumbnail;
 				switch (this.currentDisplayMode) {
 				
 					case DisplayMode.All:
@@ -214,6 +187,13 @@
 					
 					case DisplayMode.Path:
 					case DisplayMode.Tag:
+					n = children.length;
+					for ( i=0; i<n; i++) {
+						node = children[i];
+						block = $('<div id="block_'+node.slug+'" class="content_block"></div>').appendTo(mediaContainer);
+						block.data('node', node);
+						contentBlocks.push(block);
+					}
 					
 					var sourceNodes,sourceNode,relationship;
 					if (this.currentDisplayMode == DisplayMode.Path) {
@@ -223,15 +203,17 @@
 						sourceNodes = childTags;
 						relationship = 'tag';
 					}
+					sourceNodes = children;
 					
 					var visibleMediaCount = 0;;
 					for (i in sourceNodes) {
 						node = sourceNodes[i];
-						header = $('<div id="path_'+node.slug+'" class="child_header"></div>').appendTo(mediaContainer);
+						header = $('<div id="container_'+node.slug+'" class="child_header"></div>').appendTo(mediaContainer);
 						header.data('node', node);
 						header.append('<h3 class="heading_font"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
 						if (node.current.description != null) {
-							header.append(' <div class="one_line_description">'+node.current.description+' <a href="'+addTemplateToURL(node.url, 'cantaloupe')+'"><img src="'+modules_uri+'/cantaloupe/images/permalink_icon.png" alt="permalink_icon" width="16" height="16" /></a></div>');
+							//header.append(' <div class="one_line_description">'+node.current.description+' <a href="'+addTemplateToURL(node.url, 'cantaloupe')+'"><img src="'+modules_uri+'/cantaloupe/images/permalink_icon.png" alt="permalink_icon" width="16" height="16" /></a></div>');
+							header.append(' <div class="one_line_description">'+node.current.description+'</div>');
 						}
 						//childNodes = node.getRelatedNodes(relationship, 'outgoing');
 						childNodes = collection[node.slug+'-'+relationship];
@@ -366,42 +348,184 @@
 					gallery.update(mediaCollection);
 				}
 			
+			},
+			
+			createContentBlocks: function() {
+				
+				var i, node, block,
+					n = children.length;
+					
+				$( mediaContainer ).append( '<div id="block_head"></div>' );
+				
+				for ( i = 0; i < n; i++ ) {
+					node = children[ i ];
+					block = $( '<div id="block_' + node.slug + '" class="content_block"></div>' ).appendTo( mediaContainer );
+					block.data( 'node', node );
+					contentBlocks.push( block );
+				}
+				
+			},
+			
+			handleTimer: function() {
+			
+				var node, scrolledPosition, block,
+					n = contentBlocks.length;
+					
+				for ( var i = ( n - 1 ); i >= 0; i-- ) {
+				
+					block = contentBlocks[ i ];
+					node = block.data( 'node' );
+					scrolledPosition = block.offset().top - $( document ).scrollTop();
+					//console.log(node.slug+' '+block.position().top+' '+$( document ).scrollTop()+' '+scrolledPosition);
+					
+					if ( ( scrolledPosition > 0 ) && ( scrolledPosition < window.innerHeight ) ) {
+					
+						//console.log('load '+node.slug);
+						
+						if (window['Spinner']) {
+							var spinnerElement = $('<div class="spinner_wrapper"></div>').appendTo(block);
+							var opts = {
+							  lines: 13, // The number of lines to draw
+							  length: 4, // The length of each line
+							  width: 2, // The line thickness
+							  radius: 5, // The radius of the inner circle
+							  rotate: 0, // The rotation offset
+							  color: '#000', // #rgb or #rrggbb
+							  speed: 1, // Rounds per second
+							  trail: 60, // Afterglow percentage
+							  shadow: false, // Whether to render a shadow
+							  hwaccel: false, // Whether to use hardware acceleration
+							  className: 'spinner', // The CSS class to assign to the spinner
+							  zIndex: 2e9, // The z-index (defaults to 2000000000)
+							  top: 'auto', // Top position relative to parent in px
+							  right: 'auto' // Left position relative to parent in px
+							};
+							var spinner = new Spinner(opts).spin(spinnerElement[0]);
+						}
+						
+						scalarapi.loadPage( node.slug, true, function( data ) {
+						
+							var node, index, children;
+							
+							// get first property to find the node we loaded; technically we shouldn't
+							// rely on browsers to deliver the properties in a certain order, but...
+							for ( var prop in data ) {
+								break;
+							}
+							node = scalarapi.getNode( prop );
+							gallery.addImagesForNode( node );
+							
+						}, function() {
+							console.log('an error occurred while retrieving structured gallery info.');
+						}, 1, true);
+						
+						index = contentBlocks.indexOf( block );
+						contentBlocks.splice( index, 1 );
+						
+					}
+				}
+				
+				if ( n == 0 ) {
+					clearInterval( interval );
+				}
+			},
+			
+			addHeaderForNode: function( node ) {
+			
+				var block = $( '#block_' + node.slug );
+				
+				if (node.current.description != null) {
+					block.prepend(' <div class="one_line_description">'+node.current.description+'</div>');
+				}
+				block.prepend('<h3 class="heading_font"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
+			
+			},
+			
+			addImagesForNode: function( node ) {
+			
+				var child, i,
+					block = $( '#block_' + node.slug ),
+					children = gallery.getChildrenOfType( node, 'all' ),
+					n = children.length;
+					
+				block.find('.spinner_wrapper').remove();
+					
+				for ( i = 0; i < n; i++ ) {
+					child = children[ i ];
+					if ( child.hasScalarType( 'media' ) ) {
+						gallery.addThumbnailForNode( block, child );
+					}
+				}
+				
+				if ( node.hasScalarType( 'media' ) ) {
+					gallery.addThumbnailForNode( $( '#block_head' ) , node );
+				}
+				
+				if ( block.children().length == 0 ) {
+					block.remove();
+				} else {
+					gallery.addHeaderForNode( node );
+				}
+				
+			},
+			
+			addThumbnailForNode: function( element, node, method ) {
+			
+				var alttext, thumbnail,
+					me = this;
+					
+				if ( method == null ) {
+					method = 'appendTo';
+				}
+				
+				if (node.current.description != undefined) {
+					alttext = node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+				} else {
+					alttext = '';
+				}		
+					
+				if ( node.thumbnail != undefined ) {
+					thumbnail = $( '<img id="img-' + node.slug + '" class="thumbnail" src="' + node.thumbnail + '" alt="' + 
+						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
+				} else {
+					thumbnail = $( '<img id="img-' + node.slug + '" class="thumbnail" src="' + modules_uri + 
+						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" height="' + 
+						parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
+				}
+				thumbnail.data('node', node);
+				
+				thumbnail.click(function() {
+					/*if (me.currentDisplayMode != DisplayMode.All) {
+						var source = $(this).parent();
+						me.mediaDetails.show($(this).data('node'), source.data('node'), source.find('img'));
+					} else {*/
+						me.mediaDetails.show($(this).data('node'));
+					//}
+				});
+			},
+			
+			addMedia: function() {
+				interval = setInterval(gallery.handleTimer, 1000);
+				children = gallery.getChildrenOfType(currentNode, 'all');
+				gallery.createContentBlocks();
 			}
 
 		};
 
-		gallery.currentDisplayMode = DisplayMode.All;
+		gallery.currentDisplayMode = DisplayMode.Path;
 		gallery.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
 		
-		controlBar = $('<div class="control_bar"></div>').appendTo(element);
-		allBtn = $('<span id="allBtn" class="toggle_btn on caption_font">All</span>').appendTo(controlBar);
-		pathBtn = $('<span id="pathBtn" class="toggle_btn caption_font">By path</span>').appendTo(controlBar);
-		tagBtn = $('<span id="tagBtn" class="toggle_btn caption_font">By tag</span>').appendTo(controlBar);
-		allBtn.click(function () { gallery.setDisplayMode(DisplayMode.All); });
-		pathBtn.click(function () { gallery.setDisplayMode(DisplayMode.Path); });
-		tagBtn.click(function () { gallery.setDisplayMode(DisplayMode.Tag); });
-		
-		// TODO: Don't show path/tag links if gallery contains no paths/tags
-		
-		var buttons = $('<div class="right"></div>').appendTo(controlBar);
-		//historyBtn = addIconBtn(buttons, 'history_icon.png', 'history_icon_hover.png', 'Show history');
-		shrinkBtn = addIconBtn(buttons, 'minus_icon.png', 'minus_icon_hover.png', 'Shrink');
-		expandBtn = addIconBtn(buttons, 'plus_icon.png', 'plus_icon_hover.png', 'Expand');
-		shrinkBtn.click(gallery.decrementGalleryScale);
-		expandBtn.click(gallery.incrementGalleryScale);
-		
 		mediaContainer = $('<div id="gallery_content"></div>').appendTo(element);
-		scalarapi.loadPage(currentNode.slug, true, function() {
-			childPaths = gallery.getChildrenOfType(currentNode, 'path');
-			childTags = gallery.getChildrenOfType(currentNode, 'tag');
+
+		/*// get the children of the current node
+		scalarapi.loadPage(currentNode.slug, true, function(data) {
 			children = gallery.getChildrenOfType(currentNode, 'all');
-			mediaCollection = gallery.gatherChildMedia(currentNode, 2);
-			gallery.sortCollection(mediaCollection, SortMethod.Alpha);
-			gallery.update(mediaCollection);
-			gallery.loadNextChild();
+			gallery.createContentBlocks();
 		}, function() {
 			console.log('an error occurred while retrieving structured gallery info.');
-		}, 1, true);
+		}, 1, true);*/
+		
+		return gallery;
 	
 	}
 

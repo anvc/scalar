@@ -35,9 +35,11 @@
 		this.init();
 	}
 	
-	ScalarHeader.prototype.index = null;		// Scalar index plugin
-	ScalarHeader.prototype.help = null;			// Scalar help plugin
-	ScalarHeader.prototype.search = null;		// Scalar search plugin
+	ScalarHeader.prototype.index = null;				// Scalar index plugin
+	ScalarHeader.prototype.help = null;					// Scalar help plugin
+	ScalarHeader.prototype.search = null;				// Scalar search plugin
+	ScalarHeader.prototype.state = null;				// Scalar search plugin
+	ScalarHeader.prototype.visualizations = null;		// Scalar visualizations plugin
 	
 	/**
 	 * DOM setup for the header.
@@ -45,47 +47,66 @@
 	ScalarHeader.prototype.init = function () {
 	
 		var me = this;
+		
+		this.state = 'maximized';
 	
-		this.lastScroll = $('body').scrollTop();
+		this.lastScroll = $(document).scrollTop();
 		
 		me.element.attr('id', 'header');
-		me.element.data('state', 'maximized');
+		//me.element.data('state', 'maximized');
 		
 		var bookId = parseInt($('#book-id').text());
 		$('header').hide();
 		
 		if (!isMobile) {
 			$(window).scroll(function() {
-				var currentScroll = $('body').scrollTop();
+				var currentScroll = $(document).scrollTop();
 				
 				// if we're scrolling down in Reading mode, then slide the header upwards
 				if ((currentScroll > me.lastScroll) && (currentScroll > 50) && (state == ViewState.Reading)) {
-					if (me.element.data('state') == 'maximized') {
-						me.element.data('state', 'minimized').stop().animate({top:'-40px'}, 200);
+					if ( me.state == 'maximized' ) {
+						me.state = 'minimized';
+						me.element.stop().animate({top:'-40px'}, 200);
 					}
 					
 				// if we're scrolling down, slide the header downwards
 				} else if ((me.lastScroll - currentScroll) > 10) {
-					if (me.element.data('state') == 'minimized') {
-						me.element.data('state', 'maximized').stop().animate({top:'0'}, 200);
+					if ( me.state == 'minimized' ) {
+						me.state = 'maximized';
+						me.element.stop().animate({top:'0'}, 200);
 					}
 				}
 				
-				me.lastScroll = $('body').scrollTop();
+				me.lastScroll = currentScroll;
 			});
 		}
 		
-		var img_url_1 = this.options.root_url+'/images/home_icon.png';
-		this.element.prepend('<div id="home_menu_link"><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div> ');
+		this.element.mouseenter(function() {
+			if ( me.state == 'minimized' ) {
+				me.state = 'maximized';
+				me.element.stop().animate({top:'0'}, 200);
+			}
+		});
 		
-		$('#book-title').parent().wrap('<span id="breadcrumb"></span>');
+		var img_url_1 = this.options.root_url+'/images/home_icon.png';
+		//this.element.prepend('<div id="home_menu_link"><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div> ');
+		//$('#book-title').parent().wrap('<span id="breadcrumb"></span>');
+		//var buttons = $('<div class="right"></div>').appendTo(this.element);
+		
+		this.element.contents().wrap( '<ul></ul>' );
+		
+		var list = this.element.find( 'ul' );
+		list.prepend('<li id="home_menu_link"><div><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div></li> ');
+		$('#book-title').parent().wrap('<li id="book_title"><div><span></span></div></li>');
+		var buttons = $('<li id="options"><div></div></li>').appendTo(list);
+		buttons = buttons.find( 'div' );
+		
 		
 		//$('#book-title').parent().wrap('<span class="breadcrumb"></span>');
 		//element.find('.breadcrumb').append('<span class="leaves"> &nbsp;&gt;&nbsp; <a href="#">Filmic Texts</a> &nbsp;&gt;&nbsp; The Limits of Television</span>');
 		
 		addTemplateLinks($('#breadcrumb'), 'cantaloupe');
 		
-		var buttons = $('<div class="right"></div>').appendTo(this.element);
 		
 		// various feature buttons
 		var searchControl = $('<div class="search_control"></div>').appendTo(buttons);
@@ -102,9 +123,15 @@
 		this.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
 		searchControl.find('img').click(function() {
 			if (parseInt($('.search_input').width()) == 0) {
-				$('.search_input').animate({'width': '150%', 'borderColor': '#ddd'}, 250).focus();
+				$('.search_input').stop().animate({'width': '150%', 'borderColor': '#ddd'}, 250).focus();
+				if ( $( '#options' ).hasClass( 'wide' ) ) {
+					$( '#options' ).stop().animate( { 'width': ( 368 + 220 ) }, 250 ); // TODO: magic number
+				} else {
+					$( '#options' ).stop().animate( { 'width': ( 175 + 220 ) }, 250 ); // TODO: magic number
+				}
 			} else {
-				$('.search_input').animate({'width': '0', 'borderColor': '#fff'}, 250).blur();
+				$('.search_input').stop().animate({'width': '0', 'borderColor': '#fff'}, 250).blur();
+				$( '#options' ).stop().animate( { 'width': 'auto' }, 250 );
 			}
 		});
 		
@@ -128,9 +155,12 @@
 		
 		// editing buttons
 		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
+			$( '#options' ).addClass( 'wide' );
 			buttons.append('<img class="vrule" src="'+this.options.root_url+'/images/'+'gray1x1.gif"/>');
 			addIconBtn(buttons, 'new_icon.png', 'new_icon_hover.png', 'New', scalarapi.model.urlPrefix+'new.edit?'+template_getvar+'=honeydew');
-			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
+			
+			//addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
+			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit',  scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
 			
 			if (currentNode.hasScalarType('media')) {
 				addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate', scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.annotation_editor?'+template_getvar+'=honeydew');
@@ -141,11 +171,41 @@
 		addIconBtn(buttons, 'user_icon.gif', 'user_icon_hover.gif', 'User');
 		//$('[title="Delete"]').click(this.handleDelete);
 		$('[title="User"]').click(function() {
-			document.location = addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(scalarapi.model.currentPageNode.url), 'cantaloupe');
+			document.location = addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe');
 		});
 
 		// load info about the book, build main menu when done
 		scalarapi.loadBook(true, function() {
+			
+			var i, n,
+				owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
+				authors = [];
+			if ( owners ) {
+				n = owners.length;
+				for ( i = 0; i < n; i++ ) {
+					authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
+				}
+			}
+			
+			var author,
+				n = authors.length,
+				bookTitle = $( '#book_title > div > span' );
+			for ( var i = 0; i < n; i++ ) {
+				author = authors[ i ];
+				if ( i == 0 ) {
+					bookTitle.append( ' by ' );
+				} else if ( i == ( n - 1 )) {
+					if ( n > 2 ) {
+						bookTitle.append( ', and ' );
+					} else {
+						bookTitle.append( ' and ' );
+					}
+				} else {
+					bookTitle.append( ', ' );
+				}
+				bookTitle.append( author.getDisplayTitle() );
+			}
+			
 			me.buildMainMenu();
 		});
 		
@@ -202,7 +262,7 @@
 	
 			// gather the main menu items
 			var i,
-				menu = $('<div class="menu"><ol></ol></div>').appendTo(this.element);
+				menu = $('<div id="main_menu" class="menu heading_font"><ol></ol></div>').appendTo('body');
 			var menuList = menu.find('ol'),
 				menuItems = node.getRelatedNodes('referee', 'outgoing', true);
 			var n = menuItems.length;
@@ -226,6 +286,11 @@
 				}
 			}
 			
+			/*listItem = $('<p class="unordered">Visualizations</p>').appendTo(menuList);
+			var visElement = $('<div></div>').appendTo('body');
+			this.visualizations = visElement.scalarvisualizations( {} );
+			listItem.click( function() { me.visualizations.data('plugin_scalarvisualizations').showVisualizations(); } );*/
+			
 			listItem = $('<p class="unordered">Index</p>').appendTo(menuList);
 			var indexElement = $('<div></div>').appendTo('body');
 			this.index = indexElement.scalarindex( {} );
@@ -237,35 +302,40 @@
 		
 			$('#home_menu_link').mouseenter(function(e) {
 				$(this).css('backgroundColor', '#eee');
-				$('#header > .menu').show();
+				$('#main_menu').show();
 			});
 		
 			$('#home_menu_link').click(function(e) {
-				if ($('#header > .menu').css('display') == "block") {
+				if ($('#main_menu').css('display') == "block") {
 					$(this).css('backgroundColor', '#fff');
-					$('#header > .menu').hide();
+					$('#main_menu').hide();
 				} else {
 					$(this).css('backgroundColor', '#eee');
-					$('#header > .menu').show();
+					$('#main_menu').show();
 				}
 				e.stopImmediatePropagation();
 			});
 			
-			$('#header > .menu').mouseleave(function() {
+			$('#main_menu').mouseleave(function() {
 				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#header > .menu').hide();
+				$('#main_menu').hide();
+			})
+			
+			$('#book_title').mouseenter(function() {
+				$('#home_menu_link').css('backgroundColor', 'inherit');
+				$('#main_menu').hide();
 			})
 			
 			$('body').click(function() {
 				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#header > .menu').hide();
+				$('#main_menu').hide();
 			});
 		
 		}, 1000);
 		
 	}
 	
-	ScalarHeader.prototype.buildAdminMenu = function() {
+	/*ScalarHeader.prototype.buildAdminMenu = function() {
 	
 		// gather the main menu items
 		var menu = $('<div class="menu"><ul></ul></div>').appendTo(this.element);
@@ -294,33 +364,33 @@
 		
 			$('#home_menu_link').mouseenter(function(e) {
 				$(this).css('backgroundColor', '#eee');
-				$('#header > .menu').show();
+				$('#main_menu').show();
 			});
 		
 			$('#home_menu_link').click(function(e) {
-				if ($('#header > .menu').css('display') == "block") {
+				if ($('#main_menu').css('display') == "block") {
 					$(this).css('backgroundColor', '#fff');
-					$('#header > .menu').hide();
+					$('#main_menu').hide();
 				} else {
 					$(this).css('backgroundColor', '#eee');
-					$('#header > .menu').show();
+					$('#main_menu').show();
 				}
 				e.stopImmediatePropagation();
 			});
 			
-			$('#header > .menu').mouseleave(function() {
+			$('#main_menu').mouseleave(function() {
 				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#header > .menu').hide();
+				$('#main_menu').hide();
 			})
 			
 			$('body').click(function() {
 				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#header > .menu').hide();
+				$('#main_menu').hide();
 			});
 		
 		}, 1000);
 	
-	}
+	}*/
 			
     $.fn[pluginName] = function ( options ) {
         return this.each(function () {

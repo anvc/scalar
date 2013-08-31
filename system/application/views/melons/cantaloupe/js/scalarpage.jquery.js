@@ -156,14 +156,23 @@
 			},
 			
 			addRelationshipNavigation: function(showLists) {
-				
-				var pathOptionCount = 0;
+			
+				var path, button, href,
+					pathOptionCount = 0,
+					containingPathOptionCount = 0,
+					queryVars = scalarapi.getQueryVars( document.location.href ),
+					foundQueryPath = ( queryVars.path != null );
+					
 				$('.path_of').each(function() {
 					if ($(this).parent().is('section')) {
 						var pathSection = $(this).parent();
 						pathSection.addClass('relationships');
 						pathSection.find('h3').text('Path contents');
 						pathSection.show();
+						pathSection.find( '[property="dcterms:title"] > a' ).each( function() {
+							var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
+							$( this ).attr( 'href', href );
+						});
 						
 						if (!showLists) {
 							pathSection.find('h3').hide();
@@ -172,7 +181,9 @@
 				
 						var path_nodes = currentNode.getRelatedNodes('path', 'outgoing');
 						if (path_nodes.length > 0) {
-							pathSection.append('<p><a class="nav_btn" href="'+path_nodes[0].url+'">Begin this path at “'+path_nodes[0].getDisplayTitle()+'”</a></p>');
+							button = $( '<p><a class="nav_btn primary" href="' + path_nodes[ 0 ].url + '?path=' + 
+								currentNode.slug + '">Begin this path at “' + path_nodes[0].getDisplayTitle() +
+								'”</a></p>' ).appendTo( pathSection );
 							pathOptionCount++;
 						}
 						
@@ -182,20 +193,57 @@
 				});
 				
 				var containing_paths = currentNode.getRelatedNodes('path', 'incoming');
-				//console.log(containing_paths);
+				
+				// if we're on one of the container paths, make it first in the list
+				containing_paths.sort( function( a, b ) {
+					if ( a.slug == queryVars.path ) {
+						return -1;
+					} else if ( b.slug == queryVars.path ) {
+						return 1;
+					}
+					return 0;
+				});
+
 				if (containing_paths.length > 0) {
 					for (i in containing_paths) {
+						path = containing_paths[ i ];
 						var section = $('<section class="relationships"></section').appendTo('article');
-						var sibling_nodes = containing_paths[i].getRelatedNodes('path', 'outgoing');
+						var sibling_nodes = path.getRelatedNodes('path', 'outgoing');
 						//console.log(sibling_nodes);
 						index = sibling_nodes.indexOf(currentNode);
 						if (index < (sibling_nodes.length - 1)) {
-							if (pathOptionCount > 0) {
-								section.append('<p><a class="nav_btn" href="'+sibling_nodes[index+1].url+'">Or, continue on to “'+sibling_nodes[index+1].getDisplayTitle()+'”</a></p>');
+						
+							// A child option has already been offered; this option is an alternative
+							if ( pathOptionCount > 0 ) {
+						
+								// It's an alternative on the current path or we don't know what path we're on
+								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
+									section.append( '<p><a class="nav_btn" href="' + sibling_nodes[index+1].url + '?path=' + 
+										path.slug + '">Or, continue to “' + sibling_nodes[index+1].getDisplayTitle() + '”</a></p>' );
+										
+								// It's an alternative on a different path; id the path
+								} else {
+									section.append( '<p><a class="nav_btn" href="' + sibling_nodes[index+1].url + '?path=' + 
+										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
+										sibling_nodes[index+1].getDisplayTitle() + '”</a></p>' );
+								}
+								
+							// No child options have been offered
 							} else {
-								section.append('<p><a class="nav_btn" href="'+sibling_nodes[index+1].url+'">Continue to “'+sibling_nodes[index+1].getDisplayTitle()+'”</a></p>');
+							
+								// This option is on the current path or we don't know what path we're on
+								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
+									section.append( '<p><a class="nav_btn primary" href="' + sibling_nodes[index+1].url + 
+										'?path=' + path.slug + '">Continue to “' + sibling_nodes[index+1].getDisplayTitle() +
+										'”</a></p>' );
+								} else {
+									section.append( '<p><a class="nav_btn" href="' + sibling_nodes[index+1].url + '?path=' + 
+										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
+										sibling_nodes[index+1].getDisplayTitle() + '”</a></p>' );
+								}
 							}
 							pathOptionCount++;
+							containingPathOptionCount++;
 						}
 					}
 				}
@@ -216,7 +264,7 @@
 						
 						var tag_nodes = currentNode.getRelatedNodes('tag', 'outgoing');
 						if (tag_nodes.length > 1) {
-							tagSection.append('<p><a class="nav_btn" href="'+tag_nodes[Math.floor(Math.random() * tag_nodes.length)].url+'">Visit a random tagged page</a></p>');
+							tagSection.append('<p><a class="nav_btn" href="'+tag_nodes[Math.floor(Math.random() * tag_nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
 						}
 					}
 				});			
@@ -234,16 +282,90 @@
 			},
 			
 			setupScreenedBackground: function() {
-				var screen = $('<div class="bg_screen">&nbsp;</div>').prependTo('body');
+				var screen = $('<div class="bg_screen"><img src="' + page.options.root_url + '/images/1x1white_trans.png" width="100%" height="100%"/></div>').prependTo('body');
 				screen.css('backgroundImage', $('body').css('backgroundImage'));
 				$('body').css('backgroundImage', 'none');
 			},
 			
-			addIconBtn: function(element, filename, hoverFilename, title, url) {
+			/*addIconBtn: function(element, filename, hoverFilename, title, url) {
 				var img_url_1 = header.options.root_url+'/images/'+filename;
 				var img_url_2 = header.options.root_url+'/images/'+hoverFilename;
 				if (url == undefined) url = 'javascript:;';
 				element.append('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" alt="Search" width="30" height="30" /></a>');
+			},*/
+			
+			addMediaElements: function() {
+			
+				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				switch (viewType) {
+					
+					case 'gallery':
+					$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+					scalarapi.loadPage(currentNode.slug, true, function() {
+						var i,node,link,
+							nodes = getChildrenOfType(currentNode, 'media');
+						$('article > h1').after('<div id="gallery"></div>');
+						var gallery = $('#gallery');
+						for (i in nodes) {
+							node = nodes[i];
+							link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
+							page.addMediaElementForLink(link.find('a'), link);
+							link.css('display', 'none');
+						} 
+						//page.addRelationshipNavigation(true);
+						//page.addComments();		  	
+					}, function() {
+						console.log('an error occurred while retrieving gallery info.');
+					}, 1, true);
+					break;
+					
+					case 'structured_gallery':
+					// add structured gallery media
+					gallery.addMedia();
+					break;
+				
+					default:
+				  	$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+					$('a').each(function() {
+					
+						// resource property signifies a media link
+						if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
+						
+							var slot;
+							var slotDOMElement;
+							var slotMediaElement;
+							var count;
+							var parent;
+							
+							if ($(this).attr('resource') == undefined) {
+								$(this).attr('href', currentNode.current.sourceFile);
+								$(this).attr('resource', currentNode.slug);
+								$(this).attr('data-size', 'full');
+								parent = $(this);
+							} else {
+								parent = $(this).parent('p,div');
+							}
+											
+							$(this).addClass('media_link');
+							
+							page.addMediaElementForLink($(this), parent);
+							
+						}
+					});
+					$('[property="art:url"]').each(function() {
+					
+						if ($(this).text().length > 0) {
+							$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
+							page.addMediaElementForLink($(this).find('a'), $(this));
+							$(this).css('display', 'none');
+						
+						}
+					
+					});
+					break;
+				
+				}
+			
 			}
 			
 		};
@@ -256,6 +378,13 @@
 	  	
 	  	$('[property="scalar:defaultView"]').hide();
 	  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
+	  	
+	  	// This code makes full-sized inline media truly full instead of having margins
+	  	/*$('[property="sioc:content"]').children('p,div').each( function() {
+	  		if ( $( this ).find('.inline[data-size="full"]').length == 0 ) {
+	  			$( this ).addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
+	  		}
+	  	});*/
 		
 		$('section').hide(); // TODO: Make this more targeted	
 		
@@ -268,7 +397,7 @@
 			case 'splash':
 			element.addClass('splash');
 			$('h1').wrap('<div class="title_card"></div>');
-			$('.title_card').append('<h2>By Steve Anderson</h2>');
+			//$('.title_card').append('<h2>By Steve Anderson</h2>');
 			$('.title_card').delay(500).fadeIn(2000);
 			$('[property="art:url"]').hide();
 			element.css('backgroundImage', $('body').css('backgroundImage'));
@@ -279,7 +408,7 @@
 			break;
 			
 			case 'gallery':
-			$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+			/*$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 			scalarapi.loadPage(currentNode.slug, true, function() {
 				var i,node,link,
 					nodes = getChildrenOfType(currentNode, 'media');
@@ -291,11 +420,11 @@
 					page.addMediaElementForLink(link.find('a'), link);
 					link.css('display', 'none');
 				} 
-				page.addRelationshipNavigation(true);
-				page.addComments();		  	
 			}, function() {
 				console.log('an error occurred while retrieving gallery info.');
-			}, 1, true);
+			}, 1, true);*/
+			page.addRelationshipNavigation(true);
+			page.addComments();		  	
 			break;
 			
 			case 'visualization':
@@ -306,28 +435,17 @@
 			
 			case 'structured_gallery':
 			page.setupScreenedBackground();
-			//$('.page').addClass('structured_gallery');
-			//$('h1').eq(0).css('marginTop', $('.page').css('paddingTop'));
-			//$('.page').css('paddingTop', '0');
-			
-			/*element.children().wrapAll('<div class="fixed_header"></div>');
-			var fixed_header = element.find('.fixed_header');
-			fixed_header.css('backgroundColor', $('.page').css('backgroundColor'));*/
-			
 			var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
-			//gallery.css('paddingTop', fixed_header.height());
-			
 			page.addComments();		  	
 			break;
 		
 			default:
-		  	//$('body').bind('mediaElementMetadataHandled', page.handleMediaElementMetadata);
-		  	$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+		  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
 			page.setupScreenedBackground();
 		  	
 		  	// add mediaelements
-			$('a').each(function() {
+			/*$('a').each(function() {
 			
 				// resource property signifies a media link
 				if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
@@ -357,14 +475,13 @@
 			$('[property="art:url"]').each(function() {
 			
 				if ($(this).text().length > 0) {
-					console.log(this);
 					$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
 					page.addMediaElementForLink($(this).find('a'), $(this));
 					$(this).css('display', 'none');
 				
 				}
 			
-			});
+			});*/
 					
 			page.addRelationshipNavigation(true);
 			page.addComments();		  	
@@ -377,6 +494,7 @@
 	  	$('body').addClass('body_font');
 	  	$('h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font');
 		
+		return page;
 	
 	}
 
