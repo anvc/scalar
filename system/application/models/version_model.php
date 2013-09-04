@@ -47,7 +47,7 @@ class Version_model extends MY_Model {
   				if (!isURL($value)) $row->url[$key] = abs_url($value, $prefix);
   			}
   		}
-  		$rdf = parent::rdf($row);
+  		$rdf = parent::rdf($row, $prefix);
   		
   		// Blend with RDF from the semantic store
   		if (!empty($row->rdf)) {

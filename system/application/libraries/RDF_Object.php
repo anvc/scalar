@@ -191,7 +191,7 @@ class RDF_Object {
 			}		
 			$return[$base_uri.$row->slug] = $CI->pages->rdf($row, $base_uri);
 			foreach ($row->versions as $version) {	
-				$return[$base_uri.$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version);
+				$return[$base_uri.$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $base_uri);
 			}
 		}   
     	
@@ -338,7 +338,7 @@ class RDF_Object {
 		// Write page RDF before version RDF so they show up in the correct human-readable order
 		$return[$base_uri.$content->slug] = $CI->pages->rdf($content, $base_uri);
 		foreach ($this->version_cache[$content->content_id] as $version) {
-			$return[$base_uri.$content->slug.'.'.$version->version_num] = $CI->versions->rdf($version);
+			$return[$base_uri.$content->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $base_uri);
 		}								
 
 		// Write references nodes (down here so they show up at the bottom of the graph)

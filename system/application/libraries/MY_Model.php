@@ -241,16 +241,12 @@ abstract class MY_Model extends Model {
 				foreach ($values as $value) {
 					if (empty($value)) continue;
 					$func = $this->rdf_fields[$field][$j]['func_name'];
-					if (method_exists($this, $func)) $value = $this->$func($value);
+					if (method_exists($this, $func)) $value = $this->$func($value, $base_uri);
 					$return[$this->rdf_fields[$field][$j]['pname']][$count] = $this->rdf_value($value);
 					$count++;
 				}
 			}
 		} 
-		// Creator
-		if (!empty($base_uri) && isset($row->user)) {
-			$return['foaf:homepage'][0] = $this->rdf_value(confirm_slash($base_uri).'users/'.$row->user);
-		}
 		return $return;
 		
 	}
@@ -285,6 +281,13 @@ abstract class MY_Model extends Model {
 
 		if (isURL($value)) return $value;
 		return 'http://scalar.usc.edu/2012/01/scalar-ns#'.ucwords($value);
+		
+	}
+	
+	public function foaf_homepage($value, $base_uri) {
+
+		if (isURL($value)) return $value;
+		return confirm_slash($base_uri).'users/'.$value;
 		
 	}
 	

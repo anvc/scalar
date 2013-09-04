@@ -27,6 +27,7 @@ $config['rdf_fields'] = array(
 		'type' => 					'rdf:type',
 		'name' =>					'foaf:name',
 		'homepage' =>				'foaf:homepage',
+		'user' =>					'foaf:homepage', 
 		'fullname' =>				'dcterms:creator',
 		'title' => 					'dcterms:title',
 		'description' => 			'dcterms:description',
