@@ -376,6 +376,7 @@ class Page_model extends MY_Model {
 		if (isset($array['thumbnail']))  $data['thumbnail'] = $array['thumbnail'];
 		if (isset($array['background']))  $data['background'] = $array['background'];
 		if (isset($array['custom_style']))  $data['custom_style'] = $array['custom_style'];
+		if (isset($array['custom_scripts']))  $data['custom_scripts'] = $array['custom_scripts'];
 		if (isset($array['audio']))  $data['audio'] = $array['audio'];		
 
     	$this->db->insert($this->pages_table, $data); 

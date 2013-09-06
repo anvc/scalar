@@ -21,9 +21,9 @@
 /**
 * @projectDescription	Save API controller for adding and modifying Scalar data remotely via POST
 * @abstract				This controller dispatches authentication requests and database updates received via POST
-* @return				On success returns RDF-JSON error messages are sent as HTTP response codes
+* @return				On success returns RDF-JSON; error messages are sent as HTTP response codes
 * @author				John Bell w/ Craig Dietrich
-* @version				1.0
+* @version				1.1
 */
 
 Class Api extends Controller {
@@ -48,13 +48,11 @@ Class Api extends Controller {
 	private $rel_referenced = array('reference_text');
 	private $rel_replied = array('paragraph_num', 'datetime');  
 	private $rel_tagged = array();
-	private $rel_page = array();
 
 	//Defaults
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
 	private $allowable_metadata_prefixes = array('dcterms', 'art', 'shoah', 'scalar');	
-	private $disallowable_metadata_prefixes = array('scalar:metadata');	
 	protected $data;
 	
 	public function __construct(){
@@ -121,7 +119,7 @@ Class Api extends Controller {
 	
 	/**
 	 * Adds a new page and version.  This function requires that the new content have some relationship to
-	 * existing content elsewhere in the book.  TODO: a bit more type validation after I understand paths better
+	 * existing content elsewhere in the book. 
 	 */
 	public function add(){
 		$this->load->model('page_model', 'pages');
@@ -291,11 +289,14 @@ Class Api extends Controller {
 		return true;
 	}
 	
-	private function _load_add_data(){
+	private function _load_add_data() {
+		
 		foreach($this->add_fields as $idx) {
 			$this->data[$idx] = $this->input->post($idx);
 			if(!$this->data[$idx] && !in_array($idx, $this->optional_add_fields)) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field: '.$idx);
 		}
+		
+		// TODO: remove scalar:metadata block once migrations are complete
 		foreach($this->content_metadata as $idx){
 			if($this->input->post('scalar:metadata:'.$idx)===false){
 				//$this->data['scalar:metadata:'.$idx] = '';
@@ -310,6 +311,7 @@ Class Api extends Controller {
 				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
 			}		
 		}		
+		
 		if(!in_array($this->data['scalar:child_rel'], $this->rel_types)) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Invalid scalar:child_rel value.');
 		
 		$all_post_data = $_POST;   // $this->input->post() is supposed to return the full array, but doesn't
@@ -330,21 +332,14 @@ Class Api extends Controller {
 				$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 			}
 		}
-		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
-
-		foreach($this->$rel_meta as $idx){
-			if($this->input->post('scalar:metadata:'.$idx)===false){
-				$this->data['scalar:metadata:'.$idx] = '';
-			} else {
-				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
-			}
-		}
 		
 		$this->_validate_rdf_type($this->data['rdf:type']);
 		$this->_validate_rdf_type($this->data['scalar:child_type']);
+		
 	}
 	
-	private function _load_relate_data(){
+	private function _load_relate_data() {
+		
 		foreach($this->relate_fields as $idx) {
 			$this->data[$idx] = $this->input->post($idx);
 			if(!$this->data[$idx]) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field.');
@@ -366,23 +361,35 @@ Class Api extends Controller {
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 		}
 
+		$all_post_data = $_POST;   // $this->input->post() is supposed to return the full array, but doesn't
+		foreach ($all_post_data as $key => $value) {
+			foreach ($this->allowable_metadata_prefixes as $prefix) {
+				if (substr($key, 0, strlen($prefix))==$prefix) $this->data[$key] = $value;
+			}
+		}			
+		
+		// TODO: remove scalar:metadata block once migrations are complete
 		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
 		foreach($this->$rel_meta as $idx){
 			if($this->input->post('scalar:metadata:'.$idx)===false){
-				$this->data['scalar:metadata:'.$idx] = '';
+				//$this->data['scalar:metadata:'.$idx] = '';
 			} else {
 				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
 			}
 		}
+		
 	}
 	
-	private function _load_update_data(){
+	private function _load_update_data() {
+		
 		foreach($this->update_fields as $idx) {
 			$this->data[$idx] = $this->input->post($idx);
 			if(!$this->data[$idx] && !in_array($idx, $this->optional_update_fields)) {
 				$this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field ['.$idx.'].');
 			}
 		}		
+		
+		// TODO: remove scalar:metadata block once migrations are complete
 		foreach($this->content_metadata as $idx){
 			if($this->input->post('scalar:metadata:'.$idx)===false){
 				//$this->data['scalar:metadata:'.$idx] = '';
@@ -397,6 +404,7 @@ Class Api extends Controller {
 				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
 			}
 		}
+		
 		$all_post_data = $_POST;   // $this->input->post() is supposed to return the full array, but doesn't
 		foreach ($all_post_data as $key => $value) {
 			foreach ($this->allowable_metadata_prefixes as $prefix) {
@@ -409,6 +417,7 @@ Class Api extends Controller {
 		if($this->versions->get_book($this->data['version_id']) != $this->user->book_id){
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 		}
+		
 	}
 	
 	private function _load_delete_data(){
@@ -439,8 +448,11 @@ Class Api extends Controller {
 		$save['type'] = strtolower(array_pop(explode('#', $this->data['rdf:type'])));
 		
 		foreach($this->content_metadata as $idx){
-			//if($this->data['scalar:metadata:'.$idx]!=='') $save[$idx] = $this->data['scalar:metadata:'.$idx];
-			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];
+			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
+			if(isset($this->data['scalar:'.$idx])) {
+				$save[$idx] = $this->data['scalar:'.$idx];
+				unset($this->data['scalar:'.$idx]);
+			}
 		}
 		
 		if(isset($save['slug']) && empty($save['slug'])) unset($save['slug']);
@@ -460,8 +472,11 @@ Class Api extends Controller {
 		$save['type'] =@ strtolower(array_pop(explode('#', $this->data['rdf:type'])));
 	
 		foreach($this->content_metadata as $idx){
-			// if($this->data['scalar:metadata:'.$idx]!=='') $save[$idx] = $this->data['scalar:metadata:'.$idx];
-			 if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];
+			 if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
+			 if(isset($this->data['scalar:'.$idx])) {
+			 	$save[$idx] = $this->data['scalar:'.$idx];
+			 	unset($this->data['scalar:'.$idx]);
+			 }
 		}
 	
 		if(isset($save['slug']) && empty($save['slug'])) unset($save['slug']);		
@@ -487,8 +502,11 @@ Class Api extends Controller {
 		$save['attribution'] = $this->versions->build_attribution($this->data['scalar:fullname'], $this->input->server('REMOTE_ADDR'));		
 	
 		foreach($this->version_metadata as $idx){
-			//if($this->data['scalar:metadata:'.$idx]!=='') $save[$idx] = $this->data['scalar:metadata:'.$idx];
-			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];
+			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
+			if(isset($this->data['scalar:'.$idx])) {
+				$save[$idx] = $this->data['scalar:'.$idx];
+				unset($this->data['scalar:'.$idx]);
+			}
 		}
 		
 		foreach ($this->data as $key => $value) {
@@ -496,12 +514,12 @@ Class Api extends Controller {
 			foreach ($this->allowable_metadata_prefixes as $prefix) {
 				if (substr($key, 0, strlen($prefix))==$prefix) $key_is_allowable = true;
 			}
-			foreach ($this->disallowable_metadata_prefixes as $prefix) {
-				if (substr($key, 0, strlen($prefix))==$prefix) $key_is_allowable = false;
-			}	
 			foreach ($this->add_fields as $predicate) {
 				if ($key==$predicate) $key_is_allowable = false;
-			}		
+			}	
+			foreach ($this->relate_fields as $predicate) {
+				if ($key==$predicate) $key_is_allowable = false;
+			}					
 			if ($key_is_allowable) $save[$key] = $value;
 		}		
 
@@ -513,30 +531,41 @@ Class Api extends Controller {
 	 * _do_relate relates a passed parent_id (numeric) to the child specified in post data.  Call after parsing and cleaning.
 	 * @param int $parent_id
 	 */
-	private function _do_relate($parent_id){
-		//establish the relationship to the passed child
-		switch($this->data['scalar:child_rel']){
+	private function _do_relate($parent_id) {
+
+		$save = array();
+		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
+		foreach($this->$rel_meta as $idx) {
+			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
+			if(isset($this->data['scalar:'.$idx])) {
+				$save[$idx] = $this->data['scalar:'.$idx];
+				unset($this->data['scalar:'.$idx]);
+			}
+		}		
+
+		switch($this->data['scalar:child_rel']) {
 			case 'annotated':
 				$this->load->model('annotation_model', 'annotations');
-				$this->annotations->save_children($parent_id, array($this->data['scalar:child_urn']), array($this->data['scalar:metadata:start_seconds']), array($this->data['scalar:metadata:end_seconds']), array($this->data['scalar:metadata:start_line_num']), array($this->data['scalar:metadata:end_line_num']), array($this->data['scalar:metadata:points']));
+				$this->annotations->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['start_seconds']), array($save['end_seconds']), array($save['start_line_num']), array($save['end_line_num']), array($save['points']));
 				break;
 			case 'contained':
 				$this->load->model('path_model', 'paths');
-				$this->paths->save_children($parent_id, array($this->data['scalar:child_urn']), array($this->data['scalar:metadata:sort_number']));
+				$this->paths->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['sort_number']));
 				break;
 			case 'referenced':
 				$this->load->model('reference_model', 'references');
-				$this->references->save_children($parent_id, array($this->data['scalar:child_urn']), array($this->data['scalar:metadata:reference_text']));
+				$this->references->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['reference_text']));
 				break;
 			case 'replied':
 				$this->load->model('reply_model', 'replies');
-				$this->replies->save_children($parent_id, array($this->data['scalar:child_urn']), array($this->data['scalar:metadata:paragraph_num']), array($this->data['scalar:metadata:datetime']));
+				$this->replies->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['paragraph_num']), array($save['datetime']));
 				break;
 			case 'tagged':
 				$this->load->model('tag_model', 'tags');
 				$this->tags->save_children($parent_id, array($this->data['scalar:child_urn']));
 				break;
-		}		
+		}
+				
 	}
 	
 	private function _fill_user_session_data(){

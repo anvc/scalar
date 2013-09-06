@@ -25,7 +25,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 ?></h4>
 
 <?
-if ($book->template == 'cantaloupe') {
+if ('cantaloupe' == $book->template) {
 	echo('<form id="edit_form" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), true);">');
 } else {
 	echo('<form id="edit_form" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), false);">');
@@ -62,7 +62,7 @@ endif;
 
 	<!--  Media file URL -->
 	<tr class="type_media">
-		<td class="field">Media File URL</td><td><input name="scalar:metadata:url" value="<?=(!empty($file_url))?$file_url:'http://'?>" style="width:100%;" onfocus="if (this.value=='http://') this.value='';" /></td>
+		<td class="field">Media File URL</td><td><input name="scalar:url" value="<?=(!empty($file_url))?$file_url:'http://'?>" style="width:100%;" onfocus="if (this.value=='http://') this.value='';" /></td>
 	</tr>
 
 	<!-- Edit content -->
@@ -97,7 +97,7 @@ endif;
 	<!--  default view -->
 	<tr id="default_view" class="type_composite">
 	  <td class="field field_middle spacer">Default view</td>
-	  <td class="spacer" valign="middle"><select name="scalar:metadata:default_view" class="generic_button large" id="default_view_select"><?
+	  <td class="spacer" valign="middle"><select name="scalar:default_view" class="generic_button large" id="default_view_select"><?
 			foreach ($page_views as $view_slug => $view_name) {
 				echo '<option value="'.$view_slug.'" ';
 				if (isset($page->version_index) && $page->versions[$page->version_index]->default_view==$view_slug) echo ' SELECTED';
@@ -141,7 +141,7 @@ endif;
 			?>
 			      <div class="form_fields_sub_element" id="container_of_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#container_of_editor'), 'add_path_item')">Add more content</a> or drag items to reorder</div>
 			     
-			      <div class="form_fields_sub_element form_fields_sub_element_border_top form_fields_sub_element_border_bottom" id="path_continue_to" style="display:none;margin-top:12px;">After path is completed, continue to <input type="hidden" name="scalar:metadata:continue_to_content_id" value="<?=((!empty($continue_to))?$continue_to->content_id:'')?>" /><span style="font-weight:bold"><?=((!empty($continue_to))?$continue_to->versions[$continue_to->version_index]->title:'none')?></span>&nbsp; <a href="javascript:;" onclick="listeditor_add(null,'add_continue_to', null, false, true)">add</a> | <a href="javascript:" onclick="clear_continue_to();">clear</a></div>
+			      <div class="form_fields_sub_element form_fields_sub_element_border_top form_fields_sub_element_border_bottom" id="path_continue_to" style="display:none;margin-top:12px;">After path is completed, continue to <input type="hidden" name="scalar:continue_to_content_id" value="<?=((!empty($continue_to))?$continue_to->content_id:'')?>" /><span style="font-weight:bold"><?=((!empty($continue_to))?$continue_to->versions[$continue_to->version_index]->title:'none')?></span>&nbsp; <a href="javascript:;" onclick="listeditor_add(null,'add_continue_to', null, false, true)">add</a> | <a href="javascript:" onclick="clear_continue_to();">clear</a></div>
 			
 			<? if (!empty($page)&&!empty($page->versions[$page->version_index]->has_paths)): ?>
 				  <div id="has_path">
@@ -383,7 +383,7 @@ endif;
   		<tr><!-- thumbnail -->
   			<td>Thumbnail</td>
   			<td><?=((@!empty($page->thumbnail))?'<img src="'.abs_url($page->thumbnail, $base_uri).'" class="thumb_preview" />':'No thumbnail image has been set')?></td>
-  			<td class="styling_last"><select name="scalar:metadata:thumbnail"><option value="">Choose an uploaded image</option><?
+  			<td class="styling_last"><select name="scalar:thumbnail"><option value="">Choose an uploaded image</option><?
   				$matched = false;
   				foreach ($book_images as $book_image_row) {
   					if (@$page->thumbnail==$book_image_row->versions[$book_image_row->version_index]->url) $matched = true;
@@ -397,7 +397,7 @@ endif;
   		</tr>
   		<tr class="styling_sub"><!-- color -->
   			<td>Color<br /><small>e.g., for path nav bar</small></td>
-  			<td><input style="width:100%;" type="text" id="color_select" name="scalar:metadata:color" value="<?=(!empty($page->color))?$page->color:'#ffffff'?>" /></td>
+  			<td><input style="width:100%;" type="text" id="color_select" name="scalar:color" value="<?=(!empty($page->color))?$page->color:'#ffffff'?>" /></td>
   			<td class="styling_last">
   				 <a href="javascript:;" class="generic_button" onclick="$(this).next().toggle();">Choose</a>
   				<div style="display:none;margin-top:6px;"><div id="colorpicker"></div></div>
@@ -406,7 +406,7 @@ endif;
   		<tr class="styling_sub"><!-- background image -->
   			<td>Background image</td>
   			<td><?=((@!empty($page->background))?'<img src="'.confirm_slash(base_url()).confirm_slash($book->slug).$page->background.'" class="thumb_preview" />':'No background image has been set')?></td>
-  			<td class="styling_last"><select name="scalar:metadata:background"><option value="">Choose an uploaded image</option><?
+  			<td class="styling_last"><select name="scalar:background"><option value="">Choose an uploaded image</option><?
   				$matched = false;
   				foreach ($book_images as $book_image_row) {
   					if (@$page->background==$book_image_row->versions[$book_image_row->version_index]->url) $matched = true;
@@ -423,19 +423,19 @@ endif;
    				Custom CSS style<br />
    				<small>e.g., .cover_title {color:red;}</small><div style="height:6px;overflow:hidden;"></div>
    			</td>
-  			<td colspan="2"><textarea name="scalar:metadata:custom_style" style="width:100%;height:50px;"><?=!empty($page->custom_style) ? $page->custom_style : ''?></textarea></td>
+  			<td colspan="2"><textarea name="scalar:custom_style" style="width:100%;height:50px;"><?=!empty($page->custom_style) ? $page->custom_style : ''?></textarea></td>
   		</tr>  	
   		<tr class="styling_sub">
    			<td style="position:relative;">
    				Custom Javascript
    				<div style="width:150px;white-space:normal;"><small>Javascript or jQuery source</div>
    			</td>
-  			<td colspan="2"><textarea name="scalar:metadata:custom_scripts" style="width:100%;height:50px;"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea></td>
+  			<td colspan="2"><textarea name="scalar:custom_scripts" style="width:100%;height:50px;"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea></td>
   		</tr>  		
   		<tr class="styling_sub"><!-- background audio -->
   			<td>Background audio</td>
   			<td><?=((@!empty($page->audio))?basename($page->audio):'No background audio has been set')?></td>
-  			<td class="styling_last"><select name="scalar:metadata:audio"><option value="">Choose an uploaded audio</option><?
+  			<td class="styling_last"><select name="scalar:audio"><option value="">Choose an uploaded audio</option><?
   			  	$matched = false;
   				foreach ($book_audio as $book_audio_row) {
   					if (@$page->audio==$book_audio_row->versions[$book_audio_row->version_index]->url) $matched = true;
@@ -459,7 +459,7 @@ endif;
 		<table id="page_meta">
 			<tr>
 			  <td class="field">Scalar URL</td>
-			  <td><?=$base_uri?><input name="scalar:metadata:slug" value="<?=$page_url?>" style="width:210px;" id="slug" /><? if (empty($page_url)) echo '<span style="white-space:nowrap;">&nbsp; (will auto-generate)</span>';?></td>
+			  <td><?=$base_uri?><input name="scalar:slug" value="<?=$page_url?>" style="width:210px;" id="slug" /><? if (empty($page_url)) echo '<span style="white-space:nowrap;">&nbsp; (will auto-generate)</span>';?></td>
 			</tr>
 			<? if (@!empty($page->versions[$page->version_index]->attribution->fullname)): ?>
 			<tr>
@@ -470,7 +470,7 @@ endif;
 			
 			<tr>
 				<td>Page visibility?</td>
-			    <td><select name="scalar:metadata:is_live"><option value="0" <?=((@!$page->is_live)?'selected':'')?>>Hidden</option><option value="1" <?=(!isset($page->version_index)||(@$page->is_live)?'selected':'')?>>Visible</option></select></td>
+			    <td><select name="scalar:is_live"><option value="0" <?=((@!$page->is_live)?'selected':'')?>>Hidden</option><option value="1" <?=(!isset($page->version_index)||(@$page->is_live)?'selected':'')?>>Visible</option></select></td>
 			</tr>			
 			
 			  <tr>
@@ -481,7 +481,7 @@ endif;
 			    	<input type="radio" name="rdf:type" id="type_media" onchange="checkTypeSelect()" value="http://scalar.usc.edu/2012/01/scalar-ns#Media"<?=((isset($page->type)&&$page->type!='composite')?' CHECKED':'')?>><label for="type_media">Media File</label>
 			    	&nbsp; &nbsp; 
 			    </span>
-			    <select name="scalar:metadata:category">
+			    <select name="scalar:category">
 			<?
 				$category =@ (!empty($page->category)) ? $page->category : null;
 				if (empty($category) && $is_new) {
@@ -577,7 +577,7 @@ if (isset($page->version_index)):
 		}
 	}
 	// Table of Contents
-	echo '<input type="hidden" name="scalar:metadata:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />';
+	echo '<input type="hidden" name="scalar:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />';
 endif;
 ?> 
 

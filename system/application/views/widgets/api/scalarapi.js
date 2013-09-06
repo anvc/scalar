@@ -978,7 +978,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':data['scalar:urn'], 
 			'scalar:child_urn':$(this).val(), 
 			'scalar:child_rel':'contained', 
-			'scalar:metadata:sort_number':(indexInArray+1)	
+			'scalar:sort_number':(indexInArray+1)	
 		});
 	});
 	// Queue reply_of 
@@ -988,7 +988,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':data['scalar:urn'], 
 			'scalar:child_urn':$(this).val(), 
 			'scalar:child_rel':'replied', 
-			'scalar:metadata:paragraph_num':$(data['reply_of_paragraph_num'][indexInArray]).val()
+			'scalar:paragraph_num':$(data['reply_of_paragraph_num'][indexInArray]).val()
 		});
 	});	
 	// Queue annotation_of 
@@ -998,11 +998,11 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':data['scalar:urn'], 
 			'scalar:child_urn':$(this).val(), 
 			'scalar:child_rel':'annotated', 
-			'scalar:metadata:start_seconds':$(data['annotation_of_start_seconds'][indexInArray]).val(),
-			'scalar:metadata:end_seconds':$(data['annotation_of_end_seconds'][indexInArray]).val(),
-			'scalar:metadata:start_line_num':$(data['annotation_of_start_line_num'][indexInArray]).val(),
-			'scalar:metadata:end_line_num':$(data['annotation_of_end_line_num'][indexInArray]).val(),
-			'scalar:metadata:points':$(data['annotation_of_points'][indexInArray]).val(),
+			'scalar:start_seconds':$(data['annotation_of_start_seconds'][indexInArray]).val(),
+			'scalar:end_seconds':$(data['annotation_of_end_seconds'][indexInArray]).val(),
+			'scalar:start_line_num':$(data['annotation_of_start_line_num'][indexInArray]).val(),
+			'scalar:end_line_num':$(data['annotation_of_end_line_num'][indexInArray]).val(),
+			'scalar:points':$(data['annotation_of_points'][indexInArray]).val(),
 		});
 	});	
 	// Queue tag_of 
@@ -1021,7 +1021,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':data['scalar:urn'], 
 			'scalar:child_urn':$(this).val(), 
 			'scalar:child_rel':'referenced',
-			'scalar:metadata:reference_text':'', /* todo */
+			'scalar:reference_text':'', /* todo */
 		});
 	});		
 	
@@ -1032,7 +1032,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':$(this).val(), 
 			'scalar:child_urn':data['scalar:urn'],
 			'scalar:child_rel':'contained', 
-			'scalar:metadata:sort_number':$(data['has_container_sort_number'][indexInArray]).val()	
+			'scalar:sort_number':$(data['has_container_sort_number'][indexInArray]).val()	
 		});
 	});
 	// Queue has_reply 
@@ -1042,8 +1042,8 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':$(this).val(), 
 			'scalar:child_urn':data['scalar:urn'], 
 			'scalar:child_rel':'replied', 
-			'scalar:metadata:paragraph_num':$(data['has_reply_paragraph_num'][indexInArray]).val(),
-			'scalar:metadata:datetime':$(data['has_reply_datetime'][indexInArray]).val()
+			'scalar:paragraph_num':$(data['has_reply_paragraph_num'][indexInArray]).val(),
+			'scalar:datetime':$(data['has_reply_datetime'][indexInArray]).val()
 		});
 	});	
 	// Queue has_annotation 
@@ -1053,11 +1053,11 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':$(this).val(), 
 			'scalar:child_urn':data['scalar:urn'], 
 			'scalar:child_rel':'annotated', 
-			'scalar:metadata:start_seconds':$(data['has_annotation_start_seconds'][indexInArray]).val(),
-			'scalar:metadata:end_seconds':$(data['has_annotation_end_seconds'][indexInArray]).val(),
-			'scalar:metadata:start_line_num':$(data['has_annotation_start_line_num'][indexInArray]).val(),
-			'scalar:metadata:end_line_num':$(data['has_annotation_end_line_num'][indexInArray]).val(),
-			'scalar:metadata:points':$(data['has_annotation_points'][indexInArray]).val()
+			'scalar:start_seconds':$(data['has_annotation_start_seconds'][indexInArray]).val(),
+			'scalar:end_seconds':$(data['has_annotation_end_seconds'][indexInArray]).val(),
+			'scalar:start_line_num':$(data['has_annotation_start_line_num'][indexInArray]).val(),
+			'scalar:end_line_num':$(data['has_annotation_end_line_num'][indexInArray]).val(),
+			'scalar:points':$(data['has_annotation_points'][indexInArray]).val()
 		});
 	});	
 	// Queue has_tag 
@@ -1076,7 +1076,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':$(this).val(), 
 			'scalar:child_urn':data['scalar:urn'], 
 			'scalar:child_rel':'referenced',
-			'scalar:metadata:reference_text':'' /* todo */
+			'scalar:reference_text':'' /* todo */
 		});
 	});		
 
