@@ -53,6 +53,7 @@ Class Api extends Controller {
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
 	private $allowable_metadata_prefixes = array('dcterms', 'art', 'shoah', 'scalar');	
+	private $disallowable_metadata_prefixes = array('scalar:metadata');
 	protected $data;
 	
 	public function __construct(){
@@ -312,13 +313,15 @@ Class Api extends Controller {
 			}		
 		}		
 		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
-		foreach($this->$rel_meta as $idx){
-			if($this->input->post('scalar:metadata:'.$idx)===false){
-				//$this->data['scalar:metadata:'.$idx] = '';
-			} else {
-				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
-			}
-		}		
+		if (isset($this->$rel_meta)) {
+			foreach($this->$rel_meta as $idx){
+				if($this->input->post('scalar:metadata:'.$idx)===false){
+					//$this->data['scalar:metadata:'.$idx] = '';
+				} else {
+					$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
+				}
+			}		
+		}
 		
 		if(!in_array($this->data['scalar:child_rel'], $this->rel_types)) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Invalid scalar:child_rel value.');
 		
@@ -378,11 +381,13 @@ Class Api extends Controller {
 		
 		// TODO: remove scalar:metadata block once migrations are complete
 		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
-		foreach($this->$rel_meta as $idx){
-			if($this->input->post('scalar:metadata:'.$idx)===false){
-				//$this->data['scalar:metadata:'.$idx] = '';
-			} else {
-				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
+		if (isset($this->$rel_meta)) {
+			foreach($this->$rel_meta as $idx){
+				if($this->input->post('scalar:metadata:'.$idx)===false){
+					//$this->data['scalar:metadata:'.$idx] = '';
+				} else {
+					$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
+				}
 			}
 		}
 		
@@ -522,6 +527,9 @@ Class Api extends Controller {
 			foreach ($this->allowable_metadata_prefixes as $prefix) {
 				if (substr($key, 0, strlen($prefix))==$prefix) $key_is_allowable = true;
 			}
+			foreach ($this->disallowable_metadata_prefixes as $prefix) {
+				if (substr($key, 0, strlen($prefix))==$prefix) $key_is_allowable = false;
+			}
 			foreach ($this->add_fields as $predicate) {
 				if ($key==$predicate) $key_is_allowable = false;
 			}	
@@ -543,13 +551,18 @@ Class Api extends Controller {
 
 		$save = array();
 		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
-		foreach($this->$rel_meta as $idx) {
-			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
-			if(isset($this->data['scalar:'.$idx])) {
-				$save[$idx] = $this->data['scalar:'.$idx];
-				unset($this->data['scalar:'.$idx]);
-			}
-		}		
+		if (isset($this->$rel_meta)) {
+			foreach($this->$rel_meta as $idx) {
+				if (isset($this->data['scalar:metadata:'.$idx])) {
+					$save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
+				} elseif (isset($this->data['scalar:'.$idx])) {
+					$save[$idx] = $this->data['scalar:'.$idx];
+					unset($this->data['scalar:'.$idx]);
+				} else {
+					$save[$idx] = null;
+				}
+			}		
+		}
 
 		switch($this->data['scalar:child_rel']) {
 			case 'annotated':
