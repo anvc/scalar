@@ -311,6 +311,14 @@ Class Api extends Controller {
 				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
 			}		
 		}		
+		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
+		foreach($this->$rel_meta as $idx){
+			if($this->input->post('scalar:metadata:'.$idx)===false){
+				//$this->data['scalar:metadata:'.$idx] = '';
+			} else {
+				$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
+			}
+		}		
 		
 		if(!in_array($this->data['scalar:child_rel'], $this->rel_types)) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Invalid scalar:child_rel value.');
 		
@@ -331,7 +339,7 @@ Class Api extends Controller {
 			if($this->versions->get_book(array_pop(explode(':', $this->data['scalar:child_urn']))) != $this->user->book_id){
 				$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 			}
-		}
+		}		
 		
 		$this->_validate_rdf_type($this->data['rdf:type']);
 		$this->_validate_rdf_type($this->data['scalar:child_type']);
