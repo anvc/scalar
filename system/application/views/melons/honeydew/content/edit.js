@@ -272,10 +272,6 @@ function validate_form($form, ignoreViewCheck) {
 
 function listeditor_add($list, _insert_func, default_type, only_default_type, select_single) {
 
-	if ('undefined'==typeof(content_array_pages)) {
-		//load_content();
-	}
-
 	if ('undefined'==default_type) default_type = null;
 	if ('undefined'==only_default_type) only_default_type = false;
 	if ('undefined'==select_single) select_single = false;
