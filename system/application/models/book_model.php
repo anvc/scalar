@@ -245,7 +245,7 @@ class Book_model extends MY_Model {
  
     	if (empty($title)) throw new Exception('Could not resolve title');
     	
-    	$uri = $orig = safe_name($title);
+    	$uri = $orig = safe_name($title, false);  // Don't allow forward slashes
     	$count = 1;
  		while (file_exists($uri)) {
  			$uri = create_suffix($orig, $count);
@@ -341,6 +341,7 @@ class Book_model extends MY_Model {
     	
     	// Manage slug
     	if (isset($array['slug'])) {
+    		
 	    	// Get previous slug
 			$this->db->select('slug');
 			$this->db->from($this->books_table);
@@ -349,18 +350,34 @@ class Book_model extends MY_Model {
 			$result = $query->result();
 			if (!isset($result[0])) throw new Exception('Could not find book');
 			$slug = $result[0]->slug;    	
-			// If slug has changed, rename folder on filesystem
+
+    		// Scrub slug
+    	    if (!function_exists('safe_name')) {
+  				$ci = get_instance();
+				$ci->load->helper('url');  			
+    		}   		
+    		$array['slug'] = safe_name($array['slug'], false);  // Don't allow forward slashes
+			
+			// If slug has changed, rename folder on filesystem and update text content URLs
 			if ($array['slug'] != $slug) {
 				$dbprefix = $this->db->dbprefix;  // Since we're using a custom MySQL query below
 				if (empty($dbprefix)) die('Could not resolve DB prefix. Nothing has been saved. Please try again');
-				if (file_exists($array['slug'])) die('URI name already exists.');  // TODO: throw exception
-				if (!rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) die('Could not rename directory.'); // TODO: throw exception
+				// Check if folder already exists, if so, add a "-N"
+				$orig_slug = $array['slug'];
+	    		$count = 1;
+				while (file_exists($array['slug'])) {
+					$array['slug'] = create_suffix($orig_slug, $count);
+					$count++;
+				}    	
+				// Rename folder on the filesystem				
+				if (!rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) die('Could not rename directory.'); // TODO: throw exception			
 				// Update hard URLs in version contet
 				$old = confirm_slash(base_url()).confirm_slash($slug);
 				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
 				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new')");
 				if (mysql_errno()!=0) die('Could not update URLs in database.  Note that the slug was changed on the filesystem. ('.mysql_error().')');
 			}	
+			
     	}	
 		
 		// Book versions (ie, main menu)

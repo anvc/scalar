@@ -295,14 +295,14 @@ abstract class MY_Model extends Model {
 	 * Convert a string to safe URI slug
 	 */
 	
-    public function safe_slug($slug='', $book_id=0) {
+    public function safe_slug($slug='', $book_id=0, $content_id=0) {
     	
-    	if (!$this->slug_exists($slug, $book_id)) return $slug;
+    	if (!$this->slug_exists($slug, $book_id, $content_id)) return $slug;
     	
     	$j = 1;
     	$adj_slug = $slug.'-'.$j;
 
-    	while ($this->slug_exists($adj_slug, $book_id)) {
+    	while ($this->slug_exists($adj_slug, $book_id, $content_id)) {
     		$j++;
     		$adj_slug = $slug.'-'.$j;
     	}
@@ -373,10 +373,11 @@ abstract class MY_Model extends Model {
 	 * Deterine whether a slug exists in the database
 	 */
 	 
-    protected function slug_exists($slug='', $book_id=0) {
+    protected function slug_exists($slug='', $book_id=0, $content_id=0) {
 
      	$this->db->select('*');
     	$this->db->from($this->pages_table);
+    	if (!empty($content_id)) $this->db->where('content_id !=', $content_id);
     	$this->db->where('slug', $slug);
     	$this->db->where('book_id', $book_id);
     	$this->db->limit(1);

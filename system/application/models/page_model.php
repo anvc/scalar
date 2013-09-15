@@ -267,7 +267,7 @@ class Page_model extends MY_Model {
     	
     	// If the slug has changed...
     	if (isset($array['slug'])) {
-    	
+    		
 	    	// Get previous slug
 			$this->db->select('slug');
 			$this->db->from($this->pages_table);
@@ -289,7 +289,16 @@ class Page_model extends MY_Model {
 			$book_slug = $result[0]->slug;  
 			$book_id = (int) $result[0]->book_id;
 
-			// Rewrite URLs in other book content
+    		// Scrub slug
+    		if (!function_exists('safe_name')) {
+  				$ci = get_instance();
+				$ci->load->helper('url');  			
+    		}
+    		$array['slug'] = safe_name($array['slug']);
+    	    $array['slug'] = $this->safe_slug($array['slug'], $book_id, $content_id);			
+			
+			// Rewrite URLs in book text content
+			// This is most likely not to be completely trusted but if working properly provides a userful service to authors since linking is important in Scalar
 			if ($array['slug'] != $slug) {
 				// TODO: test for safety on the slug rename
 				$this->db->select($this->versions_table.'.version_id');
@@ -323,7 +332,6 @@ class Page_model extends MY_Model {
 					}
 				}
 			}				
-			
     	} // isset $array['slug']
 
 		// Save row
@@ -334,19 +342,17 @@ class Page_model extends MY_Model {
     	
     }       
         
-    public function create($array=array(), $allow_overwrite=false) {
+    public function create($array=array()) {
     	
     	if (!isset($array['book_id']) || empty($array['book_id'])) die('Could not find book ID');
     	if (!isset($array['user_id']) || empty($array['user_id'])) $array['user_id'] = 0;  // Talk to Craig and John about this
    
-    	if (isset($array['slug']) && !empty($array['slug'])) {
-    		$slug = trim($array['slug']);
-    		$slug_arr = explode('/',$slug);
-    		for ($j = 0; $j < count($slug_arr); $j++) {
-    			$slug_arr[$j] = safe_name($slug_arr[$j]);
-    		}
-    		$slug = implode('/',$slug_arr);
-    	} else {
+        if (!function_exists('safe_name')) {
+  			$ci = get_instance();
+			$ci->load->helper('url');  			
+    	}    	
+    	
+    	if (!isset($array['slug']) || empty($array['slug'])) {
     		if (!isset($array['title']) && !isset($array['identifier'])) die('Could not find slug, title, or identifier.');
     		if (isset($array['identifier']) && !empty($array['identifier'])) {
     			$title_for_slug = trim($array['identifier']);
@@ -354,15 +360,11 @@ class Page_model extends MY_Model {
     			$title_for_slug = trim($array['title']);
     		}
     		$slug = safe_name($title_for_slug);
+    	} else {
+    		$slug = safe_name($array['slug']);
     	}
     
-    	if ($allow_overwrite) {
-    		if ($content_id = $this->slug_exists($slug, $array['book_id'])) {
-    			return $content_id;
-    		}
-    	} else {
-	    	$slug = $this->safe_slug($slug, $array['book_id']);
-    	}  	
+    	$slug = $this->safe_slug($slug, $array['book_id']);	
     
     	$data = array();
     	$data['book_id']    = (int) $array['book_id'];
