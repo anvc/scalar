@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance 
  * with the License. You may obtain a copy of the License at
  * 
- * http://www.osedu.org/licenses /ECL-2.0 
+ * http://www.osedu.org/licenses/ECL-2.0 
  * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -218,8 +218,7 @@
 			table.append('<tr><td>Source file</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a></td></tr>');
 			
 			// API links
-			table.append('<tr><td>RDF</td><td><a href="'+node.url+'.rdf">'+node.url+'.rdf</a></td></tr>');
-			table.append('<tr><td>JSON</td><td><a href="'+node.url+'.json">'+node.url+'.json</a></td></tr>');
+			table.append('<tr><td>Raw</td><td><a href="'+node.url+'.rdf">RDF</a>, <a href="'+node.url+'.json">JSON</a></td></tr>');
 
 			// auxiliary properties
 			for ( prop in node.current.auxProperties ) {

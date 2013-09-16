@@ -378,7 +378,11 @@ function handleViewTypeClick(radioBtn) {
 			}
 			
 			// create button bar
-			this.visTypeForm = $('<form><div id="radio"><input onClick="handleViewTypeClick(this);" type="radio" id="radio1" name="radio"/><label for="radio1">Radial</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio2" name="radio" checked="checked"/><label for="radio2">Index</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio3" name="radio"/><label for="radio3">Paths</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio4" name="radio"/><label for="radio4">Media</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio5" name="radio"/><label for="radio5">Tags</label></div></form>').appendTo(this.model.element);
+			if (this.model.options.minimal) {
+				this.visTypeForm = $('<form><div id="radio"><input onClick="handleViewTypeClick(this);" type="radio" id="radio1" name="radio"/><label for="radio1">Radial</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio2" name="radio" checked="checked"/><label for="radio2">Index</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio3" name="radio"/><label for="radio3">Paths</label></div></form>').appendTo(this.model.element);
+			} else {
+				this.visTypeForm = $('<form><div id="radio"><input onClick="handleViewTypeClick(this);" type="radio" id="radio1" name="radio"/><label for="radio1">Radial</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio2" name="radio" checked="checked"/><label for="radio2">Index</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio3" name="radio"/><label for="radio3">Paths</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio4" name="radio"/><label for="radio4">Media</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio5" name="radio"/><label for="radio5">Tags</label></div></form>').appendTo(this.model.element);
+			}
 			$("#radio").buttonset();
 			
 			this.visTypeForm.find('input').each(function() {

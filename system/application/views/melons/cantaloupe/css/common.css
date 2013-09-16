@@ -584,7 +584,12 @@ a.media_info {
 	float: right;
 }
 
-#comment {
+#colophon { padding-left: 7.2rem; padding-right: 7.2rem; font-size: 1.2rem; color: #666; clear: both; padding-top: 2rem; vertical-align: top; }
+#colophon img { margin: .3rem .3rem 0 0; }
+#colophon a { vertical-align: top; }
+
+#incoming_comments, #outgoing_comments { padding-left: 7.2rem; padding-right: 7.2rem; }
+#comment_control {
 	color: #a6a6a6;
 	font-weight: 900;
 	background: url(images/comments.png) no-repeat;
@@ -658,21 +663,27 @@ a.nav_btn:hover {
 .graphNodeViewer {
 	position: absolute;
 	background: white;
-	border: 1px solid black;
+	border: 1px solid #000;
 	display: none;
+	box-shadow: 3px 3px 5px rgba(0,0,0,.4);
+	max-height: 30rem;
+	overflow-y: auto;
 }
+.graphNodeViewer .results_list { margin-top: 0; }
+.graphNodeViewer .results_list td:first-child { color: black; }
 
 #zoomControls {
 	position: absolute;
 	bottom: 10px;
 	left: 50%;
-	width: 100px;
+	width: 140px;
 	text-align: center;
-	margin-left: -50px;
+	margin-left: -70px;
 }
 
 #zoomControls svg {
 	cursor: pointer;
+	margin: .5rem;
 }
 
 /* Index */
@@ -765,3 +776,10 @@ span[property="dcterms:description"] { display: none; }
 #visualization p { margin: .5rem; line-height: 150%; }
 svg, .label, .clusternode, .info_box .content, .ui-widget { font-family: 'Lato', Arial, sans-serif !important; font-size: 1.2rem; }
 .ui-button-text { font-size: 1.6rem; }
+
+.no_selection {
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+}

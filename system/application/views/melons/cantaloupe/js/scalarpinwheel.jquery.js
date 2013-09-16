@@ -41,12 +41,17 @@
  * @param t a raphael text shape
  * @param width - pixels to wrap text width
  * @param textAnchor - desired end state of text anchor (added by Erik)
+ * @param maxLines - maximum number of lines (added by Erik)
  * modify t text adding new lines characters for wrapping it to given width.
  * source: http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
  */
-function wrapText(t, width, textAnchor) {
+function wrapText( t, width, textAnchor, maxLines ) {
 
     var content = t.attr("text");
+    
+    if ( maxLines == null ) {
+    	maxLines = 999;
+    }
     
     // prevents HTML entities from being passed through
 	content = $( '<div/>' ).html( content ).text();
@@ -55,11 +60,16 @@ function wrapText(t, width, textAnchor) {
     t.attr({'text-anchor': 'start', "text": abc});
     var letterWidth=t.getBBox().width / abc.length;
     t.attr({"text": content});
-    var words = content.split(" "), x=0, s=[];
-    var wordsInThisLine = 0;
+    var words = content.split(" "), x=0, s=[],
+    	wordsInThisLine = 0,
+    	lineCount = 0;
     for ( var i = 0; i < words.length; i++) {
         var l = words[i].length;
         if (((x+(l*letterWidth))>width) && (wordsInThisLine > 0)) {
+        	lineCount++;
+        	if ( lineCount >= maxLines ) {
+        		break;
+        	}
             s.push("\n")
             x=0;
             wordsInThisLine = 0;
@@ -69,7 +79,12 @@ function wrapText(t, width, textAnchor) {
         }
         s.push(words[i]+" ");
     }
-    t.attr({"text": s.join(""), 'text-anchor':textAnchor});
+    var result = s.join( '' );
+	if ( i < words.length ) {
+		result = result.substr( 0, result.length - 1 );
+		result += '...' ;
+	}
+    t.attr({"text": result, 'text-anchor':textAnchor});
     var boxHeight = t.getBBox().height;
 	t.attr('y', t.attr('y')+(boxHeight * .5));
 };
@@ -86,7 +101,7 @@ function ScalarPinwheel(element) {
 
 	this.element = element;
 	this.nodeGraph = [];
-	this.relationsToDraw = ['path','tag'];
+	this.relationsToDraw = ['path','tag','comment','annotation'];
 	this.showHistory = false;
 	this.showIcons = false;
 	this.expandedNodes = [];
@@ -185,23 +200,41 @@ ScalarPinwheel.prototype.render = function() {
 
 	this.canvas = Raphael('graph', $(window).width(), $(window).height());
 	
-	var zoomControls = $('<div id="zoomControls"></div>').appendTo('#graph');
-	this.zoomIn = Raphael('zoomControls', 32, 32);
-	this.zoomIn.path('M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z').attr({fill: '#000', stroke: 'none'}).click(function(event) {
+	var handleZoomIn = function( event ) {
 		event.stopImmediatePropagation();
-		if (me.currentZoom > 0) {
+		if ( me.currentZoom > 0 ) {
 			me.currentZoom--;
 			me.buildGraph();
-		}
-	});
-	this.zoomOut = Raphael('zoomControls', 32, 32);
-	this.zoomOut.path('M25.979,12.896,5.979,12.896,5.979,19.562,25.979,19.562z').attr({fill: '#000', stroke: 'none'}).click(function(event) {
+		}	
+	}
+	
+	var handleZoomOut = function( event ) {
 		event.stopImmediatePropagation();
-		if (me.currentZoom < 6) {
+		if ( me.currentZoom < 5 ) {
 			me.currentZoom++;
 			me.buildGraph();
 		}
-	})
+	}
+	
+	var zoomControls = $('<div id="zoomControls"></div>').appendTo('#graph');
+	
+	this.zoomIn = Raphael('zoomControls', 32, 32);
+	var zoomInCircle = this.zoomIn.circle(16, 16, 16).click( handleZoomIn );
+	var zoomInHover = function() { zoomInCircle.attr( { 'fill': '#000' } ) };
+	var zoomInUnhover = function() { zoomInCircle.attr( { 'fill': '#777' } ) };
+	zoomInCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer'});
+	var zoomInPath = this.zoomIn.path('M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z').attr({fill: '#fff', stroke: 'none'}).click( handleZoomIn );
+	zoomInCircle.hover( zoomInHover, zoomInUnhover );
+	zoomInPath.hover( zoomInHover, zoomInUnhover );
+
+	this.zoomOut = Raphael('zoomControls', 32, 32);
+	var zoomOutCircle = this.zoomOut.circle(16, 16, 16).click( handleZoomOut );
+	var zoomOutHover = function() { zoomOutCircle.attr( { 'fill': '#000' } ) };
+	var zoomOutUnhover = function() { zoomOutCircle.attr( { 'fill': '#777' } ) };
+	zoomOutCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer'});
+	var zoomOutPath = this.zoomOut.path('M25.979,12.896,5.979,12.896,5.979,19.562,25.979,19.562z').attr({fill: '#fff', stroke: 'none'}).click( handleZoomOut );
+	zoomOutCircle.hover( zoomOutHover, zoomOutUnhover );
+	zoomOutPath.hover( zoomOutHover, zoomOutUnhover );
 	
 	this.buildGraph();
 	
@@ -927,11 +960,17 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						// replace with css fonts
 						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
-						wrapText(label, labelWidth, 'middle');
+						wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 						graphNode.drawing.push(label);
 					}
+					innerCircle.click(function() { 
+						console.log('stop');
+						me.viewer.showForGraphNode(graphNode);
+						event.stopImmediatePropagation();
+					});
 					outerCircle.click(function() { 
 						me.viewer.showForGraphNode(graphNode);
+						event.stopImmediatePropagation();
 					});
 				} else {
 					// draw heterogeneous multi-node
@@ -964,7 +1003,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						// replace with css fonts
 						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
-						wrapText(label, labelWidth, 'middle');
+						wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 						graphNode.drawing.push(label);
 					}
 				} else {
@@ -1063,7 +1102,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					/*if (graphNode.children.length > 0) {
 						label.attr({'font-weight':'bold'});
 					}*/
-					wrapText(label, labelWidth, 'middle');
+					wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 					graphNode.drawing.push(label);
 				}
 					
@@ -1225,6 +1264,8 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 		break;
 		
 		case 'tag_parent':
+		case 'comment_parent':
+		case 'annotation_parent':
 		pathString += 'M'+destPos.x+' '+destPos.y;
 		pathString += 'L'+sourcePos.x+' '+sourcePos.y;
 		pathString += 'L'+sourcePos.x+' '+sourcePos.y;
@@ -1450,22 +1491,43 @@ function PathGraph(pathNode, offset) {
 function GraphNodeViewer(elementName, pinwheel) {
 
 	this.element = $('body').find('#'+elementName);
-	this.canvas = Raphael(elementName, 100, 100);
 	this.pinwheel = pinwheel;
+	
+	$('body').click(function(e) {
+		$( '.graphNodeViewer' ).hide();
+	});
 
 }
 
 GraphNodeViewer.prototype.element = null;
-GraphNodeViewer.prototype.canvas = null;
 GraphNodeViewer.prototype.pinwheel = null;
 
 GraphNodeViewer.prototype.showForGraphNode = function(graphNode) {
+	
+	this.element.empty();
+	
+	var i, node, row,
+		n = graphNode.nodes.length,
+		table = $( '<table class="results_list caption_font"><tbody></tbody></table>' ).appendTo( this.element );
+	
+	for ( i = 0; i < n; i++ ) {
+		node = graphNode.nodes[ i ];
+		row = $( '<tr><td>' + node.getDisplayTitle() + '</td></tr>' ).appendTo( table );
+		row.data( 'node', node );
+		row.click( function() { document.location = addTemplateToURL( $( this ).data( 'node' ).url, 'cantaloupe' ); } );
+	}
 
 	var canvasPosition = {
-		//x: this.pinwheel.center.x + (graphNode.position.x * this.pinwheel.unitSize.x),
-		//y: this.pinwheel.center.y + (graphNode.position.y * this.pinwheel.unitSize.y) 
-		x: 300 + (graphNode.position.x * 100),
-		y: 300 + (graphNode.position.y * 100) 
+		x: this.pinwheel.center.x + (graphNode.position.x * this.pinwheel.unitSize.x),
+		y: this.pinwheel.center.y + (graphNode.position.y * this.pinwheel.unitSize.y) 
+	}
+	
+	if ( graphNode.position.x > 0 ) {
+		canvasPosition.x -= parseInt( this.element.width() );
+	}
+	
+	if ( graphNode.position.y > 0 ) {
+		canvasPosition.y -= parseInt( this.element.height() );
 	}
 	
 	this.element.css('left', canvasPosition.x);
@@ -1603,7 +1665,7 @@ function GraphNode(nodes, position, reason, pinwheel) {
 		} else if (this.nodes.length == 1) {
 			return this.nodes[0].getDisplayTitle();
 		} else {
-			return (this.nodes.length-1)+' items';
+			return (this.nodes.length)+' items';
 		}
 	
 	}
@@ -1652,6 +1714,8 @@ function GraphNode(nodes, position, reason, pinwheel) {
 			break;
 			
 			case 'tag':
+			case 'comment':
+			case 'annotation':
 			n = relations.length;
 			for (i=0; i<n; i++) {
 				relation = relations[i];

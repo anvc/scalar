@@ -25,18 +25,12 @@
 		
 		TODO:
 		
-		- You tend to read the lateral (right) button before the down (enter path) button, even though the latter should probably come first
-		- What happens when media extends beyond height of content (http://scalar.usc.edu/works/guide/creating-an-account?template=cantaloupe)
 		- When images have white borders, can be hard to tell if caption is for the image above or below it (http://scalar.usc.edu/works/guide/reading-in-scalar?template=cantaloupe)
 		- Should subway map buttons include things like (enter path at) and such?
-		- Animated page transitions to emphasize spatial relationship?
 		- Make buttons know your history so they suggest the right thing to do, otherwise you can get stuck in loops
 		- Continue implies the content is continued, but this isn't always the case. Sometimes it's a full stop.
-		- Is inline media showing up?
 		- HTML tags in subway map aren't getting parsed (http://scalar.usc.edu/works/text-identity-subjectivity/the-kierkegaardian-aesthetic-and-blakean-innocence?template=cantaloupe)
 		- Strange indenting (http://scalar.usc.edu/works/text-identity-subjectivity/the-kierkegaardian-aesthetic-and-blakean-innocence?template=cantaloupe, http://scalar.usc.edu/works/text-identity-subjectivity/blakes-aesthetic-theology?template=cantaloupe, http://scalar.usc.edu/works/growing-apart-a-political-history-of-american-inequality/index?template=cantaloupe, http://scalar.usc.edu/works/growing-apart-a-political-history-of-american-inequality/wage-ratios-sidebar?template=cantaloupe)
-		- Maintaining the path you're on in subway map
-		
 		
 		*/
 	
@@ -46,6 +40,8 @@
 		var page = {
 		
 			options: $.extend({}, options),
+			
+			annotatedMedia: [],
 			
 			/**
 			  * Increments the data with the given name attached to the selection.
@@ -72,10 +68,9 @@
 			 */
 			handleMediaElementMetadata: function(event, link) {
 				var mediaelement = link.data('mediaelement');
-				//console.log(parseInt(mediaelement.model.element.find('.mediaObject').width())+' '+(mediaelement.view.initialContainerWidth - 144));
 				//mediaelement.view.adjustMediaWidth(300);
 				if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
-					//console.log('prepend');
+					console.log('prepend');
 					mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
 				}
 				if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null)) {
@@ -157,7 +152,7 @@
 			
 			addRelationshipNavigation: function(showLists) {
 			
-				var path, button, href,
+				var path, button, href, section, nodes, node, link,
 					pathOptionCount = 0,
 					containingPathOptionCount = 0,
 					queryVars = scalarapi.getQueryVars( document.location.href ),
@@ -165,25 +160,25 @@
 					
 				$('.path_of').each(function() {
 					if ($(this).parent().is('section')) {
-						var pathSection = $(this).parent();
-						pathSection.addClass('relationships');
-						pathSection.find('h3').text('Path contents');
-						pathSection.show();
-						pathSection.find( '[property="dcterms:title"] > a' ).each( function() {
+						section = $(this).parent();
+						section.addClass('relationships');
+						section.find('h3').text('Path contents');
+						section.show();
+						section.find( '[property="dcterms:title"] > a' ).each( function() {
 							var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
 							$( this ).attr( 'href', href );
 						});
 						
 						if (!showLists) {
-							pathSection.find('h3').hide();
-							pathSection.find('ol').hide();
+							section.find('h3').hide();
+							section.find('ol').hide();
 						}
 				
-						var path_nodes = currentNode.getRelatedNodes('path', 'outgoing');
-						if (path_nodes.length > 0) {
-							button = $( '<p><a class="nav_btn primary" href="' + path_nodes[ 0 ].url + '?path=' + 
-								currentNode.slug + '">Begin this path at “' + path_nodes[0].getDisplayTitle() +
-								'”</a></p>' ).appendTo( pathSection );
+						nodes = currentNode.getRelatedNodes('path', 'outgoing');
+						if (nodes.length > 0) {
+							button = $( '<p><a class="nav_btn primary" href="' + nodes[ 0 ].url + '?path=' + 
+								currentNode.slug + '">Begin this path at “' + nodes[0].getDisplayTitle() +
+								'”</a></p>' ).appendTo( section );
 							pathOptionCount++;
 						}
 						
@@ -207,25 +202,25 @@
 				if (containing_paths.length > 0) {
 					for (i in containing_paths) {
 						path = containing_paths[ i ];
-						var section = $('<section class="relationships"></section').appendTo('article');
-						var sibling_nodes = path.getRelatedNodes('path', 'outgoing');
+						section = $('<section class="relationships"></section').appendTo('article');
+						nodes = path.getRelatedNodes('path', 'outgoing');
 						//console.log(sibling_nodes);
-						index = sibling_nodes.indexOf(currentNode);
-						if (index < (sibling_nodes.length - 1)) {
+						index = nodes.indexOf(currentNode);
+						if (index < (nodes.length - 1)) {
 						
 							// A child option has already been offered; this option is an alternative
 							if ( pathOptionCount > 0 ) {
 						
 								// It's an alternative on the current path or we don't know what path we're on
 								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
-									section.append( '<p><a class="nav_btn" href="' + sibling_nodes[index+1].url + '?path=' + 
-										path.slug + '">Or, continue to “' + sibling_nodes[index+1].getDisplayTitle() + '”</a></p>' );
+									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
+										path.slug + '">Or, continue to “' + nodes[index+1].getDisplayTitle() + '”</a></p>' );
 										
 								// It's an alternative on a different path; id the path
 								} else {
-									section.append( '<p><a class="nav_btn" href="' + sibling_nodes[index+1].url + '?path=' + 
+									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
 										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
-										sibling_nodes[index+1].getDisplayTitle() + '”</a></p>' );
+										nodes[index+1].getDisplayTitle() + '”</a></p>' );
 								}
 								
 							// No child options have been offered
@@ -233,13 +228,13 @@
 							
 								// This option is on the current path or we don't know what path we're on
 								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
-									section.append( '<p><a class="nav_btn primary" href="' + sibling_nodes[index+1].url + 
-										'?path=' + path.slug + '">Continue to “' + sibling_nodes[index+1].getDisplayTitle() +
+									section.append( '<p><a class="nav_btn primary" href="' + nodes[index+1].url + 
+										'?path=' + path.slug + '">Continue to “' + nodes[index+1].getDisplayTitle() +
 										'”</a></p>' );
 								} else {
-									section.append( '<p><a class="nav_btn" href="' + sibling_nodes[index+1].url + '?path=' + 
+									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
 										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
-										sibling_nodes[index+1].getDisplayTitle() + '”</a></p>' );
+										nodes[index+1].getDisplayTitle() + '”</a></p>' );
 								}
 							}
 							pathOptionCount++;
@@ -251,34 +246,77 @@
 				
 				$('.tag_of').each(function() {
 					if ($(this).parent().is('section')) {
-						var tagSection = $(this).parent();
-						tagSection.addClass('relationships');
-						tagSection.find('h3').text('Tag contents');
-						tagSection.find('ol').contents().unwrap().wrapAll('<ul></ul>');
-						tagSection.show();
+						section = $(this).parent();
+						section.addClass('relationships');
+						section.find('h3').text('Tag contents');
+						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+						section.show();
 						
 						if (!showLists) {
-							tagSection.find('h3').hide();
-							tagSection.find('ul').hide();
+							section.find('h3').hide();
+							section.find('ul').hide();
 						}
 						
-						var tag_nodes = currentNode.getRelatedNodes('tag', 'outgoing');
-						if (tag_nodes.length > 1) {
-							tagSection.append('<p><a class="nav_btn" href="'+tag_nodes[Math.floor(Math.random() * tag_nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
+						nodes = currentNode.getRelatedNodes('tag', 'outgoing');
+						if (nodes.length > 1) {
+							section.append('<p><a class="nav_btn" href="'+nodes[Math.floor(Math.random() * nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
 						}
 					}
 				});			
-			
+				
+				$('.reply_of').each(function() {
+					if ($(this).parent().is('section')) {
+						section = $(this).parent();
+						section.addClass('relationships');
+						section.find('h3').text('Comments on');
+						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+						section.show();
+					}
+				});			
+				
+				$('.annotation_of').each(function() {
+					if ($(this).parent().is('section')) {
+						section = $(this).parent();
+						section.addClass('relationships');
+						section.find('h3').text('Annotates');
+						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+						section.show();
+
+						/*section.find( 'li > span > span > a' ).each( function() {
+							node = scalarapi.getNode( $( this ).attr( 'href' ) );
+							page.annotatedMedia.push( node );
+						} );
+						page.loadNextAnnotatedMedia();*/
+					}
+				});			
+				
 			},
 			
-			addComments: function() {
+			loadNextAnnotatedMedia: function() {
+				if ( page.annotatedMedia.length > 0 ) {
+					var node = page.annotatedMedia[ 0 ];
+					scalarapi.loadPage( node.slug, true, function() {
+						var node = scalarapi.getNode( page.annotatedMedia[ 0 ].slug );
+						var element = $( 'section' ).find( 'a[href="' + node.url + '"]' ).eq( 0 );
+						page.annotatedMedia.splice( 0, 1 );
+						link = $( '<a style="display: none;" href="' + node.current.sourceFile + '" resource="' + node.slug + '" data-size="full" data-relation="annotation"/></a>' ).appendTo( element.parent().parent().parent().parent() );
+					}, null );
+				}
+			},
+			
+			addIncomingComments: function() {
 				var comments = currentNode.getRelatedNodes('comment', 'incoming');
-				$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
+				//$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
+				$('article').append('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div></div>');
 				var commentDialogElement = $('<div></div>').appendTo('body');
 				commentDialog = commentDialogElement.scalarcomments( { root_url: modules_uri+'/cantaloupe'} );
 				$('.reply_link').click(function() {
 					commentDialog.data('plugin_scalarcomments').showComments();
 				});
+			},
+			
+			addColophon: function() {
+				$('article').append('<div id="colophon" class="caption_font"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></div>');
 			},
 			
 			setupScreenedBackground: function() {
@@ -329,7 +367,7 @@
 					$('a').each(function() {
 					
 						// resource property signifies a media link
-						if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
+						if (($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) && ( $( this ).attr( 'data-relation' ) == null )) {
 						
 							var slot;
 							var slotDOMElement;
@@ -362,6 +400,22 @@
 						}
 					
 					});
+					$('[data-relation="annotation"]').each(function() {
+					
+							console.log($(this));
+						page.addMediaElementForLink( $(this), $(this).parent().parent() );
+						//$(this).css('display', 'none');
+					
+					});
+					
+					/*$('.annotation_of').each( function() {
+						node = scalarapi.getNode( $( this ).attr( 'href' ) );
+						if ( node != null ) {
+							page.addMediaElementForLink( $( this ), $( this ).parent() );
+							//$( this ).css('display', 'none');
+						}
+					} );*/
+
 					break;
 				
 				}
@@ -424,7 +478,8 @@
 				console.log('an error occurred while retrieving gallery info.');
 			}, 1, true);*/
 			page.addRelationshipNavigation(true);
-			page.addComments();		  	
+			page.addIncomingComments();	
+			page.addColophon();	  	
 			break;
 			
 			case 'visualization':
@@ -436,7 +491,8 @@
 			case 'structured_gallery':
 			page.setupScreenedBackground();
 			var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
-			page.addComments();		  	
+			page.addIncomingComments();		  	
+			page.addColophon();	  	
 			break;
 		
 			default:
@@ -484,7 +540,8 @@
 			});*/
 					
 			page.addRelationshipNavigation(true);
-			page.addComments();		  	
+			page.addIncomingComments();		  	
+			page.addColophon();	  	
 			break;
 		
 		}
