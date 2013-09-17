@@ -270,6 +270,12 @@ class Book extends MY_Controller {
 				// Import from another Scalar book on the same install
 				$this->data['view'] = 'import_system';
 				break;
+				
+			case 'internet_archive':
+
+				// Allowable import filetypes
+				$ia_config = $this->config->item('internet_archive');
+				$this->data['ia_filetypes'] = $ia_config['filetypes'];
 			
 			default:
 			

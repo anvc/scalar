@@ -2,6 +2,14 @@
 $this->template->add_css(path_from_file(__FILE__).'import.css');
 $this->template->add_js(path_from_file(__FILE__).'import.js');
 
+if (isset($ia_filetypes)):
+?>
+<script>
+var ia_filetypes = '<?=implode(',',$ia_filetypes)?>';
+</script>
+<?
+endif;
+
 $titles = $external->getPropValues('dc:title');
 if (!empty($titles)): 
 ?>

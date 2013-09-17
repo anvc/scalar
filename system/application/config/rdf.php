@@ -140,4 +140,21 @@ $config['ontologies']['art'] = array(
 			'vitalDates', 
 			'width'			
 );	
+
+// Internet Archive allowable filetypes when importing
+$config['internet_archive']['filetypes'] = array(
+			'MPEG4',
+			'512Kb+MPEG4',
+			'h.264',
+			'WAVE',
+			'QuickTime',
+			'160Kbps+MP3',
+			'128Kbps+MP3',
+			'64Kbps+MP3',
+			'56Kbps+MP3',
+			'VBR+MP3',
+			'JPEG+Thumb',
+			'JPEG',
+			'Text+PDF'
+);
 ?>

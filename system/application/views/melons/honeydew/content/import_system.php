@@ -32,7 +32,7 @@ function systemSuccess(data) {
 		if (book_uri == parentURI()) continue;
 		var title = data[book_uri]['http://purl.org/dc/terms/title'][0].value;
 		var thumb = ('undefined'==typeof(data[book_uri]['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'])) ? null : data[book_uri]['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value;
-		if (!thumb||'undefined'==typeof(thumb)||!thumb.length) thumb = $('#approot').attr('href')+'views/modules/chrome/honeydew/images/generic_media_thumb.jpg';
+		if (!thumb||'undefined'==typeof(thumb)||!thumb.length) thumb = $('#approot').attr('href')+'views/melons/honeydew/images/generic_media_thumb.jpg';
 		var ddDataNode = {};
 		ddDataNode.text = title;
 		ddDataNode.value = book_uri+bookURIMediaAppend();

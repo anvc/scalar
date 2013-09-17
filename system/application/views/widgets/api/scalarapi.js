@@ -710,7 +710,7 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 		} else if (uri.indexOf('output=kml') != -1) {
 			source = this.mediaSources['KML'];
 			
-		// override if the path makes reference to HyperCities		
+		// override if the path makes reference to Interent Archive		
 		} else if (uri.substr(uri.length - 4) == 'h264') {
 			source = this.mediaSources['MPEG-4'];
 		
@@ -752,6 +752,9 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 	
 		} else if (uri.substr(uri.length - 4) == 'JPEG') {
 			source = this.mediaSources['JPEG'];
+			
+		} else if (uri.substr(uri.length - 3) == 'PDF') {
+			source = this.mediaSources['PDF'];			
 	
 		// no special cases; handle normally
 		} else {

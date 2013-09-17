@@ -1,5 +1,7 @@
 $(document).ready(function() {
+	
 	$(window).resize(function() { resizeList(); });
+	
 });	
 
 function resizeList() {
@@ -120,7 +122,7 @@ function import_parse_xml_with_jquery(xml, sq, pagenum, paginate, uri, keep_hash
 			var creator = $node.find('dcterms\\:creator').text();
 			if (!creator.length) creator = '(No creator provided)';
 			var thumb = $node.find('art\\:thumbnail').attr('rdf:resource');
-			if ('undefined'==typeof(thumb)||!thumb.length) thumb = $('#approot').attr('href')+'views/modules/chrome/honeydew/images/generic_media_thumb.jpg';
+			if ('undefined'==typeof(thumb)||!thumb.length) thumb = $('#approot').attr('href')+'views/melons/honeydew/images/generic_media_thumb.jpg';
 			var filename = $node.find('art\\:filename');
 			var mediatype = $node.find('dcterms\\:type');
 			mediatype = ('undefined'==typeof(mediatype)) ? 'media' : mediatype.text().toLowerCase();
@@ -139,26 +141,33 @@ function import_parse_xml_with_jquery(xml, sq, pagenum, paginate, uri, keep_hash
 			
 			// Special exception for Internet Archive until we support multiple filenames
 			if ('Internet Archive' == source) {
+				if ('undefined'!=typeof(ia_filetypes)&&'string'==typeof(ia_filetypes)) ia_filetypes = ia_filetypes.split(',');
+				console.log(ia_filetypes);
+				if ('undefined'==typeof(ia_filetypes)||!ia_filetypes.length) {
+					alert('Could not find ia_filetypes list. This is a required field in config/rdf.php.');
+					return;
+				}
 				var ia_pass = false;
+				var resource_types = [];
 				for (var k = 0; k < filename.length; k++) {
 					var resource = $(filename[k]).attr('rdf:resource');
-					if (!ia_pass && resource.indexOf('MPEG4')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('512Kb+MPEG4')!=-1) ia_pass=resource;	
-					if (!ia_pass && resource.indexOf('h.264')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('WAVE')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('QuickTime')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('160Kbps+MP3')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('128Kbps+MP3')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('VBR+MP3')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('JPEG+Thumb')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('JPEG')!=-1) ia_pass=resource;
+					resource_types.push(basename(resource));
+					for (var m = 0; m < ia_filetypes.length; m++) {
+						if (ia_pass) continue;
+						var filetype = ia_filetypes[m];
+						console.log('filetype: '+filetype);
+						if (-1!=resource.indexOf(filetype)) {
+							console.log(' .. PASS');
+							ia_pass=resource;
+						}
+					}
 				}
-				$filename.append(''+mediatype+'&nbsp; '+basename(ia_pass));
 				if (ia_pass) {
+					$filename.append(''+mediatype+'&nbsp; '+basename(ia_pass));
 					$preview.append('<a href="javascript:;" onclick="preview_media_file(\''+ia_pass+'\')" class="generic_button">Preview</a>');
 					num_results++;
 				} else {
-					import_error($tr, 'This media type is not presently supported by Scalar');
+					import_error($tr, 'This media type is not presently supported by Scalar ('+resource_types.join(', ')+')');
 				}
                 // Remove all but the pass'd url
                 for (var k = (filename.length-1); k >= 0; k--) {
@@ -291,7 +300,7 @@ function import_parse_xml_with_javascript(xml, sq, pagenum, paginate, uri, keep_
 			if (thumb && thumb.getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#','resource').length) {
 				thumb = thumb.getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#','resource');
 			} else {
-				thumb = $('#approot').attr('href')+'views/modules/chrome/honeydew/images/generic_media_thumb.jpg';
+				thumb = $('#approot').attr('href')+'views/melons/honeydew/images/generic_media_thumb.jpg';
 			}
 			var filename = the_node.getElementsByTagNameNS('http://simile.mit.edu/2003/10/ontologies/artstor#', 'filename');
 			var mediatype = the_node.getElementsByTagNameNS('http://purl.org/dc/terms/', 'type')[0];
@@ -315,22 +324,29 @@ function import_parse_xml_with_javascript(xml, sq, pagenum, paginate, uri, keep_
 			
 			// TODO: This is a special exception for Internet Archive until we support multiple filenames
 			if ('Internet Archive' == source) {
+				if ('undefined'!=typeof(ia_filetypes)&&'string'==typeof(ia_filetypes)) ia_filetypes = ia_filetypes.split(',');
+				console.log(ia_filetypes);
+				if ('undefined'==typeof(ia_filetypes)||!ia_filetypes.length) {
+					alert('Could not find ia_filetypes list. This is a required field in config/rdf.php.');
+					return;
+				}
 				var ia_pass = false;
+				var resource_types = [];
 				for (var k = 0; k < filename.length; k++) {
 					var resource = filename[k].getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#','resource');
-					if (!ia_pass && resource.indexOf('MPEG4')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('512Kb+MPEG4')!=-1) ia_pass=resource;	
-					if (!ia_pass && resource.indexOf('h.264')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('WAVE')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('QuickTime')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('160Kbps+MP3')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('128Kbps+MP3')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('VBR+MP3')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('JPEG+Thumb')!=-1) ia_pass=resource;
-					if (!ia_pass && resource.indexOf('JPEG')!=-1) ia_pass=resource;
-				}
-				$filename.append(''+mediatype+'&nbsp; '+basename(ia_pass));
+					resource_types.push(basename(resource));
+					for (var m = 0; m < ia_filetypes.length; m++) {
+						if (ia_pass) continue;
+						var filetype = ia_filetypes[m];
+						console.log('filetype: '+filetype);
+						if (-1!=resource.indexOf(filetype)) {
+							console.log(' .. PASS');
+							ia_pass=resource;
+						}
+					}
+				}				
 				if (ia_pass) {
+					$filename.append(''+mediatype+'&nbsp; '+basename(ia_pass));
 					$preview.append('<a href="javascript:;" onclick="preview_media_file(\''+ia_pass+'\')" class="generic_button">Preview</a>');
 					num_results++;
 				} else {
@@ -442,7 +458,7 @@ function import_remap_fields(the_node, keep_hash) {
 		var value = $(this).attr('value');
 		fields[field] = value;
 	});
-	//console.log(the_node);
+
 	// Remap node fields
 	for (var j = 0; j < the_node.childNodes.length; j++) {
 		var the_field = the_node.childNodes[j].tagName;
@@ -509,8 +525,10 @@ function search_archive_import() {
 		if ($node.find('input[type="checkbox"]').is(':checked')) nodes.push($node.data('fields'));
 	});
 	
-	if (!nodes.length) return alert('Please select a checkbox for one or more media to be imported');
-	console.log(nodes);
+	if (!nodes.length) {
+		archive_is_importing = false;
+		return alert('Please select a checkbox for one or more media to be imported');
+	}
 	do_save_archive_import(nodes);
 
 	return false;
@@ -557,7 +575,6 @@ function do_save_archive_import(nodes, saved_nodes) {  // I think technically mu
 	}
 
 	var node_index = saved_nodes.length;
-	console.log(nodes[node_index]);
 	scalarapi.savePage(nodes[node_index], success, error);
 
 }
