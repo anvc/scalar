@@ -142,7 +142,6 @@ function import_parse_xml_with_jquery(xml, sq, pagenum, paginate, uri, keep_hash
 			// Special exception for Internet Archive until we support multiple filenames
 			if ('Internet Archive' == source) {
 				if ('undefined'!=typeof(ia_filetypes)&&'string'==typeof(ia_filetypes)) ia_filetypes = ia_filetypes.split(',');
-				console.log(ia_filetypes);
 				if ('undefined'==typeof(ia_filetypes)||!ia_filetypes.length) {
 					alert('Could not find ia_filetypes list. This is a required field in config/rdf.php.');
 					return;
@@ -155,9 +154,7 @@ function import_parse_xml_with_jquery(xml, sq, pagenum, paginate, uri, keep_hash
 					for (var m = 0; m < ia_filetypes.length; m++) {
 						if (ia_pass) continue;
 						var filetype = ia_filetypes[m];
-						console.log('filetype: '+filetype);
 						if (-1!=resource.indexOf(filetype)) {
-							console.log(' .. PASS');
 							ia_pass=resource;
 						}
 					}
@@ -325,7 +322,6 @@ function import_parse_xml_with_javascript(xml, sq, pagenum, paginate, uri, keep_
 			// TODO: This is a special exception for Internet Archive until we support multiple filenames
 			if ('Internet Archive' == source) {
 				if ('undefined'!=typeof(ia_filetypes)&&'string'==typeof(ia_filetypes)) ia_filetypes = ia_filetypes.split(',');
-				console.log(ia_filetypes);
 				if ('undefined'==typeof(ia_filetypes)||!ia_filetypes.length) {
 					alert('Could not find ia_filetypes list. This is a required field in config/rdf.php.');
 					return;
@@ -338,9 +334,7 @@ function import_parse_xml_with_javascript(xml, sq, pagenum, paginate, uri, keep_
 					for (var m = 0; m < ia_filetypes.length; m++) {
 						if (ia_pass) continue;
 						var filetype = ia_filetypes[m];
-						console.log('filetype: '+filetype);
 						if (-1!=resource.indexOf(filetype)) {
-							console.log(' .. PASS');
 							ia_pass=resource;
 						}
 					}
