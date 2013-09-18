@@ -1239,10 +1239,10 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			'sioc:content': node.current.content,
 			'rdf:type': node.baseType,
 			'scalar:urn': node.current.urn,
-			'scalar:metadata:url': node.current.sourceFile,
-			'scalar:metadata:default_view': node.current.defaultView,
-			'scalar:metadata:continue_to_content_id': node.current.continueTo,
-			'scalar:metadata:sort_number': node.current.sortNumber
+			'scalar:url': node.current.sourceFile,
+			'scalar:default_view': node.current.defaultView,
+			'scalar:continue_to_content_id': node.current.continueTo,
+			'scalar:sort_number': node.current.sortNumber
 		};
 		
 		// add base properties
@@ -1281,7 +1281,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': version_urn,
 						'scalar:child_urn': this.target.current.urn,
 						'scalar:child_rel': 'contained',
-						'scalar:metadata:sort_number': this.index
+						'scalar:sort_number': this.index
 					};
 					break;
 					
@@ -1294,9 +1294,9 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': version_urn,
 						'scalar:child_urn': this.target.current.urn,
 						'scalar:child_rel': 'replied',
-						'scalar:metadata:paragraph_num': 0
+						'scalar:paragraph_num': 0
 					};
-					// 'scalar:metadata:paragraph_num' is not currently supported in Scalar
+					// 'scalar:paragraph_num' is not currently supported in Scalar
 					break;
 					
 					case 'annotation':
@@ -1311,11 +1311,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': this.properties.start,
-							'scalar:metadata:end_seconds': this.properties.end,
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': this.properties.start,
+							'scalar:end_seconds': this.properties.end,
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1328,11 +1328,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': this.properties.start,
-							'scalar:metadata:end_line_num': this.properties.end,
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': this.properties.start,
+							'scalar:end_line_num': this.properties.end,
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1345,11 +1345,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
 						};
 						break;
 						
@@ -1377,9 +1377,9 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': version_urn,
 						'scalar:child_urn': this.body.current.urn,
 						'scalar:child_rel': 'referenced',
-						'scalar:metadata:reference_text': null
+						'scalar:reference_text': null
 					};
-					// TODO: 'scalar:metadata:reference_text' is not currently being sent - this property will be wiped out when update occurs
+					// TODO: 'scalar:reference_text' is not currently being sent - this property will be wiped out when update occurs
 					break;
 				
 				}
@@ -1399,7 +1399,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': this.body.current.urn,
 						'scalar:child_urn': version_urn,
 						'scalar:child_rel': 'contained',
-						'scalar:metadata:sort_number': this.index
+						'scalar:sort_number': this.index
 					};
 					break;
 					
@@ -1412,7 +1412,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': this.body.current.urn,
 						'scalar:child_urn': version_urn,
 						'scalar:child_rel': 'replied',
-						'scalar:metadata:sort_number': 0
+						'scalar:sort_number': 0
 					};
 					break;
 					
@@ -1428,11 +1428,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': this.properties.start,
-							'scalar:metadata:end_seconds': this.properties.end,
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': this.properties.start,
+							'scalar:end_seconds': this.properties.end,
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1445,11 +1445,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': this.properties.start,
-							'scalar:metadata:end_line_num': this.properties.end,
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': this.properties.start,
+							'scalar:end_line_num': this.properties.end,
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1462,11 +1462,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
 						};
 						break;
 						
@@ -1494,9 +1494,9 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': this.body.current.urn,
 						'scalar:child_urn': version_urn,
 						'scalar:child_rel': 'referenced',
-						'scalar:metadata:reference_text': null
+						'scalar:reference_text': null
 					};
-					// TODO: 'scalar:metadata:reference_text' is not currently being sent - this property will be wiped out when update occurs
+					// TODO: 'scalar:reference_text' is not currently being sent - this property will be wiped out when update occurs
 					break;
 					
 				}
@@ -1579,7 +1579,7 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 		tosend['api_key'] = jQuery.trim(data['api_key']);
 		if (tosend['native'] && !tosend['id'].length) throw "Empty required user field 'id'";
 		if (!tosend['native'] && !tosend['api_key'].length) throw "Empty required user field 'api_key'";			
-		if ('http://'==data['scalar:metadata:url']) data['scalar:metadata:url'] = '';  // default value
+		if ('http://'==data['scalar:url']) data['scalar:url'] = '';  // default value
 		
 		// Add additional metadata being passed through
 		for (var j in data) {
