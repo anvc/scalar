@@ -70,7 +70,6 @@
 				var mediaelement = link.data('mediaelement');
 				//mediaelement.view.adjustMediaWidth(300);
 				if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
-					console.log('prepend');
 					mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
 				}
 				if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null)) {
@@ -95,16 +94,23 @@
 					if (data.instantaneous) {
 						$('.page').stop().show();
 					} else {
-						$('.page').stop().fadeIn();
+						//$('.page').stop().fadeIn();
+						$( '.page' ).removeClass( 'fade_out' );
 					}
+					$( 'body' ).css( 'overflow-y', 'auto' );
 					break;
 					
 					case ViewState.Navigating:
 					if (data.instantaneous) {
 						$('.page').stop().hide();
 					} else {
-						$('.page').stop().fadeOut();
+						//$('.page').stop().fadeOut();
+						$( '.page' ).addClass( 'fade_out' ).delay( 1000 ).queue( 'fx', function( next ) {
+							//$( this ).css( 'display', 'none' );
+							next();
+						} );
 					}
+					$( 'body' ).css( 'overflow-y', 'hidden' );
 					break;
 				
 				}
@@ -233,7 +239,7 @@
 										'”</a></p>' );
 								} else {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
-										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
+										path.slug + '">Switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
 										nodes[index+1].getDisplayTitle() + '”</a></p>' );
 								}
 							}
@@ -449,16 +455,79 @@
 		switch (viewType) {
 			
 			case 'splash':
+			$( 'article' ).before( '<div class="blackout"></div>' );
 			element.addClass('splash');
 			$('h1').wrap('<div class="title_card"></div>');
 			//$('.title_card').append('<h2>By Steve Anderson</h2>');
-			$('.title_card').delay(500).fadeIn(2000);
+			//$('.title_card').delay(500).fadeIn(2000);
 			$('[property="art:url"]').hide();
 			element.css('backgroundImage', $('body').css('backgroundImage'));
 			$('body').css('backgroundImage', 'none');
 			$('.paragraph_wrapper').remove();
 			page.addRelationshipNavigation(false);
 			$('.relationships').appendTo('.title_card');
+			
+			$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
+				$( '.blackout' ).remove();
+				$( '.title_card' ).addClass( 'fade_in' );
+				next();
+			} );
+			break;
+			
+			case 'book_splash':
+			$( 'article' ).before( '<div class="blackout"></div>' );
+			element.addClass('splash');
+			$('h1').wrap('<div class="title_card"></div>');
+			$( 'h1' ).html( $( '#book-title' ).html() );
+			$( '.title_card' ).append('<h2></h2>');
+			$('[property="art:url"]').hide();
+			element.css('backgroundImage', $('body').css('backgroundImage'));
+			$('body').css('backgroundImage', 'none');
+			$('.paragraph_wrapper').remove();
+			page.addRelationshipNavigation(false);
+			$('.relationships').appendTo('.title_card');
+			
+			$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
+				$( '.blackout' ).remove();
+				$( '.title_card' ).addClass( 'fade_in' );
+				next();
+			} );
+			
+			
+			// load info about the book, build main menu when done
+			scalarapi.loadBook(true, function() {
+				
+				var i, n,
+					owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
+					authors = [];
+				if ( owners ) {
+					n = owners.length;
+					for ( i = 0; i < n; i++ ) {
+						authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
+					}
+				}
+				
+				var author,
+					n = authors.length,
+					byline = $( '.title_card > h2' );
+				for ( var i = 0; i < n; i++ ) {
+					author = authors[ i ];
+					if ( i == 0 ) {
+						byline.append( 'by ' );
+					} else if ( i == ( n - 1 )) {
+						if ( n > 2 ) {
+							byline.append( ', and ' );
+						} else {
+							byline.append( ' and ' );
+						}
+					} else {
+						byline.append( ', ' );
+					}
+					byline.append( author.getDisplayTitle() );
+				}
+				
+			});
+
 			break;
 			
 			case 'gallery':

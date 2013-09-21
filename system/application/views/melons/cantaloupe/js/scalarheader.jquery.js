@@ -55,6 +55,8 @@
 		me.element.attr('id', 'header');
 		//me.element.data('state', 'maximized');
 		
+		$( 'body' ).bind( 'setState', me.handleSetState );
+		
 		var bookId = parseInt($('#book-id').text());
 		$('header').hide();
 		
@@ -66,14 +68,16 @@
 				if ((currentScroll > me.lastScroll) && (currentScroll > 50) && (state == ViewState.Reading)) {
 					if ( me.state == 'maximized' ) {
 						me.state = 'minimized';
-						me.element.stop().animate({top:'-40px'}, 200);
+						me.element.addClass( 'header_slide' );
+						//me.element.stop().animate({top:'-40px'}, 200);
 					}
 					
 				// if we're scrolling down, slide the header downwards
 				} else if ((me.lastScroll - currentScroll) > 10) {
 					if ( me.state == 'minimized' ) {
 						me.state = 'maximized';
-						me.element.stop().animate({top:'0'}, 200);
+						me.element.removeClass( 'header_slide' );
+						//me.element.stop().animate({top:'0'}, 200);
 					}
 				}
 				
@@ -123,7 +127,7 @@
 		this.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
 		searchControl.find('img').click(function() {
 			if (parseInt($('.search_input').width()) == 0) {
-				$('.search_input').stop().animate({'width': '150%', 'borderColor': '#ddd'}, 250).focus();
+				//$('.search_input').stop().delay( 100 ).animate({'width': '150%', 'borderColor': '#ddd'}, 250).focus();
 				if ( $( '#options' ).hasClass( 'wide' ) ) {
 					$( '#options' ).stop().animate( { 'width': ( 368 + 220 ) }, 250 ); // TODO: magic number
 				} else {
@@ -209,6 +213,24 @@
 			me.buildMainMenu();
 		});
 		
+	}
+	
+	ScalarHeader.prototype.handleSetState = function( event, data ) {
+	
+		switch (data.state) {
+		
+			case ViewState.Reading:
+			if ( $(document).scrollTop() != 0 ) {
+				$( '#header' ).addClass( 'header_slide' );
+			}
+			break;
+		
+			case ViewState.Navigating:
+			$( '#header' ).removeClass( 'header_slide' );
+			break;
+		
+		}
+	
 	}
 	
 	/**

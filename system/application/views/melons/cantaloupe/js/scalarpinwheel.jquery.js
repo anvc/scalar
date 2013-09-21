@@ -73,10 +73,9 @@ function wrapText( t, width, textAnchor, maxLines ) {
             s.push("\n")
             x=0;
             wordsInThisLine = 0;
-        } else {
-            x+=l*letterWidth;
-            wordsInThisLine++;
         }
+        x+=l*letterWidth;
+        wordsInThisLine++;
         s.push(words[i]+" ");
     }
     var result = s.join( '' );
@@ -131,6 +130,7 @@ function ScalarPinwheel(element) {
 			case ViewState.Reading:
 			if ( me.currentZoom != 0 ) {
 				me.currentZoom = 0;
+				me.updateZoomButtons();
 			}
 			me.update();
 			break;
@@ -151,6 +151,7 @@ ScalarPinwheel.prototype.zoomThreshold = null;
 ScalarPinwheel.prototype.canvas = null;
 ScalarPinwheel.prototype.canvasSet = null;
 ScalarPinwheel.prototype.center = null;
+ScalarPinwheel.prototype.centerCanvas = null;
 ScalarPinwheel.prototype.unitSize = null;
 ScalarPinwheel.prototype.filter = null;
 ScalarPinwheel.prototype.pathGraphs = null;
@@ -204,26 +205,64 @@ ScalarPinwheel.prototype.render = function() {
 		event.stopImmediatePropagation();
 		if ( me.currentZoom > 0 ) {
 			me.currentZoom--;
-			me.buildGraph();
+			me.currentZoom--;
+			/*$( '#graph' ).addClass( 'zoom_in' ).delay( 250 ).queue( 'fx', function( next ) {
+				$( this ).removeClass( 'zoom_in' );
+				me.buildGraph();
+				next();
+			} );*/
+			$( '#graph' ).addClass( 'zoom_in_start' ).delay( 250 ).queue( 'fx', function( next ) {
+				//$( this ).removeClass( 'zoom_out_start' );
+				me.buildGraph();
+				$( this ).addClass( 'zoom_in_end' );
+				next();
+			} ).delay( 450 ).queue( 'fx', function( next ) {
+				$( this ).removeClass( 'zoom_in_start zoom_in_end' );
+				next();
+			} );
+			//me.buildGraph();
+			me.updateZoomButtons();
 		}	
 	}
 	
 	var handleZoomOut = function( event ) {
 		event.stopImmediatePropagation();
-		if ( me.currentZoom < 5 ) {
+		if ( me.currentZoom < 4 ) {
 			me.currentZoom++;
-			me.buildGraph();
+			me.currentZoom++;
+			/*$( '#graph' ).addClass( 'zoom_out' ).delay( 250 ).queue( 'fx', function( next ) {
+				//$( this ).removeClass( 'zoom_out' );
+				me.buildGraph();
+				next();
+			} );*/
+			$( '#graph' ).addClass( 'zoom_out_start' ).delay( 250 ).queue( 'fx', function( next ) {
+				//$( this ).removeClass( 'zoom_out_start' );
+				me.buildGraph();
+				$( this ).addClass( 'zoom_out_end' );
+				next();
+			} ).delay( 450 ).queue( 'fx', function( next ) {
+				$( this ).removeClass( 'zoom_out_start zoom_out_end' );
+				next();
+			} );
+			//me.buildGraph();
+			me.updateZoomButtons();
 		}
 	}
 	
-	var zoomControls = $('<div id="zoomControls"></div>').appendTo('#graph');
+	var centerDiv = $( '<div id="pinwheel_center"></div>' );
+	$( '#graph' ).after( centerDiv );
+	this.centerCanvas = Raphael( 'pinwheel_center', 200, 200 );
+	
+	//var zoomControls = $('<div id="zoomControls"></div>').appendTo('#graph');
+	var zoomControls = $('<div id="zoomControls"></div>');
+	$( '#graph' ).after( zoomControls );
 	
 	this.zoomIn = Raphael('zoomControls', 32, 32);
 	var zoomInCircle = this.zoomIn.circle(16, 16, 16).click( handleZoomIn );
 	var zoomInHover = function() { zoomInCircle.attr( { 'fill': '#000' } ) };
 	var zoomInUnhover = function() { zoomInCircle.attr( { 'fill': '#777' } ) };
-	zoomInCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer'});
-	var zoomInPath = this.zoomIn.path('M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z').attr({fill: '#fff', stroke: 'none'}).click( handleZoomIn );
+	zoomInCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer', opacity: '0.25'});
+	var zoomInPath = this.zoomIn.path('M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z').attr({fill: '#fff', stroke: 'none', opacity: '0.25' }).click( handleZoomIn );
 	zoomInCircle.hover( zoomInHover, zoomInUnhover );
 	zoomInPath.hover( zoomInHover, zoomInUnhover );
 
@@ -242,6 +281,29 @@ ScalarPinwheel.prototype.render = function() {
 	
 	//console.log('---- current node graph ----');
 	//console.log(this.nodeGraph);
+
+}
+
+ScalarPinwheel.prototype.updateZoomButtons = function() {
+
+	if ( this.currentZoom == 0 ) {
+		this.zoomIn.forEach( function( el ) {
+			el.attr( 'opacity', '0.25' );
+		} );
+	} else {
+		this.zoomIn.forEach( function( el ) {
+			el.attr( 'opacity', '1.0' );
+		} );
+	}
+	if ( this.currentZoom == 4 ) {
+		this.zoomOut.forEach( function( el ) {
+			el.attr( 'opacity', '0.25' );
+		} );
+	} else {
+		this.zoomOut.forEach( function( el ) {
+			el.attr( 'opacity', '1.0' );
+		} );
+	}
 
 }
 
@@ -298,6 +360,7 @@ ScalarPinwheel.prototype.setState = function(newState, duration, propsOnly) {
 		case ViewState.Reading:
 		if ( this.currentZoom != 0 ) {
 			this.currentZoom = 0;
+			this.updateZoomButtons();
 		}
 		this.update();
 		break;
@@ -892,16 +955,26 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 			}
 		}
 		
-		var canvasPosition = {
-			x: this.center.x + (graphNode.position.x * this.unitSize.x),
-			y: this.center.y + (graphNode.position.y * this.unitSize.y) 
-		}
+		var canvasPosition;
 		
 		//console.log('     '+graphNode.position.x+','+graphNode.position.y);
 		
 		//console.log('draw node '+graphNode.nodes[0].getDisplayTitle()+' at '+canvasPosition.x+','+canvasPosition.y);
 		
-		graphNode.drawing = this.canvas.set();
+		if (graphNode.nodes[0] == currentNode) {
+			this.centerCanvas.clear();
+			graphNode.drawing = this.centerCanvas.set();
+			canvasPosition = {
+				x: 100,
+				y: 100 
+			}
+		} else {
+			graphNode.drawing = this.canvas.set();
+			canvasPosition = {
+				x: this.center.x + (graphNode.position.x * this.unitSize.x),
+				y: this.center.y + (graphNode.position.y * this.unitSize.y) 
+			}
+		}
 		var outerCircle;
 		var outerRadius;
 		var innerCircle;
@@ -926,10 +999,33 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				
 			}
 			if (state == ViewState.Navigating) {
-				me.canvasSet.animate({'transform':'t'+(-me.unitSize.x*graphNode.position.x)+','+(-me.unitSize.y*graphNode.position.y)}, 350, '<>', function() {
+				/*me.canvasSet.animate({'transform':'t'+(-me.unitSize.x*graphNode.position.x)+','+(-me.unitSize.y*graphNode.position.y)}, 350, '<>', function() {
 					//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url)); 
 					window.location = addTemplateToURL(url, 'cantaloupe'); // TODO: make this dynamic
-				})
+				})*/
+				$( '#graph' ).css( {
+					'-webkit-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'-moz-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'-o-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'-webkit-transition': 'all .5s ease-in-out',
+					'-moz-transition': 'all .5s ease-in-out',
+					'-o-transition': 'all .5s ease-in-out',
+					'transition': 'all .5s ease-in-out'
+				} ).delay( 500 ).queue( 'fx', function( next ) {
+					window.location = addTemplateToURL(url, 'cantaloupe');
+					next();
+				} );
+				$( '#pinwheel_center' ).css( {
+					'-webkit-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'-moz-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'-o-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
+					'-webkit-transition': 'all .5s ease-in-out',
+					'-moz-transition': 'all .5s ease-in-out',
+					'-o-transition': 'all .5s ease-in-out',
+					'transition': 'all .5s ease-in-out'
+				} );
 			} else {
 				//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url));
 				window.location = addTemplateToURL(url, 'cantaloupe');
@@ -984,10 +1080,10 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					outerRadius = 18;
 				//}
 				//if (graphNode.children.length > 0) outerRadius += 6;
-				outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
+				outerCircle = this.centerCanvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 			 
 				if (!this.showIcons) {
-					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
+					innerCircle = this.centerCanvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
 					if (currentNode.color) {
 						color = Raphael.getRGB(graphNode.nodes[0].color);
 						color = Raphael.rgb2hsl(color.r, color.g, color.b);
@@ -1000,7 +1096,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					}
 					graphNode.drawing.push(outerCircle, innerCircle);
 					if (drawLabels) {
-						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
+						label = this.centerCanvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						// replace with css fonts
 						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
 						wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );

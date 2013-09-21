@@ -52,12 +52,13 @@
 		header.append('<hr>');
 		
 		var content = $('<div class="body_copy"></div>').appendTo(this.element);
-		content.append('<p>This Scalar book is being presented using an experimental new interface designed to streamline and enhance the reading experience. It\'s a work in progress, but here are some tips for getting around.</p>');
-		content.append('<p>The header bar at the top of the screen gives you access to utilities for navigating and (if you have editing privileges) editing. If the header bar is currently hidden, scroll upwards to make it appear.</p>');
+		content.append('<p>This <a href="http://scalar.usc.edu/scalar">Scalar</a> book is being presented using an experimental new interface designed to streamline and enhance the reading experience. It\'s a work in progress, but here are some tips for getting around.</p>');
+		content.append('<p>The header bar at the top of the screen gives you access to utilities for navigating and (if you have editing privileges) editing. If the header bar is currently hidden, scroll towards the top of the page to make it appear.</p>');
 
 		var list = $('<ul></ul>').appendTo(content);
 		list.append('<li>The main menu of the book can be accessed from the <img src="'+this.options.root_url+'/images/home_icon.png" alt="Home icon" width="30" height="30" /> icon.</li>');
-		list.append('<li>The <img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /> icon toggles display of the background "pinwheel" visualization, which shows you your current location in the book. Once you\'re viewing the visualization, you can use the plus and minus buttons at the bottom to zoom in and out on your current location.</li>');
+		list.append('<li>The <img src="'+this.options.root_url+'/images/search_icon.png" alt="Search icon" width="30" height="30" /> icon allows you to search the book.</li>');
+		list.append('<li>The <img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /> icon toggles display of the background "pinwheel" visualization, which shows you your current location in the book and what connects to it. Once you\'re viewing the visualization, you can use the plus and minus buttons at the bottom to zoom in and out on your current location.</li>');
 		list.append('<li>The <img src="'+this.options.root_url+'/images/help_icon.png" alt="Help icon" width="30" height="30" /> icon toggles this help display.</li>');
 		list.append('<li>Use the <img src="'+this.options.root_url+'/images/user_icon.gif" alt="User icon" width="30" height="30" /> icon to sign in to the book if you have an account.</li>');
 		

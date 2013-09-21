@@ -231,6 +231,60 @@
 				foundAuxContent = true;
 			}
 			
+			/*
+			var appearancesTab = $('<div class="media_tab">Appearances</div>').appendTo(mediaTabs);
+			var appearancesPane = $('<div class="media_metadata pane"></div>').appendTo(element);
+			appearancesTab.click(function() {
+				$(this).parent().parent().find('.pane').hide();
+				media.minimizeAnnotationPane();
+				appearancesPane.show();
+				$(this).parent().find('.media_tab').removeClass('select');
+				appearancesTab.addClass('select');
+				if (currentRelation != null) {
+					media.showAnnotation(null, currentRelation, mediaelement, true);
+				}
+			});
+			
+			var citations = $('<div class="citations"></div>').appendTo(appearancesPane);
+			var citations, relation, relations;
+
+			// show media references with excerpts
+			relations = node.getRelations('referee', 'incoming'); 
+			for (i in relations) {
+			
+				relation = relations[i];
+				var temp = $('<div>'+relation.body.current.content+'</div>').appendTo(overlay);
+				wrapOrphanParagraphs(temp);
+				temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').attr('href', mediaelement.model.node.url);
+				temp.find('a').not('[rel="'+mediaelement.model.node.current.urn+'"]').each(function() {
+					$(this).replaceWith($(this).html());
+				});
+				citingContent = temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').parent().html();
+				citations.append('<blockquote>&ldquo;'+citingContent+'&rdquo;</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
+				temp.remove();
+			}
+			
+			// show containing paths
+			relations = mediaelement.model.node.getRelations('path', 'incoming', 'index');
+			for (i in relations) {
+				relation = relations[i];
+				citations.append('<p>As Step '+relation.index+' of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
+			}
+			
+			// show tags
+			relations = mediaelement.model.node.getRelations('tag', 'incoming');
+			for (i in relations) {
+				relation = relations[i];
+				citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
+			}
+			
+			if (citations.children().length == 1) {
+				appearancesTab.remove();
+				appearancesPane.remove();
+			}
+			*/
+			
+			
 			if (media.options.shy) {
 				mediaelement.model.element.mouseenter(function() {
 					var timeout = $(this).data('timeout');

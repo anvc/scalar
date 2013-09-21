@@ -553,7 +553,8 @@ class Book extends MY_Controller {
 		if ($this->data['book']->template == 'cantaloupe') {
 			$this->data['page_views'] = array(
 				'plain' => 'Basic (This page\'s text and media interspersed)',
-				'splash' => 'Splash (This page\'s background image shown full screen w/ title and author at the bottom)',
+				'splash' => 'Splash (This page\'s background image shown full screen w/ title at the bottom)',
+				'book_splash' => 'Book Splash (This page\'s background image shown full screen w/ book title and author at the bottom)',
 				'gallery' => 'Media Gallery (Media contained or tagged by this page shown in a gallery)',
 				'structured_gallery' => 'Structured Media Gallery (Media contained or tagged up to two levels deep shown in an indexed gallery)'
 			);

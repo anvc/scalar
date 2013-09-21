@@ -7,6 +7,7 @@ $config['arbor'] = 'html5_RDFa';
 $config['views'] = array(
 			'plain',
 			'splash',
+			'book_splash',
 			'gallery',
 			'structured_gallery'
 		);
