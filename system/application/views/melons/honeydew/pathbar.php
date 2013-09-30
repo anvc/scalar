@@ -10,7 +10,7 @@ if ($mode || !isset($page->versions[0]->has_paths) || empty($page->versions[0]->
 	$path =@ $page->versions[$page->version_index]->has_paths[$page->versions[$page->version_index]->requested_path_index];
 	$prev_page =@ $path->versions[$page->version_index]->path_of[$path->versions[$page->version_index]->prev_index];
 	$next_page =@ $path->versions[$page->version_index]->path_of[$path->versions[$page->version_index]->next_index];
-	$continue_to =@ $path->versions[$page->version_index]->continue_to;
+	$continue_to =@ $page->versions[$page->version_index]->continue_to;
 	// Current path
   	echo '<div class="path_left">';
 	if (!empty($path)) {
@@ -45,12 +45,7 @@ if ($mode || !isset($page->versions[0]->has_paths) || empty($page->versions[0]->
 		echo '</a>';
 	} elseif (!empty($continue_to)) {
 		echo '&nbsp; &nbsp; &nbsp; &nbsp;';
-		echo '<a class="path_nav_next_btn" href="'.$base_uri.$continue_to->slug.'">Path end, continue</a>';	
-	/*
-	} elseif (isset($page->version_index) && isset($page->versions[$page->version_index]->path_of) && !empty($page->versions[$page->version_index]->path_of)) {
-		echo '&nbsp; &nbsp; &nbsp; &nbsp;';
-		echo '<a href="'.$base_uri.$page->versions[$page->version_index]->path_of[key($page->versions[$page->version_index]->path_of)]->slug.'?path='.urlencode($page->slug).'" class="path_nav_next_btn">Begin this path</a>';
-	*/
+		echo '<a class="path_nav_next_btn" href="'.$base_uri.$continue_to[0]->slug.'" title="'.$continue_to[0]->versions[$continue_to[0]->version_index]->title.'">Path end, continue</a>';	
 	} elseif (!empty($prev_page)) {
 		echo '&nbsp; &nbsp; &nbsp; &nbsp;';
 		echo '<a class="path_nav_next_btn" href="'.$base_uri.'index">Path end, return home</a>';

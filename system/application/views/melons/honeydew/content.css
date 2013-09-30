@@ -233,6 +233,12 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 .inline_icon_link.reply {
 	background-image: url(images/response_icon.png);
 }
+.inline_icon_link.meta {
+	background-image: url(images/meta_icon.png); float:right; 
+}
+.inline_icon_link.meta li {
+	color:black;	
+}
 .inline_icon_link {
 	background-position: left center; background-repeat: no-repeat; padding-left: 26px; cursor: pointer;
 }

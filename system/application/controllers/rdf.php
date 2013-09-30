@@ -99,17 +99,21 @@ class Rdf extends MY_Controller {
 				$system->type = 'system';
 				$system->title = $this->lang->line('install_name');
 				$this->rdf_object->system(
-										  $this->data['content'],
-										  $system,
-										  $this->books->get_all(null, true),
-										  $this->data['base_uri']
+										    $this->data['content'],
+										    array(
+										  	  'content'  => $system,
+										  	  'books'    => $this->books->get_all(null, true),
+										  	  'base_uri' => $this->data['base_uri']
+										    )
 										 );
 			} else {
 				$this->rdf_object->book(
-										$this->data['content'], 
-										$this->data['book'], 
-										$this->users->get_all($this->data['book']->book_id, true), 
-										$this->data['base_uri']
+										  $this->data['content'],
+										  array(
+										    'book'     => $this->data['book'], 
+										  	'users'    => $this->users->get_all($this->data['book']->book_id, true),
+										  	'base_uri' => $this->data['base_uri']
+										  ) 
 									   );		
 			}			   
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
@@ -141,17 +145,17 @@ class Rdf extends MY_Controller {
 			}
 			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect				
 			$this->rdf_object->index(
-			                         $this->data['content'], 
-			                         $this->data['book'], 
-			                         $content, 
-			                         $this->data['base_uri'],
-			                         $this->data['restrict'],
-			                         RDF_Object::REL_ALL,
-			                         RDF_Object::NO_SEARCH,
-			                         (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
-			                         (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
-			                         $this->data['pagination'],
-			                         $this->data['recursion']
+			 						   $this->data['content'],
+									   array(
+						                 'book'         => $this->data['book'], 
+						                 'content'      => $content, 
+						                 'base_uri'     => $this->data['base_uri'],
+				                         'restrict'     => $this->data['restrict'], 
+										 'versions'     => (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT), 
+									     'ref'          => (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE), 
+				                         'pagination'   => $this->data['pagination'], 
+				                         'max_recurses' => $this->data['recursion']
+									   )
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
 		} catch (Exception $e) {
@@ -208,16 +212,18 @@ class Rdf extends MY_Controller {
 			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true);	
 			$this->rdf_object->index(
 			                         $this->data['content'], 
-			                         $this->data['book'], 
-			                         $content, 
-			                         $this->data['base_uri'],
-			                         $this->data['restrict'],
-			                         $rel,
-			                         $this->data['sq'],
-			                         (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
-			                         (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
-			                         $this->data['pagination'],
-			                         $this->data['recursion']
+			                           array(
+			                         	 'book'			=> $this->data['book'],
+			                         	 'content'		=> $content,
+			                         	 'base_uri'		=> $this->data['base_uri'],
+			                         	 'restrict'		=> $this->data['restrict'],
+			                         	 'rel'			=> $rel,
+			                         	 'sq'			=> $this->data['sq'],
+			                         	 'versions'		=> (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
+			                         	 'ref'			=> (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+			                         	 'pagination'   => $this->data['pagination'],
+			                         	 'max_recurses' => $this->data['recursion']
+			                           )
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);			
 		} catch (Exception $e) {

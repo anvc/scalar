@@ -24,6 +24,9 @@
  * @version					2.4
  */
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 function sortSearchResults($a, $b) {
 	$x = strtolower($a->versions[key($a->versions)]->title);
 	$y = strtolower($b->versions[key($a->versions)]->title);
@@ -121,19 +124,17 @@ class Book extends MY_Controller {
 					if (!empty($version)) $version_datetime = $version->created; 
 				}	
 				// Build nested array of page relationship
-				// TODO: not sending through request for older version of page?
-				$index = $this->rdf_object->index(
-			                         	$this->data['book'], 
-			                         	$page, 
-			                         	$this->data['base_uri'],
-			                         	RDF_Object::RESTRICT_NONE,
-			                         	RDF_Object::REL_ALL,
-			                         	RDF_Object::NO_SEARCH,
-			                         	((!empty($version_datetime))?$version_datetime:RDF_Object::VERSIONS_MOST_RECENT),
-			                         	RDF_Object::REFERENCES_ALL,
-			                         	RDF_Object::NO_PAGINATION,
-			                         	$this->max_recursions
-			                          );    
+				$settings = array(
+								 	'book'         => $this->data['book'], 
+									'content'      => $page, 
+									'base_uri'     => $this->data['base_uri'],
+									'versions'     => ((!empty($version_datetime))?$version_datetime:RDF_Object::VERSIONS_MOST_RECENT),
+									'ref'          => RDF_Object::REFERENCES_ALL,
+							  		'max_recurses' => $this->max_recursions	
+								 );
+				$index = $this->rdf_object->index($settings);    
+				//print_r($index);
+				//exit;
 			    if (!count($index)) throw new Exception('Problem getting page index');     
 			    $this->data['page'] = $index[0];
 			    unset($index);  

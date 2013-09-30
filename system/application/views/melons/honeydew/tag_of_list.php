@@ -19,7 +19,6 @@ $type = ($page->type == 'composite') ? 'page' : 'media';
 		if ($count < count($page->versions[$page->version_index]->tag_of)) echo ',&nbsp; ';
 		$count++;
 	endforeach;
-	?></div>
-	<a href="<?=$base_uri?>tags"><small>View all tags</small></a>
+	?>&nbsp; <a href="<?=$base_uri?>tags"><small>View all tags</small></a></div>
 </div>
 

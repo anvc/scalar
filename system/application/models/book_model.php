@@ -50,16 +50,14 @@ class Book_model extends MY_Model {
 		
 	}	    
     
-  	public function rdf($row) {
+  	public function rdf($row, $base_uri='') {
   		
   		if (!isset($row->type) || empty($row->type)) $row->type = 'book';
-  		return parent::rdf($row);
+  		return parent::rdf($row, $base_uri);
   		
   	}    
     
     public function get($book_id=0, $show_users=true, $orderby='title',$orderdir='asc') {
-    
-    	// TODO: return an object
     	
     	$this->db->select('*');
     	$this->db->from($this->books_table);

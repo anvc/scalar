@@ -3,7 +3,7 @@ if ($mode || !isset($page->versions[0]->has_paths) || empty($page->versions[0]->
 $path =@ $page->versions[$page->version_index]->has_paths[$page->versions[$page->version_index]->requested_path_index];
 $prev_page =@ $path->versions[$page->version_index]->path_of[$path->versions[$page->version_index]->prev_index];
 $next_page =@ $path->versions[$page->version_index]->path_of[$path->versions[$page->version_index]->next_index];
-$continue_to =@ $path->versions[$page->version_index]->continue_to;
+$continue_to =@ $page->versions[$page->version_index]->continue_to;
 ?>
 <!-- Bottom path bar -->
 <table class="path_table" cellspacing="0" cellpadding="0"><tr>
@@ -35,7 +35,7 @@ $continue_to =@ $path->versions[$page->version_index]->continue_to;
 			echo'>';echo 'Next page on path';
 			echo '</a>';
 		} elseif (!empty($continue_to)) {
-			echo '<a class="path_nav_next_btn" href="'.$base_uri.$continue_to->slug.'">Path end, continue</a>';	
+			echo '<a class="path_nav_next_btn" href="'.$base_uri.$continue_to[0]->slug.'" title="'.$continue_to[0]->versions[$continue_to[0]->version_index]->title.'">Path end, continue</a>';	
 		/*
 		} elseif (isset($container_of) && !empty($container_of)) {
 			echo '<a href="'.confirm_slash(base_url()).confirm_slash($book->slug).$container_of[0]->slug.'?path='.urlencode($page->slug).'" class="path_nav_next_btn">Begin this path</a>';
