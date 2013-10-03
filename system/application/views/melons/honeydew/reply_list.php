@@ -64,8 +64,8 @@ $type = ($page->type == 'composite') ? 'page' : 'media';
 <? else: ?>
 	<a href="javascript:;" class="inline_icon_link reply reply_link">Comment on this <?=$type?></a>
 <? endif ?> 
-	<div class="inline_icon_link meta meta_link pulldown"><a href="javascript:;">Additional metadata</a>
-	  	<ul class="pulldown-content pulldown-content-nudge-center pulldown-content-nudge-up pulldown-content-no-mouseover nodots">
+	<div class="inline_icon_link meta meta_link pulldown pulldown_click"><a href="javascript:;">Additional metadata</a>
+	  	<ul class="pulldown-content pulldown-content-nudge-center pulldown-content-no-mouseover nodots">
 <? 
 		if (empty($page->versions[$page->version_index]->rdf)) {
 			echo '<li>There is no additional metadata</li>';

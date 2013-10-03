@@ -180,7 +180,7 @@ $(window).ready(function() {
 		  }},
 		  
 		  // Scalar Nav which includes a few dependencies
-		  {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/pulldown/jquery.scalarpulldown.js',widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js',widgets_uri+'/nav/jquery.scalarrecent.js',widgets_uri+'/nav/jquery.scalarnav.js',widgets_uri+'/nav/nav.css'], complete:function() {
+		  {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/pulldown/jquery.scalarpulldown.js',widgets_uri+'/pulldown/pulldown.css',widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js',widgets_uri+'/nav/jquery.scalarrecent.js',widgets_uri+'/nav/jquery.scalarnav.js',widgets_uri+'/nav/nav.css'], complete:function() {
 			var options = {parent_uri: $('link#parent').attr('href'),logged_in: $('link#logged_in').attr('href'),user_level: $('link#user_level').attr('href')};
 		    scalarrecent_log_page();
 		    $('#scalarnav').scalarnav(options);

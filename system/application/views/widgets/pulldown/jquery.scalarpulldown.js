@@ -28,21 +28,29 @@
 			var $content_nudge_center = $this.children('.pulldown-content-nudge-center');
 			var $content_li = $content.children('li');
 			var on_click = ($this.hasClass('pulldown_click')) ? true : false;
-		
+
 			if (!on_click) {
 				$this.mouseover(function(){ $content.show(); $this.css('zIndex', 10); $("body").trigger("pulldownIsOpen", this); });
 				$this.mouseout(function(){ $content.hide(); $this.css('zIndex', 1); });
 			}
 			
-			$this.click(function(){ 
+			$this.click(function() {  // Add click even regardless of on_click, for gestural (e.g., iPad) support 
 				if ($content.css('display') == 'block') {
-					if ($this.find('.history_bar').length == 0) {
-						$content.hide();
-						$this.css('zIndex', 1);
-					}
+					$content.hide();
+					$this.css('zIndex', 1);
 				} else {
 					$content.show();
-					$this.css('zIndex', 10); $("body").trigger("pulldownIsOpen", this);
+					$this.css('zIndex', 10); 
+					$("body").trigger("pulldownIsOpen", this);
+					if (on_click) {
+						setTimeout(function() {
+							$('body').click(function() {
+								$content.hide();
+								$this.css('zIndex', 1);
+								$('body').unbind('click');
+							});
+						}, 50);
+					}
 				}
 			}); 
 				
