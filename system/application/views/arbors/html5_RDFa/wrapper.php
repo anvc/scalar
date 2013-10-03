@@ -255,7 +255,7 @@ if (!empty($has_references)): ?>
 <? if (!empty($reference_of)): ?>
 	<section>
 		<h1>This page references:</h1>
-		<ol>
+		<ol class="reference_of">
 <? 		foreach ($reference_of as $reference_item): ?>
 			<li>
 				<a rel="dcterms:references" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
