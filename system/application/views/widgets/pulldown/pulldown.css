@@ -1,0 +1,27 @@
+.pulldown {position:relative;z-index:3;cursor:pointer;}
+.pulldown-content {
+	display:none;
+	position:absolute;
+	top:15px;
+	border-top:solid 1px #999;
+	border-left:solid 1px #999;
+	border-bottom:solid 2px #999;
+	border-right:solid 2px #999;
+	background:#ffffff; 
+	text-align:left;
+	-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;
+}
+.pulldown p {padding:4px 10px 4px 10px; margin:0px 0px 0px 0px;}
+.pulldown UL {list-style-type:none; margin:0px 0px 0px 0px; padding:6px 0px 6px 0px;}
+.pulldown-content LI {padding:5px 18px 5px 18px; text-align:left; margin:0px 0px 0px 0px;}
+.pulldown-content LI:hover {background:#e5e5e5;}
+.pulldown-content-no-mouseover LI:hover {background:#ffffff !important;}
+.pulldown-content LI.sel {}
+.pulldown-content LI.disabled { color: #aaa; background:#ffffff !important;}
+.pulldown-handle {position:relative; z-index:0;}
+.narrow-pulldown {width:130px;}
+.medium-pulldown {width:350px;}
+.pulldown-content-nudge-up {top:10px;}
+.pulldown-content-nudge-left {right:0px;}
+.pulldown-content-nudge-center {left:0px;}  /* jQuery will center */
+.pulldown-content-nudge-right {left:0px;}

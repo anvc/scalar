@@ -77,6 +77,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <article>
 
 	<header>
+		<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
 		<span resource="<?=rtrim($base_uri,'/')?>" typeof="scalar:Book">
 			<a href="<?=$base_uri?>index"><span id="book-title" property="dcterms:title"><?=$book->title?> </span></a>
 			<a rel="dcterms:hasPart" href="<?=$base_uri.$page->slug?>"></a>
@@ -86,35 +87,32 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 			<a rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>	
 		</span>	
 		<span id="book-id" property=""><?=$book->book_id?></span>
-	</header>
-
-	<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
-	<span property="dcterms:description"><?=$page->versions[$page->version_index]->description?></span>
-	<span property="art:url"><?=$page->versions[$page->version_index]->url?></span>
-	<span property="sioc:content"><?=nl2br($page->versions[$page->version_index]->content)?></span>
-	<span property="scalar:defaultView"><?=$page->versions[$page->version_index]->default_view?></span>
-	<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
+		<span property="dcterms:description"><?=$page->versions[$page->version_index]->description?></span>
+		<span property="art:url"><?=$page->versions[$page->version_index]->url?></span>
+		<span property="sioc:content"><?=nl2br($page->versions[$page->version_index]->content)?></span>
+		<span property="scalar:defaultView"><?=$page->versions[$page->version_index]->default_view?></span>
+		<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
 <?
-	if (isset($page->versions[$page->version_index]->continue_to)):
-		echo '	<a rel="scalar:continue_to" href="'.$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num.'"></a>'."\n";
+		if (isset($page->versions[$page->version_index]->continue_to)):
+			echo '	<a rel="scalar:continue_to" href="'.$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num.'"></a>'."\n";
 ?>
-	<span resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>" typeof="scalar:<?=('media'==$base_uri.$page->versions[$page->version_index]->continue_to[0]->type)?'Media':'Composite'?>">
-		<span class="color" style="background-color:<?=$page->versions[$page->version_index]->continue_to[0]->color?>" property="scalar:color" content="<?=$page->versions[$page->version_index]->continue_to[0]->color?>"></span>
-		<a rel="dcterms:hasVersion" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>"></a>
-	</span>				
-	<span resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>" typeof="scalar:Version">				
-		<span property="dcterms:title" content="<?=htmlspecialchars($page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title)?>">
-			<a href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title?></a>
-		</span>
-		<span property="dcterms:description"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->description?></span>
-		<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>	
-	</span>	
+		<span resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>" typeof="scalar:<?=('media'==$base_uri.$page->versions[$page->version_index]->continue_to[0]->type)?'Media':'Composite'?>">
+			<span class="color" style="background-color:<?=$page->versions[$page->version_index]->continue_to[0]->color?>" property="scalar:color" content="<?=$page->versions[$page->version_index]->continue_to[0]->color?>"></span>
+			<a rel="dcterms:hasVersion" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>"></a>
+		</span>				
+		<span resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>" typeof="scalar:Version">				
+			<span property="dcterms:title" content="<?=htmlspecialchars($page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title)?>">
+				<a href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title?></a>
+			</span>
+			<span property="dcterms:description"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->description?></span>
+			<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>	
+		</span>	
 <?	
-	endif;
-?>
-	
-	
+		endif;
+?>		
+	</header>
 <?
+
 $has_references = $page->versions[$page->version_index]->has_references;
 $reference_of = $page->versions[$page->version_index]->reference_of;
 unset($models[array_search('references',$models)]);
@@ -126,7 +124,7 @@ foreach ($models as $rel):
 	if (!empty($inward_array)):
 ?>	
 	<section>
-		<h3>This page has <?=$rel?>:</h3>
+		<h1>This page has <?=$rel?>:</h1>
 		<ol class="has_<?=$rel?>">
 <? 
 		foreach ($inward_array as $inward_item): 
@@ -200,7 +198,7 @@ foreach ($models as $rel):
 	if (!empty($outward_array)):
 ?>
 	<section>
-		<h3>This page is <?=(('a'==substr($rel,0,1))?'an':'a')?> <?=singular($rel)?> of:</h3>
+		<h1>This page is <?=(('a'==substr($rel,0,1))?'an':'a')?> <?=singular($rel)?> of:</h1>
 		<ol class="<?=singular($rel)?>_of">
 <? 
 		foreach ($outward_array as $outward_item): 
@@ -233,7 +231,7 @@ endforeach;
 
 if (!empty($has_references)): ?>
 	<section>
-		<h3>This page is referenced by:</h3>
+		<h1>This page is referenced by:</h1>
 		<ol>
 <? 		foreach ($has_references as $reference_item): ?>
 			<li>
@@ -256,8 +254,8 @@ if (!empty($has_references)): ?>
 <? endif; ?>
 <? if (!empty($reference_of)): ?>
 	<section>
-		<h3>This page references:</h3>
-		<ol>
+		<h1>This page references:</h1>
+		<ol class="reference_of">
 <? 		foreach ($reference_of as $reference_item): ?>
 			<li>
 				<a rel="dcterms:references" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
