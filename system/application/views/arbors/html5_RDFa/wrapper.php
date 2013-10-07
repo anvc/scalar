@@ -34,7 +34,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <title><?=strip_tags($title)?></title>
 <base href="<?=$base_uri.((isset($page)&&!empty($page))?$page->slug.'.'.$page->versions[$page->version_index]->version_num:$slug.'.0')?>" />
 <meta name="description" content="<?=htmlspecialchars(strip_tags($description))?>" />
-<meta name="viewport" content="width=620, maximum-scale=1.0" />
+<meta name="viewport" content="initial-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <? if (!$book->display_in_index || $is_new): ?>
 <meta name="robots" content="noindex, nofollow">
