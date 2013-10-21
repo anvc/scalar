@@ -1,8 +1,21 @@
 #header .breadcrumb { display: none; }
 
 h1, h2, h3, h4 { padding-left: 2rem; padding-right: 2rem; }
+h1 { margin-top: 1rem; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
+.page { padding-top: 6.0rem; padding-bottom: 2.4rem; overflow-x: hidden; }
 .body_copy { padding-left: 2rem; padding-right: 2rem; }
-.relationships ol,p { padding-left: 2rem; padding-right: 2rem; }
+.relationships ol, .relationships ul, .relationships p, #incoming_comments, #outgoing_comments, #colophon { padding-left: 2rem; padding-right: 2rem; }
+#colophon { padding-top: 2.4rem; }
 .full .mediaElementFooter { padding-left: 2rem; padding-right: 2rem; }
-.slot.right { margin-right: 2rem; }
-.slot.left { margin-left: 2rem; }
+.slot.right { margin-left: 2rem; float: none; }
+.slot.left { margin-right: 2rem; float: none; }
+.media_tabs { display: inherit !important; }
+#visualization_btn { display: none; }
+.dialog { left: 0; right: 0; bottom: 0; }
+.dialog_header { left: 0; right: 0; }
+.title_card { padding-left: 2.4rem; padding-right: 2.4rem; padding-bottom: 2.4rem; }
+.splash h1 { line-height: 100%; font-size: 4rem; margin-bottom: 2rem; }
+.splash h2 { line-height: 110%; font-size: 2.0rem; }
+.help, .help .dialog_header { width: inherit; }
+#book_title { display: none !important; }
+.media_sidebar { float: none; }

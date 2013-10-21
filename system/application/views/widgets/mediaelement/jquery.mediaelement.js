@@ -365,7 +365,13 @@ function handleFlashVideoMetadata(data) {
 		 * Loads metadata for the media.
 		 */
 		jQuery.MediaElementController.prototype.loadMetadata = function() {
-			if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, false, 'annotation') == 'loaded') this.handleMetadata();
+			if ( this.model.options.getRelated ) {
+				// get all relationships
+				if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, true) == 'loaded') this.handleMetadata();
+			} else {
+				// get annotations only
+				if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, false, 'annotation') == 'loaded') this.handleMetadata();
+			}
 		}
 
 		/**

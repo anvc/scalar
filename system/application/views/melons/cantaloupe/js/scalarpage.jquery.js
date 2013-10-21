@@ -69,17 +69,19 @@
 			handleMediaElementMetadata: function(event, link) {
 				var mediaelement = link.data('mediaelement');
 				//mediaelement.view.adjustMediaWidth(300);
-				if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
-					mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
-				}
-				if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null)) {
-					var infoElement = $('<div class="body_copy"></div>');
-					mediaelement.model.element.parent().after(infoElement);
-					mediaelement.model.element.css('marginBottom','0');
-					mediaelement.view.footer.hide();
-					$.scalarmedia(mediaelement, infoElement, {'shy':false});
-				} else {
-					$.scalarmedia(mediaelement, mediaelement.view.footer, {'shy':true});
+				if ( mediaelement.model.options.solo != true ) {
+					if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
+						mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
+					}
+					if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null)) {
+						var infoElement = $('<div class="body_copy"></div>');
+						mediaelement.model.element.parent().after(infoElement);
+						mediaelement.model.element.css('marginBottom','0');
+						mediaelement.view.footer.hide();
+						$.scalarmedia(mediaelement, infoElement, { 'shy': false, 'details': page.mediaDetails });
+					} else {
+						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': !isMobile, 'details': page.mediaDetails });
+					}
 				}
 				mediaelement.model.element.css('visibility','visible');
 				link.addClass('texteo_icon');
@@ -92,17 +94,17 @@
 				
 					case ViewState.Reading:
 					if (data.instantaneous) {
-						$('.page').stop().show();
+						$('.page').removeClass( 'fade_out instantaneous_fade_out' );
 					} else {
 						//$('.page').stop().fadeIn();
-						$( '.page' ).removeClass( 'fade_out' );
+						$( '.page' ).removeClass( 'fade_out instantaneous_fade_out' );
 					}
 					$( 'body' ).css( 'overflow-y', 'auto' );
 					break;
 					
 					case ViewState.Navigating:
 					if (data.instantaneous) {
-						$('.page').stop().hide();
+						$('.page').addClass( 'instantaneous_fade_out' );
 					} else {
 						//$('.page').stop().fadeOut();
 						$( '.page' ).addClass( 'fade_out' ).delay( 1000 ).queue( 'fx', function( next ) {
@@ -110,6 +112,10 @@
 							next();
 						} );
 					}
+					$( 'body' ).css( 'overflow-y', 'hidden' );
+					break;
+					
+					case ViewState.Modal:
 					$( 'body' ).css( 'overflow-y', 'hidden' );
 					break;
 				
@@ -204,7 +210,32 @@
 					}
 					return 0;
 				});
-
+				
+				// handle end-of-path destinations
+				$( '[rel="scalar:continue_to"]' ).each( function() {
+				
+					var span = $( '[resource="' + $( this ).attr( 'href' ) + '"]' );
+					span.hide();
+					link =  span.find( 'span[property="dcterms:title"] > a' );
+					node = scalarapi.getNode( link.attr( 'href' ) );
+					section = $('<section class="relationships"></section').appendTo('article');
+			
+					// A child option has already been offered; this option is an alternative
+					if ( pathOptionCount > 0 ) {
+						section.append( '<p><a class="nav_btn" href="' + node.url + '">End of path; continue to “' + 
+							node.getDisplayTitle() + '”</a></p>' );
+						
+					// No child options have been offered
+					} else {
+						section.append( '<p><a class="nav_btn primary" href="' + node.url + '">End of path; continue to “' + 
+							node.getDisplayTitle() + '”</a></p>' );
+					}
+					
+					pathOptionCount++;
+					containingPathOptionCount++;
+					
+				} );
+				
 				if (containing_paths.length > 0) {
 					for (i in containing_paths) {
 						path = containing_paths[ i ];
@@ -361,6 +392,7 @@
 					}, function() {
 						console.log('an error occurred while retrieving gallery info.');
 					}, 1, true);
+					page.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
 					break;
 					
 					case 'structured_gallery':
@@ -414,6 +446,8 @@
 					
 					});
 					
+					page.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
+					
 					/*$('.annotation_of').each( function() {
 						node = scalarapi.getNode( $( this ).attr( 'href' ) );
 						if ( node != null ) {
@@ -434,6 +468,9 @@
 		
 		element.addClass('page');
 		
+		$( 'header' ).show();
+		$( '#book-id' ).hide();
+		
 		wrapOrphanParagraphs($('[property="sioc:content"]'));
 	  	
 	  	$('[property="scalar:defaultView"]').hide();
@@ -445,6 +482,7 @@
 	  			$( this ).addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
 	  		}
 	  	});*/
+		
 		
 		$('section').hide(); // TODO: Make this more targeted	
 		
@@ -619,7 +657,19 @@
 
 	  	$('body').addClass('body_font');
 	  	$('h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font');
-		
+	  	
+	  	/*
+		$( document ).ready( function() {
+			if ( !$.cookie( 'warningMessageDismissed' ) ) {
+				var message = $('<div id="message" style="position: absolute; cursor: pointer; left: 20px; top: 70px; max-width: 400px; padding: 15px; z-index:99999; background-color: #fdcccb;">Warning message</div>').appendTo( 'body' );
+				message.click( function() { 
+					$( this ).hide(); 
+					$.cookie( 'warningMessageDismissed', true, { path: '/' } );
+				} );
+			}
+		} );
+		*/
+				
 		return page;
 	
 	}

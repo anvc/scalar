@@ -73,10 +73,12 @@
 			this.firstRun = false;
 		}
 		this.element.show();
+		setState( ViewState.Modal );
 	}
 	
 	ScalarVisualizations.prototype.hideVisualizations = function() {
 		this.element.hide();
+		restoreState();
 	}
 
 			

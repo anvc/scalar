@@ -394,7 +394,7 @@ ScalarPinwheel.prototype.calculateDimensions = function() {
 	if ( ($(window).width() - $('.page').width()) == 0 ) {
 		this.currentMargin = 150;
 	} else {
-		this.currentMargin = ($(window).width() - $('.page').width()) * .5;
+		this.currentMargin = Math.max( 100, ($(window).width() - $('.page').width()) * .5);
 	}
 	
 	this.unitSize = {

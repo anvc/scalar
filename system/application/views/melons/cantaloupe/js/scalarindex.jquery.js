@@ -101,10 +101,12 @@
 			this.setDisplayMode(this.DisplayMode.Path);
 			this.firstRun = false;
 		}
+		setState( ViewState.Modal );
 	}
 	
 	ScalarIndex.prototype.hideIndex = function() {
 		this.element.hide();
+		restoreState();
 	}
 	
 	ScalarIndex.prototype.setDisplayMode = function( mode ) {

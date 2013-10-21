@@ -73,10 +73,12 @@
 	
 	ScalarHelp.prototype.showHelp = function() {
 		this.element.show();
+		setState( ViewState.Modal );
 	}
 	
 	ScalarHelp.prototype.hideHelp = function() {
 		this.element.hide();
+		restoreState();
 	}
 	
 	ScalarHelp.prototype.toggleHelp = function() {

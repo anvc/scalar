@@ -26,6 +26,7 @@
 var ViewState = {
 	Reading: 'reading',
 	Navigating: 'navigating',
+	Modal: 'modal',
 	Editing: 'editing'
 }
 
@@ -44,11 +45,15 @@ var header = null;
 var page = null;
 var pinwheel = null;
 var state = ViewState.Reading;
+var lastState = state;
 var template_getvar = 'template';
 var maxMediaHeight = 1040;
-var isMobile = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i))));
+var isMobile = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/KFOT/i)) || (navigator.userAgent.match(/Kindle/i)) || (navigator.userAgent.match(/iPad/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i))));
+var isTablet = ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.match(/KFOT/i)) || (navigator.userAgent.match(/Kindle/i)));
 var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
 var isNative = (document.location.href.indexOf('=cantaloupe') == -1);
+
+
 
 /**
  * Not an easy way to wait for a CSS file to load (even with yepnope doing a good job in Firefox)
@@ -69,10 +74,16 @@ function when(tester_func, callback) {
 function setState(newState, instantaneous) {
 	if ((instantaneous == undefined) || (instantaneous == null)) instantaneous = false;
 	if (state != newState) {
+		lastState = state;
 		state = newState;
 		$('body').trigger('setState', {state:state, instantaneous:instantaneous});
 		$.cookie('viewstate', this.state, {path: '/'});
 	}
+}
+
+function restoreState() {
+	state = lastState;
+	$('body').trigger('setState', {state:state, instantaneous:true});
 }
 				
 // rewrite Scalar hyperlinks to point to the cantaloupe melon
@@ -218,6 +229,8 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	opts.base_dir = scalarapi.model.urlPrefix;
 	opts.seek = annotation_url;
 	opts.chromeless = true;
+	opts.solo = options.solo;
+	opts.getRelated = options.getRelated;
 	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);		
 	$tag.data('path', url);
 	$tag.data('meta', resource);

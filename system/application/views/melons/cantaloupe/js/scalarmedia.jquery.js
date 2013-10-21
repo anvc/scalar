@@ -27,7 +27,8 @@
 		var media = {
 		
 			options: $.extend({
-				'shy':true
+				'shy':true,
+				'details': null
 			}, options),
 			
 			showAnnotation: function(e, relation, m, forceShow) {
@@ -144,7 +145,7 @@
 			
 			var description = node.current.description;
 			if ( description == null ) {
-				description = '<i>No description available.</i>';
+				description = '<p><i>No description available.</i></p>';
 			}
 			var descriptionPane = $('<div class="media_description pane">'+description+'</div>').appendTo(element);
 			var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
@@ -231,6 +232,11 @@
 				foundAuxContent = true;
 			}
 			
+			var detailsTab = $( '<div class="media_tab">Details</div>' ).appendTo( mediaTabs );
+			detailsTab.click( function() {
+				media.options[ 'details' ].show( node );
+			} );
+			
 			/*
 			var appearancesTab = $('<div class="media_tab">Appearances</div>').appendTo(mediaTabs);
 			var appearancesPane = $('<div class="media_metadata pane"></div>').appendTo(element);
@@ -294,12 +300,14 @@
 					mediaTabs.slideDown();
 				})
 				mediaelement.model.element.mouseleave(function() {
-					var timeout = $(this).data('timeout');
-					if (timeout != null) {
-						clearTimeout(timeout);
+					if ( window.innerWidth > 480 ) {
+						var timeout = $(this).data('timeout');
+						if (timeout != null) {
+							clearTimeout(timeout);
+						}
+						var timeout = setTimeout(function() { mediaTabs.slideUp(); }, 1000)
+						$(this).data('timeout', timeout);
 					}
-					var timeout = setTimeout(function() { mediaTabs.slideUp(); }, 1000)
-					$(this).data('timeout', timeout);
 				})
 			} else {
 				mediaTabs.show();
