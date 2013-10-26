@@ -601,6 +601,18 @@
 			page.addIncomingComments();		  	
 			page.addColophon();	  	
 			break;
+			
+			case 'image_header':
+			$( '.page' ).css( 'padding-top', '5rem' );
+			$( 'header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
+			$( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
+			$( '.title_card' ).append( $( 'header > h1' ) );
+			$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
+			page.setupScreenedBackground();
+			page.addRelationshipNavigation(true);
+			page.addIncomingComments();		  	
+			page.addColophon();	  	
+			break;
 		
 			default:
 		  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
@@ -645,6 +657,7 @@
 				}
 			
 			});*/
+			
 					
 			page.addRelationshipNavigation(true);
 			page.addIncomingComments();		  	
