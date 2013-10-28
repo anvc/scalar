@@ -64,28 +64,25 @@ $type = ($page->type == 'composite') ? 'page' : 'media';
 <? else: ?>
 	<a href="javascript:;" class="inline_icon_link reply reply_link">Comment on this <?=$type?></a>
 <? endif ?> 
+<? if (!empty($page->versions[$page->version_index]->rdf)): ?>
 	<div class="inline_icon_link meta meta_link pulldown pulldown_click"><a href="javascript:;">Additional metadata</a>
 	  	<ul class="pulldown-content pulldown-content-nudge-center pulldown-content-no-mouseover nodots">
 <? 
-		if (empty($page->versions[$page->version_index]->rdf)) {
-			echo '<li>There is no additional metadata</li>';
-		} else {
-			foreach ($page->versions[$page->version_index]->rdf as $p => $values) {
-				$p = toNS($p, $ns);
-				echo '<li>';
-				echo '<b>'.$p.'</b><br />';				
-				foreach ($values as $value) {
-					$value = $value['value'];
-					$value = (isURL($value)) ? '<a href="'.$value.'">'.$value.'</a>' : $value;
-					echo $value.'<br />';
-				}
-				echo "</li>\n";
+		foreach ($page->versions[$page->version_index]->rdf as $p => $values) {
+			$p = toNS($p, $ns);
+			echo '<li>';
+			echo '<b>'.$p.'</b><br />';				
+			foreach ($values as $value) {
+				$value = $value['value'];
+				$value = (isURL($value)) ? '<a href="'.$value.'">'.$value.'</a>' : $value;
+				echo $value.'<br />';
 			}
+			echo "</li>\n";
 		}
 ?>
 		</ul>	
 	</div>
-    
+<? endif; ?>
   
 	<div class="maximize" id="comments" style="opacity: 1;">
 		<div class="maximize_fade"></div>
