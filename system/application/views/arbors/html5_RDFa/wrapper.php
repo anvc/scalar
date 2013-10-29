@@ -89,7 +89,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		<span id="book-id" property=""><?=$book->book_id?></span>
 		<span property="dcterms:description"><?=$page->versions[$page->version_index]->description?></span>
 		<span property="art:url"><?=$page->versions[$page->version_index]->url?></span>
-		<span property="sioc:content"><?=nl2br($page->versions[$page->version_index]->content)?></span>
 		<span property="scalar:defaultView"><?=$page->versions[$page->version_index]->default_view?></span>
 		<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
 <?
@@ -111,6 +110,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		endif;
 ?>		
 	</header>
+	
+	<span property="sioc:content"><?=str_replace("\r",'',str_replace("\n",'',nl2br($page->versions[$page->version_index]->content)))?></span>
 <?
 
 $has_references = $page->versions[$page->version_index]->has_references;
