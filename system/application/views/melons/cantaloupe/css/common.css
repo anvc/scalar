@@ -292,6 +292,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	-moz-transition: opacity .5s ease-in-out;
 	-o-transition: opacity .5s ease-in-out;
 	transition: opacity .5s ease-in-out;
+	-webkit-backface-visibility: hidden;
 }
 section ol,ul {margin-bottom: 1rem;}
 section.relationships { 
@@ -522,6 +523,7 @@ a:hover { text-decoration: underline; }
 	margin-bottom: 2.4rem; 
 	font-weight: normal;
 	font-style: normal;
+	-webkit-backface-visibility: hidden;
 }
 
 .mediaContainer,.mediaElementFooter {

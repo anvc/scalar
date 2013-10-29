@@ -107,10 +107,11 @@
 						$('.page').addClass( 'instantaneous_fade_out' );
 					} else {
 						//$('.page').stop().fadeOut();
-						$( '.page' ).addClass( 'fade_out' ).delay( 1000 ).queue( 'fx', function( next ) {
+						$( '.page' ).addClass( 'fade_out' );
+						/*$( '.page' ).addClass( 'fade_out' ).delay( 1000 ).queue( 'fx', function( next ) {
 							//$( this ).css( 'display', 'none' );
 							next();
-						} );
+						} );*/
 					}
 					$( 'body' ).css( 'overflow-y', 'hidden' );
 					break;
@@ -182,7 +183,7 @@
 						});
 						
 						if (!showLists) {
-							section.find('h3').hide();
+							section.find('h1').hide();
 							section.find('ol').hide();
 						}
 				
@@ -290,7 +291,7 @@
 						section.show();
 						
 						if (!showLists) {
-							section.find('h3').hide();
+							section.find('h1').hide();
 							section.find('ul').hide();
 						}
 						
@@ -305,7 +306,7 @@
 					if ($(this).parent().is('section')) {
 						section = $(this).parent();
 						section.addClass('relationships');
-						section.find('h3').text('Comments on');
+						section.find('h1').text('Comments on');
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
 						section.show();
 					}
@@ -315,7 +316,7 @@
 					if ($(this).parent().is('section')) {
 						section = $(this).parent();
 						section.addClass('relationships');
-						section.find('h3').text('Annotates');
+						section.find('h1').text('Annotates');
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
 						section.show();
 
@@ -495,7 +496,7 @@
 			case 'splash':
 			$( 'article' ).before( '<div class="blackout"></div>' );
 			element.addClass('splash');
-			$('h1').wrap('<div class="title_card"></div>');
+			$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
 			//$('.title_card').append('<h2>By Steve Anderson</h2>');
 			//$('.title_card').delay(500).fadeIn(2000);
 			$('[property="art:url"]').hide();
@@ -515,8 +516,8 @@
 			case 'book_splash':
 			$( 'article' ).before( '<div class="blackout"></div>' );
 			element.addClass('splash');
-			$('h1').wrap('<div class="title_card"></div>');
-			$( 'h1' ).html( $( '#book-title' ).html() );
+			$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
+			$( 'h1[property="dcterms:title"]' ).html( $( '#book-title' ).html() );
 			$( '.title_card' ).append('<h2></h2>');
 			$('[property="art:url"]').hide();
 			element.css('backgroundImage', $('body').css('backgroundImage'));
