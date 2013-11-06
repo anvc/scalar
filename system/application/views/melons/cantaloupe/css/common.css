@@ -236,6 +236,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	overflow-y: auto;
 	line-height: 130%;
 	-webkit-overflow-scrolling: touch;
+	display: none;
 }
 
 .note_viewer h5 { font-size: 1.4rem; font-weight: 900; margin-bottom: 1.2rem; }
@@ -712,7 +713,7 @@ a.media_info {
 #colophon img { margin: .3rem .3rem 0 0; }
 #colophon a { vertical-align: top; }
 
-#incoming_comments, #outgoing_comments { padding-left: 7.2rem; padding-right: 7.2rem; }
+#incoming_comments, #outgoing_comments { padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
 #comment_control {
 	color: #a6a6a6;
 	font-weight: 900;
