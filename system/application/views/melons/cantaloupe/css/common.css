@@ -90,7 +90,11 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	transition: all .2s ease-in-out;
 }
 
-#header #home_menu_link { 
+#import_menu_link {
+	display: inline-block;
+}
+
+#header .menu_link { 
 	padding: 0 0.6rem 0 0.6rem; 
 	cursor: pointer;
 	line-height: 5rem;
@@ -111,7 +115,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 /*#header #home_menu_link:hover { background-color: #eee; }*/
 #header #book-title { font-weight: 900; }
 #header #options { text-align: right; padding-right: 1rem; white-space: nowrap; width: 17.5rem; }
-#header #options.wide { width: 36.8rem; }
+#header #options.wide { width: 42.3rem; }
 #header img { position: relative; margin: 0 .6rem; top: 0.7rem; }
 #header a { color: #a6a6a6; text-decoration: none; }
 #header a:hover { text-decoration: underline; color: #8a8c8f;}
@@ -219,6 +223,22 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	color: #444;
 }
 
+.note_viewer {
+	position: absolute;
+	background-color: #eee;
+	z-index: 10;
+	color: #222;
+	box-shadow: 3px 3px 5px rgba(0,0,0,.2);
+	padding: 1.0rem 1.6rem 1.0rem 1.6rem;
+	font-size: 1.4rem;
+	max-width: 400px;
+	max-height: 300px;
+	overflow-y: auto;
+	line-height: 130%;
+	-webkit-overflow-scrolling: touch;
+}
+
+.note_viewer h5 { font-size: 1.4rem; font-weight: 900; margin-bottom: 1.2rem; }
 
 .search_control {
 	display: inline !important;

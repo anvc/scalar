@@ -98,7 +98,7 @@
 		this.element.contents().wrap( '<ul></ul>' );
 		
 		var list = this.element.find( 'ul' );
-		list.prepend('<li id="home_menu_link"><div><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div></li> ');
+		list.prepend('<li id="home_menu_link" class="menu_link"><div><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div></li> ');
 		$('#book-title').parent().wrap('<li id="book_title"><div><span></span></div></li>');
 		var buttons = $('<li id="options"><div></div></li>').appendTo(list);
 		buttons = buttons.find( 'div' );
@@ -163,6 +163,9 @@
 			
 			//addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
 			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit',  scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
+			
+			/*buttons.append( '<div id="import_menu_link" class="menu_link"><img src="' + modules_uri + '/cantaloupe/images/' + 'import_icon.png" alt="Import" width="30" height="30"></div>' );
+			this.buildImportMenu();*/
 			
 			if (currentNode.hasScalarType('media')) {
 				addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate', scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.annotation_editor?'+template_getvar+'=honeydew');
@@ -367,11 +370,83 @@
 			
 			$('body').click(function() {
 				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#main_menu').css( 'visibility', 'hidden' );
+				$('.menu').css( 'visibility', 'hidden' );
 			});
 		
 		}, 1000);
 		
+	}
+	
+	ScalarHeader.prototype.buildImportMenu = function() {
+	
+		// gather the main menu items
+		var listItem, secondaryMenu, secondaryMenuList, secondaryListItem,
+			menuLink = $( '#import_menu_link' ),
+			menu = $('<div id="import_menu" class="menu heading_font"><ul></ul></div>').appendTo( menuLink );
+			menuList = menu.find('ul');
+		
+		listItem = $( '<li>Affiliated archives</li>' ).appendTo( menuList );
+		secondaryMenu = $( '<div id="affiliated_archives_menu" class="menu heading_font"><ul></ul></div>' ).appendTo( listItem );
+		secondaryMenuList = secondaryMenu.find( 'ul' );
+		secondaryListItem = $( '<li>Critical Commons</li>' ).appendTo( secondaryMenuList );
+		secondaryListItem = $( '<li>Cuban Theater Digital Archive</li>' ).appendTo( secondaryMenuList );
+		secondaryListItem = $( '<li>Hemispheric Institute Digital Video Library</li>' ).appendTo( secondaryMenuList );
+		
+		listItem.hover( function() {
+			if ( state != ViewState.Modal ) {
+				$( '#affiliated_archives_menu' ).css( {
+					'visibility': 'visible',
+					'left': listItem.offset().left /*- $( '#affiliated_archives_menu' ).width()*/
+				} );
+			}
+		}, function() {
+			$( '#affiliated_archives_menu' ).css( 'visibility', 'hidden' );
+		} );
+		
+		listItem = $( '<li>Other archives</li>' ).appendTo( menuList );
+		
+		listItem = $( '<li>Local media files</li>' ).appendTo( menuList );
+		listItem.click( function() {
+			window.location = scalarapi.model.urlPrefix + 'upload?' + template_getvar + '=honeydew';
+		} );
+		
+		listItem = $( '<li>Internet media files</li>' ).appendTo( menuList );
+		listItem.click( function() {
+			window.location = scalarapi.model.urlPrefix + 'new.edit?' + template_getvar + '=honeydew#type=media';
+		} );
+		
+		listItem = $( '<li>Other Scalar books</li>' ).appendTo( menuList );
+		listItem.click( function() {
+			window.location = scalarapi.model.urlPrefix + 'import/system?' + template_getvar + '=honeydew';
+		} );
+		
+		menuLink.hover( function() {
+			if ( state != ViewState.Modal ) {
+				$(this).css('backgroundColor', '#eee');
+				$( '#import_menu' ).css( {
+					'visibility': 'visible',
+					'left': $( this ).offset().left - $( '#import_menu' ).width() + menuLink.width() + ( parseInt( menuLink.css( 'padding-left' ) ) * 2 )
+				} );
+			}
+		}, function() {
+			$( '#import_menu' ).css( 'visibility', 'hidden' );
+			$(this).css('backgroundColor', 'inherit');
+		} );
+	
+		menuLink.click(function(e) {
+			if ($('#import_menu').css('visibility') == "visible") {
+				$(this).css('backgroundColor', '#fff');
+				$('#import_menu').css( 'visibility', 'hidden' );
+			} else {
+				if ( state != ViewState.Modal ) {
+					$(this).css('backgroundColor', '#eee');
+					console.log('show2');
+					$('#import_menu').css( 'visibility', 'visible' );
+				}
+			}
+			e.stopImmediatePropagation();
+		});
+
 	}
 	
 	/*ScalarHeader.prototype.buildAdminMenu = function() {

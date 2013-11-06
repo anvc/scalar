@@ -90,6 +90,8 @@
 			
 			handleSetState: function(event, data) {
 			
+				page.hideNote();
+			
 				switch (data.state) {
 				
 					case ViewState.Reading:
@@ -370,6 +372,64 @@
 				element.append('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" alt="Search" width="30" height="30" /></a>');
 			},*/
 			
+			addNotes: function() {
+			
+				var i, n, note, resource,
+					notes = $( '.note' );
+					
+				n = notes.length;
+				for ( i = 0; i < n; i++ ) {
+					note = notes.eq( i );
+					resource = note.attr( 'resource' );
+					note.wrapInner( '<a href="javascript:;" rev="scalar:has_note" resource="' + resource + '"></a>' );
+					note.find( 'a' ).click( function() {
+						page.showNote( this );
+					} );
+					note.find( 'a' ).unwrap().addClass( 'texteo_icon texteo_icon_note' );
+				}
+				
+				$( 'body' ).append( '<div class="note_viewer caption_font"></div>' );
+			
+			},
+			
+			showNote: function( note ) {
+				note = $( note );
+				if ( note.hasClass( 'media_link' ) ) {
+					$( '[rev="scalar:has_note"]' ).removeClass( 'media_link' );
+					$( '.note_viewer' ).hide();
+				} else {
+					var position = note.offset(),
+						noteViewer = $( '.note_viewer' );
+					$( '[rev="scalar:has_note"]' ).removeClass( 'media_link' );
+					note.addClass( 'media_link' );
+					noteViewer.text( 'Loading…' );
+					noteViewer.css( {
+						'left': position.left,
+						'top': position.top + parseInt( note.height() ) + 3
+					} ).show();
+					noteViewer.data( 'slug',  note.attr( 'resource' ) );
+					scalarapi.loadPage( note.attr( 'resource' ), true, page.handleNoteData );
+				}
+			},
+			
+			hideNote: function() {
+				$( '[rev="scalar:has_note"]' ).removeClass( 'media_link' );
+				$( '.note_viewer' ).hide();
+			},
+			
+			handleNoteData: function() {
+				var noteViewer = $( '.note_viewer' );
+				var node = scalarapi.getNode( noteViewer.data( 'slug' ) );
+				if ( node != null ) {
+					noteViewer.empty();
+					//noteViewer.append( '<h5>' + node.getDisplayTitle() + '</h5>' );
+					if ( node.current.content != null ) {
+						noteViewer.append( node.current.content );
+					}
+					noteViewer.append( '<br/><br/><a href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
+				}
+			},
+			
 			addMediaElements: function() {
 			
 				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
@@ -406,7 +466,7 @@
 					$('a').each(function() {
 					
 						// resource property signifies a media link
-						if (($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) && ( $( this ).attr( 'data-relation' ) == null )) {
+						if ( ($( this ).attr( 'resource' ) || ( $( this ).find( '[property="art:url"]' ).length > 0 ) ) && ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 						
 							var slot;
 							var slotDOMElement;
@@ -587,7 +647,8 @@
 			}, 1, true);*/
 			page.addRelationshipNavigation(true);
 			page.addIncomingComments();	
-			page.addColophon();	  	
+			page.addColophon();	  
+			page.addNotes();	
 			break;
 			
 			case 'visualization':
@@ -601,6 +662,7 @@
 			var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 			page.addIncomingComments();		  	
 			page.addColophon();	  	
+			page.addNotes();	
 			break;
 			
 			case 'image_header':
@@ -613,6 +675,7 @@
 			page.addRelationshipNavigation(true);
 			page.addIncomingComments();		  	
 			page.addColophon();	  	
+			page.addNotes();	
 			break;
 		
 			default:
@@ -663,6 +726,7 @@
 			page.addRelationshipNavigation(true);
 			page.addIncomingComments();		  	
 			page.addColophon();	  	
+			page.addNotes();	
 			break;
 		
 		}
