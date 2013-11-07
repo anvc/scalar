@@ -164,8 +164,8 @@
 			//addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
 			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit',  scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
 			
-			/*buttons.append( '<div id="import_menu_link" class="menu_link"><img src="' + modules_uri + '/cantaloupe/images/' + 'import_icon.png" alt="Import" width="30" height="30"></div>' );
-			this.buildImportMenu();*/
+			buttons.append( '<div id="import_menu_link" class="menu_link"><img src="' + modules_uri + '/cantaloupe/images/' + 'import_icon.png" alt="Import" width="30" height="30"></div>' );
+			this.buildImportMenu();
 			
 			if (currentNode.hasScalarType('media')) {
 				addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate', scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.annotation_editor?'+template_getvar+'=honeydew');
@@ -384,41 +384,82 @@
 			menuLink = $( '#import_menu_link' ),
 			menu = $('<div id="import_menu" class="menu heading_font"><ul></ul></div>').appendTo( menuLink );
 			menuList = menu.find('ul');
+			
+		var handleListItemHover = function() {
+			if ( state != ViewState.Modal ) {
+				var i, n, menuData, menuDatum, submenu, secondaryListItem;
+				
+				$( '.submenu' ).css( 'visibility', 'hidden' );
+				submenu = $( this ).data( 'submenu' );
+				if ( submenu == null ) {
+					var secondaryMenu = $( '<div class="menu heading_font submenu"><ul></ul></div>' ).appendTo( $( '#import_menu_link ') ),
+						secondaryMenuList = secondaryMenu.find( 'ul' );
+					menuData = $( this ).data( 'submenuData' );
+					n = menuData.length;
+					for ( i = 0; i < n; i++ ) {
+						menuDatum = menuData[ i ];
+						secondaryListItem = $( '<li>' + menuDatum.title + '</li> ').appendTo( secondaryMenuList );
+						secondaryListItem.data( 'url', menuDatum.url );
+						secondaryListItem.click( function() {
+							$( '.submenu' ).css( 'visibility', 'hidden' );
+							window.location = $( this ).data( 'url' );
+						} );
+					}
+					$( this ).data( 'submenu', secondaryMenu );
+					secondaryMenu.css( {
+						'visibility': 'visible',
+						'top': $( this ).offset().top,
+						'left': $( this ).offset().left - secondaryMenu.width()
+					} );
+				} else {
+					submenu.css( 'visibility', 'visible' );
+				}
+			}
+		} 
 		
 		listItem = $( '<li>Affiliated archives</li>' ).appendTo( menuList );
-		secondaryMenu = $( '<div id="affiliated_archives_menu" class="menu heading_font"><ul></ul></div>' ).appendTo( listItem );
-		secondaryMenuList = secondaryMenu.find( 'ul' );
-		secondaryListItem = $( '<li>Critical Commons</li>' ).appendTo( secondaryMenuList );
-		secondaryListItem = $( '<li>Cuban Theater Digital Archive</li>' ).appendTo( secondaryMenuList );
-		secondaryListItem = $( '<li>Hemispheric Institute Digital Video Library</li>' ).appendTo( secondaryMenuList );
-		
-		listItem.hover( function() {
-			if ( state != ViewState.Modal ) {
-				$( '#affiliated_archives_menu' ).css( {
-					'visibility': 'visible',
-					'left': listItem.offset().left /*- $( '#affiliated_archives_menu' ).width()*/
-				} );
-			}
-		}, function() {
-			$( '#affiliated_archives_menu' ).css( 'visibility', 'hidden' );
-		} );
+		listItem.data( 'submenuData', [
+			{ title: 'Critical Commons', url: scalarapi.model.urlPrefix + 'import/critical_commons?' + template_getvar + '=honeydew' },
+			{ title: 'Cuban Theater Digital Archive', url: scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive?' + template_getvar + '=honeydew' },
+			{ title: 'Hemispheric Institute Digital Video Library', url: scalarapi.model.urlPrefix + 'import/hemispheric_institute?' + template_getvar + '=honeydew' },
+			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities?' + template_getvar + '=honeydew' },
+			{ title: 'Internet Archive', url: scalarapi.model.urlPrefix + 'import/internet_archive?' + template_getvar + '=honeydew' },
+			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities?' + template_getvar + '=honeydew' },
+			{ title: 'Play!', url: scalarapi.model.urlPrefix + 'import/play?' + template_getvar + '=honeydew' },
+			{ title: 'Shoah Foundation VHA Online', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online?' + template_getvar + '=honeydew' },
+			{ title: 'Shoah Foundation VHA (partner site)', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha?' + template_getvar + '=honeydew' }
+		] );
+		listItem.hover( handleListItemHover );
 		
 		listItem = $( '<li>Other archives</li>' ).appendTo( menuList );
+		listItem.data( 'submenuData', [
+			{ title: 'Prezi', url: scalarapi.model.urlPrefix + 'import/prezi?' + template_getvar + '=honeydew' },
+			{ title: 'SoundCloud', url: scalarapi.model.urlPrefix + 'import/soundcloud?' + template_getvar + '=honeydew' },
+			{ title: 'Vimeo', url: scalarapi.model.urlPrefix + 'import/vimeo?' + template_getvar + '=honeydew' },
+			{ title: 'YouTube', url: scalarapi.model.urlPrefix + 'import/youtube?' + template_getvar + '=honeydew' }
+		] );
+		listItem.hover( handleListItemHover );
 		
 		listItem = $( '<li>Local media files</li>' ).appendTo( menuList );
 		listItem.click( function() {
+			$( '.submenu' ).css( 'visibility', 'hidden' );
 			window.location = scalarapi.model.urlPrefix + 'upload?' + template_getvar + '=honeydew';
 		} );
+		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
 		
 		listItem = $( '<li>Internet media files</li>' ).appendTo( menuList );
 		listItem.click( function() {
+			$( '.submenu' ).css( 'visibility', 'hidden' );
 			window.location = scalarapi.model.urlPrefix + 'new.edit?' + template_getvar + '=honeydew#type=media';
 		} );
+		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
 		
 		listItem = $( '<li>Other Scalar books</li>' ).appendTo( menuList );
 		listItem.click( function() {
+			$( '.submenu' ).css( 'visibility', 'hidden' );
 			window.location = scalarapi.model.urlPrefix + 'import/system?' + template_getvar + '=honeydew';
 		} );
+		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
 		
 		menuLink.hover( function() {
 			if ( state != ViewState.Modal ) {
@@ -430,6 +471,7 @@
 			}
 		}, function() {
 			$( '#import_menu' ).css( 'visibility', 'hidden' );
+			$( '.submenu' ).css( 'visibility', 'hidden' );
 			$(this).css('backgroundColor', 'inherit');
 		} );
 	
