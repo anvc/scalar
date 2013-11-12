@@ -494,14 +494,15 @@ function listeditor_search(sq) {
 }
 
 function listeditor_save($list, insert_func, $row, select_single) {
-	console.log($row);
 	if ('undefined'==typeof($row)) { 
 		$(".content_wrapper tr input[type='checkbox']:checked").each(function() {
 			var $row = $(this).closest('tr');
 			listeditor_commit_save($list, insert_func, $row.data('node'));	
 		});
 	} else {
-		if ($('.wysiwyg').is('.cantaloupe') && select_single && $row.data('node').scalarTypes.media.id=='media') {
+		console.log($row.data('node'));
+		var is_valid_media_option_type = ('undefined'!=typeof($row.data('node').scalarTypes.media)||'undefined'!=typeof($row.data('node').scalarTypes.annotation)) ? true : false;
+		if ($('.wysiwyg').is('.cantaloupe') && select_single && is_valid_media_option_type) {
 			var $options_div = $('<div class="media_options"></div>').appendTo('body');
 			$options_div.html('<p>Please select media presentation options below.</p>');
 			//$options_div.append('<p>They can also be entered by hand in the "html" tab: to <strong>change the size and layout of the embedded media.</strong> Scalar media links have this format: <code>&lt;a href="[media url]" resource="[media url segment]" rel="[version URN]"&gt;.</code> You can identify the link you\'re looking for by where it appears in the text.</p><p>Add the <code>data-size=""</code> parameter to change the size of the media; possible values are <code>small</code>, <code>medium</code>, <code>large</code>, and <code>full</code>.</p><p>Add the <code>data-align=""</code> parameter to change the position of the media; possible values are <code>left</code> and <code>right</code>.</p><p>A link that specified both values would look like this: <code>&lt;a href="[media url]" resource="[media url title] rel="[version id]" data-size="small" data-align="left"&gt;</code>. A future version of Scalar will provide a graphical interface for specifying these settings.');
