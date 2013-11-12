@@ -153,7 +153,6 @@ class Book extends MY_Controller {
 				$this->data['view'] = $this->vis_views[0];  // There's only one viz page (Javascript handles the specific viz types)
 			}
 			// View-specific method
-			// TODO: move this to methods.php
 			$method_name = $this->data['view'].'_view';
 			if (method_exists($this, $method_name)) $this->$method_name();	
 			// URI segment method
@@ -258,9 +257,17 @@ class Book extends MY_Controller {
 	
 	// Import
 	private function import() {
-		
+
 		if (!$this->login_is_book_admin()) $this->kickout();
 
+		// Force the honeydew melon; presently no other melon has editing features 
+		$this->data['melon'] = 'honeydew';
+		if (!file_exists(APPPATH.'views/melons/honeydew/config.php')) echo '<p>Warning: Honeydew theme does not exist, this page might render oddly.</p>';
+		include(APPPATH.'views/melons/honeydew/config.php');  // Hardcoding
+		$this->config->set_item('arbor', $config['arbor']);
+		$this->data['template'] = $this->template->config['active_template'];		
+		
+		// Set params
 		$archive = $this->uri->segment(3);
 		$this->data['hide_edit_bar'] = true;
 		
@@ -494,6 +501,11 @@ class Book extends MY_Controller {
 	
 	private function edit_view() {
 
+		// Force the honeydew melon; presently no other melon has editing features 
+		$this->data['melon'] = 'honeydew';
+		if (!file_exists(APPPATH.'views/melons/honeydew/config.php')) echo '<p>Warning: Honeydew theme does not exist, this page might render oddly.</p>';
+		include(APPPATH.'views/melons/honeydew/config.php');  // Hardcoding
+		$this->config->set_item('arbor', $config['arbor']);
 		$this->data['template'] = $this->template->config['active_template'];
 		
 		// User

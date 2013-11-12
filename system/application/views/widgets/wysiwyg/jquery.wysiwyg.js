@@ -266,12 +266,12 @@ function br2nl(str) {
                     if ( selection.length > 0 )
                     {
 						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertMediaLink.exec, this);
-						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url) {
+						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields) {
 							// scalar_url -> resource
 							// source_url -> href
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							if (source_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
-							fn(source_url, scalar_url, version_urn);
+							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
 						}				
 						listeditor_add(null, _callback, 'media', true, true);
@@ -286,11 +286,15 @@ function br2nl(str) {
             
             insertMediaLink:{
             	visible: false,
-            	exec: function(source_url, scalar_url, version_urn){
+            	exec: function(source_url, scalar_url, version_urn, data_fields){
             		var selection = $(this.editor).documentSelection();
                     if ( selection.length > 0 )
                     {
-                    	var theHTML = "<a href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'>"+selection+"</a>";
+                    	var theHTML = "<a href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'"
+                    	for (var field in data_fields) {
+                    		theHTML += " data-"+field+"='"+data_fields[field]+"'"
+                    	}
+                    	theHTML += ">"+selection+"</a>";
 
                         if ($.browser.msie)
                         {

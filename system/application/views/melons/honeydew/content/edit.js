@@ -436,7 +436,7 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 		var $tr = $(this);
 		if ($tr.parent().is('thead')) return;
 		if (select_single) {
-			listeditor_save($list, _insert_func, $tr);
+			listeditor_save($list, _insert_func, $tr, select_single);
 		} else {
 			var is_checked = $tr.find("input[type='checkbox']:first").attr('checked') ? true : false;
 			$tr.find("input[type='checkbox']:first").attr('checked', !is_checked);
@@ -493,19 +493,40 @@ function listeditor_search(sq) {
 	});
 }
 
-function listeditor_save($list, insert_func, $row) {
+function listeditor_save($list, insert_func, $row, select_single) {
+	console.log($row);
 	if ('undefined'==typeof($row)) { 
 		$(".content_wrapper tr input[type='checkbox']:checked").each(function() {
 			var $row = $(this).closest('tr');
 			listeditor_commit_save($list, insert_func, $row.data('node'));	
 		});
 	} else {
-		listeditor_commit_save($list, insert_func, $row.data('node'));
+		if ($('.wysiwyg').is('.cantaloupe') && select_single && $row.data('node').scalarTypes.media.id=='media') {
+			var $options_div = $('<div class="media_options"></div>').appendTo('body');
+			$options_div.html('<p>Please select media presentation options below.</p>');
+			//$options_div.append('<p>They can also be entered by hand in the "html" tab: to <strong>change the size and layout of the embedded media.</strong> Scalar media links have this format: <code>&lt;a href="[media url]" resource="[media url segment]" rel="[version URN]"&gt;.</code> You can identify the link you\'re looking for by where it appears in the text.</p><p>Add the <code>data-size=""</code> parameter to change the size of the media; possible values are <code>small</code>, <code>medium</code>, <code>large</code>, and <code>full</code>.</p><p>Add the <code>data-align=""</code> parameter to change the position of the media; possible values are <code>left</code> and <code>right</code>.</p><p>A link that specified both values would look like this: <code>&lt;a href="[media url]" resource="[media url title] rel="[version id]" data-size="small" data-align="left"&gt;</code>. A future version of Scalar will provide a graphical interface for specifying these settings.');
+			$options_div.append('</p>Size: <select name="size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option><option value="full">Full</option></select></p>');
+			$options_div.append('</p>Align: <select name="align"><option value="right">Right</option><option value="left">Left</option></select></p>');
+			$options_div.append('<input type="button" class="generic_button large" value="Cancel" />&nbsp; <input type="button" class="generic_button large default" value="Continue" />');
+			var node_data = $row.data('node');
+			$options_div.find('input:first').click(function() {
+				$options_div.remove();
+			});
+			$options_div.find('input:last').bind('click', {$list:$list,insert_func:insert_func,node_data:node_data}, function() {
+				var data_fields = {};
+				data_fields.size = $options_div.find('select[name="size"] option:selected"').val();
+				data_fields.align = $options_div.find('select[name="align"] option:selected"').val();
+				listeditor_commit_save($list, insert_func, node_data, data_fields);
+				$options_div.remove();
+			});
+		} else {
+			listeditor_commit_save($list, insert_func, $row.data('node'));
+		}
 	}
 	$('#listeditor_editbox').remove();
 }
 
-function listeditor_commit_save($list, insert_func, node) {
+function listeditor_commit_save($list, insert_func, node, data_fields) {
 	var parent = $('link#parent').attr('href');
 	var content_urn = node.urn;
 	var version_urn = node.current.urn;
@@ -523,9 +544,9 @@ function listeditor_commit_save($list, insert_func, node) {
 	annotation_of_source_url = escpaeLastURISegment(annotation_of_source_url);
 	if (annotation_of_source_url&&-1!=annotation_of_source_url.indexOf(parent)) annotation_of_source_url = annotation_of_source_url.substr(parent.length);  // absolute -> relative url
 	if (typeof(insert_func)=='function') {
-		if (!insert_func($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url)) return;
+		if (!insert_func($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields)) return;
 	} else {
-		if (!window[insert_func]($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url)) return;
+		if (!window[insert_func]($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields)) return;
 	}		
 }
 

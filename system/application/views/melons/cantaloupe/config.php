@@ -10,7 +10,8 @@ $config['views'] = array(
 			'splash',
 			'book_splash',
 			'gallery',
-			'structured_gallery'
+			'structured_gallery',
+			'edit'
 		);
 
 // Default view

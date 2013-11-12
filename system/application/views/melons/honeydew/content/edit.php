@@ -70,12 +70,12 @@ endif;
 		<td colspan="2">
 			<?
 				if ($book->template == 'cantaloupe') {
-					echo('<p>This book is set up to use an experimental new reading interface for Scalar which is still in development and may not implement all of Scalar\'s features. If you wish to view any page in the standard interface, simply add <code>?template=honeydew</code> to the end of its URL and reload the page. <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback">Feedback</a> is welcomed.</p>');
+					echo('<p>This book is set up to use an experimental new reading interface for Scalar which is still in development and may not implement all of Scalar\'s features. If you wish to view any page in the standard interface, simply add <code>?m=honeydew</code> to the end of its URL and reload the page. <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback">Feedback</a> is welcomed.</p>');
 				}
 			?>
 			<br />
 			<div class="wysiwyg_options"><span><a href="javascript:;" class="textarea_tab wysiwyg_handle_selected to_wysiwyg_handle" title="In the editor, view a visual representation of the HTML">Visual</a>&nbsp;<a href="javascript:;" class="textarea_tab to_html_handle" title="In the editor, view the source HTML">HTML</a></span><br clear="both"></div>
-			<textarea class="wysiwyg input_textarea input_gap textarea_content" wrap="soft" name="sioc:content"><?
+			<textarea class="wysiwyg input_textarea input_gap textarea_content <?=$book->template?>" wrap="soft" name="sioc:content"><?
 			if (isset($page->version_index)):
 				$content = $page->versions[$page->version_index]->content;
 				if (!empty($content)) {
@@ -85,12 +85,6 @@ endif;
 				}
 			endif;
 			?></textarea>
-			<br />
-			<?
-				if ($book->template == 'cantaloupe') {
-					echo('<p>You can manually edit Scalar media links in the HTML tab above to <strong>change the size and layout of the embedded media.</strong> Scalar media links have this format: <code>&lt;a href="[media url]" resource="[media url title]" rel="[version id]"&gt;.</code> You can identify the link you\'re looking for by where it appears in the text.</p><p>Add the <code>data-size=""</code> parameter to change the size of the media; possible values are <code>small</code>, <code>medium</code>, <code>large</code>, and <code>full</code>.</p><p>Add the <code>data-align=""</code> parameter to change the position of the media; possible values are <code>left</code> and <code>right</code>.</p><p>A link that specified both values would look like this: <code>&lt;a href="[media url]" resource="[media url title] rel="[version id]" data-size="small" data-align="left"&gt;</code>. A future version of Scalar will provide a graphical interface for specifying these settings.</p>');
-				}
-			?>
 		</td>
 	</tr>
 
