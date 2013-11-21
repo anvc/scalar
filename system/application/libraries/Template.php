@@ -457,7 +457,7 @@ class CI_Template {
             }
             $js .= ">";
             $js .= $script;
-            $js .= '</script>';
+            $js .= '</script>'."\n";
             break;
             
          default:

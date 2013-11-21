@@ -66,6 +66,23 @@ function escpaeLastURISegment(uri) {
 	return uri_to_return;
 }
 
+function ucwords (str) {
+	// http://kevin.vanzonneveld.net
+	// +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+	// +   improved by: Waldo Malqui Silva
+	// +   bugfixed by: Onno Marsman
+	// +   improved by: Robin
+	// +      input by: James (http://www.james-bell.co.uk/)
+	// +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	// *     example 1: ucwords('kevin van  zonneveld');
+	// *     returns 1: 'Kevin Van  Zonneveld'
+	// *     example 2: ucwords('HELLO WORLD');
+	// *     returns 2: 'HELLO WORLD'
+	return (str + '').replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function ($1) {
+		return $1.toUpperCase();
+	});
+}
+
 /**
  * Boot the interface
  */
@@ -500,23 +517,29 @@ function listeditor_save($list, insert_func, $row, select_single) {
 			listeditor_commit_save($list, insert_func, $row.data('node'));	
 		});
 	} else {
-		console.log($row.data('node'));
 		var is_valid_media_option_type = ('undefined'!=typeof($row.data('node').scalarTypes.media)||'undefined'!=typeof($row.data('node').scalarTypes.annotation)) ? true : false;
-		if ($('.wysiwyg').is('.cantaloupe') && select_single && is_valid_media_option_type) {
+		if ('undefined'!=typeof(window['reference_options']) && select_single && is_valid_media_option_type) {
 			var $options_div = $('<div class="media_options"></div>').appendTo('body');
-			$options_div.html('<p>Please select media presentation options below.</p>');
+			$options_div.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
+			$options_div.html('<p>Please select media presentation options below.  Some options might not be applicable to all media types.</p>');
 			//$options_div.append('<p>They can also be entered by hand in the "html" tab: to <strong>change the size and layout of the embedded media.</strong> Scalar media links have this format: <code>&lt;a href="[media url]" resource="[media url segment]" rel="[version URN]"&gt;.</code> You can identify the link you\'re looking for by where it appears in the text.</p><p>Add the <code>data-size=""</code> parameter to change the size of the media; possible values are <code>small</code>, <code>medium</code>, <code>large</code>, and <code>full</code>.</p><p>Add the <code>data-align=""</code> parameter to change the position of the media; possible values are <code>left</code> and <code>right</code>.</p><p>A link that specified both values would look like this: <code>&lt;a href="[media url]" resource="[media url title] rel="[version id]" data-size="small" data-align="left"&gt;</code>. A future version of Scalar will provide a graphical interface for specifying these settings.');
-			$options_div.append('</p>Size: <select name="size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option><option value="full">Full</option></select></p>');
-			$options_div.append('</p>Align: <select name="align"><option value="right">Right</option><option value="left">Left</option></select></p>');
-			$options_div.append('<input type="button" class="generic_button large" value="Cancel" />&nbsp; <input type="button" class="generic_button large default" value="Continue" />');
+			for (var option_name in reference_options) {
+				var $option = $('<p>'+ucwords(option_name)+': <select name="'+option_name+'"></select></p>');
+				for (var j = 0; j < reference_options[option_name].length; j++) {
+					$option.find('select:first').append('<option value="'+reference_options[option_name][j]+'">'+ucwords(reference_options[option_name][j])+'</option>');
+				}
+				$options_div.append($option);
+			}
+			$options_div.append('<p><input type="button" class="generic_button large" value="Cancel" />&nbsp; <input type="button" class="generic_button large default" value="Continue" /><br clear="both" /></p>');
 			var node_data = $row.data('node');
 			$options_div.find('input:first').click(function() {
 				$options_div.remove();
 			});
 			$options_div.find('input:last').bind('click', {$list:$list,insert_func:insert_func,node_data:node_data}, function() {
 				var data_fields = {};
-				data_fields.size = $options_div.find('select[name="size"] option:selected"').val();
-				data_fields.align = $options_div.find('select[name="align"] option:selected"').val();
+				for (var option_name in reference_options) {
+					data_fields[option_name] = $options_div.find('select[name="'+option_name+'"] option:selected"').val();
+				}
 				listeditor_commit_save($list, insert_func, node_data, data_fields);
 				$options_div.remove();
 			});

@@ -159,10 +159,10 @@
 		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
 			$( '#options' ).addClass( 'wide' );
 			buttons.append('<img class="vrule" src="'+this.options.root_url+'/images/'+'gray1x1.gif"/>');
-			addIconBtn(buttons, 'new_icon.png', 'new_icon_hover.png', 'New', scalarapi.model.urlPrefix+'new.edit?'+template_getvar+'=honeydew');
+			addIconBtn(buttons, 'new_icon.png', 'new_icon_hover.png', 'New', scalarapi.model.urlPrefix+'new.edit');
 			
 			//addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
-			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit',  scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
+			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit',  scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.edit');
 			
 			buttons.append( '<div id="import_menu_link" class="menu_link"><img src="' + modules_uri + '/cantaloupe/images/' + 'import_icon.png" alt="Import" width="30" height="30"></div>' );
 			this.buildImportMenu();
@@ -419,45 +419,45 @@
 		
 		listItem = $( '<li>Affiliated archives</li>' ).appendTo( menuList );
 		listItem.data( 'submenuData', [
-			{ title: 'Critical Commons', url: scalarapi.model.urlPrefix + 'import/critical_commons?' + template_getvar + '=honeydew' },
-			{ title: 'Cuban Theater Digital Archive', url: scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive?' + template_getvar + '=honeydew' },
-			{ title: 'Hemispheric Institute Digital Video Library', url: scalarapi.model.urlPrefix + 'import/hemispheric_institute?' + template_getvar + '=honeydew' },
-			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities?' + template_getvar + '=honeydew' },
-			{ title: 'Internet Archive', url: scalarapi.model.urlPrefix + 'import/internet_archive?' + template_getvar + '=honeydew' },
-			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities?' + template_getvar + '=honeydew' },
-			{ title: 'Play!', url: scalarapi.model.urlPrefix + 'import/play?' + template_getvar + '=honeydew' },
-			{ title: 'Shoah Foundation VHA Online', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online?' + template_getvar + '=honeydew' },
-			{ title: 'Shoah Foundation VHA (partner site)', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha?' + template_getvar + '=honeydew' }
+			{ title: 'Critical Commons', url: scalarapi.model.urlPrefix + 'import/critical_commons' },
+			{ title: 'Cuban Theater Digital Archive', url: scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive' },
+			{ title: 'Hemispheric Institute Digital Video Library', url: scalarapi.model.urlPrefix + 'import/hemispheric_institute' },
+			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities' },
+			{ title: 'Internet Archive', url: scalarapi.model.urlPrefix + 'import/internet_archive' },
+			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities' },
+			{ title: 'Play!', url: scalarapi.model.urlPrefix + 'import/play' },
+			{ title: 'Shoah Foundation VHA Online', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online' },
+			{ title: 'Shoah Foundation VHA (partner site)', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha' }
 		] );
 		listItem.hover( handleListItemHover );
 		
 		listItem = $( '<li>Other archives</li>' ).appendTo( menuList );
 		listItem.data( 'submenuData', [
-			{ title: 'Prezi', url: scalarapi.model.urlPrefix + 'import/prezi?' + template_getvar + '=honeydew' },
-			{ title: 'SoundCloud', url: scalarapi.model.urlPrefix + 'import/soundcloud?' + template_getvar + '=honeydew' },
-			{ title: 'Vimeo', url: scalarapi.model.urlPrefix + 'import/vimeo?' + template_getvar + '=honeydew' },
-			{ title: 'YouTube', url: scalarapi.model.urlPrefix + 'import/youtube?' + template_getvar + '=honeydew' }
+			{ title: 'Prezi', url: scalarapi.model.urlPrefix + 'import/prezi' },
+			{ title: 'SoundCloud', url: scalarapi.model.urlPrefix + 'import/soundcloud' },
+			{ title: 'Vimeo', url: scalarapi.model.urlPrefix + 'import/vimeo' },
+			{ title: 'YouTube', url: scalarapi.model.urlPrefix + 'import/youtube' }
 		] );
 		listItem.hover( handleListItemHover );
 		
 		listItem = $( '<li>Local media files</li>' ).appendTo( menuList );
 		listItem.click( function() {
 			$( '.submenu' ).css( 'visibility', 'hidden' );
-			window.location = scalarapi.model.urlPrefix + 'upload?' + template_getvar + '=honeydew';
+			window.location = scalarapi.model.urlPrefix + 'upload';
 		} );
 		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
 		
 		listItem = $( '<li>Internet media files</li>' ).appendTo( menuList );
 		listItem.click( function() {
 			$( '.submenu' ).css( 'visibility', 'hidden' );
-			window.location = scalarapi.model.urlPrefix + 'new.edit?' + template_getvar + '=honeydew#type=media';
+			window.location = scalarapi.model.urlPrefix + 'new.edit#type=media';
 		} );
 		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
 		
 		listItem = $( '<li>Other Scalar books</li>' ).appendTo( menuList );
 		listItem.click( function() {
 			$( '.submenu' ).css( 'visibility', 'hidden' );
-			window.location = scalarapi.model.urlPrefix + 'import/system?' + template_getvar + '=honeydew';
+			window.location = scalarapi.model.urlPrefix + 'import/system';
 		} );
 		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
 		

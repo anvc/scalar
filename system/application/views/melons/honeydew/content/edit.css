@@ -126,11 +126,11 @@ label {cursor:pointer;}
 .media_options {
 	position:absolute; z-index:9;
 	background:#eeeeee; 
-	top:30%; bottom:30%; left:30%; right:30%;
-	border-top:solid 1px #999; 
-	border-left:solid 1px #999; 
-	border-bottom:solid 2px #999; 
-	border-right:solid 2px #999; 
+	left:30%; right:30%;
+	border-top:solid 3px #aaa; 
+	border-left:solid 3px #aaa; 
+	border-bottom:solid 4px #999; 
+	border-right:solid 4px #999; 
 	padding:15px;}
 
 #alignment_popup {
