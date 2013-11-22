@@ -39,6 +39,10 @@
 			</tr>
 		</table>
 	</form>
-	<small><a href="<?=base_url()?>">Return to index</a> | <a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a></small>
+	<div class="login_footer">
+		<a href="<?=base_url()?>">Return to index</a> | 
+		<a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a> | 
+		<a href="register">Register an account</a>
+	</div>
 </div>
 <br clear="both" />
