@@ -9,7 +9,7 @@ An important note on .htaccess:
 For Scalar to work properly, it is essential that mod_rewrite -- .htaccess -- be enabled in your Apache config.
 If .htaccess is not enabled, Scalar's URL rewriting will not operate; you'll know this is the case because clicking
 on links such as 'sign in' or 'register' will not take you to those pages (rather, the home page will reload).
-In addition, some FTP clients will interpret .htaccess as a hidden file by and not copy them to the server by default.  
+In addition, some FTP clients will interpret .htaccess as a hidden file and not copy them to the server by default.  
 There are a few .htaccess files included in the Scalar build, therefore please make sure that these files are copied.
 ***
 
