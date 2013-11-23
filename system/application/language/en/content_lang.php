@@ -25,6 +25,8 @@ $lang['login.index']  		   = 'Index';
 $lang['login.guide']  		   = 'Guide';
 $lang['login.confirm_sign_out'] = 'Are you sure you wish to sign out?';
 $lang['login.choose_new_lang'] = 'Please choose language';
+$lang['login.invalid'] 			= 'Invalid email or password';
+$lang['login.is_reset'] 		= 'The password for this account has been reset.  Please see your email for reset instructions or contact an administrator.';
 
 $lang['form.submit']          = 'Go';
 $lang['form.clear']           = 'clear';

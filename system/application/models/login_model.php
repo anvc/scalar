@@ -87,10 +87,10 @@ class Login_model extends User_model {
 				$result->is_logged_in = false;
 				$result->books = array();
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
-				throw new Exception('Invalid email or password');		
+				throw new Exception( lang('login.invalid') );		
 			} else {
 				if (!empty($result->reset_string)) {
-					throw new Exception('The password for this account has been reset.  Please see your email for reset instructions or contact an administrator.');
+					throw new Exception( lang('login.is_reset') );
 				}
 				$result->is_logged_in = true;
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
