@@ -13,6 +13,12 @@ In addition, some FTP clients will interpret .htaccess as a hidden file and not 
 There are a few .htaccess files included in the Scalar build, therefore please make sure that these files are copied.
 ***
 
+***
+Also, on occassion we make changes to config files or the database schema, therefore please take a look at this page
+if you plan to update your local Scalar installation:
+https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time
+***
+
 1) 
 
 Run the SQL script on a fresh MySQL database (e.g., "scalar_store"):
