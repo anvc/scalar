@@ -89,6 +89,9 @@ endif;
 <article>
 
 	<header>
+<?
+		$this->load->view('arbors/html5_RDFa/noticebar');
+?>	
 		<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
 		<span resource="<?=rtrim($base_uri,'/')?>" typeof="scalar:Book">
 			<a href="<?=$base_uri?>index"><span id="book-title" property="dcterms:title"><?=$book->title?> </span></a>
