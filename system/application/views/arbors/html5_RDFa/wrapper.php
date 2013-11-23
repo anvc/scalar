@@ -67,6 +67,18 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/raphael-min.js')."\n"?>
 <? if (!empty($_scripts)) echo $_scripts?>
+<?
+if (!$mode && !empty($style)):
+echo '<style>'."\n";
+echo $style."\n";
+echo '</style>'."\n";
+endif;
+if (!$mode && !empty($js)):
+echo '<script>'."\n";
+echo $js."\n";
+echo '</script>'."\n";
+endif;
+?>
 </head>
 <body<?=(!empty($background))?' style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
 

@@ -80,7 +80,6 @@ echo $js."\n";
 echo '</script>'."\n";
 endif;
 ?>
-
 </head>
 <body<?=(!empty($background))?' style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
 
