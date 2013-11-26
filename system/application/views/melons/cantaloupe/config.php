@@ -21,7 +21,7 @@ $config['default_view'] = 'plain';
 $config['reference_options'] = array(
 			'size' => array('small', 'medium', 'large', 'full'),
 			'align' => array('right', 'left'),
-			'caption' => array("title", "description", "titledesc", "none"),
+			/*'caption' => array("title", "description", "titledesc", "none"),
 			'chrome' => array('true', 'false'),
-			'autoplay' => array('false', 'true')
+			'autoplay' => array('false', 'true')*/
 		);
