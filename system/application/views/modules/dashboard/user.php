@@ -105,6 +105,26 @@ $(window).ready(function() {
 		</form>
 	</td>
 </tr>
+<tr class="odd" typeof="books">
+	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Duplicate a book</td>
+	<td style="vertical-align:middle;">
+		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='(New book title)') {alert('Please enter a book title');return false;}">
+		<input type="hidden" name="action" value="do_add_book" />
+		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
+		<select name="book_id" style="width:300px;">
+<?
+		if (!isset($duplicatable_books) || empty($duplicatable_books)):
+			echo '<option value="0">There are no books with proper permissions</option>'."\n";
+		else:
+			echo '<option value="0">Please select a book</option>'."\n";
+		endif;
+?>
+		</select> 
+		<input type="submit" value="Duplicate" class="generic_button" />&nbsp; &nbsp;
+		<small>Source book requires special permissions to be displayed in this list</small>
+		</form>
+	</td>
+</tr>
 <!-- 
 <tr class="odd" typeof="books">
 	<td style="vertical-align:middle;white-space:nowrap;">Delete book</td>

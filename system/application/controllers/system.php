@@ -183,13 +183,18 @@ class System extends MY_Controller {
 		$this->load->model('book_model', 'books');
 		
 		$book_id = (isset($_REQUEST['book_id']) && !empty($_REQUEST['book_id'])) ? $_REQUEST['book_id'] : 0;
+		$user_id = (isset($_REQUEST['user_id']) && !empty($_REQUEST['user_id'])) ? $_REQUEST['user_id'] : 0;
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 		
+		// There is more specific validation in each call below, but here run a general check on calls on books and users
 		if (!$this->data['login']->is_logged_in) $this->kickout();
 		if (!empty($book_id)) {
 			$this->data['book'] = $this->books->get($book_id);
 			$this->set_user_book_perms();
 			$this->protect_book();
+		}
+		if (!$this->data['login_is_super'] && !empty($user_id)) {
+			if ($this->data['login']->user_id != $user_id) $this->kickout();
 		}
 
 		$this->load->model('page_model', 'pages');  
@@ -199,25 +204,26 @@ class System extends MY_Controller {
 		$this->load->model('annotation_model', 'annotations');
 		$this->load->model('reply_model', 'replies');
 
-		$this->data['zone']    = (isset($_REQUEST['zone']) && !empty($_REQUEST['zone'])) ? $_REQUEST['zone'] : 'user'; 
-		$this->data['type']    = (isset($_GET['type']) && !empty($_GET['type'])) ? $_GET['type'] : null;
-		$this->data['sq']      = (isset($_GET['sq']) && !empty($_GET['sq'])) ? trim($_GET['sq']) : null;
-		$this->data['book_id'] = (isset($_GET['book_id']) && !empty($_GET['book_id'])) ? trim($_GET['book_id']) : 0;
-		$this->data['delete']  = (isset($_GET['delete']) && !empty($_GET['delete'])) ? trim($_GET['delete']) : null;	
-		$this->data['saved']   = (isset($_GET['action'])&&'saved'==$_GET['action']) ? true : false;
-		$this->data['deleted'] = (isset($_GET['action'])&&'deleted'==$_GET['action']) ? true : false;		
+		$this->data['zone']    		= (isset($_REQUEST['zone']) && !empty($_REQUEST['zone'])) ? $_REQUEST['zone'] : 'user'; 
+		$this->data['type']    		= (isset($_GET['type']) && !empty($_GET['type'])) ? $_GET['type'] : null;
+		$this->data['sq']      		= (isset($_GET['sq']) && !empty($_GET['sq'])) ? trim($_GET['sq']) : null;
+		$this->data['book_id'] 		= (isset($_GET['book_id']) && !empty($_GET['book_id'])) ? trim($_GET['book_id']) : 0;
+		$this->data['delete']  		= (isset($_GET['delete']) && !empty($_GET['delete'])) ? trim($_GET['delete']) : null;	
+		$this->data['saved']   		= (isset($_GET['action'])&&'saved'==$_GET['action']) ? true : false;
+		$this->data['deleted'] 		= (isset($_GET['action'])&&'deleted'==$_GET['action']) ? true : false;		
+		$this->data['duplicated']	= (isset($_GET['action'])&&'duplicated'==$_GET['action']) ? true : false;
 		
 	 	// Save
 	 	try {
 		 	switch ($action) { 		
-		 		case 'do_save_style': // Book Properties
+		 		case 'do_save_style': // Book Properties (method requires book_id)
 		 			$array = $_POST;
 		 			unset($array['action']);
 		 			unset($array['zone']);
 		 			$this->books->save($array);			
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_style_saved');
 					exit;			 		
-		 		case 'do_save_user':  // My Account
+		 		case 'do_save_user':  // My Account (method requires user_id & book_id)
 		 			$array = $_POST;
 		 			if ($this->users->email_exists_for_different_user($array['email'], $this->data['login']->user_id)) {
 			 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=email_exists');
@@ -242,10 +248,16 @@ class System extends MY_Controller {
 		 			$this->set_login_params();	 				
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
 		 			exit;	
-				case 'do_add_book':   // Admin: All Books
+				case 'do_duplicate_book':   // My Account  TODO
+					$user_id =@ (int) $_POST['user_id'];
+					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 					
+					$book_id = (int) $this->books->duplicate($_POST);
+					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+					exit; 		 			
+				case 'do_add_book':   // Admin: All Books (requires title) & My Account (request user_id & title)
+					$user_id =@ (int) $_POST['user_id'];
+					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
 					$book_id = (int) $this->books->add($_POST);
-					$user_id = (int) $_REQUEST['user_id'];
-					if (!empty($user_id)) $this->books->save_users($book_id, array($user_id), 'author');
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					exit; 			 					 			
 				case 'do_add_user':  // Admin: All Users
@@ -268,7 +280,7 @@ class System extends MY_Controller {
 					if (!$this->$type->delete($delete)) show_error('There was a problem deleting. Please try again');		
 					header('Location: '.$this->base_url.'?action=deleted&zone='.$zone.'#tabs-'.$zone);
 					exit;			
-				case "get_email_list":
+				case "get_email_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
 					$users = $this->users->get_all();
 					$this->data['email_list'] = array();
@@ -370,7 +382,7 @@ class System extends MY_Controller {
 			 	case 'all-books':  
 					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();	
 					for ($j = 0; $j < count($this->data['users']); $j++) {
-						$this->data['users'][$j]->books = $this->books->get_all($this->data['users'][$j]->user_id, true);
+						$this->data['users'][$j]->books = $this->books->get_all($this->data['users'][$j]->user_id);
 					}		 	  		    	
 					break;	
 			 	case 'tools':

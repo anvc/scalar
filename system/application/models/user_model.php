@@ -371,8 +371,10 @@ class User_model extends My_Model {
     public function save($array=array()) {
 
     	// Get ID
-    	$user_id = (int) $array['id'];
+    	$user_id =@ (int) $array['id'];
+    	if (empty($user_id)) throw new Exception('Invalid user ID');
     	$book_id =@ (int) $array['book_id'];
+    	if (empty($book_id)) throw new Exception('Invalid book ID');
     	unset($array['id']);
     	unset($array['section']);
     	unset($array['ci_session']); 

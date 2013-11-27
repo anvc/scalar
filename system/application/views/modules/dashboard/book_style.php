@@ -217,7 +217,7 @@ $(window).ready(function() {
 			// Custom style
 			echo '<tr typeof="books">';
 			echo '<td style="width:190px;">Custom style';
-			echo '<br /><small>Example:<br /><span style="color:#333333;">body {font-family:Helvetica;}<br />p {color:#555555;}</span><br /><a style="font-size:smaller" href="http://w3schools.com/Css/default.asp" target="_blank">More</a></small>';
+			echo '<br /><small>Example:<br /><span style="color:#333333;">body {font-family:Helvetica;}<br />No &lt;style&gt; or &lt;/style&gt; tags</span></small>';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" colspan="2">';
 			echo '<textarea name="custom_style" style="width:100%;height:80px;">';
@@ -238,7 +238,7 @@ $(window).ready(function() {
 			//echo '<tr class="row_div"><td colspan="3"></td></tr>';	
 			// Availability
 			echo '<tr typeof="books" class="styling_sub">';
-			echo '<td><h4 class="content_title">Other</h4></td><td></td></tr>';
+			echo '<td><h4 class="content_title">Public/private</h4></td><td></td></tr>';
 			echo '<tr>';
 			echo '<tr typeof="books">';
 			echo '<td><p>Availability</p>';
@@ -249,6 +249,8 @@ $(window).ready(function() {
 			echo "</td>\n";
 			echo "</tr>\n";								
 			// Scope
+			echo '<tr typeof="books" class="styling_sub">';
+			echo '<td><h4 class="content_title">Other</h4></td><td></td></tr>';
 			echo '<tr>';
 			echo '<td style="vertical-align:middle;">Scope';
 			echo '</td>'."\n";

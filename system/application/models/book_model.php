@@ -240,6 +240,8 @@ class Book_model extends MY_Model {
     public function add($array=array()) {
 
  		$title =@ $array['title'];
+ 		if (empty($title)) $title = 'Untitled';
+    	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author
  
     	if (empty($title)) throw new Exception('Could not resolve title');
     	
@@ -264,13 +266,23 @@ class Book_model extends MY_Model {
 		$this->db->insert($this->books_table, $data); 
 		$book_id = mysql_insert_id();
 		
-		if (isset($array['user_id']) && !empty($array['user_id'])) $this->save_users($book_id, array($array['user_id']));
+		if (!empty($user_id)) $this->save_users($book_id, array($user_id), 'author');
 		
     	return $book_id;
     	
     }
+    
+    public function duplicate($array=array()) {
+    	
+  		$book_id =@ $array['book_id'];
+ 		if (empty($book_id)) throw new Exception('Invalid book ID');
+    	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author   	
+    	
+    	return 0;
+    	
+    }
   
-      public function delete($book_id=0) {
+    public function delete($book_id=0) {
     	
     	if (empty($book_id)) return false;
 
@@ -320,7 +332,8 @@ class Book_model extends MY_Model {
     public function save($array=array()) {
 
     	// Get ID
-    	$book_id = $array['book_id'];
+    	$book_id =@ $array['book_id'];
+    	if (empty($book_id)) throw new Exception('Invalid book ID');
     	unset($array['book_id']);
     	unset($array['section']);
     	unset($array['id']);
@@ -373,7 +386,7 @@ class Book_model extends MY_Model {
 				$old = confirm_slash(base_url()).confirm_slash($slug);
 				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
 				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new')");
-				if (mysql_errno()!=0) die('Could not update URLs in database.  Note that the slug was changed on the filesystem. ('.mysql_error().')');
+				if (mysql_errno()!=0) throw new Exception('Could not update URLs in database.  Note that the slug was changed on the filesystem. ('.mysql_error().')');
 			}	
 			
     	}	
