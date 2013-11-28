@@ -181,7 +181,7 @@ class System extends MY_Controller {
 	public function dashboard() {
 
 		$this->load->model('book_model', 'books');
-		
+
 		$book_id = (isset($_REQUEST['book_id']) && !empty($_REQUEST['book_id'])) ? $_REQUEST['book_id'] : 0;
 		$user_id = (isset($_REQUEST['user_id']) && !empty($_REQUEST['user_id'])) ? $_REQUEST['user_id'] : 0;
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
@@ -252,7 +252,7 @@ class System extends MY_Controller {
 					$user_id =@ (int) $_POST['user_id'];
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 					
 					$book_id = (int) $this->books->duplicate($_POST);
-					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=duplicated');
 					exit; 		 			
 				case 'do_add_book':   // Admin: All Books (requires title) & My Account (request user_id & title)
 					$user_id =@ (int) $_POST['user_id'];
@@ -324,6 +324,7 @@ class System extends MY_Controller {
 		switch ($this->data['zone']) {
 			case '':
 			case 'user':
+				$this->data['duplicatable_books'] = $this->books->get_duplicatable();
 				break;
 			case 'style':
 				$this->data['current_book_images'] = ($book_id) ? $this->books->get_images($book_id) : array();

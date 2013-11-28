@@ -12,6 +12,9 @@ $(window).ready(function() {
 <? if ('user_saved'==@$_REQUEST['action']): ?>
 <div class="saved">User profile has been saved<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>		
+<? if ('duplicated'==@$_REQUEST['action']): ?>
+<div class="saved">Book has been duplicated, you now have a new book present in the list of books at the bottom of the page<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<? endif ?>	
 <? if ('added'==@$_REQUEST['action']): ?>
 <div class="saved">Book has been created (now present in the list of books at the bottom of the page)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>		
@@ -74,7 +77,7 @@ $(window).ready(function() {
 <tr class="styling_sub">
 	<td colspan="2"><h4 class="content_title">My books</h4></td>
 </tr>
-<tr typeof="books">
+<tr>
 	<td style="vertical-align:top;" colspan="2">
 		<form id="delete_books_form" action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
 		<input type="hidden" name="action" value="do_delete_books" />
@@ -94,7 +97,7 @@ $(window).ready(function() {
 		</form>
 	</td>
 </tr>
-<tr class="odd" typeof="books">
+<tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Create new book</td>
 	<td style="vertical-align:middle;">
 		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='(New book title)') {alert('Please enter a book title');return false;}">
@@ -105,18 +108,21 @@ $(window).ready(function() {
 		</form>
 	</td>
 </tr>
-<tr class="odd" typeof="books">
+<tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Duplicate a book</td>
 	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='(New book title)') {alert('Please enter a book title');return false;}">
-		<input type="hidden" name="action" value="do_add_book" />
+		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
+		<input type="hidden" name="action" value="do_duplicate_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
-		<select name="book_id" style="width:300px;">
+		<select name="book_to_duplicate" style="width:300px;">
 <?
 		if (!isset($duplicatable_books) || empty($duplicatable_books)):
 			echo '<option value="0">There are no books with proper permissions</option>'."\n";
 		else:
 			echo '<option value="0">Please select a book</option>'."\n";
+			foreach ($duplicatable_books as $duplicatable_book) {
+				echo '<option value="'.$duplicatable_book->book_id.'">'.$duplicatable_book->title.'</option>'."\n";
+			}
 		endif;
 ?>
 		</select> 

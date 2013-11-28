@@ -74,7 +74,7 @@ class Book_model extends MY_Model {
     	}
     	return $book;
     	
-    }      
+    }   
     
     public function get_by_content_id($content_id) {
     	
@@ -129,6 +129,23 @@ class Book_model extends MY_Model {
     	
     }      
     
+    public function get_duplicatable($orderby='title',$orderdir='asc') {
+    	
+    	$this->db->select('*');
+    	$this->db->from($this->books_table);
+		$this->db->like('title', 'data-duplicatable="all"'); 
+    	$this->db->order_by($orderby, $orderdir); 
+    	
+    	$query = $this->db->get();
+    	if (mysql_errno()!=0) echo mysql_error();
+    	$result = $query->result();
+    	for ($j = 0; $j < count($result); $j++) {
+    		$result[$j]->users = $this->get_users($result[$j]->book_id, true, '');
+    	}
+    	return $result;    	
+    	
+    }
+   
     public function get_images($book_id) {
     	
     	$q = "SELECT A.content_id, A.slug, B.version_id, B.url, B.title, B.version_num ".
@@ -274,9 +291,11 @@ class Book_model extends MY_Model {
     
     public function duplicate($array=array()) {
     	
-  		$book_id =@ $array['book_id'];
+  		$book_id =@ $array['book_to_duplicate'];
  		if (empty($book_id)) throw new Exception('Invalid book ID');
     	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author   	
+
+    	// TODO
     	
     	return 0;
     	
