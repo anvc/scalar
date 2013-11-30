@@ -295,9 +295,14 @@ class Book_model extends MY_Model {
  		if (empty($book_id)) throw new Exception('Invalid book ID');
     	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author   	
 
-    	// TODO
+    	$this->load->helper('Duplicate', 'duplicate');
+    	try {
+			$book_id = $this->duplicate->book($array);
+		} catch (Exception $e) {
+    		throw new Exception($e->getMessage());
+		}    	
     	
-    	return 0;
+    	return $book_id;
     	
     }
   
