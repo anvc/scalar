@@ -344,6 +344,7 @@ class Page_model extends MY_Model {
         
     public function create($array=array()) {
     	
+    	if ('array'!=gettype($array)) $array = (array) $array;
     	if (!isset($array['book_id']) || empty($array['book_id'])) die('Could not find book ID');
     	if (!isset($array['user_id']) || empty($array['user_id'])) $array['user_id'] = 0;  // Talk to Craig and John about this
    

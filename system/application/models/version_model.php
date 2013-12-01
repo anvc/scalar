@@ -265,6 +265,7 @@ class Version_model extends MY_Model {
     
     public function create($content_id=0, $array=array()) {
 
+    	if ('array'!=gettype($array)) $array = (array) $array;
     	if (empty($content_id)) throw new Exception('Invalid content ID');
 
 		// Validate
@@ -289,8 +290,7 @@ class Version_model extends MY_Model {
     	$data['continue_to_content_id'] = (isset($array['continue_to_content_id'])) ? (int) $array['continue_to_content_id'] : 0; 
     	$data['version_num'] = ($this->get_version_num($content_id) + 1);
     	$data['sort_number'] = (isset($array['sort_number'])) ? (int) $array['sort_number'] : 0;
-    	$data['attribution'] = isset($array['attribution']) ? $array['attribution'] : 0;
-
+    	$data['attribution'] = isset($array['attribution']) ? serialize($array['attribution']) : 0;
  		$this->db->insert($this->versions_table, $data);
  		if (mysql_errno()!=0) throw new Exception('Error trying to save to the relational tables: '.mysql_error());
  		$version_id = mysql_insert_id();		
@@ -300,7 +300,7 @@ class Version_model extends MY_Model {
  		$additional_metadata = array();
  		if (isset($this->rdf_store)) {
  			foreach ($array as $key => $value) {
- 				if (!strstr($key, ':')) continue; 
+ 				if (!strstr($key, ':')) continue;			 
  				$in_rdf_fields = false;
  				foreach ($this->rdf_store->ns as $ns_pname => $ns_uri) {
  					if ($this->rdf_field_exists(str_replace($ns_pname.':', $ns_uri, $key))) $in_rdf_fields = true;
