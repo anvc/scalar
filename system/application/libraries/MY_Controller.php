@@ -26,7 +26,7 @@
 
 abstract class MY_Controller extends Controller {
 
-	protected $data = array();
+	public $data = array();
 
 	public function MY_Controller() {
 

@@ -57,12 +57,11 @@ class Book_model extends MY_Model {
   		
   	}    
     
-    public function get($book_id=0, $show_users=true, $orderby='title',$orderdir='asc') {
+    public function get($book_id=0, $show_users=true) {
     	
     	$this->db->select('*');
     	$this->db->from($this->books_table);
     	$this->db->where('book_id', $book_id);
-    	$this->db->order_by($orderby, $orderdir); 
     	$query = $this->db->get();
     	if ($query->num_rows < 1) return null;
     	$result = $query->result();
@@ -256,6 +255,9 @@ class Book_model extends MY_Model {
     
     public function add($array=array()) {
 
+    	if ('array'!=gettype($array)) $array = (array) $array;
+    	$CI =& get_instance(); 	
+    	
  		$title =@ $array['title'];
  		if (empty($title)) $title = 'Untitled';
     	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author
@@ -268,7 +270,7 @@ class Book_model extends MY_Model {
  			$uri = create_suffix($orig, $count);
  			$count++;
  		}
- 
+
  		if (!mkdir($uri)) {
  			die('There was a problem creating the book\'s folder on the filesystem.');
  		}
@@ -278,8 +280,19 @@ class Book_model extends MY_Model {
     	    	
     	chmod($uri, 0777);
     	chmod(confirm_slash($uri).'media', 0777);
-    	    	
+ 	
+    	// Required fields
 		$data = array('title' => $title, 'slug' =>$uri, 'created'=>$mysqldate = date('Y-m-d H:i:s'), 'stylesheet'=>$this->default_stylesheet );
+		// Custom fields
+		if (isset($CI->data['login']->user_id)) $data['user'] = (int) $CI->data['login']->user_id;
+		if (isset($array['subtitle']) && !empty($array['subtitle'])) 		$data['subtitle'] = $array['subtitle'];
+		if (isset($array['thumbnail']) && !empty($array['thumbnail'])) 		$data['thumbnail'] = $array['thumbnail'];
+		if (isset($array['background']) && !empty($array['background'])) 	$data['background'] = $array['background'];
+		if (isset($array['template']) && !empty($array['template'])) 		$data['template'] = $array['template'];
+		if (isset($array['custom_style']) && !empty($array['custom_style'])) $data['custom_style'] = $array['custom_style'];
+		if (isset($array['custom_js']) && !empty($array['custom_js'])) 		$data['custom_js'] = $array['custom_js'];
+		if (isset($array['scope']) && !empty($array['scope'])) 				$data['scope'] = $array['scope'];
+
 		$this->db->insert($this->books_table, $data); 
 		$book_id = mysql_insert_id();
 		
@@ -293,9 +306,9 @@ class Book_model extends MY_Model {
     	
   		$book_id =@ $array['book_to_duplicate'];
  		if (empty($book_id)) throw new Exception('Invalid book ID');
-    	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author   	
+    	// Don't validate, as admin functions can create books not connected to any author   	
 
-    	$this->load->helper('Duplicate', 'duplicate');
+    	$this->load->library('Duplicate', 'duplicate');
     	try {
 			$book_id = $this->duplicate->book($array);
 		} catch (Exception $e) {

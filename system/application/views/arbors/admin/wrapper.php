@@ -2,7 +2,7 @@
 <?=doctype('html5')."\n"?>
 <html>
 <head>
-<title><?=$title?></title>
+<title><?=strip_tags($title)?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <?=template_link_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.css')."\n"?>

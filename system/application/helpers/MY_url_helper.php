@@ -212,6 +212,7 @@
 
     function safe_name($filename='', $allow_forward_slash=true) {
 
+    	$filename = strip_tags($filename);
     	$filename = str_replace(" ","-",$filename);
     	$filename = str_replace('--', '-', $filename);
     	if ($allow_forward_slash) {  // TODO: presently book slugs are hard-wired to only be one URL segment
