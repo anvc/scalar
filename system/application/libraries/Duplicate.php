@@ -87,7 +87,7 @@ class Duplicate {
 	 		$version = $this->_scrub_version_fields($version, $content_id, array('prev_uri'=>$duplicated_uri,'uri'=>$uri,'prev_title'=>$duplicated_book->title));
 	 		$version_id = $this->CI->versions->create($content_id, $version);
 	 	}	 	
-	 	
+
 	 	// Save relate (after all the pages are already created)
 	 	// TODO	 	
     	
@@ -147,28 +147,25 @@ class Duplicate {
 	 	}
 	 	unset($array['rdf']);    
 
-	 	// URLs
-	 	if (isset($array['url']) && !empty($array['url']) && isset($options['prev_uri']) && isset($options['uri'])) {
+	 	// URLs: set to previous book's URL, to avoid duplicating media
+
+	 	if (isset($array['url']) && !empty($array['url']) && isset($options['prev_uri'])) {
 	 		$has_transcribed = false;
-	 		// Hard URL
-	 		if ($options['prev_uri'] == substr($array['url'], 0, strlen($options['prev_uri']))) {
-	 			$array['url'] = str_replace($options['prev_uri'], $options['uri'], $array['url']);
-	 			$has_transcribed = true;
-	 		}
 	 		// Soft URL
-	 		elseif (!isURL($array['url'])) {
-	 			$array['url'] = confirm_slash($options['prev_uri']).$array['url'];  // Set to previous book's URI, to avoid duplicating media
-	 			$has_transcribed = true;	
-	 		}
-	 		// Update RDF dcterms:source with title of previous book
-	 		if (isset($options['prev_title']) && $has_transcribed) {
-	 			if (!isset($array['dcterms:source'])) $array['dcterms:source'] = array();
-	 			$array['dcterms:source'][] = array('value'=>strip_tags($options['prev_title']),'type'=>'literal'); 
+	 		if (!isURL($array['url'])) {
+	 			$array['url'] = confirm_slash($options['prev_uri']).$array['url'];
+	 			// Update RDF dcterms:source with title of previous book
+		 		if (!isset($array['dcterms:source'])) $array['dcterms:source'] = array();
+		 		$array['dcterms:source'][] = array('value'=>strip_tags($options['prev_title']),'type'=>'literal'); 	 			
 	 		}
 	 	}
 
- 		// Text content: remove hard URLs in resource=""
-	 	$array['content'] = str_replace('resource="'.confirm_slash($options['prev_uri']), 'resource="', $array['content']);
+ 		// Text content: remove hard URLs in resource="" and make hard href=""
+ 		if (isset($options['prev_uri'])) {
+	 		$array['content'] = str_replace('resource="'.confirm_slash($options['prev_uri']), 'resource="', $array['content']);
+ 			// TODO: replace with regex on the href="" attribute
+	 		$array['content'] = str_replace('href="media/', 'href="'.confirm_slash($options['prev_uri']).'media/', $array['content']);
+ 		}
 
 	 	return $array;
     
