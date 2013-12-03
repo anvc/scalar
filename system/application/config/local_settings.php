@@ -6,6 +6,9 @@
 // Default melon (Scalar skin), must have a corresponding folder in system/application/views/mellons/ 
 $config['active_melon'] = 'honeydew';
 
+// Default book index module (note that the index can be rerouted completely in /.htaccess)
+$config['active_book_list'] = 'book_list';
+
 // SALT, any string you want as long as it is complicated
 $config['shasalt'] = '';
 

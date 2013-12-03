@@ -40,6 +40,8 @@ class System extends MY_Controller {
 	public function index() {
 
 		$this->load->model('book_model', 'books');
+		$book_list_dir = $this->config->item('active_book_list');
+		if (empty($book_list_dir)) die('Could not find book list directory.');
 
 		$this->data['title'] = $this->lang->line('install_name');
 		$this->data['cover_title']  = $this->lang->line('install_name');
@@ -47,7 +49,7 @@ class System extends MY_Controller {
 		
 		$this->template->set_template('admin');
 		$this->template->write_view('cover', 'modules/cover/dashboard_cover', $this->data);
-		$this->template->write_view('content', 'modules/book_list/book_list', $this->data);
+		$this->template->write_view('content', 'modules/'.trim($book_list_dir,'/').'/book_list', $this->data);
 		$this->template->render();
 		
 	}
