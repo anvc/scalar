@@ -46,14 +46,15 @@ class Duplicate {
   		$duplicated_book_id =@ $array['book_to_duplicate'];
  		if (empty($duplicated_book_id)) throw new Exception('Invalid book ID');
     	$user_id =@ (int) $array['user_id'];
+    	$title = (isset($array['title']) && !empty($array['title'])) ? trim($array['title']) : null;
     	
     	$duplicated_book = $this->CI->books->get($duplicated_book_id);
     	
     	// Create book
-    	$book 		= $this->_scrub_book_fields($duplicated_book, $user_id);
+    	$book 		= $this->_scrub_book_fields($duplicated_book, $user_id, $title);
 	 	$book_id 	= $this->CI->books->add($book);
 	 	$book 		= $this->CI->books->get($book_id);
-	 	
+
 	 	// Old and new paths and URLs
 	 	$duplicated_uri = confirm_slash(base_url()).$duplicated_book->slug;
 	 	$duplicated_path = confirm_slash(FCPATH).$duplicated_book->slug;
@@ -95,11 +96,12 @@ class Duplicate {
     	
     }
     
-    private function _scrub_book_fields($obj, $user_id=0) {
+    private function _scrub_book_fields($obj, $user_id=0, $title=null) {
     	
     	if (isset($obj->book_id)) unset($obj->book_id);
     	
     	// Remove the duplicatable attribute in the title field (that allows the book to be duplicatable)
+    	if (!empty($title)) $obj->title = $title;	 
 	 	if (isset($obj->title)) $obj->title = preg_replace('/(<[^>]+) data-duplicatable=".*?"/i', '$1', $obj->title);
 	 	
 	 	// User to connect to the book

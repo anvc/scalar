@@ -111,10 +111,10 @@ $(window).ready(function() {
 <tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Duplicate a book</td>
 	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
+		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if ($(this).find('input[name=\'title\']').val()=='(New book title)') {$(this).find('input[name=\'title\']').val('');}">
 		<input type="hidden" name="action" value="do_duplicate_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
-		<select name="book_to_duplicate" style="width:300px;">
+		<select name="book_to_duplicate" style="width:200px;">
 <?
 		if (!isset($duplicatable_books) || empty($duplicatable_books)):
 			echo '<option value="0">There are no books with proper permissions</option>'."\n";
@@ -126,7 +126,8 @@ $(window).ready(function() {
 		endif;
 ?>
 		</select> 
-		<input type="submit" value="Duplicate" class="generic_button" />&nbsp; &nbsp;
+		<input name="title" type="text" value="(New book title)" style="width:200px;" onclick="if (this.value=='(New book title)') this.value='';" /> 
+		<input type="submit" value="Duplicate" class="generic_button" /><br />
 		<small>Source book requires special permissions to be displayed in this list</small>
 		</form>
 	</td>

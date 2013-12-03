@@ -54,7 +54,7 @@ elseif (!$page_by_contributor) {
 	if (isset($page->versions) && !empty($page->versions) && $page->versions[$page->version_index]->user != $page->user) {
 		$fullname = $page->versions[0]->fullname;
 		if (empty($fullname)) $fullname = '(Unknown user)';
-		echo '<br />The last update was by '.$page->versions[0]->fullname.' on <a href="'.$_SERVER['REDIRECT_URL'].'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[0]->created)).'</a>.';
+		echo 'The last update was by '.$page->versions[0]->fullname.'.';
 	}
 	echo '</p></div>'."\n";
 }
