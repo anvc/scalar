@@ -144,6 +144,13 @@ class Book_model extends MY_Model {
     	return $result;    	
     	
     }
+    
+    public function is_duplicatable($book) {
+    	
+    	if (stristr($book->title, 'data-duplicatable="all"')) return true;
+    	return false;
+    	
+    }
    
     public function get_images($book_id) {
     	
@@ -307,7 +314,9 @@ class Book_model extends MY_Model {
   		$book_id =@ $array['book_to_duplicate'];
  		if (empty($book_id)) throw new Exception('Invalid book ID');
     	// Don't validate, as admin functions can create books not connected to any author   	
-
+		$book = $this->get($array['book_to_duplicate']);
+		if (!self::is_duplicatable($book)) throw new Exception('Book is not duplicatable');
+ 		
     	$this->load->library('Duplicate', 'duplicate');
     	try {
 			$book_id = $this->duplicate->book($array);

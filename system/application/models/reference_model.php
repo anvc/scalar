@@ -104,7 +104,7 @@ class Reference_model extends MY_Model {
     		if (isURN($array[$i])) $child_version_id = $this->page_urn_to_content_id($array[$i]);
     		if (empty($child_version_id)) continue;
     		
-    		$reference_text = trim($reference_array[$i]);
+    		$reference_text = (isset($reference_array[$i])) ? trim($reference_array[$i]) : '';
     
     		$this->db->select('*');
     		$this->db->from($this->references_table);

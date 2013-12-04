@@ -129,7 +129,7 @@ class Page_model extends MY_Model {
     	$this->db->limit(1); // There should only be one item
     	$query = $this->db->get($this->pages_table);
     	if (!$query->num_rows) return null;
-    	if (mysql_errno()!=0) die(mysql_error());
+    	if (mysql_errno()!=0) throw new Exception(mysql_error());
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->content_id);
     	return $result[0];     	

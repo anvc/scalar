@@ -61,6 +61,7 @@ class RDF_Object {
 	public function __construct() {
 
 		$CI =& get_instance(); 
+		$CI->load->helper('inflector');
 		$this->ns = $CI->config->item('namespaces');	
 		if ('array'!=gettype($this->ns)) {
 			$CI->config->load('local_settings');
@@ -269,12 +270,14 @@ class RDF_Object {
 		if (!empty($ref_models)) $models = array_merge($models, $ref_models);	
 		
 		// Versions attached to each content
-		$row->versions = $CI->versions->get_all(
-												$row->content_id, 
-												((is_int($settings['versions']))?null:$settings['versions']), 
-												((is_int($settings['versions']))?$settings['versions']:1), 
-												$settings['sq']
-											   );
+		if (!isset($row->versions) || empty($row->versions)) {
+			$row->versions = $CI->versions->get_all(
+													$row->content_id, 
+													((is_int($settings['versions']))?null:$settings['versions']), 
+													((is_int($settings['versions']))?$settings['versions']:1), 
+													$settings['sq']
+												   );
+		}
 		if (!count($row->versions)) return null;
 		$row->version_index = 0; 
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
@@ -285,7 +288,7 @@ class RDF_Object {
 			foreach ($models as $model) {
 				if (!empty($settings['restrict']) && $model != $settings['restrict']) continue;
 				$model_s = singular($model);
-				if ('object'!=gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
+				if ('object'!=@gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
 				if ($settings['rel'] == self::REL_PARENTS_ONLY || $settings['rel'] == self::REL_ALL) {
 					$name = 'has_'.$model;
 					$row->versions[$j]->$name = array();
@@ -408,7 +411,6 @@ class RDF_Object {
 		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');			
 		$namespaces = $CI->config->item('namespaces');
 		if ('array'!=gettype($namespaces)) throw new Exception('Could not locate namespaces configuration');		
-		
 		foreach ($models as $_model) {
 			$requested = (isset($_REQUEST[singular($_model)]) && !empty($_REQUEST[singular($_model)])) ? trim($_REQUEST[singular($_model)]) : null;
 			$requested_name = 'requested_'.singular($_model).'_index';
@@ -421,17 +423,19 @@ class RDF_Object {
 					// Requested
 					if ($requested==$page->versions[$page->version_index]->{$model}[$j]->slug) $page->versions[$page->version_index]->$requested_name = $j;		
 					// Current page, prev and next
-					$page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index = null;
-					for ($k = 0; $k < count($page->versions[$page->version_index]->{$model}[$j]->versions[0]->$rev_model); $k++) {
-						if ($page->versions[$page->version_index]->{$model}[$j]->versions[0]->{$rev_model}[$k]->content_id == $page->content_id) {
-							$page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index = $k;
-							break;
+					$page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index = 0;
+					if (isset($page->versions[$page->version_index]->{$model}[$j]->versions[0]->$rev_model)) {
+						for ($k = 0; $k < count($page->versions[$page->version_index]->{$model}[$j]->versions[0]->$rev_model); $k++) {
+							if ($page->versions[$page->version_index]->{$model}[$j]->versions[0]->{$rev_model}[$k]->content_id == $page->content_id) {
+								$page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index = $k;
+								break;
+							}
 						}
+						$page->versions[$page->version_index]->{$model}[$j]->versions[0]->prev_index = ($page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index > 0) ? $page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index - 1 : null;
+						$page->versions[$page->version_index]->{$model}[$j]->versions[0]->next_index = ($page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index < (count($page->versions[$page->version_index]->{$model}[$j]->versions[0]->$rev_model)-1)) ? $page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index + 1 : null;
+						$page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_num = $page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index + 1;
+						$page->versions[$page->version_index]->{$model}[$j]->versions[0]->total_pages = count($page->versions[$page->version_index]->{$model}[$j]->versions[0]->$rev_model);
 					}
-					$page->versions[$page->version_index]->{$model}[$j]->versions[0]->prev_index = ($page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index > 0) ? $page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index - 1 : null;
-					$page->versions[$page->version_index]->{$model}[$j]->versions[0]->next_index = ($page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index < (count($page->versions[$page->version_index]->{$model}[$j]->versions[0]->$rev_model)-1)) ? $page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index + 1 : null;
-					$page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_num = $page->versions[$page->version_index]->{$model}[$j]->versions[0]->page_index + 1;
-					$page->versions[$page->version_index]->{$model}[$j]->versions[0]->total_pages = count($page->versions[$page->version_index]->{$model}[$j]->versions[0]->$rev_model);
 					// Continue to
 					if (empty($page->versions[$page->version_index]->{$model}[$j]->versions[0]->next_index)) {
 						if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');

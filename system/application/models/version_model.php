@@ -100,7 +100,7 @@ class Version_model extends MY_Model {
     		$result[$key]->attribution = unserialize($result[$key]->attribution);
     		$result[$key]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$key]->version_id);
     	}
-    	
+
     	return $result;    	
     	
     }     

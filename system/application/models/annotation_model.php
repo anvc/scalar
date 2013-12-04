@@ -69,7 +69,7 @@ class Annotation_model extends MY_Model {
     
     public function save_children($parent_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array()) { 	
     	
-    	// Inser new relationships
+    	// Insert new relationships
     	$j = 0;
     	foreach ($array as $version_urn) {
     		
@@ -91,7 +91,6 @@ class Annotation_model extends MY_Model {
 	 			'end_line_num' => $_end_line_num,	 				
  				'points' => $_points
             );
-
 			$this->db->insert($this->annotations_table, $data);    		
 			if (mysql_errno()!=0) echo 'MySQL ERROR: '.mysql_error()."\n";
 			

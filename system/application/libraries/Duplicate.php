@@ -32,16 +32,23 @@ class Duplicate {
 	
 	public function __construct() {
 
-		$this->CI =& get_instance(); 	
+		$this->CI =& get_instance();
+		
+    	if ('object'!=@gettype($this->CI->rdf_store)) 	$this->CI->load->model('RDF_Store', 'rdf_store');
+    	if ('object'!=@gettype($this->CI->books)) 		$this->CI->load->model('Book_model', 'books');
+    	if ('object'!=@gettype($this->CI->pages)) 		$this->CI->load->model('Page_model', 'pages');
+    	if ('object'!=@gettype($this->CI->versions)) 	$this->CI->load->model('Version_model', 'versions');	
+    	if ('object'!=@gettype($this->CI->rdf_object)) 	$this->CI->load->library('RDF_Object', 'rdf_object');	
+
+    	if ('object'!=@gettype($this->CI->annotations)) $this->CI->load->model('annotation_model', 'annotations');
+    	if ('object'!=@gettype($this->CI->paths)) 		$this->CI->load->model('path_model', 'paths');
+    	if ('object'!=@gettype($this->CI->references)) 	$this->CI->load->model('reference_model', 'references');
+    	if ('object'!=@gettype($this->CI->replies)) 	$this->CI->load->model('reply_model', 'replies');
+    	if ('object'!=@gettype($this->CI->tags)) 		$this->CI->load->model('tag_model', 'tags');
 		
     }
     
     public function book($array=array()) {
-    	
-    	if ('object'!=gettype($this->CI->rdf_store)) $this->CI->load->model('RDF_Store', 'rdf_store');
-    	if ('object'!=gettype($this->CI->books)) $this->CI->load->model('Book_model', 'books');
-    	if ('object'!=gettype($this->CI->pages)) $this->CI->load->model('Page_model', 'pages');
-    	if ('object'!=gettype($this->CI->versions)) $this->CI->load->model('Version_model', 'versions');
     	
   		$duplicated_book_id =@ $array['book_to_duplicate'];
  		if (empty($duplicated_book_id)) throw new Exception('Invalid book ID');
@@ -78,22 +85,97 @@ class Duplicate {
 	 	// Copy pages
 	 	$pages = $this->CI->pages->get_all($duplicated_book_id);  // Only live pages
 	 	for ($j = 0; $j < count($pages); $j++) {
-	 		// Get version first, because it depends on pre-scribbed content_id field
-	 		$version = $this->CI->versions->get_all($pages[$j]->content_id, null, 1);  // Most recent version
+	 		// Get version
+	 		$pages[$j]->versions = array();
+	 		$pages[$j]->versions = $this->CI->versions->get_all($pages[$j]->content_id, null, 1);  // Most recent version
 	 		// Save new page
 	 		$page = $this->_scrub_page_fields($pages[$j], $book_id);
 	 		$content_id = $this->CI->pages->create($page);
-	 		// Save new version
-	 		$version = (is_array($version)) ? $version[0] : $version;
-	 		$version = $this->_scrub_version_fields($version, $content_id, array('prev_uri'=>$duplicated_uri,'uri'=>$uri,'prev_title'=>$duplicated_book->title));
-	 		$version_id = $this->CI->versions->create($content_id, $version);
-	 	}	 	
+	 		// Save new version (_scrub_version_fields() will turn object into array, to allow RDF fields to be flattened)
+	 		$pages[$j]->versions[0] = $this->_scrub_version_fields($pages[$j]->versions[0], $content_id, array('prev_uri'=>$duplicated_uri,'uri'=>$uri,'prev_title'=>$duplicated_book->title));
+	 		$version_id = $this->CI->versions->create($content_id, $pages[$j]->versions[0]);
+	 		$pages[$j]->versions[0] = (object) $pages[$j]->versions[0];  // Was converted to array by _scrub_version_fields()
+	 	}
 
-	 	// Save relate (after all the pages are already created)
-	 	// TODO	 	
-    	
+	 	// Save relate (after all the pages have been created)
+	 	foreach ($pages as $page) {
+	 		$parent = $this->CI->pages->get_by_slug($book->book_id, $page->slug);
+			$parent->versions = $this->CI->versions->get_all($parent->content_id, null, 1);  // Most recent version	 		 		
+	 		$this->_do_relate($book, $page, $parent);
+	 	}
+
     	return $book_id;
     	
+    }
+    
+    private function _do_relate($book, $page, $parent) {
+    	
+    	$parent_id = $parent->versions[0]->version_id;
+    	$save = array();
+
+		// Build nested array of page relationship
+		$settings = array( 
+			'book'		   => $book,
+			'content'      => $page, 
+			'base_uri'     => confirm_slash(base_url()),
+			'versions'	   => RDF_Object::VERSIONS_MOST_RECENT,
+			'ref'          => RDF_Object::REFERENCES_ALL,
+			'rel'          => RDF_Object::REL_CHILDREN_ONLY, 
+			'max_recurses' => 1 
+		);
+		$index = $this->CI->rdf_object->index($settings);
+		$index = (is_array($index)) ? $index[0] : $index;
+
+		// Annotations
+		$save['scalar:child_urn'] = $save['start_seconds'] = $save['end_seconds'] = $save['start_line_num'] = $save['end_line_num'] = $save['points'] = array();
+    	foreach ($index->versions[0]->annotation_of as $annotation_of) {
+    		$child 						= $this->CI->pages->get_by_slug($book->book_id, $annotation_of->slug);
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
+    		$save['start_seconds'][] 	= $annotation_of->versions[0]->start_seconds;
+    		$save['end_seconds'][] 		= $annotation_of->versions[0]->end_seconds;
+    		$save['start_line_num'][] 	= $annotation_of->versions[0]->start_line_num;
+    		$save['end_line_num'][] 	= $annotation_of->versions[0]->end_line_num;
+    		$save['points'][]			= $annotation_of->versions[0]->points;
+    	} 
+    	$this->CI->annotations->save_children($parent_id, $save['scalar:child_urn'], $save['start_seconds'], $save['end_seconds'], $save['start_line_num'], $save['end_line_num'], $save['points']);
+		// Paths
+		$save['scalar:child_urn'] = $save['sort_numbers'] = array();
+		$j = 1;
+    	foreach ($index->versions[0]->path_of as $path_of) {
+    		$child 						= $this->CI->pages->get_by_slug($book->book_id, $path_of->slug);
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
+    		$save['sort_numbers'][] 	= $j;
+    		$j++;
+    	}       	   	
+   		$this->CI->paths->save_children($parent_id, $save['scalar:child_urn'], $save['sort_numbers']);
+		// References
+		$save['scalar:child_urn'] = array();
+    	foreach ($index->versions[0]->reference_of as $reference_of) {
+    		$child 						= $this->CI->pages->get_by_slug($book->book_id, $reference_of->slug);
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
+    	}       	   	
+   		$this->CI->references->save_children($parent_id, $save['scalar:child_urn'], $save['sort_numbers']);
+		// Replies
+		$save['scalar:child_urn'] = $save['datetimes'] = array();
+    	foreach ($index->versions[0]->reply_of as $reply_of) {
+    		$child 						= $this->CI->pages->get_by_slug($book->book_id, $reply_of->slug);
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
+			$save['datetimes'][] 		= $reply_of->versions[0]->datetime;
+    	}       	   	
+   		$this->CI->replies->save_children($parent_id, $save['scalar:child_urn'], array(), $save['datetimes']);
+		// Tags
+		$save['scalar:child_urn'] = array();
+    	foreach ($index->versions[0]->tag_of as $tag_of) {
+    		$child 						= $this->CI->pages->get_by_slug($book->book_id, $tag_of->slug);
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
+    	}       	   	
+   		$this->CI->tags->save_children($parent_id, $save['scalar:child_urn'], $save['sort_numbers']);   		
+	
     }
     
     private function _scrub_book_fields($obj, $user_id=0, $title=null) {
@@ -134,7 +216,6 @@ class Duplicate {
     	$array = (array) $obj;  // RDF fields have colons in them, invalid as object field names
     	
     	// Scrub fields
-		if (isset($array['version_id'])) unset($array['version_id']);
     	if (isset($array['created'])) unset($array['created']);
     	if (isset($array['urn'])) unset($array['urn']);	
     	$array['user_id'] = (isset($array['user'])) ? (int) $array['user'] : 0;	
@@ -150,7 +231,6 @@ class Duplicate {
 	 	unset($array['rdf']);    
 
 	 	// URLs: set to previous book's URL, to avoid duplicating media
-
 	 	if (isset($array['url']) && !empty($array['url']) && isset($options['prev_uri'])) {
 	 		$has_transcribed = false;
 	 		// Soft URL
