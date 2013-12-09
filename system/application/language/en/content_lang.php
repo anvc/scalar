@@ -32,8 +32,10 @@ $lang['form.submit']          = 'Go';
 $lang['form.clear']           = 'clear';
 $lang['form.begin']           = 'begin';
 
-$lang['welcome.search_book']   = "Search Books";
-$lang['welcome.showing_books'] = 'Showing your books and others that have been revealed as live by their authors';
+$lang['welcome.search_book']    = "Search Books";
+$lang['welcome.showing_books']  = 'Showing your books and others that have been revealed as live by their authors';
+$lang['welcome.featured_books'] = 'Featured Books';
+$lang['welcome.other_books']    = 'Self-published Books';
 
 $lang['page.no_content_author'] = 'Content hasn\'t yet been added to this page, click Edit below to add some.';
 $lang['page.no_content']        = 'Content hasn\'t yet been added to this page.';

@@ -72,12 +72,12 @@ foreach ($books as $row) {
 <?
 echo '<div id="other_books"'.(($login->is_logged_in)?'':' class="wide"').'>';
 if (count($featured_books) > 0) {
-	echo '<h3>Featured Books</h3>';
+	echo '<h3>'.lang('welcome.featured_books').'</h3>';
 	print_books($featured_books);
 	echo '<br clear="both" />';
 }
 if (count($other_books) > 0) {
-	echo '<h3>'.((!empty($featured_books))?'Other ':'').'Public Books</h3>';
+	echo '<h3>'.lang('welcome.other_books').'</h3>';
 	print_books($other_books);
 }
 echo '</div>';
