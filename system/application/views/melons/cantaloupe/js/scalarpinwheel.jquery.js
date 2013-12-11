@@ -116,10 +116,7 @@ function ScalarPinwheel(element) {
 	this.dashArrayNodes = {};
 	this.queryVars = scalarapi.getQueryVars( document.location.href );
 
-	$(window).resize( function() {
-		clearTimeout( timeout );
-		timeout = setTimeout( me.update, 100 );
-	});
+	$( 'body' ).bind( 'delayedResize', me.update );
 	
 	window.onorientationchange = this.update;
 	
@@ -999,10 +996,6 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				
 			}
 			if (state == ViewState.Navigating) {
-				/*me.canvasSet.animate({'transform':'t'+(-me.unitSize.x*graphNode.position.x)+','+(-me.unitSize.y*graphNode.position.y)}, 350, '<>', function() {
-					//scalarview.setPage(scalarapi.basepath(graphNode.nodes[0].url)); 
-					window.location = addTemplateToURL(url, 'cantaloupe'); // TODO: make this dynamic
-				})*/
 				$( '#graph' ).css( {
 					'-webkit-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
 					'-moz-transform': 'translate( ' + ( -me.unitSize.x * graphNode.position.x ) + 'px,' + ( -me.unitSize.y * graphNode.position.y ) + 'px )',
@@ -1034,6 +1027,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 
 		//console.log(graphNode.nodes[0].getDisplayTitle()+' '+graphNode.nodes.length);
 	
+		
 		if (graphNode.nodes.length > 0) {
 			
 			if (graphNode.nodes.length > 1) {
@@ -1074,12 +1068,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				
 			} else if (graphNode.nodes[0] == currentNode) {    
 		
-				/*if (currentNode.color) {
-					outerRadius = 18;
-				} else {*/
-					outerRadius = 18;
-				//}
-				//if (graphNode.children.length > 0) outerRadius += 6;
+				outerRadius = 18;
 				outerCircle = this.centerCanvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 			 
 				if (!this.showIcons) {
@@ -1098,13 +1087,13 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					if (drawLabels) {
 						label = this.centerCanvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						// replace with css fonts
-						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
+						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px'});
 						wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 						graphNode.drawing.push(label);
 					}
 				} else {
 					// draw node with dominant type icon in currentNode style
-				}  
+				}
 				
 			} else {  
 			
@@ -1132,11 +1121,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					
 				} else {
 					
-					/*if (graphNode.children.length > 0) {
-						outerRadius = 22;
-					} else {*/
-						outerRadius = 18;
-					//}
+					outerRadius = 18;
 					outerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, outerRadius);
 					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
 				}
@@ -1159,30 +1144,23 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					
 					outerCircle.attr({'stroke':Raphael.hsl2rgb(color).hex, 'fill':'#fff', 'stroke-width':3, 'cursor':'pointer'});
 					innerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'none', 'cursor':'pointer'});
+					
+					
 					//outerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'#eee', 'stroke-width':3, 'cursor':'pointer'});
 					//innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
 					
 					//outerCircle.attr({'fill':graphNode.reason.data.nodes[0].color, 'stroke-width':2, 'cursor':'pointer'});
-					//innerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});*/
-				} else if (drawAsContainer) {
+					//innerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
+				/*} else if (drawAsContainer) {
 					outerCircle.attr({'fill':color, 'stroke':color, 'stroke-width':3, 'cursor':'pointer'});
 					outerCircle.data('node', graphNode);
-					/*outerCircle.mouseover(function() {
-						this.pinwheel.filter = this.data('node');
-						this.pinwheel.update();
-					});
-					outerCircle.mouseout(function() {
-						this.pinwheel.filter = null;
-					});*/
 					innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
 				} else {
-					/*if (this.currentZoom == 0) {
-						outerCircle.attr({'fill':'#000', 'stroke':'none', 'cursor':'pointer'});
-						innerCircle.attr({'fill':'#eee', 'stroke':'none', 'cursor':'pointer'});
-					} else {*/
-						outerCircle.attr({'fill':'#999', 'stroke':'#000', 'stroke':'none', 'cursor':'pointer'});
-						innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});
-					//}
+					outerCircle.attr({'fill':'#999', 'stroke':'#000', 'stroke':'none', 'cursor':'pointer'});
+					innerCircle.attr({'fill':'#fff', 'stroke':'none', 'cursor':'pointer'});*/
+				} else {
+					outerCircle.attr({'stroke':Raphael.hsl2rgb(color).hex, 'fill':'#fff', 'stroke-width':3, 'cursor':'pointer'});
+					innerCircle.attr({'fill':Raphael.hsl2rgb(color).hex, 'stroke':'none', 'cursor':'pointer'});
 				}
 				
 				outerCircle.click(goToPage);	
@@ -1194,36 +1172,10 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					if (graphNode.children.length > 0) labelOffsetV = 26;
 					label = this.canvas.text(canvasPosition.x, canvasPosition.y+labelOffsetV, graphNode.nodes[0].getDisplayTitle());
 					// replace with css fonts
-					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer', 'fill':'#000000'});
-					/*if (graphNode.children.length > 0) {
-						label.attr({'font-weight':'bold'});
-					}*/
+					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'fill':'#000000'});
 					wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 					graphNode.drawing.push(label);
 				}
-					
-				/*} else if (!this.showIcons) {
-					innerCircle = this.canvas.circle(canvasPosition.x, canvasPosition.y, 3.5);
-					if (currentNode.color) {
-						outerCircle.attr({'fill':currentNode.color, 'stroke':'none'});
-						innerCircle.attr({'fill':'#eee', 'stroke':'none'});
-					} else if (drawAsContainer) {
-						outerCircle.attr({'fill':color, 'stroke':'none'});
-						innerCircle.attr({'fill':'#eee', 'stroke':'none'});
-					} else {
-						outerCircle.attr({'fill':'#fff', 'stroke':'#000', 'stroke-width':2});
-						innerCircle.attr({'fill':'#000', 'stroke':'none'});
-					}
-					graphNode.drawing.push(outerCircle, innerCircle);
-					if (drawLabels) {
-						label = this.canvas.text(canvasPosition.x, canvasPosition.y+26, graphNode.nodes[0].getDisplayTitle());
-						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px'});
-						graphNode.drawing.push(label);
-					}
-					
-				} else {
-					// draw node with dominant type icon
-				}  */
 			}
 		}
 		      
@@ -1237,7 +1189,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 		} else {
 			inHistory = true;
 		} 
-		*/    
+		*/   
 		
 		if (this.currentZoom < this.zoomThreshold) {
 			// draw node title

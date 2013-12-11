@@ -136,6 +136,9 @@ function getChildrenOfType(node, type) {
 	return children;		
 }
 
+function handleDelayedResize() {
+	$( 'body' ).trigger( 'delayedResize' );
+}
 			
 function addIconBtn(element, filename, hoverFilename, title, url) {
 	var img_url_1 = modules_uri+'/cantaloupe/images/'+filename;
@@ -282,6 +285,7 @@ $(window).ready(function() {
 				scalarapi.model.urlPrefix = document.location.href.split('/').slice(0,5).join('/')+'/';
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
+				//currentNode = scalarapi.getNode( 'index' );
 				currentNode = scalarapi.model.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];
 				//console.log(JSON.stringify(rdf_json));
 				/**
@@ -330,7 +334,7 @@ $(window).ready(function() {
 		          /*widgets_uri+'/vis/scalarvis.css',
 		          widgets_uri+'/vis/jquery.scalarvis.js'*/], complete:function() { 
 		   
-			  	$('#book-title').parent().wrap('<div></div>');
+			  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
 			  	$('article').before($('#book-title').parent().parent());
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 		
@@ -338,7 +342,13 @@ $(window).ready(function() {
 				
 				$( '[property="art:url"]' ).css( 'display', 'none' );
 				
-				$('body').css('visibility', 'visible');
+				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
+			
+				var timeout;
+				$(window).resize( function() {
+					clearTimeout( timeout );
+					timeout = setTimeout( handleDelayedResize, 100 );
+				});
 			  	
 		  }},		  
 		  

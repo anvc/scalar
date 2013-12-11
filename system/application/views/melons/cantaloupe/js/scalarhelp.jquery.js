@@ -44,6 +44,8 @@
 	
 		this.element.addClass('dialog help');
 		
+		var canEdit = ( !isMobile && ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")));
+		
 		var header = $('<div class="dialog_header heading_font"></div>').appendTo(this.element);
 		header.append('<h2 class="heading_font">Help</h2>');
 		var buttons = $('<div class="right"></div>').appendTo(header);
@@ -52,21 +54,39 @@
 		header.append('<hr>');
 		
 		var content = $('<div class="body_copy"></div>').appendTo(this.element);
-		content.append('<p>This <a href="http://scalar.usc.edu/scalar">Scalar</a> book is being presented using an experimental new interface designed to streamline and enhance the reading experience. It\'s a work in progress, but here are some tips for getting around.</p>');
-		content.append('<p>The header bar at the top of the screen gives you access to utilities for navigating and (if you have editing privileges) editing. If the header bar is currently hidden, scroll towards the top of the page to make it appear.</p>');
-
-		var list = $('<ul></ul>').appendTo(content);
-		list.append('<li>The main menu of the book can be accessed from the <img src="'+this.options.root_url+'/images/home_icon.png" alt="Home icon" width="30" height="30" /> icon.</li>');
-		list.append('<li>The <img src="'+this.options.root_url+'/images/search_icon.png" alt="Search icon" width="30" height="30" /> icon allows you to search the book.</li>');
-		list.append('<li>The <img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /> icon toggles display of the background "pinwheel" visualization, which shows you your current location in the book and what connects to it. Once you\'re viewing the visualization, you can use the plus and minus buttons at the bottom to zoom in and out on your current location.</li>');
-		list.append('<li>The <img src="'+this.options.root_url+'/images/help_icon.png" alt="Help icon" width="30" height="30" /> icon toggles this help display.</li>');
-		list.append('<li>Use the <img src="'+this.options.root_url+'/images/user_icon.gif" alt="User icon" width="30" height="30" /> icon to sign in to the book if you have an account.</li>');
+		content.append('<p>This <a href="http://scalar.usc.edu/scalar">Scalar</a> book is presented using an <strong>experimental interface</strong> designed to streamline and enhance the reading experience. As this interface is <strong>currently under active development</strong>, you may encounter bugs.</p>');
+		content.append('<p>The <strong>header bar</strong> at the top of the screen gives you access to utilities for navigating and editing (if you’re logged in and have editing privileges). If the header bar is currently hidden, scroll towards the top of the page to make it appear. Here’s a quick reference guide to the header bar icons:</p>');
 		
-		content.append('<p>If you have editing privileges in this book, you\'ll also see these options:</p>');
-		list = $('<ul></ul>').appendTo(content);
-		list.append('<li>The <img src="'+this.options.root_url+'/images/new_icon.png" alt="New page icon" width="30" height="30" /> icon creates a new page.</li>');
-		list.append('<li>The <img src="'+this.options.root_url+'/images/edit_icon.png" alt="Edit icon" width="30" height="30" /> icon edits the current page.</li>');
-		list.append('<li>The <img src="'+this.options.root_url+'/images/options_icon.png" alt="Options icon" width="30" height="30" /> icon opens the Dashboard.</li>');
+		var table = $( '<table></table>' ).appendTo( content );
+		var descStyle;
+		if ( canEdit ) {
+			descStyle = 'half-description';
+		} else {
+			descStyle = 'description';
+		}
+		
+		var row = $( '<tr></tr>' ).appendTo( table );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/menu_icon.png" alt="Home icon" width="30" height="30" /></td><td class="' + descStyle + '">Main menu</td>' );
+		
+		row = $( '<tr></tr>' ).appendTo( table );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/search_icon.png" alt="Search icon" width="30" height="30" /></td><td class="' + descStyle + '">Search</td>' );
+		
+		row = $( '<tr></tr>' ).appendTo( table );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /></td><td class="' + descStyle + '">Toggles “pinwheel” visualization of your current location in the book</td>' );
+		
+		row = $( '<tr></tr>' ).appendTo( table );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/help_icon.png" alt="Help icon" width="30" height="30" /></td><td class="' + descStyle + '">Help</td>' );
+			
+		row = $( '<tr></tr>' ).appendTo( table );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/user_icon.png" alt="User icon" width="30" height="30" /></td><td class="' + descStyle + '">Sign in</td>' );
+
+		if ( canEdit ) {
+			table.find( 'tr' ).eq( 0 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/new_icon.png" alt="New page icon" width="30" height="30" /></td><td class="' + descStyle + '">New page</td>' );
+			table.find( 'tr' ).eq( 1 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/edit_icon.png" alt="Edit icon" width="30" height="30" /></td><td class="' + descStyle + '">Edit page/media</td>' );
+			table.find( 'tr' ).eq( 2 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/annotate_icon.png" alt="Annotate icon" width="30" height="30" /></td><td class="' + descStyle + '">Annotate images or time-based media</td>' );
+			table.find( 'tr' ).eq( 3 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/import_icon.png" alt="Import icon" width="30" height="30" /></td><td class="' + descStyle + '">Import media</td>' );
+			table.find( 'tr' ).eq( 4 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/options_icon.png" alt="Options icon" width="30" height="30" /></td><td class="' + descStyle + '">Dashboard</td>' );
+		}
 		
 		content.append('<p>If you\'re used to reading Scalar books in their standard interface, you\'ll find that many things have changed, and that not all of Scalar\'s features have been implemented yet. Thanks for your patience as we continue to expand the capabilities of this new interface. We welcome <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback">your feedback.</a></p>')
 	}

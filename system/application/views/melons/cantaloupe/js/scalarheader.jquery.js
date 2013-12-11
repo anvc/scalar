@@ -25,7 +25,7 @@
 		};
 	
 	/**
-	 * Creates and manages the header bar at the top of the book.
+	 * Creates and manages the header bar at the top of the window.
 	 */
 	function ScalarHeader( element, options ) {
 		this.element = $(element);
@@ -42,36 +42,34 @@
 	ScalarHeader.prototype.visualizations = null;		// Scalar visualizations plugin
 	
 	/**
-	 * DOM setup for the header.
+	 * DOM and other setup for the header.
 	 */
 	ScalarHeader.prototype.init = function () {
 	
 		var me = this;
 		
 		this.state = 'maximized';
-	
 		this.lastScroll = $(document).scrollTop();
-		
 		me.element.attr('id', 'header');
-		//me.element.data('state', 'maximized');
 		
 		$( 'body' ).bind( 'setState', me.handleSetState );
 		
 		var bookId = parseInt($('#book-id').text());
 		$('header').hide();
 		
+		// Header remains fixed on mobile devices
 		if (!isMobile) {
 			$(window).scroll(function() {
 				var currentScroll = $(document).scrollTop();
 				
-				// if we're scrolling down in Reading mode, then slide the header upwards
+				// If we're scrolling down in Reading mode, then slide the header upwards
 				if ((currentScroll > me.lastScroll) && (currentScroll > 50) && (state == ViewState.Reading)) {
 					if ( me.state == 'maximized' ) {
 						me.state = 'minimized';
 						me.element.addClass( 'header_slide' );
 					}
 					
-				// if we're scrolling down, slide the header downwards
+				// If we're scrolling down, slide the header downwards
 				} else if ((me.lastScroll - currentScroll) > 10) {
 					if ( me.state == 'minimized' ) {
 						me.state = 'maximized';
@@ -81,39 +79,33 @@
 				
 				me.lastScroll = currentScroll;
 			});
+			
+			// Slide header down when rolled over
+			this.element.mouseenter(function() {
+				if ( me.state == 'minimized' ) {
+					me.state = 'maximized';
+					me.element.removeClass( 'header_slide' );
+				}
+			});
 		}
 		
-		this.element.mouseenter(function() {
-			if ( me.state == 'minimized' ) {
-				me.state = 'maximized';
-				me.element.removeClass( 'header_slide' );
-			}
-		});
+		// Header controls
+		var list = $( '<ul></ul>' ).appendTo( this.element );
 		
-		var img_url_1 = this.options.root_url+'/images/home_icon.png';
-		//this.element.prepend('<div id="home_menu_link"><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div> ');
-		//$('#book-title').parent().wrap('<span id="breadcrumb"></span>');
-		//var buttons = $('<div class="right"></div>').appendTo(this.element);
+		// Main menu
+		list.append( '<li id="main-menu-item"><img src="' + this.options.root_url + '/images/menu_icon.png" alt="Main menu. Roll over to access navigation to primary sections." width="30" height="30" /></li>' );
 		
-		this.element.contents().wrap( '<ul></ul>' );
+		// Book title
+		$('#book-title').parent().wrap('<li id="book-title-item"><div><span></span></div></li>');
+		$('#book-title').html( $.trim( $( '#book-title' ).html() ) );
+		list.append( $( '#book-title-item' ) );
+		addTemplateLinks($('#book_title'), 'cantaloupe');
 		
-		var list = this.element.find( 'ul' );
-		list.prepend('<li id="home_menu_link" class="menu_link"><div><img src="'+img_url_1+'" alt="Home" width="30" height="30" /></div></li> ');
-		$('#book-title').parent().wrap('<li id="book_title"><div><span></span></div></li>');
-		var buttons = $('<li id="options"><div></div></li>').appendTo(list);
-		buttons = buttons.find( 'div' );
-		
-		
-		//$('#book-title').parent().wrap('<span class="breadcrumb"></span>');
-		//element.find('.breadcrumb').append('<span class="leaves"> &nbsp;&gt;&nbsp; <a href="#">Filmic Texts</a> &nbsp;&gt;&nbsp; The Limits of Television</span>');
-		
-		addTemplateLinks($('#breadcrumb'), 'cantaloupe');
-		
-		
-		// various feature buttons
-		var searchControl = $('<div class="search_control"></div>').appendTo(buttons);
-		addIconBtn(searchControl, 'search_icon.png', 'search_icon_hover.png', 'Search');
-		searchControl.append('<form><input class="search_input caption_font" placeholder="Search this book…" type="search" value="" name="search" id="search"/><input class="search_submit" type="submit" value=""></form>');
+		// Search control
+		list.append( '<li id="search-item"><div class="search_control"></div></li>' );
+		var searchControl = $( '.search_control' );
+		searchControl.append( '<img src="' + this.options.root_url + '/images/search_icon.png" alt="Search button. Click to open search field." width="30" height="30" />' );	
+		searchControl.append('<form><input class="search_input caption_font" placeholder="Search this book…" type="search" value="" title="Search terms" name="search" id="search"/><input class="search_submit" title="Press return or enter to search." type="submit" value=""></form>');
 		$('.search_input').keydown(function(e) {
 			if (e.keyCode == 13) {
 				me.search.data('plugin_scalarsearch').doSearch(this.value);
@@ -122,69 +114,87 @@
 			}
 		});
 		var searchElement = $('<div></div>').appendTo('body');
+		
+		// Instantiate search plug-in
 		this.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
 		searchControl.find('img').click(function() {
-			if (parseInt($('.search_input').width()) == 0) {
-				$('.search_input').stop().delay( 100 ).animate({'width': '150%', 'borderColor': '#ddd'}, 250).focus();
-				if ( $( '#options' ).hasClass( 'wide' ) ) {
-					$( '#options' ).stop().animate( { 'width': ( 368 + 220 ) }, 250 ); // TODO: magic number
-				} else {
-					$( '#options' ).stop().animate( { 'width': ( 175 + 220 ) }, 250 ); // TODO: magic number
-				}
+		
+			// Slide open
+			if (parseInt($( '#search' ).width()) == 0) {
+				$( '#search' ).stop().delay( 100 ).animate({'width': '150%', 'borderColor': '#ddd'}, 250);
+				setTimeout( function() { $( '#search' ).focus() }, 1000 );
+				
+			// Slide closed
 			} else {
-				$('.search_input').stop().animate({'width': '0', 'borderColor': '#fff'}, 250).blur();
-				$( '#options' ).stop().animate( { 'width': 'auto' }, 250 );
+				$( '#search' ).stop().animate({'width': '0', 'borderColor': '#fff'}, 250).blur();
 			}
 		});
 		
-		
-		addIconBtn(buttons, 'visualization_icon.png', 'visualization_icon_hover.png', 'Visualization');
-		//addIconBtn(buttons, 'api_icon.png', 'api_icon_hover.png', 'Data');
-		addIconBtn(buttons, 'help_icon.png', 'help_icon_hover.png', 'Help');
-		$('[title="Visualization"]').click(function() {
+		// Visualization toggle
+		list.append( '<li id="visualization-item"><img src="' + this.options.root_url + '/images/visualization_icon.png" alt="Visualization button. Click to toggle visualization showing current position." width="30" height="30" /></li>' );
+		$( '#visualization-item' ).click(function() {
 			if (state != ViewState.Navigating) {
 				setState(ViewState.Navigating);
 			} else {
 				setState(ViewState.Reading);
 			}
-		}).attr( 'id', 'visualization_btn' );
-		
-		var helpElement = $('<div></div>').appendTo('body');
-		this.help = helpElement.scalarhelp( { root_url: modules_uri+'/cantaloupe'} );
-		$('[title="Help"]').click(function() {
-			me.help.data('plugin_scalarhelp').toggleHelp();
-		});
-		
-		// editing buttons
-		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
-			$( '#options' ).addClass( 'wide' );
-			buttons.append('<img class="vrule" src="'+this.options.root_url+'/images/'+'gray1x1.gif"/>');
-			addIconBtn(buttons, 'new_icon.png', 'new_icon_hover.png', 'New', scalarapi.model.urlPrefix+'new.edit');
-			
-			//addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit', scalarapi.basepath(window.location.href)+'.edit?'+template_getvar+'=honeydew');
-			addIconBtn(buttons, 'edit_icon.png', 'edit_icon_hover.png', 'Edit',  scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.edit');
-			
-			buttons.append( '<div id="import_menu_link" class="menu_link"><img src="' + modules_uri + '/cantaloupe/images/' + 'import_icon.png" alt="Import" width="30" height="30"></div>' );
-			this.buildImportMenu();
-			
-			if (currentNode.hasScalarType('media')) {
-				addIconBtn(buttons, 'annotate_icon.png', 'annotate_icon_hover.png', 'Annotate', scalarapi.model.urlPrefix+scalarapi.basepath(window.location.href)+'.annotation_editor?'+template_getvar+'=honeydew');
-			}
-			//addIconBtn(buttons, 'delete_icon.png', 'delete_icon_hover.png', 'Delete');
-			addIconBtn(buttons, 'options_icon.png', 'options_icon_hover.png', 'Options', system_uri+'/dashboard?book_id='+bookId+'&zone=style#tabs-style');
-		}
-		addIconBtn(buttons, 'user_icon.gif', 'user_icon_hover.gif', 'User');
-		//$('[title="Delete"]').click(this.handleDelete);
-		$('[title="User"]').click(function() {
-			document.location = addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe');
 		});
 
-		// load info about the book, build main menu when done
+		// Data button (to be used for accessing raw API info of page)
+		//list.append( '<li id="data-item"><img src="' + this.options.root_url + '/images/api_icon.png" alt="Data" width="30" height="30" /></li>' );
+		
+		// Help
+		list.append( '<li id="help-item"><img src="' + this.options.root_url + '/images/help_icon.png" alt="Help button. Click to toggle help info." width="30" height="30" /></li>' );
+		var helpElement = $('<div></div>').appendTo('body');
+		this.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );
+		$( '#help-item' ).click(function() {
+			me.help.data( 'plugin_scalarhelp' ).toggleHelp();
+		});
+		
+		// Editing options only available for users with privileges that aren't on mobile devices
+		if ( !isMobile && ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer"))) {
+		
+			// New page
+			list.append( '<li id="new-item"><a href="' + scalarapi.model.urlPrefix + 'new.edit"><img src="' + this.options.root_url + '/images/new_icon.png" alt="New page button. Click to create a new page." width="30" height="30" /></a></li>' );
+			
+			// Edit page/media
+			list.append( '<li id="edit-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.edit"><img src="' + this.options.root_url + '/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /></a></li>' );
+			
+			// Annotate media
+			if ( currentNode.hasScalarType( 'media' ) ) {
+				list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
+			}
+			
+			// Import media
+			list.append( '<li id="import-item"><img src="' + this.options.root_url + '/images/import_icon.png" alt="Import menu. Roll over to show import options." width="30" height="30" /></li>' );
+			this.buildImportMenu();
+			
+			// Delete page/media
+			//list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
+			//$('[title="Delete"]').click(this.handleDelete);
+			
+			// Dashboard
+			list.append( '<li id="options-item"><a href="' + system_uri + '/dashboard?book_id=' + bookId + '&zone=style#tabs-style"><img src="' + this.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /></a></li>' );
+		}
+		
+		// Sign in
+		list.append( '<li id="user-item"><img src="' + this.options.root_url + '/images/user_icon.png" alt="Account button. Click to sign in." width="30" height="30" /></li>' );
+		$( '#user-item' ).click(function() {
+			document.location = addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe');
+		});
+		
+		// This is used to resize menus according to browser window size, to ensure they don't get too big
+		// and allow area for user to scroll the page behind the menu
+		$( 'body' ).bind( 'delayedResize', me.handleDelayedResize );
+
+		// Load info about the book, build main menu when done
 		scalarapi.loadBook(true, function() {
 			
 			var i, n,
 				owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
 				authors = [];
+				
+			// Get authors of book
 			if ( owners ) {
 				n = owners.length;
 				for ( i = 0; i < n; i++ ) {
@@ -194,7 +204,9 @@
 			
 			var author,
 				n = authors.length,
-				bookTitle = $( '#book_title > div > span' );
+				bookTitle = $( '#book-title-item > div > span' );
+				
+			// Build string for author credit
 			for ( var i = 0; i < n; i++ ) {
 				author = authors[ i ];
 				if ( i == 0 ) {
@@ -216,11 +228,15 @@
 		
 	}
 	
+	/**
+	 * Adjusts position of the header when page state changes.
+	 */
 	ScalarHeader.prototype.handleSetState = function( event, data ) {
 	
 		if ( !isMobile ) {
 			switch (data.state) {
 			
+				// Reading state: slide the header up if we're not at the top of the page
 				case ViewState.Reading:
 				if ( $(document).scrollTop() != 0 ) {
 					header.data('plugin_scalarheader').state = 'minimized';
@@ -228,11 +244,13 @@
 				}
 				break;
 			
+				// Navigating state: slide the header down
 				case ViewState.Navigating:
 				header.data('plugin_scalarheader').state = 'maximized';
 				$( '#header' ).removeClass( 'header_slide' );
 				break;
 			
+				// Modal dialog: slide the header down
 				case ViewState.Modal:
 				header.data('plugin_scalarheader').state = 'maximized';
 				$( '#header' ).removeClass( 'header_slide' );
@@ -281,6 +299,28 @@
 		}
 	
 	}
+	
+	/**
+	 * Crops menus to fit within browser window.
+	 */
+	ScalarHeader.prototype.handleDelayedResize = function() {
+	
+		var maxHeight = ( ( Math.floor( ( ( window.innerHeight - 50 ) * .8 ) / 50 ) * 50 ) + 25 ) + 'px';
+		var maxWidth = Math.round( window.innerWidth * .8 ) + 'px';
+		$( '#main-menu' ).css( {
+			'maxHeight': maxHeight,
+			'maxWidth': maxWidth
+		} );
+		$( '#affiliated-archives-menu' ).css( {
+			'maxHeight': maxHeight,
+			'maxWidth': maxWidth
+		} );
+		$( '#other-archives-menu' ).css( {
+			'maxHeight': maxHeight,
+			'maxWidth': maxWidth
+		} );
+	
+	}
 			
 	/**
 	 * Constructs the main menu in the DOM.
@@ -292,261 +332,72 @@
 		
 		if (node != null) {
 	
-			// gather the main menu items
 			var i,
-				menu = $('<div id="main_menu" class="menu heading_font"><ol></ol></div>').appendTo('#home_menu_link');
-			var menuList = menu.find('ol'),
-				menuItems = node.getRelatedNodes('referee', 'outgoing', true);
-			var n = menuItems.length;
+				menu = $( '<ul id="main-menu" class="scrollable-menu"></div>' ).appendTo( '#main-menu-item' ),
+				menuItems = node.getRelatedNodes('referee', 'outgoing', true),
+				n = menuItems.length;
 			
-			listItem = $('<p class="unordered">'+$('#book-title').text()+'</p>').appendTo(menuList);
-			listItem.data('url', $('#book-title').parent().attr("href"));
-			listItem.click(function() {
-				window.location = addTemplateToURL($(this).data('url'), 'cantaloupe');
-			});
+			// Book title is always first
+			listItem = $( '<li><a href="' + $('#book-title').parent().attr("href") + '">' + $( '#book-title' ).text() + '</a></li>' ).appendTo( menu );
 			
-			// add them
+			// Next, items in the book's main menu
 			if (n > 0) {
 				var tocNode, listItem;
 				for (i=0; i<n; i++) {
 					tocNode = menuItems[i];
-					listItem = $('<li>'+tocNode.getDisplayTitle()+'</li>').appendTo(menuList);
-					listItem.data('url', tocNode.url);
-					listItem.click(function() {
-						window.location = addTemplateToURL($(this).data('url'), 'cantaloupe');
-					});
+					listItem = $( '<li><a href="' + tocNode.url + '">' + ( i + 1 ) + '. ' + tocNode.getDisplayTitle() + '</a></li>' ).appendTo( menu );
 				}
 			}
 			
-			/*listItem = $('<p class="unordered">Visualizations</p>').appendTo(menuList);
-			var visElement = $('<div></div>').appendTo('body');
-			this.visualizations = visElement.scalarvisualizations( {} );
-			listItem.click( function() { me.visualizations.data('plugin_scalarvisualizations').showVisualizations(); } );*/
-			
-			listItem = $('<p class="unordered">Index</p>').appendTo(menuList);
-			var indexElement = $('<div></div>').appendTo('body');
+			// Finally, the index
+			listItem = $( '<li>Index</li>' ).appendTo( menu );
+			var indexElement = $( '<div></div>' ).appendTo( 'body' );
 			this.index = indexElement.scalarindex( {} );
 			listItem.click( function() { me.index.data('plugin_scalarindex').showIndex(); } );
+			
 		}
 		
-		// wait a bit before setting up rollovers to avoid accidental triggering of the menu
-		setTimeout(function() {
-		
-			/*$('#home_menu_link').mouseenter(function(e) {
-				if ( state != ViewState.Modal ) {
-					$(this).css('backgroundColor', '#eee');
-					$('#main_menu').show();
-				}
-			});*/
-				
-			$('#home_menu_link').hover( function() {
-				if ( state != ViewState.Modal ) {
-					$(this).css('backgroundColor', '#eee');
-					$( '#main_menu' ).css( 'visibility', 'visible' );
-				}
-			}, function() {
-				$( '#main_menu' ).css( 'visibility', 'hidden' );
-				$(this).css('backgroundColor', 'inherit');
-			} );
-		
-			$('#home_menu_link').click(function(e) {
-				if ($('#main_menu').css('visibility') == "visible") {
-					$(this).css('backgroundColor', '#fff');
-					$('#main_menu').css( 'visibility', 'hidden' );
-				} else {
-					if ( state != ViewState.Modal ) {
-						$(this).css('backgroundColor', '#eee');
-						console.log('show2');
-						$('#main_menu').css( 'visibility', 'visible' );
-					}
-				}
-				e.stopImmediatePropagation();
-			});
-			
-			/*$('#main_menu').mouseleave(function() {
-				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#main_menu').hide();
-			})*/
-			
-			$('body').click(function() {
-				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('.menu').css( 'visibility', 'hidden' );
-			});
-		
-		}, 1000);
+		this.handleDelayedResize();
 		
 	}
 	
+	/**
+	 * Constructs the import menu in the DOM.
+	 */
 	ScalarHeader.prototype.buildImportMenu = function() {
 	
-		// gather the main menu items
-		var listItem, secondaryMenu, secondaryMenuList, secondaryListItem,
-			menuLink = $( '#import_menu_link' ),
-			menu = $('<div id="import_menu" class="menu heading_font"><ul></ul></div>').appendTo( menuLink );
-			menuList = menu.find('ul');
+		var listItem, subMenu, subMenuItem,
+			menuLink = $( '#import-item' ),
+			menu = $('<ul id="import-menu" class="align-right"></ul>').appendTo( menuLink );
 			
-		var handleListItemHover = function() {
-			if ( state != ViewState.Modal ) {
-				var i, n, menuData, menuDatum, submenu, secondaryListItem;
-				
-				$( '.submenu' ).css( 'visibility', 'hidden' );
-				submenu = $( this ).data( 'submenu' );
-				if ( submenu == null ) {
-					var secondaryMenu = $( '<div class="menu heading_font submenu"><ul></ul></div>' ).appendTo( $( '#import_menu_link ') ),
-						secondaryMenuList = secondaryMenu.find( 'ul' );
-					menuData = $( this ).data( 'submenuData' );
-					n = menuData.length;
-					for ( i = 0; i < n; i++ ) {
-						menuDatum = menuData[ i ];
-						secondaryListItem = $( '<li>' + menuDatum.title + '</li> ').appendTo( secondaryMenuList );
-						secondaryListItem.data( 'url', menuDatum.url );
-						secondaryListItem.click( function() {
-							$( '.submenu' ).css( 'visibility', 'hidden' );
-							window.location = $( this ).data( 'url' );
-						} );
-					}
-					$( this ).data( 'submenu', secondaryMenu );
-					secondaryMenu.css( {
-						'visibility': 'visible',
-						'top': $( this ).offset().top,
-						'left': $( this ).offset().left - secondaryMenu.width()
-					} );
-				} else {
-					submenu.css( 'visibility', 'visible' );
-				}
-			}
-		} 
+		// Affiliated archives
+		listItem = $( '<li>Affiliated archives</li>' ).appendTo( menu );
+		subMenu = $( '<ul id="affiliated-archives-menu" class="align-right scrollable-menu"></ul>' ).appendTo( listItem );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/critical_commons">Critical Commons</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/hemispheric_institute">Hemispheric Institute Digital Video Library</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/hypercities">Hypercities</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/internet_archive">Internet Archive</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/play">Play!</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online">Shoah Foundation VHA Online</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/shoah_foundation_vha">Shoah Foundation VHA (partner site)</a>' ).appendTo( subMenu );
 		
-		listItem = $( '<li>Affiliated archives</li>' ).appendTo( menuList );
-		listItem.data( 'submenuData', [
-			{ title: 'Critical Commons', url: scalarapi.model.urlPrefix + 'import/critical_commons' },
-			{ title: 'Cuban Theater Digital Archive', url: scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive' },
-			{ title: 'Hemispheric Institute Digital Video Library', url: scalarapi.model.urlPrefix + 'import/hemispheric_institute' },
-			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities' },
-			{ title: 'Internet Archive', url: scalarapi.model.urlPrefix + 'import/internet_archive' },
-			{ title: 'Hypercities', url: scalarapi.model.urlPrefix + 'import/hypercities' },
-			{ title: 'Play!', url: scalarapi.model.urlPrefix + 'import/play' },
-			{ title: 'Shoah Foundation VHA Online', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online' },
-			{ title: 'Shoah Foundation VHA (partner site)', url: scalarapi.model.urlPrefix + 'import/shoah_foundation_vha' }
-		] );
-		listItem.hover( handleListItemHover );
+		// Other archives
+		listItem = $( '<li>Other archives</li>' ).appendTo( menu );
+		subMenu = $( '<ul id="other-archives-menu" class="align-right scrollable-menu"></ul>' ).appendTo( listItem );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/prezi">Prezi</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/soundcloud">SoundCloud</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/vimeo">Vimeo</a>' ).appendTo( subMenu );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/youtube">YouTube</a>' ).appendTo( subMenu );
 		
-		listItem = $( '<li>Other archives</li>' ).appendTo( menuList );
-		listItem.data( 'submenuData', [
-			{ title: 'Prezi', url: scalarapi.model.urlPrefix + 'import/prezi' },
-			{ title: 'SoundCloud', url: scalarapi.model.urlPrefix + 'import/soundcloud' },
-			{ title: 'Vimeo', url: scalarapi.model.urlPrefix + 'import/vimeo' },
-			{ title: 'YouTube', url: scalarapi.model.urlPrefix + 'import/youtube' }
-		] );
-		listItem.hover( handleListItemHover );
-		
-		listItem = $( '<li>Local media files</li>' ).appendTo( menuList );
-		listItem.click( function() {
-			$( '.submenu' ).css( 'visibility', 'hidden' );
-			window.location = scalarapi.model.urlPrefix + 'upload';
-		} );
-		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
-		
-		listItem = $( '<li>Internet media files</li>' ).appendTo( menuList );
-		listItem.click( function() {
-			$( '.submenu' ).css( 'visibility', 'hidden' );
-			window.location = scalarapi.model.urlPrefix + 'new.edit#type=media';
-		} );
-		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
-		
-		listItem = $( '<li>Other Scalar books</li>' ).appendTo( menuList );
-		listItem.click( function() {
-			$( '.submenu' ).css( 'visibility', 'hidden' );
-			window.location = scalarapi.model.urlPrefix + 'import/system';
-		} );
-		listItem.hover( function() { $( '.submenu' ).css( 'visibility', 'hidden' ); } )
-		
-		menuLink.hover( function() {
-			if ( state != ViewState.Modal ) {
-				$(this).css('backgroundColor', '#eee');
-				$( '#import_menu' ).css( {
-					'visibility': 'visible',
-					'left': $( this ).offset().left - $( '#import_menu' ).width() + menuLink.width() + ( parseInt( menuLink.css( 'padding-left' ) ) * 2 )
-				} );
-			}
-		}, function() {
-			$( '#import_menu' ).css( 'visibility', 'hidden' );
-			$( '.submenu' ).css( 'visibility', 'hidden' );
-			$(this).css('backgroundColor', 'inherit');
-		} );
-	
-		menuLink.click(function(e) {
-			if ($('#import_menu').css('visibility') == "visible") {
-				$(this).css('backgroundColor', '#fff');
-				$('#import_menu').css( 'visibility', 'hidden' );
-			} else {
-				if ( state != ViewState.Modal ) {
-					$(this).css('backgroundColor', '#eee');
-					console.log('show2');
-					$('#import_menu').css( 'visibility', 'visible' );
-				}
-			}
-			e.stopImmediatePropagation();
-		});
+		// Other import options
+		listItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'upload">Local media files</a></li>' ).appendTo( menu );
+		listItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'new.edit#type=media">Internet media files</a></li>' ).appendTo( menu );
+		listItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/system">Other Scalar books</a></li>' ).appendTo( menu );
 
+		this.handleDelayedResize();
+		
 	}
-	
-	/*ScalarHeader.prototype.buildAdminMenu = function() {
-	
-		// gather the main menu items
-		var menu = $('<div class="menu"><ul></ul></div>').appendTo(this.element);
-		var menuList = menu.find('ul');
-		
-		listItem = $('<ul>Dashboard</ul>').appendTo(menuList);
-		listItem = $('<ul>Import</ul>').appendTo(menuList);
-		
-		// add them
-		if (n > 0) {
-			var tocNode, listItem;
-			for (i=0; i<n; i++) {
-				tocNode = menuItems[i];
-				listItem = $('<li>'+tocNode.getDisplayTitle()+'</li>').appendTo(menuList);
-				listItem.data('url', tocNode.url);
-				listItem.click(function() {
-					window.location = addTemplateToURL($(this).data('url'), 'cantaloupe');
-				});
-			}
-		}
-		
-		listItem = $('<p class="unordered">Index</p>').appendTo(menuList);
-		
-		// wait a bit before setting up rollovers to avoid accidental triggering of the menu
-		setTimeout(function() {
-		
-			$('#home_menu_link').mouseenter(function(e) {
-				$(this).css('backgroundColor', '#eee');
-				$('#main_menu').show();
-			});
-		
-			$('#home_menu_link').click(function(e) {
-				if ($('#main_menu').css('display') == "block") {
-					$(this).css('backgroundColor', '#fff');
-					$('#main_menu').hide();
-				} else {
-					$(this).css('backgroundColor', '#eee');
-					$('#main_menu').show();
-				}
-				e.stopImmediatePropagation();
-			});
-			
-			$('#main_menu').mouseleave(function() {
-				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#main_menu').hide();
-			})
-			
-			$('body').click(function() {
-				$('#home_menu_link').css('backgroundColor', 'inherit');
-				$('#main_menu').hide();
-			});
-		
-		}, 1000);
-	
-	}*/
 			
     $.fn[pluginName] = function ( options ) {
         return this.each(function () {
