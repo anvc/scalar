@@ -382,13 +382,16 @@ function handleFlashVideoMetadata(data) {
 		jQuery.MediaElementController.prototype.handleMetadata = function(json) {
 			
 			me.model.node = scalarapi.model.nodesByURL[me.model.meta];
-			me.model.mediaSource = me.model.node.current.mediaSource;
-			me.view.beginSetup();
 			
-			// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
-			// will take care of displaying the annotations)
-			if ((me.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
-				me.view.parseAnnotations();
+			if ( me.model.node != null ) {
+				me.model.mediaSource = me.model.node.current.mediaSource;
+				me.view.beginSetup();
+				
+				// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
+				// will take care of displaying the annotations)
+				if ((me.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
+					me.view.parseAnnotations();
+				}
 			}
 			
 			$('body').trigger('mediaElementMetadataHandled', [$(link)]);

@@ -158,10 +158,14 @@ function wrapOrphanParagraphs(selection) {
 	selection.each(function() {
 	  	var buffer = null;
 	  	$(this).contents().each(function() {
-	  		if ($(this).is('p,div')) {
+	  		if ($(this).is('p,div,br')) {
 	  			if (buffer != null) {
 	  				$(buffer).wrapAll('<div></div>');
 	  				buffer = null;
+	  			}
+	  			// remove the element if it contains only whitespace
+	  			if( $(this).text().trim().length < 1 ) {
+	  				$(this).remove();
 	  			}
 	  		} else {
 	  			if (buffer == null) {
