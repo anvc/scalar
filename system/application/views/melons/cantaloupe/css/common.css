@@ -252,7 +252,7 @@ nav a:hover, nav a:active {
 
 /* ---- */
 
-.image_header { height: 50rem; background-attachment: fixed; background-size: cover; margin-bottom: 4.8rem; }
+.image_header { height: 50rem; /*background-attachment: fixed;*/ background-size: cover; margin-bottom: 4.8rem; }
 .image_header .title_card { 
 	position: inherit;
 	width: 66%; 
