@@ -126,9 +126,9 @@
 				}
 					
 				if ( okToProceed ) {
-					var overlay = $('<div class="media_sidebar caption_font"><h2>'+mediaelement.model.node.getDisplayTitle()+'</h2><p>'+mediaelement.model.node.current.mediaSource.name+' '+mediaelement.model.node.current.mediaSource.contentType+'</p></div>').prependTo(mediaelement.model.element.parent());
+					var overlay = $('<div class="media_sidebar caption_font"><h2>'+mediaelement.model.node.getDisplayTitle()+'</h2></div>').prependTo(mediaelement.model.element.parent());
 					var sourceCitations = $('<div class="citations"></div>').appendTo(overlay);
-					var otherCitations = $('<div class="citations"><h3>Other appearances of this media</h3></div>').appendTo(overlay);
+					var otherCitations = $('<div class="citations"><h3>Other citations of this media</h3></div>').appendTo(overlay);
 					var citations;
 					var i, relation, relations;
 	
@@ -205,7 +205,7 @@
 					
 					if (sourceCitations.text() == '') {
 						sourceCitations.remove();
-						otherCitations.find('h3').text('Appearances of this media');
+						otherCitations.find('h3').text('Citations of this media');
 					}
 					if (otherCitations.children().length == 1) {
 						otherCitations.remove();

@@ -167,7 +167,7 @@ foreach ($models as $rel):
 <? 				if (isset($inward_item->versions[0]->$outward_rel) && !empty($inward_item->versions[0]->$outward_rel)): ?>
 				<!-- Items that the inward item contains -->
 				<aside>
-					<h4>This page is <?=(('a'==substr($rel,0,1))?'an':'a')?> <?=singular($rel)?> of:</h4>
+					<h4>Contents of this <?=singular($rel)?>:</h4>
 					<ol class="<?=singular($rel)?>_of">
 <?					foreach ($inward_item->versions[0]->$outward_rel as $key => $outward_item): 
 						$family_rel = '';
@@ -215,7 +215,7 @@ foreach ($models as $rel):
 	if (!empty($outward_array)):
 ?>
 	<section>
-		<h1>This page is <?=(('a'==substr($rel,0,1))?'an':'a')?> <?=singular($rel)?> of:</h1>
+		<h1>Contents of this <?=singular($rel)?>:</h1>
 		<ol class="<?=singular($rel)?>_of">
 <? 
 		foreach ($outward_array as $outward_item): 

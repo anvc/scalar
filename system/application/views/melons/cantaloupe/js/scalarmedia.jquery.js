@@ -196,7 +196,7 @@
 				}
 			}
 			
-			var metadataTab = $('<div class="media_tab">Metadata</div>').appendTo(mediaTabs);
+			var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
 			var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
 			metadataTab.click(function() {
 				$(this).parent().parent().find('.pane').hide();
@@ -232,9 +232,14 @@
 				foundAuxContent = true;
 			}
 			
-			var detailsTab = $( '<div class="media_tab">Details</div>' ).appendTo( mediaTabs );
+			var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
 			detailsTab.click( function() {
 				media.options[ 'details' ].show( node );
+			} );
+			
+			var sourceTab = $( '<div class="media_tab">Source</div>' ).appendTo( mediaTabs );
+			sourceTab.click( function() {
+				window.open( node.current.sourceFile, 'popout' );
 			} );
 			
 			/*

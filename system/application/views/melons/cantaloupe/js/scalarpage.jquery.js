@@ -83,6 +83,11 @@
 						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': !isMobile, 'details': page.mediaDetails });
 					}
 				}
+				if ( mediaelement.model.node.current.mediaSource.contentType == 'image' ) {
+					mediaelement.model.element.find( '.mediaObject' ).click( function() {
+						window.open( mediaelement.model.node.current.sourceFile, 'popout' );
+					} ).css( 'cursor', 'pointer' );
+				}
 				mediaelement.model.element.css('visibility','visible');
 				link.addClass('texteo_icon');
 				link.addClass('texteo_icon_'+mediaelement.model.node.current.mediaSource.contentType);
@@ -192,7 +197,7 @@
 						nodes = currentNode.getRelatedNodes('path', 'outgoing');
 						if (nodes.length > 0) {
 							button = $( '<p><a class="nav_btn primary" href="' + nodes[ 0 ].url + '?path=' + 
-								currentNode.slug + '">Begin this path at “' + nodes[0].getDisplayTitle() +
+								currentNode.slug + '">Begin with “' + nodes[0].getDisplayTitle() +
 								'”</a></p>' ).appendTo( section );
 							pathOptionCount++;
 						}
@@ -318,7 +323,13 @@
 					if ($(this).parent().is('section')) {
 						section = $(this).parent();
 						section.addClass('relationships');
-						section.find('h1').text('Annotates');
+						if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Composite' ) {
+							section.find('h1').text('This page annotates:');
+						} else if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media' ) {
+							section.find('h1').text('This media annotates:');
+						} else {
+							section.find('h1').text('This content annotates:');
+						}
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
 						section.show();
 
