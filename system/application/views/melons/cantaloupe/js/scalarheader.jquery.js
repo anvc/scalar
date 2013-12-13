@@ -92,6 +92,12 @@
 		// Header controls
 		var list = $( '<ul></ul>' ).appendTo( this.element );
 		
+		// Home
+		list.append( '<li id="home-item"><img src="' + this.options.root_url + '/images/home_icon.png" alt="Click to go to home page." width="30" height="30" /></li>' );
+		$( '#home-item' ).click(function() {
+			document.location = addTemplateToURL( $('#book-title').parent().attr("href"), 'cantaloupe');
+		});
+		
 		// Main menu
 		list.append( '<li id="main-menu-item"><img src="' + this.options.root_url + '/images/menu_icon.png" alt="Main menu. Roll over to access navigation to primary sections." width="30" height="30" /></li>' );
 		
@@ -306,7 +312,7 @@
 	ScalarHeader.prototype.handleDelayedResize = function() {
 	
 		var maxHeight = ( ( Math.floor( ( ( window.innerHeight - 50 ) * .8 ) / 50 ) * 50 ) + 25 ) + 'px';
-		var maxWidth = Math.round( window.innerWidth * .8 ) + 'px';
+		var maxWidth = Math.round( window.innerWidth - 108 ) + 'px';
 		$( '#main-menu' ).css( {
 			'maxHeight': maxHeight,
 			'maxWidth': maxWidth
@@ -338,7 +344,7 @@
 				n = menuItems.length;
 			
 			// Book title is always first
-			listItem = $( '<li><a href="' + $('#book-title').parent().attr("href") + '">' + $( '#book-title' ).text() + '</a></li>' ).appendTo( menu );
+			//listItem = $( '<li><a href="' + $('#book-title').parent().attr("href") + '">' + $( '#book-title' ).text() + '</a></li>' ).appendTo( menu );
 			
 			// Next, items in the book's main menu
 			if (n > 0) {
