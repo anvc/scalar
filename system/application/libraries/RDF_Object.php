@@ -170,6 +170,15 @@ class RDF_Object {
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
 		$settings = $this->_settings($settings);
+		
+		// Publisher
+		if($settings['book']->publisher) {
+	 		$pub = new stdClass;
+	 		$pub->title = $settings['book']->publisher;
+	 		$pub->publisher_thumbnail = $settings['book']->publisher_thumbnail;
+	 		$pub->type = 'Resource';			
+			$settings['book']->publisher = $settings['base_uri'].'publisher';
+		}
     	
 		// Write TOC URI first, to make the output reader friendly
 	 	$settings['book']->table_of_contents = $settings['base_uri'].'toc';
@@ -186,17 +195,19 @@ class RDF_Object {
 		// Book node
 	 	$return[rtrim($settings['base_uri'],'/')] = $CI->books->rdf($settings['book'], $settings['base_uri']);
 
+	 	$return[$settings['base_uri'].'publisher'] = $CI->versions->rdf($pub);
+	 	
 	 	// Table of contents
 	 	$toc = new stdClass;
 	 	$toc->title = 'Main Menu';
 	 	$toc->type = 'Page';
-	 	$toc->references = array();	 	
+	 	$toc->references = array();	 
 	 	$toc_content = $CI->books->get_book_versions($settings['book']->book_id, true);
 		foreach ($toc_content as $row) {
 			$toc->references[] = $settings['base_uri'].$row->slug.$this->_annotation_append($row);
 		}	 	
 	 	$return[$settings['base_uri'].'toc'] = $CI->versions->rdf($toc);
-	 	
+
 	 	// Users
 		foreach ($settings['users'] as $row) {
 			$return[$settings['base_uri'].'users/'.$row->user_id] = $CI->users->rdf($row);

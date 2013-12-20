@@ -27,7 +27,6 @@ $config['rdf_fields'] = array(
 		'type' => 					'rdf:type',
 		'name' =>					'foaf:name',
 		'homepage' =>				'foaf:homepage',
-		'user' =>					'foaf:homepage', 
 		'fullname' =>				'dcterms:creator',
 		'title' => 					'dcterms:title',
 		'description' => 			'dcterms:description',
@@ -41,6 +40,7 @@ $config['rdf_fields'] = array(
 		'has_reference' =>			'dcterms:isReferencedBy',
 		'replaces' =>				'dcterms:replaces',
 		'replaced_by' =>			'dcterms:isReplacedBy',
+		'publisher' =>				'dcterms:publisher',
 		'background' =>				'scalar:background',	
 		'color' => 					'scalar:color',
 		'audio' => 					'scalar:audio',
@@ -54,6 +54,7 @@ $config['rdf_fields'] = array(
 		'users' =>					'sioc:has_owner',
 		'url' =>			    	'art:url',
 		'thumbnail' => 				'art:thumbnail',
+		'publisher_thumbnail' =>	'art:thumbnail',
 		'has_body' => 				'oac:hasBody',
 		'has_target' =>				'oac:hasTarget'
 );			   
@@ -140,21 +141,4 @@ $config['ontologies']['art'] = array(
 			'vitalDates', 
 			'width'			
 );	
-
-// Internet Archive allowable filetypes when importing
-$config['internet_archive']['filetypes'] = array(
-			'MPEG4',
-			'512Kb+MPEG4',
-			'h.264',
-			'WAVE',
-			'QuickTime',
-			'160Kbps+MP3',
-			'128Kbps+MP3',
-			'64Kbps+MP3',
-			'56Kbps+MP3',
-			'VBR+MP3',
-			'JPEG+Thumb',
-			'JPEG',
-			'Text+PDF'
-);
 ?>
