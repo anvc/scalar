@@ -195,8 +195,11 @@ class RDF_Object {
 		// Book node
 	 	$return[rtrim($settings['base_uri'],'/')] = $CI->books->rdf($settings['book'], $settings['base_uri']);
 
-	 	$return[$settings['base_uri'].'publisher'] = $CI->versions->rdf($pub);
-	 	
+	 	// Publisher
+	 	if($settings['book']->publisher) {
+	 		$return[$settings['base_uri'].'publisher'] = $CI->versions->rdf($pub);
+	 	}
+	 		
 	 	// Table of contents
 	 	$toc = new stdClass;
 	 	$toc->title = 'Main Menu';
