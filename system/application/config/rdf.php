@@ -22,11 +22,29 @@ $config['namespaces'] = array(
   						'shoah'		=> 'http://tempuri.org/'
 					   );
 					   
+// Internet Archive allowable filetypes when importing
+$config['internet_archive']['filetypes'] = array(
+	'MPEG4',
+	'512Kb+MPEG4',
+	'h.264',
+	'WAVE',
+	'QuickTime',
+	'160Kbps+MP3',
+	'128Kbps+MP3',
+	'64Kbps+MP3',
+	'56Kbps+MP3',
+	'VBR+MP3',
+	'JPEG+Thumb',
+	'JPEG',
+	'Text+PDF'
+);					   
+					   
 // Database fields to namespace
 $config['rdf_fields'] = array(
 		'type' => 					'rdf:type',
 		'name' =>					'foaf:name',
 		'homepage' =>				'foaf:homepage',
+		'user' => 					'foaf:homepage',
 		'fullname' =>				'dcterms:creator',
 		'title' => 					'dcterms:title',
 		'description' => 			'dcterms:description',
