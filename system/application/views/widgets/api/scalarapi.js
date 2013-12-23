@@ -649,6 +649,15 @@ ScalarAPI.prototype.getFileExtension = function(uri) {
 	if (ext == parseFloat(ext)) return '';
 	if (ext.charAt(ext.length - 1) == '#') ext = ext.substr(0, ext.length - 1);
 	return ext;
+}	
+	
+/**
+ * Removes HTML markup from the specified string.
+ *
+ * @return	The modified string.
+ */
+ScalarAPI.prototype.removeMarkup = function( string ) {
+	return string.replace(/<\/?[^>]+>/gi, '');
 }
 
 /**
@@ -2921,7 +2930,7 @@ ScalarNode.prototype.addRelation = function(relation) {
  *
  * @return	A string containing the node's display title.
  */
-ScalarNode.prototype.getDisplayTitle = function() {
+ScalarNode.prototype.getDisplayTitle = function( removeMarkup ) {
 
 	var displayTitle = scalarapi.untitledNodeString;
 	if (this.current) {
@@ -2930,6 +2939,10 @@ ScalarNode.prototype.getDisplayTitle = function() {
 		}
 	} else if (this.title) {
 		displayTitle = this.title;
+	}
+	
+	if ( removeMarkup ) {
+		displayTitle = scalarapi.removeMarkup( displayTitle );
 	}
 	
 	// add parenthetical numbering if we suspect this media node is a duplicate

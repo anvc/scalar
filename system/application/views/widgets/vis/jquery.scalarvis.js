@@ -302,7 +302,7 @@ function handleViewTypeClick(radioBtn) {
 		// pop-up that shows information about the selected node
 		this.nodeInfoBox = function(d) { 
 			var str = '<div class="arrow"></div><div class="content"><p><strong>';
-			str += d.getDisplayTitle();
+			str += d.getDisplayTitle( true );
 			str += '</strong></p>';
 			var description;
 			var relatedNodes;
@@ -566,7 +566,7 @@ function handleViewTypeClick(radioBtn) {
 					o = pathContents.length;
 					for (j=0; j<o; j++) {
 						destNode = pathContents[j];
-						destData = {name:destNode.getDisplayTitle(), node:destNode, children:null};
+						destData = {name:destNode.getDisplayTitle( true ), node:destNode, children:null};
 						if (destNode == home) destData.name += ' [Home]';
 						//comboUrl = sourceData.node.url+destData.node.url;
 						sourceData.children.push(destData);
@@ -591,7 +591,7 @@ function handleViewTypeClick(radioBtn) {
 					n = containingPaths.length;
 					for (i=0; i<n; i++) {
 						node = containingPaths[i];
-						data = {name:node.getDisplayTitle(), node:node, type:'pseudo', children:null};
+						data = {name:node.getDisplayTitle( true ), node:node, type:'pseudo', children:null};
 						root.children.push(data);
 						getRelationsForData(data);
 					}
@@ -599,7 +599,7 @@ function handleViewTypeClick(radioBtn) {
 				// otherwise, make the home node next in the hierarchy and parse its
 				// children
 				} else {
-					data = {name:home.getDisplayTitle() +' [Home]', node:home, children:null};
+					data = {name:home.getDisplayTitle( true ) +' [Home]', node:home, children:null};
 					root.children.push(data);
 					getRelationsForData(data);
 				}
@@ -615,7 +615,7 @@ function handleViewTypeClick(radioBtn) {
 				for (i=0 ;i<n; i++) {
 					node = paths[i];
 					if (processedNodes.indexOf(node) == -1) {
-						data = {name:node.getDisplayTitle(), node:node, children:null};
+						data = {name:node.getDisplayTitle( true ), node:node, children:null};
 						pathChildren.push(data);
 						getRelationsForData(data);
 					}
@@ -785,7 +785,7 @@ function handleViewTypeClick(radioBtn) {
 				// add each file to the array of nodes
 				node = rawMediaNodes[i];
 				if (!this.mediaNodesByURL[node.url]) {
-					datum = {index:this.mediaNodes.length, node:node, title:node.getDisplayTitle(), shortTitle:this.getShortenedString(node.getDisplayTitle(), maxNodeChars), type:node.getDominantScalarType().id};
+					datum = {index:this.mediaNodes.length, node:node, title:node.getDisplayTitle( true ), shortTitle:this.getShortenedString(node.getDisplayTitle( true ), maxNodeChars), type:node.getDominantScalarType().id};
 					this.mediaNodesByURL[node.url] = datum;
 					this.mediaNodes.push(datum);
 				} else {
@@ -800,7 +800,7 @@ function handleViewTypeClick(radioBtn) {
 					// add them to the array of nodes
 					targetNode = referencingNodes[j];
 					if (!this.mediaNodesByURL[targetNode.url]) {
-						targetDatum = {index:this.mediaNodes.length, node:targetNode, title:targetNode.getDisplayTitle(), shortTitle:this.getShortenedString(targetNode.getDisplayTitle(), maxNodeChars), type:targetNode.getDominantScalarType().id};
+						targetDatum = {index:this.mediaNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 						this.mediaNodesByURL[targetNode.url] = targetDatum;
 						this.mediaNodes.push(targetDatum);
 					} else {
@@ -823,7 +823,7 @@ function handleViewTypeClick(radioBtn) {
 					// add them to the array of nodes
 					targetNode = annotatingNodes[j];
 					if (!this.mediaNodesByURL[targetNode.url]) {
-						targetDatum = {index:this.mediaNodes.length, node:targetNode, title:targetNode.getDisplayTitle(), shortTitle:this.getShortenedString(targetNode.getDisplayTitle(), maxNodeChars), type:targetNode.getDominantScalarType().id};
+						targetDatum = {index:this.mediaNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 						this.mediaNodesByURL[targetNode.url] = targetDatum;
 						this.mediaNodes.push(targetDatum);
 					} else {
@@ -1008,7 +1008,7 @@ function handleViewTypeClick(radioBtn) {
 						}
 					 })
 					.attr('font-weight', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
-					.text(function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.node.getDisplayTitle() : d.shortTitle; });
+					.text(function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.node.getDisplayTitle( true ) : d.shortTitle; });
 					
 			}
 		
@@ -1071,7 +1071,7 @@ function handleViewTypeClick(radioBtn) {
 			for (i=0; i<n; i++) {
 				node = this.selectedNodes[i];
 				if (!this.tagNodesByURL[node.url]) {
-					datum = {index:this.tagNodes.length, node:node, title:node.getDisplayTitle(), shortTitle:this.getShortenedString(node.getDisplayTitle(), maxNodeChars), type:node.getDominantScalarType().id};
+					datum = {index:this.tagNodes.length, node:node, title:node.getDisplayTitle( true ), shortTitle:this.getShortenedString(node.getDisplayTitle( true ), maxNodeChars), type:node.getDominantScalarType().id};
 					this.tagNodesByURL[node.url] = datum;
 					this.tagNodes.push(datum);
 				} else {
@@ -1089,7 +1089,7 @@ function handleViewTypeClick(radioBtn) {
 				// add each tag to the array of nodes
 				node = rawTagNodes[i];
 				if (!this.tagNodesByURL[node.url]) {
-					datum = {index:this.tagNodes.length, node:node, title:node.getDisplayTitle(), shortTitle:this.getShortenedString(node.getDisplayTitle(), maxNodeChars), type:node.getDominantScalarType().id};
+					datum = {index:this.tagNodes.length, node:node, title:node.getDisplayTitle( true ), shortTitle:this.getShortenedString(node.getDisplayTitle( true ), maxNodeChars), type:node.getDominantScalarType().id};
 					this.tagNodesByURL[node.url] = datum;
 					this.tagNodes.push(datum);
 				} else {
@@ -1105,7 +1105,7 @@ function handleViewTypeClick(radioBtn) {
 					// add them to the array of nodes
 					targetNode = taggedNodes[j];
 					if (!this.tagNodesByURL[targetNode.url]) {
-						targetDatum = {index:this.tagNodes.length, node:targetNode, title:targetNode.getDisplayTitle(), shortTitle:this.getShortenedString(targetNode.getDisplayTitle(), maxNodeChars), type:targetNode.getDominantScalarType().id};
+						targetDatum = {index:this.tagNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 						this.tagNodesByURL[targetNode.url] = targetDatum;
 						this.tagNodes.push(targetDatum);
 					} else {
@@ -1129,7 +1129,7 @@ function handleViewTypeClick(radioBtn) {
 						// add them to the array of nodes
 						targetNode = taggingNodes[j];
 						if (!this.tagNodesByURL[targetNode.url]) {
-							targetDatum = {index:this.tagNodes.length, node:targetNode, title:targetNode.getDisplayTitle(), shortTitle:this.getShortenedString(targetNode.getDisplayTitle(), maxNodeChars), type:targetNode.getDominantScalarType().id};
+							targetDatum = {index:this.tagNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 							this.tagNodesByURL[targetNode.url] = targetDatum;
 							this.tagNodes.push(targetDatum);
 						} else {
@@ -1490,7 +1490,7 @@ function handleViewTypeClick(radioBtn) {
 				// children will be the end of the line; no sub-groups need to be created
 				} else {
 					for (j=0; j<n; j++) {
-						curChild = {title:childNodes[j].getDisplayTitle(), shortTitle:me.getShortenedString(childNodes[j].getDisplayTitle(), maxNodeChars), type:indexType.id, isTopLevel:false, node:childNodes[j], parent:curNode};
+						curChild = {title:childNodes[j].getDisplayTitle( true ), shortTitle:me.getShortenedString(childNodes[j].getDisplayTitle( true ), maxNodeChars), type:indexType.id, isTopLevel:false, node:childNodes[j], parent:curNode};
 						/*if (childNodes[j].current) {
 							curChild = {title:childNodes[j].current.title, shortTitle:me.getShortenedString(childNodes[j].current.title, maxNodeChars), type:indexType.id, isTopLevel:false, node:childNodes[j], parent:curNode};
 						} else {
@@ -2171,7 +2171,7 @@ function handleViewTypeClick(radioBtn) {
 				node = sortedNodes[j];
 				
 				// non-page/media nodes don't have anything in their 'current' property
-				datum = {title:node.getDisplayTitle(), shortTitle:this.getShortenedString(node.getDisplayTitle(), 20), node:node, row:rows.length, column:row.data.length};
+				datum = {title:node.getDisplayTitle( true ), shortTitle:this.getShortenedString(node.getDisplayTitle( true ), 20), node:node, row:rows.length, column:row.data.length};
 				row.data.push(datum);
 				/*if (node.current) {
 					datum = {title:node.current.title, shortTitle:this.getShortenedString(node.current.title, 20), node:node, row:rows.length, column:row.data.length};
