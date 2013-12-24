@@ -367,7 +367,7 @@
 			},
 			
 			addColophon: function() {
-				$('article').append('<div id="colophon" class="caption_font"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></div>');
+				$('article').append('<div id="colophon" class="caption_font"><p id="scalar-credit"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></p></div>');
 			},
 			
 			setupScreenedBackground: function() {
@@ -439,6 +439,63 @@
 					}
 					noteViewer.append( '<br/><br/><a href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
 				}
+			},
+			
+			handleBook: function() {
+			
+				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				
+				if ( viewType == 'book_splash' ) {
+	
+					var i, n,
+						owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
+						authors = [];
+					if ( owners ) {
+						n = owners.length;
+						for ( i = 0; i < n; i++ ) {
+							authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
+						}
+					}
+					
+					var author,
+						n = authors.length,
+						byline = $( '.title_card > h2' );
+					for ( var i = 0; i < n; i++ ) {
+						author = authors[ i ];
+						if ( i == 0 ) {
+							byline.append( 'by ' );
+						} else if ( i == ( n - 1 )) {
+							if ( n > 2 ) {
+								byline.append( ', and ' );
+							} else {
+								byline.append( ' and ' );
+							}
+						} else {
+							byline.append( ', ' );
+						}
+						byline.append( author.getDisplayTitle() );
+					}
+					
+				}
+				
+				var publisherUrl = scalarapi.model.bookNode.properties[ 'http://purl.org/dc/terms/publisher' ],
+					publisherThumbnail = scalarapi.model.bookNode.properties[ 'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail' ];
+					
+				var publisherInfo = $( '<p id="publisher-credit"></p>' );
+				
+				if ( publisherThumbnail != null ) {
+					publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
+				}
+				
+				if ( publisherUrl != null ) {
+					var publisherNode = scalarapi.getNode( publisherUrl[0].value );
+					if ( publisherNode != null ) {
+						publisherInfo.append( ' ' + publisherNode.getDisplayTitle() );
+					}
+				}
+				
+				$( '#colophon' ).prepend( publisherInfo );
+			
 			},
 			
 			addMediaElements: function() {
@@ -602,41 +659,6 @@
 				$( '.title_card' ).addClass( 'fade_in' );
 				next();
 			} );
-			
-			
-			// load info about the book, build main menu when done
-			scalarapi.loadBook(true, function() {
-				
-				var i, n,
-					owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
-					authors = [];
-				if ( owners ) {
-					n = owners.length;
-					for ( i = 0; i < n; i++ ) {
-						authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
-					}
-				}
-				
-				var author,
-					n = authors.length,
-					byline = $( '.title_card > h2' );
-				for ( var i = 0; i < n; i++ ) {
-					author = authors[ i ];
-					if ( i == 0 ) {
-						byline.append( 'by ' );
-					} else if ( i == ( n - 1 )) {
-						if ( n > 2 ) {
-							byline.append( ', and ' );
-						} else {
-							byline.append( ' and ' );
-						}
-					} else {
-						byline.append( ', ' );
-					}
-					byline.append( author.getDisplayTitle() );
-				}
-				
-			});
 
 			break;
 			
@@ -758,6 +780,8 @@
 			}
 		} );
 		*/
+			
+		$( 'body' ).bind( 'handleBook', page.handleBook );
 				
 		return page;
 	

@@ -378,6 +378,13 @@ $(window).ready(function() {
 					setState(savedState, true);
 				}*/
 				
+		
+				// Load info about the book
+				scalarapi.loadBook(true, function() {
+					$( 'body' ).trigger( 'handleBook' );
+				});
+						
+				
 		  }},
 		  
 		  /*// Slot managers
