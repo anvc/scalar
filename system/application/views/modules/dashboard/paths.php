@@ -37,34 +37,28 @@
 				$the_link.data('orig_html', $the_link.html());
 				var data = {action:'get_container_of',version_id:version_id}
 				$.get('api/get_container_of', data, function(data) {
-						if (data.length == 0) {
-							$the_row.after('<tr class="container_of_wrapper" id="container_of_row_'+version_id+'"><td>&nbsp;</td><td class="odd" colspan="8">No items</td></tr>');
-						} else {
-						   	var $row = $('<tr class="container_of_wrapper" id="container_of_row_'+version_id+'"><td colspan="8" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
-						   	var $header = ('<tr><th></th><th style=\"display:none;\">ID</th><th>Order</th><th>URI</th><th>Title</th><th>Description</th></tr>');
-						   	$row.find('table').html($header);
-						   	$the_row.after($row);			
-						    for (var j in data) {
-						    	var $data_row = $('<tr class="bottom_border container_of_row"></tr>');
-						    	$data_row.html('<td style="white-space:nowrap;width:40px;"></td>');
-								$data_row.append('<td property="id" style="display:none;">'+data[j]['versions'][0]['version_id']+"</td>");
-								$data_row.append('<td style="white-space:nowrap;width:60px;" property="sort_number">'+data[j].sort_number+"</td>");
-								$data_row.append('<td property="slug"><a href="<?=confirm_slash(base_url()).@confirm_slash($book->slug)?>'+data[j].slug+'">'+data[j].slug+"</a></td>");
-								$data_row.append('<td property="title">'+data[j]['versions'][0]['title']+'</td>');
-								$data_row.append('<td class="excerpt" property="description"><span class="full">'+data[j]['versions'][0]['description']+'</span><span class="clip">'+create_excerpt(data[j]['versions'][0]['description'],8)+'</span></td>');
-								$row.find('table').find('tr:last').after($data_row);
-						
-						    }
-						    /*
-						    var $option_row = $('<tr class="bottom_border"></tr>');
-						    $option_row.html('<td style="white-space:nowrap;width:40px;"></td>');
-							$option_row.append('<td colspan="4"><a href="javascript:;" onclick="edit_path_order('+version_id+', this);">edit order</a></td>');
-							$row.find('table').find('tr:last').after($option_row);
-							*/						    			    
-						}
-						$the_link.html($the_link.data('orig_html'));
-						$the_link.blur();
-						$the_link.data('is_open',true);							
+					$('#container_of_row_'+version_id).remove();
+					if (data.length == 0) {
+						$the_row.after('<tr class="container_of_wrapper" id="container_of_row_'+version_id+'"><td>&nbsp;</td><td class="odd" colspan="8">No items</td></tr>');
+					} else {
+						var $row = $('<tr class="container_of_wrapper" id="container_of_row_'+version_id+'"><td colspan="8" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
+						var $header = ('<tr><th></th><th style=\"display:none;\">ID</th><th>Order</th><th>URI</th><th>Title</th><th>Description</th></tr>');
+						$row.find('table').html($header);
+						$the_row.after($row);			
+						for (var j in data) {
+							var $data_row = $('<tr class="bottom_border container_of_row"></tr>');
+							$data_row.html('<td style="white-space:nowrap;width:40px;"></td>');
+							$data_row.append('<td property="id" style="display:none;">'+data[j]['versions'][0]['version_id']+"</td>");
+							$data_row.append('<td style="white-space:nowrap;width:60px;" property="sort_number">'+data[j].sort_number+"</td>");
+							$data_row.append('<td property="slug"><a href="<?=confirm_slash(base_url()).@confirm_slash($book->slug)?>'+data[j].slug+'">'+data[j].slug+"</a></td>");
+							$data_row.append('<td property="title">'+data[j]['versions'][0]['title']+'</td>');
+							$data_row.append('<td class="excerpt" property="description"><span class="full">'+data[j]['versions'][0]['description']+'</span><span class="clip">'+create_excerpt(data[j]['versions'][0]['description'],8)+'</span></td>');
+							$row.find('table').find('tr:last').after($data_row);
+						}					    			    
+					}
+					$the_link.html($the_link.data('orig_html'));
+					$the_link.blur();
+					$the_link.data('is_open',true);							
 				});
 			} else {
 				$('#container_of_row_'+version_id).remove();

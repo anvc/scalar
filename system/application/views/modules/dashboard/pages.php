@@ -115,17 +115,17 @@
 				return false;
 			}
 		}
-		function pages_get_versions(content_id, the_link) {
-			
+		function pages_get_versions(content_id, the_link) {	
 			var $the_link = $(the_link);
 			if ($the_link.html()=='Loading...') return;
-			
 			// Get versions
 			if (!$the_link.data('is_open')) {
 				$the_link.data('orig_html', $the_link.html());
 				$the_link.blur();
 				var $the_row = $('#content_row_'+content_id)
 				$.get('api/get_versions', {content_id:content_id}, function(data) {
+					var $next = $the_link.parent().parent().next();
+					if ($next.hasClass('version_wrapper')) $next.remove();					
 					if (data.length == 0) {
 						$the_row.after('<tr class="version_wrapper"><td>&nbsp;</td><td class="odd" colspan="8">No versions entered</td></tr>');
 					} else {
@@ -134,7 +134,6 @@
 					   	$row.find('table').html($header);
 					   	$the_row.after($row);			
 					    for (var j = 0; j < data.length; j++) {
-		
 					    	var $data_row = $('<tr class="bottom_border" id="version_row_'+data[j].version_id+'" typeof="versions"></tr>');
 					    	$data_row.html('<td style="white-space:nowrap;"><input type="checkbox" name="version_id_'+data[j].version_id+'" value="1" />&nbsp; <a href="javascript:;" onclick="edit_row($(this).parent().parent());" class="generic_button">Edit</a></td>');
 							$data_row.append('<td property="id" style="display:none;">'+data[j].version_id+"</td>");
@@ -143,9 +142,7 @@
 							$data_row.append('<td class="editable textarea excerpt" property="description"><span class="full">'+data[j].description+'</span><span class="clip">'+create_excerpt(data[j].description,8)+'</span></td>');
 							$data_row.append('<td class="editable textarea excerpt" property="content"><span class="full">'+data[j].content+'</span><span class="clip">'+create_excerpt(data[j].content,8)+'</span></td>');
 							$row.find('table').find('tr:last').after($data_row);
-					
-					    }
-					    
+					    }	    
 						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Reset version numbers</a></td><td colspan="2"</td></tr>');
 						$data_row.after($reorder);
 						$reorder.find('a:first').click(function() {
@@ -155,7 +152,6 @@
 								pages_get_versions(content_id, the_link);
 							});
 						});					    
-					    
 						$the_link.html($the_link.data('orig_html'));
 						$the_link.blur();
 						$the_link.data('is_open',true);				    
