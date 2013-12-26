@@ -71,7 +71,7 @@ class RDF_Object {
 		
     }
     
-    public function serialize(&$return=null, $format=xml) {
+    public function serialize(&$return=null, $format='xml') {
 
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->rdf_store)) $CI->load->library('RDF_Store', 'rdf_store');  

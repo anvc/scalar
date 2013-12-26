@@ -151,18 +151,20 @@ class RDF_Store {
 	public function serialize($index, $prefix='', $format='xml') {	
 		
 		if (!empty($prefix)) $this->ns['scalar'] = $prefix;
-		
-		$conf = array('ns' => $this->ns, 'serializer_prettyprint_container' => true); // , 'serializer_type_nodes' => true
-		$ser =@ ARC2::getRDFXMLSerializer($conf);
 
 		switch (strtolower($format)) {
-			case 'xml':
-				$doc =@ $ser->getSerializedIndex( $index );	
-				break;
 			case 'json';
 				$parser =@ ARC2::getRDFParser();
 				$doc =@ $parser->toRDFJSON( $index );
-				break;							
+				break;	
+			case 'turtle':
+				$parser =@ ARC2::getRDFParser();
+				$doc =@ $parser->toTurtle( $index, $this->ns );			
+				break;
+			default:  // xml
+				$conf = array('ns' => $this->ns, 'serializer_prettyprint_container' => true); // , 'serializer_type_nodes' => true
+				$ser =@ ARC2::getRDFXMLSerializer($conf);				
+				$doc =@ $ser->getSerializedIndex( $index );				
 		}
 
 		return $doc;  					

@@ -63,7 +63,7 @@ class Rdf extends MY_Controller {
 			};			
 		}
 		// Format (e.g., 'xml', 'json')
-		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
+		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle');
 		$this->data['format'] = (isset($_REQUEST['format']) && array_key_exists($_REQUEST['format'],$allowable_formats)) ? $allowable_formats[$_REQUEST['format']] : $allowable_formats[key($allowable_formats)];
 		$ext = get_ext($this->uri->uri_string());
 		$this->data['format'] = (!empty($ext) && array_key_exists($ext,$allowable_formats)) ? $allowable_formats[$ext] : $this->data['format'];
