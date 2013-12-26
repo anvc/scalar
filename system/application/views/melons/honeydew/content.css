@@ -435,7 +435,7 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 	min-height: 48px; text-align:left; line-height:122%;
 }
 
-#page_created_by, #version_created_by {display:none;}
+#page_created_by, #version_created_by, #screen-version-id {display:none;}
 
 /* Content preview */
 /* TODO: move this to a seperate file at some point */

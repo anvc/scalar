@@ -21,23 +21,42 @@
 /**
  * @projectDescription	Model for versions database table
  * @author				Craig Dietrich
- * @version				2.2
+ * @version				2.3
  */
 
 class Version_model extends MY_Model {
 
-    public function __construct() {
-    	
-        parent::__construct();
-        
-    }
-  
+    public function __construct() { parent::__construct(); }
+    
+	/**
+	 * Return the URN of a version (e.g., urn:scalar:version:12345) based on a version ID
+	 */
     public function urn($pk=0) {
     	
     	return $this->version_urn($pk);
     	
     }    
     
+	/**
+	 * Return a version's URL segment with version number included (e.g., version-slug.#), for Scalar's URL rewriting
+	 */      
+    public function slug($version_id=0) {
+    	
+    	$this->db->select($this->versions_table.'.version_num');
+    	$this->db->select($this->pages_table.'.slug');
+    	$this->db->from($this->versions_table);
+    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
+    	$this->db->where($this->versions_table.'.version_id',$version_id);
+    	$query = $this->db->get();
+    	if (mysql_errno()!=0) die(mysql_error());
+    	$result = $query->result();
+    	return $result[0]->slug.'.'.$result[0]->version_num;
+    	
+    }     
+    
+	/**
+	 * Return an RDF object based an a $row
+	 */    
   	public function rdf($row, $prefix='') {
   		
   		$row->type = (isset($row->type)) ? $row->type : 'version';
@@ -64,18 +83,30 @@ class Version_model extends MY_Model {
   		
   	}
     
-    public function get($version_id=0) {
+	/**
+	 * Return a version row based on a version ID; sending an optional search query will filter the result
+	 */  	
+    public function get($version_id=0, $sq='') {
 
+    	$ci =& get_instance();  // for use with the rdf_store
+    	
 		$this->db->where('version_id', $version_id);
     	$query = $this->db->get($this->versions_table);
     	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize($result[0]->attribution);
+    	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+
+        if (!empty($sq) && !self::filter_result_i($result[0], $sq)) unset($result[0]);
+    	
     	return $result[0];    	
     	
     }       
     
+	/**
+	 * Return all versions given a content ID; the most recent version can be found by sending (content_id, null, 1)
+	 */    
     public function get_all($content_id=0, $version_datetime=null, $limit=null, $sq='') {
 
 		$ci =& get_instance();  // for use with the rdf_store
@@ -88,7 +119,7 @@ class Version_model extends MY_Model {
     	$query = $this->db->get($this->versions_table);
     	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
-  
+
         if (!empty($sq)) {
     		for ($j = (count($result)-1); $j >= 0; $j--) {
     			if (!self::filter_result_i($result[$j], $sq)) unset($result[$j]);
@@ -105,21 +136,9 @@ class Version_model extends MY_Model {
     	
     }     
     
-    public function filter_result_i($result, $sq) {
-    	
-    	$result = (array) $result;
-    	$results = array();
-        
-        foreach ($sq as $term) {
-    		foreach($result as $key => $value) { 
-        		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term; 
-    		}   
-        }
-        if (count($results)==count($sq)) return true;
-        return false;
-    	
-    }
-    
+	/**
+	 * Return version row of a specific version num, for a content ID
+	 */       
     public function get_by_version_num($content_id=0, $version_num=0) {
     	
     	$this->db->where('content_id', $content_id);
@@ -132,6 +151,9 @@ class Version_model extends MY_Model {
     	
     } 
     
+	/**
+	 * Return version row based on the URL field
+	 */         
     public function get_by_url($url='', $is_live=false) {
     	
     	$this->db->where('url', $url);
@@ -144,6 +166,10 @@ class Version_model extends MY_Model {
     	
     }        
     
+	/**
+	 * Return the book ID given a version ID
+	 * TODO: This should be renamed get_book_id(...)
+	 */         
     public function get_book($version_id=0) {
     	
     	$this->db->select($this->pages_table.'.book_id');
@@ -158,6 +184,9 @@ class Version_model extends MY_Model {
     	
     }
     
+	/**
+	 * Return the URI of a version (e.g., http://.../.../...) based on a version ID
+	 */         
     public function get_uri($version_id=0) {
     	
     	$this->db->select('*');
@@ -170,6 +199,27 @@ class Version_model extends MY_Model {
     	
     }
     
+	/**
+	 * Return the content ID of a version based on its ID
+	 */      
+    public function get_content_id($version_id=0) {
+    	
+    	$this->db->select('content_id');
+    	$this->db->from($this->versions_table);
+    	$this->db->where('version_id', $version_id);
+    	$query = $this->db->get();
+    	if (mysql_errno()!=0) die(mysql_error());
+    	if (!$query->num_rows) return null;
+    	$result = $query->result();
+    	if (!isset($result[0])) return null;
+    	return $result[0]->content_id;    	
+    	
+    }   
+    
+	/**
+	 * Return true of the owner ("user") of a version is the passed user ID
+	 * Note that most permissions-handling will be based on content rather than specific versions
+	 */      
     public function is_owner($user_id=0, $id=0) {
     	
     	$user_id = (int) $user_id;
@@ -186,10 +236,18 @@ class Version_model extends MY_Model {
     	
     }    
   
+	/**
+	 * Delete a versiom based on its ID
+	 * Note that validation is assumed to have already occured (e.g., in the controller)
+	 */      
     public function delete($version_id=0) {
 
     	if (empty($version_id)) return false;
 
+    	$content_id = $this->get_content_id($version_id);
+    	
+    	// Delete version
+    	
 		$this->db->where('version_id', $version_id);
 		$this->db->delete($this->versions_table); 
 		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";	
@@ -238,31 +296,20 @@ class Version_model extends MY_Model {
 		$this->db->delete($this->references_table); 	
 		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";		
 		
-		// RDF Store
+		// RDF store
 		$this->rdf_store->delete_urn($this->urn($version_id));
+		
+		// Reset recent version
+		$this->set_recent_version_id($content_id);
 		
 		return true;
     	
     }    
     
-    // Save is likely to not be used as new 'saves' in the system increment the version number and therefore always 'create'
-    public function save($array=array()) {
-    	
-    	// Get ID
-    	$version_id = $array['id'];
-    	unset($array['id']);
-    	unset($array['section']);
-    	unset($array['ci_session']); 
-    	unset($array['book_id']);	
-		
-		// Save row
-		$this->db->where('version_id', $version_id);
-		$this->db->update($this->versions_table, $array); 
-		if (mysql_errno()!=0) die('MySQL: '.mysql_error());
-		return $array;
-    	
-    }      
-    
+	/**
+	 * Create a new version with the passed content ID as parent
+	 * Note that validation is assumed to have already occured (e.g., in the controller)
+	 */      
     public function create($content_id=0, $array=array()) {
 
     	if ('array'!=gettype($array)) $array = (array) $array;
@@ -317,10 +364,15 @@ class Version_model extends MY_Model {
  			if (!empty($additional_metadata)) $this->rdf_store->save_by_urn($this->urn($version_id), $additional_metadata);
  		}
  		
+ 		$this->set_recent_version_id($content_id, $version_id);
+ 		
  		return $version_id; 
  
     }          
     
+	/**
+	 * A method specific to Scalar paths, that re-orders child versions (pages within the path) within a parent version (path)
+	 */      
     public function save_order($parent_version_id=0, $child_version_ids=array()) {
     	
 		$count = 1;
@@ -337,6 +389,10 @@ class Version_model extends MY_Model {
     	
     }
     
+	/**
+	 * Reset the version number for all versions of a content
+	 * If a user deletes version # 6 of, say, 10, there will be a gap between version # 5 and 7... this resets the numbering
+	 */      
     public function reorder_versions($content_id=0) {
     	
     	if (empty($content_id)) throw new Exception('Could not resolve content ID');
@@ -349,10 +405,16 @@ class Version_model extends MY_Model {
 			$this->db->update($this->versions_table, $data); 
     		$count--;
     	}	
+    	
+    	$this->set_recent_version_id($content_id);
+    	
     	return true;
     	
     }           
     
+	/**
+	 * Set a version's parent content to live or not live, useful if only a version ID is known (and not its parent content ID)
+	 */      
     public function set_live($version_id=0, $bool=true) {
 
     	$ver = $this->get($version_id);
@@ -363,20 +425,55 @@ class Version_model extends MY_Model {
     	
     }    
     
-    public function slug($version_id=0) {
+	/**
+	 * Set a content's recent_version_id field to a version ID
+	 * NOTE: This method should be called at the end of any add or delete action
+	 */      
+    public function set_recent_version_id($content_id=0, $version_id=0) {
     	
-    	$this->db->select($this->versions_table.'.version_num');
-    	$this->db->select($this->pages_table.'.slug');
-    	$this->db->from($this->versions_table);
-    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
-    	$this->db->where($this->versions_table.'.version_id',$version_id);
-    	$query = $this->db->get();
-    	if (mysql_errno()!=0) die(mysql_error());
-    	$result = $query->result();
-    	return $result[0]->slug.'.'.$result[0]->version_num;
+    	if (empty($content_id)) {
+    		if (empty($version_id)) throw new Exception('Invalid version ID attempting to retrieve content ID');
+    		$content_id = (int) $this->get_content_id($version_id);
+    	}
+    	if (empty($version_id)) {
+    		if (empty($content_id)) throw new Exception('Invalid content ID attempting to retrieve version ID');
+    		$version = $this->get_all($content_id, null, 1);
+    		$version_id = (int) $version[0]->version_id;
+    	}
     	
-    }    
+    	if (empty($content_id)) throw new Exception('Invalid content ID attempting to save recent');
+    	if (empty($version_id)) throw new Exception('Invalid version ID attempting to save recent');
 
+    	$this->db->where('content_id',$content_id);
+    	$this->db->set('recent_version_id', $version_id);
+    	$this->db->update($this->pages_table);
+    	if (mysql_errno()!=0) die(mysql_error());
+    	
+    	return true;
+    	
+    }
+    
+	/**
+	 * Filter a DB result of versions based on a search query (an array of terms)
+	 */      
+    public function filter_result_i($result, $sq) {
+    	
+    	$result = (array) $result;
+    	$results = array();
+        
+        foreach ($sq as $term) {
+    		foreach($result as $key => $value) { 
+        		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term; 
+    		}   
+        }
+        if (count($results)==count($sq)) return true;
+        return false;
+    	
+    }       
+    
+	/**
+	 * Return attribution fields as an object, serialized if requested
+	 */ 
     public function build_attribution($fullname='', $ip='', $serialize=true) {
     	
     	$attribution = new stdClass;
@@ -387,6 +484,9 @@ class Version_model extends MY_Model {
     	
     }
     
+	/**
+	 * Determine if a field exists in the set of expected RDF values for a version
+	 */     
     public function rdf_field_exists($field) {
     	
     	foreach ($this->rdf_fields as $value) {

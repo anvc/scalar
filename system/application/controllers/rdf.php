@@ -140,9 +140,7 @@ class Rdf extends MY_Controller {
 			$slug = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
 			$slug = no_version(no_ext(str_replace($this->data['book']->slug.'/', '', $slug))); 
 			$content = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
-			if (empty($content)) {
-				// Don't throw an error here, let through to return empty RDF			
-			}
+			// Don't throw an error here if $content is empty, let through to return empty RDF			
 			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect				
 			$this->rdf_object->index(
 			 						   $this->data['content'],

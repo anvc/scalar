@@ -283,17 +283,24 @@ class RDF_Object {
 		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');		
 		if (!empty($ref_models)) $models = array_merge($models, $ref_models);	
 		
-		// Versions attached to each content
+		// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
-			$row->versions = $CI->versions->get_all(
-													$row->content_id, 
-													((is_int($settings['versions']))?null:$settings['versions']), 
-													((is_int($settings['versions']))?$settings['versions']:1), 
-													$settings['sq']
-												   );
+			if (!is_int($settings['versions']) || empty($row->recent_version_id)) {
+				//echo 'get_all: '.$settings['versions']."\n";
+				$row->versions = $CI->versions->get_all(
+														$row->content_id, 
+														((is_int($settings['versions']))?null:$settings['versions']), 
+														((is_int($settings['versions']))?$settings['versions']:1), 
+														$settings['sq']
+													   );
+			} else {
+				//echo 'get: '.$row->recent_version_id."\n";
+				$row->versions[0] = $CI->versions->get($row->recent_version_id, $settings['sq']);
+			}
 		}
 		if (!count($row->versions)) return null;
 		$row->version_index = 0; 
+		if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $row->versions[$row->version_index]->version_id);
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
 
 		// Relationships
@@ -338,13 +345,21 @@ class RDF_Object {
 		if ('object'!=gettype($CI->references)) $CI->load->model('reference_model','references');	
 
 		// Versions attached to each node
-		$versions = $CI->versions->get_all(
-											$row->content_id, 
-											((is_int($settings['versions']))?null:$settings['versions']), 
-											((is_int($settings['versions']))?$settings['versions']:1), 
-											$settings['sq']
-										  );
+    	if (!is_int($settings['versions']) || empty($row->recent_version_id)) {
+    		//echo 'get_all: '.$settings['versions']."\n";
+			$versions = $CI->versions->get_all(
+												$row->content_id, 
+												((is_int($settings['versions']))?null:$settings['versions']), 
+												((is_int($settings['versions']))?$settings['versions']:1), 
+												$settings['sq']
+											   );
+		} else {
+			//echo 'get: '.$row->recent_version_id."\n";
+			$versions = array();
+			$versions[0] = $CI->versions->get($row->recent_version_id, $settings['sq']);
+		}		
 		if (!count($versions)) return;
+		if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $versions[0]->version_id);
 		
 		// Special fields including references (if applicable)
 		$row->version = $settings['base_uri'].$row->slug.'.'.$versions[0]->version_num; 

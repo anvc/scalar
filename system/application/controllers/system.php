@@ -215,7 +215,7 @@ class System extends MY_Controller {
 		$this->data['deleted'] 		= (isset($_GET['action'])&&'deleted'==$_GET['action']) ? true : false;		
 		$this->data['duplicated']	= (isset($_GET['action'])&&'duplicated'==$_GET['action']) ? true : false;
 		
-	 	// Save
+	 	// Actions
 	 	try {
 		 	switch ($action) { 		
 		 		case 'do_save_style': // Book Properties (method requires book_id)
@@ -307,7 +307,7 @@ class System extends MY_Controller {
 			$this->data['cover_title'] = '<a href="'.confirm_slash(base_url()).$this->data['book']->slug.'">'.$this->data['book']->title.'</a> '.$this->data['cover_title'];
 		}		
 		
-		// Get data for each zone
+		// Get general data for each zone; this is useful for displaying red dots for "not live" content in each tab, even though it's a performance hit
 		$this->data['current_book_users'] =
 		$this->data['current_book_images'] = 
 		$this->data['current_book_versions'] = array();
@@ -323,6 +323,8 @@ class System extends MY_Controller {
 		$this->data['tags_not_live'] = $this->count_not_live($this->data['current_book_tags']);
 		$this->data['annotations_not_live'] = $this->count_not_live($this->data['current_book_annotations']);
 		$this->data['replies_not_live'] = $this->count_not_live($this->data['current_book_replies']);
+		
+		// Get specific data for each zone
 		switch ($this->data['zone']) {
 			case '':
 			case 'user':
@@ -335,49 +337,31 @@ class System extends MY_Controller {
 		    case 'users':
 		        $this->data['current_book_users'] = ($book_id) ? $this->users->get_book_users($book_id) : array();
 		        break;
+		    // Page-types follow, purposely at the bottom of the switch so that they fall into 'default'
 		    case 'pages':
-		        foreach ($this->data['current_book_content'] as $key => $row) {
-					$versions = $this->versions->get_all($row->content_id, null, 1);
-					if (empty($versions)) continue;
-					$this->data['current_book_content'][$key]->versions = $versions;
-							        	
-		        }
-		        break;
+		    	if (!isset($data_key)) $data_key = 'current_book_content';
 		    case 'media':
-		        foreach ($this->data['current_book_files'] as $key => $row) {
-					$versions = $this->versions->get_all($row->content_id, null, 1);
-					if (empty($versions)) continue;
-					$this->data['current_book_files'][$key]->versions = $versions;
-		        }		        
-		        break;
+		       	if (!isset($data_key)) $data_key = 'current_book_files';
 		    case 'paths':
-		        foreach ($this->data['current_book_paths'] as $key => $row) {
-					$versions = $this->versions->get_all($row->content_id, null, 1);
-					if (empty($versions)) continue;
-					$this->data['current_book_paths'][$key]->versions = $versions;
-		        }
-		    	break;
+				if (!isset($data_key)) $data_key = 'current_book_paths';
 		    case 'tags':
-		        foreach ($this->data['current_book_tags'] as $key => $row) {
-					$versions = $this->versions->get_all($row->content_id, null, 1);
-					if (empty($versions)) continue;
-					$this->data['current_book_tags'][$key]->versions = $versions;
-		        }						    	
-		    	break;
+				if (!isset($data_key)) $data_key = 'current_book_tags';
 		    case 'annotations':
-		        foreach ($this->data['current_book_annotations'] as $key => $row) {
-					$versions = $this->versions->get_all($row->content_id, null, 1);
-					if (empty($versions)) continue;
-					$this->data['current_book_annotations'][$key]->versions = $versions;
-		        }								    	
-		    	break;	
+				if (!isset($data_key)) $data_key = 'current_book_annotations';	
 		    case 'replies':	
-		        foreach ($this->data['current_book_replies'] as $key => $row) {
-					$versions = $this->versions->get_all($row->content_id, null, 1);
+				if (!isset($data_key)) $data_key = 'current_book_replies';	
+		    default:
+				foreach ($this->data[$data_key] as $key => $row) {
+		        	if (empty($row->recent_version_id)) {  // To catch for legacy DBs where this value hasn't been set yet
+						$versions = $this->versions->get_all($row->content_id, null, 1);
+						$this->versions->set_recent_version_id($row->content_id, $versions[0]->version_id); 
+		        	} else {
+		        		$versions = array();
+		        		$versions[0] = $this->versions->get($row->recent_version_id);
+		        	}
 					if (empty($versions)) continue;
-					$this->data['current_book_replies'][$key]->versions = $versions;
-		        }		
-		    	break;
+					$this->data[$data_key][$key]->versions = $versions;			        	
+		        }	    	
 		}
 		if ($this->data['login_is_super']) {
 			switch ($this->data['zone']) {
@@ -389,7 +373,6 @@ class System extends MY_Controller {
 					}		 	  		    	
 					break;	
 			 	case 'tools':
-
 			 		break;
 			}
 		}

@@ -134,7 +134,7 @@ class Page_model extends MY_Model {
     	$result[0]->urn = $this->urn($result[0]->content_id);
     	return $result[0];     	
     	
-    }   
+    }         
     
     public function get_by_version_url($book_id=0, $url='', $is_live=false) {
     	
@@ -161,7 +161,7 @@ class Page_model extends MY_Model {
     	
     	return $return;     	
     	
-    }                     
+    }           
   
     public function is_owner($user_id=0, $content_id=0) {
     	
