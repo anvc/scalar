@@ -346,7 +346,6 @@ class RDF_Object {
 
 		// Versions attached to each node
     	if (!is_int($settings['versions']) || empty($row->recent_version_id)) {
-    		//echo 'get_all: '.$settings['versions']."\n";
 			$versions = $CI->versions->get_all(
 												$row->content_id, 
 												((is_int($settings['versions']))?null:$settings['versions']), 
@@ -354,9 +353,10 @@ class RDF_Object {
 												$settings['sq']
 											   );
 		} else {
-			//echo 'get: '.$row->recent_version_id."\n";
 			$versions = array();
-			$versions[0] = $CI->versions->get($row->recent_version_id, $settings['sq']);
+			$version = $CI->versions->get($row->recent_version_id, $settings['sq']);
+			if (!empty($version)) $versions[0] = $version;
+			unset($version);
 		}		
 		if (!count($versions)) return;
 		if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $versions[0]->version_id);

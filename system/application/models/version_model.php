@@ -98,7 +98,7 @@ class Version_model extends MY_Model {
     	$result[0]->attribution = unserialize($result[0]->attribution);
     	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
 
-        if (!empty($sq) && !self::filter_result_i($result[0], $sq)) unset($result[0]);
+        if (!empty($sq) && !self::filter_result_i($result[0], $sq)) return array();
     	
     	return $result[0];    	
     	
@@ -460,9 +460,9 @@ class Version_model extends MY_Model {
     	
     	$result = (array) $result;
     	$results = array();
-        
         foreach ($sq as $term) {
     		foreach($result as $key => $value) { 
+				if (!is_string($value)) continue;
         		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term; 
     		}   
         }

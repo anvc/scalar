@@ -357,7 +357,9 @@ class System extends MY_Controller {
 						$this->versions->set_recent_version_id($row->content_id, $versions[0]->version_id); 
 		        	} else {
 		        		$versions = array();
-		        		$versions[0] = $this->versions->get($row->recent_version_id);
+		        		$version = $this->versions->get($row->recent_version_id);
+		        		if (!empty($version)) $versions[0] = $version;
+		        		unset($version);
 		        	}
 					if (empty($versions)) continue;
 					$this->data[$data_key][$key]->versions = $versions;			        	
