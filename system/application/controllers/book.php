@@ -84,9 +84,8 @@ class Book extends MY_Controller {
 		if (empty($this->data['melon'])) $this->data['melon'] = $this->fallback_melon;
 		$this->load_melon_config($this->data['melon']);
 		// Init
-		$views = $this->config->item('views');
-		$this->data['view'] = $views[0];
-		unset($views);
+		$this->data['views'] = $this->config->item('views');
+		$this->data['view'] = key($this->data['views']);
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null;
 		$this->data['can_edit'] = $this->login_is_book_admin('reviewer');
@@ -140,14 +139,14 @@ class Book extends MY_Controller {
 			    unset($index);  
 				// Set the view based on the page's default view
 				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
-				if (in_array($default_view, $this->config->item('views'))) $this->data['view'] = $default_view;
+				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
 				// Page creator
 				$this->set_page_user_fields(); 
 			} else {
 				$this->data['slug'] = $slug;
 			}
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
-			if (in_array(get_ext($this->uri->uri_string()), $this->config->item('views'))) $this->data['view'] = get_ext($this->uri->uri_string());
+			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
 			if (in_array($this->data['view'], $this->vis_views)) {
 				$this->data['viz_view'] = $this->data['view'];  // Keep a record of the specific viz view being asked for
 				$this->data['view'] = $this->vis_views[0];  // There's only one viz page (Javascript handles the specific viz types)
@@ -567,33 +566,6 @@ class Book extends MY_Controller {
 			$this->data['page_url'] = ltrim($this->data['page_url'], '/');
 			// Don't use rtrim(..., '.edit'.), seems to have a bug with "workscited.edit" => "worksc"
 			if ('.edit'==substr($this->data['page_url'], -5, 5)) $this->data['page_url'] = substr($this->data['page_url'], 0, -5);
-		}
-
-		// Page view options
-		if ($this->data['book']->template == 'cantaloupe') {
-			$this->data['page_views'] = array(
-				'plain' => 'Basic (This page\'s text and media interspersed)',
-				'image_header' => 'Image Header (This page\'s background image shown as a header)',
-				'splash' => 'Splash (This page\'s background image shown full screen w/ title at the bottom)',
-				'book_splash' => 'Book Splash (This page\'s background image shown full screen w/ book title and author at the bottom)',
-				'gallery' => 'Media Gallery (Media contained or tagged by this page shown in a gallery)',
-				'structured_gallery' => 'Structured Media Gallery (Media contained or tagged up to two levels deep shown in an indexed gallery)'
-			);
-		} else {
-			$this->data['page_views'] = array(
-				'plain' => 'Single column',
-				'text' => 'Text emphasis',
-				'media' => 'Media emphasis',
-				'split' => 'Split emphasis',
-				'par' => 'Media per paragraph (above)',
-			    'revpar' => 'Media per paragraph (below)',
-				'vis' => 'Visualization: Radial',
-				'visindex' => 'Visualization: Index',
-				'vispath' => 'Visualization: Paths',
-				'vismedia' => 'Visualization: Media',
-				'vistag' => 'Visualization: Tags',
-				'history' => 'History browser'
-			);
 		}
 
 		// Metadata terms

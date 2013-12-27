@@ -92,8 +92,9 @@ endif;
 	<tr id="default_view" class="type_composite">
 	  <td class="field field_middle spacer">Default view</td>
 	  <td class="spacer" valign="middle"><select name="scalar:default_view" class="generic_button large" id="default_view_select"><?
-			foreach ($page_views as $view_slug => $view_name) {
-				echo '<option value="'.$view_slug.'" ';
+			foreach ($views as $view_slug => $view_name) {
+				if (empty($view_name)) continue;
+				echo '<option value="'.strtolower($view_slug).'" ';
 				if (isset($page->version_index) && $page->versions[$page->version_index]->default_view==$view_slug) echo ' SELECTED';
 				echo '>';
 				echo $view_name;
