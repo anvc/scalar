@@ -117,7 +117,7 @@
 				var node = data[version_uri];	
 			}	
 
-			// Click to message
+			// Click to view / go to
 			if ($.fn.scalarcontentpreview('is_external_link', url) && $link.attr('href')) {
 				var click_to_msg = 'Click to go to page at '+$.fn.scalarcontentpreview('get_hostname_from_url', $link.attr('href'));
 			} else {
@@ -139,11 +139,15 @@
 				}
 			} else {
 				var content_node = node['http://rdfs.org/sioc/ns#content'];
+				var url_node = node['http://simile.mit.edu/2003/10/ontologies/artstor#url'];
+				var content = '';
 				if (content_node && content_node.length) {
-					var content = content_node[0]['value'].replace(/\n/g, "<br />");;
-					$box.find('.preview_content:first').show().html(content).width(width+'px');
-					$('.inline').inlineslotmanager();	
-				}				
+					content = content_node[0]['value'].replace(/\n/g, "<br />");
+				} else if (url_node && url_node.length) {
+					content = '<a class="inline media_page" href="'+url_node[0]['value']+'" resource="'+uri+'"></a>';
+				}
+				$box.find('.preview_content:first').show().html(content).width(width+'px');
+				$('.inline').inlineslotmanager();					
 			}
 		
 		},
