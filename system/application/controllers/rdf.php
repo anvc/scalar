@@ -207,7 +207,7 @@ class Rdf extends MY_Controller {
 					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
 					exit;		
 			}
-			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category);	
+			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true);	
 			$this->rdf_object->index(
 			                         $this->data['content'], 
 			                           array(
@@ -223,7 +223,7 @@ class Rdf extends MY_Controller {
 			                         	 'max_recurses' => $this->data['recursion']
 			                           )
 			                        );
-			$this->rdf_object->serialize($this->data['content'], $this->data['format'], true);			
+			$this->rdf_object->serialize($this->data['content'], $this->data['format']);			
 		} catch (Exception $e) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 			exit;
