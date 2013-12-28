@@ -1,3 +1,6 @@
+<?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
+<?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;

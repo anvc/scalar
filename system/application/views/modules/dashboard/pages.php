@@ -1,7 +1,6 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
-<?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
-<?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
-
+<?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
+<?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?
 	if (empty($book)):
 		echo 'Please select a book to manage using the pulldown menu above';

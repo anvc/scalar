@@ -21,7 +21,7 @@
  * @projectDescription		Provide interactions for the page editor
  * @note					Procedural and in need of a re-write to jQuery plugins, but gets the job done
  * @author					Craig Dietrich
- * @version					1.1
+ * @version					1.2
  */
 
 /**
@@ -283,7 +283,7 @@ function validate_form($form, ignoreViewCheck) {
 }
 
 /**
- * Create the box for choosing book content with support for specific relationship
+ * Create the box for choosing book content with support for specific relationships
  * TODO: this was written in haste and added onto over the years...
  */
 
@@ -294,28 +294,14 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	if ('undefined'==select_single) select_single = false;
 	var insert_func = ('undefined'==_insert_func) ? null : _insert_func;
 	var parent = $('link#parent').attr('href');
-
 	// Create box
 	$('#listeditor_editbox').remove();
 	var $div = $('<div id="listeditor_editbox"></div>');
 	$("body").append($div);
 	listeditor_position(null, $div);
 	$div.show();
-	// Title
-	var $title = $('<div class="select_header"><h3>Select content</h3></div>');
-	//$div.append($title);
-	// Search box
-	var $search = $('<form class="search"><input class="input_text"type="text" value="Search" onfocus="if ($(this).val()==\'Search\') $(this).val(\'\')" /> <a class="generic_button" href="javascript:;" onclick="$(this).parent().submit();return false;">Search</a>&nbsp; &nbsp; <span id="search_count"></span></form>');
-	$search.find('#search_count').html('Found 0');
-	//$div.append($search);
-	$search.submit(function() {
-		var sq = $search.find("input[type='text']:first").val().toLowerCase();
-		if (sq.length==0 || sq=='Search') return;
-		listeditor_search(sq);
-		return false;
-	}); 	
 	// Options
-	$fetch_options = $('<div class="fetch_options"><span style="color:red;">New!</span>&nbsp; &nbsp; Search for content:&nbsp; <form id="search_for_content" style="display:inline;"><input type="text" name="sq" value="" /> <input type="submit" value="Go" /></form>&nbsp; &nbsp; Or, choose a content type below:</div>');
+	$fetch_options = $('<div class="fetch_options">Search for content:&nbsp; <form id="search_for_content" style="display:inline;"><input type="text" name="sq" value="" /> <input type="submit" value="Go" /></form>&nbsp; &nbsp; Or, choose a content type below:</div>');
 	$div.append($fetch_options);
 	$fetch_options.find('#search_for_content').submit(function() {
 		var sq = $fetch_options.find('input[name="sq"]').val();
@@ -336,16 +322,15 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	});
 	$div.append($filters);	
 	// Content wrapper (for overflow)
-	var $content_wrapper = $('<div class="content_wrapper"></div>');
+	var $content_wrapper = $('<div class="content_wrapper"><br />Select a content type or search above</div>');
 	$div.append($content_wrapper);
+	// Cancel, Add
 	var $add_options = $('<div class="add_selected_wrapper"></div>');
-	// Cancel
 	var $link = $('<a href="javascript:;" class="generic_button large">Cancel</a>');
 	$link.click(function() {
 		$(this).parent().parent().remove();
 	});	
 	$add_options.append($link);
-	// Add selected
 	if (!select_single) {
 		var $add_selected = $('<a class="generic_button large default" style="margin-left:5px;" href="javascript:;">Add selected</a>');
 		$add_selected.click(function() {
@@ -367,21 +352,14 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 			listeditor_position($content_wrapper, $div);
 		});
 	}
-
 	// Reposition box
-	listeditor_position($content_wrapper, $div);
-
-	// Table to contain the content
-	var $table = $('<table class="content" cellspacing="0" cellpadding="0"><thead class="descr"><td style="'+((select_single)?'display:none':'')+'">Select</td><td>Title</td><td>Description</td></thead></table>');
-	$content_wrapper.append($table);
-	
+	listeditor_position($content_wrapper, $div);	
 	// Invoke a radio button if appropriate
 	if (default_type) {
 		$filters.find('input[value="'+default_type+'"]').attr('checked',true);
 		if (only_default_type) $filters.find(':not(input[value="'+default_type+'"])').attr('disabled',true);
 		load_content(default_type, $div, $list, _insert_func, default_type, only_default_type, select_single);
 	}	
-	
 
 }
 
@@ -415,16 +393,17 @@ function listeditor_filter_options($div, $list, _insert_func, default_type, only
 
 function listeditor_fill_table($div, $list, _insert_func, default_type, only_default_type, select_single) {
 
+	var parent = $('link#parent').attr('href');
 	var value = $div.find("input:radio[name=filter]:checked").val();
 	if ('undefined'==typeof(value) || !value.length) {
 		var nodes = scalarapi.model.getNodes();
 	} else {
 		var nodes = scalarapi.model.getNodesWithProperty('scalarType', value);
 	}
-	var $table = $div.find('table:first');
-	$table.find('tr').remove();
-	var parent = $('link#parent').attr('href');
-
+	// Table to contain the content
+	$div.find('.content_wrapper').empty();
+	var $table = $('<table class="content" cellspacing="0" cellpadding="0"><thead><tr class="head">'+((!select_single)?'<th>&nbsp;</th>':'')+'<th>Title</th><th>Description</th><th>&nbsp;</th></tr></thead><tbody></tbody></table>');
+	$div.find('.content_wrapper').append($table);	
 	// Propogate table
 	for (j = 0; j < nodes.length; j++) {
 		var type = nodes[j].getDominantScalarType().id;
@@ -432,13 +411,16 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 		if (!nodes[j].current) continue;
 		var $tr = $('<tr></tr>');
 		$tr.data('node', nodes[j]);
-		$table.append($tr);
+		$table.find('tbody').append($tr);
 		if (!select_single) $tr.append('<td class="select_col"><input type="checkbox" /></td>');
 		$tr.append('<td class="title_col">'+((nodes[j].getDisplayTitle())?nodes[j].getDisplayTitle():nodes[j].url.substr(parent.length))+'</td>');
 		$tr.append('<td class="descr desc_col collapse_expand">'+((nodes[j].current.description)?nodes[j].current.description:'(No description)')+'</td>');
-		//$tr.append('<td class="preview_col"><a class="generic_button preview_button" href="'+nodes[j].url+'" style="white-space:nowrap;">View '+(('media'!=nodes[j].getDominantScalarType().id)?'page':'media')+'</a></td>');
 		$tr.append('<td class="preview_col"><a class="generic_button preview_button" href="'+nodes[j].url+'" style="white-space:nowrap;">Preview</a></td>');
-	}		
+	}	
+	// Sort table
+	$div.find('table:first').tablesorter({
+		sortList: [[0,0],[1,0]]
+	});	
 	// Add events
 	$div.find('#search_count').html('Found '+$table.find('tr').length+'&nbsp;');
 	$table.find('.preview_button').click(function(e) {
@@ -449,7 +431,7 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 	$table.find("input[type='checkbox']").click(function(e) {
 		e.stopPropagation();
 	});
-	$table.find('tr').click(function() {
+	$table.find('tr:not(".head")').click(function() {
 		var $tr = $(this);
 		if ($tr.parent().is('thead')) return;
 		if (select_single) {

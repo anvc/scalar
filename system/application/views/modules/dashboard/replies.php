@@ -1,6 +1,3 @@
-<?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
-<?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
-
 <?
 	if (empty($book)):
 		echo 'Please select a book to manage using the pulldown menu above';
@@ -9,13 +6,6 @@
 
 		<script>
 		$(document).ready(function() {
-			$(".tablesorter").tablesorter({ 
-        		headers: { 
-        			0: {sorter: false }, 
-        			1: {sorter: false }, // this column is hidden
-            		8: {sorter: false }
-        		}
-   			}); 
    			
    			$(window).resize(function() { resizeList(); });
    			resizeList();

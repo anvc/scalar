@@ -4,7 +4,7 @@ label {cursor:pointer;}
 .form_fields td {padding-top:5px; padding-bottom:5px;}
 
 .field {width:100px;}
-.field_middle {vertical-align:middle;}
+.field_middle {vertical-align:middle !important;}
 .field_wide {width:180px;}
 .field small {white-space:normal;color:#555555;padding-right:10px;}
 .predicate {padding-bottom:0px !important;}
@@ -96,7 +96,7 @@ label {cursor:pointer;}
 #listeditor_editbox .filters {margin-top:12px;}
 #listeditor_editbox .fetch_options {font-weight:bold;}
 
-#listeditor_editbox .content_wrapper {overflow-y:auto; margin-top:10px; border: 1px solid #ccc; -webkit-overflow-scrolling: touch;}
+#listeditor_editbox .content_wrapper {overflow-y:auto; margin-top:10px; border: 1px solid #ccc; -webkit-overflow-scrolling: touch; text-align:center;}
 #listeditor_editbox .content {margin:0px 0px 0px 0px; padding:0px 0px 0px 0px; }
 
 #listeditor_editbox .add_selected_wrapper {float:right;margin-top:15px; margin-bottom:20px;}
@@ -115,10 +115,10 @@ label {cursor:pointer;}
 #listeditor_editbox .content .title_col {width:200px;}
 #listeditor_editbox .content .desc_col {}
 #listeditor_editbox .content .preview_col {width:65px;}
-#listeditor_editbox .content td {padding:6px;vertical-align: top;cursor:pointer;}
-#listeditor_editbox .content tr:hover {background:#ddd;}
+#listeditor_editbox .content th, #listeditor_editbox .content td {border-bottom:solid 1px #ffffff; padding:6px; cursor:pointer; vertical-align:top; text-align:left;}
+#listeditor_editbox .content th:hover, #listeditor_editbox .content tr:hover {background:#ddd;}
 #listeditor_editbox .content thead tr:hover {background:#eee !important;}
-#listeditor_editbox .content .descr {color: #888;}	
+#listeditor_editbox .content .select_msg {background:#ffffff; text-align:center;}
 #listeditor_editbox .content_loading {display:none; font-weight:bold; color:#e32626;}
 
 /* Media options */
