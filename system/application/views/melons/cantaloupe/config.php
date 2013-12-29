@@ -23,5 +23,6 @@ $config['reference_options'] = array(
 			'align' => array('right', 'left'),
 			/*'caption' => array("title", "description", "titledesc", "none"),
 			'chrome' => array('true', 'false'),
-			'autoplay' => array('false', 'true')*/
+			'autoplay' => array('false', 'true'),
+			'display-content-preview-box' => array('true', 'false')*/
 		);

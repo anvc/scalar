@@ -34,7 +34,8 @@
 				// Link properties
 				var $link = $(this);
 				if (!$link.is('a, span')) return;
-				if ($link.hasClass('nopreview')) return;
+				if ($link.hasClass('nopreview')) return;  // Deprecated, but present in past books
+				if (false==$link.data('display-content-preview-box')) return; 
 				if ($link.closest('.inline_slot').length) return;
 				var is_note = (($link.hasClass('note')) ? true : false);
 	

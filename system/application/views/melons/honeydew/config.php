@@ -25,3 +25,8 @@ $config['views'] = array(
 
 // Default view
 $config['default_view'] = 'plain';
+
+// Media reference options (will translate to, e.g., data-property="value")
+$config['reference_options'] = array(
+			'display-content-preview-box' => array('true', 'false')
+		);
