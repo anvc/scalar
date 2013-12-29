@@ -2,6 +2,11 @@
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?
+if ($this->config->item('reference_options')) {
+	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
+}
+?>
+<?
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
 ?>
