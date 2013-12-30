@@ -351,19 +351,21 @@ class System extends MY_Controller {
 		    case 'replies':	
 				if (!isset($data_key)) $data_key = 'current_book_replies';	
 		    default:
-				foreach ($this->data[$data_key] as $key => $row) {
-		        	if (empty($row->recent_version_id)) {  // To catch for legacy DBs where this value hasn't been set yet
-						$versions = $this->versions->get_all($row->content_id, null, 1);
-						$this->versions->set_recent_version_id($row->content_id, $versions[0]->version_id); 
-		        	} else {
-		        		$versions = array();
-		        		$version = $this->versions->get($row->recent_version_id);
-		        		if (!empty($version)) $versions[0] = $version;
-		        		unset($version);
-		        	}
-					if (empty($versions)) continue;
-					$this->data[$data_key][$key]->versions = $versions;			        	
-		        }	    	
+		    	if (isset($data_key)) {
+					foreach ($this->data[$data_key] as $key => $row) {
+			        	if (empty($row->recent_version_id)) {  // To catch for legacy DBs where this value hasn't been set yet
+							$versions = $this->versions->get_all($row->content_id, null, 1);
+							$this->versions->set_recent_version_id($row->content_id, $versions[0]->version_id); 
+			        	} else {
+			        		$versions = array();
+			        		$version = $this->versions->get($row->recent_version_id);
+			        		if (!empty($version)) $versions[0] = $version;
+			        		unset($version);
+			        	}
+						if (empty($versions)) continue;
+						$this->data[$data_key][$key]->versions = $versions;			        	
+			        }	  
+		    	}  	
 		}
 		if ($this->data['login_is_super']) {
 			switch ($this->data['zone']) {

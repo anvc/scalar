@@ -1,6 +1,3 @@
-<?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
-<?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
-		
 <? if ('deleted'==@$_REQUEST['action']): ?>
 <div class="saved">
 <a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
@@ -16,15 +13,6 @@ Book has been added
 		
 		<script>
 		$(document).ready(function() {
-			
-			$(".tablesorter").tablesorter({ 
-        		headers: { 
-        			0: {sorter: false }, 
-            		1: {sorter: false }, // this column is hidden
-            		2: {sorter: false }, // this column is hidden
-            		8: {sorter: false }
-        		}
-   			}); 
    			
 			// 'Edit users' button
 			

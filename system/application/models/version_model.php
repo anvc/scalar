@@ -438,6 +438,7 @@ class Version_model extends MY_Model {
     	if (empty($version_id)) {
     		if (empty($content_id)) throw new Exception('Invalid content ID attempting to retrieve version ID');
     		$version = $this->get_all($content_id, null, 1);
+    		if (empty($version)) return true;  // No more versions (e.g., a page is being deleted)
     		$version_id = (int) $version[0]->version_id;
     	}
     	
