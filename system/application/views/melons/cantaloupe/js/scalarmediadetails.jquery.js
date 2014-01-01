@@ -133,6 +133,7 @@
 					var i, relation, relations;
 	
 					// show media references with excerpts
+					// Edited by Craig, 1 January 2014
 					relations = mediaelement.model.node.getRelations('referee', 'incoming'); 
 					for (i in relations) {
 					
@@ -144,12 +145,20 @@
 						}
 						var temp = $('<div>'+relation.body.current.content+'</div>').appendTo(overlay);
 						wrapOrphanParagraphs(temp);
+						/*
 						temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').attr('href', mediaelement.model.node.url);
 						temp.find('a').not('[rel="'+mediaelement.model.node.current.urn+'"]').each(function() {
 							$(this).replaceWith($(this).html());
 						});
-						citingContent = temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').parent().html();
-						citations.append('<blockquote>&ldquo;'+citingContent+'&rdquo;</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
+						*/
+						// citingContent = temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').parent().html();
+						var is_inline = (temp.find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
+						if (is_inline) {
+							citingContent = '<i>Inline media</i>';
+						} else {
+							citingContent = '&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+						}
+						citations.append('<blockquote>'+citingContent+'</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 						temp.remove();
 					}
 					
@@ -202,7 +211,8 @@
 						relation = relations[i];
 						annotationCitations.append('<p>Annotated by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a><br><span class="annotation_extents">'+relation.startString+relation.separator+relation.endString+'</span></p>');
 					}*/
-					
+					console.log(sourceCitations);
+					console.log(otherCitations);
 					if (sourceCitations.text() == '') {
 						sourceCitations.remove();
 						otherCitations.find('h3').text('Citations of this media');
