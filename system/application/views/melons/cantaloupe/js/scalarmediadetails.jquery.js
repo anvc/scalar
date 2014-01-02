@@ -171,7 +171,8 @@
 							citations.append('<p><a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of this path</p>');
 						} else {
 							citations = otherCitations;
-							citations.append('<p>As <a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
+							// citations.append('<p>As <a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
+							citations.append('<p><a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
 						}
 					}
 					
@@ -211,14 +212,12 @@
 						relation = relations[i];
 						annotationCitations.append('<p>Annotated by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a><br><span class="annotation_extents">'+relation.startString+relation.separator+relation.endString+'</span></p>');
 					}*/
-					console.log(sourceCitations);
-					console.log(otherCitations);
 					if (sourceCitations.text() == '') {
 						sourceCitations.remove();
 						otherCitations.find('h3').text('Citations of this media');
 					}
 					if (otherCitations.children().length == 1) {
-						otherCitations.remove();
+						 otherCitations.remove();
 					}
 					
 					// scroll to the clicked media once all media has loaded
