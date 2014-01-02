@@ -1804,20 +1804,21 @@ function handleFlashVideoMetadata(data) {
 					
 					// if the annotation has a description, then show it
 					if (annotation.body.current.description != null) {
-						
-						annoText.append(annotation.body.current.description);
-						
-						// if the annotation has body content, then include a link to it
-						if (annotation.body.current.content) {
-							if (annotation.body.current.content.length > 0) {
-								annoText.append(' &nbsp;<a href="'+annotation.body.url+'">More &raquo;</a>');
-							}
-						}
-						
-					// if the annotation doesn't have a description but does have body content, then include a link to it
-					} else if (annotation.body.current.content) {
-						annoText.append(annotation.body.current.content+' &nbsp;<a href="'+annotation.body.url+'">Permalink &raquo;</a>');
+						annoText.append('<i>'+annotation.body.current.description+'</i>');
 					}
+
+					// if the annotation has content, then show it
+					if (annotation.body.current.content && annotation.body.current.content.length > 0) {
+						if (annotation.body.current.description != null) annoText.append('<br />');
+						var the_content = annotation.body.current.content;
+						var num_words = 35; // Magic number
+						if ('function' == typeof(window['create_excerpt'])) the_content = create_excerpt(the_content,num_words); 
+						annoText.append(the_content);
+					}
+					
+					// Permalink
+					annoText.append('<br /><a href="'+annotation.body.url+'" style="white-space:nowrap;">Permalink &raquo;</a>');
+					
 					annotationChip.append(annoText);
 					
 					if (this.annotationSidebar) {
