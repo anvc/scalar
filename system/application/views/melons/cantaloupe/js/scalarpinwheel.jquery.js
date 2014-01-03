@@ -250,31 +250,32 @@ ScalarPinwheel.prototype.render = function() {
 	$( '#graph' ).after( centerDiv );
 	this.centerCanvas = Raphael( 'pinwheel_center', 200, 200 );
 	
-	//var zoomControls = $('<div id="zoomControls"></div>').appendTo('#graph');
-	var zoomControls = $('<div id="zoomControls"></div>');
-	$( '#graph' ).after( zoomControls );
+	if ( currentNode != null ) {
+		var zoomControls = $('<div id="zoomControls"></div>');
+		$( '#graph' ).after( zoomControls );
+		
+		this.zoomIn = Raphael('zoomControls', 32, 32);
+		var zoomInCircle = this.zoomIn.circle(16, 16, 16).click( handleZoomIn );
+		var zoomInHover = function() { zoomInCircle.attr( { 'fill': '#000' } ) };
+		var zoomInUnhover = function() { zoomInCircle.attr( { 'fill': '#777' } ) };
+		zoomInCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer', opacity: '0.25'});
+		var zoomInPath = this.zoomIn.path('M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z').attr({fill: '#fff', stroke: 'none', opacity: '0.25' }).click( handleZoomIn );
+		zoomInCircle.hover( zoomInHover, zoomInUnhover );
+		zoomInPath.hover( zoomInHover, zoomInUnhover );
 	
-	this.zoomIn = Raphael('zoomControls', 32, 32);
-	var zoomInCircle = this.zoomIn.circle(16, 16, 16).click( handleZoomIn );
-	var zoomInHover = function() { zoomInCircle.attr( { 'fill': '#000' } ) };
-	var zoomInUnhover = function() { zoomInCircle.attr( { 'fill': '#777' } ) };
-	zoomInCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer', opacity: '0.25'});
-	var zoomInPath = this.zoomIn.path('M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z').attr({fill: '#fff', stroke: 'none', opacity: '0.25' }).click( handleZoomIn );
-	zoomInCircle.hover( zoomInHover, zoomInUnhover );
-	zoomInPath.hover( zoomInHover, zoomInUnhover );
-
-	this.zoomOut = Raphael('zoomControls', 32, 32);
-	var zoomOutCircle = this.zoomOut.circle(16, 16, 16).click( handleZoomOut );
-	var zoomOutHover = function() { zoomOutCircle.attr( { 'fill': '#000' } ) };
-	var zoomOutUnhover = function() { zoomOutCircle.attr( { 'fill': '#777' } ) };
-	zoomOutCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer'});
-	var zoomOutPath = this.zoomOut.path('M25.979,12.896,5.979,12.896,5.979,19.562,25.979,19.562z').attr({fill: '#fff', stroke: 'none'}).click( handleZoomOut );
-	zoomOutCircle.hover( zoomOutHover, zoomOutUnhover );
-	zoomOutPath.hover( zoomOutHover, zoomOutUnhover );
-	
-	this.buildGraph();
-	
-	$('svg').click(handleBackgroundClick);
+		this.zoomOut = Raphael('zoomControls', 32, 32);
+		var zoomOutCircle = this.zoomOut.circle(16, 16, 16).click( handleZoomOut );
+		var zoomOutHover = function() { zoomOutCircle.attr( { 'fill': '#000' } ) };
+		var zoomOutUnhover = function() { zoomOutCircle.attr( { 'fill': '#777' } ) };
+		zoomOutCircle.attr({'fill':'#777', 'stroke':'none', 'cursor':'pointer'});
+		var zoomOutPath = this.zoomOut.path('M25.979,12.896,5.979,12.896,5.979,19.562,25.979,19.562z').attr({fill: '#fff', stroke: 'none'}).click( handleZoomOut );
+		zoomOutCircle.hover( zoomOutHover, zoomOutUnhover );
+		zoomOutPath.hover( zoomOutHover, zoomOutUnhover );
+		
+		this.buildGraph();
+		
+		$('svg').click(handleBackgroundClick);
+	}
 	
 	//console.log('---- current node graph ----');
 	//console.log(this.nodeGraph);
@@ -306,27 +307,31 @@ ScalarPinwheel.prototype.updateZoomButtons = function() {
 
 ScalarPinwheel.prototype.buildGraph = function() {
 
-	this.nodeGraph = [];
-	this.pathGraphs = {};
-	this.pathGraphCount = 0;
+	if ( currentNode != null ) {
 	
-	this.calculateDimensions();
-
-	var graphNode = this.createGraphNode( [currentNode], {x:0, y:0}, 'none', {type:'current', data: null} );
+		this.nodeGraph = [];
+		this.pathGraphs = {};
+		this.pathGraphCount = 0;
+		
+		this.calculateDimensions();
 	
-	this.resetNodeGraphDrawing();
-	
-	// start a new set of SVG elements
-	this.canvas.setStart();
-	
-	if ( graphNode != null ) {
-		this.addGraphNodeRelations( graphNode, 0 );
-		//this.makeSiblingsLateral();
-		this.drawGraphNode( graphNode );
+		var graphNode = this.createGraphNode( [currentNode], {x:0, y:0}, 'none', {type:'current', data: null} );
+		
+		this.resetNodeGraphDrawing();
+		
+		// start a new set of SVG elements
+		this.canvas.setStart();
+		
+		if ( graphNode != null ) {
+			this.addGraphNodeRelations( graphNode, 0 );
+			//this.makeSiblingsLateral();
+			this.drawGraphNode( graphNode );
+		}
+		
+		// close the set of SVG elements
+		this.canvasSet = this.canvas.setFinish();
+		
 	}
-	
-	// close the set of SVG elements
-	this.canvasSet = this.canvas.setFinish();
 
 }
 
