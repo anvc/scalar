@@ -56,16 +56,16 @@ pre {
 */
 
 .highlightLight {
-	background-color:#c5dae7 !important;
+	background-color:#eaeff2 !important;
 	/*background: #fffdd9 !important;*/
 	cursor: pointer !important;
 }
 
 .highlightLight:hover {
-	background-color:#a5c0d2 !important;
+	background-color:#c5dae7 !important;
 }
 
 .highlightDark {
-	background: #f5f2d0 !important;
+	background: #a5c0d2 !important;
 	cursor: pointer;
 }

@@ -1435,7 +1435,11 @@ function handleFlashVideoMetadata(data) {
 							liveCount++;
 							
 							// generate a display title for the annotation
-							annoTitle = scalarapi.decimalSecondsToHMMSS(me.getCurrentTime())+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
+							if (me.model.mediaSource.contentType == 'document') {
+								annoTitle = 'Line '+currentPosition+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
+							} else {
+								annoTitle = scalarapi.decimalSecondsToHMMSS(me.getCurrentTime())+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
+							}
 							
 							newCurrentAnnotation = annotation;
 							action = 'fadeIn';
@@ -3647,6 +3651,8 @@ function handleFlashVideoMetadata(data) {
 							me.currentLine = index + 1;
 							me.textIsPlaying = true;
 							me.parentView.doInstantUpdate();
+							li.removeClass( 'highlightDark' );
+							$( li[ me.currentLine - 1 ] ).addClass( 'highlightDark' );
 						});
 					}
 				});
@@ -3696,6 +3702,8 @@ function handleFlashVideoMetadata(data) {
 		jQuery.TextObjectView.prototype.scrollToLine = function(line) {
 			if (this.hasFrameLoaded) {
 				var li = $($('#'+this.frameId)[0].contentWindow.document.body).find('li');
+				li.removeClass( 'highlightDark' );
+				$( li[ line - 1 ] ).addClass( 'highlightDark' );
 				if (li) {
 					$('#'+this.frameId).contents().find('html,body').stop().animate({scrollTop: $(li[Math.min(Math.max(0, line-2),li.length-1)]).offset().top},'slow');
 				}
