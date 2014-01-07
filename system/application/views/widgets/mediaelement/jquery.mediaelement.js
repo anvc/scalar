@@ -1561,7 +1561,7 @@ function handleFlashVideoMetadata(data) {
 	 				this.annotationDisplay.fadeIn();
  				}
  				if (!this.annotationTimerRunning) {
- 				
+
  					var delay = 3000;
  					
  					// if the user clicked on an annotation chip, then they're expecting the clip to play asap,
@@ -1794,6 +1794,7 @@ function handleFlashVideoMetadata(data) {
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
 						annotationChip.click( function(e) {
+							$(this).data('me').model.seekAnnotation = null;
 							$(this).data('me').seek($(this).data('annotation'));
 							$(this).data('me').play();
 						});
@@ -1860,11 +1861,13 @@ function handleFlashVideoMetadata(data) {
 	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+scalarapi.decimalSecondsToHMMSS(this.model.seekAnnotation.properties.start)+'…</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
- 				if ( this.model.mediaSource.contentType != 'image' ) {
- 					setTimeout( this.doAutoSeek, 6000 );
-				} else {
- 					setTimeout( this.doAutoSeek, 3000 );
-				}
+ 				if ( this.model.mediaSource.contentType != 'document' ) {
+	 				if ( ( this.model.mediaSource.contentType != 'image' ) ) {
+	 					setTimeout( this.doAutoSeek, 6000 );
+					} else {
+	 					setTimeout( this.doAutoSeek, 3000 );
+					}
+ 				}
 			}
 
 			if ('nav_bar' == this.model.options.header) {
@@ -3625,34 +3628,33 @@ function handleFlashVideoMetadata(data) {
 					textAnnotations.push(annotation);
 				}
 			}
-			if (textAnnotations.length > 0) this.highlightLinesForAnnotations(textAnnotations);
+			if (textAnnotations.length > 0) this.highlightLinesForAnnotations( textAnnotations, 'highlightLight' );
 
 		}		 
 		
 		/**
 		 * Highlights the lines of the text associated with the specified annotations.
 		 */
-		jQuery.TextObjectView.prototype.highlightLinesForAnnotations = function(textAnnotations) {
+		jQuery.TextObjectView.prototype.highlightLinesForAnnotations = function( textAnnotations, style ) {
 		
 			var li = $('#'+this.frameId).contents().find('li');
+			li.removeClass( style );	
 			
 			var i;
 			var n = textAnnotations.length;
 			var annotation;
-			for (i=0; i<n; i++) {		
-				annotation = textAnnotations[i];	
+			for (i=0; i<n; i++) {
+				annotation = textAnnotations[i];
 				li.each(function(index, value) {
-					var cn = "highlightLight";
 					if (((index+1) >= annotation.properties.start) && ((index+1) <= annotation.properties.end)) {
-						$(value).addClass(cn);
+						$(value).addClass(style);
 						$(value).data('annotation', annotation);
 						$(value).click(function() {
 							var anno = $(this).data('annotation');
 							me.currentLine = index + 1;
 							me.textIsPlaying = true;
 							me.parentView.doInstantUpdate();
-							li.removeClass( 'highlightDark' );
-							$( li[ me.currentLine - 1 ] ).addClass( 'highlightDark' );
+							me.highlightLinesForAnnotations( [ anno ], 'highlightDark' );
 						});
 					}
 				});
@@ -3702,8 +3704,6 @@ function handleFlashVideoMetadata(data) {
 		jQuery.TextObjectView.prototype.scrollToLine = function(line) {
 			if (this.hasFrameLoaded) {
 				var li = $($('#'+this.frameId)[0].contentWindow.document.body).find('li');
-				li.removeClass( 'highlightDark' );
-				$( li[ line - 1 ] ).addClass( 'highlightDark' );
 				if (li) {
 					$('#'+this.frameId).contents().find('html,body').stop().animate({scrollTop: $(li[Math.min(Math.max(0, line-2),li.length-1)]).offset().top},'slow');
 				}
@@ -3737,9 +3737,19 @@ function handleFlashVideoMetadata(data) {
 		 *
 		 * @param {Number} line			Destination line number.
 		 */
-		jQuery.TextObjectView.prototype.seek = function(line) {
+		jQuery.TextObjectView.prototype.seek = function( line ) {
 			this.currentLine = line;
 			this.scrollToLine(line);
+			var seekAnnotations = [];
+			var i, annotation,
+				n = this.parentView.annotations.length;
+			for ( i = 0; i < n; i++ ) {
+				annotation = this.parentView.annotations[ i ];
+				if ( ( this.currentLine >= annotation.properties.start ) && ( this.currentLine <= annotation.properties.end ) ) {
+					seekAnnotations.push( annotation );
+				}
+			}
+			this.highlightLinesForAnnotations( seekAnnotations, 'highlightDark' );
 		}
 
 		/**
