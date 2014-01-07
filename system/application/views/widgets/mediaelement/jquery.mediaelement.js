@@ -3575,7 +3575,7 @@ function handleFlashVideoMetadata(data) {
 				var code = $('<code>'+$('#'+this.frameId)[0].contentWindow.document.body.innerHTML+'</code>');
 				
 				code.find('pre').prepend('\n');
-				code.find('pre').css('white-space', 'nowrap');
+				code.find('pre').css('white-space', 'pre');
 				code.find('pre').css('word-wrap', 'normal');
 	
 				//Convert code elements to ordered lists

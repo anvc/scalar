@@ -16,8 +16,13 @@ pre {
 }
 
 .code li {
-	line-height: 0px;  to remove white border issue 
+	line-height: 0px;
 	white-space: pre;
+	tab-size: 2;
+	-moz-tab-size: 2;
+	-o-tab-size: 2;
+	-webkit-tab-size: 2;
+	text-indent: 0;
 }
  
 .code { counter-reset: li; }
