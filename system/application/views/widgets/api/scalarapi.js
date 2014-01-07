@@ -1676,8 +1676,7 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
 // perhaps using this: http://code.google.com/p/jquery-jsonp/
 
 /**
- * Loads data about the specified page. If data has already been acquired and
- * forceReload is false, returns the page's node.
+ * Loads data about the specified page.
  *
  * @param	uriSegment			URI segment identifying the page to be loaded.
  * @param	forceReload			If true, forces the data to be reloaded whether it was loaded previously or not.
@@ -2052,7 +2051,7 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 }
 
 /**
- * Loads data for pages of the given type.
+ * Loads data for nodes matching the specified search query.
  *
  * @param	sq					Search string
  * @param	successCallback		Handler to be called when the data has successfully loaded.
@@ -2093,8 +2092,6 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 		success:[this.parsePagesByType, successCallback],
 		error:[this.handleLoadPagesByTypeError, errorCallback]
 	});
-	this.loadPagesByTypeStatus.isLoading = true;
-	return 'loading';
 	
 }
 
@@ -2298,10 +2295,6 @@ function ScalarModel(options) {
 	// figure out where we are
 	if (!this.crossDomain) {
 		this.urlPrefix = options['parent_uri'];
-		
-	// for testing purposes only: lets us access the data from whatever book we want
-	} else {
-		this.urlPrefix = 'http://scalar.usc.edu/students/english-507';
 	}
 
 	// scrape book title from page
@@ -2314,7 +2307,6 @@ function ScalarModel(options) {
 
 }
 
-ScalarModel.prototype.urlPrefix = null;
 ScalarModel.prototype.urlPrefix = null;
 ScalarModel.prototype.logged_in = null;
 ScalarModel.prototype.user_level = null;
@@ -2669,6 +2661,24 @@ ScalarModel.prototype.getNodesWithProperty = function(property, value, sort) {
  */
 ScalarModel.prototype.getMainMenuNode = function() {
 	return this.nodesByURL[this.urlPrefix+'toc'];
+}
+
+/**
+ * Returns the book node, if one can be found.
+ *
+ * @return				The book node.
+ */
+ScalarModel.prototype.getBookNode = function() {
+	return this.bookNode;
+}
+
+/**
+ * Returns the node for the current page, if one can be found.
+ *
+ * @return				The book node.
+ */
+ScalarModel.prototype.getCurrentPageNode = function() {
+	return this.currentPageNode;
 }
 	
 /**
@@ -3062,7 +3072,6 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 			if (relation.type.id == type) {
 				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
 					relations.push(relation);
-					//results.push(relation.body);
 				}
 			}
 		}
@@ -3075,7 +3084,6 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 			if (relation.type.id == type) {
 				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
 					relations.push(relation);
-					//results.push(relation.target);
 				}
 			}
 		}
