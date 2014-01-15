@@ -300,7 +300,7 @@ class Version_model extends MY_Model {
 		$this->rdf_store->delete_urn($this->urn($version_id));
 		
 		// Reset recent version
-		$this->set_recent_version_id($content_id);
+		// $this->set_recent_version_id($content_id);
 		
 		return true;
     	
@@ -364,7 +364,7 @@ class Version_model extends MY_Model {
  			if (!empty($additional_metadata)) $this->rdf_store->save_by_urn($this->urn($version_id), $additional_metadata);
  		}
  		
- 		$this->set_recent_version_id($content_id, $version_id);
+ 		// $this->set_recent_version_id($content_id, $version_id);
  		
  		return $version_id; 
  
@@ -406,7 +406,7 @@ class Version_model extends MY_Model {
     		$count--;
     	}	
     	
-    	$this->set_recent_version_id($content_id);
+    	// $this->set_recent_version_id($content_id);
     	
     	return true;
     	
