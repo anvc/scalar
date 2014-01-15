@@ -81,6 +81,15 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 
 #centered-message { position: absolute; left: 50%; margin-left: -30rem; width: 60rem; top: 45%; text-align: center; color: #888; }
 
+/* --- NOTICES --- */
+.scalarnotice {font-size:13px; color:#000000; top:60px !important;}
+.scalarnotice .close_link {padding-right:5px; float:right;}
+.scalarnotice .close_link a {
+	padding-right:0px; padding-left:30px;
+	background-image:url(images/close_icon.png); background-repeat:no-repeat; background-position:right top;
+}
+.scalarnotice .close_link a:hover {text-decoration:none}
+
 /* --- HEADER --- */
 
 #header {
