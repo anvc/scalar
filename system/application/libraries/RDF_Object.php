@@ -213,6 +213,7 @@ class RDF_Object {
 
 	 	// Users
 		foreach ($settings['users'] as $row) {
+			if (!$row->list_in_index) continue;  
 			$return[$settings['base_uri'].'users/'.$row->user_id] = $CI->users->rdf($row);
 		}	 	
 		
