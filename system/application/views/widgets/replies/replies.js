@@ -45,7 +45,7 @@ function commentFormDisplayForm() {
 			$('#comment_user_id').val(data.user_id);
 			$commenter_logged_in = $('#commenter_logged_in');
 			$commenter_logged_in.fadeIn('fast');
-			$commenter_logged_in.find('[title="Your user page"]').attr('href', 'javascript:;').html(data.fullname);
+			$commenter_logged_in.find('[title="Your user page"]').attr('href', parent+'users/'+data.user_id).html(data.fullname);
 			$commenter_logged_in.find('[title="Logout"]').click(function() {
 				var url = document.location.href;
 				if (url.indexOf('#')!=-1) url = url.substr(0, url.indexOf('#'));

@@ -147,7 +147,7 @@ abstract class MY_Model extends Model {
 		$remove = array();
     	for ($j = 0; $j < count($result); $j++) {
 			// Add URN
-			$result[$j]->urn = $this->urn($result[$j]->parent_version_id,$result[$j]->child_version_id);    		
+			$result[$j]->urn = $this->urn($result[$j]->parent_version_id,$result[$j]->child_version_id);		    		
 			// Remove rows if they are not the most recent version
 			foreach ($result as $row) {
 				if ($row->parent_content_id==$result[$j]->parent_content_id && $row->parent_version_num > $result[$j]->parent_version_num) $remove[] = $j;

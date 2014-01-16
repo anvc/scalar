@@ -9,6 +9,17 @@ function sort_contributors($a, $b) {
     
 }
 
+function unserialize_recursive($str='') {
+	
+    if (!is_string($str)) { 
+        return $str;
+    } else {	
+    	$str = unserialize($str);
+        return unserialize_recursive($str); 
+    } 
+	
+}
+
 function array_get_node($field, $value, $array) { 
 	
 	$j = 0;

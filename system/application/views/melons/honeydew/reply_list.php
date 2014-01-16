@@ -11,7 +11,7 @@ function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
 	foreach ($has_reply as $reply):
 
 		if (!$reply->is_live) continue;
-		$reply_version = $reply->versions[$reply->version_index];
+		$reply_version = $reply->versions[$reply->version_index];	
 		echo '<div class="comment level-'.$level.'" style="margin-left:'.$indent.'px"><a name="comment-'.$reply_version->version_id.'"></a>'."\n";
 		if (!empty($reply_version->title)) echo '<p class="comment_title">'.$reply_version->title.'</p>'."\n";
 		echo nl2br(trim($reply_version->content));
@@ -24,9 +24,7 @@ function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
 		if (isset($reply_version->attribution->fullname) && !empty($reply_version->attribution->fullname)) {
 			echo $reply_version->attribution->fullname;
 		} else {
-			echo '<a href="'.$base_uri.'users/'.$reply_version->user.'">';
-			echo ((!empty($reply_version->fullname))?$reply_version->fullname:'(Missing name)');
-			echo '</a>';			
+			echo '(Missing Name)';		
 		}
 		echo ' &nbsp;<span style="font-size:smaller;">| &nbsp;';
 		echo '<a href="'.$base_uri.$reply->slug.'" title="Permalink" onclick="return commentCheckPermalink(this);">Permalink</a>';

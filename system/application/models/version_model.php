@@ -95,7 +95,7 @@ class Version_model extends MY_Model {
     	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
-    	$result[0]->attribution = unserialize($result[0]->attribution);
+    	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
     	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
 
         if (!empty($sq) && !self::filter_result_i($result[0], $sq)) return array();
@@ -128,7 +128,7 @@ class Version_model extends MY_Model {
 
     	foreach ($result as $key => $value) {
     		$result[$key]->urn = $this->urn($result[$key]->version_id);
-    		$result[$key]->attribution = unserialize($result[$key]->attribution);
+    		$result[$key]->attribution = unserialize_recursive($result[$key]->attribution);
     		$result[$key]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$key]->version_id);
     	}
 
