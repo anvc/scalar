@@ -20,7 +20,7 @@
 /**
  * @projectDescription  Create a thought-bubble-style box that displays the page content of an annotation when media is playing
  * @author              Craig Dietrich
- * @version             2.0
+ * @version             2.1
  */
 
 (function($) {
@@ -28,7 +28,7 @@
 	var scalarliveannotations_methods = {
 	
 		init : function(options) {
-			 
+		
 			return this.each(function() {
 
 				var $el = $(this);	  						
@@ -70,17 +70,11 @@
 			var $mediaelement_el = $(options.mediaelement.model.element);
 			var annotation = options.annotation.body;  
 		
-			// Annotation properties
 			var url = annotation.url; 
 			var title = (annotation.versions[0].title && annotation.versions[0].title.length) ? annotation.versions[0].title : '(No title)';
 			var desc = (annotation.versions[0].description && annotation.versions[0].description.length) ? annotation.versions[0].description : '';
 			var content = (annotation.versions[0].content && annotation.versions[0].content.length) ? annotation.versions[0].content : '';
 			if (annotation.versions[0].sourceFile && annotation.versions[0].sourceFile.length) content = '<a class="inline" href="'+annotation.versions[0].sourceFile+'" resource="'+url+'"></a>'+content;  // Media
-			// TODO: could be an annotation for more than one resource .. make this a loop and trap based on URL
-			/*var startTimeString = (annotation.outgoingRelations[0].startString && annotation.outgoingRelations[0].startString.length )? annotation.outgoingRelations[0].startString : null;
-			var endTimeString = (annotation.outgoingRelations[0].endString && annotation.outgoingRelations[0].endString.length )? annotation.outgoingRelations[0].endString : null;
-			var timestamp = startTimeString+' - '+endTimeString;*/
-			// Updated 6/9/12 by Erik to leverage predefined start and end strings and separator delivered with the relation
 			var timestamp = annotation.outgoingRelations[0].startString + annotation.outgoingRelations[0].separator + annotation.outgoingRelations[0].endString;
 				
 			var $arrow = $('<div class="arrow"></div>').appendTo($el);

@@ -24,9 +24,7 @@ function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
 		if (isset($reply_version->attribution->fullname) && !empty($reply_version->attribution->fullname)) {
 			echo $reply_version->attribution->fullname;
 		} else {
-			echo '<a href="'.$base_uri.'users/'.$reply_version->user.'">';
-			echo ((!empty($reply_version->fullname))?$reply_version->fullname:'(Missing name)');
-			echo '</a>';		
+			echo ((!empty($reply_version->fullname))?$reply_version->fullname:'(Missing name)');	
 		}
 		echo ' &nbsp;<span style="font-size:smaller;">| &nbsp;';
 		echo '<a href="'.$base_uri.$reply->slug.'" title="Permalink" onclick="return commentCheckPermalink(this);">Permalink</a>';

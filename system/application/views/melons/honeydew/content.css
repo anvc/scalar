@@ -383,10 +383,12 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 .popout_live_annotation {
 	min-height:100%; -webkit-border-radius: 0px; -moz-border-radius: 0px; border-radius: 0px;	
 }
-.live_annotation .arrow {  /* default, likely overwritten by slot manager style sheets */
- 	background-image:url(../../../widgets/liveannotations/live_anno_up_arrow.png); background-position:center top; background-repeat:no-repeat;
+/*
+.live_annotation .arrow { 
+	background-image:url(../../widgets/liveannotations/live_anno_up_arrow.png); background-position:center top; background-repeat:no-repeat;
  	position:absolute; top:-15px; left:0px; right:0px; height:17px; z-index:8;
 }
+*/
 
 /* Comments */
 
