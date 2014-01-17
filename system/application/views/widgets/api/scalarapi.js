@@ -3295,15 +3295,30 @@ ScalarVersion.prototype.parseData = function(data, node) {
  */
 ScalarVersion.prototype.parseRelations = function() {
 
-	var arr = this.data.json['http://purl.org/dc/terms/references'];
 	var relation;
 	var body;
 	var target;
+	
+	var arr = this.data.json['http://purl.org/dc/terms/references'];
 	if (arr) {
 		n = arr.length;
 		for (i=0; i<n; i++) {
 			body = scalarapi.model.nodesByURL[this.isVersionOf];
 			target = scalarapi.model.nodesByURL[arr[i].value];
+			if (body && target) {
+				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.referee);
+				//scalarapi.model.relations.push(relation);
+				scalarapi.model.relationsById[relation.id] = relation;
+			}
+		}
+	}
+
+	arr = this.data.json['http://purl.org/dc/terms/isReferencedBy'];
+	if (arr) {
+		n = arr.length;
+		for (i=0; i<n; i++) {
+			body = scalarapi.model.nodesByURL[arr[i].value];
+			target = scalarapi.model.nodesByURL[this.isVersionOf];
 			if (body && target) {
 				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.referee);
 				//scalarapi.model.relations.push(relation);
