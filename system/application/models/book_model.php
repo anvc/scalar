@@ -521,6 +521,21 @@ class Book_model extends MY_Model {
     	return $this->get_users($book_id);
     	
     }    
+    
+    public function create_directory_from_slug($slug='') {
+    	
+ 		if (!mkdir($slug)) {
+ 			throw new Excpetion('There was a problem creating the '.$slug.' folder on the filesystem.');
+ 		}
+ 		if (!mkdir(confirm_slash($slug).'media')) {
+ 			echo 'Alert: could not create media folder for '.$slug.'.';
+ 		}
+    	    	
+    	chmod($slug, 0777);
+    	chmod(confirm_slash($slug).'media', 0777);
+    	
+    	
+    }
    
     public function get_by_slug($uri='') {
 
@@ -566,6 +581,12 @@ class Book_model extends MY_Model {
 		}
 		return $result;
 
+    }
+    
+    public function slug_exists($slug='') {
+    	
+    	return ((file_exists($slug)) ? true : false);
+    	
     }
     
 }

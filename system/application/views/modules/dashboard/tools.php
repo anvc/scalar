@@ -14,3 +14,19 @@ Generate email list:&nbsp; <input type="submit" value="Generate" />&nbsp; <a hre
 	}
 ?></textarea>
 </form>
+<br />
+<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<input type="hidden" name="zone" value="tools" />
+<input type="hidden" name="action" value="recreate_book_folders" />
+Recreate book folders:&nbsp; <input type="submit" value="Recreate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
+<span style="float:right;">Will rebuild book folders that may have gone missing from the Scalar root directory</span>
+<textarea class="textarea_list"><?php 
+	if (!isset($book_list)) {
+		
+	} elseif (empty($book_list)) {
+		echo 'No book folders required recreating';
+	} else {
+		echo implode("\n", $book_list);
+	}
+?></textarea>
+</form>

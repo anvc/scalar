@@ -292,6 +292,27 @@ class System extends MY_Controller {
 					}
 					unset($user); 
 					break;
+				case "recreate_book_folders":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$books = $this->books->get_all();
+					$this->data['book_list'] = array();
+		 			foreach ($books as $book) {
+						$slug = $book->slug;
+						$msg = $slug.' ... ';
+						if ($this->books->slug_exists($slug)) {
+							$msg .= 'already exists';
+						} else {
+							try {
+								$this->books->create_directory_from_slug($slug);
+								$msg .= 'RECREATED';
+							} catch (Exception $e) {
+								$msg .= 'ERROR attempting to recreate: '.$e->getMessage();	
+							}
+						}
+						$this->data['book_list'][] = $msg;
+					}
+					unset($books); 
+					break;					
 		 	}
 	 	} catch (Exception $e) {
 			show_error($e->getMessage());
