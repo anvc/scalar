@@ -2761,8 +2761,8 @@ function handleFlashVideoMetadata(data) {
 			}
 			
 			if ((this.model.seekAnnotation != null) && (scalarapi.scalarBrowser != 'MobileSafari')) {
-				params.playerVars.start = this.model.seekAnnotation.properties.start;
-				params.playerVars.end = this.model.seekAnnotation.properties.end;
+				params.playerVars.start = Math.round( this.model.seekAnnotation.properties.start );
+				params.playerVars.end = Math.round( this.model.seekAnnotation.properties.end );
 			}
 			
 			this.video = new YT.Player('youtube'+this.model.filename+'_'+this.model.id, params);
