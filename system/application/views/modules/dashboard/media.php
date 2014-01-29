@@ -225,7 +225,11 @@
 		$count = 1;
 		foreach ($current_book_files as $row) {
 			$title = '(No title)';
-			if (isset($row->versions[0])) $title = $row->versions[0]->title;
+			$url = '(No URL)';
+			if (isset($row->versions[0])) {
+				$title = $row->versions[0]->title;
+				$url = $row->versions[0]->url;
+			}
 			$category = (!empty($row->category)) ? $row->category : '';
 			echo '<tr class="bottom_border '.(($row->is_live)?'':'not_live').'" id="file_row_'.$row->content_id.'" typeof="pages">';
 			echo '<td style="white-space:nowrap;width:60px;"><input type="checkbox" name="content_id_'.$row->content_id.'" value="1">&nbsp; <a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a>'."</td>\n";
@@ -233,6 +237,7 @@
 			echo '<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'.$row->is_live."</td>\n";
 			echo '<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'.confirm_slash(base_url()).confirm_slash($book->slug).$row->slug.'">'.$row->slug."</a></td>\n";
 			echo '<td property="title">'.$title."</td>\n";
+			echo '<td property="url" style="max-width:200px;overflow:hidden;"><a href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'">'.$url."</a></td>\n";
 			echo '<td class="editable enum {\'review\',\'commentary\'}" property="category" width="100px" style="white-space:nowrap;">'.$category."</td>\n";
 			echo '<td style="white-space:nowrap;">'.((!empty($row->created)&&$row->created!='0000-00-00 00:00:00')? date( 'M j, Y g:i A', strtotime($row->created)):'')."</td>\n";
 			echo '<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'.$row->user."</td>\n";
