@@ -1573,7 +1573,7 @@ function handleFlashVideoMetadata(data) {
 					this.annotationTimer = setTimeout(checkSeekSuccessful, delay);
 					this.annotationTimerRunning = true;
  				}
- 				this.overrideAutoSeek = true;
+ 				//this.overrideAutoSeek = true;
  				this.mediaObjectView.seek(annotation.properties.start);
  				this.lastSeekTime = annotation.properties.start;
  				handleTimer();
@@ -1856,7 +1856,7 @@ function handleFlashVideoMetadata(data) {
 			// if we were passed an annotation to seek to, wait a while before attempting to seek
 			// (if YouTube, then don't try to seek if we're not on Mobile Safari, since we'll set player
 			// params to seek instead)
-			if ((this.model.seekAnnotation != null) /*&& (this.model.mediaSource.contentType != 'image')*/ && ((this.model.mediaSource.name != 'YouTube') || ((this.model.mediaSource.name == 'YouTube') && (scalarapi.scalarBrowser == 'MobileSafari')))) {
+			if ((this.model.seekAnnotation != null) /*&& (this.model.mediaSource.contentType != 'image') && ((this.model.mediaSource.name != 'YouTube') || ((this.model.mediaSource.name == 'YouTube') && (scalarapi.scalarBrowser == 'MobileSafari')))*/) {
  				if (this.annotationDisplay && (this.model.mediaSource.contentType != 'image')) {
 	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+scalarapi.decimalSecondsToHMMSS(this.model.seekAnnotation.properties.start)+'…</p>');
 	 				this.annotationDisplay.fadeIn();
