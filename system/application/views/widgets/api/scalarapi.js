@@ -493,16 +493,16 @@ function ScalarAPI() {
 			}},
 		'PlainText': {
 			name:'PlainText', 
-			extensions:['txt','js','java','xml','css'],
+			extensions:['txt','js','java','xml','css','code'],
 			isProprietary:false,
 			contentType:'document',
 			browserSupport: {
-				'Mozilla': {extensions:['txt','js','java','xml','css'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['txt','js','java','xml','css'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'MobileSafari': {extensions:['txt','js','java','xml','css'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['txt','js','java','xml','css'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['txt','js','java','xml','css'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Other': {extensions:['txt','js','java','xml','css'], format:'PlainText', player:'native', specifiesDimensions:false}
+				'Mozilla': {extensions:['txt','js','java','xml','css','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Explorer': {extensions:['txt','js','java','xml','css','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'MobileSafari': {extensions:['txt','js','java','xml','css','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Safari': {extensions:['txt','js','java','xml','css','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Chrome': {extensions:['txt','js','java','xml','css','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Other': {extensions:['txt','js','java','xml','css','code'], format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
 		'SoundCloud': {
 			name:'SoundCloud', 
