@@ -1926,7 +1926,7 @@ function handleFlashVideoMetadata(data) {
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
 			
 			var url = this.model.path;
-			var queryVars = scalarapi.getQueryVars();
+			var queryVars = scalarapi.getQueryVars( document.location.href );
 			if ( queryVars.t != null ) {
 				url += '?t=' + new Date().getTime();
 			}
@@ -2079,7 +2079,6 @@ function handleFlashVideoMetadata(data) {
 					var scaleFactor = (1040 - 144) / width;
 					width *= scaleFactor;
 					height *= scaleFactor;
-					console.log("adasd");
 				}
 				
 			}
