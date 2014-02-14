@@ -1924,6 +1924,12 @@ function handleFlashVideoMetadata(data) {
 			$(this.image).appendTo(this.wrapper);
 			$(this.image).css('display', 'none');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
+			
+			var url = this.model.path;
+			var queryVars = scalarapi.getQueryVars();
+			if ( queryVars.t != null ) {
+				url += '?t=' + new Date().getTime();
+			}
 
 			// setup actions to be taken on image load
 			$(this.image).load(function() {
@@ -1949,7 +1955,7 @@ function handleFlashVideoMetadata(data) {
 					me.setupAnnotations(me.annotations);
 				}
 
-			}).attr('src', this.model.path);
+			}).attr('src', url);
 
     	}
 
