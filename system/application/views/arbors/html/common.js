@@ -76,19 +76,25 @@ function validate_upload_form($form, url) {
 	}	
 	
 	var values = {};
-	values['scalar:metadata:url'] = url;  
+	values['scalar:url'] = url;  
 	
 	// Construct slug (if applicable)
 	var name_policy = $form.find('input[name="name_policy"]:checked').val();
 	if ('filename' == name_policy) {
 		var slug = url;
 		if (slug.indexOf('.')!=-1) slug = slug.substr(0, slug.lastIndexOf('.'));
-		values['scalar:metadata:slug'] = slug;
+		values['scalar:slug'] = slug;
 	} else if ('title' == name_policy) {
 		var slug_prepend = $form.find('input[name="slug_prepend"]:checked').val();
 		var slug = (slug_prepend.length) ? slug_prepend+'/' : '';
 		slug += title;
-		values['scalar:metadata:slug'] = slug;		
+		values['scalar:slug'] = slug;		
+	}
+
+	// Set scalar:urn if 'replace' is present (e.g., update vs add)
+	if ($form.find('select[name="replace"] option:selected').val().length) {
+		$form.find('input[name="scalar:urn"]').val( $form.find('select[name="replace"] option:selected').val() );
+		$form.find('input[name="action"]').val('update');
 	}
 
 	return send_form($form, values);
@@ -202,7 +208,7 @@ function send_form_relationships($form, version_urn, redirect_url) {
 	
 	// Save relationships
 	var success = function() {
-		document.location.href=redirect_url;
+		document.location.href=redirect_url + '?t=' + (new Date).getTime();
 	} 
 	scalarapi.saveManyRelations(values, success);   	
 
@@ -365,6 +371,11 @@ function get_str(remove_arr) {
 	if ('&'==varstr.substr(varstr.length-1)) varstr = varstr.substr(0, varstr.length-1);
 	return varstr;
 
+}
+
+// http://stackoverflow.com/questions/11920697/how-to-get-hash-value-in-a-url-in-js
+function getHashValue(key) {
+	return location.hash.match(new RegExp(key+'=([^&]*)'))[1];
 }
 
 // http://phpjs.org/functions/htmlspecialchars

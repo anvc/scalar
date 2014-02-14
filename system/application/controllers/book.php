@@ -338,25 +338,23 @@ class Book extends MY_Controller {
 
 		$this->data['view'] = __FUNCTION__;
 
-		if ($action == 'add') {
+		if ($action == 'add' || $action == 'replace') {
 			$return = array();
 			try {
-				//throw new Exception ("You can't do that");
 				if (empty($_FILES)) throw new Exception('Could not find uploaded file');
 				$path =@ $_POST['slug_prepend'];
 				$targetPath = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$path;
 				if (!file_exists($targetPath)) mkdir($targetPath, 0777, true);		 
 				$tempFile = $_FILES['source_file']['tmp_name'];
-				$targetFile = rtrim($targetPath,'/') . '/' . $_FILES['source_file']['name'];
-				/*
-				$fileTypes = array('jpg','jpeg','gif','png'); // File extensions
-				$fileParts = pathinfo($_FILES['Filedata']['name']);
-				if (!in_array($fileParts['extension'],$fileTypes)) {
-					throw new Exception ('Invalid file type');
+				$name = $_FILES['source_file']['name'];
+				if (!empty($_POST['replace'])) {
+					$version_id = array_pop(explode(':',$_POST['replace']));  // replace is an urn
+					$version = $this->versions->get($version_id);
+					$name = ltrim($version->url, 'media/');
 				}
-				*/
-				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file');				
-				$url = ((!empty($path))?confirm_slash($path):'').$_FILES['source_file']['name'];
+				$targetFile = rtrim($targetPath,'/') . '/' . $name;
+				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');				
+				$url = ((!empty($path))?confirm_slash($path):'').$name;
 				$return['error'] = '';
 				$return['url'] = $url;
 			} catch (Exception $e) {
@@ -364,6 +362,15 @@ class Book extends MY_Controller {
 			}		
 			echo json_encode($return);
 			exit;						
+		}
+		
+		// List of media pages
+		// TODO: replace versioning with the set_recent_version_id method used elsewhere
+		$this->data['book_media'] = $this->pages->get_all($this->data['book']->book_id, 'media', null, false);
+		$to_remove = array();
+		for ($j = 0; $j < count($this->data['book_media']); $j++) {
+			$this->data['book_media'][$j]->versions = $this->versions->get_all($this->data['book_media'][$j]->content_id, null, 1);
+			//if (!$this->versions->url_is_public($this->data['book_media'][$j]->versions[0]->url)) $to_remove[] = $j;
 		}
 		
 	}

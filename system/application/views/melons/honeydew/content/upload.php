@@ -1,3 +1,22 @@
+<?
+$js = <<<END
+
+$( document ).ready(function() {
+	$('select[name="replace"]').change(function() {
+		$('input[name="dcterms:title"]').val( $(this).find('option:selected').text() );
+	});
+	if (getHashValue('replace')) {
+		var replace = getHashValue('replace');
+		if ($("select[name='replace'] option[value='urn:scalar:version:"+replace+"']").length) {
+			$("select[name='replace'] option[value='urn:scalar:version:"+replace+"']").attr('selected', 'selected');
+			$('input[name="dcterms:title"]').val( $(this).find('option:selected').text() ); // Since .attr() didn't really "change" the select box
+		}
+	}
+});
+
+END;
+$this->template->add_js($js, 'embed');
+?>
 <? if (@$_REQUEST['action']=='upload_saved'): ?>
 <div class="saved">Media has been saved&nbsp;  (<a href="<?=((isset($_REQUEST['redirect_url']))?$_REQUEST['redirect_url']:$uri)?>">View</a>)<a style="float:right" href="<?=$uri?>">clear</a></div><br />
 <? endif ?>
@@ -48,6 +67,18 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm
 <input type="radio" name="slug_prepend" value="media" CHECKED /> <?=confirm_slash($book->slug)?>media<br />
 </td></tr>
 <tr><td class="field">Media page URL</td><td><input type="radio" name="name_policy" value="filename" /> Create from filename &nbsp;<input type="radio" name="name_policy" value="title" CHECKED /> Create from title</td></tr>
+<tr>
+  <td class="field">Replace existing</td>
+  <td><select name="replace" style="width:100%;"><option value="">-- choose an existing local media file to replace with this upload</option><?
+  	foreach($book_media as $book_media_row) {
+  		if (!$this->versions->url_is_local($book_media_row->versions[0]->url)) continue;
+  		echo '<option value="'.$this->versions->urn($book_media_row->versions[0]->version_id).'">';
+  		if (!isset($book_media_row->versions[0])) continue;
+  		echo $book_media_row->versions[0]->title;
+  		echo '</option>';
+  	}
+  ?></select></td>
+</tr>
 <tr><td class="field">&nbsp;</td></tr>
 <tr><td class="field">Choose file&nbsp; &nbsp; &nbsp;</td><td><input type="file" name="source_file" /></td></tr>
 <tr><td>&nbsp;</td><td class="form_buttons"><input type="submit" value="Upload" /><div style="float:right;margin:20px 20px 0px 0px;" id="spinner_wrapper"></div></td></tr>

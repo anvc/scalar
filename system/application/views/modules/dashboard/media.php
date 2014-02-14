@@ -184,7 +184,7 @@
 			$url_base = confirm_slash(base_url()).confirm_slash($book->slug);
 ?>		
 		<div style="padding-top:10px;padding-left:4px;">
-			Import page quick links<br /> 
+			Import page quick links:&nbsp; 
 			<a href="<?=$url_base?>import/critical_commons">Critical Commons</a>,&nbsp; 
 			<a href="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a>,&nbsp; 
 			<a href="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</a>,&nbsp; 
@@ -192,7 +192,7 @@
 			<a href="<?=$url_base?>import/internet_archive">Internet Archive</a>,&nbsp; 
 			<a href="<?=$url_base?>import/play">PLAY!</a>,&nbsp; 
 			<a href="<?=$url_base?>import/shoah_foundation_vha_online">VHA Online</a>,&nbsp;
-			<a href="<?=$url_base?>import/shoah_foundation_vha">VHA</a><br />
+			<a href="<?=$url_base?>import/shoah_foundation_vha">VHA</a>&nbsp; |&nbsp; 
 			<a href="<?=$url_base?>import/prezi">Prezi</a>,&nbsp;
 			<a href="<?=$url_base?>import/soundcloud">SoundCloud</a>,&nbsp;
 			<a href="<?=$url_base?>import/vimeo">Vimeo</a>,&nbsp;
@@ -215,6 +215,7 @@
 				<th>URI</th>
 				<th>Title</th>
 				<th>Category</th>
+				<th>File URL</th>
 				<th>Created</th>
 				<th>User</th>
 				<th>Versions</th>
@@ -237,8 +238,12 @@
 			echo '<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'.$row->is_live."</td>\n";
 			echo '<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'.confirm_slash(base_url()).confirm_slash($book->slug).$row->slug.'">'.$row->slug."</a></td>\n";
 			echo '<td property="title">'.$title."</td>\n";
-			echo '<td property="url" style="max-width:200px;overflow:hidden;"><a href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'">'.$url."</a></td>\n";
 			echo '<td class="editable enum {\'review\',\'commentary\'}" property="category" width="100px" style="white-space:nowrap;">'.$category."</td>\n";
+			// URL
+			echo '<td property="url" style="max-width:200px;overflow:hidden;">';
+			echo '<a href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'">'.$url.'</a> ';
+			if ($this->versions->url_is_local($url)) echo '<a class="generic_button" href="'.confirm_slash(base_url()).confirm_slash($book->slug).'upload#replace='.$row->versions[0]->version_id.'">replace</a>';
+			echo "</td>\n";
 			echo '<td style="white-space:nowrap;">'.((!empty($row->created)&&$row->created!='0000-00-00 00:00:00')? date( 'M j, Y g:i A', strtotime($row->created)):'')."</td>\n";
 			echo '<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'.$row->user."</td>\n";
 			echo '<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="media_get_versions('.$row->content_id.',this);" class="generic_button">View</a></td>'."\n";

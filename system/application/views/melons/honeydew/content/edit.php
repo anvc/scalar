@@ -72,6 +72,11 @@ endif;
 	<tr class="type_media">
 		<td class="field">Media File URL</td><td><input name="scalar:url" value="<?=(!empty($file_url))?$file_url:'http://'?>" style="width:100%;" onfocus="if (this.value=='http://') this.value='';" /></td>
 	</tr>
+	<? if (isset($page) && $this->versions->url_is_local($page->versions[0]->url)): ?>
+	<tr class="type_media">
+		<td class="field"></td><td>File can be replaced with another upload at <a href="<?=confirm_slash(base_url()).$book->slug?>/upload#replace=<?=$version->version_id?>">Import > Local Media Files</a></td>
+	</tr>	
+	<? endif ?>
 
 	<!-- Edit content -->
 	<tr id="edit_content" class="type_composite">
@@ -386,7 +391,7 @@ endif;
   		<tr><!-- thumbnail -->
   			<td>Thumbnail</td>
   			<td><?=((@!empty($page->thumbnail))?'<img src="'.abs_url($page->thumbnail, $base_uri).'" class="thumb_preview" />':'No thumbnail image has been set')?></td>
-  			<td class="styling_last"><select name="scalar:thumbnail"><option value="">Choose an uploaded image</option><?
+  			<td class="styling_last"><select name="scalar:thumbnail"><option value="">Choose an image</option><?
   				$matched = false;
   				foreach ($book_images as $book_image_row) {
   					if (@$page->thumbnail==$book_image_row->versions[$book_image_row->version_index]->url) $matched = true;

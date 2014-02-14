@@ -454,6 +454,17 @@ class Version_model extends MY_Model {
     	
     }
     
+    /**
+     * Make an assumption on whether or not the URL field is local or external
+     */
+    public function url_is_local($url) {
+    	
+    	$arr = parse_url($url);
+    	if (!isset($arr['scheme']) || empty($arr['scheme'])) return true;
+    	return false;
+    	
+    }
+    
 	/**
 	 * Filter a DB result of versions based on a search query (an array of terms)
 	 */      
