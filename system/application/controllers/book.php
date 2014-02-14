@@ -351,8 +351,7 @@ class Book extends MY_Controller {
 					$version_id = array_pop(explode(':',$_POST['replace']));  // replace is an urn
 					$version = $this->versions->get($version_id);
 					$name = $version->url;
-					if (substr($name, 0, 6)=='media/') $name = substr($name, 6);
-					//$name = ltrim($version->url, 'media/');
+					if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
 				}
 				$targetFile = rtrim($targetPath,'/') . '/' . $name;
 				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');				
