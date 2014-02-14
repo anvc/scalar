@@ -2760,10 +2760,10 @@ function handleFlashVideoMetadata(data) {
 				}
 			}
 			
-			if ((this.model.seekAnnotation != null) && (scalarapi.scalarBrowser != 'MobileSafari')) {
+			/*if ((this.model.seekAnnotation != null) && (scalarapi.scalarBrowser != 'MobileSafari')) {
 				params.playerVars.start = Math.round( this.model.seekAnnotation.properties.start );
 				params.playerVars.end = Math.round( this.model.seekAnnotation.properties.end );
-			}
+			}*/
 			
 			this.video = new YT.Player('youtube'+this.model.filename+'_'+this.model.id, params);
 			
@@ -2779,7 +2779,7 @@ function handleFlashVideoMetadata(data) {
 		jQuery.YouTubeVideoObjectView.prototype.play = function() {
 			if (this.video) {
 				if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
-					this.video.seekTo(this.model.seekAnnotation.properties.start, true);
+					this.video.seekTo(this.model.seekAnnotation.properties.start, false);
 				}
 				if (this.video.getPlayerState() != 1) {
 					this.video.playVideo();
@@ -2802,7 +2802,7 @@ function handleFlashVideoMetadata(data) {
 		jQuery.YouTubeVideoObjectView.prototype.seek = function(time) {
 			if (this.video) {
 				if (this.video.seekTo) {
-					this.video.seekTo(time, true);
+					this.video.seekTo(time, false);
 					if (scalarapi.scalarBrowser != 'MobileSafari') this.pause(); // because the seek command tries to start playing automagically
 				}
 			}
