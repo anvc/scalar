@@ -350,7 +350,9 @@ class Book extends MY_Controller {
 				if (!empty($_POST['replace'])) {
 					$version_id = array_pop(explode(':',$_POST['replace']));  // replace is an urn
 					$version = $this->versions->get($version_id);
-					$name = ltrim($version->url, 'media/');
+					$name = $version->url;
+					if (substr($name, 0, 6)=='media/') $name = substr($name, 6);
+					//$name = ltrim($version->url, 'media/');
 				}
 				$targetFile = rtrim($targetPath,'/') . '/' . $name;
 				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');				
