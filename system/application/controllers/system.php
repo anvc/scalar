@@ -42,13 +42,16 @@ class System extends MY_Controller {
 		$this->load->model('book_model', 'books');
 		$book_list_dir = $this->config->item('active_book_list');
 		if (empty($book_list_dir)) die('Could not find book list directory.');
+		//@Lucas - added config item to set active cover (see local_settings.php)
+		$cover_dir = $this->config->item('active_cover');
+		if (empty($cover_dir)) die('Could not find cover directory.');
 
 		$this->data['title'] = $this->lang->line('install_name');
 		$this->data['cover_title']  = $this->lang->line('install_name');
 		$this->data['books'] = $this->books->get_all();
 		
 		$this->template->set_template('admin');
-		$this->template->write_view('cover', 'modules/cover/dashboard_cover', $this->data);
+		$this->template->write_view('cover', 'modules/'.trim($cover_dir,'/').'/dashboard_cover', $this->data);
 		$this->template->write_view('content', 'modules/'.trim($book_list_dir,'/').'/book_list', $this->data);
 		$this->template->render();
 		
@@ -254,13 +257,48 @@ class System extends MY_Controller {
 					$user_id =@ (int) $_POST['user_id'];
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 					
 					$book_id = (int) $this->books->duplicate($_POST);
-					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=duplicated');
+					//@Lucas - added option to redirect to page of choice
+					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
+						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
+					
+						$redirect_url = $_POST['redirect'];
+						
+						if(!isset($url_has_query)){
+							if(substr($redirect_url, -1)!='?'){
+								$redirect_url .= '?';
+							}
+						}else{
+							$redirect_url .= '&';
+						}
+						$redirect_url .= 'duplicated=1';
+						
+						header('Location: '.$redirect_url);
+					}else{
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=duplicated');
+					}
 					exit; 		 			
 				case 'do_add_book':   // Admin: All Books (requires title) & My Account (request user_id & title)
 					$user_id =@ (int) $_POST['user_id'];
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
 					$book_id = (int) $this->books->add($_POST);
-					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
+						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
+					
+						$redirect_url = $_POST['redirect'];
+						
+						if(!isset($url_has_query)){
+							if(substr($redirect_url, -1)!='?'){
+								$redirect_url .= '?';
+							}
+						}else{
+							$redirect_url .= '&';
+						}
+						$redirect_url .= 'created=1';
+						
+						header('Location: '.$redirect_url);
+					}else{
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+					}
 					exit; 			 					 			
 				case 'do_add_user':  // Admin: All Users
 					if (!$this->data['login_is_super']) $this->kickout();
@@ -312,7 +350,44 @@ class System extends MY_Controller {
 						$this->data['book_list'][] = $msg;
 					}
 					unset($books); 
-					break;					
+					break;	
+				case 'acls_join_book': // @Lucas - added function to add a user as a "reader" to a book, as well as email the author
+				
+					if (!$this->data['login']->is_logged_in) $this->kickout();
+					
+					$this->load->model('book_model', 'books');
+					$this->load->library('SendMail', 'sendmail');
+				
+					$book_id = @ (int) $_REQUEST['book_id'];
+					
+					$this->data['book'] = $this->books->get($book_id);
+							
+					$list_in_index = 0; 
+					$this->data['content'] = $this->users->save_books($this->data['login']->user_id, array($this->data['book']->book_id), 'reader', $list_in_index);
+					
+					//Send email to current authors. If the current user opted to request to become an author, send that email instead.
+					$this->sendmail->acls_join_book($this->data['login'], $this->data['book'], (int)$_REQUEST['request_author'], @$_REQUEST['author_reason']);
+					
+					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
+						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
+					
+						$redirect_url = $_POST['redirect'];
+						
+						if(!isset($url_has_query)){
+							if(substr($redirect_url, -1)!='?'){
+								$redirect_url .= '?';
+							}
+						}else{
+							$redirect_url .= '&';
+						}
+						$redirect_url .= 'joined=1';
+						
+						header('Location: '.$redirect_url);
+					}else{
+						header('Location: '.base_url().'?joined=1');
+					}
+					
+					break;			
 		 	}
 	 	} catch (Exception $e) {
 			show_error($e->getMessage());

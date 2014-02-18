@@ -1,0 +1,117 @@
+
+.system_wrapper { min-width: 950px; max-width: 1050px; }
+
+#user_books {
+	background-color: white;
+	padding: 5px 20px 0 20px;
+	border: solid 1px #e7e5e0;
+	width:350px;
+}
+
+#other_books {
+	position: absolute;
+	padding-top: 5px;
+	border-top: solid 1px #e7e5e0;
+	margin-left: 420px;
+	max-width: 630px;
+}
+
+#other_books.wide {
+	float: none;
+	margin-left: 0;
+	max-width: inherit;
+}
+
+h3 {
+	color: #aaa;
+	font-weight: 400;
+}
+
+#other_books .book_icons h4 {
+	font-size: 14px;
+}
+
+.book_icons h4 {
+	margin: 0;
+	padding: 0;
+	font-size: 18px;
+	font-weight: 900;
+}
+
+
+.book_icons h4 a {
+	color: black;
+}
+
+.book_icons {
+	margin: 0; 
+	padding:0;
+	list-style-type: none;
+}
+
+.book_icons img {
+	border:0; 
+	max-width:120px; 
+	max-height:120px;
+	margin-right: 15px;
+	margin-bottom: 30px;
+	float: left;
+}
+
+.book_icons img.small {
+	max-width:60px; 
+	max-height:60px;
+}
+
+.book_icons li { 
+	clear: left;
+	border-bottom: solid 1px #f8f8f8;
+	height: 120px;
+	overflow: hidden;
+	margin-bottom: 20px;
+	background: -moz-linear-gradient(top,  rgba(255,255,255,0) 50%, rgba(248,248,248,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(50%,rgba(255,255,255,0)), color-stop(100%,rgba(248,248,248,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(255,255,255,0) 50%,rgba(248,248,248,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(255,255,255,0) 50%,rgba(248,248,248,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(255,255,255,0) 50%,rgba(248,248,248,1) 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  rgba(255,255,255,0) 50%,rgba(248,248,248,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#f8f8f8',GradientType=0 ); /* IE6-9 */
+}
+
+#other_books .book_icons {
+	font-size: 80%;
+}
+
+#other_books.wide .book_icons {
+	width: inherit;
+}
+
+#other_books .book_icons img {
+	margin-bottom: 15px;
+}
+
+#other_books .book_icons li { 
+	width: 300px;
+	height: 60px;
+	border-bottom: solid 1px #eee;
+	margin-right: 10px;
+	float: left;
+	clear: none;
+	margin-bottom: 20px;
+	background: -moz-linear-gradient(top,  rgba(255,255,255,0) 50%, rgba(238,238,238,1) 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(50%,rgba(255,255,255,0)), color-stop(100%,rgba(238,238,238,1))); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  rgba(255,255,255,0) 50%,rgba(238,238,238,1) 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  rgba(255,255,255,0) 50%,rgba(238,238,238,1) 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  rgba(255,255,255,0) 50%,rgba(238,238,238,1) 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  rgba(255,255,255,0) 50%,rgba(238,238,238,1) 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#eeeeee',GradientType=0 ); /* IE6-9 */
+}
+
+#other_books.wide .book_icons li { 
+	width: 340px;
+}
+
+.msg {
+	margin-top:12px; 
+	margin-bottom:18px;
+}

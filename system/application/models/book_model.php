@@ -132,7 +132,8 @@ class Book_model extends MY_Model {
     	
     	$this->db->select('*');
     	$this->db->from($this->books_table);
-		$this->db->like('title', 'data-duplicatable="all"'); 
+		//@Lucas: Just changed "all" to "true" since, right now, we don't have any means of making this more granular; This may be changed in the future
+		$this->db->like('title', 'data-duplicatable="true"'); 
     	$this->db->order_by($orderby, $orderdir); 
     	
     	$query = $this->db->get();
@@ -146,8 +147,8 @@ class Book_model extends MY_Model {
     }
     
     public function is_duplicatable($book) {
-    	
-    	if (stristr($book->title, 'data-duplicatable="all"')) return true;
+    	//@Lucas: Just changed "all" to "true" since, right now, we don't have any means of making this more granular; This may be changed in the future
+    	if (stristr($book->title, 'data-duplicatable="true"')) return true;
     	return false;
     	
     }

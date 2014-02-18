@@ -29,6 +29,51 @@ class SendMail {
 		return true;
 
     }
+	
+	//@Lucas - Adding "Join Book"  helper function
+	public function acls_join_book($user, $book, $request_author = 0, $message){
+		$author_emails = array();
+		foreach($book->users as $author){
+			if($author->relationship == 'author'){
+				$author_emails[] = $author->email;
+			}
+		}
+		
+		$this->CI->load->helper('url');
+		
+		$data = array(
+			'book_title' => strip_tags($book->title),
+			'book_id' => $book->book_id,
+			'author_request_message'=>wordwrap($message, 70),
+			'user_name' => $user->fullname,
+			'site_url' => base_url()
+		);
+		
+		
+		$this->CI->email->from('no-reply@'.$this->domain_name(), $this->install_name());
+		$this->CI->email->reply_to($user->email, $user->fullname);
+		$this->CI->email->to($author_emails); 
+		
+		if($request_author){
+			$this->CI->email->subject(sprintf($this->CI->lang->line('acls_email.request_author_role_subject'),$data['book_title']));
+			if(!empty($message)){
+				$msg  = $this->CI->load->view('email/acls_request_author_role_with_message',$data,TRUE);
+			}else{
+				$msg  = $this->CI->load->view('email/acls_request_author_role_with_no_message',$data,TRUE);
+			}
+		}else{
+			$this->CI->email->subject(sprintf($this->CI->lang->line('acls_email.user_joined_subject'),$data['book_title']));
+			$msg  = $this->CI->load->view('email/acls_user_joined',$data,TRUE);
+		}
+		
+		$this->CI->email->message($msg);  
+		
+		if (!$this->CI->email->send()) {
+			throw new Exception('Could not send email.  Please try again or contact an administrator.');
+		}
+
+		return true;
+	}
     
     private function domain_name() {
     	

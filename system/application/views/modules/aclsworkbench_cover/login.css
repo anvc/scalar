@@ -1,0 +1,8 @@
+
+.login {
+	float:right; 
+	margin:0 0.5em 0 1em; 
+	padding:0 0 0 0.9em; 
+	border-left:solid 1px #ccc; 
+	white-space:nowrap;
+}

@@ -9,6 +9,9 @@ $config['active_melon'] = 'honeydew';
 // Default book index module (note that the index can be rerouted completely in /.htaccess)
 $config['active_book_list'] = 'book_list';
 
+// Default cover module 
+$config['active_cover'] = 'cover';
+
 // SALT, any string you want as long as it is complicated
 $config['shasalt'] = '';
 
