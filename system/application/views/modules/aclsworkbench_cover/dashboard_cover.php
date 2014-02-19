@@ -2,7 +2,6 @@
 	if (!defined('BASEPATH')){ exit('No direct script access allowed'); }
 	$this->template->add_css(path_from_file(__FILE__).'css/bootstrap.min.css');
 	$this->template->add_css(path_from_file(__FILE__).'css/cover.css?v=2');
-	$this->template->add_css(path_from_file(__FILE__).'css/whhg.css');
 	$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');
 	$method = $this->router->fetch_method();
 
@@ -23,7 +22,7 @@
 	}
 	
 	define('ACLSWORKBENCH_METHOD',$method);
-	define('ACLSWORKBENCH_ICON_URL','/'.path_from_file(__FILE__).'img/project_icon.svg');
+	define('ACLSWORKBENCH_ICON_URL',base_url().path_from_file(__FILE__).'img/project_icon.svg');
 	define('ACLSWORKBENCH_LOGIN_URL',$login_url);
 	
 ?>
