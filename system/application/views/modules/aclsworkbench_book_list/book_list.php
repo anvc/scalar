@@ -113,9 +113,9 @@
 		}
 		
 		$row->title = strip_tags($row->title);
-
-		
+				
 		$row->data = $extra_data;
+		
 		$row->current_user = in_array($book_id, $login_book_ids);
 		if($is_live && $is_public){
 			if ($is_featured) {
@@ -127,16 +127,15 @@
 						'title'=>$row->title,
 						'description'=>$row->description
 					);
-				}else{
-					if(!$row->current_user_is_author && (!isset($row->data['joinable']) || !in_array($row->data['joinable'],array('false','0')))){
-						$featured_joinable[] = $row;
-						$joinable_stripped[] = array(
-							'id'=>$book_id,
-							'authors'=>implode(', ',$authors),
-							'title'=>$row->title,
-							'description'=>$row->description
-						);
-					}
+				}
+				if(!$row->current_user && (!isset($row->data['joinable']) || !in_array($row->data['joinable'],array('false','0')))){
+					$featured_joinable[] = $row;
+					$joinable_stripped[] = array(
+						'id'=>$book_id,
+						'authors'=>implode(', ',$authors),
+						'title'=>$row->title,
+						'description'=>$row->description
+					);
 				}
 				$featured_books[] = $row;
 				$other_stripped[] = array(
@@ -154,16 +153,15 @@
 						'title'=>$row->title,
 						'description'=>$row->description
 					);
-				}else{
-					if(!$row->current_user && (!isset($row->data['joinable']) || !in_array($row->data['joinable'],array('false','0')))){
-						$joinable[] = $row;
-						$joinable_stripped[] = array(
-							'id'=>$book_id,
-							'authors'=>implode(', ',$authors),
-							'title'=>$row->title,
-							'description'=>$row->description
-						);
-					}
+				}
+				if(!$row->current_user && (!isset($row->data['joinable']) || !in_array($row->data['joinable'],array('false','0')))){
+					$joinable[] = $row;
+					$joinable_stripped[] = array(
+						'id'=>$book_id,
+						'authors'=>implode(', ',$authors),
+						'title'=>$row->title,
+						'description'=>$row->description
+					);
 				}			
 				$other_books[] = $row;
 				$other_stripped[] = array(
@@ -206,6 +204,109 @@
 		<hr class="dark mobile_only" />
 		<br />
 	<?php
+	
+		//Make the Modal Windows for Join and Clone
+		//Join
+		?>
+			<div class="modal fade" id="join_dialogue">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="join_dialogue_title">Join Book</h4>
+				  </div>
+				  <div class="modal-body">
+					<?php
+						if($login->is_logged_in){
+					?>
+						<form id="create_book_form" action="http://scalar.faciam.us/system/dashboard" method="post">
+							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
+							<input type="hidden" name="action" value="acls_join_book">
+							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
+							<input type="hidden" name="book_id" id="book_id" value="">
+							<div class="book_image"></div>
+							<p>You are about to join this book - this means that you will be added automatically as a subscribed reader, and it will show up under "Your Books" on the main book index. You may also optionally request to become a co-author of this book, pending current author approval.</p>
+							<br />
+							<label>Would you like to be added as an author to this book? Note that current authors will receive an email and then may approve or deny your request.</label>
+							<div class="radio">
+							<label>
+							  <input type="radio" name="request_author" id="request_author_no" value="0" checked>
+									I would only like to join to this book <br />  <em class="text-muted">(You will be able to read and comment on this book, but you will not be able to edit or create content)</em><br />
+								</label>
+							</div>
+							<div class="radio">
+							  <label>
+								<input type="radio" name="request_author" id="request_author_yes" value="1">
+									I would like to join and request to become co-author of this book <br /> <em class="text-muted">(Pending current author approval, you will be able to create and edit content on this book)</em><br />
+								</label>
+								<div class="hidden" id="author_reason_container">
+									<div class="form-group well">
+										<label for="author_reason">Message for Current Authors <em class="text-muted">(Optional)</em>
+											<textarea id="author_reason" name="author_reason"></textarea>
+										</label>
+									</div>
+								</div>
+							</div>
+							<br class="clearfix" />
+					</div>
+					<div class="modal-footer">
+						<input type="submit" class="btn btn-primary pull-right" value="Join Book">
+						</form>
+					<?php
+						}else{
+							echo '<div class="alert alert-danger">In order to join this book, you must first either <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/login?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.sign_in'), '</a> ',lang('or'),' <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/register?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.register'), '</a> </div>';
+						}
+					?>
+				  </div>
+				  
+				</div><!-- /.modal-content -->
+			  </div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+		<?php
+		
+		//Clone
+		?>
+			<div class="modal fade" id="clone_dialogue">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="clone_dialogue_title">Clone Book</h4>
+				  </div>
+				  <div class="modal-body">
+					<?php
+						if($login->is_logged_in){
+					?>
+						<form id="create_book_form" action="http://scalar.faciam.us/system/dashboard" method="post">
+							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
+							<input type="hidden" name="action" value="do_duplicate_book">
+							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
+							<input type="hidden" name="book_to_duplicate" id="book_to_duplicate" value="">
+							<div class="book_image"></div>
+							<p>You are about to clone this book - a copy of this book with your new title will be added to "Your Books" on the book index.<p>
+							<p><em class="text-muted">Note that any pages that you have not edited will still show the previous author as the last editor. Once you have modified these files, you will be shown as the most recent editor. Any new files you will create will also show you as the editor.</em></p>
+							<br />
+							<div class="form-group">
+								<label for="clone_title">Title of new book:
+									<input type="text" name="title" id="clone_title">
+								</label>
+							</div>
+						
+					</div>
+					<div class="modal-footer">
+						<input type="submit" class="btn btn-primary pull-right" value="Clone Book">
+						</form>
+					<?php
+						}else{
+							echo '<div class="alert alert-danger">In order to clone this book, you must first either <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/login?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.sign_in'), '</a> ',lang('or'),' <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/register?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.register'), '</a> </div>';
+						}
+					?>
+				  </div>
+				  
+				</div><!-- /.modal-content -->
+			  </div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+		<?php
 	}
 	
 	$book_json = '[]';

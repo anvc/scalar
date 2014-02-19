@@ -46,7 +46,8 @@ class SendMail {
 			'book_id' => $book->book_id,
 			'author_request_message'=>wordwrap($message, 70),
 			'user_name' => $user->fullname,
-			'site_url' => base_url()
+			'site_url' => base_url(),
+			'email_type' => 'join_only'
 		);
 		
 		
@@ -57,14 +58,14 @@ class SendMail {
 		if($request_author){
 			$this->CI->email->subject(sprintf($this->CI->lang->line('acls_email.request_author_role_subject'),$data['book_title']));
 			if(!empty($message)){
-				$msg  = $this->CI->load->view('email/acls_request_author_role_with_message',$data,TRUE);
+				$data['email_type'] = 'author_with_message';
 			}else{
-				$msg  = $this->CI->load->view('email/acls_request_author_role_with_no_message',$data,TRUE);
+				$data['email_type'] = 'author_no_message';
 			}
 		}else{
 			$this->CI->email->subject(sprintf($this->CI->lang->line('acls_email.user_joined_subject'),$data['book_title']));
-			$msg  = $this->CI->load->view('email/acls_user_joined',$data,TRUE);
 		}
+		$msg  = $this->CI->load->view('modules/aclsworkbench_book_list/email',$data,TRUE);
 		
 		$this->CI->email->message($msg);  
 		
