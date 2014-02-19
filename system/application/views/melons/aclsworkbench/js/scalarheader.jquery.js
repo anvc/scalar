@@ -93,7 +93,7 @@
 		var list = $( '<ul></ul>' ).appendTo( this.element );
 		
 		// Index
-		list.append( '<li id="workbench-item"><img src="/system/application/views/modules/aclsworkbench_cover/img/project_icon.svg" alt="Click to go to Workbench index." width="40" height="40" style="top: 5px;" /></li>' );
+		list.append( '<li id="workbench-item"><img src="'+base_url+'system/application/views/modules/aclsworkbench_cover/img/project_icon.svg" alt="Click to go to Workbench index." width="40" height="40" style="top: 5px;" /></li>' );
 		$( '#workbench-item' ).click(function() {
 			document.location = '/';
 		});

@@ -20,3 +20,6 @@ if (file_exists(confirm_slash(APPPATH).'views/melons/aclsworkbench/'.$view.'.php
   $this->load->view('melons/cantaloupe/'.$view);
 }
 ?>
+<script type="text/javascript">
+	var base_url = '<?php echo base_url(); ?>';
+</script>
