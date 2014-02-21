@@ -367,7 +367,7 @@
 			},
 			
 			addColophon: function() {
-				$('article').append('<div id="colophon" class="caption_font"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></div>');
+				$('article').append('<div id="colophon" class="caption_font"><p id="scalar-credit"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></p></div>');
 			},
 			
 			setupScreenedBackground: function() {
@@ -439,6 +439,63 @@
 					}
 					noteViewer.append( '<br/><br/><a href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
 				}
+			},
+			
+			handleBook: function() {
+			
+				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				
+				if ( viewType == 'book_splash' ) {
+	
+					var i, n,
+						owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
+						authors = [];
+					if ( owners ) {
+						n = owners.length;
+						for ( i = 0; i < n; i++ ) {
+							authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
+						}
+					}
+					
+					var author,
+						n = authors.length,
+						byline = $( '.title_card > h2' );
+					for ( var i = 0; i < n; i++ ) {
+						author = authors[ i ];
+						if ( i == 0 ) {
+							byline.append( 'by ' );
+						} else if ( i == ( n - 1 )) {
+							if ( n > 2 ) {
+								byline.append( ', and ' );
+							} else {
+								byline.append( ' and ' );
+							}
+						} else {
+							byline.append( ', ' );
+						}
+						byline.append( author.getDisplayTitle() );
+					}
+					
+				}
+				
+				var publisherUrl = scalarapi.model.bookNode.properties[ 'http://purl.org/dc/terms/publisher' ],
+					publisherThumbnail = scalarapi.model.bookNode.properties[ 'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail' ];
+					
+				var publisherInfo = $( '<p id="publisher-credit"></p>' );
+				
+				if ( publisherThumbnail != null ) {
+					publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
+				}
+				
+				if ( publisherUrl != null ) {
+					var publisherNode = scalarapi.getNode( publisherUrl[0].value );
+					if ( publisherNode != null ) {
+						publisherInfo.append( ' ' + publisherNode.getDisplayTitle() );
+					}
+				}
+				
+				$( '#colophon' ).prepend( publisherInfo );
+			
 			},
 			
 			addMediaElements: function() {
@@ -560,204 +617,172 @@
 		
 		var i, node, nodes, link;
 		
-		//console.log(currentNode.current.properties);
-		var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
-		switch (viewType) {
-			
-			case 'splash':
-			$( 'article' ).before( '<div class="blackout"></div>' );
-			element.addClass('splash');
-			$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
-			//$('.title_card').append('<h2>By Steve Anderson</h2>');
-			//$('.title_card').delay(500).fadeIn(2000);
-			$('[property="art:url"]').hide();
-			element.css('backgroundImage', $('body').css('backgroundImage'));
-			$('body').css('backgroundImage', 'none');
-			$('.paragraph_wrapper').remove();
-			page.addRelationshipNavigation(false);
-			$('.relationships').appendTo('.title_card');
-			
-			$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
-				$( '.blackout' ).remove();
-				$( '.title_card' ).addClass( 'fade_in' );
-				next();
-			} );
-			break;
-			
-			case 'book_splash':
-			$( 'article' ).before( '<div class="blackout"></div>' );
-			element.addClass('splash');
-			$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
-			$( 'h1[property="dcterms:title"]' ).html( $( '#book-title' ).html() );
-			$( '.title_card' ).append('<h2></h2>');
-			$('[property="art:url"]').hide();
-			element.css('backgroundImage', $('body').css('backgroundImage'));
-			$('body').css('backgroundImage', 'none');
-			$('.paragraph_wrapper').remove();
-			page.addRelationshipNavigation(false);
-			$('.relationships').appendTo('.title_card');
-			
-			$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
-				$( '.blackout' ).remove();
-				$( '.title_card' ).addClass( 'fade_in' );
-				next();
-			} );
-			
-			
-			// load info about the book, build main menu when done
-			scalarapi.loadBook(true, function() {
+		if ( currentNode != null ) {
+			var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+			switch (viewType) {
 				
-				var i, n,
-					owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
-					authors = [];
-				if ( owners ) {
-					n = owners.length;
-					for ( i = 0; i < n; i++ ) {
-						authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
-					}
-				}
+				case 'splash':
+				$( 'article' ).before( '<div class="blackout"></div>' );
+				element.addClass('splash');
+				$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
+				//$('.title_card').append('<h2>By Steve Anderson</h2>');
+				//$('.title_card').delay(500).fadeIn(2000);
+				$('[property="art:url"]').hide();
+				element.css('backgroundImage', $('body').css('backgroundImage'));
+				$('body').css('backgroundImage', 'none');
+				$('.paragraph_wrapper').remove();
+				page.addRelationshipNavigation(false);
+				$('.relationships').appendTo('.title_card');
 				
-				var author,
-					n = authors.length,
-					byline = $( '.title_card > h2' );
-				for ( var i = 0; i < n; i++ ) {
-					author = authors[ i ];
-					if ( i == 0 ) {
-						byline.append( 'by ' );
-					} else if ( i == ( n - 1 )) {
-						if ( n > 2 ) {
-							byline.append( ', and ' );
-						} else {
-							byline.append( ' and ' );
-						}
-					} else {
-						byline.append( ', ' );
-					}
-					byline.append( author.getDisplayTitle() );
-				}
-				
-			});
-
-			break;
-			
-			case 'gallery':
-			/*$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
-			scalarapi.loadPage(currentNode.slug, true, function() {
-				var i,node,link,
-					nodes = getChildrenOfType(currentNode, 'media');
-				$('article > h1').after('<div id="gallery"></div>');
-				var gallery = $('#gallery');
-				for (i in nodes) {
-					node = nodes[i];
-					link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
-					page.addMediaElementForLink(link.find('a'), link);
-					link.css('display', 'none');
-				} 
-			}, function() {
-				console.log('an error occurred while retrieving gallery info.');
-			}, 1, true);*/
-			page.addRelationshipNavigation(true);
-			page.addIncomingComments();	
-			page.addColophon();	  
-			page.addNotes();	
-			break;
-			
-			case 'visualization':
-			var options = {parent_uri:scalarapi.urlPrefix, default_tab:'visindex'}; 
-			var visualization = $('<div id="#visualization"></div>').appendTo(element);
-			visualization.scalarvis(options);	
-			break;
-			
-			case 'structured_gallery':
-			page.setupScreenedBackground();
-			var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
-			page.addIncomingComments();		  	
-			page.addColophon();	  	
-			page.addNotes();	
-			break;
-			
-			case 'image_header':
-			$( '.page' ).css( 'padding-top', '5rem' );
-			$( 'header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
-			$( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
-			$( '.title_card' ).append( $( 'header > h1' ) );
-			$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
-			page.setupScreenedBackground();
-			page.addRelationshipNavigation(true);
-			page.addIncomingComments();		  	
-			page.addColophon();	  	
-			page.addNotes();	
-			break;
-		
-			default:
-		  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
-
-			page.setupScreenedBackground();
-		  	
-		  	// add mediaelements
-			/*$('a').each(function() {
-			
-				// resource property signifies a media link
-				if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
-				
-					var slot;
-					var slotDOMElement;
-					var slotMediaElement;
-					var count;
-					var parent;
-					
-					if ($(this).attr('resource') == undefined) {
-						$(this).attr('href', currentNode.current.sourceFile);
-						$(this).attr('resource', currentNode.slug);
-						$(this).attr('data-size', 'full');
-						parent = $(this);
-					} else {
-						parent = $(this).parent('p,div');
-					}
-									
-					$(this).addClass('media_link');
-					
-					page.addMediaElementForLink($(this), parent);
-					
-				}
-			});
-			
-			$('[property="art:url"]').each(function() {
-			
-				if ($(this).text().length > 0) {
-					$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
-					page.addMediaElementForLink($(this).find('a'), $(this));
-					$(this).css('display', 'none');
-				
-				}
-			
-			});*/
-			
-					
-			page.addRelationshipNavigation(true);
-			page.addIncomingComments();		  	
-			page.addColophon();	  	
-			page.addNotes();	
-			break;
-		
-		}
-			
-		addTemplateLinks($('article'), 'cantaloupe');
-
-	  	$('body').addClass('body_font');
-	  	$('h1, h2, h3, h4, #header, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font');
-	  	
-	  	/*
-		$( document ).ready( function() {
-			if ( !$.cookie( 'warningMessageDismissed' ) ) {
-				var message = $('<div id="message" style="position: absolute; cursor: pointer; left: 20px; top: 70px; max-width: 400px; padding: 15px; z-index:99999; background-color: #fdcccb;">Warning message</div>').appendTo( 'body' );
-				message.click( function() { 
-					$( this ).hide(); 
-					$.cookie( 'warningMessageDismissed', true, { path: '/' } );
+				$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
+					$( '.blackout' ).remove();
+					$( '.title_card' ).addClass( 'fade_in' );
+					next();
 				} );
+				break;
+				
+				case 'book_splash':
+				$( 'article' ).before( '<div class="blackout"></div>' );
+				element.addClass('splash');
+				$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
+				$( 'h1[property="dcterms:title"]' ).html( $( '#book-title' ).html() );
+				$( '.title_card' ).append('<h2></h2>');
+				$('[property="art:url"]').hide();
+				element.css('backgroundImage', $('body').css('backgroundImage'));
+				$('body').css('backgroundImage', 'none');
+				$('.paragraph_wrapper').remove();
+				page.addRelationshipNavigation(false);
+				$('.relationships').appendTo('.title_card');
+				
+				$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
+					$( '.blackout' ).remove();
+					$( '.title_card' ).addClass( 'fade_in' );
+					next();
+				} );
+	
+				break;
+				
+				case 'gallery':
+				/*$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+				scalarapi.loadPage(currentNode.slug, true, function() {
+					var i,node,link,
+						nodes = getChildrenOfType(currentNode, 'media');
+					$('article > h1').after('<div id="gallery"></div>');
+					var gallery = $('#gallery');
+					for (i in nodes) {
+						node = nodes[i];
+						link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
+						page.addMediaElementForLink(link.find('a'), link);
+						link.css('display', 'none');
+					} 
+				}, function() {
+					console.log('an error occurred while retrieving gallery info.');
+				}, 1, true);*/
+				page.addRelationshipNavigation(true);
+				page.addIncomingComments();	
+				page.addColophon();	  
+				page.addNotes();	
+				break;
+				
+				case 'visualization':
+				var options = {parent_uri:scalarapi.urlPrefix, default_tab:'visindex'}; 
+				var visualization = $('<div id="#visualization"></div>').appendTo(element);
+				visualization.scalarvis(options);	
+				break;
+				
+				case 'structured_gallery':
+				page.setupScreenedBackground();
+				var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
+				page.addIncomingComments();		  	
+				page.addColophon();	  	
+				page.addNotes();	
+				break;
+				
+				case 'image_header':
+				$( '.page' ).css( 'padding-top', '5rem' );
+				$( 'header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
+				$( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
+				$( '.title_card' ).append( $( 'header > h1' ) );
+				$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
+				page.setupScreenedBackground();
+				page.addRelationshipNavigation(true);
+				page.addIncomingComments();		  	
+				page.addColophon();	  	
+				page.addNotes();	
+				break;
+			
+				default:
+			  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+	
+				page.setupScreenedBackground();
+			  	
+			  	// add mediaelements
+				/*$('a').each(function() {
+				
+					// resource property signifies a media link
+					if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
+					
+						var slot;
+						var slotDOMElement;
+						var slotMediaElement;
+						var count;
+						var parent;
+						
+						if ($(this).attr('resource') == undefined) {
+							$(this).attr('href', currentNode.current.sourceFile);
+							$(this).attr('resource', currentNode.slug);
+							$(this).attr('data-size', 'full');
+							parent = $(this);
+						} else {
+							parent = $(this).parent('p,div');
+						}
+										
+						$(this).addClass('media_link');
+						
+						page.addMediaElementForLink($(this), parent);
+						
+					}
+				});
+				
+				$('[property="art:url"]').each(function() {
+				
+					if ($(this).text().length > 0) {
+						$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
+						page.addMediaElementForLink($(this).find('a'), $(this));
+						$(this).css('display', 'none');
+					
+					}
+				
+				});*/
+				
+						
+				page.addRelationshipNavigation(true);
+				page.addIncomingComments();		  	
+				page.addColophon();	  	
+				page.addNotes();	
+				break;
+			
 			}
-		} );
-		*/
+			
+			addTemplateLinks($('article'), 'cantaloupe');
+	
+		  	$('body').addClass('body_font');
+		  	$('h1, h2, h3, h4, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font');
+		  	
+		  	/*
+			$( document ).ready( function() {
+				if ( !$.cookie( 'warningMessageDismissed' ) ) {
+					var message = $('<div id="message" style="position: absolute; cursor: pointer; left: 20px; top: 70px; max-width: 400px; padding: 15px; z-index:99999; background-color: #fdcccb;">Warning message</div>').appendTo( 'body' );
+					message.click( function() { 
+						$( this ).hide(); 
+						$.cookie( 'warningMessageDismissed', true, { path: '/' } );
+					} );
+				}
+			} );
+			*/
+				
+			$( 'body' ).bind( 'handleBook', page.handleBook );
+		}
 				
 		return page;
 	

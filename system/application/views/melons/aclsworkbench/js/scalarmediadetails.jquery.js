@@ -127,29 +127,31 @@
 					
 				if ( okToProceed ) {
 					var overlay = $('<div class="media_sidebar caption_font"><h2>'+mediaelement.model.node.getDisplayTitle()+'</h2></div>').prependTo(mediaelement.model.element.parent());
-					var sourceCitations = $('<div class="citations"></div>').appendTo(overlay);
-					var otherCitations = $('<div class="citations"><h3>Other citations of this media</h3></div>').appendTo(overlay);
-					var citations;
+					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(overlay);
 					var i, relation, relations;
 	
 					// show media references with excerpts
+					// Edited by Craig, 1 January 2014
 					relations = mediaelement.model.node.getRelations('referee', 'incoming'); 
 					for (i in relations) {
 					
 						relation = relations[i];
-						if (mediaDetails.hasNodeForParent(relation.body, mediaDetails.source)) {
-							citations = sourceCitations;
-						} else {
-							citations = otherCitations;
-						}
 						var temp = $('<div>'+relation.body.current.content+'</div>').appendTo(overlay);
 						wrapOrphanParagraphs(temp);
+						/*
 						temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').attr('href', mediaelement.model.node.url);
 						temp.find('a').not('[rel="'+mediaelement.model.node.current.urn+'"]').each(function() {
 							$(this).replaceWith($(this).html());
 						});
-						citingContent = temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').parent().html();
-						citations.append('<blockquote>&ldquo;'+citingContent+'&rdquo;</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
+						*/
+						// citingContent = temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').parent().html();
+						var is_inline = (temp.find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
+						if (is_inline) {
+							citingContent = '<i>Inline media</i>';
+						} else {
+							citingContent = '&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+						}
+						citations.append('<blockquote>'+citingContent+'</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 						temp.remove();
 					}
 					
@@ -157,26 +159,14 @@
 					relations = mediaelement.model.node.getRelations('path', 'incoming', 'index');
 					for (i in relations) {
 						relation = relations[i];
-						if (relation.body == mediaDetails.source) {
-							citations = sourceCitations;
-							citations.append('<p><a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of this path</p>');
-						} else {
-							citations = otherCitations;
-							citations.append('<p>As <a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
-						}
+						citations.append('<p><a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
 					}
 					
 					// show tags
 					relations = mediaelement.model.node.getRelations('tag', 'incoming');
 					for (i in relations) {
 						relation = relations[i];
-						if (relation.body == mediaDetails.source) {
-							citations = sourceCitations;
-							citations.append('<p>Associated with this tag</p>');
-						} else {
-							citations = otherCitations;
-							citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
-						}
+						citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 					}
 							
 					// show annotations
@@ -202,14 +192,6 @@
 						relation = relations[i];
 						annotationCitations.append('<p>Annotated by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a><br><span class="annotation_extents">'+relation.startString+relation.separator+relation.endString+'</span></p>');
 					}*/
-					
-					if (sourceCitations.text() == '') {
-						sourceCitations.remove();
-						otherCitations.find('h3').text('Citations of this media');
-					}
-					if (otherCitations.children().length == 1) {
-						otherCitations.remove();
-					}
 					
 					// scroll to the clicked media once all media has loaded
 					mediaDetails.loadCount++;

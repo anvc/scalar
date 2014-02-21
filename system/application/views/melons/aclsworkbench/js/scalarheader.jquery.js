@@ -50,7 +50,9 @@
 		
 		this.state = 'maximized';
 		this.lastScroll = $(document).scrollTop();
-		me.element.attr('id', 'header');
+		this.element.attr('id', 'header');
+		this.element.addClass( 'heading_font' );
+		this.element.data( 'plugin_scalarheader', this );
 		
 		$( 'body' ).bind( 'setState', me.handleSetState );
 		
@@ -173,8 +175,10 @@
 			list.append( '<li id="edit-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.edit"><img src="' + this.options.root_url + '/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /></a></li>' );
 			
 			// Annotate media
-			if ( currentNode.hasScalarType( 'media' ) ) {
-				list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
+			if ( currentNode != null ) {
+				if ( currentNode.hasScalarType( 'media' ) ) {
+					list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
+				}
 			}
 			
 			// Import media
@@ -198,45 +202,9 @@
 		// This is used to resize menus according to browser window size, to ensure they don't get too big
 		// and allow area for user to scroll the page behind the menu
 		$( 'body' ).bind( 'delayedResize', me.handleDelayedResize );
-
-		// Load info about the book, build main menu when done
-		scalarapi.loadBook(true, function() {
-			
-			var i, n,
-				owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
-				authors = [];
-				
-			// Get authors of book
-			if ( owners ) {
-				n = owners.length;
-				for ( i = 0; i < n; i++ ) {
-					authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
-				}
-			}
-			
-			var author,
-				n = authors.length,
-				bookTitle = $( '#book-title-item > div > span' );
-				
-			// Build string for author credit
-			for ( var i = 0; i < n; i++ ) {
-				author = authors[ i ];
-				if ( i == 0 ) {
-					bookTitle.append( ' by ' );
-				} else if ( i == ( n - 1 )) {
-					if ( n > 2 ) {
-						bookTitle.append( ', and ' );
-					} else {
-						bookTitle.append( ' and ' );
-					}
-				} else {
-					bookTitle.append( ', ' );
-				}
-				bookTitle.append( author.getDisplayTitle() );
-			}
-			
-			me.buildMainMenu();
-		});
+		$( 'body' ).bind( 'handleBook', function() {
+			me.handleBook();
+		} );
 		
 	}
 	
@@ -331,6 +299,48 @@
 			'maxHeight': maxHeight,
 			'maxWidth': maxWidth
 		} );
+	
+	}
+	
+	ScalarHeader.prototype.handleBook = function() {
+		
+		var i, n,
+			owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
+			authors = [],
+			me = this;
+			
+		// Get authors of book
+		if ( owners ) {
+			n = owners.length;
+			for ( i = 0; i < n; i++ ) {
+				authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
+			}
+		}
+		
+		$( '#book-title' ).html( scalarapi.model.bookNode.getDisplayTitle() );
+		
+		var author,
+			n = authors.length,
+			bookTitle = $( '#book-title-item > div > span' );
+			
+		// Build string for author credit
+		for ( var i = 0; i < n; i++ ) {
+			author = authors[ i ];
+			if ( i == 0 ) {
+				bookTitle.append( ' by ' );
+			} else if ( i == ( n - 1 )) {
+				if ( n > 2 ) {
+					bookTitle.append( ', and ' );
+				} else {
+					bookTitle.append( ' and ' );
+				}
+			} else {
+				bookTitle.append( ', ' );
+			}
+			bookTitle.append( author.getDisplayTitle() );
+		}
+		
+		me.buildMainMenu();
 	
 	}
 			

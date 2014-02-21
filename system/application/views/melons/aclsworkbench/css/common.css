@@ -79,6 +79,17 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 .notice {background:#eeeeee; padding:8px 0px 8px 0px; margin-bottom:6px;}
 .notice > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
 
+#centered-message { position: absolute; left: 50%; margin-left: -30rem; width: 60rem; top: 45%; text-align: center; color: #888; }
+
+/* --- NOTICES --- */
+.scalarnotice {font-size:13px; color:#000000; top:60px !important;}
+.scalarnotice .close_link {padding-right:5px; float:right;}
+.scalarnotice .close_link a {
+	padding-right:0px; padding-left:30px;
+	background-image:url(images/close_icon.png); background-repeat:no-repeat; background-position:right top;
+}
+.scalarnotice .close_link a:hover {text-decoration:none}
+
 /* --- HEADER --- */
 
 #header {
@@ -258,7 +269,7 @@ nav a:hover, nav a:active {
 	width: 66%; 
 	/*padding: 10.8rem 7.2rem 3.6rem 7.2rem; */
 	padding: 3.6rem 0 0 0;
-	height: 50rem;;
+	height: 50rem;
 	color: white;
 	text-shadow: 1px 1px #444;
 	opacity: 1.0;
@@ -728,9 +739,11 @@ a.media_info {
 	float: right;
 }
 
-#colophon { padding-left: 7.2rem; padding-right: 7.2rem; font-size: 1.2rem; color: #666; clear: both; padding-top: 6rem; vertical-align: top; }
-#colophon img { margin: .3rem .3rem 0 0; }
-#colophon a { vertical-align: top; }
+#colophon { padding-left: 7.2rem; padding-right: 7.2rem; font-size: 1.2rem; color: #666; clear: both; padding-top: 6rem; }
+#colophon img { margin-right: .3rem; }
+#publisher-credit { margin-bottom: 1.2rem; line-height: 110%; }
+#scalar-credit img { vertical-align: middle; margin-top: -.2rem; }
+#scalar-credit { margin-bottom: 0; }
 
 #incoming_comments, #outgoing_comments { padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
 #comment_control {
