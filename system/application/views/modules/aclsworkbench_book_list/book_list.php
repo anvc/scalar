@@ -219,7 +219,7 @@
 					<?php
 						if($login->is_logged_in){
 					?>
-						<form id="create_book_form" action="http://scalar.faciam.us/system/dashboard" method="post">
+						<form id="create_book_form" action="<?php echo base_url(); ?>/system/dashboard" method="post">
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="acls_join_book">
 							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
@@ -277,7 +277,7 @@
 					<?php
 						if($login->is_logged_in){
 					?>
-						<form id="create_book_form" action="http://scalar.faciam.us/system/dashboard" method="post">
+						<form id="create_book_form" action="<?php echo base_url(); ?>/system/dashboard" method="post">
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="do_duplicate_book">
 							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
@@ -371,7 +371,7 @@
 			echo '<div class="well"><h1>Create a new Book</h1>';
 			if($login->is_logged_in){
 				?>
-					<form id="create_book_form" action="http://scalar.faciam.us/system/dashboard" method="post">
+					<form id="create_book_form" action="<?php echo base_url(); ?>/system/dashboard" method="post">
 						<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 						<input type="hidden" name="action" value="do_add_book">
 						<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
