@@ -639,8 +639,7 @@ class System extends MY_Controller {
 				$this->data['book'] = $this->books->get($book_id);
 				$this->set_user_book_perms();
 				if ('users'==$section) {
-					if (!$this->data['login_is_super'] && isset($_POST['email'])) die ('{"error":"Invalid permissions to set email"}');	
-					if (!$this->data['login_is_super'] && isset($_POST['fullname'])) die ('{"error":"Invalid permissions to set fullname"}');	
+					if (!$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit user"}');
 				} elseif ('pages'==$section) {
 					if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$id)) die ('{"error":"Invalid permissions"}');		
 				} elseif ('books'==$section) {
