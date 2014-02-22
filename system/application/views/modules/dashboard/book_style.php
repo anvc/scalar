@@ -114,7 +114,6 @@ $(window).ready(function() {
 			echo '<td style="vertical-align:middle;">Title';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" colspan="2">';
-			//echo '<span style="float:right;" class="save_changes">You have unsaved changes. <a class="generic_button" href="#">Save</a></span>'; // Save Changes
 			echo '<input name="title" type="text" value="'.htmlspecialchars($row->title).'" style="width:300px;" />';
 			echo "</td>\n";
 			echo "</tr>\n";
@@ -246,6 +245,16 @@ $(window).ready(function() {
 			echo '<td style="vertical-align:middle;" colspan="2">';
 			echo '<p>Make URL public? &nbsp;<select name="url_is_public"><option value="0"'.(($row->url_is_public)?'':' selected').'>No</option><option value="1"'.(($row->url_is_public)?' selected':'').'>Yes</option></select></p>';
 			echo '<p>Display in Scalar indexes? &nbsp;<select name="display_in_index"><option value="0"'.(($row->display_in_index)?'':' selected').'>No</option><option value="1"'.(($row->display_in_index)?' selected':'').'>Yes</option></select></p>';
+			echo "</td>\n";
+			echo "</tr>\n";					
+			echo '<tr typeof="books">';
+			echo '<td><p>Duplicability</p>';
+			echo '</td>'."\n";
+			echo '<td style="vertical-align:middle;" colspan="2">';
+			echo '<p>';
+			echo 'Allow book to be duplicated by others? &nbsp;<select id="duplicatable"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+			echo '<br /><small>Book will display in list of duplicatable books regardless of availability settings</small>';
+			echo '</p>';
 			echo "</td>\n";
 			echo "</tr>\n";								
 			// Scope
