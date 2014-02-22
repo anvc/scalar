@@ -1,5 +1,9 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
-
+<?
+$registration_key = '';
+if (isset($_GET['key'])) $registration_key = trim($_GET['key']);
+if (isset($_POST['registration_key'])) $registration_key = trim($_POST['registration_key']);
+?>
 <div class="register_wrapper">
 <? if (!empty($error)): ?>
 <div class="error"><?=$error?></div>
@@ -22,7 +26,7 @@
 			</tr>		
 			<? if ($register_key): ?>
 			<tr>
-				<td class="field">Registration<br />key <span style="color:red;">*</span> <a class="question_answer" alt="Scalar is presently in a 'closed alpha' release and requires a registration key to create a new account.  Please contact the Scalar team to acquire a registration key.  For more information please visit the <a href='http://scalar.usc.edu/anvc'>ANVC Scalar website</a>."></a></td><td class="value"><input type="text" name="registration_key" value="<?=(isset($_POST['registration_key']))?trim($_POST['registration_key']):''?>" class="input_text input_hl" /></td>
+				<td class="field">Registration<br />key <span style="color:red;">*</span> <a class="question_answer" alt="Scalar is presently in a 'closed alpha' release and requires a registration key to create a new account.  Please contact the Scalar team to acquire a registration key.  For more information please visit the <a href='http://scalar.usc.edu/anvc'>ANVC Scalar website</a>."></a></td><td class="value"><input type="text" name="registration_key" value="<?=$registration_key?>" class="input_text input_hl" /></td>
 			</tr>	
 			<? endif ?>		
 			<tr>
