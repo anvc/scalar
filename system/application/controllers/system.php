@@ -623,6 +623,15 @@ class System extends MY_Controller {
 					$this->data['content'] = '{"is_logged_in":0}';
 				}	
 				break;		
+			case 'get_user_contributions':
+				$this->load->model('page_model', 'pages');
+				$this->load->model('version_model', 'versions');		
+				$this->load->model('user_model', 'users');				
+				if (!$this->data['login']->is_logged_in) $this->kickout();  
+				$book_id =@ (int) $_REQUEST['book_id'];
+				$user_id =@ (int) $_REQUEST['user_id'];
+				$this->data['content'] = $this->users->get_pages_contributed_to($book_id, $user_id);
+				break;
 				
 			// Write
 			case 'save_row':

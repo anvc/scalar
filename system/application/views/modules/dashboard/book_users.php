@@ -1,13 +1,13 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
-<?$this->template->add_js(path_from_file(__FILE__).'tablesorter/jquery.tablesorter.min.js')?>
-<?$this->template->add_css(path_from_file(__FILE__).'tablesorter/style.css')?>
+<?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
+<?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 		
 		<script>
 		$(document).ready(function() {
 			$(".tablesorter").tablesorter({ 
         		headers: { 
         			0: {sorter: false }, 
-            		4: {sorter: false }
+            		8: {sorter: false }
         		}
    			}); 
    			
@@ -93,6 +93,57 @@
 				$div.show();
 			
 		}
+		function user_get_contributions(user_id, the_link) {	
+			var $the_link = $(the_link);
+			var book_id = $('select[name="book_id"] :selected').val();
+			if ('undefined'==typeof(book_id)||0==book_id) {
+				alert('Could not determine book ID');
+				return false;
+			}
+			// Get contributions
+			if (!$the_link.data('is_open')) {
+				$the_link.blur();
+				$the_link.html('Loading...');
+				$the_link.data('is_open',true);	
+				var $the_row = $('#user_row_'+user_id)
+				$.get('api/get_user_contributions', {book_id:book_id,user_id:user_id}, function(data) {
+					var $next = $the_link.parent().parent().next();
+					if ($next.hasClass('version_wrapper')) $next.remove();					
+					if (data.length == 0) {
+						$the_row.after('<tr class="version_wrapper"><td>&nbsp;</td><td class="odd" colspan="8">No contributions found</td></tr>');
+					} else {
+					   	var $row = $('<tr class="version_wrapper"><td colspan="9" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
+					   	var $header = ('<tr><th>ID</th><th>Version</th><th>Title</th><th>Description</th><th>Content</th><th>User</th><th>Created</th></tr>');
+					   	$row.find('table').html($header);
+					   	$the_row.after($row);			
+					    for (var j in data) {
+					    	var $page_row = $('<tr class="header" id="content_row_'+data[j].content_id+'" typeof="pages"><td colspan="7"><a href="<?=confirm_slash(base_url()).@$book->slug?>/'+data[j].slug+'">'+data[j].slug+'</a></td></tr>');
+					    	$row.find('table').find('tr:last').after($page_row);
+					    	for (var k in data[j].versions) {
+						    	var $version_row = $('<tr class="'+((user_id==data[j].versions[k].user)?'hl':'')+'" id="version_row_'+data[j].versions[k].version_id+'" typeof="versions"></tr>');
+								$version_row.append('<td property="id">'+data[j].versions[k].version_id+"</td>");
+								$version_row.append('<td property="version_num">'+data[j].versions[k].version_num+"</td>");
+								$version_row.append('<td property="title"><a href="<?=confirm_slash(base_url()).@$book->slug?>/'+data[j].slug+'.'+data[j].versions[k].version_num+'">'+data[j].versions[k].title+"</a></td>");
+								$version_row.append('<td property="description"><span class="full">'+data[j].versions[k].description+'</span><span class="clip">'+create_excerpt(data[j].versions[k].description,8)+'</span></td>');
+								$version_row.append('<td property="content"><span class="full">'+data[j].versions[k].content+'</span><span class="clip">'+create_excerpt(data[j].versions[k].content,8)+'</span></td>');
+								$version_row.append('<td property="user">'+data[j].versions[k].user+"</td>");
+								$version_row.append('<td property="created" style="white-space:nowrap;">'+data[j].versions[k].created+"</td>");
+								$row.find('table').find('tr:last').after($version_row);
+					    	}
+					    }	    			    		    
+					}
+					$the_link.html('Hide');
+				});
+			// Remove versions	
+			} else {
+				var $next = $the_link.parent().parent().next();
+				if ($next.hasClass('version_wrapper')) $next.remove();
+				$the_link.data('is_open',false);
+				$the_link.blur();
+				$the_link.html('View');
+			}
+			
+		}		
 		</script>
 <?
 	if (empty($book)):
@@ -111,13 +162,14 @@
 				<th>Full name</th>
 				<th>Email</th>
 				<th>URL</th>
+				<th>Contributions</th>
 			</tr>
 		</thead>
 		<tbody>
 <?
 			$count = 1;
 			foreach ($current_book_users as $row) {
-				echo '<tr typeof="users">';
+				echo '<tr typeof="users" id="user_row_'.$row->user_id.'">';
 				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a href="javascript:remove_book_user('.@$book->book_id.','.$row->user_id.');" style="color: rgb(136, 136, 136);" onclick="return confirm(\'Are you sure you wish to REMOVE the connection to '.htmlspecialchars($row->fullname,ENT_QUOTES).'?\');" class="generic_button">Remove</a></td>'."\n";
 				echo '<td property="id">'.$row->user_id."</td>\n";
 				echo '<td class="editable enum {\'author\',\'commentator\',\'reviewer\',\'reader\'}" property="relationship">'.$row->relationship."</td>\n";
@@ -126,6 +178,7 @@
 				echo '<td property="fullname">'.$row->fullname."</td>\n";
 				echo '<td property="email">'.$row->email."</td>\n";
 				echo '<td property="url">'.$row->url."</td>\n";
+				echo '<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" class="generic_button" onclick="user_get_contributions('.$row->user_id.',this);">View</a></td>'."\n";
 				echo "</tr>\n";
 				$count++;
 			}

@@ -161,7 +161,7 @@ class Page_model extends MY_Model {
     	
     	return $return;     	
     	
-    }           
+    }   
   
     public function is_owner($user_id=0, $content_id=0) {
     	

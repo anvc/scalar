@@ -305,6 +305,32 @@ class User_model extends My_Model {
 		return $return;
 			
 	}      
+	
+	public function get_pages_contributed_to($book_id=0, $user_id=0) {
+		
+		$this->db->select('*');
+		$this->db->from($this->versions_table);
+		$this->db->where($this->versions_table.'.user', $user_id);
+		$this->db->join($this->pages_table, $this->pages_table.'.content_id = '.$this->versions_table.'.content_id');
+		$this->db->where($this->pages_table.'.book_id = '.$book_id);
+				
+		$query = $this->db->get();
+		$result = $query->result();
+		if (!count($result)) return array();
+		
+		$CI =& get_instance();
+		$return = array();
+		foreach ($result as $version) {
+			if (!array_key_exists($version->content_id, $return)) {
+				$page = $CI->pages->get($version->content_id);
+				$return[$version->content_id] = $page;
+				$return[$version->content_id]->versions = $CI->versions->get_all($version->content_id);
+			}
+		}
+		
+		return $return;
+		
+	}
     
     public function search($sq='',$orderby='title',$orderdir='asc') {
     	
