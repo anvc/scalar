@@ -508,7 +508,7 @@
 					scalarapi.loadPage(currentNode.slug, true, function() {
 						var i,node,link,
 							nodes = getChildrenOfType(currentNode, 'media');
-						$('article > h1').after('<div id="gallery"></div>');
+						$('article > header').after('<div id="gallery"></div>');
 						var gallery = $('#gallery');
 						for (i in nodes) {
 							node = nodes[i];
