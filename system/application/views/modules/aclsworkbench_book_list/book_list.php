@@ -103,7 +103,6 @@
 			if (!$user->list_in_index) continue;
 			$authors[] = $user->fullname;
 		}
-
 		$extra_data = array();
 		$num_data_attributes = preg_match_all('/data-(?<data_type>\w+)="(?<value>\w+)"/',trim($row->title),$data_attributes);
 		if(count($data_attributes['data_type']) == $num_data_attributes &&  count($data_attributes['value'])  ==  $num_data_attributes && $num_data_attributes > 0){
@@ -119,7 +118,7 @@
 		$row->current_user = in_array($book_id, $login_book_ids);
 		if($is_live && $is_public){
 			if ($is_featured) {
-				if(isset($row->data['duplicatable']) && $row->data['duplicatable'] == 'true'){
+				if(empty($row->data['duplicatable']) || $row->data['duplicatable'] == 'true'){
 					$featured_duplicatable[] = $row;
 					$duplicatable_stripped[] = array(
 						'id'=>$book_id,
@@ -145,7 +144,7 @@
 					'description'=>$row->description
 				);
 			}else{
-				if(isset($row->data['duplicatable']) && $row->data['duplicatable'] == 'true'){
+				if(empty($row->data['duplicatable']) || $row->data['duplicatable'] == 'true'){
 					$duplicatable[] = $row;
 					$duplicatable_stripped[] = array(
 						'id'=>$book_id,
@@ -194,10 +193,22 @@
 		//Do the main menu
 	?>
 		<hr class="dark" />
-		<div class="row menu">
+		<div class="row menu"<?php 
+			if(ACLSWORKBENCH_METHOD=='index'){ echo ' data-step="1" data-intro="The top menu can be used to quickly jump from one ACLS Workbench view to another."'; }
+			if(ACLSWORKBENCH_METHOD=='create'){ echo ' data-step="4" data-intro="That concludes the ACLS Workbench tour. Thank you for checking out the features, and we look forward to seeing, sharing, and joining your writing. You can click \'Finish Tour\' to return to the home page, or you may click anywhere else or press <kbd>ESC</kbd> to leave the tour and stay on this page."'; }
+		?>>
 			<?php
 				foreach($list_methods as $method=>$text){
-					echo '<div class="col-xs-12 col-sm-6 col-md-3"><a href="./?action='.$method.'" class="center-block '.$method.(ACLSWORKBENCH_METHOD==$method?' active':'').'">'.$text.'</a></div>';
+					echo '<div class="col-xs-12 col-sm-6 col-md-3 text-center"><a href="./?action='.$method.'" class="center-block '.(ACLSWORKBENCH_METHOD==$method?' active':'').'"',
+						($method == ACLSWORKBENCH_METHOD && ACLSWORKBENCH_METHOD =='index'?' data-step="2" data-intro="When \'View all Books\' is selected, books you have created and books you have joined will be listed at the top of the page. Below these, a list of each book that has been published will be displayed."':''),
+						($method == ACLSWORKBENCH_METHOD && ACLSWORKBENCH_METHOD =='join'?' data-step="1" data-intro="When \'Join a Book\' is selected, books that are available to join will be displayed. Joining a book makes getting updates easier and tells the authors that you are interested. You can also ask to become a co-author here."':''),
+						($method == ACLSWORKBENCH_METHOD && ACLSWORKBENCH_METHOD =='clone'?' data-step="1" data-intro="When \'Clone a Book\' is selected, books that are available to be duplicated will be displayed. Duplicating a book will copy all of the information and media that is within the source book, providing a great framework for your book."':''),
+						($method == ACLSWORKBENCH_METHOD && ACLSWORKBENCH_METHOD =='clone'?' data-step="1" data-intro="When \'View all Books\' is selected, books you have created and books you have joined will be listed at the top of the page. Below these, a list of each book that has been published will be displayed."':''),
+						($method == ACLSWORKBENCH_METHOD && ACLSWORKBENCH_METHOD =='create'?' data-step="1" data-intro="\'Create a Book\' is the final page of the ACLS Workbench. On this page, you can create a new book from scratch."':''),
+						($method == 'join' && ACLSWORKBENCH_METHOD =='index'?' data-step="4" data-intro="Click \'Next page\' to continue to the Join a Book view; otherwise, click anywhere else or press <kbd>ESC</kbd> to leave the tour."':''),
+						($method == 'clone' && ACLSWORKBENCH_METHOD =='join'?' data-step="5" data-intro="Once you have joined a book, it will show  up under \'My Books\' on the \'View all Books\' page. Click \'Next page\' to continue to the Clone a Book view; otherwise, click anywhere else or press <kbd>ESC</kbd> to leave the tour."':''),
+						($method == 'create' && ACLSWORKBENCH_METHOD =='clone'?' data-step="4" data-intro="You are almost done with the tour - click \'Next page\' to continue to the Create a Book view; otherwise, click anywhere else or press <kbd>ESC</kbd> to leave the tour."':''),
+					'><i class="text-muted icon-'.$method.'"></i> '.$text.'</a></div>';
 				}
 			?>
 		</div>
@@ -210,7 +221,7 @@
 		?>
 			<div class="modal fade" id="join_dialogue">
 			  <div class="modal-dialog">
-				<div class="modal-content">
+				<div class="modal-content"<?php if(ACLSWORKBENCH_METHOD =='join'){echo ' data-step="3" data-intro="There are two ways you can join a book. The first option is to simply subscribe to it - this will place the book under \'My Books\' for easy reading, however you will be unable to edit or create content."';} ?>>
 				  <div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h4 class="modal-title" id="join_dialogue_title">Join Book</h4>
@@ -219,7 +230,7 @@
 					<?php
 						if($login->is_logged_in){
 					?>
-						<form id="create_book_form" action="<?php echo base_url(); ?>/system/dashboard" method="post">
+						<form action="<?php echo base_url(); ?>/system/dashboard" method="post">
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="acls_join_book">
 							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
@@ -268,7 +279,7 @@
 		?>
 			<div class="modal fade" id="clone_dialogue">
 			  <div class="modal-dialog">
-				<div class="modal-content">
+				<div class="modal-content"<?php if(ACLSWORKBENCH_METHOD =='clone'){echo ' data-step="3" data-intro="Cloning a book is simple - when you select a clonable book to be duplicated, all you need to enter is a new title, and click \'Clone Book!\' The new book will appear under \'My Books\' on the \'View all Books\' page."';} ?>>
 				  <div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h4 class="modal-title" id="clone_dialogue_title">Clone Book</h4>
@@ -277,7 +288,7 @@
 					<?php
 						if($login->is_logged_in){
 					?>
-						<form id="create_book_form" action="<?php echo base_url(); ?>/system/dashboard" method="post">
+						<form action="<?php echo base_url(); ?>/system/dashboard" method="post">
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="do_duplicate_book">
 							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
@@ -337,38 +348,59 @@
 		case 'home':
 			?>
 				<hr class="dark mobile_only" />
-				<div class="row">
-	              <div class="col-sm-6 col-xs-12 action">
-	                <a href="./?action=index"><h2><i class="large index icon"></i><strong>View</strong> all Books</h2></a>
-	                <span class="text-muted">Sorted index of all books currently part of the <strong>ACLS Workbench</strong>. This is a good place to start if you are new to this project.</span>
-	              </div>
-	              <div class="col-sm-6 col-xs-12 action">
-	                  <a href="./?action=join"><h2><i class="large join icon"></i><strong>Join</strong> a Book</h2></a>
-	                  <span class="text-muted">Interested in helping to write a book? Search by title or view all books to request access.</span>
-	              </div>
-	          </div>
-	          <div class="row">
-	              <div class="col-sm-6 col-xs-12 action">
-	                <a href="./?action=clone"><h2><i class="large clone icon"></i><strong>Clone</strong> a Book</h2></a>
-	                <span class="text-muted">Get started quickly by expanding on one of our template books - search by title or view a list of all books.</span>
-	              </div>
-	              <div class="col-sm-6 col-xs-12 action">
-	                  <a href="./?action=create"><h2><i class="large create icon"></i><strong>Create</strong> a Book</h2></a>
-	                  <span class="text-muted">Start a book from scratch - choose a title and create your own content.</span>
-	              </div>
-	          </div>
+				<br /><br /><button id="start_tour" class="btn btn-success btn-lg center-block">Take a Tour of ACLS Workbench</button><br /><br /><br />
+				<div data-step="2" data-intro="ACLS Workbench has four main functions:">
+					<div class="row" data-step="2">
+					  <div class="col-sm-6 col-xs-12 action" data-step="3" data-intro="First, ACLS Workbench provides a user-friendly, community-driven way of viewing books written with Scalar.">
+						<a href="./?action=index"><h2><i class="icon-index"></i> <strong>View</strong> all Books</h2></a>
+						<span class="text-muted">Sorted index of all books currently part of the <strong>ACLS Workbench</strong>. This is a good place to start if you are new to this project.</span>
+					  </div>
+					  <div class="col-sm-6 col-xs-12 action" data-step="4" data-intro="Second, ACLS Workbench introduces the ability to 'Join' a Scalar book, which allows you to follow the progress of a book that interests you. You may also request to become a co-author and  help to make the book even better!">
+						  <a href="./?action=join"><h2><i class="glyphicon icon-join"></i> <strong>Join</strong> a Book</h2></a>
+						  <span class="text-muted">Interested in helping to write a book? Search by title or view all books to request access.</span>
+					  </div>
+				  </div>
+				  <div class="row">
+					  <div class="col-sm-6 col-xs-12 action"  data-step="5" data-intro="Next, ACLS Workbench is based upon the idea of creating duplicatable 'seed' books. You can choose to clone any of these books to use and add to their existing assets and research to create your own spin-off publication.">
+						<a href="./?action=clone"><h2><i class="icon-clone"></i> <strong>Clone</strong> a Book</h2></a>
+						<span class="text-muted">Get started quickly by expanding on one of our template books - search by title or view a list of all books.</span>
+					  </div>
+					  <div class="col-sm-6 col-xs-12 action"  data-step="6" data-intro="Finally, if you wish to start a book from scratch, ACLS Workbench uses the power of Scalar to allow you to create your own metadata-rich digital literature.">
+						  <a href="./?action=create"><h2><i class="icon-create"></i> <strong>Create</strong> a Book</h2></a>
+						  <span class="text-muted">Start a book from scratch - choose a title and create your own content.</span>
+					  </div>
+				  </div>
+				</div>
 			<?php
 			break;
 		case 'join':
 			$book_json = json_encode($joinable_stripped);
-			show_search_form( array_merge($featured_joinable, $joinable), 'Joinable Books', $login->is_logged_in?$login->user_id:null );
+			if(count($joinable_stripped) > 0){
+				show_search_form( array_merge($featured_joinable, $joinable), 'Joinable Books', $login->is_logged_in?$login->user_id:null );
+			}else{
+				?>
+					<div class="well">
+						<h1>Joinable Books</h1>
+						<p>Unfortunately, there are currently no joinable books available. If you would like to start your own book, you may instead choose to <a href="./?action=create">Create a Book</a></p>
+					</div>
+				<?php
+			}
 			break;
 		case 'clone':
 			$book_json = json_encode($duplicatable_stripped);
-			show_search_form( array_merge($featured_duplicatable, $duplicatable), 'Cloneable Books', $login->is_logged_in?$login->user_id:null );
+			if(count($duplicatable_stripped) > 0){
+				show_search_form( array_merge($featured_duplicatable, $duplicatable), 'Cloneable Books', $login->is_logged_in?$login->user_id:null );
+			}else{
+				?>
+					<div class="well">
+						<h1>Cloneable Books</h1>
+						<p>Unfortunately, there are currently no cloneable books available. If you would like to start your own book, you may instead choose to <a href="./?action=create">Create a Book</a></p>
+					</div>
+				<?php
+			}
 			break;
 		case 'create':
-			echo '<div class="well"><h1>Create a new Book</h1>';
+			echo '<div class="well"><h1>Create a new Book</h1><div id="create_wrapper" data-step="2" data-intro="In order to create a book, you must first enter a title. Your book\'s URL will be based off of this value.">';
 			if($login->is_logged_in){
 				?>
 					<form id="create_book_form" action="<?php echo base_url(); ?>/system/dashboard" method="post">
@@ -398,7 +430,7 @@
 				echo '<div class="alert alert-danger">In order to create a new book, you must first either <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/login?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.sign_in'), '</a> ',lang('or'),' <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/register?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.register'), '</a> </div>';
 			} 
 ?>
-			</div>
+			</div></div>
 <?php
 			break;
 		default:
@@ -419,7 +451,16 @@
 					<?php
 				}
 			}
-			show_search_form( array_merge($featured_books, $other_books), 'All Books', $login->is_logged_in?$login->user_id:null );
+			if(count($other_stripped) > 0){
+				show_search_form( array_merge($featured_books, $other_books), 'All Books', $login->is_logged_in?$login->user_id:null );
+			}else{
+				?>
+					<div class="well">
+						<h1>All Books</h1>
+						<p>Unfortunately, there are currently no viewable books available. If you would like to start your own book, you may instead choose to <a href="./?action=create">Create a Book</a></p>
+					</div>
+				<?php
+			}
 	}
 	echo '<script> var book_list = ',$book_json,'; </script>';
 

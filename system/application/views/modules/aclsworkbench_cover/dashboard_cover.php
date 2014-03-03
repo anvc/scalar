@@ -2,7 +2,10 @@
 	if (!defined('BASEPATH')){ exit('No direct script access allowed'); }
 	$this->template->add_css(path_from_file(__FILE__).'css/bootstrap.min.css');
 	$this->template->add_css(path_from_file(__FILE__).'css/cover.css?v=2');
+	$this->template->add_css(path_from_file(__FILE__).'css/workbench_icons.css?v=2');
 	$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');
+	$this->template->add_css(path_from_file(__FILE__).'css/introjs.min.css');
+	$this->template->add_js(path_from_file(__FILE__).'js/intro.min.js');
 	$method = $this->router->fetch_method();
 
 	$login_url = $this->config->item('force_https') ? base_ssl() : base_url();
@@ -46,7 +49,7 @@
 		<hr class="dark mobile_only" />
 		<div class="row">
         <div class="col-xs-8 col-xs-offset-2 col-sm-3 col-sm-offset-0">
-          <img src="<?php echo ACLSWORKBENCH_ICON_URL; ?>" class="img-responsive" id="icon">
+          <img src="<?php echo ACLSWORKBENCH_ICON_URL; ?>" class="img-responsive" id="icon" data-step="1" data-intro="Welcome to ACLS Workbench, a new, responsive, user-friendly interface for Scalar!">
           <?php
           	if (!$login->is_logged_in){
           ?>

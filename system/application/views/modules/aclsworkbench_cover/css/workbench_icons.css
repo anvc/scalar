@@ -1,0 +1,40 @@
+@font-face {
+	font-family: 'aclsworkbench_icons';
+	src:url('../fonts/aclsworkbench_icons.eot?-i1i0qg');
+	src:url('../fonts/aclsworkbench_icons.eot?#iefix-i1i0qg') format('embedded-opentype'),
+		url('../fonts/aclsworkbench_icons.woff?-i1i0qg') format('woff'),
+		url('../fonts/aclsworkbench_icons.ttf?-i1i0qg') format('truetype'),
+		url('../fonts/aclsworkbench_icons.svg?-i1i0qg#aclsworkbench_icons') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'aclsworkbench_icons';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-create:before {
+	content: "\e600";
+}
+.icon-join:before {
+	content: "\e602";
+}
+.icon-clone:before {
+	content: "\e601";
+}
+.icon-index:before {
+	content: "\e603";
+}
+.icon-workbench:before {
+	content: "\e604";
+}
