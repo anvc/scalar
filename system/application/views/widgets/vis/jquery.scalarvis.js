@@ -1282,7 +1282,6 @@ function handleViewTypeClick(radioBtn) {
 				.attr('r', '8')
 				.call(me.force.drag)
 				.call(function(d) { 
-					console.log($(d));
 					$(d).nodoubletapzoom(); 
 				})
 				.on('click', function(d) {
