@@ -78,7 +78,15 @@
 				<?php echo isset($title)?"<h1>$title</h1>":'<br />'; ?>
 				<div class="results book_list row"></div>
 				<?php
-					print_books($book_list,6,4,2,$user_id);
+					if(count($book_list)>0){
+						print_books($book_list,6,4,2,$user_id);
+					}else{
+				?>
+					<div class="original book_list row">
+						<p class="no_books">Unfortunately, there are currently no books in this view. If you would like to start your own book, you may instead choose to <a href="./?action=create">Create a Book</a></p>
+					</div>
+				<?php
+					}
 				?>
 			</div>
 		<?php
@@ -375,29 +383,11 @@
 			break;
 		case 'join':
 			$book_json = json_encode($joinable_stripped);
-			if(count($joinable_stripped) > 0){
-				show_search_form( array_merge($featured_joinable, $joinable), 'Joinable Books', $login->is_logged_in?$login->user_id:null );
-			}else{
-				?>
-					<div class="well">
-						<h1>Joinable Books</h1>
-						<p>Unfortunately, there are currently no joinable books available. If you would like to start your own book, you may instead choose to <a href="./?action=create">Create a Book</a></p>
-					</div>
-				<?php
-			}
+			show_search_form( array_merge($featured_joinable, $joinable), 'Joinable Books', $login->is_logged_in?$login->user_id:null );
 			break;
 		case 'clone':
 			$book_json = json_encode($duplicatable_stripped);
-			if(count($duplicatable_stripped) > 0){
-				show_search_form( array_merge($featured_duplicatable, $duplicatable), 'Cloneable Books', $login->is_logged_in?$login->user_id:null );
-			}else{
-				?>
-					<div class="well">
-						<h1>Cloneable Books</h1>
-						<p>Unfortunately, there are currently no cloneable books available. If you would like to start your own book, you may instead choose to <a href="./?action=create">Create a Book</a></p>
-					</div>
-				<?php
-			}
+			show_search_form( array_merge($featured_duplicatable, $duplicatable), 'Cloneable Books', $login->is_logged_in?$login->user_id:null );
 			break;
 		case 'create':
 			echo '<div class="well"><h1>Create a new Book</h1><div id="create_wrapper" data-step="2" data-intro="In order to create a book, you must first enter a title. Your book\'s URL will be based off of this value.">';
@@ -451,16 +441,7 @@
 					<?php
 				}
 			}
-			if(count($other_stripped) > 0){
-				show_search_form( array_merge($featured_books, $other_books), 'All Books', $login->is_logged_in?$login->user_id:null );
-			}else{
-				?>
-					<div class="well">
-						<h1>All Books</h1>
-						<p>Unfortunately, there are currently no viewable books available. If you would like to start your own book, you may instead choose to <a href="./?action=create">Create a Book</a></p>
-					</div>
-				<?php
-			}
+			show_search_form( array_merge($featured_books, $other_books), 'All Books', $login->is_logged_in?$login->user_id:null );
 	}
 	echo '<script> var book_list = ',$book_json,'; </script>';
 
