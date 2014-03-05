@@ -401,7 +401,7 @@
 						<p>Once you have entered your desired book title, click "Create book," below.</p>
 						<hr>
 						<div class="form-group text-center">
-							<label for="create_book_title">New Book Title: <br /><input id="create_book_title" name="title" type="text" placeholder="(New book title)" style="width:200px;"></label>
+							<label for="create_book_title">New Book Title: <br /><input id="create_book_title" name="title" type="text" placeholder="New book title" style="width:200px;"></label>
 						</div>
 						<div class="form-group text-center">
 							<label for="joinable">Allow Users to Join* My Book:  <input id="joinable" name="joinable" type="checkbox" checked></label>

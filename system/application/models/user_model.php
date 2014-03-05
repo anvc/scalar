@@ -413,11 +413,11 @@ class User_model extends My_Model {
 			if (!empty($email_user) && $email_user->user_id != $user_id) throw new Exception('Email already in use');
 		}
 		
-    	// Remove password for saving seperately
+    	// Remove password from save array, for saving later
 		$password =@ $array['password'];
 		unset($array['password']);		
 		
-    	// Remove relationship fields but save for later
+    	// Remove relationship fields, for saving later
 		if (!empty($book_id)) {
 			$rel_fields = array('relationship', 'list_in_index', 'sort_number');
 			$spool = array();
@@ -436,8 +436,11 @@ class User_model extends My_Model {
 		$this->db->update($this->users_table, $array); 
 		if (mysql_errno()!=0) echo mysql_error();
 		
-		// Save password
-		if (!empty($password)) $this->set_password($user_id, $password);
+		// Clear reset string and save password, if applicable
+		if (!empty($password)) {
+			$this->save_reset_string($user_id, '');
+			$this->set_password($user_id, $password);
+		}
 		
 		// Determine if password has been set
 		$password_is_null = true;

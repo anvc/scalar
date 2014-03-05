@@ -100,10 +100,10 @@ $(window).ready(function() {
 <tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Create new book</td>
 	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='(New book title)') {alert('Please enter a book title');return false;}">
+		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
 		<input type="hidden" name="action" value="do_add_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
-		<input name="title" type="text" value="(New book title)" style="width:300px;" onclick="if (this.value=='(New book title)') this.value='';" /> 
+		<input name="title" type="text" value="New book title" style="width:300px;" onclick="if (this.value=='New book title') this.value='';" /> 
 		<input type="submit" value="Create" class="generic_button" />
 		</form>
 	</td>
@@ -111,7 +111,7 @@ $(window).ready(function() {
 <tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Duplicate a book</td>
 	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if ($(this).find('input[name=\'title\']').val()=='(New book title)') {$(this).find('input[name=\'title\']').val('');}">
+		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
 		<input type="hidden" name="action" value="do_duplicate_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 		<select name="book_to_duplicate" style="width:200px;">
@@ -126,7 +126,7 @@ $(window).ready(function() {
 		endif;
 ?>
 		</select> 
-		<input name="title" type="text" value="(New book title)" style="width:200px;" onclick="if (this.value=='(New book title)') this.value='';" /> 
+		<input name="title" type="text" value="New book title" style="width:200px;" onclick="if (this.value=='New book title') this.value='';" /> 
 		<input type="submit" value="Duplicate" class="generic_button" /><br />
 		<small>Source book requires special permissions to be displayed in this list</small>
 		</form>
