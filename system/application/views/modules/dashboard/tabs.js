@@ -97,17 +97,6 @@ $(document).ready(function() {
 		$span.html(title);
 		console.log($span.html($span.clone()).html());
 		$('input[name="title"]').val( $span.html() );
-		
-		/*
-		if (is_duplicatable && !reqested_duplicatability) {
-			console.log('removing duplicatability');
-			var value = $($('input[name="title"]').val()).html();
-			$('input[name="title"]').val(value);
-		} else if (!is_duplicatable && reqested_duplicatability) {
-			console.log('adding duplicatability');
-			$('input[name="title"]').val( '<span data-duplicatable="true">'+$('input[name="title"]').val()+'</span>' );
-		}
-		*/
 	});
 	
 });
