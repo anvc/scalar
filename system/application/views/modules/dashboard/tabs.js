@@ -70,17 +70,35 @@ $(document).ready(function() {
 	
 	setTimeout("$(window).scrollTop(0)", 10); 
 	
-	// Duplicatable feature: overload the title field with <span data-duplicatable="true"></span>
-	// NOTE: Removes <span> from the title regardless of whether it's the span that controls duplicatability,
-	// though don't anticipate overloading the title field with anything else
+	// Duplicate/join feature: overload the title field with <span data-duplicatable="true" data-joinable="true">
 	
 	var is_duplicatable = ( $($('input[name="title"]').val()).attr('data-duplicatable') ) ? 1 : 0;
+	var is_joinable = ( $($('input[name="title"]').val()).attr('data-joinable') ) ? 1 : 0;
 	$('#duplicatable').val(is_duplicatable);
+	$('#joinable').val(is_joinable);
 	
-	$('#duplicatable').change(function() {
-		console.log('craig');
-		var is_duplicatable = ( $($('input[name="title"]').val()).attr('data-duplicatable') ) ? true : false;
-		var reqested_duplicatability = ('1'==$(this).val()) ? true : false;
+	$('#duplicatable, #joinable').change(function() {
+		var has_span = ( $($('input[name="title"]').val()).is('span') ) ? true : false;
+		var $span = (has_span) ? $($('input[name="title"]').val()) : $('<span></span>');
+		var title = (has_span) ? $($('input[name="title"]').val()).html() : $('input[name="title"]').val();
+		var prop_arr = ['duplicatable', 'joinable'];
+		// Add or remove attribute
+		for (var j in prop_arr) {
+			var prop = prop_arr[j];
+			var make_true = (parseInt($('#'+prop).val())) ? true : false;
+			console.log('make '+prop+' true: '+make_true);
+			if (make_true) {
+				$span.attr('data-'+prop, 'true');
+			} else {
+				$span.removeAttr('data-'+prop);
+			}
+		}
+		// Add or replace span
+		$span.html(title);
+		console.log($span.html($span.clone()).html());
+		$('input[name="title"]').val( $span.html() );
+		
+		/*
 		if (is_duplicatable && !reqested_duplicatability) {
 			console.log('removing duplicatability');
 			var value = $($('input[name="title"]').val()).html();
@@ -89,6 +107,7 @@ $(document).ready(function() {
 			console.log('adding duplicatability');
 			$('input[name="title"]').val( '<span data-duplicatable="true">'+$('input[name="title"]').val()+'</span>' );
 		}
+		*/
 	});
 	
 });
