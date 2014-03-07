@@ -84,11 +84,12 @@
 				$link.texteo_set_position(scrolling_element, options);
 				var resource = $link.attr('resource');
 				var href = $link.attr('href');
+				var target = ('undefined'!=typeof($link.attr('target'))) ? $link.attr('target') : null;
 
 				var hide_icon = ($link.hasClass('hide_icon')) ? true : false;	
 				if (!hide_icon && !jQuery.trim($link.html()).length) hide_icon = true
 
-				// Link with resource=""
+				// Link with resource="" (media)
 				if ('undefined'!=typeof(resource)) {
 					$link.data('texteo_resource_link', true);
 					if (!hide_icon) {
@@ -108,14 +109,20 @@
 							});
 						}
 					}			
-				// Link without resource=""				
+				// Link without resource=""	(external or internal)		
 				} else if ('undefined'!=typeof(href) && base_url) {
 					if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
 						$link.data('texteo_external_link', true);
-						$link.click(function() {
-							var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
-							document.location.href=link_to;
-							return false;
+						$link.click(function() {  // Open with previous header
+							if (target) {  // E.g., open in a new page
+								$link.click();
+								return false;
+							} else {
+								var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
+								document.location.href=link_to;
+								return false;
+							
+							}
 						});
 					} else {  // Internal link
 						$link.data('texteo_internal_link', true);					
