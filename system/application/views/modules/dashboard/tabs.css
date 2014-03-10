@@ -24,7 +24,7 @@ sup {
 
 ul, ol {margin:0px 0px 0px 20px; padding:0;}
 li {padding:0px 0px 3px 0px;}
-#book_versions li {padding-bottom:0px;}
+#book_versions li {padding-bottom:0px; height:auto;}
 .nodots {list-style-type:none; margin-left:0px;}
 
 hr {height:2px; overflow:hidden; border:0; background:#aaaaaa; color:#aaaaaa; margin:0px 0px 10px 0px;}

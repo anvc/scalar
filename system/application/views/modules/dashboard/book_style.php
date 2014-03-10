@@ -29,6 +29,11 @@ $(window).ready(function() {
     
     $('#book_versions').sortable();
     $('#book_versions_add_another').click(function() {
+        var $link = $(this);
+        if (true==$link.data('loading')) return false;
+        $link.data('loading', true);
+        var prev_link_text = $link.html();
+        $link.html('Loading...');
     	$('#book_versions_add_box').remove();
     	var book_id = parseInt(document.getElementById('style_form').book_id.value);
     	$.get('api/get_content', {book_id:book_id}, function(data) {
@@ -36,7 +41,12 @@ $(window).ready(function() {
     	    $wrapper.append('<div style="padding:10px 0px 10px 0px; font-weight:bold;">Pages</div>');
   			var $content = $('<ul class="nodots"></ul>');
   			for (var j = 0; j < data.length; j++) {
-  			    if (data[j].type!='composite') continue;
+  				if (data[j].type!='composite') continue;
+				if ('undefined'==typeof(data[j].versions) || !data[j].versions.length) {
+					 console.log('Missing composite version:');
+					 console.log(data[j]);
+					 continue;
+				}  	  			
   				var $li = $('<li><a href="#version_id_'+data[j].versions[0].version_id+'">'+data[j].versions[0].title+'</a></li>');
   				$content.append($li);
   			}
@@ -44,7 +54,12 @@ $(window).ready(function() {
     	    $wrapper.append('<div style="padding:10px 0px 10px 0px; font-weight:bold;">Media</div>');
   			var $content = $('<ul class="nodots"></ul>');
   			for (var j = 0; j < data.length; j++) {
-  			    if (data[j].type!='media') continue;
+  				if (data[j].type!='media') continue;
+				if ('undefined'==typeof(data[j].versions) || !data[j].versions.length) {
+					 console.log('Missing media version:');
+					 console.log(data[j]);
+					 continue;
+				}  	  			
   				var $li = $('<li><a href="#version_id_'+data[j].versions[0].version_id+'">'+data[j].versions[0].title+'</a></li>');
   				$content.append($li);
   			}
@@ -71,6 +86,8 @@ $(window).ready(function() {
   				return false;
   			});
   			$('body').append($wrapper);
+  			$link.data('loading', false);
+  			$link.html(prev_link_text);
     		return false;
     	});
     });    
