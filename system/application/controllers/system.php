@@ -358,7 +358,7 @@ class System extends MY_Controller {
 					$this->load->model('book_model', 'books');
 					$this->load->library('SendMail', 'sendmail');
 				
-					$book_id = @ (int) $_REQUEST['book_id'];
+					$book_id = @ (int) $_REQUEST['book_to_join'];
 					
 					$this->data['book'] = $this->books->get($book_id);
 							

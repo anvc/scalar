@@ -145,11 +145,36 @@ class Book_model extends MY_Model {
     	return $result;    	
     	
     }
+	
+	//@Lucas: Added second helper function to find 'joinable' books
+	public function get_joinable($orderby='title',$orderdir='asc') {
+    	
+    	$this->db->select('*');
+    	$this->db->from($this->books_table);
+		$this->db->not_like('title', 'data-joinable="false"'); 
+    	$this->db->order_by($orderby, $orderdir); 
+    	
+    	$query = $this->db->get();
+    	if (mysql_errno()!=0) echo mysql_error();
+    	$result = $query->result();
+    	for ($j = 0; $j < count($result); $j++) {
+    		$result[$j]->users = $this->get_users($result[$j]->book_id, true, '');
+    	}
+    	return $result;    	
+    	
+    }
     
     public function is_duplicatable($book) {
     	//@Lucas: Just changed "all" to "true" since, right now, we don't have any means of making this more granular; This may be changed in the future
     	if (stristr($book->title, 'data-duplicatable="true"')) return true;
     	return false;
+    	
+    }
+	
+	//@Lucas: Added second helper function to find if a book is 'joinable'
+	public function is_joinable($book) {
+    	if (stristr($book->title, 'data-joinable="false"')) return false;
+    	return true;
     	
     }
    
