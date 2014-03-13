@@ -161,3 +161,6 @@ select{
 .bg-danger{
 	color: #a94442;
 }
+#container_home .row a h2{
+	padding: 10px;
+}
