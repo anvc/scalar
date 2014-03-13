@@ -347,13 +347,13 @@ $(window).ready(function() {
 		          widgets_uri+'/vis/jquery.scalarvis.js'*/], complete:function() { 
 		   
 		   		if ( currentNode == null ) {
-		   			$( 'body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
-		   			$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
+		   			$( '#body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
+		   			$( '#body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
 		   		} else {
 				  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
 				  	$('article').before($('#book-title').parent().parent());
 		   		}
-				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
+				//header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 		
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
 				

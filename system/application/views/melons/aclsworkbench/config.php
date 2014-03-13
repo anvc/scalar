@@ -1,7 +1,11 @@
 <?php
 
 // Arbor (wrapper) to use, e.g., 'html5_RDFa'
-$config['arbor'] = 'html5_RDFa';
+if(isset($_GET['modal']) && $_GET['modal'] === '1'){
+	$config['arbor'] = 'blank';
+}else{
+	$config['arbor'] = 'html5_RDFa';
+}
 
 // Array of views; leave value empty and it won't be displayed as a default view option in the editor
 $config['views'] = array(

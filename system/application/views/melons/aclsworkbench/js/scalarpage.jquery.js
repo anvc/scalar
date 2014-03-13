@@ -101,20 +101,26 @@
 				
 					case ViewState.Reading:
 					if (data.instantaneous) {
-						$('.page').removeClass( 'fade_out instantaneous_fade_out' );
+						$('body>div.container').fadeIn(0);
+						$('#graph, #pinwheel_center').fadeTo(0,.25);
+						$('#zoomControls').fadeTo(0,0);
 					} else {
 						//$('.page').stop().fadeIn();
-						$( '.page' ).removeClass( 'fade_out instantaneous_fade_out' );
+						$('body>div.container').fadeIn('fast');
+						$('#graph, #pinwheel_center').fadeTo('fast',.25);
+						$('#zoomControls').fadeTo('fast',0);
 					}
 					$( 'body' ).css( 'overflow-y', 'auto' );
 					break;
 					
 					case ViewState.Navigating:
 					if (data.instantaneous) {
-						$('.page').addClass( 'instantaneous_fade_out' );
+						$('body>div.container').fadeOut(0);
+						$('#graph, #pinwheel_center, #zoomControls').fadeTo(0,1);
 					} else {
 						//$('.page').stop().fadeOut();
-						$( '.page' ).addClass( 'fade_out' );
+						$('body>div.container').fadeOut('fast');
+						$('#graph, #pinwheel_center, #zoomControls').fadeTo('fast',1);
 						/*$( '.page' ).addClass( 'fade_out' ).delay( 1000 ).queue( 'fx', function( next ) {
 							//$( this ).css( 'display', 'none' );
 							next();
@@ -371,9 +377,6 @@
 			},
 			
 			setupScreenedBackground: function() {
-				var screen = $('<div class="bg_screen"><img src="' + page.options.root_url + '/images/1x1white_trans.png" width="100%" height="100%"/></div>').prependTo('body');
-				screen.css('backgroundImage', $('body').css('backgroundImage'));
-				$('body').css('backgroundImage', 'none');
 			},
 			
 			/*addIconBtn: function(element, filename, hoverFilename, title, url) {
@@ -783,8 +786,11 @@
 				
 			$( 'body' ).bind( 'handleBook', page.handleBook );
 		}
-				
+		$('#spinner').remove();
+		$('.container, article,header').fadeIn('fast');	
+	
 		return page;
+		
 	
 	}
 

@@ -396,7 +396,7 @@ ScalarPinwheel.prototype.calculateDimensions = function() {
 	if ( ($(window).width() - $('.page').width()) == 0 ) {
 		this.currentMargin = 150;
 	} else {
-		this.currentMargin = Math.max( 100, ($(window).width() - $('.page').width()) * .5);
+		this.currentMargin = Math.max( 100, ($(window).width() - $('#page_body').width()) * .5);
 	}
 	
 	this.unitSize = {
@@ -952,14 +952,14 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 				if (graphNode.nodes[0].color) {
 					color = graphNode.nodes[0].color;
 				} else {
-					color = '#000';
+					color = '#fff';
 				}
 			}
 		}
 		
 		var canvasPosition;
 		
-		//console.log('     '+graphNode.position.x+','+graphNode.position.y);
+		console.log('     '+graphNode.position.x+','+graphNode.position.y);
 		
 		//console.log('draw node '+graphNode.nodes[0].getDisplayTitle()+' at '+canvasPosition.x+','+canvasPosition.y);
 		
@@ -1054,7 +1054,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					if (drawLabels) {
 						label = this.canvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						// replace with css fonts
-						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer'});
+						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'cursor':'pointer', 'fill':'#fff'});
 						wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 						graphNode.drawing.push(label);
 					}
@@ -1092,7 +1092,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					if (drawLabels) {
 						label = this.centerCanvas.text(canvasPosition.x, canvasPosition.y+20, graphNode.getDisplayTitle());
 						// replace with css fonts
-						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px'});
+						label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'fill':'#fff'});
 						wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 						graphNode.drawing.push(label);
 					}
@@ -1177,7 +1177,7 @@ ScalarPinwheel.prototype.drawGraphNode = function(graphNode) {
 					if (graphNode.children.length > 0) labelOffsetV = 26;
 					label = this.canvas.text(canvasPosition.x, canvasPosition.y+labelOffsetV, graphNode.nodes[0].getDisplayTitle());
 					// replace with css fonts
-					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'fill':'#000000'});
+					label.attr({'font-family':'\'Lato\', Arial, sans-serif', 'font-size':'16px', 'fill':'#ffffff'});
 					wrapText( label, labelWidth, 'middle', Math.max( 1, 5 - me.currentZoom ) );
 					graphNode.drawing.push(label);
 				}
@@ -1300,7 +1300,7 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 		
 		//var path = this.canvas.path('M65 144 q 126 0 252 144 q 126 144 252 144');
 		if (destGraphNodeData.node.nodes.length > 1) {
-			color = '#000';
+			color = '#fff';
 		} else if (destGraphNodeData.node.nodes[0].color) {
 			color = destGraphNodeData.node.nodes[0].color;
 		} else {
@@ -1323,7 +1323,7 @@ ScalarPinwheel.prototype.drawRelation = function(type, sourceGraphNode, destGrap
 		pathString += 'L'+sourcePos.x+' '+sourcePos.y;
 		pathString += 'L'+sourcePos.x+' '+sourcePos.y;
 		if (destGraphNodeData.node.nodes.length > 1) {
-			color = '#000';
+			color = '#fff';
 		} else if (destGraphNodeData.node.nodes[0].color) {
 			color = destGraphNodeData.node.nodes[0].color;
 		} else {

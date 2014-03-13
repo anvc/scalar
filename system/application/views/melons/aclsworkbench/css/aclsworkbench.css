@@ -1,0 +1,142 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,100,700,100italic,400italic,700italic);
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+
+/**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+.cf {
+    *zoom: 1;
+}
+
+body {
+  background-image: url(../img/background_front.jpg);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #fff;
+}
+
+body>.container{
+	display: block;
+	background-color: rgb(255, 255, 255);
+	color: rgb(51, 51, 51);
+	padding-top: 7em;
+	padding-bottom: 30px;
+	position: relative;
+	z-index: 3;
+	-webkit-box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.75);
+-moz-box-shadow:    0px 0px 30px 0px rgba(0, 0, 0, 0.75);
+box-shadow:         0px 0px 30px 0px rgba(0, 0, 0, 0.75);
+}
+
+h1, h2, h3, h4{
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+}
+@media (max-width: 767px) {
+	.desktop_only{
+		display: none;
+	}
+}
+@media (min-width: 768px) {
+	.mobile_only{
+		display: none;
+	}
+}
+select{
+	color: #000;
+	background-color: #fff;
+}
+.bg-success{
+	color: #3c763d;
+}
+.bg-danger{
+	color: #a94442;
+}
+.well
+{
+	color:#333;
+}
+.dark.well
+{
+	background-color: rgba(0,0,0,.75);
+	border-color: rgba(0,0,0,.85);
+	color:#eee;
+}
+hr.dark {
+border-top: 1px solid #333;
+}
+.modal{
+	color: #333;
+}
+#modal h2.heading_font, #modal .dialog_header .right{
+	display: none;
+}
+.dialog{
+	color: #000;
+}
+#modal .control_bar{
+	border-top: 0px;
+	margin-top: 0px;
+}
+#modal .body_copy{
+	margin-top: 2em;
+}
+#modal .results_list{
+	margin-top: 0px;
+}
+#graph{
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+}
+#graph,#pinwheel_center{
+	opacity: .25;
+}
+#zoomControls{
+	opacity: 0;
+}
+.full{
+	margin-bottom: 1em;
+	margin-top: 1em;
+}
+
+#body section > h1{
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.container>article>header>span[typeof="scalar:Book"]{
+	display: none;
+}
+body.has_image{
+	background-color: #000;
+}
+
+#background-image{
+	background-size: cover;
+	position: fixed;
+	z-index: -9999;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	opacity: .25
+}
+.popover{
+	color: #000;
+	width: 200px;
+}
+.link_search{
+	cursor: pointer;
+}

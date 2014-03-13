@@ -94,14 +94,8 @@
 		// Header controls
 		var list = $( '<ul></ul>' ).appendTo( this.element );
 		
-		// Index
-		list.append( '<li id="workbench-item"><img src="'+base_url+'system/application/views/modules/aclsworkbench_cover/img/project_icon.svg" alt="Click to go to Workbench index." width="40" height="40" style="top: 5px;" /></li>' );
-		$( '#workbench-item' ).click(function() {
-			document.location = base_url;
-		});
-		
 		// Home
-		//list.append( '<li id="home-item"><img src="' + this.options.root_url + '/images/home_icon.png" alt="Click to go to home page." width="30" height="30" /></li>' );
+		list.append( '<li id="home-item"><img src="' + this.options.root_url + '/images/home_icon.png" alt="Click to go to home page." width="30" height="30" /></li>' );
 		$( '#home-item' ).click(function() {
 			document.location = addTemplateToURL( $('#book-title').parent().attr("href"), 'cantaloupe');
 		});
