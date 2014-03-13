@@ -19,7 +19,7 @@
 			$title		   = trim(strip_tags($row->title));
 			$book_id       = (int) $row->book_id;
 			$thumbnail     = (!empty($row->thumbnail)) ? confirm_slash($row->slug).$row->thumbnail : null;
-			$is_live       = ($row->display_in_index) ? true : false; 
+			$is_live       = ($row->display_in_index && $row->url_is_public); 
 			$is_featured   =@ ($row->is_featured) ? true : false;
 			if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = path_from_file(__FILE__).'default_book_logo.png';
 			$authors = array();
@@ -35,7 +35,7 @@
 				$authors[] = $user->fullname;
 			}
 			echo '<div data-book_id="',$book_id,'" class="book_container col-md-'.round(12/$cols).' col-sm-'.round(12/$tab_cols).' col-xs-'.round(12/$mob_cols).'">
-			<div class="book center-block',($is_featured?' featured':''),'" ><div class="cover" style="background-image: url(/',$thumbnail,')"><a href="',$uri,'">',($is_featured?'<p class="bg-primary text-center"><span class="glyphicon glyphicon-star"></span> Featured</p>':''),($user_is_reader?'<p class="bg-success text-center"><span class="glyphicon glyphicon-check"></span> Joined</p>':''),(($row->current_user && !$user_is_reader && $is_live)?'<p class="bg-danger text-center"><small><span class="glyphicon glyphicon-eye-close"></span> Not Published</small></p>':''),'</a></div>',
+			<div class="book center-block',($is_featured?' featured':''),'" ><div class="cover" style="background-image: url(/',$thumbnail,')"><a href="',$uri,'">',($is_featured?'<p class="bg-primary text-center"><span class="glyphicon glyphicon-star"></span> Featured</p>':''),($user_is_reader?'<p class="bg-success text-center"><span class="glyphicon glyphicon-check"></span> Joined</p>':''),($is_live?'':'<p class="bg-danger text-center"><small><span class="glyphicon glyphicon-eye-close"></span> Not Published</small></p>'),'</a></div>',
 			'</div>';
 			
 			if((isset($row->data['duplicatable']) && $row->data['duplicatable'] == 'true') || ( !$row->current_user  && (!isset($row->data['joinable']) || !in_array($row->data['joinable'],array('false','0')))) || ($row->current_user && !$user_is_reader)){
@@ -238,10 +238,9 @@
 					<?php
 						if($login->is_logged_in){
 					?>
-						<form action="<?php echo base_url(); ?>/system/dashboard" method="post">
+						<form action="<?php echo base_url(); ?>system/dashboard" method="post">
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="acls_join_book">
-							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
 							<input type="hidden" name="book_id" id="book_id" value="">
 							<div class="book_image"></div>
 							<p>You are about to join this book - this means that you will be added automatically as a subscribed reader, and it will show up under "Your Books" on the main book index. You may also optionally request to become a co-author of this book, pending current author approval.</p>
@@ -296,10 +295,9 @@
 					<?php
 						if($login->is_logged_in){
 					?>
-						<form action="<?php echo base_url(); ?>/system/dashboard" method="post">
+						<form action="<?php echo base_url(); ?>system/dashboard" method="post">
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="do_duplicate_book">
-							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
 							<input type="hidden" name="book_to_duplicate" id="book_to_duplicate" value="">
 							<div class="book_image"></div>
 							<p>You are about to clone this book - a copy of this book with your new title will be added to "Your Books" on the book index.<p>
@@ -393,15 +391,14 @@
 			echo '<div class="well"><h1>Create a new Book</h1><div id="create_wrapper" data-step="2" data-intro="In order to create a book, you must first enter a title. Your book\'s URL will be based off of this value.">';
 			if($login->is_logged_in){
 				?>
-					<form id="create_book_form" action="<?php echo base_url(); ?>/system/dashboard" method="post">
+					<form id="create_book_form" action="<?php echo base_url(); ?>system/dashboard" method="post">
 						<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 						<input type="hidden" name="action" value="do_add_book">
-						<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
 						<p>You are about to create a new book. In order to start this process,  please enter the book's title. You may change this title at a later time, however your book's URL will be based on this initial value. You may also choose to allow or disallow users to subscribe to your book. A subscribed user will be listed as a "reader" of your book, but will be unable to edit or contribute outside of comments. By default, subscriptions are allowed.</p>
 						<p>Once you have entered your desired book title, click "Create book," below.</p>
 						<hr>
 						<div class="form-group text-center">
-							<label for="create_book_title">New Book Title: <br /><input id="create_book_title" name="title" type="text" placeholder="New book title" style="width:200px;"></label>
+							<label for="create_book_title">New Book Title: <br /><input id="create_book_title" name="title" type="text" placeholder="(New book title)" style="width:200px;"></label>
 						</div>
 						<div class="form-group text-center">
 							<label for="joinable">Allow Users to Join* My Book:  <input id="joinable" name="joinable" type="checkbox" checked></label>
