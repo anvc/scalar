@@ -254,8 +254,8 @@ class System extends MY_Controller {
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
 		 			exit;	
 				case 'do_duplicate_book':   // My Account  TODO
-					$user_id =@ (int) $this->data['login']->user_id;
-					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 					
+					$user_id =@ (int)$this->data['login']->user_id;
+					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 				
 					$_POST['user_id'] = $user_id;
 					$book_id = (int) $this->books->duplicate($_POST);
 					//@Lucas - added option to redirect to page of choice
@@ -279,7 +279,7 @@ class System extends MY_Controller {
 					}
 					exit; 		 			
 				case 'do_add_book':   // Admin: All Books (requires title) & My Account (request user_id & title)
-					$user_id =@ (int) $this->data['login']->user_id;
+					$user_id =@ (int)$this->data['login']->user_id;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
 					$book_id = (int) $this->books->add($_POST);
 					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
@@ -624,6 +624,15 @@ class System extends MY_Controller {
 					$this->data['content'] = '{"is_logged_in":0}';
 				}	
 				break;		
+			case 'get_user_contributions':
+				$this->load->model('page_model', 'pages');
+				$this->load->model('version_model', 'versions');		
+				$this->load->model('user_model', 'users');				
+				if (!$this->data['login']->is_logged_in) $this->kickout();  
+				$book_id =@ (int) $_REQUEST['book_id'];
+				$user_id =@ (int) $_REQUEST['user_id'];
+				$this->data['content'] = $this->users->get_pages_contributed_to($book_id, $user_id);
+				break;
 				
 			// Write
 			case 'save_row':
@@ -640,8 +649,7 @@ class System extends MY_Controller {
 				$this->data['book'] = $this->books->get($book_id);
 				$this->set_user_book_perms();
 				if ('users'==$section) {
-					if (!$this->data['login_is_super'] && isset($_POST['email'])) die ('{"error":"Invalid permissions to set email"}');	
-					if (!$this->data['login_is_super'] && isset($_POST['fullname'])) die ('{"error":"Invalid permissions to set fullname"}');	
+					if (!$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit user"}');
 				} elseif ('pages'==$section) {
 					if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$id)) die ('{"error":"Invalid permissions"}');		
 				} elseif ('books'==$section) {
