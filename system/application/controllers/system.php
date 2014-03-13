@@ -254,7 +254,7 @@ class System extends MY_Controller {
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
 		 			exit;	
 				case 'do_duplicate_book':   // My Account  TODO
-					$user_id =@ (int) $_POST['user_id'];
+					$user_id =@ (int) $this->data['login']->user_id;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 					
 					$book_id = (int) $this->books->duplicate($_POST);
 					//@Lucas - added option to redirect to page of choice
@@ -278,7 +278,7 @@ class System extends MY_Controller {
 					}
 					exit; 		 			
 				case 'do_add_book':   // Admin: All Books (requires title) & My Account (request user_id & title)
-					$user_id =@ (int) $_POST['user_id'];
+					$user_id =@ (int) $this->data['login']->user_id;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
 					$book_id = (int) $this->books->add($_POST);
 					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
