@@ -241,7 +241,8 @@
 						<form action="<?php echo base_url(); ?>system/dashboard" method="post">
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="acls_join_book">
-							<input type="hidden" name="book_id" id="book_id" value="">
+							<input type="hidden" name="book_to_join" id="book_to_join" value="">
+							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
 							<div class="book_image"></div>
 							<p>You are about to join this book - this means that you will be added automatically as a subscribed reader, and it will show up under "Your Books" on the main book index. You may also optionally request to become a co-author of this book, pending current author approval.</p>
 							<br />
@@ -299,6 +300,7 @@
 							<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 							<input type="hidden" name="action" value="do_duplicate_book">
 							<input type="hidden" name="book_to_duplicate" id="book_to_duplicate" value="">
+							<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
 							<div class="book_image"></div>
 							<p>You are about to clone this book - a copy of this book with your new title will be added to "Your Books" on the book index.<p>
 							<p><em class="text-muted">Note that any pages that you have not edited will still show the previous author as the last editor. Once you have modified these files, you will be shown as the most recent editor. Any new files you will create will also show you as the editor.</em></p>
@@ -394,6 +396,7 @@
 					<form id="create_book_form" action="<?php echo base_url(); ?>system/dashboard" method="post">
 						<input type="hidden" name="redirect" value="<?php echo base_url().'?'; ?>">
 						<input type="hidden" name="action" value="do_add_book">
+						<input type="hidden" name="user_id" value="<?php echo $login->user_id; ?>">
 						<p>You are about to create a new book. In order to start this process,  please enter the book's title. You may change this title at a later time, however your book's URL will be based on this initial value. You may also choose to allow or disallow users to subscribe to your book. A subscribed user will be listed as a "reader" of your book, but will be unable to edit or contribute outside of comments. By default, subscriptions are allowed.</p>
 						<p>Once you have entered your desired book title, click "Create book," below.</p>
 						<hr>
