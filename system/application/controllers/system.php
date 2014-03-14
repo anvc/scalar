@@ -278,7 +278,7 @@ class System extends MY_Controller {
 					}
 					exit; 		 			
 				case 'do_add_book':   // Admin: All Books (requires title) & My Account (request user_id & title)
-					$user_id =@ (int)$this->data['login']->user_id;
+					$user_id =@ (int)$_POST['user_id'];
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
 					$book_id = (int) $this->books->add($_POST);
 					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
