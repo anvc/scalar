@@ -988,6 +988,10 @@ function handleFlashVideoMetadata(data) {
 					this.mediaObjectView = new $.TextObjectView(this.model, this);
 					break;
 					
+					case 'SourceCode':
+					this.mediaObjectView = new $.SourceCodeObjectView(this.model, this);
+					break;
+					
 					case 'Prezi':
 					this.mediaObjectView = new $.PreziObjectView(this.model, this);
 					break;
@@ -1582,6 +1586,9 @@ function handleFlashVideoMetadata(data) {
  				case 'document':
 				this.overrideAutoSeek = true;
  				this.mediaObjectView.seek(annotation.properties.start);
+ 				if ( this.model.mediaSource.name == 'SourceCode' ) {
+ 					this.mediaObjectView.highlightLinesForAnnotations( [ annotation ] );
+ 				}
  				break;
  				
  				case 'image':
@@ -3543,7 +3550,7 @@ function handleFlashVideoMetadata(data) {
 		this.justPlayedSeekAnnotation = false;	// did we just play a text annotation?
 
 		/**
-		 * Creates the video media object.
+		 * Creates the text media object.
 		 */
 		jQuery.TextObjectView.prototype.createObject = function() {
 		
@@ -3786,6 +3793,216 @@ function handleFlashVideoMetadata(data) {
 
 	}
 
+	/**
+	 * View for source code.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.SourceCodeObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.hasFrameLoaded = false;			// has the iframe loaded?
+		this.isLiquid = true;					// media should expand to fill available space
+		this.currentLine = 0;					// user's position in the text
+		this.textIsPlaying = false;				// text is 'played' so that we can seek and show live annotations for it
+		this.justPlayedSeekAnnotation = false;	// did we just play a text annotation?
+
+		/**
+		 * Creates the source code media object.
+		 */
+		jQuery.SourceCodeObjectView.prototype.createObject = function() {
+			
+			var approot = $('link#approot').attr('href');
+			var path = approot+'helpers/proxy.php?url='+this.model.path;
+			
+			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
+			
+			var queryVars = scalarapi.getQueryVars( path );
+			var lang;
+			if ( queryVars.lang != null ) {
+				lang = queryVars.lang;
+			}
+			
+			this.object = $( '<div class="mediaObject"></div>' ).appendTo( this.parentView.mediaContainer );
+			var temp = $( '<pre id="' + me.frameId + '" data-src="' + path + '" class="line-numbers" style="width: 100%; height: 100%;"><code></code></pre>' );
+			if ( lang != null ) {
+				temp.addClass( 'language-' + lang );
+			}
+			this.object.append( temp );
+			var approot = $('link#approot').attr('href');
+			var cssLink = document.createElement("link")
+			cssLink.href = approot+'views/widgets/mediaelement/prism.css';
+			cssLink.rel = "stylesheet";
+			cssLink.type = "text/css";
+
+			me.parentView.intrinsicDim.x = me.parentView.containerDim.x;
+			me.parentView.intrinsicDim.y = me.parentView.containerDim.y;
+			
+			me.parentView.layoutMediaObject();
+			me.parentView.removeLoadingMessage();
+			
+			var doc = document;
+			doc.body.appendChild(cssLink);
+			$.getScript( approot+'views/widgets/mediaelement/prism.js', function( script, textStatus ) {
+				me.hasFrameLoaded = true;
+			   	me.highlightAnnotatedLines();
+				me.pause();
+				if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
+					me.parentView.doAutoSeek();
+				}
+			} ).fail( function( jqxhr, settings, exception ) {
+				console.log( 'error loading prism.js: ' + exception );
+			} );
+			
+			return;
+		}
+		
+		/**
+		 * Highlights all of the annotated lines in the text.
+		 */
+		jQuery.SourceCodeObjectView.prototype.highlightAnnotatedLines = function() {
+		
+			var i, annotation
+				n = this.parentView.annotations.length,
+				textAnnotations = [];
+			for ( i=0; i<n; i++ ) {
+				annotation = this.parentView.annotations[ i ];
+				if ( this.model.mediaSource.contentType == 'document' ) {
+					textAnnotations.push( annotation );
+				}
+			}
+			if (textAnnotations.length > 0) this.highlightLinesForAnnotations( textAnnotations );
+
+		}		 
+		
+		/**
+		 * Highlights the lines of the text associated with the specified annotations.
+		 */
+		jQuery.SourceCodeObjectView.prototype.highlightLinesForAnnotations = function( textAnnotations ) {
+			
+			var i, annotation, j, row,
+				n = textAnnotations.length,
+				highlightStr = '';
+				
+			for ( i=0; i<n; i++ ) {
+				annotation = textAnnotations[ i ];
+				if ( annotation.properties.start == annotation.properties.end ) {
+					highlightStr += annotation.properties.start;
+				} else {
+					highlightStr += annotation.properties.start + '-' + annotation.properties.end;
+				}
+				if ( i < ( n - 1 ) ) {
+					highlightStr += ',';
+				}
+				/*for ( j = annotation.properties.start; j <= annotation.properties.end; j++ ) {
+					row = $( '#'+this.frameId ).find( '.line-numbers-rows > span' ).eq( j - 1 );
+					row.data( 'annotation', annotation );
+					row.click( function() {
+						var anno = $( this ).data( 'annotation' );
+						me.currentLine = index + 1;
+						me.textIsPlaying = true;
+						me.parentView.doInstantUpdate();
+						me.highlightLinesForAnnotations( [ anno ] );
+					});
+				}*/
+			}
+			
+			var e = this.object.find( 'pre' );
+			e.attr( 'data-line', highlightStr );
+			Prism.highlightElement( e );
+			
+		}
+		
+		/**
+		 * Scrolls to the given line.
+		 *
+		 * @param line {Number}		The line number to scroll to.
+		 */
+		jQuery.SourceCodeObjectView.prototype.scrollToLine = function(line) {
+			if ( this.hasFrameLoaded ) {
+				var rows = $( '#'+this.frameId ).find( '.line-numbers-rows > span' );
+				if ( rows ) {
+					$( '#'+this.frameId ).stop().animate( { scrollTop: $( rows[ Math.min( Math.max( 0, line - 1 ), rows.length - 1 ) ] ).position().top },'slow');
+				}
+			}
+		}
+
+		/**
+		 * Starts playback of the media.
+		 */
+		jQuery.SourceCodeObjectView.prototype.play = function() {
+			if (this.model.seekAnnotation != null) {
+				if (!this.justPlayedSeekAnnotation) {
+					this.seek(this.model.seekAnnotation.properties.start);
+					this.justPlayedSeekAnnotation = true;
+				}
+			}
+			this.textIsPlaying = true;
+			this.parentView.doInstantUpdate();
+		}
+
+		/**
+		 * Pauses playback of the media.
+		 */
+		jQuery.SourceCodeObjectView.prototype.pause = function() {
+			this.textIsPlaying = false;
+			this.parentView.doInstantUpdate();
+		}
+
+		/**
+		 * Seeks to the specified location in the media.
+		 *
+		 * @param {Number} line			Destination line number.
+		 */
+		jQuery.SourceCodeObjectView.prototype.seek = function( line ) {
+			this.currentLine = line;
+			this.scrollToLine(line);
+			var seekAnnotations = [];
+			var i, annotation,
+				n = this.parentView.annotations.length;
+			for ( i = 0; i < n; i++ ) {
+				annotation = this.parentView.annotations[ i ];
+				if ( ( this.currentLine >= annotation.properties.start ) && ( this.currentLine <= annotation.properties.end ) ) {
+					seekAnnotations.push( annotation );
+				}
+			}
+			this.highlightLinesForAnnotations( seekAnnotations );
+		}
+
+		/**
+		 * Returns the current line in the text.
+		 * @return	The current line number.
+		 */
+		jQuery.SourceCodeObjectView.prototype.getCurrentTime = function() {
+			return this.currentLine;
+		}
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.SourceCodeObjectView.prototype.resize = function(width, height) {
+			$('#'+this.frameId).parent().width(width);
+			$('#'+this.frameId).parent().height(height);
+		}
+		
+		/**
+		 * Returns true if the media is currently playing.
+		 * @return	Returns true if the media is playing.
+		 */
+		jQuery.SourceCodeObjectView.prototype.isPlaying = function(value, player_id) {
+			return this.textIsPlaying;
+		}
+
+	}
+	
 	/**
 	 * View for rendered HTML content.
 	 * @constructor

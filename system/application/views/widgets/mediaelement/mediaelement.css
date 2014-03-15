@@ -40,6 +40,9 @@
 	z-index:7;
 }
 
+.mediaelement pre { border: 1px solid #cbcbcb; }
+.mediaelement pre, .mediaelement code { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; font-size: 100%; line-height: 100%; } 
+
 .loadingMessage {
 	padding:20px;
 	color:#666;
