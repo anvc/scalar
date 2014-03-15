@@ -403,6 +403,8 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 .comment_form_field {font-size: 13px;}
 .comment {border-bottom: 1px solid #ccc; background-color: #fff; padding: 20px 0 6px 0;}
 .comment:first-child {border-top: 1px solid #ccc;}
+.token.comment { border-bottom: inherit; background-color: inherit; padding: inherit; } /* so we don't collide with the Prism syntax highlighter */
+.token.comment:first-child { border-top: inherit; }	/* so we don't collide with the Prism syntax highlighter */
 .comment_title {font-weight: bold;}
 .comment_attrib {font-size: 12px; margin-top:12px;}
 .author_comment {background-color: #ddd; padding-left: 20px; padding-right: 20px;}
