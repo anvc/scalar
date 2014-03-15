@@ -15,7 +15,8 @@ $config['views'] = array(
 			'book_splash' => 'Book Splash (This page\'s background image shown full screen w/ book title and author at the bottom)',
 			'gallery' => 'Media Gallery (Media contained or tagged by this page shown in a gallery)',
 			'structured_gallery' => 'Structured Media Gallery (Media contained or tagged up to two levels deep shown in an indexed gallery)',
-			'edit' => ''
+			'edit' => '',
+			'annotation_editor' => ''
 		);
 
 // Default view

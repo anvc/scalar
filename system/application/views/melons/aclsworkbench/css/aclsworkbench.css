@@ -34,8 +34,8 @@ body>.container{
 	position: relative;
 	z-index: 3;
 	-webkit-box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.75);
--moz-box-shadow:    0px 0px 30px 0px rgba(0, 0, 0, 0.75);
-box-shadow:         0px 0px 30px 0px rgba(0, 0, 0, 0.75);
+	-moz-box-shadow:    0px 0px 30px 0px rgba(0, 0, 0, 0.75);
+	box-shadow:         0px 0px 30px 0px rgba(0, 0, 0, 0.75);
 }
 
 h1, h2, h3, h4{
@@ -65,6 +65,12 @@ select{
 .well
 {
 	color:#333;
+	padding-top:0px;
+	padding-bottom:0px;
+}
+.well .heading_font {
+	margin-top:0px;
+	padding-top:10px;	
 }
 .dark.well
 {
