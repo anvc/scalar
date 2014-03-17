@@ -291,7 +291,6 @@ $(window).ready(function() {
 				 */			 
 				var rdf = $(document.body).RDFa();
 				var rdf_json = rdf.dump();
-				console.log(rdf_json);
 				//console.log('------- RDFa JSON ----------------------------');
 				//console.log(rdf_json);
 				
