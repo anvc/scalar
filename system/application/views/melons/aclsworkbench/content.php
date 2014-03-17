@@ -1,18 +1,20 @@
 <?php
 	$current_page_uri = rtrim(base_url(), '/').$this->uri->uri_string;
 	
-	
-	$login_url = $this->config->item('force_https') ? base_ssl() : base_url();
-	
 	if(substr($current_page_uri,-1) == '/'){
 		$current_page_uri = substr($current_page_uri,0,-1);
 	}
+	
+	
+	$login_url = $this->config->item('force_https') ? base_ssl() : base_url();
+	
 	
 	$data = array(
 		'melon_base_url' => base_url().'system/application/views/melons/aclsworkbench/',
 		'extra_data' => array_slice($this->uri->rsegments,3),
 		'login_url' => $login_url,
-		'hide_page' => true
+		'hide_page' => true,
+		'current_page_uri' => $current_page_uri
 	);
 	
 	
@@ -22,51 +24,11 @@
 		}
 		$data['page_title'] = ucwords(str_replace('_',' ',preg_replace('/(?!^)[A-Z]{2,}(?=[A-Z][a-z])|[A-Z][a-z]/', ' $0', $view)));
 		$data['current_page'] = array();
-		$data['current_page_uri'] = '';
 	}else{
 		$data['current_page'] = current($page->versions);
 		
 		$view = $data['current_page']->default_view;
 		$data['page_title'] = $data['current_page']->title;
-		$data['current_page_uri'] = $current_page_uri;
-		
-		
-		$current_path_block = '';
-		if(count($data['current_page']->has_paths)>0){
-			foreach($data['current_page']->has_paths as $path){
-				if($path->is_live){
-					$path_slug = $path->slug;
-					$path_start = current($path->versions);
-					$previous = null;
-					$next = null;
-					foreach($path_start->path_of as $i=>$path){
-						if($i > 0){
-							$previous = $i-1;
-						}else{
-							$previous = null;
-						}
-						if(isset($path_start->path_of[$i+1])){
-							$next = $i+1;
-						}else{
-							$next = null;
-						}
-						if($path->content_id == $data['current_page']->content_id){
-							break;
-						}
-					}
-					
-					$current_path_block .= '<div class="alert alert-info">';
-					if(isset($next)){
-						$current_path_block .=  '<a class="cf pull-right btn btn-primary btn-sm" style="margin-top: -5px;"  href="'.$base_uri.$path_start->path_of[$next]->slug.'">Next Page ("'.current($path_start->path_of[$next]->versions)->title.'") <span class="glyphicon glyphicon-chevron-right"></span></a>';
-					}else if(isset($path_start->continue_to)){
-						$current_path_block .=  '<a class="cf pull-right btn btn-success btn-sm" style="margin-top: -5px;" href="'.$base_uri.$path_start->continue_to->slug.'">End of Path. Continue to <strong>"'.current($path_start->continue_to->versions)->title.'"</strong> <span class="glyphicon glyphicon-chevron-right"></span></a>';
-					}
-					$current_path_block .=  '<a  href="'.$base_uri.$path_slug.'"><span class="glyphicon glyphicon-chevron-up"></span> This page is part of the <em>"'.$path_start->title.'"</em> path.</a></div></div>';
-				}
-			}
-		}
-		$data['current_path_block'] = $current_path_block;
-		
 	}
 	
 	$modal = false;

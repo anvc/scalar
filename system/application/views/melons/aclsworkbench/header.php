@@ -84,7 +84,7 @@
 		 ?>
 				<li class="text-center"><a data-toggle="tooltip"  title="Create New Page" href="<?php echo $base_uri; ?>new.edit"><span class="glyphicon glyphicon-file" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Create New Page</span></a></li>
 				<li class="text-center"><a data-toggle="tooltip"  title="Edit This Page" href="<?php echo $current_page_uri; ?>.edit"><span class="glyphicon glyphicon-pencil" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Edit This Page</span></a></li>
-				<?php if($page->type == 'media'){ ?>
+				<?php if(isset($page->type) && $page->type == 'media'){ ?>
 					<li class="text-center"><a data-toggle="tooltip"  title="Anotate This Page" href="<?php echo $current_page_uri; ?>.annotation_editor"><span class="glyphicon glyphicon-pushpin" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Annotate This Page</span></a></li>
 				<?php } ?>
 				<li class="text-center"><a data-toggle="tooltip"  title="Manage Media" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id.'&zone=media#tabs-media'; ?>"><span class="glyphicon glyphicon-picture" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Manage Media</span></a></li>
