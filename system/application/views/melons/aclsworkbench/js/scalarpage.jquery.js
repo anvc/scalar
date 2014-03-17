@@ -110,7 +110,7 @@
 						$('#graph, #pinwheel_center').fadeTo('fast',.25);
 						$('#zoomControls').fadeTo('fast',0);
 					}
-					$( 'body' ).css( 'overflow-y', 'auto' );
+					//$( 'body' ).css( 'overflow-y', 'auto' );
 					break;
 					
 					case ViewState.Navigating:
@@ -126,11 +126,11 @@
 							next();
 						} );*/
 					}
-					$( 'body' ).css( 'overflow-y', 'hidden' );
+					//$( 'body' ).css( 'overflow-y', 'hidden' );
 					break;
 					
 					case ViewState.Modal:
-					$( 'body' ).css( 'overflow-y', 'hidden' );
+					//$( 'body' ).css( 'overflow-y', 'hidden' );
 					break;
 				
 				}
