@@ -1121,6 +1121,8 @@ function handleFlashVideoMetadata(data) {
  				break;
  				
 			}
+			
+			this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
 	   		
 	   		if (!this.annotationsVisible) {
 	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x);
