@@ -71,6 +71,7 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm
   <td class="field">Replace existing</td>
   <td><select name="replace" style="width:100%;"><option value="">-- choose an existing local media file to replace with this upload</option><?
   	foreach($book_media as $book_media_row) {
+  		if (!isset($book_media_row->versions) || empty($book_media_row->versions)) continue;
   		if (!$this->versions->url_is_local($book_media_row->versions[0]->url)) continue;
   		echo '<option value="'.$this->versions->urn($book_media_row->versions[0]->version_id).'">';
   		if (!isset($book_media_row->versions[0])) continue;
