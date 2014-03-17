@@ -3823,7 +3823,7 @@ function handleFlashVideoMetadata(data) {
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
 			
 			var queryVars = scalarapi.getQueryVars( path );
-			var lang = 'code';
+			var lang = scalarapi.getFileExtension(me.model.path);
 			if ( queryVars.lang != null ) {
 				lang = queryVars.lang;
 			}
