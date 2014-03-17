@@ -33,12 +33,12 @@
 {
 	background:#fff;
 	
-	height:166px;
+	height:100px;
 	padding:5px 5px 5px 15px;
 	position:relative;
 	transition-duration:.125s;
 	transition-timing-function:linear;
-	width:110px;
+	width:130px;
 	z-index:3;
 	
 	margin-top: 10px;
