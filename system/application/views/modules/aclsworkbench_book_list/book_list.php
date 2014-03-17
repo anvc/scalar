@@ -15,13 +15,15 @@
 		$num_books = count($books);
 		echo '<div class="original book_list row">';
 		foreach ($books as $i=>$row) {
+		
 			$uri 		   = confirm_slash(base_url()).$row->slug;
 			$title		   = trim(strip_tags($row->title));
 			$book_id       = (int) $row->book_id;
-			$thumbnail     = (!empty($row->thumbnail)) ? confirm_slash($row->slug).$row->thumbnail : null;
+			$thumbnail     = (!empty($row->thumbnail)) ? base_url().confirm_slash($row->slug).$row->thumbnail : null;
 			$is_live       = ($row->display_in_index && $row->url_is_public); 
 			$is_featured   =@ ($row->is_featured) ? true : false;
-			if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = path_from_file(__FILE__).'default_book_logo.png';
+			if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = base_url().'system/application/views/modules/aclsworkbench_book_list/default_book_logo.png';
+			
 			$authors = array();
 			$user_is_reader = false;
 			foreach ($row->users as $user) {
@@ -35,7 +37,7 @@
 				$authors[] = $user->fullname;
 			}
 			echo '<div data-book_id="',$book_id,'" class="book_container col-md-'.round(12/$cols).' col-sm-'.round(12/$tab_cols).' col-xs-'.round(12/$mob_cols).'">
-			<div class="book center-block',($is_featured?' featured':''),'" ><div class="cover" style="background-image: url(/',$thumbnail,')"><a href="',$uri,'">',($is_featured?'<p class="bg-primary text-center"><span class="glyphicon glyphicon-star"></span> Featured</p>':''),($user_is_reader?'<p class="bg-success text-center"><span class="glyphicon glyphicon-check"></span> Joined</p>':''),($is_live?'':'<p class="bg-danger text-center"><small><span class="glyphicon glyphicon-eye-close"></span> Not Published</small></p>'),'</a></div>',
+			<div class="book center-block',($is_featured?' featured':''),'" ><div class="cover" style="background-image: url(',$thumbnail,')"><a href="',$uri,'">',($is_featured?'<p class="bg-primary text-center"><span class="glyphicon glyphicon-star"></span> Featured</p>':''),($user_is_reader?'<p class="bg-success text-center"><span class="glyphicon glyphicon-check"></span> Joined</p>':''),($is_live?'':'<p class="bg-danger text-center"><small><span class="glyphicon glyphicon-eye-close"></span> Not Published</small></p>'),'</a></div>',
 			'</div>';
 			
 			if((isset($row->data['duplicatable']) && $row->data['duplicatable'] == 'true') || ( !$row->current_user  && (!isset($row->data['joinable']) || !in_array($row->data['joinable'],array('false','0')))) || ($row->current_user && !$user_is_reader)){
