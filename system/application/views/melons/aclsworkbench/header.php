@@ -87,7 +87,7 @@
 				<?php if($page->type == 'media'){ ?>
 					<li class="text-center"><a data-toggle="tooltip"  title="Anotate This Page" href="<?php echo $current_page_uri; ?>.annotation_editor"><span class="glyphicon glyphicon-pushpin" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Annotate This Page</span></a></li>
 				<?php } ?>
-				<li class="text-center"><a data-toggle="tooltip"  title="Manage Media" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id.'&zone=pages#tabs-media'; ?>"><span class="glyphicon glyphicon-picture" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Manage Media</span></a></li>
+				<li class="text-center"><a data-toggle="tooltip"  title="Manage Media" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id.'&zone=media#tabs-media'; ?>"><span class="glyphicon glyphicon-picture" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Manage Media</span></a></li>
 				<li class="text-center"><a data-toggle="tooltip"  title="Edit Book" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id; ?>"><span class="glyphicon glyphicon-cog" style="font-size: 2.75em;vertical-align: middle;"></span>&nbsp;<span class="mobile_only">Edit This Book</span></a></li>
 			
 		<?php
