@@ -294,8 +294,11 @@ class Book_model extends MY_Model {
  		$title =@ $array['title'];
  		if (empty($title)) $title = 'Untitled';
     	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author
- 
+ 		$template = (isset($array['template'])) ? $array['template'] : null;
+    	
     	if (empty($title)) throw new Exception('Could not resolve title');
+    	$active_melon = $this->config->item('active_melon');
+    	if (empty($template) && !empty($active_melon)) $template = trim($active_melon);  // Otherwise use MySQL default
     	
     	$uri = $orig = safe_name($title, false);  // Don't allow forward slashes
     	$count = 1;
@@ -317,6 +320,7 @@ class Book_model extends MY_Model {
     	// Required fields
 		$data = array('title' => $title, 'slug' =>$uri, 'created'=>$mysqldate = date('Y-m-d H:i:s'), 'stylesheet'=>$this->default_stylesheet );
 		// Custom fields
+		if (!empty($template)) $data['template'] = $template;
 		if (isset($CI->data['login']->user_id)) $data['user'] = (int) $CI->data['login']->user_id;
 		if (isset($array['subtitle']) && !empty($array['subtitle'])) 		$data['subtitle'] = $array['subtitle'];
 		if (isset($array['thumbnail']) && !empty($array['thumbnail'])) 		$data['thumbnail'] = $array['thumbnail'];

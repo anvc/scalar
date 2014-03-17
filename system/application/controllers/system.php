@@ -283,9 +283,7 @@ class System extends MY_Controller {
 					$book_id = (int) $this->books->add($_POST);
 					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
 						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
-					
 						$redirect_url = $_POST['redirect'];
-						
 						if(!isset($url_has_query)){
 							if(substr($redirect_url, -1)!='?'){
 								$redirect_url .= '?';
@@ -294,9 +292,8 @@ class System extends MY_Controller {
 							$redirect_url .= '&';
 						}
 						$redirect_url .= 'created=1';
-						
 						header('Location: '.$redirect_url);
-					}else{
+					} else {
 						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					}
 					exit; 			 					 			
