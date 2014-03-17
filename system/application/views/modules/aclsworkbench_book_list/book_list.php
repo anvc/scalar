@@ -4,7 +4,7 @@
 	$this->template->add_js(path_from_file(__FILE__).'js/fuse.min.js');
 	$this->template->add_js(path_from_file(__FILE__).'js/aclsworkbench_book_list.js');
 	$this->template->add_css(path_from_file(__FILE__).'css/aclsworkbench_book_list.css');
-
+	
 	//Loop through each book, producing the book wrapping html for the book index
 	function print_books($books,$cols, $tab_cols,  $mob_cols, $user_id) {
 		if(!isset($tab_cols)){
@@ -20,9 +20,10 @@
 			$title		   = trim(strip_tags($row->title));
 			$book_id       = (int) $row->book_id;
 			$thumbnail     = (!empty($row->thumbnail)) ? base_url().confirm_slash($row->slug).$row->thumbnail : null;
+						
 			$is_live       = ($row->display_in_index && $row->url_is_public); 
 			$is_featured   =@ ($row->is_featured) ? true : false;
-			if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = base_url().'system/application/views/modules/aclsworkbench_book_list/default_book_logo.png';
+			if (empty($thumbnail)) $thumbnail = base_url().'system/application/views/modules/aclsworkbench_book_list/default_book_logo.png';
 			
 			$authors = array();
 			$user_is_reader = false;
