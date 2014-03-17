@@ -64,7 +64,13 @@ $(function(){
 	
 	
 	$('body').on('mediaElementMetadataHandled',function(){
-		$('.mediaObject, .mediaContainer').css('max-height',maxMediaHeight);
-		$('.mediaObject').css('height','auto');
+		$('.mediaObject, .mediaContainer').css({
+			'max-height':maxMediaHeight, 
+			'max-width':$('#body').width()
+		});
+		$('.mediaObject').css({
+			height:'auto',
+			width:'auto'
+		});
 	});
 });
