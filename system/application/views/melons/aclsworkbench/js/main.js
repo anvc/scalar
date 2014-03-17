@@ -48,7 +48,7 @@ var pinwheel = null;
 var state = ViewState.Reading;
 var lastState = state;
 var template_getvar = 'template';
-var maxMediaHeight = window.innerHeight - 250;
+var maxMediaHeight = window.innerHeight - 400;
 var isMobile = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/KFOT/i)) || (navigator.userAgent.match(/Kindle/i)) || (navigator.userAgent.match(/iPad/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i))));
 var isTablet = ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.match(/KFOT/i)) || (navigator.userAgent.match(/Kindle/i)));
 var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
@@ -387,7 +387,7 @@ $(window).ready(function() {
 				}
 				
 				if ( currentNode != null ) {
-					page.addMediaElements();
+					page.addMediaElements();					
 				}
 				
 				var savedState = $.cookie('viewstate');

@@ -62,4 +62,9 @@ $(function(){
 		$('#author_reason_container').toggleClass('hidden',$('#request_author_yes').attr('checked')!= 'checked');
 	});
 	
+	
+	$('body').on('mediaElementMetadataHandled',function(){
+		$('.mediaObject, .mediaContainer').css('max-height',maxMediaHeight);
+		$('.mediaObject').css('height','auto');
+	});
 });
