@@ -164,8 +164,14 @@ function wrapOrphanParagraphs(selection) {
 	  				$(buffer).wrapAll('<div></div>');
 	  				buffer = null;
 	  			}
-	  			// remove the element if it contains only whitespace
-	  			if( $(this).text().trim().length < 1 ) {
+	  			// unwrap inline media links and set them to full size if not already specified
+	  			$( this ).find( '.inline' ).unwrap().each( function() {
+	  				if ( $( this ).attr( 'data-size' ) == null ) {
+	  					$( this ).attr( 'data-size', 'full' );
+	  				}
+	  			} );
+	  			// remove the element if it contains only whitespace and no inline media links
+	  			if (( $(this).text().trim().length < 1 ) && ( $( this ).find( '.inline' ).length == 0 )) {
 	  				$(this).remove();
 	  			}
 	  		} else {
