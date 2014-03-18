@@ -77,7 +77,7 @@
 						
 					} else {
 						if (annotationPane.css('display') == 'none') {
-							currentAnnotationTable.find('td').eq(0).text(scalarapi.decimalSecondsToHMMSS(mediaelement.getCurrentTime()));
+							currentAnnotationTable.find('td').eq(0).text( relation.startString );
 						}
 					}
 				}
@@ -91,8 +91,10 @@
 						//console.log('hide '+((relation == null) ? 'null' : relation.body.getDisplayTitle())+' for '+mediaelement.model.node.getDisplayTitle());
 						
 						if (annotationPane.css('display') == 'none') {
-							currentAnnotation.slideUp();
-							if (currentRelation == relation) currentRelation = null;
+							if (currentRelation == relation) {
+								currentAnnotation.slideUp();
+								currentRelation = null;
+							}
 						} else if (relation != null) {
 							var annotationTable = annotationPane.find('table');
 							//$(annotationTable).find('tr').removeClass('current');
@@ -101,12 +103,11 @@
 								if (rowRelation == relation) {
 									$(this).removeClass('current');
 									if (rowRelation.body.current.content != null) {
-										console.log(this);
 										var col = $(this).find('td').eq(1);
 										col.empty();
 										col.append('<p>'+rowRelation.body.getDisplayTitle()+'</p>');
-										col.append('<p>'+rowRelation.body.current.content+'</p>');
-										col.find('p').eq(1).slideUp();
+										col.append('<div>'+rowRelation.body.current.content+'</div>');
+										col.find('div').eq(0).slideUp();
 									}
 								}
 							});

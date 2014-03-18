@@ -1479,8 +1479,7 @@ function handleFlashVideoMetadata(data) {
 						break;
 		
 					}
-					
-					
+
 					if (liveCount > 0) {
 						if (!me.annotationTimerRunning) {
 							me.annotationDisplay.html('<p>'+annoTitle+'</p>');
@@ -1562,8 +1561,9 @@ function handleFlashVideoMetadata(data) {
  				
  				case 'audio':
  				case 'video':
+ 				case 'document':
  				if (this.annotationDisplay) {
-	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+scalarapi.decimalSecondsToHMMSS(annotation.properties.start)+'…</p>');
+	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+annotation.startString+'…</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
  				if (!this.annotationTimerRunning) {
@@ -1583,14 +1583,6 @@ function handleFlashVideoMetadata(data) {
  				this.mediaObjectView.seek(annotation.properties.start);
  				this.lastSeekTime = annotation.properties.start;
  				handleTimer();
- 				break;
- 				
- 				case 'document':
-				this.overrideAutoSeek = true;
- 				this.mediaObjectView.seek(annotation.properties.start);
- 				if ( this.model.mediaSource.name == 'SourceCode' ) {
- 					this.mediaObjectView.highlightLinesForAnnotations( [ annotation ] );
- 				}
  				break;
  				
  				case 'image':
@@ -1867,16 +1859,14 @@ function handleFlashVideoMetadata(data) {
 			// params to seek instead)
 			if ((this.model.seekAnnotation != null) /*&& (this.model.mediaSource.contentType != 'image') && ((this.model.mediaSource.name != 'YouTube') || ((this.model.mediaSource.name == 'YouTube') && (scalarapi.scalarBrowser == 'MobileSafari')))*/) {
  				if (this.annotationDisplay && (this.model.mediaSource.contentType != 'image')) {
-	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+scalarapi.decimalSecondsToHMMSS(this.model.seekAnnotation.properties.start)+'…</p>');
+	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+this.model.seekAnnotation.startString+'…</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
- 				if ( this.model.mediaSource.contentType != 'document' ) {
-	 				if ( ( this.model.mediaSource.contentType != 'image' ) ) {
-	 					setTimeout( this.doAutoSeek, 6000 );
-					} else {
-	 					setTimeout( this.doAutoSeek, 3000 );
-					}
- 				}
+ 				if ( ( this.model.mediaSource.contentType != 'image' ) && ( this.model.mediaSource.contentType != 'document' ) ) {
+ 					setTimeout( this.doAutoSeek, 6000 );
+				} else {
+ 					setTimeout( this.doAutoSeek, 3000 );
+				}
 			}
 
 			if ('nav_bar' == this.model.options.header) {
@@ -3841,6 +3831,27 @@ function handleFlashVideoMetadata(data) {
 			cssLink.href = approot+'views/widgets/mediaelement/prism.css';
 			cssLink.rel = "stylesheet";
 			cssLink.type = "text/css";
+			
+			this.object.click( function( e ) {
+			
+				var i, n, htop, hbottom, highlight,
+		            posY = e.pageY - $(this).offset().top,
+		            highlights = me.object.find( '.line-highlight' );
+		            
+		        n = highlights.length;
+	            for ( i = 0; i < n; i++ ) {
+	            	highlight = highlights.eq( i );
+	            	htop = highlight.position().top + parseInt( highlight.css( 'margin-top' ) );
+	            	hbottom = htop + highlight.height();
+	            	if (( posY >= htop ) && ( posY <= hbottom )) {
+	            		var annotation = me.textAnnotations[ i ];
+						me.currentLine = annotation.properties.start;
+						me.textIsPlaying = true;
+						me.parentView.doInstantUpdate();
+	            	}
+	            }
+		        
+			} )
 
 			me.parentView.intrinsicDim.x = me.parentView.containerDim.x;
 			me.parentView.intrinsicDim.y = me.parentView.containerDim.y;
@@ -3871,14 +3882,14 @@ function handleFlashVideoMetadata(data) {
 		
 			var i, annotation
 				n = this.parentView.annotations.length,
-				textAnnotations = [];
+				this.textAnnotations = [];
 			for ( i=0; i<n; i++ ) {
 				annotation = this.parentView.annotations[ i ];
 				if ( this.model.mediaSource.contentType == 'document' ) {
-					textAnnotations.push( annotation );
+					this.textAnnotations.push( annotation );
 				}
 			}
-			if (textAnnotations.length > 0) this.highlightLinesForAnnotations( textAnnotations );
+			if (this.textAnnotations.length > 0) this.highlightLinesForAnnotations( this.textAnnotations );
 
 		}		 
 		
@@ -3928,7 +3939,7 @@ function handleFlashVideoMetadata(data) {
 		jQuery.SourceCodeObjectView.prototype.scrollToLine = function(line) {
 			if ( this.hasFrameLoaded ) {
 				var rows = $( '#'+this.frameId ).find( '.line-numbers-rows > span' );
-				if ( rows ) {
+				if ( rows.length > 0 ) {
 					$( '#'+this.frameId ).stop().animate( { scrollTop: $( rows[ Math.min( Math.max( 0, line - 1 ), rows.length - 1 ) ] ).position().top },'slow');
 				}
 			}
@@ -3973,7 +3984,7 @@ function handleFlashVideoMetadata(data) {
 					seekAnnotations.push( annotation );
 				}
 			}
-			this.highlightLinesForAnnotations( seekAnnotations );
+			//this.highlightLinesForAnnotations( seekAnnotations );
 		}
 
 		/**

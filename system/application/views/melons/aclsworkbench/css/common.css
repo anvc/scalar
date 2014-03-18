@@ -270,6 +270,7 @@ a.media_info {
 .media_annotations {
 	display: none;
 	max-height: 300px;
+	overflow-y: auto;
 }
 
 .mediainfo table {
