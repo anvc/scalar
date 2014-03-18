@@ -99,7 +99,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	position: fixed;
 	background-color: #444;
 	text-transform: uppercase;
-	z-index: 9999;
+	z-index: 999;
 	width: 100%;
 	top: 0;
 	left: 0;
@@ -384,11 +384,13 @@ a:hover { text-decoration: underline; }
 .dialog .body_copy { margin-top: 10rem; max-width: none; padding-left: 3.6rem; padding-right: 3.6rem; }
 /*.help .body_copy { margin-top: 10rem; }*/
 
-.control_bar {
+.nav-pills > li > a { font-weight: 900; border-radius: 1.4rem; padding: .4rem 1.2rem .4rem 1.2rem; }
+
+.control_bar, {
 	line-height: 4.8rem;
 	border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
-	margin: 2.0rem 0 0 0;
+	/*margin: 2.0rem 0 0 0;*/
 	overflow-x: auto;
 }
 .page .control_bar { margin-left: 7.2rem; margin-right: 7.2rem; }
@@ -398,8 +400,8 @@ a:hover { text-decoration: underline; }
 .toggle_btn.on { background-color: #b3b5b7; }
 
 #gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; }
-#gallery_content .thumbnail { margin-right: 0.7rem; cursor: pointer; }
-#gallery_content .thumbnail:hover { opacity:0.65; }
+#gallery_content .thumb { margin-right: 0.7rem; cursor: pointer; }
+#gallery_content .thumb:hover { opacity:0.65; }
 #gallery_content h3 { margin: 0 0 1rem 0; padding: 0; }
 
 .one_line_description { 
@@ -448,7 +450,7 @@ a:hover { text-decoration: underline; }
 .media_sidebar h2 { font-size: 2.1rem; }
 .media_sidebar h3 { font-size: 1.8rem; font-weight: normal; margin-bottom: 1rem; }
 .media_sidebar p { margin: 0 0 1rem 0; padding: 0; line-height: 1.8rem; }
-.media_sidebar blockquote { /*padding: 0 1.8rem 0 1.8rem;*/ padding: 0; margin: 0 0 .5rem 0; line-height: 1.8rem; font-size: 90%; }
+.media_sidebar blockquote { /*padding: 0 1.8rem 0 1.8rem;*/ padding: 0; margin: 0 0 .5rem 0; line-height: 1.8rem; font-size: 90%; border-left: none; }
 .media_sidebar .annotation_extents { font-size: 80%; }
 .media_sidebar .attribution { text-align: right; margin-bottom: 2rem; }
 .manual_slideshow .slot { clear: both; /*border-bottom: 1px solid #666; padding-top: 2rem;*/ }
@@ -999,6 +1001,12 @@ a.nav_btn:hover {
 
 /* Index */
 
+/*.modal-dialog ul { margin-left: 3.6rem; margin-bottom: 2rem; }*/
+.modal-dialog p { margin-bottom: 1rem; margin-top: 1rem; }
+.modal-dialog h2, .dialog h3, .dialog h4, .dialog h5 { display: inline-block; padding-left: 0; padding-right: 0; margin-top: 0; margin-bottom: 0; }
+.modal-dialog h3 { margin-bottom: 1rem; }
+
+/* the 'dialog' styles below will eventually be deprecated once bootstrap modal support is in place */
 .dialog {
 	position: fixed; 
 	top: 8.6rem; 
@@ -1049,15 +1057,15 @@ a.nav_btn:hover {
 .search { z-index: 51; }
 .help { width: 90rem; margin-left: -45rem; left: 50%; background-color: #eee; z-index: 52; }
 
-.pagination {
+/*.pagination {
 	line-height: 4.8rem;
 	border-top: 1px solid #ddd;
 	margin: 2.0rem 0 1.0rem 0;
-}
+}*/
 
-.disabled { opacity: 0.25; }
+/*.disabled { opacity: 0.25; }*/
 
-.results_list { margin-top: 8.2rem; }
+.results_list { margin-top: 2rem; }
 .dialog.index .results_list { margin-top: 14.2rem; }
 .results_list table { width: 100%; }
 .results_list td { height: 3rem; overflow: hidden; padding: .5rem; }

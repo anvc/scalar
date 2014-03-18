@@ -55,30 +55,36 @@
 	ScalarIndex.prototype.resultsPerPage = null;		// Results to show per page
 	ScalarIndex.prototype.controlBar = null;			// Index controls
 	ScalarIndex.prototype.firstRun = null;				// First time the plug-in has run?
+	ScalarIndex.prototype.maxPages = null;				// Maximum number of pages with known results in the current tab
 	
 	ScalarIndex.prototype.init = function () {
 	
 		var me = this;
 	
 		this.currentPage = 1;
+		this.maxPages = 1;
 		this.resultsPerPage = 10;
 		this.firstRun = true;
+		
+		this.element.addClass( 'modal fade' );
+		this.element.attr( {
+			'tabindex': '-1',
+			'role': 'dialog',
+			'aria-labelledby': 'myModalLabel',
+			'aria-hidden': 'true'
+		} );
+		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content"></div></div>' );
+		var modalContent = this.element.find( '.modal-content' );
+		var header = $( '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
+		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 	
-		this.element.addClass('dialog index');
-		
-		var header = $('<div class="dialog_header heading_font"></div>').appendTo(this.element);
-		header.append('<h2 class="heading_font">Index</h2>');
-		var buttons = $('<div class="right"></div>').appendTo(header);
-		addIconBtn(buttons, 'close_icon.png', 'close_icon_hover.png', 'Close');
-		buttons.find('[title="Close"]').click( function() { me.hideIndex(); } );
-		
-		this.controlBar = $('<div class="control_bar"></div>').appendTo(header);
-		var pathBtn = $('<span id="pathBtn" class="toggle_btn on caption_font">Paths</span>').appendTo(this.controlBar);
-		var pageBtn = $('<span id="pageBtn" class="toggle_btn caption_font">Pages</span>').appendTo(this.controlBar);
-		var mediaBtn = $('<span id="mediaBtn" class="toggle_btn caption_font">Media</span>').appendTo(this.controlBar);
-		var tagBtn = $('<span id="tagBtn" class="toggle_btn caption_font">Tags</span>').appendTo(this.controlBar);
-		var annotationBtn = $('<span id="annotationBtn" class="toggle_btn caption_font">Annotations</span>').appendTo(this.controlBar);
-		var commentBtn = $('<span id="replyBtn" class="toggle_btn caption_font">Comments</span>').appendTo(this.controlBar);
+		this.controlBar = $( '<ul class="nav nav-pills"></ul>' ).appendTo( this.bodyContent );
+		var pathBtn = $( '<li id="pathBtn" class="active caption_font"><a href="javascript:;">Paths</li>' ).appendTo( this.controlBar );
+		var pageBtn = $( '<li id="pageBtn" class="caption_font"><a href="javascript:;">Pages</li>' ).appendTo( this.controlBar );
+		var mediaBtn = $( '<li id="mediaBtn" class="caption_font"><a href="javascript:;">Media</li>' ).appendTo( this.controlBar );
+		var tagBtn = $( '<li id="tagBtn" class="caption_font"><a href="javascript:;">Tags</li>' ).appendTo( this.controlBar );
+		var annotationBtn = $( '<li id="annotationBtn" class="caption_font"><a href="javascript:;">Annotations</li>' ).appendTo( this.controlBar );
+		var commentBtn = $( '<li id="replyBtn" class="caption_font"><a href="javascript:;">Comments</li>' ).appendTo( this.controlBar );
 		
 		pathBtn.click(function () { me.setDisplayMode( me.DisplayMode.Path ); });
 		pageBtn.click(function () { me.setDisplayMode( me.DisplayMode.Page ); });
@@ -87,16 +93,17 @@
 		annotationBtn.click(function () { me.setDisplayMode( me.DisplayMode.Annotation ); });
 		commentBtn.click(function () { me.setDisplayMode( me.DisplayMode.Comment ); });
 		
-		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
 		this.resultsTable = $( '<table></table>' ).appendTo( resultsDiv );
 		
-		this.pagination = $( '<div class="pagination caption_font">Page '+this.currentPage+'</div>' ).appendTo( this.bodyContent );
+		this.pagination = $( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
 		
 	}
 	
 	ScalarIndex.prototype.showIndex = function() {
-		this.element.show();
+	
+		this.element.modal();
+		
 		if ( this.firstRun ) {
 			this.setDisplayMode(this.DisplayMode.Path);
 			this.firstRun = false;
@@ -105,7 +112,8 @@
 	}
 	
 	ScalarIndex.prototype.hideIndex = function() {
-		this.element.hide();
+	
+		this.element.modal( 'hide' );
 		restoreState();
 	}
 	
@@ -116,9 +124,10 @@
 		if ( this.currentMode != mode ) {
 			this.currentMode = mode;
 			this.currentPage = 1;
+			this.maxPages = 1;
 			mode = mode.toLowerCase();
-			this.controlBar.find('.toggle_btn').removeClass('on');
-			$('#'+mode+'Btn').addClass('on');
+			this.controlBar.find('li').removeClass('active');
+			$('#'+mode+'Btn').addClass('active');
 			me.getResults();
 		}
 		
@@ -168,17 +177,26 @@
 		this.pagination.empty();
 		if (( nodes.length == this.resultsPerPage ) || ( this.currentPage > 1 )) {
 			if ( this.currentPage > 1 ) {
-				prev = $('<span><a href="javascript:;">&laquo; Prev</a>&nbsp;&nbsp;&nbsp;</span>').appendTo( this.pagination );
+				prev = $('<li><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 				prev.find('a').click( function() { me.previousPage(); } );
 			} else {
-				prev = $('<span class="disabled">&laquo; Prev&nbsp;&nbsp;&nbsp;</span>').appendTo( this.pagination );
+				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 			}
-			this.pagination.append( '<strong>Page ' + this.currentPage + '</strong>' );
+			for ( i = 1; i <= this.maxPages; i++ ) {
+				var pageBtn = $( '<li><a href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
+				pageBtn.data( 'page', i );
+				if ( i == this.currentPage ) {
+					pageBtn.addClass( 'active' );
+				}
+				pageBtn.click( function() {
+					me.goToPage( $( this ).data( 'page' ) );
+				} );
+			}
 			if ( nodes.length == this.resultsPerPage ) {
-				next = $( '<span>&nbsp;&nbsp;&nbsp;<a href="javascript:;">Next &raquo;</a></span>' ).appendTo( this.pagination );
+				next = $( '<li><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 				next.find('a').click( function() { me.nextPage(); } );
 			} else {
-				next = $( '<span class="disabled">&nbsp;&nbsp;&nbsp;Next &raquo;</span>' ).appendTo( this.pagination );
+				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 			}
 		}
 		
@@ -193,6 +211,12 @@
 	
 	ScalarIndex.prototype.nextPage = function() {
 		this.currentPage++;
+		this.maxPages = Math.max( this.maxPages, this.currentPage );
+		this.getResults();
+	}
+	
+	ScalarIndex.prototype.goToPage = function( pageNum ) {
+		this.currentPage = pageNum;
 		this.getResults();
 	}
 			

@@ -301,9 +301,9 @@
 			
 			resizeThumbnails: function(isAnimated) {
 				if (!isAnimated) {
-					mediaContainer.find('.thumbnail').attr('height', (thumbnailHeight * currentScale));
+					mediaContainer.find('.thumb').attr('height', (thumbnailHeight * currentScale));
 				} else {
-					mediaContainer.find('.thumbnail').animate({'height': (thumbnailHeight * currentScale)});
+					mediaContainer.find('.thumb').animate({'height': (thumbnailHeight * currentScale)});
 				}
 				//mediaContainer.find('.media_placeholder').height((thumbnailHeight * currentScale)).width((thumbnailHeight * currentScale));
 			},
@@ -485,10 +485,10 @@
 				}		
 					
 				if ( node.thumbnail != undefined ) {
-					thumbnail = $( '<img id="img-' + node.slug + '" class="thumbnail" src="' + node.thumbnail + '" alt="' + 
+					thumbnail = $( '<img id="img-' + node.slug + '" class="thumb" src="' + node.thumbnail + '" alt="' + 
 						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
 				} else {
-					thumbnail = $( '<img id="img-' + node.slug + '" class="thumbnail" src="' + modules_uri + 
+					thumbnail = $( '<img id="img-' + node.slug + '" class="thumb" src="' + modules_uri + 
 						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" height="' + 
 						parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
 				}
