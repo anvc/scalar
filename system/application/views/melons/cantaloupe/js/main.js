@@ -1,28 +1,28 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * @projectDescription  Boot Scalar Javascript/jQuery using yepnope.js
  * @author              Craig Dietrich
  * @version             Cantaloupe 1.0
  */
- 
+
 var ViewState = {
 	Reading: 'reading',
 	Navigating: 'navigating',
@@ -33,7 +33,7 @@ var ViewState = {
 /**
  * Get paths to script and style directories
  */
-var script_uri = document.getElementsByTagName("script")[0].src;
+var script_uri = $('script[src]')[0].src;
 var base_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-2).join('/');
 var system_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-6).join('/');
 var index_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-7).join('/');
@@ -86,7 +86,7 @@ function restoreState() {
 	state = lastState;
 	$('body').trigger('setState', {state:state, instantaneous:true});
 }
-				
+
 // rewrite Scalar hyperlinks to point to the cantaloupe melon
 function addTemplateLinks(element, templateName) {
 	if (!isNative) {
@@ -133,14 +133,14 @@ function getChildrenOfType(node, type) {
 			childNode = childNodes[i];
 			if (childNode.hasScalarType(type) && (children.indexOf(childNode) == -1)) children.push(childNode);
 		}
-	}	
-	return children;		
+	}
+	return children;
 }
 
 function handleDelayedResize() {
 	$( 'body' ).trigger( 'delayedResize' );
 }
-			
+
 function addIconBtn(element, filename, hoverFilename, title, url) {
 	var img_url_1 = modules_uri+'/cantaloupe/images/'+filename;
 	var img_url_2 = modules_uri+'/cantaloupe/images/'+hoverFilename;
@@ -148,7 +148,7 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" /></a>').appendTo(element);
 	return button;
 }
-			
+
 /**
  * Finds all contiguous elements that aren't paragraphs or divs and wraps them
  * in divs.
@@ -193,18 +193,18 @@ function wrapOrphanParagraphs(selection) {
 /*
  * $.fn.slotmanager_create_slot
  * Create a slot and attach to a tag
- * @param obj options, required 'url_attributes' 
- */	
+ * @param obj options, required 'url_attributes'
+ */
 
 $.fn.slotmanager_create_slot = function(width, height, options) {
 
-	$tag = $(this); 
+	$tag = $(this);
 	//if ($tag.hasClass('inline')) return;
 	$tag.data( 'slot', $('<div class="slot"></div>') );
 	var url = null;
-	
+
 	// Get URL
-	
+
 	var url = null;
 	for (var k in options['url_attributes']) {;
 		if ('undefined'==typeof($tag.attr(options['url_attributes'][k]))) continue;
@@ -214,47 +214,47 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 		}
 	}
 	if (!url) return;
-	
+
 	// Seperate seek hash if present
-	
+
 	var annotation_url = null;
 	var uri_components = url.split('#');
-	
+
 	// TODO: Special case for hypercities #, until we correctly variable-ify #'s
 	if (uri_components.length>1 && uri_components[0].toLowerCase().indexOf('hypercities')!=-1) {
 		// keep URL as it is
 	} else if (uri_components.length>1) {
 		var url = uri_components[0];
-		annotation_url = uri_components[1];	
-		//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;	
+		annotation_url = uri_components[1];
+		//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;
 		// modified by Erik below to remove duplicated 'annotations/' in url
-		if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;	
+		if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;
 	}
 
 	// Metadata resource
 	var resource = $tag.attr('resource');
-	
+
 	// Create media element object
-	
+
 	var opts = {};
-	if (width != null) opts.width = width; 
-	if (height != null) opts.height = height; 
+	if (width != null) opts.width = width;
+	if (height != null) opts.height = height;
 	opts.player_dir = $('link#approot').attr('href')+'static/players/';
 	opts.base_dir = scalarapi.model.urlPrefix;
 	opts.seek = annotation_url;
 	opts.chromeless = true;
 	opts.solo = options.solo;
 	opts.getRelated = options.getRelated;
-	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);		
+	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
 	$tag.data('path', url);
 	$tag.data('meta', resource);
 	$tag.mediaelement(opts);
-	
+
 	// Insert media element's embed markup
-	
+
 	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
 	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
-		
+
 	$tag.data('mediaelement').model.element.addClass('caption_font');
 
 	return $tag;
@@ -264,9 +264,9 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 
 /**
  * Boot the interface
- */   
+ */
 $(window).ready(function() {
-	
+
 	// Trash button
   	$('.hide_page_link').click(function() {
   		var uri = document.location.href;
@@ -275,31 +275,31 @@ $(window).ready(function() {
   		document.location.href = uri + '?action=removed';
   		return false;
   	});
-	
+
 	if ($('.scalarnotice').length) {
 		yepnope([
 		   {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/notice/jquery.scalarnotice.js'], complete:function() {
 			  $('.scalarnotice').scalarnotice();
-           }},   		        
+           }},
 	    ]);
-	};	  	
-  	
+	};
+
 	yepnope([
-	         
+
 		  // Scalar API
 		  {load: [base_uri+'/js/jquery.rdfquery.rules.min-1.0.js',
 		          base_uri+'/js/jquery.RDFa.js',
 		          widgets_uri+'/cookie/jquery.cookie.js',
 		          widgets_uri+'/api/scalarapi.js'], complete:function() {
-			  
+
 				/**
 				 * Get raw JSON
-				 */			 
+				 */
 				var rdf = $(document.body).RDFa();
 				var rdf_json = rdf.dump();
 				//console.log('------- RDFa JSON ----------------------------');
 				//console.log(rdf_json);
-				
+
 				// use scalarapi to parse the JSON
 				scalarapi.model.urlPrefix = document.location.href.split('/').slice(0,5).join('/')+'/';
 				scalarapi.model.parseNodes(rdf_json);
@@ -325,12 +325,12 @@ $(window).ready(function() {
 				//for (var uri in rel) console.log('has path: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				var rel = rdf.relations('out').nodes_by_type('index');
 				//for (var uri in rel) console.log('path of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				// Annotations	
+				// Annotations
 				var rel = rdf.relations('in').nodes_by_type('t');
 				//for (var uri in rel) console.log('has annotation: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				var rel = rdf.relations('out').nodes_by_type('t');
-				//for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");	
-				// Comments	
+				//for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+				// Comments
 				var rel = rdf.relations('in').nodes_by_type('datetime');
 				//for (var uri in rel) console.log('has reply: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				var rel = rdf.relations('out').nodes_by_type('datetime');
@@ -340,19 +340,19 @@ $(window).ready(function() {
 				//for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
 				var rel = rdf.predicates('http://purl.org/dc/terms/references');
 				//for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));	*/
-						  
-		  }},   
-		  
+
+		  }},
+
 		  // Background visualization layer
-		  /*{load: [widgets_uri+'/d3/d3.v2.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {  
+		  /*{load: [widgets_uri+'/d3/d3.v2.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {
 			  	// TODO: Background visualization initialization here
-		  }},*/		  
-		  
+		  }},*/
+
 		  {load: [widgets_uri+'/spinner/spin.min.js',
 		          widgets_uri+'/d3/d3.v2.js',
 		          /*widgets_uri+'/vis/scalarvis.css',
-		          widgets_uri+'/vis/jquery.scalarvis.js'*/], complete:function() { 
-		   
+		          widgets_uri+'/vis/jquery.scalarvis.js'*/], complete:function() {
+
 		   		if ( currentNode == null ) {
 		   			$( 'body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
 		   			$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
@@ -361,21 +361,21 @@ $(window).ready(function() {
 				  	$('article').before($('#book-title').parent().parent());
 		   		}
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-		
+
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
-				
+
 				$( '[property="art:url"]' ).css( 'display', 'none' );
-				
+
 				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
-			
+
 				var timeout;
 				$(window).resize( function() {
 					clearTimeout( timeout );
 					timeout = setTimeout( handleDelayedResize, 100 );
 				});
-			  	
-		  }},		  
-		  
+
+		  }},
+
 		  // Mediaelement
 		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',
 		          widgets_uri+'/mediaelement/flowplayer.js',
@@ -391,31 +391,31 @@ $(window).ready(function() {
 				} else {
 					pinwheel = $.scalarpinwheel($('body').prepend('<div id="graph"></div>'));
 				}
-				
+
 				if ( currentNode != null ) {
 					page.addMediaElements();
 				}
-				
+
 				var savedState = $.cookie('viewstate');
 				/*if (savedState != null) {
 					setState(savedState, true);
 				}*/
-				
-		
+
+
 				// Load info about the book
 				scalarapi.loadBook(true, function() {
 					$( 'body' ).trigger( 'handleBook' );
 				});
-						
-				
+
+
 		  }},
-		  
+
 		  /*// Slot managers
 		  {load: [widgets_uri+'/slotmanager/jquery.texteo.js',
 		          widgets_uri+'/slotmanager/texteo.css',
 		          widgets_uri+'/slotmanager/jquery.inlineslotmanager.js'], complete:function() {
 			  	// TODO
-			  	
+
 
 		  }},*/
 
@@ -423,7 +423,7 @@ $(window).ready(function() {
 		  /*{load: [widgets_uri+'/contentpreview/jquery.scalarcontentpreview.js'], complete:function() {
 			  	// TODO: content preview
 		  }},*/
-		  
+
 		  // Maximize + comments
 		  {load: [/*widgets_uri+'/maximize/maximize.css',
 		          widgets_uri+'/maximize/jquery.scalarmaximize.js',*/
@@ -435,23 +435,23 @@ $(window).ready(function() {
 			    });
 				if (document.location.hash.indexOf('comment')!=-1) commentFormDisplayForm();*/
 		  }},
-		  
+
 		  // Live annotations
 		 /* {load: [widgets_uri+'/liveannotations/jquery.scalarliveannotations.js'], complete:function() {
 			$('body').bind('show_annotation', function(event, annotation, mediaelement) {
 				if (!mediaelement.isPlaying()) return;
 				$('<div></div>').appendTo('body').live_annotation({
-					annotation:annotation, 
-					mediaelement:mediaelement, 
-					mode:(($("script[src*='vertslotmanager.js']").length) ? 'vert' : 'horiz'), 
-					content_wrapper_id:'content_wrapper', 
+					annotation:annotation,
+					mediaelement:mediaelement,
+					mode:(($("script[src*='vertslotmanager.js']").length) ? 'vert' : 'horiz'),
+					content_wrapper_id:'content_wrapper',
 					content_id:'content'
 				});
-			});	
-			$('body').bind('hide_annotation', function(event) {});	
+			});
+			$('body').bind('hide_annotation', function(event) {});
 		  }}*/
-  	  
+
 	]);  // !yepnope
-	
+
 });
 
