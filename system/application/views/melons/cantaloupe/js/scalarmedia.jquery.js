@@ -33,51 +33,53 @@
 			
 			showAnnotation: function(e, relation, m, forceShow) {
 			
-				if (annotations.indexOf(relation) != -1) {
-					var currentAnnotationTable = currentAnnotation.find('table');
-					var annotationTable = annotationPane.find('table');
-					if ((currentRelation != relation) || forceShow) {
-					
-						/*if (currentRelation != null) {
-							console.log(currentRelation.body.getDisplayTitle()+' '+relation.body.getDisplayTitle()+' '+forceShow);
-						} else {
-							console.log(currentRelation+' '+relation.body.getDisplayTitle()+' '+forceShow);
-						}
+				if ( mediaelement.model.id == m.model.id ) {
+					if (annotations.indexOf(relation) != -1) {
+						var currentAnnotationTable = currentAnnotation.find('table');
+						var annotationTable = annotationPane.find('table');
+						if ((currentRelation != relation) || forceShow) {
 						
-						console.log('show '+relation.body.getDisplayTitle());*/
-					
-						if (annotationPane.css('display') == 'none') {
-							currentAnnotationTable.empty();
-							var row;
-							if (relation.body.current.content != null) {
-								row = $('<tr><td>'+relation.startString+'</td><td><h4>'+relation.body.getDisplayTitle()+'</h4><p>'+relation.body.current.content+'</p></td></tr>').appendTo(currentAnnotationTable);
+							/*if (currentRelation != null) {
+								console.log(currentRelation.body.getDisplayTitle()+' '+relation.body.getDisplayTitle()+' '+forceShow);
 							} else {
-								row = $('<tr><td>'+relation.startString+'</td><td><p>'+relation.body.getDisplayTitle()+'</p></td></tr>').appendTo(currentAnnotationTable);
+								console.log(currentRelation+' '+relation.body.getDisplayTitle()+' '+forceShow);
 							}
-							currentAnnotation.slideDown();
+							
+							console.log('show '+relation.body.getDisplayTitle());*/
+						
+							if (annotationPane.css('display') == 'none') {
+								currentAnnotationTable.empty();
+								var row;
+								if (relation.body.current.content != null) {
+									row = $('<tr><td>'+relation.startString+'</td><td><h4>'+relation.body.getDisplayTitle()+'</h4><p>'+relation.body.current.content+'</p></td></tr>').appendTo(currentAnnotationTable);
+								} else {
+									row = $('<tr><td>'+relation.startString+'</td><td><p>'+relation.body.getDisplayTitle()+'</p></td></tr>').appendTo(currentAnnotationTable);
+								}
+								currentAnnotation.slideDown();
+								
+							} else {
+								$(annotationTable).find('tr').removeClass('current');
+								$(annotationTable).find('tr').each(function() {
+									var rowRelation = $(this).data('relation');
+									if (rowRelation == relation) {
+										$(this).addClass('current');
+										if (rowRelation.body.current.content != null) {
+											var col = $(this).find('td').eq(1);
+											col.empty();
+											col.append('<h4>'+relation.body.getDisplayTitle()+'</h4>');
+											col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
+											col.find('p').slideDown();
+										}
+									}
+								});
+							}
+							
+							currentRelation = relation;
 							
 						} else {
-							$(annotationTable).find('tr').removeClass('current');
-							$(annotationTable).find('tr').each(function() {
-								var rowRelation = $(this).data('relation');
-								if (rowRelation == relation) {
-									$(this).addClass('current');
-									if (rowRelation.body.current.content != null) {
-										var col = $(this).find('td').eq(1);
-										col.empty();
-										col.append('<h4>'+relation.body.getDisplayTitle()+'</h4>');
-										col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
-										col.find('p').slideDown();
-									}
-								}
-							});
-						}
-						
-						currentRelation = relation;
-						
-					} else {
-						if (annotationPane.css('display') == 'none') {
-							currentAnnotationTable.find('td').eq(0).text( relation.startString );
+							if (annotationPane.css('display') == 'none') {
+								currentAnnotationTable.find('td').eq(0).text( relation.startString );
+							}
 						}
 					}
 				}
@@ -85,37 +87,39 @@
 			
 			hideAnnotation: function(e, relation, m, forceHide) {
 			
-				//if ((currentRelation != null) || forceHide) {
-				
-					if (annotationPane) {
+				if ( mediaelement.model.id == m.model.id ) {
+					//if ((currentRelation != null) || forceHide) {
 					
-						//console.log('hide '+((relation == null) ? 'null' : relation.body.getDisplayTitle())+' for '+mediaelement.model.node.getDisplayTitle());
+						if (annotationPane) {
 						
-						if (annotationPane.css('display') == 'none') {
-							if (currentRelation == relation) {
-								currentAnnotation.slideUp();
-								currentRelation = null;
-							}
-						} else if (relation != null) {
-							var annotationTable = annotationPane.find('table');
-							//$(annotationTable).find('tr').removeClass('current');
-							$(annotationTable).find('tr').each(function() {
-								var rowRelation = $(this).data('relation');
-								if (rowRelation == relation) {
-									$(this).removeClass('current');
-									if (rowRelation.body.current.content != null) {
-										var col = $(this).find('td').eq(1);
-										col.empty();
-										col.append('<p>'+rowRelation.body.getDisplayTitle()+'</p>');
-										col.append('<div>'+rowRelation.body.current.content+'</div>');
-										col.find('div').eq(0).slideUp();
-									}
+							//console.log('hide '+((relation == null) ? 'null' : relation.body.getDisplayTitle())+' for '+mediaelement.model.node.getDisplayTitle());
+							
+							if (annotationPane.css('display') == 'none') {
+								if (currentRelation == relation) {
+									currentAnnotation.slideUp();
+									currentRelation = null;
 								}
-							});
-							if (currentRelation == relation) currentRelation = null;
+							} else if (relation != null) {
+								var annotationTable = annotationPane.find('table');
+								//$(annotationTable).find('tr').removeClass('current');
+								$(annotationTable).find('tr').each(function() {
+									var rowRelation = $(this).data('relation');
+									if (rowRelation == relation) {
+										$(this).removeClass('current');
+										if (rowRelation.body.current.content != null) {
+											var col = $(this).find('td').eq(1);
+											col.empty();
+											col.append('<p>'+rowRelation.body.getDisplayTitle()+'</p>');
+											col.append('<div>'+rowRelation.body.current.content+'</div>');
+											col.find('div').eq(0).slideUp();
+										}
+									}
+								});
+								if (currentRelation == relation) currentRelation = null;
+							}
 						}
-					}
-				//}		
+					//}	
+				}	
 			},
 			
 			minimizeAnnotationPane: function() {
