@@ -127,7 +127,7 @@ $(document).ready(function(){
 	});
 	$('.book_container  .join').click(function(){
 		$('#join_dialogue #join_dialogue_title').text($(this).data('title'));
-		$('#join_dialogue #book_id').val($(this).data('id'));
+		$('#join_dialogue #book_to_join').val($(this).data('id'));
 		$('#join_dialogue').modal('show');
 		$('#join_dialogue .book_image').html($(this).parents('.book_container').find('.book').first().clone());
 	});
