@@ -80,7 +80,7 @@
 						mediaelement.view.footer.hide();
 						$.scalarmedia(mediaelement, infoElement, { 'shy': false, 'details': page.mediaDetails });
 					} else {
-						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': !isMobile, 'details': page.mediaDetails });
+						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': false, 'details': page.mediaDetails });
 					}
 				}
 				if ( mediaelement.model.node.current.mediaSource.contentType == 'image' ) {
