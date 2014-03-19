@@ -51,7 +51,7 @@
 								currentAnnotationTable.empty();
 								var row;
 								if (relation.body.current.content != null) {
-									row = $('<tr><td>'+relation.startString+'</td><td><h4>'+relation.body.getDisplayTitle()+'</h4><p>'+relation.body.current.content+'</p></td></tr>').appendTo(currentAnnotationTable);
+									row = $('<tr><td>'+relation.startString+'</td><td><h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</h4></a><div>'+relation.body.current.content+'</div></td></tr>').appendTo(currentAnnotationTable);
 								} else {
 									row = $('<tr><td>'+relation.startString+'</td><td><p>'+relation.body.getDisplayTitle()+'</p></td></tr>').appendTo(currentAnnotationTable);
 								}
@@ -66,7 +66,7 @@
 										if (rowRelation.body.current.content != null) {
 											var col = $(this).find('td').eq(1);
 											col.empty();
-											col.append('<h4>'+relation.body.getDisplayTitle()+'</h4>');
+											col.append('<h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</a></h4>');
 											col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
 											col.find('p').slideDown();
 										}
