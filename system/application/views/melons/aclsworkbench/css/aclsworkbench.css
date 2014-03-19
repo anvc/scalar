@@ -158,3 +158,20 @@ ul, ol{
 .mediaObject{
 	overflow: auto;
 }
+.navbar-inverse .navbar-nav>li>a{
+	font-size: 2em;
+	vertical-align: middle;
+}
+.navbar-inverse .navbar-nav>li .glyphicon{
+	padding-top: .0625em;
+	padding-bottom: .0625em;
+}
+.navbar-inverse .navbar-nav>li .icon-workbench, .navbar-inverse .navbar-nav>li .icon-clone, .navbar-inverse .navbar-nav>li .icon-join{
+	font-size: 1.125em;
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+.navbar-inverse .navbar-nav>li>a.active{
+	color: #fff;
+	background-color: #428bca;
+}
