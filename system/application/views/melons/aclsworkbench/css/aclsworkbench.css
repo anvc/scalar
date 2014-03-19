@@ -146,3 +146,15 @@ body.has_image{
 .link_search{
 	cursor: pointer;
 }
+ul, ol{
+	margin-left: 1em;
+}
+.mediaObject pre{
+	border-radius: 0px;
+	border: 0px;
+	margin-top: 0px !important;
+	margin-bottom: 0px !important;
+}
+.mediaObject{
+	overflow: auto;
+}

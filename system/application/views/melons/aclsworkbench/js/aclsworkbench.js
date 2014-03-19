@@ -64,13 +64,20 @@ $(function(){
 	
 	
 	$('body').on('mediaElementMetadataHandled',function(){
-		$('.mediaObject, .mediaContainer').css({
-			'max-height':maxMediaHeight, 
-			'max-width':$('#body').width()
-		});
-		$('.mediaObject').css({
-			height:'auto',
-			width:'auto'
-		});
+		resize_media();
 	});
+	$(window).resize(function(){resize_media();});
 });
+function resize_media(){
+		maxMediaHeight = window.innerHeight - 400;
+		maxMediaWidth = $('#body').width();
+
+	$('.mediaObject, .mediaContainer').css({
+		'max-height':maxMediaHeight, 
+		'max-width':maxMediaWidth
+	});
+	$('.mediaObject, .mediaelement').css({
+		height:'auto',
+		width:'auto'
+	});
+}
