@@ -11,11 +11,12 @@
 			$is_member = true;
 		}
 	}
+	$authors_text = '';
 	if(count($authors) > 1){
 		$last_author = array_pop($authors);
-		$authors_text = '<strong>'.implode('</strong>, <strong>',$authors).'</strong> and <strong>'.$last_author.'</strong>';
-	}else{
-		$authors_text = $authors[0];
+		$authors_text = '<p class="text-muted">By <strong>'.implode('</strong>, <strong>',$authors).'</strong> and <strong>'.$last_author.'</strong></p>';
+	}else if(!empty($authors)){
+		$authors_text = '<p class="text-muted">By <strong>'.$authors[0].'</strong></p>';
 	}
 
 	if(!isset($current_page) || !isset($current_page->default_view)){
@@ -122,7 +123,7 @@
 				<div id="splash_cover">
 					<div class="row">
 						<div class="text-center col-sm-12 col-md-<?php echo (isset($current_page->content) & $current_page->content!='')?'3':'12';?>">
-							<h1><?php echo $current_page->default_view == 'splash'?$current_page->title:($book->title.(isset($book->subtitle) && $book->subtitle!='' ? '<small>'.$book->subtitle.'</small>':'').'</h1><p class="text-muted">By '.$authors_text.'</p>'); ?></h1>
+							<h1><?php echo $current_page->default_view == 'splash'?$current_page->title:($book->title.(isset($book->subtitle) && $book->subtitle!='' ? '<small>'.$book->subtitle.'</small>':'').'</h1>'.$authors_text); ?></h1>
 						</div>
 						<?php if(isset($current_page->content) & $current_page->content!=''){ ?>
 							<div class="col-sm-12 col-md-9">
@@ -147,7 +148,7 @@
 			}
 		?>
 			<h1><?php echo $book->title.(isset($book->subtitle) && $book->subtitle!='' ? '<small>'.$book->subtitle.'</small>':''); ?></h1>
-			<p class="text-muted">By <?php echo $authors_text; ?></p>
+			<?php echo $authors_text; ?>
 		</header>
 		
 		<div id="body" class="<?php  echo $login->is_logged_in?'logged_in':'not_logged_in';  echo $hide_page?' with_loader':''?>">
