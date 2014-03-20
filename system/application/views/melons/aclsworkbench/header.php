@@ -2,7 +2,8 @@
 	$authors = array();
 	$is_member = false;
 	foreach($book->contributors as $contributor){
-		if($contributor->relationship == 'author'){
+		
+		if($contributor->relationship == 'author' && $contributor->list_in_index==1){
 			$authors[] = $contributor->fullname;
 		}
 		//Check to see if the current user is a member (author or "joined")
@@ -134,7 +135,7 @@
     		<?php
     	}
     ?>
-	<div class="container <?php echo $current_page->default_view; ?>" role="main" id="page_body">
+	<div class="container <?php echo $current_page->default_view; if(!empty($page->background)){ echo ' background'; } ?>" role="main" id="page_body">
 		<?php
 			switch($current_page->default_view){
 				case 'image_header': ?>
