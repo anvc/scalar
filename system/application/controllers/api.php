@@ -442,9 +442,14 @@ Class Api extends Controller {
 	}
 	
 	private function _validate_rdf_type($type){
+		$types = (is_array($type)) ? $type : array($type);
 		$urls = array();
 		foreach($this->content_types as $name) $urls[$name] = MY_Model::rdf_type($name);
-		if(!$hit=array_search($type, $urls)) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Invalid rdf:type value.');
+		$valid_type = false;
+		foreach ($types as $type) {
+			if($hit=array_search($type, $urls)) $valid_type = true; 
+		}
+		if(!$valid_type) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Invalid rdf:type value.');
 		return $hit;
 	}
 	
@@ -457,7 +462,7 @@ Class Api extends Controller {
 		$save['book_id'] = $this->user->book_id;
 		$save['user_id'] = $this->user->user_id;
 		$save['title'] = $this->data['dcterms:title'];
-		$save['slug'] =@ $this->data['scalar:metadata:slug'];  /* Added by Craig 2012 05 22 */
+		$save['slug'] =@ $this->data['scalar:slug'];
 		$save['type'] = strtolower(array_pop(explode('#', $this->data['rdf:type'])));
 		
 		foreach($this->content_metadata as $idx){

@@ -145,7 +145,7 @@ function send_form($form, additional_values, redirect_url) {
 		alert('Something went wrong while attempting to save: '+obj.statusText);
 		send_form_hide_loading();
 	}
-
+	
 	scalarapi.savePage(values, success, error);
 	return false;
 
@@ -427,6 +427,7 @@ function htmlspecialchars (string, quote_style, charset, double_encode) {
 
 function create_excerpt(str, num_words) {
 
+	if (!str || !str.length) return str;
 	var str = strip_tags(str);
 	var arr = str.split(' ');
 	if (arr.length <= num_words) return str;
