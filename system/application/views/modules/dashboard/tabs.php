@@ -14,21 +14,6 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 </form>
 </div>
 
-<form action="<?=confirm_slash(base_url())?>system/dashboard" method="get">
-<select name="book_id" onchange="$(this).parent().submit();">
-<option value="0">Select a book to manage</option>
-<?
-foreach ($books as $row) {
-	echo '<option value="'.$row->book_id.'"'.((@$book->book_id==$row->book_id)?' SELECTED':'').'>';
-	echo $row->title;
-	echo '</option>';
-}
-?>
-</select>
-<input type="hidden" name="zone" value="style" />
-</form>
-<br />
-
 <div class="dashboard">
 
 <div class="tabs">

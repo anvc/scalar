@@ -11,6 +11,7 @@
 	
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
 		$(document).ready(function() {
+			
 			$(".tablesorter").tablesorter({ 
         		headers: { 
         			0: {sorter: false }, 
@@ -21,6 +22,11 @@
    			
    			$(window).resize(function() { resizeList(); });
    			resizeList();
+
+			$('#check_all').click(function() {
+				var check_all = ($(this).is(':checked')) ? true : false;
+				$('#media').find('input[type="checkbox"]').prop('checked', check_all);
+			});    			
    			
 		});	
 		
@@ -259,5 +265,7 @@
 		
 		<form onsubmit="deleteFiles();return false;">
 		<input type="submit" value="Delete selected files" class="generic_button large" />
+		&nbsp; &nbsp; 
+		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>		
 		</form>	
 <? endif ?>

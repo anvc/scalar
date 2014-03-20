@@ -11,6 +11,7 @@
 	
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
 		$(document).ready(function() {
+			
 			$(".tablesorter").tablesorter({ 
         		headers: { 
         			0: {sorter: false }, 
@@ -21,6 +22,11 @@
    			
    			$(window).resize(function() { resizeList(); });
    			resizeList();
+
+			$('#check_all').click(function() {
+				var check_all = ($(this).is(':checked')) ? true : false;
+				$('#pages').find('input[type="checkbox"]').prop('checked', check_all);
+			});   			
    			
 		});	
 		
@@ -167,9 +173,7 @@
 		}
 		</script>
 		
-		<form style="float:right;" onsubmit="deleteContent();return false;">
-		<!--<input type="submit" value="Delete selected content" class="generic_button" />-->
-		</form>		
+		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;">Create new page</a>
 		
 		<form style="float:left;" id="formSearchContent" onsubmit="searchContent(this.sq.value);return false;">
 		<input type="text" name="sq" style="width:300px;" value="Search for a page" onmousedown="if (this.value=='Search for a page') this.value='';" />
@@ -226,6 +230,7 @@
 		
 		<form onsubmit="deleteContent();return false;">
 		<input type="submit" value="Delete selected content" class="generic_button large" />
-		 <a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" class="generic_button large">Create new page</a>
+		&nbsp; &nbsp; 
+		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>
 		</form>
 <? endif ?>
