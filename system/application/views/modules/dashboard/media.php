@@ -172,9 +172,6 @@
 		}			
 		</script>
 		
-		<form style="float:right;" onsubmit="deleteFiles();return false;">
-		</form>		
-		
 		<form style="float:left;" id="formSearchFiles" onsubmit="searchFiles(this.sq.value);return false;">
 		<input type="text" name="sq" style="width:300px;" value="Search for a media file" onmousedown="if (this.value=='Search for a media file') this.value='';" />
 		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;" onclick="clearSearchFiles();$(this).blur();">clear</a>&nbsp;
