@@ -448,38 +448,6 @@
 			
 				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
 				
-				if ( viewType == 'book_splash' ) {
-	
-					var i, n,
-						owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
-						authors = [];
-					if ( owners ) {
-						n = owners.length;
-						for ( i = 0; i < n; i++ ) {
-							authors.push( scalarapi.getNode( scalarapi.stripAllExtensions( owners[ i ].value )));
-						}
-					}
-					
-					var author,
-						n = authors.length,
-						byline = $( '.title_card > h2' );
-					for ( var i = 0; i < n; i++ ) {
-						author = authors[ i ];
-						if ( i == 0 ) {
-							byline.append( 'by ' );
-						} else if ( i == ( n - 1 )) {
-							if ( n > 2 ) {
-								byline.append( ', and ' );
-							} else {
-								byline.append( ' and ' );
-							}
-						} else {
-							byline.append( ', ' );
-						}
-						byline.append( author.getDisplayTitle() );
-					}
-					
-				}
 				
 				var publisherUrl = scalarapi.model.bookNode.properties[ 'http://purl.org/dc/terms/publisher' ],
 					publisherThumbnail = scalarapi.model.bookNode.properties[ 'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail' ];
@@ -625,43 +593,36 @@
 			switch (viewType) {
 				
 				case 'splash':
-				$( 'article' ).before( '<div class="blackout"></div>' );
-				element.addClass('splash');
-				$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
-				//$('.title_card').append('<h2>By Steve Anderson</h2>');
-				//$('.title_card').delay(500).fadeIn(2000);
-				$('[property="art:url"]').hide();
-				element.css('backgroundImage', $('body').css('backgroundImage'));
-				$('body').css('backgroundImage', 'none');
-				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation(false);
-				$('.relationships').appendTo('.title_card');
-				
-				$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
-					$( '.blackout' ).remove();
-					$( '.title_card' ).addClass( 'fade_in' );
-					next();
-				} );
+					$('#page_body').css('opacity','0');
+					$('body').css('overflow','hidden');
+					$('#background-image').css({
+						'z-index':1
+					}).fadeTo('slow',1,function(){
+						$('#splash_cover').addClass('active');
+					});
+					$('body').on('handleBook',function(){
+						$('#page_body').hide();
+						$('#splash_cover .relationships').append($('#body article .relationships').clone()).slideDown('fast');
+					});
+
+					page.addRelationshipNavigation(false);
+
 				break;
 				
 				case 'book_splash':
-				$( 'article' ).before( '<div class="blackout"></div>' );
-				element.addClass('splash');
-				$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
-				$( 'h1[property="dcterms:title"]' ).html( $( '#book-title' ).html() );
-				$( '.title_card' ).append('<h2></h2>');
-				$('[property="art:url"]').hide();
-				element.css('backgroundImage', $('body').css('backgroundImage'));
-				$('body').css('backgroundImage', 'none');
-				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation(false);
-				$('.relationships').appendTo('.title_card');
-				
-				$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
-					$( '.blackout' ).remove();
-					$( '.title_card' ).addClass( 'fade_in' );
-					next();
-				} );
+					$('#page_body').css('opacity','0');
+					$('body').css('overflow','hidden');
+					$('#background-image').css({
+						'z-index':1
+					}).fadeTo('slow',1,function(){
+						$('#splash_cover').addClass('active');
+					});
+					$('body').on('handleBook',function(){
+						$('#page_body').hide();
+						$('#splash_cover .relationships').append($('#body article .relationships').clone()).slideDown('fast');
+					});
+
+					page.addRelationshipNavigation(false);
 	
 				break;
 				
@@ -702,11 +663,6 @@
 				break;
 				
 				case 'image_header':
-				$( '.page' ).css( 'padding-top', '5rem' );
-				$( 'header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
-				$( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
-				$( '.title_card' ).append( $( 'header > h1' ) );
-				$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
 				page.setupScreenedBackground();
 				page.addRelationshipNavigation(true);
 				page.addIncomingComments();		  	

@@ -137,7 +137,8 @@ body.has_image{
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
-	opacity: .25
+	opacity: .5;
+	background-position: center center;
 }
 .popover{
 	color: #000;
@@ -174,4 +175,58 @@ ul, ol{
 .navbar-inverse .navbar-nav>li>a.active{
 	color: #fff;
 	background-color: #428bca;
+}
+#page_body{
+	padding: 0px;
+	padding-top: 3.5em;
+}
+#body{
+	padding: 1em;
+}
+header.main{
+	padding: 1em;
+	padding-top: 1.5em;
+	border: 0px;
+	border-bottom: 1px solid #eee;
+}
+header.dark{
+	background-color: rgba(0,0,0,.75);
+	border-color: rgba(0,0,0,.85);
+	color: #fff;
+}
+header.image{
+	height: 400px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	text-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+	color: #fff;
+	font-weight: bold;
+}
+#splash_cover{
+	transition-timing-function: linear;
+	-webkit-transition-timing-function: linear;
+	transition-duration: .25s;
+	-webkit-transition-duration: .25s;
+	opacity: 0;
+	position: absolute;
+	top: 50%;
+	margin-top: -6em;
+	left: 0em;
+	right: 0em;
+	z-index: 10;
+	padding: 1em;
+	background-color: rgba(0,0,0,.75);
+}
+#splash_cover.active{
+	opacity: 1;
+	margin-top: -4em;
+}
+#splash_cover>.row>div{
+	overflow: auto;
+	max-height: 8em;
+}
+#splash_cover>.relationships{
+	margin-top: 2em;
+	display:none;
 }

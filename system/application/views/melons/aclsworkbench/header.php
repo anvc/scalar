@@ -16,11 +16,13 @@
 	}else{
 		$authors_text = $authors[0];
 	}
-	if(isset($page->background) && $page->background!=''){
-		echo '<div id="background-image" style="background-image: url('.$page->background.');"></div>';
+
+	if(!isset($current_page) || !isset($current_page->default_view)){
+		$current_page = new stdClass();
+		$current_page->default_view='default';
 	}
 	?>
-	
+	<div id="background-image"></div>
 	<div id="modal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
@@ -108,9 +110,36 @@
         </div><!--/.nav-collapse -->
       </div>
     </div>
-	<div class="container" role="main" id="page_body">
-	
-		<header class="dark well">
+    <?php
+    	if($current_page->default_view == 'splash' || $current_page->default_view=='book_splash'){
+    		?>
+				<div id="splash_cover">
+					<div class="row">
+						<div class="col-sm-12 col-md-<?php echo (isset($current_page->content) & $current_page->content!='')?'6 text-right':'12 text-center';?>">
+							<h1><?php echo $current_page->default_view == 'splash'?$current_page->title:($book->title.(isset($book->subtitle) && $book->subtitle!='' ? '<small>'.$book->subtitle.'</small>':'').'</h1><p class="text-muted">By '.$authors_text.'</p>'); ?></h1>
+						</div>
+						<?php if(isset($current_page->content) & $current_page->content!=''){ ?>
+							<div class="col-sm-12 col-md-6">
+								<?php echo $current_page->content; ?>
+							</div>
+						<?php } ?>
+					</div>
+					<div class="relationships text-center"></div>
+				</div>
+    		<?php
+    	}
+    ?>
+	<div class="container <?php echo $current_page->default_view; ?>" role="main" id="page_body">
+		<?php
+			switch($current_page->default_view){
+				case 'image_header': ?>
+					<header class="main image" style="background-image: url('<?php echo $page->background; ?>')">
+				<?php break;
+				default: ?>
+					<header class="main dark">
+				<?php
+			}
+		?>
 			<h1><?php echo $book->title.(isset($book->subtitle) && $book->subtitle!='' ? '<small>'.$book->subtitle.'</small>':''); ?></h1>
 			<p class="text-muted">By <?php echo $authors_text; ?></p>
 		</header>

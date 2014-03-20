@@ -4,13 +4,15 @@ $(function(){
 	
 	var indexElement = $('#modal .modal-body');
 	var searchElement = $('#modal .modal-body');
-	
+	$('#background-image').css('background-image',$('body').css('background-image'));
+	$('body').css('background-image','');
 	$('a.link_book_map').click(function(){
 		$('#graph svg').click();
 		return false;
 	});
 	$('body').bind('setState',function(e,data){
 		$('a.link_book_map').toggleClass('active',data.state == ViewState.Navigating);
+		$('#background-image').fadeTo('fast',data.state==ViewState.Navigating?.25:.5);
 		
 	});
 	
