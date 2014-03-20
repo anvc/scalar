@@ -132,7 +132,7 @@
 		$row->current_user = in_array($book_id, $login_book_ids);
 		if($is_live && $is_public){
 			if ($is_featured) {
-				if(empty($row->data['duplicatable']) || $row->data['duplicatable'] == 'true'){
+				if(!empty($row->data['duplicatable']) && $row->data['duplicatable'] == 'true'){
 					$featured_duplicatable[] = $row;
 					$duplicatable_stripped[] = array(
 						'id'=>$book_id,
@@ -158,7 +158,7 @@
 					'description'=>$row->description
 				);
 			}else{
-				if(empty($row->data['duplicatable']) || $row->data['duplicatable'] == 'true'){
+				if(!empty($row->data['duplicatable']) && $row->data['duplicatable'] == 'true'){
 					$duplicatable[] = $row;
 					$duplicatable_stripped[] = array(
 						'id'=>$book_id,
