@@ -48,8 +48,8 @@
 	?>
 		<hr class="dark mobile_only" />
 		<div class="row">
-        <div class="col-xs-8 col-xs-offset-2 col-sm-3 col-sm-offset-0">
-          <img src="<?php echo ACLSWORKBENCH_ICON_URL; ?>" class="img-responsive" id="icon" data-step="1" data-intro="Welcome to ACLS Workbench, a new, responsive, user-friendly interface for Scalar!">
+        <div class="col-xs-8 col-xs-offset-2 col-sm-3 col-sm-offset-0" data-step="1" data-intro="Welcome to ACLS Workbench, a new, responsive, user-friendly interface for Scalar!">
+          <img src="<?php echo ACLSWORKBENCH_ICON_URL; ?>" class="img-responsive" id="icon">
           <?php
           	if (!$login->is_logged_in){
           ?>

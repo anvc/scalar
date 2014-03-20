@@ -3,6 +3,7 @@
 	
 	$this->template->add_js(path_from_file(__FILE__).'js/fuse.min.js');
 	$this->template->add_js(path_from_file(__FILE__).'js/aclsworkbench_book_list.js');
+	$this->template->add_js(path_from_file(__FILE__).'js/aclsworkbench_tour.js');
 	$this->template->add_css(path_from_file(__FILE__).'css/aclsworkbench_book_list.css');
 	//Loop through each book, producing the book wrapping html for the book index
 	function print_books($books,$cols, $tab_cols,  $mob_cols, $user_id) {
@@ -205,6 +206,10 @@
 	if(ACLSWORKBENCH_METHOD !== 'home'){
 		//Do the main menu
 	?>
+		<hr class="dark" />
+			<div class="text-center">
+				<a href="./?multipage=true&action=home" class="btn btn-success btn-lg">Take a Tour of ACLS Workbench</a>
+			</div>
 		<hr class="dark" />
 		<div class="row menu"<?php 
 			if(ACLSWORKBENCH_METHOD=='index'){ echo ' data-step="1" data-intro="The top menu can be used to quickly jump from one ACLS Workbench view to another."'; }
