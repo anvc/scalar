@@ -203,8 +203,8 @@
 						nodes = currentNode.getRelatedNodes('path', 'outgoing');
 						if (nodes.length > 0) {
 							button = $( '<p><a class="nav_btn primary" href="' + nodes[ 0 ].url + '?path=' + 
-								currentNode.slug + '">Begin with â€œ' + nodes[0].getDisplayTitle() +
-								'â€?</a></p>' ).appendTo( section );
+								currentNode.slug + '">Begin with "' + nodes[0].getDisplayTitle() +
+								'"?</a></p>' ).appendTo( section );
 							pathOptionCount++;
 						}
 						
@@ -236,13 +236,13 @@
 			
 					// A child option has already been offered; this option is an alternative
 					if ( pathOptionCount > 0 ) {
-						section.append( '<p><a class="nav_btn" href="' + node.url + '">End of path; continue to â€œ' + 
-							node.getDisplayTitle() + 'â€?</a></p>' );
+						section.append( '<p><a class="nav_btn" href="' + node.url + '">End of path; continue to "' + 
+							node.getDisplayTitle() + '"?</a></p>' );
 						
 					// No child options have been offered
 					} else {
-						section.append( '<p><a class="nav_btn primary" href="' + node.url + '">End of path; continue to â€œ' + 
-							node.getDisplayTitle() + 'â€?</a></p>' );
+						section.append( '<p><a class="nav_btn primary" href="' + node.url + '">End of path; continue to "' + 
+							node.getDisplayTitle() + '"?</a></p>' );
 					}
 					
 					pathOptionCount++;
@@ -265,13 +265,13 @@
 								// It's an alternative on the current path or we don't know what path we're on
 								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
-										path.slug + '">Or, continue to â€œ' + nodes[index+1].getDisplayTitle() + 'â€?</a></p>' );
+										path.slug + '">Or, continue to "' + nodes[index+1].getDisplayTitle() + '"?</a></p>' );
 										
 								// It's an alternative on a different path; id the path
 								} else {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
-										path.slug + '">Or, switch to the â€œ' + path.getDisplayTitle() + 'â€? path and continue to â€œ' +
-										nodes[index+1].getDisplayTitle() + 'â€?</a></p>' );
+										path.slug + '">Or, switch to the "' + path.getDisplayTitle() + '"? path and continue to "' +
+										nodes[index+1].getDisplayTitle() + '"?</a></p>' );
 								}
 								
 							// No child options have been offered
@@ -280,12 +280,12 @@
 								// This option is on the current path or we don't know what path we're on
 								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
 									section.append( '<p><a class="nav_btn primary" href="' + nodes[index+1].url + 
-										'?path=' + path.slug + '">Continue to â€œ' + nodes[index+1].getDisplayTitle() +
-										'â€?</a></p>' );
+										'?path=' + path.slug + '">Continue to "' + nodes[index+1].getDisplayTitle() +
+										'"?</a></p>' );
 								} else {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
-										path.slug + '">Switch to the â€œ' + path.getDisplayTitle() + 'â€? path and continue to â€œ' +
-										nodes[index+1].getDisplayTitle() + 'â€?</a></p>' );
+										path.slug + '">Switch to the "' + path.getDisplayTitle() + '"? path and continue to "' +
+										nodes[index+1].getDisplayTitle() + '"?</a></p>' );
 								}
 							}
 							pathOptionCount++;
