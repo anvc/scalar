@@ -52,8 +52,12 @@
             <li class="text-center"><a data-toggle="tooltip"  title="Workbench Index" href="<?php echo base_url(); ?>" class="link_workbench_home"><span class="icon-workbench" style=""></span><span class="mobile_only">&nbsp;&nbsp;Workbench Index</span></a></li>
             <li class="text-center"><a data-toggle="tooltip"  title="Book Home" href="<?php echo $base_uri; ?>" class="link_book_home"><span class="glyphicon glyphicon-home" style=""></span><span class="mobile_only">&nbsp;Book Home</span></a></li>
             <li class="text-center"><a data-toggle="tooltip"  title="Book Index" href="<?php echo $base_uri; ?>index" class="link_book_index"><span class="glyphicon glyphicon-th-list" style=""></span><span class="mobile_only">&nbsp;Book Index</span></a></li>
-            <li class="text-center"><a data-toggle="tooltip"  title="Book Map" href="<?php echo $base_uri; ?>map" class="link_book_map"><span class="glyphicon glyphicon-map-marker" style=""></span><span class="mobile_only">&nbsp;Book Map</span></a></li>
+            <?php 
+				if(!empty($current_page->has_paths) || !empty($current_page->path_of) || !empty($current_page->has_tags) || !empty($current_page->tag_of)){ 
+			?>
+				<li class="text-center"><a data-toggle="tooltip"  title="Book Map" href="<?php echo $base_uri; ?>map" class="link_book_map"><span class="glyphicon glyphicon-map-marker" style=""></span><span class="mobile_only">&nbsp;Book Map</span></a></li>
 			<?php
+				}
 				$num_data_attributes = preg_match_all('/data-(?<data_type>\w+)="(?<value>\w+)"/',trim($book->title),$data_attributes);
 				if(count($data_attributes['data_type']) == $num_data_attributes &&  count($data_attributes['value'])  ==  $num_data_attributes && $num_data_attributes > 0){
 					for($i = 0; $i < $num_data_attributes; $i++){
@@ -86,8 +90,8 @@
 		 ?>
 				<li class="text-center"><a data-toggle="tooltip"  title="Create New Page" href="<?php echo $base_uri; ?>new.edit"><span class="glyphicon glyphicon-file" style=""></span><span class="mobile_only">&nbsp;Create New Page</span></a></li>
 				<li class="text-center"><a data-toggle="tooltip"  title="Edit This Page" href="<?php echo $current_page_uri; ?>.edit"><span class="glyphicon glyphicon-pencil" style=""></span><span class="mobile_only">&nbsp;Edit This Page</span></a></li>
-				<?php if(isset($page->type) && $page->type == 'media'){ ?>
-					<li class="text-center"><a data-toggle="tooltip"  title="Anotate This Page" href="<?php echo $current_page_uri; ?>.annotation_editor"><span class="glyphicon glyphicon-pushpin" style=""></span><span class="mobile_only">&nbsp;Annotate This Page</span></a></li>
+				<?php if(isset($page->type) && $page->type == 'media' && strpos($current_page->url,'.code')===false){ ?>
+					<li class="text-center"><a data-toggle="tooltip"  title="Anotate This Page" href="<?php echo $current_page_uri; ?>.annotation_editor"  class="link_annotate"><span class="glyphicon glyphicon-pushpin" style=""></span><span class="mobile_only">&nbsp;Annotate This Page</span></a></li>
 				<?php } ?>
 				<li class="text-center"><a data-toggle="tooltip"  title="Manage Media" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id.'&zone=media#tabs-media'; ?>"><span class="glyphicon glyphicon-picture" style=""></span><span class="mobile_only">&nbsp;Manage Media</span></a></li>
 				<li class="text-center"><a data-toggle="tooltip"  title="Edit Book" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id; ?>"><span class="glyphicon glyphicon-cog" style=""></span><span class="mobile_only">&nbsp;Edit This Book</span></a></li>
@@ -110,6 +114,7 @@
         </div><!--/.nav-collapse -->
       </div>
     </div>
+	<div id="hide_map"><a href="#">Close Map</a></div>
     <?php
     	if($current_page->default_view == 'splash' || $current_page->default_view=='book_splash'){
     		?>

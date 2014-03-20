@@ -204,7 +204,7 @@
 						if (nodes.length > 0) {
 							button = $( '<p><a class="nav_btn primary" href="' + nodes[ 0 ].url + '?path=' + 
 								currentNode.slug + '">Begin with “' + nodes[0].getDisplayTitle() +
-								'”</a></p>' ).appendTo( section );
+								'�?</a></p>' ).appendTo( section );
 							pathOptionCount++;
 						}
 						
@@ -237,12 +237,12 @@
 					// A child option has already been offered; this option is an alternative
 					if ( pathOptionCount > 0 ) {
 						section.append( '<p><a class="nav_btn" href="' + node.url + '">End of path; continue to “' + 
-							node.getDisplayTitle() + '”</a></p>' );
+							node.getDisplayTitle() + '�?</a></p>' );
 						
 					// No child options have been offered
 					} else {
 						section.append( '<p><a class="nav_btn primary" href="' + node.url + '">End of path; continue to “' + 
-							node.getDisplayTitle() + '”</a></p>' );
+							node.getDisplayTitle() + '�?</a></p>' );
 					}
 					
 					pathOptionCount++;
@@ -265,13 +265,13 @@
 								// It's an alternative on the current path or we don't know what path we're on
 								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
-										path.slug + '">Or, continue to “' + nodes[index+1].getDisplayTitle() + '”</a></p>' );
+										path.slug + '">Or, continue to “' + nodes[index+1].getDisplayTitle() + '�?</a></p>' );
 										
 								// It's an alternative on a different path; id the path
 								} else {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
-										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
-										nodes[index+1].getDisplayTitle() + '”</a></p>' );
+										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '�? path and continue to “' +
+										nodes[index+1].getDisplayTitle() + '�?</a></p>' );
 								}
 								
 							// No child options have been offered
@@ -281,11 +281,11 @@
 								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
 									section.append( '<p><a class="nav_btn primary" href="' + nodes[index+1].url + 
 										'?path=' + path.slug + '">Continue to “' + nodes[index+1].getDisplayTitle() +
-										'”</a></p>' );
+										'�?</a></p>' );
 								} else {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
-										path.slug + '">Switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
-										nodes[index+1].getDisplayTitle() + '”</a></p>' );
+										path.slug + '">Switch to the “' + path.getDisplayTitle() + '�? path and continue to “' +
+										nodes[index+1].getDisplayTitle() + '�?</a></p>' );
 								}
 							}
 							pathOptionCount++;
@@ -479,7 +479,7 @@
 					scalarapi.loadPage(currentNode.slug, true, function() {
 						var i,node,link,
 							nodes = getChildrenOfType(currentNode, 'media');
-						$('article > h1').after('<div id="gallery"></div>');
+						$('article > .relationships').before('<div id="gallery"></div>');
 						var gallery = $('#gallery');
 						for (i in nodes) {
 							node = nodes[i];
@@ -593,6 +593,7 @@
 			switch (viewType) {
 				
 				case 'splash':
+					$('a.link_book_map').hide();
 					$('#page_body').css('opacity','0');
 					$('body').css('overflow','hidden');
 					$('#background-image').css({
@@ -610,6 +611,7 @@
 				break;
 				
 				case 'book_splash':
+					$('a.link_book_map').hide();
 					$('#page_body').css('opacity','0');
 					$('body').css('overflow','hidden');
 					$('#background-image').css({

@@ -483,11 +483,14 @@
 				} else {
 					alttext = '';
 				}		
-					
-				if ( node.thumbnail != undefined ) {
+				if ( node.thumbnail != undefined &&  node.thumbnail != null ) {
 					thumbnail = $( '<img id="img-' + node.slug + '" class="thumbnail" src="' + node.thumbnail + '" alt="' + 
 						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
-				} else {
+				} else if ( node.current.sourceFile != undefined &&  node.current.sourceFile != null ) {
+					thumbnail = $( '<img id="img-' + node.slug + '" class="thumbnail" src="' + node.current.sourceFile + '" alt="' + 
+						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
+				}else {
+					
 					thumbnail = $( '<img id="img-' + node.slug + '" class="thumbnail" src="' + modules_uri + 
 						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" height="' + 
 						parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
