@@ -493,16 +493,16 @@ function ScalarAPI() {
 			}},
 		'PlainText': {
 			name:'PlainText', 
-			extensions:['txt'],
+			extensions:['txt','code'],
 			isProprietary:false,
 			contentType:'document',
 			browserSupport: {
-				'Mozilla': {extensions:['txt'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['txt'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'MobileSafari': {extensions:['txt'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['txt'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['txt'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Other': {extensions:['txt'], format:'PlainText', player:'native', specifiesDimensions:false}
+				'Mozilla': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Explorer': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'MobileSafari': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Safari': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Chrome': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Other': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
 		'SoundCloud': {
 			name:'SoundCloud', 
@@ -519,16 +519,16 @@ function ScalarAPI() {
 			}},
 		'SourceCode': {
 			name:'SourceCode', 
-			extensions:['js','java','xml','css','php','code'],
+			extensions:['js','java','xml','css','php'],
 			isProprietary:false,
 			contentType:'document',
 			browserSupport: {
-				'Mozilla': {extensions:['js','java','xml','css','php','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['js','java','xml','css','php','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'MobileSafari': {extensions:['js','java','xml','css','php','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['js','java','xml','css','php','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['js','java','xml','css','php','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Other': {extensions:['js','java','xml','css','php','code'], format:'PlainText', player:'native', specifiesDimensions:false}
+				'Mozilla': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Explorer': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'MobileSafari': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Safari': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Chrome': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
+				'Other': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
 		'Unsupported': {
 			name:'Unsupported', 
