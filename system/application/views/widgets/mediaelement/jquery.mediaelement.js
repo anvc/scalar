@@ -985,7 +985,12 @@ function handleFlashVideoMetadata(data) {
 					break;
 					
 					case 'PlainText':
-					this.mediaObjectView = new $.TextObjectView(this.model, this);
+					var queryVars = scalarapi.getQueryVars( this.model.path );
+					if ( queryVars.lang != null ) {
+						this.mediaObjectView = new $.SourceCodeObjectView(this.model, this);
+					} else {
+						this.mediaObjectView = new $.TextObjectView(this.model, this);
+					}
 					break;
 					
 					case 'SourceCode':
@@ -3607,8 +3612,8 @@ function handleFlashVideoMetadata(data) {
 			var approot = $('link#approot').attr('href');
 			var cssLink = document.createElement("link")
 			cssLink.href = approot+'views/widgets/mediaelement/mediaelement_code.css';
-			cssLink .rel = "stylesheet";
-			cssLink .type = "text/css";
+			cssLink.rel = "stylesheet";
+			cssLink.type = "text/css";
 			
 			var doc = $('#'+this.frameId)[0].contentWindow.document;
 			doc.body.appendChild(cssLink);
@@ -3846,8 +3851,10 @@ function handleFlashVideoMetadata(data) {
 	            	if (( posY >= htop ) && ( posY <= hbottom )) {
 	            		var annotation = me.textAnnotations[ i ];
 						me.currentLine = annotation.properties.start;
+						highlight.addClass( 'current' );
 						me.textIsPlaying = true;
 						me.parentView.doInstantUpdate();
+						me.highlightSelectedAnnotations( [ annotation ] );
 	            	}
 	            }
 		        
@@ -3894,6 +3901,23 @@ function handleFlashVideoMetadata(data) {
 		}		 
 		
 		/**
+		 * Highlights the specified annotation in a darker color.
+		 */
+		jQuery.SourceCodeObjectView.prototype.highlightSelectedAnnotations = function( annotations ) {
+			var i, annotation, index,
+				n = this.parentView.annotations.length,
+				highlights = this.object.find( '.line-highlight' );
+			highlights.removeClass( 'current' );
+			for ( i=0; i<n; i++ ) {
+				annotation = annotations[ i ];
+				index = this.textAnnotations.indexOf( annotation );
+				if ( index != -1 ) {
+					highlights.eq( index ).addClass( 'current' );
+				}
+			}
+		}
+		
+		/**
 		 * Highlights the lines of the text associated with the specified annotations.
 		 */
 		jQuery.SourceCodeObjectView.prototype.highlightLinesForAnnotations = function( textAnnotations ) {
@@ -3912,17 +3936,6 @@ function handleFlashVideoMetadata(data) {
 				if ( i < ( n - 1 ) ) {
 					highlightStr += ',';
 				}
-				/*for ( j = annotation.properties.start; j <= annotation.properties.end; j++ ) {
-					row = $( '#'+this.frameId ).find( '.line-numbers-rows > span' ).eq( j - 1 );
-					row.data( 'annotation', annotation );
-					row.click( function() {
-						var anno = $( this ).data( 'annotation' );
-						me.currentLine = index + 1;
-						me.textIsPlaying = true;
-						me.parentView.doInstantUpdate();
-						me.highlightLinesForAnnotations( [ anno ] );
-					});
-				}*/
 			}
 			
 			var e = this.object.find( 'pre' );
@@ -3984,7 +3997,7 @@ function handleFlashVideoMetadata(data) {
 					seekAnnotations.push( annotation );
 				}
 			}
-			//this.highlightLinesForAnnotations( seekAnnotations );
+			this.highlightSelectedAnnotations( seekAnnotations );
 		}
 
 		/**
