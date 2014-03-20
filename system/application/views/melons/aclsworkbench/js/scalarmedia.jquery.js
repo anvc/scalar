@@ -70,6 +70,7 @@
 											col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
 											col.find('p').slideDown();
 										}
+										page.addMediaElementsForElement( col );
 									}
 								});
 							}

@@ -21,19 +21,6 @@
 
 	$.scalarpage = function(e, options) {
 	
-		/**
-		
-		TODO:
-		
-		- When images have white borders, can be hard to tell if caption is for the image above or below it (http://scalar.usc.edu/works/guide/reading-in-scalar?template=cantaloupe)
-		- Should subway map buttons include things like (enter path at) and such?
-		- Make buttons know your history so they suggest the right thing to do, otherwise you can get stuck in loops
-		- Continue implies the content is continued, but this isn't always the case. Sometimes it's a full stop.
-		- HTML tags in subway map aren't getting parsed (http://scalar.usc.edu/works/text-identity-subjectivity/the-kierkegaardian-aesthetic-and-blakean-innocence?template=cantaloupe)
-		- Strange indenting (http://scalar.usc.edu/works/text-identity-subjectivity/the-kierkegaardian-aesthetic-and-blakean-innocence?template=cantaloupe, http://scalar.usc.edu/works/text-identity-subjectivity/blakes-aesthetic-theology?template=cantaloupe, http://scalar.usc.edu/works/growing-apart-a-political-history-of-american-inequality/index?template=cantaloupe, http://scalar.usc.edu/works/growing-apart-a-political-history-of-american-inequality/wage-ratios-sidebar?template=cantaloupe)
-		
-		*/
-	
 		var element = e;
 		var commentDialog;
 		
@@ -568,11 +555,8 @@
 					
 					});
 					$('[data-relation="annotation"]').each(function() {
-					
-							console.log($(this));
 						page.addMediaElementForLink( $(this), $(this).parent().parent() );
 						//$(this).css('display', 'none');
-					
 					});
 					
 					page.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
@@ -589,6 +573,38 @@
 				
 				}
 			
+			},
+			
+			addMediaElementsForElement: function( element ) {
+				element.find('a').each(function() {
+				
+					// resource property signifies a media link
+					if ( ($( this ).attr( 'resource' ) || ( $( this ).find( '[property="art:url"]' ).length > 0 ) ) && ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
+					
+						var slot;
+						var slotDOMElement;
+						var slotMediaElement;
+						var count;
+						var parent;
+						
+						if ($(this).attr('resource') == undefined) {
+							$(this).attr('href', currentNode.current.sourceFile);
+							$(this).attr('resource', currentNode.slug);
+							$(this).attr('data-size', 'full');
+							parent = $(this);
+						} else {
+							parent = $(this).parent('p,div');
+						}
+										
+						$(this).addClass('media_link');
+						
+						page.addMediaElementForLink($(this), parent);
+						
+					}
+				});
+				element.find('[data-relation="annotation"]').each(function() {
+					page.addMediaElementForLink( $(this), $(this).parent().parent() );
+				});
 			}
 			
 		};
