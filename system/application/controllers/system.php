@@ -283,7 +283,9 @@ class System extends MY_Controller {
 					$book_id = (int) $this->books->add($_POST);
 					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
 						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
+					
 						$redirect_url = $_POST['redirect'];
+						
 						if(!isset($url_has_query)){
 							if(substr($redirect_url, -1)!='?'){
 								$redirect_url .= '?';
@@ -292,8 +294,9 @@ class System extends MY_Controller {
 							$redirect_url .= '&';
 						}
 						$redirect_url .= 'created=1';
+						
 						header('Location: '.$redirect_url);
-					} else {
+					}else{
 						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					}
 					exit; 			 					 			
@@ -396,9 +399,6 @@ class System extends MY_Controller {
 		$this->data['book'] = ($book_id) ? $this->books->get($book_id) : array();
 		$this->data['title'] = (!empty($this->data['book'])) ? $this->data['book']->title.' Dashboard' : $this->config->item('install_name').': Dashboard';
 		$this->data['cover_title'] = 'Dashboard';
-		if (!empty($this->data['book'])) {
-			$this->data['cover_title'] = '<a href="'.confirm_slash(base_url()).$this->data['book']->slug.'">'.$this->data['book']->title.'</a> '.$this->data['cover_title'];
-		}		
 		
 		// Get general data for each zone; this is useful for displaying red dots for "not live" content in each tab, even though it's a performance hit
 		$this->data['current_book_users'] =

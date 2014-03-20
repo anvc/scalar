@@ -23,3 +23,10 @@ body {
 .dashboard_title {
 	margin-bottom:0px !important;	
 }
+
+.book_form select {
+	font-size:16px;
+}
+.book_form {
+	float:left; margin-top:-6px; margin-right:12px;
+}

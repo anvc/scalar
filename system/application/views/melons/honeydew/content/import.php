@@ -1,7 +1,17 @@
 <?
-$this->template->add_css(path_from_file(__FILE__).'import.css');
-$this->template->add_js(path_from_file(__FILE__).'import.js');
+$this->template->add_css('system/application/views/widgets/import/scalarimport.css');
+$this->template->add_js('system/application/views/widgets/import/jquery.scalarimport.js');
+$js = <<<EOT
 
+$(document).ready(function() {
+	$('#search_archive_form').submit(function() {
+		$('#search_archive_form').scalarimport();
+		return false;
+	});
+});
+
+EOT;
+$this->template->add_js($js, 'embed');
 if (isset($ia_filetypes)):
 ?>
 <script>
@@ -37,7 +47,9 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 	endif;
 ?>	
 		
-	<form action="" class="search_archive_form" method="get" onsubmit="return search_archive();">
+	<div id="error"></div>		
+		
+	<form action="" id="search_archive_form" method="get">
 		<!-- Fields used for proxy search -->
 		<input type="hidden" name="proxy" value="<?=confirm_slash($app_root)?>rdf/proxy.php" />
 		<input type="hidden" name="uri" value="<?=htmlspecialchars($external->uri)?>?<?=htmlspecialchars($external->getPropValue('scalar:getStr'))?>" />
@@ -53,24 +65,18 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 		<!-- Fields used for ADD -->
 		<input type="hidden" name="action" value="add" />
 		<input type="hidden" name="native" value="1" />
-		<input type="hidden" name="scalar:urn" value="" />
-		<input type="hidden" name="id" value="<?=@$login->email?>" />
-		<input type="hidden" name="api_key" value="" />
-		<input type="hidden" name="rdf:type" value="http://scalar.usc.edu/2012/01/scalar-ns#Media" />
-		<input type="hidden" name="scalar:child_urn" value="<?=$book->urn?>" />
-		<input type="hidden" name="scalar:child_type" value="http://scalar.usc.edu/2012/01/scalar-ns#Book" />
-		<input type="hidden" name="scalar:child_rel" value="page" />	
-		<input type="hidden" name="sioc:content" value="" />		
+		<input type="hidden" name="id" value="<?=@$login->email?>" />	
+		<input type="hidden" name="api_key" value="0" />
+		<input type="hidden" name="child_urn" value="<?=$book->urn?>" />
+		<input type="hidden" name="child_type" value="http://scalar.usc.edu/2012/01/scalar-ns#Book" />
+		<input type="hidden" name="child_rel" value="page" />		
 	</form>		
 		
-	<p class="search_results_title"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif" height="16" align="absmiddle" />&nbsp; Searching the archive (may take a moment)</p>
-	<div class="search_results_header"></div>
+	<p id="loading"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; Searching the archive (may take a moment)</p>
 		
-	<div class="search_results_wrapper">
-	<table class="search_archive_results" cellspacing="0" cellpadding="0"><tbody></tbody></table>
-	</div>
+	<div id="results"></div>
 
-	<div class="search_results_footer"><a class="generic_button large default" href="javascript:;" onclick="search_archive_import();">Import selected media</a></div>
+	<div class="search_results_footer"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="generic_button large default" href="javascript:;" onclick="search_archive_import();">Import selected media</a></div>
 
 	<br clear="both" />
 

@@ -87,13 +87,7 @@
 			<art:thumbnail rdf:resource="{$ThumbnailUrl}"></art:thumbnail>
   			<art:filename rdf:resource="{shoah:VideoURL}"></art:filename>
   			<art:sourceLocation rdf:resource="{$VHAURL}&amp;TapeNumber={shoah:TapeNumber}"></art:sourceLocation>
-  			<shoah:TapeNumber><xsl:value-of select="shoah:TapeNumber"/></shoah:TapeNumber>
-  			<scalar:group><xsl:value-of select="$IntCode"/></scalar:group>
-			<xsl:choose>
-				<xsl:when test="$InTapeNumber=shoah:TapeNumber">
-					<scalar:group_hide_others>1</scalar:group_hide_others>
-				</xsl:when>
-			</xsl:choose> 			
+  			<shoah:TapeNumber><xsl:value-of select="shoah:TapeNumber"/></shoah:TapeNumber>			
   		</rdf:Description>
 	</xsl:template>		      
         
@@ -115,13 +109,7 @@
   			<dcterms:identifier><xsl:value-of select="$IntCode"/></dcterms:identifier>
   			<dcterms:language><xsl:value-of select="$Language"/></dcterms:language>
   			<dcterms:subject><xsl:value-of select="normalize-space($Experience)"/></dcterms:subject>
-			<art:thumbnail rdf:resource="{$ThumbnailUrl}"></art:thumbnail>
-  			<scalar:group><xsl:value-of select="$IntCode"/></scalar:group>
-			<xsl:choose>
-				<xsl:when test="$InTapeNumber=shoah:TapeNumber">
-					<scalar:group_hide_others>1</scalar:group_hide_others>
-				</xsl:when>
-			</xsl:choose> 			
+			<art:thumbnail rdf:resource="{$ThumbnailUrl}"></art:thumbnail>		
   		</rdf:Description>
 	</xsl:template>        
         
