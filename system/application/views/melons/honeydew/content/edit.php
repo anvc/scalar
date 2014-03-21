@@ -1,6 +1,8 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
-<?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
+<?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
+<?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
+<?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
 <?
 if ($this->config->item('reference_options')) {
 	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');

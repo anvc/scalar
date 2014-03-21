@@ -27,25 +27,29 @@ function bookURIMediaAppend() {
 function systemSuccess(data) {
 	var book_uris = data[systemURI()]['http://purl.org/dc/terms/hasPart'];
 	var ddData = [];
-	for (var j = 0; j < book_uris.length; j++) {
-		var book_uri = book_uris[j].value;
-		if (book_uri == parentURI()) continue;
-		var title = data[book_uri]['http://purl.org/dc/terms/title'][0].value;
-		var thumb = ('undefined'==typeof(data[book_uri]['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'])) ? null : data[book_uri]['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value;
-		if (!thumb||'undefined'==typeof(thumb)||!thumb.length) thumb = $('#approot').attr('href')+'views/melons/honeydew/images/generic_media_thumb.jpg';
-		var ddDataNode = {};
-		ddDataNode.text = title;
-		ddDataNode.value = book_uri+bookURIMediaAppend();
-		ddDataNode.selected = false;
-		ddDataNode.description = book_uri;
-		ddDataNode.imageSrc = thumb;
-		ddData.push(ddDataNode);
+	if (book_uris && book_uris.length) {
+		for (var j = 0; j < book_uris.length; j++) {
+			var book_uri = book_uris[j].value;
+			if (book_uri == parentURI()) continue;
+			var title = data[book_uri]['http://purl.org/dc/terms/title'][0].value;
+			var thumb = ('undefined'==typeof(data[book_uri]['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'])) ? null : data[book_uri]['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value;
+			if (!thumb||'undefined'==typeof(thumb)||!thumb.length) thumb = $('#approot').attr('href')+'views/melons/honeydew/images/generic_media_thumb.jpg';
+			var ddDataNode = {};
+			ddDataNode.text = title;
+			ddDataNode.value = book_uri+bookURIMediaAppend();
+			ddDataNode.selected = false;
+			ddDataNode.description = book_uri;
+			ddDataNode.imageSrc = thumb;
+			ddData.push(ddDataNode);
+		}
+		$('#ddSlick-htmlselect').ddslick({
+			data: ddData,
+			height:'300px',
+		    selectText: "<div class=\"dd-first-selected\">Please select a book to search</div>",
+		});
+	} else {
+		$('#ddSlick-htmlselect').replaceWith('<div>There are no public books on this install</div>');
 	}
-	$('#ddSlick-htmlselect').ddslick({
-		data: ddData,
-		height:'300px',
-	    selectText: "<div class=\"dd-first-selected\">Please select a book to search</div>",
-	});
 }
 function systemError() {
 	alert('There was an error attempting to load books');

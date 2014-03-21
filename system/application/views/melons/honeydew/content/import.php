@@ -1,6 +1,8 @@
 <?
 $this->template->add_css('system/application/views/widgets/import/scalarimport.css');
 $this->template->add_js('system/application/views/widgets/import/jquery.scalarimport.js');
+$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css');
+$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js');
 $js = <<<EOT
 
 $(document).ready(function() {
@@ -12,13 +14,6 @@ $(document).ready(function() {
 
 EOT;
 $this->template->add_js($js, 'embed');
-if (isset($ia_filetypes)):
-?>
-<script>
-var ia_filetypes = '<?=implode(',',$ia_filetypes)?>';
-</script>
-<?
-endif;
 
 $titles = $external->getPropValues('dc:title');
 if (!empty($titles)): 

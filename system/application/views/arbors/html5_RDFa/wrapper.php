@@ -60,9 +60,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
 <link id="recaptcha_public_key" href="<?=$recaptcha_public_key?>" />
 <? if (!empty($_styles)) echo $_styles?>
-<?=template_link_tag_relative(__FILE__, 'css/jquery-ui-1.8.12.custom.css')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-1.7.min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'js/jquery-ui-1.8.12.custom.min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.3-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/raphael-min.js')."\n"?>

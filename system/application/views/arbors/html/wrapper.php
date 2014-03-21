@@ -58,9 +58,7 @@ echo doctype('html5')."\n"
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
 <? if (!empty($_styles)) echo $_styles?>
-<?=template_link_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.css')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'common.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudsdk.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudapi.js')."\n"?>
