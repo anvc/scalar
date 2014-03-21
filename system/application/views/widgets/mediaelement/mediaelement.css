@@ -529,3 +529,11 @@ div.jp-jplayer {
 div.jp-jplayer {
 	background-color: #000000;
 }
+
+.line-highlight.current {
+	background: hsla(204, 20%, 50%,.3);
+	background: -moz-linear-gradient(left, hsla(204, 20%, 50%,.3) 70%, hsla(204, 20%, 50%,0));
+	background: -webkit-linear-gradient(left, hsla(204, 20%, 50%,.3) 70%, hsla(204, 20%, 50%,0));
+	background: -o-linear-gradient(left, hsla(204, 20%, 50%,.3) 70%, hsla(204, 20%, 50%,0));
+	background: linear-gradient(left, hsla(204, 20%, 50%,.3) 70%, hsla(204, 20%, 50%,0));
+}
