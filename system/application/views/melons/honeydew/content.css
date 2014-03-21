@@ -308,6 +308,9 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 	font-size: 12px;
 	padding: 6px 16px;
 }
+.generic_button.small {
+	padding: 0px 4px 0px 4px;	
+}
 .generic_button.default {
 	border-color: #57acdb;
 	font-weight: bold;

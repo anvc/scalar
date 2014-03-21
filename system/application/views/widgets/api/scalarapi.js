@@ -519,10 +519,10 @@ function ScalarAPI() {
 			}},
 		'SourceCode': {
 			name:'SourceCode', 
-			extensions:['js','java','xml','css','php'],
-			isProprietary:false,
-			contentType:'document',
-			browserSupport: {
+		    extensions:['js','java','xml','css','php'],
+		    isProprietary:false,
+		    contentType:'document',
+		    browserSupport: {
 				'Mozilla': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
 				'Explorer': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
 				'MobileSafari': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
@@ -618,7 +618,7 @@ ScalarAPI.prototype.loadPagesByTypeStatus = null;
 ScalarAPI.prototype.browserDetect = null;
 ScalarAPI.prototype.nodeExistsCallback = null;
 ScalarAPI.prototype.untitledNodeString = null;
-	
+
 /**
  * Returns the specified uri without any extraneous trailing content (getVars, etc.)
  *
@@ -772,7 +772,7 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 		} else if (uri.substr(uri.length - 4) == 'WAVE') {
 			source = this.mediaSources['WAV'];
 	
-		} else if (uri.substr(uri.length - 4) == 'JPEG') {
+		} else if (uri.substr(uri.length - 4) == 'JPEG' || uri.substr(uri.length - 10) == 'Item+Image') {
 			source = this.mediaSources['JPEG'];
 			
 		} else if (uri.substr(uri.length - 3) == 'PDF') {
@@ -1561,6 +1561,68 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 }
 
 /**
+ * savePages, queueSavePages, runSavePages
+ * A basic Ajax queue for saving pages, as the save API presently saves one page at a time. Note that the name "modify" indicates that these routines will preserve existing content and relationships
+ *
+ * @param {Array} dataArr					Array of data, each entry represents one call to savePage.
+ * @param {Function} completeCallback		Function to be called when the queue finishes running.
+ */
+ScalarAPI.prototype.savePages = function(dataArr, completeCallback, errorCallback) {
+	
+	this.savePageQueue = [];
+	this.savePageResults = [];
+	
+	for (var j in dataArr) {
+		scalarapi.queueSavePages(dataArr[j]);
+	};
+
+	this.runSavePages(completeCallback, errorCallback);	
+	
+}
+
+/**
+ * Adds a single item to the save pages queue.
+ * @private
+ *
+ * @param {Object} data			Data that will be used to populate a single call to savePage.
+ */
+ScalarAPI.prototype.queueSavePages = function(data) {
+
+	if ('undefined'==typeof(this.savePageQueue)) this.savePageQueue = [];  
+	this.savePageQueue.push(data);
+	
+}
+
+/**
+ * Runs a single iteration of the save pages queue.
+ * @private
+ *
+ * @param {Function} completeCallback		Function to be called when the queue finishes running.
+ */
+ScalarAPI.prototype.runSavePages = function(completeCallback, errorCallback) {
+	
+	if ('undefined'==typeof(this.savePageQueue) || !this.savePageQueue.length) {
+		
+		completeCallback(this.savePageResults);
+		
+	} else {
+		
+		var self = this;
+		var data = this.savePageQueue[0];
+		this.savePageQueue.shift();
+		
+		this.savePage(data, function(json) {	
+			self.savePageResults.push(json);
+			self.runSavePages(completeCallback, errorCallback);
+		}, function(e) {
+			errorCallback(e);
+		});
+		
+	}
+	
+}
+
+/**
  * Saves a page through the API
  *
  * @param	data				The fields/values to save (requires a certain formatting based on the current version of the api)
@@ -1569,7 +1631,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
  * @return						A string indicating the state of the request.
  */
 ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
-
+	
 	var action_types = ['ADD', 'UPDATE', 'DELETE', 'UNDELETE'];  // As the DELETE command doesn't actually delete but sets is_live=0, 'saving' makes semantic sense
 	var required_fields = ['action', 'native', 'id', 'api_key'];
 	var add_update_required_fields = ['rdf:type', 'sioc:content', 'dcterms:title'];
@@ -1614,13 +1676,16 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 		for (var j in tosend) {
 			if (is_array(tosend[j])) {
 				for (var k in tosend[j]) {
-					tosend_formatted.push({name: j+'[]', value: jQuery.trim(tosend[j][k])});
+					var value = tosend[j][k];
+					if ('undefined'!=typeof(tosend[j][k].value)) value = tosend[j][k].value;
+					tosend_formatted.push({name: j+'[]', value: jQuery.trim(value)});
 				}
-			} else {
+			} else {			
 				tosend_formatted.push({name: j, value: jQuery.trim(tosend[j])});
 			}		
 		}
-		
+		console.log('formatted:');
+		console.log(tosend_formatted);
 		// Save
 		// TODO: use JSONP if native=false
 		$.ajax({
@@ -1632,12 +1697,13 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 	   	  	successCallback(json);
 	      },
 	      error: function(obj) {
-	      	errorCallback(obj);
+	    	var error = jQuery.parseJSON(obj.responseText);
+	    	errorCallback(error.error.message[0].value);
 	      }
 		});	
 					
 	} catch (e) {
-		errorCallback ('ScalarAPI save page error: '+e);
+		errorCallback(e);
 	}
 	return false;
 

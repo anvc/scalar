@@ -15,7 +15,7 @@
 	<rdf:Description rdf:about="http://criticalcommons.org/cc/playlist">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Critical Commons</dc:title>
-		<dcterms:description><![CDATA[Critical Commons is a non-profit advocacy coalition that supports the use of media for scholarship, reasearch and teaching, providing resources, information and tools for scholars, students, educators and creators. (From Critical Commons)<br /><br />Note: Please allow at least a half hour for media imported into Critical Commons to appear here.]]></dcterms:description>
+		<dcterms:description><![CDATA[Critical Commons is a non-profit advocacy coalition that supports the use of media for scholarship, reasearch and teaching, providing resources, information and tools for scholars, students, educators and creators. (From <a href="http://criticalcommons.org">Critical Commons</a>)<br />Note: Please allow at least a half hour for media imported into Critical Commons to appear here.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/critical_commons_2.xsl" />
 		<scalar:getStr><![CDATA[SearchableText=$1]]></scalar:getStr>
 	</rdf:Description>		
@@ -23,7 +23,7 @@
 	<rdf:Description rdf:about="http://www.archive.org/advancedsearch.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Internet Archive</dc:title>
-		<dcterms:description><![CDATA[The Internet Archive is a non-profit digital library with the stated mission: "universal access to all knowledge." It offers permanent storage and access to collections of digitized materials, including websites, music, moving images, and books. The Internet Archive was founded by Brewster Kahle in 1996. (From Wikipedia)<br /><br />Note: Please allow at least a half hour for media imported into the Internet Archive to appear here.]]></dcterms:description>
+		<dcterms:description><![CDATA[The Internet Archive is a non-profit digital library with the stated mission: "universal access to all knowledge." It offers permanent storage and access to collections of digitized materials, including websites, music, moving images, and books. The Internet Archive was founded by Brewster Kahle in 1996. (From Wikipedia)<br />Note: Please allow at least a half hour for media imported into the Internet Archive to appear here.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/internet_archive.xsl" />
 		<scalar:getStr><![CDATA[q=$1&fl[]=avg_rating&fl[]=call_number&fl[]=collection&fl[]=contributor&fl[]=coverage&fl[]=creator&fl[]=date&fl[]=description&fl[]=downloads&fl[]=foldoutcount&fl[]=format&fl[]=headerImage&fl[]=identifier&fl[]=imagecount&fl[]=language&fl[]=licenseurl&fl[]=mediatype&fl[]=month&fl[]=num_reviews&fl[]=oai_updatedate&fl[]=publicdate&fl[]=publisher&fl[]=rights&fl[]=scanningcentre&fl[]=source&fl[]=subject&fl[]=title&fl[]=type&fl[]=volume&fl[]=week&fl[]=year&sort[]=&sort[]=&sort[]=&rows=50&page=$2&callback=callback&output=xml#raw]]></scalar:getStr>
 	</rdf:Description>			
@@ -39,7 +39,7 @@
 	<rdf:Description rdf:about="http://vimeo.com/api/v2/$1/videos.xml">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Vimeo</dc:title>
-		<dcterms:description><![CDATA[<b style="color:#760000;">Note that the Vimeo import tool will only search by Vimeo user ID.</b><br />Your Vimeo user ID can be found in the URL of your user's video page. For example, the <a href="http://vimeo.com/iml/videos">IML</a>'s Vimeo user ID is bolded in the following URL: http://vimeo.com/<b>iml</b>/videos<br />Videos must be public to be viewable in the search results.<br />Only three pages of results can be retrieved using the Vimeo Simple API.<br />Please enter your (or someone else's) Vimeo user ID below.]]></dcterms:description>
+		<dcterms:description><![CDATA[<b style="color:#760000;">Note that the Vimeo import tool will only search by Vimeo user ID.</b><br />Your Vimeo user ID can be found in the URL of your user's video page. For example, the <a href="http://vimeo.com/iml/videos">IML</a>'s Vimeo user ID is bolded in the following URL: http://vimeo.com/<b>iml</b>/videos<br />Videos must be public to be viewable in the search results.<br />Only three pages of results can be retrieved using the Vimeo Simple API.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/vimeo.xsl" />
 		<scalar:getStr><![CDATA[page=$2]]></scalar:getStr>
 	</rdf:Description>					
@@ -91,7 +91,7 @@
 		<scalar:match><![CDATA[^.*\?(.*)$]]></scalar:match>
 	</rdf:Description>				
 	
-	<rdf:Description rdf:about="https://api.soundcloud.com/v1/tracks">
+	<rdf:Description rdf:about="http://api.soundcloud.com/v1/tracks">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>SoundCloud</dc:title>
 		<dcterms:description><![CDATA[SoundCloud is the "the world's largest community of sound creators." (SoundCloud.com)]]></dcterms:description>

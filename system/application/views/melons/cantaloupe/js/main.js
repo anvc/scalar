@@ -31,7 +31,7 @@ var ViewState = {
 }
 
 /**
- * Get paths to script and style directories
+ * Get paths to script and style directories 
  */
 var script_uri = $('script[src]')[0].src;
 var base_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-2).join('/');
