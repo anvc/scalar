@@ -33,20 +33,18 @@
 			
 			showAnnotation: function(e, relation, m, forceShow) {
 			
+				// make sure this is the right mediaelement
 				if ( mediaelement.model.id == m.model.id ) {
+				
+					// and that we already know about the annotation
 					if (annotations.indexOf(relation) != -1) {
 						var currentAnnotationTable = currentAnnotation.find('table');
 						var annotationTable = annotationPane.find('table');
+						
+						// if the annotation isn't already highlighted or we're showing it no matter what, then
 						if ((currentRelation != relation) || forceShow) {
 						
-							/*if (currentRelation != null) {
-								console.log(currentRelation.body.getDisplayTitle()+' '+relation.body.getDisplayTitle()+' '+forceShow);
-							} else {
-								console.log(currentRelation+' '+relation.body.getDisplayTitle()+' '+forceShow);
-							}
-							
-							console.log('show '+relation.body.getDisplayTitle());*/
-						
+							// if the annotation tab is hidden, then show the single annotation display
 							if (annotationPane.css('display') == 'none') {
 								currentAnnotationTable.empty();
 								var row;
@@ -57,20 +55,27 @@
 								}
 								currentAnnotation.slideDown();
 								
+							// otherwise, update the list of all annotations
 							} else {
 								$(annotationTable).find('tr').removeClass('current');
 								$(annotationTable).find('tr').each(function() {
 									var rowRelation = $(this).data('relation');
+									var col = $(this).find('td').eq(1);
+									// show the content of the selected annotation
 									if (rowRelation == relation) {
 										$(this).addClass('current');
 										if (rowRelation.body.current.content != null) {
-											var col = $(this).find('td').eq(1);
 											col.empty();
 											col.append('<h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</a></h4>');
 											col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
 											col.find('p').slideDown();
+											page.addMediaElementsForElement( col );
 										}
-										page.addMediaElementsForElement( col );
+										
+									// hide the content of all other annotations
+									} else {
+										col.find( 'h4' ).siblings().remove();
+										col.find( 'h4' ).replaceWith( '<p>' + relation.body.getDisplayTitle() + '</p>' );
 									}
 								});
 							}
@@ -192,8 +197,10 @@
 					row.data('relation', annotation);
 					row.click(function() {
 						var relation = $(this).data('relation');
-						mediaelement.seek(relation.properties.start); // TODO - handle other media types
-						mediaelement.play();
+						mediaelement.seek(relation);
+						if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+							mediaelement.play();
+						}
 					});
 				}
 				if (!foundAuxContent) {
