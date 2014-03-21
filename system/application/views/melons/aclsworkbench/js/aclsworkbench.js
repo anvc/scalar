@@ -78,23 +78,22 @@ $(function(){
 	$(window).resize(function(){resize_media();});
 });
 function resize_media(){
-		maxMediaHeight = window.innerHeight - 400;
+		maxMediaHeight = window.innerHeight - 300;
 		maxMediaWidth = $('#body').width();
-		$('.mediaObject').each(function(){
-			if($(this).find('pre, code').length > 0){
+		$('.mediaelement').each(function(){
+			if($(this).find('pre, code, iframe').length > 0){
 				$('.link_annotate').hide();
-				$(this).css({
+				$(this).find('.mediaObject').css({
 					'max-height':maxMediaHeight,
 					height:'auto',
-					overflow:'auto'
+					overflow:$(this).find('iframe').length>0?'hidden':'auto'
 				});
 				$(this).find('.mediaContainer').css({
 					'max-height':maxMediaHeight
 				});
-				$(this).find('.mediaelement').css({
+				$(this).find('.mediaelement, .mediaElementAnnotationSidebar').css({
 					height:'auto'
 				});
 			}
 		});
-	
 }
