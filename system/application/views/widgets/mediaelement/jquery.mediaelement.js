@@ -3646,6 +3646,9 @@ function handleFlashVideoMetadata(data) {
 		 */
 		jQuery.TextObjectView.prototype.highlightLinesForAnnotations = function( textAnnotations, style ) {
 		
+			if ( style == null ) {
+				style = 'highlightLight';
+			}
 			var li = $('#'+this.frameId).contents().find('li');
 			li.removeClass( style );	
 			
@@ -3803,7 +3806,7 @@ function handleFlashVideoMetadata(data) {
 
 		this.model = model;  					// instance of the model
 		this.parentView = parentView;   		// primary view for the media element
-		this.hasFrameLoaded = false;			// has the iframe loaded?
+		this.hasLoaded = false;					// has the iframe loaded?
 		this.isLiquid = true;					// media should expand to fill available space
 		this.currentLine = 0;					// user's position in the text
 		this.textIsPlaying = false;				// text is 'played' so that we can seek and show live annotations for it
@@ -3844,6 +3847,9 @@ function handleFlashVideoMetadata(data) {
 		            highlights = me.object.find( '.line-highlight' );
 		            
 		        n = highlights.length;
+		        if ( n > 0 ) {
+		        	posY -= parseInt( highlights.eq( 0 ).css( 'margin-top' ) );
+		        }
 	            for ( i = 0; i < n; i++ ) {
 	            	highlight = highlights.eq( i );
 	            	htop = highlight.position().top + parseInt( highlight.css( 'margin-top' ) );
@@ -3869,7 +3875,7 @@ function handleFlashVideoMetadata(data) {
 			var doc = document;
 			doc.body.appendChild(cssLink);
 			$.getScript( approot+'views/widgets/mediaelement/prism.js', function( script, textStatus ) {
-				me.hasFrameLoaded = true;
+				me.hasLoaded = true;
 			   	me.highlightAnnotatedLines();
 				me.pause();
 				if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
@@ -3950,7 +3956,7 @@ function handleFlashVideoMetadata(data) {
 		 * @param line {Number}		The line number to scroll to.
 		 */
 		jQuery.SourceCodeObjectView.prototype.scrollToLine = function(line) {
-			if ( this.hasFrameLoaded ) {
+			if ( this.hasLoaded ) {
 				var rows = $( '#'+this.frameId ).find( '.line-numbers-rows > span' );
 				if ( rows.length > 0 ) {
 					$( '#'+this.frameId ).stop().animate( { scrollTop: $( rows[ Math.min( Math.max( 0, line - 1 ), rows.length - 1 ) ] ).position().top },'slow');
