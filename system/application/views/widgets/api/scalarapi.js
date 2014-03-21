@@ -191,7 +191,7 @@ function ScalarAPI() {
 	}
 	
 	var prismSrcExt = ['js','java','xml','css','php','c','cpp','cs','html','php','py','rb'];
-	var otherSrcExt = ['txt','code','4th','actionscript','as','adt','agl','asm','asi','hla','asp','aspx','bas','b','bash','bat','bsh','cbl','cgi','cl','class','cmd','cob','cobol','csh','dot','el','erl','f','f03','f40','f77','f90','f95','fcg','fcgi','for','forth','fpp','gcl','gemfile','graphml','gv','h','has','hrl','i6','i7','inc','inf','json','ksh','lisp','lsp','lua','m','mak','make','mk','nt','p','pas','pat','pd','pl','pls','ps','qlb','r','rake','rakefile','scheme','scm','scpt','AppleScript','sh','sql','ss','t','taf','vb','vbs','vbscript','zsh','php1','php2','php3','php4','php5','phps'];
+	var otherSrcExt = ['txt','code','4th','actionscript','as','adt','agl','asm','asi','hla','asp','aspx','bas','b','bash','bat','bsh','cbl','cgi','cl','class','cmd','cob','cobol','csh','dot','el','erl','f','f03','f40','f77','f90','f95','fcg','fcgi','for','forth','fpp','gcl','gemfile','graphml','gv','h','has','hrl','i6','i7','inc','inf','json','ksh','lisp','lsp','lua','m','mak','make','mk','nt','p','pas','pat','pd','pl','pls','ps','qlb','r','rake','rakefile','scheme','scm','scpt','AppleScript','sh','sql','ss','t','taf','vb','vbs','vbscript','zsh'];
 	
 	this.mediaSources = {
 		'3GPP': {
