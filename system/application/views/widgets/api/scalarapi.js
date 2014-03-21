@@ -190,6 +190,9 @@ function ScalarAPI() {
 	
 	}
 	
+	var prismSrcExt = ['js','java','xml','css','php','c','cpp','cs','html','php','py','rb'];
+	var otherSrcExt = ['txt','code','4th','actionscript','as','adt','agl','asm','asi','hla','asp','aspx','bas','b','bash','bat','bsh','cbl','cgi','cl','class','cmd','cob','cobol','csh','dot','el','erl','f','f03','f40','f77','f90','f95','fcg','fcgi','for','forth','fpp','gcl','gemfile','graphml','gv','h','has','hrl','i6','i7','inc','inf','json','ksh','lisp','lsp','lua','m','mak','make','mk','nt','p','pas','pat','pd','pl','pls','ps','qlb','r','rake','rakefile','scheme','scm','scpt','AppleScript','sh','sql','ss','t','taf','vb','vbs','vbscript','zsh','php1','php2','php3','php4','php5','phps'];
+	
 	this.mediaSources = {
 		'3GPP': {
 			name:'3GPP', 
@@ -493,16 +496,16 @@ function ScalarAPI() {
 			}},
 		'PlainText': {
 			name:'PlainText', 
-			extensions:['txt','code'],
+			extensions:otherSrcExt,
 			isProprietary:false,
 			contentType:'document',
 			browserSupport: {
-				'Mozilla': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'MobileSafari': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Other': {extensions:['txt','code'], format:'PlainText', player:'native', specifiesDimensions:false}
+				'Mozilla': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Explorer': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'MobileSafari': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Safari': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Chrome': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Other': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
 		'SoundCloud': {
 			name:'SoundCloud', 
@@ -519,16 +522,16 @@ function ScalarAPI() {
 			}},
 		'SourceCode': {
 			name:'SourceCode', 
-		    extensions:['js','java','xml','css','php'],
+		    extensions:prismSrcExt,
 		    isProprietary:false,
 		    contentType:'document',
 		    browserSupport: {
-				'Mozilla': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'MobileSafari': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false},
-				'Other': {extensions:['js','java','xml','css','php'], format:'PlainText', player:'native', specifiesDimensions:false}
+				'Mozilla': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Explorer': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'MobileSafari': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Safari': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Chrome': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Other': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
 		'Unsupported': {
 			name:'Unsupported', 
