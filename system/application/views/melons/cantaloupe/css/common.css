@@ -263,6 +263,17 @@ nav a:hover, nav a:active {
 	overflow-x: hidden;
 }
 
+.pulsate-anim {
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite; 
+    opacity: 0.0;
+}
+@-webkit-keyframes pulsate {
+    0% { opacity: 0.0; }
+    50% { opacity: 1.0; }
+    100% { opacity: 0.0; }
+}
+
 /* ---- */
 
 .image_header { height: 50rem; /*background-attachment: fixed;*/ background-size: cover; margin-bottom: 4.8rem; }
