@@ -49,8 +49,6 @@ h4 {
 .page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
 .left_margin { min-width: 7.2rem; float: left; }
 
-* { box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; }
-
 blockquote { padding-left: 3.6rem; padding-right: 3.6rem; font-style: italic; }
 i,em { font-style: italic; }
 b,strong { font-weight: bold; }
@@ -131,7 +129,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
     table-layout: fixed;
     width: 100%;
     position: relative;
-    top: 1.4rem;
+    top: 1.6rem;
 }
 
 #book-title-item > div > span {
@@ -161,8 +159,11 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
     border: none;
     outline: none;
     margin-top: -.2rem;
+    position: relative;
+    top: 1rem;
     padding: .5rem 0;
     font-size: 1.4rem;
+    color: black;
 }
 
 .search_control form { display: inline; }
@@ -242,6 +243,7 @@ nav ul ul ul {
 	left: 100%;
 	top: 0;
 	width: auto;
+	margin-left: 0;
 }
 nav ul ul ul.align-right {
 	left: inherit;
@@ -706,7 +708,7 @@ a.media_info {
 	margin-top: 1.2rem;
 }
 
-.pane td > div, .page p { margin-bottom: 1rem; padding: 0 .4rem 0 0; }
+.pane td > div, .pane td > p { margin-bottom: 1rem; padding: 0 .4rem 0 0; }
 
 /*.mediaObject { background-color: black; }*/
 

@@ -102,7 +102,9 @@
 	
 	ScalarIndex.prototype.showIndex = function() {
 	
-		this.element.modal();
+		this.element.modal().on('hidden.bs.modal', function (e) {
+			$( 'body' ).css( 'overflowY', 'auto' );
+		});
 		
 		if ( this.firstRun ) {
 			this.setDisplayMode(this.DisplayMode.Path);
