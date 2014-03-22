@@ -32,6 +32,8 @@
 		this.options = $.extend( {}, defaults, options );
 		this._defaults = defaults;
 		this._name = pluginName;
+		this.requestQueue = [];
+		this.completedRequests = [];
 		this.init();
 	}
 	
@@ -40,6 +42,9 @@
 	ScalarHeader.prototype.search = null;				// Scalar search plugin
 	ScalarHeader.prototype.state = null;				// Scalar search plugin
 	ScalarHeader.prototype.visualizations = null;		// Scalar visualizations plugin
+	ScalarHeader.prototype.requestQueue = null;			// Queue of nodes to request additional data about
+	ScalarHeader.prototype.requestTimer = null;			// Timer for next request
+	ScalarHeader.prototype.completedRequests = null;	// Queue of nodes we have already requested
 	
 	/**
 	 * DOM and other setup for the header.
@@ -129,12 +134,12 @@
 		
 			// Slide open
 			if (parseInt($( '#search' ).width()) == 0) {
-				$( '#search' ).stop().delay( 100 ).animate({'width': '150%', 'borderColor': '#ddd'}, 250);
-				setTimeout( function() { $( '#search' ).focus() }, 1000 );
+				$( '#search' ).stop().delay( 100 ).animate({'width': '150%', 'borderColor': '#ddd', 'paddingLeft': '.4rem'}, 250);
+				setTimeout( function() { $( '#search' ).focus() }, 500 );
 				
 			// Slide closed
 			} else {
-				$( '#search' ).stop().animate({'width': '0', 'borderColor': '#fff'}, 250).blur();
+				$( '#search' ).stop().animate({'width': '0', 'borderColor': '#fff', 'paddingLeft': '0'}, 250).blur();
 			}
 		});
 		
@@ -171,7 +176,7 @@
 			// Annotate media
 			if ( currentNode != null ) {
 				if ( currentNode.hasScalarType( 'media' ) ) {
-					list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
+					list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
 				}
 			}
 			
@@ -348,8 +353,8 @@
 		
 		if (node != null) {
 	
-			var i,
-				menu = $( '<ul id="main-menu" class="scrollable-menu"></div>' ).appendTo( '#main-menu-item' ),
+			var i, subMenu, subMenuItem,
+				menu = $( '<ul id="main-menu"></div>' ).appendTo( '#main-menu-item' ),
 				menuItems = node.getRelatedNodes('referee', 'outgoing', true),
 				n = menuItems.length;
 			
@@ -362,14 +367,45 @@
 				for (i=0; i<n; i++) {
 					tocNode = menuItems[i];
 					listItem = $( '<li><a href="' + tocNode.url + '">' + ( i + 1 ) + '. ' + tocNode.getDisplayTitle() + '</a></li>' ).appendTo( menu );
+					listItem.data( 'slug', tocNode.slug );
+					subMenu = $( '<ul id="toc-submenu-' + i + '" class="align-left scrollable-menu"></ul>' ).appendTo( listItem );
+					subMenuItem = $( '<li><a href="" class="pulsate-anim">...</a>' ).appendTo( subMenu );
+					
+					// on mouseover, add the item to the list of items we'll query (after a delay) for their path children
+					// for the purposes of showing them in a submenu
+					listItem.mouseover( function() {
+						var slug = $( this ).data( 'slug' );
+						if (( me.requestQueue.indexOf( slug ) == -1 ) && ( me.completedRequests.indexOf( slug ) == -1 )) {
+							//console.log( 'add ' + slug );
+							me.requestQueue.push( slug );
+							me.requestTimer = setTimeout( me.handleRequestTimer, 1000 );
+						}
+					} );
+					
+					// on mouseout, remove the item from the query list
+					listItem.mouseout( function() {
+						var slug = $( this ).data( 'slug' );
+						var index = me.requestQueue.indexOf( slug );
+						if ( index != -1 ) {
+							//console.log( 'remove ' + slug );
+							me.requestQueue.splice( index, 1 );
+						}
+					} )
 				}
 			}
 			
-			// Finally, the index
+			// The book index
 			listItem = $( '<li>Index</li>' ).appendTo( menu );
-			var indexElement = $( '<div></div>' ).appendTo( 'body' );
+			var indexElement = $( '<div></div>' ).prependTo( 'body' );
 			this.index = indexElement.scalarindex( {} );
 			listItem.click( function() { me.index.data('plugin_scalarindex').showIndex(); } );
+			
+			// Scalar menu
+			listItem = $( '<li>Scalar</li>' ).appendTo( menu );
+			subMenu = $( '<ul id="toc-submenu-scalar' + i + '" class="align-left scrollable-menu"></ul>' ).appendTo( listItem );
+			subMenuItem = $( '<li><a href="' + index_uri + '">More Scalar Projects</a>' ).appendTo( subMenu );
+			subMenuItem = $( '<li><a href="http://scalar.usc.edu">More About Scalar</a>' ).appendTo( subMenu );
+			subMenuItem = $( '<li><a href="http://scalar.usc.edu/works/guide">User’s Guide</a>' ).appendTo( subMenu );
 			
 		}
 		
@@ -377,6 +413,72 @@
 		
 	}
 	
+	/**
+	 * Loads path child data for the oldest requested node.
+	 */
+	ScalarHeader.prototype.handleRequestTimer = function() {
+	
+		var scalarheader = $( header ).data( 'plugin_scalarheader' );
+		//console.log( scalarheader.requestQueue );
+		if ( scalarheader.requestQueue.length > 0 ) {
+			var slug = scalarheader.requestQueue[ 0 ];
+			var node = scalarapi.getNode( slug );
+			if ( node != null ) {
+				var pathChildren = node.getRelatedNodes( 'path', 'outgoing' );
+				
+				// only go out and get the data if we don't already know about the node's path children
+				if ( pathChildren.length == 0 ) {
+					scalarapi.loadPage( slug, true, scalarheader.handleRequest, null, 1, false, 'path' );
+					
+				} else {
+					scalarheader.requestQueue.shift();
+					scalarheader.updateTOCItemSubmenu( slug );
+					scalarheader.completedRequests.push( slug );
+				}
+			}
+		}
+		
+	}
+	
+	/**
+	 * Handles the receipt of data about a main menu item's path children.
+	 */
+	ScalarHeader.prototype.handleRequest = function() {
+		var scalarheader = $( header ).data( 'plugin_scalarheader' );
+		var slug = scalarheader.requestQueue.shift();
+		scalarheader.updateTOCItemSubmenu( slug );
+		scalarheader.completedRequests.push( slug );
+	}
+	
+	/**
+	 * Updates the path child submenu for a specified main menu item.
+	 */
+	ScalarHeader.prototype.updateTOCItemSubmenu = function( slug ) {
+	
+		var menuItems = $( '#main-menu > li' );
+		var i, menuItem, j, o, child, subMenu, subMenuItem
+			n = menuItems.length,
+			node = scalarapi.getNode( slug ),
+			pathChildren = node.getRelatedNodes( 'path', 'outgoing' );
+			
+		// find the matching menu item
+		for ( i = 0; i < n; i++ ) {
+			menuItem = menuItems.eq( i );
+			if ( menuItem.data( 'slug' ) == slug ) {
+				subMenu = menuItem.find( 'ul' );
+				subMenu.empty();
+				o = pathChildren.length;
+				
+				// add its submenu items
+				for ( j = 0; j < o; j++ ) {
+					child = pathChildren[ j ];
+					subMenuItem = $( '<li><a href="' + child.url +'">' + child.getDisplayTitle() + '</a>' ).appendTo( subMenu );
+				}
+			} 
+		}
+	
+	}
+		
 	/**
 	 * Constructs the import menu in the DOM.
 	 */
