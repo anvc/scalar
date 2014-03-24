@@ -73,7 +73,7 @@
 			'aria-labelledby': 'myModalLabel',
 			'aria-hidden': 'true'
 		} );
-		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content"></div></div>' );
+		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content index_modal"></div></div>' );
 		var modalContent = this.element.find( '.modal-content' );
 		var header = $( '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );

@@ -1077,7 +1077,7 @@ a.nav_btn:hover {
 
 /*.disabled { opacity: 0.25; }*/
 
-.results_list { margin-top: 2rem; position: relative;}
+.results_list { margin-top: 2rem; position: relative; max-height: 410px; overflow: auto;}
 .dialog.index .results_list { margin-top: 14.2rem; }
 .results_list table { width: 100%; }
 .results_list td { height: 3rem; overflow: hidden; padding: .5rem; }
@@ -1106,6 +1106,8 @@ a.nav_btn:hover {
 .loading { background: rgba(0,0,0,.6); position:absolute; top:0; left:0; }
 .loading p {position: absolute; width: 100%; text-align: center; color: #fff; font-weight: bold; margin: 0; font-size:16px; line-height: 16px}
 
+/* index modal */
+.index_modal {height:635px;}
 
 /* Hidden elements */
 aside { display: none; }
