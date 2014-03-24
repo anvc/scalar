@@ -254,7 +254,7 @@ nav a {
 	color: #eee;
 }
 nav a:hover, nav a:active {
-	text-decoration: none; 
+	text-decoration: none;
 	color: #fff;
 }
 .scrollable-menu {
@@ -265,7 +265,7 @@ nav a:hover, nav a:active {
 
 .pulsate-anim {
     -webkit-animation: pulsate 1s ease-out;
-    -webkit-animation-iteration-count: infinite; 
+    -webkit-animation-iteration-count: infinite;
     opacity: 0.0;
 }
 @-webkit-keyframes pulsate {
@@ -277,9 +277,9 @@ nav a:hover, nav a:active {
 /* ---- */
 
 .image_header { height: 50rem; /*background-attachment: fixed;*/ background-size: cover; margin-bottom: 4.8rem; }
-.image_header .title_card { 
+.image_header .title_card {
 	position: inherit;
-	width: 66%; 
+	width: 66%;
 	/*padding: 10.8rem 7.2rem 3.6rem 7.2rem; */
 	padding: 3.6rem 0 0 0;
 	height: 50rem;
@@ -348,7 +348,7 @@ nav a:hover, nav a:active {
 	-webkit-backface-visibility: hidden;
 }
 section ol,ul {margin-bottom: 1rem;}
-section.relationships { 
+section.relationships {
     margin-top: 2.4rem;
 	max-width: 85.4rem;
 	clear:both;
@@ -374,16 +374,16 @@ small, aside {
 a { color: #026697; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-.bg_screen { 
+.bg_screen {
 	position: fixed;
-	max-width: inherit; 
-	width:100%; 
-	height:100%; 
-	background-color: black; 
-	color: white; 
-	border: none; 
+	max-width: inherit;
+	width:100%;
+	height:100%;
+	background-color: black;
+	color: white;
+	border: none;
 	/*opacity: .3;*/
-	/*background-size: cover; 
+	/*background-size: cover;
 	background-position: center center; */
    /*-webkit-transform: translateZ(0);
    -moz-transform: translateZ(0);
@@ -417,8 +417,8 @@ a:hover { text-decoration: underline; }
 #gallery_content .thumb:hover { opacity:0.65; }
 #gallery_content h3 { margin: 0 0 1rem 0; padding: 0; }
 
-.one_line_description { 
-	/*color: #96989a; 
+.one_line_description {
+	/*color: #96989a;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;*/
@@ -437,14 +437,14 @@ a:hover { text-decoration: underline; }
 .structured_gallery h1 { margin-top: 7.8rem; margin-bottom: 2rem; }
 .fixed_header { position: fixed; }*/
 
-.media_details { 
-	position: fixed; 
-	top: 0px; 
-	left: 0px; 
-	right: 0px; 
-	height: 100%; 
-	margin: 0px 0px 0px 0px; 
-	z-index: 10; 
+.media_details {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 100%;
+	margin: 0px 0px 0px 0px;
+	z-index: 10;
 	display: none;
 	-webkit-font-smoothing: subpixel-antialiased;
  }
@@ -470,7 +470,7 @@ a:hover { text-decoration: underline; }
 .manual_slideshow .mediaelement { margin-bottom: 5rem; }
 
 .media_sidebar table {
-	border-left: 1px solid #666 !important; 
+	border-left: 1px solid #666 !important;
 	border-right: 1px solid #666 !important;
 	width: 100%;
 }
@@ -482,29 +482,29 @@ a:hover { text-decoration: underline; }
 
 /*.slot_slider { position: relative; top: 0px; width: 100%; white-space: nowrap; overflow-x: auto; overflow-y: hidden; vertical-align: top; }
 .slot_slider .slot { display: inline-block; text-align: left; margin: 0; padding: 0; }*/
-.manual_slideshow { 
-	clear: both; 
-	text-align: center; 
-	position: absolute; 
-	top: 0; 
-	padding: 14rem 3.6rem 0 3.6rem; 
-	height: 100%; 
-	overflow-y: scroll; 
+.manual_slideshow {
+	clear: both;
+	text-align: center;
+	position: absolute;
+	top: 0;
+	padding: 14rem 3.6rem 0 3.6rem;
+	height: 100%;
+	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
 	width: 100%;
 }
 
 /* --- SPLASH --- */
 
-.splash { 
+.splash {
 	position: fixed;
-	max-width: inherit; 
-	width:100%; 
-	height:100%; 
-	background-color: black; 
-	color: white; 
-	border: none; 
-	background-size: cover; 
+	max-width: inherit;
+	width:100%;
+	height:100%;
+	background-color: black;
+	color: white;
+	border: none;
+	background-size: cover;
 	background-position: center center;
 	-webkit-transform: scale( 1.2, 1.2 );
 	-moz-transform: scale( 1.2, 1.2 );
@@ -513,25 +513,25 @@ a:hover { text-decoration: underline; }
 	opacity: 0;
 
 }
-.splash.fade_in { 
+.splash.fade_in {
 	-webkit-transition: all 1s ease-in-out;
 	-moz-transition: all 1s ease-in-out;
 	-o-transition: all 1s ease-in-out;
 	transition: all 1s ease-in-out;
-	-webkit-transform: scale( 1.0, 1.0 ); 
-	-moz-transform: scale( 1.0, 1.0 ); 
-	-o-transform: scale( 1.0, 1.0 ); 
-	transform: scale( 1.0, 1.0 ); 
-	opacity: 1; 
+	-webkit-transform: scale( 1.0, 1.0 );
+	-moz-transform: scale( 1.0, 1.0 );
+	-o-transform: scale( 1.0, 1.0 );
+	transform: scale( 1.0, 1.0 );
+	opacity: 1;
 }
 .splash h1 { margin-bottom: 0; }
 .splash h2 { margin-top: 0; font-weight: normal; }
-.title_card { 
-	position: absolute; 
-	width: 100%; 
-	bottom: 0; 
-	padding: 10.8rem 7.2rem 3.6rem 7.2rem; 
-	text-align: center; 
+.title_card {
+	position: absolute;
+	width: 100%;
+	bottom: 0;
+	padding: 10.8rem 7.2rem 3.6rem 7.2rem;
+	text-align: center;
 	/*display: none;*/
 	background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.5) 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(30%,rgba(0,0,0,0.5)), color-stop(100%,rgba(0,0,0,0.5))); /* Chrome,Safari4+ */
@@ -546,23 +546,23 @@ a:hover { text-decoration: underline; }
    -o-transform: translateZ(0);
 	opacity: 0;
 }
-.title_card.fade_in { 
+.title_card.fade_in {
 	-webkit-transition: all 1s ease-in-out;
 	-moz-transition: all 1s ease-in-out;
 	-o-transition: all 1s ease-in-out;
 	transition: all 1s ease-in-out;
-	opacity: 1; 
+	opacity: 1;
 }
-.fade_out { 
+.fade_out {
 	-webkit-transition: all .5s ease-in-out;
 	-moz-transition: all .5s ease-in-out;
 	-o-transition: all .5s ease-in-out;
 	transition: all .5s ease-in-out;
-	opacity: 0 !important; 
+	opacity: 0 !important;
 	pointer-events: none; /* TODO: this won't work in IE */
 }
-.instantaneous_fade_out { 
-	opacity: 0 !important; 
+.instantaneous_fade_out {
+	opacity: 0 !important;
 	pointer-events: none; /* TODO: this won't work in IE */
 }
 .title_card .relationships { max-width: inherit; }
@@ -584,8 +584,8 @@ a:hover { text-decoration: underline; }
 /* So the top-most media element aligns with the top of its paragraph */
 .slot.top { margin-top: .5rem !important; clear: both; }
 
-.mediaelement { 
-	margin-bottom: 2.4rem; 
+.mediaelement {
+	margin-bottom: 2.4rem;
 	font-weight: normal;
 	font-style: normal;
 	-webkit-backface-visibility: hidden;
@@ -656,7 +656,7 @@ a.media_info {
 .mediainfo h4 { font-size: 1.2rem; margin:0; line-height: 1.6rem; padding: 0 .4rem 0 0; }
 
 .media_annotations table {
-	border-left: 1px solid #ddd; 
+	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
 	font-size: 1.2rem;
 }
@@ -817,8 +817,8 @@ a.nav_btn {
 	display: inline-block;
 	-webkit-font-smoothing: subpixel-antialiased;
 }
-a.nav_btn.primary { 
-	background-color: #026697; 
+a.nav_btn.primary {
+	background-color: #026697;
 	color: white;
 }
 a.nav_btn:hover {
@@ -1020,14 +1020,14 @@ a.nav_btn:hover {
 
 /* the 'dialog' styles below will eventually be deprecated once bootstrap modal support is in place */
 .dialog {
-	position: fixed; 
-	top: 8.6rem; 
-	left: 3.6rem; 
-	right: 3.6rem; 
+	position: fixed;
+	top: 8.6rem;
+	left: 3.6rem;
+	right: 3.6rem;
 	bottom: 3.6rem;
-	background-color: white; 
+	background-color: white;
 	/*padding: 3rem 4rem 3rem 4rem; */
-	padding: 0 0 2.4rem 0; 
+	padding: 0 0 2.4rem 0;
 	box-shadow: 3px 3px 8px rgba(0,0,0,.2);
 	overflow-y: auto;
 	display: none;
@@ -1038,23 +1038,23 @@ a.nav_btn:hover {
 .dialog h2, .dialog h3, .dialog h4, .dialog h5 { display: inline-block; padding-left: 0; padding-right: 0; margin-top: 0; margin-bottom: 0; }
 .dialog h3 { margin-bottom: 1rem; }
 .dialog_header {
-	position: fixed; 
-	left: 3.6rem; 
-	right: 3.6rem; 
+	position: fixed;
+	left: 3.6rem;
+	right: 3.6rem;
 	top: 8.6rem;
-	background-color: white; 
+	background-color: white;
 	padding: 2.4rem 3.6rem 0 3.6rem;
-	z-index: 20; 
+	z-index: 20;
 }
 .dialog .right { float: right; padding: 1rem; }
 .dialog_header .right { float: right; }
-.media_details .dialog_header { 
-	background-color: #333; 
-	color: #b2b3b6; 
-	font-size: 1.8rem; 
-	padding-top: 8.2rem; 
-	left: 0; 
-	right: 0; 
+.media_details .dialog_header {
+	background-color: #333;
+	color: #b2b3b6;
+	font-size: 1.8rem;
+	padding-top: 8.2rem;
+	left: 0;
+	right: 0;
 	top: 0;
 }
 .help .dialog_header { width: 90rem; margin-left: -45rem; left: 50%; right: auto; background-color: #eee; }
@@ -1077,7 +1077,7 @@ a.nav_btn:hover {
 
 /*.disabled { opacity: 0.25; }*/
 
-.results_list { margin-top: 2rem; }
+.results_list { margin-top: 2rem; position: relative;}
 .dialog.index .results_list { margin-top: 14.2rem; }
 .results_list table { width: 100%; }
 .results_list td { height: 3rem; overflow: hidden; padding: .5rem; }
@@ -1101,6 +1101,10 @@ a.nav_btn:hover {
 
 .texteo_icon_external {background-image:url(images/external.png); background-position:2px 5px; padding-left:21px;}
 .texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 5px; padding-left:21px;}
+
+/* loading */
+.loading { background: rgba(0,0,0,.6); position:absolute; top:0; left:0; }
+.loading p {position: absolute; width: 100%; text-align: center; color: #fff; font-weight: bold; margin: 0; font-size:16px; line-height: 16px}
 
 
 /* Hidden elements */
