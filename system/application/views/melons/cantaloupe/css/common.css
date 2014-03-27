@@ -1077,13 +1077,15 @@ a.nav_btn:hover {
 
 /*.disabled { opacity: 0.25; }*/
 
-.results_list { margin-top: 2rem; position: relative; max-height: 410px; overflow: auto;}
+.results_list { margin-top: 2rem; position: relative; overflow: auto;height: 390px;}
 .dialog.index .results_list { margin-top: 14.2rem; }
 .results_list table { width: 100%; }
 .results_list td { height: 3rem; overflow: hidden; padding: .5rem; }
-.results_list td:first-child { max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
+.results_list td:first-child { min-width:30%; max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
 .results_list td:last-child { color: #b2b3b6; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
 .results_list tr:hover { background: #eee; cursor: pointer; }
+.results_list td.thumb { width:56px; max-width:56px;}
+.results_list td.thumb img {width:100%;}
 
 /* Media icons */
 
@@ -1103,11 +1105,9 @@ a.nav_btn:hover {
 .texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 5px; padding-left:21px;}
 
 /* loading */
-.loading { background: rgba(0,0,0,.6); position:absolute; top:0; left:0; }
-.loading p {position: absolute; width: 100%; text-align: center; color: #fff; font-weight: bold; margin: 0; font-size:16px; line-height: 16px}
+.loading { background: #fff; position:absolute; top:0; left:0; }
+.loading p {position: absolute; width: 100%; text-align: center; color: #cacaca; font-weight: bold; margin: 0; font-size:16px; line-height: 16px}
 
-/* index modal */
-.index_modal {height:635px;}
 
 /* Hidden elements */
 aside { display: none; }

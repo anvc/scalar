@@ -17,3 +17,24 @@ h1 { margin-top: 1rem; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%
 .help, .help .dialog_header { width: inherit; }
 #book-title-item > div > span { display: none !important; }
 .media_sidebar { float: none; }
+
+.modal-body {padding:10px;}
+.results_list {margin-top:10px; overflow: auto;}
+
+/* 4in iphone 5 */
+@media only screen and (max-device-height : 1136px) {
+  .results_list {height:130px;max-height:130px;}
+  .results_list td:first-child { min-width:60%; max-width:60%;}
+}
+
+/* 4in iphone 4s */
+@media only screen and (max-device-height : 640px) {
+  .results_list {height:130px;max-height:130px;}
+  .results_list td:first-child { min-width:60%; max-width:60%;}
+}
+
+/* 3.5in iphone */
+@media only screen and (max-device-height : 480px) {
+  .results_list {height:80px;max-height:80px;}
+  .results_list td:first-child { min-width:60%; max-width:60%;}
+}

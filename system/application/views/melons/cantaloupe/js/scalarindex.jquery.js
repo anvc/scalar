@@ -56,6 +56,7 @@
 	ScalarIndex.prototype.controlBar = null;			// Index controls
 	ScalarIndex.prototype.firstRun = null;				// First time the plug-in has run?
 	ScalarIndex.prototype.maxPages = null;				// Maximum number of pages with known results in the current tab
+	ScalarIndex.prototype.tabLastPage = {};	 	// last page viewed per tabs visited
 
 	ScalarIndex.prototype.init = function () {
 
@@ -94,12 +95,10 @@
 		commentBtn.click(function () { me.setDisplayMode( me.DisplayMode.Comment ); });
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
-		this.resultsTable = $( '<table class="table table-striped"></table>' ).appendTo( resultsDiv );
+		this.resultsTable = $( '<table class="table table-striped table-hover table-responsive"></table>' ).appendTo( resultsDiv );
 		this.loading = $('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 
 		this.pagination = $( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
-
-
 	}
 
 	ScalarIndex.prototype.showIndex = function() {
@@ -127,7 +126,7 @@
 
 		if ( this.currentMode != mode ) {
 			this.currentMode = mode;
-			this.currentPage = 1;
+			this.currentPage = this.tabLastPage[mode] || 1;
 			this.maxPages = 1;
 			mode = mode.toLowerCase();
 			this.controlBar.find('li').removeClass('active');
@@ -178,7 +177,11 @@
 			} else {
 				description = description.replace(/<\/?[^>]+>/gi, '');
 			}
-			row = $( '<tr><td style="width:30%">'+node.getDisplayTitle()+'</td><td>'+description+'</td></tr>' ).appendTo( this.resultsTable );
+			var thumb = '';
+			if (node.thumbnail) {
+				thumb = '<img src="'+node.thumbnail+'" />';
+			}
+			row = $( '<tr><td class="title">'+node.getDisplayTitle()+'</td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 			row.data( 'node', node );
 			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
 		}
@@ -218,18 +221,21 @@
 	ScalarIndex.prototype.previousPage = function() {
 		if ( this.currentPage > 1) {
 			this.currentPage--;
+			this.tabLastPage[this.currentMode]--;
 			this.getResults();
 		}
 	}
 
 	ScalarIndex.prototype.nextPage = function() {
 		this.currentPage++;
+		this.tabLastPage[this.currentMode]++;
 		this.maxPages = Math.max( this.maxPages, this.currentPage );
 		this.getResults();
 	}
 
 	ScalarIndex.prototype.goToPage = function( pageNum ) {
 		this.currentPage = pageNum;
+		this.tabLastPage[this.currentMode] = pageNum;
 		this.getResults();
 	}
 
