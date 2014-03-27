@@ -41,10 +41,16 @@
 $active_group = "default";
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';  
-$db['default']['username'] = '';    
+$username = '';
+$dbname = '';
+if($_SERVER['SERVER_NAME'] == 'dev.scalar.com') { // olivier's env
+  $username = 'root';
+  $dbname = 'scalar';
+}
+$db['default']['hostname'] = 'localhost';
+$db['default']['username'] = $username;
 $db['default']['password'] = '';
-$db['default']['database'] = '';
+$db['default']['database'] = $dbname;
 
 $db['default']['dbdriver'] = "mysql";
 
@@ -52,7 +58,7 @@ $db['default']['dbprefix'] = 'scalar_db_';  // At the moment there are a couple 
 $db['default']['pconnect'] = false;
 
 $db['default']['db_debug'] = false;
-$db['default']['cache_on'] = false; 
+$db['default']['cache_on'] = false;
 $db['default']['cachedir'] = '';
 $db['default']['char_set'] = "utf8";
 $db['default']['dbcollat'] = "utf8_general_ci";
