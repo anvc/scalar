@@ -41,16 +41,10 @@
 $active_group = "default";
 $active_record = TRUE;
 
-$username = '';
-$dbname = '';
-if($_SERVER['SERVER_NAME'] == 'dev.scalar.com') { // olivier's env
-  $username = 'root';
-  $dbname = 'scalar';
-}
 $db['default']['hostname'] = 'localhost';
-$db['default']['username'] = $username;
+$db['default']['username'] = '';
 $db['default']['password'] = '';
-$db['default']['database'] = $dbname;
+$db['default']['database'] = '';
 
 $db['default']['dbdriver'] = "mysql";
 
