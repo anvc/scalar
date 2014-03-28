@@ -41,8 +41,8 @@
 $active_group = "default";
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';  
-$db['default']['username'] = '';    
+$db['default']['hostname'] = 'localhost';
+$db['default']['username'] = '';
 $db['default']['password'] = '';
 $db['default']['database'] = '';
 
@@ -52,7 +52,7 @@ $db['default']['dbprefix'] = 'scalar_db_';  // At the moment there are a couple 
 $db['default']['pconnect'] = false;
 
 $db['default']['db_debug'] = false;
-$db['default']['cache_on'] = false; 
+$db['default']['cache_on'] = false;
 $db['default']['cachedir'] = '';
 $db['default']['char_set'] = "utf8";
 $db['default']['dbcollat'] = "utf8_general_ci";
