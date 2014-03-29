@@ -388,6 +388,30 @@ class System extends MY_Controller {
 					}
 					
 					break;			
+				case 'acls_elevate_user':
+					if (!$this->data['login']->is_logged_in) $this->kickout();
+					
+					$this->load->model('book_model', 'books');
+					$this->load->library('SendMail', 'sendmail');
+					
+					$this->data['book'] = $this->books->get($book_id);
+					$user_is_reader = false;
+					$selected_user = null;
+					foreach($this->data['book']->users as $user){
+						if($user->user_id == $user_id){
+							$selected_user = $user;
+							$user_is_reader = true;
+							break;
+						}
+					}
+					if($user_is_reader){
+						$this->data['content'] = $this->users->save(array('id'=>$user_id, 'book_id'=>$book_id, 'relationship'=>'author', 'list_in_index'=>1));
+						$this->sendmail->acls_elevate_user($selected_user, $this->data['book']);
+						header('Location: '.base_url().'?action=elevate&user_id='.$user_id.'&book_id='.$book_id.'&elevated=true');
+					}else{
+						header('Location: '.base_url().'?action=elevate&user_id='.$user_id.'&book_id='.$book_id.'&elevated=error&error=invalid_user');
+					}
+					break;			
 		 	}
 	 	} catch (Exception $e) {
 			show_error($e->getMessage());

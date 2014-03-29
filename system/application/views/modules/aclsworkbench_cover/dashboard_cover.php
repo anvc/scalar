@@ -10,7 +10,7 @@
 
 	$login_url = $this->config->item('force_https') ? base_ssl() : base_url();
 	
-	$valid_methods = array('home','index','join','clone','create');
+	$valid_methods = array('home','index','join','clone','create','elevate');
 	
 	$method = 'index';
 	

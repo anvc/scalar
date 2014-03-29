@@ -1,6 +1,5 @@
 <?php
 	if (!defined('BASEPATH')){exit('No direct script access allowed');}
-	
 	$this->template->add_js(path_from_file(__FILE__).'js/fuse.min.js');
 	$this->template->add_js(path_from_file(__FILE__).'js/aclsworkbench_book_list.js');
 	$this->template->add_js(path_from_file(__FILE__).'js/aclsworkbench_tour.js');
@@ -432,6 +431,71 @@
 ?>
 			</div></div>
 <?php
+			break;
+		case 'elevate':
+			if(!$login->is_logged_in){
+				$this_url = urlencode(base_url().'?'.$_SERVER['QUERY_STRING']);
+				redirect(base_url().'system/login?redirect_url='.$this_url);
+			}else{
+				$invalid_request = true;
+				$selected_book = null;
+				$selected_user = null;
+				$errors = array(
+					'invalid_book' => 'The specified book is either invalid, or you do not have access to manage it.',
+					'invalid_user' => 'The specified user is either invalid, or does not belong to this book.',
+				);
+				if(isset($_GET['user_id']) && isset($_GET['book_id'])){
+					foreach($user_books as $book){
+						if($book->book_id == $_GET['book_id']){
+							$selected_book = $book;
+							foreach($book->users as $user){
+								if($user->user_id == $_GET['user_id']){
+									$selected_user = $user;
+									$invalid_request = false;
+									break 2;
+								}
+							}
+						}
+					}
+				}
+				if(isset($_GET['elevated'])){
+					switch($_GET['elevated']){
+						case 'true':
+							?>
+								<div class="well text-center">
+									The user, "<strong><?php echo $selected_user->fullname;?></strong>," has been elevated to author status for the book, "<strong><?php echo $selected_book->title; ?></strong>." If you would like to continue to edit this book's users, you can <a href="<?php echo base_url(); ?>system/dashboard?book_id=<?php echo $selected_book->book_id; ?>&zone=users#tabs-users">click here</a>.
+								</div>
+							<?php
+							break;
+						case 'false':
+							?>
+								<div class="well text-center">
+									The user, "<strong><?php echo $selected_user->fullname;?></strong>," <strong>has not</strong> been elevated to author status for the book, "<strong><?php echo $selected_book->title; ?></strong>." If you would like to edit this book's users, you can <a href="<?php echo base_url(); ?>system/dashboard?book_id=<?php echo $selected_book->book_id; ?>&zone=users#tabs-users">click here</a>.
+								</div>
+							<?php
+							break;
+						default:
+							?>
+								<div class="well text-center">
+									<h4>There was an error with your request:</h4>
+									<strong><?php echo $errors[$_GET['error']]; ?></strong>
+
+								</div>
+							<?php
+							break;
+					}
+				}else{
+					if($invalid_request || $selected_user->relationship != 'reader'){
+						?>
+							<div class="well text-center"><h4>Invalid Request</h4> Unfortunately, we cannot complete your request, as the request was not properly formed, you do not have permission to elevate users for this book, or the specified user cannot be elevated for this book.</div>
+						<?php
+					}else{
+						?>
+							<div class="well text-center"><h4>Would you like to elevate the user, "<strong><?php echo $selected_user->fullname;?></strong>," to an author for the book, "<strong><?php echo $selected_book->title; ?></strong>?"</h4><br /><a href="<?php echo base_url(); ?>system/dashboard?action=acls_elevate_user&user_id=<?php echo $selected_user->user_id; ?>&book_id=<?php echo $selected_book->book_id; ?>" class="btn btn-success btn-lg">Yes*</a>&nbsp;&nbsp;<a href="./?action=elevate&elevated=false&user_id=<?php echo $selected_user->user_id; ?>&book_id=<?php echo $selected_book->book_id; ?>" class="btn btn-danger btn-lg">No</a><br /><br /><small class="text-muted">*Note: By setting a user as an author, they will be able to edit and create content in your book. They will also be able to approve/deny new users to your book.</div>
+						<?php
+					}
+				}
+			}
 			break;
 		default:
 			$book_json = json_encode($other_stripped);

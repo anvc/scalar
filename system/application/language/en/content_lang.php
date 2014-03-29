@@ -56,5 +56,6 @@ $lang['acls.join_explaination'] = '*When a user joins your book, that user will 
 //@LUCAS - Added ACLS Workbench email strings; these are parsed with sprintf, so apologies for the deciphering; first parameter is a string = book title.
 $lang['acls_email.request_author_role_subject'] = $lang['install_name'].': Request to Become an Author of Your Book, "%s"';
 $lang['acls_email.user_joined_subject'] = $lang['install_name'].': A User has Joined  Your Book, "%s"';
+$lang['acls_email.elevate_user_subject'] = $lang['install_name'].': Author Request for "%s" Approved';
 
 ?>
