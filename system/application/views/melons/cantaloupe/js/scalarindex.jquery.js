@@ -57,6 +57,7 @@
 	ScalarIndex.prototype.firstRun = null;				// First time the plug-in has run?
 	ScalarIndex.prototype.maxPages = null;				// Maximum number of pages with known results in the current tab
 	ScalarIndex.prototype.tabLastPage = {};	 	// last page viewed per tabs visited
+	ScalarIndex.prototype.tabPageCount = {}; // # of pages for each tab for pagination
 
 	ScalarIndex.prototype.init = function () {
 
@@ -198,7 +199,8 @@
 			} else {
 				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 			}
-			for ( i = 1; i <= this.maxPages; i++ ) {
+			var maxPages = this.tabPageCount[this.currentMode] || 1;
+			for ( i = 1; i <= maxPages; i++ ) {
 				var pageBtn = $( '<li><a href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
 				pageBtn.data( 'page', i );
 				if ( i == this.currentPage ) {
@@ -228,8 +230,9 @@
 
 	ScalarIndex.prototype.nextPage = function() {
 		this.currentPage++;
-		this.tabLastPage[this.currentMode]++;
+		this.tabLastPage[this.currentMode] = this.currentPage;
 		this.maxPages = Math.max( this.maxPages, this.currentPage );
+		this.tabPageCount[this.currentMode] = this.maxPages;
 		this.getResults();
 	}
 
