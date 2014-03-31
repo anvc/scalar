@@ -1249,7 +1249,7 @@ ScalarAPI.prototype.runManyPages = function(completeCallback) {
 	
 }
 
-ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, relationData, completeCallback) {
+ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, relationData, completeCallback, errorCallback) {
 
 	var me = this;
 	
@@ -1556,7 +1556,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			});
 			
 		}, function(e) {
-			completeCallback(false);
+			errorCallback( e );
 		});
 		
 	}, null, 1, true)
@@ -1687,8 +1687,6 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 				tosend_formatted.push({name: j, value: jQuery.trim(tosend[j])});
 			}		
 		}
-		console.log('formatted:');
-		console.log(tosend_formatted);
 		// Save
 		// TODO: use JSONP if native=false
 		$.ajax({
@@ -1703,8 +1701,7 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 	    	var error = jQuery.parseJSON(obj.responseText);
 	    	errorCallback(error.error.message[0].value);
 	      }
-		});	
-					
+		});		
 	} catch (e) {
 		errorCallback(e);
 	}

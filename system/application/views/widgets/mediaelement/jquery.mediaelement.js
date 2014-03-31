@@ -227,11 +227,13 @@ function handleFlashVideoMetadata(data) {
 		this.seek = function(data) {
 			// if the data has a url property, then we assume it's an annotation node that could represent
 			// either a temporal or a spatial annotation
-			if (data.properties) {
-				this.view.seek(data);
-			// otherwise, we assume its a number or string representing the start time of a temporal annotation
-			} else {
-				this.view.mediaObjectView.seek(data);
+			if ( data != null ) {
+				if (data.properties) {
+					this.view.seek(data);
+				// otherwise, we assume its a number or string representing the start time of a temporal annotation
+				} else {
+					this.view.mediaObjectView.seek(data);
+				}
 			}
 		}
 
@@ -1687,6 +1689,10 @@ function handleFlashVideoMetadata(data) {
 				return null;
 			}
 		}
+		
+		jQuery.MediaElementView.prototype.updateAnnotations = function( annotations ) {
+			this.annotations = annotations;
+		}
 
 		/**
 		 * Parses annotation data and adds it to the view.
@@ -1701,6 +1707,9 @@ function handleFlashVideoMetadata(data) {
 			var coordinate;
 			
 			this.annotations = this.model.node.getRelations('annotation', 'incoming');
+			if ( this.annotationSidebar ) {
+				this.annotationSidebar.empty();
+			}
 			
 			// if this instance was passed an initial seek value, then keep track
 			// of the annotation it was directed to seek to
@@ -2811,7 +2820,7 @@ function handleFlashVideoMetadata(data) {
 		jQuery.YouTubeVideoObjectView.prototype.seek = function(time) {
 			if (this.video) {
 				if (this.video.seekTo) {
-					this.video.seekTo(time, false);
+					this.video.seekTo(time, true);
 					if (scalarapi.scalarBrowser != 'MobileSafari') this.pause(); // because the seek command tries to start playing automagically
 				}
 			}
