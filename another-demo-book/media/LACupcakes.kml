@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+  <name>LA Cupcakes</name>
+  <description><![CDATA[Where to get awesome cupcakes in the LA area.]]></description>
+  <Style id="style13">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style2">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style11">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style12">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style7">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style8">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style9">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style1">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style4">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style16">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style19">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style3">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style10">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style5">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style14">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style6">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style17">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style20">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style18">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Style id="style15">
+    <IconStyle>
+      <Icon>
+        <href>http://erikloyer.com/images/site_images/cupcakeIcon.gif</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+  <Placemark>
+    <name>Yummy Cupcakes</name>
+    <description><![CDATA[<div dir="ltr">2918 W Magnolia Blvd<br>Burbank, CA 91505<br>Phone: (818) 558-1080<br><br>Burbank&apos;s cupcake nirvana awes kids of all ages with classics and exotic twists on one of America&apos;s favorite treats.<br></div>]]></description>
+    <styleUrl>#style13</styleUrl>
+    <Point>
+      <coordinates>-118.339104,34.170483,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Sugar</name>
+    <description><![CDATA[<div dir="ltr">633 N LA Brea Ave Ste A<br>Los Angeles, CA 90036-2087<br>Phone: (323) 965-0359<br><br>Designer boutique offers complimentary cupcakes to shoppers, with by-the-dozen paid orders available as well.<br></div>]]></description>
+    <styleUrl>#style2</styleUrl>
+    <Point>
+      <coordinates>-118.344086,34.082272,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Mrs Beasley&#39;s Bakery</name>
+    <description><![CDATA[<div dir="ltr">16571 Ventura Blvd<br>Encino, CA 91436<br>Phone: (818) 995-1987<br><br>One of eight locations in local chain offering gigantic, fresh-frosting-focused cupcakes.<br></div>]]></description>
+    <styleUrl>#style11</styleUrl>
+    <Point>
+      <coordinates>-118.493896,34.157734,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Leda&#39;s Bake Shop</name>
+    <description><![CDATA[<div dir="ltr">13722 Ventura Blvd<br>Sherman Oaks, CA 91423<br>Phone: (818) 386-9644<br><br>Bright pink and purple, Jetsons-esque bake shop serves up trendy cakes and cupcakes.<br></div>]]></description>
+    <styleUrl>#style12</styleUrl>
+    <Point>
+      <coordinates>-118.431976,34.148075,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Toast</name>
+    <description><![CDATA[<div dir="ltr">8221 W. Third St.<br>West Hollywood, CA<br>(323) 655-5018<br><br>Juices, smoothies and more indulgent options including buzz-inducing hot chocolate, pancakes and French toast give a taste of what&apos;s available from within the homey bakery counter inside, stocked with cupcakes and other diet-blasting delights.<br></div>]]></description>
+    <styleUrl>#style7</styleUrl>
+    <Point>
+      <coordinates>-118.368675,34.072460,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Joan&#39;s on Third</name>
+    <description><![CDATA[<div dir="ltr">8350 W Third St<br>Los Angeles, CA 90048<br>Phone: (323) 655-2285<br><br>Busy Third Street foodie haven hawks gourmet goodies like the new Chocolate Cloud cupcake.<br></div>]]></description>
+    <styleUrl>#style8</styleUrl>
+    <Point>
+      <coordinates>-118.371803,34.072819,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Frosted Cupcakery</name>
+    <description><![CDATA[<div dir="ltr">195 Claremont Ave<br>Long Beach, CA 90803<br>Phone: (562) 987-1080<br><br>For cupcakes in the LBC, this spot offers all the standards, along with daily specials like spice cake and cinnamon.<br></div>]]></description>
+    <styleUrl>#style9</styleUrl>
+    <Point>
+      <coordinates>-118.131004,33.758312,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Auntie Em&#39;s Kitchen</name>
+    <description><![CDATA[<div dir="ltr">4616 Eagle Rock Blvd<br>Los Angeles, CA 90041-3032<br>Phone: (323) 255-0800<br><br>Get in line to sample this Eagle Rock diner&apos;s famous (and very large) red velvet cupcakes.<br></div>]]></description>
+    <styleUrl>#style1</styleUrl>
+    <Point>
+      <coordinates>-118.217545,34.127827,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Sprinkles Cupcakes</name>
+    <description><![CDATA[<div dir="ltr">944 Avocado Ave<br>Newport Beach, CA 92660<br>Phone: (949) 760-0003<br><br>Popular Beverly Hills-originated cupcake-centric boutique opens a second location in O.C. mall.<br></div>]]></description>
+    <styleUrl>#style4</styleUrl>
+    <Point>
+      <coordinates>-117.874847,33.606686,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Carousel&#39;s Bakery</name>
+    <description><![CDATA[<div dir="ltr">624 W 4th St<br>San Bernardino, CA 92410<br>Phone: (909) 888-6572<br><br>San Bernardino bakery crafts old-fashioned chocolate and vanilla cupcakes for the now unbelievable price of about $.45 each.<br></div>]]></description>
+    <styleUrl>#style16</styleUrl>
+    <Point>
+      <coordinates>-117.296967,34.106438,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Crumbs Bakeshop</name>
+    <description><![CDATA[<div dir="ltr">9465 S Santa Monica Blvd<br>Beverly Hills, 90210<br>Phone: (310) 550-9811<br><br>Setting up shop a stone&apos;s throw from Sprinkles, Beverly Hills&apos; first cupcake emporium, this Manhattan-born bakery renews L.A.&apos;s sweetest craze.<br></div>]]></description>
+    <styleUrl>#style19</styleUrl>
+    <Point>
+      <coordinates>-118.403625,34.071095,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Sprinkles Cupcakes</name>
+    <description><![CDATA[<div dir="ltr">9635 S Santa Monica Blvd<br>Beverly Hills, CA 90291<br>Phone: (310) 274-8765<br><br>Cupcakery to the stars--including huge fan Katie Holmes--bakes up 20 mouthwatering kinds including pumpkin and peanut butter and chocolate.<br></div>]]></description>
+    <styleUrl>#style3</styleUrl>
+    <Point>
+      <coordinates>-118.406097,34.069424,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>SusieCakes</name>
+    <description><![CDATA[<div dir="ltr">11708 San Vicente Blvd<br>Los Angeles, CA 90049<br>Phone: (310) 442-2253<br><br>Step inside this retro-chic Brentwood space for filling-filled cakes in flavors like chocolate mint and luscious lemon.<br></div>]]></description>
+    <styleUrl>#style10</styleUrl>
+    <Point>
+      <coordinates>-118.465767,34.053459,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Dainties Cupcakes</name>
+    <description><![CDATA[<div dir="ltr">11058 Santa Monica Blvd<br>Los Angeles, CA 90025<br>Phone: (310) 312-3656<br><br>Dark chocolate-dipped cupcakes emerge as rising star from this local catering kitchen.<br></div>]]></description>
+    <styleUrl>#style5</styleUrl>
+    <Point>
+      <coordinates>-118.443260,34.047966,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Back Door Bakery</name>
+    <description><![CDATA[<div dir="ltr">1710 Silver Lake Blvd<br>Los Angeles, CA 90026<br>Phone: (323) 662-7927<br><br>If you love Hostess cupcakes, you&apos;ll love their homemade--and humongous--take on the classic with twists like raspberry filling and white chocolate frosting swirls.<br></div>]]></description>
+    <styleUrl>#style14</styleUrl>
+    <Point>
+      <coordinates>-118.268333,34.089489,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Vanilla Bake Shop</name>
+    <description><![CDATA[<div dir="ltr">512 Wilshire Blvd<br>Santa Monica, CA 90401<br>Phone: (310) 458-6644<br><br>Upscale Santa Monica bakery offers gourmet cupcakes, stunning confections and couture cakes fresh-baked daily.<br></div>]]></description>
+    <styleUrl>#style6</styleUrl>
+    <Point>
+      <coordinates>-118.497269,34.019905,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Canter&#39;s Deli</name>
+    <description><![CDATA[<div dir="ltr">419 No. Fairfax Ave<br>Los Angeles, CA 90036<br>(313) 651-2030</div>]]></description>
+    <styleUrl>#style17</styleUrl>
+    <Point>
+      <coordinates>-118.361504,34.078560,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>BabyCakes</name>
+    <description><![CDATA[<div dir="ltr">24205 Hawthorne Blvd <br>Unit A <br>Torrance, CA 90505</div>]]></description>
+    <styleUrl>#style20</styleUrl>
+    <Point>
+      <coordinates>-118.351143,33.804111,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>My Little Cupcake</name>
+    <description><![CDATA[<div dir="ltr">11925 Ventura Blvd <br>Studio City, CA 91604 </div>]]></description>
+    <styleUrl>#style18</styleUrl>
+    <Point>
+      <coordinates>-118.391251,34.142925,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Famous Cupcakes</name>
+    <description><![CDATA[<div dir="ltr">4820 Laurel Canyon Blvd <br>Valley Village, CA 91607 </div>]]></description>
+    <styleUrl>#style15</styleUrl>
+    <Point>
+      <coordinates>-118.396461,34.158283,0.000000</coordinates>
+    </Point>
+  </Placemark>
+</Document>
+</kml>
