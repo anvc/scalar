@@ -91,7 +91,7 @@
 		<scalar:match><![CDATA[^.*\?(.*)$]]></scalar:match>
 	</rdf:Description>				
 	
-	<rdf:Description rdf:about="http://api.soundcloud.com/v1/tracks">
+	<rdf:Description rdf:about="http://api.soundcloud.com/tracks">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>SoundCloud</dc:title>
 		<dcterms:description><![CDATA[SoundCloud is the "the world's largest community of sound creators." (SoundCloud.com)]]></dcterms:description>
