@@ -168,6 +168,7 @@
 			}
 		}
 
+		this.resultsTable.parent().scrollTop( 0 );
 		this.resultsTable.empty();
 
 		for ( i in nodes ) {
