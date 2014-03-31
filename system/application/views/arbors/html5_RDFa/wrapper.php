@@ -64,9 +64,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.3-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/raphael-min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'js/soundcloudsdk.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'js/soundcloudapi.js')."\n"?>
-<?="<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=".$this->config->item('google_maps_key')."&sensor=false\"></script>"."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/html5shiv/dist/html5shiv.js')."\n" // Keep thus UNDER jQuery, etc., otherwise things go haywire?>
 <? if (!empty($_scripts)) echo $_scripts?>
 <?

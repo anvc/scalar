@@ -381,6 +381,8 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/flowplayer.js',
 		          widgets_uri+'/mediaelement/jquery.annotate.js',
 		          widgets_uri+'/mediaelement/froogaloop.min.js',
+		          widgets_uri+'/mediaelement/soundcloudapi.js',
+		          widgets_uri+'/mediaelement/soundcloudsdk.js',
 		          widgets_uri+'/mediaelement/mediaelement.css',
 		          widgets_uri+'/mediaelement/annotation.css',
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
