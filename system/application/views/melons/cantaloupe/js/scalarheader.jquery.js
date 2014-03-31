@@ -350,7 +350,6 @@
 
 		var node = scalarapi.model.getMainMenuNode(),
 			me = this;
-		console.log(node);
 		var menu = $( '<ul id="main-menu"></ul>' ).appendTo( '#main-menu-item' );
 		if (node != null) {
 
@@ -368,36 +367,41 @@
 					tocNode = menuItems[i];
 					listItem = $( '<li><a href="' + tocNode.url + '">' + ( i + 1 ) + '. ' + tocNode.getDisplayTitle() + '</a></li>' ).appendTo( menu );
 					listItem.data( 'slug', tocNode.slug );
-					subMenu = $( '<ul id="toc-submenu-' + i + '" class="align-left scrollable-menu"></ul>' ).appendTo( listItem );
-					subMenuItem = $( '<li><a href="" class="pulsate-anim">...</a>' ).appendTo( subMenu );
+					
+					// don't show submenus if we're on mobile
+					if ( !isMobile ) {
 
-					// on mouseover, add the item to the list of items we'll query (after a delay) for their path children
-					// for the purposes of showing them in a submenu
-					listItem.mouseover( function() {
-						var slug = $( this ).data( 'slug' );
-						if (( me.requestQueue.indexOf( slug ) == -1 ) && ( me.completedRequests.indexOf( slug ) == -1 )) {
-							//console.log( 'add ' + slug );
-							me.requestQueue.push( slug );
-							me.requestTimer = setTimeout( me.handleRequestTimer, 1000 );
-						}
-					} );
-
-					// on mouseout, remove the item from the query list
-					listItem.mouseout( function() {
-						var slug = $( this ).data( 'slug' );
-						var index = me.requestQueue.indexOf( slug );
-						if ( index != -1 ) {
-							//console.log( 'remove ' + slug );
-							me.requestQueue.splice( index, 1 );
-						}
-					} )
+						subMenu = $( '<ul id="toc-submenu-' + i + '" class="align-left scrollable-menu"></ul>' ).appendTo( listItem );
+						//subMenuItem = $( '<li><a href="" class="pulsate-anim">...</a>' ).appendTo( subMenu );
+	
+						// on mouseover, add the item to the list of items we'll query (after a delay) for their path children
+						// for the purposes of showing them in a submenu
+						listItem.mouseover( function() {
+							var slug = $( this ).data( 'slug' );
+							if (( me.requestQueue.indexOf( slug ) == -1 ) && ( me.completedRequests.indexOf( slug ) == -1 )) {
+								//console.log( 'add ' + slug );
+								me.requestQueue.push( slug );
+								me.requestTimer = setTimeout( me.handleRequestTimer, 1000 );
+							}
+						} );
+	
+						// on mouseout, remove the item from the query list
+						listItem.mouseout( function() {
+							var slug = $( this ).data( 'slug' );
+							var index = me.requestQueue.indexOf( slug );
+							if ( index != -1 ) {
+								//console.log( 'remove ' + slug );
+								me.requestQueue.splice( index, 1 );
+							}
+						} )
+						
+					}
 				}
 			}
 
 		}
 
 		// The book index
-		console.log(menu);
 		listItem = $( '<li>Index</li>' ).appendTo( menu );
 		var indexElement = $( '<div></div>' ).prependTo( 'body' );
 		this.index = indexElement.scalarindex( {} );
@@ -429,7 +433,7 @@
 
 				// only go out and get the data if we don't already know about the node's path children
 				if ( pathChildren.length == 0 ) {
-					scalarapi.loadPage( slug, true, scalarheader.handleRequest, null, 1, false, 'path' );
+					scalarapi.loadPage( slug, true, scalarheader.handleRequest, null, 1, false, 'path', 0, 20 );
 
 				} else {
 					scalarheader.requestQueue.shift();
