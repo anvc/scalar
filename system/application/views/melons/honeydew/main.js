@@ -129,7 +129,7 @@ $(window).ready(function() {
 		      case 'vispath':
 		      case 'vismedia':
 		      case 'vistag':
-		        yepnope({load: [widgets_uri+'/d3/d3.v2.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {
+		        yepnope({load: [widgets_uri+'/d3/d3.min.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {
 		          $('#content').texteo({scrolling_element:'window', click:'native'});
 		          var default_tab = get_url_extension();
 		          if (!default_tab.length) default_tab = $('link#default_view').attr('href').toLowerCase();

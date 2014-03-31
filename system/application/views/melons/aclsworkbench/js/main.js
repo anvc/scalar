@@ -349,7 +349,7 @@ $(window).ready(function() {
 		  }},*/		  
 		  
 		  {load: [widgets_uri+'/spinner/spin.min.js',
-		          widgets_uri+'/d3/d3.v2.js',
+		          widgets_uri+'/d3/d3.min.js',
 		          /*widgets_uri+'/vis/scalarvis.css',
 		          widgets_uri+'/vis/jquery.scalarvis.js'*/], complete:function() { 
 		   
