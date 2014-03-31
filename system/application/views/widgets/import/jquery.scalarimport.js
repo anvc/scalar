@@ -522,9 +522,17 @@ if ('undefined'==typeof(escape_html)) {
 		
 		get_next_page_value : function(uri, pagenum) {
 			
+			// $2 doesn't exist
 			if (uri.indexOf('$2')==-1) return 0;
+			// No extra info ($2(##))
 			var slug = uri.substr(uri.indexOf('$2'));
-			if (slug.substr(0, 3)!='$2(') return pagenum
+			if (slug.substr(0, 3)!='$2(') {
+				// Start with 0 (offset)
+				if (uri.indexOf('offset=$2')!=-1) return (pagenum-1);
+				// Start with 1 (page number)
+				return pagenum;
+			}
+			// Extra info ($2(##))
 			var slug = slug.substr((slug.indexOf('(')+1));
 			slug = slug.substr(0, slug.indexOf(')'));
 			slug = parseInt(slug);
