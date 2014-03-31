@@ -20,6 +20,7 @@ h1 { margin-top: 1rem; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%
 
 .modal-body {padding:10px;}
 .results_list {margin-top:10px; overflow: auto;}
+.results_list td:nth-child(2) { display: none; }
 
 /* 4in iphone 5 */
 @media only screen and (max-device-height : 1136px) {
@@ -35,6 +36,6 @@ h1 { margin-top: 1rem; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%
 
 /* 3.5in iphone */
 @media only screen and (max-device-height : 480px) {
-  .results_list {height:80px;max-height:80px;}
+  .results_list {height:90px;max-height:90px;}
   .results_list td:first-child { min-width:60%; max-width:60%;}
 }
