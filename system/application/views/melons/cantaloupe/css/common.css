@@ -1081,7 +1081,7 @@ a.nav_btn:hover {
 .dialog.index .results_list { margin-top: 14.2rem; }
 .results_list table { width: 100%; }
 .results_list td { height: 3rem; overflow: hidden; padding: .5rem; }
-.results_list td:first-child { min-width:30%; max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
+.results_list td:first-child { min-width:30%; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
 .results_list td:last-child { color: #b2b3b6; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
 .results_list tr:hover { background: #eee; cursor: pointer; }
 .results_list td.thumb { width:76px; max-width:76px; }
