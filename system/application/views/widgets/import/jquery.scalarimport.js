@@ -80,9 +80,12 @@ if ('undefined'==typeof(escape_html)) {
 					}, $.extend({}, user_data, form_data), options);
 					$('.'+options.import_btn_class).live('click', function() {
 						$(options.error_el).empty();
+						$.fn.scalarimport('custom_meta', $(options.results_el), form_data, options);
+					});
+					$('body').bind('scalarimport_custom_meta_complete', function(event, form_data, options) {
 						$(options.results_el).scalarimport('import', function(versions) {
 							$.fn.scalarimport('imported', versions, options);
-						}, form_data, options);
+						}, form_data, options);						
 					});
 				} catch(err) {
 					$.fn.scalarimport('error', err, options);
@@ -220,9 +223,15 @@ if ('undefined'==typeof(escape_html)) {
 				results_data[j].mediatype = ('undefined'!=typeof(post[j]['dcterms:type'])) ? post[j]['dcterms:type'] : 'Media';
 
 			}
-			
+
 			return results_data;
 				
+		},
+		
+		customize_post : function(options) {
+			
+			$el = $(this);
+			
 		},
 		
 		load_selected_data : function($results, options) {
@@ -306,7 +315,7 @@ if ('undefined'==typeof(escape_html)) {
 				
 			}
 			
-			$footer.html('<span class="'+options.import_btn_wrapper_class+'"><img class="'+options.import_loading_class+'" src="'+$('link#approot').attr('href')+'views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="'+options.import_btn_class+' generic_button large default">Import selected</a></span>Page <strong>'+form_data.pagenum+'</strong>: Found <strong>'+found+'</strong> results (<strong>'+supported+'</strong> supported)&nbsp; <span class="pagination"></span><br /><input type="checkbox" id="check_all" /><label for="check_all"> Check all</label>&nbsp; &nbsp; <input type="checkbox" id="edit_meta" /><label for="edit_meta" style="color:#999999;"> Edit imported metadata (coming soon)</label>');
+			$footer.html('<span class="'+options.import_btn_wrapper_class+'"><img class="'+options.import_loading_class+'" src="'+$('link#approot').attr('href')+'views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="'+options.import_btn_class+' generic_button large default">Import selected</a></span>Page <strong>'+form_data.pagenum+'</strong>: Found <strong>'+found+'</strong> results (<strong>'+supported+'</strong> supported)&nbsp; <span class="pagination"></span><br /><input type="checkbox" id="check_all" /><label for="check_all"> Check all</label>&nbsp; &nbsp; <input type="checkbox" id="edit_meta" checked /><label for="edit_meta"> Edit imported metadata</label>');
 			if (form_data.paginate) {
 				$footer.find('.pagination').html('<span style="'+((form_data.pagenum <= 1)?'visibility:hidden':'')+'"><a href="javascript:;" class="prev">&lt; load previous page</a>&nbsp; | &nbsp;</span>');
 				$footer.find('.pagination').append('<a href="javascript:;" class="next">load next page &gt;</a>');
@@ -326,6 +335,50 @@ if ('undefined'==typeof(escape_html)) {
 			$footer.find('.next').click(function() {
 				$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum+1)}) );
 			});
+			
+		},
+		
+		custom_meta : function ($results, form_data, options) {
+			
+			// TODO: Complete
+			$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
+			return;
+			
+			if (!$('#edit_meta').is(':checked')) {
+				$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
+				return;
+			}
+			
+			if ($results.data('custom_meta')) return;
+			$results.data('custom_meta', true);
+			
+			var results = $results.find('table input[type="checkbox"]:checked');
+			if (!results.length) {
+				$.fn.scalarimport('error', 'Please select one or more items to import', options);
+				callback();
+				return;
+			}
+			
+			var custom_meta_to_complete = 0;
+			console.log('custom_meta_to_complete 1: '+custom_meta_to_complete);
+			for (var j = 0; j < results.length; j++) { 
+				if (!$(results[j]).data('custom_meta_complete')) custom_meta_to_complete++;
+			}
+			console.log('custom_meta_to_complete 2: '+custom_meta_to_complete);
+			
+			if (!custom_meta_to_complete) {
+				$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
+				return;
+			}			
+			
+			for (var j = 0; j < results.length; j++) { 
+				var post = $(results[j]).scalarimport('customize_post', options);
+				console.log('post:');
+				console.log(post);
+				$(results[j]).data('post', post);
+			}			
+			
+			$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
 			
 		},
 		
