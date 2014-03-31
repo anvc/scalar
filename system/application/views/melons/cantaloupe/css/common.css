@@ -1084,7 +1084,7 @@ a.nav_btn:hover {
 .results_list td:first-child { min-width:30%; max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
 .results_list td:last-child { color: #b2b3b6; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
 .results_list tr:hover { background: #eee; cursor: pointer; }
-.results_list td.thumb { width:56px; max-width:56px;}
+.results_list td.thumb { width:76px; max-width:76px; }
 .results_list td.thumb img {width:100%;}
 
 /* Media icons */
