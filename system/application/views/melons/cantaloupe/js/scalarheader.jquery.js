@@ -407,11 +407,9 @@
 		listItem.click( function() { me.index.data('plugin_scalarindex').showIndex(); } );
 
 		// Scalar menu
-		listItem = $( '<li>Scalar</li>' ).appendTo( menu );
-		subMenu = $( '<ul id="toc-submenu-scalar' + i + '" class="align-left scrollable-menu"></ul>' ).appendTo( listItem );
-		subMenuItem = $( '<li><a href="' + index_uri + '">More Scalar Projects</a>' ).appendTo( subMenu );
-		subMenuItem = $( '<li><a href="http://scalar.usc.edu">More About Scalar</a>' ).appendTo( subMenu );
-		subMenuItem = $( '<li><a href="http://scalar.usc.edu/works/guide">User’s Guide</a>' ).appendTo( subMenu );
+		listItem = $( '<li class="divider-above"><a href="http://scalar.usc.edu/works/guide">Scalar User’s Guide</a>' ).appendTo( menu );
+		listItem = $( '<li><a href="' + index_uri + '">More Scalar Projects</a>' ).appendTo( menu );
+		listItem = $( '<li><a href="http://scalar.usc.edu">More About Scalar</a>' ).appendTo( menu );
 
 		this.handleDelayedResize();
 

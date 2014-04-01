@@ -262,7 +262,7 @@ nav a:hover, nav a:active {
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-
+li.divider-above { border-top: 1px dotted #888; }
 .pulsate-anim {
     -webkit-animation: pulsate 1s ease-out;
     -webkit-animation-iteration-count: infinite;
