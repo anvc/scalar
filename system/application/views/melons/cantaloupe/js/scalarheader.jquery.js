@@ -185,8 +185,8 @@
 			this.buildImportMenu();
 
 			// Delete page/media
-			//list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
-			//$('[title="Delete"]').click(this.handleDelete);
+			list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
+			$( '#delete-item' ).click( this.handleDelete );
 
 			// Dashboard
 			list.append( '<li id="options-item"><a href="' + system_uri + '/dashboard?book_id=' + bookId + '&zone=style#tabs-style"><img src="' + this.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /></a></li>' );
@@ -248,16 +248,17 @@
 		var result = confirm('Are you sure you wish to hide this page from view (move it to the trash)?');
 
 		if (result) {
-
+				
 			// assemble params for the trash action
 			var node = scalarapi.model.currentPageNode,
 				baseProperties =  {
 					'native': 1,
-					id: $('link#parent').attr('href')
+					id: $('link#parent').attr('href'),
+					api_key: $('input[name="api_key"]').val()
 				},
 				pageData = {
 					action: 'UPDATE',
-					'scalar:urn': node.current.urn,
+					'scalar:urn': $('link#urn').attr('href'),
 					uriSegment: scalarapi.basepath(node.url),
 					'dcterms:title': node.current.title,
 					'dcterms:description': node.current.description,
@@ -269,11 +270,9 @@
 
 			// execute the trash action (i.e. make is_live=0)
 			scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, function(result) {
-				if (result) {
-					window.location.reload();
-				} else {
-					alert('An error occurred while moving this content to the trash. Please try again.');
-				}
+				window.location.reload();
+			}, function(result) {
+				alert('An error occurred while moving this content to the trash. Please try again.');
 			});
 		}
 

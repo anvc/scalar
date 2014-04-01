@@ -1640,7 +1640,7 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 	var add_update_required_fields = ['rdf:type', 'sioc:content', 'dcterms:title'];
 	var tosend = {};
 	var tosend_formatted = [];
-
+	
 	try {
 
 		// Validate action

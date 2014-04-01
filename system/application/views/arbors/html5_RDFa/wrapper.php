@@ -39,6 +39,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <? if (!$book->display_in_index || $is_new || !empty($version_datetime)): ?>
 <meta name="robots" content="noindex, nofollow">
 <? endif ?>
+<link id="urn" rel="scalar:urn" href="<?=$page->versions[$page->version_index]->urn?>" />
 <? if (!empty($view)): ?>
 <link id="default_view" rel="scalar:default_view" href="<?=('vis'==$view)?$viz_view:$view?>" />
 <? endif ?>
