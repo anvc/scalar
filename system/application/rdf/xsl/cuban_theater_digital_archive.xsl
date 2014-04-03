@@ -31,7 +31,7 @@
 			<dcterms:description><xsl:value-of select="summary" /><xsl:text> </xsl:text><xsl:value-of select="notes" /></dcterms:description>
 			<dcterms:source><xsl:value-of select="$archiveName"/><xsl:text>, </xsl:text><xsl:value-of select="collection"/></dcterms:source>
 			<dcterms:type><xsl:value-of select="objectType"/></dcterms:type>
-			<dcterms:type><xsl:valuf-of select="physicalObjectType"/></dcterms:type>		
+			<dcterms:type><xsl:value-of select="physicalObjectType"/></dcterms:type>		
 			<art:filename rdf:resource="{Url}"></art:filename>	
 			<art:sourceLocation><xsl:value-of select="physicalObjectLocation"/></art:sourceLocation>		
 			<dcterms:date><xsl:value-of select="physicalObjectDate"/></dcterms:date>
