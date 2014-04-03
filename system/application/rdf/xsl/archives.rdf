@@ -119,7 +119,7 @@
 		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>	
 	
-	<rdf:Description rdf:about="http://cubantheater.org/objsearch/">
+	<rdf:Description rdf:about="http://ctda.library.miami.edu/objsearch/">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Cuban Theater Digital Archive</dc:title>
 		<dcterms:description><![CDATA[The Cuban Theater Digital Archive (CTDA) is a resource for research, teaching and learning in Cuban theater and performance as well as in related fields; a community repository for important Cuban theatrical materials; and a forum to foster scholarly communication in this field. The Digital Archive includes materials digitized and filmed in Cuba and outside the island as well as resources and information related to Cuban theater, with a special focus on theater produced by Cuban communities in the United States. (http://cubantheater.org)]]></dcterms:description>
