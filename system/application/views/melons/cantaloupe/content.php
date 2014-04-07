@@ -2,6 +2,7 @@
 <?$this->template->add_css(path_from_file(__FILE__).'css/bootstrap.min.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/common.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/responsive.css')?>
+<?$this->template->add_css(path_from_file(__FILE__).'css/screen_print.css', 'link', 'screen,print')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/main.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarheader.jquery.js')?>

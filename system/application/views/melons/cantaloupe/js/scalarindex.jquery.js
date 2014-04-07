@@ -77,10 +77,10 @@
 		} );
 		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content index_modal"></div></div>' );
 		var modalContent = this.element.find( '.modal-content' );
-		var header = $( '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
+		var header = $( '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
-		this.controlBar = $( '<ul class="nav nav-pills"></ul>' ).appendTo( this.bodyContent );
+		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
 		var pathBtn = $( '<li id="pathBtn" class="active caption_font"><a href="javascript:;">Paths</li>' ).appendTo( this.controlBar );
 		var pageBtn = $( '<li id="pageBtn" class="caption_font"><a href="javascript:;">Pages</li>' ).appendTo( this.controlBar );
 		var mediaBtn = $( '<li id="mediaBtn" class="caption_font"><a href="javascript:;">Media</li>' ).appendTo( this.controlBar );
@@ -96,7 +96,7 @@
 		commentBtn.click(function () { me.setDisplayMode( me.DisplayMode.Comment ); });
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
-		this.resultsTable = $( '<table class="table table-striped table-hover table-responsive"></table>' ).appendTo( resultsDiv );
+		this.resultsTable = $( '<table summary="" class="table table-striped table-hover table-responsive"></table>' ).appendTo( resultsDiv );
 		this.loading = $('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 
 		this.pagination = $( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
@@ -170,6 +170,7 @@
 
 		this.resultsTable.parent().scrollTop( 0 );
 		this.resultsTable.empty();
+		this.resultsTable.attr('summary', 'Results for '+this.controlBar.find('li.active a').html().toLowerCase());
 
 		for ( i in nodes ) {
 			node = nodes[i];
@@ -181,7 +182,7 @@
 			}
 			var thumb = '';
 			if (node.thumbnail) {
-				thumb = '<img src="'+node.thumbnail+'" />';
+				thumb = '<img src="'+node.thumbnail+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
 			}
 			row = $( '<tr><td class="title">'+node.getDisplayTitle()+'</td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 			row.data( 'node', node );
