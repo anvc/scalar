@@ -164,29 +164,33 @@
 			me.help.data( 'plugin_scalarhelp' ).toggleHelp();
 		});
 
-		// Editing options only available for users with privileges that aren't on mobile devices
-		if ( !isMobile && ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer"))) {
+		// Editing options only available for users with privileges
+		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
 
-			// New page
-			list.append( '<li id="new-item"><a href="' + scalarapi.model.urlPrefix + 'new.edit"><img src="' + this.options.root_url + '/images/new_icon.png" alt="New page button. Click to create a new page." width="30" height="30" /></a></li>' );
-
-			// Edit page/media
-			list.append( '<li id="edit-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.edit"><img src="' + this.options.root_url + '/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /></a></li>' );
-
-			// Annotate media
-			if ( currentNode != null ) {
-				if ( currentNode.hasScalarType( 'media' ) ) {
-					list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
+			// Hide most editing options from mobile until they're better optimized
+			if ( !isMobile ) {
+			
+				// New page
+				list.append( '<li id="new-item"><a href="' + scalarapi.model.urlPrefix + 'new.edit"><img src="' + this.options.root_url + '/images/new_icon.png" alt="New page button. Click to create a new page." width="30" height="30" /></a></li>' );
+	
+				// Edit page/media
+				list.append( '<li id="edit-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.edit"><img src="' + this.options.root_url + '/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /></a></li>' );
+	
+				// Annotate media
+				if ( currentNode != null ) {
+					if ( currentNode.hasScalarType( 'media' ) ) {
+						list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
+					}
 				}
+	
+				// Import media
+				list.append( '<li id="import-item"><img src="' + this.options.root_url + '/images/import_icon.png" alt="Import menu. Roll over to show import options." width="30" height="30" /></li>' );
+				this.buildImportMenu();
+	
+				// Delete page/media
+				list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
+				$( '#delete-item' ).click( this.handleDelete );
 			}
-
-			// Import media
-			list.append( '<li id="import-item"><img src="' + this.options.root_url + '/images/import_icon.png" alt="Import menu. Roll over to show import options." width="30" height="30" /></li>' );
-			this.buildImportMenu();
-
-			// Delete page/media
-			list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
-			$( '#delete-item' ).click( this.handleDelete );
 
 			// Dashboard
 			list.append( '<li id="options-item"><a href="' + system_uri + '/dashboard?book_id=' + bookId + '&zone=style#tabs-style"><img src="' + this.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /></a></li>' );
