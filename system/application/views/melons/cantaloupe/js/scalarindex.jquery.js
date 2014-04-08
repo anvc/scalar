@@ -77,16 +77,16 @@
 		} );
 		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content index_modal"></div></div>' );
 		var modalContent = this.element.find( '.modal-content' );
-		var header = $( '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
+		var header = $( '<div class="modal-header"><button tabindex="1006" type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
 		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
-		var pathBtn = $( '<li id="pathBtn" class="active caption_font"><a href="javascript:;">Paths</li>' ).appendTo( this.controlBar );
-		var pageBtn = $( '<li id="pageBtn" class="caption_font"><a href="javascript:;">Pages</li>' ).appendTo( this.controlBar );
-		var mediaBtn = $( '<li id="mediaBtn" class="caption_font"><a href="javascript:;">Media</li>' ).appendTo( this.controlBar );
-		var tagBtn = $( '<li id="tagBtn" class="caption_font"><a href="javascript:;">Tags</li>' ).appendTo( this.controlBar );
-		var annotationBtn = $( '<li id="annotationBtn" class="caption_font"><a href="javascript:;">Annotations</li>' ).appendTo( this.controlBar );
-		var commentBtn = $( '<li id="replyBtn" class="caption_font"><a href="javascript:;">Comments</li>' ).appendTo( this.controlBar );
+		var pathBtn = $( '<li tabindex="1000" id="pathBtn" class="active caption_font"><a id="apaths" href="javascript:;">Paths</li>' ).appendTo( this.controlBar );
+		var pageBtn = $( '<li tabindex="1001" id="pageBtn" class="caption_font"><a href="javascript:;">Pages</li>' ).appendTo( this.controlBar );
+		var mediaBtn = $( '<li tabindex="1002" id="mediaBtn" class="caption_font"><a href="javascript:;">Media</li>' ).appendTo( this.controlBar );
+		var tagBtn = $( '<li tabindex="1003" id="tagBtn" class="caption_font"><a href="javascript:;">Tags</li>' ).appendTo( this.controlBar );
+		var annotationBtn = $( '<li tabindex="1004" id="annotationBtn" class="caption_font"><a href="javascript:;">Annotations</li>' ).appendTo( this.controlBar );
+		var commentBtn = $( '<li tabindex="1005" id="replyBtn" class="caption_font"><a href="javascript:;">Comments</li>' ).appendTo( this.controlBar );
 
 		pathBtn.click(function () { me.setDisplayMode( me.DisplayMode.Path ); });
 		pageBtn.click(function () { me.setDisplayMode( me.DisplayMode.Page ); });
@@ -106,6 +106,11 @@
 
 		this.element.modal().on('hidden.bs.modal', function (e) {
 			$( 'body' ).css( 'overflowY', 'auto' );
+		});
+
+		var mode = this.currentMode || this.DisplayMode.Path;
+		this.element.modal().on('shown.bs.modal', function(e) {
+			$('#'+mode.toLowerCase()+'Btn a').focus();
 		});
 
 		if ( this.firstRun ) {
