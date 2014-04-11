@@ -81,25 +81,27 @@
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
 		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
-		var pathBtn = $( '<li tabindex="1000" id="pathBtn" class="active caption_font"><a id="apaths" href="javascript:;">Paths</li>' ).appendTo( this.controlBar );
-		var pageBtn = $( '<li tabindex="1001" id="pageBtn" class="caption_font"><a href="javascript:;">Pages</li>' ).appendTo( this.controlBar );
-		var mediaBtn = $( '<li tabindex="1002" id="mediaBtn" class="caption_font"><a href="javascript:;">Media</li>' ).appendTo( this.controlBar );
-		var tagBtn = $( '<li tabindex="1003" id="tagBtn" class="caption_font"><a href="javascript:;">Tags</li>' ).appendTo( this.controlBar );
-		var annotationBtn = $( '<li tabindex="1004" id="annotationBtn" class="caption_font"><a href="javascript:;">Annotations</li>' ).appendTo( this.controlBar );
-		var commentBtn = $( '<li tabindex="1005" id="replyBtn" class="caption_font"><a href="javascript:;">Comments</li>' ).appendTo( this.controlBar );
+		var pathBtn = $( '<li data-toggle="tab" id="pathBtn" class="active caption_font"><a id="apaths" href="#Path">Paths</li>' ).appendTo( this.controlBar );
+		var pageBtn = $( '<li data-toggle="tab" id="pageBtn" class="caption_font"><a href="#Page">Pages</li>' ).appendTo( this.controlBar );
+		var mediaBtn = $( '<li data-toggle="tab" id="mediaBtn" class="caption_font"><a href="#Media">Media</li>' ).appendTo( this.controlBar );
+		var tagBtn = $( '<li data-toggle="tab" id="tagBtn" class="caption_font"><a href="#Tag">Tags</li>' ).appendTo( this.controlBar );
+		var annotationBtn = $( '<li data-toggle="tab" id="annotationBtn" class="caption_font"><a href="#Annotation">Annotations</li>' ).appendTo( this.controlBar );
+		var commentBtn = $( '<li data-toggle="tab" id="replyBtn" class="caption_font"><a href="#Comment">Comments</li>' ).appendTo( this.controlBar );
 
-		pathBtn.click(function () { me.setDisplayMode( me.DisplayMode.Path ); });
-		pageBtn.click(function () { me.setDisplayMode( me.DisplayMode.Page ); });
-		mediaBtn.click(function () { me.setDisplayMode( me.DisplayMode.Media ); });
-		tagBtn.click(function () { me.setDisplayMode( me.DisplayMode.Tag ); });
-		annotationBtn.click(function () { me.setDisplayMode( me.DisplayMode.Annotation ); });
-		commentBtn.click(function () { me.setDisplayMode( me.DisplayMode.Comment ); });
+		var showTab = function(event) {
+			var mode = $(this).find('a').attr('href').substr(1);
+			$(this).addClass('active').siblings().removeClass('active');
+			me.setDisplayMode( me.DisplayMode[mode] );
+		}
+
+		this.controlBar.find('li').click(showTab).keyup(showTab);
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
 		this.resultsTable = $( '<table summary="" class="table table-striped table-hover table-responsive"></table>' ).appendTo( resultsDiv );
 		this.loading = $('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 
 		this.pagination = $( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
+		this.controlBar.accessibleBootstrapTabs();
 	}
 
 	ScalarIndex.prototype.showIndex = function() {
@@ -175,7 +177,10 @@
 
 		this.resultsTable.parent().scrollTop( 0 );
 		this.resultsTable.empty();
-		this.resultsTable.attr('summary', 'Results for '+this.controlBar.find('li.active a').html().toLowerCase());
+		var $a = this.controlBar.find('li.active a');
+		if ($a.length) {
+			this.resultsTable.attr('summary', 'Results for '+$a.html().toLowerCase());
+		}
 
 		for ( i in nodes ) {
 			node = nodes[i];
