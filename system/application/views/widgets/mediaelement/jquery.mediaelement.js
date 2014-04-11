@@ -1119,7 +1119,11 @@ function handleFlashVideoMetadata(data) {
  				if (this.controllerOnly) {
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
- 					this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height());
+ 					if ( this.model.mediaSource.contentType != 'image' ) {
+						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height());
+					} else {
+ 						this.containerDim.y = 1040 - parseInt(this.header.height()) - parseInt(this.footer.height());
+					}
  				} else {
  					this.containerDim.y = 375 - parseInt(this.header.height()) - parseInt(this.footer.height());
  				}
@@ -1129,7 +1133,9 @@ function handleFlashVideoMetadata(data) {
  				
 			}
 			
-			this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
+			if ( this.model.mediaSource.contentType != 'image' ) {
+				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
+			}
 	   		
 	   		if (!this.annotationsVisible) {
 	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x);
