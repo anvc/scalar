@@ -7,6 +7,7 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/bootstrap-accessibility.min.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-accessibility.js');?>
+<?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-modal.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/main.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarheader.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarpage.jquery.js')?>

@@ -1057,7 +1057,6 @@ a.nav_btn:hover {
 	right: 0;
 	top: 0;
 }
-.help .dialog_header { width: 90rem; margin-left: -45rem; left: 50%; right: auto; background-color: #eee; }
 .help ul { list-style: none; }
 .help table { margin: 2rem 0; }
 .help td.icon { width: 5rem; }
@@ -1067,7 +1066,6 @@ a.nav_btn:hover {
 
 .index { z-index: 50; }
 .search { z-index: 51; }
-.help { width: 90rem; margin-left: -45rem; left: 50%; background-color: #eee; z-index: 52; }
 
 /*.pagination {
 	line-height: 4.8rem;

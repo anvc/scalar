@@ -30,6 +30,7 @@
 	function ScalarHelp( element, options ) {
 
 		this.element = $(element);
+		this.modal = null;
 		this.options = $.extend( {}, defaults, options );
 		this._defaults = defaults;
 		this._name = pluginName;
@@ -42,19 +43,9 @@
 
 		var me = this;
 
-		this.element.addClass('dialog help');
-
 		var canEdit = ( !isMobile && ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")));
 
-		var header = $('<div class="dialog_header heading_font"></div>').appendTo(this.element);
-		header.append('<h2 class="heading_font">Help</h2>');
-		var buttons = $('<div class="right"></div>').appendTo(header);
-		buttons.html('<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button>');
-		buttons.find('button').click( function() { me.hideHelp(); } );
-
-		header.append('<hr>');
-
-		var content = $('<div class="body_copy"></div>').appendTo(this.element);
+		var content = $('<div class="body_copy"></div>');
 		content.append('<p>This <a href="http://scalar.usc.edu/scalar" title="Go to Scalar\'s website">Scalar</a> book is presented using an <strong>experimental interface</strong> designed to streamline and enhance the reading experience. As this interface is <strong>currently under active development</strong>, you may encounter bugs.</p>');
 		content.append('<p>The <strong>header bar</strong> at the top of the screen gives you access to utilities for navigating and editing (if you’re logged in and have editing privileges). If the header bar is currently hidden, scroll towards the top of the page to make it appear. Here’s a quick reference guide to the header bar icons:</p>');
 
@@ -90,24 +81,22 @@
 		}
 
 		content.append('<p>If you\'re used to reading Scalar books in their standard interface, you\'ll find that many things have changed, and that not all of Scalar\'s features have been implemented yet. Thanks for your patience as we continue to expand the capabilities of this new interface. We welcome <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback" title="Send your feedback by email">your feedback.</a></p>')
+		this.modal = content.bootstrapModal({title: 'Help'});
+		this.element.replaceWith(this.element);
 	}
 
 	ScalarHelp.prototype.showHelp = function() {
-		this.element.show();
+		this.modal.modal('show');
 		setState( ViewState.Modal );
 	}
 
 	ScalarHelp.prototype.hideHelp = function() {
-		this.element.hide();
+		this.modal.modal('hide');
 		restoreState();
 	}
 
 	ScalarHelp.prototype.toggleHelp = function() {
-		if (this.element.css('display') != 'none') {
-			this.hideHelp();
-		} else {
-			this.showHelp();
-		}
+		this.modal.modal('toggle');
 	}
 
     $.fn[pluginName] = function ( options ) {
