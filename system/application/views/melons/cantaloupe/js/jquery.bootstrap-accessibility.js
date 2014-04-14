@@ -48,3 +48,9 @@ $.fn.accessibleBootstrapTabs = function() {
 
 };
 
+$.fn.accessibleBootstrapModal = function() {
+  return this.each(function(i, el) {
+    $(el).find('.modal-dialog').attr( {'role' : 'document'})
+  });
+}
+

@@ -30,7 +30,7 @@ $.fn.bootstrapModal = function(options) {
     <div class="modal-dialog">\
       <div class="modal-content">\
         <div class="modal-header">\
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button>\
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&nbsp;</span><span class="sr-only">Close</span></button>\
           <h2 class="modal-title">'+settings.title+'</h2>\
         </div>\
         <div class="modal-body">\
@@ -45,7 +45,9 @@ $.fn.bootstrapModal = function(options) {
     keyboard: settings.keyboard,
     backdrop: settings.backdrop
   });
+  $modal.accessibleBootstrapModal();
   this.replaceWith($modal);
+
   return $modal;
 
 };

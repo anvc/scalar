@@ -82,6 +82,11 @@
 
 		content.append('<p>If you\'re used to reading Scalar books in their standard interface, you\'ll find that many things have changed, and that not all of Scalar\'s features have been implemented yet. Thanks for your patience as we continue to expand the capabilities of this new interface. We welcome <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback" title="Send your feedback by email">your feedback.</a></p>')
 		this.modal = content.bootstrapModal({title: 'Help'});
+
+		this.modal.on('shown.bs.modal', function() {
+			$(this).find('.close').focus();
+		});
+
 		this.element.replaceWith(this.element);
 	}
 

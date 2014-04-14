@@ -77,7 +77,7 @@
 		} );
 		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content index_modal"></div></div>' );
 		var modalContent = this.element.find( '.modal-content' );
-		var header = $( '<div class="modal-header"><button tabindex="1006" type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
+		var header = $( '<div class="modal-header"><button tabindex="1" type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
 		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
