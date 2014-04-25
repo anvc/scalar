@@ -20,8 +20,8 @@
 /**
  * @projectDescription  Draw and popup alert on the page
  * @author              Craig Dietrich
- * @version             1.0
- * @requires			obj scalarapi (instantiated ScalarAPI object)
+ * @version             1.1
+ * @required			Instantiated scalarapi obj (default: window['scalarapi'])
  */
 
 function scalarimport_preview(url) {
@@ -42,12 +42,14 @@ if ('undefined'==typeof(escape_html)) {
 (function($) {
 
     var defaults = {
+    		scalarapi: null,  
     		error_el: '#error',
     		results_el: '#results',
     		loading_el: '#loading',
     		import_btn_wrapper_class: 'import_btn_wrapper',
     		import_btn_class: 'import_btn',
     		import_loading_class: 'import_loading',
+    		multi_custom_meta_complete: 'multi_custom_meta_complete',
     		pagenum: 1,
     		proxy_required_fields: ['proxy','uri','xsl','native','id','action','api_key','child_urn','child_type','child_rel'],
     		proxy_optional_fields: ['match','format','archive_api_key','keep_hash_var','remove_hash_vars'],
@@ -66,6 +68,15 @@ if ('undefined'==typeof(escape_html)) {
 			$(options.results_el).hide();
 			$(window).resize(function() { $.fn.scalarimport('resize_results', options); });
 		
+			// Required scalarapi obj
+			if (null===options.scalarapi) {
+				if ('undefined'==typeof(window['scalarapi'])) {
+					$.fn.scalarimport('error', 'init function could not find required Scalar API object (window[\'scalarapi\'])', options);
+					return;
+				}
+				options.scalarapi = window['scalarapi'];
+			}
+			
 			return this.each(function() {
 				
 				try {
@@ -79,10 +90,10 @@ if ('undefined'==typeof(escape_html)) {
 						$.fn.scalarimport('results', $form, post, form_data, options);
 					}, $.extend({}, user_data, form_data), options);
 					$('.'+options.import_btn_class).live('click', function() {
-						$(options.error_el).empty();
-						$.fn.scalarimport('custom_meta', $(options.results_el), form_data, options);
+						$.fn.scalarimport('reset', options);
+						$.fn.scalarimport('multi_custom_meta', $(options.results_el), form_data, options);
 					});
-					$('body').bind('scalarimport_custom_meta_complete', function(event, form_data, options) {
+					$(options.results_el).bind(options.multi_custom_meta_complete, function(event, form_data, options) {
 						$(options.results_el).scalarimport('import', function(versions) {
 							$.fn.scalarimport('imported', versions, options);
 						}, form_data, options);						
@@ -93,6 +104,13 @@ if ('undefined'==typeof(escape_html)) {
 				
 			});	
 			 
+		},
+		
+		reset : function(options) {
+			
+			$(options.error_el).empty();
+			$('.dialog').remove();	
+			
 		},
 		
 		resize_results : function(options) {
@@ -137,7 +155,7 @@ if ('undefined'==typeof(escape_html)) {
 				});
 			}
 			if (missing_required_fields.length) throw "Missing required proxy fields: "+missing_required_fields.join(', ');
-		
+
 			// Optional
 			for (var j in options.proxy_optional_fields) {
 				var $form_field = $form.find('input[name="'+options.proxy_optional_fields[j]+'"]');
@@ -156,7 +174,7 @@ if ('undefined'==typeof(escape_html)) {
 				form_data['paginate'] = (form_data.uri[0].indexOf('$2')!=-1) ? true : false; 
 				if (!form_data['paginate'] || form_data['pagenum'] < 1) form_data['pagenum'] = 1;
 			}
-			
+				
 			// Hashes
 			
 			return form_data;
@@ -164,7 +182,7 @@ if ('undefined'==typeof(escape_html)) {
 		},	
 		
 		rdfxml_to_post : function(rdfxml, options) {
-
+				
 			var post = {};
 			if ('undefined'==typeof(native_field_names)) native_field_names = false;
 			if ('undefined'==typeof(rdfxml.childNodes[0])) return post;
@@ -188,7 +206,7 @@ if ('undefined'==typeof(escape_html)) {
 					}
 				}
 				if ('undefined'!=typeof(post[s]['scalar:url'])) {
-					post[s]['scalar:url'] = $.fn.scalarimport('filter_urls', post[s]['scalar:url']);
+					post[s]['scalar:url'] = $.fn.scalarimport('filter_urls', post[s]['scalar:url'], options);
 				}
 				if ('undefined'==typeof(post[s]['rdf:type'])) {
 					post[s]['rdf:type'] = options.rdftype;
@@ -228,12 +246,6 @@ if ('undefined'==typeof(escape_html)) {
 				
 		},
 		
-		customize_post : function(options) {
-			
-			$el = $(this);
-			
-		},
-		
 		load_selected_data : function($results, options) {
 			
 			var selected_data = [];
@@ -247,9 +259,9 @@ if ('undefined'==typeof(escape_html)) {
 		},
 		
 		proxy : function(callback, to_send, options) {
-
+		
 			$(options.loading_el).show();
-			
+	
 			to_send = $.fn.scalarimport('flatten_object', to_send);
 			if ('undefined'==typeof(to_send.format)) to_send.format = 'xml';
 
@@ -338,47 +350,120 @@ if ('undefined'==typeof(escape_html)) {
 			
 		},
 		
-		custom_meta : function ($results, form_data, options) {
+		multi_custom_meta : function ($results, form_data, options) {
 			
-			// TODO: Complete
-			$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
-			return;
+			/*
+			$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
+			return false;
+			*/
 			
 			if (!$('#edit_meta').is(':checked')) {
-				$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
-				return;
+				$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
+				return false;
 			}
-			
-			if ($results.data('custom_meta')) return;
-			$results.data('custom_meta', true);
 			
 			var results = $results.find('table input[type="checkbox"]:checked');
 			if (!results.length) {
 				$.fn.scalarimport('error', 'Please select one or more items to import', options);
-				callback();
-				return;
+				return false;
+			}
+			for (var j = 0; j < results.length; j++) {
+				results[j] = $(results[j]).closest('tr');
 			}
 			
-			var custom_meta_to_complete = 0;
-			console.log('custom_meta_to_complete 1: '+custom_meta_to_complete);
+			// Get the number of items left to customize
+			var multi_custom_meta_to_complete = results.length;
 			for (var j = 0; j < results.length; j++) { 
-				if (!$(results[j]).data('custom_meta_complete')) custom_meta_to_complete++;
+				if ($(results[j]).data('multi_custom_meta_complete')) multi_custom_meta_to_complete--;
 			}
-			console.log('custom_meta_to_complete 2: '+custom_meta_to_complete);
 			
-			if (!custom_meta_to_complete) {
-				$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
-				return;
+			// Multi custom meta process is complete
+			if (!multi_custom_meta_to_complete) {
+				$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
+				return false;
 			}			
 			
+			// Run custom meta process on an item
 			for (var j = 0; j < results.length; j++) { 
-				var post = $(results[j]).scalarimport('customize_post', options);
-				console.log('post:');
-				console.log(post);
-				$(results[j]).data('post', post);
+				console.log(results[j]);
+				$el = $(results[j]);
+				console.log('running:');
+				console.log($el.data('post'));
+				var success = function(post) {
+					console.log('new post:');
+					console.log(post);					
+				}
+				var post = $el.scalarimport('custom_meta', success, options);
+				//$(results[j]).data('post', post);
 			}			
 			
-			$('body').trigger('scalarimport_custom_meta_complete', [form_data, options]);
+		},
+		
+		custom_meta : function(callback, options) {
+			
+			var $el = $(this);
+			var post = $el.data('post');
+			for (uri in post) break;
+			var title = '[No title]';
+			var fields = post[uri];
+			console.log(fields);
+			var title_field = 'dcterms:title';
+			var description_field = "dcterms:description";
+			var required_fields = ['dcterms:title','dcterms:description','scalar:url','art:thumbnail','sioc:content','rdf:type'];
+
+			$('.custom_meta').remove();
+			var $div = $('<div class="custom_meta"></div>').appendTo('body');
+			var $content = $('<div class="custom_meta_content" style="overflow:scroll;overflow-x:hidden;"></div>').appendTo($div);
+			var $buttons = $('<div class="custom_meta_footer" style="text-align:right;margin-top:12px;"><a class="import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="import_btn generic_button large default">Continue</a></div>').appendTo($div);	
+			
+			// Thumbnail
+			if ('undefined'!=typeof(fields['art:thumbnail']) && fields['art:thumbnail'].length) {
+				$content.prepend('<div><img style="height:75px;" src="'+fields['art:thumbnail']+'" /></div>');
+			}
+			
+			// Directions
+			var $directions = $('<div class="directions">Please review the metadata to be imported for this media file, and make any changes desired.</div>').appendTo($content);
+			
+			// Required
+			$core = $('<div></div>').appendTo($content);
+			$core.append('<h4>System metadata</h4>');
+			var $coreul = $('<ul class="nodots"></ul>').appendTo($core);
+			for (var j in required_fields) {
+				var value = ('undefined'==typeof(fields[required_fields[j]])) ? '' : $.fn.scalarimport('htmlspecialchars', fields[required_fields[j]]);
+				var $li = $('<li></li>').appendTo($coreul);
+				$li.append('<span class="field">'+required_fields[j]+'</span>');
+				if (required_fields[j]==description_field) {
+					$li.append('<span class="value"><textarea name="'+required_fields[j]+'">'+value+'</textarea></span>');
+				} else {
+					$li.append('<span class="value"><input type="text" name="'+required_fields[j]+'" value="'+value+'" /></span>');
+				}
+				// Special case the title for use later
+				if (required_fields[j]==title_field) title = value;
+			}
+		
+			// Additional
+			$other = $('<div></div>').appendTo($content);
+			$other.append('<h4>Additional metadata</h4>');
+			var $otherul = $('<ul class="nodots"></ul>').appendTo($other);
+			for (var j in fields) {
+				if (required_fields.indexOf(j)!=-1) continue;
+				if (null==fields[j]) continue;
+				var value = $.fn.scalarimport('htmlspecialchars', fields[j]);
+				var $li = $('<li></li>').appendTo($otherul);
+				$li.append('<span class="field">'+j+'</span><span class="value"><input type="text" name="'+j+'" value="'+value+'" /></span>');
+			}			
+			$other.append('<a class="generic_button border_radius" href="javascript:void(null);">Add additional metadata</a>');
+			
+			// Create the modal
+			var width = (parseInt($(window).width()) * 0.8);
+			var height = (parseInt($(window).height()) * 0.7);
+			$( ".custom_meta" ).dialog({ 
+				modal: true, width: width, height: height, 
+				title: title, resizable: true, draggable: true
+			});
+			
+			// Override some default layout
+			$content.height((parseInt($content.parent().innerHeight())-parseInt($buttons.outerHeight())-30));
 			
 		},
 		
@@ -423,18 +508,17 @@ if ('undefined'==typeof(escape_html)) {
 				$.fn.scalarimport('error', 'Something went wrong while attempting to save: '+e, options);
 				callback();
 			}
-			scalarapi.savePages(save_arr, success, error);
+			options.scalarapi.savePages(save_arr, success, error);
 			
 		},
 		
 		imported : function(versions, options) {
 			
-			if (!versions.length) {
+			if ('undefined'==typeof(versions)||!versions.length) {
 				$.fn.scalarimport('error', 'There was a problem importing, please try again', options);
 				return;
 			}
 			
-			$('.dialog').remove();	
 			$(options.results_el).find('input[type="checkbox"]').prop('checked', false);
 			var $box = $('<div class="dialog"></div>');
 			$box.append(((versions.length>1)?'Files have been':'A file has been')+' imported.  You may follow the link'+((versions.length>1)?'s':'')+' below to access the imported media. Alternatively, you can access the media in Dashboard > Media.');
@@ -454,7 +538,7 @@ if ('undefined'==typeof(escape_html)) {
 				$box.append($li);
 			}
 
-			$( ".dialog" ).dialog({ minWidth: 700, title: 'Import successful', resizable: false, draggable: true });				
+			$( ".dialog" ).dialog({ modal:true, minWidth: 700, title: 'Import successful', resizable: false, draggable: true });				
 			
 		},
 		
@@ -475,17 +559,14 @@ if ('undefined'==typeof(escape_html)) {
 			
 		},
 		
-		filter_urls : function(urls) {
+		filter_urls : function(urls, options) {
 
 			if ('object'!=typeof(urls)) urls = [urls];
-			if ('undefined'!=window['scalarapi']) {
-				for (var j = (urls.length-1); j >=0; j--) {
-					var url = urls[j];
-					if ('undefined'!=typeof(url.value)) url = url.value;
-					if (!$.fn.scalarimport('valid_url', url)) {
-						urls.splice(j,1);
-					}
-				}
+
+			for (var j = (urls.length-1); j >=0; j--) {
+				var url = urls[j];
+				if ('undefined'!=typeof(url.value)) url = url.value;
+				if (!$.fn.scalarimport('valid_url', url, options)) urls.splice(j,1);
 			}
 			
 			// A concession that we only store one URL per version for now
@@ -500,9 +581,9 @@ if ('undefined'==typeof(escape_html)) {
 			
 		},
 		
-		valid_url : function(url) {
+		valid_url : function(url, options) {
 			
-			if ("Unsupported"==scalarapi.parseMediaSource(url).name) {
+			if ("Unsupported"==options.scalarapi.parseMediaSource(url).name) {
 				return false;
 			}
 			
@@ -538,6 +619,55 @@ if ('undefined'==typeof(escape_html)) {
 			slug = parseInt(slug);
 			return (slug * (pagenum-1));
 			
+		},
+		
+		// http://phpjs.org/functions/htmlspecialchars/
+		htmlspecialchars : function (string, quote_style, charset, double_encode) {
+
+			  var optTemp = 0,
+			    i = 0,
+			    noquotes = false;
+			  if (typeof quote_style === 'undefined' || quote_style === null) {
+			    quote_style = 2;
+			  }
+			  string = string.toString();
+			  if (double_encode !== false) { // Put this first to avoid double-encoding
+			    string = string.replace(/&/g, '&amp;');
+			  }
+			  string = string.replace(/</g, '&lt;')
+			    .replace(/>/g, '&gt;');
+
+			  var OPTS = {
+			    'ENT_NOQUOTES': 0,
+			    'ENT_HTML_QUOTE_SINGLE': 1,
+			    'ENT_HTML_QUOTE_DOUBLE': 2,
+			    'ENT_COMPAT': 2,
+			    'ENT_QUOTES': 3,
+			    'ENT_IGNORE': 4
+			  };
+			  if (quote_style === 0) {
+			    noquotes = true;
+			  }
+			  if (typeof quote_style !== 'number') { // Allow for a single string or an array of string flags
+			    quote_style = [].concat(quote_style);
+			    for (i = 0; i < quote_style.length; i++) {
+			      // Resolve string input to bitwise e.g. 'ENT_IGNORE' becomes 4
+			      if (OPTS[quote_style[i]] === 0) {
+			        noquotes = true;
+			      } else if (OPTS[quote_style[i]]) {
+			        optTemp = optTemp | OPTS[quote_style[i]];
+			      }
+			    }
+			    quote_style = optTemp;
+			  }
+			  if (quote_style & OPTS.ENT_HTML_QUOTE_SINGLE) {
+			    string = string.replace(/'/g, '&#039;');
+			  }
+			  if (!noquotes) {
+			    string = string.replace(/"/g, '&quot;');
+			  }
+
+			  return string;
 		}
 		
 	};
