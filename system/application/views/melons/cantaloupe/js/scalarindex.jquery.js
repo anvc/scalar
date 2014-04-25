@@ -49,7 +49,8 @@
 			Media: 1003,
 			Tag: 1004,
 			Annotation: 1005,
-			Comment: 1006
+			Comment: 1006,
+			Close: 1007
 		}
 
 		this.init();
@@ -86,7 +87,7 @@
 		} );
 		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content index_modal"></div></div>' );
 		var modalContent = this.element.find( '.modal-content' );
-		var header = $( '<div class="modal-header"><button tabindex="7000" type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
+		var header = $( '<div class="modal-header"><button tabindex="'+this.tabIndex.Close+'" type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
 		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
@@ -192,7 +193,7 @@
 		}
 
 		// tabindex
-		var tabindex = this.tabIndex[this.Comment];
+		var tabindex = this.tabIndex[this.Close];
 
 		for ( i in nodes ) {
 			tabindex++;
