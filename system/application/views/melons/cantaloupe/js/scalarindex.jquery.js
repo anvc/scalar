@@ -44,12 +44,12 @@
 		};
 
 		this.tabIndex = {
-			Path: 1000,
-			Page: 2000,
-			Media: 3000,
-			Tag: 4000,
-			Annotation: 5000,
-			Comment: 6000
+			Path: 1001,
+			Page: 1002,
+			Media: 1003,
+			Tag: 1004,
+			Annotation: 1005,
+			Comment: 1006
 		}
 
 		this.init();
@@ -90,12 +90,12 @@
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
 		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
-		var pathBtn = $( '<li data-toggle="tab" id="pathBtn" class="active caption_font"><a tabindex="1000" id="apaths" href="#Path">Paths</li>' ).appendTo( this.controlBar );
-		var pageBtn = $( '<li data-toggle="tab" id="pageBtn" class="caption_font"><a tabindex="2000" href="#Page">Pages</li>' ).appendTo( this.controlBar );
-		var mediaBtn = $( '<li data-toggle="tab" id="mediaBtn" class="caption_font"><a tabindex="3000" href="#Media">Media</li>' ).appendTo( this.controlBar );
-		var tagBtn = $( '<li data-toggle="tab" id="tagBtn" class="caption_font"><a tabindex="4000" href="#Tag">Tags</li>' ).appendTo( this.controlBar );
-		var annotationBtn = $( '<li data-toggle="tab" id="annotationBtn" class="caption_font"><a tabindex="5000" href="#Annotation">Annotations</li>' ).appendTo( this.controlBar );
-		var commentBtn = $( '<li data-toggle="tab" id="replyBtn" class="caption_font"><a tabindex="6000" href="#Comment">Comments</li>' ).appendTo( this.controlBar );
+		var pathBtn = $( '<li data-toggle="tab" id="pathBtn" class="active caption_font"><a tabindex="'+this.tabIndex.Path+'" id="apaths" href="#Path">Paths</li>' ).appendTo( this.controlBar );
+		var pageBtn = $( '<li data-toggle="tab" id="pageBtn" class="caption_font"><a tabindex="'+this.tabIndex.Page+'" href="#Page">Pages</li>' ).appendTo( this.controlBar );
+		var mediaBtn = $( '<li data-toggle="tab" id="mediaBtn" class="caption_font"><a tabindex="'+this.tabIndex.Media+'" href="#Media">Media</li>' ).appendTo( this.controlBar );
+		var tagBtn = $( '<li data-toggle="tab" id="tagBtn" class="caption_font"><a tabindex="'+this.tabIndex.Tag+'" href="#Tag">Tags</li>' ).appendTo( this.controlBar );
+		var annotationBtn = $( '<li data-toggle="tab" id="annotationBtn" class="caption_font"><a tabindex="'+this.tabIndex.Annotation+'" href="#Annotation">Annotations</li>' ).appendTo( this.controlBar );
+		var commentBtn = $( '<li data-toggle="tab" id="replyBtn" class="caption_font"><a tabindex="'+this.tabIndex.Comment+'" href="#Comment">Comments</li>' ).appendTo( this.controlBar );
 
 		var showTab = function(event) {
 			var mode = $(this).find('a').attr('href').substr(1);
@@ -192,7 +192,7 @@
 		}
 
 		// tabindex
-		var tabindex = this.tabIndex[this.currentMode];
+		var tabindex = this.tabIndex[this.Comment];
 
 		for ( i in nodes ) {
 			tabindex++;
@@ -245,11 +245,6 @@
 				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 			}
 		}
-		this.focusOnFirstRow();
-	}
-
-	ScalarIndex.prototype.focusOnFirstRow = function() {
-		this.resultsTable.find('td.title:eq(0) a').focus();
 	}
 
 	ScalarIndex.prototype.previousPage = function() {
