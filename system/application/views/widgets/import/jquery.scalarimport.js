@@ -352,10 +352,9 @@ if ('undefined'==typeof(escape_html)) {
 		
 		multi_custom_meta : function ($results, form_data, options) {
 			
-			/*
+			// Work in progress
 			$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
 			return false;
-			*/
 			
 			if (!$('#edit_meta').is(':checked')) {
 				$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
