@@ -50,7 +50,7 @@
 			Tag: 1004,
 			Annotation: 1005,
 			Comment: 1006,
-			Close: 1007
+			Close: 100000
 		}
 
 		this.init();
@@ -162,12 +162,16 @@
 		this.loading.show();
 	}
 
-	ScalarIndex.prototype.getResults = function() {
+	ScalarIndex.prototype.getResults = function(callback) {
 		var me = this;
 		this.showLoading();
 		scalarapi.loadNodesByType(
 			this.currentMode.toLowerCase(), true,
-			function( data ) { me.loading.hide(); me.handleResults( data ); },
+			function( data ) {
+				me.loading.hide();
+				me.handleResults( data );
+				if (callback) callback();
+			},
 			null, 0, false, null, ( me.currentPage - 1 ) * me.resultsPerPage, me.resultsPerPage
 		);
 	}
@@ -193,7 +197,7 @@
 		}
 
 		// tabindex
-		var tabindex = this.tabIndex[this.Close];
+		var tabindex = this.tabIndex.Comment;
 
 		for ( i in nodes ) {
 			tabindex++;
@@ -229,7 +233,7 @@
 			var maxPages = this.tabPageCount[this.currentMode] || 1;
 			for ( i = 1; i <= maxPages; i++ ) {
 				tabindex++;
-				var pageBtn = $( '<li><a tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
+				var pageBtn = $( '<li><a data-page="'+i+'" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
 				pageBtn.data( 'page', i );
 				if ( i == this.currentPage ) {
 					pageBtn.addClass( 'active' );
@@ -252,7 +256,9 @@
 		if ( this.currentPage > 1) {
 			this.currentPage--;
 			this.tabLastPage[this.currentMode]--;
-			this.getResults();
+			this.getResults(function(){
+
+			});
 		}
 	}
 
@@ -261,14 +267,19 @@
 		this.tabLastPage[this.currentMode] = this.currentPage;
 		this.maxPages = Math.max( this.maxPages, this.currentPage );
 		this.tabPageCount[this.currentMode] = this.maxPages;
-		this.getResults();
+		var self = this;
+		this.getResults(function() { self.focusOnCurrentPage() });
 	}
 
 	ScalarIndex.prototype.goToPage = function( pageNum ) {
 		this.currentPage = pageNum;
 		this.tabLastPage[this.currentMode] = pageNum;
-		this.getResults();
-		this.focusOnFirstRow();
+		var self = this;
+		this.getResults(function() { self.focusOnCurrentPage() });
+	}
+
+	ScalarIndex.prototype.focusOnCurrentPage = function() {
+		this.pagination.find('a[data-page="'+this.currentPage+'"]').focus();
 	}
 
     $.fn[pluginName] = function ( options ) {
