@@ -1057,12 +1057,12 @@ a.nav_btn:hover {
 	right: 0;
 	top: 0;
 }
-.help ul { list-style: none; }
-.help table { margin: 2rem 0; }
-.help td.icon { width: 5rem; }
-.help td.half-description { width: 50%; padding: 0 3rem 1rem 1.4rem; }
-.help td.description { width: 100%; padding: 0 3rem 1rem 1.4rem; }
-.help td { vertical-align: top; }
+.modal-body ul { list-style: none; }
+.modal-body table { margin: 2rem 0; }
+.modal-body td.icon { width: 5rem; }
+.modal-body td.half-description { width: 50%; padding: 0 3rem 1rem 1.4rem; }
+.modal-body td.description { width: 100%; padding: 0 3rem 1rem 1.4rem; }
+.modal-body td { vertical-align: center; }
 
 .index { z-index: 50; }
 .search { z-index: 51; }

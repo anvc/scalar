@@ -26,12 +26,12 @@ $.fn.bootstrapModal = function(options) {
   }, options);
 
   var html = '\
-  <div class="modal">\
+  <div class="modal fade">\
     <div class="modal-dialog">\
       <div class="modal-content">\
         <div class="modal-header">\
           <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&nbsp;</span><span class="sr-only">Close</span></button>\
-          <h2 class="modal-title">'+settings.title+'</h2>\
+          <h2 class="modal-title heading_font">'+settings.title+'</h2>\
         </div>\
         <div class="modal-body">\
           '+this.html()+'\
