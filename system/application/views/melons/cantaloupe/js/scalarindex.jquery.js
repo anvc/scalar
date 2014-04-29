@@ -212,7 +212,7 @@
 			if (node.thumbnail) {
 				thumb = '<img src="'+node.thumbnail+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
 			}
-			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
+			row = $( '<tr><td class="title"><a title="View '+node.getDisplayTitle()+'" href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 			row.data( 'node', node );
 			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
 		}
