@@ -41,6 +41,7 @@
 	ScalarSearch.prototype.bodyContent = null;			// body content container
 	ScalarSearch.prototype.resultsTable = null;			// Table for the results
 	ScalarSearch.prototype.modal = null; // bootstrap modal
+	ScalarSearch.prototype.searchField = null;
 
 	ScalarSearch.prototype.currentPage = null;			// Current page of results being displayed
 	ScalarSearch.prototype.pagination = null;			// Pagination interface
@@ -60,15 +61,24 @@
 
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
+
+		$('<div><form><label for="modal_keyword">You searched for</label>&nbsp;<input tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword"  /></form></div>').appendTo(this.bodyContent);
+
 		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive"></table></div>' ).appendTo( this.bodyContent );
 		$( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
 		$('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 
-		this.modal = this.bodyContent.bootstrapModal({title: 'Search Results'});
+		this.modal = this.bodyContent.bootstrapModal({title: 'Search Results', size_class:'modal-lg'});
 		this.resultsTable = this.modal.find('.results_list table');
 		this.loading = this.modal.find('.loading');
 		this.pagination = this.modal.find('ul.pagination');
+		this.searchField = this.modal.find('input[name="keyword"]');
+		this.searchForm = this.modal.find('form');
 
+		this.searchForm.submit(function(event) {
+			event.preventDefault();
+			me.doSearch(me.searchField.val());
+		})
 	}
 
 	ScalarSearch.prototype.showSearch = function() {
@@ -90,7 +100,7 @@
 			}
 			this.query = query;
 		}
-
+		this.searchField.val(query);
 		var me = this;
 		this.showLoading();
 		this.showSearch();
@@ -100,7 +110,7 @@
 			function( data ) {
 				me.handleResults( data, callback );
 				if (newQuery) {
-					me.focusOnFirstResult();
+					me.firstFocus();
 				}
 			},
 			null, 0, false, null ,( me.currentPage - 1 ) * me.resultsPerPage, me.resultsPerPage
@@ -139,12 +149,11 @@
 			} else {
 				description = description.replace(/<\/?[^>]+>/gi, '');
 			}
-
 			var thumb = '';
 			if (node.thumbnail) {
 				thumb = '<img src="'+node.thumbnail+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
 			}
-			row = $( '<tr><td class="title"><a title="View '+node.getDisplayTitle()+'" href="javascript:;" tabindex="'+tabindex+'">'+description+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
+			row = $( '<tr><td class="title"><a title="View '+node.getDisplayTitle()+'" href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 
 			row.data( 'node', node );
 			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
@@ -159,7 +168,7 @@
 			});
 		} else {
 			this.modal.on('shown.bs.modal', function(e) {
-				me.focusOnFirstResult();
+				me.firstFocus();
 			});
 		}
 		// pagination
@@ -194,8 +203,8 @@
 		if (callback) callback();
 	}
 
-	ScalarSearch.prototype.focusOnFirstResult = function() {
-		this.resultsTable.find('td.title:eq(0) a').focus();
+	ScalarSearch.prototype.firstFocus = function() {
+		this.searchField.focus();
 	}
 
 

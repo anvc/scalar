@@ -23,12 +23,13 @@ $.fn.bootstrapModal = function(options) {
     keyboard: true,
     backdrop: true,
     show: false,
-    close_tabindex: 10000
+    close_tabindex: 10000,
+    size_class: ''
   }, options);
 
   var html = '\
   <div class="modal fade">\
-    <div class="modal-dialog">\
+    <div class="modal-dialog '+settings.size_class+'">\
       <div class="modal-content">\
         <div class="modal-header">\
           <button tabindex="'+settings.close_tabindex+'" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&nbsp;</span><span class="sr-only">Close</span></button>\

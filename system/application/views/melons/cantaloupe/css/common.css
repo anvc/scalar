@@ -1147,4 +1147,9 @@ button.close {
 button.close:hover {
   background-image:url(../images/close_icon_hover.png);
   opacity:1;
-};
+}
+
+label {
+  font-family: Lato, Arial, sans-serif;
+  font-weight: normal;
+}
