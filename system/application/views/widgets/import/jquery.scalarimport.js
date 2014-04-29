@@ -22,6 +22,7 @@
  * @author              Craig Dietrich
  * @version             1.1
  * @required			Instantiated scalarapi obj (default: window['scalarapi'])
+ * @required			URL to a JSON feed of ontologies and their predicates
  */
 
 function scalarimport_preview(url) {
@@ -42,7 +43,10 @@ if ('undefined'==typeof(escape_html)) {
 (function($) {
 
     var defaults = {
-    		scalarapi: null,  
+    		scalarapi: null,
+    		ontologies_url: null,
+    		ontologies: null,
+    		approot_segment_match: 'system/',
     		error_el: '#error',
     		results_el: '#results',
     		loading_el: '#loading',
@@ -71,10 +75,16 @@ if ('undefined'==typeof(escape_html)) {
 			// Required scalarapi obj
 			if (null===options.scalarapi) {
 				if ('undefined'==typeof(window['scalarapi'])) {
-					$.fn.scalarimport('error', 'init function could not find required Scalar API object (window[\'scalarapi\'])', options);
+					$.fn.scalarimport('error', 'init function could not find required Scalar API object (window[\'scalarapi\']), please try again', options);
 					return;
 				}
 				options.scalarapi = window['scalarapi'];
+			}
+			// Required ontology url
+			if (null===options.ontologies_url) {
+				var approot = $('link#approot').attr('href');
+				var system_url = approot.substr(0, approot.lastIndexOf(options.approot_segment_match))+options.approot_segment_match;
+				options.ontologies_url = system_url+'ontologies';
 			}
 			
 			return this.each(function() {
@@ -111,6 +121,10 @@ if ('undefined'==typeof(escape_html)) {
 			$(options.error_el).empty();
 			$('.dialog').remove();	
 			
+			$(options.results_el).find('tr').each(function() {
+				$(this).data('custom_meta_complete', false);
+			});
+			
 		},
 		
 		resize_results : function(options) {
@@ -124,6 +138,10 @@ if ('undefined'==typeof(escape_html)) {
 			$('<div><p>'+err+'</p></div>').addClass('error').appendTo(options.error_el);
 			
 		},
+		
+		/**
+		 * Methods that load and parse data
+		 */
 		
 		load_user_data : function($form) {
 
@@ -258,6 +276,31 @@ if ('undefined'==typeof(escape_html)) {
 			
 		},
 		
+		load_custom_meta : function(uri, form) {
+			
+			var obj = {};
+			
+			$(form).find('input, textarea').each(function() {
+				var $this = $(this);
+				var name = $this.attr('name');
+				var value = $this.val();
+				if ('undefined'==typeof(obj[name])) obj[name] = [];
+				obj[name].push(value);
+			});
+			
+			obj = $.fn.scalarimport('flatten_object', obj);
+
+			var post = {};
+			post[uri] = obj;
+			
+			return post;
+			
+		},
+		
+		/**
+		 * Methods that perform a set of actions before loading the UI
+		 */
+		
 		proxy : function(callback, to_send, options) {
 		
 			$(options.loading_el).show();
@@ -291,70 +334,13 @@ if ('undefined'==typeof(escape_html)) {
 
 		},
 		
-		results : function($form, post, form_data, options) {
-
-			var results_data = $.fn.scalarimport('load_results_data', post, form_data, options);
-			var $div = $('<div class="result_content"></div>').appendTo($(options.results_el));
-			var $footer = $('<div class="result_footer"></div>').appendTo($(options.results_el));
-			var $table = $('<table cellspacing="0" cellpadding="0"></table>').appendTo($div);
-			$table.append('<tbody></tbody>');
-			$tbody = $table.find('tbody');
-			var found = 0;
-			var supported = 0;
-
-			for (var j in results_data) {
-			
-				var $tr = $('<tr></tr>').appendTo($tbody);
-				var post_data = {};
-				post_data[j] = post[j];
-				$tr.data('post', post_data);
-				$tr.append('<td valign="top" class="thumbnail"><img src="'+results_data[j].thumb+'" /></td>');
-				var $content = $('<td valign="top"><div class="title"><input type="checkbox" id="result_row_'+j+'" /><label for="result_row_'+j+'"> '+results_data[j].title+'</label>&nbsp;</div><div class="desc">'+create_excerpt(results_data[j].desc, options.results_desc_num_words)+'</div></td>').appendTo($tr);
-				if (!results_data[j].url.length) {
-					$('<div class="import_error"><a href="'+results_data[j].node_uri+'" target="_blank" class="generic_button small">Source</a>&nbsp; '+options.url_not_supported_msg+'</div>').appendTo($content);
-					$tr.addClass(options.url_not_supported_class);
-					$tr.find("input[id='result_row_"+j+"']").remove();
-				} else {
-					var url_str = '<div class="url">';
-					url_str += '<a href="javascript:;" onclick="scalarimport_preview(\''+results_data[j].url+'\')" class="generic_button small">Preview</a>&nbsp; ';
-					url_str += '<a href="'+results_data[j].node_uri+'" target="_blank" class="generic_button small">Source</a>&nbsp; ';
-					url_str += '<span>'+results_data[j].mediatype+': '+basename(results_data[j].url)+'</span>';
-					url_str += '</div>';
-					$(url_str).appendTo($content);			
-					supported++;
-				}
-				found++;
-				
-			}
-			
-			$footer.html('<span class="'+options.import_btn_wrapper_class+'"><img class="'+options.import_loading_class+'" src="'+$('link#approot').attr('href')+'views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="'+options.import_btn_class+' generic_button large default">Import selected</a></span>Page <strong>'+form_data.pagenum+'</strong>: Found <strong>'+found+'</strong> results (<strong>'+supported+'</strong> supported)&nbsp; <span class="pagination"></span><br /><input type="checkbox" id="check_all" /><label for="check_all"> Check all</label>&nbsp; &nbsp; <input type="checkbox" id="edit_meta" checked /><label for="edit_meta" style="color:#aaaaaa"> Edit imported metadata (coming soon)</label>');
-			if (form_data.paginate) {
-				$footer.find('.pagination').html('<span style="'+((form_data.pagenum <= 1)?'visibility:hidden':'')+'"><a href="javascript:;" class="prev">&lt; load previous page</a>&nbsp; | &nbsp;</span>');
-				$footer.find('.pagination').append('<a href="javascript:;" class="next">load next page &gt;</a>');
-			} else {
-				$footer.find('.pagination').html('No additional pages');
-			}
-			$footer.find('#check_all').change(function() {
-				var check_all = ($(this).is(':checked')) ? true : false;
-				$table.find('input[type="checkbox"]').prop('checked', check_all);
-			});
-			$(options.results_el).fadeIn();
-			$.fn.scalarimport('resize_results', options);
-		
-			$footer.find('.prev').click(function() {
-				$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum-1)}) );
-			});			
-			$footer.find('.next').click(function() {
-				$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum+1)}) );
-			});
-			
-		},
-		
 		multi_custom_meta : function ($results, form_data, options) {
 			
 			// Work in progress
+			/*
 			$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
 			return false;
+			*/
 			
 			if (!$('#edit_meta').is(':checked')) {
 				$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
@@ -371,98 +357,38 @@ if ('undefined'==typeof(escape_html)) {
 			}
 			
 			// Get the number of items left to customize
-			var multi_custom_meta_to_complete = results.length;
+			var custom_meta_to_complete = results.length;
 			for (var j = 0; j < results.length; j++) { 
-				if ($(results[j]).data('multi_custom_meta_complete')) multi_custom_meta_to_complete--;
+				if ($(results[j]).data('custom_meta_complete')) custom_meta_to_complete--;
 			}
 			
 			// Multi custom meta process is complete
-			if (!multi_custom_meta_to_complete) {
+			if (!custom_meta_to_complete) {
 				$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
 				return false;
-			}			
+			}		
+			
+			// Next element to process
+			var index = 0;
+			for (var j = 0; j < results.length; j++) { 
+				if ($(results[j]).data('custom_meta_complete')) continue;
+				index = j;
+				break;
+			}		
+			console.log('will process index: '+index);
 			
 			// Run custom meta process on an item
-			for (var j = 0; j < results.length; j++) { 
-				console.log(results[j]);
-				$el = $(results[j]);
-				console.log('running:');
-				console.log($el.data('post'));
-				var success = function(post) {
-					console.log('new post:');
-					console.log(post);					
-				}
-				var post = $el.scalarimport('custom_meta', success, options);
-				//$(results[j]).data('post', post);
-			}			
-			
-		},
-		
-		custom_meta : function(callback, options) {
-			
-			var $el = $(this);
-			var post = $el.data('post');
-			for (uri in post) break;
-			var title = '[No title]';
-			var fields = post[uri];
-			console.log(fields);
-			var title_field = 'dcterms:title';
-			var description_field = "dcterms:description";
-			var required_fields = ['dcterms:title','dcterms:description','scalar:url','art:thumbnail','sioc:content','rdf:type'];
-
-			$('.custom_meta').remove();
-			var $div = $('<div class="custom_meta"></div>').appendTo('body');
-			var $content = $('<div class="custom_meta_content" style="overflow:scroll;overflow-x:hidden;"></div>').appendTo($div);
-			var $buttons = $('<div class="custom_meta_footer" style="text-align:right;margin-top:12px;"><a class="import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="import_btn generic_button large default">Continue</a></div>').appendTo($div);	
-			
-			// Thumbnail
-			if ('undefined'!=typeof(fields['art:thumbnail']) && fields['art:thumbnail'].length) {
-				$content.prepend('<div><img style="height:75px;" src="'+fields['art:thumbnail']+'" /></div>');
+			$el = $(results[index]);
+			console.log($el.data('post'));
+			var complete = function(post) {
+				$el.data('post', post);	
+				$el.data('custom_meta_complete', true);
+				console.log('index '+index+' new post:');
+				console.log($el.data('post'));	
+				console.log('---- end index ----');
+				$.fn.scalarimport('multi_custom_meta', $results, form_data, options);
 			}
-			
-			// Directions
-			var $directions = $('<div class="directions">Please review the metadata to be imported for this media file, and make any changes desired.</div>').appendTo($content);
-			
-			// Required
-			$core = $('<div></div>').appendTo($content);
-			$core.append('<h4>System metadata</h4>');
-			var $coreul = $('<ul class="nodots"></ul>').appendTo($core);
-			for (var j in required_fields) {
-				var value = ('undefined'==typeof(fields[required_fields[j]])) ? '' : $.fn.scalarimport('htmlspecialchars', fields[required_fields[j]]);
-				var $li = $('<li></li>').appendTo($coreul);
-				$li.append('<span class="field">'+required_fields[j]+'</span>');
-				if (required_fields[j]==description_field) {
-					$li.append('<span class="value"><textarea name="'+required_fields[j]+'">'+value+'</textarea></span>');
-				} else {
-					$li.append('<span class="value"><input type="text" name="'+required_fields[j]+'" value="'+value+'" /></span>');
-				}
-				// Special case the title for use later
-				if (required_fields[j]==title_field) title = value;
-			}
-		
-			// Additional
-			$other = $('<div></div>').appendTo($content);
-			$other.append('<h4>Additional metadata</h4>');
-			var $otherul = $('<ul class="nodots"></ul>').appendTo($other);
-			for (var j in fields) {
-				if (required_fields.indexOf(j)!=-1) continue;
-				if (null==fields[j]) continue;
-				var value = $.fn.scalarimport('htmlspecialchars', fields[j]);
-				var $li = $('<li></li>').appendTo($otherul);
-				$li.append('<span class="field">'+j+'</span><span class="value"><input type="text" name="'+j+'" value="'+value+'" /></span>');
-			}			
-			$other.append('<a class="generic_button border_radius" href="javascript:void(null);">Add additional metadata</a>');
-			
-			// Create the modal
-			var width = (parseInt($(window).width()) * 0.8);
-			var height = (parseInt($(window).height()) * 0.7);
-			$( ".custom_meta" ).dialog({ 
-				modal: true, width: width, height: height, 
-				title: title, resizable: true, draggable: true
-			});
-			
-			// Override some default layout
-			$content.height((parseInt($content.parent().innerHeight())-parseInt($buttons.outerHeight())-30));
+			$el.scalarimport('custom_meta', complete, options);
 			
 		},
 		
@@ -509,6 +435,183 @@ if ('undefined'==typeof(escape_html)) {
 			}
 			options.scalarapi.savePages(save_arr, success, error);
 			
+		},		
+		
+		/**
+		 * Methods that display the UI
+		 */
+		
+		results : function($form, post, form_data, options) {
+
+			var results_data = $.fn.scalarimport('load_results_data', post, form_data, options);
+			var $div = $('<div class="result_content"></div>').appendTo($(options.results_el));
+			var $footer = $('<div class="result_footer"></div>').appendTo($(options.results_el));
+			var $table = $('<table cellspacing="0" cellpadding="0"></table>').appendTo($div);
+			$table.append('<tbody></tbody>');
+			$tbody = $table.find('tbody');
+			var found = 0;
+			var supported = 0;
+
+			for (var j in results_data) {
+			
+				var $tr = $('<tr></tr>').appendTo($tbody);
+				var post_data = {};
+				post_data[j] = post[j];
+				$tr.data('post', post_data);
+				$tr.append('<td valign="top" class="thumbnail"><img src="'+results_data[j].thumb+'" /></td>');
+				var $content = $('<td valign="top"><div class="title"><input type="checkbox" id="result_row_'+j+'" /><label for="result_row_'+j+'"> '+results_data[j].title+'</label>&nbsp;</div><div class="desc">'+create_excerpt(results_data[j].desc, options.results_desc_num_words)+'</div></td>').appendTo($tr);
+				if (!results_data[j].url.length) {
+					$('<div class="import_error"><a href="'+results_data[j].node_uri+'" target="_blank" class="generic_button small">Source</a>&nbsp; '+options.url_not_supported_msg+'</div>').appendTo($content);
+					$tr.addClass(options.url_not_supported_class);
+					$tr.find("input[id='result_row_"+j+"']").remove();
+				} else {
+					var url_str = '<div class="url">';
+					url_str += '<a href="javascript:;" onclick="scalarimport_preview(\''+results_data[j].url+'\')" class="generic_button small">Preview</a>&nbsp; ';
+					url_str += '<a href="'+results_data[j].node_uri+'" target="_blank" class="generic_button small">Source</a>&nbsp; ';
+					url_str += '<span>'+results_data[j].mediatype+': '+basename(results_data[j].url)+'</span>';
+					url_str += '</div>';
+					$(url_str).appendTo($content);			
+					supported++;
+				}
+				found++;
+				
+			}
+			
+			$footer.html('<span class="'+options.import_btn_wrapper_class+'"><img class="'+options.import_loading_class+'" src="'+$('link#approot').attr('href')+'views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="'+options.import_btn_class+' generic_button large default">Import selected</a></span>Page <strong>'+form_data.pagenum+'</strong>: Found <strong>'+found+'</strong> results (<strong>'+supported+'</strong> supported)&nbsp; <span class="pagination"></span><br /><input type="checkbox" id="check_all" /><label for="check_all"> Check all</label>&nbsp; &nbsp; <input type="checkbox" id="edit_meta" checked /><label for="edit_meta"> Edit metadata before importing</label>');
+			if (form_data.paginate) {
+				$footer.find('.pagination').html('<span style="'+((form_data.pagenum <= 1)?'visibility:hidden':'')+'"><a href="javascript:;" class="prev">&lt; load previous page</a>&nbsp; | &nbsp;</span>');
+				$footer.find('.pagination').append('<a href="javascript:;" class="next">load next page &gt;</a>');
+			} else {
+				$footer.find('.pagination').html('No additional pages');
+			}
+			$footer.find('#check_all').change(function() {
+				var check_all = ($(this).is(':checked')) ? true : false;
+				$table.find('input[type="checkbox"]').prop('checked', check_all);
+			});
+			$(options.results_el).fadeIn();
+			$.fn.scalarimport('resize_results', options);
+		
+			$footer.find('.prev').click(function() {
+				$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum-1)}) );
+			});			
+			$footer.find('.next').click(function() {
+				$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum+1)}) );
+			});
+			
+		},
+		
+		custom_meta : function(callback, options) {
+			
+			var $el = $(this);
+			var post = $el.data('post');
+			for (uri in post) break;
+			var title = '[No title]';
+			var fields = post[uri];
+			console.log(fields);
+			var title_field = 'dcterms:title';
+			var description_field = "dcterms:description";
+			var thumbnail_field = 'art:thumbnail';
+			var required_fields = ['dcterms:title','dcterms:description','scalar:url','art:thumbnail','sioc:content','rdf:type'];
+
+			$('.custom_meta').remove();
+			var $div = $('<div class="custom_meta"></div>').appendTo('body');
+			var $content = $('<div class="custom_meta_content" style="overflow:scroll;overflow-x:hidden;"></div>').appendTo($div);
+			var $buttons = $('<div class="custom_meta_footer" style="text-align:right;margin-top:12px;"><a class="import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="import_btn generic_button large default">Continue</a></div>').appendTo($div);	
+			
+			// Buttons
+			$buttons.find('a:first').click(function() {
+				$(this).closest('.custom_meta').remove();
+				return false;
+			});
+			$buttons.find('a:last').click(function() {
+				$(this).closest('.custom_meta').remove();
+				var post = $.fn.scalarimport('load_custom_meta', uri, $(this).closest('.custom_meta'));
+				callback(post);
+				return false;
+			});
+			
+			// Directions
+			var $directions = $('<div class="directions">Please review the metadata to be imported for this media file and make any desired changes, or click Continue.</div>').appendTo($content);
+			
+			// Required
+			$core = $('<div></div>').appendTo($content);
+			$core.append('<h4>Core metadata</h4>');
+			var $coreul = $('<ul class="nodots"></ul>').appendTo($core);
+			for (var j in required_fields) {
+				var value = fields[required_fields[j]];
+				if (value && 'object'==typeof(value) && 'undefined'!=typeof(value[0])) value = value[0];
+				var value = (!value || 'undefined'==typeof(value)) ? '' : $.fn.scalarimport('htmlspecialchars', value);
+				var $li = $('<li></li>').appendTo($coreul);
+				$li.append('<span class="field">'+required_fields[j]+'</span>');
+				if (required_fields[j]==description_field) {
+					$li.append('<span class="value"><textarea name="'+required_fields[j]+'">'+value+'</textarea></span>');
+				} else {
+					$li.append('<span class="value"><input type="text" name="'+required_fields[j]+'" value="'+value+'" /></span>');
+				}
+				// Special case the thumbnail
+				if (required_fields[j]==thumbnail_field) {
+					$('<li><span class="field nopadding"></span><span class="value nopadding"><img id="thumbnail" src="'+value+'" /></span></li>').appendTo($coreul);
+				}				
+				// Special case the title for use later
+				if (required_fields[j]==title_field) title = value;
+			}
+			
+			// Thumbnail changes
+			if ($coreul.find('input[name="'+thumbnail_field+'"]').val().length) $coreul.find('#thumbnail').show();
+			$coreul.find('input[name="'+thumbnail_field+'"]').change(function() {
+				var url = $(this).val();
+				$coreul.find('#thumbnail').show().attr('src', url);
+			});
+		
+			// Additional
+			$other = $('<div></div>').appendTo($content);
+			$other.append('<h4>Additional metadata</h4>');
+			var $otherul = $('<ul class="nodots"></ul>').appendTo($other);
+			for (var j in fields) {
+				if (required_fields.indexOf(j)!=-1) continue;
+				if (null==fields[j]) continue;
+				var values = fields[j];
+				if ('string'==typeof(values)) values = [values];
+				for (var k in values) {
+					var value = $.fn.scalarimport('htmlspecialchars', values[k]);
+					var $li = $('<li></li>').appendTo($otherul);
+					$li.append('<span class="field">'+j+'</span><span class="value"><input type="text" name="'+j+'" value="'+value+'" /></span>');
+				}
+			}			
+			$other.append('<a class="generic_button border_radius" id="additional_metadata" href="javascript:void(null);">Add additional metadata</a>');
+			
+			// Create the modal
+			var width = (parseInt($(window).width()) * 0.8);
+			var height = (parseInt($(window).height()) * 0.7);
+			$( ".custom_meta" ).dialog({ 
+				modal: true, width: width, height: height, 
+				title: title, resizable: true, draggable: true
+			});
+			
+			// Override some default layout
+			$content.height((parseInt($content.parent().innerHeight())-parseInt($buttons.outerHeight())-30));
+			$content.scrollTop(0);  // Going from panel to panel, the scrollbar will stay scrolled down if placed that way
+			
+			// Add additional metadata
+			$other.find('#additional_metadata').click(function() {
+				var $this = $(this);
+				if ($this.data('open')) {
+					$div.find('.overlay').remove();
+					$this.data('open', false);
+				} else {
+					var callback = function(link) {
+						var $link = $(link);
+						var pnode = $link.attr('title');
+						$otherul.append('<li><span class="field">'+pnode+'</span><span class="value"><input type="text" name="'+pnode+'" value="" /></span></li>');
+						$link.closest('.overlay').remove();
+						$other.find('#additional_metadata').data('open', false);	
+					}
+					$(this).scalarimport('additional_metadata', $div, options, required_fields, callback);
+					$this.data('open', true);
+				}
+				return false;
+			});
+			
 		},
 		
 		imported : function(versions, options) {
@@ -540,6 +643,52 @@ if ('undefined'==typeof(escape_html)) {
 			$( ".dialog" ).dialog({ modal:true, minWidth: 700, title: 'Import successful', resizable: false, draggable: true });				
 			
 		},
+		
+		additional_metadata: function($wrapper, options, required_fields, callback) {
+			
+			var $button = $(this);
+			var position = $button.position();
+			
+			var $div = $('<div class="overlay"></div>').appendTo($wrapper);
+			$div.append('<div class="loading">Loading...</div>');
+			
+			var top = position.top - parseInt($div.outerHeight());
+			var left = position.left;
+			$div.css('top', top+'px');
+			$div.css('left', left+'px');
+			
+			var fill_ontologies = function(data) {
+				$div.empty();
+				for (var ontology in data) {
+					var $ontology = $('<div class="el"></div>').appendTo($div);
+					$ontology.append(ontology);
+					$ontology.append('<br />');
+					var arr = [];
+					for (var j = 0; j < data[ontology].length; j++) {
+						if (required_fields.indexOf(ontology+':'+data[ontology][j])!=-1) continue;
+						arr.push('<a href="javascript:void(null);" title="'+ontology+':'+data[ontology][j]+'">'+data[ontology][j]+'</a>');
+					}
+					$ontology.append(arr.join(', '));
+				}
+				$div.find('a').click(function() {
+					callback(this);
+				});
+			};
+
+			if (null!==options.ontologies) {
+				fill_ontologies(options.ontologies);
+			} else {
+				$.getJSON(options.ontologies_url, function(data) {
+					options.ontologies = data;
+					fill_ontologies(data);
+				});
+			}
+			
+		},
+		
+		/**
+		 * Helper methods
+		 */
 		
 		flatten_object : function(obj1) {
 			

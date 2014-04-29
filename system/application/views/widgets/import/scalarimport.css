@@ -4,6 +4,7 @@
 .dialog li {margin:10px 0px 10px 14px;}
 
 #loading { display: none; margin: 10px 0; }
+.error {margin-bottom:10px;}
 
 /* Results */
 
@@ -32,9 +33,23 @@
 
 /* Importing */
 
+.custom_meta {position:relative;}
 .custom_meta .directions {margin:6px 0px 6px 0px;}
 .custom_meta ul {display:table; width:96%; margin-left:0px; padding-left:0px;}
 .custom_meta ul li {display:table-row;}
 .custom_meta ul li .field, .custom_meta ul li .value {display:table-cell; padding-bottom:6px;}
+.custom_meta ul li .nopadding {padding-bottom:0px;}
+.custom_meta ul li .value {text-align:left;}
+.custom_meta ul li .value > img {height:75px; border:solid 1px #dddddd; display:none;}
 .custom_meta ul li .value > input {width:100%;}
 .custom_meta ul li .value > textarea {width:100%; height:60px; margin:0;}
+
+/* Overlay */
+
+.overlay {
+	border:solid 5px #999999; width:600px; height:300px; background-color:#ffffff;
+	position:absolute; top:0px; left:0px; z-index:9; overflow:auto;
+}
+.overlay .loading {margin:20px;}
+.overlay .el {margin:20px;}
+.overlay .el a {color:#026697;}

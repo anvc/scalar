@@ -57,6 +57,16 @@ class System extends MY_Controller {
 		
 	}
 	
+	public function ontologies() {
+		
+		$this->data['content'] = $this->config->item('ontologies');
+		
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/json', $this->data);
+		$this->template->render();				
+		
+	}
+	
 	public function login() {
 
 		$this->login->do_logout(true);
