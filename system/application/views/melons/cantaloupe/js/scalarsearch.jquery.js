@@ -77,7 +77,7 @@
 		scalarapi.nodeSearch( 
 			query,
 			function( data ) { me.handleResults( data ); }, 
-			null, 0, false, null 
+			null, 0, false, null ,0, 10
 		);
 	}
 	
