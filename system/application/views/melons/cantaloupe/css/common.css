@@ -1058,7 +1058,7 @@ a.nav_btn:hover {
 	top: 0;
 }
 .modal-body ul { list-style: none; }
-.modal-body table { margin: 2rem 0; }
+.modal-body table { margin: 0; }
 .modal-body td.icon { width: 5rem; }
 .modal-body td.half-description { width: 50%; padding: 0 3rem 1rem 1.4rem; }
 .modal-body td.description { width: 100%; padding: 0 3rem 1rem 1.4rem; }
@@ -1152,4 +1152,18 @@ button.close:hover {
 label {
   font-family: Lato, Arial, sans-serif;
   font-weight: normal;
+}
+/* search modal */
+.search .modal form  {
+  margin-bottom: 15px;
+}
+.search .modal .search_input {
+  margin: 0;
+  top: 0;
+  padding:0 0.4rem;
+  border:solid 1px rgb(204, 204, 204);
+}
+/* bootstrap override */
+button, input, optgroup, select, textarea {
+  font-family: Lato, Arial, sans-serif;
 }

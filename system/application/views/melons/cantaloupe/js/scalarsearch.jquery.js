@@ -62,7 +62,7 @@
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 
-		$('<div><form><label for="modal_keyword">You searched for</label>&nbsp;<input tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword"  /></form></div>').appendTo(this.bodyContent);
+		$('<div><form role="form" class="form-inline"><div class="form-group"><label for="modal_keyword">You searched for</label>&nbsp;<input class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword"  />&nbsp;<button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search again</button></div></form></div>').appendTo(this.bodyContent);
 
 		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive"></table></div>' ).appendTo( this.bodyContent );
 		$( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
@@ -100,7 +100,7 @@
 			}
 			this.query = query;
 		}
-		this.searchField.val(query);
+		this.searchField.val(this.query);
 		var me = this;
 		this.showLoading();
 		this.showSearch();
@@ -109,6 +109,7 @@
 			this.query,
 			function( data ) {
 				me.handleResults( data, callback );
+				me.find('.results_list').scrollTop(0);
 				if (newQuery) {
 					me.firstFocus();
 				}
@@ -118,7 +119,7 @@
 	}
 
 	ScalarSearch.prototype.reset = function() {
-		this.currentPage = 0;
+		this.currentPage = 1;
 		this.pagination.empty();
 	}
 
