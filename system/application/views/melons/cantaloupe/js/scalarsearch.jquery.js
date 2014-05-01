@@ -100,7 +100,6 @@
 			callback = query;
 		} else {
 			newQuery = !this.query || query != this.query;
-			console.log(newQuery)
 			if (newQuery) {
 				this.reset()
 			}
@@ -126,6 +125,7 @@
 
 	ScalarSearch.prototype.reset = function() {
 		this.currentPage = 1;
+		this.maxPages = 1;
 		this.pagination.empty();
 	}
 
