@@ -78,6 +78,11 @@
 		this.searchForm.submit(function(event) {
 			event.preventDefault();
 			me.doSearch(me.searchField.val());
+		});
+
+		// upate main search field
+		this.searchField.keyup(function(event) {
+			$('#search').val($(this).val());
 		})
 	}
 
@@ -95,6 +100,7 @@
 			callback = query;
 		} else {
 			newQuery = !this.query || query != this.query;
+			console.log(newQuery)
 			if (newQuery) {
 				this.reset()
 			}
@@ -212,7 +218,9 @@
 	ScalarSearch.prototype.previousPage = function() {
 		if ( this.currentPage > 1) {
 			this.currentPage--;
-			this.doSearch();
+			this.maxPages = Math.max( this.maxPages, this.currentPage );
+			var self = this;
+			this.doSearch(function() { self.focusOnCurrentPage() });
 		}
 	}
 
