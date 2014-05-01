@@ -543,9 +543,8 @@ class CI_Template {
 	* Added by Craig Dietrich, 1 May 2014
     *
     * @access  public
-    * @param   string   script to import or embed
-    * @param   string  'import' to load external file or 'embed' to add as-is
-    * @param   boolean  TRUE to use 'defer' attribute, FALSE to exclude it
+    * @param   string  value for the name="" attribute
+    * @param   string  value for the content="" attribute
     * @return  TRUE on success, FALSE otherwise
     */
    
