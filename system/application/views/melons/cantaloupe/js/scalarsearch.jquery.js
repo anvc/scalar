@@ -109,7 +109,7 @@
 			this.query,
 			function( data ) {
 				me.handleResults( data, callback );
-				me.find('.results_list').scrollTop(0);
+				me.modal.find('.results_list').scrollTop(0);
 				if (newQuery) {
 					me.firstFocus();
 				}
