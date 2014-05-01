@@ -39,10 +39,12 @@ class CI_Template {
    var $regions = array(
       '_scripts' => array(),
       '_styles' => array(),
+   	  '_meta' => array()
    );
    var $output;
    var $js = array();
    var $css = array();
+   var $meta = array();
    var $parser = 'parser';
    var $parser_method = 'parse';
    var $parse_template = FALSE;
@@ -203,6 +205,7 @@ class CI_Template {
          $this->regions = array(
             '_scripts' => array(),
             '_styles' => array(),
+         	'_meta' => array()
          );
          foreach ($regions as $key => $region) 
          {
@@ -534,6 +537,36 @@ class CI_Template {
       return $success;
    }
       
+   /**
+    * Dynamically include <meta> in the template
+	*
+	* Added by Craig Dietrich, 1 May 2014
+    *
+    * @access  public
+    * @param   string   script to import or embed
+    * @param   string  'import' to load external file or 'embed' to add as-is
+    * @param   boolean  TRUE to use 'defer' attribute, FALSE to exclude it
+    * @return  TRUE on success, FALSE otherwise
+    */
+   
+   function add_meta($name='', $content='')
+   {
+      $success = TRUE;
+      $meta = NULL;
+      
+      $this->CI->load->helper('url');
+      
+	  $meta = '<meta name="'.$name.'" content="'.$content.'">';
+      
+      if ($meta != NULL)
+      {
+         $this->meta[] = $meta;
+         $this->write('_meta', $meta);
+      }
+      
+      return $success;
+   }   
+   
    // --------------------------------------------------------------------
    
    /**

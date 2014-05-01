@@ -79,3 +79,6 @@ In the GitHub distro, #2 is corrected
 
 Froogaloop:
 1) Changed $f=g to froogaloop=g
+
+Template (libraries/Template.php):
+1) Added add_meta() + supporting updates to regions arrays

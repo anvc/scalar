@@ -1,4 +1,5 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_meta('viewport','width=device-width');?>
 
 <div class="login_wrapper">
 <? if (!empty($forgot_login_error)): ?>

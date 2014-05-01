@@ -1,4 +1,5 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_meta('viewport','width=device-width');?>
 <?
 $registration_key = '';
 if (isset($_GET['key'])) $registration_key = trim($_GET['key']);
