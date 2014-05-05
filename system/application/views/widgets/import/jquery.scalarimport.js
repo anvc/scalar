@@ -20,7 +20,7 @@
 /**
  * @projectDescription  Draw and popup alert on the page
  * @author              Craig Dietrich
- * @version             1.1
+ * @version             1.2
  * @required			Instantiated scalarapi obj (default: window['scalarapi'])
  * @required			URL to a JSON feed of ontologies and their predicates
  */
@@ -458,6 +458,7 @@ if ('undefined'==typeof(escape_html)) {
 				var post_data = {};
 				post_data[j] = post[j];
 				$tr.data('post', post_data);
+				$tr.data('orig_post', post_data);  // for use with resetting original metadata button 
 				$tr.append('<td valign="top" class="thumbnail"><img src="'+results_data[j].thumb+'" /></td>');
 				var $content = $('<td valign="top"><div class="title"><input type="checkbox" id="result_row_'+j+'" /><label for="result_row_'+j+'"> '+results_data[j].title+'</label>&nbsp;</div><div class="desc">'+create_excerpt(results_data[j].desc, options.results_desc_num_words)+'</div></td>').appendTo($tr);
 				if (!results_data[j].url.length) {
@@ -512,18 +513,29 @@ if ('undefined'==typeof(escape_html)) {
 			var description_field = "dcterms:description";
 			var thumbnail_field = 'art:thumbnail';
 			var required_fields = ['dcterms:title','dcterms:description','scalar:url','art:thumbnail','sioc:content','rdf:type'];
-
+			var mark_as_required = ['dcterms:title','scalar:url','rdf:type'];
+			
 			$('.custom_meta').remove();
 			var $div = $('<div class="custom_meta"></div>').appendTo('body');
 			var $content = $('<div class="custom_meta_content" style="overflow:scroll;overflow-x:hidden;"></div>').appendTo($div);
-			var $buttons = $('<div class="custom_meta_footer" style="text-align:right;margin-top:12px;"><a class="import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="import_btn generic_button large default">Continue</a></div>').appendTo($div);	
+			var $buttons = $('<div class="custom_meta_footer"><a href="javascript:void(null);" class="reload">Reload original metadata</a><a class="import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="import_btn generic_button large default">Continue</a></div>').appendTo($div);	
 			
 			// Buttons
-			$buttons.find('a:first').click(function() {
+			$buttons.find('a:first').click(function() {  // Reload
+				if (!confirm('Are you sure you wish to reload original metadata? Any changes to the form fields will be lost.')) return false;
+				$el.data('post', $el.data('orig_post'));
+				$el.scalarimport('custom_meta', callback, options);
+				return false;
+			});
+			$buttons.find('a:nth-child(2)').click(function() {  // Remove
 				$(this).closest('.custom_meta').remove();
 				return false;
 			});
-			$buttons.find('a:last').click(function() {
+			$buttons.find('a:last').click(function() {  // Continue
+				if (!$.fn.scalarimport('validate_custom_meta', $div, mark_as_required)) {
+					alert('There are one or more custom metadata fields that require values');
+					return false;
+				}
 				$(this).closest('.custom_meta').remove();
 				var post = $.fn.scalarimport('load_custom_meta', uri, $(this).closest('.custom_meta'));
 				callback(post);
@@ -535,7 +547,7 @@ if ('undefined'==typeof(escape_html)) {
 			
 			// Required
 			$core = $('<div></div>').appendTo($content);
-			$core.append('<h4>Core metadata</h4>');
+			$core.append('<h4>Core metadata&nbsp; <span class="subtitle">(<span class="asterisk">*</span> = required field)</span></h4>');
 			var $coreul = $('<ul class="nodots"></ul>').appendTo($core);
 			for (var j in required_fields) {
 				var value = fields[required_fields[j]];
@@ -543,11 +555,13 @@ if ('undefined'==typeof(escape_html)) {
 				var value = (!value || 'undefined'==typeof(value)) ? '' : $.fn.scalarimport('htmlspecialchars', value);
 				var $li = $('<li></li>').appendTo($coreul);
 				$li.append('<span class="field">'+required_fields[j]+'</span>');
+				var $value = $('<span class="value"></span>').appendTo($li);
 				if (required_fields[j]==description_field) {
-					$li.append('<span class="value"><textarea name="'+required_fields[j]+'">'+value+'</textarea></span>');
+					$value.html('<textarea name="'+required_fields[j]+'">'+value+'</textarea>');
 				} else {
-					$li.append('<span class="value"><input type="text" name="'+required_fields[j]+'" value="'+value+'" /></span>');
+					$value.html('<input type="text" name="'+required_fields[j]+'" value="'+value+'" />');
 				}
+				if (-1!=mark_as_required.indexOf(required_fields[j])) $value.append('<sup>*</sup>');
 				// Special case the thumbnail
 				if (required_fields[j]==thumbnail_field) {
 					$('<li><span class="field nopadding"></span><span class="value nopadding"><img id="thumbnail" src="'+value+'" /></span></li>').appendTo($coreul);
@@ -588,7 +602,7 @@ if ('undefined'==typeof(escape_html)) {
 				title: title, resizable: true, draggable: true
 			});
 			
-			// Override some default layout
+			// Override layout
 			$content.height((parseInt($content.parent().innerHeight())-parseInt($buttons.outerHeight())-30));
 			$content.scrollTop(0);  // Going from panel to panel, the scrollbar will stay scrolled down if placed that way
 			
@@ -689,6 +703,21 @@ if ('undefined'==typeof(escape_html)) {
 		/**
 		 * Helper methods
 		 */
+		
+		validate_custom_meta : function($form, required) {
+			
+			var valid = true;
+			$form.find('input, textarea').each(function() {
+				var $this = $(this);
+				if (!$this.val().length && required.indexOf($this.attr('name'))!=-1) {
+					valid = false;
+					$this.addClass('invalid_input');
+				}
+			});
+			
+			return valid;
+			
+		},
 		
 		flatten_object : function(obj1) {
 			

@@ -35,14 +35,19 @@
 
 .custom_meta {position:relative;}
 .custom_meta .directions {margin:6px 0px 6px 0px;}
+.custom_meta .subtitle {font-weight:normal;}
 .custom_meta ul {display:table; width:96%; margin-left:0px; padding-left:0px;}
 .custom_meta ul li {display:table-row;}
 .custom_meta ul li .field, .custom_meta ul li .value {display:table-cell; padding-bottom:6px;}
 .custom_meta ul li .nopadding {padding-bottom:0px;}
-.custom_meta ul li .value {text-align:left;}
+.custom_meta ul li .value {text-align:left; white-space:nowrap;}
 .custom_meta ul li .value > img {height:75px; border:solid 1px #dddddd; display:none;}
-.custom_meta ul li .value > input {width:100%;}
-.custom_meta ul li .value > textarea {width:100%; height:60px; margin:0;}
+.custom_meta ul li .value > input {width:97%;}
+.custom_meta ul li .value > textarea {width:97%; height:60px; margin:0;}
+.custom_meta sup, .custom_meta .asterisk {color:red; padding-left:3px; font-weight:bold;}
+.custom_meta .invalid_input {border:solid 1px red;}
+.custom_meta .custom_meta_footer {text-align:right;margin-top:12px;}
+.custom_meta .custom_meta_footer .reload {color:#026697; font-size:smaller; float:left; padding-top:4px;}
 
 /* Overlay */
 
