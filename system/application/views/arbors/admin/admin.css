@@ -54,9 +54,10 @@ a:hover {text-decoration:underline;}
 .login_wrapper{
 	font-family: 'Lato', Arial, sans-serif;
 	width:300px;
-	margin-top:28px;
-	margin-left:auto;
-	margin-right:auto;	
+	position: absolute;
+	top: 28px;
+	left: 50%;
+	margin-left: -150px;
 	font-size: 100%;
 }
 
