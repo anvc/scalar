@@ -1,1 +1,3 @@
 #header .leaves { display: none; }
+#sidebar-nav { display: none; }
+.results_list td:nth-child(2) { display: none; }
