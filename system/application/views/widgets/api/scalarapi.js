@@ -1967,10 +1967,13 @@ ScalarAPI.prototype.parseCurrentPage = function(json) {
  * @return						The node for the desired page, if found.
  */
 ScalarAPI.prototype.getNode = function(uriOrSlug) {
-	if (uriOrSlug.indexOf('http://') != -1) {
-		return this.model.nodesByURL[uriOrSlug];
+	if ( uriOrSlug != null ) {
+		if (uriOrSlug.indexOf('http://') != -1) {
+			return this.model.nodesByURL[uriOrSlug];
+		}
+		return this.model.nodesByURL[this.model.urlPrefix+uriOrSlug];
 	}
-	return this.model.nodesByURL[this.model.urlPrefix+uriOrSlug];
+	return null;
 }
 
 /**
