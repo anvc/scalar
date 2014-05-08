@@ -347,7 +347,9 @@ class Version_model extends MY_Model {
  		$additional_metadata = array();
  		if (isset($this->rdf_store)) {
  			foreach ($array as $key => $value) {
- 				if (!strstr($key, ':')) continue;			 
+ 				if (!strstr($key, ':')) continue;	
+ 				$value = trim($value);
+ 				if (empty($value)) continue;		 
  				$in_rdf_fields = false;
  				foreach ($this->rdf_store->ns as $ns_pname => $ns_uri) {
  					if ($this->rdf_field_exists(str_replace($ns_pname.':', $ns_uri, $key))) $in_rdf_fields = true;
