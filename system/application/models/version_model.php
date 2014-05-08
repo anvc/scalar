@@ -347,9 +347,7 @@ class Version_model extends MY_Model {
  		$additional_metadata = array();
  		if (isset($this->rdf_store)) {
  			foreach ($array as $key => $value) {
- 				if (!strstr($key, ':')) continue;	
- 				$value = trim($value);
- 				if (empty($value)) continue;		 
+ 				if (!strstr($key, ':')) continue;			 
  				$in_rdf_fields = false;
  				foreach ($this->rdf_store->ns as $ns_pname => $ns_uri) {
  					if ($this->rdf_field_exists(str_replace($ns_pname.':', $ns_uri, $key))) $in_rdf_fields = true;
@@ -357,10 +355,16 @@ class Version_model extends MY_Model {
  				if (!$in_rdf_fields) {
  					if (!isset($additional_metadata[$key])) $additional_metadata[$key] = array();
  					if (is_array($value)) {
- 						foreach ($value as $value_el) $additional_metadata[$key][] = $value_el;
+ 						foreach ($value as $value_el) {
+ 							$value_el = trim($value_el);
+ 							if (empty($value_el)) continue;
+ 							$additional_metadata[$key][] = $value_el;
+ 						}
  					} else {
- 						$additional_metadata[$key][] = $value;
+ 						$value = trim($value);
+ 						if (!empty($value)) $additional_metadata[$key][] = $value;
  					}
+ 					if (empty($additional_metadata[$key])) unset($additional_metadata[$key]);
  				}
  			}
  			if (!empty($additional_metadata)) $this->rdf_store->save_by_urn($this->urn($version_id), $additional_metadata);
