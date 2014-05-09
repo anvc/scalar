@@ -88,6 +88,36 @@
 		});
 
 		this.element.replaceWith(this.element);
+		
+		// set tab order for links
+		var ti = 1000;
+		this.modal.find( '.modal-body a' ).each( function() {
+			$( this ).attr( 'tabindex', ti );
+			ti++;
+		} );
+		
+		// tabbing forward from close button brings focus to first link
+		this.modal.find( '.close' ).keydown( function(e) {
+			var keyCode = e.keyCode || e.which;
+			if( keyCode == 9 ) {
+				if( !e.shiftKey ) {
+			    	e.preventDefault();
+					me.modal.find( '.modal-body a' )[ 0 ].focus();
+			    }
+		    }
+		} );
+		
+		// tabbing backwards from first link brings focus to close button
+		this.modal.find( '.modal-body a' ).eq( 0 ).keydown( function(e) {
+			var keyCode = e.keyCode || e.which;
+			if( keyCode == 9 ) {
+				if( e.shiftKey ) {
+			    	e.preventDefault();
+					me.modal.find( '.close' )[ 0 ].focus();
+			    }
+		    }
+		} );
+		
 	}
 
 	ScalarHelp.prototype.showHelp = function() {
