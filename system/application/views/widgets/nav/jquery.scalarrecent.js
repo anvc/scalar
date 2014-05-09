@@ -72,8 +72,7 @@ function scalarrecent_log_page() {
 	var uri = document.location.href.split('?')[0];  
 	uri = scalarrecent_no_ext(uri);
 	uri = scalarrecent_no_version(uri);
-	var title_array = document.title.split(':');
-	var title = title_array[title_array.length-1];
+	var title = document.title;
 	var desc = $("meta[name='Description']").attr('content');		
 	var role = $('link#primary_role').attr('href'); 
     var color = $('link#color').attr('href'); 
