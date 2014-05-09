@@ -394,6 +394,7 @@ function handleFlashVideoMetadata(data) {
 				if ((me.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
 					me.view.parseAnnotations();
 				}
+
 			}
 			
 			$('body').trigger('mediaElementMetadataHandled', [$(link)]);
@@ -575,7 +576,7 @@ function handleFlashVideoMetadata(data) {
 		 * Populates the header element with content.
 		 */
 		jQuery.MediaElementView.prototype.populateHeader = function() {
-			
+		
 			if (!this.model.isChromeless) {
 			
 				// Menu header (for "maximized" mediaelements only)
@@ -609,7 +610,7 @@ function handleFlashVideoMetadata(data) {
 					});
 		    		
 					// Description button: open the title|description panel
-					this.header.find('#max_desc_button').click(function() {   
+					this.header.find('#max_desc_button').click(function() {  
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -757,7 +758,7 @@ function handleFlashVideoMetadata(data) {
 		 * Populates the sidebar element with content.
 		 */
 		jQuery.MediaElementView.prototype.populateSidebar = function() {
-			
+		
 			if (this.model.containerLayout == "horizontal") {
 				this.annotationSidebar.append('<div style="display:none;" class="annotationChip dark">No annotations to display.</div>');
 				this.annotationSidebar.height(this.containerDim.y);
@@ -1285,7 +1286,7 @@ function handleFlashVideoMetadata(data) {
 		
 			this.calculateContainerSize();
 			this.layoutMediaObject();
-	
+			
 			if (this.annotationsVisible) {
 				if (this.model.options.header != 'nav_bar') {
 					$(this.annotationLink).find('a').text('Hide Annotations');
@@ -1713,9 +1714,11 @@ function handleFlashVideoMetadata(data) {
 			var coordinate;
 			
 			this.annotations = this.model.node.getRelations('annotation', 'incoming');
-			if ( this.annotationSidebar ) {
-				this.annotationSidebar.empty();
-			}
+			/*if ( this.annotationSidebar ) {
+				if (this.model.options.header != 'nav_bar') {
+					this.annotationSidebar.empty();
+				}
+			}*/
 			
 			// if this instance was passed an initial seek value, then keep track
 			// of the annotation it was directed to seek to
