@@ -87,24 +87,46 @@
 		} );
 		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content index_modal"></div></div>' );
 		var modalContent = this.element.find( '.modal-content' );
-		var header = $( '<div class="modal-header"><button tabindex="'+this.tabIndex.Close+'" type="button" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
+		var header = $( '<div class="modal-header"><button tabindex="'+this.tabIndex.Close+'" type="button" title="Close" class="close" data-dismiss="modal" aria-hidden="true"><span>Close</span></button><h2 class="modal-title heading_font">Index</h2></div>' ).appendTo( modalContent );
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
 		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
-		var pathBtn = $( '<li data-toggle="tab" id="pathBtn" class="active caption_font"><a tabindex="'+this.tabIndex.Path+'" id="apaths" href="#Path">Paths</li>' ).appendTo( this.controlBar );
-		var pageBtn = $( '<li data-toggle="tab" id="pageBtn" class="caption_font"><a tabindex="'+this.tabIndex.Page+'" href="#Page">Pages</li>' ).appendTo( this.controlBar );
-		var mediaBtn = $( '<li data-toggle="tab" id="mediaBtn" class="caption_font"><a tabindex="'+this.tabIndex.Media+'" href="#Media">Media</li>' ).appendTo( this.controlBar );
-		var tagBtn = $( '<li data-toggle="tab" id="tagBtn" class="caption_font"><a tabindex="'+this.tabIndex.Tag+'" href="#Tag">Tags</li>' ).appendTo( this.controlBar );
-		var annotationBtn = $( '<li data-toggle="tab" id="annotationBtn" class="caption_font"><a tabindex="'+this.tabIndex.Annotation+'" href="#Annotation">Annotations</li>' ).appendTo( this.controlBar );
-		var commentBtn = $( '<li data-toggle="tab" id="replyBtn" class="caption_font"><a tabindex="'+this.tabIndex.Comment+'" href="#Comment">Comments</li>' ).appendTo( this.controlBar );
+		var pathBtn = $( '<li id="pathBtn" class="active caption_font"><a tabindex="'+this.tabIndex.Path+'" href="#Path">Paths</a></li>' ).appendTo( this.controlBar );
+		var pageBtn = $( '<li id="pageBtn" class="caption_font"><a tabindex="'+this.tabIndex.Page+'" href="#Page">Pages</a></li>' ).appendTo( this.controlBar );
+		var mediaBtn = $( '<li id="mediaBtn" class="caption_font"><a tabindex="'+this.tabIndex.Media+'" href="#Media">Media</a></li>' ).appendTo( this.controlBar );
+		var tagBtn = $( '<li id="tagBtn" class="caption_font"><a tabindex="'+this.tabIndex.Tag+'" href="#Tag">Tags</a></li>' ).appendTo( this.controlBar );
+		var annotationBtn = $( '<li id="annotationBtn" class="caption_font"><a tabindex="'+this.tabIndex.Annotation+'" href="#Annotation">Annotations</a></li>' ).appendTo( this.controlBar );
+		var commentBtn = $( '<li id="replyBtn" class="caption_font"><a tabindex="'+this.tabIndex.Comment+'" href="#Comment">Comments</a></li>' ).appendTo( this.controlBar );
 
 		var showTab = function(event) {
-			var mode = $(this).find('a').attr('href').substr(1);
-			$(this).addClass('active').siblings().removeClass('active');
+			event.preventDefault();
+			var mode = $(this).attr('href').substr(1);
 			me.setDisplayMode( me.DisplayMode[mode] );
 		}
 
-		this.controlBar.find('li').click(showTab);
+		this.controlBar.find('li>a').click(showTab);
+		
+		// tabbing forward from close button brings focus to path tab
+		header.find( '.close' ).keydown( function(e) {
+			var keyCode = e.keyCode || e.which;
+			if( keyCode == 9 ) {
+				if( !e.shiftKey ) {
+			    	e.preventDefault();
+					pathBtn.find( 'a' )[ 0 ].focus();
+			    }
+		    }
+		} );
+		
+		// tabbing backwards from path tab brings focus to close button
+		pathBtn.find( 'a' ).keydown( function(e) {
+			var keyCode = e.keyCode || e.which;
+			if( keyCode == 9 ) {
+				if( e.shiftKey ) {
+			    	e.preventDefault();
+					header.find( '.close' )[ 0 ].focus();
+			    }
+		    }
+		} );
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
 		this.resultsTable = $( '<table summary="" class="table table-striped table-hover table-responsive"></table>' ).appendTo( resultsDiv );
@@ -139,10 +161,10 @@
 	}
 
 	ScalarIndex.prototype.setDisplayMode = function( mode ) {
-
+	
 		var me = this;
-
-		if ( this.currentMode != mode ) {
+		
+		if ( me.currentMode != mode ) {
 			this.currentMode = mode;
 			this.currentPage = this.tabLastPage[mode] || 1;
 			this.maxPages = 1;
@@ -212,7 +234,7 @@
 			if (node.thumbnail) {
 				thumb = '<img src="'+node.thumbnail+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
 			}
-			row = $( '<tr><td class="title"><a title="View '+node.getDisplayTitle()+'" href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
+			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 			row.data( 'node', node );
 			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
 		}
@@ -225,7 +247,7 @@
 		if (( nodes.length == this.resultsPerPage ) || ( this.currentPage > 1 )) {
 			if ( this.currentPage > 1 ) {
 				tabindex++;
-				prev = $('<li><a tabindex="'+tabindex+'" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
+				prev = $('<li><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 				prev.find('a').click( function() { me.previousPage(); } );
 			} else {
 				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
@@ -233,7 +255,7 @@
 			var maxPages = this.tabPageCount[this.currentMode] || 1;
 			for ( i = 1; i <= maxPages; i++ ) {
 				tabindex++;
-				var pageBtn = $( '<li><a data-page="'+i+'" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
+				var pageBtn = $( '<li><a data-page="'+i+'" title="Go to results page ' + i + '" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
 				pageBtn.data( 'page', i );
 				if ( i == this.currentPage ) {
 					pageBtn.addClass( 'active' );
@@ -244,12 +266,17 @@
 			}
 			if ( nodes.length == this.resultsPerPage ) {
 				tabindex++;
-				next = $( '<li><a tabindex="'+tabindex+'" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
+				next = $( '<li><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 				next.find('a').click( function() { me.nextPage(); } );
 			} else {
 				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 			}
 		}
+		
+		// dynamically update tab index of close button
+		tabindex++;
+		this.element.find( '.close' ).attr( 'tabindex', tabindex );
+		
 	}
 
 	ScalarIndex.prototype.previousPage = function() {
