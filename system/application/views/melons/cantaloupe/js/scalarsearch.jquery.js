@@ -62,7 +62,7 @@
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 
-		$('<div><form role="form" class="form-inline"><div class="form-group"><label for="modal_keyword">You searched for</label>&nbsp;<input class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword"  />&nbsp;<button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search again</button></div></form></div>').appendTo(this.bodyContent);
+		$('<form role="form" class="form-inline row"><div class="form-group col-lg-9 col-xs-8"><div class="row"><label for="modal_keyword" class="col-lg-2 col-xs-4">Search</label><div class="col-lg-10 col-xs-8"><input class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword"  /></div>&nbsp;</div></div><div class="col-lg-3 col-xs-4"><button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button></div></form>').appendTo(this.bodyContent);
 
 		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive"></table></div>' ).appendTo( this.bodyContent );
 		$( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );

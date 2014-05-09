@@ -1154,14 +1154,19 @@ label {
   font-weight: normal;
 }
 /* search modal */
-.search .modal form  {
-  margin-bottom: 15px;
+.search .modal .form-inline.row {
+
+  margin-right:0;
+}
+.search .modal  label {
+  margin-top:5px;
 }
 .search .modal .search_input {
   margin: 0;
   top: 0;
   padding:0 0.4rem;
   border:solid 1px rgb(204, 204, 204);
+  width: 100%;
 }
 /* bootstrap override */
 button, input, optgroup, select, textarea {
