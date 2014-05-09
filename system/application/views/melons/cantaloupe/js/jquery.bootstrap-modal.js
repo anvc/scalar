@@ -32,7 +32,7 @@ $.fn.bootstrapModal = function(options) {
     <div class="modal-dialog '+settings.size_class+'">\
       <div class="modal-content">\
         <div class="modal-header">\
-          <button tabindex="'+settings.close_tabindex+'" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&nbsp;</span><span class="sr-only">Close</span></button>\
+          <button tabindex="'+settings.close_tabindex+'" type="button" class="close" title="Close" data-dismiss="modal"><span aria-hidden="true">&nbsp;</span><span class="sr-only">Close</span></button>\
           <h2 class="modal-title heading_font">'+settings.title+'</h2>\
         </div>\
         <div class="modal-body">\
