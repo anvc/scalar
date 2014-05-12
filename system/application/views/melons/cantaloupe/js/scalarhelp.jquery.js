@@ -84,7 +84,7 @@
 		this.modal = content.bootstrapModal({title: 'Help'});
 
 		this.modal.on('shown.bs.modal', function() {
-			$(this).find('.close').focus();
+			me.modal.find( '.modal-body a' )[ 0 ].focus();
 		});
 
 		this.element.replaceWith(this.element);

@@ -84,6 +84,28 @@
 		this.searchField.keyup(function(event) {
 			$('#search').val($(this).val());
 		})
+		
+		// tabbing forward from close button brings focus to search field
+		this.modal.find( '.close' ).keydown( function(e) {
+			var keyCode = e.keyCode || e.which;
+			if( keyCode == 9 ) {
+				if( !e.shiftKey ) {
+			    	e.preventDefault();
+					me.firstFocus();
+			    }
+		    }
+		} );
+		
+		// tabbing backwards from search field link brings focus to close button
+		this.searchField.keydown( function(e) {
+			var keyCode = e.keyCode || e.which;
+			if( keyCode == 9 ) {
+				if( e.shiftKey ) {
+			    	e.preventDefault();
+					me.modal.find( '.close' )[ 0 ].focus();
+			    }
+		    }
+		} );
 	}
 
 	ScalarSearch.prototype.showSearch = function() {

@@ -28,7 +28,7 @@ $.fn.bootstrapModal = function(options) {
   }, options);
 
   var html = '\
-  <div class="modal fade">\
+  <div class="modal fade" role="dialog">\
     <div class="modal-dialog '+settings.size_class+'">\
       <div class="modal-content">\
         <div class="modal-header">\
