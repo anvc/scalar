@@ -29,7 +29,7 @@ body {
 a {text-decoration:none; color:#026697;}
 a:hover {text-decoration:underline;}
 
-.system_wrapper {margin-left:2.0em; margin-right:2.0em;}
+.system_wrapper {clear:both; margin-left:2.0em; margin-right:2.0em;}
 
 .table_wrapper { height: 500px; overflow-y: auto; border: 1px solid #ccc; -webkit-overflow-scrolling: touch; }
 
