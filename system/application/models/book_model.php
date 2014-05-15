@@ -295,10 +295,12 @@ class Book_model extends MY_Model {
  		if (empty($title)) $title = 'Untitled';
     	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author
  		$template = (isset($array['template'])) ? $array['template'] : null;
-    	
+		$chmod_mode = $this->config->item('chmod_mode'); 	
+ 		
     	if (empty($title)) throw new Exception('Could not resolve title');
     	$active_melon = $this->config->item('active_melon');
     	if (empty($template) && !empty($active_melon)) $template = trim($active_melon);  // Otherwise use MySQL default
+    	if (empty($chmod_mode)) $chmod_mode = 0777;   
     	
     	$uri = $orig = safe_name($title, false);  // Don't allow forward slashes
     	$count = 1;
@@ -314,8 +316,8 @@ class Book_model extends MY_Model {
  			echo 'Alert: could not create media folder.';
  		}
     	    	
-    	chmod($uri, 0777);
-    	chmod(confirm_slash($uri).'media', 0777);
+    	@chmod($uri, $chmod_mode);
+    	@chmod(confirm_slash($uri).'media', $chmod_mode);
  	
     	// Required fields
 		$data = array('title' => $title, 'slug' =>$uri, 'created'=>$mysqldate = date('Y-m-d H:i:s'), 'stylesheet'=>$this->default_stylesheet );

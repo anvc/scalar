@@ -318,6 +318,8 @@ class Book extends MY_Controller {
 		$this->data['template'] = $this->template->config['active_template'];		
 		
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
+		$chmod_mode = $this->config->item('chmod_mode');
+		if (empty($chmod_mode)) $chmod_mode = 0777;
 
 		if (!$this->login_is_book_admin()) {
 			if ($action == 'add') {
@@ -336,7 +338,7 @@ class Book extends MY_Controller {
 				if (empty($_FILES)) throw new Exception('Could not find uploaded file');
 				$path =@ $_POST['slug_prepend'];
 				$targetPath = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$path;
-				if (!file_exists($targetPath)) mkdir($targetPath, 0777, true);		 
+				if (!file_exists($targetPath)) mkdir($targetPath, $chmod_mode, true);		 
 				$tempFile = $_FILES['source_file']['tmp_name'];
 				$name = $_FILES['source_file']['name'];
 				if (!empty($_POST['replace'])) {
@@ -347,6 +349,7 @@ class Book extends MY_Controller {
 				}
 				$targetFile = rtrim($targetPath,'/') . '/' . $name;
 				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');				
+				@chmod($targetFile, $chmod_mode); 
 				$url = ((!empty($path))?confirm_slash($path):'').$name;
 				$return['error'] = '';
 				$return['url'] = $url;

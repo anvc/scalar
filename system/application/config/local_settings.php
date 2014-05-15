@@ -15,6 +15,9 @@ $config['active_cover'] = 'cover';
 // SALT, any string you want as long as it is complicated
 $config['shasalt'] = '';
 
+// chmod permissions when the system creates directories or places uploaded files (e.g., 0775)
+$config['chmod_mode'] = 0775;
+
 // ReCAPTCHA key (leave blank for no ReCAPTCHA)
 $config['recaptcha_public_key'] = '';
 $config['recaptcha_private_key'] = '';
