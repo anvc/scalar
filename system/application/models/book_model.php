@@ -24,9 +24,6 @@
  * @version				2.2
  */
 
-ini_set('display_errors',1);
-error_reporting(E_ALL);
-
 function sortBookVersions($a, $b) {
 	$x = (int) strtolower($a->sort_number);
 	$y = (int) strtolower($b->sort_number);
