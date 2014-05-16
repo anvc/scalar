@@ -24,6 +24,9 @@
  * @version				2.2
  */
 
+ini_set('display_errors',1);
+error_reporting(E_ALL);
+
 function sortBookVersions($a, $b) {
 	$x = (int) strtolower($a->sort_number);
 	$y = (int) strtolower($b->sort_number);
@@ -480,20 +483,26 @@ class Book_model extends MY_Model {
 		}
 		
 		// File -- save thumbnail
-		// TODO: don't have time to move this to a new library that doesn't depend on PEAR, and resizes
-		error_reporting(0);
 		if (isset($_FILES['upload_thumb'])&&$_FILES['upload_thumb']['size']>0) {
 			try {
-				require_once(confirm_slash(APPPATH).'libraries/Upload.php');
-				$file = new Image_Upload('upload_thumb');
-				$file->create_thumb(120);
-				$ext = $file->file->getProp('ext');
+				require confirm_slash(APPPATH).'libraries/wideimage/WideImage.php';
+				// permissions
+				$chmod_mode = $this->config->item('chmod_mode');
+				if (empty($chmod_mode)) $chmod_mode = 0777;
+				// Sort out paths and names
+				$tempFile = $_FILES['upload_thumb']['tmp_name'];
 				$book = $this->get($book_id);
 				$book_slug = $book->slug;
-				$path = confirm_slash(FCPATH).confirm_slash($book_slug).'media';
-				$name = 'book_thumbnail.'.$ext;
-				$file->save_thumb($path, $name);
-				$array['thumbnail'] = 'media/'.$name;
+				$targetPath = confirm_slash(FCPATH).confirm_slash($book_slug).'media';
+				$ext = pathinfo($_FILES['upload_thumb']['name'], PATHINFO_EXTENSION);
+				$targetName = 'book_thumbnail.'.strtolower($ext);
+				$targetFile = $targetPath.'/'.$targetName;
+				// Place file, load and resize
+				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');
+				@chmod($targetFile, $chmod_mode); 
+				WideImage::load($targetFile)->resize(120)->saveToFile($targetFile);
+				// Output array
+				$array['thumbnail'] = 'media/'.$targetName;
 			} catch (Exception $e) {
    				throw new Exception($e->getMessage());
 			}

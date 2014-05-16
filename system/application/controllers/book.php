@@ -348,6 +348,7 @@ class Book extends MY_Controller {
 					if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
 				}
 				$targetFile = rtrim($targetPath,'/') . '/' . $name;
+				// Return fields
 				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');				
 				@chmod($targetFile, $chmod_mode); 
 				$url = ((!empty($path))?confirm_slash($path):'').$name;
