@@ -78,9 +78,6 @@
 				$('body').mousemove(function(event) {  // Don't use mouseout as it doesn't fire predictably (see notes in the fun below)
 					$.fn.scalarcontentpreview('check_mo', $box, $link, event.pageX, event.pageY);
 				});
-				$box.click(function() {  // When the content preview box is clicked, remove it (for touch interfaces)
-					$.fn.scalarcontentpreview('remove', $link);
-				});
 				$('#content').click(function() {  // Also for touch interfaces
 					$.fn.scalarcontentpreview('remove', $link);
 				});		
