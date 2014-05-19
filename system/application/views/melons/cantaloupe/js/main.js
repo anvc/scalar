@@ -300,12 +300,27 @@ $(window).ready(function() {
 				var rdf_json = rdf.dump();
 				//console.log('------- RDFa JSON ----------------------------');
 				//console.log(rdf_json);
-
-				// use scalarapi to parse the JSON
-				scalarapi.model.urlPrefix = document.location.href.split('/').slice(0,5).join('/')+'/';
+				
+				// use the RDF data for the book to set the book's base URL
+				var datum;
+				for ( var i in rdf_json ) {
+					datum = rdf_json[ i ];
+					if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ] ) {
+						if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ][ 0 ].value == 'http://scalar.usc.edu/2012/01/scalar-ns#Book' ) {
+							scalarapi.model.urlPrefix = i + '/';
+							break;
+						}
+					}
+				}
+				
+				// fallback method for determining the book URL; will fail if URL structure is non-standard
+				if ( scalarapi.model.urlPrefix == null ) {
+					scalarapi.setBook( document.location.href );
+				}
+				
+				// use scalarapi to parse the JSON; fall
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
-				//currentNode = scalarapi.getNode( 'index' );
 				currentNode = scalarapi.model.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];
 				//console.log(JSON.stringify(rdf_json));
 				/**
@@ -362,11 +377,11 @@ $(window).ready(function() {
 				  	$('article').before($('#book-title').parent().parent());
 		   		}
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-
+				
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
 
 				$( '[property="art:url"]' ).css( 'display', 'none' );
-
+				
 				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
 
 				var timeout;

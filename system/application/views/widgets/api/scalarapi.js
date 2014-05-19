@@ -1978,7 +1978,8 @@ ScalarAPI.prototype.getNode = function(uriOrSlug) {
 
 /**
  * Sets the urlPrefix to be used in subsequent calls to the API to the book
- * referenced in the supplied URL.
+ * referenced in the supplied URL. (NOTE: this will fail if the Scalar install
+ * has a non-standard URL structure).
  *
  * @param	scalarURL			A URL from a Scalar book.
  */
