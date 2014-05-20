@@ -509,6 +509,7 @@
 		// Other archives
 		listItem = $( '<li>Other archives</li>' ).appendTo( menu );
 		subMenu = $( '<ul id="other-archives-menu" class="align-right scrollable-menu"></ul>' ).appendTo( listItem );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/prezi">Prezi</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/soundcloud">SoundCloud</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/vimeo">Vimeo</a>' ).appendTo( subMenu );
