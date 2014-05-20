@@ -198,6 +198,7 @@
 			<a href="<?=$url_base?>import/shoah_foundation_vha">VHA</a>&nbsp; |&nbsp; 
 			<a href="<?=$url_base?>import/prezi">Prezi</a>,&nbsp;
 			<a href="<?=$url_base?>import/soundcloud">SoundCloud</a>,&nbsp;
+			<a href="<?=$url_base?>import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</a>,&nbsp;
 			<a href="<?=$url_base?>import/vimeo">Vimeo</a>,&nbsp;
 			<a href="<?=$url_base?>import/youtube">YouTube</a>&nbsp; |&nbsp; 
 			<a href="<?=$url_base?>upload">Upload file</a>,&nbsp;
