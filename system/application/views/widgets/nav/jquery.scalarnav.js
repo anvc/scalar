@@ -1225,6 +1225,7 @@
 				button = $('<div class="button"><p class="subhead"><b>Other archives</b></p></div>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/prezi"><b>Prezi</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/soundcloud"><b>SoundCloud</b></a></p>');
+				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/the_metropolitan_museum_of_art"><b>The Metropolitan Museum of Art</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/vimeo"><b>Vimeo</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/youtube"><b>YouTube</b></a></p>');
 				buttonProxy = button.find('.subhead');
