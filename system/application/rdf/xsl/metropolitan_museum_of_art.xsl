@@ -73,7 +73,11 @@
 	
 		<rdf:Description rdf:about="{$archiveDomain}{div[2]/a/@href}">
 			<dcterms:identifier><xsl:value-of select="$identifier"/></dcterms:identifier>
-			<art:thumbnail rdf:resource="{div[@class='list-view-thumbnail']/a/img/@src}" />
+			<xsl:choose>
+				<xsl:when test="not(contains(div[@class='list-view-thumbnail']/a/img/@src,'NoImageAvailable'))">
+					<art:thumbnail rdf:resource="{div[@class='list-view-thumbnail']/a/img/@src}" />
+				</xsl:when>
+			</xsl:choose>
 			<art:filename rdf:resource="{$filename}" />	
 			<art:sourceLocation rdf:resource="{$archiveDomain}{div[2]/a/@href}" />	
 			<dcterms:source><xsl:value-of select="$archiveName"/></dcterms:source>
