@@ -182,7 +182,7 @@
 			if (node.thumbnail) {
 				thumb = '<img src="'+node.thumbnail+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
 			}
-			row = $( '<tr><td class="title"><a title="View '+node.getDisplayTitle()+'" href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
+			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 
 			row.data( 'node', node );
 			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
@@ -204,14 +204,14 @@
 		if (( nodes.length == this.resultsPerPage ) || ( this.currentPage > 1 )) {
 			if ( this.currentPage > 1 ) {
 				tabindex++;
-				prev = $('<li><a tabindex="'+tabindex+'" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
+				prev = $('<li><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 				prev.find('a').click( function() { me.previousPage(); } );
 			} else {
 				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 			}
 			for ( i = 1; i <= this.maxPages; i++ ) {
 				tabindex++;
-				var pageBtn = $( '<li><a data-page="'+i+'" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
+				var pageBtn = $( '<li><a data-page="'+i+'" title="Go to results page ' + i + '" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
 				pageBtn.data( 'page', i );
 				if ( i == this.currentPage ) {
 					pageBtn.addClass( 'active' );
@@ -222,7 +222,7 @@
 			}
 			if ( nodes.length == this.resultsPerPage ) {
 				tabindex++;
-				next = $( '<li><a tabindex="'+tabindex+'" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
+				next = $( '<li><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 				next.find('a').click( function() { me.nextPage(); } );
 			} else {
 				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
