@@ -104,28 +104,16 @@
 		}
 
 		this.controlBar.find('li>a').click(showTab);
-		
+
 		// tabbing forward from close button brings focus to path tab
-		header.find( '.close' ).keydown( function(e) {
-			var keyCode = e.keyCode || e.which;
-			if( keyCode == 9 ) {
-				if( !e.shiftKey ) {
-			    	e.preventDefault();
-					pathBtn.find( 'a' )[ 0 ].focus();
-			    }
-		    }
-		} );
-		
+		header.find( '.close' ).onTab(function() {
+			pathBtn.find( 'a' )[ 0 ].focus();
+		});
+
 		// tabbing backwards from path tab brings focus to close button
-		pathBtn.find( 'a' ).keydown( function(e) {
-			var keyCode = e.keyCode || e.which;
-			if( keyCode == 9 ) {
-				if( e.shiftKey ) {
-			    	e.preventDefault();
-					header.find( '.close' )[ 0 ].focus();
-			    }
-		    }
-		} );
+		pathBtn.find('a').onTabBack(function() {
+			header.find( '.close' )[ 0 ].focus();
+		});
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
 		this.resultsTable = $( '<table summary="" class="table table-striped table-hover table-responsive"></table>' ).appendTo( resultsDiv );
@@ -157,9 +145,9 @@
 	}
 
 	ScalarIndex.prototype.setDisplayMode = function( mode ) {
-	
+
 		var me = this;
-		
+
 		if ( me.currentMode != mode ) {
 			this.currentMode = mode;
 			this.currentPage = this.tabLastPage[mode] || 1;
@@ -268,11 +256,11 @@
 				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 			}
 		}
-		
+
 		// dynamically update tab index of close button
 		tabindex++;
 		this.element.find( '.close' ).attr( 'tabindex', tabindex );
-		
+
 	}
 
 	ScalarIndex.prototype.previousPage = function() {

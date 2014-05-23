@@ -780,6 +780,13 @@ a.media_info {
 	border-color: gray;
 	width: 100%;
 }
+
+/* comments dialog */
+.comments .modal-body h3 {
+  padding-left:0;
+  margin-top:0;
+}
+
 .field {
 	width: 50px;
 	white-space: nowrap;
