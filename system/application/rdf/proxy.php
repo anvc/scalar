@@ -85,7 +85,7 @@ if (empty($xsl)) {
 	exit;
 }
 
-$is_html = (false!==strpos(substr($xml, 0, 200), '<html')) ? true : false;
+$is_html = (false!==stripos(substr(trim($xml), 0, 200), '<html')) ? true : false;
 
 $XML = new DOMDocument(); 
 if ($is_html) {

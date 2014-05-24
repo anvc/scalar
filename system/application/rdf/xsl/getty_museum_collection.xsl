@@ -34,24 +34,28 @@
 			<xsl:variable name="identifier_even"><xsl:value-of select="format-number(substring-after(../td[position() = 6]/a/@href,'artobj='),'000000')" /></xsl:variable>	 		
 			<rdf:Description rdf:about="{../td[position() = 2]/a/@href}">
 				<art:thumbnail rdf:resource="{../td[position() = 2]/a/img/@src}" />
-				<art:filename rdf:resource="http://www.getty.edu/art/collections/images/l/{$identifier_odd}01.jpg"></art:filename>
+				<xsl:if test="$identifier_odd != 'NaN'">
+					<art:filename rdf:resource="http://www.getty.edu/art/collections/images/l/{$identifier_odd}01.jpg"></art:filename>
+					<dcterms:identifier><xsl:value-of select="$identifier_odd"/></dcterms:identifier>
+				</xsl:if>	
 				<dcterms:source><xsl:value-of select="$archiveName"/></dcterms:source>
 				<art:sourceLocation rdf:resource="{../td[position() = 2]/a/@href}" />
-				<dcterms:title><xsl:value-of select="../td[position() = 4]/a/strong"/></dcterms:title>
-				<dcterms:identifier><xsl:value-of select="$identifier_odd"/></dcterms:identifier>
+				<dcterms:title><xsl:value-of select="../td[position() = 4]/a/strong"/></dcterms:title>		
 				<dcterms:contributor><xsl:value-of select="normalize-space(../td[position() = 4]/text()[position() = 2])"/> (<xsl:value-of select="normalize-space(../td[position() = 4]/text()[position() = 3])"/>)</dcterms:contributor>
 				<dcterms:type>Image</dcterms:type>	
 			</rdf:Description>
 			<rdf:Description rdf:about="{../td[position() = 6]/a/@href}">
 				<art:thumbnail rdf:resource="{../td[position() = 6]/a/img/@src}" />
-				<art:filename rdf:resource="http://www.getty.edu/art/collections/images/l/{$identifier_even}01.jpg"></art:filename>
+				<xsl:if test="$identifier_even != 'NaN'">
+					<art:filename rdf:resource="http://www.getty.edu/art/collections/images/l/{$identifier_even}01.jpg"></art:filename>
+					<dcterms:identifier><xsl:value-of select="$identifier_even"/></dcterms:identifier>
+				</xsl:if>	
 				<dcterms:source><xsl:value-of select="$archiveName"/></dcterms:source>
 				<art:sourceLocation rdf:resource="{../td[position() = 6]/a/@href}" />
 				<dcterms:title><xsl:value-of select="../td[position() = 8]/a/strong"/></dcterms:title>
-				<dcterms:identifier><xsl:value-of select="$identifier_even"/></dcterms:identifier>
 				<dcterms:contributor><xsl:value-of select="normalize-space(../td[position() = 8]/text()[position() = 2])"/> (<xsl:value-of select="normalize-space(../td[position() = 8]/text()[position() = 3])"/>)</dcterms:contributor>
 				<dcterms:type>Image</dcterms:type>	
-			</rdf:Description>			
+			</rdf:Description>		
 		</xsl:if>
 	</xsl:template>  
 

@@ -465,7 +465,7 @@ if ('undefined'==typeof(escape_html)) {
 				if (results_data[j].contributor) {
 					$content.append('<div class="contributor">'+results_data[j].contributor+'</div>');
 				}
-				if (!results_data[j].url.length) {
+				if (!results_data[j].url || !results_data[j].url.length) {
 					$('<div class="import_error"><a href="'+results_data[j].node_uri+'" target="_blank" class="generic_button small">Source</a>&nbsp; '+options.url_not_supported_msg+'</div>').appendTo($content);
 					$tr.addClass(options.url_not_supported_class);
 					$tr.find("input[id='result_row_"+j+"']").remove();
