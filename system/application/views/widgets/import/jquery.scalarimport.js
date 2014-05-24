@@ -257,7 +257,8 @@ if ('undefined'==typeof(escape_html)) {
 				if ('object'==typeof(results_data[j].thumb) && results_data[j].thumb.length) results_data[j].thumb = results_data[j].thumb[0];
 				results_data[j].url = ('undefined'!=typeof(post[j]['scalar:url'])) ? post[j]['scalar:url'] : null;
 				results_data[j].mediatype = ('undefined'!=typeof(post[j]['dcterms:type'])) ? post[j]['dcterms:type'] : 'Media';
-
+				results_data[j].contributor = ('undefined'!=typeof(post[j]['dcterms:contributor'])) ? post[j]['dcterms:contributor'] : null;
+				
 			}
 
 			return results_data;
@@ -461,6 +462,9 @@ if ('undefined'==typeof(escape_html)) {
 				$tr.data('orig_post', post_data);  // for use with resetting original metadata button 
 				$tr.append('<td valign="top" class="thumbnail"><img src="'+results_data[j].thumb+'" /></td>');
 				var $content = $('<td valign="top"><div class="title"><input type="checkbox" id="result_row_'+j+'" /><label for="result_row_'+j+'"> '+results_data[j].title+'</label>&nbsp;</div><div class="desc">'+create_excerpt(results_data[j].desc, options.results_desc_num_words)+'</div></td>').appendTo($tr);
+				if (results_data[j].contributor) {
+					$content.append('<div class="contributor">'+results_data[j].contributor+'</div>');
+				}
 				if (!results_data[j].url.length) {
 					$('<div class="import_error"><a href="'+results_data[j].node_uri+'" target="_blank" class="generic_button small">Source</a>&nbsp; '+options.url_not_supported_msg+'</div>').appendTo($content);
 					$tr.addClass(options.url_not_supported_class);

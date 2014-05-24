@@ -190,6 +190,7 @@
 			Import page quick links:&nbsp; 
 			<a href="<?=$url_base?>import/critical_commons">Critical Commons</a>,&nbsp; 
 			<a href="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a>,&nbsp; 
+			<a href="<?=$url_base?>import/getty_museum_collection">Getty Museum Collection</a>,&nbsp;
 			<a href="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</a>,&nbsp; 
 			<a href="<?=$url_base?>import/hypercities">HyperCities</a>,&nbsp; 
 			<a href="<?=$url_base?>import/internet_archive">Internet Archive</a>,&nbsp; 
