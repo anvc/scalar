@@ -499,7 +499,6 @@
 		subMenu = $( '<ul id="affiliated-archives-menu" class="align-right scrollable-menu"></ul>' ).appendTo( listItem );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/critical_commons">Critical Commons</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a>' ).appendTo( subMenu );
-		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/getty_museum_collection">Getty Museum Collection</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/hemispheric_institute">Hemispheric Institute Digital Video Library</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/hypercities">Hypercities</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/internet_archive">Internet Archive</a>' ).appendTo( subMenu );
@@ -510,6 +509,7 @@
 		// Other archives
 		listItem = $( '<li>Other archives</li>' ).appendTo( menu );
 		subMenu = $( '<ul id="other-archives-menu" class="align-right scrollable-menu"></ul>' ).appendTo( listItem );
+		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/getty_museum_collection">Getty Museum Collection</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/prezi">Prezi</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/soundcloud">SoundCloud</a>' ).appendTo( subMenu );
 		subMenuItem = $( '<li><a href="' + scalarapi.model.urlPrefix + 'import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</a>' ).appendTo( subMenu );

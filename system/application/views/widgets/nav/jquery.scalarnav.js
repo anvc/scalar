@@ -1188,7 +1188,6 @@
 				button = $('<div class="button"><p class="subhead"><b>Affiliated archives</b></p></div>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/critical_commons"><b>Critical Commons</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/cuban_theater_digital_archive"><b>Cuban Theater Digital Archive</b></a></p>');
-				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/getty_museum_collection"><b>Getty Museum Collection</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/hemispheric_institute"><b>Hemispheric Institute Digital Video Library</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/hypercities"><b>HyperCities</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/internet_archive"><b>Internet Archive</b></a></p>');
@@ -1224,6 +1223,7 @@
 			} else {
 			
 				button = $('<div class="button"><p class="subhead"><b>Other archives</b></p></div>');
+				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/getty_museum_collection"><b>Getty Museum Collection</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/prezi"><b>Prezi</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/soundcloud"><b>SoundCloud</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/the_metropolitan_museum_of_art"><b>The Metropolitan Museum of Art</b></a></p>');

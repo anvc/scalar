@@ -190,13 +190,13 @@
 			Import page quick links:&nbsp; 
 			<a href="<?=$url_base?>import/critical_commons">Critical Commons</a>,&nbsp; 
 			<a href="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a>,&nbsp; 
-			<a href="<?=$url_base?>import/getty_museum_collection">Getty Museum Collection</a>,&nbsp;
 			<a href="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</a>,&nbsp; 
 			<a href="<?=$url_base?>import/hypercities">HyperCities</a>,&nbsp; 
 			<a href="<?=$url_base?>import/internet_archive">Internet Archive</a>,&nbsp; 
 			<a href="<?=$url_base?>import/play">PLAY!</a>,&nbsp; 
 			<a href="<?=$url_base?>import/shoah_foundation_vha_online">VHA Online</a>,&nbsp;
-			<a href="<?=$url_base?>import/shoah_foundation_vha">VHA</a>&nbsp; |&nbsp; 
+			<a href="<?=$url_base?>import/shoah_foundation_vha">VHA</a>&nbsp; |&nbsp;
+			<a href="<?=$url_base?>import/getty_museum_collection">Getty Museum Collection</a>,&nbsp; 
 			<a href="<?=$url_base?>import/prezi">Prezi</a>,&nbsp;
 			<a href="<?=$url_base?>import/soundcloud">SoundCloud</a>,&nbsp;
 			<a href="<?=$url_base?>import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</a>,&nbsp;
