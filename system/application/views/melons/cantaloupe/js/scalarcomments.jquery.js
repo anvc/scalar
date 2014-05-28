@@ -71,7 +71,11 @@
 	}
 
 	ScalarComments.prototype.firstFocus = function() {
-		this.bodyContent.find('.comment:eq(0) h3 a').focus();
+		if ( this.bodyContent.find( '.comment' ).length > 0 ) {
+			this.bodyContent.find('.comment:eq(0) h3 a').focus();
+		} else {
+			this.bodyContent.find( 'p:visible > a:eq(0)' ).focus();
+		}
 	}
 
 	ScalarComments.prototype.showComments = function() {
@@ -123,7 +127,25 @@
 
 	}
 
+	ScalarComments.prototype.updateTabIndexForReCaptcha = function() {
+		console.log( '----' );
+		var ti = parseInt( $( '.comment_form' ).find( "input[class='input_text']" ).attr( 'tabindex' ) );
+		$( '#comment_captcha' ).find( 'input' ).each( function() {
+			$( this ).attr( 'tabindex', ++ti );
+		} );
+		$( '#comment_captcha' ).find( 'a' ).each( function() {
+			$( this ).attr( 'tabindex', ++ti );
+			if ( $( this ).attr( 'href' ) == null ) {
+				$( this ).attr( 'href', 'javascript:;' );
+			}
+			console.log( this );
+		} );
+		$( '.comment_form' ).find( "input[type='submit']" ).attr( 'tabindex', ++ti );
+	}
+	
 	ScalarComments.prototype.setupCommentForm = function() {
+	
+		var me = this;
 
 		this.userReply = $('<div class="comment_form"></div>').appendTo(this.bodyContent);
 		this.userReply.append('<h3 class="heading_font">Add your voice</h3>');
@@ -138,7 +160,7 @@
 		commentForm.append('<input type="hidden" name="dcterms:description" value="" />');
 		commentForm.append('<input type="hidden" name="user" value="0" id="comment_user_id" />');
 		commentForm.append('<input type="hidden" name="recaptcha_public_key" value="'+$('link#recaptcha_public_key').attr('href')+'" />');
-		commentForm.append('<table class="form_fields comment_form_table"><tbody><tr id="comment_your_name"><td class="field">Your name</td><td class="value"><input tabindex="'+(++this.tabIndex)+'" type="text" name="fullname" value="" class="input_text"></td></tr><tr><td class="field">Comment title</td><td class="value"><input tabindex="'+(++this.tabIndex)+'" type="text" name="dcterms:title" value="" class="input_text"></td></tr><tr><td class="field">Content<br /><small style="color:#222222;"></small></td><td class="value"><textarea tabindex="'+(++this.tabIndex)+'" name="sioc:content" value="" rows="6" class="input_text"></textarea></td></tr><tr id="comment_captcha"><td class="field"></td><td class="value" id="comment_captcha_wrapper"></td></tr><tr><td></td><td class="form_buttons" colspan="4"><input type="submit" tabindex="'+(++this.tabIndex)+'" class="generic_button large" title="Submit comment" value="Submit comment" /></td></tr></tbody></table>');
+		commentForm.append('<table class="form_fields comment_form_table"><tbody><tr id="comment_your_name"><td class="field">Your name</td><td class="value"><input tabindex="'+(++this.tabIndex)+'" type="text" name="fullname" value="" class="input_text"></td></tr><tr><td class="field">Comment title</td><td class="value"><input tabindex="'+(++this.tabIndex)+'" type="text" name="dcterms:title" value="" class="input_text"></td></tr><tr><td class="field">Content<br /><small style="color:#222222;"></small></td><td class="value"><textarea tabindex="'+(++this.tabIndex)+'" name="sioc:content" value="" rows="6" class="input_text"></textarea></td></tr><tr id="comment_captcha"><td class="field"></td><td class="value" id="comment_captcha_wrapper"></td></tr><tr><td></td><td class="form_buttons" colspan="4"><input type="submit" class="generic_button large" title="Submit comment" value="Submit comment" /></td></tr></tbody></table>');
 
 		if ($('.comment').length == 0) {
 			this.userReply.css('margin-top', '10rem');
@@ -169,6 +191,20 @@
 				});
 				$('#comment_your_name').hide();
 				$('#comment_captcha').hide();
+				
+				// handle tab back on first link
+				$( '#commenter_logged_in' ).find( 'a:eq(0)' ).onTabBack(function() {
+				
+					// tab back to close button if no comments are visible
+					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
+						me.modal.find('.close').focus();
+						
+					// otherwise tab back to the last comment
+					} else {
+						me.bodyContent.find('.comment:last h3 a').focus();
+					}
+				});
+				
 			} else {
 				$('#commenter_anonymous').fadeIn('fast');
 				$('#comment_your_name').show();
@@ -177,10 +213,24 @@
 				if ('undefined'==typeof(Recaptcha)) {
 					alert('There was a problem contacting ReCAPTCHA to create CAPTCHA test.  Please reload the page and try again.')
 				} else if (!recaptcha_public_key.length) {
-					alert('No ReCAPTCHA key is provided, therefor anonymous commenting is disabled.');
+					alert('No ReCAPTCHA key is provided, therefore anonymous commenting is disabled.');
 				} else {
-					Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", {theme: "white"});
+					Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", { theme: "white", tabindex: ++me.tabIndex });
+					setTimeout( me.updateTabIndexForReCaptcha, 500 );
 				}
+				
+				// handle tab back on first link
+				$( '#commenter_anonymous' ).find( 'a:eq(0)' ).onTabBack(function() {
+				
+					// tab back to close button if no comments are visible
+					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
+						me.modal.find('.close').focus();
+						
+					// otherwise tab back to the last comment
+					} else {
+						me.bodyContent.find('.comment:last h3 a').focus();
+					}
+				});
 			}
 			$('#comment_form_wrapper').fadeIn('fast');
 		});
