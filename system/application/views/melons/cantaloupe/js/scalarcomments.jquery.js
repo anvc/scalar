@@ -128,7 +128,6 @@
 	}
 
 	ScalarComments.prototype.updateTabIndexForReCaptcha = function() {
-		console.log( '----' );
 		var ti = parseInt( $( '.comment_form' ).find( "input[class='input_text']" ).attr( 'tabindex' ) );
 		$( '#comment_captcha' ).find( 'input' ).each( function() {
 			$( this ).attr( 'tabindex', ++ti );
@@ -138,7 +137,6 @@
 			if ( $( this ).attr( 'href' ) == null ) {
 				$( this ).attr( 'href', 'javascript:;' );
 			}
-			console.log( this );
 		} );
 		$( '.comment_form' ).find( "input[type='submit']" ).attr( 'tabindex', ++ti );
 	}
@@ -191,6 +189,7 @@
 				});
 				$('#comment_your_name').hide();
 				$('#comment_captcha').hide();
+				$( '.comment_form' ).find( "input[type='submit']" ).attr( 'tabindex', ++me.tabIndex );
 				
 				// handle tab back on first link
 				$( '#commenter_logged_in' ).find( 'a:eq(0)' ).onTabBack(function() {
