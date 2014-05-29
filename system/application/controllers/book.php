@@ -574,6 +574,7 @@ class Book extends MY_Controller {
 
 		// Metadata terms
 		$this->data['ontologies'] = $this->config->item('ontologies');
+		$this->data['rdf_fields'] = $this->versions->rdf_fields;
 		// TODO: remove built in fields
 		
 		// Styling 

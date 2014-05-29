@@ -77,7 +77,7 @@ if (!count($page->versions)) {
 <?
 	if ($login_is_super || in_array($book->book_id, $login_book_ids)):
 ?>
-		<input type="submit" value="Delete selected versions" style="font-size:smaller;" />&nbsp; &nbsp; <a href="javascript:" onclick="reorderVersionNums()">Re-order version numbers</a>
+		<input type="submit" value="Delete selected versions" class="generic_button" />&nbsp; &nbsp; <a href="javascript:" onclick="reorderVersionNums()">Re-order version numbers</a>
 <?
 	endif;
 ?> 

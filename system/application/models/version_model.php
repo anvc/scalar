@@ -356,12 +356,20 @@ class Version_model extends MY_Model {
  					if (!isset($additional_metadata[$key])) $additional_metadata[$key] = array();
  					if (is_array($value)) {
  						foreach ($value as $value_el) {
- 							$value_el = trim($value_el);
+ 							if (isset($value_el['value'])) {
+ 								$value_el['value'] = trim($value_el['value']);
+ 							} else {
+ 								$value_el = trim($value_el);
+ 							}
  							if (empty($value_el)) continue;
  							$additional_metadata[$key][] = $value_el;
  						}
  					} else {
- 						$value = trim($value);
+ 						if (isset($value['value'])) {
+ 							$value['value'] = trim($value['value']);
+ 						} else {
+ 							$value = trim($value);
+ 						}
  						if (!empty($value)) $additional_metadata[$key][] = $value;
  					}
  					if (empty($additional_metadata[$key])) unset($additional_metadata[$key]);

@@ -542,7 +542,7 @@ endif;
 		endif;
 		?>	  
 		</table>
-	  
+	
 		<div class="pulldown pulldown_click" style="width:190px;">
 			  <a href="javascript:;" class="generic_button border_radius">Add additional metadata</a>
 			  <ul class="pulldown-content nodots" style="width:600px;white-space:normal;line-height:150%;">	
@@ -554,6 +554,7 @@ endif;
 <?
 				$terms = array();
 				foreach ($ontterms as $p) {
+					if (in_array($ont.':'.$p,$rdf_fields)) continue;
 					$terms[] = '<a href="javascript:;" onclick="add_meta_row(\''.$ont.':'.$p.'\')" title="'.$ont.':'.$p.'">'.$p.'</a>';
 				}
 				echo implode(', &nbsp; ',$terms);
