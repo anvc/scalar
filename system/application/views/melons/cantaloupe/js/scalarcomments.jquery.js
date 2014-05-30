@@ -44,7 +44,7 @@
 	ScalarComments.prototype.results = null;		// results container
 	ScalarComments.prototype.userReply = null;		// user reply container
 	ScalarComments.prototype.firstRun = null;		// is this the first run of the plug-in?
-	ScalarComments.prototype.tabIndex = 100;
+	ScalarComments.prototype.tabIndex = null;
 
 	ScalarComments.prototype.init = function () {
 
@@ -102,12 +102,14 @@
 
 		var relation, node,
 			relations = currentNode.getRelations('comment', 'incoming', 'reverseindex');
+			
+		this.tabIndex = 100;
 
 		for (var i in relations) {
 			relation = relations[i];
 			container = $('<div class="comment"></div>').appendTo(this.results);
 			var date = new Date(relation.properties.datetime);
-			container.append('<h3 class="heading_font"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'" title="'+relation.body.getDisplayTitle()+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+'</div>');
+			container.append('<h3 class="heading_font"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+'</div>');
 		}
 
 		if (relations.length > 0) {
@@ -158,7 +160,7 @@
 		commentForm.append('<input type="hidden" name="dcterms:description" value="" />');
 		commentForm.append('<input type="hidden" name="user" value="0" id="comment_user_id" />');
 		commentForm.append('<input type="hidden" name="recaptcha_public_key" value="'+$('link#recaptcha_public_key').attr('href')+'" />');
-		commentForm.append('<table class="form_fields comment_form_table"><tbody><tr id="comment_your_name"><td class="field">Your name</td><td class="value"><input tabindex="'+(++this.tabIndex)+'" type="text" name="fullname" value="" class="input_text"></td></tr><tr><td class="field">Comment title</td><td class="value"><input tabindex="'+(++this.tabIndex)+'" type="text" name="dcterms:title" value="" class="input_text"></td></tr><tr><td class="field">Content<br /><small style="color:#222222;"></small></td><td class="value"><textarea tabindex="'+(++this.tabIndex)+'" name="sioc:content" value="" rows="6" class="input_text"></textarea></td></tr><tr id="comment_captcha"><td class="field"></td><td class="value" id="comment_captcha_wrapper"></td></tr><tr><td></td><td class="form_buttons" colspan="4"><input type="submit" class="generic_button large" title="Submit comment" value="Submit comment" /></td></tr></tbody></table>');
+		commentForm.append('<table summary="Comment form" class="form_fields comment_form_table"><tbody><tr id="comment_your_name"><td class="field"><label for="fullname_field">Your name</label></td><td class="value"><input id="fullname_field" autocomplete="off" tabindex="'+(++this.tabIndex)+'" type="text" name="fullname" value="" class="input_text"></td></tr><tr><td class="field"><label for="title_field">Comment title</label></td><td class="value"><input id="title_field" autocomplete="off" tabindex="'+(++this.tabIndex)+'" type="text" name="dcterms:title" value="" class="input_text"></td></tr><tr><td class="field"><label for="comment_field">Content</label><br /><small style="color:#222222;"></small></td><td class="value"><textarea id="comment_field" tabindex="'+(++this.tabIndex)+'" name="sioc:content" value="" rows="6" class="input_text"></textarea></td></tr><tr id="comment_captcha"><td class="field"></td><td class="value" id="comment_captcha_wrapper"></td></tr><tr><td></td><td class="form_buttons" colspan="4"><input type="submit" class="generic_button large" value="Submit comment" /></td></tr></tbody></table>');
 
 		if ($('.comment').length == 0) {
 			this.userReply.css('margin-top', '10rem');
