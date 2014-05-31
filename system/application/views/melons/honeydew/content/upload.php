@@ -3,16 +3,77 @@ $js = <<<END
 
 $( document ).ready(function() {
 	$('select[name="replace"]').change(function() {
-		$('input[name="dcterms:title"]').val( $(this).find('option:selected').text() );
+		$('#loading').show();
+		document.getElementById('submit_button').disabled = true;
+		var title = ($(this).find('option:selected').val().length) ? $(this).find('option:selected').text() : '';
+		$('input[name="dcterms:title"]').val(title);
+		insert_rel_fields($(this).find('option:selected').val(), $(this).find('option:selected').attr('rel'));
 	});
 	if (getHashValue('replace')) {
 		var replace = getHashValue('replace');
 		if ($("select[name='replace'] option[value='urn:scalar:version:"+replace+"']").length) {
+			$('#loading').show();
+			document.getElementById('submit_button').disabled = true;
 			$("select[name='replace'] option[value='urn:scalar:version:"+replace+"']").attr('selected', 'selected');
 			$('input[name="dcterms:title"]').val( $(this).find('option:selected').text() ); // Since .attr() didn't really "change" the select box
+			insert_rel_fields('urn:scalar:version:'+replace, $("select[name='replace'] option[value='urn:scalar:version:"+replace+"']").attr('rel'));
 		}
 	}
 });
+function insert_rel_fields(current_urn, current_slug) {
+  var parent = $('link#parent').attr('href');
+  var current_uri = parent+current_slug;
+  var insert_into = $('#relations');
+  insert_into.empty();
+  var fields = [];
+  $.getJSON(current_uri+'.rdfjson?ref=1&rec=1', function( data ) {
+    for (var s in data) {
+      // Paths
+      if (-1!=s.indexOf('urn:scalar:path')) {
+        if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
+        	fields.push({name:'container_of',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasTarget'][0].value)});
+        } else {
+        	fields.push({name:'has_container',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
+        	// num
+        }
+      }      
+      // Replies
+      if (-1!=s.indexOf('urn:scalar:reply')) {
+        if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
+        	fields.push({name:'reply_of',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasTarget'][0].value)});
+        	// Paragraph num
+        } else {
+        	fields.push({name:'has_reply',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
+        	// Paragraph num
+        	// Datetime
+        }
+      }            
+      // Annotations
+      // Tags
+      if (-1!=s.indexOf('urn:scalar:tag')) {
+        if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
+        	fields.push({name:'tag_of',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasTarget'][0].value)});
+        } else {
+        	fields.push({name:'has_tag',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
+        }
+      }
+      // References
+    }
+    for (var j = 0; j < fields.length; j++) {
+      insert_into.append('<input type="hidden" name="'+fields[j].name+'" value="'+fields[j].value+'" />');
+    }
+    $('#loading').hide();
+    document.getElementById('submit_button').disabled = false;
+  });
+}
+function get_urn_from_uri(data, uri) {
+  for (var s in data) {
+    if (-1!=s.indexOf(uri)) {  // Version
+      return data[s]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+    }
+  }
+  return false;
+}
 
 END;
 $this->template->add_js($js, 'embed');
@@ -69,11 +130,13 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm
 <tr><td class="field">Media page URL</td><td><input type="radio" name="name_policy" value="filename" /> Create from filename &nbsp;<input type="radio" name="name_policy" value="title" CHECKED /> Create from title</td></tr>
 <tr>
   <td class="field">Replace existing</td>
-  <td><select name="replace" style="width:100%;"><option value="">-- choose an existing local media file to replace with this upload</option><?
+  <td><select name="replace" style="width:100%;"><option rel="" value="">-- choose an existing local media file to replace with this upload</option><?
   	foreach($book_media as $book_media_row) {
   		if (!isset($book_media_row->versions) || empty($book_media_row->versions)) continue;
   		if (!$this->versions->url_is_local($book_media_row->versions[0]->url)) continue;
-  		echo '<option value="'.$this->versions->urn($book_media_row->versions[0]->version_id).'">';
+  		echo '<option ';
+  		echo 'rel="'.$book_media_row->slug.'" ';
+  		echo 'value="'.$this->versions->urn($book_media_row->versions[0]->version_id).'">';
   		if (!isset($book_media_row->versions[0])) continue;
   		echo $book_media_row->versions[0]->title;
   		echo '</option>';
@@ -82,9 +145,10 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm
 </tr>
 <tr><td class="field">&nbsp;</td></tr>
 <tr><td class="field">Choose file&nbsp; &nbsp; &nbsp;</td><td><input type="file" name="source_file" /></td></tr>
-<tr><td>&nbsp;</td><td class="form_buttons"><input type="submit" value="Upload" /><div style="float:right;margin:20px 20px 0px 0px;" id="spinner_wrapper"></div></td></tr>
+<tr><td>&nbsp;</td><td class="form_buttons"><input type="submit" value="Upload" id="submit_button" /><span style="color:red;display:none;" id="loading">&nbsp; Loading media metadata...</span><div style="float:right;margin:20px 20px 0px 0px;" id="spinner_wrapper"></div></td></tr>
 </table>
 <iframe id="hidden_upload" name="hidden_upload" src="" style="width:0;height:0;border:0px solid #fff"></iframe>
+<div id="relations"></div>
 </form>
 
 </div>
