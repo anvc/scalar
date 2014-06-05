@@ -33,6 +33,7 @@
 		this.options = $.extend( {}, defaults, options );
 		this._defaults = defaults;
 		this._name = pluginName;
+		this.quickStart = false;
 
 		this.firstRun = true;
 
@@ -44,7 +45,8 @@
 	ScalarComments.prototype.results = null;		// results container
 	ScalarComments.prototype.userReply = null;		// user reply container
 	ScalarComments.prototype.firstRun = null;		// is this the first run of the plug-in?
-	ScalarComments.prototype.tabIndex = null;
+	ScalarComments.prototype.tabIndex = null;		// tracks element tab indexes
+	ScalarComments.prototype.quickStart = null;		// true if the dialog is just being loaded to show an alert
 
 	ScalarComments.prototype.init = function () {
 
@@ -62,6 +64,10 @@
 		this.results = this.element.find('.results');
 		this.modal = this.element.find('.modal');
 
+		var queryVars = scalarapi.getQueryVars( document.location.href );
+		if ( queryVars.action == 'comment_saved' ) {
+			this.bodyContent.prepend( '<div class="alert alert-success heading_font"><strong>Your comment has been saved and is now awaiting moderation.</strong> Thank you for your contribution!</div>' )
+		}
 
 		this.modal.on('shown.bs.modal', function() { me.firstFocus() });
 
@@ -78,7 +84,8 @@
 		}
 	}
 
-	ScalarComments.prototype.showComments = function() {
+	ScalarComments.prototype.showComments = function( qs ) {
+		this.quickStart = qs;
 		this.getComments();
 		this.modal.modal('show');
 	}
@@ -116,7 +123,7 @@
 			this.results.append('<hr>');
 		}
 
-		if ( this.firstRun ) {
+		if ( this.firstRun && !this.quickStart ) {
 			this.setupCommentForm();
 			this.firstRun = false;
 		}

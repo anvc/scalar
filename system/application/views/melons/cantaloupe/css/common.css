@@ -8,6 +8,8 @@
 .body_font { font-family: Georgia, Times, serif !important; }
 .caption_font { font-family: 'Lato', Arial, sans-serif !important; }
 
+.heading_font b, .heading_font strong { font-weight: 900; }
+
 body { visibility: hidden; background-repeat: no-repeat; background-position: -9999px -9999px; }
 
 /* Base elements */

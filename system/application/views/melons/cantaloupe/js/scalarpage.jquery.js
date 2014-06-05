@@ -351,6 +351,10 @@
 				$('.reply_link').click(function() {
 					commentDialog.data('plugin_scalarcomments').showComments();
 				});
+				var queryVars = scalarapi.getQueryVars( document.location.href );
+				if ( queryVars.action == 'comment_saved' ) {
+					commentDialog.data('plugin_scalarcomments').showComments( true );
+				}
 			},
 			
 			addColophon: function() {
