@@ -46,12 +46,11 @@ object, embed {margin:0; padding:0;}
 }
 
 .slot_controls {
-	position:absolute; z-index:9; rightt:0px; top:0px; width:325px;
+	position:absolute; z-index:9; rightt:0px; top:0px; width:325px; background: white;
 	padding-bottom:4px; text-align:center; 
 }
 
 .slot_controls .control_bar {
-	/*background:#e5e5e5;*/
 	padding-top:6px; padding-bottom:3px;
 	border-top: 1px solid #CBCBCB;
 	/*-webkit-border-radius:5px; -moz-border-radius:5px; border-radius:5px;*/
