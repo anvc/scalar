@@ -546,6 +546,23 @@
 							
 							page.addMediaElementForLink($(this), parent);
 							
+							// trigger media playback when links are clicked on
+							$( this ).click( function( e ) {
+							
+								e.preventDefault();
+								e.stopPropagation();
+								
+								var mediaelement = $( this ).data( 'mediaelement' );
+								if ( mediaelement != null ) {
+									if ( mediaelement.is_playing() ) {
+										mediaelement.pause();
+									} else {
+										mediaelement.play();
+									}
+								}
+							
+							} );
+							
 						}
 					});
 					$('[property="art:url"]').each(function() {
