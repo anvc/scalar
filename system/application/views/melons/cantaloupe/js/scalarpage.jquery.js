@@ -539,7 +539,7 @@
 								$(this).attr('data-size', 'full');
 								parent = $(this);
 							} else {
-								parent = $(this).parent('p,div');
+								parent = $(this).closest('.body_copy');
 							}
 											
 							$(this).addClass('media_link');
