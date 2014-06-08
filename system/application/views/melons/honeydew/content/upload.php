@@ -22,11 +22,12 @@ $( document ).ready(function() {
 });
 function insert_rel_fields(current_urn, current_slug) {
   var parent = $('link#parent').attr('href');
-  var current_uri = parent+current_slug;
+  var content_uri = parent+current_slug;
   var insert_into = $('#relations');
   insert_into.empty();
   var fields = [];
-  $.getJSON(current_uri+'.rdfjson?ref=1&rec=1', function(data) {
+  $.getJSON(content_uri+'.rdfjson?ref=1&rec=1', function(data) {
+  	var current_uri = data[content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#version'][0].value;
     for (var s in data) {
       // Paths
       if (-1!=s.indexOf('urn:scalar:path')) {
@@ -112,6 +113,7 @@ function insert_rel_fields(current_urn, current_slug) {
   });
 }
 function get_urn_from_uri(data, uri) {
+  if (-1!=uri.indexOf('#')) uri = uri.substr(0, uri.indexOf('#'));
   for (var s in data) {
     if (-1!=s.indexOf(uri)) {  // Version
       return data[s]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
