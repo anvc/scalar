@@ -38,6 +38,15 @@ body>.container{
 	box-shadow:         0px 0px 30px 0px rgba(0, 0, 0, 0.75);
 }
 
+.scalarnotice{
+  top:80px !important;	
+}
+.scalarnotice .close_link {padding-right:5px; float:right;}
+.scalarnotice .close_link a {
+	padding-right:0px; padding-left:30px;
+	background-image:url(images/close_icon.png); background-repeat:no-repeat; background-position:right top;
+}
+
 h1, h2, h3, h4{
   font-family: 'Roboto', sans-serif;
   font-weight: 100;
