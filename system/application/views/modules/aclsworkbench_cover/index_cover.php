@@ -43,6 +43,9 @@
 	     </span>
 		</div>
 	</div>
+	<? if ($this->config->item('index_msg')): ?>
+	<div class="saved msg"><?=$this->config->item('index_msg')?></div>
+	<? endif ?>	
 	<?php
 		if($method == 'home'){
 	?>

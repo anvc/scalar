@@ -37,9 +37,9 @@ a:hover {text-decoration:underline;}
 
 .dashboard { font-size:0.8em; }
 
-.saved {background:#ceffc8; border:solid 1px #cccccc; padding:8px 10px 8px 10px; margin-bottom:6px;}
-.error {background:#efcdcd; border:solid 1px #cccccc; padding:8px 10px 8px 10px; margin-bottom:6px; max-width:850px;}
-.generic_notice {background:#ffffff; border:solid 1px #74b66c; padding:8px 10px 8px 10px; margin-bottom:6px;}
+.saved {color:#000000; background:#ceffc8; border:solid 1px #cccccc; padding:8px 10px 8px 10px; margin-bottom:6px;}
+.error {color:#000000; background:#efcdcd; border:solid 1px #cccccc; padding:8px 10px 8px 10px; margin-bottom:6px; max-width:850px;}
+.generic_notice {color:#000000; background:#ffffff; border:solid 1px #74b66c; padding:8px 10px 8px 10px; margin-bottom:6px;}
 
 .panel { background-color: white; border:solid 1px #e7e5e0; padding:10px; margin-bottom:6px;}
 
