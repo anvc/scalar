@@ -165,7 +165,7 @@
 				
 				case 'title-and-description':
 				if ( node.current.description != null ) {
-					description += '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+					description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
 				} else {
 					description = node.getDisplayTitle();
 				}
