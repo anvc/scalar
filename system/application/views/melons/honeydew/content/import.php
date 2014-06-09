@@ -40,6 +40,9 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 		echo $desc;
 		echo '<br /><br />'."\n\n";
 	endif;
+	
+	$availability = $external->getPropValue('scalar:availability');
+	if (empty($availability) || 'available' == $availability):
 ?>	
 		
 	<div id="error"></div>		
@@ -74,5 +77,7 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 	<div class="search_results_footer"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="generic_button large default" href="javascript:;" onclick="search_archive_import();">Import selected media</a></div>
 
 	<br clear="both" />
+	
+<? endif; ?>
 
 </div>

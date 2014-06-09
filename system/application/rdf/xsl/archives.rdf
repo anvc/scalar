@@ -47,10 +47,11 @@
 	<rdf:Description rdf:about="http://search.prezi.com/explore/">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Prezi</dc:title>
-		<dcterms:description><![CDATA[Prezi is a presentation tool that helps you organize and share your ideas. (Prezi.com)]]></dcterms:description>
+		<dcterms:description><![CDATA[<div class="error"><p>Due to changes in the mechanism for accessing Prezi search results, Scalar is having difficulty establishing a connection and the Prezi importer is currently unavailable.</p></div>]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/prezi.xsl" />
 		<scalar:getStr><![CDATA[search=$1&order_by=relevance&limit=12&offset=$2]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
+		<scalar:availability>unavailable</scalar:availability>
 	</rdf:Description>		
 	
 	<rdf:Description rdf:about="http://hidvl.nyu.edu/search/">
