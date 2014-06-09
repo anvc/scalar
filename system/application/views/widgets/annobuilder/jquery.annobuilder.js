@@ -248,7 +248,7 @@ jQuery.AnnoBuilderController = function() {
 			} else if (!$.annobuilder.model.selectedAnnotation) {
 				$.annobuilder.controller.selectAnnotation();
 			} 
-			
+		
 			// seeking on an image annotation clears the anno display, so don't do it
 			if ( $.annobuilder.model.node.current.mediaSource.contentType != 'image' ) {
 				$.annobuilder.model.mediaElement.seek( $.annobuilder.model.selectedAnnotation );

@@ -28,7 +28,8 @@
 		
 			options: $.extend({
 				'shy':true,
-				'details': null
+				'details': null,
+				'caption': 'description'
 			}, options),
 			
 			showAnnotation: function(e, relation, m, forceShow) {
@@ -155,23 +156,44 @@
 			
 			var foundAuxContent = false;
 			
-			var description = node.current.description;
-			if ( description == null ) {
-				description = '<p><i>No description available.</i></p>';
-			}
-			var descriptionPane = $('<div class="media_description pane">'+description+'</div>').appendTo(element);
-			var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
-			descriptionTab.click(function() {
-				$(this).parent().parent().find('.pane').hide();
-				media.minimizeAnnotationPane();
-				descriptionPane.show();
-				$(this).parent().find('.media_tab').removeClass('select');
-				descriptionTab.addClass('select');
-				if (currentRelation != null) {
-					media.showAnnotation(null, currentRelation, mediaelement, true);
+			var description;
+			switch ( media.options.caption ) {
+			
+				case 'title':
+				description = node.getDisplayTitle();
+				break;
+				
+				case 'title-and-description':
+				if ( node.current.description != null ) {
+					description += '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+				} else {
+					description = node.getDisplayTitle();
 				}
-			});
-			element.find('.media_description').show();
+				break;
+			
+				default:
+				description = node.current.description;
+				if ( node.current.description == null ) {
+					description = '<p><i>No description available.</i></p>';
+				}
+				break;
+			
+			}
+			if ( media.options.caption != 'none' ) {
+				var descriptionPane = $('<div class="media_description pane">'+description+'</div>').appendTo(element);
+				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
+				descriptionTab.click(function() {
+					$(this).parent().parent().find('.pane').hide();
+					media.minimizeAnnotationPane();
+					descriptionPane.show();
+					$(this).parent().find('.media_tab').removeClass('select');
+					descriptionTab.addClass('select');
+					if (currentRelation != null) {
+						media.showAnnotation(null, currentRelation, mediaelement, true);
+					}
+				});
+				element.find('.media_description').show();
+			}
 			foundAuxContent = true;
 			
 			var i, annotation, row, prop, value;

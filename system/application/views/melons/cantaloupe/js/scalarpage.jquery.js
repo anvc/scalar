@@ -65,9 +65,9 @@
 						mediaelement.model.element.parent().after(infoElement);
 						mediaelement.model.element.css('marginBottom','0');
 						mediaelement.view.footer.hide();
-						$.scalarmedia(mediaelement, infoElement, { 'shy': false, 'details': page.mediaDetails });
+						$.scalarmedia(mediaelement, infoElement, { 'shy': false, 'details': page.mediaDetails, 'caption': link.attr( 'data-caption' ) });
 					} else {
-						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': !isMobile, 'details': page.mediaDetails });
+						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': !isMobile, 'details': page.mediaDetails, 'caption': link.attr( 'data-caption' ) });
 					}
 				}
 				if ( mediaelement.model.node.current.mediaSource.contentType == 'image' ) {

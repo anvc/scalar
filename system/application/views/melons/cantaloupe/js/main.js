@@ -318,7 +318,7 @@ $(window).ready(function() {
 					scalarapi.setBook( document.location.href );
 				}
 				
-				// use scalarapi to parse the JSON; fall
+				// use scalarapi to parse the JSON
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
 				currentNode = scalarapi.model.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];

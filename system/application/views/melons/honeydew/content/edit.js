@@ -511,7 +511,7 @@ function listeditor_save($list, insert_func, $row, select_single) {
 			for (var option_name in reference_options) {
 				var $option = $('<p>'+ucwords(dash_to_space(option_name))+': <select name="'+option_name+'"></select></p>');
 				for (var j = 0; j < reference_options[option_name].length; j++) {
-					$option.find('select:first').append('<option value="'+reference_options[option_name][j]+'">'+ucwords(reference_options[option_name][j])+'</option>');
+					$option.find('select:first').append('<option value="'+reference_options[option_name][j]+'">'+ucwords(dash_to_space(reference_options[option_name][j]))+'</option>');
 				}
 				$options_div.append($option);
 			}
