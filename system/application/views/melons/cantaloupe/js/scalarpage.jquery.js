@@ -136,7 +136,7 @@
 				if (size == 'full') {
 					height = maxMediaHeight;
 				}
-				slot = link.slotmanager_create_slot(width, height, {url_attributes: ['href', 'src']});
+				slot = link.slotmanager_create_slot(width, height, { url_attributes: ['href', 'src'], autoplay: link.attr( 'data-autoplay' ) == 'true' });
 				if (slot) {
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');

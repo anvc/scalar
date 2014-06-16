@@ -285,7 +285,7 @@ function handleFlashVideoMetadata(data) {
 
 				// store the class in the data of the element itself
 				element.data('mediaelement', mediaelement);
-
+				
 				// broadcast an event to the page once the element is created
 				$('body').trigger( 'mediaElementComplete', [$(this)] );
 
@@ -1641,7 +1641,7 @@ function handleFlashVideoMetadata(data) {
 		 	
 		 	var result = false;
 			
-			if (me.annotationDisplay) {
+			if ( me.annotationDisplay || me.model.isChromeless ) {
 				
 				// we're not yet in range; seek must have failed
 				if ((me.lastSeekTime - me.mediaObjectView.getCurrentTime()) > 5) {
@@ -1653,13 +1653,15 @@ function handleFlashVideoMetadata(data) {
 					
 				// we are in range; stop seeking and hide the 'attempting' message if visible
 				} else {
-					if (me.annotationDisplay.text().indexOf('Seeking') != -1) {
-						me.annotationDisplay.fadeOut();
+					if ( !me.model.isChromeless ) {
+						if (me.annotationDisplay.text().indexOf('Seeking') != -1) {
+							me.annotationDisplay.fadeOut();
+						}
 					}
 					me.annotationTimerRunning = false;
 					//console.log('seek successful');
 					// if we know the user intends for the clip to start playing, do so
-					if (me.cachedPlayCommand) {
+					if ( me.cachedPlayCommand || me.model.options.autoplay ) {
 						me.play();
 					} else {
 					
@@ -1885,7 +1887,7 @@ function handleFlashVideoMetadata(data) {
 	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+this.model.seekAnnotation.startString+'…</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
- 				if ( ( this.model.mediaSource.contentType != 'image' ) && ( this.model.mediaSource.contentType != 'document' ) ) {
+  				if ( ( this.model.mediaSource.contentType != 'image' ) && ( this.model.mediaSource.contentType != 'document' ) ) {
  					setTimeout( this.doAutoSeek, 6000 );
 				} else {
  					setTimeout( this.doAutoSeek, 3000 );
@@ -2302,7 +2304,7 @@ function handleFlashVideoMetadata(data) {
 		    	"emb#NAME", this.model.filename+'_object'+this.model.id,
 		    	'EnableJavaScript', 'True',
 		    	'SCALE', 'Aspect',
-		    	'AUTOPLAY', 'False',
+		    	'AUTOPLAY', this.model.options.autoplay,
 		    	'TYPE', 'video/quicktime',
 		    	'CACHE', 'False'
 		    );
@@ -2494,6 +2496,9 @@ function handleFlashVideoMetadata(data) {
 			}
 			
 			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'" controls="controls"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
+				obj.find( 'video' ).attr( 'autoplay', 'true' );
+			}
 			
 			// apply the poster image only if the thumbnail loads successfully
 			var thumbnailURL;
@@ -2643,6 +2648,9 @@ function handleFlashVideoMetadata(data) {
 		jQuery.HTML5AudioObjectView.prototype.createObject = function() {
 
 			obj = $('<div class="mediaObject"><audio style="width:100%" src="'+this.model.path+'" controls="controls" type="audio/'+this.model.extension+'">Your browser does not support the audio tag.</audio></div>').appendTo(this.parentView.mediaContainer);
+			if ( this.model.options.autoplay ) {
+				obj.find( 'audio' ).attr( 'autoplay', 'true' );
+			}
 			this.audio = obj.find('audio');
 			
 			this.parentView.controllerOnly = true;
@@ -2742,7 +2750,8 @@ function handleFlashVideoMetadata(data) {
 					modestbranding:1, 
 					enablejsapi:1,
 					origin:'scalar.usc.edu',
-					rel:0
+					rel:0,
+					autoplay: this.model.options.autoplay ? 1 : 0
 				},
 				events: {
 					'onStateChange': function(event) {
@@ -2901,7 +2910,11 @@ function handleFlashVideoMetadata(data) {
 		 */
 		jQuery.VimeoVideoObjectView.prototype.createObject = function() {
 		
-			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="http://player.vimeo.com/video/'+this.model.filename+'?api=1&player_id=vimeo'+this.model.filename+'_'+this.model.id+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
+			var url = 'http://player.vimeo.com/video/'+this.model.filename+'?api=1&player_id=vimeo'+this.model.filename+'_'+this.model.id
+			if ( this.model.options.autoplay ) {
+				url += '&autoplay=1';
+			}
+			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="'+url+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
 			
 			var ready = function(player_id) {
 				me.froogaloop = $froogaloop(player_id);

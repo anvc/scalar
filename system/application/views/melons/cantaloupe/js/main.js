@@ -246,6 +246,7 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	opts.chromeless = true;
 	opts.solo = options.solo;
 	opts.getRelated = options.getRelated;
+	opts.autoplay = options.autoplay;
 	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
 	$tag.data('path', url);
 	$tag.data('meta', resource);
