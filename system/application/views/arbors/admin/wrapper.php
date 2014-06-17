@@ -4,7 +4,9 @@
 <head>
 <title><?=strip_tags($title)?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<? if (isset($norobots)&&$norobots) echo '<meta name="robots" content="noindex, nofollow">'."\n"; ?>
+<link rel="shortcut icon" href="<?=confirm_slash($app_root)?>views/arbors/admin/favicon_16.gif" />
+<link rel="apple-touch-icon" href="<?=confirm_slash($app_root)?>views/arbors/admin/favicon_114.jpg" />
 <? if (!empty($_meta)) echo $_meta."\n"?>
 <?=template_link_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.css')."\n"?>
 <?=template_link_tag_relative(__FILE__, 'admin.css')."\n"?>

@@ -73,6 +73,7 @@ class System extends MY_Controller {
 		
 		$this->data['login'] = $this->login->get();
 		$this->data['title'] = $this->lang->line('install_name').': Login';
+		$this->data['norobots'] = true;
 		
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/login/login_box', $this->data);
@@ -95,6 +96,7 @@ class System extends MY_Controller {
 		$this->data['title'] = $this->lang->line('install_name').': Register';
 		$register_keys = $this->config->item('register_key');
 		$this->data['register_key'] = (!empty($register_keys)) ? true : false;
+		$this->data['norobots'] = true;
 		
 		try {
 			$action =@ $_POST['action'];		
@@ -128,6 +130,8 @@ class System extends MY_Controller {
 		
 		$this->login->do_logout(true);
 		$this->data['title'] = $this->lang->line('install_name').': Forgot Password';
+		$this->data['norobots'] = true;
+		
 		$this->load->library('SendMail', 'sendmail');
 		//require(dirname(__FILE__).'/../libraries/SendMail.php');
 		$this->data['forgot_login_error'] = '';
@@ -156,6 +160,7 @@ class System extends MY_Controller {
 		
 		$this->login->do_logout(true);
 		$this->data['title'] = $this->lang->line('install_name').': Reset Password';
+		$this->data['norobots'] = true;
 
 		$reset_string =@ $_REQUEST['key'];
 		if (empty($reset_string)) header('Location: '.base_url());
