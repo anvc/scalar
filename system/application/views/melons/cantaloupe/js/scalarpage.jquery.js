@@ -236,13 +236,13 @@
 						path = containing_paths[ i ];
 						section = $('<section class="relationships"></section').appendTo('article');
 						nodes = path.getRelatedNodes('path', 'outgoing');
-						//console.log(sibling_nodes);
 						index = nodes.indexOf(currentNode);
 						if (index < (nodes.length - 1)) {
 						
 							// A child option has already been offered; this option is an alternative
 							if ( pathOptionCount > 0 ) {
 						
+								/*
 								// It's an alternative on the current path or we don't know what path we're on
 								if (( foundQueryPath && ( path.slug == queryVars.path )) || !foundQueryPath ) {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
@@ -253,7 +253,7 @@
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
 										path.slug + '">Or, switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
 										nodes[index+1].getDisplayTitle() + '”</a></p>' );
-								}
+								}*/
 								
 							// No child options have been offered
 							} else {
@@ -263,10 +263,10 @@
 									section.append( '<p><a class="nav_btn primary" href="' + nodes[index+1].url + 
 										'?path=' + path.slug + '">Continue to “' + nodes[index+1].getDisplayTitle() +
 										'”</a></p>' );
-								} else {
+								/*} else {
 									section.append( '<p><a class="nav_btn" href="' + nodes[index+1].url + '?path=' + 
 										path.slug + '">Switch to the “' + path.getDisplayTitle() + '” path and continue to “' +
-										nodes[index+1].getDisplayTitle() + '”</a></p>' );
+										nodes[index+1].getDisplayTitle() + '”</a></p>' );*/
 								}
 							}
 							pathOptionCount++;
