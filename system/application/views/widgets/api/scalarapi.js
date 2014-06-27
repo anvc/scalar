@@ -579,7 +579,6 @@ function ScalarAPI() {
 			contentType:'video',
 			browserSupport: {
 				'Mozilla': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
-				'Explorer': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['webm'], format:'WebM', player:'QuickTime', specifiesDimensions:true},
 				'Chrome': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}

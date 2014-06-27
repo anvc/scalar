@@ -637,11 +637,6 @@
 		$( 'header' ).show();
 		$( '#book-id' ).hide();
 		
-		wrapOrphanParagraphs($('[property="sioc:content"]'));
-	  	
-	  	$('[property="scalar:defaultView"]').hide();
-	  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
-	  	
 	  	// This code makes full-sized inline media truly full instead of having margins
 	  	/*$('[property="sioc:content"]').children('p,div').each( function() {
 	  		if ( $( this ).find('.inline[data-size="full"]').length == 0 ) {
@@ -649,13 +644,21 @@
 	  		}
 	  	});*/
 		
-		
 		$('section').hide(); // TODO: Make this more targeted	
 		
 		var i, node, nodes, link;
 		
 		if ( currentNode != null ) {
+		
 			var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+			
+			if ( viewType != 'maximized' ) {
+				wrapOrphanParagraphs($('[property="sioc:content"]'));
+		  	}
+			
+		  	$('[property="scalar:defaultView"]').hide();
+		  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
+		  	
 			switch (viewType) {
 				
 				case 'splash':
@@ -733,6 +736,11 @@
 				page.addIncomingComments();		  	
 				page.addColophon();	  	
 				page.addNotes();	
+				break;
+				
+				case 'maximized':
+				$( 'h1' ).hide();
+				$( '.page' ).css( 'padding-top', '5.0rem' );
 				break;
 				
 				case 'image_header':
