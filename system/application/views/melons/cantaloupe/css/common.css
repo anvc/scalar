@@ -1116,6 +1116,10 @@ a.nav_btn:hover {
 .loading { background: #fff; position:absolute; top:0; left:0; }
 .loading p {position: absolute; width: 100%; text-align: center; color: #cacaca; font-weight: bold; margin: 0; font-size:16px; line-height: 16px}
 
+/* misc */
+.maximized-embed { width: 100%; height: 650px; }
+.google-info-window h2 { font-size: 1.6rem; padding: 0; margin: 0; line-height: 160%; }
+.google-info-window { line-height: 130%; font-weight: normal; }
 
 /* Hidden elements */
 aside { display: none; }

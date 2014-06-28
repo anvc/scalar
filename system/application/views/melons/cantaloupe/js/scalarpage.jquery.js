@@ -758,6 +758,105 @@
 			
 				default:
 			  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+			  	
+			  	if ( viewType == 'google_maps' ) {
+			  	
+			  		$( '.page' ).css( 'padding-top', '5.0rem' );
+			  		$( 'header > h1' ).before( '<div id="google-maps" class="maximized-embed"></div>' );
+			  		
+					scalarapi.loadPage( currentNode.slug, true, function() {
+						
+						// create map
+						var mapOptions = {
+							center: latlng,
+							zoom: 8,
+							mapTypeId: google.maps.MapTypeId.ROADMAP
+						}
+						var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
+						
+						// create info window
+						var infoWindow = new google.maps.InfoWindow({
+							content: contentString,
+							maxWidth: 400
+						});
+					
+						// if the current page has the spatial property, then
+						if ( currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
+							
+							var marker,
+								markers = [];
+							var temp = currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ][ 0 ].value.split( ',' );
+							var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
+							
+							map.setCenter( latlng );
+							
+							// add marker and info window for current page
+							if ( currentNode.current.description != null ) {
+								contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2>' + currentNode.current.description + '</div>';
+							} else {
+								contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2></div>';
+							}
+							marker = new google.maps.Marker({
+							    position: latlng,
+							    map: map,
+							    html: contentString,
+							    title: currentNode.getDisplayTitle()
+							});
+							markers.push( marker );
+							google.maps.event.addListener( marker, 'click', function() {
+								infoWindow.setContent( this.html );
+								infoWindow.open( map, this );
+							});
+							
+						}	  	
+							
+						// get path and tag contents of this page
+						var contents = [];
+						contents = contents.concat( currentNode.getRelatedNodes( 'path', 'outgoing' ) );
+						contents = contents.concat( currentNode.getRelatedNodes( 'tag', 'outgoing' ) );
+						var i, node, contentString,
+							n = contents.length;
+							
+						// add markers for each content element that has the spatial property
+						for ( i = 0; i < n; i++ ) {
+						
+							node = contents[ i ];
+							
+							if ( node.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
+								var temp = node.current.properties[ 'http://purl.org/dc/terms/spatial' ][ 0 ].value.split( ',' );
+								var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
+								if ( node.current.description != null ) {
+									contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2>' + node.current.description + '</div>';
+								} else {
+									contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2></div>';
+								}
+								marker = new google.maps.Marker({
+								    position: latlng,
+								    map: map,
+								    html: contentString,
+								    title: node.getDisplayTitle()
+								});
+								markers.push( marker );
+								google.maps.event.addListener( marker, 'click', function() {
+									infoWindow.setContent( this.html );
+									infoWindow.open( map, this );
+								});
+							}
+						}
+						
+						// adjust map bounds to marker bounds
+						var bounds = new google.maps.LatLngBounds();
+						$.each( markers, function ( index, marker ) {
+							bounds.extend( marker.position );
+						});
+						if ( markers.length > 1 ) {
+							map.fitBounds( bounds );
+						}
+						
+					}, function() {
+						console.log('an error occurred while retrieving additional metadata.');
+					}, 1, true);
+			  	}
 	
 				page.setupScreenedBackground();
 			  	

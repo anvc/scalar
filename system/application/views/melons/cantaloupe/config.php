@@ -12,6 +12,7 @@ $config['views'] = array(
 			'gallery' => 'Media Gallery (Media contained or tagged by this page shown in a gallery)',
 			'structured_gallery' => 'Structured Media Gallery (Media contained or tagged up to two levels deep shown in an indexed gallery)',
 			'maximized' => 'Maximized (Page title hidden, content displayed at full width)',
+			'google_maps' => 'Google Map (Plots any page with "spatial" metadata, along with its path/tag contents)',
 			'edit' => '',
 			'annotation_editor' => ''
 		);

@@ -64,7 +64,7 @@ echo doctype('html5')."\n"
 <?=template_script_tag_relative(__FILE__, 'common.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudsdk.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudapi.js')."\n"?>
-<?="<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=".$this->config->item('google_maps_key')."&sensor=false\"></script>"."\n"?>
+<?="<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=".$this->config->item('google_maps_key')."\"></script>"."\n"?>
 <?=template_script_tag_relative(__FILE__, 'yepnope.1.5.3-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'yepnope.css.js')."\n"?>
 <? if (!empty($_scripts)) echo $_scripts?>
