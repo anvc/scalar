@@ -23,6 +23,9 @@ h1 { margin-top: 1rem; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%
 .results_list {margin-top:10px; overflow: auto;}
 .results_list td:nth-child(2) { display: none; }
 
+.maximized-embed { height: 300px; }
+
+
 /* 4in iphone 5 */
 @media only screen and (max-device-height : 1136px) {
   .results_list {height:130px;max-height:130px;}

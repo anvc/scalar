@@ -779,12 +779,13 @@
 							content: contentString,
 							maxWidth: 400
 						});
+						
+						var marker,
+							markers = [];
 					
 						// if the current page has the spatial property, then
 						if ( currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
 							
-							var marker,
-								markers = [];
 							var temp = currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ][ 0 ].value.split( ',' );
 							var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
 							
