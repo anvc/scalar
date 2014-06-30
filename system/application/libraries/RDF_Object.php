@@ -172,12 +172,13 @@ class RDF_Object {
 		$settings = $this->_settings($settings);
 		
 		// Publisher
-		if($settings['book']->publisher) {
+		if($settings['book']->publisher || $settings['book']->publisher_thumbnail) {
 	 		$pub = new stdClass;
-	 		$pub->title = $settings['book']->publisher;
-	 		$pub->publisher_thumbnail = $settings['book']->publisher_thumbnail;
+	 		$pub->title = ($settings['book']->publisher) ? $settings['book']->publisher : null;
+	 		$pub->publisher_thumbnail = ($settings['book']->publisher_thumbnail) ? $settings['book']->publisher_thumbnail : null;
 	 		$pub->type = 'Resource';			
 			$settings['book']->publisher = $settings['base_uri'].'publisher';
+			unset($settings['book']->publisher_thumbnail);
 		}
     	
 		// Write TOC URI first, to make the output reader friendly

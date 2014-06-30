@@ -431,7 +431,7 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 .poweredby     {margin-top:4px; font-size:10px;}
 .help          {font-size:10px; float:right;}
 
-.publisher-thumb {float:left; max-width:280px; margin-top:4px; margin-right:16px;}
+.publisher-thumb {float:left; max-width:280px; max-height:60px; margin-top:4px; margin-right:16px;}
 .scalar_logo_box {
 	background-image:url(images/scalar_logo_small.png); background-repeat:no-repeat; 
 	width:50px; height:50px;
