@@ -759,6 +759,7 @@
 				default:
 			  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 			  	
+			  	// look for related geographic metadata and use it to build a Google Map
 			  	if ( viewType == 'google_maps' ) {
 			  	
 			  		$( '.page' ).css( 'padding-top', '5.0rem' );
@@ -781,33 +782,41 @@
 						});
 						
 						var marker,
-							markers = [];
+							markers = [],
+							foundError = false;;
 					
 						// if the current page has the spatial property, then
 						if ( currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
 							
 							var temp = currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ][ 0 ].value.split( ',' );
-							var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
 							
-							map.setCenter( latlng );
-							
-							// add marker and info window for current page
-							if ( currentNode.current.description != null ) {
-								contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2>' + currentNode.current.description + '</div>';
+							// error checking
+							if (( temp.length != 2 ) || (( isNaN( parseFloat( temp[ 0 ] )) || isNaN( parseFloat( temp[ 1 ] ))))) {
+								foundError = true;
+								
 							} else {
-								contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2></div>';
+								var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
+								
+								map.setCenter( latlng );
+								
+								// add marker and info window for current page
+								if ( currentNode.current.description != null ) {
+									contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2>' + currentNode.current.description + '</div>';
+								} else {
+									contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2></div>';
+								}
+								marker = new google.maps.Marker({
+								    position: latlng,
+								    map: map,
+								    html: contentString,
+								    title: currentNode.getDisplayTitle()
+								});
+								markers.push( marker );
+								google.maps.event.addListener( marker, 'click', function() {
+									infoWindow.setContent( this.html );
+									infoWindow.open( map, this );
+								});
 							}
-							marker = new google.maps.Marker({
-							    position: latlng,
-							    map: map,
-							    html: contentString,
-							    title: currentNode.getDisplayTitle()
-							});
-							markers.push( marker );
-							google.maps.event.addListener( marker, 'click', function() {
-								infoWindow.setContent( this.html );
-								infoWindow.open( map, this );
-							});
 							
 						}	  	
 							
@@ -825,24 +834,46 @@
 							
 							if ( node.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
 								var temp = node.current.properties[ 'http://purl.org/dc/terms/spatial' ][ 0 ].value.split( ',' );
-								var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
-								if ( node.current.description != null ) {
-									contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2>' + node.current.description + '</div>';
+								
+								// error checking
+								if (( temp.length != 2 ) || (( isNaN( parseFloat( temp[ 0 ] )) || isNaN( parseFloat( temp[ 1 ] ))))) {
+									// nothing
+									
 								} else {
-									contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2></div>';
+									var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
+									if ( markers.length == 0 ) {
+										map.setCenter( latlng );
+									}
+									if ( node.current.description != null ) {
+										contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2>' + node.current.description + '</div>';
+									} else {
+										contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2></div>';
+									}
+									marker = new google.maps.Marker({
+									    position: latlng,
+									    map: map,
+									    html: contentString,
+									    title: node.getDisplayTitle()
+									});
+									markers.push( marker );
+									google.maps.event.addListener( marker, 'click', function() {
+										infoWindow.setContent( this.html );
+										infoWindow.open( map, this );
+									});
+									
+									// if any valid geo locations are found, it's ok to draw the map
+									foundError = false;
 								}
-								marker = new google.maps.Marker({
-								    position: latlng,
-								    map: map,
-								    html: contentString,
-								    title: node.getDisplayTitle()
-								});
-								markers.push( marker );
-								google.maps.event.addListener( marker, 'click', function() {
-									infoWindow.setContent( this.html );
-									infoWindow.open( map, this );
-								});
 							}
+						}
+						
+						// no valid coords found on page or its children
+						if ( foundError ) {
+							$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
+							
+						// no coords of any kind found
+						} else if ( markers.length == 0 ) {
+							$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
 						}
 						
 						// adjust map bounds to marker bounds
