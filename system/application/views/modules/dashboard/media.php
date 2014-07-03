@@ -246,7 +246,7 @@
 			echo '<td class="editable enum {\'review\',\'commentary\'}" property="category" width="100px" style="white-space:nowrap;">'.$category."</td>\n";
 			// URL
 			echo '<td property="url" style="max-width:200px;overflow:hidden;">';
-			echo '<a href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'">'.$url.'</a> ';
+			echo '<a href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'">'.basename($url).'</a> ';
 			if ($this->versions->url_is_local($url)) echo '<a class="generic_button" href="'.confirm_slash(base_url()).confirm_slash($book->slug).'upload#replace='.$row->versions[0]->version_id.'">replace</a>';
 			echo "</td>\n";
 			echo '<td style="white-space:nowrap;">'.((!empty($row->created)&&$row->created!='0000-00-00 00:00:00')? date( 'M j, Y g:i A', strtotime($row->created)):'')."</td>\n";
