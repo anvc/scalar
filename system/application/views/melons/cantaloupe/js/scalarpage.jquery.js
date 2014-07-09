@@ -652,7 +652,7 @@
 		
 			var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
 			
-			if ( viewType != 'maximized' ) {
+			if ( viewType != 'iframe' ) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 		  	}
 			
@@ -738,7 +738,7 @@
 				page.addNotes();	
 				break;
 				
-				case 'maximized':
+				case 'iframe':
 				$( 'h1' ).hide();
 				$( '.page' ).css( 'padding-top', '5.0rem' );
 				break;
