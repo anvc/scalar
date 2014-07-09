@@ -81,4 +81,4 @@ Froogaloop:
 1) Changed $f=g to froogaloop=g
 
 Template (libraries/Template.php):
-1) Added add_meta() + supporting updates to regions arrays
+1) Added add_meta() and supporting updates to regions arrays
