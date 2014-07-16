@@ -83,6 +83,11 @@ if (isset($page->is_live) && !$page->is_live) {
 	echo '		<div class="error"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible in the page editor or in the Dashboard.</p></div>'."\n";
 }
 
+//RDF Attributes do not work in IE <= 9
+if(preg_match('/(?i)msie ([1-9])[^0-9]/',$_SERVER['HTTP_USER_AGENT'],$matches)) {
+	echo '<div class="error"><p>You are currently running Internet Explorer '.$matches[1].'.  Scalar requires IE 10 or greater to properly view Scalar Books.</p></div>'."\n";
+}
+
 // Message for delete and save
 if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'deleted'): 
 	$old_title =@ $_REQUEST['dt'];
