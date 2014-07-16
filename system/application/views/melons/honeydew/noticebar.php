@@ -84,7 +84,7 @@ if (isset($page->is_live) && !$page->is_live) {
 }
 
 //RDF Attributes do not work in IE <= 9
-if(preg_match('/(?i)msie ([1-9])[^0-9]/',$_SERVER['HTTP_USER_AGENT'],$matches)) {
+if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie ([1-9])[^0-9]/',$_SERVER['HTTP_USER_AGENT'],$matches)) {
 	echo '<div class="error"><p>You are currently running Internet Explorer '.$matches[1].'.  Scalar requires IE 10 or greater to properly view Scalar Books.</p></div>'."\n";
 }
 
