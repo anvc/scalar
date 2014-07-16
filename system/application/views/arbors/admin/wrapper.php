@@ -24,7 +24,6 @@
 	<div class="content">
 	<?=$content?>
 	</div>
-	<br clear="both" />
 </div>
 
 </body>

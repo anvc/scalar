@@ -68,6 +68,11 @@ td.styling_last {text-align:right; padding-right:0px;}
 	height: 30px;
 }
 
+.tabs img {
+	max-width:80px;
+	max-height:40px;	
+}
+
 .tabs table td {
   padding:10px 10px 10px 10px;
   vertical-align: middle !important;

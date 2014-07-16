@@ -1,6 +1,7 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
+<?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
 <?
 	if (empty($book)):
 		echo 'Please select a book to manage using the pulldown menu above';
@@ -16,7 +17,8 @@
         		headers: { 
         			0: {sorter: false }, 
         			1: {sorter: false }, // this is a hidden column
-            		8: {sorter: false }
+            		3: {sorter: false },
+            		10: {sorter: false }
         		} 
    			}); 
    			
@@ -26,12 +28,17 @@
 			$('#check_all').click(function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('#media').find('input[type="checkbox"]').prop('checked', check_all);
-			});    			
+			});    		
+
+			$('#selectImportPages').change(function() {
+				var url = $('#selectImportPages option:selected').val();
+				document.location.href = url;
+			});	
    			
 		});	
 		
 		function resizeList() {
-    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 100))+'px'); // magic number to get list height right
+    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 76))+'px'); // magic number to get list height right
 		}
 	
 		function searchFiles(sq) {
@@ -179,36 +186,42 @@
 		&nbsp; <b><?=count($current_book_files)?></b> media file(s)
 		<? endif ?>
 		</form>
-		
-		<br clear="both" />
 
 <?
 		if (!empty($book)):
 			$url_base = confirm_slash(base_url()).confirm_slash($book->slug);
 ?>		
-		<div style="padding-top:10px;padding-left:4px;">
-			Import page quick links:&nbsp; 
-			<a href="<?=$url_base?>import/critical_commons">Critical Commons</a>,&nbsp; 
-			<a href="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a>,&nbsp; 
-			<a href="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</a>,&nbsp; 
-			<a href="<?=$url_base?>import/hypercities">HyperCities</a>,&nbsp; 
-			<a href="<?=$url_base?>import/internet_archive">Internet Archive</a>,&nbsp; 
-			<a href="<?=$url_base?>import/play">PLAY!</a>,&nbsp; 
-			<a href="<?=$url_base?>import/shoah_foundation_vha_online">VHA Online</a>,&nbsp;
-			<a href="<?=$url_base?>import/shoah_foundation_vha">VHA</a>&nbsp; |&nbsp;
-			<a href="<?=$url_base?>import/getty_museum_collection">Getty Museum Collection</a>,&nbsp; 
-			<a href="<?=$url_base?>import/prezi">Prezi</a>,&nbsp;
-			<a href="<?=$url_base?>import/soundcloud">SoundCloud</a>,&nbsp;
-			<a href="<?=$url_base?>import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</a>,&nbsp;
-			<a href="<?=$url_base?>import/vimeo">Vimeo</a>,&nbsp;
-			<a href="<?=$url_base?>import/youtube">YouTube</a>&nbsp; |&nbsp; 
-			<a href="<?=$url_base?>upload">Upload file</a>,&nbsp;
-			<a href="<?=$url_base?>new.edit#type=media">Internet URL</a>,&nbsp; 
-			<a href="<?=$url_base?>import/system">Another Scalar book</a>
+		<div style="float:right;">
+			Import pages:&nbsp; 
+			<select id="selectImportPages">
+				<option value=""></option>
+				<optgroup label="Affiliated archives">
+					<option value="<?=$url_base?>import/critical_commons">Critical Commons</option> 
+					<option value="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</option> 
+					<option value="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</option> 
+					<option value="<?=$url_base?>import/hypercities">HyperCities</option> 
+					<option value="<?=$url_base?>import/internet_archive">Internet Archive</option> 
+					<option value="<?=$url_base?>import/play">PLAY!</option> 
+					<option value="<?=$url_base?>import/shoah_foundation_vha_online">VHA Online</option> 
+					<option value="<?=$url_base?>import/shoah_foundation_vha">VHA</option> 
+				<optgroup label="Other archives">	
+					<option value="<?=$url_base?>import/getty_museum_collection">Getty Museum Collection</option> 
+					<option value="<?=$url_base?>import/prezi">Prezi</option>
+					<option value="<?=$url_base?>import/soundcloud">SoundCloud</option>
+					<option value="<?=$url_base?>import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</option>
+					<option value="<?=$url_base?>import/vimeo">Vimeo</option>
+					<option value="<?=$url_base?>import/youtube">YouTube</option> 
+				</optgroup>
+				<optgroup label="Files, URLs">
+					<option value="<?=$url_base?>upload">Upload file</option>
+					<option value="<?=$url_base?>new.edit#type=media">Internet URL</option>
+					<option value="<?=$url_base?>import/system">Another Scalar book</option>						
+				</optgroup>
+			</select>
 		</div>
 <? 		endif; ?>
 		
-		<br />
+		<br clear="both" /><br />
 		
 		<div class="table_wrapper">
 		<table cellspacing="0" cellpadding="0" style="width:100%;" class="tablesorter" id="media">
@@ -217,10 +230,11 @@
 				<th></th>
 				<th style="display:none;"></th>
 				<th>Live?&nbsp; </th>
+				<th>Thumb</th>
 				<th>URI</th>
 				<th>Title</th>
 				<th>Category</th>
-				<th>File URL</th>
+				<th>Filename</th>
 				<th>Created</th>
 				<th>User</th>
 				<th>Versions</th>
@@ -241,12 +255,13 @@
 			echo '<td style="white-space:nowrap;width:60px;"><input type="checkbox" name="content_id_'.$row->content_id.'" value="1">&nbsp; <a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a>'."</td>\n";
 			echo '<td style="white-space:nowrap;width:50px;display:none;" property="id">'.$row->content_id."</td>\n";
 			echo '<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'.$row->is_live."</td>\n";
+			echo '<td property="thumbnail"><a target="_blank" href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'"><img src="'.$row->thumbnail.'" /></a></td>'."\n";
 			echo '<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'.confirm_slash(base_url()).confirm_slash($book->slug).$row->slug.'">'.$row->slug."</a></td>\n";
 			echo '<td property="title">'.$title."</td>\n";
 			echo '<td class="editable enum {\'review\',\'commentary\'}" property="category" width="100px" style="white-space:nowrap;">'.$category."</td>\n";
 			// URL
 			echo '<td property="url" style="max-width:200px;overflow:hidden;">';
-			echo '<a href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'">'.basename($url).'</a> ';
+			echo '<a target="_blank" href="'.abs_url($url, confirm_slash(base_url()).$book->slug).'">'.basename($url).'</a> ';
 			if ($this->versions->url_is_local($url)) echo '<a class="generic_button" href="'.confirm_slash(base_url()).confirm_slash($book->slug).'upload#replace='.$row->versions[0]->version_id.'">replace</a>';
 			echo "</td>\n";
 			echo '<td style="white-space:nowrap;">'.((!empty($row->created)&&$row->created!='0000-00-00 00:00:00')? date( 'M j, Y g:i A', strtotime($row->created)):'')."</td>\n";
@@ -263,7 +278,7 @@
 		<br />		
 		
 		<form onsubmit="deleteFiles();return false;">
-		<input type="submit" value="Delete selected files" class="generic_button large" />
+		<input type="submit" value="Delete selected files" class="generic_button" />
 		&nbsp; &nbsp; 
 		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>		
 		</form>	

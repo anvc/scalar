@@ -10,7 +10,7 @@
 <?
 foreach ($books as $row) {
 	echo '<option value="'.$row->book_id.'"'.((@$book->book_id==$row->book_id)?' SELECTED':'').'>';
-	echo $row->title;
+	echo strip_tags($row->title);
 	echo '</option>';
 }
 ?>

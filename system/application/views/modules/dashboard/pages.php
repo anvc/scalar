@@ -31,7 +31,8 @@
 		});	
 		
 		function resizeList() {
-    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 100))+'px'); // magic number to get list height right
+			console.log('test');
+    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 76))+'px'); // magic number to get list height right
 		}
 	
 		function searchContent(sq) {
@@ -173,7 +174,7 @@
 		}
 		</script>
 		
-		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;">Create new page</a>
+		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;" class="generic_button">Create new page</a>
 		
 		<form style="float:left;" id="formSearchContent" onsubmit="searchContent(this.sq.value);return false;">
 		<input type="text" name="sq" style="width:300px;" value="Search for a page" onmousedown="if (this.value=='Search for a page') this.value='';" />
@@ -229,7 +230,7 @@
 		<br />
 		
 		<form onsubmit="deleteContent();return false;">
-		<input type="submit" value="Delete selected content" class="generic_button large" />
+		<input type="submit" value="Delete selected content" class="generic_button" />
 		&nbsp; &nbsp; 
 		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>
 		</form>
