@@ -28,13 +28,13 @@ endif;
 // Delete button (set is_live=0 using the save API)
 if (isset($page->version_index) && $page->is_live):
 ?>
-<form style="display:inline;padding:0;margin:0;" method="post" enctype="multipart/form-data" onsubmit="if (confirm('Are you sure you wish hide this page from view (move it to the trash)?')) {return send_form($(this));} else {return false;}">
+<form style="display:inline;padding:0;margin:0;" method="post" enctype="multipart/form-data" onsubmit="if (confirm('Are you sure you wish hide this page from view?')) {return send_form($(this));} else {return false;}">
 <input type="hidden" name="action" value="delete" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=$page->versions[$page->version_index]->urn?>" />
 <input type="hidden" name="id" value="<?=@$login->email?>" />
 <input type="hidden" name="api_key" value="" />
-<input type="submit" value="Trash" class="generic_button large">
+<input type="submit" value="Hide" class="generic_button large">
 </form>
 <? elseif ($can_edit && isset($page->version_index)): ?>
 <form style="display:inline;padding:0;margin:0;" method="post" enctype="multipart/form-data" onsubmit="if (confirm('Are you sure you wish to make this page visible?')) {return send_form($(this));} else {return false;}">
