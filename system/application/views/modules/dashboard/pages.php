@@ -19,7 +19,7 @@
 			
 			$('#check_all').click(function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
-				$('#media').find('input[type="checkbox"]').prop('checked', check_all);
+				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});    		
 
 			$('#selectImportPages').change(function() {
