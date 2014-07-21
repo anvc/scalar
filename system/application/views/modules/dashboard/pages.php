@@ -40,7 +40,7 @@
 					alert('Please enter a search query');
 					return false;
    	   			}
-   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'media',sq:sq,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'page',sq:sq,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
    	   			return false;
    			});
 
@@ -48,14 +48,14 @@
    	   			start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
 				$(this).parent().find('input:first').val('Search for a media file');
-				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
    			});
 
    			$('select[name="jump_to"]').change(function() {
 				start = parseInt($(this).find('option:selected').val() - 1);
 				if (-1==start) start = 0;
 				console.log('start: '+start);
-				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
    			}); 			 				 			
    			
 		});	
@@ -86,11 +86,11 @@
 				var $prev = $('<a href="javascript:;">'+((prev>0)?'Prev page':'')+'</a>').appendTo('.prev');
 				var $next = $('<a href="javascript:;">'+((next<total)?'Next page':'')+'</a>').appendTo('.next');
 				$prev.click(function() {
-					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
 					start = _prev;
 				});
 				$next.click(function() {
-					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
 					start = _next;
 				});
 			} else if ('search'==callee) {
