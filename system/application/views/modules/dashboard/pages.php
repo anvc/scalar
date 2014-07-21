@@ -27,27 +27,36 @@
 				document.location.href = url;
 			});	
 
-			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:0,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:0,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
    			
    			$(window).resize(function() { resizeList(); });
    			resizeList();	
 
    			$('#formSearch').submit(function() {
+   				start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
    	   			var sq = $(this).find('input[name="sq"]').val().toLowerCase();
-   	   			if (!sq.length || 'Search for a page'.toLowerCase()==sq) {
+   	   			if (!sq.length || 'Search for a media file'.toLowerCase()==sq) {
 					alert('Please enter a search query');
 					return false;
    	   			}
-   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'page',sq:sq,start:0,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'media',sq:sq,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
    	   			return false;
-   			});   		
+   			});
 
    			$('#formSearch').find('a').click(function() {
-   	   			$('.table_wrapper').html('<div id="loading">Loading</div>');
-				$(this).parent().find('input:first').val('Search for a page');
-				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:0,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
-   			});   				 			
+   	   			start = 0;
+   				$('.table_wrapper').html('<div id="loading">Loading</div>');
+				$(this).parent().find('input:first').val('Search for a media file');
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   			});
+
+   			$('select[name="jump_to"]').change(function() {
+				start = parseInt($(this).find('option:selected').val() - 1);
+				if (-1==start) start = 0;
+				console.log('start: '+start);
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   			}); 			 				 			
    			
 		});	
 		
@@ -236,5 +245,11 @@
 		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>
 		&nbsp; &nbsp; 
 		<span class="prev"></span>&nbsp; <span class="pagination"></span> <b><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
+		&nbsp; &nbsp; &nbsp; 
+		Jump to: <select name="jump_to"><option value=""></option><?
+			for ($j = 1; $j <= count($current_book_files); $j+=10) {
+				echo '<option value="'.$j.'">'.$j.'</option>';	
+			}
+		?></select> of  <b><?=count($current_book_files)?></b> media		
 		</form>
 <? endif ?>
