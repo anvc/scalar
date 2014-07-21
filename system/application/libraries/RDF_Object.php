@@ -50,7 +50,7 @@ class RDF_Object {
 			                 'base_uri'     => null,
 	                         'restrict'     => self::RESTRICT_NONE, 
 							 'rel'          => self::REL_ALL, 
-							 'sq'           => self::NO_SEARCH, 
+							 'sq'           => self::NO_SEARCH,
 							 'versions'     => self::VERSIONS_MOST_RECENT, 
 						     'ref'          => self::REFERENCES_NONE, 
 	                         'pagination'   => self::NO_PAGINATION, 

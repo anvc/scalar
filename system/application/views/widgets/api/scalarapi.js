@@ -2075,7 +2075,7 @@ ScalarAPI.prototype.parseBook = function(json) {
  * @param	results				Number of results to return
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results) {
+ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results, hidden) {
 
 	var nodes = this.model.getNodesWithProperty('scalarType', type);
 	
@@ -2097,6 +2097,9 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 	}
 	if (results != undefined) {
 		queryString += '&results='+results;
+	}
+	if (hidden != undefined) {  // Added by Craig 21 July 2014
+		queryString += '&hidden='+hidden;
 	}
 
 	// if we're forcing the data to load, or no nodes of the given type have already been loaded, then
@@ -2144,7 +2147,7 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
  * @param	results				Number of results to return
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results) {
+ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden) {
 
 	var queryString = 'sq='+encodeURIComponent(sq)+'&format=json';
 
@@ -2165,6 +2168,9 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 	}
 	if (results != undefined) {
 		queryString += '&results='+results;
+	}
+	if (hidden != undefined) {  // Added by Craig 21 July 2014
+		queryString += '&hidden='+hidden;
 	}
 	
 	$.ajax({
@@ -2242,7 +2248,8 @@ function ScalarModel(options) {
 		{property:'homepage', uri:'http://xmlns.com/foaf/0.1/homepage', type:'string'},
 		{property:'urn', uri:'http://scalar.usc.edu/2012/01/scalar-ns#urn', type:'string'},
 		{property:'background', uri:'http://scalar.usc.edu/2012/01/scalar-ns#background', type:'string'},
-		{property:'audio', uri:'http://scalar.usc.edu/2012/01/scalar-ns#audio', type:'string'}
+		{property:'audio', uri:'http://scalar.usc.edu/2012/01/scalar-ns#audio', type:'string'},
+		{property:'is_live', uri:'http://scalar.usc.edu/2012/01/scalar-ns#is_live', type:'string'}  // Add by Craig 21 July 2014
 	];
 	
 	// one-shot properties which can be pulled automatically from version data
@@ -2265,7 +2272,8 @@ function ScalarModel(options) {
 		{property:'sourceLocation', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#sourceLocation', type:'string'},
 		{property:'urn', uri:'http://scalar.usc.edu/2012/01/scalar-ns#urn', type:'string'},
 		{property:'sortNumber', uri:'http://scalar.usc.edu/2012/01/scalar-ns#sort_number', type:'int'},
-		{property:'continueTo', uri:'http://scalar.usc.edu/2012/01/scalar-ns#continue_to_content_id', type:'int'}
+		{property:'continueTo', uri:'http://scalar.usc.edu/2012/01/scalar-ns#continue_to_content_id', type:'int'},
+		{property:'is_live', uri:'http://scalar.usc.edu/2012/01/scalar-ns#is_live', type:'int'}  // Add by Craig 21 July 2014
 	];
 	
 	this.auxPropertyMap = [
