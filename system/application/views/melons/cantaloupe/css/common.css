@@ -415,7 +415,7 @@ a:hover { text-decoration: underline; }
 .toggle_btn.on { background-color: #b3b5b7; }
 
 #gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; }
-#gallery_content .thumb { margin-right: 0.7rem; cursor: pointer; }
+#gallery_content .thumb { margin-right: 0.7rem; margin-bottom: 0.7rem; cursor: pointer; }
 #gallery_content .thumb:hover { opacity:0.65; }
 #gallery_content h3 { margin: 0 0 1rem 0; padding: 0; }
 
