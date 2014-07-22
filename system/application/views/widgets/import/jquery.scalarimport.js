@@ -214,6 +214,7 @@ if ('undefined'==typeof(escape_html)) {
 				for (var k = 0; k < results[j].childNodes.length; k++) {
 					var p = results[j].childNodes[k].nodeName;
 					if (p == 'art:filename') p = 'scalar:url';  // TODO
+					if (p == 'art:thumbnail') p = 'scalar:thumbnail';  // TODO
 					var value = results[j].childNodes[k].textContent;
 					if (!value.length) value = results[j].childNodes[k].getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#','resource');
 					if ('undefined'==typeof(post[s][p])) {
@@ -252,10 +253,10 @@ if ('undefined'==typeof(escape_html)) {
 				results_data[j].title = ('undefined'!=typeof(post[j]['dcterms:title'])&&post[j]['dcterms:title']) ? post[j]['dcterms:title'] : '(Missing title)';
 				results_data[j].desc = ('undefined'!=typeof(post[j]['dcterms:description'])&&post[j]['dcterms:description']) ? post[j]['dcterms:description'] : '(No description provided)';
 				results_data[j].creator = ('undefined'!=typeof(post[j]['dcterms:creator'])&&post[j]['dcterms:creator']) ? post[j]['dcterms:creator'] : '(No creator provided)';
-				results_data[j].thumb = ('undefined'!=typeof(post[j]['art:thumbnail'])) ? post[j]['art:thumbnail'] : null;
 				if (!results_data[j].thumb) results_data[j].thumb = $('#approot').attr('href')+'views/melons/honeydew/images/generic_media_thumb.jpg';
 				if ('object'==typeof(results_data[j].thumb) && results_data[j].thumb.length) results_data[j].thumb = results_data[j].thumb[0];
 				results_data[j].url = ('undefined'!=typeof(post[j]['scalar:url'])) ? post[j]['scalar:url'] : null;
+				results_data[j].thumb = ('undefined'!=typeof(post[j]['scalar:thumbnail'])) ? post[j]['scalar:thumbnail'] : null;
 				results_data[j].mediatype = ('undefined'!=typeof(post[j]['dcterms:type'])) ? post[j]['dcterms:type'] : 'Media';
 				results_data[j].contributor = ('undefined'!=typeof(post[j]['dcterms:contributor'])) ? post[j]['dcterms:contributor'] : null;
 				
@@ -515,8 +516,8 @@ if ('undefined'==typeof(escape_html)) {
 			console.log(fields);
 			var title_field = 'dcterms:title';
 			var description_field = "dcterms:description";
-			var thumbnail_field = 'art:thumbnail';
-			var required_fields = ['dcterms:title','dcterms:description','scalar:url','art:thumbnail','sioc:content','rdf:type'];
+			var thumbnail_field = 'scalar:thumbnail';
+			var required_fields = ['dcterms:title','dcterms:description','scalar:url','scalar:thumbnail','sioc:content','rdf:type'];
 			var mark_as_required = ['dcterms:title','scalar:url','rdf:type'];
 			
 			$('.custom_meta').remove();

@@ -458,7 +458,7 @@ class System extends MY_Controller {
 		$this->data['annotations_not_live'] = $this->count_not_live($this->data['current_book_annotations']);
 		$this->data['replies_not_live'] = $this->count_not_live($this->data['current_book_replies']);
 		
-		// Get specific data for each zone
+		// Get specific data for each zone (no case for pages or media, since these are handled via the API)
 		switch ($this->data['zone']) {
 			case '':
 			case 'user':
@@ -472,10 +472,6 @@ class System extends MY_Controller {
 		        $this->data['current_book_users'] = ($book_id) ? $this->users->get_book_users($book_id) : array();
 		        break;
 		    // Page-types follow, purposely at the bottom of the switch so that they fall into 'default'
-		    case 'pages':
-		    	if (!isset($data_key)) $data_key = 'current_book_content';
-		    case 'media':
-		       	if (!isset($data_key)) $data_key = 'current_book_files';
 		    case 'paths':
 				if (!isset($data_key)) $data_key = 'current_book_paths';
 		    case 'tags':

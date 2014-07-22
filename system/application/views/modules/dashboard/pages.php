@@ -1,6 +1,8 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
+<?$this->template->add_js('system/application/views/widgets/api/scalarapi.js')?>
+<?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
 <?
 	if (empty($book)):
 		echo 'Please select a book to manage using the pulldown menu above';
@@ -10,51 +12,100 @@
 	<script>
 	
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
+		var start = 0;
+		var results = 20;
+		
 		$(document).ready(function() {
 			
-			$(".tablesorter").tablesorter({ 
-        		headers: { 
-        			0: {sorter: false }, 
-        			1: {sorter: false }, // this is a hidden column
-            		8: {sorter: false }
-        		}
-   			});
-   			
-   			$(window).resize(function() { resizeList(); });
-   			resizeList();
-
 			$('#check_all').click(function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
-				$('#pages').find('input[type="checkbox"]').prop('checked', check_all);
-			});   			
+				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
+			});    		
+
+			$('#selectImportPages').change(function() {
+				var url = $('#selectImportPages option:selected').val();
+				document.location.href = url;
+			});	
+
+			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:0,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   			
+   			$(window).resize(function() { resizeList(); });
+   			resizeList();	
+
+   			$('#formSearch').submit(function() {
+   				start = 0;
+   				$('.table_wrapper').html('<div id="loading">Loading</div>');
+   	   			var sq = $(this).find('input[name="sq"]').val().toLowerCase();
+   	   			if (!sq.length || 'Search for a media file'.toLowerCase()==sq) {
+					alert('Please enter a search query');
+					return false;
+   	   			}
+   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'page',sq:sq,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   	   			return false;
+   			});
+
+   			$('#formSearch').find('a').click(function() {
+   	   			start = 0;
+   				$('.table_wrapper').html('<div id="loading">Loading</div>');
+				$(this).parent().find('input:first').val('Search for a media file');
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   			});
+
+   			var $jump_to = $('select[name="jump_to"]');
+   			var total = parseInt($('#total').html());
+			for (j = 1; j <= total; j+=results) {
+				$jump_to.append('<option value="'+j+'">'+j+'</option>');	
+			}   			
+			$jump_to.change(function() {
+				start = parseInt($(this).find('option:selected').val() - 1);
+				if (-1==start) start = 0;
+				console.log('start: '+start);
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   			});			 				 			
    			
 		});	
 		
 		function resizeList() {
-    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 100))+'px'); // magic number to get list height right
+    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 76))+'px'); // magic number to get list height right
 		}
-	
-		function searchContent(sq) {
-			sq = sq.toLowerCase();
-			var rows = $('#pages').find("tr[typeof='pages']").each(function() {
-				var $row = $(this);
-				$row.hide();
-				var slug = $row.find("td[property='slug']:first").find('a:first').html();
-				var title = $row.find("td[property='title']:first").html();
-				if (slug.toLowerCase().indexOf(sq)!=-1) $row.show();
-				if (title.toLowerCase().indexOf(sq)!=-1) $row.show();
-			});
+
+		function tableSorter() {
+			$(".tablesorter").tablesorter({ 
+        		headers: { 
+        			0: {sorter: false }, 
+        			1: {sorter: false }, 
+            		8: {sorter: false }
+        		} 
+   			}); 
 		}
-		function clearSearchContent() {
-			var rows = $('#pages').find("tr[typeof='pages']").each(function() {
-				var $row = $(this);
-				$row.show();
-			});
-			document.getElementById('formSearchContent').sq.value = 'Search <?=@addslashes($book->title)?>';
-		}		
+
+		function pagination(callee) {
+			$('.prev, .next').html('');
+			if ('paginate'==callee) {
+				var total = parseInt($('#total').html());
+				var prev = (start > 0) ? start : 0;
+				var next = (start+results < total) ? start+results : total; 
+				var _prev = (start - results > 0) ? start - results : 0;
+				var _next = (start + results < total) ? start + results : total;				
+				$('.pagination').html('<b>'+(prev+1)+'</b> - <b>'+(next)+'</b> of ');
+				var $prev = $('<a href="javascript:;">'+((prev>0)?'Prev page':'')+'</a>').appendTo('.prev');
+				var $next = $('<a href="javascript:;">'+((next<total)?'Next page':'')+'</a>').appendTo('.next');
+				$prev.click(function() {
+					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+					start = _prev;
+				});
+				$next.click(function() {
+					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+					start = _next;
+				});
+			} else if ('search'==callee) {
+				$('.pagination').html('search results from ');
+			}
+		}
+		
 		function deleteContent() {
 			
-			var items_to_delete = $('#pages').find("input[type='checkbox']:checked");
+			var items_to_delete = $('.tablesorter').find("input[type='checkbox']:checked");
 			var content_ids_to_delete = new Array;
 			var version_ids_to_delete = new Array;
 			for (var j = 0; j < items_to_delete.length; j++) {
@@ -98,7 +149,7 @@
 			  	 var content_id = data.content[j];
 				 var $next = $('#content_row_'+content_id).next();
 				 if ($next.hasClass('version_wrapper')) $next.remove();			  	 
-			  	 $('#content_row_'+content_id).remove();
+			  	 $('#row_'+content_id).remove();
 			  }
 			  for (var j = 0; j < data.versions.length; j++) {
 			  	 var version_id = data.versions[j];
@@ -115,26 +166,28 @@
 			});
 			
 		}
+		
 		function resetContentVersionNums(content_id) {
 			if (!confirm('Are you sure you wish to reset version numbers? This might impact webpages that link to specific version numbers of your content.')) {
 				return false;
 			}
 		}
-		function pages_get_versions(content_id, the_link) {	
+		
+		function get_versions(content_id, the_link) {	
 			var $the_link = $(the_link);
 			if ($the_link.html()=='Loading...') return;
 			// Get versions
 			if (!$the_link.data('is_open')) {
 				$the_link.data('orig_html', $the_link.html());
 				$the_link.blur();
-				var $the_row = $('#content_row_'+content_id)
+				var $the_row = $('#row_'+content_id)
 				$.get('api/get_versions', {content_id:content_id}, function(data) {
 					var $next = $the_link.parent().parent().next();
 					if ($next.hasClass('version_wrapper')) $next.remove();					
 					if (data.length == 0) {
 						$the_row.after('<tr class="version_wrapper"><td>&nbsp;</td><td class="odd" colspan="8">No versions entered</td></tr>');
 					} else {
-					   	var $row = $('<tr class="version_wrapper"><td colspan="8" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
+					   	var $row = $('<tr class="version_wrapper"><td colspan="11" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
 					   	var $header = ('<tr><th></th><th style=\"display:none;\">ID</th><th>Version</th><th>Title</th><th>Description</th><th>Content</th><th style=\"display:none;\">Created</th></tr>');
 					   	$row.find('table').html($header);
 					   	$the_row.after($row);			
@@ -157,7 +210,7 @@
 								pages_get_versions(content_id, the_link);
 							});
 						});					    
-						$the_link.html($the_link.data('orig_html'));
+						$the_link.html('Hide');
 						$the_link.blur();
 						$the_link.data('is_open',true);				    
 					}
@@ -166,71 +219,38 @@
 			} else {
 				var $next = $the_link.parent().parent().next();
 				if ($next.hasClass('version_wrapper')) $next.remove();
+				$the_link.html('View');
 				$the_link.data('is_open',false);
 				$the_link.blur();
 			}
 			
 		}
+		
 		</script>
 		
-		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;">Create new page</a>
+		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;" class="generic_button">Create new page</a>
 		
-		<form style="float:left;" id="formSearchContent" onsubmit="searchContent(this.sq.value);return false;">
+		<form style="float:left;" id="formSearch">
 		<input type="text" name="sq" style="width:300px;" value="Search for a page" onmousedown="if (this.value=='Search for a page') this.value='';" />
-		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;" onclick="clearSearchContent();$(this).blur();">clear</a>&nbsp;
+		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;">clear</a>&nbsp;
 		<? if (count($current_book_content)): ?>
-		&nbsp; <b><?=count($current_book_content)?></b> page(s)
+		&nbsp; <span class="prev"></span>&nbsp; <span class="pagination"></span> <b id="total"><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
 		<? endif ?>
 		</form>
 		
 		<br clear="both" /><br />
 		
-		<div class="table_wrapper">
-		<table cellspacing="0" cellpadding="0" style="width:100%;" class="tablesorter" id="pages">
-		<thead>
-			<tr class="head">
-				<th></th>
-				<th style="display:none;"></th>
-				<th>Live?</th>				
-				<th>URI</th>
-				<th>Title</th>
-				<th>Category</th>
-				<th>Created</th>
-				<th>User</th>
-				<th>Versions</th>
-			</tr>
-		</thead>
-		<tbody>
-<?
-		$count = 1;
-		foreach ($current_book_content as $row) {
-			$title = '(No title)';
-			if (isset($row->versions[0])) $title = $row->versions[0]->title;
-			if (!empty($row->book)) $book_title = $row->book->title;
-			$category = (!empty($row->category)) ? $row->category : '';
-			echo '<tr id="content_row_'.$row->content_id.'" class="bottom_border '.(($row->is_live)?'':'not_live').'" typeof="pages">';
-			echo '<td style="white-space:nowrap;width:60px;"><input type="checkbox" name="content_id_'.$row->content_id.'" value="1">&nbsp; <a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a>'."</td>\n";
-			echo '<td style="white-space:nowrap;width:50px;display:none;" property="id">'.$row->content_id."</td>\n";
-			echo '<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'.$row->is_live."</td>\n";
-			echo '<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'.confirm_slash(base_url()).confirm_slash($book->slug).$row->slug.'">'.$row->slug."</a></td>\n";
-			echo '<td property="title">'.$title."</td>\n";
-			echo '<td class="editable enum {\'review\',\'commentary\'}" property="category" width="100px" style="white-space:nowrap;">'.$category."</td>\n";
-			echo '<td style="white-space:nowrap;">'.((!empty($row->created)&&$row->created!='0000-00-00 00:00:00')? date( 'M j, Y g:i A', strtotime($row->created)):'')."</td>\n";
-			echo '<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'.$row->user."</td>\n";
-			echo '<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="pages_get_versions('.$row->content_id.',this);" class="generic_button">View</a></td>'."\n";
-			echo "</tr>\n";		
-			$count++; 
-		}
-?>
-		</tbody>
-		</table>
-		</div>
+		<div class="table_wrapper"><div id="loading">Loading</div></div>
 		
 		<br />
 		
 		<form onsubmit="deleteContent();return false;">
-		<input type="submit" value="Delete selected content" class="generic_button large" />
+		<input type="submit" value="Delete selected content" class="generic_button" />
 		&nbsp; &nbsp; 
 		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>
+		&nbsp; &nbsp; 
+		<span class="prev"></span>&nbsp; <span class="pagination"></span> <b><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
+		&nbsp; &nbsp; &nbsp; 
+		Jump to: <select name="jump_to"><option value=""></option></select> of  <b><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?>	
 		</form>
 <? endif ?>

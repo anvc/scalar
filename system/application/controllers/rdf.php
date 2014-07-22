@@ -77,6 +77,9 @@ class Rdf extends MY_Controller {
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;		
 		// Search terms
 		$this->data['sq'] = (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) ? search_split_terms($_REQUEST['sq']) : null;
+		// Show hidden content
+		$this->data['hidden'] = (isset($_REQUEST['hidden']) && !empty($_REQUEST['hidden'])) ? (int) $_REQUEST['hidden'] : 0;
+		if (!$this->data['login'] || !$this->login_is_book_admin()) $this->data['hidden'] = 0;
 		// Pagination
 		$start = (isset($_REQUEST['start'])) ? (int) $_REQUEST['start'] : null;
 		$results = (isset($_REQUEST['results']) && !empty($_REQUEST['results'])) ? (int) $_REQUEST['results'] : null;
@@ -207,7 +210,7 @@ class Rdf extends MY_Controller {
 					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
 					exit;		
 			}
-			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true);	
+			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));	
 			$this->rdf_object->index(
 			                         $this->data['content'], 
 			                           array(
