@@ -8,6 +8,21 @@
 	width:350px;
 }
 
+#view_all {
+	background-color: transparent;
+    border: none;
+    color: #026697;
+	font-family: 'Lato', Arial, sans-serif;
+    margin: 0px 20px;
+    font-size:100%;
+	padding: 0px;
+    cursor: pointer;
+	text-align: center;
+}
+#view_all:hover {
+    border-bottom: solid #026697 1px;
+}
+
 #other_books {
 	position: absolute;
 	padding-top: 5px;

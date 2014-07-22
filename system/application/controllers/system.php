@@ -49,7 +49,9 @@ class System extends MY_Controller {
 		$this->data['title'] = $this->lang->line('install_name');
 		$this->data['cover_title']  = $this->lang->line('install_name');
 		$this->data['books'] = $this->books->get_all();
-		
+		$this->data['bl_search'] = isset($_REQUEST['bl_search']) ? $_REQUEST['bl_search'] : false;
+		$this->data['view_all']  = isset($_REQUEST['view_all']) ? $_REQUEST['view_all'] : false;
+
 		$this->template->set_template('admin');
 		$this->template->write_view('cover', 'modules/'.trim($cover_dir,'/').'/index_cover', $this->data);
 		$this->template->write_view('content', 'modules/'.trim($book_list_dir,'/').'/book_list', $this->data);
