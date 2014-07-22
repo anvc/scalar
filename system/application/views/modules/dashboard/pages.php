@@ -51,12 +51,17 @@
 				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
    			});
 
-   			$('select[name="jump_to"]').change(function() {
+   			var $jump_to = $('select[name="jump_to"]');
+   			var total = parseInt($('#total').html());
+			for (j = 1; j <= total; j+=results) {
+				$jump_to.append('<option value="'+j+'">'+j+'</option>');	
+			}   			
+			$jump_to.change(function() {
 				start = parseInt($(this).find('option:selected').val() - 1);
 				if (-1==start) start = 0;
 				console.log('start: '+start);
 				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
-   			}); 			 				 			
+   			});			 				 			
    			
 		});	
 		
@@ -246,10 +251,6 @@
 		&nbsp; &nbsp; 
 		<span class="prev"></span>&nbsp; <span class="pagination"></span> <b><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
 		&nbsp; &nbsp; &nbsp; 
-		Jump to: <select name="jump_to"><option value=""></option><?
-			for ($j = 1; $j <= count($current_book_files); $j+=10) {
-				echo '<option value="'.$j.'">'.$j.'</option>';	
-			}
-		?></select> of  <b><?=count($current_book_files)?></b> media		
+		Jump to: <select name="jump_to"><option value=""></option></select> of  <b><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?>	
 		</form>
 <? endif ?>
