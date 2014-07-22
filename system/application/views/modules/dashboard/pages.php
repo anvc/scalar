@@ -13,7 +13,7 @@
 	
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
 		var start = 0;
-		var results = 10;
+		var results = 20;
 		
 		$(document).ready(function() {
 			
