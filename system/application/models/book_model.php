@@ -285,7 +285,33 @@ class Book_model extends MY_Model {
     	return $result;   	
     	
     }    
-    
+
+    public function get_index_books($is_featured=true, $sq='', $orderby='title',$orderdir='asc') {
+        
+        if (!empty($is_featured)) {
+            $temp = 'is_featured = 1 AND ';
+            $temp .= 'display_in_index = 1 ';
+        }
+        else {
+            $temp = '(is_featured = 0 OR ';
+            $temp .= 'display_in_index = 0) ';
+        }
+
+        if(!empty($sq)) {
+            $temp .= 'AND (slug LIKE \'%'.$sq.'%\' OR title LIKE \'%'.$sq.'%\' OR description LIKE \'%'.$sq.'%\')';
+        }
+        $this->db->where($temp);
+
+        $query = $this->db->get($this->books_table);
+        $result = $query->result();
+        for ($j = 0; $j < count($result); $j++) {
+            $result[$j]->users = $this->get_users($result[$j]->book_id, true);
+        }
+
+        return $result;  
+        
+    }
+
     public function add($array=array()) {
 
     	if ('array'!=gettype($array)) $array = (array) $array;
