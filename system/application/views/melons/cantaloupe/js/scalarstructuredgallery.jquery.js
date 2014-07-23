@@ -359,7 +359,8 @@
 				
 				for ( i = 0; i < n; i++ ) {
 					node = children[ i ];
-					block = $( '<div id="block_' + node.slug + '" class="content_block"></div>' ).appendTo( mediaContainer );
+					block = $( '<div id="block_' + node.slug.replace( "/", "-" ) + '" class="content_block"></div>' ).appendTo( mediaContainer );
+					//console.log( "create block: " + node.slug.replace( "/", "-" ) );
 					block.data( 'node', node );
 					contentBlocks.push( block );
 				}
@@ -380,7 +381,7 @@
 					
 					if ( ( scrolledPosition > 0 ) && ( scrolledPosition < window.innerHeight ) ) {
 					
-						//console.log('load '+node.slug);
+						//console.log('load '+node.slug.replace( "/", "-" ));
 						
 						if (window['Spinner']) {
 							var spinnerElement = $('<div class="spinner_wrapper"></div>').appendTo(block);
@@ -432,7 +433,7 @@
 			
 			addHeaderForNode: function( node ) {
 			
-				var block = $( '#block_' + node.slug );
+				var block = $( '#block_' + node.slug.replace( "/", "-" ) );
 				
 				if (node.current.description != null) {
 					block.prepend(' <div class="one_line_description">'+node.current.description+'</div>');
@@ -444,7 +445,7 @@
 			addImagesForNode: function( node ) {
 			
 				var child, i,
-					block = $( '#block_' + node.slug ),
+					block = $( '#block_' + node.slug.replace( "/", "-" ) ),
 					children = gallery.getChildrenOfType( node, 'all' ),
 					n = children.length;
 					
@@ -485,10 +486,16 @@
 				}		
 					
 				if ( node.thumbnail != undefined ) {
-					thumbnail = $( '<img id="img-' + node.slug + '" class="thumb" src="' + node.thumbnail + '" alt="' + 
+					var url;
+					if ( node.thumbnail.indexOf( "http://" ) == -1 ) {
+						url = scalarapi.model.urlPrefix + node.thumbnail;
+					} else {
+						url = node.thumbnail;
+					}
+					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' + 
 						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
 				} else {
-					thumbnail = $( '<img id="img-' + node.slug + '" class="thumb" src="' + modules_uri + 
+					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri + 
 						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" height="' + 
 						parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
 				}

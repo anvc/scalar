@@ -2089,21 +2089,21 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 		ref = references ? 1 : 0;
 	}
 	queryString += '&ref='+ref;
-	if (relation !== null) {
+	if (relation != null) {
 		queryString += '&res='+relation;
 	}
-	if (start != undefined) {
+	if (start != null) {
 		queryString += '&start='+start;
 	}
-	if (results != undefined) {
+	if (results != null) {
 		queryString += '&results='+results;
 	}
-	if (hidden != undefined) {  // Added by Craig 21 July 2014
+	if (hidden != null) {  // Added by Craig 21 July 2014
 		queryString += '&hidden='+hidden;
 	}
 
-	// if we're forcing the data to load, or no nodes of the given type have already been loaded, then
-	if (forceReload || (nodes.length == 0)) {
+	// if we're forcing the data to load, no nodes of the given type have already been loaded, or pagination settings are active, then
+	if (forceReload || (nodes.length == 0) || (start != null) || (results != null)) {
 	
 		// NOTE: Removed queueing functionality because it wasn't properly handling the multiple
 		// content types and a better solution couldn't be devised quickly
