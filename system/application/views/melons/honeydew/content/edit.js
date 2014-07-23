@@ -142,6 +142,22 @@ $(window).ready(function() {
 		$('.wysiwyg_options').html('<div class="error">Scalar does not currently support the full range of editing and linking features on your device.</div>');
 	}
 	
+	// Thumbnail
+	var $choose_thumb = $('#choose_thumbnail');
+	var $thumbnail = $('input[name="scalar:thumbnail"]');
+	var chosen_thumb = $choose_thumb.find('option:selected').val();
+	if (chosen_thumb.length) $thumbnail.val(chosen_thumb);
+	if ($thumbnail.val().length) $choose_thumb.parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');
+	$choose_thumb.change(function() {
+		$thumbnail.val($(this).find('option:selected').val());
+		$(this).parent().find('.thumb_preview').remove();
+		$(this).parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');		
+	});
+	$thumbnail.change(function() {
+		$(this).parent().find('.thumb_preview').remove();
+		$(this).parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');
+	});
+	
 	// Color Picker (in editor)
 	if ($.isFunction($.fn.farbtastic)) {
 		$('#colorpicker').farbtastic('#color_select');	

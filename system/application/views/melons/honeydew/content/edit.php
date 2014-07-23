@@ -390,20 +390,19 @@ endif;
   	<td class="field" valign="top"><a class="edit_page_arrow edit_page_arrow_down">Style</a></td>
   	<td valign="top">
   		<table cellspacing="0" cellpadding="0" class="styling_table">
-  		<tr><!-- thumbnail -->
-  			<td>Thumbnail</td>
-  			<td><?=((@!empty($page->thumbnail))?'<img src="'.abs_url($page->thumbnail, $base_uri).'" class="thumb_preview" />':'No thumbnail image has been set')?></td>
-  			<td class="styling_last"><select name="scalar:thumbnail"><option value="">Choose an image</option><?
-  				$matched = false;
+  		<tr class="styling_sub"><!-- thumbnail -->
+  			<td>Thumbnail</td>	
+  			<td colspan="2">
+  			<div>Choose an image from your library:</div>
+  			<select id="choose_thumbnail" style="margin:3px 0px 3px 0px; max-width:100%;"><option value="">Choose an image</option><?
   				foreach ($book_images as $book_image_row) {
-  					if (@$page->thumbnail==$book_image_row->versions[$book_image_row->version_index]->url) $matched = true;
   					$slug_version = get_slug_version($book_image_row->slug);
   					echo '<option value="'.$book_image_row->versions[$book_image_row->version_index]->url.'" '.((@$page->thumbnail==$book_image_row->versions[$book_image_row->version_index]->url)?'selected':'').'>'.$book_image_row->versions[$book_image_row->version_index]->title.((!empty($slug_version))?' ('.$slug_version.')':'').'</option>';
   				}
-  				if (!$matched) {
-  					echo '<option value="'.@$page->thumbnail.'" selected>'.@$page->thumbnail.'</option>';
-  				}
-  			?></select></td>
+  			?></select><br />
+  			Or enter any URL:<br />
+  			<input type="text value="" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" style="margin:3px 0px 3px 0px; width:100%;" />
+  			</td>
   		</tr>
   		<tr class="styling_sub"><!-- color -->
   			<td>Color<br /><small>e.g., for path nav bar</small></td>
