@@ -293,14 +293,15 @@ class Book_model extends MY_Model {
             $temp .= 'display_in_index = 1 ';
         }
         else {
-            $temp = '(is_featured = 0 OR ';
-            $temp .= 'display_in_index = 0) ';
+            $temp = 'is_featured = 0 AND ';
+            $temp .= 'display_in_index = 1 ';
         }
 
         if(!empty($sq)) {
             $temp .= 'AND (slug LIKE \'%'.$sq.'%\' OR title LIKE \'%'.$sq.'%\' OR description LIKE \'%'.$sq.'%\')';
         }
         $this->db->where($temp);
+        $this->db->order_by($orderby, $orderdir); 
 
         $query = $this->db->get($this->books_table);
         $result = $query->result();

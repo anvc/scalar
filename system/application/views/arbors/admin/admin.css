@@ -143,6 +143,15 @@ a:hover {text-decoration:underline;}
 	background: -ms-linear-gradient(top,  #8dd1f6 0%,#73c6f4 100%) !important; /* IE10+ */
 	background: linear-gradient(top,  #8dd1f6 0%,#73c6f4 100%) !important; /* W3C */
 }
+.generic_text_input {
+	border: 1px solid #aaa !important;
+	border-radius: 3px !important;
+	font-weight: normal !important;
+	color: black !important;
+	font-size:15px;
+	padding: 2px 8px 1px 8px;
+	box-shadow: 0px 1px 1px #ccc !important;
+}
 
 .ui-widget { font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif !important; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif !important; }

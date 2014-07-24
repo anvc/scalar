@@ -78,6 +78,12 @@ h3 {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#f8f8f8',GradientType=0 ); /* IE6-9 */
 }
 
+#book_list_search {display:table;}
+#book_list_search > div {display:table-row;}
+#book_list_search > div > div {display:table-cell; vertical-align:middle;}
+#book_list_search input {margin-right:8px;	}
+#book_list_search button {margin-left:8px;	}
+
 #other_books .book_icons {
 	font-size: 80%;
 }

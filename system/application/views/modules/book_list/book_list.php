@@ -38,14 +38,6 @@ function print_books($books, $is_large=false) {
 <? if ($this->config->item('index_msg')): ?>
 <div class="saved msg"><?=$this->config->item('index_msg')?></div>
 <? endif ?>
-<?if (!$login->is_logged_in):?>
-<!--<div>
-  <strong><a href="<?=confirm_slash($this->config->item('force_https') ? base_ssl() : base_url())?>system/login?redirect_url=<?=urlencode($_SERVER['REQUEST_URI'])?>">Sign in</a> 
-  to view your books and further options</strong>
-</div>-->
-<? else: ?>
-<!--<div><?=lang('welcome.showing_books')?></div>-->
-<? endif ?>
 <?
 if(!$login_is_super) {
 	foreach ($other_books as $key => $row) {
@@ -56,29 +48,26 @@ if(!$login_is_super) {
 	}
 }
 ?>
+<div id="other_books"<?=(($login->is_logged_in)?'':' class="wide"')?>>
 <?
-echo '<div id="other_books"'.(($login->is_logged_in)?'':' class="wide"').'>';
 if (count($featured_books) > 0) {
 	echo '<h3>'.lang('welcome.featured_books').'</h3>';
 	print_books($featured_books);
 	echo '<br clear="both" />';
 }
-
-echo '<h3>'.lang('welcome.other_books').'</h3>';
-echo "<span id=\"book_list_search\">";
-echo "<form action=\"" . base_url() . "\" method=\"get\">";
-echo "<input type=\"text\" name=\"sq\" />";
-echo "<input type=\"submit\" class=\"generic_button\" value=\"Search\" />";
-echo "<button type=\"submit\" class=\"generic_button\" value=\"1\" name=\"view_all\">View All</button>";
-echo "</form>";
-echo "</span>";
-echo '<br clear="both" />';
-if (count($other_books) > 0) {
-	print_books($other_books);
-}
-
-echo '</div>';
 ?>
+<h3><?=lang('welcome.other_books')?></h3>
+<form action="<?=base_url()?>" id="book_list_search">
+<div>
+<div><input type="text" name="sq" class="generic_text_input" /></div>
+<div><input type="submit" class="generic_button" value="Search" /></div>
+<div><button type="submit" class="generic_button" value="1" name="view_all" >View All</button></div>
+</div>
+</form>
+<br clear="both" />
+<? if (count($other_books) > 0) print_books($other_books) ?>
+</div>
+
 <?
 if ($login->is_logged_in) {
 	echo '<div id="user_books"><h3>Your Books</h3>';
