@@ -64,16 +64,16 @@ if (count($featured_books) > 0) {
 	echo '<br clear="both" />';
 }
 
+echo '<h3>'.lang('welcome.other_books').'</h3>';
+echo "<span id=\"book_list_search\">";
+echo "<form action=\"" . base_url() . "\" method=\"get\">";
+echo "<input type=\"text\" name=\"sq\" />";
+echo "<input type=\"submit\" class=\"generic_button\" value=\"Search\" />";
+echo "<button type=\"submit\" class=\"generic_button\" value=\"1\" name=\"view_all\">View All</button>";
+echo "</form>";
+echo "</span>";
+echo '<br clear="both" />';
 if (count($other_books) > 0) {
-	echo '<h3>'.lang('welcome.other_books').'</h3>';
-	echo "<span id=\"book_list_search\">";
-	echo "<form action=\"" . base_url() . "\" method=\"get\">";
-	echo "<input type=\"text\" name=\"sq\" />";
-	echo "<input type=\"submit\" class=\"generic_button\" value=\"Search\" />";
-	echo "<button type=\"submit\" class=\"generic_button\" value=\"1\" name=\"view_all\">View All</button>";
-	echo "</form>";
-	echo "</span>";
-	echo '<br clear="both" />';
 	print_books($other_books);
 }
 
