@@ -376,11 +376,11 @@ class Page_model extends MY_Model {
 		$data['user']       = (int) $array['user_id'];
 		$data['created']    = date('c');
 		if (isset($array['category']) && !empty($array['category'])) $data['category'] = $array['category'];
-		if (isset($array['thumbnail']))  $data['thumbnail'] = $array['thumbnail'];
-		if (isset($array['background']))  $data['background'] = $array['background'];
-		if (isset($array['custom_style']))  $data['custom_style'] = $array['custom_style'];
-		if (isset($array['custom_scripts']))  $data['custom_scripts'] = $array['custom_scripts'];
-		if (isset($array['audio']))  $data['audio'] = $array['audio'];		
+		if (isset($array['thumbnail']))  		$data['thumbnail'] = (is_array($array['thumbnail'])) ? $array['thumbnail'][0] : $array['thumbnail'];
+		if (isset($array['background']))  		$data['background'] = (is_array($array['background'])) ? $array['background'][0] : $array['background'];
+		if (isset($array['custom_style']))  	$data['custom_style'] = (is_array($array['custom_style'])) ? $array['custom_style'][0] : $array['custom_style'];
+		if (isset($array['custom_scripts']))  	$data['custom_scripts'] = (is_array($array['custom_scripts'])) ? $array['custom_scripts'][0] : $array['custom_scripts'];
+		if (isset($array['audio']))  			$data['audio'] = (is_array($array['audio'])) ? $array['audio'][0] : $array['audio'];		
 
     	$this->db->insert($this->pages_table, $data); 
     	if (mysql_errno() != 0) die(mysql_error());
