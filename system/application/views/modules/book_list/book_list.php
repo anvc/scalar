@@ -27,17 +27,6 @@ function print_books($books, $is_large=false) {
 	echo '</ul>';	
 }
 
-function print_search_bar() {
-	echo "<span id=\"book_list_search\">";
-	echo "<form action=\"" . base_url() . "\" method=\"post\">";
-	echo "<input type=\"text\" name=\"bl_search\" />";
-	echo "<input type=\"submit\" value=\"Search\" />";
-	echo "<input type=\"submit\" value=\"View All\" name=\"view_all\" id=\"view_all\" />";
-	echo "</form>";
-	echo "</span>";
-	echo '<br clear="both" />';
-
-}
 ?>
 
 <?if ('1'==@$_REQUEST['user_created']): ?>
@@ -58,40 +47,13 @@ function print_search_bar() {
 <!--<div><?=lang('welcome.showing_books')?></div>-->
 <? endif ?>
 <?
-$user_books = array();
-$featured_books = array();
-$other_books = array();
-
-if(!$view_all && ($bl_search !== false)) {
-	$temp_books = $this->books->search($bl_search);
-
-	foreach ($temp_books as $row) {
-		$is_live       =@ ($row->display_in_index) ? true : false;
-		$is_featured   =@ ($row->is_featured) ? true : false;
-		
-		if ((!$is_featured && $is_live) || (!$is_live && $login_is_super)) {
-		 	$other_books[] = $row;
-		}		
+if(!$login_is_super) {
+	foreach ($other_books as $key => $row) {
+		$is_live =@ ($row->display_in_index) ? true : false;
+	    if(!$is_live){
+    	    unset($other_books[$key]);
+	    }
 	}
-}
-
-foreach ($books as $row) {
-
-	$book_id       =@ (int) $row->book_id;
-	$is_live       =@ ($row->display_in_index) ? true : false;
-	$is_featured   =@ ($row->is_featured) ? true : false;
-	$hide_other    =  ($this->config->item('index_hide_published')) ? true : false;
-	
-	if ($is_featured && $is_live) {
-		$featured_books[] = $row;
-	} elseif ($view_all && ($is_live || $login_is_super)) {
-		$other_books[] = $row;
-	}
-	
-	if (in_array($book_id, $login_book_ids)) {
-		$user_books[] = $row;
-	}
-	
 }
 ?>
 <?
@@ -102,9 +64,16 @@ if (count($featured_books) > 0) {
 	echo '<br clear="both" />';
 }
 
-echo '<h3>'.lang('welcome.other_books').'</h3>';
-print_search_bar();
 if (count($other_books) > 0) {
+	echo '<h3>'.lang('welcome.other_books').'</h3>';
+	echo "<span id=\"book_list_search\">";
+	echo "<form action=\"" . base_url() . "\" method=\"get\">";
+	echo "<input type=\"text\" name=\"sq\" />";
+	echo "<input type=\"submit\" class=\"generic_button\" value=\"Search\" />";
+	echo "<button type=\"submit\" class=\"generic_button\" value=\"1\" name=\"view_all\">View All</button>";
+	echo "</form>";
+	echo "</span>";
+	echo '<br clear="both" />';
 	print_books($other_books);
 }
 

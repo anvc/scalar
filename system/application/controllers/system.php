@@ -48,9 +48,21 @@ class System extends MY_Controller {
 
 		$this->data['title'] = $this->lang->line('install_name');
 		$this->data['cover_title']  = $this->lang->line('install_name');
-		$this->data['books'] = $this->books->get_all();
-		$this->data['bl_search'] = isset($_REQUEST['bl_search']) ? $_REQUEST['bl_search'] : false;
-		$this->data['view_all']  = isset($_REQUEST['view_all']) ? $_REQUEST['view_all'] : false;
+
+		$this->data['featured_books'] = $this->books->get_index_books();
+
+		$this->data['other_books'] = array();
+		if(isset($_REQUEST['sq'])) {
+			$this->data['other_books'] = $this->books->get_index_books(false,$_REQUEST['sq']);
+		}
+		elseif(isset($_REQUEST['view_all'])) {
+			$this->data['other_books'] = $this->books->get_index_books(false);			
+		}
+
+		$this->data['user_books'] = array();
+		if(isset($this->data['login']->user_id)) {
+			$this->data['user_books'] = $this->books->get_all($this->data['login']->user_id);
+		}
 
 		$this->template->set_template('admin');
 		$this->template->write_view('cover', 'modules/'.trim($cover_dir,'/').'/index_cover', $this->data);
