@@ -162,8 +162,9 @@
 			  	 if (data.content.length > 0) str += ', ';
 			  	 str += ucwords(toWords(data.versions.length))+'versions';
 			  }
-			  str += ' deleted';
-			  alert(str);
+			  str += ' deleted. ';
+			  str += 'Do you wish to reload page content?';
+			  if (confirm(str)) location.reload();
 			});
 			
 		}
