@@ -57,7 +57,12 @@ if (count($featured_books) > 0) {
 }
 ?>
 <h3><?=lang('welcome.other_books')?></h3>
-<form action="<?=base_url()?>" id="book_list_search" onsubmit="if (!this.sq.value.length) {alert('Please enter a search term');return false;}">
+<form action="<?=base_url()?>" id="book_list_search">
+<?
+if (isset($book_list_search_error)) {
+	echo '<p class="error">'.$book_list_search_error.'</p>';
+}
+?>
 <div>
 <div><input type="text" name="sq" class="generic_text_input" /></div>
 <div><input type="submit" class="generic_button" value="Search" /></div>

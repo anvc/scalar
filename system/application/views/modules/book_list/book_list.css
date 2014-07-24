@@ -83,6 +83,7 @@ h3 {
 #book_list_search > div > div {display:table-cell; vertical-align:middle;}
 #book_list_search input {margin-right:8px;	}
 #book_list_search button {margin-left:8px;	}
+#book_list_search .error {padding:4px 8px 4px 8px; margin:0px 0px 10px 0px;}
 
 #other_books .book_icons {
 	font-size: 80%;
