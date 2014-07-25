@@ -99,8 +99,10 @@
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
 					start = _next;
 				});
+				$('select[name="jump_to"]').val((start+1));
 			} else if ('search'==callee) {
 				$('.pagination').html('search results from ');
+				$('select[name="jump_to"]').val('');
 			}
 		}
 	
