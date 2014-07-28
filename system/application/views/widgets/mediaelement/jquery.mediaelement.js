@@ -2150,7 +2150,7 @@ function handleFlashVideoMetadata(data) {
 		    	'postdomevents', 'True',
 		    	"emb#NAME", this.model.filename+'_object'+this.model.id,
 		    	'EnableJavaScript', 'True',
-		    	'AUTOPLAY', 'False',
+		    	'AUTOPLAY', this.model.options.autoplay,
 		    	'CONTROLLER', showController,
 		    	'SCALE', 'Aspect'
 		    );
@@ -3038,7 +3038,7 @@ function handleFlashVideoMetadata(data) {
 				break;
 			
 			}
-		
+
  			var theElement = $('<div class="mediaObject" id="'+this.model.filename+'_mediaObject'+this.model.id+'"/>"').appendTo(this.parentView.mediaContainer);
  			
  			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.swf", {
@@ -3049,7 +3049,7 @@ function handleFlashVideoMetadata(data) {
 			        url: this.model.path,
 			        accelerated: false,
 			        scaling: 'fit',
-			        autoPlay: false,
+			        autoPlay: true,
 			        autoBuffering: true
 			    },
 			    
@@ -3059,7 +3059,7 @@ function handleFlashVideoMetadata(data) {
 				},
 			    
 			    onStart: function() {
-			    	if (!me.playStopped) {
+			    	if (!me.playStopped && !me.model.options.autoplay) {
 			    		this.pause();
 			    		me.playStopped = true;
 			    	}
@@ -3218,7 +3218,7 @@ function handleFlashVideoMetadata(data) {
 			        urlResolvers: 'bwcheck',
 			        provider: 'rtmp',
 			        scaling: 'uniform',
-			        autoPlay: false,
+			        autoPlay: this.model.options.autoplay,
 			        start: 0,
 			        bitrates: [
 			            { url: 'mp4:'+this.bsn+'_300k_s.mp4', width: 448, height: 336, bitrate: 300, isDefault: true },
@@ -4316,9 +4316,11 @@ function handleFlashVideoMetadata(data) {
 				me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
 				me.widget.bind(SC.Widget.Events.PLAY, function() {
 					if (!me.initialPauseDone) {
-						if (me.model.seekAnnotation == null) {
-							me.widget.pause();
-							me.initialPauseDone = true;
+						if ( me.model.seekAnnotation == null ) {
+							if ( !me.model.options.autoplay ) {
+								me.widget.pause();
+								me.initialPauseDone = true;
+							}
 						} else {
 							me.widget.setVolume(0);
 						}
