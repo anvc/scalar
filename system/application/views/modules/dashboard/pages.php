@@ -52,7 +52,7 @@
    			});
 
    			var $jump_to = $('select[name="jump_to"]');
-   			var total = parseInt($('#total').html());
+   			var total = parseInt($('.total:first').html());
 			for (j = 1; j <= total; j+=results) {
 				$jump_to.append('<option value="'+j+'">'+j+'</option>');	
 			}   			
@@ -79,10 +79,10 @@
    			}); 
 		}
 
-		function pagination(callee) {
+		function pagination(callee, num_nodes) {
 			$('.prev, .next').html('');
 			if ('paginate'==callee) {
-				var total = parseInt($('#total').html());
+				var total = parseInt($('.total:first').html());
 				var prev = (start > 0) ? start : 0;
 				var next = (start+results < total) ? start+results : total; 
 				var _prev = (start - results > 0) ? start - results : 0;
@@ -98,9 +98,11 @@
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
 					start = _next;
 				});
+				$('.total').show();
 				$('select[name="jump_to"]').val((start+1));
 			} else if ('search'==callee) {
-				$('.pagination').html('search results from ');
+				$('.total').hide();
+				$('.pagination').html('<b>'+num_nodes+'</b> search result'+((num_nodes>1)?'s':'')+' of ');
 				$('select[name="jump_to"]').val('');
 			}
 		}
@@ -237,7 +239,7 @@
 		<input type="text" name="sq" style="width:300px;" value="Search for a page" onmousedown="if (this.value=='Search for a page') this.value='';" />
 		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;">clear</a>&nbsp;
 		<? if (count($current_book_content)): ?>
-		&nbsp; <span class="prev"></span>&nbsp; <span class="pagination"></span> <b id="total"><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
+		&nbsp; <span class="prev"></span>&nbsp; <span class="pagination"></span> <b class="total"><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
 		<? endif ?>
 		</form>
 		
@@ -252,7 +254,7 @@
 		&nbsp; &nbsp; 
 		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>
 		&nbsp; &nbsp; 
-		<span class="prev"></span>&nbsp; <span class="pagination"></span> <b><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
+		<span class="prev"></span>&nbsp; <span class="pagination"></span> <b class="total"><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
 		&nbsp; &nbsp; &nbsp; 
 		Jump to: <select name="jump_to"><option value=""></option></select> of  <b><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?>	
 		</form>

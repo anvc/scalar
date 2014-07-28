@@ -49,7 +49,7 @@
 				$.fn.scalardashboardtable('content', options);
 				options.resize_wrapper_func();
 				options.tablesorter_func();
-				options.pagination_func(options.callee);
+				options.pagination_func(options.callee, options.scalarapi.model.numNodes);
 			} catch(err) {
 				$.fn.scalardashboardtable('error', err, options);
 			}
@@ -126,8 +126,10 @@
 	
 			var $tbody = $(options.wrapper).find('tbody:first');
 			var nodes = options.scalarapi.model.getNodes();
+			options.scalarapi.model.numNodes = 0;
 			for (var j in nodes) {
 				if (nodes[j].baseType!=$.fn.scalardashboardtable('get_type_from_querytype',options.query_type)) continue;
+				options.scalarapi.model.numNodes++;
 				console.log(nodes[j]);
 				var id = nodes[j].urn.slice(nodes[j].urn.lastIndexOf(':')+1);
 				var d = nodes[j].created.slice(0, nodes[j].created.indexOf('T'));
