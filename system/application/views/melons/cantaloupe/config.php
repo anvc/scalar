@@ -28,3 +28,12 @@ $config['reference_options'] = array(
 			/*'autoplay' => array('false', 'true'),
 			'display-content-preview-box' => array('true', 'false')*/
 		);
+
+//Available Visualization Methods
+$config['available_visualizations'] = array(
+	'pinwheel',
+	'sidebar'
+);
+
+//Cantaloupe Visualization Method - Default: 'pinwheel'
+$config['visualization'] = 'pinwheel'; //Can also be "sidebar" for new vis

@@ -22,6 +22,17 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarpinwheel.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
 <?
+
+//Check which visualization type we are using - default is 'pinwheel'
+$visualization = $this->config->item('visualization');
+
+//If we have a valid value for the GET variable, "visualization," use it instead.
+if(isset($_GET['visualization']) && in_array($_GET['visualization'], $this->config->item('available_visualizations'))){
+	$visualization = $_GET['visualization'];
+}
+
+$this->template->add_js("var cantaloupe_visualization = '$visualization';",'embed');
+
 if (file_exists(confirm_slash(APPPATH).'views/melons/cantaloupe/'.$view.'.php')) {
   $this->load->view('melons/cantaloupe/'.$view);
 }
