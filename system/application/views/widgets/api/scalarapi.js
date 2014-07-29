@@ -404,10 +404,10 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'audio',
 			browserSupport: {
-				'Mozilla': {extensions:['oga'], format:'Ogg', player:'jPlayer', specifiesDimensions:false},
+				'Mozilla': {extensions:['oga'], format:'Ogg', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['oga'], format:'Ogg', player:'QuickTime', specifiesDimensions:false},
-				'Chrome': {extensions:['oga'], format:'Ogg', player:'jPlayer', specifiesDimensions:false},
-				'Other': {extensions:['oga'], format:'Ogg', player:'QuickTime', specifiesDimensions:false}
+				'Chrome': {extensions:['oga'], format:'Ogg', player:'native', specifiesDimensions:false},
+				'Other': {extensions:['oga'], format:'Ogg', player:'native', specifiesDimensions:false}
 			}},
 		'Ogg-Video': {
 			name:'OGG', 
@@ -418,7 +418,7 @@ function ScalarAPI() {
 				'Mozilla': {extensions:['ogg','ogv'], format:'Ogg', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['ogg','ogv'], format:'Ogg', player:'QuickTime', specifiesDimensions:true},
 				'Chrome': {extensions:['ogg','ogv'], format:'Ogg', player:'native', specifiesDimensions:true},
-				'Other': {extensions:['ogg','ogv'], format:'Ogg', player:'QuickTime', specifiesDimensions:true}
+				'Other': {extensions:['ogg','ogv'], format:'Ogg', player:'native', specifiesDimensions:true}
 			}},
 		'PDF': {
 			name:'PDF', 
