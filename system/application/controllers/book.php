@@ -59,6 +59,7 @@ class Book extends MY_Controller {
 		$this->load->model('reply_model', 'replies');
 		$this->load->model('reference_model', 'references');
 		$this->load->library('RDF_Object', 'rdf_object');
+		$this->load->library('File_Upload', 'file_upload');
 		$this->load->library('statusCodes');	
 		$this->load->helper('inflector');	
 	
@@ -333,27 +334,10 @@ class Book extends MY_Controller {
 		$this->data['view'] = __FUNCTION__;
 
 		if ($action == 'add' || $action == 'replace') {
-			$return = array();
+			$return = array('error'=>'');
 			try {
-				if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-				$path =@ $_POST['slug_prepend'];
-				$targetPath = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$path;
-				if (!file_exists($targetPath)) mkdir($targetPath, $chmod_mode, true);		 
-				$tempFile = $_FILES['source_file']['tmp_name'];
-				$name = $_FILES['source_file']['name'];
-				if (!empty($_POST['replace'])) {
-					$version_id = array_pop(explode(':',$_POST['replace']));  // replace is an urn
-					$version = $this->versions->get($version_id);
-					$name = $version->url;
-					if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
-				}
-				$targetFile = rtrim($targetPath,'/') . '/' . $name;
-				// Return fields
-				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');				
-				@chmod($targetFile, $chmod_mode); 
-				$url = ((!empty($path))?confirm_slash($path):'').$name;
-				$return['error'] = '';
-				$return['url'] = $url;
+	            $slug = confirm_slash($this->data['book']->slug);
+				$return['url'] = $this->file_upload->upload($slug,$chmod_mode);
 			} catch (Exception $e) {
 				$return['error'] =  $e->getMessage();
 			}		
