@@ -2648,7 +2648,7 @@ function handleFlashVideoMetadata(data) {
 		jQuery.HTML5AudioObjectView.prototype.createObject = function() {
 
 			obj = $('<div class="mediaObject"><audio style="width:100%" src="'+this.model.path+'" controls="controls" type="audio/'+this.model.extension+'">Your browser does not support the audio tag.</audio></div>').appendTo(this.parentView.mediaContainer);
-			if ( this.model.options.autoplay ) {
+			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
 				obj.find( 'audio' ).attr( 'autoplay', 'true' );
 			}
 			this.audio = obj.find('audio');
