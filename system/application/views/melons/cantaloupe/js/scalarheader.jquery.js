@@ -188,12 +188,16 @@
 				this.buildImportMenu();
 	
 				// Delete page/media
-				list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
-				$( '#delete-item' ).click( this.handleDelete );
+				if ( !isNaN( bookId ) ) { // bookID will be NaN if page doesn't exist, so no reason to offer delete functionality
+					list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
+					$( '#delete-item' ).click( this.handleDelete );
+				}
 			}
 
 			// Dashboard
-			list.append( '<li id="options-item"><a href="' + system_uri + '/dashboard?book_id=' + bookId + '&zone=style#tabs-style"><img src="' + this.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /></a></li>' );
+			if ( !isNaN( bookId ) ) { // bookID will be NaN if page doesn't exist, so can't construct link to Dashboard
+				list.append( '<li id="options-item"><a href="' + system_uri + '/dashboard?book_id=' + bookId + '&zone=style#tabs-style"><img src="' + this.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /></a></li>' );
+			}
 		}
 
 		// Sign in
