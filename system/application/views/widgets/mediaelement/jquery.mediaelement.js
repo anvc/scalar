@@ -903,6 +903,10 @@ function handleFlashVideoMetadata(data) {
 				}
 				break;
 				
+				case 'tiledImage':
+				this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
+				break;
+				
 				case 'audio':
 				if (this.model.mediaSource.name == 'SoundCloud') {
 					this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);
@@ -4487,6 +4491,64 @@ function handleFlashVideoMetadata(data) {
 		jQuery.GoogleMapsObjectView.prototype.resize = function(width, height) {
 			$('#googlemaps'+me.model.id).width(Math.round(width));
 			$('#googlemaps'+me.model.id).height(Math.round(height));
+		}
+		
+	}
+
+	/**
+	 * View for Deep Zoom Image content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.DeepZoomImageObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.isLiquid = true;					// media will expand to fill available space
+
+		/**
+		 * Creates the video media object.
+		 */
+		jQuery.DeepZoomImageObjectView.prototype.createObject = function() {
+		
+			var approot = $('link#approot').attr('href');
+			var path = approot + 'helpers/proxy.php?url=' + this.model.path;
+			
+			this.mediaObject = $( '<div class="mediaObject" style="background-color:black;" id="openseadragon' + this.model.id + '"></div>' ).appendTo( this.parentView.mediaContainer );
+			
+			this.viewer = OpenSeadragon( {
+				id: "openseadragon" + this.model.id,
+				prefixUrl: approot + "views/widgets/mediaelement/openseadragon/images/",
+				showNavigator: true,
+				tileSources: path
+			} );
+			
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+			
+			return;
+		}
+
+		// These functions are basically irrelevant for HTML pages
+		jQuery.DeepZoomImageObjectView.prototype.play = function() { }
+		jQuery.DeepZoomImageObjectView.prototype.pause = function() { }
+		jQuery.DeepZoomImageObjectView.prototype.seek = function(time) { }
+		jQuery.DeepZoomImageObjectView.prototype.getCurrentTime = function() { }
+		jQuery.DeepZoomImageObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.DeepZoomImageObjectView.prototype.resize = function(width, height) {
+			$('#openseadragon'+me.model.id).width(Math.round(width));
+			$('#openseadragon'+me.model.id).height(Math.round(height));
 		}
 		
 	}

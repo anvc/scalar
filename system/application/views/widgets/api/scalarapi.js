@@ -246,6 +246,19 @@ function ScalarAPI() {
 				'Chrome': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}
 			}},
+		'Deep Zoom Image': {
+			name:'DeepZoomImage', 
+			extensions:['dzi'],
+			isProprietary:false,
+			contentType:'tiledImage',
+			browserSupport: {
+				'Mozilla': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
+				'Explorer': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
+				'MobileSafari': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
+				'Safari': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
+				'Chrome': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
+				'Other': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false}
+			}},
 		'FlashVideo': {
 			name:'FlashVideo', 
 			extensions:['flv'],
