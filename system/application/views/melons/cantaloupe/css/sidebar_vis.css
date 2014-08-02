@@ -1,0 +1,161 @@
+/* We have at least 250px on left side. */
+body.sidebar_vis .page{
+	position: absolute;
+	width: 1000px;
+	margin: 0px;
+	right: 100px;
+	border: 0px;
+	transform: translateX(0px);
+
+	transition: transform .125s ease-in-out, opacity .5s ease-in-out;
+	-webkit-transition: transform .125s ease-in-out, opacity .5s ease-in-out;
+	-moz-transition: transform .125s ease-in-out, opacity .5s ease-in-out;
+}
+body.sidebar_vis #sidebar{
+	position: absolute;
+	padding: 10px;
+	background-color: transparent;
+	width: 50px;
+	top: 0px;
+	bottom: 0px;
+
+	height: 100%;
+
+    transition-duration: .125s;
+    -webkit-transition-duration: .125s;
+    -moz-transition-duration: .125s;
+    transition-timing-function: ease-in-out;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+	
+	overflow: hidden;
+
+	display: table;
+}
+
+body.sidebar_vis #sidebar ul{
+	vertical-align: middle;
+	display: table-cell;
+}
+
+body.sidebar_vis #sidebar .sidebar_icon{
+	font-size: 2em;
+	text-align: center;
+	margin: 10px;
+	vertical-align: middle;
+
+	color: #ccc;
+
+    transition-duration: .25s;
+    -webkit-transition-duration: .25s;
+    -moz-transition-duration: .25s;
+    transition-timing-function: ease-in-out;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+
+	display: table-cell;
+}
+
+body.sidebar_expanded #sidebar .sidebar_icon{
+	color: #000;
+}
+
+body.sidebar_vis #sidebar ul.path li{
+	color: #ccc;
+	list-style-type: none;
+	vertical-align: middle;
+	width: 180px;
+	display: table;
+}
+body.sidebar_vis #sidebar ul.path li .title{
+	font-size: .75em;
+	display: table-cell;
+	vertical-align: middle;
+	padding-left: 1em;
+}
+
+body.sidebar_vis #sidebar ul.path li.active{
+	color: #333;
+}
+
+@media only screen and (min-width : 581px) {
+	/*Everything but small screens*/
+	body.sidebar_expanded #sidebar{
+		background-color: #eee;
+		width: 200px;
+	}
+
+	body.sidebar_vis #sidebar ul.path li.distant, body.sidebar_vis #sidebar ul.path li .title{
+		opacity: 0;
+	    transition-duration: .125s;
+	    -webkit-transition-duration: .125s;
+	    -moz-transition-duration: .125s;
+	    transition-timing-function: ease-in-out;
+	    -webkit-transition-timing-function: ease-in-out;
+	    -moz-transition-timing-function: ease-in-out;
+	}
+
+	body.sidebar_expanded #sidebar ul.path li.distant, 
+	body.sidebar_expanded #sidebar ul.path li .title{
+		text-indent: 0px;
+		opacity: 1;
+	}
+
+	body.sidebar_expanded.sidebar_opened #sidebar, body.sidebar_vis .bg_screen{
+		background-color: #fff;
+	}
+}
+/* Large Devices, Wide Screens */
+@media only screen and (max-width : 1250px) {
+	body.sidebar_vis .page{
+		width: auto;
+		left: 200px;
+	}	
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (max-width : 992px) {
+	body.sidebar_vis .page{
+		width: auto;
+		left: 100px;
+	}
+	body.sidebar_expanded .page{
+		transform: translateX(100px);
+	}
+}
+
+/* Small Devices, Tablets */
+@media only screen and (max-width : 768px) {
+
+	body.sidebar_vis .page{
+		width: auto;
+		left: 50px;
+	}
+	body.sidebar_expanded .page{
+		transform: translateX(150px);
+	}
+}
+
+/* Extra Small Devices, Phones */ 
+@media only screen and (max-width : 580px) {
+	body.sidebar_vis .page{
+		width: 100%;
+		left: 0px;
+		right: 0px;
+		z-index: 2;
+	}
+	body.sidebar_vis #sidebar{
+		right: 0px;
+		width: 100%;
+	}
+	body.sidebar_expanded .page{
+		opacity: 0;
+		left: 100%;
+		right: auto;
+	}
+}
+
+/* Custom, iPhone Retina */ 
+@media only screen and (max-width : 320px) {
+	
+}
