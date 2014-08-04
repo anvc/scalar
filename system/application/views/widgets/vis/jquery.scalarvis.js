@@ -152,57 +152,90 @@ function handleViewTypeClick(radioBtn) {
 			{id:'book', desc:'book'},
 			{id:'current', desc:"current page"},
 			{id:'currentRelations', desc:"current page's connections"},
-			{id:'path', desc:"paths and path contents"}, 
-			{id:'tag', desc:"remaining tags"}, 
-			{id:'media', desc:"remaining media"},
-			{id:'page', desc:"remaining pages"}, 
-			{id:'annotation', desc:"remaining annotations"},
-			{id:'commentary', desc:"remaining commentaries"},
-			{id:'review', desc:"remaining reviews"},
-			{id:'reply', desc:"remaining comments"}
+			{id:'path', desc:"paths"}, 
+			{id:'tag', desc:"tags"}, 
+			{id:'media', desc:"media"},
+			{id:'page', desc:"pages"}, 
+			{id:'annotation', desc:"annotations"},
+			{id:'commentary', desc:"commentaries"},
+			{id:'review', desc:"reviews"},
+			{id:'reply', desc:"comments"}
 		];																			// array of messages corresponding with data being loaded
 		this.loadIndex = -1;														// index of currently loading data
+		this.pageIndex = 0;
+		this.resultsPerPage = 25;
+		this.reachedLastPage = true;
 		
 		/**
 		 * Loads the next round of data.
 		 */
 		jQuery.VisController.prototype.loadNextData = function() {
 		
-			this.loadIndex++;
+			// if we've reached the last page of the current content type, increment/reset the counters
+			if ( this.reachedLastPage ) {
+				this.loadIndex++;
+				this.pageIndex = 0;
+				this.reachedLastPage = false;
+				
+			// otherwise, just increment the page counter
+			} else {
+				this.pageIndex++;
+			}
 			
-			var url;
-			var result;
+			var url, result, start, end;
 			
 			// if we still have more data to load, then load it
 			if (this.loadIndex < this.loadSequence.length) {
-		
-				this.view.showLoadingMsg(this.loadSequence[this.loadIndex].desc, ((this.loadIndex + 1) / (this.loadSequence.length + 1)) * 100);
 			
 				switch (this.loadSequence[this.loadIndex].id) {
 				
 					case 'book':
+					this.reachedLastPage = true;
 					result = scalarapi.loadBook(false, me.parseData, null);
+					start = end = -1;
 					break;
 				
 					case "current":
+					this.reachedLastPage = true;
 					result = scalarapi.loadCurrentPage(false, me.parseData, null, 0);
+					start = end = -1;
 					break;
 					
 					case "currentRelations":
+					this.reachedLastPage = true;
+					start = end = -1;
 					result = scalarapi.loadCurrentPage(true, me.parseData, null, 1, true);
 					break;
 					
 					// we only need to make these calls with depth=0; relationships will come with the other calls
 					case 'page':
+					start = ( this.pageIndex * this.resultsPerPage );
+					end = start + this.resultsPerPage;
+					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 0, false, null, start, this.resultsPerPage );
+					break;
+				
+					case 'path':
+					case 'tag':
+					start = ( this.pageIndex * this.resultsPerPage );
+					end = start + this.resultsPerPage;
+					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 1, true, this.loadSequence[this.loadIndex].id, start, this.resultsPerPage );
+					break;
+				
 					case 'media':
-					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 0);
+					start = ( this.pageIndex * this.resultsPerPage );
+					end = start + this.resultsPerPage;
+					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 0, true, null, start, this.resultsPerPage );
 					break;
 				
 					default:
-					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 1, true);
+					start = ( this.pageIndex * this.resultsPerPage );
+					end = start + this.resultsPerPage;
+					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 1, false, null, start, this.resultsPerPage );
 					break;
 				
 				}
+		
+				this.view.showLoadingMsg(this.loadSequence[this.loadIndex].desc, ((this.loadIndex + 1) / (this.loadSequence.length + 1)) * 100, ( start == -1 ) ? -1 : start + 1, end );
 				
 				if (result == 'loaded') me.parseData();
 				
@@ -235,6 +268,10 @@ function handleViewTypeClick(radioBtn) {
 		 * @param {Object} json		The data to be parsed.
 		 */
 		jQuery.VisController.prototype.parseData = function(json) {
+		
+			if ( jQuery.isEmptyObject( json ) || ( json == null ) ) {
+				me.reachedLastPage = true;
+			}
 			
 			// parse its relations with other nodes
 			if ((me.loadSequence[me.loadIndex].id != 'book') && (me.loadSequence[me.loadIndex].id != 'current') && (me.loadSequence[me.loadIndex].id != 'currentRelations')) {
@@ -397,13 +434,13 @@ function handleViewTypeClick(radioBtn) {
 			// create instructions div
 			this.instructions = $('<div class="instructions"><b>Paths and their contents.</b> Click to select; double-click to view.</div>').appendTo(this.model.element);
 			
-			// create visualization div
-			this.visualization = $('<div id="scalarvis"></div>').appendTo(this.model.element);
-			
 			// create loading message
-			this.loadingMsg = $('<div id="loadingMsg"><div id="progressbar"></div><p>Loading data...</p></div>').appendTo(this.model.element);
+			this.loadingMsg = $('<div id="loadingMsg"><p>Loading data...</p><div id="progressbar"></div></div>').appendTo(this.model.element);
 			$("#progressbar").progressbar({value:10, max:100});
 			this.loadingMsg.hide();
+			
+			// create visualization div
+			this.visualization = $('<div id="scalarvis"></div>').appendTo(this.model.element);
 			
 			this.visualization.mousemove(function(e) {
 				me.mouseX = e.pageX;
@@ -418,8 +455,12 @@ function handleViewTypeClick(radioBtn) {
 		 * @param {String} typeName			The type of node being loaded.
 		 * @param {Number} percentDone		Percentage of loads completed (0-100)
 		 */
-		jQuery.VisView.prototype.showLoadingMsg = function(typeName, percentDone) {
-			this.loadingMsg.find('p').text('Loading '+typeName+'...');
+		jQuery.VisView.prototype.showLoadingMsg = function( typeName, percentDone, start, end ) {
+			if ( start != -1 ) {
+				this.loadingMsg.find('p').text( 'Loading ' + typeName + ' ' + start + ' through ' + end + '...' );
+			} else {
+				this.loadingMsg.find('p').text( 'Loading ' + typeName + '...' );
+			}
 			$("#progressbar").progressbar('option', 'value', percentDone);
 			this.loadingMsg.show();
 		}
@@ -578,7 +619,7 @@ function handleViewTypeClick(radioBtn) {
 				}
 			}
 			
-			var root = {name:this.model.book_title, type:'root', children:[]};
+			var root = { name: scalarapi.removeMarkup( this.model.book_title ), type:'root', children:[] };
 			var home = scalarapi.model.nodesByURL[scalarapi.model.urlPrefix+'index'];
 			
 			// if we can find a home node,

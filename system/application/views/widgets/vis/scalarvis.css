@@ -17,6 +17,10 @@
 	margin-right: auto;
 }
 
+#loadingMsg > p {
+	margin-bottom: 4px;
+}
+
 #scalarvis {
 	margin-top:10px;
 	margin-bottom:10px; /* Added by Craig 6 April 2012 */
