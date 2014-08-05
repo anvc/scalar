@@ -148,19 +148,45 @@ function handleViewTypeClick(radioBtn) {
 
 		this.model = model;															// instance of the model
 		this.view = view;															// instance of the view
-		this.loadSequence = [
-			{id:'book', desc:'book'},
-			{id:'current', desc:"current page"},
-			{id:'currentRelations', desc:"current page's connections"},
-			{id:'path', desc:"paths"}, 
-			{id:'tag', desc:"tags"}, 
-			{id:'media', desc:"media"},
-			{id:'page', desc:"pages"}, 
-			{id:'annotation', desc:"annotations"},
-			{id:'commentary', desc:"commentaries"},
-			{id:'review', desc:"reviews"},
-			{id:'reply', desc:"comments"}
-		];																			// array of messages corresponding with data being loaded
+		
+		switch (this.model.options.default_tab) {
+		
+			case "vispath":
+			this.loadSequence = [
+				{id:'path', desc:"paths"}, 
+			];
+			break;
+		
+			case "vismedia":
+			this.loadSequence = [
+				{id:'media_references', desc:"media"},
+			];
+			break;
+		
+			case "vistag":
+			this.loadSequence = [
+				{id:'tag', desc:"tags"}, 
+			];
+			break;
+					
+			default:
+			this.loadSequence = [
+				{id:'book', desc:'book'},
+				{id:'current', desc:"current page"},
+				{id:'currentRelations', desc:"current page's connections"},
+				{id:'path', desc:"paths"}, 
+				{id:'tag', desc:"tags"}, 
+				{id:'media', desc:"media"},
+				{id:'page', desc:"pages"}, 
+				{id:'annotation', desc:"annotations"},
+				{id:'commentary', desc:"commentaries"},
+				{id:'review', desc:"reviews"},
+				{id:'reply', desc:"comments"}
+			];
+			break;
+		
+		}
+
 		this.loadIndex = -1;														// index of currently loading data
 		this.pageIndex = 0;
 		this.resultsPerPage = 25;
@@ -218,13 +244,19 @@ function handleViewTypeClick(radioBtn) {
 					case 'tag':
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
-					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 1, true, this.loadSequence[this.loadIndex].id, start, this.resultsPerPage );
+					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 1, false, this.loadSequence[this.loadIndex].id, start, this.resultsPerPage );
 					break;
 				
 					case 'media':
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
-					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 0, true, null, start, this.resultsPerPage );
+					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 0, false, null, start, this.resultsPerPage );
+					break;
+				
+					case 'media_references':
+					start = ( this.pageIndex * this.resultsPerPage );
+					end = start + this.resultsPerPage;
+					result = scalarapi.loadPagesByType( 'media', true, me.parseData, null, 1, true, null, start, this.resultsPerPage );
 					break;
 				
 					default:
@@ -582,7 +614,7 @@ function handleViewTypeClick(radioBtn) {
 			
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');
-			this.instructions.html('<b>All paths and their contents.</b> Double-click an item to view.');
+			this.instructions.html('<b>All paths and their contents.</b> Double-click an item to view.<br><br>');
 			
 			var i;
 			var j;
@@ -2532,8 +2564,32 @@ function handleViewTypeClick(radioBtn) {
 		 */
 		jQuery.VisView.prototype.handleViewTypeClick = function(radioBtn) {
 			if (radioBtn.id != this.selectedRadioBtn) {
-				this.selectedRadioBtn = radioBtn.id;
-				this.update();
+			
+				var url = scalarapi.stripAllExtensions( window.location.href );
+				
+				switch ( radioBtn.id ) {
+				
+					case "radio1":
+					window.location.href = url + ".vis";
+					break;
+				
+					case "radio2":
+					window.location.href = url + ".visindex";
+					break;
+				
+					case "radio3":
+					window.location.href = url + ".vispath";
+					break;
+				
+					case "radio4":
+					window.location.href = url + ".vismedia";
+					break;
+				
+					case "radio5":
+					window.location.href = url + ".vistag";
+					break;
+				
+				}
 			}
 		}
 		
