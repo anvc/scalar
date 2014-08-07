@@ -87,3 +87,6 @@ Froogaloop:
 
 Template (libraries/Template.php):
 1) Added add_meta() and supporting updates to regions arrays
+
+rdfQuery (views/arbors/HTML5_RDFa/js/jquery.rdfquery.rules-1.0.js):
+1) Replaced "elem.contents().each(function () {" with "elem.contents(':not(iframe)').each(function () {"
