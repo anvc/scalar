@@ -8,7 +8,7 @@
 	$.fn.RDFa = function(options) {
 		this.init = function() {
 			this.$rdf = this.rdf();
-			this.rdf = this.$rdf.databank.dump();	
+			this.rdf = this.$rdf.databank.dump();
         };
         this.dump = function(format) {
         	if ('undefined'==typeof(format)) format = 'application/json';  // TODO

@@ -290,7 +290,7 @@ $(window).ready(function() {
 	yepnope([
 
 		  // Scalar API
-		  {load: [base_uri+'/js/jquery.rdfquery.rules.min-1.0.js',
+		  {load: [base_uri+'/js/jquery.rdfquery.rules-1.0.js',
 		          base_uri+'/js/jquery.RDFa.js',
 		          widgets_uri+'/cookie/jquery.cookie.js',
 		          widgets_uri+'/api/scalarapi.js'], complete:function() {
@@ -298,6 +298,7 @@ $(window).ready(function() {
 				/**
 				 * Get raw JSON
 				 */
+	
 				var rdf = $(document.body).RDFa();
 				var rdf_json = rdf.dump();
 				//console.log('------- RDFa JSON ----------------------------');
