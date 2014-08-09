@@ -532,18 +532,18 @@ class RDF_Object {
 				if (!empty($settings['restrict']) && $model != $settings['restrict']) continue;
 				$model_s = singular($model);
 				if ('object'!=gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
-				if (empty($rel) || $rel == self::REL_PARENTS_ONLY) {
+				if (empty($settings['rel']) || $settings['rel'] == self::REL_PARENTS_ONLY) {
 					$nodes = $CI->$model->get_parents($row->version_id, null, null, null, true);
 					foreach ($nodes as $node) {
 						$this->_annotation_parent_by_ref($return, $node, $uri, $settings);
 					}
 				}
-				if (empty($rel) || $rel == self::REL_CHILDREN_ONLY) {
+				if (empty($settings['rel']) || $settings['rel'] == self::REL_CHILDREN_ONLY) {
 					$nodes = $CI->$model->get_children($row->version_id, null, null, null, true);
 					foreach ($nodes as $node) {
 						$this->_annotation_child_by_ref($return, $node, $uri, $settings);	
 					}
-				}		
+				}	
 			}		
 		}	    	
     	
