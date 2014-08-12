@@ -2162,7 +2162,7 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
  * @param	type				Only search in specific content types
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden) {
+ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden, type) {
 
 	var queryString = 'sq='+encodeURIComponent(sq)+'&format=json';
 
