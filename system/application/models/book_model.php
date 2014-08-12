@@ -436,6 +436,7 @@ class Book_model extends MY_Model {
     
     public function save($array=array()) {
 
+        $this->load->library('File_Upload','file_upload');
     	// Get ID
     	$book_id =@ $array['book_id'];
     	if (empty($book_id)) throw new Exception('Invalid book ID');
@@ -509,44 +510,24 @@ class Book_model extends MY_Model {
 		// File -- save thumbnail
 		if (isset($_FILES['upload_thumb'])&&$_FILES['upload_thumb']['size']>0) {
 			try {
-				require confirm_slash(APPPATH).'libraries/wideimage/WideImage.php';
-				// permissions
-				$chmod_mode = $this->config->item('chmod_mode');
-				if (empty($chmod_mode)) $chmod_mode = 0777;
-				// Sort out paths and names
-				$tempFile = $_FILES['upload_thumb']['tmp_name'];
-				$book = $this->get($book_id);
-				$book_slug = $book->slug;
-				$targetPath = confirm_slash(FCPATH).confirm_slash($book_slug).'media';
-				$ext = pathinfo($_FILES['upload_thumb']['name'], PATHINFO_EXTENSION);
-				$targetName = 'book_thumbnail.'.strtolower($ext);
-				$targetFile = $targetPath.'/'.$targetName;
-				// Place file, load and resize
-				if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');
-				@chmod($targetFile, $chmod_mode); 
-				WideImage::load($targetFile)->resize(120)->saveToFile($targetFile);
-				// Output array
-				$array['thumbnail'] = 'media/'.$targetName;
+                $chmod_mode = $this->config->item('chmod_mode');
+                if (empty($chmod_mode)) $chmod_mode = 0777;
+                $book = $this->get($book_id);
+                $slug = $book->slug;
+                $array['thumbnail'] = $this->file_upload->uploadThumb($slug,$chmod_mode);
 			} catch (Exception $e) {
    				throw new Exception($e->getMessage());
 			}
 		}
 	
 		// File -- save publisher thumbnail
-		// TODO: don't have time to move this to a new library that doesn't depend on PEAR, and resizes
-		error_reporting(0);
 		if (isset($_FILES['upload_publisher_thumb'])&&$_FILES['upload_publisher_thumb']['size']>0) {
 			try {
-				require_once(confirm_slash(APPPATH).'libraries/Upload.php');
-				$file = new Image_Upload('upload_publisher_thumb');
-				$file->create_thumb(120);
-				$ext = $file->file->getProp('ext');
-				$book = $this->get($book_id);
-				$book_slug = $book->slug;				
-				$path = confirm_slash(FCPATH).confirm_slash($book_slug).'/media';
-				$name = 'publisher_thumbnail.'.$ext;
-				$file->save_thumb($path, $name);
-				$array['publisher_thumbnail'] = 'media/'.$name;
+                $chmod_mode = $this->config->item('chmod_mode');
+                if (empty($chmod_mode)) $chmod_mode = 0777;
+                $book = $this->get($book_id);
+                $slug = $book->slug;
+                $array['publisher_thumbnail'] = $this->file_upload->uploadPublisherThumb($slug,$chmod_mode);
 			} catch (Exception $e) {
    			 	throw new Exception($e->getMessage());
 			}

@@ -4,8 +4,12 @@
         public function __construct() {
 
         }
+        private function upload($tempFile,$targetFile,$chmodMode) {
+            if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');              
+            @chmod($targetFile, $chmodMode); 
+        }
 
-        public function upload($slug,$chmod_mode) {
+        public function uploadMedia($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
             $path =@ $_POST['slug_prepend'];
             $targetPath = confirm_slash(FCPATH).$slug.$path;
@@ -19,11 +23,41 @@
                 if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
             }
             $targetFile = rtrim($targetPath,'/') . '/' . $name;
-            // Return fields
-            if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');              
-            @chmod($targetFile, $chmod_mode); 
+            $this->upload($tempFile,$targetFile,$chmodMode);
             $url = ((!empty($path))?confirm_slash($path):'').$name;
             return $url;            
+        }
+        
+        public function uploadThumb($slug,$chmodMode) {
+            if (empty($_FILES)) throw new Exception('Could not find uploaded file');
+            $tempFile = $_FILES['upload_thumb']['tmp_name'];
+            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
+            $ext = pathinfo($_FILES['upload_thumb']['name'], PATHINFO_EXTENSION);
+            $targetName = 'book_thumbnail.'.strtolower($ext);
+            $targetFile = $targetPath.'/'.$targetName;
+            $this->upload($tempFile,$targetFile,$chmodMode);
+            $this->resize($targetFile,120);
+
+            return 'media/'.$targetName;
+        }
+
+        public function uploadPublisherThumb($slug,$chmodMode) {
+            if (empty($_FILES)) throw new Exception('Could not find uploaded file');
+            $tempFile = $_FILES['upload_publisher_thumb']['tmp_name'];
+            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
+            $ext = pathinfo($_FILES['upload_publisher_thumb']['name'], PATHINFO_EXTENSION);
+            $targetName = 'publisher_thumbnail.'.strtolower($ext);
+            $targetFile = $targetPath.'/'.$targetName;
+            $this->upload($tempFile,$targetFile,$chmodMode);
+            $this->resize($targetFile,120);
+
+            return 'media/'.$targetName;
+
+        }
+
+        private function resize($targetFile,$width) {
+            require confirm_slash(APPPATH).'libraries/wideimage/WideImage.php';            
+            // WideImage::load($targetFile)->resize($width)->saveToFile($targetFile);
         }
     }
 // require_once 'PEAR.php';
