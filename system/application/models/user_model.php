@@ -373,9 +373,11 @@ class User_model extends My_Model {
 		if (empty($array['password'])) throw new Exception('Password is a required field');
 		if (empty($array['password_2'])) throw new Exception('Confirm password is a required field');
 		if ($array['password'] != $array['password_2']) throw new Exception('Password and confirm password do not match');
-		$resp = recaptcha_check_answer($this->config->item('recaptcha_private_key'), $_SERVER["REMOTE_ADDR"], $array["recaptcha_challenge_field"], $array["recaptcha_response_field"]);
-		if (!$resp->is_valid) throw new Exception ('Incorrect CAPTCHA value');	
-		
+		$recaptcha_private_key = $this->config->item('recaptcha_private_key');
+		if (!empty($recaptcha_private_key)) {
+			$resp = recaptcha_check_answer($recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $array["recaptcha_challenge_field"], $array["recaptcha_response_field"]);
+			if (!$resp->is_valid) throw new Exception ('Incorrect CAPTCHA value');	
+		}
 		return $this->add($array);
     	
     }

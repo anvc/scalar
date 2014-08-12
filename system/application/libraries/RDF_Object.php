@@ -524,7 +524,7 @@ class RDF_Object {
 			$models = $CI->config->item('rel');	
 		}
 		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');		
-		
+
 		// Load relationships for each content row
 		foreach ($versions as $row) {
 			$uri = $row->version_of.'.'.$row->version_num;

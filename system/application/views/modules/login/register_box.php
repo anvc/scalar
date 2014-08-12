@@ -41,13 +41,15 @@ if (isset($_POST['registration_key'])) $registration_key = trim($_POST['registra
 			</tr>			
 			<tr>
 				<td class="field">Title of<br />new book<br /><small>(optional)</small><a class="question_answer" alt="Create a new Scalar book by entering its title below (for temporary titles, you can use your full name).  If you're registering to access an existing book, just leave this field blank."></a></td><td class="value"><input type="text" name="book_title" value="<?=(isset($_POST['book_title']))?trim($_POST['book_title']):''?>" class="input_text" /></td>
-			</tr>		
+			</tr>	
+			<? if (!empty($recaptcha_public_key)): ?>	
 			<tr>
 				<td>CAPTCHA <span style="color:red;">*</span> <a class="question_answer" alt="This CAPTCHA combats spam by asking you to decifer natural language questions"></a></td>
 				<td>
 				<?  $this->config->item('force_https') ? print(recaptcha_get_html($recaptcha_public_key, '', true)) : print(recaptcha_get_html($recaptcha_public_key));?>
 				</td>
-			</tr>						
+			</tr>		
+			<? endif ?>				
 			<tr>
 				<td></td>
 				<td class="form_buttons">
