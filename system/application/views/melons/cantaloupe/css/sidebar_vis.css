@@ -68,7 +68,7 @@ body.sidebar_vis #sidebar .sidebar_icon{
 	display: table-cell;
 }
 
-body.sidebar_expanded #sidebar .sidebar_icon{
+body.sidebar_vis #sidebar li.active .sidebar_icon{
 	color: #000;
 }
 body.sidebar_vis #sidebar header{
