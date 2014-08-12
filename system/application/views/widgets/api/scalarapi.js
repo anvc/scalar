@@ -2158,6 +2158,8 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
  * @param	relation			If true, will return only relations of the named type
  * @param	start				Result number to start with
  * @param	results				Number of results to return
+ * @param	hidden				Include results where live is set to 0
+ * @param	type				Only search in specific content types
  * @return						A string indicating the state of the request.
  */
 ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden) {
@@ -2186,9 +2188,13 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 		queryString += '&hidden='+hidden;
 	}
 	
+	if ( type == null ) {
+		type = 'content';
+	}
+	
 	$.ajax({
 		type:"GET",
-		url:this.model.urlPrefix+'rdf/instancesof/content?'+queryString,
+		url:this.model.urlPrefix+'rdf/instancesof/' + type + '?'+queryString,
 		dataType:"jsonp",
 		success:[this.parsePagesByType, successCallback],
 		error:[this.handleLoadPagesByTypeError, errorCallback]
