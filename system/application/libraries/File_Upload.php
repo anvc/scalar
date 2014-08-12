@@ -57,7 +57,7 @@
 
         private function resize($targetFile,$width) {
             require confirm_slash(APPPATH).'libraries/wideimage/WideImage.php';            
-            // WideImage::load($targetFile)->resize($width)->saveToFile($targetFile);
+            WideImage::load($targetFile)->resize($width)->saveToFile($targetFile);
         }
     }
 // require_once 'PEAR.php';
