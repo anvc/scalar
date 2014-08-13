@@ -38,6 +38,9 @@ echo doctype('html5')."\n"
 <? if (!$book->display_in_index || $is_new || !empty($version_datetime)): ?>
 <meta name="robots" content="noindex, nofollow">
 <? endif ?>
+<? if (isset($page) && !empty($page)): ?>
+<link rel="canonical" href="<?=confirm_slash($base_uri).$page->slug?>" />
+<? endif ?>
 <link rel="shortcut icon" href="<?=confirm_slash($app_root)?>views/arbors/html/favicon_16.gif" />
 <link rel="apple-touch-icon" href="<?=confirm_slash($app_root)?>views/arbors/html/favicon_114.jpg" />
 <? if (!empty($view)): ?>
