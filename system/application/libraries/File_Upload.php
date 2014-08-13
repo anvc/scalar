@@ -1,6 +1,9 @@
 <?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
     class File_Upload {
+    	
+    	const THUMB_WIDTH = 120;
+    	
         public function __construct() {
 
         }
@@ -36,7 +39,7 @@
             $targetName = 'book_thumbnail.'.strtolower($ext);
             $targetFile = $targetPath.'/'.$targetName;
             $this->upload($tempFile,$targetFile,$chmodMode);
-            $this->resize($targetFile,120);
+            $this->resize($targetFile,self::THUMB_WIDTH);
 
             return 'media/'.$targetName;
         }
@@ -49,7 +52,7 @@
             $targetName = 'publisher_thumbnail.'.strtolower($ext);
             $targetFile = $targetPath.'/'.$targetName;
             $this->upload($tempFile,$targetFile,$chmodMode);
-            $this->resize($targetFile,120);
+            $this->resize($targetFile,self::THUMB_WIDTH);
 
             return 'media/'.$targetName;
 
