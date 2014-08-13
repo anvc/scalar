@@ -67,6 +67,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
 <link id="recaptcha_public_key" href="<?=$recaptcha_public_key?>" />
+<link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-1.7.min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.3-min.js')."\n"?>

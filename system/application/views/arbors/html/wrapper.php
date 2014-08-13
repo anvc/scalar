@@ -62,6 +62,7 @@ echo doctype('html5')."\n"
 <? endif ?>
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
+<link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'common.js')."\n"?>
