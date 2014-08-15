@@ -152,7 +152,7 @@ function edit_row($row) {
 			} else {
 				$row.addClass('not_live');
 			}
-			if ('undefined'==typeof(data['paywall']) || parseInt(data['paywall'])) {
+			if ('undefined'!=typeof(data['paywall']) && parseInt(data['paywall'])) {
 				$row.addClass('paywall');
 			} else {
 				$row.removeClass('paywall');

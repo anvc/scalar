@@ -285,7 +285,7 @@ abstract class MY_Controller extends Controller {
    		
    		try {
    			if ($this->login_is_book_admin()) throw new Exception('Admin logged in');
-			$this->load->library('tinypass_helper', $this->config->item('tinypass'));
+			$this->load->library('Tinypass_Helper', $this->config->item('tinypass'));
 			$this->data['buttonHTML'] = $this->tinypass_helper->protect();
 			$this->template->set_template('external');
 			$this->template->write_view('content', 'melons/'.$this->data['melon'].'/tinypass', $this->data);
