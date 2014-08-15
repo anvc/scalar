@@ -37,6 +37,15 @@ $config['flowplayer_key'] = '';
 // Google Maps key
 $config['google_maps_key'] = '';
 
+// Tinypass
+$config['tinypass'] = array();
+$config['tinypass']['sandbox'] = 'false';
+$config['tinypass']['aid'] = '';
+$config['tinypass']['private_key'] = '';
+$config['tinypass']['rid'] = 'Premium-Access';
+$config['tinypass']['rname'] = "Premium Access";
+$config['tinypass']['payment'] = array(array("1.00", ""));
+
 // Custom message for the book index page (leave blank for no message)				   
 $config['index_msg'] = '';
 
