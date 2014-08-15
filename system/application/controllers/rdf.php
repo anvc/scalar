@@ -115,7 +115,7 @@ class Rdf extends MY_Controller {
 										  $this->data['content'],
 										  array(
 										    'book'     => $this->data['book'], 
-										  	'users'    => $this->users->get_all($this->data['book']->book_id, true),
+										  	'users'    => $this->books->get_users($this->data['book']->book_id),
 										  	'base_uri' => $this->data['base_uri']
 										  ) 
 									   );		
