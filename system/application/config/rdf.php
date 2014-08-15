@@ -65,6 +65,7 @@ $config['rdf_fields'] = array(
 		'urn' => 					'scalar:urn',
 		'default_view' =>			'scalar:defaultView',
 		'is_live' =>				'scalar:isLive',
+		'paywall' =>				'scalar:paywall',
 		'has_annotation' => 		'scalar:hasAnnotation',
 		'continue_to_content_id' => 'scalar:continue_to_content_id',
 		'version' =>				'scalar:version',

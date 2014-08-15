@@ -277,6 +277,24 @@ abstract class MY_Controller extends Controller {
    		
    	} 	
    	
+   	/**
+   	 * Determine if tinypass should be called on current page and load in neccessary
+   	 */
+   	
+   	protected function tinypass() {
+   		
+   		try {
+   			if ($this->login_is_book_admin()) throw new Exception('Admin logged in');
+			$this->load->library('tinypass_helper', $this->config->item('tinypass'));
+			$this->data['buttonHTML'] = $this->tinypass_helper->protect();
+			$this->template->set_template('external');
+			$this->template->write_view('content', 'melons/'.$this->data['melon'].'/tinypass', $this->data);
+			$this->template->render();	
+			$this->template_has_rendered = true;			
+		} catch (Exception $e) {}   		
+   		
+   	}
+   	
 } 
 
 ?>

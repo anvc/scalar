@@ -117,6 +117,7 @@
 			if (-1==options.hide_columns.indexOf('url')) $head.append('<th>Filename</th>');
 			$head.append('<th>Created</th>');
 			$head.append('<th>User</th>');
+			$head.append('<th>Paywall?</th>');
 			$head.append('<th>Versions</th>');
 			$(options.wrapper).html($table);
 			
@@ -136,9 +137,14 @@
 				var homepage = nodes[j].homepage;
 				var creator = (homepage && homepage.length) ? nodes[j].homepage.slice(nodes[j].homepage.lastIndexOf('/')+1) : 0;
 				var is_live = ('undefined'==typeof(nodes[j].isLive)||'1'!=nodes[j].isLive) ? false : true; 
+				var paywall = ('undefined'==typeof(nodes[j].paywall)||'1'!=nodes[j].paywall) ? false : true; 
 				var $tr = $('<tr class="bottom_border" id="row_'+id+'" typeof="pages"></tr>');
 				$tbody.append($tr);
-				if (!is_live) $tr.addClass('not_live');
+				if (!is_live) {
+					$tr.addClass('not_live');
+				} else if (paywall) {
+					$tr.addClass('paywall');
+				}
 				$tr.append('<td style="white-space:nowrap;width:60px;"><input type="checkbox" name="content_id_'+id+'" value="1">&nbsp; <a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a></td>');
 				$tr.append('<td style="display:none;" property="id">'+id+'</td>');
 				$tr.append('<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'+((is_live)?'1':'0')+'</td>');
@@ -156,6 +162,7 @@
 				if (-1==options.hide_columns.indexOf('url')) $tr.append(url_str);
 				$tr.append('<td property="created" style="white-space:nowrap;">'+d+'</td>');
 				$tr.append('<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'+creator+'</td>');
+				$tr.append('<td class="editable boolean" property="paywall" style="text-align:center;width:65px;">'+((paywall)?'1':'0')+'</td>');
 				$tr.append('<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="get_versions('+id+',this);" class="generic_button">View</a></td>');
 				$tr.append('</tr>');			
 			}

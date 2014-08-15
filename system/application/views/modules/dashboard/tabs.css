@@ -19,7 +19,10 @@ sup {
 }
 
 .not_live td {
-	background:#f7e3e3 !important;
+	background:#f9c6c6 !important;
+}
+.paywall td {
+	background:#f3dea6 !important;
 }
 
 ul, ol {margin:0px 0px 0px 20px; padding:0;}

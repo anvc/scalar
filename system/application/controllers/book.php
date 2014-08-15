@@ -35,7 +35,7 @@ function sortSearchResults($a, $b) {
 
 class Book extends MY_Controller {
 
-	private $template_has_rendered = false;
+	protected $template_has_rendered = false;
 	private $models = array('annotations', 'paths', 'tags', 'replies', 'references');
 	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
 	private $vis_views = array('vis', 'visindex', 'vispath', 'vismedia', 'vistag');
@@ -115,7 +115,7 @@ class Book extends MY_Controller {
 			$page = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
 			if (!empty($page)) {
 				// Protect
-				if (!$page->is_live) $this->protect_book('Reader');
+				if (!$page->is_live) $this->protect_book('Reader');			
 				// Version being asked for
 				$version_num = (int) get_version($this->uri->uri_string());
 				$this->data['version_datetime'] = null;
@@ -136,6 +136,8 @@ class Book extends MY_Controller {
 			    if (!count($index)) throw new Exception('Problem getting page index');     
 			    $this->data['page'] = $index[0];
 			    unset($index);  
+				// Tinypass
+				if (isset($page->paywall) && $page->paywall) $this->tinypass();				    
 				// Set the view based on the page's default view
 				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
