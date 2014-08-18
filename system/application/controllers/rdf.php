@@ -111,11 +111,13 @@ class Rdf extends MY_Controller {
 										    )
 										 );
 			} else {
+				$contrib = $this->books->get_users($this->data['book']->book_id);
+				if (function_exists('sort_contributors')) usort($contrib, 'sort_contributors');
 				$this->rdf_object->book(
 										  $this->data['content'],
 										  array(
 										    'book'     => $this->data['book'], 
-										  	'users'    => $this->books->get_users($this->data['book']->book_id),
+										  	'users'    => $contrib,
 										  	'base_uri' => $this->data['base_uri']
 										  ) 
 									   );		
