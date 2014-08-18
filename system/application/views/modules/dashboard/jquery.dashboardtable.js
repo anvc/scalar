@@ -136,8 +136,8 @@
 				var d = nodes[j].created.slice(0, nodes[j].created.indexOf('T'));
 				var homepage = nodes[j].homepage;
 				var creator = (homepage && homepage.length) ? nodes[j].homepage.slice(nodes[j].homepage.lastIndexOf('/')+1) : 0;
-				var is_live = ('undefined'==typeof(nodes[j].isLive)||'1'!=nodes[j].isLive) ? false : true; 
-				var paywall = ('undefined'==typeof(nodes[j].paywall)||'1'!=nodes[j].paywall) ? false : true; 
+				var is_live = ('undefined'==typeof(nodes[j].isLive)||1!=parseInt(nodes[j].isLive)) ? false : true; 
+				var paywall = ('undefined'==typeof(nodes[j].paywall)||1!=parseInt(nodes[j].paywall)) ? false : true; 
 				var $tr = $('<tr class="bottom_border" id="row_'+id+'" typeof="pages"></tr>');
 				$tbody.append($tr);
 				if (!is_live) {

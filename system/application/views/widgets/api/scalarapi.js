@@ -2268,7 +2268,7 @@ function ScalarModel(options) {
 		{property:'urn', uri:'http://scalar.usc.edu/2012/01/scalar-ns#urn', type:'string'},
 		{property:'background', uri:'http://scalar.usc.edu/2012/01/scalar-ns#background', type:'string'},
 		{property:'audio', uri:'http://scalar.usc.edu/2012/01/scalar-ns#audio', type:'string'},
-		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'string'},  // Add by Craig 21 July 2014
+		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},  // Add by Craig 21 July 2014
 		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'}  // Add by Craig 15 August 2014
 	];
 	

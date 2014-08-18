@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `user` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`book_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `slug` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `type` enum('composite','media','citation') COLLATE utf8_unicode_ci NOT NULL,
   `is_live` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `paywall` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `thumbnail` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `background` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `custom_style` text COLLATE utf8_unicode_ci NOT NULL,
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `created` datetime NOT NULL,
   PRIMARY KEY (`content_id`),
   KEY `book_id` (`book_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_rel_annotated` (
   `parent_version_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -105,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_users` (
   `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `is_super` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_user_books` (
   `user_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -126,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_user_history` (
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`history_id`),
   KEY `user_id` (`user_id`,`content_id`,`book_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_versions` (
   `version_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -145,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_versions` (
   PRIMARY KEY (`version_id`),
   KEY `content_id` (`content_id`),
   KEY `version_num` (`version_num`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_whitelist` (
   `book_id` int(10) unsigned NOT NULL,
