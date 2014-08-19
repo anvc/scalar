@@ -1,5 +1,5 @@
 /* We have at least 250px on left side. */
-body.sidebar_vis .page{
+body.sidebar_vis>.page{
 	position: absolute;
 	width: 1000px;
 	margin: 0px;
@@ -11,22 +11,23 @@ body.sidebar_vis .page{
 	-webkit-transition: transform .125s ease-in-out, opacity .5s ease-in-out;
 	-moz-transition: transform .125s ease-in-out, opacity .5s ease-in-out;
 }
-body.sidebar_vis #sidebar{
+body.sidebar_vis #sidebar, body.sidebar_vis #info_panel{
 	font-family: 'Lato', Arial, sans-serif !important;
+}
 
+body.sidebar_vis #sidebar{
 	position: absolute;
 	
 	padding: 10px;
 	padding-top: 6rem;
 	
-	background-color: transparent;
+	background-color: rgba(255,255,255,.25);
 	width: 50px;
 	height: 100%;
 
 	left: 0px;
 	top: 0px;
 	bottom: 0px;
-
 
     transition-duration: .125s;
     -webkit-transition-duration: .125s;
@@ -56,7 +57,7 @@ body.sidebar_vis #sidebar .sidebar_icon{
 
 	width: 1rem;
 
-	color: #ccc;
+	color: rgba(0,0,0,.33);
 
     transition-duration: .25s;
     -webkit-transition-duration: .25s;
@@ -69,12 +70,12 @@ body.sidebar_vis #sidebar .sidebar_icon{
 }
 
 body.sidebar_vis #sidebar li.active .sidebar_icon{
-	color: #000;
+	color: rgba(0,0,0,1);
 }
 body.sidebar_vis #sidebar header{
 	font-size: 2rem;
 	padding-bottom: 5px;
-	border-bottom: 0px solid #333;
+	border-bottom: 0px solid rgba(0,0,0,.5);
 	margin-bottom: 5px;
 	white-space: nowrap;
 }
@@ -98,8 +99,9 @@ body.sidebar_vis #sidebar header .controls{
     -webkit-transition-timing-function: ease-in-out;
     -moz-transition-timing-function: ease-in-out;
 }
-body.sidebar_vis #sidebar header .controls .disabled{
+body.sidebar_full #sidebar header .controls .sidebar_maximize{
 	opacity: .5;
+	cursor: default;
 }
 body.sidebar_expanded #sidebar header .title, body.sidebar_expanded #sidebar header .controls{
 	text-indent: 0em;
@@ -110,9 +112,14 @@ body.sidebar_vis #sidebar header .header_icon{
 	vertical-align: middle;
 	margin-right: 1rem;
 }
+
 body.sidebar_vis #sidebar header .header_icon span{
 	vertical-align: middle;
-	color: #ccc;
+	color: rgba(0,0,0,.33);
+}
+
+body.sidebar_vis #sidebar header:hover .header_icon span{
+	color: rgba(0,0,0,.5);
 }
 
 body.sidebar_vis #sidebar #sidebar_panes{
@@ -133,7 +140,7 @@ body.sidebar_vis #sidebar .pane{
 	margin-top: 0px;
 }
 body.sidebar_vis #sidebar .pane.active{
-	display: table;
+	display: block;
 }
 body.sidebar_vis #sidebar .pane ul li{
 	color: #ccc;
@@ -155,6 +162,12 @@ body.sidebar_vis #sidebar .pane ul li.active{
 
 body.sidebar_vis #sidebar header{
 	border-color: 2px solid #222;
+	margin: -10px -10px 0px -10px;
+	padding: 10px;
+	cursor: pointer;
+}
+body.sidebar_expanded #sidebar header:hover{
+	background-color: rgba(0,0,0,.125);
 }
 body.sidebar_vis #sidebar header .controls a{
 	padding: 5px;
@@ -165,13 +178,170 @@ body.sidebar_vis #sidebar header .controls a:hover{
 	color: #222;
 }
 
+body.sidebar_expanded.sidebar_opened #sidebar{
+	background-color: rgba(255,255,255,.5)
+}
+body.sidebar_vis .bg_screen{
+	background-color: rgba(255,255,255,.25)
+}
+
+body.sidebar_vis .smallmed, body.sidebar_full .large{
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+body.sidebar_vis .smallmed{
+	display: table;
+}
+body.sidebar_vis .large, body.sidebar_full .smallmed{
+	display: none;
+}
+
+body.sidebar_full .large{
+	display: block;
+	padding: 50px;
+	padding-left: 250px;
+}
+body{
+	background-color: #fff;
+}
+
+body.sidebar_expanded #sidebar{
+	background-color: rgba(238, 238, 238, 0.75);
+	width: 200px;
+}
+
+body.sidebar_expanded.sidebar_full #sidebar{
+	background-color: rgba(255,255,255,0.75);
+	width: 100%;
+}
+body.sidebar_vis #info_panel{
+	width: 0px;
+	position: absolute;
+	left: 5rem;
+	background-color: #ddd;
+	top: 5rem;
+	bottom: 0px;
+    transition-duration: .125s;
+    -webkit-transition-duration: .125s;
+    -moz-transition-duration: .125s;
+    transition-timing-function: ease-in-out;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+}
+body.sidebar_full #info_panel{
+	top: 10rem;
+	z-index: 3;
+	margin-top: 5px;
+}
+body.sidebar_vis #info_panel #info_panel_content{
+	display: none;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	z-index: 4;
+	background-color: #ddd;
+}
+body.sidebar_vis #info_panel .section{
+	display: none;
+	background-color: transparent;
+	padding: 0px;
+	margin: 0px;
+}
+
+body.sidebar_vis #info_panel.overview #overview_info.section,
+body.sidebar_vis #info_panel.comments #comments_info.section,
+body.sidebar_vis #info_panel.metadata #metadata_info.section{
+	display: block;
+}
+body.sidebar_expanded #info_panel{
+	left: 200px;
+}
+body.info_panel_open #info_panel{
+	width: 200px;
+}
+body.info_panel_open #info_panel #info_panel_content{
+	display: block;
+}
+body.sidebar_vis #info_panel .description{
+	padding: 5px;
+	margin: 0px;
+}
+body.sidebar_vis #info_panel #info_panel_header{
+	border-bottom: 1px solid #fff;
+	padding: 10px;
+	font-size: 1rem;
+	text-align: center;
+}
+body.sidebar_vis #info_panel #info_panel_header a{
+	padding-right: 5px;
+	text-transform: uppercase;
+	color: #888;
+	cursor: pointer;
+}
+body.sidebar_vis #info_panel #info_panel_header a.active{
+	color: #444;
+}
+body.sidebar_vis #info_panel_arrow{
+	opacity: 0;
+	z-index: -1;
+	width: 0px;
+	height: 0px;
+	border-top: 1em transparent solid;
+	border-bottom: 1em transparent solid;
+	position: absolute;
+	top: 50%;
+	left: -0em;
+	z-index: 3;
+	margin-top: -2.9em;
+	border-left: 0em #ddd solid;
+	border-right: 0em #ddd solid;
+}
+body.info_panel_open #info_panel_arrow{
+	opacity: 1;
+	z-index: 3;
+	left: -1em;
+	border-right: 1em #ddd solid;
+}
+body.sidebar_full #info_panel{
+	left: 0px;
+}
+body.info_panel_open.sidebar_full #info_panel_arrow{
+	opacity: 1;
+	z-index: 3;
+	left: 100%;
+	border-left: 1em #ddd solid;
+	border-right: 0px;
+}
+
+body.sidebar_expanded.info_panel_open #info_panel{
+	margin-left: 0px;
+}
+body.sidebar_vis #info_panel h2{
+	padding: 0px;
+	margin: 0px;
+	font-size: 1.25em;
+	line-height: 1.75em;
+}
+body.sidebar_vis #info_panel .title, body.sidebar_vis #info_panel h4{
+	margin: 0px;
+	font-family: 'Lato', Arial, sans-serif !important;
+}
+body.sidebar_vis #info_panel .title{
+	font-size: 1.5rem;
+	line-height: 1.5rem;
+	padding: 10px 20px;
+}
+body.sidebar_vis #info_panel h4{
+	font-size: 1.25rem;
+	line-height: 1.25rem;
+	padding: 5px 20px;
+	text-transform: uppercase;
+}
+
 @media only screen and (min-width : 581px) {
 	/*Everything but small screens*/
-	body.sidebar_expanded #sidebar{
-		background-color: #eee;
-		width: 200px;
-	}
-
 	body.sidebar_vis #sidebar .pane ul li.distant, body.sidebar_vis #sidebar .pane ul li .title{
 		opacity: 0;
 	    transition-duration: .125s;
@@ -187,14 +357,10 @@ body.sidebar_vis #sidebar header .controls a:hover{
 		text-indent: 0px;
 		opacity: 1;
 	}
-
-	body.sidebar_expanded.sidebar_opened #sidebar, body.sidebar_vis .bg_screen{
-		background-color: #fff;
-	}
 }
 /* Large Devices, Wide Screens */
 @media only screen and (max-width : 1250px) {
-	body.sidebar_vis .page{
+	body.sidebar_vis>.page{
 		width: auto;
 		left: 200px;
 	}	
@@ -202,11 +368,11 @@ body.sidebar_vis #sidebar header .controls a:hover{
 
 /* Medium Devices, Desktops */
 @media only screen and (max-width : 992px) {
-	body.sidebar_vis .page{
+	body.sidebar_vis>.page{
 		width: auto;
 		left: 100px;
 	}
-	body.sidebar_expanded .page{
+	body.sidebar_expanded>.page{
 		transform: translateX(100px);
 	}
 }
@@ -214,18 +380,18 @@ body.sidebar_vis #sidebar header .controls a:hover{
 /* Small Devices, Tablets */
 @media only screen and (max-width : 768px) {
 
-	body.sidebar_vis .page{
+	body.sidebar_vis>.page{
 		width: auto;
 		left: 50px;
 	}
-	body.sidebar_expanded .page{
+	body.sidebar_expanded>.page{
 		transform: translateX(150px);
 	}
 }
 
 /* Extra Small Devices, Phones */ 
 @media only screen and (max-width : 580px) {
-	body.sidebar_vis .page{
+	body.sidebar_vis>.page{
 		width: 100%;
 		left: 0px;
 		right: 0px;
@@ -235,7 +401,7 @@ body.sidebar_vis #sidebar header .controls a:hover{
 		right: 0px;
 		width: 100%;
 	}
-	body.sidebar_expanded .page{
+	body.sidebar_expanded>.page{
 		opacity: 0;
 		left: 100%;
 		right: auto;

@@ -20,21 +20,18 @@
         base.init = function(){
             base.options = $.extend({},$.scalarSidebar.defaultOptions, options);
             if(currentNode != null){
+            	
+				var html = '<div id="info_panel"><div id="info_panel_arrow"></div><div id="info_panel_content"><div id="info_panel_header"><a class="overview_link active" data-page="overview">overview</a><a class="comments_link" data-page="comments">comments</a><a class="metadata_link" data-page="metadata">metadata</a></div><h3 class="title"></h3><div class="section" id="overview_info"><div class="content"><p class="description"></p><h4>Featured In</h4><ul class="featured_list"></ul><h4>Tagged By</h4><ul class="tagged_by_list"></ul></div></div><div class="section" id="comments_info"><div class="content"><h4>Comments</h4><a class="discuss_link">Discuss</a><br /><ul class="comment_list"></ul></div></div><div class="section" id="metadata_info"><div class="content"><ul class="metadata_list"></ul></div></div></div></div><div id="sidebar"><div id="sidebar_inside"><header><span class="header_icon"></span><span class="controls"><a class="sidebar_collapse ion-ios7-arrow-left"></a> <a class="sidebar_maximize ion-ios7-arrow-right"></a></span><span class="title"></span></header><br /><div id="sidebar_panes"></div></div></div>';
 
-				var html = '<div id="sidebar"><div id="sidebar_inside"><header><span class="header_icon"></span><span class="controls"><a class="sidebar_previous ion-ios7-arrow-left"></a> <a class="sidebar_next ion-ios7-arrow-right"></a></span><span class="title"></span></header><br /><div id="sidebar_panes"></div></div></div>';
+				base.container = $(html).appendTo('body').css('opacity',0).fadeTo('fast',1);
 
-	            base.container = $(html).appendTo('body').css('opacity',0).fadeTo('fast',1).hover(function(){
-	            	if($(window).width() > 580){
-	            		base.triggerSidebar(true);
-	            	}
-	            },function(){
-	            	if($(window).width() > 580){
-	            		base.triggerSidebar(false);
-	            	}
-	            });
+				$('#info_panel_header a').click(function(){
+					var current_page = $(this).data('page');
+					$('#info_panel').removeClass().addClass(current_page);
+					$(this).addClass('active').siblings('a').removeClass('active');
+				});
 
-
-				base.queryVars = scalarapi.getQueryVars( document.location.href );
+	           	base.queryVars = scalarapi.getQueryVars( document.location.href );
 
 	            base.build_paths_pane();
 	            base.build_tags_pane();
@@ -46,30 +43,30 @@
 	          	$('#sidebar_'+base.current_pane+'_pane').addClass('active');
 	          	$('#sidebar header .title').text(base.current_pane.toUpperCase());
 			    $('#sidebar header .header_icon').html(base.icons[base.current_pane]);
-	          	$('.sidebar_previous').click(function(){
-	          		if(!$(this).hasClass('disabled')){
-	          			$('#sidebar_panes .pane.active').removeClass('active').prev().addClass('active');
-	          			$('.sidebar_next').removeClass('disabled');
-	          			if($('#sidebar_panes .pane.active').prev().length == 0){
-	          				$(this).addClass('disabled');			
-	          			}
-	          			base.current_pane = $('#sidebar_panes .pane.active').data('type');
-	          			$('#sidebar_'+base.current_pane+'_pane').addClass('active');
-			          	$('#sidebar header .title').text(base.current_pane.toUpperCase());
-			          	$('#sidebar header .header_icon').html(base.icons[base.current_pane]);
+
+			    $('#sidebar_inside header').click(function(e){
+			    	if(!$('body').hasClass('sidebar_expanded')){
+			    		base.triggerSidebar(true);
+			    	}else{
+				    	//Clicked on the header - show the selection dialogue.
+				    	console.log('TODO: Show Selection Dialogue');
+				    }
+			    });
+
+	          	$('.sidebar_collapse').click(function(e){
+	          		if($('body').hasClass('sidebar_full')){
+	          			$('body').removeClass('sidebar_full');
+	          		}else{
+	          			base.triggerSidebar(false);
 	          		}
-	          	}).addClass('disabled');
-	          	$('.sidebar_next').click(function(){
-	          		if(!$(this).hasClass('disabled')){
-	          			$('#sidebar_panes .pane.active').removeClass('active').next().addClass('active');
-	          			$('.sidebar_previous').removeClass('disabled');
-	          			if($('#sidebar_panes .pane.active').next().length == 0){
-	          				$(this).addClass('disabled');			
-	          			}
-	          			base.current_pane = $('#sidebar_panes .pane.active').data('type');
-	          			$('#sidebar_'+base.current_pane+'_pane').addClass('active');
-			          	$('#sidebar header .title').text(base.current_pane.toUpperCase());
-			          	$('#sidebar header .header_icon').html(base.icons[base.current_pane]);
+	          		base.hideInfo();
+	          		e.stopPropagation();
+	          	});
+	          	$('.sidebar_maximize').click(function(e){
+	          		if(!$('body').hasClass('sidebar_full')){
+	          			$('body').addClass('sidebar_full');
+	          			e.stopPropagation();
+	          			base.hideInfo();
 	          		}
 	          	});
 	          	if($('#sidebar_panes .pane').length < 2){
@@ -83,7 +80,7 @@
 
         base.build_paths_pane = function(){
         	base.icons['path'] = '<span class="scalar_path_icon"></span>';
-        	var html = '<div class="pane" data-type="path" id="sidebar_path_pane"><ul class="path"><li class="active"><span class="sidebar_icon ';
+        	var html = '<div class="pane" data-type="path" id="sidebar_path_pane"><div class="smallmed"><ul class="path"><li class="active" data-slug="'+currentNode.slug+'" data-url="'+currentNode.url+'"><span class="sidebar_icon ';
 
 			switch(currentNode.current.mediaSource.contentType){
 				case 'document':
@@ -91,7 +88,7 @@
 					break;
 			}
 
-			html += '"></span><div class="title">'+currentNode.current.title+'</div></li></ul></div>';
+			html += '"></span><div class="title">'+currentNode.current.title+'</div></li></ul></div><div class="large"></div></div>';
 
 			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
 			var new_pane = $(html);
@@ -104,13 +101,24 @@
 					if(parent.slug == base.queryVars.path){
 						var before_current = true; //We'll flip this once we come to the current page;
 						console.log(parent.outgoingRelations);
+
+						// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
+						// We could probably write a custom sort function, but in the end, this is a faster process.
+						var relations_list = {};
 						for(r in parent.outgoingRelations){
 							var path_step = parent.outgoingRelations[r];
+							relations_list[path_step.index] = path_step;
+						}
+						
+						//Alright, iterate through our properly ordered list.
+						for(r in relations_list){
+							var path_step = relations_list[r];
 							if(path_step.target.slug == currentNode.slug){
 								before_current = false;
 							}else{
 								//Same as the active page, pretty much.
-								var item_html = '<li><span class="sidebar_icon ';
+								console.log(path_step.target);
+								var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><span class="sidebar_icon ';
 								switch(path_step.target.current.mediaSource.contentType){
 									case 'document':
 										item_html += 'ion-document-text';
@@ -127,13 +135,62 @@
 								}
 							}
 						}	
-
+						break; //Alright, we can exit the loop now.
 					}
 				}
 			}
 
+			new_pane.find('li').click(function(e){
+				var slug = $(this).data('slug');
+				$('#info_panel .title, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
+				if($('#info_panel').data('slug')!==slug){
+					var top_offset = $(this).offset();
+					$('#info_panel_arrow').css({
+						'top':top_offset.top+'px'
+					});
 
-        	$('#sidebar #sidebar_panes').append(new_pane);
+					//Prepare yourself for some hot jQuery chaining action.
+					$('#info_panel').data('slug',slug)
+									.removeClass()
+									.addClass('overview')
+									.find('.overview_link')
+									.addClass('active')
+									.siblings('a')
+									.removeClass('active');
+
+					$('body').addClass('info_panel_open');
+
+					var node_info = scalarapi.getNode(slug);
+
+					if(typeof node_info === 'object'){
+						base.showInfo(node_info);
+					}else{
+						scalarapi.loadNode(
+		        			slug,
+		        			false,
+		        			function(json){
+		        				base.showInfo(json);
+		        			},
+		        			function(err){
+		        				console.log(err);
+		        			},
+		        			1, null
+		        		);
+					}
+				}else{
+					base.hideInfo();
+				}
+				e.stopPropagation();
+			});
+
+			$('body>.bg_screen,body>.page').click(function(e){
+				if($('body').hasClass('info_panel_open')){
+					$('body').removeClass('info_panel_open');
+					$('#info_panel').removeData('slug');	
+				}
+			});
+
+			$('#sidebar #sidebar_panes').append(new_pane);
         }
 
         base.build_tags_pane = function(){
@@ -158,6 +215,17 @@
         		$('body').addClass('sidebar_expanded');
         	}
         };
+
+        base.showInfo = function(page){
+        	$('#info_panel .title').text(page.current.title);
+        	$('#info_panel .description').text(page.current.description);
+        	console.log(page.current);
+        	
+        }
+        base.hideInfo = function(){
+        	$('body').removeClass('info_panel_open');
+			$('#info_panel').removeData('slug');
+        }
         
         // Run initializer
         base.init();
