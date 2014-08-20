@@ -571,7 +571,7 @@ class Book_model extends MY_Model {
     public function create_directory_from_slug($slug='') {
     	
  		if (!mkdir($slug)) {
- 			throw new Excpetion('There was a problem creating the '.$slug.' folder on the filesystem.');
+ 			throw new Exception('There was a problem creating the '.$slug.' folder on the filesystem.');
  		}
  		if (!mkdir(confirm_slash($slug).'media')) {
  			echo 'Alert: could not create media folder for '.$slug.'.';

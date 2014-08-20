@@ -18,7 +18,7 @@
         	$this->rid = $config['rid'];
         	$this->rname = $config['rname'];
         	
-        	if (!file_exists($this->tinypass_lib_path)) throw new Excpetion("Can't find TinyPass library");
+        	if (!file_exists($this->tinypass_lib_path)) throw new Exception("Can't find TinyPass library");
         	if (empty($this->sandbox)) throw new Exception('Invalid Sandbox');
         	if (empty($this->aid)) throw new Exception('Invalid Account ID');
         	if (empty($this->private_key)) throw new Exception('Invalid Private Key');
