@@ -93,6 +93,7 @@ function handleViewTypeClick(radioBtn) {
 		this.model = new $.VisModel(element, options);
 		this.view = new $.VisView(this.model);
 		this.controller = new $.VisController(this.model, this.view);
+		this.view.controller = this.controller;
 
 		/**
 		 * Basic initialization.
@@ -153,20 +154,36 @@ function handleViewTypeClick(radioBtn) {
 		
 			case "vispath":
 			this.loadSequence = [
-				{id:'path', desc:"paths"}, 
+				{id:'path', desc:"paths"} 
 			];
 			break;
 		
 			case "vismedia":
-			this.loadSequence = [
-				{id:'media_references', desc:"media"},
-			];
+			// if this is the global media vis page, try to load all media
+			if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
+				this.loadSequence = [
+					{id:'currentRelations', desc:"current page"}
+				];
+			// otherwise, just load the local media
+			} else {
+				this.loadSequence = [
+					{id:'media', desc:"media"}
+				];
+			}
 			break;
 		
 			case "vistag":
-			this.loadSequence = [
-				{id:'tag', desc:"tags"}, 
-			];
+			// if this is the global tag vis page, try to load all tags
+			if ( window.location.href.indexOf( 'resources.vistag' ) == -1 ) {
+				this.loadSequence = [
+					{id:'current', desc:"current page"}
+				];
+			// otherwise, just load the local tags
+			} else {
+				this.loadSequence = [
+					{id:'tag', desc:"tags"}
+				];
+			}
 			break;
 					
 			default:
@@ -191,6 +208,14 @@ function handleViewTypeClick(radioBtn) {
 		this.pageIndex = 0;
 		this.resultsPerPage = 25;
 		this.reachedLastPage = true;
+		
+		jQuery.VisController.prototype.loadNode = function( slug, ref ) {
+			scalarapi.loadNode( slug, true, me.parseNode, null, 1, ref );
+		}
+		
+		jQuery.VisController.prototype.parseNode = function() {
+			me.view.update();
+		}
 		
 		/**
 		 * Loads the next round of data.
@@ -223,7 +248,7 @@ function handleViewTypeClick(radioBtn) {
 				
 					case "current":
 					this.reachedLastPage = true;
-					result = scalarapi.loadCurrentPage(false, me.parseData, null, 0);
+					result = scalarapi.loadCurrentPage(false, me.parseData, null, 1, false);
 					start = end = -1;
 					break;
 					
@@ -833,7 +858,11 @@ function handleViewTypeClick(radioBtn) {
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
 				this.visualization.empty();
-				this.instructions.html('<b>Media and their relationships.</b> Roll over the visualization to explore. Click to select; drag to move; double-click to view.');
+				if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
+					this.instructions.html('<b>Media and their relationships.</b> Only local connections are shown to start; selecting nodes reveals any further connections. Roll over the visualization to explore. Click to select; drag to move; double-click to view.');
+				} else {
+					this.instructions.html('<b>Media and their relationships.</b> Roll over the visualization to explore. Click to select; drag to move; double-click to view.');
+				}
 			}
 			
 			// init our local model
@@ -1010,6 +1039,7 @@ function handleViewTypeClick(radioBtn) {
 				.call(me.force.drag)
 				.on('click', function(d) {
 					var index = me.selectedNodes.indexOf(d.node);
+					me.controller.loadNode( d.node.slug, true );
 					if (index == -1) {
 						me.selectedNodes.push(d.node);
 					} else {
@@ -1124,7 +1154,11 @@ function handleViewTypeClick(radioBtn) {
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
 				this.visualization.empty();
-				this.instructions.html('<b>Tags and their relationships.</b> Deselect all items to show every tag in the book, otherwise only local tags are shown. Roll over the visualization to explore. Click to select; drag to move; double-click to view.');
+				if ( window.location.href.indexOf( 'resources.vistag' ) == -1 ) {
+					this.instructions.html('<b>Tags and their relationships.</b> Only local connections are shown to start; selecting nodes reveals any further connections. Roll over the visualization to explore. Drag a node to move; double-click to view.');
+				} else {
+					this.instructions.html('<b>Tags and their relationships.</b> Click nodes to select them and reveal their tag relationships. Roll over the visualization to explore. Drag a node to move; double-click to view.');
+				}
 			}
 			
 			// init our local model
@@ -1362,6 +1396,7 @@ function handleViewTypeClick(radioBtn) {
 					var index = me.selectedNodes.indexOf(d.node);
 					if (index == -1) {
 						me.selectedNodes.push(d.node);
+						me.controller.loadNode( d.node.slug, false );
 						if (d.node == scalarapi.model.currentPageNode) {
 							me.deselectedSelf = false;
 						}
