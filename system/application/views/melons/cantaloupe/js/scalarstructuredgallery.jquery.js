@@ -66,57 +66,6 @@
 				}
 			},
 			
-			gatherChildMedia: function(node, maxDepth, currentDepth, collection) {
-			
-				if (currentDepth == undefined) currentDepth = 0;
-				if (collection == undefined) collection = { all: [] };
-				
-				var i,j,k,childNodes,childNode,relationship,refereeNodes,refereeNode;
-				
-				for (i in childRelationships) {
-				
-					relationship = childRelationships[i];
-					childNodes = node.getRelatedNodes(relationship, 'outgoing');
-					
-					for (j in childNodes) {
-						childNode = childNodes[j];
-						if (childNode.hasScalarType('media')) {
-							gallery.addNodeToCollection( collection, node, relationship, childNode );
-							
-						} else {
-							refereeNodes = childNode.getRelatedNodes('referee', 'outgoing');
-							
-							for (k in refereeNodes) {
-								refereeNode = refereeNodes[k];
-								if (refereeNode.hasScalarType('media')) {
-									gallery.addNodeToCollection( collection, node, relationship, refereeNode );
-								}
-							}
-						}
-						if (currentDepth < maxDepth) {
-							gallery.gatherChildMedia(childNode, maxDepth, currentDepth+1, collection);
-						}
-					}
-				}
-				return collection;
-			},
-			
-			loadNextChild: function() {
-				childLoadIndex++;
-				if ( childLoadIndex < ( children.length - 1 )) {
-					scalarapi.loadPage(children[childLoadIndex].slug, true, function() {
-						childPaths = gallery.getChildrenOfType(currentNode, 'path');
-						childTags = gallery.getChildrenOfType(currentNode, 'tag');
-						mediaCollection = gallery.gatherChildMedia(currentNode, 2);
-						gallery.sortCollection(mediaCollection, SortMethod.Alpha);
-						gallery.update(mediaCollection);
-						gallery.loadNextChild();
-					}, function() {
-						console.log('an error occurred while retrieving structured gallery info.');
-					}, 1, true);
-				}
-			},
-			
 			getChildrenOfType: function(node, type) {
 				var children = [];
 				var i,j,childNodes,childNode,relationship;
@@ -137,168 +86,6 @@
 				return children;		
 			},
 			
-			/*build: function(collection) {
-			
-				var i,node,alttext,thumbnail;
-				for (i in mediaCollection) {
-					node = mediaCollection[i];
-					if (node.current.description != undefined) {
-						alttext = node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
-					} else {
-						alttext = '';
-					}			
-					if (node.thumbnail != undefined) {
-						thumbnail = $('<img id="img-'+node.slug+'" class="thumbnail" src="'+node.thumbnail+'" alt="'+alttext+'"/>').appendTo(mediaContainer);
-					} else {
-						thumbnail = $('<img id="img-'+node.slug+'" class="thumbnail" src="'+modules_uri+'/cantaloupe/images/media_icon_chip.png" alt="'+alttext+'"/>').appendTo(mediaContainer);
-						//element.append('<div class="media_placeholder"><img src="'+modules_uri+'/cantaloupe/images/media_icon.png" alt="'+alttext+'" width="30" height="30"/></div>');
-					}
-					thumbnail.data('node', node);
-					var me = this;
-					thumbnail.click(function() {
-						if (me.currentDisplayMode != DisplayMode.All) {
-							var source = $(this).prevAll('.child_header').eq(0);
-							me.mediaDetails.show($(this).data('node'), source.data('node'), source.nextUntil('.child_header', 'img'));
-						} else {
-							me.mediaDetails.show($(this).data('node'));
-						}
-					});
-				}
-				
-				gallery.resizeThumbnails();
-			
-			},*/
-			
-			/*update: function(collection) {
-				
-				mediaContainer.empty();
-				
-				var i,j,k,n,block,path,header,node,childNodes,childNode,grandchildNodes,grandchildNode,thumbnail;
-				switch (this.currentDisplayMode) {
-				
-					case DisplayMode.All:
-					for (i in collection.all) {
-						node = collection.all[i];
-						if (node.hasScalarType('media')) {
-							gallery.addThumbnailForNode(mediaContainer, node);
-						}
-					}
-					break;
-					
-					case DisplayMode.Path:
-					case DisplayMode.Tag:
-					n = children.length;
-					for ( i=0; i<n; i++) {
-						node = children[i];
-						block = $('<div id="block_'+node.slug+'" class="content_block"></div>').appendTo(mediaContainer);
-						block.data('node', node);
-						contentBlocks.push(block);
-					}
-					
-					var sourceNodes,sourceNode,relationship;
-					if (this.currentDisplayMode == DisplayMode.Path) {
-						sourceNodes = childPaths;
-						relationship = 'path';
-					} else {
-						sourceNodes = childTags;
-						relationship = 'tag';
-					}
-					sourceNodes = children;
-					
-					var visibleMediaCount = 0;;
-					for (i in sourceNodes) {
-						node = sourceNodes[i];
-						header = $('<div id="container_'+node.slug+'" class="child_header"></div>').appendTo(mediaContainer);
-						header.data('node', node);
-						header.append('<h3 class="heading_font"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
-						if (node.current.description != null) {
-							//header.append(' <div class="one_line_description">'+node.current.description+' <a href="'+addTemplateToURL(node.url, 'cantaloupe')+'"><img src="'+modules_uri+'/cantaloupe/images/permalink_icon.png" alt="permalink_icon" width="16" height="16" /></a></div>');
-							header.append(' <div class="one_line_description">'+node.current.description+'</div>');
-						}
-						//childNodes = node.getRelatedNodes(relationship, 'outgoing');
-						childNodes = collection[node.slug+'-'+relationship];
-						for (j in childNodes) {
-							childNode = childNodes[j];
-							gallery.addThumbnailForNode(mediaContainer, childNode);
-							visibleMediaCount++;
-						}
-					}
-					mediaContainer.append('<div class="minor_message caption_font">'+(mediaCollection.all.length - visibleMediaCount)+' media files not shown because they are not referenced by any '+relationship+'s.</div>');
-					break;
-				
-				}
-				
-				gallery.resizeThumbnails();
-			
-			},
-			
-			/*update: function(collection) {
-			
-				$('.child_header').remove();
-				$('.minor_message').remove();
-				
-				var i,j,k,n,path,header,childNodes,childNode,grandchildNodes,grandchildNode,thumbnail;
-				switch (this.currentDisplayMode) {
-				
-					case DisplayMode.All:
-					n = mediaCollection.length;
-					for (i=(n-1); i>=0; i--) {
-						childNode = mediaCollection[i];
-						thumbnail = $('#img-'+childNode.slug);
-						mediaContainer.children().eq(0).before(thumbnail);
-					}
-					mediaContainer.children('img').show();
-					break;
-					
-					case DisplayMode.Path:
-					case DisplayMode.Tag:
-					
-					var sourceNodes,sourceNode,relationship;
-					if (this.currentDisplayMode == DisplayMode.Path) {
-						sourceNodes = childPaths;
-						relationship = 'path';
-					} else {
-						sourceNodes = childTags;
-						relationship = 'tag';
-					}
-					
-					var visibleMedia = [];
-					for (i in sourceNodes) {
-						sourceNode = sourceNodes[i];
-						header = $('<div id="path_'+sourceNode.slug+'" class="child_header"></div>').appendTo(mediaContainer);
-						header.data('node', sourceNode);
-						//header.append('<h3 class="heading_font">'+sourceNode.getDisplayTitle()+' &raquo;</h3>');
-						header.append('<h3 class="heading_font"><a href="'+addTemplateToURL(sourceNode.url, 'cantaloupe')+'">'+sourceNode.getDisplayTitle()+'</a></h3>');
-						if (sourceNode.current.description != null) {
-							header.append(' <div class="one_line_description">'+sourceNode.current.description+' <a href="'+addTemplateToURL(sourceNode.url, 'cantaloupe')+'"><img src="'+modules_uri+'/cantaloupe/images/permalink_icon.png" alt="permalink_icon" width="16" height="16" /></a></div>');
-						}
-						childNodes = sourceNode.getRelatedNodes(relationship, 'outgoing');
-						for (j in childNodes) {
-						
-							childNode = childNodes[j];
-							thumbnail = $('#img-'+childNode.slug);
-							thumbnail.show();
-							mediaContainer.append(thumbnail);
-							if (thumbnail.length > 0) visibleMedia.push(thumbnail[0]);
-							
-							grandchildNodes = childNode.getRelatedNodes( 'referee', 'outgoing' );
-							for ( k in grandchildNodes ) {
-								grandchildNode = grandchildNodes[k];
-								thumbnail = $('#img-'+grandchildNode.slug);
-								thumbnail.show();
-								mediaContainer.append(thumbnail);
-								if (thumbnail.length > 0) visibleMedia.push(thumbnail[0]);
-							}
-						}
-					}
-					mediaContainer.children('img').not(visibleMedia).hide();
-					mediaContainer.append('<div class="minor_message caption_font">'+(mediaCollection.length - visibleMedia.length)+' media files not shown because they are not referenced by any '+relationship+'s.</div>');
-					break;
-				
-				}
-			
-			},*/
-			
 			resizeThumbnails: function(isAnimated) {
 				if (!isAnimated) {
 					mediaContainer.find('.thumb').attr('height', (thumbnailHeight * currentScale));
@@ -310,10 +97,12 @@
 			
 			sortCollection: function(collection, method) {
 			
+				console.log( 'sort' );
+				
 				switch (method) {
 				
 					case SortMethod.Alpha:
-					collection.all.sort(function(a, b) {
+					collection/*.all*/.sort(function(a, b) {
 						var sortTitleA = a.getSortTitle();
 						var sortTitleB = b.getSortTitle();
 						if (sortTitleA > sortTitleB) {
@@ -352,17 +141,24 @@
 			
 			createContentBlocks: function() {
 				
-				var i, node, block,
+				var i, node, block, block_head,
 					n = children.length;
 					
-				$( mediaContainer ).append( '<div id="block_head"></div>' );
+				//$( mediaContainer ).append( '<div id="block_head"></div>' );
+				
+				block_head = $( '<div id="block_head"></div>' ).appendTo( mediaContainer );
 				
 				for ( i = 0; i < n; i++ ) {
 					node = children[ i ];
+					
+					// create a block where the node's children can be displayed
 					block = $( '<div id="block_' + node.slug.replace( "/", "-" ) + '" class="content_block"></div>' ).appendTo( mediaContainer );
 					//console.log( "create block: " + node.slug.replace( "/", "-" ) );
 					block.data( 'node', node );
 					contentBlocks.push( block );
+					
+					// create a block where the node's thumbnail can be displayed
+					block_head.append( '<span id="block_head_' + node.slug.replace( "/", "-" ) + '"></span>' );
 				}
 				
 			},
@@ -446,11 +242,13 @@
 			
 				var child, i,
 					block = $( '#block_' + node.slug.replace( "/", "-" ) ),
+					block_head = $( '#block_head_' + node.slug.replace( "/", "-" ) ),
 					children = gallery.getChildrenOfType( node, 'all' ),
 					n = children.length;
 					
 				block.find('.spinner_wrapper').remove();
 					
+				// put child thumbnails inside of the node's block
 				for ( i = 0; i < n; i++ ) {
 					child = children[ i ];
 					if ( child.hasScalarType( 'media' ) ) {
@@ -458,10 +256,14 @@
 					}
 				}
 				
+				// if the node is a media file, add it to the top collection of thumbnails
 				if ( node.hasScalarType( 'media' ) ) {
-					gallery.addThumbnailForNode( $( '#block_head' ) , node );
+					gallery.addThumbnailForNode( block_head , node );
+				} else {
+					block_head.remove();
 				}
 				
+				// if a block is empty, remove it, otherwise give it a header
 				if ( block.children().length == 0 ) {
 					block.remove();
 				} else {
@@ -471,6 +273,8 @@
 			},
 			
 			addThumbnailForNode: function( element, node, method ) {
+			
+				console.log( element );
 			
 				var alttext, thumbnail,
 					me = this;
@@ -523,14 +327,6 @@
 		gallery.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
 		
 		mediaContainer = $('<div id="gallery_content"></div>').appendTo(element);
-
-		/*// get the children of the current node
-		scalarapi.loadPage(currentNode.slug, true, function(data) {
-			children = gallery.getChildrenOfType(currentNode, 'all');
-			gallery.createContentBlocks();
-		}, function() {
-			console.log('an error occurred while retrieving structured gallery info.');
-		}, 1, true);*/
 		
 		return gallery;
 	
