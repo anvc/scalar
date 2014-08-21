@@ -274,8 +274,6 @@
 			
 			addThumbnailForNode: function( element, node, method ) {
 			
-				console.log( element );
-			
 				var alttext, thumbnail,
 					me = this;
 					
