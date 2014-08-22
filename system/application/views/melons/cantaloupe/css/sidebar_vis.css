@@ -16,7 +16,7 @@ body.sidebar_vis #sidebar, body.sidebar_vis #info_panel{
 }
 
 body.sidebar_vis #sidebar{
-	position: absolute;
+	position: fixed;
 	
 	padding: 10px;
 	padding-top: 6rem;
@@ -39,6 +39,10 @@ body.sidebar_vis #sidebar{
 	overflow: hidden;
 }
 
+body.sidebar_vis #sidebar.tall{
+	padding-top: 2rem;
+}
+
 body.sidebar_vis #sidebar ul{
 	vertical-align: middle;
 	display: table-cell;
@@ -50,7 +54,8 @@ body.sidebar_vis #sidebar_inside{
 }
 
 body.sidebar_vis #sidebar .sidebar_icon{
-	font-size: 2em;
+	font-size: 20px;
+	line-height: 24px;
 	text-align: center;
 	margin: 10px;
 	vertical-align: middle;
@@ -99,6 +104,10 @@ body.sidebar_vis #sidebar header .controls{
     -webkit-transition-timing-function: ease-in-out;
     -moz-transition-timing-function: ease-in-out;
 }
+body.sidebar_vis #sidebar header .controls a, body.sidebar_vis #sidebar header .controls a:hover{
+	font-size: 12px;
+	text-decoration: none;
+}
 body.sidebar_full #sidebar header .controls .sidebar_maximize{
 	opacity: .5;
 	cursor: default;
@@ -111,6 +120,8 @@ body.sidebar_vis #sidebar header .header_icon{
 	float: left;
 	vertical-align: middle;
 	margin-right: 1rem;
+	font-size: 25px;
+	line-height: 28px;
 }
 
 body.sidebar_vis #sidebar header .header_icon span{
@@ -148,6 +159,7 @@ body.sidebar_vis #sidebar .pane ul li{
 	vertical-align: middle;
 	width: 180px;
 	display: table;
+	cursor: pointer;
 }
 body.sidebar_vis #sidebar .pane ul li .title{
 	font-size: .75em;
@@ -259,7 +271,13 @@ body.sidebar_expanded #info_panel{
 	left: 200px;
 }
 body.info_panel_open #info_panel{
-	width: 200px;
+	width: 220px;
+}
+#info_panel .overview_link{
+	float: left;
+}
+#info_panel .metadata_link{
+	float: right;
 }
 body.info_panel_open #info_panel #info_panel_content{
 	display: block;
@@ -270,7 +288,7 @@ body.sidebar_vis #info_panel .description{
 }
 body.sidebar_vis #info_panel #info_panel_header{
 	border-bottom: 1px solid #fff;
-	padding: 10px;
+	padding: 20px 10px;
 	font-size: 1rem;
 	text-align: center;
 }
@@ -327,17 +345,49 @@ body.sidebar_vis #info_panel h2{
 body.sidebar_vis #info_panel .title, body.sidebar_vis #info_panel h4{
 	margin: 0px;
 	font-family: 'Lato', Arial, sans-serif !important;
+
+	padding: 5px 10px;
+}
+body.sidebar_vis #info_panel .description{
+	padding: 5px 10px;
 }
 body.sidebar_vis #info_panel .title{
-	font-size: 1.5rem;
-	line-height: 1.5rem;
-	padding: 10px 20px;
+	font-size: 2.5rem;
+	line-height: 2.25rem;
+	margin-top: .5em;
+	padding: 5px 10px;
+	font-weight: 100;
 }
 body.sidebar_vis #info_panel h4{
 	font-size: 1.25rem;
 	line-height: 1.25rem;
-	padding: 5px 20px;
 	text-transform: uppercase;
+	padding: 5px 10px;
+	margin-top: 2em;
+}
+body.sidebar_vis #info_panel .featured_block, body.sidebar_vis #info_panel .tagged_by_block{
+	display: none;
+}
+body.sidebar_vis #info_panel ul, body.sidebar_vis #info_panel .discuss_link{
+	margin: 0px;
+	padding: 5px 10px;
+	padding-right: 5px;
+}
+body.sidebar_vis #info_panel ul li, body.sidebar_vis #info_panel .discuss_link{
+	clear: left;
+}
+#comments_info .discuss_link .icon, #comments_info .comment_list .icon, #comments_info .discuss_link .text, #comments_info .comment_list .text{
+	float: left;
+	color: #444;
+	vertical-align: middle;
+	padding: 5px 10px;
+}
+#comments_info .discuss_link .icon, #comments_info .comment_list .icon{
+	font-size: 2em;
+	line-height: 1em;
+}
+#comments_info .discuss_link .icon span{
+	color: #fff;
 }
 
 @media only screen and (min-width : 581px) {

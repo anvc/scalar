@@ -1,0 +1,70 @@
+@font-face {
+	font-family: 'scalar';
+	src:url('../fonts/scalar.eot?azvukx');
+	src:url('../fonts/scalar.eot?#iefixazvukx') format('embedded-opentype'),
+		url('../fonts/scalar.woff?azvukx') format('woff'),
+		url('../fonts/scalar.ttf?azvukx') format('truetype'),
+		url('../fonts/scalar.svg?azvukx#scalar') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'scalar';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-arrow-left:before {
+	content: "\e601";
+}
+.icon-arrow-right:before {
+	content: "\e602";
+}
+.icon-comment:before {
+	content: "\e603";
+}
+.icon-add-comment:before {
+	content: "\e60d";
+}
+.icon-page:before {
+	content: "\e607";
+}
+.icon-photo:before {
+	content: "\e609";
+}
+.icon-video:before {
+	content: "\e60c";
+}
+.icon-audio:before {
+	content: "\e60e";
+}
+.icon-file:before {
+	content: "\e604";
+}
+.icon-path:before {
+	content: "\e608";
+}
+.icon-tags:before {
+	content: "\e60b";
+}
+.icon-index:before {
+	content: "\e605";
+}
+.icon-linear:before {
+	content: "\e600";
+}
+.icon-recent:before {
+	content: "\e60a";
+}
+.icon-markers:before {
+	content: "\e606";
+}

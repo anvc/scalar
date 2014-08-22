@@ -18,12 +18,76 @@
         base.$el.data("scalarSidebar", base);
         
         base.init = function(){
+        	base.stime = new Date();
             base.options = $.extend({},$.scalarSidebar.defaultOptions, options);
             if(currentNode != null){
-            	
-				var html = '<div id="info_panel"><div id="info_panel_arrow"></div><div id="info_panel_content"><div id="info_panel_header"><a class="overview_link active" data-page="overview">overview</a><a class="comments_link" data-page="comments">comments</a><a class="metadata_link" data-page="metadata">metadata</a></div><h3 class="title"></h3><div class="section" id="overview_info"><div class="content"><p class="description"></p><h4>Featured In</h4><ul class="featured_list"></ul><h4>Tagged By</h4><ul class="tagged_by_list"></ul></div></div><div class="section" id="comments_info"><div class="content"><h4>Comments</h4><a class="discuss_link">Discuss</a><br /><ul class="comment_list"></ul></div></div><div class="section" id="metadata_info"><div class="content"><ul class="metadata_list"></ul></div></div></div></div><div id="sidebar"><div id="sidebar_inside"><header><span class="header_icon"></span><span class="controls"><a class="sidebar_collapse ion-ios7-arrow-left"></a> <a class="sidebar_maximize ion-ios7-arrow-right"></a></span><span class="title"></span></header><br /><div id="sidebar_panes"></div></div></div>';
+            	//Sorry, I need this to be readable for now - is this the fastest way? Seems to be: http://stackoverflow.com/questions/51185/are-javascript-strings-immutable-do-i-need-a-string-builder-in-javascript/4717855#4717855
+				var html = '<div id="info_panel">'+
+								'<div id="info_panel_arrow"></div>'+
+								'<div id="info_panel_content">'+
+									'<div id="info_panel_header">'+
+										'<a class="overview_link active" data-page="overview">overview</a>'+
+										'<a class="comments_link" data-page="comments">comments</a>'+
+										'<a class="metadata_link" data-page="metadata">metadata</a>'+
+									'</div>'+
+									'<h3 class="title"></h3>'+
+									'<div class="section" id="overview_info">'+
+										'<div class="content">'+
+											'<p class="description"></p>'+
+											'<div class="featured_block">'+
+												'<h4>Featured In</h4>'+
+												'<ul class="featured_list"></ul>'+
+											'</div>'+
+											'<div class="tagged_by_block">'+
+												'<h4>Tagged By</h4>'+
+												'<ul class="tagged_by_list"></ul>'+
+											'</div>'+
+										'</div>'+
+									'</div>'+
+									'<div class="section" id="comments_info">'+
+										'<div class="content">'+
+											'<h4>Comments</h4>'+
+											'<a class="discuss_link"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a><br/>'+
+											'<ul class="comment_list"></ul>'+
+										'</div>'+
+									'</div>'+
+									'<div class="section" id="metadata_info">'+
+										'<div class="content">'+
+											'<ul class="metadata_list"></ul>'+
+										'</div>'+
+									'</div>'+
+								'</div>'+
+							'</div>'+
+							'<div id="sidebar">'+
+								'<div id="sidebar_inside">'+
+									'<header>'+
+										'<span class="header_icon"></span>'+
+										'<span class="controls">'+
+											'<a class="sidebar_collapse icon-arrow-left"></a>'+
+											'<a class="sidebar_maximize icon-arrow-right"></a>'+
+										'</span>'+
+										'<span class="title"></span>'+
+									'</header><br/>'+
+									'<div id="sidebar_panes"></div>'+
+								'</div>'+
+							'</div>';
 
-				base.container = $(html).appendTo('body').css('opacity',0).fadeTo('fast',1);
+				base.container = $(html).appendTo('body');
+				base.lastScroll = $(document).scrollTop();
+				if (!isMobile) {
+					$(window).scroll(function() {
+						var currentScroll = $(document).scrollTop();
+						if ((currentScroll > base.lastScroll) && (currentScroll > 50) && (state == ViewState.Reading)) {
+							$('#sidebar').addClass('tall');
+						} else if ((base.lastScroll - currentScroll) > 10) {
+							$('#sidebar').removeClass('tall');
+						}
+						base.lastScroll = currentScroll;
+					});
+					$('#header').mouseenter(function(){
+						$('#sidebar').removeClass('tall');
+					});
+				}
 
 				$('#info_panel_header a').click(function(){
 					var current_page = $(this).data('page');
@@ -34,15 +98,19 @@
 	           	base.queryVars = scalarapi.getQueryVars( document.location.href );
 
 	            base.build_paths_pane();
+
 	            base.build_tags_pane();
 	            /*base.build_index_pane();
 	            base.build_recent_pane();
 	            base.build_markers_pane();*/
 
+	            
 	            base.current_pane = $('#sidebar_panes .pane').first().data('type');
-	          	$('#sidebar_'+base.current_pane+'_pane').addClass('active');
+	            $('#sidebar header').hide();
+	          	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
 	          	$('#sidebar header .title').text(base.current_pane.toUpperCase());
 			    $('#sidebar header .header_icon').html(base.icons[base.current_pane]);
+			    $('#sidebar header').fadeIn('slow');
 
 			    $('#sidebar_inside header').click(function(e){
 			    	if(!$('body').hasClass('sidebar_expanded')){
@@ -72,19 +140,19 @@
 	          	if($('#sidebar_panes .pane').length < 2){
 	          		$('.sidebar_next').addClass('disabled');
 	          	}
-			}
 
+			}
 
 			
         };
 
         base.build_paths_pane = function(){
-        	base.icons['path'] = '<span class="scalar_path_icon"></span>';
+        	base.icons['path'] = '<span class="icon-path"></span>';
         	var html = '<div class="pane" data-type="path" id="sidebar_path_pane"><div class="smallmed"><ul class="path"><li class="active" data-slug="'+currentNode.slug+'" data-url="'+currentNode.url+'"><span class="sidebar_icon ';
 
 			switch(currentNode.current.mediaSource.contentType){
 				case 'document':
-					html += 'ion-document-text';
+					html += 'icon-page';
 					break;
 			}
 
@@ -100,7 +168,6 @@
 					var parent = currentNode.incomingRelations[p].body;
 					if(parent.slug == base.queryVars.path){
 						var before_current = true; //We'll flip this once we come to the current page;
-						console.log(parent.outgoingRelations);
 
 						// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
 						// We could probably write a custom sort function, but in the end, this is a faster process.
@@ -117,11 +184,10 @@
 								before_current = false;
 							}else{
 								//Same as the active page, pretty much.
-								console.log(path_step.target);
 								var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><span class="sidebar_icon ';
 								switch(path_step.target.current.mediaSource.contentType){
 									case 'document':
-										item_html += 'ion-document-text';
+										item_html += 'icon-page';
 										break;
 									default:
 										console.log(path_step.target.current.defaultView);
@@ -146,7 +212,7 @@
 				if($('#info_panel').data('slug')!==slug){
 					var top_offset = $(this).offset();
 					$('#info_panel_arrow').css({
-						'top':top_offset.top+'px'
+						'top':(top_offset.top-7)+'px'
 					});
 
 					//Prepare yourself for some hot jQuery chaining action.
