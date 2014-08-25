@@ -2429,6 +2429,7 @@ ScalarModel.prototype.crossDomain = null;
 ScalarModel.prototype.nodePropertyMap = null;
 ScalarModel.prototype.versionPropertyMap = null;
 ScalarModel.prototype.auxPropertyMap = null;
+ScalarModel.prototype.auxPropertyMapURIs = null;
 ScalarModel.prototype.currentPageNode = null;
 ScalarModel.prototype.bookNode = null;
 ScalarModel.prototype.scalarTypes = null;
@@ -3340,7 +3341,7 @@ ScalarVersion.prototype.parseData = function(data, node) {
 	this.url = data.url;
 	
 	// populate pre-approved properties
-	var i,
+	var i, j, o,
 		n = scalarapi.model.versionPropertyMap.length;
 	var propertyData;
 	for (i=0; i<n; i++) {
@@ -3359,10 +3360,18 @@ ScalarVersion.prototype.parseData = function(data, node) {
 	for ( i = 0; i < n; i++ ) {
 		propertyData = scalarapi.model.auxPropertyMap[i];
 		if (data.json[propertyData.uri]) {
+			if ( this.auxProperties[ propertyData.property ] == null ) {
+				this.auxProperties[ propertyData.property ] = [];
+			}
+			o = data.json[propertyData.uri].length;
 			if (propertyData.type == 'int') {
-				this.auxProperties[propertyData.property] = parseInt(data.json[propertyData.uri][0].value);
+				for ( j = 0; j < o; j++ ) {
+					this.auxProperties[propertyData.property].push( parseInt(data.json[propertyData.uri][j].value) );
+				}
 			} else {
-				this.auxProperties[propertyData.property] = data.json[propertyData.uri][0].value;
+				for ( j = 0; j < o; j++ ) {
+					this.auxProperties[propertyData.property].push( data.json[propertyData.uri][j].value );
+				}
 			}
 		}
 	}

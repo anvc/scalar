@@ -259,8 +259,10 @@
 
 			// auxiliary properties
 			for ( prop in node.current.auxProperties ) {
-				value = node.current.auxProperties[ prop ];
-				table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
+				for ( i in node.current.auxProperties[ prop ] ) {
+					value = node.current.auxProperties[ prop ][ i ];
+					table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
+				}
 			}
 			if (!foundAuxContent) {
 				element.find('.media_metadata').show();
