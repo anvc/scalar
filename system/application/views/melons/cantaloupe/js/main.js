@@ -394,7 +394,7 @@ $(window).ready(function() {
 				});
 
 		  }},
-
+		  
 		  // Mediaelement
 		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',
 		          widgets_uri+'/mediaelement/flowplayer.js',
@@ -406,7 +406,8 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/mediaelement.css',
 		          widgets_uri+'/mediaelement/annotation.css',
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
-		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
+		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'/*,
+		          'https://hypothes.is/embed.js'*/], complete:function() {
 				if(typeof cantaloupe_visualization !== 'undefined' && cantaloupe_visualization=='sidebar'){
 					sidebar = $.scalarSidebar();
 				}else{

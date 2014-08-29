@@ -205,7 +205,7 @@ $(window).ready(function() {
 		  }},
 		  
 		  // Live annotations
-		  {load: [widgets_uri+'/liveannotations/jquery.scalarliveannotations.js'], complete:function() {
+		  {load: [widgets_uri+'/liveannotations/jquery.scalarliveannotations.js'/*,'https://hypothes.is/embed.js'*/], complete:function() {
 			$('body').bind('show_annotation', function(event, annotation, mediaelement) {
 				if (!mediaelement.isPlaying()) return;	// Guard against the Live Annotatiob being re-created every second or more
 				$('<div></div>').appendTo('body').live_annotation({
