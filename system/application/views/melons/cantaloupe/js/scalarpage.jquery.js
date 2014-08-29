@@ -745,7 +745,7 @@
 				
 				case 'image_header':
 				$( '.page' ).css( 'padding-top', '5rem' );
-				$( 'header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
+				$( 'article > header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
 				$( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
 				$( '.title_card' ).append( $( 'header > h1' ) );
 				$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
