@@ -19,7 +19,7 @@
         	$this->rname = $config['rname'];
         	
         	if (!file_exists($this->tinypass_lib_path)) throw new Exception("Can't find TinyPass library");
-        	if (empty($this->sandbox)) throw new Exception('Invalid Sandbox');
+        	if (!isset($this->sandbox)) throw new Exception('Invalid Sandbox');
         	if (empty($this->aid)) throw new Exception('Invalid Account ID');
         	if (empty($this->private_key)) throw new Exception('Invalid Private Key');
         	if (empty($this->rid)) throw new Exception('Invalid Resource ID');
@@ -34,7 +34,7 @@
 			TinyPass::$SANDBOX = $this->sandbox;
 			TinyPass::$AID = $this->aid;
 			TinyPass::$PRIVATE_KEY = $this->private_key;
-			 
+	
 			$rid = $this->rid;
 			$store = new TPAccessTokenStore();
 			$store->loadTokensFromCookie($_COOKIE);

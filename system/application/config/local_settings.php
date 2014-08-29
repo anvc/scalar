@@ -39,7 +39,7 @@ $config['google_maps_key'] = '';
 
 // Tinypass
 $config['tinypass'] = array();
-$config['tinypass']['sandbox'] = 'false';
+$config['tinypass']['sandbox'] = false;
 $config['tinypass']['aid'] = '';
 $config['tinypass']['private_key'] = '';
 $config['tinypass']['rid'] = 'Premium-Access';
