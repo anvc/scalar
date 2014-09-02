@@ -36,6 +36,7 @@
 			TinyPass::$PRIVATE_KEY = $this->private_key;
 	
 			$rid = $this->rid;
+			$rname = $this->rname;
 			$store = new TPAccessTokenStore();
 			$store->loadTokensFromCookie($_COOKIE);
 			$token = $store->getAccessToken($rid);
@@ -44,8 +45,9 @@
 			    return false;
 			 
 			} else { 
-			    $resource = new TPResource($rid, "Premium Access");
+			    $resource = new TPResource($rid, $rname);
 			 
+				// TODO: loop through $config['payment']
 			    $po1 = new TPPriceOption("1.00", "");
 			    $offer = new TPOffer($resource, array($po1));
 			 

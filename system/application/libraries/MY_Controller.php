@@ -284,8 +284,16 @@ abstract class MY_Controller extends Controller {
    	protected function tinypass() {
    		
    		try {
-   			if ($this->login_is_book_admin()) throw new Exception('Admin logged in');
-			$this->load->library('Tinypass_Helper', $this->config->item('tinypass'));
+   			// Validate
+   			if ($this->login_is_book_admin('Reader')) throw new Exception('Reader logged in');
+   			$book_slug = $this->data['book']->slug;
+   			if (empty($book_slug)) throw new Exception('Invalid book slug');
+   			$tinypass_config_path = confirm_slash(FCPATH).$book_slug.'/tinypass.php';
+   			if (!file_exists($tinypass_config_path)) throw new Exception('Could not find Tinypass config');
+   			require_once($tinypass_config_path);
+   			if (empty($tinypass) || !is_array($tinypass)) throw new Exception('No $tinypass in tinypass.php');
+   			// Load Tinypass
+			$this->load->library('Tinypass_Helper', $tinypass);
 			$this->data['buttonHTML'] = $this->tinypass_helper->protect();
 			$this->template->set_template('external');
 			$this->template->write_view('content', 'melons/'.$this->data['melon'].'/tinypass', $this->data);
