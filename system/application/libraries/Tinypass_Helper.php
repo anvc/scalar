@@ -23,6 +23,7 @@
         	$this->private_key = $config['private_key'];
         	$this->rid = $config['rid'];
         	$this->rname = $config['rname'];
+        	$this->payment = $config['payment'];
         	
         	if (!file_exists($this->tinypass_lib_path)) throw new Exception("Can't find TinyPass library");
         	if (!isset($this->sandbox)) throw new Exception('Invalid Sandbox');
@@ -57,9 +58,11 @@
         	
 			$resource = new TPResource($this->rid, $this->rname);
 			 
-			// TODO: loop through $config['payment']
-			$po1 = new TPPriceOption("1.00", "");
-			$offer = new TPOffer($resource, array($po1));
+			$payments = array();
+			foreach ($this->payment as $payment) {
+				$payments[] = new TPPriceOption($payment[0], $payment[1]);
+			}
+			$offer = new TPOffer($resource, $payments);
 			 
 			$request = new TPPurchaseRequest($offer);
 			$buttonHTML = $request->setCallback("myFunction")->generateTag();
