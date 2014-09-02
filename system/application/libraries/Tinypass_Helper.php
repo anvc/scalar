@@ -1,5 +1,11 @@
 <?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+	/**
+	 * Requires Tinypass library
+	 * @author Craig Dietrich
+	 * @version 1.0
+	 */
+
     class Tinypass_Helper {
     	
     	private $tinypass_lib_path;
@@ -27,7 +33,7 @@
         	
         }
         
-        public function protect() {
+        public function accessGranted() {
 
         	require_once $this->tinypass_lib_path;
 
@@ -35,29 +41,31 @@
 			TinyPass::$AID = $this->aid;
 			TinyPass::$PRIVATE_KEY = $this->private_key;
 	
-			$rid = $this->rid;
-			$rname = $this->rname;
 			$store = new TPAccessTokenStore();
 			$store->loadTokensFromCookie($_COOKIE);
-			$token = $store->getAccessToken($rid);
+			$token = $store->getAccessToken($this->rid);
         	
 			if($token->isAccessGranted()) {
-			    return false;
-			 
+			    return true;
 			} else { 
-			    $resource = new TPResource($rid, $rname);
-			 
-				// TODO: loop through $config['payment']
-			    $po1 = new TPPriceOption("1.00", "");
-			    $offer = new TPOffer($resource, array($po1));
-			 
-			    $request = new TPPurchaseRequest($offer);
-			    $buttonHTML = $request->setCallback("myFunction")->generateTag();
-			    
-			    return $buttonHTML;
-			    
+				return false;
 			}			
 			
+        }
+        
+        public function getHTML() {
+        	
+			$resource = new TPResource($this->rid, $this->rname);
+			 
+			// TODO: loop through $config['payment']
+			$po1 = new TPPriceOption("1.00", "");
+			$offer = new TPOffer($resource, array($po1));
+			 
+			$request = new TPPurchaseRequest($offer);
+			$buttonHTML = $request->setCallback("myFunction")->generateTag();
+			    
+			return $buttonHTML;
+        	
         }
 
     }

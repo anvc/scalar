@@ -278,10 +278,10 @@ abstract class MY_Controller extends Controller {
    	} 	
    	
    	/**
-   	 * Determine if tinypass should be called on current page and load in neccessary
+   	 * Determine if paywall page should be presented rather than the protected page content
    	 */
    	
-   	protected function tinypass() {
+   	protected function paywall() {
    		
    		try {
    			// Validate
@@ -294,11 +294,13 @@ abstract class MY_Controller extends Controller {
    			if (empty($tinypass) || !is_array($tinypass)) throw new Exception('No $tinypass in tinypass.php');
    			// Load Tinypass
 			$this->load->library('Tinypass_Helper', $tinypass);
-			$this->data['buttonHTML'] = $this->tinypass_helper->protect();
-			$this->template->set_template('external');
-			$this->template->write_view('content', 'melons/'.$this->data['melon'].'/tinypass', $this->data);
-			$this->template->render();	
-			$this->template_has_rendered = true;			
+			if (!$this->tinypass_helper->accessGranted()) {
+				$this->data['buttonHTML'] = $this->tinypass_helper->getHTML();
+				$this->template->set_template('external');
+				$this->template->write_view('content', 'melons/'.$this->data['melon'].'/tinypass', $this->data);
+				$this->template->render();	
+				$this->template_has_rendered = true;		
+			}
 		} catch (Exception $e) {}   		
    		
    	}

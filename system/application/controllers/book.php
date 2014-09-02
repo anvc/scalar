@@ -136,8 +136,8 @@ class Book extends MY_Controller {
 			    if (!count($index)) throw new Exception('Problem getting page index');     
 			    $this->data['page'] = $index[0];
 			    unset($index);  
-				// Tinypass
-				if (isset($page->paywall) && $page->paywall) $this->tinypass();				    
+				// Paywall
+				if (isset($page->paywall) && $page->paywall) $this->paywall();				    
 				// Set the view based on the page's default view
 				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;

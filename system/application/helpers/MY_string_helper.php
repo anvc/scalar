@@ -83,6 +83,20 @@ function cleanbr($str='') {
 	return $str;
 }
 
+function first_paragraph($str='') {
+	
+	$orig_strlen = strlen($str);
+	$seek = array('</p','</br','<br /','<br/');
+	foreach ($seek as $tag) {
+		if (stripos($str,$tag)) {
+			$str = substr($str, 0, strpos($str,$tag));
+		}
+	}
+	if (strlen($str) < $orig_strlen) $str .= ' [...]';
+	return $str;
+	
+}
+
 function hl($text, $terms) {
 
 	foreach ($terms as $term) {
