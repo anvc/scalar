@@ -1,9 +1,9 @@
 /* We have at least 250px on left side. */
 body.sidebar_vis>.page{
 	position: absolute;
-	width: 1000px;
+	width: 100rem;
 	margin: 0px;
-	right: 100px;
+	right: 10rem;
 	border: 0px;
 	transform: translateX(0px);
 
@@ -13,7 +13,7 @@ body.sidebar_vis>.page{
 }
 body.sidebar_vis.fullscreen_page>.page{
 	right: 0px;
-	left: 6rem;
+	left: 5rem;
 	width: auto;
 	max-width: none;
 	bottom: 0px;
@@ -27,7 +27,7 @@ body.sidebar_vis.fullscreen_page>.page>span{
 	display: block;
 }
 body.sidebar_expanded.fullscreen_page>.page{
-	left: 20rem;
+	transform: translateX(15rem);
 }
 body.sidebar_vis #sidebar, body.sidebar_vis #info_panel{
 	font-family: 'Lato', Arial, sans-serif !important;
@@ -81,8 +81,8 @@ body.sidebar_vis #sidebar_inside{
 }
 
 body.sidebar_vis #sidebar .sidebar_icon{
-	font-size: 20px;
-	line-height: 24px;
+	font-size: 2rem;
+	line-height: 2.5rem;
 	text-align: center;
 	margin: 10px;
 	vertical-align: middle;
@@ -133,7 +133,7 @@ body.sidebar_vis #sidebar header .controls{
     -moz-transition-timing-function: ease-in-out;
 }
 body.sidebar_vis #sidebar header .controls a, body.sidebar_vis #sidebar header .controls a:hover{
-	font-size: 12px;
+	font-size: 1.5rem;
 	text-decoration: none;
 }
 body.sidebar_full #sidebar header .controls .sidebar_maximize{
@@ -255,6 +255,9 @@ body.sidebar_expanded #sidebar{
 body.sidebar_expanded.info_panel_open #sidebar{
 	width: 20.5rem;
 }
+body.sidebar_expanded.info_panel_open #sidebar #sidebar_inside>header .controls{
+	text-indent: 0.25rem
+}
 
 body.sidebar_expanded.sidebar_full #sidebar{
 	background-color: rgba(255,255,255,0.875);
@@ -327,7 +330,7 @@ body.sidebar_vis #info_panel #info_panel_header{
 	font-size: 1rem;
 	text-align: center;
 }
-body.sidebar_vis #info_panel #info_panel_header a{
+body.sidebar_vis #info_panel #info_panel_header a, body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li{
 	padding-right: 5px;
 	text-transform: uppercase;
 	color: #888;
@@ -411,20 +414,24 @@ body.sidebar_vis #sidebar_inside>header #sidebar_selector{
 	display: none;
 	position: absolute;
 	top: 5rem;
-	margin-top: 5px;
+	margin-top: 4px;
 	left: -1rem;
 	width: 20rem;
 	z-index: 2;
-	background-color: #d2d2d2;
+	border-bottom: 1px solid #000;
 }
 body.sidebar_vis #sidebar_inside>header.selector_open, body.sidebar_vis #sidebar_inside>header.selector_open:hover{
-	background-color: #d2d2d2;	
+	background-color: rgba(0,0,0,.125);	
 }
 body.sidebar_vis #sidebar_inside>header.selector_open .header_icon span{
 	color: rgba(0,0,0,.5);
 }
 body.sidebar_vis #sidebar_inside>header.selector_open #sidebar_selector{
 	display: block;
+	background-color: rgba(238, 238, 238, 0.75);
+}
+body.sidebar_vis #sidebar_inside>header.selector_open{
+	border-bottom: 0px;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul{
 	padding: 0px;
@@ -435,22 +442,29 @@ body.sidebar_vis #sidebar_inside>header #sidebar_selector ul{
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li{
 	display: none;
-	padding: 1rem;
+	padding: 1rem 2rem;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled{
 	display: block;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled:hover{
 	background-color: rgba(0,0,0,.125);
+	color: #444;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.active{
 	display: none;
 }
 body.sidebar_vis #sidebar #sidebar_path_pane .large>header{
-	position: absolute;
-	top: 0px;
+	position: fixed;
+	top: 6rem;
 	left: 100px;
 	right: 100px;
+	height: 5.5rem;
+	padding: 5px;
+	line-height: 4rem;
+	text-align: center;
+	background-color: transparent !important;
+	border-bottom: 0px;
 }
 
 body.sidebar_vis #sidebar #sidebar_path_pane .large .view,body.sidebar_vis #sidebar #sidebar_path_pane .large>header>a{
@@ -537,7 +551,7 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 		left: 50px;
 	}
 	body.sidebar_expanded>.page{
-		transform: translateX(150px);
+		transform: translateX(15rem);
 	}
 }
 
@@ -555,11 +569,14 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 		padding-left: 0px;
 		padding-right: 0px;
 		padding-bottom: 0px;
+		position: fixed;
+		padding-top: 5rem;
+		height: 10rem;
 	}
 	body.sidebar_expanded>.page{
 		left: 0px;
 		right: 0px;
-		transform: translateY(100px);
+		transform: translateY(10rem);
 	}
 	body.sidebar_vis #sidebar_panes{
 		opacity: 0;
@@ -574,6 +591,7 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 	}
 	body.sidebar_expanded #sidebar{
 		background-color: rgb(238, 238, 238);
+		height: 100%;
 	}
 	body.sidebar_expanded #sidebar_panes{
 		margin-top: 5px;
@@ -590,6 +608,7 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 	body.sidebar_vis #sidebar header{
 		padding: 1rem 2rem;
 		background-color: #eee;
+		margin-top: 0px;
 	}
 	body.sidebar_vis #sidebar header .controls{
 		display: none;
@@ -651,6 +670,41 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 	body.sidebar_vis #info_panel #info_panel_arrow{
 		display: none;
 	}
+	body.sidebar_vis.fullscreen_page>.page{
+		left: 0px;
+		top: 5rem;
+	}
+	body.sidebar_expanded.fullscreen_page>.page{
+		transform: translateX(0px);
+	}
+	body.sidebar_vis #sidebar_inside>header.selector_open #sidebar_selector{
+		width: auto;
+		right: -1rem;
+		bottom: 0px;
+		background-color: rgb(238, 238, 238);
+	}
+	body.sidebar_vis #sidebar .pane ul li {
+		width: 100%;
+	}
+	body.sidebar_vis #sidebar .pane ul li .sidebar_icon{
+		font-size: 2.5rem;
+		line-height: 4.5rem;
+	}
+	body.sidebar_vis #sidebar .pane ul li .title{
+		font-size: 2rem;
+	}
+	body.sidebar_vis #info_panel_header a{
+		width: 33%;
+		line-height: 5rem;
+		display: inline-block;
+	}
+	body.sidebar_vis #info_panel #info_panel_header{
+		padding: 0px;
+	}
+	body.sidebar_vis #info_panel_header a.active{
+		background-color: rgba(0,0,0,.125);
+	}
+
 }
 
 /* Custom, iPhone Retina */ 

@@ -34,8 +34,8 @@
 								'<div id="info_panel_content">'+
 									'<div id="info_panel_header">'+
 										'<a class="overview_link active" data-page="overview">overview</a>'+
-										'<a class="comments_link" data-page="comments">comments</a>'+
 										'<a class="metadata_link" data-page="metadata">metadata</a>'+
+										'<a class="comments_link" data-page="comments">comments</a>'+
 										'<div id="info_panel_selector">'+
 											'<ul>'+
 												'<li class="">'+
@@ -202,26 +202,25 @@
         };
 
         base.build_paths_pane = function(){
-        	base.icons['path'] = '<span class="icon-path"></span>';
-        	var html = '<div class="pane" data-type="path" id="sidebar_path_pane">'+
-        					'<div class="smallmed"><ul class="path"></ul></div>'+
-        					'<div class="large list">'+
-        						'<header><a class="all_link" data-view="all">View All</a><a class="list_link" data-view="list">List View</a></header>'+
-        						'<div class="view" id="path_list_view"></div>'+
-        						'<div class="view" id="path_all_view"></div>'+
-        					'</div>'+
-        				'</div>';
+        	if(typeof base.queryVars.path != 'undefined'){
+        		base.icons['path'] = '<span class="icon-path"></span>';
+	        	var html = '<div class="pane" data-type="path" id="sidebar_path_pane">'+
+	        					'<div class="smallmed"><ul class="path"></ul></div>'+
+	        					'<div class="large list">'+
+	        						'<header><a class="all_link" data-view="all">View All</a><a class="list_link" data-view="list">List View</a></header>'+
+	        						'<div class="view" id="path_list_view"></div>'+
+	        						'<div class="view" id="path_all_view"></div>'+
+	        					'</div>'+
+	        				'</div>';
 
-			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
-			var new_pane = $(html);
-			new_pane.find('.large>a').click(function(){
-				var view = $(this).data('view');
-				if(!$('#sidebar_path_pane .large').hasClass(view)){
-					$('#sidebar_path_pane .large').removeClass('list all').addClass(view);
-				}
-			});
-
-			if(typeof base.queryVars.path != undefined){
+				//Make a jQuery object from the new pane's html - will make appending/prepending easier.
+				var new_pane = $(html);
+				new_pane.find('.large>a').click(function(){
+					var view = $(this).data('view');
+					if(!$('#sidebar_path_pane .large').hasClass(view)){
+						$('#sidebar_path_pane .large').removeClass('list all').addClass(view);
+					}
+				});
 				//We're on a path - show 1the current page's siblings, too.
 				//First, we need to find the structure of the current path
 				for(p in currentNode.incomingRelations){
@@ -286,67 +285,70 @@
 						break; //Alright, we can exit the loop now.
 					}
 				}
-			}
 
-			new_pane.find('li').click(function(e){
-				var slug = $(this).data('slug');
-				$('#info_panel .title, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
-				if($('#info_panel').data('slug')!==slug){
-					var top_offset = ($(this).offset().top + $('#sidebar_panes').position().top) - ($(this).height()/2);
-					$('#info_panel_arrow').css({
-						'top':(top_offset+4)+'px'
-					});
+				new_pane.find('li').click(function(e){
+					var slug = $(this).data('slug');
+					$('#info_panel .title, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
+					if($('#info_panel').data('slug')!==slug){
+						var top_offset = ($(this).offset().top + $('#sidebar_panes').position().top) - ($(this).height()/2);
+						$('#info_panel_arrow').css({
+							'top':(top_offset+4)+'px'
+						});
 
-					//Prepare yourself for some hot jQuery chaining action.
-					$('#info_panel').data('slug',slug)
-									.removeClass()
-									.addClass('overview')
-									.find('.overview_link')
-									.addClass('active')
-									.siblings('a')
-									.removeClass('active');
+						//Prepare yourself for some hot jQuery chaining action.
+						$('#info_panel').data('slug',slug)
+										.removeClass()
+										.addClass('overview')
+										.find('.overview_link')
+										.addClass('active')
+										.siblings('a')
+										.removeClass('active');
 
-					$('body').addClass('info_panel_open');
-					$('#info_panel .title').text('Loading...');
-					if(typeof base.loaded_nodes[slug] != 'undefined'){
-						base.showInfo(base.loaded_nodes[slug]);
+						$('body').addClass('info_panel_open');
+						$('#info_panel .title').text('Loading...');
+						if(typeof base.loaded_nodes[slug] != 'undefined'){
+							base.showInfo(base.loaded_nodes[slug]);
+						}else{
+							scalarapi.loadNode(
+			        			slug,
+			        			true,
+			        			function(json){
+			        				base.loaded_nodes[slug] = scalarapi.getNode(slug);
+			        				//console.log(base.loaded_nodes[slug]);
+			        				base.showInfo(base.loaded_nodes[slug]);
+			        			},
+			        			function(err){
+			        				//console.log(err);
+			        			},
+			        			1, null
+			        		);
+			        	}
 					}else{
-						scalarapi.loadNode(
-		        			slug,
-		        			true,
-		        			function(json){
-		        				base.loaded_nodes[slug] = scalarapi.getNode(slug);
-		        				//console.log(base.loaded_nodes[slug]);
-		        				base.showInfo(base.loaded_nodes[slug]);
-		        			},
-		        			function(err){
-		        				//console.log(err);
-		        			},
-		        			1, null
-		        		);
-		        	}
-				}else{
-					base.hideInfo();
-				}
-				e.stopPropagation();
-			});
+						base.hideInfo();
+					}
+					e.stopPropagation();
+				});
 
-			$('body>.bg_screen,body>.page,body>#info_panel>footer>.info_hide').click(function(e){
-				if($('body').hasClass('info_panel_open')){
-					$('body').removeClass('info_panel_open');
-					$('#info_panel').removeData('slug');	
-				}
-			});
+				$('body>.bg_screen,body>.page,body>#info_panel>footer>.info_hide').click(function(e){
+					if($('body').hasClass('info_panel_open')){
+						$('body').removeClass('info_panel_open');
+						$('#info_panel').removeData('slug');	
+					}
+				});
 
-			$('#sidebar #sidebar_panes').append(new_pane);
-			$('#sidebar_selector .path').addClass('enabled');
+				$('#sidebar #sidebar_panes').append(new_pane);
+				$('#sidebar_selector .path').addClass('enabled');
+			}
         }
 
         base.build_tags_pane = function(){
+        	
+        	var tags = currentNode.getRelations('tag', 'incoming', 'reverseindex');
+        	//Determine if we need the tags pane...
+        	console.log(tags);
         	base.icons.tags = '<span class="icon-tags"></span>';
 
         	var html = '<div class="pane" data-type="tags" id="sidebar_tags_pane"><ul class="tags"></ul></div>';
-
 
         	$('#sidebar #sidebar_panes').append($(html));	
 			$('#sidebar_selector .tags').addClass('enabled');
