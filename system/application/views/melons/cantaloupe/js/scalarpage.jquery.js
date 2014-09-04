@@ -70,7 +70,7 @@
 						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': !isMobile, 'details': page.mediaDetails, 'caption': link.attr( 'data-caption' ) });
 					}
 				}
-				if ( mediaelement.model.node.current.mediaSource.contentType == 'image' ) {
+				if (( mediaelement.model.node.current.mediaSource.contentType == 'image' ) && ( mediaelement.model.node.current.sourceFile.indexOf( 'criticalcommons.org' ) == -1 )) {
 					mediaelement.model.element.find( '.mediaObject' ).click( function() {
 						window.open( mediaelement.model.node.current.sourceFile, 'popout' );
 					} ).css( 'cursor', 'pointer' );
