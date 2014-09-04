@@ -892,7 +892,7 @@ function handleFlashVideoMetadata(data) {
 		 * Parses the media type to determine what kind of player to create.
 		 */
 		jQuery.MediaElementView.prototype.parseMediaType = function() {
-
+		
 			switch (this.model.mediaSource.contentType) {
 				
 				case 'image':
@@ -2660,7 +2660,7 @@ function handleFlashVideoMetadata(data) {
 			this.parentView.controllerOnly = true;
 			this.parentView.controllerHeight = 25;
 			
-			this.parentView.intrinsicDim.y = 25;
+			this.parentView.intrinsicDim.y = 45;
 			
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();

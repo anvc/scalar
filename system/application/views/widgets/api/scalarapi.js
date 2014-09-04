@@ -110,7 +110,7 @@ function ScalarAPI() {
 			{
 				string: navigator.userAgent,
 				subString: "Firefox",
-				identity: "Firefox"
+				identity: "Mozilla"
 			},
 			{
 				string: navigator.vendor,
@@ -578,7 +578,7 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'audio',
 			browserSupport: {
-				'Mozilla': {extensions:['wav'], format:'WAV', player:'QuickTime', specifiesDimensions:false},
+				'Mozilla': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Explorer': {extensions:['wav'], format:'WAV', player:'jPlayer', specifiesDimensions:false},
 				'MobileSafari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
