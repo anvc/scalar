@@ -180,6 +180,9 @@
 			
 			}
 			if ( media.options.caption != 'none' ) {
+				if ( node.current.source != null ) {
+					description += '<br><i>Source: ' + node.current.source + '</i>';
+				}
 				var descriptionPane = $('<div class="media_description pane">'+description+'</div>').appendTo(element);
 				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
 				descriptionTab.click(function() {
