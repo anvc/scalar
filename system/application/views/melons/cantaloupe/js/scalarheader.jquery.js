@@ -201,10 +201,8 @@
 		}
 
 		// Sign in
-		list.append( '<li id="user-item"><img src="' + this.options.root_url + '/images/user_icon.png" alt="Account button. Click to sign in." width="30" height="30" /></li>' );
-		$( '#user-item' ).click(function() {
-			document.location = addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe');
-		});
+		list.append( '<li id="user-item"><img src="' + this.options.root_url + '/images/user_icon.png" alt="Account menu. Roll over to show account options." width="30" height="30" /></li>' );
+		this.buildUserMenu();
 
 		// This is used to resize menus according to browser window size, to ensure they don't get too big
 		// and allow area for user to scroll the page behind the menu
@@ -489,9 +487,6 @@
 
 	}
 
-	/**
-	 * Constructs the import menu in the DOM.
-	 */
 	ScalarHeader.prototype.buildImportMenu = function() {
 
 		var listItem, subMenu, subMenuItem,
@@ -527,6 +522,21 @@
 
 		this.handleDelayedResize();
 
+	}
+	
+	ScalarHeader.prototype.buildUserMenu = function() {
+
+		var listItem,
+			menuLink = $( '#user-item' ),
+			menu = $('<ul id="user-menu" class="align-right"></ul>').appendTo( menuLink );
+
+		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
+			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign out</a></li>' ).appendTo( menu );
+		} else {
+			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign in</a></li>' ).appendTo( menu );
+			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/register?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Register</a></li>' ).appendTo( menu );
+		}
+		
 	}
 
     $.fn[pluginName] = function ( options ) {
