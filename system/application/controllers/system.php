@@ -31,7 +31,7 @@ class System extends MY_Controller {
 	public function System() {
 
 		parent::__construct();
-		
+
 		$segs = $this->uri->segment_array();
 		$this->base_url = confirm_slash(base_url()).implode('/',$segs);
 

@@ -78,7 +78,14 @@ class SendMail {
     
     private function domain_name() {
     	
-		if (!empty($_SERVER['HTTP_HOST'])) return $_SERVER['HTTP_HOST'];
+    	// Check DNS record
+		$dns = dns_get_record($_SERVER['HTTP_HOST']);
+		if (is_array($dns) && isset($dns[0]) && isset($dns[0]['target']) && !empty($dns[0]['target'])) {
+			return $dns[0]['target'];
+		}
+    	// Check hostname
+    	if (!empty($_SERVER['HTTP_HOST'])) return $_SERVER['HTTP_HOST'];
+		// Check server name
 		if (!empty($_SERVER['SERVER_NAME'])) return $_SERVER['SERVER_NAME'];
 		
     }
