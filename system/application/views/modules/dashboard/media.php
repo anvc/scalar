@@ -211,8 +211,8 @@
 						$reorder.find('a:first').click(function() {
 							if (!confirm('Are you sure you wish to re-order version numbers?  This might break links to specific versions in your book.')) return false;
 							$.get('api/reorder_versions', {content_id:content_id}, function(data) {
-								media_get_versions(content_id, the_link);
-								media_get_versions(content_id, the_link);
+								get_versions(content_id, the_link);  // close
+								get_versions(content_id, the_link);  // open
 							});
 						});					    
 						$the_link.html('Hide');

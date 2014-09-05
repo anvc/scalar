@@ -224,7 +224,7 @@ class Version_model extends MY_Model {
     	
     	$user_id = (int) $user_id;
     	$this->db->select('user');
-    	$this->db->from($this->version_table);
+    	$this->db->from($this->versions_table);
     	$this->db->where('version_id', $id);
     	$this->db->limit(1);
     	$query = $this->db->get();
