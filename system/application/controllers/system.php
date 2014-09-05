@@ -550,6 +550,9 @@ class System extends MY_Controller {
 			case 'get_versions':
 				$this->load->model('version_model', 'versions');  
 				$content_id =@ (int) $_REQUEST['content_id'];
+				$this->data['book'] = $this->books->get_by_content_id($content_id);
+				$this->set_user_book_perms();	
+				if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$content_id)) die ("{'error':'Invalid permissions'}");					
 				$this->data['content'] = $this->versions->get_all($content_id, null);	
 				break;
 			case 'get_content':
@@ -752,7 +755,7 @@ class System extends MY_Controller {
 			case 'reorder_versions':
 				$this->load->model('version_model', 'versions');  
 				$content_id =@ (int) $_REQUEST['content_id'];
-				$book = $this->books->get_by_content_id($content_id);
+				$this->data['book'] = $this->books->get_by_content_id($content_id);
 				$this->set_user_book_perms();	
 				if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$content_id)) die ("{'error':'Invalid permissions'}");		
 				$this->versions->reorder_versions($content_id);
@@ -803,6 +806,9 @@ class System extends MY_Controller {
 			case 'delete_content':
 				$this->load->model('page_model', 'pages');  		
 				$this->load->model('version_model', 'versions');	
+				$book_id =@ (int) $_REQUEST['book_id'];
+				$this->data['book'] = $this->books->get($book_id);		
+				$this->set_user_book_perms();		
 				$content_ids = explode(',',@$_POST['content_ids']);
 				$j = 0;
 				// Scrub the array
@@ -826,14 +832,10 @@ class System extends MY_Controller {
 					$j++;
 				}		
 				foreach ($content_ids as $content_id) {
-					$book = $this->books->get_by_content_id($content_id);
-					$this->set_user_book_perms();
 					if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$content_id)) die ("{'error':'Invalid permissions'}");
 					$this->pages->delete($content_id);
 				}
 				foreach ($version_ids as $version_id) {
-					$book = $this->books->get_by_version_id($version_id);
-					$this->set_user_book_perms();
 					if (!$this->login_is_book_admin() && !$this->versions->is_owner($this->data['login']->user_id,$version_id)) die ("{'error':'Invalid permissions'}");				
 					$this->versions->delete($version_id);
 				}

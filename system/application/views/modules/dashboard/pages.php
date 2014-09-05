@@ -146,6 +146,7 @@
 			
 			var data = {};
 			data.action = 'delete_content';
+			data.book_id = parseInt($('select[name="book_id"]').val());
 			data.content_ids = content_ids_to_delete.join(','); 
 			data.version_ids = version_ids_to_delete.join(','); 
 			$.post('api/delete_content', data, function(data) {
