@@ -1,5 +1,16 @@
 <?php
 
+function array_with_strings_to_multi_array($arr=array(), $default_key='name') {
+	
+	foreach ($arr as $key => $value) {
+		if (empty($value)) continue;
+		if (!is_array($value)) $value = array($default_key => $value);
+		$arr[$key] = $value;
+	}
+	return $arr;
+	
+}
+
 function sort_contributors($a, $b) {
 	
     if ($a->sort_number == $b->sort_number) {

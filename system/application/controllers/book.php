@@ -85,7 +85,7 @@ class Book extends MY_Controller {
 		if (empty($this->data['melon'])) $this->data['melon'] = $this->fallback_melon;
 		$this->load_melon_config($this->data['melon']);
 		// Init
-		$this->data['views'] = $this->config->item('views');
+		$this->data['views'] = array_with_strings_to_multi_array($this->config->item('views'));
 		$this->data['view'] = key($this->data['views']);
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null;

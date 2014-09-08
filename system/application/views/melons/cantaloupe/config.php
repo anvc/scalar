@@ -5,14 +5,14 @@ $config['arbor'] = 'html5_RDFa';
 
 // Array of views; leave value empty and it won't be displayed as a default view option in the editor
 $config['views'] = array(
-			'plain' => 'Basic (This page\'s text and media interspersed)',
-			'image_header' => 'Image Header (This page\'s background image shown as a header)',
-			'splash' => 'Splash (This page\'s background image shown full screen w/ title at the bottom)',
-			'book_splash' => 'Book Splash (This page\'s background image shown full screen w/ book title and author at the bottom)',
-			'gallery' => 'Media Gallery (Media contained or tagged by this page shown in a gallery)',
-			'structured_gallery' => 'Structured Media Gallery (Media contained or tagged up to two levels deep shown in an indexed gallery)',
-			'iframe' => 'IFrame (Page title hidden, content displayed at full width, ideal taking over a view with iframe content)',
-			'google_maps' => 'Google Map (Plots any page with "spatial" metadata, along with its path/tag contents)',
+			'plain' => array('name'=>'Basic','description'=>'This page\'s text and media interspersed','image'=>''),
+			'image_header' => array('name'=>'Image Header','description'=>'This page\'s background image shown as a header','image'=>''),
+			'splash' => array('name'=>'Splash','description'=>'This page\'s background image shown full screen w/ title at the bottom','image'=>''),
+			'book_splash' => array('name'=>'Book Splash','description'=>'This page\'s background image shown full screen w/ book title and author at the bottom','image'=>''),
+			'gallery' => array('name'=>'Media Gallery','description'=>'Media contained or tagged by this page shown in a gallery','image'=>''),
+			'structured_gallery' => array('name'=>'Structured Media Gallery','description'=>'Media contained or tagged up to two levels deep shown in an indexed gallery','image'=>''),
+			'iframe' => array('name'=>'IFrame','description'=>'Page title hidden, content displayed at full width, ideal taking over a view with iframe content','image'=>''),
+			'google_maps' => array('name'=>'Google Map','description'=>'Plots any page with "spatial" metadata, along with its path/tag contents','image'=>''),
 			'edit' => '',
 			'annotation_editor' => ''
 		);

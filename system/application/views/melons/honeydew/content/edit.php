@@ -106,17 +106,22 @@ endif;
 	<!--  default view -->
 	<tr id="default_view" class="type_composite">
 	  <td class="field field_middle spacer">Default view</td>
-	  <td class="spacer" valign="middle"><select name="scalar:default_view" class="generic_button large" id="default_view_select"><?
-			foreach ($views as $view_slug => $view_name) {
-				if (empty($view_name)) continue;
+	  <td class="spacer" valign="middle">
+	    <!-- TODO: move from <select> to pulldown plugin to support images and better formatting -->
+	    <select name="scalar:default_view" class="generic_button large" id="default_view_select"><?
+			foreach ($views as $view_slug => $view_arr) {
+				if (empty($view_arr)) continue;
 				echo '<option value="'.strtolower($view_slug).'" ';
 				if (isset($page->version_index) && $page->versions[$page->version_index]->default_view==$view_slug) echo ' SELECTED';
 				echo '>';
-				echo $view_name;
+				if (isset($view_arr['image']) && !empty($view_arr['image'])) echo '<img align="absmiddle" src="'.$view_arr['image'].'" />';
+				echo (isset($view_arr['name']) && !empty($view_arr['name'])) ? $view_arr['name'] : strtoupper($view_slug);
+				if (isset($view_arr['description']) && !empty($view_arr['description'])) echo ' ('.$view_arr['description'].')';
 				echo '</option>'."\n";
 			}
-			?></select>
-		</td>
+			?>
+        </select>
+      </td>
 	</tr>
 
 	<!-- relationships -->
