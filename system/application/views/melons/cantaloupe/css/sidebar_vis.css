@@ -29,6 +29,10 @@ body.sidebar_vis.fullscreen_page>.page>span{
 body.sidebar_expanded.fullscreen_page>.page{
 	transform: translateX(15rem);
 }
+body.sidebar_full.fullscreen_page>.page{
+	transform: translateX(0rem);
+	left: 0px;
+}
 body.sidebar_vis #sidebar, body.sidebar_vis #info_panel{
 	font-family: 'Lato', Arial, sans-serif !important;
 }
@@ -190,6 +194,8 @@ body.sidebar_vis #sidebar .pane ul li{
 	width: 180px;
 	display: table;
 	cursor: pointer;
+	padding-top: 4px;
+	padding-bottom: 4px;
 }
 body.sidebar_vis #sidebar .pane ul li .title{
 	font-size: .75em;
@@ -252,9 +258,6 @@ body.sidebar_expanded #sidebar{
 	background-color: rgba(238, 238, 238, 0.75);
 	width: 20rem;
 }
-body.sidebar_expanded.info_panel_open #sidebar{
-	width: 20.5rem;
-}
 body.sidebar_expanded.info_panel_open #sidebar #sidebar_inside>header .controls{
 	text-indent: 0.25rem
 }
@@ -306,7 +309,7 @@ body.sidebar_vis #info_panel.metadata #metadata_info.section{
 	display: block;
 }
 body.sidebar_expanded #info_panel{
-	left: 20.5rem;
+	left: 20rem;
 }
 body.info_panel_open #info_panel{
 	width: 22rem;
@@ -346,19 +349,31 @@ body.sidebar_vis #info_panel_arrow{
 	height: 0px;
 	border-top: 1em transparent solid;
 	border-bottom: 1em transparent solid;
-	position: absolute;
+	position: fixed;
 	top: 50%;
-	left: -0em;
+	left: 3em;
 	z-index: 3;
-	margin-top: -2.9em;
+	margin-top: -4.5rem;
 	border-left: 0em #ddd solid;
 	border-right: 0em #ddd solid;
+    transition-duration: .125s;
+    -webkit-transition-duration: .125s;
+    -moz-transition-duration: .125s;
+    transition-timing-function: ease-in-out;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+}
+body.sidebar_vis #info_panel.tall #info_panel_arrow{
+	margin-top: -6.5rem;
 }
 body.info_panel_open #info_panel_arrow{
 	opacity: 1;
 	z-index: 3;
-	left: -1em;
+	left: 2.5em;
 	border-right: 1em #ddd solid;
+}
+body.sidebar_expanded.info_panel_open #info_panel_arrow{
+	left: 11.5em;
 }
 body.sidebar_full #info_panel{
 	left: 0px;
@@ -674,7 +689,7 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 		left: 0px;
 		top: 5rem;
 	}
-	body.sidebar_expanded.fullscreen_page>.page{
+	body.sidebar_expanded.sidebar_full.fullscreen_page>.page{
 		transform: translateX(0px);
 	}
 	body.sidebar_vis #sidebar_inside>header.selector_open #sidebar_selector{

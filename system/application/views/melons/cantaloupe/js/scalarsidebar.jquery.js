@@ -7,6 +7,9 @@
         base.container;
         base.queryVars;
         base.current_pane;
+
+        base.hovered_item;
+        base.infobar_timeout;
         
         base.icons = {};
         base.loaded_nodes = {};
@@ -111,6 +114,11 @@
 						} else if ((base.lastScroll - currentScroll) > 10) {
 							$('#sidebar, #info_panel').removeClass('tall');
 						}
+						var hovered_item = base.hovered_item;
+						var top_offset = ((hovered_item.offset().top + $('#sidebar_panes').position().top) - (hovered_item.height()/2))-$(window).scrollTop();
+						$('#info_panel_arrow').css({
+							'top':(top_offset+8)+'px'
+						});
 						base.lastScroll = currentScroll;
 					});
 					$('#header').mouseenter(function(){
@@ -202,155 +210,193 @@
         };
 
         base.build_paths_pane = function(){
-        	if(typeof base.queryVars.path != 'undefined'){
-        		base.icons['path'] = '<span class="icon-path"></span>';
-	        	var html = '<div class="pane" data-type="path" id="sidebar_path_pane">'+
-	        					'<div class="smallmed"><ul class="path"></ul></div>'+
-	        					'<div class="large list">'+
-	        						'<header><a class="all_link" data-view="all">View All</a><a class="list_link" data-view="list">List View</a></header>'+
-	        						'<div class="view" id="path_list_view"></div>'+
-	        						'<div class="view" id="path_all_view"></div>'+
-	        					'</div>'+
-	        				'</div>';
+        	var paths = currentNode.getRelations('path', 'incoming', 'reverseindex');
+        	base.icons['path'] = '<span class="icon-path"></span>';
+        	var html = '<div class="pane" data-type="path" id="sidebar_path_pane">'+
+        					'<div class="smallmed"><ul class="current path"></ul></div>'+
+        					'<div class="large list">'+
+        						'<header><a class="all_link" data-view="all">View All</a><a class="list_link" data-view="list">List View</a></header>'+
+        						'<div class="view" id="path_list_view"></div>'+
+        						'<div class="view" id="path_all_view"></div>'+
+        					'</div>'+
+        				'</div>';
 
-				//Make a jQuery object from the new pane's html - will make appending/prepending easier.
-				var new_pane = $(html);
-				new_pane.find('.large>a').click(function(){
-					var view = $(this).data('view');
-					if(!$('#sidebar_path_pane .large').hasClass(view)){
-						$('#sidebar_path_pane .large').removeClass('list all').addClass(view);
-					}
-				});
-				//We're on a path - show 1the current page's siblings, too.
-				//First, we need to find the structure of the current path
-				for(p in currentNode.incomingRelations){
-					var parent = currentNode.incomingRelations[p].body;
-					if(parent.slug == base.queryVars.path){
-						var before_current = true; //We'll flip this once we come to the current page;
-
-						// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
-						// We could probably write a custom sort function, but in the end, this is a faster process.
-						var relations_list = {};
-						for(r in parent.outgoingRelations){
-							var path_step = parent.outgoingRelations[r];
-							relations_list[path_step.index] = path_step;
-						}
-
-						var show_icon = function(slug, new_item){
-							var item = base.loaded_nodes[slug];
-							var item_html = '<span class="sidebar_icon ';
-
-							item_html += base.getIconByType(item.current.mediaSource.contentType);
-							
-							item_html += '" style="display: none;"></span>';
-
-							$(item_html).prependTo(new_item).fadeIn('slow');
-						}
-						
-						//Alright, iterate through our properly ordered list.
-						for(r in relations_list){
-							var path_step = relations_list[r];
-							var node_info = scalarapi.getNode(path_step.target.slug);
-							//console.log(node_info);
-							//Same as the active page, pretty much.
-							var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li></ul></div>';
-
-							var new_item = $(item_html).appendTo(new_pane.find('ul.path'));
-
-							if(path_step.target.slug == currentNode.slug){
-								new_item.addClass('active');
-							}
-							var slug = path_step.target.slug;
-
-							if(slug == currentNode.slug){
-								//We already have this page loaded - let's show it now.
-								base.loaded_nodes[slug] = currentNode;
-								show_icon(slug, new_item);
-							}else{
-								//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-								(function(slug, new_item){
-									scalarapi.loadNode(
-										slug,
-										true,
-										function(json){
-											base.loaded_nodes[slug] = scalarapi.getNode(slug);
-											show_icon(slug, new_item);	
-										},
-										function(err){},
-										1, null);
-								})(slug, new_item);
-							}
-
-						}	
-						break; //Alright, we can exit the loop now.
-					}
+			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
+			var new_pane = $(html);
+			new_pane.find('.large>a').click(function(){
+				var view = $(this).data('view');
+				if(!$('#sidebar_path_pane .large').hasClass(view)){
+					$('#sidebar_path_pane .large').removeClass('list all').addClass(view);
 				}
+			});
+			//We're on a path - show 1the current page's siblings, too.
+			//First, we need to find the structure of the current path
+			for(p in paths){
+				var parent = currentNode.incomingRelations[p].body;
+				if(parent.slug == base.queryVars.path){
+					
+					$(new_pane).find('ul.current.path').data('path',parent.slug);
 
-				new_pane.find('li').click(function(e){
-					var slug = $(this).data('slug');
-					$('#info_panel .title, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
-					if($('#info_panel').data('slug')!==slug){
-						var top_offset = ($(this).offset().top + $('#sidebar_panes').position().top) - ($(this).height()/2);
-						$('#info_panel_arrow').css({
-							'top':(top_offset+4)+'px'
-						});
+					var before_current = true; //We'll flip this once we come to the current page;
 
-						//Prepare yourself for some hot jQuery chaining action.
-						$('#info_panel').data('slug',slug)
-										.removeClass()
-										.addClass('overview')
-										.find('.overview_link')
-										.addClass('active')
-										.siblings('a')
-										.removeClass('active');
+					// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
+					// We could probably write a custom sort function, but in the end, this is a faster process.
+					var relations_list = {};
+					for(r in parent.outgoingRelations){
+						var path_step = parent.outgoingRelations[r];
+						relations_list[path_step.index] = path_step;
+					}
 
-						$('body').addClass('info_panel_open');
-						$('#info_panel .title').text('Loading...');
-						if(typeof base.loaded_nodes[slug] != 'undefined'){
-							base.showInfo(base.loaded_nodes[slug]);
+					var show_icon = function(slug, new_item){
+						var item = base.loaded_nodes[slug];
+						var item_html = '<span class="sidebar_icon ';
+
+						item_html += base.getIconByType(item.current.mediaSource.contentType);
+						
+						item_html += '" style="display: none;"></span>';
+
+						$(item_html).prependTo(new_item).fadeIn('slow');
+					}
+					
+					//Alright, iterate through our properly ordered list.
+					for(r in relations_list){
+						var path_step = relations_list[r];
+						var node_info = scalarapi.getNode(path_step.target.slug);
+						//console.log(node_info);
+						//Same as the active page, pretty much.
+						var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li></ul></div>';
+
+						var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
+
+						if(path_step.target.slug == currentNode.slug){
+							new_item.addClass('active');
+						}
+						var slug = path_step.target.slug;
+
+						if(slug == currentNode.slug){
+							//We already have this page loaded - let's show it now.
+							base.loaded_nodes[slug] = currentNode;
+							show_icon(slug, new_item);
 						}else{
-							scalarapi.loadNode(
-			        			slug,
-			        			true,
-			        			function(json){
-			        				base.loaded_nodes[slug] = scalarapi.getNode(slug);
-			        				//console.log(base.loaded_nodes[slug]);
-			        				base.showInfo(base.loaded_nodes[slug]);
-			        			},
-			        			function(err){
-			        				//console.log(err);
-			        			},
-			        			1, null
-			        		);
-			        	}
+							//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
+							(function(slug, new_item){
+								scalarapi.loadNode(
+									slug,
+									true,
+									function(json){
+										base.loaded_nodes[slug] = scalarapi.getNode(slug);
+										show_icon(slug, new_item);	
+									},
+									function(err){},
+									1, null);
+							})(slug, new_item);
+						}
+
+					}	
+					break; //Alright, we can exit the loop now.
+				}
+			}
+			console.log(isMobile);
+			var load_show_info = function(slug){
+				//Prepare yourself for some hot jQuery chaining action.
+					$('#info_panel').data('slug',slug)
+									.removeClass()
+									.addClass('overview')
+									.find('.overview_link')
+									.addClass('active')
+									.siblings('a')
+									.removeClass('active');
+
+					$('body').addClass('info_panel_open');
+					$('#info_panel .title').text('Loading...');
+					if(typeof base.loaded_nodes[slug] != 'undefined'){
+						base.showInfo(base.loaded_nodes[slug]);
+					}else{
+						scalarapi.loadNode(
+		        			slug,
+		        			true,
+		        			function(json){
+		        				base.loaded_nodes[slug] = scalarapi.getNode(slug);
+		        				//console.log(base.loaded_nodes[slug]);
+		        				base.showInfo(base.loaded_nodes[slug]);
+		        			},
+		        			function(err){
+		        				//console.log(err);
+		        			},
+		        			1, null
+		        		);
+		        	}
+			}
+			new_pane.find('li').mouseenter(function(e){
+				clearTimeout(base.infobar_timeout);
+				base.hovered_item = $(this);
+				var slug = $(this).data('slug');
+				$('#info_panel .title, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
+				var top_offset = (($(this).offset().top + $('#sidebar_panes').position().top) - ($(this).height()/2))-$(window).scrollTop();
+				$('#info_panel_arrow').css({
+					'top':(top_offset+8)+'px'
+				});
+
+				load_show_info(slug);
+				e.stopPropagation();
+			}).mouseleave(function(){
+				base.infobar_timeout = setTimeout(function(){
+					base.hovered_item = null;
+					base.hideInfo();
+				},500);
+			}).click(function(){
+				var slug = $(this).data('slug');
+				if(isMobile){
+					if($('#info_panel').data('slug')!==slug){
+						load_show_info(slug);
 					}else{
 						base.hideInfo();
 					}
-					e.stopPropagation();
-				});
+				}else{
+					var node = scalarapi.getNode(slug);
+					var path = $(this).parent('ul.path').data('path');
+					window.location = node.url+'?path='+path;
+				}
+			});
 
-				$('body>.bg_screen,body>.page,body>#info_panel>footer>.info_hide').click(function(e){
-					if($('body').hasClass('info_panel_open')){
-						$('body').removeClass('info_panel_open');
-						$('#info_panel').removeData('slug');	
-					}
-				});
+			$('#info_panel').mouseenter(function(e){
+				clearTimeout(base.infobar_timeout);
+			}).mouseleave(function(){
+				base.infobar_timeout = setTimeout(function(){
+					base.hovered_item = null;
+					base.hideInfo();
+				},500);
+			});
 
-				$('#sidebar #sidebar_panes').append(new_pane);
-				$('#sidebar_selector .path').addClass('enabled');
-			}
+			$('body>.bg_screen,body>.page,body>#info_panel>footer>.info_hide').click(function(e){
+				if($('body').hasClass('info_panel_open')){
+					$('body').removeClass('info_panel_open');
+					$('#info_panel').removeData('slug');	
+				}
+			});
+
+			$('#sidebar #sidebar_panes').append(new_pane);
+			$('#sidebar_selector .path').addClass('enabled');
         }
 
         base.build_tags_pane = function(){
         	
         	var tags = currentNode.getRelations('tag', 'incoming', 'reverseindex');
         	//Determine if we need the tags pane...
-        	console.log(tags);
         	base.icons.tags = '<span class="icon-tags"></span>';
 
-        	var html = '<div class="pane" data-type="tags" id="sidebar_tags_pane"><ul class="tags"></ul></div>';
+        	var html = '<div class="pane" data-type="tags" id="sidebar_tags_pane"><div class="smallmed"><ul class="current tags"></ul></div></div>';
+        	var new_pane = $(html);
+        	for(t in tags){
+        		var tag = tags[t];
+				console.log(tag);
 
-        	$('#sidebar #sidebar_panes').append($(html));	
+        		var item_html = '<li class="active" data-url="'+tag.body.url+'" data-slug="'+tag.body.slug+'"><span class="sidebar_icon"><span class="icon-tags"></span></span><div class="title">'+tag.body.current.title+'</div></li></ul></div>';
+
+				var new_item = $(item_html).appendTo(new_pane.find('ul.current.tags'));
+        	}
+
+        	$('#sidebar #sidebar_panes').append(new_pane);	
 			$('#sidebar_selector .tags').addClass('enabled');
         }
         base.build_index_pane = function(){
