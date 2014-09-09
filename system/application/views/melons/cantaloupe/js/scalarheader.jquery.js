@@ -532,20 +532,10 @@
 			menu = $('<ul id="user-menu" class="align-right"></ul>').appendTo( menuLink );
 
 		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
-			// avatar links to account tab in dashboard
-			if ( !isNaN( this.bookId ) ) {
-				$( '#user-item' ).click(function() {
-					document.location = addTemplateToURL( system_uri + '/dashboard?book_id=' + me.bookId + '&zone=user#tabs-user', 'cantaloupe');
-				});
-			}
 			listItem = $( '<li><a href="' + addTemplateToURL( system_uri + '/dashboard?book_id=' + me.bookId + '&zone=user#tabs-user', 'cantaloupe') + '">Account</a></li>' ).appendTo( menu );
 			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign out</a></li>' ).appendTo( menu );
 			
 		} else {
-			// avatar links to log in screen
-			$( '#user-item' ).click(function() {
-				document.location = addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe');
-			});
 			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign in</a></li>' ).appendTo( menu );
 			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/register?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Register</a></li>' ).appendTo( menu );
 		}
