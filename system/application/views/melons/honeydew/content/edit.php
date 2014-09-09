@@ -113,7 +113,6 @@ endif;
 	<tr id="default_view" class="type_composite">
 	  <td class="field" valign="top">Default view</td>
 	  <td class="spacer" valign="top">
-	    <!-- TODO: move from <select> to pulldown plugin to support images and better formatting -->
 	    <select name="scalar:default_view" class="generic_button large" id="default_view_select" onchange="updateViewInfo()"><?
 			foreach ($views as $view_slug => $view_arr) {
 				if (empty($view_arr)) continue;
@@ -411,16 +410,16 @@ endif;
   	<td valign="top">
   		<table cellspacing="0" cellpadding="0" class="styling_table">
   		<tr class="styling_sub"><!-- thumbnail -->
-  			<td>Thumbnail</td>	
+  			<td valign="top">Thumbnail</td>	
   			<td colspan="2">
-  			<div>Choose an image from your library:</div>
+  			<p>Choose an image from your library:</p>
   			<select id="choose_thumbnail" style="margin:3px 0px 3px 0px; max-width:100%;"><option value="">Choose an image</option><?
   				foreach ($book_images as $book_image_row) {
   					$slug_version = get_slug_version($book_image_row->slug);
   					echo '<option value="'.$book_image_row->versions[$book_image_row->version_index]->url.'" '.((@$page->thumbnail==$book_image_row->versions[$book_image_row->version_index]->url)?'selected':'').'>'.$book_image_row->versions[$book_image_row->version_index]->title.((!empty($slug_version))?' ('.$slug_version.')':'').'</option>';
   				}
-  			?></select><br />
-  			Or enter any URL:<br />
+  			?></select><br /><br />
+  			<p>Or enter any URL:</p>
   			<input type="text value="" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" style="margin:3px 0px 3px 0px; width:100%;" />
   			</td>
   		</tr>
