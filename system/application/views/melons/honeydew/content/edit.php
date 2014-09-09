@@ -104,23 +104,38 @@ endif;
 	</tr>
 
 	<!--  default view -->
+	<script type="text/javascript">
+		function updateViewInfo() {
+			$( '#view-thumbnail' ).attr( 'src', $('#approot').attr('href') + 'views/melons/honeydew/images/' + $( 'option[value="' + $('#default_view_select').val() + '"]' ).attr( 'data-image' ) );
+			$( '#view-description' ).html( $( 'option[value="' + $('#default_view_select').val() + '"]' ).attr( 'data-description' ) );
+		}
+	</script>
 	<tr id="default_view" class="type_composite">
-	  <td class="field field_middle spacer">Default view</td>
-	  <td class="spacer" valign="middle">
+	  <td class="field" valign="top">Default view</td>
+	  <td class="spacer" valign="top">
 	    <!-- TODO: move from <select> to pulldown plugin to support images and better formatting -->
-	    <select name="scalar:default_view" class="generic_button large" id="default_view_select"><?
+	    <select name="scalar:default_view" class="generic_button large" id="default_view_select" onchange="updateViewInfo()"><?
 			foreach ($views as $view_slug => $view_arr) {
 				if (empty($view_arr)) continue;
 				echo '<option value="'.strtolower($view_slug).'" ';
-				if (isset($page->version_index) && $page->versions[$page->version_index]->default_view==$view_slug) echo ' SELECTED';
+				if (isset($page->version_index) && $page->versions[$page->version_index]->default_view==$view_slug) echo ' SELECTED ';
+				if (isset($view_arr['image']) && !empty($view_arr['image'])) echo 'data-image="'.$view_arr['image'].'"';
+				if (isset($view_arr['description']) && !empty($view_arr['description'])) echo ' data-description="'.$view_arr['description'].'"';
 				echo '>';
-				if (isset($view_arr['image']) && !empty($view_arr['image'])) echo '<img align="absmiddle" src="'.$view_arr['image'].'" />';
 				echo (isset($view_arr['name']) && !empty($view_arr['name'])) ? $view_arr['name'] : strtoupper($view_slug);
-				if (isset($view_arr['description']) && !empty($view_arr['description'])) echo ' ('.$view_arr['description'].')';
 				echo '</option>'."\n";
 			}
 			?>
         </select>
+        <?
+        	if ('cantaloupe' == $book->template) {
+  				echo( '<div class="view_description">'."\n" );
+	        	echo( '<img id="view-thumbnail" src="" width="90px"/>'."\n" );
+	        	echo( '<p id="view-description"></p>'."\n" );
+        		echo( '</div>'."\n" );
+        	}
+        ?>
+		<script type="text/javascript" type="text/javascript">updateViewInfo();</script>
       </td>
 	</tr>
 

@@ -140,6 +140,9 @@ fieldset.form_section legend {padding-left:10px; padding-right:10px;}
 }
 .close_link a:hover {text-decoration:none}
 
+.view_description { margin-top: 10px; font-size: smaller; max-width: 500px; }
+.view_description img { margin-right: 10px; margin-bottom: 10px; float: left; }
+
 /* Cover */
 
 .cover {padding: 1em 0 1.6em 0; line-height:140%; margin-top:8px; margin-bottom:20px;}
