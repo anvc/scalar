@@ -66,7 +66,7 @@
 
 		var queryVars = scalarapi.getQueryVars( document.location.href );
 		if ( queryVars.action == 'comment_saved' ) {
-			this.bodyContent.prepend( '<div class="alert alert-success heading_font"><strong>Your comment has been saved and is now awaiting moderation.</strong> Thank you for your contribution!</div>' )
+			this.bodyContent.prepend( '<div class="alert alert-success heading_font"><span class="heading_weight">Your comment has been saved and is now awaiting moderation.</span> Thank you for your contribution!</div>' )
 		}
 
 		this.modal.on('shown.bs.modal', function() { me.firstFocus() });
@@ -116,7 +116,7 @@
 			relation = relations[i];
 			container = $('<div class="comment"></div>').appendTo(this.results);
 			var date = new Date(relation.properties.datetime);
-			container.append('<h3 class="heading_font"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+'</div>');
+			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+'</div>');
 		}
 
 		if (relations.length > 0) {
@@ -155,7 +155,7 @@
 		var me = this;
 
 		this.userReply = $('<div class="comment_form"></div>').appendTo(this.bodyContent);
-		this.userReply.append('<h3 class="heading_font">Add your voice</h3>');
+		this.userReply.append('<h3 class="heading_font heading_weight">Add your voice</h3>');
 		this.userReply.append('<p id="checking_logged_in_status">Checking your signed in status…</p>');
 		this.userReply.append('<p id="commenter_logged_in" style="display:none;">You are signed in as <a tabindex="'+(++this.tabIndex)+'" title="Your user page" href=""></a> (<a tabindex="'+(++this.tabIndex)+'" href="javascript:void(null);" title="Logout">Sign out</a>).<br />Enter your comment below. Submissions are moderated. Please be respectful.</p>');
 		this.userReply.append('<p id="commenter_anonymous" style="display:none;">To comment, enter your name and text below (you can also <a tabindex="'+(++this.tabIndex)+'" href="'+addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe')+'">sign in</a> to use your Scalar account).<br />Comments are moderated. Please be respectful.</p>');

@@ -50,7 +50,7 @@
 		this.element.addClass('dialog visualizations');
 		
 		var header = $('<div class="dialog_header heading_font"></div>').appendTo(this.element);
-		header.append('<h2 class="heading_font">Visualizations</h2>');
+		header.append('<h2 class="heading_font heading_weight">Visualizations</h2>');
 		var buttons = $('<div class="right"></div>').appendTo(header);
 		addIconBtn(buttons, 'close_icon.png', 'close_icon_hover.png', 'Close');
 		buttons.find('[title="Close"]').click( function() { me.hideVisualizations(); } );

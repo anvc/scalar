@@ -345,7 +345,7 @@
 			addIncomingComments: function() {
 				var comments = currentNode.getRelatedNodes('comment', 'incoming');
 				//$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
-				$('article').append('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div></div>');
+				$('article').append('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>'+((comments.length > 0) ? comments.length : '&nbsp;')+'</strong></div></div>');
 				var commentDialogElement = $('<div></div>').appendTo('body');
 				commentDialog = commentDialogElement.scalarcomments( { root_url: modules_uri+'/cantaloupe'} );
 				$('.reply_link').click(function() {
@@ -424,7 +424,6 @@
 				var node = scalarapi.getNode( noteViewer.data( 'slug' ) );
 				if ( node != null ) {
 					noteViewer.empty();
-					//noteViewer.append( '<h5>' + node.getDisplayTitle() + '</h5>' );
 					if ( node.current.content != null ) {
 						noteViewer.append( node.current.content );
 					}
@@ -943,7 +942,7 @@
 			addTemplateLinks($('article'), 'cantaloupe');
 	
 		  	$('body').addClass('body_font');
-		  	$('h1, h2, h3, h4, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font');
+		  	$('h1, h2, h3, h4, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font heading_weight');
 		  	
 		  	/*
 			$( document ).ready( function() {

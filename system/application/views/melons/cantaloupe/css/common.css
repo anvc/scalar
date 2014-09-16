@@ -5,10 +5,11 @@
 
 /* Fonts */
 .heading_font { font-family: 'Lato', Arial, sans-serif !important; }
+.heading_font b, .heading_font strong { font-weight: 900; }
+.heading_weight { font-weight: 900; }
 .body_font { font-family: Georgia, Times, serif !important; }
 .caption_font { font-family: 'Lato', Arial, sans-serif !important; }
-
-.heading_font b, .heading_font strong { font-weight: 900; }
+.caption_font b, .caption_font strong { font-weight: 900; }
 
 body { visibility: hidden; background-repeat: no-repeat; background-position: -9999px -9999px; }
 
@@ -21,7 +22,6 @@ h1 {
     line-height: 6rem;
     margin-top: 2.4rem;
     margin-bottom: 4.8rem;
-    font-weight: 900;
 }
 
 h2 {
@@ -29,7 +29,6 @@ h2 {
     line-height: 4.8rem;
     margin-top: 4.8rem;
     margin-bottom: 2.4rem;
-    font-weight: 900;
 }
 
 h3, .relationships h1 {
@@ -37,7 +36,6 @@ h3, .relationships h1 {
     line-height: 2.4rem;
     margin-top: 2.4rem;
     margin-bottom: 1.2rem;
-    font-weight: 900;
 }
 
 h4 {
@@ -45,7 +43,6 @@ h4 {
     line-height: 2.4rem;
     margin-top: 2.4rem;
     margin-bottom: 1.2rem;
-    font-weight: 900;
 }
 
 .page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
@@ -119,7 +116,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	transform: translateY( -40px );
 }
 
-#header #book-title { font-weight: 900; padding: 0; margin: 0; }
+#header #book-title { padding: 0; margin: 0; }
 #book-title-item { width: inherit; padding: 0; }
 #book-title-item:hover { background-color: inherit; color: inherit; }
 #book-title-item a { display: inline; }
@@ -327,8 +324,6 @@ li.divider-above { border-top: 1px dotted #888; }
 	display: none;
 }
 
-.note_viewer h5 { font-size: 1.4rem; font-weight: 900; margin-bottom: 1.2rem; }
-
 
 /* --- PAGE --- */
 
@@ -399,8 +394,6 @@ a:hover { text-decoration: underline; }
 .dialog .body_copy { margin-top: 10rem; max-width: none; padding-left: 3.6rem; padding-right: 3.6rem; }
 /*.help .body_copy { margin-top: 10rem; }*/
 
-.nav-pills > li > a { font-weight: 900; border-radius: 1.4rem; padding: .4rem 1.2rem .4rem 1.2rem; }
-
 .control_bar, {
 	line-height: 4.8rem;
 	border-top: 1px solid #ddd;
@@ -411,8 +404,6 @@ a:hover { text-decoration: underline; }
 .page .control_bar { margin-left: 7.2rem; margin-right: 7.2rem; }
 .control_bar .right { float: right; padding: 1rem 0 1rem 0; }
 .control_bar img { margin-left: 1.2rem; }
-.toggle_btn { font-weight: 900; padding: .4rem 1.2rem .4rem 1.2rem; border-radius: 1.4rem; cursor: pointer; }
-.toggle_btn.on { background-color: #b3b5b7; }
 
 #gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; }
 #gallery_content .thumb { margin-right: 0.7rem; margin-bottom: 0.7rem; cursor: pointer; }
@@ -763,7 +754,6 @@ a.media_info {
 #incoming_comments, #outgoing_comments { padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
 #comment_control {
 	color: #a6a6a6;
-	font-weight: 900;
 	background: url(images/comments.png) no-repeat;
 	line-height: 2.7rem;
 	padding-left: 4rem;

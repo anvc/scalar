@@ -32,7 +32,6 @@
 		}
 	
 		var element = e;
-		var controlBar;
 		var mediaContainer;
 		var historyBtn;
 		var shrinkBtn;
@@ -96,8 +95,6 @@
 			},
 			
 			sortCollection: function(collection, method) {
-			
-				console.log( 'sort' );
 				
 				switch (method) {
 				
@@ -132,7 +129,6 @@
 			
 				if (mode != this.currentDisplayMode) {
 					this.currentDisplayMode = mode;
-					controlBar.find('.toggle_btn').removeClass('on');
 					$('#'+mode.toLowerCase()+'Btn').addClass('on');
 					gallery.update(mediaCollection);
 				}
@@ -234,7 +230,7 @@
 				if (node.current.description != null) {
 					block.prepend(' <div class="one_line_description">'+node.current.description+'</div>');
 				}
-				block.prepend('<h3 class="heading_font"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
+				block.prepend('<h3 class="heading_font heading_weight"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
 			
 			},
 			

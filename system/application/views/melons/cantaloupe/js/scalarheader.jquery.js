@@ -111,6 +111,7 @@
 		// Book title
 		$('#book-title').parent().wrap('<li id="book-title-item"><div><span></span></div></li>');
 		$('#book-title').html( $.trim( $( '#book-title' ).html() ) );
+		$('#book-title').addClass( 'heading_weight' );
 		list.append( $( '#book-title-item' ) );
 		addTemplateLinks($('#book_title'), 'cantaloupe');
 
