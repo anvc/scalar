@@ -21,11 +21,6 @@ $(window).ready(function() {
     	});
     });
 
-	$('#book_versions a').live('click', function(event, ui) {
-		$('.save_changes').fadeIn();
-		$(this).parent().parent().find('input[type="hidden"]').val('0');
-		$(this).parent().parent().addClass('removed');
-	});    
 	
 	var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 	var is_duplicatable = ('undefined'==typeof($title.children(":first").attr('data-duplicatable'))) ? 0 : 1;
@@ -116,8 +111,7 @@ $(window).ready(function() {
     });    
     
 });
-</script>			
-				
+</script>
 <?
 	if (empty($book)) {
 		echo 'Please select a book to manage using the pulldown menu above';
@@ -277,35 +271,11 @@ $(window).ready(function() {
 			//echo '<tr class="row_div"><td colspan="3"></td></tr>';	
 			// Availability
 			echo '<tr typeof="books" class="styling_sub">';
-			echo '<td><h4 class="content_title">Public/private</h4></td><td></td></tr>';
+			echo '<td><h4 class="content_title">Public/Private</h4></td><td></td></tr>';
 			echo '<tr>';
-			echo '<tr typeof="books">';
-			echo '<td><p>Availability</p>';
-			echo '</td>'."\n";
-			echo '<td style="vertical-align:middle;" colspan="2">';
-			echo '<p>Make URL public? &nbsp;<select name="url_is_public"><option value="0"'.(($row->url_is_public)?'':' selected').'>No</option><option value="1"'.(($row->url_is_public)?' selected':'').'>Yes</option></select></p>';
-			echo '<p>Display in Scalar indexes? &nbsp;<select name="display_in_index"><option value="0"'.(($row->display_in_index)?'':' selected').'>No</option><option value="1"'.(($row->display_in_index)?' selected':'').'>Yes</option></select></p>';
-			echo "</td>\n";
-			echo "</tr>\n";	
-			echo '<tr typeof="books">';
-			echo '<td><p>Joinability</p>';
-			echo '</td>'."\n";
-			echo '<td style="vertical-align:middle;" colspan="2">';
-			echo '<p>';
-			echo 'Allow requests to join book? &nbsp;<select id="joinable"><option value="0" selected>No</option><option value="1">Yes</option></select>';
-			echo '<br /><small>An email will be sent to you when a user requests book authorship</small>';
-			echo '</p>';
-			echo "</td>\n";
-			echo "</tr>\n";									
-			echo '<tr typeof="books">';
-			echo '<td><p>Duplicability</p>';
-			echo '</td>'."\n";
-			echo '<td style="vertical-align:middle;" colspan="2">';
-			echo '<p>';
-			echo 'Allow book to be duplicated by others? &nbsp;<select id="duplicatable"><option value="0" selected>No</option><option value="1">Yes</option></select>';
-			echo '<br /><small>Book will display in list of duplicatable books regardless of availability settings</small>';
-			echo '</p>';
-			echo "</td>\n";
+			echo '<td colspan="2">';
+			echo 'This section has been moved to the publish tab.';
+			echo '</td>';
 			echo "</tr>\n";								
 			// Scope
 			echo '<tr typeof="books" class="styling_sub">';

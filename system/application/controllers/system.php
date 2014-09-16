@@ -286,6 +286,13 @@ class System extends MY_Controller {
 		 			$this->set_login_params();	 				
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
 		 			exit;	
+		 		case 'do_save_publish':
+		 			$array = $_POST;
+		 			unset($array['action']);
+		 			unset($array['zone']);
+		 			$this->books->save($array);			
+					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_publish_saved#tabs-'.$this->data['zone']);		 		
+		 			exit;
 				case 'do_duplicate_book':   // My Account  TODO
 					$user_id =@ (int)$_POST['user_id'];
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
@@ -487,6 +494,9 @@ class System extends MY_Controller {
 		    case 'users':
 		        $this->data['current_book_users'] = ($book_id) ? $this->users->get_book_users($book_id) : array();
 		        break;
+		    case 'publish':
+			    // Do Nothing.  Nothing needs to be done.
+		    break;
 		    // Page-types follow, purposely at the bottom of the switch so that they fall into 'default'
 		    case 'paths':
 				if (!isset($data_key)) $data_key = 'current_book_paths';
