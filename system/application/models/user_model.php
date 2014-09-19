@@ -49,7 +49,7 @@ class User_model extends My_Model {
   		
   	}        
     
-    public function get_all($book_id=0, $is_live=false, $orderby='fullname',$orderdir='asc') {
+    public function get_all($book_id=0, $is_live=false, $orderby='fullname',$orderdir='asc',$total=null,$start=null) {
 
 		$this->db->select('*');
 		if (!empty($book_id)) {
@@ -60,6 +60,15 @@ class User_model extends My_Model {
 			$this->db->from($this->users_table);
 		}
     	$this->db->order_by($orderby, $orderdir); 
+
+        // add one to total so that paginated input can detect the end of list
+        if(isset($total) && isset($start))
+            $this->db->limit($total+1,$start);
+        elseif(isset($total))
+            $this->db->limit($total+1);
+        elseif(isset($start))
+            $this->db->offset($start);
+
     	$query = $this->db->get();
     	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();

@@ -40,6 +40,23 @@ User has been added
 		<input tabindex="3" type="text" name="password" value="password" style="width:180px;" onfocus="if (this.value=='password') {this.value=''; this.type='password';}" />&nbsp; 		
 		<input tabindex="4" type="text" name="book_title" value="title of first book (optional)" style="width:180px;" onfocus="if (this.value=='title of first book (optional)') this.value='';" />&nbsp; 
 		<input type="submit" value="Go" class="generic_button" />
+		<? 
+		if (!empty($users)) {
+			if((count($users)-1) != $total)
+				$count = count($users);
+			else
+				$count = count($users)-1;
+		}
+		?>
+		<? if ($start !== 0 || (count($users)-1) == $total): ?>
+		<? if($start !== 0): ?>
+		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
+		<? endif ?>
+		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<? if(count($users)-1 == $total): ?>
+		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
+		<? endif ?>
+		<? endif ?>
 		</form>				
 		
 		<br clear="both" />
@@ -59,30 +76,41 @@ User has been added
 			</thead>
 			<tbody>
 <?
-		$count = 1;
 		if (!empty($users)) {
-			foreach ($users as $row) {
+			if((count($users)-1) != $total)
+				$count = count($users);
+			else
+				$count = count($users)-1;
+			for ($i=0;$i<$count;$i++) {
 				echo '<tr class="bottom_border" typeof="users">';
-				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$row->user_id.'&type=users&zone=all-users#tabs-all-users" onclick="if (!confirm(\'Are you sure you wish to DELETE this user?\')) return false;" class="generic_button">Remove</a></td>'."\n";
-				echo '<td property="id" style="display:none;">'.$row->user_id."</td>\n";
-				echo '<td class="editable" property="fullname">'.$row->fullname."</td>\n";
-				echo '<td class="editable" property="email">'.$row->email."</td>\n";
-				echo '<td class="editable" property="password">'.(strlen($row->password)?str_repeat('&bull;', 10):'')."</td>\n";
-				echo '<td class="editable" property="url">'.$row->url."</td>\n";
+				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$users[$i]->user_id.'&type=users&zone=all-users#tabs-all-users" onclick="if (!confirm(\'Are you sure you wish to DELETE this user?\')) return false;" class="generic_button">Remove</a></td>'."\n";
+				echo '<td property="id" style="display:none;">'.$users[$i]->user_id."</td>\n";
+				echo '<td class="editable" property="fullname">'.$users[$i]->fullname."</td>\n";
+				echo '<td class="editable" property="email">'.$users[$i]->email."</td>\n";
+				echo '<td class="editable" property="password">'.(strlen($users[$i]->password)?str_repeat('&bull;', 10):'')."</td>\n";
+				echo '<td class="editable" property="url">'.$users[$i]->url."</td>\n";
 				echo '<td>';
-				foreach ($row->books as $book) {
+				foreach ($users[$i]->books as $book) {
 					echo '<a href="'.confirm_slash(base_url()).$book->slug.'">';
 					echo $book->title;
 					echo '</a>, '.$book->relationship.'<br />';
 				}
 				echo "</td>\n";
 				echo "</tr>\n";
-				$count++;
 			}
 		}
 ?>
 			</tbody>
 		</table>
 		</div>
+		<? if ($start !== 0 || (count($users)-1) == $total): ?>
+		<? if($start !== 0): ?>
+		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
+		<? endif ?>
+		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<? if(count($users)-1 == $total): ?>
+		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
+		<? endif ?>
+		<? endif ?>
 
 		<br />		

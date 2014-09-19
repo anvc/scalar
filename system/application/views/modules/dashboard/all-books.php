@@ -106,6 +106,24 @@ Book has been added
 		<? endforeach ?>
 		</select>&nbsp; 
 		<input type="submit" value="Go" class="generic_button" />
+		<? 
+		if (!empty($books)) {
+			if((count($books)-1) != $total)
+				$count = count($books);
+			else
+				$count = count($books)-1;
+		}
+		?>
+		<? if ($start !== 0 || (count($books)-1) == $total): ?>
+		<? if($start !== 0): ?>
+		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
+		<? endif ?>
+		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<? if(count($books)-1 == $total): ?>
+		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
+		<? endif ?>
+		<? endif ?>
+
 		</form>			
 		
 		<br clear="both" />
@@ -130,40 +148,57 @@ Book has been added
 			</thead>
 			<tbody>
 <?
-		$count = 1;
 		if (!empty($books)) {
-			foreach ($books as $row) {
-				$desc_excerpt = create_excerpt($row->description);
-				if (strlen($row->description) == strlen($desc_excerpt)) $desc_excerpt = null;				
+			for($i=0;$i<$count;$i++) {
+				$desc_excerpt = create_excerpt($books[$i]->description);
+				if (strlen($books[$i]->description) == strlen($desc_excerpt)) $desc_excerpt = null;				
 				echo '<tr class="bottom_border" typeof="books">';
-				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$row->book_id.'&type=books&zone=all-books#tabs-all-books" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;" class="generic_button">Remove</a></td>'."\n";
-				echo '<td property="id" style="display:none;">'.$row->book_id."</td>\n";
-				echo '<td property="book_id" style="display:none;">'.$row->book_id."</td>\n";
-				echo '<td class="editable" property="title" style="width:100px;">'.$row->title."</td>\n";
-				echo '<td class="editable" property="subtitle">'.$row->subtitle."</td>\n";
+				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books#tabs-all-books" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;" class="generic_button">Remove</a></td>'."\n";
+				echo '<td property="id" style="display:none;">'.$books[$i]->book_id."</td>\n";
+				echo '<td property="book_id" style="display:none;">'.$books[$i]->book_id."</td>\n";
+				echo '<td class="editable" property="title" style="width:100px;">'.$books[$i]->title."</td>\n";
+				echo '<td class="editable" property="subtitle">'.$books[$i]->subtitle."</td>\n";
 				/*if ($desc_excerpt) {
-					echo '<td class="editable textarea excerpt" property="description"><span class="full">'.$row->description.'</span><span class="clip">'.$desc_excerpt.'</span></td>'."\n";
+					echo '<td class="editable textarea excerpt" property="description"><span class="full">'.$books[$i]->description.'</span><span class="clip">'.$desc_excerpt.'</span></td>'."\n";
 				} else {
-					echo '<td class="editable textarea" property="description">'.$row->description.'</td>';
+					echo '<td class="editable textarea" property="description">'.$books[$i]->description.'</td>';
 				}	*/			
-				echo '<td class="editable has_link" property="slug"><a href="'.confirm_slash(base_url()).$row->slug.'">'.$row->slug."</a></td>\n";
-				echo '<td class="editable boolean" property="url_is_public">'.$row->url_is_public."</td>\n";
-				echo '<td class="editable boolean" property="display_in_index">'.$row->display_in_index."</td>\n";
-				echo '<td class="editable boolean" property="is_featured">'.$row->is_featured."</td>\n";
-				echo '<td style="width=150px;" id="save_book_users_'.$row->book_id.'">';
-				foreach ($row->users as $user) {
+				echo '<td class="editable has_link" property="slug"><a href="'.confirm_slash(base_url()).$books[$i]->slug.'">'.$books[$i]->slug."</a></td>\n";
+				echo '<td class="editable boolean" property="url_is_public">'.$books[$i]->url_is_public."</td>\n";
+				echo '<td class="editable boolean" property="display_in_index">'.$books[$i]->display_in_index."</td>\n";
+				echo '<td class="editable boolean" property="is_featured">'.$books[$i]->is_featured."</td>\n";
+				echo '<td style="width=150px;" id="save_book_users_'.$books[$i]->book_id.'">';
+				foreach ($books[$i]->users as $user) {
 					echo '<span id="'.$user->user_id.'">'.$user->fullname.'</span>';
 					if ($user->list_in_index) echo ' <span style="color:red;font-weight:bold">*</span>';
 					echo '<br />';
 				}
 				echo '<p><a href="javascript:;" class="value_select_trigger multiple generic_button" resource="get_system_users" rel="save_book_users" style="white-space:nowrap;">Edit users</a></p>';
 				echo "</td>\n";
-				echo '<td style="white-space:nowrap;">'.date( 'M j, Y g:i A', strtotime($row->created) )."</td>\n";
+				echo '<td style="white-space:nowrap;">'.date( 'M j, Y g:i A', strtotime($books[$i]->created) )."</td>\n";
 				echo "</tr>\n";
-				$count++;
 			}
 		}
 ?>
 			</tbody>
 		</table>
 		</div>	
+
+		<? 
+		if (!empty($books)) {
+			if((count($books)-1) != $total)
+				$count = count($books);
+			else
+				$count = count($books)-1;
+		}
+		?>
+		<? if ($start !== 0 || (count($books)-1) == $total): ?>
+		<? if($start !== 0): ?>
+		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
+		<? endif ?>
+		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<? if(count($books)-1 == $total): ?>
+		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
+		<? endif ?>
+		<? endif ?>
+		<br />				

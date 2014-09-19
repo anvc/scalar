@@ -104,7 +104,7 @@ class Book_model extends MY_Model {
     	
     }      
     
-    public function get_all($user_id=0, $is_live=false, $orderby='title',$orderdir='asc') {
+    public function get_all($user_id=0, $is_live=false, $orderby='title',$orderdir='asc',$total=null,$start=null) {
     	
     	$this->db->select('*');
     	$this->db->from($this->books_table);
@@ -116,8 +116,16 @@ class Book_model extends MY_Model {
     		$this->db->where($this->books_table.'.url_is_public',1);
     		$this->db->where($this->books_table.'.display_in_index',1);
     	}
-    	$this->db->order_by($orderby, $orderdir); 
-    	
+    	$this->db->order_by($orderby, $orderdir);
+
+        // add one to total so that paginated input can detect the end of list
+        if(isset($total) && isset($start))
+            $this->db->limit($total+1,$start);
+        elseif(isset($total))
+            $this->db->limit($total+1);
+        elseif(isset($start))
+            $this->db->offset($start);
+
     	$query = $this->db->get();
     	if (mysql_errno()!=0) echo mysql_error();
     	$result = $query->result();

@@ -525,17 +525,23 @@ class System extends MY_Controller {
 			        }	  
 		    	}  	
 		}
+
 		if ($this->data['login_is_super']) {
+			$this->data['total'] = (isset($_REQUEST['total']) && is_numeric($_REQUEST['total']) && $_REQUEST['total'] > 0) ? $_REQUEST['total'] : 20;
+	 		$this->data['start'] = (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $_REQUEST['start'] > 0) ? $_REQUEST['start'] : 0;
+
 			switch ($this->data['zone']) {
 			 	case 'all-users':	
-			 	case 'all-books':  
-					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();	
+					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all(0,false,'fullname','asc',$this->data['total'],$this->data['start']) : array();	
 					for ($j = 0; $j < count($this->data['users']); $j++) {
 						$this->data['users'][$j]->books = $this->books->get_all($this->data['users'][$j]->user_id);
 					}		 	  		    	
+					break;
+			 	case 'all-books':  
+					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();	
+					$this->data['books'] = ($this->data['login_is_super']) ? $this->books->get_all(0,false,'title','asc',$this->data['total'],$this->data['start']) : array();	
+
 					break;	
-			 	case 'tools':
-			 		break;
 			}
 		}
 
