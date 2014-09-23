@@ -1,10 +1,9 @@
 /* We have at least 250px on left side. */
 body.sidebar_vis>.page{
-	position: absolute;
 	width: 100rem;
-	margin: 0px;
-	right: 10rem;
+	margin: 0px auto;
 	border: 0px;
+
 	transform: translateX(0px);
 
 	transition: transform .125s ease-in-out, opacity .5s ease-in-out;
@@ -13,7 +12,7 @@ body.sidebar_vis>.page{
 }
 body.sidebar_vis.fullscreen_page>.page{
 	right: 0px;
-	left: 5rem;
+	left: 4.25rem;
 	width: auto;
 	max-width: none;
 	bottom: 0px;
@@ -27,7 +26,7 @@ body.sidebar_vis.fullscreen_page>.page>span{
 	display: block;
 }
 body.sidebar_expanded.fullscreen_page>.page{
-	transform: translateX(15rem);
+	transform: translateX(15.75rem);
 }
 body.sidebar_full.fullscreen_page>.page{
 	transform: translateX(0rem);
@@ -44,7 +43,7 @@ body.sidebar_vis #sidebar{
 	padding-top: 6rem;
 	
 	background-color: #fafafa;
-	width: 5rem;
+	width: 5.75rem;
 	height: 100%;
 
 	left: 0px;
@@ -61,10 +60,10 @@ body.sidebar_vis #sidebar{
 	overflow: hidden;
 }
 body.info_panel_open #sidebar{
-	width: 5.5rem;
+	width: 6.25rem;
 }
 body.info_panel_open #sidebar{
-	width: 5.5rem;
+	width: 6.25rem;
 }
 
 body.sidebar_vis #sidebar.tall{
@@ -92,7 +91,7 @@ body.sidebar_vis #sidebar .sidebar_icon{
 	vertical-align: middle;
 
 	width: 1rem;
-	padding-left: 4px;
+	padding-left: .75rem;
 
 	color: rgba(0,0,0,.33);
 
@@ -152,6 +151,7 @@ body.sidebar_vis #sidebar header .header_icon{
 	float: left;
 	vertical-align: middle;
 	margin-right: 1rem;
+	margin-left: .5rem;
 	font-size: 25px;
 	line-height: 28px;
 }
@@ -269,12 +269,12 @@ body.sidebar_expanded.sidebar_full #sidebar{
 body.sidebar_vis #info_panel{
 	width: 0px;
 	position: fixed;
-	left: 5.5rem;
+	left: 6.25rem;
 	background-color: #ddd;
 	top: 0px;
 	padding-top: 5rem;
 	bottom: 0px;
-	z-index: 1;
+	z-index: 10;
     transition-duration: .125s;
     -webkit-transition-duration: .125s;
     -moz-transition-duration: .125s;
@@ -284,16 +284,17 @@ body.sidebar_vis #info_panel{
 }
 body.sidebar_full #info_panel{
 	top: 10rem;
-	z-index: 3;
+	z-index: 10;
 	margin-top: 5px;
 }
 body.sidebar_vis #info_panel #info_panel_content{
 	display: none;
 	overflow: hidden;
 	width: 100%;
-	height: 100%;
 	position: relative;
-	z-index: 4;
+	z-index: 10;
+	bottom: 5rem;
+	top: 0rem;
 	background-color: #ddd;
 }
 body.sidebar_vis #info_panel .section{
@@ -344,15 +345,14 @@ body.sidebar_vis #info_panel #info_panel_header a.active{
 }
 body.sidebar_vis #info_panel_arrow{
 	opacity: 0;
-	z-index: -1;
 	width: 0px;
 	height: 0px;
 	border-top: 1em transparent solid;
 	border-bottom: 1em transparent solid;
 	position: fixed;
 	top: 50%;
-	left: 3em;
-	z-index: 3;
+	left: 6.75rem;
+	z-index: 10;
 	margin-top: -4.5rem;
 	border-left: 0em #ddd solid;
 	border-right: 0em #ddd solid;
@@ -368,8 +368,8 @@ body.sidebar_vis #info_panel.tall #info_panel_arrow{
 }
 body.info_panel_open #info_panel_arrow{
 	opacity: 1;
-	z-index: 3;
-	left: 2.5em;
+	z-index: 10;
+	left: 4.75rem;
 	border-right: 1em #ddd solid;
 }
 body.sidebar_expanded.info_panel_open #info_panel_arrow{
@@ -380,7 +380,7 @@ body.sidebar_full #info_panel{
 }
 body.info_panel_open.sidebar_full #info_panel_arrow{
 	opacity: 1;
-	z-index: 3;
+	z-index: 10;
 	left: 100%;
 	border-left: 1em #ddd solid;
 	border-right: 0px;
@@ -432,7 +432,7 @@ body.sidebar_vis #sidebar_inside>header #sidebar_selector{
 	margin-top: 4px;
 	left: -1rem;
 	width: 20rem;
-	z-index: 2;
+	z-index: 9;
 	border-bottom: 1px solid #000;
 }
 body.sidebar_vis #sidebar_inside>header.selector_open, body.sidebar_vis #sidebar_inside>header.selector_open:hover{
@@ -515,11 +515,30 @@ body.sidebar_vis #info_panel ul li, body.sidebar_vis #info_panel .discuss_link{
 #comments_info .discuss_link .icon span{
 	color: #fff;
 }
-body.sidebar_vis #sidebar header .controls .sidebar_hide{
+body.sidebar_vis #sidebar header .controls .sidebar_hide, body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel a{
 	display: none;
 }
-body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
-		display: none;
+body.info_panel_open #info_panel footer .info_visit{
+	color: #fff;
+	font-size: 2rem;
+	line-height: 5rem;
+	text-decoration: none;
+	cursor: pointer;
+	display: block;
+}
+body.sidebar_vis #info_panel footer .info_visit:hover{
+	background-color: #222;
+}
+body.sidebar_vis #info_panel footer{
+	position: absolute;
+	height: 5rem;
+	background-color: #333;
+	color: #fff;
+	width: 100%;
+	left: 0px;
+	bottom: 0px;
+	text-align: center;
+	cursor: pointer;
 }
 @media only screen and (min-width : 581px) {
 	/*Everything but small screens*/
@@ -566,7 +585,7 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 		left: 50px;
 	}
 	body.sidebar_expanded>.page{
-		transform: translateX(15rem);
+		transform: translateX(15.75rem);
 	}
 }
 
@@ -628,6 +647,9 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 	body.sidebar_vis #sidebar header .controls{
 		display: none;
 	}
+	body.sidebar_vis #info_panel .info_hide{
+		display: block;
+	}
 	body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 		position: fixed;
 		height: 5rem;
@@ -688,9 +710,6 @@ body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 	body.sidebar_vis.fullscreen_page>.page{
 		left: 0px;
 		top: 5rem;
-	}
-	body.sidebar_expanded.sidebar_full.fullscreen_page>.page{
-		transform: translateX(0px);
 	}
 	body.sidebar_vis #sidebar_inside>header.selector_open #sidebar_selector{
 		width: auto;
