@@ -293,7 +293,7 @@ body.sidebar_vis #info_panel #info_panel_content{
 	width: 100%;
 	position: relative;
 	z-index: 10;
-	bottom: 5rem;
+	bottom: 7rem;
 	top: 0rem;
 	background-color: #ddd;
 }
@@ -460,7 +460,7 @@ body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li{
 	padding: 1rem 2rem;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled{
-	display: block;
+	display: block !important;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled:hover{
 	background-color: rgba(0,0,0,.125);
@@ -515,7 +515,7 @@ body.sidebar_vis #info_panel ul li, body.sidebar_vis #info_panel .discuss_link{
 #comments_info .discuss_link .icon span{
 	color: #fff;
 }
-body.sidebar_vis #sidebar header .controls .sidebar_hide, body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel a{
+body.sidebar_vis #sidebar header .controls .sidebar_hide, body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer a{
 	display: none;
 }
 body.info_panel_open #info_panel footer .info_visit{
@@ -534,9 +534,9 @@ body.sidebar_vis #info_panel footer{
 	height: 5rem;
 	background-color: #333;
 	color: #fff;
-	width: 100%;
-	left: 0px;
-	bottom: 0px;
+	left: 1rem;
+	right: 1rem;
+	bottom: 1rem;
 	text-align: center;
 	cursor: pointer;
 }
@@ -635,6 +635,10 @@ body.sidebar_vis #info_panel footer{
 	
 	body.sidebar_vis #info_panel{
 		bottom: 5rem;
+		display: none;
+	}
+	body.info_panel_open #info_panel{
+		display: block;
 	}
 	body.sidebar_vis #sidebar{
 		padding-bottom: 5rem;

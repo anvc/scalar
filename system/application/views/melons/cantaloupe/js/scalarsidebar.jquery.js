@@ -153,16 +153,17 @@
 			    $('#sidebar header').fadeIn('slow');
 
 			    $('#sidebar_inside>header').click(function(e){
-			    	if(!$('body').hasClass('sidebar_expanded')){
-			    		base.triggerSidebar(true);
+			    	if(typeof isMobile != 'undefined' && isMobile != null && !$('body').hasClass('sidebar_expanded')){
+				    	base.triggerSidebar(true);
+				    }else{
+				    	if($(this).hasClass('selector_open')){
+				    			//Clicked on the header - hide the selection dialogue.
+				    			$(this).removeClass('selector_open');
+			    		}else{
+				    		//Clicked on the header - show the selection dialogue.
+			    			$(this).addClass('selector_open');
+			    		}
 			    	}
-			    	if($(this).hasClass('selector_open')){
-			    			//Clicked on the header - hide the selection dialogue.
-			    			$(this).removeClass('selector_open');
-		    		}else{
-			    		//Clicked on the header - show the selection dialogue.
-		    			$(this).addClass('selector_open');
-		    		}
 			    });
 
 			    $('#sidebar, #info_panel').mouseenter(function(e){
@@ -176,15 +177,6 @@
 						base.sidebar_timeout = setTimeout(function(){
 							base.triggerSidebar(false);
 						},500);
-					}
-				});
-				$('#sidebar').click(function(){
-					if(isMobile){
-						if(!$('body').hasClass('sidebar_expanded')){
-							base.triggerSidebar(true);
-						}else{
-							base.triggerSidebar(false);
-						}
 					}
 				});
 
@@ -373,26 +365,26 @@
 				}
 			}).click(function(){
 				var slug = $(this).data('slug');
-				if(isMobile){
-					if($('#info_panel').data('slug')!==slug){
-						load_show_info(slug);
-					}else{
-						base.hideInfo();
-					}
-				}else{
+				if(!isMobile){
 					var node = scalarapi.getNode(slug);
 					var path = $(this).parent('ul.path').data('path');
 					window.location = node.url+'?path='+path;
+				}else{
+					load_show_info(slug);
 				}
 			});
 
 			$('#info_panel').mouseenter(function(e){
-				clearTimeout(base.infobar_timeout);
+				if(!isMobile){
+					clearTimeout(base.infobar_timeout);
+				}
 			}).mouseleave(function(){
-				base.infobar_timeout = setTimeout(function(){
-					base.hovered_item = null;
-					base.hideInfo();
-				},500);
+				if(!isMobile){
+					base.infobar_timeout = setTimeout(function(){
+						base.hovered_item = null;
+						base.hideInfo();
+					},500);
+				}
 			});
 
 			$('body>.bg_screen,body>.page,body>#info_panel>footer>.info_hide').click(function(e){
