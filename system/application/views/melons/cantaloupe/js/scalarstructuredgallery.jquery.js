@@ -225,12 +225,22 @@
 			
 			addHeaderForNode: function( node ) {
 			
+				var queryVars = scalarapi.getQueryVars( document.location.href );
+			
 				var block = $( '#block_' + node.slug.replace( "/", "-" ) );
 				
 				if (node.current.description != null) {
 					block.prepend(' <div class="one_line_description">'+node.current.description+'</div>');
 				}
-				block.prepend('<h3 class="heading_font heading_weight"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
+				
+				// if the node is a path child of this node, then include the path URL param in its link
+				var pathChildren = currentNode.getRelatedNodes( 'path', 'outgoing' );
+				if ( pathChildren.indexOf( node ) != -1 ) {
+					block.prepend('<h3 class="heading_font heading_weight"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'?path='+currentNode.slug+'">'+node.getDisplayTitle()+'</a></h3>');
+					
+				} else {
+					block.prepend('<h3 class="heading_font heading_weight"><a href="'+addTemplateToURL(node.url, 'cantaloupe')+'">'+node.getDisplayTitle()+'</a></h3>');
+				}
 			
 			},
 			
