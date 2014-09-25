@@ -170,8 +170,11 @@
 				
 				// if we're on one of the containing paths, make it first in the list
 				page.containingPaths.sort( function( a, b ) {
-					var temp = queryVars.path.split( '/' );
-					var pathSlug = temp[ temp.length - 1 ];
+					var pathSlug;
+					if ( queryVars.path ) {
+						var temp = queryVars.path.split( '/' );
+						pathSlug = temp[ temp.length - 1 ];
+					}
 					if ( a.slug == pathSlug ) {
 						return -1;
 					} else if ( b.slug == pathSlug ) {
