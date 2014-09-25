@@ -293,6 +293,9 @@
 					alttext = '';
 				}		
 					
+				var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
+				
+				// custom thumbnail
 				if ( node.thumbnail != undefined ) {
 					var url;
 					if ( node.thumbnail.indexOf( "http://" ) == -1 ) {
@@ -301,12 +304,17 @@
 						url = node.thumbnail;
 					}
 					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' + 
-						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
+						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
+				// generic thumbnail
 				} else {
 					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri + 
 						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" height="' + 
-						parseInt( thumbnailHeight * currentScale ) + '"/>' )[method]( element );
+						parseInt( thumbnailHeight * currentScale ) + '" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
 				}
+				thumbnail.tooltip( { 
+					placement: "bottom",
+					template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="caption_font tooltip-inner"></div></div>'
+				} );
 				thumbnail.data('node', node);
 				
 				thumbnail.click(function() {
