@@ -335,9 +335,11 @@
 						}
 						
 						// "visit random" button
-						nodes = currentNode.getRelatedNodes('tag', 'outgoing');
-						if (nodes.length > 1) {
-							section.append('<p><a class="nav_btn" href="'+nodes[Math.floor(Math.random() * nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
+						if ( pathOptionCount == 0 ) {
+							nodes = currentNode.getRelatedNodes('tag', 'outgoing');
+							if (nodes.length > 1) {
+								section.append('<p><a class="nav_btn" href="'+nodes[Math.floor(Math.random() * nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
+							}
 						}
 					}
 				});			
@@ -554,13 +556,11 @@
 					}, 1, true);
 					page.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
 					break;
-					
-					case 'structured_gallery':
-					// add structured gallery media
-					gallery.addMedia();
-					break;
 				
 					default:
+					if ( viewType == 'structured_gallery' ) {
+						gallery.addMedia();
+					}
 				  	$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 					$('a').each(function() {
 					
