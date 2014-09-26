@@ -126,9 +126,28 @@
 				}
 					
 				if ( okToProceed ) {
-					var overlay = $('<div class="media_sidebar caption_font"><h2>'+mediaelement.model.node.getDisplayTitle()+'</h2></div>').prependTo(mediaelement.model.element.parent());
-					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(overlay);
+					var overlay = $('<div class="media_sidebar caption_font"><h2><a href="' + mediaelement.model.node.url + '">'+mediaelement.model.node.getDisplayTitle()+'</a></h2></div>').prependTo(mediaelement.model.element.parent());
 					var i, relation, relations;
+							
+					// show annotations
+					relations = mediaelement.model.node.getRelations('annotation', 'incoming');
+					if (relations.length > 0) {
+						var annotationCitations = $('<div class="citations media_annotations"><h3>Annotations of this media</h3></div>').appendTo(overlay);
+						annotationCitations.show();
+						var table = $('<table></table>').appendTo(annotationCitations);
+						for (i in relations) {
+							relation = relations[i];
+							row = $('<tr><td>'+relation.startString+'</td><td>'+relation.body.getDisplayTitle()+'</td></tr>').appendTo(table);
+							row.data('relation', relation);
+							row.click(function() {
+								var relation = $(this).data('relation');
+								mediaelement.seek(relation.properties.start); // TODO - handle other media types
+								mediaelement.play();
+							});
+						}
+					}
+					
+					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(overlay);
 	
 					// show media references with excerpts
 					// Edited by Craig, 1 January 2014
@@ -167,24 +186,6 @@
 					for (i in relations) {
 						relation = relations[i];
 						citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
-					}
-							
-					// show annotations
-					relations = mediaelement.model.node.getRelations('annotation', 'incoming');
-					if (relations.length > 0) {
-						var annotationCitations = $('<div class="citations media_annotations"><h3>Annotations of this media</h3></div>').appendTo(overlay);
-						annotationCitations.show();
-						var table = $('<table></table>').appendTo(annotationCitations);
-						for (i in relations) {
-							relation = relations[i];
-							row = $('<tr><td>'+relation.startString+'</td><td>'+relation.body.getDisplayTitle()+'</td></tr>').appendTo(table);
-							row.data('relation', relation);
-							row.click(function() {
-								var relation = $(this).data('relation');
-								mediaelement.seek(relation.properties.start); // TODO - handle other media types
-								mediaelement.play();
-							});
-						}
 					}
 					
 	

@@ -475,7 +475,7 @@ a:hover { text-decoration: underline; }
 
 .media_sidebar { width: 30%; color: #b2b3b6; margin-right: 3.6rem; padding-bottom: 5rem; text-align: left; float: left; clear: both; min-height: 50rem; }
 .media_sidebar h2,.media_sidebar h3 { margin: 0 0 .2rem 0; padding: 0; line-height: 100%; color: white; }
-.media_sidebar h2 { font-size: 2.1rem; }
+.media_sidebar h2 { font-size: 2.9rem; }
 .media_sidebar h3 { font-size: 1.8rem; font-weight: normal; margin-bottom: 1rem; }
 .media_sidebar p { margin: 0 0 1rem 0; padding: 0; line-height: 1.8rem; }
 .media_sidebar blockquote { /*padding: 0 1.8rem 0 1.8rem;*/ padding: 0; margin: 0 0 .5rem 0; line-height: 1.8rem; font-size: 90%; border-left: none; }
