@@ -286,12 +286,13 @@ class System extends MY_Controller {
 		 			$this->set_login_params();	 				
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
 		 			exit;	
-		 		case 'do_save_publish':
+		 		case 'do_save_sharing':
+		 			$this->books->save(array('title'=>$_POST['title'],'book_id'=>(int)$_POST['book_id']));	
 		 			$array = $_POST;
 		 			unset($array['action']);
 		 			unset($array['zone']);
 		 			$this->books->save($array);			
-					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_publish_saved#tabs-'.$this->data['zone']);		 		
+					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_sharing_saved#tabs-'.$this->data['zone']);		 		
 		 			exit;
 				case 'do_duplicate_book':   // My Account  TODO
 					$user_id =@ (int)$_POST['user_id'];

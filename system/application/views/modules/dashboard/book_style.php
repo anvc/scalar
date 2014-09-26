@@ -20,30 +20,6 @@ $(window).ready(function() {
     		$(this).fadeIn('fast');
     	});
     });
-
-	
-	var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
-	var is_duplicatable = ('undefined'==typeof($title.children(":first").attr('data-duplicatable'))) ? 0 : 1;
-	var is_joinable = ('undefined'==typeof($title.children(":first").attr('data-joinable'))) ? 0 : 1;
-	$('#duplicatable').val(is_duplicatable);
-	$('#joinable').val(is_joinable);
-	
-	$('#duplicatable, #joinable').change(function() {
-		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
-		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
-		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable'];
-		for (var j in prop_arr) {
-			var prop = prop_arr[j];
-			var make_true = (parseInt($('#'+prop).val())) ? true : false;
-			if (make_true) {
-				$span.attr('data-'+prop, 'true');
-			} else {
-				$span.removeAttr('data-'+prop);
-			}
-		}
-		$('input[name="title"]').val( $title.html() );
-	});
     
     $('#book_versions').sortable();
     $('#book_versions_add_another').click(function() {
@@ -274,7 +250,7 @@ $(window).ready(function() {
 			echo '<td><h4 class="content_title">Public/Private</h4></td><td></td></tr>';
 			echo '<tr>';
 			echo '<td colspan="2">';
-			echo 'This section has been moved to the publish tab.';
+			echo 'This section has been moved to the <b>sharing</b> tab.';
 			echo '</td>';
 			echo "</tr>\n";								
 			// Scope

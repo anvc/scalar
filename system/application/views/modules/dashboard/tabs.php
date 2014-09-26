@@ -21,7 +21,7 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 		<li><a href="#tabs-user" style="color:#7d1d1d;">My account</a></li>
 		<li><a href="#tabs-style">Book properties</a></li>
 		<li><a href="#tabs-users">Book users</a></li>
-		<li><a href="#tabs-publish">Publish</a></li>
+		<li><a href="#tabs-sharing">Sharing</a></li>
 		<li><a href="#tabs-pages" style="color:#89169e;">Pages<?=((!empty($pages_not_live))?'<sup>'.$pages_not_live.'</sup>':'')?></a></li>
 		<li><a href="#tabs-media" style="color:#89169e;">Media<?=((!empty($media_not_live))?'<sup>'.$media_not_live.'</sup>':'')?></a></li>
 		<li><a href="#tabs-paths" style="color:#241d7d;">Paths<?=((!empty($paths_not_live))?'<sup>'.$paths_not_live.'</sup>':'')?></a></li>
@@ -42,7 +42,7 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 	
 	<div id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboard/book_users'); } else {echo 'Loading...';} ?></div>	
 	
-	<div id="tabs-publish"><? if ('publish'==$zone) { $this->load->view('modules/dashboard/publish'); } else {echo 'Loading...';} ?></div>	
+	<div id="tabs-sharing"><? if ('sharing'==$zone) { $this->load->view('modules/dashboard/sharing'); } else {echo 'Loading...';} ?></div>	
 
 	<div id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboard/pages'); } else {echo 'Loading...';} ?></div>	
 
