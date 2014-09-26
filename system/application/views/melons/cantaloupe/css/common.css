@@ -450,6 +450,8 @@ a:hover { text-decoration: underline; }
 .structured_gallery h1 { margin-top: 7.8rem; margin-bottom: 2rem; }
 .fixed_header { position: fixed; }*/
 
+.tooltip-inner { -webkit-font-smoothing: subpixel-antialiased; }
+
 .media_details {
 	position: fixed;
 	top: 0px;
