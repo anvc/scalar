@@ -519,7 +519,7 @@ function listeditor_save($list, insert_func, $row, select_single) {
 			listeditor_commit_save($list, insert_func, $row.data('node'));	
 		});
 	} else {
-		var insert_func_accepts_data_fields = (9 < insert_func.length) ? true : false;  // Magic number
+		var insert_func_accepts_data_fields = (9 < ((typeof(insert_func)=='function')?insert_func:window[insert_func]).length) ? true : false;  // Magic number
 		if ('undefined'!=typeof(window['reference_options']) && select_single && insert_func_accepts_data_fields) {
 			var $options_div = $('<div class="media_options"></div>').appendTo('body');
 			$options_div.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
