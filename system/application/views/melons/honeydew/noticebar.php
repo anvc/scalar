@@ -12,10 +12,12 @@ foreach ($book->contributors as $contrib) {
 
 // Check for attribution
 $attribution = null;
-if (isset($page->versions[$page->version_index]->attribution->fullname)) {
-	if (!empty($page->versions[$page->version_index]->attribution->fullname)) $attribution = trim($page->versions[$page->version_index]->attribution->fullname);
+// Impossible to designate an attribution if the page is by a contributor
+if(!$page_by_conributor){
+	if (isset($page->versions[$page->version_index]->attribution->fullname)) {
+		if (!empty($page->versions[$page->version_index]->attribution->fullname)) $attribution = trim($page->versions[$page->version_index]->attribution->fullname);
+	}
 }
-
 // Version has an attribution and should therefor state that it's by that other than the user
 if (!empty($attribution)) {
 	// Figure out what to call the page
