@@ -12,16 +12,17 @@
             @chmod($targetFile, $chmodMode); 
         }
 
-        public function uploadMedia($slug,$chmodMode) {
+        public function uploadMedia($slug,$chmodMode,$versions=null) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
+
             $path =@ $_POST['slug_prepend'];
             $targetPath = confirm_slash(FCPATH).$slug.$path;
             if (!file_exists($targetPath)) mkdir($targetPath, $chmod_mode, true);        
             $tempFile = $_FILES['source_file']['tmp_name'];
             $name = $_FILES['source_file']['name'];
-            if (!empty($_POST['replace'])) {
+            if (!empty($_POST['replace']) && !empty($versions)) {
                 $version_id = array_pop(explode(':',$_POST['replace']));  // replace is an urn
-                $version = $this->versions->get($version_id);
+                $version = $versions->get($version_id);
                 $name = $version->url;
                 if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
             }

@@ -339,7 +339,7 @@ class Book extends MY_Controller {
 			$return = array('error'=>'');
 			try {
 	            $slug = confirm_slash($this->data['book']->slug);
-				$return['url'] = $this->file_upload->uploadMedia($slug,$chmod_mode);
+				$return['url'] = $this->file_upload->uploadMedia($slug,$chmod_mode, $this->versions);
 			} catch (Exception $e) {
 				$return['error'] =  $e->getMessage();
 			}		
