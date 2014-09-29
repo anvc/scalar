@@ -13,7 +13,7 @@ foreach ($book->contributors as $contrib) {
 // Check for attribution
 $attribution = null;
 // Impossible to designate an attribution if the page is by a contributor
-if(!$page_by_conributor){
+if(!$page_by_contributor){
 	if (isset($page->versions[$page->version_index]->attribution->fullname)) {
 		if (!empty($page->versions[$page->version_index]->attribution->fullname)) $attribution = trim($page->versions[$page->version_index]->attribution->fullname);
 	}
