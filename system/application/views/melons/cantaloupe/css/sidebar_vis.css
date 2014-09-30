@@ -50,6 +50,8 @@ body.sidebar_vis #sidebar{
 	top: 0px;
 	bottom: 0px;
 
+	z-index: 9;
+
     transition-duration: .125s;
     -webkit-transition-duration: .125s;
     -moz-transition-duration: .125s;
@@ -93,8 +95,6 @@ body.sidebar_vis #sidebar .sidebar_icon{
 	width: 1rem;
 	padding-left: .75rem;
 
-	color: rgba(0,0,0,.33);
-
     transition-duration: .25s;
     -webkit-transition-duration: .25s;
     -moz-transition-duration: .25s;
@@ -103,10 +103,6 @@ body.sidebar_vis #sidebar .sidebar_icon{
     -moz-transition-timing-function: ease-in-out;
 
 	display: table-cell;
-}
-
-body.sidebar_vis #sidebar li.active .sidebar_icon{
-	color: rgba(0,0,0,1);
 }
 body.sidebar_vis #sidebar header{
 	font-size: 2rem;
@@ -138,6 +134,7 @@ body.sidebar_vis #sidebar header .controls{
 body.sidebar_vis #sidebar header .controls a, body.sidebar_vis #sidebar header .controls a:hover{
 	font-size: 1.5rem;
 	text-decoration: none;
+	line-height: 
 }
 body.sidebar_full #sidebar header .controls .sidebar_maximize{
 	opacity: .5;
@@ -153,7 +150,7 @@ body.sidebar_vis #sidebar header .header_icon{
 	margin-right: 1rem;
 	margin-left: .5rem;
 	font-size: 25px;
-	line-height: 28px;
+	line-height: 26px;
 }
 
 body.sidebar_vis #sidebar header .header_icon span{
@@ -188,7 +185,7 @@ body.sidebar_vis #sidebar .pane.active{
 	display: block;
 }
 body.sidebar_vis #sidebar .pane ul li{
-	color: #ccc;
+	color: rgba(0,0,0,.5);
 	list-style-type: none;
 	vertical-align: middle;
 	width: 180px;
@@ -196,6 +193,39 @@ body.sidebar_vis #sidebar .pane ul li{
 	cursor: pointer;
 	padding-top: 4px;
 	padding-bottom: 4px;
+}
+body.sidebar_collapsed #sidebar .pane ul li.distant{
+	display: none;
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_10{
+	color: rgba(0,0,0,.05);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_9{
+	color: rgba(0,0,0,.1);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_8{
+	color: rgba(0,0,0,.15);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_7{
+	color: rgba(0,0,0,.2);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_6{
+	color: rgba(0,0,0,.25);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_5{
+	color: rgba(0,0,0,.3);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_4{
+	color: rgba(0,0,0,.35);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_3{
+	color: rgba(0,0,0,.4);
+}
+body.sidebar_collapsed #sidebar .pane ul li.distance_2{
+	color: rgba(0,0,0,.45);
+}
+body.sidebar_vis #sidebar .pane ul li:hover, body.sidebar_vis #sidebar .pane ul li.active:hover{
+	color: rgba(0,0,0,.9);
 }
 body.sidebar_vis #sidebar .pane ul li .title{
 	font-size: .75em;
@@ -205,7 +235,7 @@ body.sidebar_vis #sidebar .pane ul li .title{
 }
 
 body.sidebar_vis #sidebar .pane ul li.active{
-	color: #333;
+	color: rgba(0,0,0,.75);
 }
 
 body.sidebar_vis #sidebar header{
@@ -218,7 +248,7 @@ body.sidebar_expanded #sidebar header:hover{
 	background-color: rgba(0,0,0,.125);
 }
 body.sidebar_vis #sidebar header .controls a{
-	padding: 5px;
+	padding: 6px 8px;
 	color: #333;
 	cursor: pointer;
 }
@@ -303,7 +333,12 @@ body.sidebar_vis #info_panel .section{
 	padding: 0px;
 	margin: 0px;
 }
-
+body.sidebar_vis #sidebar .pane ul li.empty{
+	display: none;
+}
+body.sidebar_vis.sidebar_expanded #sidebar .pane ul li.empty{
+	display: block;
+}
 body.sidebar_vis #info_panel.overview #overview_info.section,
 body.sidebar_vis #info_panel.comments #comments_info.section,
 body.sidebar_vis #info_panel.metadata #metadata_info.section{
@@ -359,9 +394,9 @@ body.sidebar_vis #info_panel_arrow{
     transition-duration: .125s;
     -webkit-transition-duration: .125s;
     -moz-transition-duration: .125s;
-    transition-timing-function: ease-in-out;
-    -webkit-transition-timing-function: ease-in-out;
-    -moz-transition-timing-function: ease-in-out;
+    transition-timing-function: linear;
+    -webkit-transition-timing-function: linear;
+    -moz-transition-timing-function: linear;
 }
 body.sidebar_vis #info_panel.tall #info_panel_arrow{
 	margin-top: -6.5rem;
@@ -540,6 +575,16 @@ body.sidebar_vis #info_panel footer{
 	text-align: center;
 	cursor: pointer;
 }
+body.sidebar_vis #info_panel .metadata_list{
+	padding: 10px;
+}
+body.sidebar_vis #info_panel .metadata_list dl{
+	padding: 5px 10px;
+}
+body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .metadata_list dd{
+	font-size: 1rem;
+	display: inline;
+}
 @media only screen and (min-width : 581px) {
 	/*Everything but small screens*/
 	body.sidebar_vis #sidebar .pane ul li.distant, body.sidebar_vis #sidebar .pane ul li .title{
@@ -591,6 +636,12 @@ body.sidebar_vis #info_panel footer{
 
 /* Extra Small Devices, Phones */ 
 @media only screen and (max-width : 580px) {
+	body.sidebar_vis #sidebar.tall{
+		padding-top: 1rem;
+	}
+	body.sidebar_vis #info_panel.tall{
+		padding-top: 1rem;
+	}
 	body.sidebar_vis>.page{
 		width: 100%;
 		left: 0px;
