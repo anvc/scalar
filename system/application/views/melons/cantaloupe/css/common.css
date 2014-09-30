@@ -96,7 +96,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	position: fixed;
 	background-color: #444;
 	text-transform: uppercase;
-	z-index: 1060;
+	z-index: 1039;
 	width: 100%;
 	top: 0;
 	left: 0;
@@ -459,7 +459,7 @@ a:hover { text-decoration: underline; }
 	right: 0px;
 	height: 100%;
 	margin: 0px 0px 0px 0px;
-	z-index: 1050;
+	z-index: 1038;
 	display: none;
 	-webkit-font-smoothing: subpixel-antialiased;
  }
