@@ -52,7 +52,7 @@
             	}
             	$('body').addClass('sidebar_collapsed');
             	//Sorry, I need this to be readable for now - is this the fastest way? Seems to be: http://stackoverflow.com/questions/51185/are-javascript-strings-immutable-do-i-need-a-string-builder-in-javascript/4717855#4717855
-				var html = '<div id="info_panel">'+
+				var html = '<div id="info_panel" class="heading_font">'+
 								'<div id="info_panel_arrow"></div>'+
 								'<div id="info_panel_content">'+
 									'<div id="info_panel_header">'+
@@ -68,14 +68,14 @@
 									'<h3 class="title"></h3>'+
 									'<div class="section" id="overview_info">'+
 										'<div class="content">'+
-											'<p class="description"></p>'+
+											'<p class="description caption_font"></p>'+
 											'<div class="featured_block">'+
 												'<h4>Featured In</h4>'+
-												'<ul class="featured_list"></ul>'+
+												'<ul class="featured_list caption_font"></ul>'+
 											'</div>'+
 											'<div class="tagged_by_block">'+
 												'<h4>Tagged By</h4>'+
-												'<ul class="tagged_by_list"></ul>'+
+												'<ul class="tagged_by_list caption_font"></ul>'+
 											'</div>'+
 										'</div>'+
 									'</div>'+
@@ -88,7 +88,8 @@
 									'</div>'+
 									'<div class="section" id="metadata_info">'+
 										'<div class="content">'+
-											'<dl class="metadata_list"></dl>'+
+											'<h4>Metadata</h4>'+
+											'<dl class="metadata_list caption_font"></dl>'+
 										'</div>'+
 									'</div>'+
 								'</div>'+
@@ -97,7 +98,7 @@
 									'<a class="info_visit">Visit</a>'+
 								'</footer>'+
 							'</div>'+
-							'<div id="sidebar">'+
+							'<div id="sidebar" class="heading_font">'+
 								'<div id="sidebar_inside">'+
 									'<header>'+
 										'<span class="header_icon"></span>'+
@@ -634,7 +635,7 @@
 		        			comment = comments[c];				
 		        			//console.log(comment);
 							var date = new Date(comment.properties.datetime);
-							$('#info_panel #comments_info .comment_list').append('<li><a href="'+comment.body.url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> '+comment.body.current.content+'</span></a></li>');
+							$('#info_panel #comments_info .comment_list').append('<li><a href="'+comment.body.url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
 			        	}
 		        	}else{
 		        		$('#info_panel #comments_info .comment_list').append('<li>There are currently no comments for this page.</li>');
