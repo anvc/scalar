@@ -32,9 +32,6 @@ body.sidebar_full.fullscreen_page>.page{
 	transform: translateX(0rem);
 	left: 0px;
 }
-body.sidebar_vis #sidebar, body.sidebar_vis #info_panel{
-	font-family: 'Lato', Arial, sans-serif !important;
-}
 
 body.sidebar_vis #sidebar{
 	position: fixed;
@@ -321,10 +318,10 @@ body.sidebar_vis #info_panel #info_panel_content{
 	display: none;
 	overflow: hidden;
 	width: 100%;
-	position: relative;
+	position: absolute;
 	z-index: 10;
 	bottom: 7rem;
-	top: 0rem;
+	top: 5rem;
 	background-color: #ddd;
 }
 body.sidebar_vis #info_panel .section{
@@ -332,6 +329,8 @@ body.sidebar_vis #info_panel .section{
 	background-color: transparent;
 	padding: 0px;
 	margin: 0px;
+	height: 100%;
+	overflow: auto;
 }
 body.sidebar_vis #sidebar .pane ul li.empty{
 	display: none;
