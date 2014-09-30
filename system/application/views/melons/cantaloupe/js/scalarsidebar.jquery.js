@@ -55,7 +55,7 @@
 				var html = '<div id="info_panel" class="heading_font">'+
 								'<div id="info_panel_arrow"></div>'+
 								'<div id="info_panel_content">'+
-									'<div id="info_panel_header">'+
+									'<div id="info_panel_header" class="heading_font">'+
 										'<a class="overview_link active" data-page="overview">overview</a>'+
 										'<a class="metadata_link" data-page="metadata">metadata</a>'+
 										'<a class="comments_link" data-page="comments">comments</a>'+
@@ -472,10 +472,90 @@
         base.build_index_pane = function(){
         	base.icons.index = '<span class="icon-index"></span>';
 
-        	var html = '<div class="pane" data-type="index" id="sidebar_index_pane"><ul class="index"></ul></div>';
+        	var html = '<div class="pane" data-type="index" id="sidebar_index_pane"><div class="smallmed"><ul class="current index"></ul></div>';
+        	var new_pane = $(html).appendTo($('#sidebar #sidebar_panes'));
 
+        	
+			var path_url = scalarapi.model.urlPrefix+'rdf/instancesof/path?format=json';
+			var page_url = scalarapi.model.urlPrefix+'rdf/instancesof/page?format=json';
+			var media_url = scalarapi.model.urlPrefix+'rdf/instancesof/media?format=json';
+			var comment_url = scalarapi.model.urlPrefix+'rdf/instancesof/reply?format=json';
+			
+        	//Handle Paths...
+        	var item_html = '<li><span class="sidebar_icon icon-path"></span><br /><div class="title"></div></li>';
+        	var new_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+        	(function(new_item){
+				$.getJSON(path_url,function(json){
+        			base.book_paths = scalarapi.model.parseNodes(json);
+        			new_item.find('.title').text(base.book_paths.length);
+        		});
+			})(new_item);
 
-        	$('#sidebar #sidebar_panes').append($(html));	
+			//Handle Pages...
+        	item_html = '<li><span class="sidebar_icon icon-page"></span><br /><div class="title"></div></li>';
+        	new_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+        	(function(new_item){
+				$.getJSON(page_url,function(json){
+        			base.book_pages = scalarapi.model.parseNodes(json);
+        			new_item.find('.title').text(base.book_pages.length);
+        		});
+			})(new_item);
+
+			//Handle Media...
+
+				//Images...
+	        	item_html = '<li><span class="sidebar_icon icon-photo"></span><br /><div class="title"></div></li>';
+	        	var images_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+
+	        	//Video...
+	        	item_html = '<li><span class="sidebar_icon icon-video"></span><br /><div class="title"></div></li>';
+	        	var video_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+
+	        	//Audio...
+	        	item_html = '<li><span class="sidebar_icon icon-audio"></span><br /><div class="title"></div></li>';
+	        	var audio_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+
+        	(function(images_item,video_item,audio_item){
+				$.getJSON(media_url,function(json){
+					
+					base.book_media = scalarapi.model.parseNodes(json);
+
+					base.book_images = [];
+					base.book_videos = [];
+					base.book_audio = [];
+
+					for(var i in base.book_media){
+						switch(base.book_media[i].current.mediaSource.contentType){
+							case 'image':
+								base.book_images.push(base.book_media[i]);
+								break;
+							case 'video':
+								base.book_videos.push(base.book_media[i]);
+								break;
+							case 'audio':
+								base.book_audio.push(base.book_media[i]);
+								break;
+						}
+					}
+
+        			images_item.find('.title').text(base.book_images.length);
+        			video_item.find('.title').text(base.book_videos.length);
+        			audio_item.find('.title').text(base.book_audio.length);
+        			
+        			console.log(base.book_media);
+        		});
+			})(images_item,video_item,audio_item);
+
+        	//Handle Comments...
+        	item_html = '<li><span class="sidebar_icon icon-comment"></span><br /><div class="title"></div></li>';
+        	new_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+        	(function(new_item){
+				$.getJSON(comment_url,function(json){
+        			base.book_comments = scalarapi.model.parseNodes(json);
+        			new_item.find('.title').text(base.book_comments.length);
+        		});
+			})(new_item);
+
 			$('#sidebar_selector .index').addClass('enabled');
         }
         base.build_linear_pane = function(){
@@ -504,7 +584,6 @@
 				var nodes = JSON.parse(prev_string);
 				for(var uri in nodes){
 					var this_node = nodes[uri];
-					console.log(this_node);
 					var slug = uri.replace(scalarapi.model.urlPrefix,'');
 					if(typeof this_node['http://purl.org/dc/elements/1.1/title']!='undefined' && this_node['http://purl.org/dc/elements/1.1/title'] != null && this_node['http://purl.org/dc/elements/1.1/title'].length > 0){
 						var title = this_node['http://purl.org/dc/elements/1.1/title'][this_node['http://purl.org/dc/elements/1.1/title'].length-1].value;

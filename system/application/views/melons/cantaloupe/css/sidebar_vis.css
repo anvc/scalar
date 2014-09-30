@@ -191,6 +191,43 @@ body.sidebar_vis #sidebar .pane ul li{
 	padding-top: 4px;
 	padding-bottom: 4px;
 }
+body.sidebar_vis #sidebar #sidebar_index_pane{
+	overflow-x: hidden;
+}
+body.sidebar_vis #sidebar #sidebar_index_pane ul li{
+	display: block;
+	text-align: center;
+	margin-left: -10px;
+    transition-duration: .125s;
+    -webkit-transition-duration: .125s;
+    -moz-transition-duration: .125s;
+    transition-timing-function: ease-in-out;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+    color: rgba(0,0,0,.8);
+	margin-top: 10px;
+	margin-top: 10px;
+}
+body.sidebar_collapsed #sidebar #sidebar_index_pane ul li{
+	width: 40px;
+	margin-top: 0px;
+	margin-top: 0px;
+	color: rgba(0,0,0,.5);
+}
+body.sidebar_vis #sidebar #sidebar_index_pane ul li .sidebar_icon, body.sidebar_vis #sidebar #sidebar_index_pane.pane ul li .title{
+	display: inline;
+}
+body.sidebar_vis #sidebar #sidebar_index_pane.pane ul li .title{
+	opacity: 1;
+}
+body.sidebar_expanded #sidebar #sidebar_index_pane ul li .sidebar_icon{
+	font-size: 30px;
+
+}
+body.sidebar_expanded #sidebar #sidebar_index_pane.pane ul li .title{
+	font-size: 20px;
+	margin-left: -10px;
+}
 body.sidebar_collapsed #sidebar .pane ul li.distant{
 	display: none;
 }
