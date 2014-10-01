@@ -501,6 +501,26 @@ body.sidebar_vis #info_panel h4{
 body.sidebar_vis #info_panel .featured_block, body.sidebar_vis #info_panel .tagged_by_block{
 	display: none;
 }
+body.sidebar_vis #info_panel .featured_block li, body.sidebar_vis #info_panel .tagged_by_block li{
+	padding: 0px 1rem 0px 2rem;
+	font-size: .75em;
+}
+body.sidebar_vis #info_panel .featured_block li a, body.sidebar_vis #info_panel .tagged_by_block li a{
+	color: rgba(0,0,0,.75);
+    transition-duration: .125s;
+    -webkit-transition-duration: .125s;
+    -moz-transition-duration: .125s;
+    transition-timing-function: ease-in-out;
+    -webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+}
+body.sidebar_vis #info_panel .featured_block li a:hover, 
+body.sidebar_vis #info_panel .featured_block li a:active, 
+body.sidebar_vis #info_panel .tagged_by_block li a:hover, 
+body.sidebar_vis #info_panel .tagged_by_block li a:active{
+	color: rgba(0,0,0,.9);
+	text-decoration: none;
+}
 body.sidebar_vis #info_panel ul, body.sidebar_vis #info_panel .discuss_link{
 	margin: 0px;
 	padding: 0px;
