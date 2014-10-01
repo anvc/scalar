@@ -173,10 +173,12 @@ body.sidebar_vis #sidebar #sidebar_panes{
 	bottom: 0px;
 	overflow: hidden;
 	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
 }
 body.sidebar_expanded #sidebar #sidebar_panes{
 	overflow-y: auto;
 	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
 }
 body.sidebar_vis #sidebar .pane{
 	height: 100%;
@@ -374,6 +376,7 @@ body.sidebar_vis #info_panel .section{
 	margin: 0px;
 	height: 100%;
 	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 }
 body.sidebar_vis #sidebar .pane ul li.empty{
 	display: none;
