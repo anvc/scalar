@@ -10,12 +10,27 @@ Book has been deleted
 Book has been added
 </div><br />
 <? endif ?>		
-		
+		<style>
+		.admin-nav-wrap {
+			display:inline-block;
+			float:right;
+			margin: 7px 0;
+		}
+		</style>
+
 		<script>
 		$(document).ready(function() {
-   			
-			// 'Edit users' button
-			
+
+			$('.jump-form').submit(function() {
+				var x = parseInt($(this).children('.jump-to-page').val());
+				if(!isNaN(x)) {
+					var start = <?=$total?> * (x-1);
+	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&start=" + start + "&total=<?=$total?>#tabs-all-books";
+				}
+				return false;
+			});
+
+
 			$('.value_select_trigger').click(function() {
 				var $this = $(this);
 				var multiple = $this.hasClass('multiple');
@@ -95,7 +110,7 @@ Book has been added
 		}			
 		</script>			
 		
-		<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-books" method="post">
+		<form style="display:inline-block" action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-books" method="post">
 		<input type="hidden" name="zone" value="all-books" />
 		<input type="hidden" name="action" value="do_add_book" />
 		Add new book: <input type="text" name="title" value="title" style="width:200px;" onfocus="if (this.value=='title') this.value='';" />&nbsp; 
@@ -106,13 +121,14 @@ Book has been added
 		<? endforeach ?>
 		</select>&nbsp; 
 		<input type="submit" value="Go" class="generic_button" />
-		<? 
-		if (!empty($books)) {
+		</form>			
+		<? if (!empty($books)): ?> 
+		<div class="admin-nav-wrap">
+		<?
 			if((count($books)-1) != $total)
 				$count = count($books);
 			else
 				$count = count($books)-1;
-		}
 		?>
 		<? if ($start !== 0 || (count($books)-1) == $total): ?>
 		<? if($start !== 0): ?>
@@ -122,9 +138,14 @@ Book has been added
 		<? if(count($books)-1 == $total): ?>
 		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
 		<? endif ?>
+		<form style="display:inline-block" class="jump-form">
+		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
+		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
+		 </form>
+		<? endif ?>
+		</div>
 		<? endif ?>
 
-		</form>			
 		
 		<br clear="both" />
 		
@@ -184,13 +205,13 @@ Book has been added
 		</table>
 		</div>	
 
-		<? 
-		if (!empty($books)) {
+		<? if (!empty($books)): ?>
+		<div class="admin-nav-wrap">
+		<?
 			if((count($books)-1) != $total)
 				$count = count($books);
 			else
 				$count = count($books)-1;
-		}
 		?>
 		<? if ($start !== 0 || (count($books)-1) == $total): ?>
 		<? if($start !== 0): ?>
@@ -200,5 +221,11 @@ Book has been added
 		<? if(count($books)-1 == $total): ?>
 		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
 		<? endif ?>
+		<form style="display:inline-block" class="jump-form">
+		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
+		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
+		 </form>
+		<? endif ?>
+		</div>
 		<? endif ?>
 		<br />				

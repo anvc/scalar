@@ -10,9 +10,24 @@ User has been deleted
 User has been added
 </div><br />
 <? endif ?>	
-
+		<style>
+		.admin-nav-wrap {
+			display:inline-block;
+			float:right;
+			margin: 7px 0;
+		}
+		</style>
 		<script>
 		$(document).ready(function() {
+
+			$('.jump-form').submit(function() {
+				var x = parseInt($(this).children('.jump-to-page').val());
+				if(!isNaN(x)) {
+					var start = <?=$total?> * (x-1);
+	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&start=" + start + "&total=<?=$total?>#tabs-all-users";
+				}
+				return false;
+			});
 
    			$(window).resize(function() { resizeList(); });
    			resizeList();
@@ -40,13 +55,14 @@ User has been added
 		<input tabindex="3" type="text" name="password" value="password" style="width:180px;" onfocus="if (this.value=='password') {this.value=''; this.type='password';}" />&nbsp; 		
 		<input tabindex="4" type="text" name="book_title" value="title of first book (optional)" style="width:180px;" onfocus="if (this.value=='title of first book (optional)') this.value='';" />&nbsp; 
 		<input type="submit" value="Go" class="generic_button" />
-		<? 
-		if (!empty($users)) {
+		</form>				
+		<? if (!empty($users)): ?>
+		<div class="admin-nav-wrap">
+		<?
 			if((count($users)-1) != $total)
 				$count = count($users);
 			else
 				$count = count($users)-1;
-		}
 		?>
 		<? if ($start !== 0 || (count($users)-1) == $total): ?>
 		<? if($start !== 0): ?>
@@ -56,8 +72,13 @@ User has been added
 		<? if(count($users)-1 == $total): ?>
 		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
 		<? endif ?>
+		<form style="display:inline-block" class="jump-form">
+		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
+		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
+		 </form>
 		<? endif ?>
-		</form>				
+		</div>
+		<? endif ?>
 		
 		<br clear="both" />
 		
@@ -103,6 +124,14 @@ User has been added
 			</tbody>
 		</table>
 		</div>
+		<? if (!empty($users)): ?>
+		<div class="admin-nav-wrap">
+		<?
+			if((count($users)-1) != $total)
+				$count = count($users);
+			else
+				$count = count($users)-1;
+		?>
 		<? if ($start !== 0 || (count($users)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
@@ -111,6 +140,12 @@ User has been added
 		<? if(count($users)-1 == $total): ?>
 		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
 		<? endif ?>
+		<form style="display:inline-block" class="jump-form">
+		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
+		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
+		 </form>
+		<? endif ?>
+		</div>		
 		<? endif ?>
 
 		<br />		

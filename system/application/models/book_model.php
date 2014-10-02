@@ -104,7 +104,7 @@ class Book_model extends MY_Model {
     	
     }      
     
-    public function get_all($user_id=0, $is_live=false, $orderby='title',$orderdir='asc',$total=null,$start=null) {
+    public function get_all($user_id=0, $is_live=false, $orderby='title',$orderdir='asc',$total=null,&$start=null) {
     	
     	$this->db->select('*');
     	$this->db->from($this->books_table);
@@ -119,19 +119,32 @@ class Book_model extends MY_Model {
     	$this->db->order_by($orderby, $orderdir);
 
         // add one to total so that paginated input can detect the end of list
-        if(isset($total) && isset($start))
-            $this->db->limit($total+1,$start);
-        elseif(isset($total))
+        if(isset($total) && !isset($start)) {
             $this->db->limit($total+1);
-        elseif(isset($start))
-            $this->db->offset($start);
+            $query = $this->db->get();
+        }
+        elseif(isset($start)) {
+            $temp1 = $this->db->get();
+            $temp2 = count($temp1->result());
+            if($temp2 <= $start)
+                $start = $temp2 - (isset($total)? $temp2%$total:1);
+            $temp3 = $this->db->last_query();
+            if(isset($total))
+                $temp3 .= ' LIMIT ' . $start . ', ' . ($total+1); 
+            else
+                $temp3 .= ' OFFSET ' . $start;
+            $query = $this->db->query($temp3);
+        }
+        else {
+        	$query = $this->db->get();
+        }
 
-    	$query = $this->db->get();
     	if (mysql_errno()!=0) echo mysql_error();
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->users = $this->get_users($result[$j]->book_id, true, '');
     	}
+
     	return $result;
     	
     }      
