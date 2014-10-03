@@ -286,10 +286,22 @@ class Book_model extends MY_Model {
 				$return[$content_id]->versions[] = $row;
 			}	
 		}
-    	
+
     	usort($return, "sortBookVersions");
     	return $return;
     	
+    }
+    
+    public function reset_book_versions($book_id) {
+    	
+    	$versions = self::get_book_versions($book_id, false);
+    	foreach ($versions as $content_id => $content) {
+    		foreach ($content->versions as $version) {
+    			$version_id = (int) $version->version_id;
+    			$this->db->where('version_id', $version_id);
+				$this->db->update($this->versions_table, array('sort_number'=>0)); 
+    		}
+    	}
     	
     }
     
@@ -519,15 +531,19 @@ class Book_model extends MY_Model {
     	}	
 		
 		// Book versions (ie, main menu)
+		self::reset_book_versions($book_id);
 		$sort_number = 1;
 		foreach ($array as $field => $value) {
 			if (substr($field, 0, 13) != 'book_version_') continue;
-			$version_id = substr($field,13);
-			$this->db->where('version_id', $version_id);
-			$this->db->update($this->versions_table, array( 'sort_number'=>(($value)?$sort_number++:0) ));
+			$version_id = (int) substr($field,13);
+			$value = (int) $value;
+			if ($value) {
+				$this->db->where('version_id', $version_id);
+				$this->db->update($this->versions_table, array( 'sort_number'=>(($value)?$sort_number++:0) ));
+			}
 			unset($array[$field]);
 		}
-		
+	
 		// File -- save thumbnail
 		if (isset($_FILES['upload_thumb'])&&$_FILES['upload_thumb']['size']>0) {
 			try {

@@ -22,6 +22,10 @@ $(window).ready(function() {
     });
     
     $('#book_versions').sortable();
+    $('#book_versions a').live('click', function() {
+		$(this).closest('li').find('input').attr('value', 0);
+		$(this).closest('li').addClass('removed');
+    });
     $('#book_versions_add_another').click(function() {
         var $link = $(this);
         if (true==$link.data('loading')) return false;
