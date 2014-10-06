@@ -252,7 +252,7 @@
 					span.hide();
 					link = span.find( 'span[property="dcterms:title"] > a' );
 					node = scalarapi.getNode( link.attr( 'href' ) );
-					if ( page.containingPathNodes.indexOf( node ) != -1 ) {
+					if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
 						section = $('<section class="relationships"></section').appendTo('article');
 						links = $( '<p></p>' );
 						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path “' + page.containingPath.getDisplayTitle() + '”; continue to “' + node.getDisplayTitle() + '”</a>' );
@@ -263,11 +263,9 @@
 							links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
 						}
 						section.append( links );
+						pathOptionCount++;
+						containingPathOptionCount++;
 					}
-					
-					pathOptionCount++;
-					containingPathOptionCount++;
-					
 				} );
 				
 				// path contents
@@ -804,8 +802,10 @@
 				default:
 			  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 			  	
-			  	// look for related geographic metadata and use it to build a Google Map
-			  	if ( viewType == 'google_maps' ) {
+			  	switch ( viewType ) {
+			  	
+			  		// look for related geographic metadata and use it to build a Google Map
+			  		case "google_maps":
 			  	
 			  		$( '.page' ).css( 'padding-top', '5.0rem' );
 			  		$( 'header > h1' ).before( '<div id="google-maps" class="maximized-embed"></div>' );
@@ -933,6 +933,25 @@
 					}, function() {
 						console.log('an error occurred while retrieving additional metadata.');
 					}, 1, true);
+					break;
+					
+					/*case "vis":
+			  		case "visindex":
+			  		case "visradial":
+			  		case "vispath":
+			  		case "vistag":
+			  		case "vismedia":
+					var options = {
+						parent_uri: scalarapi.model.urlPrefix, 
+						default_tab: viewType,
+						minimal: true
+					};
+					var visualization = $(  '<div id="#visualization"></div>' );
+					$( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
+					$( 'article > header' ).after( visualization );
+					visualization.scalarvis( options );
+					break;*/
+			  	
 			  	}
 	
 				page.setupScreenedBackground();
