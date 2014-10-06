@@ -509,22 +509,15 @@
 					
 				}
 				
-				var publisherUrl = scalarapi.model.bookNode.properties[ 'http://purl.org/dc/terms/publisher' ],
-					publisherThumbnail = scalarapi.model.bookNode.properties[ 'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail' ];
-					
+				var publisherNode = scalarapi.model.getPublisherNode();
 				var publisherInfo = $( '<p id="publisher-credit"></p>' );
-				
-				if ( publisherThumbnail != null ) {
-					publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
-				}
-				
-				if ( publisherUrl != null ) {
-					var publisherNode = scalarapi.getNode( publisherUrl[0].value );
-					if ( publisherNode != null ) {
-						publisherInfo.append( ' ' + publisherNode.getDisplayTitle() );
+				if ( publisherNode != null ) {
+					var publisherThumbnail = publisherNode.properties[ 'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail' ];
+					if ( publisherThumbnail != null ) {
+						publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
 					}
+					publisherInfo.append( ' ' + publisherNode.title );
 				}
-				
 				$( '#colophon' ).prepend( publisherInfo );
 			
 			},

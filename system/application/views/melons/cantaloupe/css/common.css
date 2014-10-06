@@ -769,9 +769,10 @@ a.media_info {
 
 #colophon { padding-left: 7.2rem; padding-right: 7.2rem; font-size: 1.2rem; color: #666; clear: both; padding-top: 6rem; }
 #colophon img { margin-right: .3rem; }
-#publisher-credit { margin-bottom: 1.2rem; line-height: 110%; }
+#publisher-credit { margin-bottom: 1.2rem; line-height: 110%; vertical-align: top; }
+#publisher-credit img { float: left; margin-right: .6rem; }
 #scalar-credit img { vertical-align: middle; margin-top: -.2rem; }
-#scalar-credit { margin-bottom: 0; }
+#scalar-credit { margin-bottom: 0; clear: both; padding-top: 1rem; }
 
 #incoming_comments, #outgoing_comments { padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
 #comment_control {
@@ -1137,13 +1138,6 @@ a.nav_btn:hover {
 aside { display: none; }
 span[property="dcterms:description"] { display: none; }
 .mediaElementHeader { display: none; }
-
-
-#visualization .instructions { min-height: 4rem; }
-#visualization form { float: left !important; margin-left: 0; margin-right: 2rem; margin-bottom: 1rem; }
-#visualization p { margin: .5rem; line-height: 150%; }
-svg, .label, .clusternode, .info_box .content, .ui-widget { font-family: 'Lato', Arial, sans-serif !important; font-size: 1.2rem; }
-.ui-button-text { font-size: 1.6rem; }
 
 .no_selection {
     -webkit-user-select: none; /* webkit (safari, chrome) browsers */
