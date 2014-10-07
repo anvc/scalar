@@ -204,6 +204,11 @@
 		// Sign in
 		list.append( '<li id="user-item"><img src="' + this.options.root_url + '/images/user_icon.png" alt="Account menu. Roll over to show account options." width="30" height="30" /></li>' );
 		this.buildUserMenu();
+		
+		// Hypothesis integration
+		if ( "true" == $( "link#hypothesis" ).attr( "href" ) ) {
+			$( "#header" ).addClass( "hypothesis" );
+		}
 
 		// This is used to resize menus according to browser window size, to ensure they don't get too big
 		// and allow area for user to scroll the page behind the menu

@@ -108,6 +108,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 	transition: all .2s ease-in-out;
 	-webkit-font-smoothing: subpixel-antialiased;
 }
+#header.hypothesis { padding-right: 3.5rem; }
 
 .header_slide {
 	-webkit-transform: translateY( -40px );

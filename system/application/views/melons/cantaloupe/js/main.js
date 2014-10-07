@@ -362,15 +362,8 @@ $(window).ready(function() {
 
 		  }},
 
-		  // Background visualization layer
-		  /*{load: [widgets_uri+'/d3/d3.v2.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {
-			  	// TODO: Background visualization initialization here
-		  }},*/
-
 		  {load: [widgets_uri+'/spinner/spin.min.js',
-		          widgets_uri+'/d3/d3.min.js',
-		          /*widgets_uri+'/vis/scalarvis.css',
-		          widgets_uri+'/vis/jquery.scalarvis.js'*/], complete:function() {
+		          widgets_uri+'/d3/d3.min.js',], complete:function() {
 
 		   		if ( currentNode == null ) {
 		   			$( 'body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
@@ -422,10 +415,6 @@ $(window).ready(function() {
 				}
 
 				var savedState = $.cookie('viewstate');
-				/*if (savedState != null) {
-					setState(savedState, true);
-				}*/
-
 
 				// Load info about the book
 				scalarapi.loadBook(true, function() {
@@ -435,46 +424,10 @@ $(window).ready(function() {
 
 		  }},
 
-		  /*// Slot managers
-		  {load: [widgets_uri+'/slotmanager/jquery.texteo.js',
-		          widgets_uri+'/slotmanager/texteo.css',
-		          widgets_uri+'/slotmanager/jquery.inlineslotmanager.js'], complete:function() {
-			  	// TODO
-
-
-		  }},*/
-
-		  // Content preview
-		  /*{load: [widgets_uri+'/contentpreview/jquery.scalarcontentpreview.js'], complete:function() {
-			  	// TODO: content preview
-		  }},*/
-
 		  // Maximize + comments
-		  {load: [/*widgets_uri+'/maximize/maximize.css',
-		          widgets_uri+'/maximize/jquery.scalarmaximize.js',*/
-		          '//www.google.com/recaptcha/api/js/recaptcha_ajax.js',
+		  {load: ['//www.google.com/recaptcha/api/js/recaptcha_ajax.js',
 		          widgets_uri+'/replies/replies.js'], complete:function() {
-				/*$('.reply_link').click(function() {
-			    	commentFormDisplayForm();
-			    	return false;
-			    });
-				if (document.location.hash.indexOf('comment')!=-1) commentFormDisplayForm();*/
 		  }},
-
-		  // Live annotations
-		 /* {load: [widgets_uri+'/liveannotations/jquery.scalarliveannotations.js'], complete:function() {
-			$('body').bind('show_annotation', function(event, annotation, mediaelement) {
-				if (!mediaelement.isPlaying()) return;
-				$('<div></div>').appendTo('body').live_annotation({
-					annotation:annotation,
-					mediaelement:mediaelement,
-					mode:(($("script[src*='vertslotmanager.js']").length) ? 'vert' : 'horiz'),
-					content_wrapper_id:'content_wrapper',
-					content_id:'content'
-				});
-			});
-			$('body').bind('hide_annotation', function(event) {});
-		  }}*/
 
 		  // Hypothesis
 		  {
