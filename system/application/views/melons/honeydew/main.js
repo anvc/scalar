@@ -85,10 +85,10 @@ $(window).ready(function() {
 		  		document.location.href = uri + '?action=removed';
 		  		return false;
 		  	});
-		  }},   
+		  }},   		  
 		  
 		  // Mediaelement
-		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',widgets_uri+'/mediaelement/flowplayer.js',widgets_uri+'/mediaelement/jquery.annotate.js',widgets_uri+'/mediaelement/froogaloop.min.js',widgets_uri+'/mediaelement/openseadragon/openseadragon.min.js',widgets_uri+'/mediaelement/mediaelement.css',widgets_uri+'/mediaelement/annotation.css',widgets_uri+'/mediaelement/jquery.mediaelement.js',widgets_uri+'/mediaelement/jquery.jplayer.min.js']},
+		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',widgets_uri+'/mediaelement/flowplayer.js',widgets_uri+'/mediaelement/jquery.annotate.js',widgets_uri+'/mediaelement/froogaloop.min.js',widgets_uri+'/mediaelement/openseadragon/openseadragon.min.js',widgets_uri+'/mediaelement/mediaelement.css',widgets_uri+'/mediaelement/annotation.css',widgets_uri+'/mediaelement/jquery.mediaelement.js',widgets_uri+'/mediaelement/jquery.jplayer.min.js']},  
 		  
 		  // Slot managers
 		  {load: [widgets_uri+'/slotmanager/jquery.texteo.js',widgets_uri+'/slotmanager/texteo.css',widgets_uri+'/slotmanager/jquery.inlineslotmanager.js'], complete:function() {
@@ -177,7 +177,7 @@ $(window).ready(function() {
 		  		if (!parent.length) return;
 		  		document.location.href=parent;
 		  	});
-		  }},
+		  }},		  
 		  
 		  // Scalar Nav which includes a few dependencies
 		  {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/pulldown/jquery.scalarpulldown.js',widgets_uri+'/pulldown/pulldown.css',widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js',widgets_uri+'/nav/jquery.scalarrecent.js',widgets_uri+'/nav/jquery.scalarnav.js',widgets_uri+'/nav/nav.css'], complete:function() {
@@ -204,6 +204,12 @@ $(window).ready(function() {
 			if (document.location.hash.indexOf('comment')!=-1) commentFormDisplayForm();
 		  }},
 		  
+		  // Hypothesis
+		  {
+			  test: ('true'==$('link#hypothesis').attr('href')),
+			  yep: 'https://hypothes.is/embed.js'
+		  },			  
+		  
 		  // Live annotations
 		  {load: [widgets_uri+'/liveannotations/jquery.scalarliveannotations.js'], complete:function() {
 			$('body').bind('show_annotation', function(event, annotation, mediaelement) {
@@ -217,13 +223,7 @@ $(window).ready(function() {
 				});
 			});	
 			$('body').bind('hide_annotation', function(event) {});	
-		  }},
-		  
-		  // Hypothesis
-		  {
-			  test: ('true'==$('link#hypothesis').attr('href')),
-			  yep: 'https://hypothes.is/embed.js'
-		  }
+		  }}
   	  
 	]);  // !yepnope
 	
