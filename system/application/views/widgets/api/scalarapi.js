@@ -2787,10 +2787,19 @@ ScalarModel.prototype.getBookNode = function() {
 /**
  * Returns the node for the current page, if one can be found.
  *
- * @return				The book node.
+ * @return				The current page node.
  */
 ScalarModel.prototype.getCurrentPageNode = function() {
 	return this.currentPageNode;
+}
+
+/**
+ * Returns the node for the publisher, if one can be found.
+ *
+ * @return				The publisher node.
+ */
+ScalarModel.prototype.getPublisherNode = function() {
+	return this.nodesByURL[this.urlPrefix+'publisher'];
 }
 	
 /**
@@ -3292,6 +3301,39 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 	}	
 	
 	return results;
+}
+
+/**
+ * Returns true if the specified node is related to this node.
+ *
+ * @param {Object} node					The node with a possible relation to this node.
+ * @param {Array} relations				Array of relation types to test (null == all standard relations)
+ * @return								True if the nodes are related.
+ */
+ScalarNode.prototype.isRelatedToNode = function( node, relations ) {
+
+	var relatedNodes;
+	
+	if ( this == node ) {
+		return true;
+	}
+	
+	if ( relations == null ) {
+		relations = [ "tag", "path", "referee", "annotation", "comment" ]
+	}
+	
+	for ( var i in relations ) {
+		relatedNodes = this.getRelatedNodes(  relations[ i ], "outgoing" );
+		if ( relatedNodes.indexOf( node ) != -1 ) {
+			return true;
+		}
+		relatedNodes = this.getRelatedNodes(  relations[ i ], "incoming" );
+		if ( relatedNodes.indexOf( node ) != -1 ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 	
 /**
