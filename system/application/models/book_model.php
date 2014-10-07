@@ -186,18 +186,19 @@ class Book_model extends MY_Model {
     }
     
     public function is_duplicatable($book) {
-    	//@Lucas: Just changed "all" to "true" since, right now, we don't have any means of making this more granular; This may be changed in the future
     	if (stristr($book->title, 'data-duplicatable="true"')) return true;
     	return false;
-    	
     }
 	
-	//@Lucas: Added second helper function to find if a book is 'joinable'
 	public function is_joinable($book) {
-    	if (stristr($book->title, 'data-joinable="false"')) return false;
+    	if (stristr($book->title, 'data-joinable="false"')) return false;  // TODO: not sure the reverse logic here... Joinable by default? ~cd
     	return true;
-    	
     }
+    
+	public function is_hypothesis($book) {
+    	if (stristr($book->title, 'data-hypothesis="true"')) return true;
+    	return false;
+    }    
    
     public function get_images($book_id) {
     	

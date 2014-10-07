@@ -11,14 +11,16 @@ $(window).ready(function() {
 	var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 	var is_duplicatable = ('undefined'==typeof($title.children(":first").attr('data-duplicatable'))) ? 0 : 1;
 	var is_joinable = ('undefined'==typeof($title.children(":first").attr('data-joinable'))) ? 0 : 1;
+	var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? 0 : 1;
 	$('#duplicatable').val(is_duplicatable);
 	$('#joinable').val(is_joinable);
+	$('#hypothesis').val(hypothesis);
 	    
-	$('#duplicatable, #joinable').change(function() {
+	$('#duplicatable, #joinable, #hypothesis').change(function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable'];
+		var prop_arr = ['duplicatable', 'joinable', 'hypothesis'];
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
 			var make_true = (parseInt($('#'+prop).val())) ? true : false;
@@ -58,12 +60,13 @@ $(window).ready(function() {
 		echo '</div><br />';
 	}
 
-	$row = $book;  // TEMP
+	$row = $book; 
 	if (!empty($row)):
-		if (!empty($book_id) && $row->book_id != $book_id) continue;	
+		// Double check that we're looking at the correct book
+		if (!empty($book_id) && $row->book_id != $book_id) die('Could not match book with book ID');	
 
 	echo '<tr style="display:none;">';
-	echo '<td style="width:110px;"><p>Title</p></td>';
+	echo '<td><p>Title</p></td>';
 	echo '<td colspan="2"><input name="title" type="text" value="'.htmlspecialchars($row->title).'" style="width:100%;" /></td>';
 	echo '</tr>'."\n";	
 		
@@ -85,6 +88,15 @@ $(window).ready(function() {
 	echo "</td>\n";
 	echo "</tr>\n";	
 	echo '<tr typeof="books">';
+	echo '<td><p>Reviewability</p>';
+	echo '</td>'."\n";
+	echo '<td style="vertical-align:middle;" colspan="2">';
+	echo '<p>';
+	echo 'Add the <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> sidebar? &nbsp;<select id="hypothesis"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+	echo '<br /><small>A sidebar will be layered over your book adding <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> collaborative review and commenting features</small>';
+	echo '</p>';
+	echo "</td>\n";
+	echo "</tr>\n";		
 	echo '<td><p>Joinability</p>';
 	echo '</td>'."\n";
 	echo '<td style="vertical-align:middle;" colspan="2">';

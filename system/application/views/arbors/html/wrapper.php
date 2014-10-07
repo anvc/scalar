@@ -1,13 +1,14 @@
 <?
 // Define page style based on precedence (book -> current path -> page)
 $title = $description = $color = $primary_role = '';
-$background = $default_view = $style = $js = null;
+$background = $default_view = $style = $js = $hypothesis = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {
 	$title = $book->title;
 	if (!empty($book->background)) $background = trim($book->background);
 	if (!empty($book->custom_style)) $style .= $book->custom_style."\n";
 	if (!empty($book->custom_js)) $js .= $book->custom_js."\n";
+	if (stristr($book->title, 'data-hypothesis="true"')) $hypothesis = true;
 }
 if (isset($page->versions) && isset($page->versions[$page->version_index]->has_paths) && !empty($page->versions[$page->version_index]->has_paths)) {
 	if (!empty($page->versions[$page->version_index]->has_paths[0]->background)) $background = trim($page->versions[$page->version_index]->has_paths[0]->background);
@@ -62,6 +63,9 @@ echo doctype('html5')."\n"
 <? endif ?>
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
+<? if ($hypothesis): ?>
+<link id="hypothesis" href="true" />
+<? endif ?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>
