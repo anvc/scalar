@@ -530,17 +530,37 @@ class System extends MY_Controller {
 		if ($this->data['login_is_super']) {
 			$this->data['total'] = (isset($_REQUEST['total']) && is_numeric($_REQUEST['total']) && $_REQUEST['total'] > 0) ? $_REQUEST['total'] : 20;
 	 		$this->data['start'] = (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $_REQUEST['start'] > 0) ? $_REQUEST['start'] : 0;
-
+	 		$query = isset($_REQUEST['sq'])?$_REQUEST['sq']:null;
 			switch ($this->data['zone']) {
-			 	case 'all-users':	
-					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all(0,false,'fullname','asc',$this->data['total'],$this->data['start']) : array();	
+			 	case 'all-users':
+			 		if($this->data['login_is_super']) {
+			 			if(isset($query)) {
+			 				$this->data['users'] = $this->users->search($query);
+			 			}
+			 			else {
+							$this->data['users'] = $this->users->get_all(0,false,'fullname','asc',$this->data['total'],$this->data['start']);
+			 			}
+			 		}
+			 		else {
+			 			$this->data['users'] = array();
+			 		}
 					for ($j = 0; $j < count($this->data['users']); $j++) {
 						$this->data['users'][$j]->books = $this->books->get_all($this->data['users'][$j]->user_id);
 					}		 	  		    	
 					break;
 			 	case 'all-books':  
+			 		if($this->data['login_is_super']) {
+			 			if(isset($query)) {
+			 				$this->data['books'] = $this->books->search($query);
+			 			}
+			 			else {
+							$this->data['books'] = $this->books->get_all(0,false,'title','asc',$this->data['total'],$this->data['start']);
+						}
+			 		}
+			 		else {
+			 			$this->data['books'] = array();
+			 		}
 					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();	
-					$this->data['books'] = ($this->data['login_is_super']) ? $this->books->get_all(0,false,'title','asc',$this->data['total'],$this->data['start']) : array();	
 
 					break;	
 			}

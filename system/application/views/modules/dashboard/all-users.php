@@ -16,6 +16,9 @@ User has been added
 			float:right;
 			margin: 7px 0;
 		}
+		.user-search-form {
+			margin-top:15px;
+		}
 		</style>
 		<script>
 		$(document).ready(function() {
@@ -26,6 +29,12 @@ User has been added
 					var start = <?=$total?> * (x-1);
 	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&start=" + start + "&total=<?=$total?>#tabs-all-users";
 				}
+				return false;
+			});
+
+			$('.user-search-form').submit(function() {
+				var sq = $(this).children('.user-search').val();
+ 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&sq=" + encodeURIComponent(sq) + "#tabs-all-users";
 				return false;
 			});
 
@@ -79,6 +88,10 @@ User has been added
 		<? endif ?>
 		</div>
 		<? endif ?>
+		<form class="user-search-form">
+		 	<input placeholder="Find User" type="text" class="user-search" size="20" />
+			<input style="vertical-align:bottom;" type="submit" value="Search" class="generic_button" />
+		 </form>
 		
 		<br clear="both" />
 		
