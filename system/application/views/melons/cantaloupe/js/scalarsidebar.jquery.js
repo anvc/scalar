@@ -667,6 +667,11 @@
 		        	if(base.queryVars.path!=null && typeof base.queryVars.path!='undefined'){
 		        		target_url += '?path='+base.queryVars.path;
 		        	}
+		        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+		        		target_url += '?v='+base.queryVars.visualization;	
+		        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+		        		target_url += '?v='+base.queryVars.v;	
+		        	}
 					window.location = target_url;
 				}else{
 					base.triggerSidebar(true);
@@ -708,6 +713,12 @@
 		        		target_url += '?path='+base.queryVars.path;
 		        	}
 
+		        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+		        		target_url += '?v='+base.queryVars.visualization;	
+		        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+		        		target_url += '?v='+base.queryVars.v;	
+		        	}
+
 		        	$('body>#info_panel .info_visit').attr('href',target_url);
 		        	var references = page.getRelations('referee', 'incoming', 'reverseindex');
 		        	var tags = page.getRelations('tag', 'incoming', 'reverseindex');
@@ -718,7 +729,16 @@
 		        	if(references.length > 0){
 		        		for(var i = 0; i< references.length; i++){
 		        			var this_reference = references[i].body;
-		        			$('#info_panel .featured_block ul.featured_list').append('<li><a href="'+this_reference.url+'"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span> '+this_reference.current.title+'</a></li>');
+
+		        			target_url = this_reference.url;
+
+				        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+				        		target_url += '?v='+base.queryVars.visualization;	
+				        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+				        		target_url += '?v='+base.queryVars.v;	
+				        	}
+
+		        			$('#info_panel .featured_block ul.featured_list').append('<li><a href="'+target_url+'"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span> '+this_reference.current.title+'</a></li>');
 		        		}
 		        		$('#info_panel .featured_block').fadeIn('fast');
 		        	}
@@ -727,7 +747,17 @@
 		        	if(tags.length > 0){
 		        		for(var i = 0; i< tags.length; i++){
 		        			var this_tag = tags[i].body;
-		        			$('#info_panel .tagged_by_block ul.tagged_by_list').append('<li><a href="'+this_tag.url+'"><span class="'+base.getIconByType(this_tag.current.mediaSource.contentType)+'"></span> '+this_tag.current.title+'</a></li>');
+
+		        			target_url = this_tag.url;
+
+				        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+				        		target_url += '?v='+base.queryVars.visualization;	
+				        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+				        		target_url += '?v='+base.queryVars.v;	
+				        	}
+				        	
+		        			
+		        			$('#info_panel .tagged_by_block ul.tagged_by_list').append('<li><a href="'+target_url+'"><span class="'+base.getIconByType(this_tag.current.mediaSource.contentType)+'"></span> '+this_tag.current.title+'</a></li>');
 		        		}
 		        		$('#info_panel .tagged_by_block').fadeIn('fast');
 		        	}
@@ -740,7 +770,16 @@
 		        			comment = comments[c];				
 		        			//console.log(comment);
 							var date = new Date(comment.properties.datetime);
-							$('#info_panel #comments_info .comment_list').append('<li><a href="'+comment.body.url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
+
+		        			target_url = comment.body.url;
+
+				        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+				        		target_url += '?v='+base.queryVars.visualization;	
+				        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+				        		target_url += '?v='+base.queryVars.v;	
+				        	}
+				        	
+							$('#info_panel #comments_info .comment_list').append('<li><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
 			        	}
 		        	}else{
 		        		$('#info_panel #comments_info .comment_list').append('<li>There are currently no comments for this page.</li>');
