@@ -930,10 +930,10 @@
 					
 					/*case "vis":
 			  		case "visindex":
-			  		case "visradial":
 			  		case "vispath":
 			  		case "vistag":
-			  		case "vismedia":
+			  		case "vismedia":*/
+			  		case "visradial":
 					var options = {
 						parent_uri: scalarapi.model.urlPrefix, 
 						default_tab: viewType,
@@ -943,7 +943,7 @@
 					$( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
 					$( 'article > header' ).after( visualization );
 					visualization.scalarvis( options );
-					break;*/
+					break;
 			  	
 			  	}
 	
