@@ -344,12 +344,12 @@
 			{id:"media", name:"Media"},
 			{id:"tag", name:"Tags"},
 			{id:"annotation", name:"Annotations"},
-			{id:"commentary", name:"Commentaries"},
-			{id:"review", name:"Reviews"},
-			{id:"comment", name:"Comments"},
-			{id:"person", name:"People"}
+			/*{id:"commentary", name:"Commentaries"},
+			{id:"review", name:"Reviews"},*/
+			{id:"comment", name:"Comments"}/*,
+			{id:"person", name:"People"}*/
 		];
-		this.indexTypeStrings = ['path', 'page', 'media', 'tag', 'annotation', 'commentary', 'review', 'comment', 'person'];
+		this.indexTypeStrings = ['path', 'page', 'media', 'tag', 'annotation', 'commentary', /*'review',*/ 'comment'/*, 'person'*/];
 		this.selectedRadioBtn = "radio1";						// id of the currently selected radio button
 		this.lastSelectedRadioBtn;								// id of the last selected radio button
 		this.scaleFactorH = 1;									// available width multiplier
@@ -513,11 +513,26 @@
 				me.mouseX = e.pageX;
 				me.mouseY = e.pageY;
 			});
+
+			var visFooter = $( '<div class="vis_footer"></div>' ).appendTo( this.model.element );
 			
-			var helpButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top">About this visualization</button>' );
-			this.helpMsg = $( '<div class="help_msg"></div>' ).appendTo( this.model.element );
-			this.helpMsg.append( helpButton );
-			helpButton.popover( { trigger: "hover click" } );
+			this.helpButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top">About this visualization</button>' );
+			visFooter.append( this.helpButton );
+			this.helpButton.popover( { trigger: "hover click", html: true } );
+			
+			visFooter.append( '|' );
+			
+			this.legendButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>' );
+			visFooter.append( this.legendButton );
+			var legendMarkup = "";
+			var type;
+			n = this.indexTypeOrder.length;
+			for ( i = 0; i < n; i++ ) {
+				type = this.indexTypeOrder[ i ];
+				legendMarkup += '<span style="color:' + this.highlightColorScale( type.id ) + ';">&#9632;</span> ' + type.name + '<br>';
+			}
+			this.legendButton.attr( "data-content", legendMarkup );
+			this.legendButton.popover( { trigger: "hover click", html: true } );
 			
 		}
 		
@@ -550,7 +565,8 @@
 		 * Hides the loading message.
 		 */
 		jQuery.VisView.prototype.hideLoadingMsg = function() {
-			this.loadingMsg.slideUp();
+			var me = this;
+			this.loadingMsg.slideUp( 400, function() { me.update(); } );
 		}
 		
 		/**
@@ -635,7 +651,7 @@
 				.attr('y', function(d,i) { return legendOffset + (i * 14); })
 				.attr('width', 10)
 				.attr('height', 10)
-				.attr('fill', function(d) { return me.colorScale(d.id); });
+				.attr('fill', function(d) { return me.highlightColorScale(d.id); });
 				
 			group.selectAll('text.legend')
 				.data(this.indexTypeOrder)
@@ -646,7 +662,6 @@
 				.attr('fill', '#aaa')
 				.text(function(d) { return d.name; });
 				
-			$('.legend').nodoubletapzoom();
 		}
 		
 		/**
@@ -1529,13 +1544,11 @@
 				}
 			}
 			
-			this.helpMsg.find( 'button' ).attr( "data-content", "This visualization shows how “" + scalarapi.model.currentPageNode.getDisplayTitle() + "” is connected to other content in this work. Each colored arc represents a connection, color-coded by type. You can roll over the visualization to browse connections, or click to add more content to the current selection. To explore a group of connections in more detail, click one of the large arcs to expand its contents. You can also click any item's title to navigate to it." );
+			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work. Each colored arc represents a connection, color-coded by type. You can roll over the visualization to browse connections, or click to add more content to the current selection. To explore a group of connections in more detail, click one of the large arcs to expand its contents. You can also click any item's title to navigate to it." );
 			
 			this.visualization.empty();
 			this.visualization.css( 'min-height', '568px' );
 			this.visualization.css('padding', '10px');
-			
-			//this.instructions.html('<b>All content and its relationships.</b> Roll over the visualization to explore. Click to expand an area or to select content to view its relationships; double-click content to view.');
 			
 			var maxNodeChars = 130 / 6;
 			
@@ -2388,9 +2401,10 @@
 				}
 			}
 			
+			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work. Each box represents a piece of content, color-coded by type. The darker the box, the more connections it has to other content. Each line represents a connection. You can roll over the visualization to browse connections, or click to add more content to the current selection. Click the “View” button of any selected item to navigate to it." );
+			
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');
-			//this.instructions.html('<b>All content, sorted by type.</b> Roll over the visualization to explore. Darker colors indicate more connections. Click to select content and view its relationships; double-click to view.');
 			this.leftMargin = 0;
 			this.rightMargin = 0;
 			
@@ -2451,8 +2465,12 @@
 			var n = sortedNodes.length;
 			for (i=n-1; i>=0; i--) {
 				node = sortedNodes[i];
-				if (node) {
-					maxConnections = Math.max(maxConnections, (node.outgoingRelations ? node.outgoingRelations.length : 0) + (node.incomingRelations ? node.incomingRelations.length : 0));
+				if ( node ) {
+					if ( node.getDominantScalarType() != '' ) {
+						maxConnections = Math.max(maxConnections, (node.outgoingRelations ? node.outgoingRelations.length : 0) + (node.incomingRelations ? node.incomingRelations.length : 0));
+					} else {
+						sortedNodes.splice(i, 1);
+					}
 				} else {
 					sortedNodes.splice(i, 1);
 				}
@@ -2558,7 +2576,7 @@
 						return .1 + ((((d.node.outgoingRelations ? d.node.outgoingRelations.length : 0) + (d.node.incomingRelations ? d.node.incomingRelations.length : 0) + 1) / maxConnections) * .9);
 					})
 					.attr('fill', function(d) {
-						return me.colorScale(d.node.getDominantScalarType().singular);
+						return me.highlightColorScale(d.node.getDominantScalarType().singular);
 					})
 					.on("mouseover", function(d) { 
 						me.currentNode = d.node;
@@ -2604,7 +2622,7 @@
 					row = rows[i];
 				
 					me.indexvis_boxLayer.selectAll('rect.row'+i)
-						.attr('fill', function(d) { return (me.currentNode == d.node) ? d3.rgb(me.colorScale(d.node.getDominantScalarType().singular)).darker() : me.colorScale(d.node.getDominantScalarType().singular); });
+						.attr('fill', function(d) { return (me.currentNode == d.node) ? d3.rgb(me.highlightColorScale(d.node.getDominantScalarType().singular)).darker() : me.highlightColorScale(d.node.getDominantScalarType().singular); });
 					
 				}
 				
@@ -2667,7 +2685,7 @@
 					.attr('y2', function(d) { return rowScale(me.indexNodesByURL[d.target.url].row + 1) - (boxSize * .5); })
 					.attr('stroke-width', 1)
 					.attr('stroke-dasharray', '1,2')
-					.attr('stroke', function(d) { return me.colorScale((d.type.id == 'referee') ? 'media' : d.type.id); });
+					.attr('stroke', function(d) { return me.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id, "verb" ); });
 						
 				// draw connection dots
 				linkEnter.selectAll('circle.connectionDot'+i)
@@ -2687,7 +2705,7 @@
 						return nodeArr;
 					})
 					.enter().append('circle')
-					.attr('fill', function(d) { return me.colorScale((d.type.id == 'referee') ? 'media' : d.type.id); })
+					.attr('fill', function(d) { return me.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id); })
 					.attr('class', 'connectionDot')
 					.attr('cx', function(d) {
 						return me.leftMargin + colScale(me.indexNodesByURL[d.node.url].column) + (boxSize * .5);
@@ -2743,7 +2761,7 @@
 			groupEnter.append('path')
 				.attr('class', 'pathLink')
 				.attr('stroke', function(d) {
-					return d[0].color ? d[0].color : '#555'; 
+					return me.highlightColorScale( "path", "verb" ); 
 				})
 				.attr('stroke-dasharray', '5,2')
 				.attr('d', line);

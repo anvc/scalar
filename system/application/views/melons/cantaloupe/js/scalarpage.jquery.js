@@ -929,10 +929,10 @@
 					break;
 					
 					/*case "vis":
-			  		case "visindex":
 			  		case "vispath":
 			  		case "vistag":
 			  		case "vismedia":*/
+			  		case "visindex":
 			  		case "visradial":
 					var options = {
 						parent_uri: scalarapi.model.urlPrefix, 
