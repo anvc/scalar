@@ -6,8 +6,6 @@ body.sidebar_vis>.page{
 
 	transform: translateX(0px);
 
-
-
 	transition: all .125s ease-in-out;
 	-webkit-transition: all .125s ease-in-out;
 	-moz-transition: all .125s ease-in-out;
@@ -167,7 +165,7 @@ body.sidebar_vis #sidebar header:hover .header_icon span{
 
 body.sidebar_vis #sidebar #sidebar_panes{
 	position: absolute;
-	top: 5rem;
+	top: 8rem;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
@@ -379,10 +377,11 @@ body.sidebar_vis #info_panel .section{
 	-webkit-overflow-scrolling: touch;
 }
 body.sidebar_vis #sidebar .pane ul li.empty{
-	display: none;
+	height: 33px;
+	cursor: default;
 }
 body.sidebar_vis.sidebar_expanded #sidebar .pane ul li.empty{
-	display: block;
+	display: table;
 }
 body.sidebar_vis #info_panel.overview #overview_info.section,
 body.sidebar_vis #info_panel.comments #comments_info.section,
@@ -524,6 +523,7 @@ body.sidebar_vis #info_panel .tagged_by_block li a:active{
 body.sidebar_vis #info_panel ul, body.sidebar_vis #info_panel .discuss_link{
 	margin: 0px;
 	padding: 0px;
+	cursor: pointer;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector{
 	display: none;
@@ -656,20 +656,28 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 }
 @media only screen and (min-width : 581px) {
 	/*Everything but small screens*/
+	body.sidebar_vis #sidebar .pane ul li.distant{
+		display: table;
+	}
+	body.sidebar_vis #sidebar .pane ul li .title{
+		text-indent: -1000px;
+	}
 	body.sidebar_vis #sidebar .pane ul li.distant, body.sidebar_vis #sidebar .pane ul li .title{
 		opacity: 0;
-	    transition-duration: .125s;
-	    -webkit-transition-duration: .125s;
-	    -moz-transition-duration: .125s;
-	    transition-timing-function: ease-in-out;
-	    -webkit-transition-timing-function: ease-in-out;
-	    -moz-transition-timing-function: ease-in-out;
+		overflow: hidden;
+	}
+	body.sidebar_vis #sidebar #sidebar_panes{
+		overflow-y: hidden;
+	}
+	body.sidebar_expanded #sidebar #sidebar_panes{
+		overflow-y: auto;
 	}
 
 	body.sidebar_expanded #sidebar .pane ul li.distant, 
 	body.sidebar_expanded #sidebar .pane ul li .title{
-		text-indent: 0px;
 		opacity: 1;
+		text-indent: 0px;
+		overflow:visible;
 	}
 }
 /* Large Devices, Wide Screens */
