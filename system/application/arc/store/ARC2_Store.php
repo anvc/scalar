@@ -49,7 +49,7 @@ class ARC2_Store extends ARC2_Class {
     foreach (array('db_host' => 'localhost', 'db_user' => '', 'db_pwd' => '', 'db_name' => '') as $k => $v) {
       $this->a[$k] = $this->v($k, $v, $this->a);
     }
-    if (!$db_con = mysql_connect($this->a['db_host'], $this->a['db_user'], $this->a['db_pwd'])) {
+    if (!$db_con =@ mysql_connect($this->a['db_host'], $this->a['db_user'], $this->a['db_pwd'])) {
       return $this->addError(mysql_error());
     }
     $this->a['db_con'] = $db_con;
