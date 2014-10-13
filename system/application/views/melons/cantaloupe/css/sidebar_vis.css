@@ -87,7 +87,7 @@ body.sidebar_vis #sidebar_inside{
 }
 
 body.sidebar_vis #sidebar .sidebar_icon{
-	font-size: 2rem;
+	font-size: 1.75rem;
 	line-height: 2.5rem;
 	text-align: center;
 	margin: 10px;
@@ -106,14 +106,11 @@ body.sidebar_vis #sidebar .sidebar_icon{
 	display: table-cell;
 }
 body.sidebar_vis #sidebar header{
-	font-size: 2rem;
+	font-size: 2.1rem;
 	padding-bottom: 5px;
 	border-bottom: 0px solid rgba(0,0,0,.5);
 	margin-bottom: 5px;
 	white-space: nowrap;
-}
-body.sidebar_expanded #sidebar header{
-	border-bottom: 1px solid #333;
 }
 body.sidebar_vis #sidebar header .title{
 	text-indent: -100em;
@@ -133,9 +130,9 @@ body.sidebar_vis #sidebar header .controls{
     -moz-transition-timing-function: ease-in-out;
 }
 body.sidebar_vis #sidebar header .controls a, body.sidebar_vis #sidebar header .controls a:hover{
-	font-size: 1.5rem;
+	font-size: 1.2rem;
 	text-decoration: none;
-	line-height: 
+	line-height: 3.4rem;
 }
 body.sidebar_full #sidebar header .controls .sidebar_maximize{
 	opacity: .5;
@@ -143,6 +140,7 @@ body.sidebar_full #sidebar header .controls .sidebar_maximize{
 }
 body.sidebar_expanded #sidebar header .title, body.sidebar_expanded #sidebar header .controls{
 	text-indent: 0em;
+	line-height: 3.4rem;
 }
 
 body.sidebar_vis #sidebar header .header_icon{
@@ -150,7 +148,7 @@ body.sidebar_vis #sidebar header .header_icon{
 	vertical-align: middle;
 	margin-right: 1rem;
 	margin-left: .5rem;
-	font-size: 25px;
+	font-size: 2.4rem;
 	line-height: 26px;
 }
 
@@ -227,11 +225,11 @@ body.sidebar_vis #sidebar #sidebar_index_pane.pane ul li .title{
 	opacity: 1;
 }
 body.sidebar_expanded #sidebar #sidebar_index_pane ul li .sidebar_icon{
-	font-size: 30px;
+	font-size: 2.4rem;
 
 }
 body.sidebar_expanded #sidebar #sidebar_index_pane.pane ul li .title{
-	font-size: 20px;
+	font-size: 2.4rem;
 	margin-left: -10px;
 }
 body.sidebar_collapsed #sidebar .pane ul li.distant{
@@ -268,7 +266,7 @@ body.sidebar_vis #sidebar .pane ul li:hover, body.sidebar_vis #sidebar .pane ul 
 	color: rgba(0,0,0,.9);
 }
 body.sidebar_vis #sidebar .pane ul li .title{
-	font-size: .75em;
+	font-size: 1.2rem;
 	display: table-cell;
 	vertical-align: middle;
 	padding-left: 1em;
@@ -392,7 +390,7 @@ body.sidebar_expanded #info_panel{
 	left: 20rem;
 }
 body.info_panel_open #info_panel{
-	width: 22rem;
+	width: 31rem;
 }
 #info_panel .overview_link{
 	float: left;
@@ -408,19 +406,23 @@ body.sidebar_vis #info_panel .description{
 	margin: 0px;
 }
 body.sidebar_vis #info_panel #info_panel_header{
-	border-bottom: 1px solid #fff;
-	padding: 20px 10px;
-	font-size: 1rem;
-	text-align: center;
+	padding: 2rem;
+	font-size: 1.2rem;
 }
 body.sidebar_vis #info_panel #info_panel_header a, body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li{
-	padding-right: 5px;
 	text-transform: uppercase;
 	color: #888;
 	cursor: pointer;
+	padding: 0 1.2rem;
+}
+body.sidebar_vis #info_panel #info_panel_header a:hover{
+	background-color: #ccc;
+	text-decoration: none;
 }
 body.sidebar_vis #info_panel #info_panel_header a.active{
-	color: #444;
+	background-color: #bbb;
+	color: white;
+	-webkit-font-smoothing: subpixel-antialiased;
 }
 body.sidebar_vis #info_panel_arrow{
 	opacity: 0;
@@ -471,38 +473,37 @@ body.sidebar_expanded.info_panel_open #info_panel{
 body.sidebar_vis #info_panel h2{
 	padding: 0px;
 	margin: 0px;
-	font-size: 1.25em;
+	font-size: 1.2rem;
 	line-height: 1.75em;
 }
 body.sidebar_vis #info_panel .title, body.sidebar_vis #info_panel h4{
 	margin: 0px;
 	font-family: 'Lato', Arial, sans-serif !important;
 
-	padding: 5px 10px;
+	padding: .5rem 2rem;
 }
 body.sidebar_vis #info_panel .description{
-	padding: 5px 10px;
+	padding: .5rem 2rem;
+	font-size: 90%;
+	line-height: 1.8rem;
 }
 body.sidebar_vis #info_panel .title{
-	font-size: 2.5rem;
-	line-height: 2.25rem;
-	margin-top: .5em;
-	padding: 5px 10px;
-	font-weight: 100;
+	font-size: 2.1rem;
+	line-height: 2.4rem;
+	padding: 0 2rem .5rem 2rem;
 }
 body.sidebar_vis #info_panel h4{
-	font-size: 1.25rem;
+	font-size: 1.2rem;
 	line-height: 1.25rem;
 	text-transform: uppercase;
-	padding: 5px 10px;
+	padding: .5rem 2rem;
 	margin-top: 2em;
 }
 body.sidebar_vis #info_panel .featured_block, body.sidebar_vis #info_panel .tagged_by_block{
 	display: none;
 }
 body.sidebar_vis #info_panel .featured_block li, body.sidebar_vis #info_panel .tagged_by_block li{
-	padding: 0px 1rem 0px 2rem;
-	font-size: .75em;
+	font-size: 1.2rem;
 }
 body.sidebar_vis #info_panel .featured_block li a, body.sidebar_vis #info_panel .tagged_by_block li a{
 	color: rgba(0,0,0,.75);
@@ -522,7 +523,7 @@ body.sidebar_vis #info_panel .tagged_by_block li a:active{
 }
 body.sidebar_vis #info_panel ul, body.sidebar_vis #info_panel .discuss_link{
 	margin: 0px;
-	padding: 0px;
+	padding: 0 2rem;
 	cursor: pointer;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector{
@@ -557,7 +558,7 @@ body.sidebar_vis #sidebar_inside>header #sidebar_selector ul{
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li{
 	display: none;
-	padding: 1rem 2rem;
+	padding: 1rem;
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled{
 	display: block !important;
@@ -606,11 +607,11 @@ body.sidebar_vis #info_panel ul li, body.sidebar_vis #info_panel .discuss_link{
 	float: left;
 	color: #444;
 	vertical-align: middle;
-	padding: 5px 10px;
+	padding: .5rem 2rem;
 }
 #comments_info .discuss_link .icon, #comments_info .comment_list .icon{
-	font-size: 25px;
-	line-height: 25px;
+	font-size: 100%;
+	line-height: 100%;
 }
 #comments_info .discuss_link .icon span{
 	color: #fff;
@@ -634,8 +635,8 @@ body.sidebar_vis #info_panel footer{
 	height: 5rem;
 	background-color: #333;
 	color: #fff;
-	left: 1rem;
-	right: 1rem;
+	left: 2rem;
+	right: 2rem;
 	bottom: 1rem;
 	text-align: center;
 	cursor: pointer;
@@ -645,13 +646,13 @@ body.info_panel_open #info_panel footer{
 	display: block;
 }
 body.sidebar_vis #info_panel .metadata_list{
-	padding: 10px;
+	padding: 1rem 2rem;
 }
 body.sidebar_vis #info_panel .metadata_list dl{
 	padding: 5px 10px;
 }
 body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .metadata_list dd{
-	font-size: 1rem;
+	font-size: 1.2rem;
 	display: inline;
 }
 @media only screen and (min-width : 581px) {
@@ -853,11 +854,11 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 		width: 100%;
 	}
 	body.sidebar_vis #sidebar .pane ul li .sidebar_icon{
-		font-size: 2.5rem;
+		font-size: 1.75rem;
 		line-height: 4.5rem;
 	}
 	body.sidebar_vis #sidebar .pane ul li .title{
-		font-size: 2rem;
+		font-size: 2.4rem;
 	}
 	body.sidebar_vis #info_panel_header a{
 		width: 33%;
