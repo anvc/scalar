@@ -39,11 +39,7 @@
         		}
         	});
 
-        	is_logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
-        	parent = $('link#parent').attr('href');
-        	if(parent.substr(-1) == '/') {
-		        parent = parent.substr(0, parent.length - 1);
-		    }
+        	base.is_logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
 
         	base.stime = new Date();
             base.options = $.extend({},$.scalarSidebar.defaultOptions, options);
@@ -182,13 +178,22 @@
 				base.build_tags_pane();
 	            base.build_index_pane();
 	            base.build_linear_pane();
-	            yepnope([
-					// Scalar Nav which includes a few dependencies
-					{load: [arbors_uri+'/html/common.js',widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js',widgets_uri+'/nav/jquery.scalarrecent.js'], complete:function() {
+
+
+	            //Ready for this? Using jQuery promises for chained async loading of extra JS files. Booyah. (Removing yepnope call that broke on Firefox)
+	            $.when(
+				    $.getScript( arbors_uri+'/html/common.js' ),
+				    $.getScript( widgets_uri+'/cookie/jquery.cookie.js' ),
+				    $.getScript( widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js' ),
+				    $.getScript( widgets_uri+'/nav/jquery.scalarrecent.js' ),
+				    $.Deferred(function( deferred ){
+				        $( deferred.resolve );
+				    })
+				).done(function(){
 						scalarrecent_log_page();
 	            		base.build_recent_pane();
-					}}
-				]);
+				});
+
 	            base.build_markers_pane();
 
 	            
@@ -378,10 +383,10 @@
 				var dist_before = 0;
 				var dist_after = 0;
 				for(p in paths){
-					var parent = currentNode.incomingRelations[p].body;
-					if(parent.slug == base.queryVars.path){
+					var parent_node = currentNode.incomingRelations[p].body;
+					if(parent_node.slug == base.queryVars.path){
 						
-						$(new_pane).find('ul.current.path').data('path',parent.slug);
+						$(new_pane).find('ul.current.path').data('path',parent_node.slug);
 
 						var before_current = true; //We'll flip this once we come to the current page;
 
@@ -391,8 +396,8 @@
 
 						var current_node_index = 0;
 
-						for(r in parent.outgoingRelations){
-							var path_step = parent.outgoingRelations[r];
+						for(r in parent_node.outgoingRelations){
+							var path_step = parent_node.outgoingRelations[r];
 							relations_list[path_step.index] = path_step;
 							if(path_step.target.slug == currentNode.slug){
 								current_node_index = path_step.index;
