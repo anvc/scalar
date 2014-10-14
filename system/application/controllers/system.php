@@ -721,6 +721,8 @@ class System extends MY_Controller {
 					if (!$this->login_is_book_admin() && !$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit user"}');
 				} elseif ('pages'==$section) {
 					if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$id)) die ('{"error":"Invalid permissions"}');		
+				} elseif ('versions'==$section) {
+					if (!$this->login_is_book_admin() && !$this->versions->is_owner($this->data['login']->user_id,$id)) die ('{"error":"Invalid permissions"}');
 				} elseif ('books'==$section) {
 					if (!$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit book"}');	
 				} else {
