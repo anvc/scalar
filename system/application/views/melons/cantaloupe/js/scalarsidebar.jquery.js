@@ -63,7 +63,7 @@
 											'</ul>'+
 										'</div>'+
 									'</div>'+
-									'<h3 class="title header_font"></h3>'+
+									'<h3 class="title header_font"><strong>&nbsp;</strong></h3>'+
 									'<div class="section" id="overview_info">'+
 										'<div class="content">'+
 											'<p class="description caption_font"></p>'+
@@ -82,7 +82,7 @@
 									'<div class="section" id="comments_info">'+
 										'<div class="content">'+
 											'<h4 class="header_font">Comments</h4>'+
-											'<a class="discuss_link"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a><br/>'+
+											'<a class="discuss_link caption_font"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a><br/>'+
 											'<ul class="comment_list"></ul>'+
 										'</div>'+
 									'</div>'+
@@ -94,8 +94,8 @@
 									'</div>'+
 								'</div>'+
 								'<footer>'+
-									'<a class="info_hide">Back</a>'+
-									'<a class="info_visit">Visit</a>'+
+									'<a class="info_hide btn btn-lg btn-default caption_font">Back</a>'+
+									'<a class="info_visit btn btn-lg btn-default caption_font">Visit</a>'+
 								'</footer>'+
 							'</div>'+
 							'<div id="sidebar" class="heading_font">'+
@@ -121,7 +121,7 @@
 									'</header><br/>'+
 									'<div id="sidebar_panes"></div>'+
 									'<footer id="sidebar_close_footer">'+
-										'<a class="sidebar_hide">Close</a>'+
+										'<a class="sidebar_hide btn btn-lg btn-default caption_font">Close</a>'+
 									'</footer>'+
 								'</div>'+
 							'</div>';
@@ -138,7 +138,7 @@
 						}
 						if(typeof base.hovered_item != 'undefined' && base.hovered_item != null){
 							var hovered_item = base.hovered_item;
-							var top_offset = base.hovered_item.offset().top+$('#header').height()-$(window).scrollTop()-5;
+							var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.position().top));
 							$('#info_panel_arrow').css({
 								'top':(top_offset)+'px'
 							});
@@ -324,7 +324,7 @@
 								.removeClass('active');
 
 				$('body').addClass('info_panel_open');
-				$('#info_panel .title').text('Loading...');
+				$('#info_panel .title>strong').text('Loading...');
 				if(typeof base.loaded_nodes[slug] != 'undefined'){
 					base.showInfo($('#sidebar .active.pane').data('type'),base.loaded_nodes[slug]);
 				}else{
@@ -728,8 +728,8 @@
 					e.stopPropagation();
 					base.hovered_item = $(this);
 					var slug = $(this).data('slug');
-					$('#info_panel .title, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
-					var top_offset = $(this).offset().top+$('#header').height()-$(window).scrollTop()-5;
+					$('#info_panel .title>strong, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
+					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.position().top));
 					$('#info_panel_arrow').css({
 						'top':top_offset+'px'
 					});
@@ -757,7 +757,7 @@
 					base.triggerSidebar(true);
 					base.load_info(slug);
 					base.hovered_item = $(this);
-					var top_offset = base.hovered_item.offset().top+$('#header').height()-$(window).scrollTop()-5;
+					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.position().top));
 					$('#info_panel_arrow').css({
 						'top':(top_offset)+'px'
 					});
@@ -798,7 +798,7 @@
         	switch(view){
         		case 'recent':
         		case 'path':
-		        	$('#info_panel .title').text(page.current.title);
+		        	$('#info_panel .title>strong').text(page.current.title);
 		        	$('#info_panel .description').text(page.current.description);
 		        	
 		        	var target_url = page.url+base.get_vars;
@@ -822,7 +822,7 @@
 				        		target_url += '?v='+base.queryVars.v;	
 				        	}
 
-		        			$('#info_panel .featured_block ul.featured_list').append('<li><a href="'+target_url+'"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span> '+this_reference.current.title+'</a></li>');
+		        			$('#info_panel .featured_block ul.featured_list').append('<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text"><strong>'+this_reference.current.title+'</strong></span></a></li>');
 		        		}
 		        		$('#info_panel .featured_block').fadeIn('fast');
 		        	}
@@ -841,7 +841,7 @@
 				        	}
 				        	
 		        			
-		        			$('#info_panel .tagged_by_block ul.tagged_by_list').append('<li><a href="'+target_url+'"><span class="'+base.getIconByType(this_tag.current.mediaSource.contentType)+'"></span> '+this_tag.current.title+'</a></li>');
+		        			$('#info_panel .tagged_by_block ul.tagged_by_list').append('<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_tag.current.mediaSource.contentType)+'"></span></div><span class="text"><strong>'+this_tag.current.title+'</strong></span></a></li>');
 		        		}
 		        		$('#info_panel .tagged_by_block').fadeIn('fast');
 		        	}
@@ -863,7 +863,7 @@
 				        		target_url += '?v='+base.queryVars.v;	
 				        	}
 				        	
-							$('#info_panel #comments_info .comment_list').append('<li><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
+							$('#info_panel #comments_info .comment_list').append('<li class="caption_font"><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
 			        	}
 		        	}else{
 		        		$('#info_panel #comments_info .comment_list').append('<li>There are currently no comments for this page.</li>');
