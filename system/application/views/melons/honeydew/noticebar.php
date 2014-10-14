@@ -86,8 +86,9 @@ if (isset($page->is_live) && !$page->is_live) {
 }
 
 // Page is paywalled
+// NOTE: this is removed, though hidden rather than commented out so that JS could bring it back if an author wishes to
 if (isset($page->paywall) && $page->paywall) {
-	echo '		<div class="notice"><p>This page is behind a paywall, but is viewable due to your logged in credentials.</p></div>'."\n";
+	echo '		<div class="notice" style="display:none;"><p>This page is behind a paywall, but is viewable due to your logged in credentials.</p></div>'."\n";
 }
 
 //RDF Attributes do not work in IE <= 9
