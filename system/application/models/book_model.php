@@ -199,6 +199,12 @@ class Book_model extends MY_Model {
     	if (stristr($book->title, 'data-hypothesis="true"')) return true;
     	return false;
     }    
+    
+	public function has_paywall($book) {
+		$tinypass_config_path = confirm_slash(FCPATH).$book->slug.'/tinypass.php';
+    	if (file_exists($tinypass_config_path)) return true;
+    	return false;
+    }      
    
     public function get_images($book_id) {
     	

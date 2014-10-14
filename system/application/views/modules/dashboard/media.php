@@ -14,6 +14,7 @@
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
 		var start = 0;
 		var results = 20;
+		var paywall = <?=(($book->has_paywall)?'true':'false')?>;
 		
 		$(document).ready(function() {
 
@@ -27,7 +28,7 @@
 				document.location.href = url;
 			});	
 
-			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
    			
    			$(window).resize(function() { resizeList(); });
    			resizeList();			
@@ -40,7 +41,7 @@
 					alert('Please enter a search query');
 					return false;
    	   			}
-   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'media',sq:sq,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'media',sq:sq,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
    	   			return false;
    			});
 
@@ -48,7 +49,7 @@
    	   			start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
 				$(this).parent().find('input:first').val('Search for a media file');
-				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
    			});
    			
    			var $jump_to = $('select[name="jump_to"]');
@@ -60,7 +61,7 @@
 				start = parseInt($(this).find('option:selected').val() - 1);
 				if (-1==start) start = 0;
 				console.log('start: '+start);
-				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
    			});
    			
 		});	
@@ -92,11 +93,11 @@
 				var $prev = $('<a href="javascript:;">'+((prev>0)?'Prev page':'')+'</a>').appendTo('.prev');
 				var $next = $('<a href="javascript:;">'+((next<total)?'Next page':'')+'</a>').appendTo('.next');
 				$prev.click(function() {
-					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 					start = _prev;
 				});
 				$next.click(function() {
-					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination});
+					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 					start = _next;
 				});
 				$('.total').show();

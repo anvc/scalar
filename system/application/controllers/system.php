@@ -525,6 +525,7 @@ class System extends MY_Controller {
 						$this->data[$data_key][$key]->versions = $versions;			        	
 			        }	  
 		    	}  	
+		    	$this->data['book']->has_paywall = $this->books->has_paywall($this->data['book']);
 		}
 
 		if ($this->data['login_is_super']) {

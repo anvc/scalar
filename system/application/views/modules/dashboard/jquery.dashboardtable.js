@@ -38,6 +38,7 @@
     		resize_wrapper_func: null,
     		tablesorter_func: null,
     		pagination_func: null,
+    		paywall: false
       };
     
 	var scalardashboardtable_methods = {
@@ -117,7 +118,7 @@
 			if (-1==options.hide_columns.indexOf('url')) $head.append('<th>Filename</th>');
 			$head.append('<th>Created</th>');
 			$head.append('<th>User</th>');
-			$head.append('<th>Paywall?</th>');
+			if (options.paywall) $head.append('<th>Paywall?</th>');
 			$head.append('<th>Versions</th>');
 			$(options.wrapper).html($table);
 			
@@ -162,7 +163,7 @@
 				if (-1==options.hide_columns.indexOf('url')) $tr.append(url_str);
 				$tr.append('<td property="created" style="white-space:nowrap;">'+d+'</td>');
 				$tr.append('<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'+creator+'</td>');
-				$tr.append('<td class="editable boolean" property="paywall" style="text-align:center;width:65px;">'+((paywall)?'1':'0')+'</td>');
+				if (options.paywall) $tr.append('<td class="editable boolean" property="paywall" style="text-align:center;width:65px;">'+((paywall)?'1':'0')+'</td>');
 				$tr.append('<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="get_versions('+id+',this);" class="generic_button">View</a></td>');
 				$tr.append('</tr>');			
 			}
