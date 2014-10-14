@@ -201,6 +201,7 @@ class Book_model extends MY_Model {
     }    
     
 	public function has_paywall($book) {
+		if (empty($book)) return false;
 		$tinypass_config_path = confirm_slash(FCPATH).$book->slug.'/tinypass.php';
     	if (file_exists($tinypass_config_path)) return true;
     	return false;
