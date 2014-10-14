@@ -19,6 +19,8 @@
 
         base.fullScreenViews = ['iframe'];
 
+        base.get_vars = '?';
+
         // Access to jQuery and DOM versions of element
         base.$el = $(el);
         base.el = el;
@@ -37,11 +39,7 @@
         		}
         	});
 
-        	is_logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
-        	parent = $('link#parent').attr('href');
-        	if(parent.substr(-1) == '/') {
-		        parent = parent.substr(0, parent.length - 1);
-		    }
+        	base.is_logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
 
         	base.stime = new Date();
             base.options = $.extend({},$.scalarSidebar.defaultOptions, options);
@@ -65,13 +63,13 @@
 											'</ul>'+
 										'</div>'+
 									'</div>'+
-									'<h3 class="title"></h3>'+
+									'<h3 class="title header_font"></h3>'+
 									'<div class="section" id="overview_info">'+
 										'<div class="content">'+
 											'<p class="description caption_font"></p>'+
 											'<div class="featured_block">'+
 												'<hr />'+
-												'<h4>Featured In</h4>'+
+												'<h4 class="header_font">Featured In</h4>'+
 												'<ul class="featured_list caption_font"></ul>'+
 											'</div>'+
 											'<div class="tagged_by_block">'+
@@ -83,14 +81,14 @@
 									'</div>'+
 									'<div class="section" id="comments_info">'+
 										'<div class="content">'+
-											'<h4>Comments</h4>'+
+											'<h4 class="header_font">Comments</h4>'+
 											'<a class="discuss_link"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a><br/>'+
 											'<ul class="comment_list"></ul>'+
 										'</div>'+
 									'</div>'+
 									'<div class="section" id="metadata_info">'+
 										'<div class="content">'+
-											'<h4>Metadata</h4>'+
+											'<h4 class="header_font">Metadata</h4>'+
 											'<dl class="metadata_list caption_font"></dl>'+
 										'</div>'+
 									'</div>'+
@@ -140,9 +138,9 @@
 						}
 						if(typeof base.hovered_item != 'undefined' && base.hovered_item != null){
 							var hovered_item = base.hovered_item;
-							var top_offset = ((hovered_item.offset().top + $('#sidebar_panes').position().top) - (hovered_item.height()/2))-$(window).scrollTop();
+							var top_offset = base.hovered_item.offset().top+$('#header').height()-$(window).scrollTop()-5;
 							$('#info_panel_arrow').css({
-								'top':(top_offset+8)+'px'
+								'top':(top_offset)+'px'
 							});
 						}
 						base.lastScroll = currentScroll;
@@ -160,17 +158,42 @@
 
 	           	base.queryVars = scalarapi.getQueryVars( document.location.href );
 
+
+	           	if(base.queryVars.path!=null && typeof base.queryVars.path!='undefined'){
+	        		base.get_vars += 'path='+base.queryVars.path;
+	        	}
+
+	        	if((base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined') || (base.queryVars.v!=null &&  typeof base.queryVars.v!='undefined')){
+	        		if(base.get_vars != '?'){
+	        			base.get_vars += '&';
+	        		}
+	        		if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+		        		base.get_vars += 'v='+base.queryVars.v;	
+		        	}else{
+	        			base.get_vars += 'v='+base.queryVars.visualization;	
+	        		}
+	        	}
+
 	            base.build_paths_pane();
 				base.build_tags_pane();
 	            base.build_index_pane();
 	            base.build_linear_pane();
-	            yepnope([
-					// Scalar Nav which includes a few dependencies
-					{load: [arbors_uri+'/html/common.js',widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js',widgets_uri+'/nav/jquery.scalarrecent.js'], complete:function() {
+
+
+	            //Ready for this? Using jQuery promises for chained async loading of extra JS files. Booyah. (Removing yepnope call that broke on Firefox)
+	            $.when(
+				    $.getScript( arbors_uri+'/html/common.js' ),
+				    $.getScript( widgets_uri+'/cookie/jquery.cookie.js' ),
+				    $.getScript( widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js' ),
+				    $.getScript( widgets_uri+'/nav/jquery.scalarrecent.js' ),
+				    $.Deferred(function( deferred ){
+				        $( deferred.resolve );
+				    })
+				).done(function(){
 						scalarrecent_log_page();
 	            		base.build_recent_pane();
-					}}
-				]);
+				});
+
 	            base.build_markers_pane();
 
 	            
@@ -240,6 +263,12 @@
 	          			base.change_pane($(this).data('pane'));
 	          		}
 	          	});
+
+	          	$('#comments_info .discuss_link').click(function(){
+	          		if($('#comment_control').length > 0){
+	          			$('#comment_control').click();
+	          		}
+	          	});
 			}			
         };
 
@@ -273,6 +302,16 @@
 			item_html += '" style="display: none;"></span>';
 
 			$(item_html).prependTo(new_item).fadeIn('slow');
+
+			if($('#sidebar_panes .pane.active').length>0){
+        		var scrollmid =  ($('#sidebar_panes .pane.active')[0].scrollHeight-$('#sidebar_panes .pane.active')[0].clientHeight)/2.0;
+        	}else{
+        		var scrollmid = 0;
+        	}
+			$('#sidebar_panes').animate({
+				scrollTop: scrollmid
+			},10);
+
 		}
 		base.load_info = function(slug){
 			//Prepare yourself for some hot jQuery chaining action.
@@ -339,11 +378,15 @@
 					
 					base.show_icon(slug, new_item);
 			}else{
+				var before = 0;
+				var after = 0;
+				var dist_before = 0;
+				var dist_after = 0;
 				for(p in paths){
-					var parent = currentNode.incomingRelations[p].body;
-					if(parent.slug == base.queryVars.path){
+					var parent_node = currentNode.incomingRelations[p].body;
+					if(parent_node.slug == base.queryVars.path){
 						
-						$(new_pane).find('ul.current.path').data('path',parent.slug);
+						$(new_pane).find('ul.current.path').data('path',parent_node.slug);
 
 						var before_current = true; //We'll flip this once we come to the current page;
 
@@ -353,8 +396,8 @@
 
 						var current_node_index = 0;
 
-						for(r in parent.outgoingRelations){
-							var path_step = parent.outgoingRelations[r];
+						for(r in parent_node.outgoingRelations){
+							var path_step = parent_node.outgoingRelations[r];
 							relations_list[path_step.index] = path_step;
 							if(path_step.target.slug == currentNode.slug){
 								current_node_index = path_step.index;
@@ -374,11 +417,22 @@
 							if(path_step.target.slug == currentNode.slug){
 								new_item.addClass('active');
 							}else{
-								distance = Math.ceil(Math.abs(r-current_node_index)/2.0);
+								var raw_dist = r-current_node_index;
+								var distance = Math.abs(raw_dist)*4;
 								if(distance > 10){
 									new_item.addClass('distant');
+									if(raw_dist<0){
+										dist_before++;
+									}else{
+										dist_after++;
+									}
 								}else{
 									new_item.addClass('distance_'+distance);
+									if(raw_dist<0){
+										before++;
+									}else{
+										after++;
+									}
 								}
 							}
 
@@ -411,6 +465,35 @@
 						break; //Alright, we can exit the loop now.
 					}
 					
+				}
+
+				if(before!=after){
+					var diff = Math.abs(before-after);
+					var html = '';
+					for(var i = 0; i < diff; i++){
+						html += '<li class="empty">&nbsp;</li>';
+					}
+					if(before>after){
+						//We need to add some items after the current one. They will be hidden on hover.
+						$(html).appendTo(new_pane.find('ul.current.path'));
+					}else if(after>before){
+						//We need to add some items before the current one. They will be hidden on hover.
+						$(html).prependTo(new_pane.find('ul.current.path'));
+					}
+				}
+				if(dist_before!=dist_after){
+					var diff = Math.abs(dist_before-dist_after);
+					var html = '';
+					for(var i = 0; i < diff; i++){
+						html += '<li class="distant empty">&nbsp;</li>';
+					}
+					if(before>after){
+						//We need to add some items after the current one. They will be hidden on hover.
+						$(html).appendTo(new_pane.find('ul.current.path'));
+					}else if(after>before){
+						//We need to add some items before the current one. They will be hidden on hover.
+						$(html).prependTo(new_pane.find('ul.current.path'));
+					}
 				}
 			}
 
@@ -638,20 +721,23 @@
         }
         
         base.init_sidebar_items = function(new_pane){
-        	new_pane.find('li').mouseenter(function(e){
+        	new_pane.find('li:not(.empty)').mouseenter(function(e){
 				if(!isMobile && !base.isSmallScreen){
+					clearTimeout(base.sidebar_timeout);
+					base.triggerSidebar(true);
+					e.stopPropagation();
 					base.hovered_item = $(this);
 					var slug = $(this).data('slug');
 					$('#info_panel .title, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
-					var top_offset = (($(this).offset().top + $('#sidebar_panes').position().top) - ($(this).height()/2))-$(window).scrollTop();
+					var top_offset = $(this).offset().top+$('#header').height()-$(window).scrollTop()-5;
 					$('#info_panel_arrow').css({
-						'top':(top_offset+8)+'px'
+						'top':top_offset+'px'
 					});
 					clearTimeout(base.infobar_timeout);
 					base.load_info(slug);
 					e.stopPropagation();
 				}
-			}).mouseleave(function(){
+			}).mouseleave(function(){ 
 				if(!isMobile && !base.isSmallScreen){
 					base.infobar_timeout = setTimeout(function(){
 						base.hovered_item = null;
@@ -663,30 +749,43 @@
 				if(!isMobile && !isTablet && !base.isSmallScreen){
 					var node = scalarapi.getNode(slug);
 					var path = $(this).parent('ul.path').data('path');
-					var target_url = node.url;
-		        	if(base.queryVars.path!=null && typeof base.queryVars.path!='undefined'){
-		        		target_url += '?path='+base.queryVars.path;
-		        	}
+
+					var target_url = node.url+base.get_vars;
+
 					window.location = target_url;
 				}else{
 					base.triggerSidebar(true);
 					base.load_info(slug);
 					base.hovered_item = $(this);
-					var top_offset = ((base.hovered_item.offset().top + $('#sidebar_panes').position().top) - (base.hovered_item.height()/2))-$(window).scrollTop();
+					var top_offset = base.hovered_item.offset().top+$('#header').height()-$(window).scrollTop()-5;
 					$('#info_panel_arrow').css({
-						'top':(top_offset+8)+'px'
+						'top':(top_offset)+'px'
 					});
 				}
 			});
         }
 
         base.triggerSidebar = function(do_expand){
+        	if($('#sidebar_panes .pane.active').length>0){
+        		var scrollmid =  ($('#sidebar_panes .pane.active')[0].scrollHeight-$('#sidebar_panes .pane.active')[0].clientHeight)/2.0;
+        	}else{
+        		var scrollmid = 0;
+        	}
+
         	if(typeof do_expand !== 'undefined'){
-        		if(do_expand === true){
+        		if(do_expand === true && !$('body').hasClass('sidebar_expanded')){
         			$('body').addClass('sidebar_expanded').removeClass('sidebar_collapsed');
-        		}else if(do_expand === false){
+
+        			$('#sidebar_panes').animate({
+						scrollTop: scrollmid
+					},10);
+        			
+        		}else if(do_expand === false && $('body').hasClass('sidebar_expanded')){
         			$('body').removeClass('sidebar_expanded sidebar_full').addClass('sidebar_collapsed');
         			$('#sidebar_inside>header').removeClass('selector_open');
+					$('#sidebar_panes').animate({
+						scrollTop: scrollmid
+					},10);
         		}
         	}else if($('body').hasClass('sidebar_expanded')){
 				base.triggerSidebar(false);
@@ -702,23 +801,28 @@
 		        	$('#info_panel .title').text(page.current.title);
 		        	$('#info_panel .description').text(page.current.description);
 		        	
-		        	var target_url = page.url;
-		        	
-		        	if(base.queryVars.path!=null && typeof base.queryVars.path!='undefined'){
-		        		target_url += '?path='+base.queryVars.path;
-		        	}
+		        	var target_url = page.url+base.get_vars;
 
 		        	$('body>#info_panel .info_visit').attr('href',target_url);
 		        	var references = page.getRelations('referee', 'incoming', 'reverseindex');
 		        	var tags = page.getRelations('tag', 'incoming', 'reverseindex');
 		        	
-		        	console.log(references);
+		        	//console.log(references);
 
 		        	$('#info_panel .featured_block').hide();
 		        	if(references.length > 0){
 		        		for(var i = 0; i< references.length; i++){
 		        			var this_reference = references[i].body;
-		        			$('#info_panel .featured_block ul.featured_list').append('<li><a href="'+this_reference.url+'"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span> '+this_reference.current.title+'</a></li>');
+
+		        			target_url = this_reference.url;
+
+				        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+				        		target_url += '?v='+base.queryVars.visualization;	
+				        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+				        		target_url += '?v='+base.queryVars.v;	
+				        	}
+
+		        			$('#info_panel .featured_block ul.featured_list').append('<li><a href="'+target_url+'"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span> '+this_reference.current.title+'</a></li>');
 		        		}
 		        		$('#info_panel .featured_block').fadeIn('fast');
 		        	}
@@ -727,7 +831,17 @@
 		        	if(tags.length > 0){
 		        		for(var i = 0; i< tags.length; i++){
 		        			var this_tag = tags[i].body;
-		        			$('#info_panel .tagged_by_block ul.tagged_by_list').append('<li><a href="'+this_tag.url+'"><span class="'+base.getIconByType(this_tag.current.mediaSource.contentType)+'"></span> '+this_tag.current.title+'</a></li>');
+
+		        			target_url = this_tag.url;
+
+				        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+				        		target_url += '?v='+base.queryVars.visualization;	
+				        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+				        		target_url += '?v='+base.queryVars.v;	
+				        	}
+				        	
+		        			
+		        			$('#info_panel .tagged_by_block ul.tagged_by_list').append('<li><a href="'+target_url+'"><span class="'+base.getIconByType(this_tag.current.mediaSource.contentType)+'"></span> '+this_tag.current.title+'</a></li>');
 		        		}
 		        		$('#info_panel .tagged_by_block').fadeIn('fast');
 		        	}
@@ -740,10 +854,26 @@
 		        			comment = comments[c];				
 		        			//console.log(comment);
 							var date = new Date(comment.properties.datetime);
-							$('#info_panel #comments_info .comment_list').append('<li><a href="'+comment.body.url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
+
+		        			target_url = comment.body.url;
+
+				        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+				        		target_url += '?v='+base.queryVars.visualization;	
+				        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+				        		target_url += '?v='+base.queryVars.v;	
+				        	}
+				        	
+							$('#info_panel #comments_info .comment_list').append('<li><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
 			        	}
 		        	}else{
 		        		$('#info_panel #comments_info .comment_list').append('<li>There are currently no comments for this page.</li>');
+		        	}
+
+		        	//Hide discuss link if not current page...
+		        	if(page.slug!=currentNode.slug){
+		        		$('#comments_info .discuss_link').hide();
+		        	}else{
+		        		$('#comments_info .discuss_link').show();
 		        	}
 
 		        	//Handle Metadata
@@ -780,7 +910,7 @@
 	        		}
 	        		for(type in items){
 	        			for(term in items[type]){
-	        				$('#info_panel #metadata_info .metadata_list').append('<dt>'+term+'</dt> <dd>'+(items[type][term])+'</dd><br />');
+	        				$('#info_panel #metadata_info .metadata_list').append('<dt class="caption_font">'+term+'</dt> <dd class="caption_font">'+(items[type][term])+'</dd><br />');
 	        			}
 	        			if(items[type].length > 0){
 	        				$('#info_panel #metadata_info .metadata_list').append('<br />');	

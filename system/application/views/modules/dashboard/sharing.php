@@ -21,14 +21,20 @@ $(window).ready(function() {
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
 		var prop_arr = ['duplicatable', 'joinable', 'hypothesis'];
+		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
 			var make_true = (parseInt($('#'+prop).val())) ? true : false;
+			all_false = (all_false && !make_true) ? true : false;
 			if (make_true) {
 				$span.attr('data-'+prop, 'true');
 			} else {
 				$span.removeAttr('data-'+prop);
 			}
+		}
+
+		if(all_false && $title.children(':first').is('span')) {
+			$title.children(':first').contents().unwrap();
 		}
 		$('input[name="title"]').val( $title.html() );
 	});

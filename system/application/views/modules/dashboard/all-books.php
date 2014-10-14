@@ -16,6 +16,9 @@ Book has been added
 			float:right;
 			margin: 7px 0;
 		}
+		.book-search-form {
+			margin-top:15px;
+		}
 		</style>
 
 		<script>
@@ -30,6 +33,11 @@ Book has been added
 				return false;
 			});
 
+			$('.book-search-form').submit(function() {
+				var sq = $(this).children('.book-search').val();
+ 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-all-books";
+				return false;
+			});
 
 			$('.value_select_trigger').click(function() {
 				var $this = $(this);
@@ -145,6 +153,10 @@ Book has been added
 		<? endif ?>
 		</div>
 		<? endif ?>
+		<form class="book-search-form">
+		 	<input placeholder="Find Book" type="text" class="book-search" size="20" />
+			<input style="vertical-align:bottom;" type="submit" value="Search" class="generic_button" />
+		 </form>
 
 		
 		<br clear="both" />

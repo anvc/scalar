@@ -1,0 +1,172 @@
+#visualization {
+	text-align: left;
+}
+
+#progressbar {
+	width: 300px;
+	height: 8px;
+	margin-bottom: 5px;
+}
+
+#loadingMsg {
+	width: 50rem;
+	padding-left: 7.2rem;
+	font-size: 1.2rem;
+	color: #666;
+	vertical-align: middle;
+	display: none;
+}
+
+#loadingMsg > p {
+	margin-bottom: 4px;
+}
+
+#scalarvis {
+	margin-top:10px;
+	margin-bottom:10px; /* Added by Craig 6 April 2012 */
+	padding: 10px;
+	background-color: #fff;
+}
+
+#visualization form {
+	float:right;
+	margin-left: 10px;
+}
+
+.ui-button-text {
+	font-size: 12px;
+}
+
+.ui-buttonset {
+	margin-right: 0;
+}
+
+.rollover {
+	display: none;
+  	font: 10px sans-serif;
+  	font-weight: bold;
+	position:absolute;
+	padding: 5px 8px;
+	color: white;
+	background: black;
+	border-radius: 10px;
+	max-width: 200px;
+}
+
+.typeLabel {
+	/*font-weight: bold;*/
+	font-size: 12px;
+}
+
+.rowLabel {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: pointer;
+}
+
+.vis_footer {
+	text-align: right;
+	margin-right: 7.2rem;
+	margin-bottom: 2.4rem;
+	font-size: 1.4rem;
+	line-height: 140%;
+	color: #666;
+}
+
+.selectedLabel {
+	cursor: pointer;
+}
+
+svg {
+  font-size: 1.2rem;
+}
+
+.viscanvas {
+	fill: #fff;
+}
+
+.link {
+}
+
+.link.tag {
+	fill: #ff0000;
+	/*stroke: #ff0000;*/
+}
+
+.pathLink {
+	fill: none;
+	stroke-width: 2;
+}
+
+.link.mediaFile {
+	fill: #0000ff;
+	/*stroke: #0000ff;*/
+}
+
+.node {
+	cursor: pointer;
+	stroke: #fff;
+	stroke-width: 2;
+}
+
+.label {
+	cursor: default;
+	pointer-events: none;
+	font-size: 1.2rem;
+}
+
+.clusternode circle {
+  fill: #fff;
+}
+
+.clusternode {
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.clusterlink {
+  fill: none;
+  stroke: #ddd;
+  stroke-width: 1.5px;
+}
+
+.cipher {
+	display: none;
+}
+
+.info_box {
+	position: absolute;
+	width: 11rem;
+	margin-left: -5.5rem;
+}
+
+.info_box .content {
+	border-radius: 5px;
+	background-color: rgba(0,0,0,0.7);
+	box-shadow: 1px 1px 3px #888888;
+	color: white;
+	text-align: center;
+	/*padding: 8px 5px 2px 5px;*/
+	padding: 1.0rem;
+	font-size: 1.2rem;
+	line-height: 140%;
+}
+
+.info_box .content p {
+    margin: 0;
+}
+
+.info_box .content a.btn {
+	margin-top: .9rem;
+}
+
+.info_box .arrow {
+	background-image: url(images/vis_up_arrow.png);
+	background-position: center top;
+	background-repeat: no-repeat;
+	height: 7px;
+}
