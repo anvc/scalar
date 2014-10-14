@@ -408,12 +408,16 @@ body.sidebar_vis #info_panel .description{
 body.sidebar_vis #info_panel #info_panel_header{
 	padding: 2rem;
 	font-size: 1.2rem;
+	text-align: center;
 }
 body.sidebar_vis #info_panel #info_panel_header a, body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li{
 	text-transform: uppercase;
 	color: #888;
 	cursor: pointer;
 	padding: 0 1.2rem;
+}
+body.sidebar_vis #info_panel #info_panel_header a.comments_link {
+	padding: .125rem 1.2rem;
 }
 body.sidebar_vis #info_panel #info_panel_header a:hover{
 	background-color: #ccc;
@@ -434,7 +438,7 @@ body.sidebar_vis #info_panel_arrow{
 	top: 50%;
 	left: 6.75rem;
 	z-index: 10;
-	margin-top: -4.5rem;
+	margin-top: 11.5rem;
 	border-left: 0em #ddd solid;
 	border-right: 0em #ddd solid;
     transition-duration: .125s;
@@ -590,7 +594,7 @@ body.sidebar_vis #sidebar #sidebar_path_pane .large.list #path_list_view,body.si
 	display: block;
 }
 .comment_list>li>a>.text{
-	width: 175px;
+	width: 240px;
 }
 .comment_list>li>a>.text>strong{
 	white-space: nowrap;
@@ -603,39 +607,35 @@ body.sidebar_vis #info_panel ul li, body.sidebar_vis #info_panel .discuss_link{
 	clear: left;
 	list-style-type: none;
 }
-#comments_info .discuss_link .icon, #comments_info .comment_list .icon, #comments_info .discuss_link .text, #comments_info .comment_list .text{
+#comments_info .discuss_link .icon, #comments_info .comment_list .icon, #comments_info .discuss_link .icon, #comments_info .comment_list .icon, #comments_info .discuss_link .text, #comments_info .comment_list .text, #overview_info li .icon, #overview_info li .text{
 	float: left;
 	color: #444;
 	vertical-align: middle;
-	padding: .5rem 2rem;
+	padding: 0rem 1rem 0rem .5rem; 		
 }
-#comments_info .discuss_link .icon, #comments_info .comment_list .icon{
-	font-size: 100%;
-	line-height: 100%;
+#overview_info li .icon, #overview_info li .text{
+	font-size: 1.2rem;
 }
+
 #comments_info .discuss_link .icon span{
 	color: #fff;
+}
+body.sidebar_vis #info_panel .discuss_link{
+	display: block;
+	padding-top: 1rem;
+	padding-bottom: 1rem;
 }
 body.sidebar_vis #sidebar header .controls .sidebar_hide, body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer a{
 	display: none;
 }
 body.info_panel_open #info_panel footer .info_visit{
-	color: #fff;
-	font-size: 2rem;
-	line-height: 5rem;
-	text-decoration: none;
-	cursor: pointer;
 	display: block;
-}
-body.sidebar_vis #info_panel footer .info_visit:hover{
-	background-color: #222;
 }
 body.sidebar_vis #info_panel footer{
 	position: absolute;
-	height: 5rem;
-	background-color: #333;
-	color: #fff;
+	height: 4.4rem;
 	left: 2rem;
+
 	right: 2rem;
 	bottom: 1rem;
 	text-align: center;
@@ -660,9 +660,6 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 	body.sidebar_vis #sidebar .pane ul li.distant{
 		display: table;
 	}
-	body.sidebar_vis #sidebar .pane ul li .title{
-		text-indent: -1000px;
-	}
 	body.sidebar_vis #sidebar .pane ul li.distant, body.sidebar_vis #sidebar .pane ul li .title{
 		opacity: 0;
 		overflow: hidden;
@@ -677,7 +674,6 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 	body.sidebar_expanded #sidebar .pane ul li.distant, 
 	body.sidebar_expanded #sidebar .pane ul li .title{
 		opacity: 1;
-		text-indent: 0px;
 		overflow:visible;
 	}
 }
@@ -763,7 +759,7 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 	}
 	
 	body.sidebar_vis #info_panel{
-		bottom: 5rem;
+		padding-bottom: 5rem;
 		display: none;
 	}
 	body.info_panel_open #info_panel{
@@ -783,36 +779,28 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 	body.sidebar_vis #info_panel .info_hide{
 		display: block;
 	}
+	body.sidebar_vis #info_panel #info_panel_header a.comments_link {
+		padding: 0rem 1.2rem;
+	}
+	body.sidebar_vis #sidebar #sidebar_panes {
+		top: 5.7rem;
+	}
 	body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 		position: fixed;
-		height: 5rem;
-		background-color: #333;
-		color: #fff;
+		height: 4.4rem;
+		padding-top: .3rem;
+		padding-bottom: .3rem;
 		width: 100%;
 		left: 0px;
 		bottom: 0px;
 		text-align: center;
 		cursor: pointer;
 	}
-	body.sidebar_vis #sidebar footer a, body.sidebar_vis #sidebar footer a:hover, body.sidebar_vis #info_panel footer a, body.sidebar_vis #info_panel footer a:hover{
-		color: #fff;
-		font-size: 2rem;
-		line-height: 5rem;
-		text-decoration: none;
-		cursor: pointer;
-		display: block;
-	}
-	body.sidebar_expanded #sidebar #sidebar_inside footer, body.info_panel_open #info_panel footer{
+	body.sidebar_expanded #sidebar #sidebar_inside footer, body.info_panel_open #info_panel footer, body.sidebar_vis #sidebar footer a, body.info_panel_open #info_panel footer a{
 		display: block;
 	}
 	body.info_panel_open #info_panel footer a{
-		display: block;
 		width: 50%;
-		text-align: center;
-		cursor: pointer;
-	}
-	body.info_panel_open #info_panel footer a:hover, body.sidebar_expanded #sidebar footer a:hover{
-		background-color: rgba(0,0,0,.25);
 	}
 	body.info_panel_open #info_panel footer .info_hide{
 		float: left;
