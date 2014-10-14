@@ -20,6 +20,7 @@ if (!empty($book->publisher_thumbnail)) {
 	.panel { position: absolute; width: 50rem; left: 50%; margin-left: -25rem; top: 10%; text-align: center; padding: 2rem; }
 	h2 { padding-left: 0; padding-right: 0; line-height: 100%; margin-bottom: 1rem; margin-top: 3rem; }
 	h3 { margin-top: 0; font-style: italic; margin-bottom: 3rem; }
+	.tinypass_button {width:100% !important;}
 </style>
 <div class="panel panel-default">
   <div class="panel-body">
