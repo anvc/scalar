@@ -633,7 +633,7 @@ body.info_panel_open #info_panel footer .info_visit{
 }
 body.sidebar_vis #info_panel footer{
 	position: absolute;
-	height: 5rem;
+	height: 4.4rem;
 	left: 2rem;
 
 	right: 2rem;
@@ -759,7 +759,7 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 	}
 	
 	body.sidebar_vis #info_panel{
-		bottom: 5rem;
+		padding-bottom: 5rem;
 		display: none;
 	}
 	body.info_panel_open #info_panel{
@@ -779,9 +779,17 @@ body.sidebar_vis #info_panel .metadata_list dt, body.sidebar_vis #info_panel .me
 	body.sidebar_vis #info_panel .info_hide{
 		display: block;
 	}
+	body.sidebar_vis #info_panel #info_panel_header a.comments_link {
+		padding: 0rem 1.2rem;
+	}
+	body.sidebar_vis #sidebar #sidebar_panes {
+		top: 5.7rem;
+	}
 	body.sidebar_vis #sidebar footer, body.sidebar_vis #info_panel footer{
 		position: fixed;
-		height: 5rem;
+		height: 4.4rem;
+		padding-top: .3rem;
+		padding-bottom: .3rem;
 		width: 100%;
 		left: 0px;
 		bottom: 0px;
