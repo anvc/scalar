@@ -48,6 +48,18 @@
 			try {
 				$.fn.scalardashboardtable('setup', options);
 				$.fn.scalardashboardtable('content', options);
+			if(location.search.indexOf('content_id') != -1) {
+				var vars = {};
+			    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi, function(m,key,value) {
+			        vars[key] = value;
+			    });
+			    $open_content = $('#row_'+vars['content_id']);
+			    $open_content.find('a.view_versions').click();
+				$('.table_wrapper').animate({
+			        scrollTop: $open_content.offset().top
+			    }, 2000);
+			}
+
 				options.resize_wrapper_func();
 				options.tablesorter_func();
 				options.pagination_func(options.callee, options.scalarapi.model.numNodes);
@@ -164,7 +176,7 @@
 				$tr.append('<td property="created" style="white-space:nowrap;">'+d+'</td>');
 				$tr.append('<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'+creator+'</td>');
 				if (options.paywall) $tr.append('<td class="editable boolean" property="paywall" style="text-align:center;width:65px;">'+((paywall)?'1':'0')+'</td>');
-				$tr.append('<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="get_versions('+id+',this);" class="generic_button">View</a></td>');
+				$tr.append('<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="get_versions('+id+',this);" class="view_versions generic_button">View</a></td>');
 				$tr.append('</tr>');			
 			}
 			

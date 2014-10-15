@@ -17,7 +17,7 @@
 		var paywall = <?=(($book->has_paywall)?'true':'false')?>;
 		
 		$(document).ready(function() {
-			
+
 			$('#check_all').click(function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
@@ -109,7 +109,6 @@
 		}
 		
 		function deleteContent() {
-			
 			var items_to_delete = $('.tablesorter').find("input[type='checkbox']:checked");
 			var content_ids_to_delete = new Array;
 			var version_ids_to_delete = new Array;
@@ -157,9 +156,22 @@
 				 if ($next.hasClass('version_wrapper')) $next.remove();			  	 
 			  	 $('#row_'+content_id).remove();
 			  }
+
+
+			  var same_cid = true;
+			  var cid = null;
+			  if(data.versions.length > 0) {
+			  	cid = $('#version_row_'+data.versions[0]).attr('content_id');
+			  }
+
 			  for (var j = 0; j < data.versions.length; j++) {
 			  	 var version_id = data.versions[j];
-			  	 $('#version_row_'+version_id).remove();
+			  	 $ver = $('#version_row_'+version_id);
+			  	 var temp = $ver.attr('content_id');
+			  	 if(!temp || cid != temp) {
+			  	 	same_cid = false;
+			  	 }
+			  	 // $ver.remove();
 			  }			  
 			  var str = '';
 			  if (data.content.length > 0) str += ucwords(toWords(data.content.length))+'content';
@@ -169,7 +181,12 @@
 			  }
 			  str += ' deleted. ';
 			  str += 'Do you wish to reload page content?';
-			  if (confirm(str)) location.reload();
+			  if (confirm(str)) {
+			  	if(same_cid)
+					location.replace('http://' + location.host+location.pathname+location.search+'&content_id='+cid+location.hash);
+				else
+					location.reload();
+			  } 
 			});
 			
 		}
@@ -199,7 +216,7 @@
 					   	$row.find('table').html($header);
 					   	$the_row.after($row);			
 					    for (var j = 0; j < data.length; j++) {
-					    	var $data_row = $('<tr class="bottom_border" id="version_row_'+data[j].version_id+'" typeof="versions"></tr>');
+					    	var $data_row = $('<tr class="bottom_border" content_id="'+content_id+'" id="version_row_'+data[j].version_id+'" typeof="versions"></tr>');
 					    	$data_row.html('<td style="white-space:nowrap;"><input type="checkbox" name="version_id_'+data[j].version_id+'" value="1" />&nbsp; <a href="javascript:;" onclick="edit_row($(this).parent().parent());" class="generic_button">Edit</a></td>');
 							$data_row.append('<td property="id" style="display:none;">'+data[j].version_id+"</td>");
 							$data_row.append('<td class="editable number" property="version_num">'+data[j].version_num+"</td>");
