@@ -48,18 +48,19 @@
 			try {
 				$.fn.scalardashboardtable('setup', options);
 				$.fn.scalardashboardtable('content', options);
-			if(location.search.indexOf('content_id') != -1) {
-				var vars = {};
-			    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi, function(m,key,value) {
-			        vars[key] = value;
-			    });
-			    $open_content = $('#row_'+vars['content_id']);
-			    $open_content.find('a.view_versions').click();
-				$('.table_wrapper').animate({
-			        scrollTop: $open_content.offset().top
-			    }, 2000);
-			}
-
+				if(location.search.indexOf('content_id') != -1) {
+					var vars = {};
+				    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi, function(m,key,value) {
+				        vars[key] = value;
+				    });
+				    $open_content = $('#row_'+vars['content_id']);
+				    if($open_content.length !== 0) {
+					    $open_content.find('a.view_versions').click();
+						$('.table_wrapper').animate({
+					        scrollTop: $open_content.offset().top
+					    }, 2000);
+					}
+				}
 				options.resize_wrapper_func();
 				options.tablesorter_func();
 				options.pagination_func(options.callee, options.scalarapi.model.numNodes);

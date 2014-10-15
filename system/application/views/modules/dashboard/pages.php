@@ -12,7 +12,7 @@
 	<script>
 	
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
-		var start = 0;
+		var start = <?=(isset($_GET['start'])?$_GET['start']:0)?>;
 		var results = 20;
 		var paywall = <?=(($book->has_paywall)?'true':'false')?>;
 		
@@ -28,7 +28,7 @@
 				document.location.href = url;
 			});	
 
-			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:0,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
+			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
    			
    			$(window).resize(function() { resizeList(); });
    			resizeList();	
@@ -183,7 +183,7 @@
 			  str += 'Do you wish to reload page content?';
 			  if (confirm(str)) {
 			  	if(same_cid)
-					location.replace('http://' + location.host+location.pathname+location.search+'&content_id='+cid+location.hash);
+					location.replace('http://' + location.host+location.pathname+location.search+'&start='+start+'&content_id='+cid+location.hash);
 				else
 					location.reload();
 			  } 
