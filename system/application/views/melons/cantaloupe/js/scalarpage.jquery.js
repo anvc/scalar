@@ -516,7 +516,7 @@
 					if ( publisherThumbnail != null ) {
 						publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
 					}
-					publisherInfo.append( ' ' + publisherNode.title );
+					publisherInfo.append( ' ' + (publisherNode.title?publisherNode.title:'') );
 				}
 				$( '#colophon' ).prepend( publisherInfo );
 			
