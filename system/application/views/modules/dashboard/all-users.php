@@ -12,12 +12,13 @@ User has been added
 <? endif ?>	
 		<style>
 		.admin-nav-wrap {
-			display:inline-block;
-			float:right;
-			margin: 7px 0;
+			margin:7px 0;
+			float:left;
+			width:100%;
 		}
 		.user-search-form {
 			margin-top:15px;
+			display:inline-block;
 		}
 		</style>
 		<script>
@@ -65,8 +66,8 @@ User has been added
 		<input tabindex="4" type="text" name="book_title" value="title of first book (optional)" style="width:180px;" onfocus="if (this.value=='title of first book (optional)') this.value='';" />&nbsp; 
 		<input type="submit" value="Go" class="generic_button" />
 		</form>				
-		<? if (!empty($users)): ?>
 		<div class="admin-nav-wrap">
+		<? if (!empty($users)): ?>
 		<?
 			if((count($users)-1) != $total)
 				$count = count($users);
@@ -85,13 +86,15 @@ User has been added
 		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
 		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
 		 </form>
+		 &nbsp; &nbsp; &nbsp; &nbsp;
 		<? endif ?>
-		</div>
 		<? endif ?>
 		<form class="user-search-form">
 		 	<input placeholder="Find User" type="text" class="user-search" size="20" />
 			<input style="vertical-align:bottom;" type="submit" value="Search" class="generic_button" />
+			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-users">clear</a>
 		 </form>
+		</div>
 		
 		<br clear="both" />
 		

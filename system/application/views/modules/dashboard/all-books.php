@@ -12,12 +12,13 @@ Book has been added
 <? endif ?>		
 		<style>
 		.admin-nav-wrap {
-			display:inline-block;
-			float:right;
-			margin: 7px 0;
+			margin:7px 0;
+			float:left;
+			width:100%;
 		}
 		.book-search-form {
 			margin-top:15px;
+			display:inline-block;
 		}
 		</style>
 
@@ -130,8 +131,8 @@ Book has been added
 		</select>&nbsp; 
 		<input type="submit" value="Go" class="generic_button" />
 		</form>			
-		<? if (!empty($books)): ?> 
 		<div class="admin-nav-wrap">
+		<? if (!empty($books)): ?> 
 		<?
 			if((count($books)-1) != $total)
 				$count = count($books);
@@ -144,19 +145,21 @@ Book has been added
 		<? endif ?>
 		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($books)-1 == $total): ?>
-		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
+		 &nbsp;		<span class="next"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
 		<? endif ?>
 		<form style="display:inline-block" class="jump-form">
 		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
 		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
 		 </form>
+		 &nbsp; &nbsp; &nbsp; &nbsp;
 		<? endif ?>
-		</div>
 		<? endif ?>
 		<form class="book-search-form">
 		 	<input placeholder="Find Book" type="text" class="book-search" size="20" />
 			<input style="vertical-align:bottom;" type="submit" value="Search" class="generic_button" />
+			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-books">clear</a>
 		 </form>
+		</div>
 
 		
 		<br clear="both" />
