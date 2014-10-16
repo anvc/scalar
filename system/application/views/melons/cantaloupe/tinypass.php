@@ -27,7 +27,7 @@ if (!empty($book->publisher_thumbnail)) {
   	<img src="<?=$view_url?>modules/login/scalar_logo.png"/>
 	<h2 class="heading_font"><b><?=$book->title?></b></h2>
 	<h3 class="heading_font"><?=$page->versions[$page->version_index]->title?></h3>
-    <p>A purchase is required to view the content on this page.</p>
+    <p>To gain full access to this book for an affordable price, please click the button below.</p>
     <div id="tinypass-button"><?=$buttonHTML?></div>
   </div>
 </div>
