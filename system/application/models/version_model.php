@@ -385,6 +385,37 @@ class Version_model extends MY_Model {
     }          
     
 	/**
+	 * Save to an existin version row
+	 * Note: at the moment save() doesn't accept semantic web fields (pnodes), just fields that save to the relational table
+	 */      
+    public function save($array=array()) {
+
+    	// Get ID
+    	$version_id = (int) $array['id'];
+    	if (empty($version_id)) throw new Exception('Could not resolve version ID');
+    	unset($array['id']);
+    	unset($array['section']);
+    	unset($array['ci_session']); 
+    	unset($array['book_id']);	
+
+ 		// Scrub pnodes
+ 		$unset = array();
+    	foreach ($array as $key => $value) {
+ 			if (strstr($key, ':')) $unset[] = $key;
+    	}
+    	foreach ($unset as $key) {
+    		unset($array[$key]);
+    	}
+    	
+		// Save row
+		$this->db->where('version_id', $version_id);
+		$this->db->update($this->versions_table, $array); 
+		if (mysql_errno()!=0) echo mysql_error();
+		return $array;    	
+    	
+    }      
+    
+	/**
 	 * A method specific to Scalar paths, that re-orders child versions (pages within the path) within a parent version (path)
 	 */      
     public function save_order($parent_version_id=0, $child_version_ids=array()) {

@@ -258,7 +258,7 @@ class Page_model extends MY_Model {
     public function save($array=array()) {
 
     	// Get ID
-    	$content_id = $array['id'];
+    	$content_id = (int) $array['id'];
     	if (empty($content_id)) throw new Exception('Could not resolve content ID');
     	unset($array['id']);
     	unset($array['section']);
