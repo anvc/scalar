@@ -17,7 +17,6 @@ Book has been added
 			width:100%;
 		}
 		.book-search-form {
-			margin-top:15px;
 			display:inline-block;
 		}
 		</style>
@@ -33,6 +32,11 @@ Book has been added
 				}
 				return false;
 			});
+
+			var search_text = "<?=htmlspecialchars($_REQUEST['sq'])?>";
+			if(search_text) {
+				$('.book-search').val(search_text);
+			}
 
 			$('.book-search-form').submit(function() {
 				var sq = $(this).children('.book-search').val();
@@ -142,8 +146,9 @@ Book has been added
 		<? if ($start !== 0 || (count($books)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
+		&nbsp; 
 		<? endif ?>
-		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($books)-1 == $total): ?>
 		 &nbsp;		<span class="next"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
 		<? endif ?>
@@ -231,8 +236,9 @@ Book has been added
 		<? if ($start !== 0 || (count($books)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
+		&nbsp; 
 		<? endif ?>
-		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($books)-1 == $total): ?>
 		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
 		<? endif ?>
