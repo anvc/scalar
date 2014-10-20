@@ -38,7 +38,7 @@ var widgets_uri = views_uri+'/widgets';
  * This function takes a test, for example, that the width of an element has changed, and runs a callback
  */
 function when(tester_func, callback) {
-	var timeout = 50;
+	var timeout = 250;
 	var passed = tester_func();
 	if ('undefined'!=typeof(passed) && passed) {
 		callback();
@@ -58,7 +58,7 @@ $(window).load(function() {
 		$('body').trigger('yepnopeLoadComplete', []);
 	});		
 });
-*/	
+*/
 
 /**
  * Boot the interface
@@ -177,7 +177,7 @@ $(window).ready(function() {
 		  		if (!parent.length) return;
 		  		document.location.href=parent;
 		  	});
-		  }},		  
+		  }},		  		  			  
 		  
 		  // Scalar Nav which includes a few dependencies
 		  {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/pulldown/jquery.scalarpulldown.js',widgets_uri+'/pulldown/pulldown.css',widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js',widgets_uri+'/nav/jquery.scalarrecent.js',widgets_uri+'/nav/jquery.scalarnav.js',widgets_uri+'/nav/nav.css'], complete:function() {
@@ -224,7 +224,7 @@ $(window).ready(function() {
 			});	
 			$('body').bind('hide_annotation', function(event) {});	
 		  }}
-  	  
+
 	]);  // !yepnope
 	
 });
