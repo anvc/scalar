@@ -514,7 +514,7 @@ class Version_model extends MY_Model {
 	 * Filter a DB result of versions based on a search query (an array of terms)
 	 */      
     public function filter_result_i($result, $sq) {
-    	
+
     	$result = (array) $result;
     	$results = array();
         foreach ($sq as $term) {
