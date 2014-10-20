@@ -182,10 +182,26 @@
 			  str += ' deleted. ';
 			  str += 'Do you wish to reload page content?';
 			  if (confirm(str)) {
-			  	if(same_cid)
-					location.replace('http://' + location.host+location.pathname+location.search+'&start='+start+'&content_id='+cid+location.hash);
-				else
+			  	if(cid && same_cid) {
+			  		var search = location.search;
+			  		if(location.search.indexOf('start=') == -1)
+			  			search += '&start=' + start;
+			  		else
+			  			search = search.replace(/start=[0-9]+/g,"start="+start);
+
+			  		if(location.search.indexOf('content-id=') == -1)
+			  			search += '&content-id='+cid;
+			  		else {
+			  			search = search.replace(/content-id=[0-9]+/g,"content-id="+cid);
+			  		}
+
+			  		var dest = 'http://' + location.host+location.pathname+search+location.hash;
+			  		if(dest == location.href)
+			  			location.reload();
+					location.replace('http://' + location.host+location.pathname+search+location.hash);
+				} else {
 					location.reload();
+				}
 			  } 
 			});
 			
