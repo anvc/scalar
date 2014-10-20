@@ -118,6 +118,26 @@ function handleFlashVideoMetadata(data) {
 	});
 }
 
+/**
+* Get YouTube ID from various YouTube URL
+* @author: takien
+* @url: http://takien.com
+* For PHP YouTube parser, go here http://takien.com/864
+*/
+ 
+function YouTubeGetID(url){
+  var ID = '';
+  url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+  if(url[2] !== undefined) {
+    ID = url[2].split(/[^0-9a-z_]/i);
+    ID = ID[0];
+  }
+  else {
+    ID = url;
+  }
+    return ID;
+}
+
 (function($) {
 
 	/**
@@ -2749,7 +2769,7 @@ function handleFlashVideoMetadata(data) {
 			obj = $('<div class="mediaObject"><div id="youtube'+this.model.filename+'_'+this.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
 			
 			var params = {
-				videoId:this.model.filename,
+				videoId: YouTubeGetID( this.model.path ),
 				playerVars: {
 					modestbranding:1, 
 					enablejsapi:1,

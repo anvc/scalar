@@ -172,9 +172,12 @@ function wrapOrphanParagraphs(selection) {
 	  					$( this ).attr( 'data-size', 'full' );
 	  				}
 	  			} );
-	  			// remove the element if it contains only whitespace and no inline media links
-	  			if (( $(this).text().trim().length < 1 ) && ( $( this ).find( '.inline' ).length == 0 )) {
-	  				$(this).remove();
+	  			// if the element has no children after whitespace and line breaks are removed, then remove it
+	  			if ( $( this ).text().trim().length < 1 ) {
+	  				$( this ).find( 'br' ).remove();
+	  				if ( $( this ).children().length == 0 ) {
+		  				$(this).remove();
+	  				}
 	  			}
 	  		} else {
 	  			if (buffer == null) {

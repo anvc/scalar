@@ -716,7 +716,7 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 			// audio and images can be handled normally
 		
 		// override if the path makes reference to YouTube
-		} else if ((uri.indexOf('//youtube.com') != -1) || (uri.indexOf('//www.youtube.com') != -1)) {
+		} else if ((uri.indexOf('//youtube.com') != -1) || (uri.indexOf('//www.youtube.com') != -1) || (uri.indexOf('//youtu.be') != -1)) {
 			source = this.mediaSources['YouTube'];
 			
 		// override if the path makes reference to YouTube via Google API
