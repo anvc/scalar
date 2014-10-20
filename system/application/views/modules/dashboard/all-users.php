@@ -17,7 +17,6 @@ User has been added
 			width:100%;
 		}
 		.user-search-form {
-			margin-top:15px;
 			display:inline-block;
 		}
 		</style>
@@ -77,8 +76,9 @@ User has been added
 		<? if ($start !== 0 || (count($users)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
+		&nbsp; 
 		<? endif ?>
-		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($users)-1 == $total): ?>
 		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
 		<? endif ?>
@@ -151,8 +151,9 @@ User has been added
 		<? if ($start !== 0 || (count($users)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
+		&nbsp; 
 		<? endif ?>
-		&nbsp; <b class="total"><?=$start+1?> - <?=$start + $count?></b>
+		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($users)-1 == $total): ?>
 		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
 		<? endif ?>
