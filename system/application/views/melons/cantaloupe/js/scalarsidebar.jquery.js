@@ -17,7 +17,7 @@
         base.icons = {};
         base.loaded_nodes = {};
 
-        base.fullScreenViews = ['iframe'];
+        base.fullScreenViews = ['iframe','book_splash'];
 
         base.get_vars = '?';
 
@@ -47,6 +47,8 @@
             	//Determine first whether we are in a full screen layout or not - if so, add a class to the body tag.
             	if(base.fullScreenViews.indexOf(currentNode.current.defaultView)>=0){
             		$('body').addClass('fullscreen_page');
+            	}else{
+            		$('body').addClass('non_fullscreen_page');
             	}
             	$('body').addClass('sidebar_collapsed');
             	//Sorry, I need this to be readable for now - is this the fastest way? Seems to be: http://stackoverflow.com/questions/51185/are-javascript-strings-immutable-do-i-need-a-string-builder-in-javascript/4717855#4717855
@@ -63,13 +65,14 @@
 											'</ul>'+
 										'</div>'+
 									'</div>'+
-									'<h3 class="title header_font"><strong>&nbsp;</strong></h3>'+
+									'<div id="info_panel_thumbnail"></div>'+
+									'<h3 class="title heading_font"><strong>&nbsp;</strong></h3>'+
 									'<div class="section" id="overview_info">'+
 										'<div class="content">'+
 											'<p class="description caption_font"></p>'+
 											'<div class="featured_block">'+
 												'<hr />'+
-												'<h4 class="header_font">Featured In</h4>'+
+												'<h4 class="heading_font">Featured In</h4>'+
 												'<ul class="featured_list caption_font"></ul>'+
 											'</div>'+
 											'<div class="tagged_by_block">'+
@@ -81,14 +84,14 @@
 									'</div>'+
 									'<div class="section" id="comments_info">'+
 										'<div class="content">'+
-											'<h4 class="header_font">Comments</h4>'+
+											'<h4 class="heading_font">Comments</h4>'+
 											'<a class="discuss_link caption_font"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a><br/>'+
 											'<ul class="comment_list"></ul>'+
 										'</div>'+
 									'</div>'+
 									'<div class="section" id="metadata_info">'+
 										'<div class="content">'+
-											'<h4 class="header_font">Metadata</h4>'+
+											'<h4 class="heading_font">Metadata</h4>'+
 											'<dl class="metadata_list caption_font"></dl>'+
 										'</div>'+
 									'</div>'+
@@ -137,8 +140,7 @@
 							$('#sidebar, #info_panel').removeClass('tall');
 						}
 						if(typeof base.hovered_item != 'undefined' && base.hovered_item != null){
-							var hovered_item = base.hovered_item;
-							var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.position().top));
+							var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
 							$('#info_panel_arrow').css({
 								'top':(top_offset)+'px'
 							});
@@ -270,7 +272,7 @@
 	          		}
 	          	});
 			}			
-        };
+        }
 
         base.change_pane = function(pane){
         	base.current_pane = pane;
@@ -311,8 +313,8 @@
 			$('#sidebar_panes').animate({
 				scrollTop: scrollmid
 			},10);
-
 		}
+
 		base.load_info = function(slug){
 			//Prepare yourself for some hot jQuery chaining action.
 				$('#info_panel').data('slug',slug)
@@ -554,6 +556,7 @@
         	$('#sidebar #sidebar_panes').append(new_pane);	
 			$('#sidebar_selector .tags').addClass('enabled');
         }
+
         base.build_index_pane = function(){
         	base.icons.index = '<span class="icon-index"></span>';
 
@@ -641,6 +644,7 @@
 
 			$('#sidebar_selector .index').addClass('enabled');
         }
+
         base.build_linear_pane = function(){
         	base.icons.linear = '<span class="icon-linear"></span>';
 
@@ -650,6 +654,7 @@
         	$('#sidebar #sidebar_panes').append($(html));	
 			$('#sidebar_selector .linear').addClass('enabled');
         }
+
         base.build_recent_pane = function(){
         	var html = '<div class="pane" data-type="recent" id="sidebar_recent_pane"><div class="smallmed"><ul class="current recent"></ul></div></div>';
         	var new_pane = $(html).appendTo($('#sidebar #sidebar_panes'));
@@ -665,42 +670,51 @@
 				new_pane.find('ul.current.recent').append('<li class="empty active">Your history is currently empty.</li>');
 			} else {
 				var nodes = JSON.parse(prev_string);
+				console.log(nodes);
 				for(var uri in nodes){
 					var this_node = nodes[uri];
-					var slug = uri.replace(scalarapi.model.urlPrefix,'');
-					if(typeof this_node['http://purl.org/dc/elements/1.1/title']!='undefined' && this_node['http://purl.org/dc/elements/1.1/title'] != null && this_node['http://purl.org/dc/elements/1.1/title'].length > 0){
-						var title = this_node['http://purl.org/dc/elements/1.1/title'][this_node['http://purl.org/dc/elements/1.1/title'].length-1].value;
-					}else{
-						//We don't have a title... Skip this one?
-						continue;
-					}
-					var item_html = '<li data-url="'+uri+'" data-slug="'+slug+'"><div class="title">'+title+'</div></li>';
-					var new_item = $(item_html).appendTo(new_pane.find('ul.current.recent'));
-
-					if(slug == currentNode.slug){
-						new_item.addClass('active');
-					}
-					if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
-						if(typeof base.loaded_nodes[slug] != 'undefined'){
-							//We already have this page loaded - let's show it now.
-							base.loaded_nodes[slug] = currentNode;
-							base.show_icon(slug, new_item);
+					if(uri.indexOf(scalarapi.model.urlPrefix)>=0){
+						var slug = uri.replace(scalarapi.model.urlPrefix,'');
+						if(typeof this_node['http://purl.org/dc/elements/1.1/title']!='undefined' && this_node['http://purl.org/dc/elements/1.1/title'] != null && this_node['http://purl.org/dc/elements/1.1/title'].length > 0){
+							var title = this_node['http://purl.org/dc/elements/1.1/title'][this_node['http://purl.org/dc/elements/1.1/title'].length-1].value;
 						}else{
-							//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-							(function(slug, new_item){
-								scalarapi.loadNode(
-									slug,
-									true,
-									function(json){
-										base.loaded_nodes[slug] = scalarapi.getNode(slug);
-										base.show_icon(slug, new_item);	
-									},
-									function(err){},
-									1, true);
-							})(slug, new_item);
+							//We don't have a title... Skip this one?
+							continue;
 						}
-					}else{
-						base.show_icon(slug, new_item);
+						var item_html = '<li data-url="'+uri+'" data-slug="'+slug+'"><div class="title">'+title+'</div></li>';
+						var new_item = $(item_html).appendTo(new_pane.find('ul.current.recent'));
+
+						if(slug == currentNode.slug){
+							new_item.addClass('active');
+						}
+						if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
+							if(typeof base.loaded_nodes[slug] != 'undefined'){
+								//We already have this page loaded - let's show it now.
+								base.loaded_nodes[slug] = currentNode;
+								base.show_icon(slug, new_item);
+							}else{
+								new_item.hide();
+								//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
+								(function(slug, new_item){
+									scalarapi.loadNode(
+										slug,
+										true,
+										function(json){
+											if(typeof scalarapi.getNode(slug)!='undefined'){
+												new_item.show();
+												base.loaded_nodes[slug] = scalarapi.getNode(slug);
+												base.show_icon(slug, new_item);	
+											}else{
+												new_item.remove();
+											}
+										},
+										function(err){ console.log(err); },
+										1, true);
+								})(slug, new_item);
+							}
+						}else{
+							base.show_icon(slug, new_item);
+						}
 					}
 				}
 			}
@@ -710,6 +724,7 @@
         	base.icons.recent = '<span class="icon-recent"></span>';	
 			$('#sidebar_selector .recent').addClass('enabled');
         }
+
         base.build_markers_pane = function(){
         	base.icons.markers = '<span class="icon-markers"></span>';
 
@@ -729,20 +744,14 @@
 					base.hovered_item = $(this);
 					var slug = $(this).data('slug');
 					$('#info_panel .title>strong, #info_panel .description, #info_panel .featured_list,#info_panel .tagged_by_list, #info_panel .comment_list, #info_panel .metadata_list').html('');
-					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.position().top));
+					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
+					
 					$('#info_panel_arrow').css({
 						'top':top_offset+'px'
 					});
 					clearTimeout(base.infobar_timeout);
 					base.load_info(slug);
 					e.stopPropagation();
-				}
-			}).mouseleave(function(){ 
-				if(!isMobile && !base.isSmallScreen){
-					base.infobar_timeout = setTimeout(function(){
-						base.hovered_item = null;
-						base.hideInfo();
-					},500);
 				}
 			}).click(function(){
 				var slug = $(this).data('slug');
@@ -757,7 +766,7 @@
 					base.triggerSidebar(true);
 					base.load_info(slug);
 					base.hovered_item = $(this);
-					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.position().top));
+					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
 					$('#info_panel_arrow').css({
 						'top':(top_offset)+'px'
 					});
@@ -792,12 +801,35 @@
         	}else{
         		base.triggerSidebar(true);
         	}
-        };
+        }
 
         base.showInfo = function(view,page){
         	switch(view){
         		case 'recent':
         		case 'path':
+
+        			var thumbnail = '';
+        			if(page.thumbnail != null && typeof page.thumbnail != 'undefined'){
+        				thumbnail = page.thumbnail;
+        			}else if(page.current.mediaSource.contentType=='image'){
+        				thumbnail = page.current.sourceFile;
+        			}else{
+        				var outgoing_references = page.getRelations('referee', 'outgoing', 'reverseindex');
+        				for(var i = 0; i< outgoing_references.length; i++){
+		        			var this_reference = outgoing_references[i].target;
+		        			if(this_reference.current.mediaSource.contentType=='image'){
+        						thumbnail = this_reference.current.sourceFile;
+        						break;
+        					}
+        				}
+        			}
+
+        			if(thumbnail!=''){
+        				$('#info_panel_thumbnail').show().css('background-image','url('+thumbnail+')');
+        			}else{
+        				$('#info_panel_thumbnail').hide();
+        			}
+
 		        	$('#info_panel .title>strong').text(page.current.title);
 		        	$('#info_panel .description').text(page.current.description);
 		        	
@@ -866,7 +898,7 @@
 							$('#info_panel #comments_info .comment_list').append('<li class="caption_font"><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong>'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font">'+comment.body.current.content+'</span></span></a></li>');
 			        	}
 		        	}else{
-		        		$('#info_panel #comments_info .comment_list').append('<li>There are currently no comments for this page.</li>');
+		        		$('#info_panel #comments_info .comment_list').append('<li class="caption_font">There are currently no comments for this page.</li>');
 		        	}
 
 		        	//Hide discuss link if not current page...
@@ -916,9 +948,21 @@
 	        				$('#info_panel #metadata_info .metadata_list').append('<br />');	
 	        			}
 	        		}
+	        		var inner_height = 0;
+	        		$('#info_panel_content .section .content').each(function(){
+	        			inner_height += $(this).height();
+	        		});
+	        		inner_height += $('#info_panel_thumbnail').height();
+	        		inner_height += $('#info_panel h3.title').height();
+	        		if(inner_height <= $('#info_panel_content').innerHeight()){
+	        			$('#info_panel').addClass('short');
+	        		}else{
+	        			$('#info_panel').removeClass('short');
+	        		}
+	        		console.log(inner_height);
 		    }
-        	
         }
+
         base.hideInfo = function(){
         	$('body').removeClass('info_panel_open');
 			$('#info_panel').removeData('slug');
