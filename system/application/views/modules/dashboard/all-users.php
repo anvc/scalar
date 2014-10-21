@@ -32,6 +32,11 @@ User has been added
 				return false;
 			});
 
+			var search_text = "<?=isset($_REQUEST['sq'])?htmlspecialchars($_REQUEST['sq']):''?>";
+			if(search_text) {
+				$('.user-search').val(search_text);
+			}
+
 			$('.user-search-form').submit(function() {
 				var sq = $(this).children('.user-search').val();
  				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&sq=" + encodeURIComponent(sq) + "#tabs-all-users";

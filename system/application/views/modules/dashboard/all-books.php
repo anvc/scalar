@@ -33,7 +33,7 @@ Book has been added
 				return false;
 			});
 
-			var search_text = "<?=htmlspecialchars($_REQUEST['sq'])?>";
+			var search_text = "<?=isset($_REQUEST['sq'])?htmlspecialchars($_REQUEST['sq']):''?>";
 			if(search_text) {
 				$('.book-search').val(search_text);
 			}
