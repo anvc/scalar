@@ -537,20 +537,6 @@ class Book_model extends MY_Model {
 			}	
 			
     	}	
-		
-		// Book versions (ie, main menu)
-		self::reset_book_versions($book_id);
-		$sort_number = 1;
-		foreach ($array as $field => $value) {
-			if (substr($field, 0, 13) != 'book_version_') continue;
-			$version_id = (int) substr($field,13);
-			$value = (int) $value;
-			if ($value) {
-				$this->db->where('version_id', $version_id);
-				$this->db->update($this->versions_table, array( 'sort_number'=>(($value)?$sort_number++:0) ));
-			}
-			unset($array[$field]);
-		}
 	
 		// File -- save thumbnail
 		if (isset($_FILES['upload_thumb'])&&$_FILES['upload_thumb']['size']>0) {
@@ -578,6 +564,12 @@ class Book_model extends MY_Model {
 			}
 		}			
 	
+		// Remove book versions (ie, main menu), which is handled by save_versions()
+		foreach ($array as $field => $value) {
+			if (substr($field, 0, 13) != 'book_version_') continue;
+			unset($array[$field]);
+		}    		
+		
 		// Save row
 		$this->db->where('book_id', $book_id);
 		$this->db->update($this->books_table, $array);
@@ -586,13 +578,27 @@ class Book_model extends MY_Model {
     	
     }
     
-    public function delete_users($book_id) {
+    public function save_versions($array=array()) {
     	
-    	if (empty($book_id)) throw new Exception('Could not resolve book ID');
-    	$this->db->delete($this->user_book_table, array('book_id' => $book_id)); 
+    	// Get ID
+    	$book_id =@ $array['book_id'];
+    	if (empty($book_id)) throw new Exception('Invalid book ID');
+    	// Book versions (ie, main menu)
+		self::reset_book_versions($book_id);
+		$sort_number = 1;
+		foreach ($array as $field => $value) {
+			if (substr($field, 0, 13) != 'book_version_') continue;
+			$version_id = (int) substr($field,13);
+			$value = (int) $value;
+			if ($value) {
+				$this->db->where('version_id', $version_id);
+				$this->db->update($this->versions_table, array( 'sort_number'=>$sort_number++ ));
+			}
+		}    
+		return $array;	
     	
-    }
-    
+    }   
+
     public function save_users($book_id, $user_ids=array(), $role='author') {
     	
     	foreach ($user_ids as $user_id) {
@@ -611,7 +617,14 @@ class Book_model extends MY_Model {
     	
     	return $this->get_users($book_id);
     	
-    }    
+    }        
+    
+    public function delete_users($book_id) {
+    	
+    	if (empty($book_id)) throw new Exception('Could not resolve book ID');
+    	$this->db->delete($this->user_book_table, array('book_id' => $book_id)); 
+    	
+    }
     
     public function create_directory_from_slug($slug='') {
     	

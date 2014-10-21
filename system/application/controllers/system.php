@@ -258,7 +258,8 @@ class System extends MY_Controller {
 		 			$array = $_POST;
 		 			unset($array['action']);
 		 			unset($array['zone']);
-		 			$this->books->save($array);			
+		 			$this->books->save($array);
+		 			$this->books->save_versions($array);			
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_style_saved');
 					exit;			 		
 		 		case 'do_save_user':  // My Account (method requires user_id & book_id)
