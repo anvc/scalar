@@ -539,11 +539,20 @@
 
 		if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
 			listItem = $( '<li><a href="' + addTemplateToURL( system_uri + '/dashboard?book_id=' + me.bookId + '&zone=user#tabs-user', 'cantaloupe') + '">Account</a></li>' ).appendTo( menu );
-			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign out</a></li>' ).appendTo( menu );
+			if ( currentNode != null ) {
+				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign out</a></li>' ).appendTo( menu );
+			} else {
+				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/logout?action=do_logout', 'cantaloupe') + '">Sign out</a></li>' ).appendTo( menu );
+			}
 			
 		} else {
-			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign in</a></li>' ).appendTo( menu );
-			listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/register?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Register</a></li>' ).appendTo( menu );
+			if ( currentNode != null ) {
+				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign in</a></li>' ).appendTo( menu );
+				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/register?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Register</a></li>' ).appendTo( menu );
+			} else {
+				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/login', 'cantaloupe') + '">Sign in</a></li>' ).appendTo( menu );
+				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/register', 'cantaloupe') + '">Register</a></li>' ).appendTo( menu );
+			}
 		}
 		
 	}
