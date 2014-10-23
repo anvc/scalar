@@ -194,7 +194,7 @@
 		}
 		
 		jQuery.VisController.prototype.parseNode = function() {
-			me.view.update();
+			me.view.update( true );
 		}
 		
 		/**
@@ -350,8 +350,6 @@
 			{id:"person", name:"People"}*/
 		];
 		this.indexTypeStrings = ['path', 'page', 'media', 'tag', 'annotation', 'commentary', /*'review',*/ 'comment'/*, 'person'*/];
-		this.selectedRadioBtn = "radio1";						// id of the currently selected radio button
-		this.lastSelectedRadioBtn;								// id of the last selected radio button
 		this.scaleFactorH = 1;									// available width multiplier
 		this.hasSelectedCurrentContent = false;					// has the current content been selected by default yet?
 		this.selectedNodes = [];								// currently selected nodes
@@ -359,6 +357,8 @@
 		this.currentNode = null;								// currently highlighted 
 		this.mouseX = -600;
 		this.mouseY = -600;
+		this.startTime = null;
+		this.loadingMsgShown = false;
 		
 		this.neutralColor = "#dddddd";
 		this.colorScale = function() { return this.neutralColor; };
@@ -502,9 +502,10 @@
 			}
 			
 			// create loading message
+			this.startTime = new Date();
 			this.loadingMsg = $('<div id="loadingMsg"><p>Loading data...</p></div>').appendTo(this.model.element);
 			this.progressBar = $( '<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;"><span class="sr-only">10% complete</span></div></div>' ).appendTo( this.loadingMsg );
-			this.showLoadingMsg();
+			//this.showLoadingMsg();
 			
 			// create visualization div
 			this.visualization = $('<div id="scalarvis"></div>').appendTo(this.model.element);
@@ -550,6 +551,14 @@
 		 * @param {Number} percentDone		Percentage of loads completed (0-100)
 		 */
 		jQuery.VisView.prototype.updateLoadingMsg = function( typeName, percentDone, start, end ) {
+		
+			// only show the loading message if it's taking a while to load the data
+			if ( !this.loadingMsgShown && (( new Date().getTime() - this.startTime.getTime() ) > 1000 )) {
+				this.showLoadingMsg();
+				this.loadingMsg.show();
+				this.loadingMsgShown = true;
+			}
+			
 			if ( start != -1 ) {
 				this.loadingMsg.find('p').text( 'Loading ' + typeName + ' ' + start + ' through ' + end + '...' );
 			} else {
@@ -557,8 +566,6 @@
 			}
 			this.progressBar.find( ".progress-bar" ).attr( "aria-valuenow", percentDone ).css( "width", percentDone + "%" );
 			this.progressBar.find( ".sr-only" ).text( percentDone + "% complete" );
-			
-			this.loadingMsg.show();
 		}
 		
 		/**
@@ -572,11 +579,9 @@
 		/**
 		 * Updates the currently visible visualization.
 		 */
-		jQuery.VisView.prototype.update = function() {
+		jQuery.VisView.prototype.update = function( updateOnly ) {
 		
 			clearInterval(this.int);
-			
-			var updateOnly = (this.selectedRadioBtn == this.lastSelectedRadioBtn);
 			
 			switch (this.model.options.default_tab) {
 						
@@ -606,8 +611,6 @@
 				break;
 			
 			}
-		 	
-		 	this.lastSelectedRadioBtn = this.selectedRadioBtn;
 		 
 		}
 		
@@ -1195,6 +1198,8 @@
 			var node;
 			var targetNode;
 			var maxNodeChars = 15;
+
+			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the “View” button of any selected item to navigate to it.</li></ul>" );
 			
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
@@ -1341,16 +1346,33 @@
 			// if we're drawing from scratch, do some setup
 			if (!updateOnly) {
 			
+				this.model.element.addClass( 'page_margins' );
 				this.visualization.css( 'min-height', '568px' );
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
 		
 				var fullWidth = this.visualization.width();
 				var fullHeight = this.visualization.height();
-					
+				
+				$( '#loadingMsg' ).addClass( 'bounded' );
+				$( '.vis_footer' ).addClass( 'bounded' );
+								
+				$( '#scalarvis' ).addClass( 'bounded' );
 				this.tagvis = d3.select('#scalarvis').append('svg:svg')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight);
+					
+				var zoom = d3.behavior.zoom().center([ fullWidth * .5, fullHeight * .5 ]).scaleExtent([ .25, 7 ])
+				zoom.on("zoom", function() {
+					
+					me.tagvis_pathLayer.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+					me.tagvis_dotLayer.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+					me.tagvis_textLayer.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+					
+				});
+				
+				this.tagvis.call(zoom);
+				this.tagvis.style("cursor","move");
 					
 				this.tagvis_pathLayer = this.tagvis.append('svg:g')
 					.attr('width', fullWidth)
@@ -1366,15 +1388,13 @@
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'textLayer');
-					
-				//this.drawLegend(this.tagvis, 10, fullHeight);
 								
 				// force-directed layout
 				this.force = d3.layout.force()
 					.nodes((this.selectedNodes.length > 0) ? this.currentTagNodes : this.tagNodes)
 					.links((this.selectedNodes.length > 0) ? this.currentTagLinks : this.tagLinks)
-					.linkDistance(60)
-					.charge(-80)
+					.linkDistance(120)
+					.charge(-400)
 					.size([fullWidth, fullHeight])
 					.start();
 					
@@ -1386,8 +1406,8 @@
 					.links((this.selectedNodes.length > 0) ? this.currentTagLinks : this.tagLinks)
 					.start();
 			
-			}		
-					
+			}	
+
 			// update positions of the nodes and labels
 			this.force.on('tick', function() {
 				
@@ -1403,11 +1423,18 @@
 					
 				me.tagvis.selectAll('text.label')
 					.attr('x', function(d) { return d.x; })
-					/*.attr('y', function(d) { return d.y + ((d.shortType == "tag") ? (8 + tagDotSize(d.outgoing.tag_of.length)) : 8) + 12; })*/
-					.attr('y', function(d) { return d.y + 21; })
+					.attr('y', function(d) { return d.y + 28; });
+					
+				me.tagvis.selectAll('rect.visit-button')
+					.attr('x', function(d) { return d.x - 24; })
+					.attr('y', function(d) { return d.y + 38; });
+					
+				me.tagvis.selectAll('text.visit-button')
+					.attr('x', function(d) { return d.x; })
+					.attr('y', function(d) { return d.y + 53; });
 				
 			});
-			
+
 			// create the lines
 			var lines = this.tagvis_pathLayer.selectAll('line.link')
 				.data((this.selectedNodes.length > 0) ? this.currentTagLinks : this.tagLinks);
@@ -1427,17 +1454,18 @@
 			// create the dots
 			var dots = this.tagvis_dotLayer.selectAll('circle.node')
 				.data((this.selectedNodes.length > 0) ? this.currentTagNodes : this.tagNodes);
-			
+
 			dots.enter().append('svg:circle')
 				.attr('class', function(d) { return (d.type == 'tag') ? 'node tag' : 'node'; })
 				.attr('cx', function(d) { return d.x; })
 				.attr('cy', function(d) { return d.y; })
-				.attr('r', '8')
+				.attr('r', '16')
 				.call(me.force.drag)
-				.call(function(d) { 
-					$(d).nodoubletapzoom(); 
-				})
+				.on('touchstart', function(d) { d3.event.stopPropagation(); })
+				.on('mousedown', function(d) { d3.event.stopPropagation(); })
 				.on('click', function(d) {
+					if (d3.event.defaultPrevented) return; // ignore drag
+					d3.event.stopPropagation();
 					me.lastClickedNode = d.node;
 					var index = me.selectedNodes.indexOf(d.node);
 					if (index == -1) {
@@ -1454,19 +1482,16 @@
 					}
 					me.drawTagVisualization(true);
 				})
-				.on("dblclick", function(d) { 
-					return self.location=me.lastClickedNode.url; 
-				})
 				.on("mouseover", function(d) { 
 					me.currentNode = d.node;
-					updateGraph();
+					updateGraph( 'mouseover' );
 				})
 				.on("mouseout", function() { 
 					me.currentNode = null;
-					updateGraph();
+					updateGraph( 'mouseout' );
 				})
 				.attr('fill', function(d) { 
-					var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
+					var interpolator = d3.interpolateRgb(me.highlightColorScale(d.type), d3.rgb(255,255,255));
 					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 				 });
 				 
@@ -1480,13 +1505,32 @@
 				.attr('class', 'label')
 				.attr('x', function(d) { return d.x; })
 				.attr('y', function(d) { return d.y + 21; })
-				.attr('text-anchor', 'middle')
-				.attr('opacity', '0.0')
-				.text(function(d) { return d.shortTitle; });
-				
+				.attr('text-anchor', 'middle')				
+				.text(function(d) { 
+					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.title : d.shortTitle; 
+				});
+
+			labels.enter().append('svg:rect')
+				.attr( 'class', 'visit-button' )
+				.attr( 'rx', '5' )
+				.attr( 'ry', '5' )
+				.attr( 'width', '48' )
+				.attr( 'height', '22' )
+				.on( 'click', function(d) { 
+					d3.event.stopPropagation();
+					if ( self.location != d.node.url ) {
+						return self.location = d.node.url;
+					}
+				});
+
+			labels.enter().append('svg:text')
+				.attr( 'class', 'visit-button' )
+				.attr( 'text-anchor', 'middle')				
+				.text( 'View »' );
+			
 			labels.exit().remove();
 			
-			var updateGraph = function() {
+			var updateGraph = function( event ) {
 					
 				me.tagvis_pathLayer.selectAll('line.link')
 					.attr('stroke-width', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
@@ -1495,14 +1539,31 @@
 					
 				me.tagvis_dotLayer.selectAll('circle.node')
 					.attr('fill', function(d) { 
-						var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
+						var interpolator = d3.interpolateRgb(me.highlightColorScale(d.type), d3.rgb(255,255,255));
 						return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 					 });
+			
+				me.tagvis_textLayer.selectAll('text.label')
+					.attr('fill', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? "#000" :"#999"; })
+					.attr('font-weight', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
+					.text(function(d) { 
+						return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.title : d.shortTitle; 
+					});
+			
+				me.tagvis_textLayer.selectAll('rect.visit-button')
+					.style( 'display', function(d) { 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+					});
+			
+				me.tagvis_textLayer.selectAll('text.visit-button')
+					.style( 'display', function(d) { 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+					});
 			
 			}
 			
 			// update visual elements per frame
-			var perFrame = function() {
+			/*var perFrame = function() {
 			
 				me.tagvis_textLayer.selectAll('text.label')
 					.attr('fill', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? "#000" :"#999"; })
@@ -1518,11 +1579,11 @@
 					})
 					.attr('font-weight', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
 					.text(function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.title : d.shortTitle; });
-			}
+			}*/
 		
-			this.int = self.setInterval(perFrame, 200);
+			//this.int = self.setInterval(updateGraph, 200);
 			
-			updateGraph();
+			updateGraph( 'default' );
 			
 		}
 		 
@@ -1544,13 +1605,13 @@
 				}
 			}
 			
-			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work. Each colored arc represents a connection, color-coded by type. You can roll over the visualization to browse connections, or click to add more content to the current selection. To explore a group of connections in more detail, click one of the large arcs to expand its contents. You can also click any item's title to navigate to it." );
+			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work.<ul><li>Each colored arc represents a connection, color-coded by type.</li><li>Roll over the visualization to browse connections.</li><li>Click to add more content to the current selection.</li><li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li><li>Click any item's title to navigate to it.</li></ul>" );
 			
 			this.visualization.empty();
 			this.visualization.css( 'min-height', '568px' );
 			this.visualization.css('padding', '10px');
 			
-			var maxNodeChars = 130 / 6;
+			var maxNodeChars = 115 / 6;
 			
 			var i, j, k, n, o, p, index, node;
 			
@@ -2089,7 +2150,7 @@
 					.style('stroke-width', function(d) {
 						if ( d.parent != null ) {	
 							if (( d.parent.type == "current" ) || ( d.type == "current" )) {
-								return 10;
+								return 5;
 							} else {
 								return (d.dx > minChordAngle) ? 1 : 0;
 							} 
@@ -2107,7 +2168,11 @@
 						
 							// if it's representing the current content, then make it white
 							if ( d.type == "current" ) {
-								color = "#ffffff";
+								if ( d.children == null ) {
+									color = "#000000";
+								} else {
+									color = "#ffffff";
+								}
 								
 							// if the mouse is over the arc and it's not representing an individual item, then color it by verb
 							} else if (( d == highlightedNode ) && ( d.children != null )) {
@@ -2401,7 +2466,7 @@
 				}
 			}
 			
-			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work. Each box represents a piece of content, color-coded by type. The darker the box, the more connections it has to other content. Each line represents a connection. You can roll over the visualization to browse connections, or click to add more content to the current selection. Click the “View” button of any selected item to navigate to it." );
+			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work.<ul><li>Each box represents a piece of content, color-coded by type.</li><li>The darker the box, the more connections it has to other content.</li><li>Each line represents a connection, color-coded by type.</li><li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li><li>Click the “View” button of any selected item to navigate to it.</li></ul>" );
 			
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');

@@ -274,7 +274,7 @@ ScalarPinwheel.prototype.render = function() {
 		
 		this.buildGraph();
 		
-		$('svg').click(handleBackgroundClick);
+		$('#graph > svg').click(handleBackgroundClick);
 	}
 	
 	//console.log('---- current node graph ----');

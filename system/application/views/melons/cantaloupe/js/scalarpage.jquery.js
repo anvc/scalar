@@ -930,10 +930,10 @@
 					
 					/*case "vis":
 			  		case "vispath":
-			  		case "vistag":
 			  		case "vismedia":*/
 			  		case "visindex":
 			  		case "visradial":
+			  		case "vistag":
 					var options = {
 						parent_uri: scalarapi.model.urlPrefix, 
 						default_tab: viewType,

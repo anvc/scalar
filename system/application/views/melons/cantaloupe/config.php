@@ -16,8 +16,8 @@ $config['views'] = array(
 			'visindex' => array('name'=>'Grid','description'=>'The <b>Grid</b> view embeds a visualization at the top of the page that shows content as boxes in a grid. Colored lines are drawn representing connections between the current page and its related content. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'view_grid.gif'),
 			'visradial' => array('name'=>'Radial','description'=>'The <b>Radial</b> view embeds a circular visualization at the top of the page that shows connections between content. Colored arcs are drawn representing connections between the current page and its related content, set against the backdrop of all of the other connections in the work. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'view_radial.gif'),
 			/*'vispath' => array('name'=>'Path Visualization','description'=>'All paths and their contents.','image'=>'view_iframe.gif'),
-			'vismedia' => array('name'=>'Media Visualization','description'=>'Media and their relationships.','image'=>'view_iframe.gif'),
-			'vistag' => array('name'=>'Tag Visualization','description'=>'Tags and their relationships.','image'=>'view_iframe.gif'),*/
+			'vismedia' => array('name'=>'Media Visualization','description'=>'Media and their relationships.','image'=>'view_iframe.gif'),*/
+			'vistag' => array('name'=>'Tag','description'=>'The <b>Tag</b> view embeds a force-directed visualization at the top of the page that shows the content it tags. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'view_tag.gif'),
 			'edit' => '',
 			'annotation_editor' => ''
 		);

@@ -2,6 +2,13 @@
 	text-align: left;
 }
 
+.vis_footer.bounded, #loadingMsg.bounded {
+	padding-left: 0;
+	padding-right: 0;
+	margin-right: 0;
+	margin-left: 0;
+}
+
 #progressbar {
 	width: 300px;
 	height: 8px;
@@ -26,6 +33,10 @@
 	margin-bottom:10px; /* Added by Craig 6 April 2012 */
 	padding: 10px;
 	background-color: #fff;
+}
+
+#scalarvis.bounded {
+	border: 1px solid #ccc;
 }
 
 #visualization form {
@@ -117,6 +128,20 @@ svg {
 	cursor: default;
 	pointer-events: none;
 	font-size: 1.2rem;
+	font-weight: normal;
+}
+
+rect.visit-button {
+	fill: #026697;
+	cursor: pointer;
+}
+
+text.visit-button {
+	fill: white;
+	cursor: default;
+	pointer-events: none;
+	font-size: 1.2rem;
+	font-weight: normal;
 }
 
 .clusternode circle {
@@ -137,6 +162,9 @@ svg {
 .cipher {
 	display: none;
 }
+
+.popover ul { margin-top: 1rem; }
+.popover li { margin-bottom: .5rem; }
 
 .info_box {
 	position: absolute;

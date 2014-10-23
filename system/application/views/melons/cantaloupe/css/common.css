@@ -1192,3 +1192,5 @@ label {
 button, input, optgroup, select, textarea {
   font-family: Lato, Arial, sans-serif;
 }
+
+.btn-primary { background-color: #026697; border-color: #026697; }
