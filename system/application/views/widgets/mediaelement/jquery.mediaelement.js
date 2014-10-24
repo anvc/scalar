@@ -129,7 +129,7 @@ function YouTubeGetID(url){
   var ID = '';
   url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
   if(url[2] !== undefined) {
-    ID = url[2].split(/[^0-9a-z_]/i);
+    ID = url[2].split(/[^0-9a-z_-]/i);
     ID = ID[0];
   }
   else {
@@ -2767,7 +2767,7 @@ function YouTubeGetID(url){
 			// TODO: the 'origin' param will have to become dynamic for Scalar to be able to live on different servers
 			
 			obj = $('<div class="mediaObject"><div id="youtube'+this.model.filename+'_'+this.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
-			
+
 			var params = {
 				videoId: YouTubeGetID( this.model.path ),
 				playerVars: {
