@@ -255,7 +255,7 @@
 					if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
 						section = $('<section class="relationships"></section').appendTo('article');
 						links = $( '<p></p>' );
-						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path “' + page.containingPath.getDisplayTitle() + '”; continue to “' + node.getDisplayTitle() + '”</a>' );
+						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path “' + page.containingPath.getDisplayTitle() + '”. <br /> Continue to “' + node.getDisplayTitle() + '”</a>' );
 						
 						// back button
 						if ( page.containingPathIndex > 0 ) {
@@ -267,6 +267,21 @@
 						containingPathOptionCount++;
 					}
 				} );
+
+				var cont_btn = $('.nav_btn.primary');
+				var back_btn = $('#back-btn');
+				if(cont_btn.length !== 0) {
+					if(back_btn.length !== 0) {
+						cont_btn.parent().addClass('container');
+						back_btn.wrap('<div style="padding:0;text-align:center" class="col-md-1 col-xs-1"></div>');
+						cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-md-offset-0 col-xs-offset-1 col-xs-9"></div>');
+
+						var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
+						back_btn.css('padding-top',temp);
+						back_btn.css('padding-bottom',temp);
+						back_btn.css('vertical-align','top');
+					}
+				}
 				
 				// path contents
 				$('.path_of').each(function() {
