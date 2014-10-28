@@ -171,13 +171,16 @@ body.sidebar_vis #sidebar>#sidebar_inside>header .title {
     white-space: nowrap;
     overflow: hidden;
     font-weight: bold;
-    padding: 0 .5rem;
+    padding: 0 .5rem 0 1rem;
     line-height: 2em;
     font-size: 1.5rem;
     color: #515151;
 }
+body.sidebar_vis #sidebar>#sidebar_inside>header>.title:hover{
+    background-color: #b5b6b6;
+}
 body.sidebar_vis #sidebar>#sidebar_inside>header {
-    padding: 0 0.5rem 0 1rem; margin: -1rem -1rem 0 -1rem;
+    padding: 0 0.5rem 0 0; margin: -1rem -1rem 0 -1rem;
     border-color: 2px solid #222;
     cursor: pointer;
     position: relative;
@@ -189,7 +192,7 @@ body.sidebar_vis #sidebar .pane {
     margin-top: 0
 }
 body.sidebar_vis #sidebar .pane ul li.active {    color: rgba(0,0,0,.75); position: relative; }
-body.sidebar_vis #sidebar .pane ul li.active:after{
+body.sidebar_vis #sidebar .pane ul li.active .sidebar_icon:after{
     content: '\25b8';
     overflow: hidden;
     width: 0;
@@ -286,23 +289,21 @@ body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled:hover {
     background-color: #515151;
     color: #c0c1c1;
 }
-body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled:hover .title {
+body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled:hover .title, body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled:hover .sidebar_maximize {
     color: #c0c1c1;
+}
+body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.enabled:hover .title:hover{
+    background-color: rgba(0,0,0,.125);
 }
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li.active {  display: none }
 
 
 body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li {
     display: none;
-    padding: 0rem 1rem;
+    padding: 0 .5rem 0 0;
     border-bottom: 1px solid #515151;
 }
 body.sidebar_vis #sidebar_inside>header.selector_open {    border-bottom: 0 }
-body.sidebar_vis #sidebar>#sidebar_inside>header .controls a:hover {    color: #222 }
-body.sidebar_vis #sidebar>#sidebar_inside>header .controls a,
-body.sidebar_vis #sidebar>#sidebar_inside>header .controls a:hover {
-    text-decoration: none;
-}
 body.sidebar_collapsed #sidebar #sidebar_index_pane ul li {
     width: 4rem;
     margin-top: 0;
@@ -349,7 +350,7 @@ body.sidebar_full.sidebar_vis #sidebar>#sidebar_inside>header>.controls>.sidebar
     line-height: 2.25rem;
     padding-bottom: .5rem;
 }
-body.sidebar_full #sidebar>#sidebar_inside>header>.controls>.sidebar_maximize{
+body.sidebar_full #sidebar>#sidebar_inside .sidebar_maximize{
     display: none;
 }
 body.sidebar_expanded #sidebar #sidebar_index_pane ul li .sidebar_icon {    font-size: 2.4rem }
@@ -362,7 +363,6 @@ body.sidebar_expanded #sidebar #sidebar_panes {
     overflow-y: auto;
     overflow-x: hidden;
 }
-body.sidebar_expanded #sidebar>#sidebar_inside>header:hover {    background-color: rgba(0,0,0,.125) }
 body.sidebar_expanded.info_panel_open #sidebar #sidebar_inside>header .controls {    text-indent: 0.25rem }
 body.sidebar_expanded.sidebar_full #sidebar {
     width: 100%;
@@ -388,7 +388,6 @@ body.sidebar_vis #info_panel {
 }
 
 body.sidebar_vis #sidebar>#sidebar_inside>header .controls a{
-    background-color: #b5b6b6;
     font-size: 1.5rem;
 }
 body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a{
@@ -396,8 +395,16 @@ body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a{
     font-size: 1rem;
 }
 
-body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a:hover{
+body.sidebar_vis #sidebar>#sidebar_inside>header .controls a:hover, body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a:hover{
+    background-color: #b5b6b6;
     color: #000;
+}
+body.sidebar_vis #sidebar>#sidebar_inside>header>#sidebar_selector .sidebar_maximize{
+    padding: .5rem .95rem;
+    line-height: 2rem;
+}
+body.sidebar_vis #sidebar>#sidebar_inside>header>#sidebar_selector .sidebar_maximize:hover{
+    background-color: rgba(0,0,0,.125);
 }
 #sidebar_inside>header>.user_actions a.active{
     background-color: #cdcece;
@@ -419,15 +426,6 @@ body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions, body.sidebar_vis
 }
 body.sidebar_expanded #sidebar>#sidebar_inside>header .user_actions, body.sidebar_expanded #sidebar>#sidebar_inside>header .controls{
     display: inline;
-}
-body.sidebar_expanded #sidebar>#sidebar_inside>header:hover .controls a{
-    background-color: #a7a8a8;
-}
-body.sidebar_vis #sidebar>#sidebar_inside>header .controls a:hover{
-    background-color: #a7a8a8;
-}
-body.sidebar_expanded #sidebar>#sidebar_inside>header:hover .controls a:hover{
-    background-color: #9a9c9c;
 }
 body.sidebar_vis #info_panel #info_panel_content {
     position: absolute; display: none;

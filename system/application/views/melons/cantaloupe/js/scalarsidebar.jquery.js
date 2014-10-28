@@ -132,10 +132,10 @@
 												//<span class="header_icon"><span class="icon-linear"></span></span>
 												//<span class="header_icon"><span class="icon-recent"></span></span>
 												//<span class="header_icon"><span class="icon-markers"></span></span>
-												'<li class="paths" data-pane="paths"><span class="title">Paths</span></li>'+
-												'<li class="tags" data-pane="tags"><span class="title">Tags</span></li>'+
-												'<li class="index" data-pane="index"><span class="title">Index</span></li>'+
-												'<li class="linear" data-pane="linear"><span class="title">Linear</span></li>'+
+												'<li class="paths" data-pane="paths"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Paths</span></li>'+
+												'<li class="tags" data-pane="tags"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Tags</span></li>'+
+												'<li class="index" data-pane="index"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Index</span></li>'+
+												'<li class="linear" data-pane="linear"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Linear</span></li>'+
 												//'<li class="recent" data-pane="recent"><span class="title">Recent</span></li>'+
 												//'<li class="markers" data-pane="markers"><span class="title">Markers</span></li>'+
 											'</ul>'+
@@ -287,8 +287,11 @@
 	          		base.hideInfo();
 	          		e.stopPropagation();
 	          	});
-	          	$('#sidebar header .controls .sidebar_maximize').click(function(e){
+	          	$('#sidebar header .sidebar_maximize').click(function(e){
 	          		if(!$('body').hasClass('sidebar_full')){
+	          			if($(this).hasClass('selector_maximize')){
+	          				$(this).parents('li').click();
+	          			}
 	          			$('#sidebar_inside>header').removeClass('selector_open');
 	          			$('body').addClass('sidebar_full');
 	          			e.stopPropagation();
@@ -319,11 +322,6 @@
           	$('#sidebar header>.title').html(base.current_pane.toUpperCase());
 		    //$('#sidebar header>.header_icon').html(base.icons[base.current_pane]);
 		    $('#sidebar header').fadeIn('slow');
-		    if($('#sidebar_'+base.current_pane+'_pane').find('.large').length == 0){
-		    	$('#sidebar_inside .controls .sidebar_maximize').hide();
-		    }else{
-		    	$('#sidebar_inside .controls .sidebar_maximize').show();
-		    }
         }
 
         base.show_icon = function(slug, new_item){
