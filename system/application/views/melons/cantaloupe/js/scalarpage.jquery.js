@@ -273,8 +273,8 @@
 				if(cont_btn.length !== 0) {
 					if(back_btn.length !== 0) {
 						cont_btn.parent().addClass('container');
-						back_btn.wrap('<div style="padding:0;padding-right:5px;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
-						cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
+						back_btn.wrap('<div style="padding:0;text-align:center" class="col-md-1 col-xs-1"></div>');
+						cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-md-offset-0 col-xs-offset-1 col-xs-9"></div>');
 
 						var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
 						back_btn.css('padding-top',temp);

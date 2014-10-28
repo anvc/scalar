@@ -231,13 +231,13 @@
 	            
 	            base.current_pane = $('#sidebar_panes .pane').first().data('type');
 	            console.log(base.current_pane);
-	            $('#sidebar>header').hide();
+	            $('#sidebar header').hide();
 	          	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
 	          	$('#sidebar_selector li.'+base.current_pane).addClass('active');
 	          	$('#sidebar header>.title').html(base.current_pane.toUpperCase());
 
 	          	//$('#sidebar header>.header_icon').html(base.icons[base.current_pane]);
-			    $('#sidebar>header').fadeIn('slow');
+			    $('#sidebar header').fadeIn('slow');
 
 			    $('#sidebar_inside>header>.title').click(function(e){
 			    	if((!isMobile && !base.isSmallScreen)||($('body').hasClass('sidebar_expanded')||$('#sidebar_inside>header').hasClass('selector_open'))){
@@ -314,14 +314,14 @@
 
         base.change_pane = function(pane){
         	base.current_pane = pane;
-            $('#sidebar>header').hide();
+            $('#sidebar header').hide();
             $('#sidebar .pane').removeClass('active');
           	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
           	$('#sidebar_selector li').removeClass('active');
           	$('#sidebar_selector li.'+base.current_pane).addClass('active');
           	$('#sidebar header>.title').html(base.current_pane.toUpperCase());
 		    //$('#sidebar header>.header_icon').html(base.icons[base.current_pane]);
-		    $('#sidebar>header').fadeIn('slow');
+		    $('#sidebar header').fadeIn('slow');
         }
 
         base.show_icon = function(slug, new_item){
@@ -383,13 +383,7 @@
         	var paths = currentNode.getRelations('path', 'incoming', 'reverseindex');
         	base.icons['paths'] = '<span class="icon-path"></span>';
         	var html = '<div class="pane" data-type="paths" id="sidebar_paths_pane">'+
-							'<header class="current">'+
-								'<span class="header_icon icon-path"></span>'+
-								'<span class="header_text"></span>'+
-							'</header>'+
-        					'<div class="smallmed">'+
-        						'<ul class="current path"></ul>'+
-        					'</div>'+
+        					'<div class="smallmed"><ul class="current path"></ul></div>'+
         					'<div class="large list">'+
         						'<header><a class="all_link" data-view="all">View All</a><a class="list_link" data-view="list">List View</a></header>'+
         						'<div class="view" id="path_list_view"></div>'+
@@ -423,96 +417,89 @@
 				var after = 0;
 				var dist_before = 0;
 				var dist_after = 0;
-
 				for(p in paths){
-					//We'll handle other paths later...
-					if(p == 0){
-						var parent_node = paths[p].body;
-						if(parent_node.slug == base.queryVars.path){
-							
-							new_pane.find('header').data('url',parent_node.url).click(function(){
-								var target_url = $(this).data('url')+base.get_vars;
-								window.location = target_url;
-							}).find('.header_text').html(parent_node.title);
+					var parent_node = currentNode.incomingRelations[p].body;
+					if(parent_node.slug == base.queryVars.path){
+						
+						$(new_pane).find('ul.current.path').data('path',parent_node.slug);
 
-							$(new_pane).find('ul.current.path').data('path',parent_node.slug);
+						var before_current = true; //We'll flip this once we come to the current page;
 
-							var before_current = true; //We'll flip this once we come to the current page;
+						// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
+						// We could probably write a custom sort function, but in the end, this is a faster process.
+						var relations_list = {};
 
-							// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
-							// We could probably write a custom sort function, but in the end, this is a faster process.
-							var relations_list = {};
+						var current_node_index = 0;
 
-							var current_node_index = 0;
-
-							for(r in parent_node.outgoingRelations){
-								var path_step = parent_node.outgoingRelations[r];
-								relations_list[path_step.index] = path_step;
-								if(path_step.target.slug == currentNode.slug){
-									current_node_index = path_step.index;
-								}
-							}
-							
-							//Alright, iterate through our properly ordered list.
-							for(r in relations_list){
-								var path_step = relations_list[r];
-								var node_info = scalarapi.getNode(path_step.target.slug);
-								//console.log(node_info);
-								//Same as the active page, pretty much.
-								var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li>';
-
-								var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
-
-								if(path_step.target.slug == currentNode.slug){
-									new_item.addClass('active');
-								}else{
-									var raw_dist = r-current_node_index;
-									var distance = Math.abs(raw_dist)*4;
-									if(distance > 10){
-										new_item.addClass('distant');
-										if(raw_dist<0){
-											dist_before++;
-										}else{
-											dist_after++;
-										}
-									}else{
-										new_item.addClass('distance_'+distance);
-										if(raw_dist<0){
-											before++;
-										}else{
-											after++;
-										}
-									}
-								}
-
-								var slug = path_step.target.slug;
-
-								if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
-									if(typeof base.loaded_nodes[slug] != 'undefined'){
-										//We already have this page loaded - let's show it now.
-										base.loaded_nodes[slug] = currentNode;
-										base.show_icon(slug, new_item);
-									}else{
-										//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-										(function(slug, new_item){
-											scalarapi.loadNode(
-												slug,
-												true,
-												function(json){
-													base.loaded_nodes[slug] = scalarapi.getNode(slug);
-													base.show_icon(slug, new_item);	
-												},
-												function(err){},
-												1, true);
-										})(slug, new_item);
-									}
-								}else{
-									base.show_icon(slug, new_item);
-								}
-
+						for(r in parent_node.outgoingRelations){
+							var path_step = parent_node.outgoingRelations[r];
+							relations_list[path_step.index] = path_step;
+							if(path_step.target.slug == currentNode.slug){
+								current_node_index = path_step.index;
 							}
 						}
+						
+						//Alright, iterate through our properly ordered list.
+						for(r in relations_list){
+							var path_step = relations_list[r];
+							var node_info = scalarapi.getNode(path_step.target.slug);
+							//console.log(node_info);
+							//Same as the active page, pretty much.
+							var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li>';
+
+							var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
+
+							if(path_step.target.slug == currentNode.slug){
+								new_item.addClass('active');
+							}else{
+								var raw_dist = r-current_node_index;
+								var distance = Math.abs(raw_dist)*4;
+								if(distance > 10){
+									new_item.addClass('distant');
+									if(raw_dist<0){
+										dist_before++;
+									}else{
+										dist_after++;
+									}
+								}else{
+									new_item.addClass('distance_'+distance);
+									if(raw_dist<0){
+										before++;
+									}else{
+										after++;
+									}
+								}
+							}
+
+							var slug = path_step.target.slug;
+
+							if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
+								if(typeof base.loaded_nodes[slug] != 'undefined'){
+									//We already have this page loaded - let's show it now.
+									base.loaded_nodes[slug] = currentNode;
+									base.show_icon(slug, new_item);
+								}else{
+									//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
+									(function(slug, new_item){
+										scalarapi.loadNode(
+											slug,
+											true,
+											function(json){
+												base.loaded_nodes[slug] = scalarapi.getNode(slug);
+												base.show_icon(slug, new_item);	
+											},
+											function(err){},
+											1, true);
+									})(slug, new_item);
+								}
+							}else{
+								base.show_icon(slug, new_item);
+							}
+
+						}	
+						break; //Alright, we can exit the loop now.
 					}
+					
 				}
 
 				if(before!=after){

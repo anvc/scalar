@@ -116,10 +116,7 @@ body.sidebar_vis #sidebar .sidebar_icon {
     vertical-align: middle;
     line-height: 2.5rem;
 }
-body.sidebar_vis #sidebar .pane.active {    
-    display: block;
-    position: relative;
-}
+body.sidebar_vis #sidebar .pane.active {    display: block }
 body.sidebar_vis #sidebar .pane.overlay { 
     position: absolute;
     top: 0px;
@@ -129,38 +126,7 @@ body.sidebar_vis #sidebar .pane.overlay {
     display: block;
     background-color: #cdcece;
 }
-body.sidebar_vis #sidebar .smallmed {   
-    display: table;
-    position: absolute;
-    top: 4rem;
-    width: 100%;
-    height: 100%;
-}
-body.sidebar_vis #sidebar .pane>header{
-    position: fixed;
-    display: table-row;
-    color: #666766;
-}
-body.sidebar_vis #sidebar .pane>header:hover{
-    color: #434242;
-    cursor: pointer;
-}
-body.sidebar_vis #sidebar .pane>header>.header_icon{
-    display: table-cell;
-    vertical-align: middle;
-    padding-left: 1.5rem;
-    width: 2rem;
-    font-size: 2rem;
-}
-body.sidebar_vis #sidebar .pane>header>.header_text{
-    display: none;
-    padding-left: 1.5rem;
-    padding-right: 1rem;
-    width: 25rem;
-}
-body.sidebar_expanded.sidebar_vis #sidebar .pane>header>.header_text{
-    display: table-cell;
-}
+body.sidebar_vis #sidebar .smallmed {    display: table }
 body.sidebar_vis #sidebar .large,
 body.sidebar_full #sidebar .smallmed {    display: none }
 body.sidebar_vis #sidebar>#sidebar_inside>header {
