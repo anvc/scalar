@@ -90,8 +90,8 @@
 				var _prev = (start - results > 0) ? start - results : 0;
 				var _next = (start + results < total) ? start + results : total;				
 				$('.pagination').html('<b>'+(prev+1)+'</b> - <b>'+(next)+'</b> of ');
-				var $prev = $('<a href="javascript:;">'+((prev>0)?'Prev page':'')+'</a>').appendTo('.prev');
-				var $next = $('<a href="javascript:;">'+((next<total)?'Next page':'')+'</a>').appendTo('.next');
+				var $prev = $('<a href="javascript:;">'+((prev>0)?'Previous':'')+'</a>').appendTo('.prev');
+				var $next = $('<a href="javascript:;">'+((next<total)?'Next':'')+'</a>').appendTo('.next');
 				$prev.click(function() {
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 					start = _prev;
