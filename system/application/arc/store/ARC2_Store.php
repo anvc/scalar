@@ -6,7 +6,6 @@
  * @license http://arc.semsol.org/license
  * @homepage <http://arc.semsol.org/>
  * @package ARC2
- * @version 2010-11-16
 */
 
 ARC2::inc('Class');
@@ -49,16 +48,34 @@ class ARC2_Store extends ARC2_Class {
     foreach (array('db_host' => 'localhost', 'db_user' => '', 'db_pwd' => '', 'db_name' => '') as $k => $v) {
       $this->a[$k] = $this->v($k, $v, $this->a);
     }
-    if (!$db_con =@ mysql_connect($this->a['db_host'], $this->a['db_user'], $this->a['db_pwd'])) {
+    if (!$db_con = mysql_connect($this->a['db_host'], $this->a['db_user'], $this->a['db_pwd'])) {
       return $this->addError(mysql_error());
     }
     $this->a['db_con'] = $db_con;
     if (!mysql_select_db($this->a['db_name'], $db_con)) {
-      return $this->addError(mysql_error($db_con));
+      $fixed = 0;
+      /* try to create it */
+      if ($this->a['db_name']) {
+        $this->queryDB("
+          CREATE DATABASE IF NOT EXISTS " . $this->a['db_name'] . " 
+          DEFAULT CHARACTER SET utf8
+          DEFAULT COLLATE utf8_general_ci
+          ", $db_con, 1
+        );
+        if (mysql_select_db($this->a['db_name'], $db_con)) {
+          $this->queryDB("SET NAMES 'utf8'", $db_con);
+          $fixed = 1;
+        }
+      }
+      if (!$fixed) {
+        return $this->addError(mysql_error($db_con));
+      }
     }
     if (preg_match('/^utf8/', $this->getCollation())) {
       $this->queryDB("SET NAMES 'utf8'", $db_con);
     }
+	// This is RDF, we may need many JOINs...
+	$this->queryDB("SET SESSION SQL_BIG_SELECTS=1", $db_con);
     return true;
   }
   
@@ -364,8 +381,9 @@ class ARC2_Store extends ARC2_Class {
     $new_prefix .= $name . '_';
     foreach ($tbls as $tbl) {
       $rs = $this->queryDB('RENAME TABLE ' . $old_prefix . $tbl .' TO ' . $new_prefix . $tbl, $con);
-      if ($er = mysql_error($con)) {
-        return $this->addError($er);
+      $err = mysql_error($con);
+      if ($err) {
+        return $this->addError($err);
       }
     }
     $this->a['store_name'] = $name;
@@ -383,8 +401,9 @@ class ARC2_Store extends ARC2_Class {
     $new_prefix = $new_store->getTablePrefix();
     foreach ($tbls as $tbl) {
       $rs = $this->queryDB('INSERT IGNORE INTO ' . $new_prefix . $tbl .' SELECT * FROM ' . $old_prefix . $tbl, $con);
-      if ($er = mysql_error($con)) {
-        return $this->addError($er);
+      $err = mysql_error($con);
+      if ($err) {
+        return $this->addError($err);
       }
     }
     return $new_store->query('SELECT COUNT(*) AS t_count WHERE { ?s ?p ?o}', 'row');
@@ -454,7 +473,8 @@ class ARC2_Store extends ARC2_Class {
     $r = array();
     $trigger_defs = $this->triggers;
     $this->triggers = array();
-    if ($triggers = $this->v($type, array(), $trigger_defs)) {
+    $triggers = $this->v($type, array(), $trigger_defs);
+    if ($triggers) {
       $r['trigger_results'] = array();
       $triggers = is_array($triggers) ? $triggers : array($triggers);
       $trigger_inc_path = $this->v('store_triggers_path', '', $this->a);
@@ -476,20 +496,43 @@ class ARC2_Store extends ARC2_Class {
   
   /*  */
 
-  function getValueHash($val) {
-    return abs(crc32($val));
+  function getValueHash($val, $_32bit = false) {
+    $hash = crc32($val);
+	if ($_32bit && ($hash & 0x80000000)) {
+        $hash = sprintf("%u", $hash);
+	}
+    $hash = abs($hash);
+	return $hash;
   }
 
   function getTermID($val, $term = '') {
+    /* mem cache */
+    if (!isset($this->term_id_cache) || (count(array_keys($this->term_id_cache)) > 100)) {
+      $this->term_id_cache = array();
+    }
+    if (!isset($this->term_id_cache[$term])) {
+      $this->term_id_cache[$term] = array();
+    }
     $tbl = preg_match('/^(s|o)$/', $term) ? $term . '2val' : 'id2val';
+    /* cached? */
+    if ((strlen($val) < 100) && isset($this->term_id_cache[$term][$val])) {
+      return $this->term_id_cache[$term][$val];
+    }
     $con = $this->getDBCon();
+    $r = 0;
     /* via hash */
     if (preg_match('/^(s2val|o2val)$/', $tbl) && $this->hasHashColumn($tbl)) {
-      $sql = "SELECT id, val FROM " . $this->getTablePrefix() . $tbl . " WHERE val_hash = '" . $this->getValueHash($val) . "'";
+      $sql = "SELECT id, val FROM " . $this->getTablePrefix() . $tbl . " WHERE val_hash = '" . $this->getValueHash($val) . "' ORDER BY id";
+	  $rs = $this->queryDB($sql, $con);
+	  if (!$rs || !mysql_num_rows($rs)) {// try 32 bit version
+	    $sql = "SELECT id, val FROM " . $this->getTablePrefix() . $tbl . " WHERE val_hash = '" . $this->getValueHash($val, true) . "' ORDER BY id";
+		$rs = $this->queryDB($sql, $con);
+	  }
       if (($rs = $this->queryDB($sql, $con)) && mysql_num_rows($rs)) {
         while ($row = mysql_fetch_array($rs)) {
           if ($row['val'] == $val) {
-            return $row['id'];
+            $r = $row['id'];
+            break;
           }
         }
       }
@@ -498,10 +541,13 @@ class ARC2_Store extends ARC2_Class {
     else {
       $sql = "SELECT id FROM " . $this->getTablePrefix() . $tbl . " WHERE val = BINARY '" . mysql_real_escape_string($val, $con) . "' LIMIT 1";
       if (($rs = $this->queryDB($sql, $con)) && mysql_num_rows($rs) && ($row = mysql_fetch_array($rs))) {
-        return $row['id'];
+        $r = $row['id'];
       }
     }
-    return 0;
+    if ($r && (strlen($val) < 100)) {
+      $this->term_id_cache[$term][$val] = $r;
+    }
+    return $r;
   }
 
   function getIDValue($id, $term = '') {
@@ -520,7 +566,8 @@ class ARC2_Store extends ARC2_Class {
     if (!$t_out_init) $t_out_init = $t_out;
     $con = $this->getDBCon();
     $l_name = $this->a['db_name'] . '.' . $this->getTablePrefix() . '.write_lock';
-    if ($rs = $this->queryDB('SELECT IS_FREE_LOCK("' . $l_name. '") AS success', $con)) {
+    $rs = $this->queryDB('SELECT IS_FREE_LOCK("' . $l_name. '") AS success', $con);
+    if ($rs) {
       $row = mysql_fetch_array($rs);
       if (!$row['success']) {
         if ($t_out) {
@@ -528,9 +575,12 @@ class ARC2_Store extends ARC2_Class {
           return $this->getLock($t_out - 1, $t_out_init);
         }
       }
-      elseif ($rs = $this->queryDB('SELECT GET_LOCK("' . $l_name. '", ' . $t_out_init. ') AS success', $con)) {
-        $row = mysql_fetch_array($rs);
-        return $row['success'];
+      else {
+        $rs = $this->queryDB('SELECT GET_LOCK("' . $l_name. '", ' . $t_out_init. ') AS success', $con);
+        if ($rs) {
+          $row = mysql_fetch_array($rs);
+          return $row['success'];
+        }
       }
     }
     return 0;   
@@ -555,7 +605,10 @@ class ARC2_Store extends ARC2_Class {
       $sql .= $pre . $tbl;
     }
     $this->queryDB($sql, $con);
-    if ($err = mysql_error($con)) $this->addError($err . ' in ' . $sql);
+    $err = mysql_error($con);
+    if ($err) {
+      $this->addError($err . ' in ' . $sql);
+    }
   }
 
   function optimizeTables($level = 2) {
@@ -593,17 +646,18 @@ class ARC2_Store extends ARC2_Class {
     //$sub_q .= 'REGEX(str(?p), "(last_name|name|fn|title|label)$", "i")';
     $q = 'SELECT ?label WHERE { <' . $res . '> ?p ?label . ?p a <http://semsol.org/ns/arc#LabelProperty> } LIMIT 3';
     $r = '';
-    if ($rows = $this->query($q, 'rows')) {
-      foreach ($rows as $row) {
-        $r = strlen($row['label']) > strlen($r) ? $row['label'] : $r;
-      }
+    $rows = $this->query($q, 'rows');
+    foreach ($rows as $row) {
+      $r = strlen($row['label']) > strlen($r) ? $row['label'] : $r;
     }
     if (!$r && preg_match('/^\_\:/', $res)) {
       return $unnamed_label;
     }
     $r = $r ? $r : preg_replace("/^(.*[\/\#])([^\/\#]+)$/", '\\2', str_replace('#self', '', $res));
     $r = str_replace('_', ' ', $r);
-    $r = preg_replace('/([a-z])([A-Z])/e', '"\\1 " . strtolower("\\2")', $r);
+    $r = preg_replace_callback('/([a-z])([A-Z])/', function($matches) {
+      return $matches[1] . ' ' . strtolower($matches[2]);
+    }, $r);
     $this->resource_labels[$res] = $r;
     return $r;
   }
@@ -636,10 +690,9 @@ class ARC2_Store extends ARC2_Class {
 
   function getResourcePredicates($res) {
     $r = array();
-    if ($rows = $this->query('SELECT DISTINCT ?p WHERE { <' . $res . '> ?p ?o . }', 'rows')) {
-      foreach ($rows as $row) {
-        $r[$row['p']] = array();
-      }
+    $rows = $this->query('SELECT DISTINCT ?p WHERE { <' . $res . '> ?p ?o . }', 'rows');
+    foreach ($rows as $row) {
+      $r[$row['p']] = array();
     }
     return $r;
   }

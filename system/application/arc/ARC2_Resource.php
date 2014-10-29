@@ -6,7 +6,7 @@
  * @license http://arc.semsol.org/license
  * @homepage <http://arc.semsol.org/>
  * @package ARC2
- * @version 2010-11-16
+ * @version 2011-01-19
 */
 
 ARC2::inc('Class');
@@ -35,6 +35,10 @@ class ARC2_Resource extends ARC2_Class {
     $this->index = $index;
   }
 
+  function getIndex() {
+    return $this->index;
+  }
+
   function setProps($props, $s = '') {
     if (!$s) $s = $this->uri;
     $this->index[$s] = $props;
@@ -51,6 +55,35 @@ class ARC2_Resource extends ARC2_Class {
       if (!is_array($o)) $os[$i] = array('value' => $o, 'type' => 'literal');
     }
     $this->index[$s][$this->expandPName($p)] = $os;
+  }
+
+  /* add a relation to a URI. Allows for instance $res->setRel('rdf:type', 'doap:Project') */
+  function setRel($p, $r, $s = '') {
+    if(!is_array($r)) {
+      $uri = array (
+		    'type' => 'uri',
+		    'value' => $this->expandPName($r));
+      $this->setProp($p, $uri, $s);
+    } else {
+      if (!$s) $s = $this->uri;
+      foreach($r as $i => $x) {
+	if(!is_array($x)) {
+	  $uri = array (
+			'type' => 'uri',
+			'value' => $this->expandPName($x));
+	  $r[$i] = $uri;
+	}
+      }
+      $this->index[$s][$this->expandPName($p)] = $r;
+    }
+  }
+
+  /* Specialize setProp to set an xsd:dateTime typed literal. Example : $res->setPropXSDdateTime('dcterms:created', date('c')) */
+  function setPropXSDdateTime($p, $dt, $s = '') {
+	$datecreated=array('value' => $dt,
+		'type' => 'literal',
+		'datatype' => 'http://www.w3.org/2001/XMLSchema#dateTime');
+	$this->setProp($p, $datecreated, $s);
   }
 
   function setStore($store) {
@@ -77,7 +110,6 @@ class ARC2_Resource extends ARC2_Class {
   /*  */
   
   function getProps($p = '', $s = '') {
-
     if (!$s) $s = $this->uri;
     if (!$s) return array();
     if (!isset($this->index[$s])) $this->fetchData($s);
@@ -106,7 +138,6 @@ class ARC2_Resource extends ARC2_Class {
 
   function hasPropValue($p, $o, $s = '') {
     $props = $this->getProps($p, $s);
-    print_r($props);
     $o = $this->expandPName($o);
     foreach ($props as $prop) {
       if ($prop['value'] == $o) return 1;

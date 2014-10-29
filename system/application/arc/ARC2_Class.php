@@ -6,7 +6,6 @@
  * @license <http://arc.semsol.org/license>
  * @homepage <http://arc.semsol.org/>
  * @package ARC2
- * @version 2010-11-16
  */
 
 class ARC2_Class {
@@ -31,6 +30,7 @@ class ARC2_Class {
     $this->warnings = array();
     $this->adjust_utf8 = $this->v('adjust_utf8', 0, $this->a);
     $this->max_errors = $this->v('max_errors', 25, $this->a);
+    $this->has_pcre_unicode = @preg_match('/\pL/u', 'test');/* \pL = block/point which is a Letter */
   }
 
   /*  */
@@ -75,7 +75,9 @@ class ARC2_Class {
 
   function deCamelCase($v, $uc_first = 0) {
     $r = str_replace('_', ' ', $v);
-    $r = preg_replace('/([a-z0-9])([A-Z])/e', '"\\1 " . strtolower("\\2")', $r);
+    $r = preg_replace_callback('/([a-z0-9])([A-Z])/', function($matches) {
+      return $matches[1] . ' ' . strtolower($matches[2]);
+    }, $r);
     return $uc_first ? ucfirst($r) : $r;
   }
 
@@ -92,7 +94,7 @@ class ARC2_Class {
     /* decode apostrophe + s */
     $r = str_replace(' apostrophes ', "'s ", $r);
     /* typical RDF non-info URI */
-    if (($loops < 1) && preg_match('/^(self|it|this|me)$/i', $r)) {
+    if (($loops < 1) && preg_match('/^(self|it|this|me|id)$/i', $r)) {
       return $this->extractTermLabel(preg_replace('/\#.+$/', '', $uri), $loops + 1);
     }
     /* trailing hash or slash */
@@ -191,6 +193,12 @@ class ARC2_Class {
     return $this->ns[$m[1]];
   }
 
+  function setPrefix($prefix, $ns) {
+	 $this->ns[$prefix] = $ns;
+	 $this->nsp[$ns] = $prefix;
+	 return $this;
+  }
+  
   function getPrefix($ns) {
     if (!isset($this->nsp[$ns])) {
       $this->ns['ns' . $this->ns_count] = $ns;
@@ -477,14 +485,51 @@ class ARC2_Class {
   function queryDB($sql, $con, $log_errors = 0) {
     $t1 = ARC2::mtime();
     $r = mysql_query($sql, $con);
-    $t2 = ARC2::mtime() - $t1;
-    if ($t2 > 1) {
-      //echo "\n needed " . $t2 . ' secs for ' . $sql;
+    if (0) {
+      $t2 = ARC2::mtime() - $t1;
+      $call_obj = $this;
+      $call_path = '';
+      while ($call_obj) {
+        $call_path = get_class($call_obj) . ' / ' . $call_path;
+        $call_obj = isset($call_obj->caller) ? $call_obj->caller : false;
+      }
+      echo "\n" . $call_path . " needed " . $t2 . ' secs for ' . str_replace("\n" , ' ', $sql);;
     }
     if ($log_errors && ($er = mysql_error($con))) $this->addError($er);
     return $r;
   }
 
-  /*  */
+  /**
+   * Shortcut method to create an RDF/XML backup dump from an RDF Store object.
+   */
+  function backupStoreData($store, $target_path, $offset = 0) {
+    $limit = 10;
+    $q = '
+      SELECT DISTINCT ?s WHERE {
+        ?s ?p ?o .
+      }
+      ORDER BY ?s
+      LIMIT ' . $limit . '
+      ' . ($offset ? 'OFFSET ' . $offset : '') . '
+    ';
+    $rows = $store->query($q, 'rows');
+    $tc = count($rows);
+    $full_tc = $tc + $offset;
+    $mode = $offset ? 'ab' : 'wb';
+    $fp = fopen($target_path, $mode);
+    foreach ($rows as $row) {
+      $index = $store->query('DESCRIBE <' . $row['s'] . '>', 'raw');
+      if ($index) {
+        $doc = $this->toRDFXML($index);
+        fwrite($fp, $doc . "\n\n");
+      }
+    }
+    fclose($fp);
+    if ($tc == 10) {
+      set_time_limit(300);
+      $this->backupStoreData($store, $target_path, $offset + $limit);
+    }
+    return $full_tc;
+  }
 
 }

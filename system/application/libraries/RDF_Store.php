@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance 
  * with the License. You may obtain a copy of the License at
  * 
- * http://www.osedu.org/licenses /ECL-2.0 
+ * http://www.osedu.org/licenses/ECL-2.0 
  * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -20,12 +20,12 @@
  
 /**
 * @projectDescription	Wrapper for ARC2
-* @abstract				ARC2 has its own resource helper, but this class includes functions for making interaction with it more direct like getting or saving resources
+* @abstract				ARC2 has its own resource helper, but this class includes methods for making interaction with it more direct (such as getting or saving resources)
 * @author				Craig Dietrich
 * @version				2.1
+* @requires				This has been built as a CodeIgniter Library class, so assumes certain CI functions (such as base_url())
 * @todo					By booting up ARC2 in the constructor here, I think we're creating two connections to MySQL on one page load (this + the one CodeIgniter began earlier)
 */
-
 
 class RDF_Store {
 	
@@ -52,7 +52,7 @@ class RDF_Store {
     }         
     
     /**
-     * Desscribe single node by URN
+     * Describe a single node by URN
      */
     
     public function get_by_urn($urn='') {

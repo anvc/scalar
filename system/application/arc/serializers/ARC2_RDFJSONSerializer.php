@@ -6,7 +6,6 @@
  * @license http://arc.semsol.org/license
  * @homepage <http://arc.semsol.org/>
  * @package ARC2
- * @version 2010-11-16
 */
 
 ARC2::inc('RDFSerializer');
@@ -49,20 +48,11 @@ class ARC2_RDFJSONSerializer extends ARC2_RDFSerializer {
   }
 
   function jsonEscape($v) {
-  	/*
-    if (function_exists('json_encode')) { // Updated by Craig
-    	$v = json_encode($v);
- 		if ('"'==substr($v,0,1)&&'"'==substr($v,-1,1)) $v = substr($v, 1, -1);
- 		return $v;   	
+    if (function_exists('json_encode')) {
+        return preg_replace('/^"(.*)"$/', '\\1', str_replace("\/","/",json_encode($v)));
     }
-    */
-	if (function_exists('json_encode')) { // Updated by KNurg (GitHub)
-		$v = json_encode($v);
-		if(preg_match('/^"(.*)"$/', $v, $matches)) $v = $matches[1];
-		return $v;
-	}    
-    $from = array("\\", "\r", "\t", "\n", '"', "\b", "\f", "/");
-    $to = array('\\\\', '\r', '\t', '\n', '\"', '\b', '\f', '\/');
+    $from = array("\\", "\r", "\t", "\n", '"', "\b", "\f");
+    $to = array('\\\\', '\r', '\t', '\n', '\"', '\b', '\f');
     return str_replace($from, $to, $v);
   }
     

@@ -3,10 +3,8 @@
  * ARC2 core class (static, not instantiated)
  *
  * @author Benjamin Nowack
- * @license <http://arc.semsol.org/license>
  * @homepage <http://arc.semsol.org/>
  * @package ARC2
- * @version 2011-01-07
  */
 
 /* E_STRICT hack */
@@ -17,7 +15,7 @@ if (function_exists('date_default_timezone_get')) {
 class ARC2 {
 
   static function getVersion() {
-    return '2011-01-07';
+    return '2011-12-01';
   }
 
   /*  */
@@ -42,10 +40,10 @@ class ARC2 {
   }
   
   static function getScriptURI() {
-    if (isset($_SERVER) && isset($_SERVER['SERVER_NAME'])) {
+    if (isset($_SERVER) && (isset($_SERVER['SERVER_NAME']) || isset($_SERVER['HTTP_HOST']))) {
       $proto = preg_replace('/^([a-z]+)\/.*$/', '\\1', strtolower($_SERVER['SERVER_PROTOCOL']));
       $port = $_SERVER['SERVER_PORT'];
-      $server = $_SERVER['SERVER_NAME'];
+      $server = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
       $script = $_SERVER['SCRIPT_NAME'];
       /* https */
       if (($proto == 'http') && $port == 443) {
@@ -53,12 +51,6 @@ class ARC2 {
         $port = 80;
       }
       return $proto . '://' . $server . ($port != 80 ? ':' . $port : '') . $script;
-      /*
-      return preg_replace('/^([a-z]+)\/.*$/', '\\1', strtolower($_SERVER['SERVER_PROTOCOL'])) . 
-        '://' . $_SERVER['SERVER_NAME'] .
-        ($_SERVER['SERVER_PORT'] != 80 ? ':' . $_SERVER['SERVER_PORT'] : '') .
-        $_SERVER['SCRIPT_NAME'];
-      */
     }
     elseif (isset($_SERVER['SCRIPT_FILENAME'])) {
       return 'file://' . realpath($_SERVER['SCRIPT_FILENAME']);
@@ -69,7 +61,7 @@ class ARC2 {
   static function getRequestURI() {
     if (isset($_SERVER) && isset($_SERVER['REQUEST_URI'])) {
       return preg_replace('/^([a-z]+)\/.*$/', '\\1', strtolower($_SERVER['SERVER_PROTOCOL'])) . 
-        '://' . $_SERVER['SERVER_NAME'] .
+        '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']) .
         ($_SERVER['SERVER_PORT'] != 80 ? ':' . $_SERVER['SERVER_PORT'] : '') .
         $_SERVER['REQUEST_URI'];
     }
@@ -100,8 +92,7 @@ class ARC2 {
   /*  */
 
   static function mtime(){
-    list($msec, $sec) = explode(" ", microtime());
-    return ((float)$msec + (float)$sec);
+	  return microtime(true);
   }
   
   static function x($re, $v, $options = 'si') {
@@ -358,6 +349,12 @@ class ARC2 {
     return new $cls($a, $caller);
   }
   
+  /* graph */
+
+  static function getGraph($a = '') {
+    return ARC2::getComponent('Graph', $a);
+  }
+
   /* resource */
 
   static function getResource($a = '') {

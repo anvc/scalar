@@ -41,8 +41,7 @@
 				<dcterms:date><xsl:value-of select="normalize-space(dcterms:created)"/></dcterms:date>
 				<dcterms:dateSubmitted><xsl:value-of select="normalize-space(dcterms:date)"/></dcterms:dateSubmitted>
 				<dcterms:type><xsl:value-of select="normalize-space(dcterms:type)"/></dcterms:type>
-				<dcterms:contributor><xsl:value-of select="normalize-space(dcterms:contributor)"/></dcterms:contributor>
-				<dcterms:creator><xsl:value-of select="normalize-space(dcterms:creator)"/></dcterms:creator>
+				<dcterms:contributor><xsl:value-of select="normalize-space(dcterms:creator)"/></dcterms:contributor>
 				<dcterms:relation><xsl:value-of select="normalize-space(dcterms:source)"/></dcterms:relation>
 				<dcterms:publisher><xsl:value-of select="normalize-space(dcterms:publisher)"/></dcterms:publisher>
 				<dcterms:rights><xsl:value-of select="normalize-space(dcterms:rights)"/></dcterms:rights>

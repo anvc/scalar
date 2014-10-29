@@ -69,7 +69,8 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
     if ($this->v('order_infos', 0, $this->infos['query'])) {
       $r = preg_replace('/SELECT(\s+DISTINCT)?\s*/', 'SELECT\\1 NULL AS `_pos_`, ', $r);
     }
-    if ($pd_count = $this->problematicDependencies()) {
+    $pd_count = $this->problematicDependencies();
+    if ($pd_count) {
       /* re-arranging the patterns sometimes reduces the LEFT JOIN dependencies */
       $set_sql = 0;
       if (!$this->pattern_order_offset) $set_sql = 1;
@@ -251,6 +252,11 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
   /*  */
 
   function analyzeIndex($pattern) {
+    $type = $this->v('type', '', $pattern);
+    if (!$type) {
+      //echo '<!-- ' . var_export($this->infos, 1) . ' -->';
+      return false;
+    }
     $type = $pattern['type'];
     $id = $pattern['id'];
     /* triple */
@@ -565,12 +571,16 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
   /*  */
   
   function getFROMSQL() {
+    $from_ids = $this->index['from'];
     $r = '';
-    foreach ($this->index['from'] as $id) {
-      $r .= $r ? ', ' : 'FROM (';
-      $r .= $this->getTripleTable($id) . ' T_' . $id;
+    foreach ($from_ids as $from_id) {
+      $r .= $r ? ', ' : '';
+      $r .= $this->getTripleTable($from_id) . ' T_' . $from_id;
     }
-    return $r ? $r . ')' : '';
+    /* MySQL 5 requires parentheses in case of multiple tables */
+    /* MySQL >5.5 (?) does not allow parentheses in case of a single table anymore! */
+    $r = (count($from_ids) > 1) ? '(' . $r . ')' : $r;
+    return $r ? 'FROM ' . $r : '';
   }
 
   /*  */
@@ -925,7 +935,10 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
   /*  */
   
   function getPatternSQL($pattern, $context) {
-    $type = $pattern['type'];
+    $type = $this->v('type', '', $pattern);
+    if (!$type) {
+      return '';
+    }
     $m = 'get' . ucfirst($type) . 'PatternSQL';
     return method_exists($this, $m) ? $this->$m($pattern, $context) : $this->getDefaultPatternSQL($pattern, $context);
   }
@@ -952,14 +965,14 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
       $type = $pattern[$term . '_type'];
       if ($type == 'uri') {
         $term_id = $this->getTermID($pattern[$term], $term);
-        $sub_r = '(T_' . $id . '.' . $term . ' = ' . $term_id . ') /* ' . str_replace('#' , '::', $pattern[$term]) . ' */';
+        $sub_r = '(T_' . $id . '.' . $term . ' = ' . $term_id . ') /* ' . preg_replace('/[\#\*\>]/' , '::', $pattern[$term]) . ' */';
       }
       elseif ($type == 'literal') {
         $term_id = $this->getTermID($pattern[$term], $term);
-        $sub_r = '(T_' . $id . '.' . $term . ' = ' . $term_id . ') /* ' . preg_replace('/[\#\n]/' , ' ', $pattern[$term]) . ' */';
+        $sub_r = '(T_' . $id . '.' . $term . ' = ' . $term_id . ') /* ' . preg_replace('/[\#\n\*\>]/' , ' ', $pattern[$term]) . ' */';
         if (($lang_dt = $this->v1($term . '_lang', '', $pattern)) || ($lang_dt = $this->v1($term . '_datatype', '', $pattern))) {
           $lang_dt_id = $this->getTermID($lang_dt);
-          $sub_r .= $nl . '  AND (T_' . $id . '.' .$term. '_lang_dt = ' . $lang_dt_id . ') /* ' . str_replace('#' , '::', $lang_dt) . ' */';
+          $sub_r .= $nl . '  AND (T_' . $id . '.' .$term. '_lang_dt = ' . $lang_dt_id . ') /* ' . preg_replace('/[\#\*\>]/' , '::', $lang_dt) . ' */';
         }
       }
       elseif ($type == 'var') {
@@ -993,7 +1006,7 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
           if ($info['uri']) {
             $term_id = $this->getTermID($info['uri'], 'g');
             $sub_r['graph_uri'] .= $sub_r['graph_uri'] ? $nl . ' AND ' : '';
-            $sub_r['graph_uri'] .= '(' .$tbl_alias. ' = ' . $term_id . ') /* ' . str_replace('#' , '::', $info['uri']) . ' */';
+            $sub_r['graph_uri'] .= '(' .$tbl_alias. ' = ' . $term_id . ') /* ' . preg_replace('/[\#\*\>]/' , '::', $info['uri']) . ' */';
           }
         }
       }
@@ -1399,7 +1412,7 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
                 }
                 if ($tbl == $context_pattern_id) {/* @todo better dependency check */
                   if ($term_id || ($lang_dt != 'http://www.w3.org/2001/XMLSchema#integer')) {/* skip if simple int, but no id */
-                    $this->addConstraintSQLEntry($context_pattern_id, 'T_' . $tbl . '.o_lang_dt = ' . $term_id . ' /* ' . str_replace('#' , '::', $lang_dt) . ' */');
+                    $this->addConstraintSQLEntry($context_pattern_id, 'T_' . $tbl . '.o_lang_dt = ' . $term_id . ' /* ' . preg_replace('/[\#\*\>]/' , '::', $lang_dt) . ' */');
                   }
                 }
               }
