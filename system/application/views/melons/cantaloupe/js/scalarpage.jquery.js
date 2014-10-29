@@ -225,8 +225,8 @@
 								// continue button
 								links = $( '<p></p>' );
 								links.append( '<a class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url + 
-									'?path=' + page.containingPath.slug + '">Continue to “' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
-									'”</a>' );
+									'?path=' + page.containingPath.slug + '">Continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
+									'&rdquo;</a>' );
 								if ( pathOptionCount == 0 ) {
 									links.find( 'a' ).addClass( 'primary' );
 								}
@@ -255,7 +255,7 @@
 					if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
 						section = $('<section class="relationships"></section').appendTo('article');
 						links = $( '<p></p>' );
-						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path “' + page.containingPath.getDisplayTitle() + '”. <br /> Continue to “' + node.getDisplayTitle() + '”</a>' );
+						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path “' + page.containingPath.getDisplayTitle() + '”. <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
 						
 						// back button
 						if ( page.containingPathIndex > 0 ) {

@@ -72,7 +72,7 @@
 		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/search_icon.png" alt="Search icon" width="30" height="30" /></td><td class="' + descStyle + '">Search</td>' );
 		
 		row = $( '<tr></tr>' ).appendTo( table );
-		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /></td><td class="' + descStyle + '">Toggles “pinwheel” visualization of your current location in the book</td>' );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /></td><td class="' + descStyle + '">Toggles &ldquo;pinwheel&rdquo; visualization of your current location in the book</td>' );
 		
 		row = $( '<tr></tr>' ).appendTo( table );
 		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/help_icon.png" alt="Help icon" width="30" height="30" /></td><td class="' + descStyle + '">Help</td>' );

@@ -47,7 +47,7 @@
 
 		var content = $('<div class="body_copy"></div>');
 		content.append('<p>This <a href="http://scalar.usc.edu/scalar" title="Go to Scalar\'s website">Scalar</a> book is presented using an <strong>experimental interface</strong> designed to streamline and enhance the reading experience. As this interface is <strong>currently under active development</strong>, you may encounter bugs.</p>');
-		content.append('<p>The <strong>header bar</strong> at the top of the screen gives you access to utilities for navigating and editing (if you’re logged in and have editing privileges). If the header bar is currently hidden, scroll towards the top of the page to make it appear. Here’s a quick reference guide to the header bar icons:</p>');
+		content.append('<p>The <strong>header bar</strong> at the top of the screen gives you access to utilities for navigating and editing (if you&rsquo;re logged in and have editing privileges). If the header bar is currently hidden, scroll towards the top of the page to make it appear. Here&rsquo;s a quick reference guide to the header bar icons:</p>');
 
 		var table = $( '<table summary="Description of icons"></table>' ).appendTo( content );
 		var descStyle;
@@ -64,7 +64,7 @@
 		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/search_icon.png" alt="Search icon" width="30" height="30" /></td><td class="' + descStyle + '">Search</td>' );
 
 		row = $( '<tr></tr>' ).appendTo( table );
-		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /></td><td class="' + descStyle + '">Toggles “pinwheel” visualization of your current location in the book</td>' );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /></td><td class="' + descStyle + '">Toggles &ldquo;pinwheel&rdquo; visualization of your current location in the book</td>' );
 
 		row = $( '<tr></tr>' ).appendTo( table );
 		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/help_icon.png" alt="Help icon" width="30" height="30" /></td><td class="' + descStyle + '">Help</td>' );
