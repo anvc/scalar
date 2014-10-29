@@ -77,10 +77,8 @@ Enjoy!
 Updates we've made to incorporated libraries, kept here for reference if they need updating
 -------------------------------------------------------------------------------------------
 
-ARC2:
+ARC2 (updated 2014-10-29 from https://github.com/semsol/arc2):
 1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
-2) ARC2_RDFJSONSerializer.php->jsonEscape(): replace "return trim(json_encode($v), '"');" with return substr(json_encode($v), 1, -1);
-In the GitHub distro, #2 is corrected
 
 Froogaloop:
 1) Changed $f=g to froogaloop=g
