@@ -128,7 +128,8 @@ class ARC2_StoreDeleteQueryHandler extends ARC2_StoreQueryHandler {
       }
       //$rs = mysql_query($sql, $con);
       $rs = $this->queryDB($sql, $con);
-      if ($er = ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false))) {
+      $er = mysqli_error($con);
+      if (!empty($er)) {
         $this->addError($er .' in ' . $sql);
       }
       $r += mysqli_affected_rows($con);

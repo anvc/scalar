@@ -117,7 +117,8 @@ class ARC2_StoreDumper extends ARC2_Class {
     if ($this->limit) $sql .= ' LIMIT ' . $this->limit;
     if ($offset) $sql .= ' OFFSET ' . $offset;
     $rs = mysqli_query( $con, $sql, MYSQLI_USE_RESULT);
-    if (($err = ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)))) {
+    $err = mysqli_error($con);
+    if (!empty($err)) {
       return $this->addError($err);
     }
     return $rs;

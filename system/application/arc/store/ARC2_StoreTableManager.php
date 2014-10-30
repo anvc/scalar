@@ -39,22 +39,22 @@ class ARC2_StoreTableManager extends ARC2_Store {
   function createTables() {
     $con = $this->getDBCon();
     if(!$this->createTripleTable()) {
-      return $this->addError('Could not create "triple" table (' . ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . ').');
+      return $this->addError('Could not create "triple" table (' . mysqli_error($con) . ').');
     }
     if(!$this->createG2TTable()) {
-      return $this->addError('Could not create "g2t" table (' . ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . ').');
+      return $this->addError('Could not create "g2t" table (' . mysqli_error($con) . ').');
     }
     if(!$this->createID2ValTable()) {
-      return $this->addError('Could not create "id2val" table (' . ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . ').');
+      return $this->addError('Could not create "id2val" table (' . mysqli_error($con) . ').');
     }
     if(!$this->createS2ValTable()) {
-      return $this->addError('Could not create "s2val" table (' . ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . ').');
+      return $this->addError('Could not create "s2val" table (' . mysqli_error($con) . ').');
     }
     if(!$this->createO2ValTable()) {
-      return $this->addError('Could not create "o2val" table (' . ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . ').');
+      return $this->addError('Could not create "o2val" table (' . mysqli_error($con) . ').');
     }
     if(!$this->createSettingTable()) {
-      return $this->addError('Could not create "setting" table (' . ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . ').');
+      return $this->addError('Could not create "setting" table (' . mysqli_error($con) . ').');
     }
     return 1;
   }

@@ -387,7 +387,8 @@ class ARC2_StoreLoadQueryHandler extends ARC2_StoreQueryHandler {
         $t1 = ARC2::mtime();
         $this->queryDB($this->sql_buffers[$tbl], $con);
         /* table error */
-        if ($er = ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false))) {
+        $er = mysqli_error($con);
+        if (!empty($er)) {
           $this->autoRepairTable($er, $con, $this->sql_buffers[$tbl]);
         }
         unset($this->sql_buffers[$tbl]);

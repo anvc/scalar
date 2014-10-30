@@ -115,10 +115,11 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
     $tmp_sql .= (($v < '04-01-00') && ($v >= '04-00-18')) ? 'ENGINE' : (($v >= '04-01-02') ? 'ENGINE' : 'TYPE');
     $tmp_sql .= '=' . $this->engine_type;/* HEAP doesn't support AUTO_INCREMENT, and MySQL breaks on MEMORY sometimes */
     if (!$this->queryDB($tmp_sql, $con) && !$this->queryDB(str_replace('CREATE TEMPORARY', 'CREATE', $tmp_sql), $con)) {
-      return $this->addError(((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+      return $this->addError(mysqli_error($con));
     }
     mysqli_query( $con, 'INSERT INTO ' . $tbl . ' ' . "\n" . $q_sql, MYSQLI_USE_RESULT);
-    if ($er = ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false))) $this->addError($er);
+    $er = mysqli_error($con);
+    if (!empty($er)) $this->addError($er);
     return $tbl;
   }
 
@@ -180,7 +181,8 @@ class ARC2_StoreSelectQueryHandler extends ARC2_StoreQueryHandler {
     $t1 = ARC2::mtime();
     $con = $this->store->getDBCon();
     $rs = mysqli_query( $con, $v_sql, MYSQLI_USE_RESULT);
-    if ($er = ((is_object($con)) ? mysqli_error($con) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false))) {
+    $er = mysqli_error($con);
+    if (!empty($er)) {
       $this->addError($er);
     }
     $t2 = ARC2::mtime();
