@@ -80,7 +80,7 @@ td.styling_last {text-align:right; padding-right:0px;}
 
 .tabs table td {
   padding:10px 10px 10px 10px;
-  vertical-align: middle !important;
+  vertical-align: top !important;
 }
 .trim_padding td {
   padding-top:0px !important;
