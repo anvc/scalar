@@ -597,8 +597,32 @@
 							
 								e.preventDefault();
 								e.stopPropagation();
-								
+
 								var mediaelement = $( this ).data( 'mediaelement' );
+								var $mediaelement = mediaelement.model.element;
+								
+								var scroll_buffer = 30;
+								var scroll_time = 1250;
+								$('html,body').animate({
+									scrollTop: $mediaelement.offset().top-scroll_buffer
+								},scroll_time);
+
+								var min_height = 50;
+								if(mediaelement.model.node.current.mediaSource.contentType == 'image' && $mediaelement.find('img').height() >= min_height) {
+
+									var media_label = $mediaelement.find('.scalar-image-label')
+									if(media_label.length == 0) {
+										var label = '<span class="scalar-image-label label label-default">'+mediaelement.model.node.current.title+'</span>'
+										$media_label = $(label).appendTo($mediaelement);
+
+										var label_style = 'position:absolute;top:10px;left:2px;';
+										$media_label.attr('style',label_style);
+									}
+									var label_hide_delay = 3000;
+									var label_fade_delay = 400;
+									$media_label.show().delay(label_hide_delay).fadeOut(label_fade_delay);
+									console.log(mediaelement);
+								}
 								if ( mediaelement != null ) {
 									if ( mediaelement.is_playing() ) {
 										mediaelement.pause();
