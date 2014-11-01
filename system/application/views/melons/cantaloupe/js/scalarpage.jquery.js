@@ -601,27 +601,40 @@
 								var mediaelement = $( this ).data( 'mediaelement' );
 								var $mediaelement = mediaelement.model.element;
 								
-								var scroll_buffer = 30;
-								var scroll_time = 1250;
-								$('html,body').animate({
-									scrollTop: $mediaelement.offset().top-scroll_buffer
-								},scroll_time);
+								var scroll_buffer = 100;
+								var scroll_time = 750;
+								var $body = $('html,body');
+
+								if(!(($mediaelement.offset().top + $mediaelement.height()) <= (-$body.offset().top + $body.height()) && 
+									$mediaelement.offset().top >= (-$body.offset().top))) {
+									$body.animate({
+										scrollTop: $mediaelement.offset().top-scroll_buffer
+									},scroll_time);
+								}
 
 								var min_height = 50;
 								if(mediaelement.model.node.current.mediaSource.contentType == 'image' && $mediaelement.find('img').height() >= min_height) {
 
 									var media_label = $mediaelement.find('.scalar-image-label')
 									if(media_label.length == 0) {
+
 										var label = '<span class="scalar-image-label label label-default">'+mediaelement.model.node.current.title+'</span>'
 										$media_label = $(label).appendTo($mediaelement);
 
-										var label_style = 'position:absolute;top:10px;left:2px;';
+										var font_size = parseInt($media_label.css('font-size').replace('px',''));
+
+										var font_inc  = 300;
+										var font_mult = 3;
+										font_size = (font_size + Math.floor($mediaelement.width()/font_inc)*font_mult)+'px';
+
+										var label_style = 'white-space:normal;position:absolute;max-width:'+$mediaelement.width()+'px;font-size:'+font_size;
 										$media_label.attr('style',label_style);
+										$media_label.css('top',(($mediaelement.find('img').height()-$media_label.outerHeight())/2));
+										$media_label.css('left',(($mediaelement.width()-$media_label.outerWidth())/2));
 									}
 									var label_hide_delay = 3000;
 									var label_fade_delay = 400;
 									$media_label.show().delay(label_hide_delay).fadeOut(label_fade_delay);
-									console.log(mediaelement);
 								}
 								if ( mediaelement != null ) {
 									if ( mediaelement.is_playing() ) {
