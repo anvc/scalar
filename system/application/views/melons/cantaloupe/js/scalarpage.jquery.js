@@ -599,12 +599,22 @@
 								e.stopPropagation();
 
 								var mediaelement = $( this ).data( 'mediaelement' );
+
+								if ( mediaelement != null ) {
+									if ( mediaelement.is_playing() ) {
+										mediaelement.pause();
+									} else {
+										mediaelement.play();
+									}
+								}
+
 								var $mediaelement = mediaelement.model.element;
 								
 								var scroll_buffer = 100;
 								var scroll_time = 750;
 								var $body = $('html,body');
 
+								//scroll to media element when link is clicked
 								if(!(($mediaelement.offset().top + $mediaelement.height()) <= (-$body.offset().top + $body.height()) && 
 									$mediaelement.offset().top >= (-$body.offset().top))) {
 									$body.animate({
@@ -612,11 +622,12 @@
 									},scroll_time);
 								}
 
+								// do not provide label over media if image height is too small
 								var min_height = 50;
 								if(mediaelement.model.node.current.mediaSource.contentType == 'image' && $mediaelement.find('img').height() >= min_height) {
 
-									var media_label = $mediaelement.find('.scalar-image-label')
-									if(media_label.length == 0) {
+									var $media_label = $mediaelement.find('.scalar-image-label');
+									if($media_label.length == 0) {
 
 										var label = '<span class="scalar-image-label label label-default">'+mediaelement.model.node.current.title+'</span>'
 										$media_label = $(label).appendTo($mediaelement);
@@ -635,15 +646,7 @@
 									var label_hide_delay = 3000;
 									var label_fade_delay = 400;
 									$media_label.show().delay(label_hide_delay).fadeOut(label_fade_delay);
-								}
-								if ( mediaelement != null ) {
-									if ( mediaelement.is_playing() ) {
-										mediaelement.pause();
-									} else {
-										mediaelement.play();
-									}
-								}
-							
+								}							
 							} );
 							
 						}
