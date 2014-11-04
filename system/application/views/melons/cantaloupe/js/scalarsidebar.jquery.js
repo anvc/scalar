@@ -11,6 +11,7 @@
         base.hovered_item;
         base.infobar_timeout;
         base.sidebar_timeout;
+        base.sidebar_selector_timeout;
 
         base.isSmallScreen = false;
         
@@ -54,61 +55,66 @@
             	//Sorry, I need this to be readable for now - is this the fastest way? Seems to be: http://stackoverflow.com/questions/51185/are-javascript-strings-immutable-do-i-need-a-string-builder-in-javascript/4717855#4717855
 				var html = '<div id="info_panel" class="heading_font">'+
 								'<div id="info_panel_arrow"></div>'+
-								'<div id="info_panel_header" class="heading_font">'+
-									'<a class="overview_link active" data-page="overview">overview</a>'+
-									'<a class="metadata_link" data-page="metadata">metadata</a>'+
-									'<a class="comments_link" data-page="comments">comments</a>'+
+								'<div class="info view">'+
+									'<div id="info_panel_header" class="heading_font">'+
+										'<a class="overview_link active" data-page="overview">overview</a>'+
+										'<a class="metadata_link" data-page="metadata">metadata</a>'+
+										'<a class="comments_link" data-page="comments">comments</a>'+
+									'</div>'+
+									'<div class="info_panel_content">'+
+										'<div id="info_panel_thumbnail"></div>'+
+										'<h3 class="title heading_font"><strong>&nbsp;</strong></h3>'+
+										'<div class="section" id="overview_info">'+
+											'<div class="content">'+
+												'<p class="description caption_font"></p>'+
+												'<div class="block featured_block">'+
+													'<h4 class="heading_font">Featured In</h4>'+
+													'<ul class="featured_list caption_font"></ul>'+
+												'</div>'+
+												'<div class="block features_block">'+
+													'<h4 class="heading_font">Features</h4>'+
+													'<ul class="features_list caption_font"></ul>'+
+												'</div>'+
+												'<div class="block tagged_by_block">'+
+													'<h4 class="heading_font">Tagged By</h4>'+
+													'<ul class="tagged_by_list caption_font"></ul>'+
+												'</div>'+
+												'<div class="block tag_of_block">'+
+													'<h4 class="heading_font">Tag of</h4>'+
+													'<ul class="tag_of_list caption_font"></ul>'+
+												'</div>'+
+												'<div class="block annotates_block">'+
+													'<h4 class="heading_font">Annotates</h4>'+
+													'<ul class="annotates_list caption_font"></ul>'+
+												'</div>'+
+												'<div class="block annotated_by_block">'+
+													'<h4 class="heading_font">Annotated By</h4>'+
+													'<ul class="annotated_by_list caption_font"></ul>'+
+												'</div>'+
+											'</div>'+
+										'</div>'+
+										'<div class="section" id="comments_info">'+
+											'<div class="content">'+
+												'<h4 class="heading_font">Comments</h4>'+
+												'<a class="discuss_link caption_font"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a>'+
+												'<ul class="comment_list"></ul>'+
+											'</div>'+
+										'</div>'+
+										'<div class="section" id="metadata_info">'+
+											'<div class="content">'+
+												'<h4 class="heading_font">Metadata</h4>'+
+												'<dl class="metadata_list caption_font"></dl>'+
+											'</div>'+
+										'</div>'+
+									'</div>'+
+									'<footer>'+
+										'<a class="info_hide btn btn-lg btn-default caption_font">Back</a>'+
+										'<a class="info_visit btn btn-lg btn-default caption_font">Visit</a>'+
+									'</footer>'+
 								'</div>'+
-								'<div id="info_panel_content">'+
-									'<div id="info_panel_thumbnail"></div>'+
-									'<h3 class="title heading_font"><strong>&nbsp;</strong></h3>'+
-									'<div class="section" id="overview_info">'+
-										'<div class="content">'+
-											'<p class="description caption_font"></p>'+
-											'<div class="block featured_block">'+
-												'<h4 class="heading_font">Featured In</h4>'+
-												'<ul class="featured_list caption_font"></ul>'+
-											'</div>'+
-											'<div class="block features_block">'+
-												'<h4 class="heading_font">Features</h4>'+
-												'<ul class="features_list caption_font"></ul>'+
-											'</div>'+
-											'<div class="block tagged_by_block">'+
-												'<h4 class="heading_font">Tagged By</h4>'+
-												'<ul class="tagged_by_list caption_font"></ul>'+
-											'</div>'+
-											'<div class="block tag_of_block">'+
-												'<h4 class="heading_font">Tag of</h4>'+
-												'<ul class="tags_of_list caption_font"></ul>'+
-											'</div>'+
-											'<div class="block annotates_block">'+
-												'<h4 class="heading_font">Annotates</h4>'+
-												'<ul class="annotates_list caption_font"></ul>'+
-											'</div>'+
-											'<div class="block annotated_by_block">'+
-												'<h4 class="heading_font">Annotated By</h4>'+
-												'<ul class="annotated_by_list caption_font"></ul>'+
-											'</div>'+
-										'</div>'+
-									'</div>'+
-									'<div class="section" id="comments_info">'+
-										'<div class="content">'+
-											'<h4 class="heading_font">Comments</h4>'+
-											'<a class="discuss_link caption_font"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a>'+
-											'<ul class="comment_list"></ul>'+
-										'</div>'+
-									'</div>'+
-									'<div class="section" id="metadata_info">'+
-										'<div class="content">'+
-											'<h4 class="heading_font">Metadata</h4>'+
-											'<dl class="metadata_list caption_font"></dl>'+
-										'</div>'+
-									'</div>'+
+								'<div class="list view">'+
+									'<ul id="info_list"></ul>'+
 								'</div>'+
-								'<footer>'+
-									'<a class="info_hide btn btn-lg btn-default caption_font">Back</a>'+
-									'<a class="info_visit btn btn-lg btn-default caption_font">Visit</a>'+
-								'</footer>'+
 							'</div>'+
 							'<div id="sidebar" class="heading_font">'+
 								'<div id="sidebar_inside">'+
@@ -121,7 +127,7 @@
 										'</span>'+
 										'<span class="user_actions">'+
 											'<a class="icon-recent" id="recent_panel_toggle" data-type="recent"></a>'+
-											'<a class="icon-markers" id="markers_panel_toggle" data-type="markers"></a>'+
+											//'<a class="icon-markers" id="markers_panel_toggle" data-type="markers"></a>'+
 										'</span>'+
 										'<span class="title"></span>'+
 										'<div id="sidebar_selector">'+
@@ -134,7 +140,7 @@
 												//<span class="header_icon"><span class="icon-markers"></span></span>
 												'<li class="paths" data-pane="paths"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Paths</span></li>'+
 												'<li class="tags" data-pane="tags"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Tags</span></li>'+
-												'<li class="index" data-pane="index"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Index</span></li>'+
+												'<li class="grid" data-pane="grid"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Grid</span></li>'+
 												'<li class="linear" data-pane="linear"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Linear</span></li>'+
 												//'<li class="recent" data-pane="recent"><span class="title">Recent</span></li>'+
 												//'<li class="markers" data-pane="markers"><span class="title">Markers</span></li>'+
@@ -206,7 +212,7 @@
 
 	            base.build_paths_pane();
 				base.build_tags_pane();
-	            base.build_index_pane();
+	            base.build_grid_pane();
 	            base.build_linear_pane();
 
 
@@ -230,7 +236,9 @@
 
 	            
 	            base.current_pane = $('#sidebar_panes .pane').first().data('type');
-	            console.log(base.current_pane);
+
+		   		 $('body').addClass(base.current_pane+'_view');
+
 	            $('#sidebar>header').hide();
 	          	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
 	          	$('#sidebar_selector li.'+base.current_pane).addClass('active');
@@ -256,6 +264,20 @@
 				    	base.triggerSidebar(true);
 			    	}
 			    });
+	          	$('#sidebar_inside>header>.title,#sidebar_selector').mouseenter(function(e){
+	          		if(!isMobile && !base.isSmallScreen){
+						clearTimeout(base.sidebar_selector_timeout);
+						$('#sidebar_inside>header').addClass('selector_open');
+						e.stopPropagation();
+					}
+	          	}).mouseleave(function(e){
+	          		if(!isMobile && !base.isSmallScreen){
+						base.sidebar_selector_timeout = setTimeout(function(){
+							$('#sidebar_inside>header').removeClass('selector_open');
+						},500);
+						e.stopPropagation();
+					}
+	          	});
 
 			    $('#sidebar, #info_panel').mouseenter(function(e){
 			    	if(!isMobile && !base.isSmallScreen){
@@ -264,7 +286,7 @@
 						e.stopPropagation();
 					}
 				}).mouseleave(function(){
-					if(!isMobile && !base.isSmallScreen){
+					if(!isMobile && !base.isSmallScreen && (!$('body').is('.sidebar_full.linear_view'))){
 						base.sidebar_timeout = setTimeout(function(){
 							base.triggerSidebar(false);
 						},500);
@@ -313,7 +335,9 @@
         }
 
         base.change_pane = function(pane){
+		    $('body').removeClass(base.current_pane+'_view').addClass(pane+'_view');
         	base.current_pane = pane;
+        	base.hideOverlay();
             $('#sidebar>header').hide();
             $('#sidebar .pane').removeClass('active');
           	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
@@ -397,6 +421,7 @@
         					'</div>'+
         				'</div>';
 
+
 			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
 			var new_pane = $(html);
 			new_pane.find('.large>a').click(function(){
@@ -406,18 +431,103 @@
 				}
 			});
 
-			if(typeof base.queryVars.path == 'undefined' || base.queryVars.path == null){
-					var item_html = '<li data-url="'+currentNode.url+'" data-slug="'+currentNode.slug+'"><div class="title">'+currentNode.current.title+'</div></li>';
+        	var add_current_path_items = function(relations_list,new_pane){
+        		//Alright, iterate through our properly ordered list.
+				for(r in relations_list){
+					var path_step = relations_list[r];
+					var node_info = scalarapi.getNode(path_step.target.slug);
+					//console.log(node_info);
+					//Same as the active page, pretty much.
+					var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li>';
 
 					var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
 
-					new_item.addClass('active');
+					if(path_step.target.slug == currentNode.slug){
+						new_item.addClass('active');
+					}else{
+						var raw_dist = r-current_node_index;
+						var distance = Math.abs(raw_dist)*4;
+						if(distance > 10){
+							new_item.addClass('distant');
+							if(raw_dist<0){
+								dist_before++;
+							}else{
+								dist_after++;
+							}
+						}else{
+							new_item.addClass('distance_'+distance);
+							if(raw_dist<0){
+								before++;
+							}else{
+								after++;
+							}
+						}
+					}
 
-					var slug = currentNode.slug;
+					var slug = path_step.target.slug;
 
-					base.loaded_nodes[slug] = currentNode;
-					
-					base.show_icon(slug, new_item);
+					if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
+						if(typeof base.loaded_nodes[slug] != 'undefined'){
+							//We already have this page loaded - let's show it now.
+							
+							base.show_icon(slug, new_item);
+						}else{
+							new_item.hide();
+							if(slug == currentNode.slug){
+								new_item.show();
+								base.loaded_nodes[slug] = currentNode;
+								base.show_icon(slug, new_item);	
+							}else{
+								//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
+								(function(slug, new_item){
+									scalarapi.loadNode(
+										slug,
+										true,
+										function(json){
+											if(typeof scalarapi.getNode(slug)!='undefined'){
+												new_item.show();
+												base.loaded_nodes[slug] = scalarapi.getNode(slug);
+												base.show_icon(slug, new_item);	
+											}else{
+												new_item.remove();
+											}
+										},
+										function(err){ console.log(err); },
+										1, true);
+								})(slug, new_item);
+							}
+						}
+					}else{
+						base.show_icon(slug, new_item);
+					}
+
+				}
+        	}
+
+
+			//Check to see if this is a path...
+			var this_path_items = currentNode.getRelations('path', 'outgoing', 'reverseindex');
+			if((typeof base.queryVars.path == 'undefined' || base.queryVars.path == null) && this_path_items.length > 0){
+				//Determine the order of the list items...
+				var relations_list = [];
+				for(p in this_path_items){
+					relations_list[this_path_items[p].index] = this_path_items[p];
+				}	
+				add_current_path_items(relations_list,new_pane);
+				new_pane.find('header .header_text').html(currentNode.current.title);
+			}else if(typeof base.queryVars.path == 'undefined' || base.queryVars.path == null){
+				var item_html = '<li data-url="'+currentNode.url+'" data-slug="'+currentNode.slug+'"><div class="title">'+currentNode.current.title+'</div></li>';
+
+				var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
+
+				new_item.addClass('active');
+
+				var slug = currentNode.slug;
+
+				base.loaded_nodes[slug] = currentNode;
+				
+				base.show_icon(slug, new_item);
+				new_pane.find('header .header_text').html(currentNode.current.title);
 			}else{
 				var before = 0;
 				var after = 0;
@@ -428,7 +538,7 @@
 					//We'll handle other paths later...
 					if(p == 0){
 						var parent_node = paths[p].body;
-						if(parent_node.slug == base.queryVars.path){
+						if(paths.length == 0 || parent_node.slug == base.queryVars.path){
 							
 							new_pane.find('header').data('url',parent_node.url).click(function(){
 								var target_url = $(this).data('url')+base.get_vars;
@@ -453,64 +563,7 @@
 								}
 							}
 							
-							//Alright, iterate through our properly ordered list.
-							for(r in relations_list){
-								var path_step = relations_list[r];
-								var node_info = scalarapi.getNode(path_step.target.slug);
-								//console.log(node_info);
-								//Same as the active page, pretty much.
-								var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li>';
-
-								var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
-
-								if(path_step.target.slug == currentNode.slug){
-									new_item.addClass('active');
-								}else{
-									var raw_dist = r-current_node_index;
-									var distance = Math.abs(raw_dist)*4;
-									if(distance > 10){
-										new_item.addClass('distant');
-										if(raw_dist<0){
-											dist_before++;
-										}else{
-											dist_after++;
-										}
-									}else{
-										new_item.addClass('distance_'+distance);
-										if(raw_dist<0){
-											before++;
-										}else{
-											after++;
-										}
-									}
-								}
-
-								var slug = path_step.target.slug;
-
-								if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
-									if(typeof base.loaded_nodes[slug] != 'undefined'){
-										//We already have this page loaded - let's show it now.
-										base.loaded_nodes[slug] = currentNode;
-										base.show_icon(slug, new_item);
-									}else{
-										//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-										(function(slug, new_item){
-											scalarapi.loadNode(
-												slug,
-												true,
-												function(json){
-													base.loaded_nodes[slug] = scalarapi.getNode(slug);
-													base.show_icon(slug, new_item);	
-												},
-												function(err){},
-												1, true);
-										})(slug, new_item);
-									}
-								}else{
-									base.show_icon(slug, new_item);
-								}
-
-							}
+							add_current_path_items(relations_list,new_pane);
 						}
 					}
 				}
@@ -583,17 +636,59 @@
         	//Determine if we need the tags pane...
         	base.icons.tags = '<span class="icon-tags"></span>';
 
-        	var html = '<div class="pane" data-type="tags" id="sidebar_tags_pane"><div class="smallmed"><ul class="current tags"></ul></div></div>';
+        	var html = '<div class="pane" data-type="tags" id="sidebar_tags_pane">'+
+							'<header class="current">'+
+								'<span class="header_icon icon-tags"></span>'+
+								'<span class="header_text"></span>'+
+							'</header><div class="smallmed"><ul class="current tags"></ul></div></div>';
         	var new_pane = $(html);
 
         	if(tags.length > 0){
 	        	for(t in tags){
 	        		var tag = tags[t];
 
-	        		var item_html = '<li class="active" data-url="'+tag.body.url+'" data-slug="'+tag.body.slug+'"><span class="sidebar_icon"><span class="icon-tags"></span></span><div class="title">'+tag.body.current.title+'</div></li>';
+	        		var item_html = '<li class="" data-url="'+tag.body.url+'" data-slug="'+tag.body.slug+'"><div class="title">'+tag.body.current.title+'</div></li>';
 
 					var new_item = $(item_html).appendTo(new_pane.find('ul.current.tags'));
+
+					var slug = tag.body.slug;
+
+					if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
+						if(typeof base.loaded_nodes[slug] != 'undefined'){
+							//We already have this page loaded - let's show it now.
+							base.show_icon(slug, new_item);
+						}else{
+							new_item.hide();
+							if(slug == currentNode.slug){
+								new_item.show();
+								base.loaded_nodes[slug] = currentNode;
+								base.show_icon(slug, new_item);	
+							}else{
+								//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
+								(function(slug, new_item){
+									scalarapi.loadNode(
+										slug,
+										true,
+										function(json){
+											if(typeof scalarapi.getNode(slug)!='undefined'){
+												new_item.show();
+												base.loaded_nodes[slug] = scalarapi.getNode(slug);
+												base.show_icon(slug, new_item);	
+											}else{
+												new_item.remove();
+											}
+										},
+										function(err){ console.log(err); },
+										1, true);
+								})(slug, new_item);
+							}
+						}
+					}else{
+						base.show_icon(slug, new_item);
+					}
+
 	        	}
+
 	        	base.init_sidebar_items(new_pane);
 	        }else{
 	        	new_pane.find('ul.current.tags').append('<li class="empty active">There are no tags on this page.</li>');
@@ -603,10 +698,14 @@
 			$('#sidebar_selector .tags').addClass('enabled');
         }
 
-        base.build_index_pane = function(){
-        	base.icons.index = '<span class="icon-index"></span>';
+        base.build_grid_pane = function(){
+        	base.icons.grid = '<span class="icon-index"></span>';
 
-        	var html = '<div class="pane" data-type="index" id="sidebar_index_pane"><div class="smallmed"><ul class="current index"></ul></div>';
+        	var html = '<div class="pane" data-type="grid" id="sidebar_grid_pane">'+
+							'<header class="current">'+
+								'<span class="header_icon icon-index"></span>'+
+								'<span class="header_text"></span>'+
+							'</header><div class="smallmed"><ul class="current grid"></ul></div>';
         	var new_pane = $(html).appendTo($('#sidebar #sidebar_panes'));
 
         	
@@ -614,40 +713,65 @@
 			var page_url = scalarapi.model.urlPrefix+'rdf/instancesof/page?format=json';
 			var media_url = scalarapi.model.urlPrefix+'rdf/instancesof/media?format=json';
 			var comment_url = scalarapi.model.urlPrefix+'rdf/instancesof/reply?format=json';
+			var annotation_url = scalarapi.model.urlPrefix+'rdf/instancesof/annotation?format=json';
+			var tag_url = scalarapi.model.urlPrefix+'rdf/instancesof/tag?format=json';
 			
         	//Handle Paths...
         	var item_html = '<li><span class="sidebar_icon icon-path"></span><br /><div class="title"></div></li>';
-        	var new_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+        	var paths_item = $(item_html).appendTo(new_pane.find('ul.current.grid'));
         	(function(new_item){
 				$.getJSON(path_url,function(json){
         			base.book_paths = scalarapi.model.parseNodes(json);
-        			new_item.find('.title').text(base.book_paths.length);
+        			if(base.book_paths.length > 0){
+        				base.init_grid_item(new_item,base.book_paths,'Paths');
+        			}
         		});
-			})(new_item);
+			})(paths_item);
 
 			//Handle Pages...
         	item_html = '<li><span class="sidebar_icon icon-page"></span><br /><div class="title"></div></li>';
-        	new_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+        	pages_item = $(item_html).appendTo(new_pane.find('ul.current.grid'));
         	(function(new_item){
 				$.getJSON(page_url,function(json){
-        			base.book_pages = scalarapi.model.parseNodes(json);
-        			new_item.find('.title').text(base.book_pages.length);
+        			var temp_pages = scalarapi.model.parseNodes(json);
+        			base.book_pages = [];
+        			for(var p in temp_pages){
+        				if(temp_pages[p].outgoingRelations.length == 0){
+        					base.book_pages.push(temp_pages[p]);
+        				}
+        			}
+        			if(base.book_pages.length > 0){
+        				base.init_grid_item(new_item,base.book_pages,'Pages');
+        			}
         		});
-			})(new_item);
+			})(pages_item);
 
 			//Handle Media...
 
 				//Images...
 	        	item_html = '<li><span class="sidebar_icon icon-photo"></span><br /><div class="title"></div></li>';
-	        	var images_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+	        	var images_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
 
 	        	//Video...
 	        	item_html = '<li><span class="sidebar_icon icon-video"></span><br /><div class="title"></div></li>';
-	        	var video_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+	        	var video_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
 
 	        	//Audio...
 	        	item_html = '<li><span class="sidebar_icon icon-audio"></span><br /><div class="title"></div></li>';
-	        	var audio_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+	        	var audio_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
+
+
+        	//Handle Comments...
+        	item_html = '<li><span class="sidebar_icon icon-comment"></span><br /><div class="title"></div></li>';
+        	var comments_item = $(item_html).appendTo(new_pane.find('ul.current.grid'));
+        	
+        	//Handle Tags...
+        	item_html = '<li><span class="sidebar_icon icon-tags"></span><br /><div class="title"></div></li>';
+        	var tags_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
+
+        	//Handle Annotations...
+        	item_html = '<li><span class="sidebar_icon icon-"></span><br /><div class="title"></div></li>';
+        	var annotations_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
 
         	(function(images_item,video_item,audio_item){
 				$.getJSON(media_url,function(json){
@@ -671,33 +795,78 @@
 								break;
 						}
 					}
-
-        			images_item.find('.title').text(base.book_images.length);
-        			video_item.find('.title').text(base.book_videos.length);
-        			audio_item.find('.title').text(base.book_audio.length);
+        			
+        			if(base.book_images.length > 0){
+        				base.init_grid_item(images_item,base.book_images,'Images');
+        			}
+        			
+        			if(base.book_videos.length > 0){
+        				base.init_grid_item(video_item,base.book_videos,'Videos');
+        			}
+        			
+        			if(base.book_audio.length > 0){
+        				base.init_grid_item(audio_item,base.book_audio,'Audio');
+        			}
         		});
 			})(images_item,video_item,audio_item);
 
-        	//Handle Comments...
-        	item_html = '<li><span class="sidebar_icon icon-comment"></span><br /><div class="title"></div></li>';
-        	new_item = $(item_html).appendTo(new_pane.find('ul.current.index'));
+        	
         	(function(new_item){
 				$.getJSON(comment_url,function(json){
         			base.book_comments = scalarapi.model.parseNodes(json);
-        			new_item.find('.title').text(base.book_comments.length);
-        		});
-			})(new_item);
 
-			$('#sidebar_selector .index').addClass('enabled');
+        			if(base.book_comments.length > 0){
+        				base.init_grid_item(new_item,base.book_comments,'Comments');
+        			}
+        		});
+			})(comments_item);
+
+			(function(new_item){
+				$.getJSON(annotation_url,function(json){
+        			base.book_annotations = scalarapi.model.parseNodes(json);
+
+        			if(base.book_annotations.length > 0){
+        				base.init_grid_item(new_item,base.book_annotations,'Annotations');
+        			}
+        		});
+			})(annotations_item);
+
+
+			(function(new_item){
+				$.getJSON(tag_url,function(json){
+        			base.book_tags = scalarapi.model.parseNodes(json);
+
+        			if(base.book_tags.length > 0){
+        				base.init_grid_item(new_item,base.book_tags,'Tags');
+        			}
+        		});
+			})(tags_item);
+
+			$('#sidebar_selector .grid').addClass('enabled');
         }
 
         base.build_linear_pane = function(){
         	base.icons.linear = '<span class="icon-linear"></span>';
 
-        	var html = '<div class="pane" data-type="linear" id="sidebar_linear_pane"><ul class="linear"></ul></div>';
+        	var html = '<div class="pane" data-type="paths" id="sidebar_linear_pane">'+
+							'<header class="current">'+
+								'<span class="header_icon icon-linear"></span>'+
+								'<span class="header_text"></span>'+
+							'</header>'+
+        					'<div class="smallmed">'+
+        						'<ul class="current"></ul>'+
+        					'</div>'+
+        					'<div class="large">'+
+        						'<div class="previous"></div>'+
+        						'<div class="next"></div>'+
+        					'</div>'+
+        				'</div>';
 
 
-        	$('#sidebar #sidebar_panes').append($(html));	
+			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
+			var new_pane = $(html);
+
+        	$('#sidebar #sidebar_panes').append(new_pane);	
 			$('#sidebar_selector .linear').addClass('enabled');
         }
 
@@ -736,27 +905,32 @@
 						if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
 							if(typeof base.loaded_nodes[slug] != 'undefined'){
 								//We already have this page loaded - let's show it now.
-								base.loaded_nodes[slug] = currentNode;
 								base.show_icon(slug, new_item);
 							}else{
 								new_item.hide();
-								//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-								(function(slug, new_item){
-									scalarapi.loadNode(
-										slug,
-										true,
-										function(json){
-											if(typeof scalarapi.getNode(slug)!='undefined'){
-												new_item.show();
-												base.loaded_nodes[slug] = scalarapi.getNode(slug);
-												base.show_icon(slug, new_item);	
-											}else{
-												new_item.remove();
-											}
-										},
-										function(err){ console.log(err); },
-										1, true);
-								})(slug, new_item);
+								if(slug == currentNode.slug){
+									new_item.show();
+									base.loaded_nodes[slug] = currentNode;
+									base.show_icon(slug, new_item);	
+								}else{
+									//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
+									(function(slug, new_item){
+										scalarapi.loadNode(
+											slug,
+											true,
+											function(json){
+												if(typeof scalarapi.getNode(slug)!='undefined'){
+													new_item.show();
+													base.loaded_nodes[slug] = scalarapi.getNode(slug);
+													base.show_icon(slug, new_item);	
+												}else{
+													new_item.remove();
+												}
+											},
+											function(err){ console.log(err); },
+											1, true);
+									})(slug, new_item);
+								}
 							}
 						}else{
 							base.show_icon(slug, new_item);
@@ -781,6 +955,37 @@
 			$('#sidebar_selector .markers').addClass('enabled');
         }
         
+        base.init_grid_item = function(item,list,type){
+        	item.mouseenter(function(e){
+        		if(!isMobile && !base.isSmallScreen){
+					clearTimeout(base.sidebar_timeout);
+					base.triggerSidebar(true);
+					base.hovered_item = $(this);
+					
+					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
+					
+					$('#info_panel_arrow').css({
+						'top':top_offset+'px'
+					});
+					
+					clearTimeout(base.infobar_timeout);
+					base.showInfo('grid',list,type);
+					e.stopPropagation();
+				}
+			}).click(function(e){
+				var slug = $(this).data('slug');
+				if(isMobile || base.isSmallScreen){
+					base.triggerSidebar(true);
+					base.showInfo('grid',list,type);
+					base.hovered_item = $(this);
+					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
+					$('#info_panel_arrow').css({
+						'top':(top_offset)+'px'
+					});
+				}
+				e.stopPropagation();
+			}).fadeIn('fast').find('.title').text(list.length);
+        }
         base.init_sidebar_items = function(new_pane){
         	new_pane.find('li:not(.empty)').mouseenter(function(e){
         		if(!isMobile && !base.isSmallScreen){
@@ -853,11 +1058,20 @@
         base.showInfo = function(view,page,slug){
         	if($('#sidebar').hasClass('tall')){
         		$('#info_panel').addClass('tall');
+        	}else{
+        		$('#info_panel').removeClass('tall');
         	}
+
+        	$('#sidebar .hovered_item').removeClass('hovered_item');
+        	base.hovered_item.addClass('hovered_item');
+
+			$('#info_panel .view').hide();
 
         	switch(view){
         		case 'recent':
         		case 'paths':
+        		case 'tags':
+					$('#info_panel .info.view').show();
         			if(typeof base.loaded_nodes[slug].info_panel == 'undefined' || base.loaded_nodes[slug].info_panel == null || typeof base.loaded_nodes[slug].info_panel.standard == 'undefined' || base.loaded_nodes[slug].info_panel.standard==null){
         				if(typeof base.loaded_nodes[slug].info_panel == 'undefined' || base.loaded_nodes[slug].info_panel == null){
         					base.loaded_nodes[slug].info_panel = {
@@ -894,10 +1108,10 @@
 						var features = page.getRelations('referee', 'outgoing', 'reverseindex');
 			        	var tagged_by = page.getRelations('tag', 'incoming', 'reverseindex');
 			        	var tag_of = page.getRelations('tag', 'outgoing', 'reverseindex');
+			        	console.log(tag_of);
 			        	var annotates = page.getRelations('annotation', 'outgoing', 'reverseindex');
 			        	var annotated_by = page.getRelations('annotation', 'incoming', 'reverseindex');
 			        	
-			        	console.log(features);
 
 			        	//Handle incoming featured
 			        	base.loaded_nodes[slug].info_panel.standard.featured_block = '';
@@ -1105,7 +1319,7 @@
 
 		        	$('#info_panel .tag_of_block').hide();
 		        	if(base.loaded_nodes[slug].info_panel.standard.tag_of_block != ''){
-		        		$('#info_panel .tag_of_block').fadeIn('fast').find('ul.tagged_by_list').html(base.loaded_nodes[slug].info_panel.standard.tag_of_block);
+		        		$('#info_panel .tag_of_block').fadeIn('fast').find('ul.tag_of_list').html(base.loaded_nodes[slug].info_panel.standard.tag_of_block);
 		        	}
 
 		        	$('#info_panel .annotated_by_block').hide();
@@ -1130,25 +1344,79 @@
 		        	$('#info_panel #metadata_info .metadata_list').html(base.loaded_nodes[slug].info_panel.standard.metadata);
 
 	        		var inner_height = 0;
-	        		$('#info_panel_content .section').each(function(){
+	        		$('#info_panel .list.view .info_panel_content .section').each(function(){
 	        			inner_height += $(this).height();
 	        		});
 	        		inner_height += $('#info_panel_thumbnail').height();
 	        		inner_height += $('#info_panel h3.title').height();
 
-	        		console.log(inner_height);
-	        		console.log( $('#info_panel_content').innerHeight());
-	        		if(inner_height <= $('#info_panel_content').innerHeight()){
+	        		if(inner_height <= $('#info_panel .list.view .info_panel_content').innerHeight()){
 	        			$('#info_panel').addClass('short');
 	        		}else{
 	        			$('#info_panel').removeClass('short');
 	        		}
+	        		break;
+	        	case 'grid':
+	        		$('body').addClass('info_panel_open');
+					$('#info_panel .title>strong').text('Loading...');
+					var grid_list = $('#info_panel .list.view').show().find('ul');
+					grid_list.html('');
+					console.log(page);
+					for(var i in page){
+						var this_node = page[i].current;
+						var new_item = $('<li data-url="'+page[i].url+'"><div class="title">'+this_node.title+'</div></li>').appendTo(grid_list);
+						var slug = page[i].slug;
+
+						new_item.click(function(e){
+							var target_url = $(this).data('url')+base.get_vars;
+							window.location = target_url;
+						});
+
+
+						if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
+							if(typeof base.loaded_nodes[slug] != 'undefined'){
+								//We already have this page loaded - let's show it now.
+								base.loaded_nodes[slug] = currentNode;
+								base.show_icon(slug, new_item);
+							}else{
+								new_item.hide();
+								if(slug == currentNode.slug){
+									new_item.show();
+									base.loaded_nodes[slug] = currentNode;
+									base.show_icon(slug, new_item);	
+								}else{
+									//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
+									(function(slug, new_item){
+										scalarapi.loadNode(
+											slug,
+											true,
+											function(json){
+												if(typeof scalarapi.getNode(slug)!='undefined'){
+													new_item.show();
+													base.loaded_nodes[slug] = scalarapi.getNode(slug);
+													base.show_icon(slug, new_item);	
+												}else{
+													new_item.remove();
+												}
+											},
+											function(err){ console.log(err); },
+											1, true);
+									})(slug, new_item);
+								}
+							}
+						}else{
+							base.show_icon(slug, new_item);
+						}
+					}
+	        		break;
 		    }
         }
 
         base.hideInfo = function(){
         	$('body').removeClass('info_panel_open');
 			$('#info_panel').removeData('slug');
+			$('#info_panel .view').hide();
+        	$('#sidebar .hovered_item').removeClass('hovered_item');
         }
 
         base.getIconByType = function(type){

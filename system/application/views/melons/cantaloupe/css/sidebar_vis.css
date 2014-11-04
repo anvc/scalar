@@ -57,7 +57,7 @@ body.sidebar_vis #sidebar #sidebar_paths_pane .large.list #path_list_view,
 body.sidebar_vis #sidebar #sidebar_paths_pane .large.list>header>a.list_link,
 body.sidebar_vis #sidebar #sidebar_paths_pane .large.all #path_all_view,
 body.sidebar_vis #sidebar #sidebar_paths_pane .large.all>header>a.all_link {    display: block }
-body.sidebar_vis #sidebar #sidebar_index_pane.pane ul li .title {    opacity: 1 }
+body.sidebar_vis #sidebar #sidebar_grid_pane.pane ul li .title {    opacity: 1 }
 body.sidebar_vis #sidebar #sidebar_paths_pane .large>header {
     position: fixed;
     right: 10rem; left: 10rem; top: 6rem;
@@ -70,11 +70,10 @@ body.sidebar_vis #sidebar #sidebar_paths_pane .large>header {
 }
 body.sidebar_vis #sidebar #sidebar_paths_pane .large .view,
 body.sidebar_vis #sidebar #sidebar_paths_pane .large>header>a {    display: none }
-body.sidebar_vis #sidebar #sidebar_index_pane {    overflow-x: hidden }
-body.sidebar_vis #sidebar #sidebar_index_pane ul li {
+body.sidebar_vis #sidebar #sidebar_grid_pane {    overflow-x: hidden }
+body.sidebar_vis #sidebar #sidebar_grid_pane ul li {
     display: block;
     margin-left: -1rem; margin-top: 1rem;
-    color: rgba(0,0,0,.8);
     text-align: center;
     -webkit-transition-timing-function: ease-in-out;
     -moz-transition-timing-function: ease-in-out;
@@ -87,19 +86,32 @@ body.sidebar_vis #sidebar #sidebar_index_pane ul li {
     -o-transition-duration: .125s;
     transition-duration: .125s;
 }
-body.sidebar_vis #sidebar #sidebar_index_pane ul li .sidebar_icon,
-body.sidebar_vis #sidebar #sidebar_index_pane.pane ul li .title {    display: inline }
+body.sidebar_vis #sidebar #sidebar_grid_pane ul li .sidebar_icon,
+body.sidebar_expanded #sidebar #sidebar_grid_pane.pane ul li .title {    display: inline }
 body.sidebar_vis #sidebar #sidebar_panes {
     position: absolute;
-    bottom: 0; right: 0; left: 0; top: 5rem;
+    bottom: 0; right: 0; left: 0; top: 2rem;
     -webkit-overflow-scrolling: touch;
     overflow-y: auto;
     overflow: hidden;
 }
+body.sidebar_expanded #sidebar #sidebar_panes {
+	top: 5rem;
+	-webkit-transition-timing-function: ease-in-out;
+    -moz-transition-timing-function: ease-in-out;
+    -ms-transition-timing-function: ease-in-out;
+    -o-transition-timing-function: ease-in-out;
+    transition-timing-function: ease-in-out;
+    -webkit-transition-duration: .125s;
+    -moz-transition-duration: .125s;
+    -ms-transition-duration: .125s;
+    -o-transition-duration: .125s;
+    transition-duration: .125s;
+}
 body.sidebar_vis #sidebar .sidebar_icon {
     display: table-cell;
     width: 1rem;
-    padding-left: .75rem;
+    padding-left: 1.5rem;
     margin: 1rem;
     font-size: 1.75rem;
     text-align: center;
@@ -131,15 +143,47 @@ body.sidebar_vis #sidebar .pane.overlay {
 }
 body.sidebar_vis #sidebar .smallmed {   
     display: table;
+}
+body.sidebar_vis #info_panel .list.view{
+	display: table;
+	vertical-align: middle;
     position: absolute;
-    top: 4rem;
+    top: 5rem;
     width: 100%;
     height: 100%;
 }
+body.sidebar_vis #info_panel #info_list{
+	
+    display: table-cell;
+	vertical-align: middle;
+	width: 100%;
+	height: 100%;
+}
+body.sidebar_vis #info_panel #info_list li{
+	color: #fff;
+	display: table;
+	padding: 4px 0;
+}
+body.sidebar_vis #info_panel #info_list li>div, body.sidebar_vis #info_panel #info_list li>span{
+	display: table-cell;
+	vertical-align: middle;
+}
+body.sidebar_vis #info_panel #info_list li>.title{
+	padding-left: 1em;
+	font-size: 1.2rem;
+	font-weight: normal;
+}
+body.sidebar_vis #info_panel.tall .list.view{
+	top: 1rem;
+}
 body.sidebar_vis #sidebar .pane>header{
     position: fixed;
-    display: table-row;
-    color: #666766;
+	display: table-row;
+	color: #666766;
+	background: #cdcece;
+	padding: 1rem 0;
+	margin-top: -5rem;
+	z-index: 9;
 }
 body.sidebar_vis #sidebar .pane>header:hover{
     color: #434242;
@@ -223,7 +267,8 @@ body.sidebar_vis #sidebar>#sidebar_inside>header {
 body.sidebar_vis #sidebar .pane {
     display: none;
     height: 100%; width: 100%;
-    margin-top: 0
+    margin-top: 0;
+    padding-top: 4rem;
 }
 body.sidebar_vis #sidebar .pane ul li.active {    color: rgba(0,0,0,.75); position: relative; }
 body.sidebar_vis #sidebar .pane ul li.active .sidebar_icon:after{
@@ -242,10 +287,13 @@ body.sidebar_vis #sidebar .pane ul li.active .sidebar_icon:after{
     left: 0px;
 }
 body.sidebar_vis #sidebar .pane ul li:hover,
-body.sidebar_vis #sidebar .pane ul li.active:hover {    color: rgba(0,0,0,.9) }
+body.sidebar_vis #sidebar .pane ul li.active:hover,
+body.sidebar_vis #sidebar .pane ul li.hovered_item{    color: rgba(0,0,0,.9) }
 body.sidebar_vis #sidebar .pane ul li.empty {
     height: 33px;
-    cursor: default
+    cursor: default;
+    text-indent: -1000px;
+	overflow: hidden;
 }
 body.sidebar_vis #sidebar .pane ul li{
     display: table;
@@ -269,7 +317,7 @@ body.sidebar_vis.sidebar_expanded #sidebar .pane ul li{
     transition-duration: .125s;
 }
 body.sidebar_expanded #sidebar .pane ul li {
-    width: 18rem;
+    width: 29rem;
 }
 body.sidebar_vis #sidebar .pane ul li .title {
     display: table-cell;
@@ -338,7 +386,7 @@ body.sidebar_vis #sidebar_inside>header #sidebar_selector ul li {
     border-bottom: 1px solid #515151;
 }
 body.sidebar_vis #sidebar_inside>header.selector_open {    border-bottom: 0 }
-body.sidebar_collapsed #sidebar #sidebar_index_pane ul li {
+body.sidebar_collapsed #sidebar #sidebar_grid_pane ul li {
     width: 4rem;
     margin-top: 0;
     color: rgba(0,0,0,.5)
@@ -387,8 +435,8 @@ body.sidebar_full.sidebar_vis #sidebar>#sidebar_inside>header>.controls>.sidebar
 body.sidebar_full #sidebar>#sidebar_inside .sidebar_maximize{
     display: none;
 }
-body.sidebar_expanded #sidebar #sidebar_index_pane ul li .sidebar_icon {    font-size: 2.4rem }
-body.sidebar_expanded #sidebar #sidebar_index_pane.pane ul li .title {
+body.sidebar_expanded #sidebar #sidebar_grid_pane ul li .sidebar_icon {    font-size: 2.4rem }
+body.sidebar_expanded #sidebar #sidebar_grid_pane.pane ul li .title {
     margin-left: -1rem;
     font-size: 2.4rem
 }
@@ -401,6 +449,35 @@ body.sidebar_expanded.info_panel_open #sidebar #sidebar_inside>header .controls 
 body.sidebar_expanded.sidebar_full #sidebar {
     width: 100%;
     background-color: rgba(255,255,255,0.875)
+}
+body.sidebar_expanded.sidebar_full.linear_view #sidebar{
+	height: 8rem;
+	overflow: visible;
+}
+body.sidebar_expanded.sidebar_full.linear_view #sidebar .sidebar_panes{
+	overflow-y: visible;
+}
+body.sidebar_expanded.sidebar_full.linear_view #sidebar .smallmed, body.sidebar_expanded.sidebar_full.linear_view #sidebar .active.pane>header{
+	display: none;
+}
+body.sidebar_expanded.sidebar_full.linear_view #sidebar.tall{
+	height: 5rem;
+}
+body.sidebar_vis #sidebar_linear_pane .large .previous, body.sidebar_vis #sidebar_linear_pane .large .next{
+	width: 20rem;
+	background-color: rgba(255,255,255,.25);
+	position: fixed;
+	top: 5rem;
+	bottom: 0;
+}
+body.sidebar_vis #sidebar_linear_pane .large .previous:hover, body.sidebar_vis #sidebar_linear_pane .large .next:hover{
+	background-color: rgba(255,255,255,.875);
+}
+body.sidebar_vis #sidebar_linear_pane .large .previous{
+	left: 0;
+}
+body.sidebar_vis #sidebar_linear_pane .large .next{
+	right: 0;
 }
 body.sidebar_vis #info_panel {
     position: fixed;
@@ -461,14 +538,14 @@ body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions, body.sidebar_vis
 body.sidebar_expanded #sidebar>#sidebar_inside>header .user_actions, body.sidebar_expanded #sidebar>#sidebar_inside>header .controls{
     display: inline;
 }
-body.sidebar_vis #info_panel #info_panel_content {
+body.sidebar_vis #info_panel .list.view .info_panel_content {
     position: absolute; display: none;
     bottom: 1rem; top: 9rem;
     width: 100%;
     overflow: auto;
     z-index: 10;
 }
-body.sidebar_vis #info_panel.tall #info_panel_content {
+body.sidebar_vis #info_panel.tall .list.view .info_panel_content {
     top: 4rem;
 }
 body.sidebar_vis #info_panel #info_panel_header {
@@ -545,11 +622,11 @@ body.sidebar_vis #info_panel .section {
     background-color: transparent;
     -webkit-overflow-scrolling: touch;
 }
-body.sidebar_vis #info_panel.short #info_panel_content{
+body.sidebar_vis #info_panel.short .list.view .info_panel_content{
     padding-top: 0;
     bottom: 0;
     top: 5rem;
-}body.sidebar_vis #info_panel.tall.short #info_panel_content{
+}body.sidebar_vis #info_panel.tall.short .list.view .info_panel_content{
     top: 1rem;
 }
 body.sidebar_vis #info_panel.short .section {
@@ -570,12 +647,12 @@ body.sidebar_vis #info_panel.short #metadata_info {
 body.sidebar_vis #info_panel.short #info_panel_header{
     display: none;
 }
-body.sidebar_vis #info_panel .title,
+body.sidebar_vis #info_panel .info .title,
 body.sidebar_vis #info_panel h4 {
     padding: .5rem 2rem; margin: 0;
     color: #eee
 }
-body.sidebar_vis #info_panel .title {
+body.sidebar_vis #info_panel .info .title {
     padding: 1rem 2rem .5rem 2rem;
     font-size: 2.1rem;
     line-height: 2.4rem
@@ -615,13 +692,18 @@ body.sidebar_vis #info_panel_thumbnail img{
 body.sidebar_vis #info_panel {   
     background-color: #515151;
 }
-body.sidebar_vis.sidebar_expanded #sidebar .pane ul li.empty {    display: table }
+body.sidebar_vis.sidebar_expanded #sidebar .pane ul li.empty {    
+	display: table;
+    text-indent: 0px;
+	overflow: inherit;
+}
 body.sidebar_vis #info_panel.overview #overview_info.section,
 body.sidebar_vis #info_panel.comments #comments_info.section,
 body.sidebar_vis #info_panel.metadata #metadata_info.section {    display: block }
+
 body.sidebar_expanded #info_panel {    left: 31rem }
 body.info_panel_open #info_panel {    width: 31rem }
-body.info_panel_open #info_panel #info_panel_content {    display: block }
+body.info_panel_open #info_panel .list.view .info_panel_content {    display: block }
 body.info_panel_open #info_panel footer {    display: block }
 #info_panel .overview_link {    float: left }
 #info_panel .metadata_link {    float: right }
@@ -748,7 +830,33 @@ body.sidebar_vis #info_panel #comments_info li .title{
 }
 /* Extra Small Devices, Phones */
 @media only screen and (max-width:580px) { 
-    body.sidebar_vis #info_panel #info_panel_content{
+	body.sidebar_vis #sidebar>#sidebar_inside>header .title{
+		padding: 1rem 2rem;
+	}
+	body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a {
+		line-height: 5rem;
+	}
+	body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a.icon-markers{
+		font-size: 3rem;
+		padding: 0rem 1.5rem;
+	}
+	body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a.icon-recent{
+		font-size: 2.5rem;
+		padding: 0 0.75rem;
+	}
+	body.sidebar_vis #sidebar>#sidebar_inside>header .user_actions a:last-child{
+		margin-right: 1rem;
+	}
+	body.sidebar_vis #sidebar_inside>header #sidebar_selector{
+		top: 4.7rem;
+	}
+	body.sidebar_vis #sidebar_inside>header #sidebar_selector ul{
+		background-color: rgb(238, 238, 238);
+	}
+	body.sidebar_vis .sidebar_maximize{
+		display: none;
+	}
+    body.sidebar_vis #info_panel .list.view .info_panel_content{
         top: 10rem;
     }
     body.sidebar_vis #sidebar ul{
@@ -757,7 +865,7 @@ body.sidebar_vis #info_panel #comments_info li .title{
     body.sidebar_vis.sidebar_expanded #sidebar .pane ul li.empty{
         display: none;
     }
-    body.sidebar_vis #info_panel #info_panel_content {
+    body.sidebar_vis #info_panel .list.view .info_panel_content {
         bottom: 4.5rem;
     }
     body.sidebar_vis #sidebar.tall {    padding-top: 1rem }
@@ -785,7 +893,7 @@ body.sidebar_vis #info_panel #comments_info li .title{
     body.sidebar_vis #sidebar .pane ul li .title {    font-size: 2.4rem }
     body.sidebar_vis #sidebar>#sidebar_inside>header {
         margin-top: 0;
-        padding: 1rem 2rem;
+        padding: 0;
         background-color: #eee;
         transform: translateY(0px);
     }
