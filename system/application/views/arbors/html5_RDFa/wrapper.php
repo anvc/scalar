@@ -57,6 +57,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <? if (!empty($primary_role)): ?>
 <link id="primary_role" rel="scalar:primary_role" href="<?=$primary_role?>" />
 <? endif ?>
+<link id="book_id" href="<?=$book->book_id?>" />
 <link id="parent" href="<?=$base_uri?>" />
 <link id="approot" href="<?=confirm_slash(base_url())?>system/application/" />
 <? if ($login->is_logged_in): ?>
