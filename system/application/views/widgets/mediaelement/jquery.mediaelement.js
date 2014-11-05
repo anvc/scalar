@@ -342,6 +342,10 @@ function YouTubeGetID(url){
 			this.link = link; 															// encapsulates the original hyperlink and other data
 			this.sidebarWidth = 270;  			   										// width of the annotation sidebar
 
+			if ( this.options.autoplay == undefined ) {
+				this.options.autoplay = false;
+			}
+
 			// path to the media file
 			this.path = (this.link.data('path')) ? this.link.data('path') : '';	
 			this.path = (this.path.indexOf('://')==-1) ? scalarapi.model.urlPrefix + this.path : this.path;
