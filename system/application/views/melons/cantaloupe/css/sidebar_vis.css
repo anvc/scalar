@@ -39,7 +39,6 @@ body.sidebar_vis #sidebar {
     height: 100%; width: 6rem;
     padding: .5rem;
     padding-top: 6rem;
-    background-color: #cdcece;;
     -webkit-transition-timing-function: ease-in-out;
     -moz-transition-timing-function: ease-in-out;
     -ms-transition-timing-function: ease-in-out;
@@ -180,7 +179,6 @@ body.sidebar_vis #sidebar .pane>header{
     position: fixed;
 	display: table-row;
 	color: #666766;
-	background: #cdcece;
 	padding: 1rem 0;
 	margin-top: -5rem;
 	z-index: 9;
@@ -323,7 +321,8 @@ body.sidebar_vis #sidebar .pane ul li .title {
     display: table-cell;
     padding-left: 1em;
     font-size: 1.2rem;
-    vertical-align: middle
+    vertical-align: middle;
+    -webkit-font-smoothing: subpixel-antialiased;
 }
 body.sidebar_vis #sidebar ul {
     display: table-cell;
@@ -401,7 +400,7 @@ body.sidebar_collapsed #sidebar .pane ul li.distance_5 {    color: rgba(0,0,0,.3
 body.sidebar_collapsed #sidebar .pane ul li.distance_4 {    color: rgba(0,0,0,.35) }
 body.sidebar_collapsed #sidebar .pane ul li.distance_3 {    color: rgba(0,0,0,.4) }
 body.sidebar_collapsed #sidebar .pane ul li.distance_2 {    color: rgba(0,0,0,.45) }
-body.sidebar_vis .bg_screen {    background-color: rgba(255,255,255,.25) }
+body.sidebar_vis .bg_screen {    background-color: rgba(255,255,255,.5) }
 body.sidebar_full {    background-color: #fff }
 body.sidebar_full #info_panel {    left: 0 }
 body.sidebar_full #sidebar .large {
