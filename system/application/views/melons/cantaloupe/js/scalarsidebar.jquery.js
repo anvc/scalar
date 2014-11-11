@@ -107,20 +107,19 @@
 											'</div>'+
 										'</div>'+
 									'</div>'+
-									'<footer>'+
-										'<a class="info_hide btn btn-lg btn-default caption_font">Back</a>'+
-										'<a class="info_visit btn btn-lg btn-default caption_font">Visit</a>'+
-									'</footer>'+
 								'</div>'+
 								'<div class="list view">'+
 									'<ul id="info_list"></ul>'+
 								'</div>'+
+                                '<footer>'+
+                                    '<a class="info_hide btn btn-lg btn-default caption_font">Back</a>'+
+                                    '<a class="info_visit btn btn-lg btn-default caption_font">Visit</a>'+
+                                '</footer>'+
 							'</div>'+
 							'<div id="sidebar" class="heading_font">'+
 								'<div id="sidebar_inside">'+
-									'<header>'+
+									'<header id="sidebar_header">'+
 										//'<span class="header_icon"></span>'+
-
 										'<span class="controls">'+
 											'<a class="sidebar_maximize icon-plus"></a>'+
 											'<a class="sidebar_minimize icon-minus">-</a>'+
@@ -129,7 +128,7 @@
 											'<a class="icon-recent" id="recent_panel_toggle" data-type="recent"></a>'+
 											//'<a class="icon-markers" id="markers_panel_toggle" data-type="markers"></a>'+
 										'</span>'+
-										'<span class="title"></span>'+
+										'<span class="title"></span>'+ 
 										'<div id="sidebar_selector">'+
 											'<ul>'+
 												//<span class="header_icon"><span class="icon-path"></span></span>
@@ -141,18 +140,29 @@
 												'<li class="paths" data-pane="paths"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Paths</span></li>'+
 												'<li class="tags" data-pane="tags"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Tags</span></li>'+
 												'<li class="grid" data-pane="grid"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Grid</span></li>'+
-												'<li class="linear" data-pane="linear"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Linear</span></li>'+
+												'<li class="linear" data-pane="linear"><span class="title">Linear</span></li>'+
 												//'<li class="recent" data-pane="recent"><span class="title">Recent</span></li>'+
 												//'<li class="markers" data-pane="markers"><span class="title">Markers</span></li>'+
 											'</ul>'+
 										'</div>'+
-									'</header><br/>'+
+									'</header>'+
 									'<div id="sidebar_panes"></div>'+
 									'<footer id="sidebar_close_footer">'+
 										'<a class="sidebar_hide btn btn-lg btn-default caption_font">Close</a>'+
 									'</footer>'+
 								'</div>'+
-							'</div>';
+							'</div>'+
+                            '<div id="linear_bar" class="text-center heading_font">'+
+                                '<div id="linear_previous" class="pull-left text-left">'+
+                                    '<a class=""><span class="icon"></span><span class="title">Previous</span</a>'+
+                                '</div>'+
+                                '<div id="linear_next" class="pull-right text-right">'+
+                                    '<a class=""><span class="icon"></span><span class="title">Next</span></a>'+
+                                '</div>'+
+                                '<div id="linear_current">'+
+                                    'Current'+
+                                '</div>'+
+                            '</div>';
 
 				base.container = $(html).appendTo('body');
 				base.lastScroll = $(document).scrollTop();
@@ -165,10 +175,10 @@
 							$('#sidebar, #info_panel').removeClass('tall');
 						}
 						if(typeof base.hovered_item != 'undefined' && base.hovered_item != null){
-							var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
+							/*var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
 							$('#info_panel_arrow').css({
 								'top':(top_offset)+'px'
-							});
+							});*/
 						}
 						base.lastScroll = currentScroll;
 					});
@@ -213,7 +223,6 @@
 	            base.build_paths_pane();
 				base.build_tags_pane();
 	            base.build_grid_pane();
-	            base.build_linear_pane();
 
 
 	            //Ready for this? Using jQuery promises for chained async loading of extra JS files. Booyah. (Removing yepnope call that broke on Firefox)
@@ -234,8 +243,12 @@
 
 	            base.build_markers_pane();
 
+                if(typeof base.queryVars.s != undefined && $('#sidebar_panes #sidebar_'+base.queryVars.s+'_pane').length > 0){
+                    base.current_pane = base.queryVars.s;
+                }else{
+                    base.current_pane = 'paths';
+                }
 	            
-	            base.current_pane = $('#sidebar_panes .pane').first().data('type');
 
 		   		 $('body').addClass(base.current_pane+'_view');
 
@@ -338,6 +351,12 @@
 		    $('body').removeClass(base.current_pane+'_view').addClass(pane+'_view');
         	base.current_pane = pane;
         	base.hideOverlay();
+            base.hideInfo();
+            if($('#sidebar_selector .'+pane).find('.sidebar_maximize').length > 0){
+                $("#sidebar #sidebar_header .controls .sidebar_maximize").show();
+            }else{
+                $("#sidebar #sidebar_header .controls .sidebar_maximize").hide();
+            }
             $('#sidebar>header').hide();
             $('#sidebar .pane').removeClass('active');
           	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
@@ -348,19 +367,31 @@
 		    $('#sidebar>header').fadeIn('slow');
         }
 
-        base.show_icon = function(slug, new_item){
-			var item = base.loaded_nodes[slug];
+        base.show_icon = function(slug, new_item, append){
+            if(append == null){
+                append = false;
+            }
+			var item = scalarapi.getNode(slug);
 			var item_html = '<span class="sidebar_icon ';
 			var type = 'unknown';
 			if(typeof item != 'undefined' && item != null){
 				type = item.current.mediaSource.contentType;
 			}
 
-			item_html += base.getIconByType(type);
+            if(item.getRelations('path', 'outgoing', 'reverseindex').length>0){
+                item_html += 'icon-path';
+            }else if(item.getRelations('comment', 'outgoing', 'reverseindex').length>0){
+                item_html += 'icon-comment';
+            }else{
+			    item_html += base.getIconByType(type);
+            }
 			
 			item_html += '" style="display: none;"></span>';
-
-			$(item_html).prependTo(new_item).fadeIn('slow');
+            if(append){
+                $(item_html).appendTo(new_item).fadeIn('slow');
+            }else{
+			    $(item_html).prependTo(new_item).fadeIn('slow');
+            }
 
 			if($('#sidebar_panes .pane.active').length>0){
         		var scrollmid =  ($('#sidebar_panes .pane.active')[0].scrollHeight-$('#sidebar_panes .pane.active')[0].clientHeight)/2.0;
@@ -372,7 +403,7 @@
 			},10);
 		}
 
-		base.load_info = function(slug){
+		base.load_info = function(slug,pane){
 			//Prepare yourself for some hot jQuery chaining action.
 				$('#info_panel').data('slug',slug)
 								.removeClass()
@@ -384,8 +415,11 @@
 
 				$('body').addClass('info_panel_open');
 				$('#info_panel .title>strong').text('Loading...');
+                if(pane==null){
+                    pane = $('#sidebar .active.pane').data('type');
+                }
 				if(typeof base.loaded_nodes[slug] != 'undefined'){
-					base.showInfo($('#sidebar .active.pane').data('type'),base.loaded_nodes[slug],slug);
+					base.showInfo(pane,base.loaded_nodes[slug],slug);
 				}else{
 					scalarapi.loadNode(
 	        			slug,
@@ -393,7 +427,7 @@
 	        			function(json){
 	        				base.loaded_nodes[slug] = scalarapi.getNode(slug);
 	        				//console.log(base.loaded_nodes[slug]);
-	        				base.showInfo($('#sidebar .active.pane').data('type'),base.loaded_nodes[slug],slug);
+	        				base.showInfo(pane,base.loaded_nodes[slug],slug);
 	        			},
 	        			function(err){
 	        				//console.log(err);
@@ -407,7 +441,7 @@
         	var paths = currentNode.getRelations('path', 'incoming', 'reverseindex');
         	base.icons['paths'] = '<span class="icon-path"></span>';
         	var html = '<div class="pane" data-type="paths" id="sidebar_paths_pane">'+
-							'<header class="current">'+
+							'<header class="pane_header current">'+
 								'<span class="header_icon icon-path"></span>'+
 								'<span class="header_text"></span>'+
 							'</header>'+
@@ -433,35 +467,50 @@
 
         	var add_current_path_items = function(relations_list,new_pane){
         		//Alright, iterate through our properly ordered list.
+                var previous_item, next_item, first_item;
 				for(r in relations_list){
-					var path_step = relations_list[r];
+                    var path_step = relations_list[r];
 					var node_info = scalarapi.getNode(path_step.target.slug);
+
+                    if(first_item==null){
+                        first_item = node_info;
+                    }
+
 					//console.log(node_info);
 					//Same as the active page, pretty much.
 					var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li>';
 
 					var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
 
+
+
 					if(path_step.target.slug == currentNode.slug){
 						new_item.addClass('active');
 					}else{
-						var raw_dist = r-current_node_index;
-						var distance = Math.abs(raw_dist)*4;
-						if(distance > 10){
-							new_item.addClass('distant');
-							if(raw_dist<0){
-								dist_before++;
-							}else{
-								dist_after++;
-							}
-						}else{
-							new_item.addClass('distance_'+distance);
-							if(raw_dist<0){
-								before++;
-							}else{
-								after++;
-							}
-						}
+                        if(current_node_index>=0){
+    						var raw_dist = r-current_node_index;
+                            if(raw_dist==-1){
+                                previous_item = path_step.target;
+                            }else if(raw_dist==1){
+                                next_item = path_step.target;
+                            }
+    						var distance = Math.abs(raw_dist)*4;
+    						if(distance > 10){
+    							new_item.addClass('distant');
+    							if(raw_dist<0){
+    								dist_before++;
+    							}else{
+    								dist_after++;
+    							}
+    						}else{
+    							new_item.addClass('distance_'+distance);
+    							if(raw_dist<0){
+    								before++;
+    							}else{
+    								after++;
+    							}
+    						}
+                        }
 					}
 
 					var slug = path_step.target.slug;
@@ -472,9 +521,7 @@
 							
 							base.show_icon(slug, new_item);
 						}else{
-							new_item.hide();
 							if(slug == currentNode.slug){
-								new_item.show();
 								base.loaded_nodes[slug] = currentNode;
 								base.show_icon(slug, new_item);	
 							}else{
@@ -485,7 +532,6 @@
 										true,
 										function(json){
 											if(typeof scalarapi.getNode(slug)!='undefined'){
-												new_item.show();
 												base.loaded_nodes[slug] = scalarapi.getNode(slug);
 												base.show_icon(slug, new_item);	
 											}else{
@@ -500,14 +546,25 @@
 					}else{
 						base.show_icon(slug, new_item);
 					}
-
 				}
+                
+                if(base.queryVars.path != null && typeof base.queryVars.path != 'undefined' && previous_item == null && parent_node != null){
+                    previous_item = parent_node;
+                }
+
+                if(current_node_index<0 && next_item == null && first_item != null){
+                    next_item = first_item;
+                }
+
+                base.build_linear_pane(previous_item,next_item);
         	}
 
 
 			//Check to see if this is a path...
 			var this_path_items = currentNode.getRelations('path', 'outgoing', 'reverseindex');
+            var current_node_index = -1;
 			if((typeof base.queryVars.path == 'undefined' || base.queryVars.path == null) && this_path_items.length > 0){
+                base.get_vars += 'path='+currentNode.slug;
 				//Determine the order of the list items...
 				var relations_list = [];
 				for(p in this_path_items){
@@ -552,8 +609,6 @@
 							// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
 							// We could probably write a custom sort function, but in the end, this is a faster process.
 							var relations_list = {};
-
-							var current_node_index = 0;
 
 							for(r in parent_node.outgoingRelations){
 								var path_step = parent_node.outgoingRelations[r];
@@ -605,7 +660,7 @@
 					base.hideInfo();
 					base.hovered_item = null;
 				}
-			})
+			});
 			$('#info_panel').mouseenter(function(e){
 				if(!isMobile && !base.isSmallScreen){
 					clearTimeout(base.infobar_timeout);
@@ -637,7 +692,7 @@
         	base.icons.tags = '<span class="icon-tags"></span>';
 
         	var html = '<div class="pane" data-type="tags" id="sidebar_tags_pane">'+
-							'<header class="current">'+
+							'<header class="pane_header current">'+
 								'<span class="header_icon icon-tags"></span>'+
 								'<span class="header_text"></span>'+
 							'</header><div class="smallmed"><ul class="current tags"></ul></div></div>';
@@ -702,7 +757,7 @@
         	base.icons.grid = '<span class="icon-index"></span>';
 
         	var html = '<div class="pane" data-type="grid" id="sidebar_grid_pane">'+
-							'<header class="current">'+
+							'<header class="pane_header current">'+
 								'<span class="header_icon icon-index"></span>'+
 								'<span class="header_text"></span>'+
 							'</header><div class="smallmed"><ul class="current grid"></ul></div>';
@@ -845,22 +900,39 @@
 			$('#sidebar_selector .grid').addClass('enabled');
         }
 
-        base.build_linear_pane = function(){
+        base.build_linear_pane = function(previous,next){
         	base.icons.linear = '<span class="icon-linear"></span>';
 
-        	var html = '<div class="pane" data-type="paths" id="sidebar_linear_pane">'+
-							'<header class="current">'+
+        	var html = '<div class="pane" data-type="linear" id="sidebar_linear_pane">'+
+							'<header class="pane_header current">'+
 								'<span class="header_icon icon-linear"></span>'+
 								'<span class="header_text"></span>'+
 							'</header>'+
-        					'<div class="smallmed">'+
-        						'<ul class="current"></ul>'+
-        					'</div>'+
-        					'<div class="large">'+
-        						'<div class="previous"></div>'+
-        						'<div class="next"></div>'+
-        					'</div>'+
         				'</div>';
+
+            $('#linear_previous a').attr('href','').html('').hide();
+            $('#linear_next a').attr('href','').html('').hide();
+            
+            if(previous != null || next != null){
+                if(previous!=null){
+                    var prev_get_vars = base.get_vars.replace('path='+previous.slug,'');
+                    if(prev_get_vars!='?'){
+                        prev_get_vars += '&';
+                    }
+                    prev_get_vars += 's=linear';
+                    $('#linear_previous a').attr('href',previous.url+prev_get_vars);
+                    base.show_icon(previous.slug, $('#linear_previous a').html('<span class="title">'+previous.current.title+'</span>').show());
+                }
+                if(next!=null){
+                    var next_get_vars = base.get_vars.replace('path='+next.slug,'');
+                    if(next_get_vars!='?'){
+                        next_get_vars += '&';
+                    }
+                    next_get_vars += 's=linear';
+                    $('#linear_next a').attr('href',next.url+next_get_vars);
+                    base.show_icon(next.slug, $('#linear_next a').html('<span class="title">'+next.current.title+'</span>').show(),true);
+                }
+            }
 
 
 			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
@@ -961,13 +1033,6 @@
 					clearTimeout(base.sidebar_timeout);
 					base.triggerSidebar(true);
 					base.hovered_item = $(this);
-					
-					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
-					
-					$('#info_panel_arrow').css({
-						'top':top_offset+'px'
-					});
-					
 					clearTimeout(base.infobar_timeout);
 					base.showInfo('grid',list,type);
 					e.stopPropagation();
@@ -978,10 +1043,6 @@
 					base.triggerSidebar(true);
 					base.showInfo('grid',list,type);
 					base.hovered_item = $(this);
-					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
-					$('#info_panel_arrow').css({
-						'top':(top_offset)+'px'
-					});
 				}
 				e.stopPropagation();
 			}).fadeIn('fast').find('.title').text(list.length);
@@ -993,16 +1054,11 @@
 					base.triggerSidebar(true);
 					base.hovered_item = $(this);
 					var slug = $(this).data('slug');
-					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
-					
-					$('#info_panel_arrow').css({
-						'top':top_offset+'px'
-					});
-					clearTimeout(base.infobar_timeout);
-					base.load_info(slug);
+                    clearTimeout(base.infobar_timeout);
+					base.load_info(slug,$(this).parents('.pane').first().data('type'));
 					e.stopPropagation();
 				}
-			}).click(function(){
+			}).click(function(e){
 				var slug = $(this).data('slug');
 				if(!isMobile && !isTablet && !base.isSmallScreen){
 					var node = scalarapi.getNode(slug);
@@ -1012,13 +1068,9 @@
 
 					window.location = target_url;
 				}else{
+                    base.hovered_item = $(this);
 					base.triggerSidebar(true);
-					base.load_info(slug);
-					base.hovered_item = $(this);
-					var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
-					$('#info_panel_arrow').css({
-						'top':(top_offset)+'px'
-					});
+					base.load_info(slug,$(this).parents('.pane').first().data('type'));
 				}
 				e.stopPropagation();
 			});
@@ -1069,7 +1121,7 @@
 
         	switch(view){
         		case 'recent':
-        		case 'paths':
+                case 'paths':
         		case 'tags':
 					$('#info_panel .info.view').show();
         			if(typeof base.loaded_nodes[slug].info_panel == 'undefined' || base.loaded_nodes[slug].info_panel == null || typeof base.loaded_nodes[slug].info_panel.standard == 'undefined' || base.loaded_nodes[slug].info_panel.standard==null){
@@ -1343,18 +1395,38 @@
 
 		        	$('#info_panel #metadata_info .metadata_list').html(base.loaded_nodes[slug].info_panel.standard.metadata);
 
-	        		var inner_height = 0;
-	        		$('#info_panel .list.view .info_panel_content .section').each(function(){
-	        			inner_height += $(this).height();
-	        		});
-	        		inner_height += $('#info_panel_thumbnail').height();
-	        		inner_height += $('#info_panel h3.title').height();
+                    if(!isMobile && !isTablet && !base.isSmallScreen){
+                        var tallest_panel = 0;
+                        $('#info_panel .info_panel_content .section').each(function(){
+                            if($(this).height() > tallest_panel){
+                                tallest_panel = $(this).height();
+                            }
+                        });
 
-	        		if(inner_height <= $('#info_panel .list.view .info_panel_content').innerHeight()){
-	        			$('#info_panel').addClass('short');
-	        		}else{
-	        			$('#info_panel').removeClass('short');
-	        		}
+                        tallest_panel += 20+$('#info_panel_thumbnail').height()+$('#info_panel .info_panel_content h3.title').height();
+
+                        $('#info_panel .info_panel_content').height(tallest_panel);
+
+                        var toppos =  ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop())) - ($('#info_panel').height()/2);
+                        $('#info_panel').removeAttr('style');
+                        if($('#info_panel').height() > $('#sidebar_inside').height()){
+                            //We have a tall info panel - make it full height and scrolly
+                            $('#info_panel').addClass('full_height');  
+                            $('#info_panel .info_panel_content').removeAttr('style');
+                        }else{
+                            if(toppos+$('#info_panel').height()>$('#sidebar_inside').height()){
+                                $('#info_panel').removeClass('full_height').css('bottom','0px');
+                            }else{
+                                $('#info_panel').removeClass('full_height').css('top',toppos+'px');
+                            }
+                        }
+                    }else{
+                        $('#info_panel').removeAttr('style').removeClass('full_height');
+                        $('#info_panel .info_panel_content').removeAttr('style');
+                    }
+	        		
+
+	        		
 	        		break;
 	        	case 'grid':
 	        		$('body').addClass('info_panel_open');
@@ -1410,6 +1482,14 @@
 					}
 	        		break;
 		    }
+
+            if(!isMobile && !isTablet && !base.isSmallScreen){
+                var top_offset = (base.hovered_item.height()/2)+base.hovered_item.offset().top-$('#info_panel').offset().top;
+
+                $('#info_panel_arrow').css({
+                    'top':top_offset+'px'
+                });
+            }
         }
 
         base.hideInfo = function(){
