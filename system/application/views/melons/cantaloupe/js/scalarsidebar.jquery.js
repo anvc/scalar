@@ -87,10 +87,18 @@
 													'<h4 class="heading_font">Annotates</h4>'+
 													'<ul class="annotates_list caption_font"></ul>'+
 												'</div>'+
-												'<div class="block annotated_by_block">'+
-													'<h4 class="heading_font">Annotated By</h4>'+
-													'<ul class="annotated_by_list caption_font"></ul>'+
-												'</div>'+
+                                                '<div class="block annotated_by_block">'+
+                                                    '<h4 class="heading_font">Annotated By</h4>'+
+                                                    '<ul class="annotated_by_list caption_font"></ul>'+
+                                                '</div>'+
+                                                '<div class="block comments_on_block">'+
+                                                    '<h4 class="heading_font">Comments On</h4>'+
+                                                    '<ul class="comments_on_list caption_font"></ul>'+
+                                                '</div>'+
+                                                '<div class="block has_comments_block">'+
+                                                    '<h4 class="heading_font">Has Comments</h4>'+
+                                                    '<ul class="has_comments_list caption_font"></ul>'+
+                                                '</div>'+
 											'</div>'+
 										'</div>'+
 										'<div class="section" id="comments_info">'+
@@ -1160,10 +1168,14 @@
 						var features = page.getRelations('referee', 'outgoing', 'reverseindex');
 			        	var tagged_by = page.getRelations('tag', 'incoming', 'reverseindex');
 			        	var tag_of = page.getRelations('tag', 'outgoing', 'reverseindex');
-			        	console.log(tag_of);
-			        	var annotates = page.getRelations('annotation', 'outgoing', 'reverseindex');
-			        	var annotated_by = page.getRelations('annotation', 'incoming', 'reverseindex');
+                        var annotates = page.getRelations('annotation', 'outgoing', 'reverseindex');
+                        var annotated_by = page.getRelations('annotation', 'incoming', 'reverseindex');
+
+                        var comments_on = page.getRelations('comment', 'outgoing', 'reverseindex');
+                        var has_comments = page.getRelations('comment', 'incoming', 'reverseindex');
 			        	
+
+                        console.log(comments_on,has_comments);
 
 			        	//Handle incoming featured
 			        	base.loaded_nodes[slug].info_panel.standard.featured_block = '';
@@ -1277,23 +1289,56 @@
 			        	}
 
 			        	//Handle the comments:
+                        //Handle outgoing comments
+                        base.loaded_nodes[slug].info_panel.standard.comments_on_block = '';
+                        if(comments_on.length > 0){
+                            for(var i = 0; i< comments_on.length; i++){
+                                var this_reference = comments_on[i].target;
+
+                                target_url = this_reference.url;
+
+                                if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+                                    target_url += '?v='+base.queryVars.visualization;   
+                                }else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+                                    target_url += '?v='+base.queryVars.v;   
+                                }
+                                
+                                base.loaded_nodes[slug].info_panel.standard.comments_on_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
+                            }
+                        }
+
 			        	base.loaded_nodes[slug].info_panel.standard.comments = '';
-			        	var comments = page.getRelations('comment', 'incoming', 'reverseindex');
-			        	if(comments.length > 0){
-			        		for(var c in comments){
-			        			comment = comments[c];				
-			        			//console.log(comment);
+			        	var has_comments = page.getRelations('comment', 'incoming', 'reverseindex');
+                        
+                        base.loaded_nodes[slug].info_panel.standard.has_comments_block = '';
+                            
+			        	if(has_comments.length > 0){
+			        		for(var c in has_comments){
+			        			comment = has_comments[c];				
+                                 var this_reference = comment.body;
+
+                                target_url = this_reference.url;
+
+                                if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
+                                    target_url += '?v='+base.queryVars.visualization;   
+                                }else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
+                                    target_url += '?v='+base.queryVars.v;   
+                                }
+                                
+                                base.loaded_nodes[slug].info_panel.standard.has_comments_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
+			        			
+
 								var date = new Date(comment.properties.datetime);
 
-			        			target_url = comment.body.url;
+			        			target_url = this_reference.url;
 
 					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
 					        		target_url += '?v='+base.queryVars.visualization;	
 					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
 					        		target_url += '?v='+base.queryVars.v;	
 					        	}
-					        	console.log(comment.body);
-								base.loaded_nodes[slug].info_panel.standard.comments += '<li class="comment caption_font"><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong class="title caption_font">'+comment.body.getDisplayTitle()+'</strong> <span class="caption_font body">'+comment.body.current.content+'</span></span></a></li>';
+
+								base.loaded_nodes[slug].info_panel.standard.comments += '<li class="comment caption_font"><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong class="title caption_font">'+this_reference.getDisplayTitle()+'</strong> <span class="caption_font body">'+this_reference.current.content+'</span></span></a></li>';
 				        	}
 			        	}else{
 			        		base.loaded_nodes[slug].info_panel.standard.comments += '<li class="caption_font">There are currently no comments for this page.</li>';
@@ -1379,10 +1424,22 @@
 		        		$('#info_panel .annotated_by_block').fadeIn('fast').find('ul.annotated_by_list').html(base.loaded_nodes[slug].info_panel.standard.annotated_by_block);
 		        	}
 
-		        	$('#info_panel .annotates_block').hide();
-		        	if(base.loaded_nodes[slug].info_panel.standard.annotates_block != ''){
-		        		$('#info_panel .annotates_block').fadeIn('fast').find('ul.annotates_list').html(base.loaded_nodes[slug].info_panel.standard.annotates_block);
-		        	}
+                    $('#info_panel .annotates_block').hide();
+                    if(base.loaded_nodes[slug].info_panel.standard.annotates_block != ''){
+                        $('#info_panel .annotates_block').fadeIn('fast').find('ul.annotates_list').html(base.loaded_nodes[slug].info_panel.standard.annotates_block);
+                    }
+
+
+                    $('#info_panel .has_comments_block').hide();
+                    if(base.loaded_nodes[slug].info_panel.standard.has_comments_block != ''){
+                        $('#info_panel .has_comments_block').fadeIn('fast').find('ul.has_comments_list').html(base.loaded_nodes[slug].info_panel.standard.has_comments_block);
+                    }
+
+
+                    $('#info_panel .comments_on_block').hide();
+                    if(base.loaded_nodes[slug].info_panel.standard.comments_on_block != ''){
+                        $('#info_panel .comments_on_block').fadeIn('fast').find('ul.comments_on_list').html(base.loaded_nodes[slug].info_panel.standard.comments_on_block);
+                    }
 
 		        	$('#info_panel #comments_info .comment_list').html(base.loaded_nodes[slug].info_panel.standard.comments);
 		        	
@@ -1403,7 +1460,7 @@
                             }
                         });
 
-                        tallest_panel += 20+$('#info_panel_thumbnail').height()+$('#info_panel .info_panel_content h3.title').height();
+                        tallest_panel += 50+$('#info_panel_thumbnail').height()+$('#info_panel .info_panel_content h3.title').height();
 
                         $('#info_panel .info_panel_content').height(tallest_panel);
 
@@ -1480,6 +1537,30 @@
 							base.show_icon(slug, new_item);
 						}
 					}
+                    $('#info_panel').removeAttr('style').removeClass('full_height');
+                    $('#info_panel .info_panel_content').removeAttr('style');
+                    
+                    if(!isMobile && !isTablet && !base.isSmallScreen){
+
+                        var tallest_panel = 20+$('#info_panel .list.view').height();
+                        console.log(tallest_panel);
+                        $('#info_panel').height(tallest_panel);
+
+                        var toppos =  ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop())) - ($('#info_panel').height()/2);
+                        $('#info_panel').removeAttr('style');
+                        if($('#info_panel').height() > $('#sidebar_inside').height()){
+                            //We have a tall info panel - make it full height and scrolly
+                            $('#info_panel').addClass('full_height');  
+                            $('#info_panel .info_panel_content').removeAttr('style');
+                        }else{
+                            if(toppos+$('#info_panel').height()>$('#sidebar_inside').height()){
+                                $('#info_panel').removeClass('full_height').css('bottom','0px');
+                            }else{
+                                $('#info_panel').removeClass('full_height').css('top',toppos+'px');
+                            }
+                        }
+                    }
+                     
 	        		break;
 		    }
 
