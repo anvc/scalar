@@ -45,7 +45,7 @@ Installation
 
 If you are cloning a new installation of Scalar, congratulations! You're mostly
 done. Perform the standard Scalar installation procedure, then skip ahead to
-step 4. Otherwise, follow along:
+step 5. Otherwise, follow along:
 
 1.  Download a new copy of Scalar - you can download it as a zip [from
     GitHub][1]
