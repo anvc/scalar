@@ -172,7 +172,7 @@
                                 '</div>'+
                             '</div>';
 
-				base.container = $(html).appendTo('body');
+				base.container = $(html).appendTo('body').find('#sidebar').hide().fadeIn('fast');
 				base.lastScroll = $(document).scrollTop();
 				if (!isMobile){
 					$(window).scroll(function() {
