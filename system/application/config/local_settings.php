@@ -44,6 +44,17 @@ $config['index_msg'] = '';
 $config['book_msg'] = '';
 $config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
 
+// Emails
+$config['email_replyto_address'] = ''; 
+$config['email_replyto_name'] = '';
+// SMTP (leave smtp_host field empty to use phpmailer instead). If using Gmail, you may need to enable access in security settings).
+$config['smtp_host'] = ''; 
+$config['smtp_auth'] = true; 
+$config['smtp_username'] = '';    
+$config['smtp_password'] = '';     
+$config['smtp_secure'] = 'ssl';   // 'ssl' or 'tls'       
+$config['smtp_port'] = 465; 
+
 // If true, keep self-published books on the book index page hidden under a tab
 $config['index_hide_published'] = true;
 
@@ -55,10 +66,4 @@ $config['default_stylesheet'] = 'minimal';
 
 // Number of history records per user
 $config['user_history_max_records'] = 20; 
-
-// Emails
-$config['email_replyto_address'] = 'usc.vectors@gmail.com'; 
-$config['email_replyto_name'] = 'Vectors Journal';
-$config['email_send_live_books_to_admins'] = true;
-					   
 ?>
