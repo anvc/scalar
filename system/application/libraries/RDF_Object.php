@@ -48,6 +48,7 @@ class RDF_Object {
 							 'users' 		=> null,
 			                 'content'      => null, 
 			                 'base_uri'     => null,
+	 						 'method'		=> '',
 	                         'restrict'     => self::RESTRICT_NONE, 
 							 'rel'          => self::REL_ALL, 
 							 'sq'           => self::NO_SEARCH,
@@ -55,7 +56,8 @@ class RDF_Object {
 						     'ref'          => self::REFERENCES_NONE, 
 	                         'pagination'   => self::NO_PAGINATION, 
 	                         'max_recurses' => 0,  
-	                         'num_recurses' => 0
+	                         'num_recurses' => 0,
+							 'total'   => 0,
 							 );
 	
 	public function __construct() {
@@ -257,15 +259,39 @@ class RDF_Object {
     	$settings = $this->_settings($settings);
 		if (empty($settings['content'])) return;
 		if (!is_array($settings['content'])) $settings['content'] = array($settings['content']);	
+		$total = count($settings['content']);
 		if (!empty($settings['pagination']) && $settings['pagination']['start']>0) $settings['content'] = array_slice($settings['content'], $settings['pagination']['start']);
 		$count = 0;
 
 		foreach ($settings['content'] as $row) {
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
 			$this->_content_by_ref($return, $row, $settings);
-			if (!isset($this->version_cache[$row->content_id])) continue;
+			if (!isset($this->version_cache[$row->content_id])) {
+				$total--;
+				continue;
+			} 
 			$this->_relationships_by_ref($return, $this->version_cache[$row->content_id], $settings);
 			$count++;
+		}
+
+		$CI =& get_instance(); 
+		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
+		if (!empty($settings['sq'])) {
+			$total = 0;
+			foreach ($return as $uri => $values) {
+				if (
+				    !$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('composite')) &&
+					!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('media'))    
+				) continue;
+				$total++;
+			}		
+		}
+		foreach ($return as $uri => $values) {
+			if (
+				!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('composite')) &&
+				!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('media'))    
+			) continue;			
+			$return[$uri] = array_merge($values, $CI->pages->rdf(array('citation'=>'method='.$settings['method'].';methodNumNodes='.$total.';'), $settings['base_uri']));
 		}
 		    	
     }
@@ -545,7 +571,7 @@ class RDF_Object {
 					}
 				}	
 			}		
-		}	    	
+		}	 
     	
     } 
     
@@ -624,7 +650,7 @@ class RDF_Object {
 		// Body should already exist because it's what pulled its annotations
 		if (!$this->_uri_exists($return, $target_base)) {
 			$settings['content'] = $CI->pages->get_by_slug($settings['book']->book_id, $annotation->child_content_slug); 
-			++$settings['num_recurses'];		
+			++$settings['num_recurses'];	
 			$this->_index_by_ref($return, $settings);	
 		}			
 		
@@ -656,7 +682,17 @@ class RDF_Object {
 		if (array_key_exists($uri, $return)) return true;
 		return false;
 		
-	}    
+	}   
+
+	private function _object_exists($s, $p, $o) {
+		
+		if (!array_key_exists($p,$s)) return false;
+		foreach ($s[$p] as $rdf_type) {
+			if ($rdf_type['value'] == $o) return true;
+		}
+		return false;
+		
+	}
     
 	private function _annotation_append($content) {
 
