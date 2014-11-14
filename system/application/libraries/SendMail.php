@@ -6,32 +6,33 @@ class SendMail {
 
     public function __construct()  {
 
+    	require_once(APPPATH.'libraries/PHPMailer/PHPMailerAutoload.php');
     	$this->CI =& get_instance();
-    	$this->CI->load->library('email');
 
     }
-
+    
     public function reset_password($email='', $reset_string='') {
-
-		$this->CI->email->from('no-reply@'.$this->domain_name(), $this->install_name());
-		$this->CI->email->reply_to($this->replyto_address(), $this->replyto_name());
-		$this->CI->email->to($email); 
-		$this->CI->email->subject($this->CI->lang->line('email.forgot_password_subject'));
-		$msg  = $this->CI->lang->line('email.forgot_password_intro');
-		$msg .= confirm_slash(base_url()).'system/create_password?key='.$reset_string."\n\n";
-		$msg .= $this->CI->lang->line('email.forgot_password_outro');
-		$this->CI->email->message($msg);  
-		
-		if (!$this->CI->email->send()) {
-			throw new Exception('Could not send email.  Please try again or contact an administrator.');
-		}
+    	
+    	$arr = array();
+    	$arr['from'] = 'no-reply@'.$this->domain_name();
+    	$arr['fromName'] = $this->install_name();
+    	$arr['to'] = $email;
+    	$arr['replyTo'] = $this->replyto_address();
+    	$arr['replyToName'] = $this->replyto_name();
+    	$arr['subject'] = $this->CI->lang->line('email.forgot_password_subject');
+    	
+    	$arr['msg']  = $this->CI->lang->line('email.forgot_password_intro');
+		$arr['msg'] .= confirm_slash(base_url()).'system/create_password?key='.$reset_string."\n\n";
+		$arr['msg'] .= $this->CI->lang->line('email.forgot_password_outro');
+    	
+		$this->send($arr);
 
 		return true;
 
     }
 	
-	//@Lucas - Adding "Join Book"  helper function
-	public function acls_join_book($user, $book, $request_author = 0, $message){
+	public function acls_join_book($user, $book, $request_author = 0, $message) {
+		
 		$author_emails = array();
 		foreach($book->users as $author){
 			if($author->relationship == 'author'){
@@ -50,31 +51,75 @@ class SendMail {
 			'email_type' => 'join_only'
 		);
 		
-		
-		$this->CI->email->from('no-reply@'.$this->domain_name(), $this->install_name());
-		$this->CI->email->reply_to($user->email, $user->fullname);
-		$this->CI->email->to($author_emails); 
-		
 		if($request_author){
-			$this->CI->email->subject(sprintf($this->CI->lang->line('acls_email.request_author_role_subject'),$data['book_title']));
+			$subject = sprintf($this->CI->lang->line('acls_email.request_author_role_subject'),$data['book_title']);
 			if(!empty($message)){
 				$data['email_type'] = 'author_with_message';
 			}else{
 				$data['email_type'] = 'author_no_message';
 			}
 		}else{
-			$this->CI->email->subject(sprintf($this->CI->lang->line('acls_email.user_joined_subject'),$data['book_title']));
+			$subject = sprintf($this->CI->lang->line('acls_email.user_joined_subject'),$data['book_title']);
 		}
 		$msg  = $this->CI->load->view('modules/aclsworkbench_book_list/email',$data,TRUE);
 		
-		$this->CI->email->message($msg);  
+    	$arr = array();
+    	$arr['from'] = 'no-reply@'.$this->domain_name();
+    	$arr['fromName'] = $this->install_name();
+    	$arr['to'] = $author_emails;
+    	$arr['replyTo'] = $this->replyto_address();
+    	$arr['replyToName'] = $this->replyto_name();
+    	$arr['subject'] = $subject;		
+		$arr['msg'] = $msg;
 		
-		if (!$this->CI->email->send()) {
-			throw new Exception('Could not send email.  Please try again or contact an administrator.');
-		}
+		$this->send($arr);
 
 		return true;
+		
 	}
+	
+    private function send($arr=array()) {
+    	
+		$mail = new PHPMailer;
+		
+		$smtp_host = $this->CI->config->item('smtp_host');
+		if (!empty($smtp_host)) {
+			$smtp_auth = $this->CI->config->item('smtp_auth');
+			$smtp_username = $this->CI->config->item('smtp_username');
+			$smtp_password = $this->CI->config->item('smtp_password');
+			$smtp_secure = $this->CI->config->item('smtp_secure');
+			$smtp_port = $this->CI->config->item('smtp_port');
+			$mail->isSMTP();
+			$mail->Host = trim($smtp_host);
+			$mail->SMTPAuth = (!empty($smtp_auth)) ? true : false;
+			$mail->Username = trim($smtp_username);
+			$mail->Password = trim($smtp_password);
+			$mail->SMTPSecure = trim($smtp_secure);
+			$mail->Port = (int) $smtp_port;
+		}
+		
+		$mail->From = $arr['from'];
+		$mail->FromName = $arr['fromName'];
+		if (!is_array($arr['to'])) $arr['to'] = array($arr['to']);
+		foreach ($arr['to'] as $to) {
+			$mail->addAddress($to);
+		}    
+		$mail->addReplyTo($arr['replyTo'], $arr['replyToName']);
+		
+		$mail->WordWrap = 50;                                 // Set word wrap to 50 characters
+		$mail->isHTML(true);                                  // Set email format to HTML
+		
+		$mail->Subject = $arr['subject'];
+		$mail->Body    = '<p>'.nl2br($arr['msg']).'</p>';
+		$mail->AltBody = $arr['msg'];
+
+		if(!$mail->send()) {
+			throw new Exception('Could not send email: '.$mail->ErrorInfo);
+		}  	   	
+		
+		return true;
+    	
+    }	
     
     private function domain_name() {
     	
