@@ -47,7 +47,7 @@ $config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
 // Emails
 $config['email_replyto_address'] = ''; 
 $config['email_replyto_name'] = '';
-// SMTP (leave smtp_host field empty to use phpmailer instead). If using Gmail, you may need to enable access in security settings).
+// SMTP (leave smtp_host field empty to use phpmailer instead). If using Gmail, you may need to enable access in security settings.
 $config['smtp_host'] = ''; 
 $config['smtp_auth'] = true; 
 $config['smtp_username'] = '';    
