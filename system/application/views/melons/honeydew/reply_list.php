@@ -52,7 +52,7 @@ function count_live($replies) {
 	
 }
 
-$type = ($page->type == 'composite') ? 'page' : 'media';
+$type = ($page->type == 'composite') ? 'page' : 'media page';
 ?>
 <!-- Reply list -->
 <div id="reply_list">
