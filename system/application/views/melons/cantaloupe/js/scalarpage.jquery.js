@@ -440,7 +440,8 @@
 					note = notes.eq( i );
 					resource = note.attr( 'resource' );
 					note.wrapInner( '<a href="javascript:;" rev="scalar:has_note" resource="' + resource + '"></a>' );
-					note.find( 'a' ).click( function() {
+					note.find( 'a' ).click( function(e) {
+						e.stopPropagation();
 						page.showNote( this );
 					} );
 					note.find( 'a' ).unwrap().addClass( 'texteo_icon texteo_icon_note' );
@@ -1070,6 +1071,16 @@
 			*/
 				
 			$( 'body' ).bind( 'handleBook', page.handleBook );
+
+			$('.note_viewer').click(function(e) {
+				e.stopPropagation();
+			})
+
+			$( 'body').click(function() {
+				$.each($('.note_viewer'), function() {
+					page.hideNote(this);					
+				})
+			})
 		}
 				
 		return page;
