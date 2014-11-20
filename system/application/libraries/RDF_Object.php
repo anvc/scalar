@@ -274,6 +274,8 @@ class RDF_Object {
 			$count++;
 		}
 
+		if (empty($return)) return;
+		
 		$CI =& get_instance(); 
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if (!empty($settings['sq'])) {
