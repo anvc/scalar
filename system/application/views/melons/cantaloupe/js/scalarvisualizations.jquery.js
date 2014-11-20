@@ -127,9 +127,17 @@
 		switch (this.model.options.default_tab) {
 		
 			case "vispath":
-			this.loadSequence = [
-				{id:'path', desc:"paths"} 
-			];
+			// if this is the global path vis page, try to load all paths
+			if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
+				this.loadSequence = [
+					{id:'currentRelations', desc:"current page"}
+				];
+			// otherwise, just load the local paths
+			} else {
+				this.loadSequence = [
+					{id:'path', desc:"paths"} 
+				];
+			}
 			break;
 		
 			case "vismedia":
@@ -671,7 +679,7 @@
 		 * Draws the paths visualization.
 		 */
 		jQuery.VisView.prototype.drawPathVisualization = function() {
-		
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
@@ -688,6 +696,8 @@
 			this.visualization.css('padding', '10px');
 			//this.instructions.html('<b>All paths and their contents.</b> Double-click an item to view.<br><br>');
 			
+			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
+
 			var i;
 			var j;
 			var k;
@@ -727,7 +737,7 @@
 			var home = scalarapi.model.nodesByURL[scalarapi.model.urlPrefix+'index'];
 			
 			// if we can find a home node,
-			if (home) {
+			/*if (home) {
 			
 				// and if it's contained by a path, then insert that path above it
 				// in the hierarchy and then parse the home node's children
@@ -748,7 +758,7 @@
 					root.children.push(data);
 					getRelationsForData(data);
 				}
-			}
+			}*/
 			
 			// add all other paths and their children to the graph
 			var paths = scalarapi.model.getNodesWithProperty('scalarType', 'path');
@@ -765,11 +775,13 @@
 						getRelationsForData(data);
 					}
 				}
+
+				root.children = pathChildren;
 			
-				if (pathChildren.length > 0) {
+				/*if (pathChildren.length > 0) {
 					var otherPaths = {name:'Other paths', type:'cipher', children:pathChildren};
 					root.children.push(otherPaths);
-				}
+				}*/
 				
 			}
 			
@@ -779,9 +791,11 @@
 				this.visualization.css('padding', '0px');
 				var fullWidth = this.visualization.width();
 				var fullHeight = this.visualization.height();
+
+				fullHeight = 650;
 				
 				// do initial cluster processing
-				var cluster = d3.layout.cluster()
+				/*var cluster = d3.layout.cluster()
 					.size([fullHeight, fullWidth - 210]);
 				var clusterNodes = cluster.nodes(root);
 					
@@ -810,7 +824,7 @@
 				
 				// find out how many nodes are at the lowest level (used to figure out
 				// how tall the vis should be)
-				var maxDepthCount = 0;
+				/*var maxDepthCount = 0;
 				clusterNodes.forEach(function(d) {
 					if (d.children == null) {
 						maxDepthCount++;
@@ -825,15 +839,138 @@
 				}
 					
 				var diagonal = d3.svg.diagonal()
-					.projection(function(d) { return [d.y, d.x]; });
-				
+					.projection(function(d) { return [d.y, d.x]; });*/
+
+				root.x0 = fullHeight * .5;
+				root.y0 = 0;
+								
+				var tree = d3.layout.tree()
+				    .size([fullHeight, fullWidth]);
+
+				var diagonal = d3.svg.diagonal()
+				    .projection(function(d) { return [d.y, d.x]; });
+
 				// create visualization base element
 				var vis = d3.select('#scalarvis').append('svg:svg')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.append("svg:g")
 					.attr("transform", "translate(15, 0)");
-					
+
+
+				  function pathToggleAll(d) {
+				    if (d.children) {
+				      d.children.forEach(pathToggleAll);
+				      pathToggle(d);
+				    }
+				  }
+
+				  // Initialize the display to show a few nodes.
+				  root.children.forEach(pathToggleAll);
+				  /*pathToggle(root.children[1]);
+				  pathToggle(root.children[1].children[2]);
+				  pathToggle(root.children[9]);
+				  pathToggle(root.children[9].children[0]);*/
+
+				pathUpdate(root);
+			}
+
+			function pathUpdate(source) {
+			  var duration = d3.event && d3.event.altKey ? 5000 : 500;
+
+			  // Compute the new tree layout.
+			  var nodes = tree.nodes(root).reverse();
+
+			  // Normalize for fixed-depth.
+			  nodes.forEach(function(d) { d.y = d.depth * 180; });
+
+			  // Update the nodes…
+			  var node = vis.selectAll("g.node")
+			      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+			  // Enter any new nodes at the parent's previous position.
+			  var nodeEnter = node.enter().append("svg:g")
+			      .attr("class", "node")
+			      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+			      .on("click", function(d) { pathToggle(d); pathUpdate(d); });
+
+			  nodeEnter.append("svg:circle")
+			      .attr("r", 1e-6)
+			      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+			  nodeEnter.append("svg:text")
+			      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+			      .attr("dy", ".35em")
+			      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+			      .text(function(d) { return d.name; })
+			      .style("fill-opacity", 1e-6);
+
+			  // Transition nodes to their new position.
+			  var nodeUpdate = node.transition()
+			      .duration(duration)
+			      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+			  nodeUpdate.select("circle")
+			      .attr("r", 4.5)
+			      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+			  nodeUpdate.select("text")
+			      .style("fill-opacity", 1);
+
+			  // Transition exiting nodes to the parent's new position.
+			  var nodeExit = node.exit().transition()
+			      .duration(duration)
+			      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+			      .remove();
+
+			  nodeExit.select("circle")
+			      .attr("r", 1e-6);
+
+			  nodeExit.select("text")
+			      .style("fill-opacity", 1e-6);
+
+			  // Update the links…
+			  var link = vis.selectAll("path.clusterlink")
+			      .data(tree.links(nodes), function(d) { return d.target.id; });
+
+			  // Enter any new links at the parent's previous position.
+			  link.enter().insert("svg:path", "g")
+			      .attr("class", "clusterlink")
+			      .attr("d", function(d) {
+			        var o = {x: source.x0, y: source.y0};
+			        return diagonal({source: o, target: o});
+			      })
+			    .transition()
+			      .duration(duration)
+			      .attr("d", diagonal);
+
+			  // Transition links to their new position.
+			  link.transition()
+			      .duration(duration)
+			      .attr("d", diagonal);
+
+			  // Transition exiting nodes to the parent's new position.
+			  link.exit().transition()
+			      .duration(duration)
+			      .attr("d", function(d) {
+			        var o = {x: source.x, y: source.y};
+			        return diagonal({source: o, target: o});
+			      })
+			      .remove();
+
+			  // Stash the old positions for transition.
+			  nodes.forEach(function(d) {
+			    d.x0 = d.x;
+			    d.y0 = d.y;
+			  });
+			}
+
+
+
+			/*function update() {
+
+				console.log( 'update' );
+
 				// lines
 				var link = vis.selectAll("path.clusterlink")
 					.data(cluster.links(clusterNodes))
@@ -843,34 +980,55 @@
 					
 				// node groups
 				var clusterNode = vis.selectAll("g.clusternode")
-					.data(clusterNodes)
-					.enter().append("svg:g")
+					.data(clusterNodes);
+
+				var clusterNodeEnter = clusterNode.enter().append("svg:g")
 					.attr("class", "clusternode")
 					.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
 					.on("dblclick", function(d) {
 						if (d.node) {
 							return self.location = d.node.url;
 						}
-					});
+					})
+					.on( "click", function( d ) { toggle( d ); update( d ); } );
 					
 				// dots
-				clusterNode.append("svg:circle")
-					.style('fill', function(d, i) { return (d.node) ? me.colorScale(d.node.getDominantScalarType().id) : (d.type == 'root') ? '#ddd' : '#fff'; } )
+				clusterNodeEnter.append("svg:circle")
+					.style('fill', function(d, i) { return (d.node) ? me.highlightColorScale(d.node.getDominantScalarType().id) : (d.type == 'root') ? '#ddd' : '#fff'; } )
 					.attr("class", function(d) { return d.type == 'cipher' ? 'cipher' : ''; })
-					/*.attr("class", function(d) { if (d.node) { console.log(d.node.name+' '+home.name); } return d.node == home ? 'current' : ''; })*/
+					/*.attr("class", function(d) { if (d.node) { console.log(d.node.name+' '+home.name); } return d.node == home ? 'current' : ''; })*
 					.attr("r", 5);
 					
 				// texts
-				clusterNode.append("svg:text")
-					.attr("dx", function(d) { return /*d.children ? -8 :*/ 8; })
+				clusterNodeEnter.append("svg:text")
+					.attr("dx", function(d) { return /*d.children ? -8 :* 8; })
 					.attr("dy", 3)
 					.attr("class", function(d) { return d.type == 'cipher' ? 'cipher' : ''; })
 					.attr('font-weight', function(d) { return (((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) && d.node) ? 'bold' : 'normal'; })
-					.attr("text-anchor", function(d) { /*return d.children ? "end" :*/ "start"; })
+					.attr("text-anchor", function(d) { /*return d.children ? "end" :* "start"; })
 					.text(function(d) { return (d.node) ? me.getShortenedString(d.name, maxNodeChars) : d.name; });
 					
-				//this.drawLegend(vis, -5, fullHeight);
-				
+				var clusterNodeExit = clusterNode.exit().select("svg:g")
+					.remove();
+
+				console.log( clusterNodeExit );
+
+				clusterNodeExit.select( "svg:circle" ).remove();
+
+				clusterNodeExit.select( "svg:text" ).remove();
+
+				//this.drawLegend(vis, -5, fullHeight);			
+			}*/
+
+			// Toggle children.
+			function pathToggle(d) {
+				if (d.children) {
+					d._children = d.children;
+					d.children = null;
+				} else {
+					d.children = d._children;
+					d._children = null;
+				}
 			}
 
 		}
@@ -887,7 +1045,10 @@
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
 				if (scalarapi.model.currentPageNode != null) {
-					this.selectedNodes = [scalarapi.model.currentPageNode];
+					this.selectedNodes = [];
+					if (!this.deselectedSelf) {	
+						this.selectedNodes.push(scalarapi.model.currentPageNode);
+					}
 					if (this.model.doneLoading) {
 						this.hasSelectedCurrentContent = true;
 					}
@@ -902,14 +1063,11 @@
 			var targetNode;
 			var maxNodeChars = 15;
 			
+			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
+
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
 				this.visualization.empty();
-				/*if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
-					this.instructions.html('<b>Media and their relationships.</b> Only local connections are shown to start; selecting nodes reveals any further connections. Roll over the visualization to explore. Click to select; drag to move; double-click to view.');
-				} else {
-					this.instructions.html('<b>Media and their relationships.</b> Roll over the visualization to explore. Click to select; drag to move; double-click to view.');
-				}*/
 			}
 			
 			// init our local model
@@ -919,13 +1077,13 @@
 				this.mediaLinksByURL = {};
 				this.mediaLinks = [];
 			}
+
+			this.mediaNodesByURL[ scalarapi.model.currentPageNode.url ] = scalarapi.model.currentPageNode;
 				
 			var link;
 			var datum;
 			var targetDatum;
-			
-			// build arrays of nodes and links which describe media and their connections
-			
+						
 			// loop through all the media files
 			var rawMediaNodes = scalarapi.model.getNodesWithProperty('scalarType', 'media');
 			n = rawMediaNodes.length;
@@ -940,26 +1098,40 @@
 				} else {
 					datum = this.mediaNodesByURL[node.url];
 				}
-				
+
 				// loop through all the nodes which reference the media file
 				var referencingNodes = node.getRelatedNodes('referee', 'incoming');
+
+				/*console.log( '--------' );
+				console.log( node );
+				console.log( referencingNodes );*/
+
 				o = referencingNodes.length;
 				for (j=0; j<o; j++) {
 				
 					// add them to the array of nodes
 					targetNode = referencingNodes[j];
-					if (!this.mediaNodesByURL[targetNode.url]) {
+					if ( this.mediaNodesByURL[targetNode.url] == null ) {
 						targetDatum = {index:this.mediaNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 						this.mediaNodesByURL[targetNode.url] = targetDatum;
 						this.mediaNodes.push(targetDatum);
 					} else {
 						targetDatum = this.mediaNodesByURL[targetNode.url];
 					}
-					
+
+					console.log( targetDatum );
+			
 					// add the link to the array of links
-					if (!this.mediaLinksByURL[node.url+targetNode.url]) {
+					if ( this.mediaLinksByURL[node.url+targetNode.url] == null ) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
 						this.mediaLinksByURL[node.url+targetNode.url] = link;
+
+						//console.log( datum );
+						//console.log( targetDatum );
+						//console.log( link.source + ' ' + link.target );
+
+						// INDEXES ARE BEING LOST
+
 						this.mediaLinks.push(link);
 					}
 				}
@@ -971,26 +1143,79 @@
 				
 					// add them to the array of nodes
 					targetNode = annotatingNodes[j];
-					if (!this.mediaNodesByURL[targetNode.url]) {
+					if (this.mediaNodesByURL[targetNode.url] == null) {
 						targetDatum = {index:this.mediaNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 						this.mediaNodesByURL[targetNode.url] = targetDatum;
 						this.mediaNodes.push(targetDatum);
 					} else {
 						targetDatum = this.mediaNodesByURL[targetNode.url];
 					}
-					
+				
 					// add the link to the array of links
-					if (!this.mediaLinksByURL[node.url+targetNode.url]) {
+					if ( this.mediaLinksByURL[node.url+targetNode.url] = null ) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
 						this.mediaLinksByURL[node.url+targetNode.url] = link;
+
+						//console.log( link );
+
 						this.mediaLinks.push(link);
 					}
 				}
 			}
-		
+
+			console.log( '----' );
+			console.log( (this.selectedNodes.length > 0) );
+			console.log( this.selectedNodes );
+			console.log( this.mediaNodes );
+			console.log( this.mediaLinks );
+					
+			// now, figure out which of those stored nodes we are actually going to show
+			this.currentMediaNodes = [];
+			this.currentMediaLinks = [];
+			var source;
+			var target;
+			n = this.selectedNodes.length;
+			for (i=0; i<n; i++) {
+				this.currentMediaNodes.push(this.mediaNodesByURL[this.selectedNodes[i].url]);
+				console.log( this.selectedNodes[i].url );
+				console.log( this.mediaNodesByURL[this.selectedNodes[i].url] );
+
+			}
+			n = this.mediaLinks.length;
+			for (i=0; i<n; i++) {
+				link = this.mediaLinks[i];
+				var newLink = false;
+				
+				// d3 converts the link source and target from indexes to objects, but we may have
+				// mixed types at this point, so we have to check for both
+				if (typeof link.source == 'number') {
+					datum = this.mediaNodes[link.source];
+				} else if (typeof link.source == 'object') {
+					datum = link.source;
+				}
+				
+				if (typeof link.target == 'number') { 
+					targetDatum = this.mediaNodes[link.target];
+				} else if (typeof link.target == 'object') {
+					targetDatum = link.target;
+				}
+				
+				if ((this.selectedNodes.indexOf(datum.node) != -1) || (this.selectedNodes.indexOf(targetDatum.node) != -1)) newLink = true;
+				
+				if (newLink) {
+					if (this.currentMediaNodes.indexOf(datum) == -1) this.currentMediaNodes.push(datum);
+					if (this.currentMediaNodes.indexOf(targetDatum) == -1) this.currentMediaNodes.push(targetDatum);
+					if (this.currentMediaLinks.indexOf(link) == -1) {
+						this.currentMediaLinks.push(link);
+					}
+				}
+				
+			}
+
 			// if we're drawing from scratch, do some setup
 			if (!updateOnly) {
 			
+				this.model.element.addClass( 'page_margins' );
 				this.visualization.css( 'min-height', '568px' );
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
@@ -998,10 +1223,26 @@
 				var fullWidth = this.visualization.width();
 				var fullHeight = this.visualization.height();
 					
+				$( '#loadingMsg' ).addClass( 'bounded' );
+				$( '.vis_footer' ).addClass( 'bounded' );
+								
+				$( '#scalarvis' ).addClass( 'bounded' );
 				this.mediavis = d3.select('#scalarvis').append('svg:svg')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight);
+
+				var zoom = d3.behavior.zoom().center([ fullWidth * .5, fullHeight * .5 ]).scaleExtent([ .25, 7 ])
+				zoom.on("zoom", function() {
 					
+					me.mediavis_pathLayer.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+					me.mediavis_dotLayer.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+					me.mediavis_textLayer.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+					
+				});
+				
+				this.mediavis.call(zoom);
+				this.mediavis.style("cursor","move");
+
 				this.mediavis_pathLayer = this.mediavis.append('svg:g')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
@@ -1016,26 +1257,27 @@
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'textLayer');
-					
-				//this.drawLegend(this.mediavis, 10, fullHeight);
+
+				console.log( this.currentMediaNodes );
+				console.log( this.currentMediaLinks );
 								
 				// force-directed layout
 				this.force = d3.layout.force()
-					.nodes(this.mediaNodes)
-					.links(this.mediaLinks)
-					.linkDistance(60)
-					.charge(-80)
+					.nodes((this.selectedNodes.length > 0) ? this.currentMediaNodes : this.mediaNodes)
+					.links((this.selectedNodes.length > 0) ? this.currentMediaLinks : this.mediaLinks)
+					.linkDistance(120)
+					.charge(-400)
 					.size([fullWidth, fullHeight])
-					.start();
-					
+					.start();		
+
 			// if the vis is already set up, then
 			} else {
-							
+				
 				// update the force-directed layout's data
-				this.force.nodes(this.mediaNodes)
-					.links(this.mediaLinks)
-					.start();
-			
+				this.force.nodes((this.selectedNodes.length > 0) ? this.currentMediaNodes : this.mediaNodes) // modified here
+					.links((this.selectedNodes.length > 0) ? this.currentMediaLinks : this.mediaLinks)
+					.start();		
+
 			}
 			
 			// update positions of the nodes and labels
@@ -1053,11 +1295,20 @@
 				me.mediavis.selectAll('text.label')
 					.attr('x', function(d) { return d.x; })
 					.attr('y', function(d) { { return d.y + 21; } })
+
+				me.mediavis.selectAll('rect.visit-button')
+					.attr('x', function(d) { return d.x - 24; })
+					.attr('y', function(d) { return d.y + 38; });
+					
+				me.mediavis.selectAll('text.visit-button')
+					.attr('x', function(d) { return d.x; })
+					.attr('y', function(d) { return d.y + 53; });
+
 			});
 			
 			// create the lines
 			var lines = this.mediavis_pathLayer.selectAll('line.link')
-				.data(this.mediaLinks);
+				.data((this.selectedNodes.length > 0) ? this.currentMediaLinks : this.mediaLinks);
 				
 			lines.enter().append('svg:line')
 				.attr('class', 'link mediaFile')
@@ -1073,99 +1324,114 @@
 				
 			// create the dots
 			var dots = this.mediavis_dotLayer.selectAll('circle.node')
-				.data(this.mediaNodes);
+				.data((this.selectedNodes.length > 0) ? this.currentMediaNodes : this.mediaNodes);
 				
 			dots.enter().append('svg:circle')
 				.attr('class', function(d) { return (d.type == 'media') ? 'node mediaFile' : 'node'; })
 				.attr('cx', function(d) { return d.x; })
 				.attr('cy', function(d) { return d.y; })
-				.attr('r', '8')
+				.attr('r', '16')
 				.attr('fill', function(d) { 
-					var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
+					var interpolator = d3.interpolateRgb(me.highlightColorScale(d.type), d3.rgb(255,255,255));
 					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 				 })
 				.call(me.force.drag)
+				.on('touchstart', function(d) { d3.event.stopPropagation(); })
+				.on('mousedown', function(d) { d3.event.stopPropagation(); })
 				.on('click', function(d) {
+					if (d3.event.defaultPrevented) return; // ignore drag
+					d3.event.stopPropagation();
+					me.lastClickedNode = d.node;
 					var index = me.selectedNodes.indexOf(d.node);
-					me.controller.loadNode( d.node.slug, true );
 					if (index == -1) {
 						me.selectedNodes.push(d.node);
+						me.controller.loadNode( d.node.slug, false );
+						if (d.node == scalarapi.model.currentPageNode) {
+							me.deselectedSelf = false;
+						}
 					} else {
 						me.selectedNodes.splice(index, 1);
+						if (d.node == scalarapi.model.currentPageNode) {
+							me.deselectedSelf = true;
+						}
 					}
+					me.drawTagVisualization(true);
 				})
-				.on("dblclick", function(d) { return self.location=d.node.url; })
 				.on("mouseover", function(d) { 
 					me.currentNode = d.node; 
-					updateGraph();
+					updateGraph( 'mouseover' );
 				})
 				.on("mouseout", function() { 
 					me.currentNode = null; 
-					updateGraph();
+					updateGraph( 'mouseout' );
 				});
 				
 			dots.exit().remove();
 							
 			// create the text labels
 			var labels = this.mediavis_textLayer.selectAll('text.label')
-				.data(this.mediaNodes);
+				.data((this.selectedNodes.length > 0) ? this.currentMediaNodes : this.mediaNodes);
 				
 			labels.enter().append('svg:text')
 				.attr('class', 'label')
 				.attr('x', function(d) { return d.x; })
 				.attr('y', function(d) { return d.y + 21; })
 				.attr('text-anchor', 'middle')
-				.attr('fill-opacity', '0.0')
-				.attr('opacity', '0.0')
-				.text(function(d) { return d.shortTitle; });
+				.text(function(d) { 
+					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.title : d.shortTitle; 
+				});
 				
+			labels.enter().append('svg:rect')
+				.attr( 'class', 'visit-button' )
+				.attr( 'rx', '5' )
+				.attr( 'ry', '5' )
+				.attr( 'width', '48' )
+				.attr( 'height', '22' )
+				.on( 'click', function(d) { 
+					d3.event.stopPropagation();
+					if ( self.location != d.node.url ) {
+						return self.location = d.node.url;
+					}
+				});
+
+			labels.enter().append('svg:text')
+				.attr( 'class', 'visit-button' )
+				.attr( 'text-anchor', 'middle')				
+				.text( 'View »' );
+
 			labels.exit().remove();
 			
-			var updateGraph = function() {
+			var updateGraph = function( event ) {
 					
 				lines.attr('stroke-width', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
 					.attr('stroke-opacity', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
 					.attr('stroke', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? me.colorScale('media') : '#999'; });
 					
 				dots.attr('fill', function(d) { 
-						var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
+						var interpolator = d3.interpolateRgb(me.highlightColorScale(d.type), d3.rgb(255,255,255));
 						return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 					 });
-			
-			}
-			
-			// update visual elements per frame
-			var perFrame = function() {
-							
-				labels.attr('fill', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? '#000' : '#999'; })
-					.attr('opacity', function(d) {
-						if ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) {
-							return 1.0;
-						} else if (me.currentNode) {
-							return 0.0;
-						} else {
-							var dist = Math.sqrt(Math.pow(d.x - (me.mouseX - me.visualization.offset().left), 2) + Math.pow(d.y - (me.mouseY - me.visualization.offset().top), 2));
-							return (1.0 - Math.min(150, dist) / 150.0);
-						}
-					 })
-					.attr('fill-opacity', function(d) {
-						if ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) {
-							return 1.0;
-						} else if (me.currentNode) {
-							return 0.0;
-						} else {
-							var dist = Math.sqrt(Math.pow(d.x - (me.mouseX - me.visualization.offset().left), 2) + Math.pow(d.y - (me.mouseY - me.visualization.offset().top), 2));
-							return (1.0 - Math.min(150, dist) / 150.0);
-						}
-					 })
+						
+				me.mediavis_textLayer.selectAll('text.label')
+					.attr('fill', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? "#000" :"#999"; })
 					.attr('font-weight', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
-					.text(function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.node.getDisplayTitle( true ) : d.shortTitle; });
-					
-			}
-		
-			this.int = self.setInterval(perFrame, 100);
+					.text(function(d) { 
+						return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.title : d.shortTitle; 
+					});
 			
-			updateGraph();
+				me.mediavis_textLayer.selectAll('rect.visit-button')
+					.style( 'display', function(d) { 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+					});
+			
+				me.mediavis_textLayer.selectAll('text.visit-button')
+					.style( 'display', function(d) { 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+					});
+
+			}
+			
+			updateGraph( 'default' );
 			
 		}
 		
@@ -1199,16 +1465,11 @@
 			var targetNode;
 			var maxNodeChars = 15;
 
-			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the “View” button of any selected item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
 			
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
 				this.visualization.empty();
-				/*if ( window.location.href.indexOf( 'resources.vistag' ) == -1 ) {
-					this.instructions.html('<b>Tags and their relationships.</b> Only local connections are shown to start; selecting nodes reveals any further connections. Roll over the visualization to explore. Drag a node to move; double-click to view.');
-				} else {
-					this.instructions.html('<b>Tags and their relationships.</b> Click nodes to select them and reveal their tag relationships. Roll over the visualization to explore. Drag a node to move; double-click to view.');
-				}*/
 			}
 			
 			// init our local model
@@ -1224,7 +1485,7 @@
 			var targetDatum;
 			
 			// build arrays of nodes and links which describe tags and their connections
-			n = this.selectedNodes.length;
+			/*n = this.selectedNodes.length;
 			for (i=0; i<n; i++) {
 				node = this.selectedNodes[i];
 				if (!this.tagNodesByURL[node.url]) {
@@ -1234,12 +1495,10 @@
 				} else {
 					datum = this.tagNodesByURL[node.url];
 				}
-			}
+			}*/
 			
-			// if something is selected, only render what's connected to it
-			var rawTagNodes = scalarapi.model.getNodesWithProperty('scalarType', 'tag');
-		
 			// loop through all the tags
+			var rawTagNodes = scalarapi.model.getNodesWithProperty('scalarType', 'tag');
 			n = rawTagNodes.length;
 			for (i=0; i<n; i++) {
 			
@@ -1261,7 +1520,7 @@
 				
 					// add them to the array of nodes
 					targetNode = taggedNodes[j];
-					if (!this.tagNodesByURL[targetNode.url]) {
+					if ( this.tagNodesByURL[targetNode.url] == null ) {
 						targetDatum = {index:this.tagNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 						this.tagNodesByURL[targetNode.url] = targetDatum;
 						this.tagNodes.push(targetDatum);
@@ -1270,7 +1529,7 @@
 					}
 					
 					// add the link to the array of links
-					if (!this.tagLinksByURL[node.url+targetNode.url]) {
+					if ( this.tagLinksByURL[node.url+targetNode.url] == null ) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
 						this.tagLinksByURL[node.url+targetNode.url] = link;
 						this.tagLinks.push(link);
@@ -1285,7 +1544,7 @@
 					
 						// add them to the array of nodes
 						targetNode = taggingNodes[j];
-						if (!this.tagNodesByURL[targetNode.url]) {
+						if ( this.tagNodesByURL[targetNode.url] == null ) {
 							targetDatum = {index:this.tagNodes.length, node:targetNode, title:targetNode.getDisplayTitle( true ), shortTitle:this.getShortenedString(targetNode.getDisplayTitle( true ), maxNodeChars), type:targetNode.getDominantScalarType().id};
 							this.tagNodesByURL[targetNode.url] = targetDatum;
 							this.tagNodes.push(targetDatum);
@@ -1294,7 +1553,7 @@
 						}
 						
 						// add the link to the array of links
-						if (!this.tagLinksByURL[targetNode.url+node.url]) {
+						if ( this.tagLinksByURL[targetNode.url+node.url] == null ) {
 							link = {source:datum.index, target:targetDatum.index, value:1};
 							this.tagLinksByURL[targetNode.url+node.url] = link;
 							this.tagLinks.push(link);
@@ -1562,27 +1821,6 @@
 			
 			}
 			
-			// update visual elements per frame
-			/*var perFrame = function() {
-			
-				me.tagvis_textLayer.selectAll('text.label')
-					.attr('fill', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? "#000" :"#999"; })
-					.attr('opacity', function(d) {
-						if ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) {
-							return 1.0;
-						} else if (me.currentNode) {
-							return 0.0;
-						} else {
-							var dist = Math.sqrt(Math.pow(d.x - (me.mouseX - me.visualization.offset().left), 2) + Math.pow(d.y - (me.mouseY - me.visualization.offset().top), 2));
-							return (1.0 - Math.min(150, dist) / 150.0);
-						}
-					})
-					.attr('font-weight', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
-					.text(function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.title : d.shortTitle; });
-			}*/
-		
-			//this.int = self.setInterval(updateGraph, 200);
-			
 			updateGraph( 'default' );
 			
 		}
@@ -1605,7 +1843,7 @@
 				}
 			}
 			
-			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work.<ul><li>Each colored arc represents a connection, color-coded by type.</li><li>Roll over the visualization to browse connections.</li><li>Click to add more content to the current selection.</li><li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li><li>Click any item's title to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows how <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul><li>Each colored arc represents a connection, color-coded by type.</li><li>Roll over the visualization to browse connections.</li><li>Click to add more content to the current selection.</li><li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li><li>Click any item's title to navigate to it.</li></ul>" );
 			
 			this.visualization.empty();
 			this.visualization.css( 'min-height', '568px' );
@@ -1767,7 +2005,12 @@
 			var myModPercentage = 1;		// relative value of the farthest descendants maximized item
 			var otherModPercentage = 1;		// relative value of the farthest descendants of the not-maximized item
 			
-			var r = Math.min(fullWidth, fullHeight) / 2 - 60;
+			var r = Math.min(fullWidth, fullHeight) / 2
+			if ( fullWidth < fullHeight ) {
+				r -= 120;
+			} else {
+				r -= 60;
+			}
 			var radiusMod = 1.55;
 			var textRadiusOffset = 10;
 			
@@ -2466,7 +2709,7 @@
 				}
 			}
 			
-			this.helpButton.attr( "data-content", "This visualization shows how <b>“" + scalarapi.model.currentPageNode.getDisplayTitle() + "”</b> is connected to other content in this work.<ul><li>Each box represents a piece of content, color-coded by type.</li><li>The darker the box, the more connections it has to other content.</li><li>Each line represents a connection, color-coded by type.</li><li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li><li>Click the “View” button of any selected item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows how <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul><li>Each box represents a piece of content, color-coded by type.</li><li>The darker the box, the more connections it has to other content.</li><li>Each line represents a connection, color-coded by type.</li><li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
 			
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');
