@@ -132,7 +132,7 @@ class Book extends MY_Controller {
 									'ref'          => RDF_Object::REFERENCES_ALL,
 							  		'max_recurses' => $this->max_recursions	
 								 );
-				$index = $this->rdf_object->index($settings);    
+				$index = $this->rdf_object->index($settings);   
 			    if (!count($index)) throw new Exception('Problem getting page index');     
 			    $this->data['page'] = $index[0];
 			    unset($index);  
