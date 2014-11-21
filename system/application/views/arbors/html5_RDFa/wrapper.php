@@ -159,7 +159,7 @@ foreach ($models as $rel):
 <? 
 		foreach ($inward_array as $inward_item): 
 			$page->versions[$page->version_index]->sort_number =@ (int) $inward_item->versions[$inward_item->version_index]->page_index;
-			$fullname = (isset($inward_item->versions[0]->attribution)&&!empty($inward_item->versions[0]->attribution->fullname)) ? $inward_item->versions[0]->attribution->fullname : $inward_item->versions[0]->fullname;
+			$fullname = (isset($inward_item->versions[0]->attribution)&&!empty($inward_item->versions[0]->attribution->fullname)) ? $inward_item->versions[0]->attribution->fullname : @$inward_item->versions[0]->fullname;
 			if ('paths'==$rel) $inward_item->versions[0]->sort_number =@ $inward_item->versions[0]->page_num;
 			if ('replies'==$rel) $inward_item->versions[0]->datetime =@ $inward_item->versions[$inward_item->version_index]->created;
 ?>
