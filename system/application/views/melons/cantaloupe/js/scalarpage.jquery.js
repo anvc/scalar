@@ -606,6 +606,14 @@
 										mediaelement.pause();
 									} else {
 										mediaelement.play();
+										$('a.media_link').each(function() {
+											var mediaelement = $( this ).data( 'mediaelement' );
+											if ( mediaelement != null ) {
+												if ( mediaelement.is_playing() ) {
+													mediaelement.pause();
+												}
+											}
+										})
 									}
 								}
 
