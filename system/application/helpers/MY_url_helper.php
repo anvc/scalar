@@ -216,9 +216,9 @@
     	$filename = str_replace(" ","-",$filename);
     	$filename = str_replace('--', '-', $filename);
     	if ($allow_forward_slash) {  // TODO: presently book slugs are hard-wired to only be one URL segment
-			$filename = preg_replace('/[^A-Za-z0-9-_\/]/', '', $filename); 
+			$filename =@ preg_replace('/[^A-Za-z0-9-_\/]/', '', $filename); 
     	} else {
-    		$filename = preg_replace('/[^A-Za-z0-9-_]/', '', $filename); 
+    		$filename =@ preg_replace('/[^A-Za-z0-9-_]/', '', $filename); 
     	}
 		$filename = strtolower($filename);
    		return $filename;

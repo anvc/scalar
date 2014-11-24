@@ -10,15 +10,15 @@ function search_split_terms($terms){
 
 	if (empty($terms)) return $terms;
 
-	$terms = preg_replace("/\"(.*?)\"/e", "search_transform_term('\$1')", trim($terms));
-	$terms = preg_split("/\s+|,/", $terms);
+	$terms =@ preg_replace("/\"(.*?)\"/e", "search_transform_term('\$1')", trim($terms));
+	$terms =@ preg_split("/\s+|,/", $terms);
 
 	$out = array();
 
 	foreach($terms as $term){
 
-		$term = preg_replace("/\{WHITESPACE-([0-9]+)\}/e", "chr(\$1)", $term);
-		$term = preg_replace("/\{COMMA\}/", ",", $term);
+		$term =@ preg_replace("/\{WHITESPACE-([0-9]+)\}/e", "chr(\$1)", $term);
+		$term =@ preg_replace("/\{COMMA\}/", ",", $term);
 
 		$out[] = $term;
 	}
