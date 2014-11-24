@@ -605,12 +605,14 @@
 									if ( mediaelement.is_playing() ) {
 										mediaelement.pause();
 									} else {
-										mediaelement.play();
 										$('a.media_link').each(function() {
-											var mediaelement = $( this ).data( 'mediaelement' );
-											if ( mediaelement != null ) {
-												if ( mediaelement.is_playing() ) {
-													mediaelement.pause();
+											var me = $( this ).data( 'mediaelement' );
+											if ( me != null  ) {
+												if(me === mediaelement) {
+													mediaelement.play();
+												}
+												else if ( me.is_playing() ) {
+													me.pause();
 												}
 											}
 										})
