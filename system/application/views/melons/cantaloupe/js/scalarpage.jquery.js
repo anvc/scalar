@@ -733,6 +733,7 @@
 		
 		$( 'header' ).show();
 		$( '#book-id' ).hide();
+		$( '[property="scalar:fullname"]' ).hide();
 		
 	  	// This code makes full-sized inline media truly full instead of having margins
 	  	/*$('[property="sioc:content"]').children('p,div').each( function() {
