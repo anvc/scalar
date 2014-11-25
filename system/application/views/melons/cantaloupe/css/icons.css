@@ -62,7 +62,7 @@
 .icon-path:before {
 	content: "\e608";
 }
-.icon-tags:before {
+.icon-tag:before {
 	content: "\e60b";
 }
 .icon-index:before {
@@ -74,6 +74,6 @@
 .icon-recent:before {
 	content: "\e60a";
 }
-.icon-markers:before {
+.icon-markers:before, .icon-annotation:before {
 	content: "\e606";
 }

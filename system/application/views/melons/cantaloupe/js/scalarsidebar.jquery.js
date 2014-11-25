@@ -1,1619 +1,962 @@
 (function($){
-    $.scalarSidebar = function(el, options){
-        // To avoid scope issues, use 'base' instead of 'this'
-        // to reference this class from internal events and functions.
+    $.scalarSidebar = function(el){
         var base = this;
         
-        base.container;
-        base.queryVars;
-        base.current_pane;
-
-        base.hovered_item;
-        base.infobar_timeout;
-        base.sidebar_timeout;
-        base.sidebar_selector_timeout;
-
-        base.isSmallScreen = false;
-        
-        base.icons = {};
-        base.loaded_nodes = {};
-
-        base.fullScreenViews = ['iframe','book_splash'];
-
-        base.get_vars = '?';
-
-        // Access to jQuery and DOM versions of element
         base.$el = $(el);
         base.el = el;
         
-        // Add a reverse reference to the DOM object
         base.$el.data("scalarSidebar", base);
         
-        base.init = function(){
+        base.loaded_nodes = {};
+        base.hovered_item = null;
 
-        	base.isSmallScreen = $(window).width()<=580;
-        	$(window).resize(function(){
-        		base.isSmallScreen = $(this).width()<=580;
-        		if(base.isSmallScreen){
-					clearTimeout(base.infobar_timeout);
-					clearTimeout(base.sidebar_timeout);
-        		}
-        	});
+        base.hideSidebarViews = ['book_splash'];
+        base.fullScreenViews = ['iframe'];
 
-        	base.is_logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
+        //UTILITY FUNCTIONS
+        base.detectScreenSize = function(){
+            base.isMobile = isMobile || $(window).width()<=768;
+            $('body').removeClass('desktop mobile').addClass(base.isMobile?'mobile':'desktop');
+        };
 
-        	base.stime = new Date();
-            base.options = $.extend({},$.scalarSidebar.defaultOptions, options);
-            if(currentNode != null){
-            	//Determine first whether we are in a full screen layout or not - if so, add a class to the body tag.
-            	if(base.fullScreenViews.indexOf(currentNode.current.defaultView)>=0){
-            		$('body').addClass('fullscreen_page');
-            	}else{
-            		$('body').addClass('non_fullscreen_page');
-            	}
-            	$('body').addClass('sidebar_collapsed');
-            	//Sorry, I need this to be readable for now - is this the fastest way? Seems to be: http://stackoverflow.com/questions/51185/are-javascript-strings-immutable-do-i-need-a-string-builder-in-javascript/4717855#4717855
-				var html = '<div id="info_panel" class="heading_font">'+
-								'<div id="info_panel_arrow"></div>'+
-								'<div class="info view">'+
-									'<div id="info_panel_header" class="heading_font">'+
-										'<a class="overview_link active" data-page="overview">overview</a>'+
-										'<a class="metadata_link" data-page="metadata">metadata</a>'+
-										'<a class="comments_link" data-page="comments">comments</a>'+
-									'</div>'+
-									'<div class="info_panel_content">'+
-										'<div id="info_panel_thumbnail"></div>'+
-										'<h3 class="title heading_font"><strong>&nbsp;</strong></h3>'+
-										'<div class="section" id="overview_info">'+
-											'<div class="content">'+
-												'<p class="description caption_font"></p>'+
-												'<div class="block featured_block">'+
-													'<h4 class="heading_font">Featured In</h4>'+
-													'<ul class="featured_list caption_font"></ul>'+
-												'</div>'+
-												'<div class="block features_block">'+
-													'<h4 class="heading_font">Features</h4>'+
-													'<ul class="features_list caption_font"></ul>'+
-												'</div>'+
-												'<div class="block tagged_by_block">'+
-													'<h4 class="heading_font">Tagged By</h4>'+
-													'<ul class="tagged_by_list caption_font"></ul>'+
-												'</div>'+
-												'<div class="block tag_of_block">'+
-													'<h4 class="heading_font">Tag of</h4>'+
-													'<ul class="tag_of_list caption_font"></ul>'+
-												'</div>'+
-												'<div class="block annotates_block">'+
-													'<h4 class="heading_font">Annotates</h4>'+
-													'<ul class="annotates_list caption_font"></ul>'+
-												'</div>'+
-                                                '<div class="block annotated_by_block">'+
-                                                    '<h4 class="heading_font">Annotated By</h4>'+
-                                                    '<ul class="annotated_by_list caption_font"></ul>'+
-                                                '</div>'+
-                                                '<div class="block comments_on_block">'+
-                                                    '<h4 class="heading_font">Comments On</h4>'+
-                                                    '<ul class="comments_on_list caption_font"></ul>'+
-                                                '</div>'+
-                                                '<div class="block has_comments_block">'+
-                                                    '<h4 class="heading_font">Has Comments</h4>'+
-                                                    '<ul class="has_comments_list caption_font"></ul>'+
-                                                '</div>'+
-											'</div>'+
-										'</div>'+
-										'<div class="section" id="comments_info">'+
-											'<div class="content">'+
-												'<h4 class="heading_font">Comments</h4>'+
-												'<a class="discuss_link caption_font"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text">Discuss</span></a>'+
-												'<ul class="comment_list"></ul>'+
-											'</div>'+
-										'</div>'+
-										'<div class="section" id="metadata_info">'+
-											'<div class="content">'+
-												'<h4 class="heading_font">Metadata</h4>'+
-												'<dl class="metadata_list caption_font"></dl>'+
-											'</div>'+
-										'</div>'+
-									'</div>'+
-								'</div>'+
-								'<div class="list view">'+
-									'<ul id="info_list"></ul>'+
-								'</div>'+
-                                '<footer>'+
-                                    '<a class="info_hide btn btn-lg btn-default caption_font">Back</a>'+
-                                    '<a class="info_visit btn btn-lg btn-default caption_font">Visit</a>'+
-                                '</footer>'+
-							'</div>'+
-							'<div id="sidebar" class="heading_font">'+
-								'<div id="sidebar_inside">'+
-									'<header id="sidebar_header">'+
-										//'<span class="header_icon"></span>'+
-										'<span class="controls">'+
-											'<a class="sidebar_maximize icon-plus"></a>'+
-											'<a class="sidebar_minimize icon-minus">-</a>'+
-										'</span>'+
-										'<span class="user_actions">'+
-											'<a class="icon-recent" id="recent_panel_toggle" data-type="recent"></a>'+
-											//'<a class="icon-markers" id="markers_panel_toggle" data-type="markers"></a>'+
-										'</span>'+
-										'<span class="title"></span>'+ 
-										'<div id="sidebar_selector">'+
-											'<ul>'+
-												//<span class="header_icon"><span class="icon-path"></span></span>
-												//<span class="header_icon"><span class="icon-tags"></span></span>
-												//<span class="header_icon"><span class="icon-index"></span></span>
-												//<span class="header_icon"><span class="icon-linear"></span></span>
-												//<span class="header_icon"><span class="icon-recent"></span></span>
-												//<span class="header_icon"><span class="icon-markers"></span></span>
-												'<li class="paths" data-pane="paths"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Paths</span></li>'+
-												'<li class="tags" data-pane="tags"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Tags</span></li>'+
-												'<li class="grid" data-pane="grid"><span class="pull-right selector_maximize sidebar_maximize icon-plus"></span><span class="title">Grid</span></li>'+
-												'<li class="linear" data-pane="linear"><span class="title">Linear</span></li>'+
-												//'<li class="recent" data-pane="recent"><span class="title">Recent</span></li>'+
-												//'<li class="markers" data-pane="markers"><span class="title">Markers</span></li>'+
-											'</ul>'+
-										'</div>'+
-									'</header>'+
-									'<div id="sidebar_panes"></div>'+
-									'<footer id="sidebar_close_footer">'+
-										'<a class="sidebar_hide btn btn-lg btn-default caption_font">Close</a>'+
-									'</footer>'+
-								'</div>'+
-							'</div>'+
-                            '<div id="linear_bar" class="text-center heading_font">'+
-                                '<div id="linear_previous" class="pull-left text-left">'+
-                                    '<a class=""><span class="icon"></span><span class="title">Previous</span</a>'+
-                                '</div>'+
-                                '<div id="linear_next" class="pull-right text-right">'+
-                                    '<a class=""><span class="icon"></span><span class="title">Next</span></a>'+
-                                '</div>'+
-                                '<div id="linear_current">'+
-                                    'Current'+
-                                '</div>'+
-                            '</div>';
+        base.getURL = function(page, queryvars){
+            queryvars = $.extend({},base.queryVars, queryvars);
+            var url = page+'?';
+            for(v in queryvars){
+                if(queryvars[v]!='' && queryvars[v]!=null){
+                    url += v+'='+queryvars[v]+'&';
+                }
+            }
+            return url.substring(0, url.length - 1); //Remove last &
+        };
+        base.changeSidebarSize = function(size){
+            base.container.removeClass('large medium small').addClass(size);
+            $('body').removeClass('large_sidebar medium_sidebar small_sidebar').addClass(size+'_sidebar');
+        };
+        base.getIconByType = function(type){
+            var icons = {
+                'image' : 'icon-photo',
+                'default' : 'icon-page'
+            };
+            if(typeof icons[type] !== 'undefined'){
+                return icons[type];
+            }else{
+                return icons.default;
+            }
+        }
 
-				base.container = $(html).appendTo('body').find('#sidebar').hide().fadeIn('fast');
-				base.lastScroll = $(document).scrollTop();
-				if (!isMobile){
-					$(window).scroll(function() {
-						var currentScroll = $(document).scrollTop();
-						if ((currentScroll > base.lastScroll) && (currentScroll > 50) && (state == ViewState.Reading)) {
-							$('#sidebar, #info_panel').addClass('tall');
-						} else if ((base.lastScroll - currentScroll) > 10) {
-							$('#sidebar, #info_panel').removeClass('tall');
-						}
-						if(typeof base.hovered_item != 'undefined' && base.hovered_item != null){
-							/*var top_offset = ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop()));
-							$('#info_panel_arrow').css({
-								'top':(top_offset)+'px'
-							});*/
-						}
-						base.lastScroll = currentScroll;
-					});
-					$('#header').mouseenter(function(){
-						$('#sidebar, #info_panel').removeClass('tall');
-					});
-				}
-				$('#sidebar_inside>header>.user_actions a').click(function(){
-					base.hideInfo();
-					if($(this).hasClass('active')){
-						base.hideOverlay();
-						$('#sidebar_inside>header>.user_actions a').removeClass('active');
-					}else{
-						base.showOverlay($(this).data('type'));
-						$(this).addClass('active').siblings().removeClass('active');
-					}
-				});
-				$('#info_panel_header a').click(function(){
-					var current_page = $(this).data('page');
-					$('#info_panel').removeClass('overview metadata comments').addClass(current_page);
-					$(this).addClass('active').siblings('a').removeClass('active');
-				});
-
-	           	base.queryVars = scalarapi.getQueryVars( document.location.href );
-
-
-	           	if(base.queryVars.path!=null && typeof base.queryVars.path!='undefined'){
-	        		base.get_vars += 'path='+base.queryVars.path;
-	        	}
-
-	        	if((base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined') || (base.queryVars.v!=null &&  typeof base.queryVars.v!='undefined')){
-	        		if(base.get_vars != '?'){
-	        			base.get_vars += '&';
-	        		}
-	        		if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-		        		base.get_vars += 'v='+base.queryVars.v;	
-		        	}else{
-	        			base.get_vars += 'v='+base.queryVars.visualization;	
-	        		}
-	        	}
-
-	            base.build_paths_pane();
-				base.build_tags_pane();
-	            base.build_grid_pane();
-
-
-	            //Ready for this? Using jQuery promises for chained async loading of extra JS files. Booyah. (Removing yepnope call that broke on Firefox)
-	            $.when(
-				    $.getScript( arbors_uri+'/html/common.js' ),
-				    $.getScript( widgets_uri+'/cookie/jquery.cookie.js' ),
-				    $.getScript( widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js' ),
-				    $.getScript( widgets_uri+'/nav/jquery.scalarrecent.js' ),
-				    $.Deferred(function( deferred ){
-				        $( deferred.resolve );
-				    })
-				).done(function(){
-						scalarrecent_log_page();
-	            		base.build_recent_pane();
-	            		
-	            		//TODO: check to see if we were previously in the sidebar or info panel - if so, open them now. (use localstorage for this, I think.)
-				});
-
-	            base.build_markers_pane();
-
-                if(typeof base.queryVars.s != undefined && $('#sidebar_panes #sidebar_'+base.queryVars.s+'_pane').length > 0){
-                    base.current_pane = base.queryVars.s;
+        base.load_info_panel = function(panel,id){
+            base.info_container.addClass(panel+' open').find('#info_panel').html('<section id="info_panel_loading_text" class="heading_font">Loading&hellip;</section>');
+            if(panel != 'grid'){
+                if(typeof base.loaded_nodes[id] == 'undefined'){
+                    scalarapi.loadNode(id, true, function(json){
+                        base.loaded_nodes[id] = scalarapi.getNode(id);
+                        base.show_info_panel(panel,base.loaded_nodes[id]);
+                    },
+                    function(err){
+                        console.log(err);
+                    },1, true);
                 }else{
-                    base.current_pane = 'paths';
+                    base.show_info_panel(panel,base.loaded_nodes[id]);
                 }
-	            
-
-		   		 $('body').addClass(base.current_pane+'_view');
-
-	            $('#sidebar>header').hide();
-	          	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
-	          	$('#sidebar_selector li.'+base.current_pane).addClass('active');
-	          	$('#sidebar header>.title').html(base.current_pane.toUpperCase());
-
-	          	//$('#sidebar header>.header_icon').html(base.icons[base.current_pane]);
-			    $('#sidebar>header').fadeIn('slow');
-
-			    $('#sidebar_inside>header>.title').click(function(e){
-			    	if((!isMobile && !base.isSmallScreen)||($('body').hasClass('sidebar_expanded')||$('#sidebar_inside>header').hasClass('selector_open'))){
-			    		if($('#sidebar_inside>header>.user_actions a.active').length > 0){
-			    			base.hideOverlay();
-			    		}else{
-					    	if($('#sidebar_inside>header').hasClass('selector_open')){
-					    			//Clicked on the header - hide the selection dialogue.
-					    			$('#sidebar_inside>header').removeClass('selector_open');
-				    		}else{
-					    		//Clicked on the header - show the selection dialogue.
-				    			$('#sidebar_inside>header').addClass('selector_open');
-				    		}
-				    	}
-				    }else{
-				    	base.triggerSidebar(true);
-			    	}
-			    });
-	          	$('#sidebar_inside>header>.title,#sidebar_selector').mouseenter(function(e){
-	          		if(!isMobile && !base.isSmallScreen){
-						clearTimeout(base.sidebar_selector_timeout);
-						$('#sidebar_inside>header').addClass('selector_open');
-						e.stopPropagation();
-					}
-	          	}).mouseleave(function(e){
-	          		if(!isMobile && !base.isSmallScreen){
-						base.sidebar_selector_timeout = setTimeout(function(){
-							$('#sidebar_inside>header').removeClass('selector_open');
-						},500);
-						e.stopPropagation();
-					}
-	          	});
-
-			    $('#sidebar, #info_panel').mouseenter(function(e){
-			    	if(!isMobile && !base.isSmallScreen){
-						clearTimeout(base.sidebar_timeout);
-						base.triggerSidebar(true);
-						e.stopPropagation();
-					}
-				}).mouseleave(function(){
-					if(!isMobile && !base.isSmallScreen && (!$('body').is('.sidebar_full.linear_view'))){
-						base.sidebar_timeout = setTimeout(function(){
-							base.triggerSidebar(false);
-						},500);
-					}
-				});
-
-	          	$('#sidebar header .controls .sidebar_minimize').click(function(e){
-	          		if($('body').hasClass('sidebar_full')){
-	          			$('body').removeClass('sidebar_full');
-	          		}else{
-	          			base.triggerSidebar(false);
-	          		}
-	          		$('#sidebar_inside>header').removeClass('selector_open');
-	          		base.hideInfo();
-	          		e.stopPropagation();
-	          	});
-	          	$('#sidebar .sidebar_hide').click(function(e){
-	          		$('#sidebar_inside>header').removeClass('selector_open');
-	          		base.triggerSidebar(false);
-	          		base.hideInfo();
-	          		e.stopPropagation();
-	          	});
-	          	$('#sidebar header .sidebar_maximize').click(function(e){
-	          		if(!$('body').hasClass('sidebar_full')){
-	          			if($(this).hasClass('selector_maximize')){
-	          				$(this).parents('li').click();
-	          			}
-	          			$('#sidebar_inside>header').removeClass('selector_open');
-	          			$('body').addClass('sidebar_full');
-	          			e.stopPropagation();
-	          			base.hideInfo();
-	          		}
-	          	});
-	          	$('#sidebar_selector li').click(function(){
-	          		if($(this).hasClass('enabled')){
-	          			base.change_pane($(this).data('pane'));
-	          		}
-	          	});
-
-	          	$('#comments_info .discuss_link').click(function(){
-	          		if($('#comment_control').length > 0){
-	          			$('#comment_control').click();
-	          		}
-	          	});
-			}			
-        }
-
-        base.change_pane = function(pane){
-		    $('body').removeClass(base.current_pane+'_view').addClass(pane+'_view');
-        	base.current_pane = pane;
-        	base.hideOverlay();
-            base.hideInfo();
-            if($('#sidebar_selector .'+pane).find('.sidebar_maximize').length > 0){
-                $("#sidebar #sidebar_header .controls .sidebar_maximize").show();
             }else{
-                $("#sidebar #sidebar_header .controls .sidebar_maximize").hide();
+                //Just pass the the "id" as the second property for grid or tags - show_info_panel will do the rest.
+                base.show_info_panel(panel,id);
             }
-            $('#sidebar>header').hide();
-            $('#sidebar .pane').removeClass('active');
-          	$('#sidebar_'+base.current_pane+'_pane').fadeIn('slow',function(){$(this).addClass('active').removeAttr('style');});
-          	$('#sidebar_selector li').removeClass('active');
-          	$('#sidebar_selector li.'+base.current_pane).addClass('active');
-          	$('#sidebar header>.title').html(base.current_pane.toUpperCase());
-		    //$('#sidebar header>.header_icon').html(base.icons[base.current_pane]);
-		    $('#sidebar>header').fadeIn('slow');
-        }
+        };
 
-        base.show_icon = function(slug, new_item, append){
-            if(append == null){
-                append = false;
-            }
-			var item = scalarapi.getNode(slug);
-			var item_html = '<span class="sidebar_icon ';
-			var type = 'unknown';
-			if(typeof item != 'undefined' && item != null){
-				type = item.current.mediaSource.contentType;
-			}
-
-            if(item.getRelations('path', 'outgoing', 'reverseindex').length>0){
-                item_html += 'icon-path';
-            }else if(item.getRelations('comment', 'outgoing', 'reverseindex').length>0){
-                item_html += 'icon-comment';
-            }else{
-			    item_html += base.getIconByType(type);
-            }
-			
-			item_html += '" style="display: none;"></span>';
-            if(append){
-                $(item_html).appendTo(new_item).fadeIn('slow');
-            }else{
-			    $(item_html).prependTo(new_item).fadeIn('slow');
-            }
-
-			if($('#sidebar_panes .pane.active').length>0){
-        		var scrollmid =  ($('#sidebar_panes .pane.active')[0].scrollHeight-$('#sidebar_panes .pane.active')[0].clientHeight)/2.0;
-        	}else{
-        		var scrollmid = 0;
-        	}
-			$('#sidebar_panes').animate({
-				scrollTop: scrollmid
-			},10);
-		}
-
-		base.load_info = function(slug,pane){
-			//Prepare yourself for some hot jQuery chaining action.
-				$('#info_panel').data('slug',slug)
-								.removeClass()
-								.addClass('overview')
-								.find('.overview_link')
-								.addClass('active')
-								.siblings('a')
-								.removeClass('active');
-
-				$('body').addClass('info_panel_open');
-				$('#info_panel .title>strong').text('Loading...');
-                if(pane==null){
-                    pane = $('#sidebar .active.pane').data('type');
+        base.show_info_panel = function(panel, item){
+            if(panel=='linear'){
+                //Detemine what side we need to show this on.
+                if(base.hovered_item.parents('.panel').hasClass('left')){
+                    base.info_container.addClass('left');
+                }else if(base.hovered_item.parents('.panel').hasClass('right')){
+                    base.info_container.addClass('right');
                 }
-				if(typeof base.loaded_nodes[slug] != 'undefined'){
-					base.showInfo(pane,base.loaded_nodes[slug],slug);
-				}else{
-					scalarapi.loadNode(
-	        			slug,
-	        			true,
-	        			function(json){
-	        				base.loaded_nodes[slug] = scalarapi.getNode(slug);
-	        				//console.log(base.loaded_nodes[slug]);
-	        				base.showInfo(pane,base.loaded_nodes[slug],slug);
-	        			},
-	        			function(err){
-	        				//console.log(err);
-	        			},
-	        			1, true
-	        		);
-	        	}
-		}
-
-        base.build_paths_pane = function(){
-        	var paths = currentNode.getRelations('path', 'incoming', 'reverseindex');
-        	base.icons['paths'] = '<span class="icon-path"></span>';
-        	var html = '<div class="pane" data-type="paths" id="sidebar_paths_pane">'+
-							'<header class="pane_header current">'+
-								'<span class="header_icon icon-path"></span>'+
-								'<span class="header_text"></span>'+
-							'</header>'+
-        					'<div class="smallmed">'+
-        						'<ul class="current path"></ul>'+
-        					'</div>'+
-        					'<div class="large list">'+
-        						'<header><a class="all_link" data-view="all">View All</a><a class="list_link" data-view="list">List View</a></header>'+
-        						'<div class="view" id="path_list_view"></div>'+
-        						'<div class="view" id="path_all_view"></div>'+
-        					'</div>'+
-        				'</div>';
-
-
-			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
-			var new_pane = $(html);
-			new_pane.find('.large>a').click(function(){
-				var view = $(this).data('view');
-				if(!$('#sidebar_paths_pane .large').hasClass(view)){
-					$('#sidebar_paths_pane .large').removeClass('list all').addClass(view);
-				}
-			});
-
-        	var add_current_path_items = function(relations_list,new_pane){
-        		//Alright, iterate through our properly ordered list.
-                var previous_item, next_item, first_item;
-				for(r in relations_list){
-                    var path_step = relations_list[r];
-					var node_info = scalarapi.getNode(path_step.target.slug);
-
-                    if(first_item==null){
-                        first_item = node_info;
-                    }
-
-					//console.log(node_info);
-					//Same as the active page, pretty much.
-					var item_html = '<li data-url="'+path_step.target.url+'" data-slug="'+path_step.target.slug+'"><div class="title">'+path_step.target.current.title+'</div></li>';
-
-					var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
-
-
-
-					if(path_step.target.slug == currentNode.slug){
-						new_item.addClass('active');
-					}else{
-                        if(current_node_index>=0){
-    						var raw_dist = r-current_node_index;
-                            if(raw_dist==-1){
-                                previous_item = path_step.target;
-                            }else if(raw_dist==1){
-                                next_item = path_step.target;
-                            }
-    						var distance = Math.abs(raw_dist)*4;
-    						if(distance > 10){
-    							new_item.addClass('distant');
-    							if(raw_dist<0){
-    								dist_before++;
-    							}else{
-    								dist_after++;
-    							}
-    						}else{
-    							new_item.addClass('distance_'+distance);
-    							if(raw_dist<0){
-    								before++;
-    							}else{
-    								after++;
-    							}
-    						}
+            }else{
+                base.info_container.removeClass('left right');
+            }
+            base.info_container.removeClass('path recent linear tags grid').addClass(panel);
+            var sidebar_html = '';
+            switch(panel){
+                case 'path':
+                case 'recent':
+                case 'linear':
+                case 'tags':
+                    if(typeof item.info_panel == 'undefined' || item.info_panel == null){
+                        if(typeof item.info_panel == 'undefined' || item.info_panel == null){
+                            item.info_panel = '';
                         }
-					}
-
-					var slug = path_step.target.slug;
-
-					if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
-						if(typeof base.loaded_nodes[slug] != 'undefined'){
-							//We already have this page loaded - let's show it now.
-							
-							base.show_icon(slug, new_item);
-						}else{
-							if(slug == currentNode.slug){
-								base.loaded_nodes[slug] = currentNode;
-								base.show_icon(slug, new_item);	
-							}else{
-								//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-								(function(slug, new_item){
-									scalarapi.loadNode(
-										slug,
-										true,
-										function(json){
-											if(typeof scalarapi.getNode(slug)!='undefined'){
-												base.loaded_nodes[slug] = scalarapi.getNode(slug);
-												base.show_icon(slug, new_item);	
-											}else{
-												new_item.remove();
-											}
-										},
-										function(err){ console.log(err); },
-										1, true);
-								})(slug, new_item);
-							}
-						}
-					}else{
-						base.show_icon(slug, new_item);
-					}
-				}
-                
-                if(base.queryVars.path != null && typeof base.queryVars.path != 'undefined' && previous_item == null && parent_node != null){
-                    previous_item = parent_node;
-                }
-
-                if(current_node_index<0 && next_item == null && first_item != null){
-                    next_item = first_item;
-                }
-
-                base.build_linear_pane(previous_item,next_item);
-        	}
-
-
-			//Check to see if this is a path...
-			var this_path_items = currentNode.getRelations('path', 'outgoing', 'reverseindex');
-            var current_node_index = -1;
-			if((typeof base.queryVars.path == 'undefined' || base.queryVars.path == null) && this_path_items.length > 0){
-                base.get_vars += 'path='+currentNode.slug;
-				//Determine the order of the list items...
-				var relations_list = [];
-				for(p in this_path_items){
-					relations_list[this_path_items[p].index] = this_path_items[p];
-				}	
-				add_current_path_items(relations_list,new_pane);
-				new_pane.find('header .header_text').html(currentNode.current.title);
-			}else if(typeof base.queryVars.path == 'undefined' || base.queryVars.path == null){
-				var item_html = '<li data-url="'+currentNode.url+'" data-slug="'+currentNode.slug+'"><div class="title">'+currentNode.current.title+'</div></li>';
-
-				var new_item = $(item_html).appendTo(new_pane.find('ul.current.path'));
-
-				new_item.addClass('active');
-
-				var slug = currentNode.slug;
-
-				base.loaded_nodes[slug] = currentNode;
-				
-				base.show_icon(slug, new_item);
-				new_pane.find('header .header_text').html(currentNode.current.title);
-			}else{
-				var before = 0;
-				var after = 0;
-				var dist_before = 0;
-				var dist_after = 0;
-
-				for(p in paths){
-					//We'll handle other paths later...
-					if(p == 0){
-						var parent_node = paths[p].body;
-						if(paths.length == 0 || parent_node.slug == base.queryVars.path){
-							
-							new_pane.find('header').data('url',parent_node.url).click(function(){
-								var target_url = $(this).data('url')+base.get_vars;
-								window.location = target_url;
-							}).find('.header_text').html(parent_node.title);
-
-							$(new_pane).find('ul.current.path').data('path',parent_node.slug);
-
-							var before_current = true; //We'll flip this once we come to the current page;
-
-							// Unfortunately, the outgoing relations list does not sort by index by default, so we're just going to reformat that list. 
-							// We could probably write a custom sort function, but in the end, this is a faster process.
-							var relations_list = {};
-
-							for(r in parent_node.outgoingRelations){
-								var path_step = parent_node.outgoingRelations[r];
-								relations_list[path_step.index] = path_step;
-								if(path_step.target.slug == currentNode.slug){
-									current_node_index = path_step.index;
-								}
-							}
-							
-							add_current_path_items(relations_list,new_pane);
-						}
-					}
-				}
-
-				if(before!=after){
-					var diff = Math.abs(before-after);
-					var html = '';
-					for(var i = 0; i < diff; i++){
-						html += '<li class="empty">&nbsp;</li>';
-					}
-					if(before>after){
-						//We need to add some items after the current one. They will be hidden on hover.
-						$(html).appendTo(new_pane.find('ul.current.path'));
-					}else if(after>before){
-						//We need to add some items before the current one. They will be hidden on hover.
-						$(html).prependTo(new_pane.find('ul.current.path'));
-					}
-				}
-				if(dist_before!=dist_after){
-					var diff = Math.abs(dist_before-dist_after);
-					var html = '';
-					for(var i = 0; i < diff; i++){
-						html += '<li class="distant empty">&nbsp;</li>';
-					}
-					if(before>after){
-						//We need to add some items after the current one. They will be hidden on hover.
-						$(html).appendTo(new_pane.find('ul.current.path'));
-					}else if(after>before){
-						//We need to add some items before the current one. They will be hidden on hover.
-						$(html).prependTo(new_pane.find('ul.current.path'));
-					}
-				}
-			}
-
-			
-			base.init_sidebar_items(new_pane);
-			$('body>.page').click(function(){
-				if(isMobile && !base.isSmallScreen){
-					base.hideInfo();
-					base.hovered_item = null;
-				}
-			});
-			$('#info_panel').mouseenter(function(e){
-				if(!isMobile && !base.isSmallScreen){
-					clearTimeout(base.infobar_timeout);
-				}
-			}).mouseleave(function(){
-				if(!isMobile && !base.isSmallScreen){
-					base.infobar_timeout = setTimeout(function(){
-						base.hovered_item = null;
-						base.hideInfo();
-					},500);
-				}
-			});
-
-			$('body>.bg_screen,body>.page,body>#info_panel>footer>.info_hide').click(function(e){
-				if($('body').hasClass('info_panel_open')){
-					$('body').removeClass('info_panel_open');
-					$('#info_panel').removeData('slug');	
-				}
-			});
-
-			$('#sidebar #sidebar_panes').append(new_pane);
-			$('#sidebar_selector .paths').addClass('enabled');
-        }
-
-        base.build_tags_pane = function(){
-        	
-        	var tags = currentNode.getRelations('tag', 'incoming', 'reverseindex');
-        	//Determine if we need the tags pane...
-        	base.icons.tags = '<span class="icon-tags"></span>';
-
-        	var html = '<div class="pane" data-type="tags" id="sidebar_tags_pane">'+
-							'<header class="pane_header current">'+
-								'<span class="header_icon icon-tags"></span>'+
-								'<span class="header_text"></span>'+
-							'</header><div class="smallmed"><ul class="current tags"></ul></div></div>';
-        	var new_pane = $(html);
-
-        	if(tags.length > 0){
-	        	for(t in tags){
-	        		var tag = tags[t];
-
-	        		var item_html = '<li class="" data-url="'+tag.body.url+'" data-slug="'+tag.body.slug+'"><div class="title">'+tag.body.current.title+'</div></li>';
-
-					var new_item = $(item_html).appendTo(new_pane.find('ul.current.tags'));
-
-					var slug = tag.body.slug;
-
-					if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
-						if(typeof base.loaded_nodes[slug] != 'undefined'){
-							//We already have this page loaded - let's show it now.
-							base.show_icon(slug, new_item);
-						}else{
-							new_item.hide();
-							if(slug == currentNode.slug){
-								new_item.show();
-								base.loaded_nodes[slug] = currentNode;
-								base.show_icon(slug, new_item);	
-							}else{
-								//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-								(function(slug, new_item){
-									scalarapi.loadNode(
-										slug,
-										true,
-										function(json){
-											if(typeof scalarapi.getNode(slug)!='undefined'){
-												new_item.show();
-												base.loaded_nodes[slug] = scalarapi.getNode(slug);
-												base.show_icon(slug, new_item);	
-											}else{
-												new_item.remove();
-											}
-										},
-										function(err){ console.log(err); },
-										1, true);
-								})(slug, new_item);
-							}
-						}
-					}else{
-						base.show_icon(slug, new_item);
-					}
-
-	        	}
-
-	        	base.init_sidebar_items(new_pane);
-	        }else{
-	        	new_pane.find('ul.current.tags').append('<li class="empty active">There are no tags on this page.</li>');
-	        }
-
-        	$('#sidebar #sidebar_panes').append(new_pane);	
-			$('#sidebar_selector .tags').addClass('enabled');
-        }
-
-        base.build_grid_pane = function(){
-        	base.icons.grid = '<span class="icon-index"></span>';
-
-        	var html = '<div class="pane" data-type="grid" id="sidebar_grid_pane">'+
-							'<header class="pane_header current">'+
-								'<span class="header_icon icon-index"></span>'+
-								'<span class="header_text"></span>'+
-							'</header><div class="smallmed"><ul class="current grid"></ul></div>';
-        	var new_pane = $(html).appendTo($('#sidebar #sidebar_panes'));
-
-        	
-			var path_url = scalarapi.model.urlPrefix+'rdf/instancesof/path?format=json';
-			var page_url = scalarapi.model.urlPrefix+'rdf/instancesof/page?format=json';
-			var media_url = scalarapi.model.urlPrefix+'rdf/instancesof/media?format=json';
-			var comment_url = scalarapi.model.urlPrefix+'rdf/instancesof/reply?format=json';
-			var annotation_url = scalarapi.model.urlPrefix+'rdf/instancesof/annotation?format=json';
-			var tag_url = scalarapi.model.urlPrefix+'rdf/instancesof/tag?format=json';
-			
-        	//Handle Paths...
-        	var item_html = '<li><span class="sidebar_icon icon-path"></span><br /><div class="title"></div></li>';
-        	var paths_item = $(item_html).appendTo(new_pane.find('ul.current.grid'));
-        	(function(new_item){
-				$.getJSON(path_url,function(json){
-        			base.book_paths = scalarapi.model.parseNodes(json);
-        			if(base.book_paths.length > 0){
-        				base.init_grid_item(new_item,base.book_paths,'Paths');
-        			}
-        		});
-			})(paths_item);
-
-			//Handle Pages...
-        	item_html = '<li><span class="sidebar_icon icon-page"></span><br /><div class="title"></div></li>';
-        	pages_item = $(item_html).appendTo(new_pane.find('ul.current.grid'));
-        	(function(new_item){
-				$.getJSON(page_url,function(json){
-        			var temp_pages = scalarapi.model.parseNodes(json);
-        			base.book_pages = [];
-        			for(var p in temp_pages){
-        				if(temp_pages[p].outgoingRelations.length == 0){
-        					base.book_pages.push(temp_pages[p]);
-        				}
-        			}
-        			if(base.book_pages.length > 0){
-        				base.init_grid_item(new_item,base.book_pages,'Pages');
-        			}
-        		});
-			})(pages_item);
-
-			//Handle Media...
-
-				//Images...
-	        	item_html = '<li><span class="sidebar_icon icon-photo"></span><br /><div class="title"></div></li>';
-	        	var images_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
-
-	        	//Video...
-	        	item_html = '<li><span class="sidebar_icon icon-video"></span><br /><div class="title"></div></li>';
-	        	var video_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
-
-	        	//Audio...
-	        	item_html = '<li><span class="sidebar_icon icon-audio"></span><br /><div class="title"></div></li>';
-	        	var audio_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
-
-
-        	//Handle Comments...
-        	item_html = '<li><span class="sidebar_icon icon-comment"></span><br /><div class="title"></div></li>';
-        	var comments_item = $(item_html).appendTo(new_pane.find('ul.current.grid'));
-        	
-        	//Handle Tags...
-        	item_html = '<li><span class="sidebar_icon icon-tags"></span><br /><div class="title"></div></li>';
-        	var tags_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
-
-        	//Handle Annotations...
-        	item_html = '<li><span class="sidebar_icon icon-"></span><br /><div class="title"></div></li>';
-        	var annotations_item = $(item_html).appendTo(new_pane.find('ul.current.grid')).hide();
-
-        	(function(images_item,video_item,audio_item){
-				$.getJSON(media_url,function(json){
-					
-					base.book_media = scalarapi.model.parseNodes(json);
-
-					base.book_images = [];
-					base.book_videos = [];
-					base.book_audio = [];
-
-					for(var i in base.book_media){
-						switch(base.book_media[i].current.mediaSource.contentType){
-							case 'image':
-								base.book_images.push(base.book_media[i]);
-								break;
-							case 'video':
-								base.book_videos.push(base.book_media[i]);
-								break;
-							case 'audio':
-								base.book_audio.push(base.book_media[i]);
-								break;
-						}
-					}
-        			
-        			if(base.book_images.length > 0){
-        				base.init_grid_item(images_item,base.book_images,'Images');
-        			}
-        			
-        			if(base.book_videos.length > 0){
-        				base.init_grid_item(video_item,base.book_videos,'Videos');
-        			}
-        			
-        			if(base.book_audio.length > 0){
-        				base.init_grid_item(audio_item,base.book_audio,'Audio');
-        			}
-        		});
-			})(images_item,video_item,audio_item);
-
-        	
-        	(function(new_item){
-				$.getJSON(comment_url,function(json){
-        			base.book_comments = scalarapi.model.parseNodes(json);
-
-        			if(base.book_comments.length > 0){
-        				base.init_grid_item(new_item,base.book_comments,'Comments');
-        			}
-        		});
-			})(comments_item);
-
-			(function(new_item){
-				$.getJSON(annotation_url,function(json){
-        			base.book_annotations = scalarapi.model.parseNodes(json);
-
-        			if(base.book_annotations.length > 0){
-        				base.init_grid_item(new_item,base.book_annotations,'Annotations');
-        			}
-        		});
-			})(annotations_item);
-
-
-			(function(new_item){
-				$.getJSON(tag_url,function(json){
-        			base.book_tags = scalarapi.model.parseNodes(json);
-
-        			if(base.book_tags.length > 0){
-        				base.init_grid_item(new_item,base.book_tags,'Tags');
-        			}
-        		});
-			})(tags_item);
-
-			$('#sidebar_selector .grid').addClass('enabled');
-        }
-
-        base.build_linear_pane = function(previous,next){
-        	base.icons.linear = '<span class="icon-linear"></span>';
-
-        	var html = '<div class="pane" data-type="linear" id="sidebar_linear_pane">'+
-							'<header class="pane_header current">'+
-								'<span class="header_icon icon-linear"></span>'+
-								'<span class="header_text"></span>'+
-							'</header>'+
-        				'</div>';
-
-            $('#linear_previous a').attr('href','').html('').hide();
-            $('#linear_next a').attr('href','').html('').hide();
-            
-            if(previous != null || next != null){
-                if(previous!=null){
-                    var prev_get_vars = base.get_vars.replace('path='+previous.slug,'');
-                    if(prev_get_vars!='?'){
-                        prev_get_vars += '&';
-                    }
-                    prev_get_vars += 's=linear';
-                    $('#linear_previous a').attr('href',previous.url+prev_get_vars);
-                    base.show_icon(previous.slug, $('#linear_previous a').html('<span class="title">'+previous.current.title+'</span>').show());
-                }
-                if(next!=null){
-                    var next_get_vars = base.get_vars.replace('path='+next.slug,'');
-                    if(next_get_vars!='?'){
-                        next_get_vars += '&';
-                    }
-                    next_get_vars += 's=linear';
-                    $('#linear_next a').attr('href',next.url+next_get_vars);
-                    base.show_icon(next.slug, $('#linear_next a').html('<span class="title">'+next.current.title+'</span>').show(),true);
-                }
-            }
-
-
-			//Make a jQuery object from the new pane's html - will make appending/prepending easier.
-			var new_pane = $(html);
-
-        	$('#sidebar #sidebar_panes').append(new_pane);	
-			$('#sidebar_selector .linear').addClass('enabled');
-        }
-
-        base.build_recent_pane = function(){
-        	var html = '<div class="pane" data-type="recent" id="sidebar_recent_pane"><div class="smallmed"><ul class="current recent"></ul></div></div>';
-        	var new_pane = $(html).appendTo($('#sidebar #sidebar_panes'));
-
-        	//As noted in jquery.scalarrecent.js, stored history is deprecated - using local storage.
-		    try {
-				var prev_string = localStorage.getItem('scalar_user_history');
-			} catch(err) {
-				// Most likely user is in Safari private browsing mode
-			}
-			if ('undefined'==typeof(prev_string) || !prev_string || !prev_string.length) {
-				//No nodes - handle empty recent pane here...
-				new_pane.find('ul.current.recent').append('<li class="empty active">Your history is currently empty.</li>');
-			} else {
-				var nodes = JSON.parse(prev_string);
-				console.log(nodes);
-				for(var uri in nodes){
-					var this_node = nodes[uri];
-					if(uri.indexOf(scalarapi.model.urlPrefix)>=0){
-						var slug = uri.replace(scalarapi.model.urlPrefix,'');
-						if(typeof this_node['http://purl.org/dc/elements/1.1/title']!='undefined' && this_node['http://purl.org/dc/elements/1.1/title'] != null && this_node['http://purl.org/dc/elements/1.1/title'].length > 0){
-							var title = this_node['http://purl.org/dc/elements/1.1/title'][this_node['http://purl.org/dc/elements/1.1/title'].length-1].value;
-						}else{
-							//We don't have a title... Skip this one?
-							continue;
-						}
-						var item_html = '<li data-url="'+uri+'" data-slug="'+slug+'"><div class="title">'+title+'</div></li>';
-						var new_item = $(item_html).appendTo(new_pane.find('ul.current.recent'));
-
-						if(slug == currentNode.slug){
-							new_item.addClass('active');
-						}
-						if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
-							if(typeof base.loaded_nodes[slug] != 'undefined'){
-								//We already have this page loaded - let's show it now.
-								base.show_icon(slug, new_item);
-							}else{
-								new_item.hide();
-								if(slug == currentNode.slug){
-									new_item.show();
-									base.loaded_nodes[slug] = currentNode;
-									base.show_icon(slug, new_item);	
-								}else{
-									//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-									(function(slug, new_item){
-										scalarapi.loadNode(
-											slug,
-											true,
-											function(json){
-												if(typeof scalarapi.getNode(slug)!='undefined'){
-													new_item.show();
-													base.loaded_nodes[slug] = scalarapi.getNode(slug);
-													base.show_icon(slug, new_item);	
-												}else{
-													new_item.remove();
-												}
-											},
-											function(err){ console.log(err); },
-											1, true);
-									})(slug, new_item);
-								}
-							}
-						}else{
-							base.show_icon(slug, new_item);
-						}
-					}
-				}
-			}
-
-			base.init_sidebar_items(new_pane);
-
-        	base.icons.recent = '<span class="icon-recent"></span>';	
-			$('#sidebar_selector .recent').addClass('enabled');
-        }
-
-        base.build_markers_pane = function(){
-        	base.icons.markers = '<span class="icon-markers"></span>';
-
-        	var html = '<div class="pane" data-type="markers" id="sidebar_markers_pane"><ul class="markers"></ul></div>';
-
-
-        	$('#sidebar #sidebar_panes').append($(html));	
-			$('#sidebar_selector .markers').addClass('enabled');
-        }
-        
-        base.init_grid_item = function(item,list,type){
-        	item.mouseenter(function(e){
-        		if(!isMobile && !base.isSmallScreen){
-					clearTimeout(base.sidebar_timeout);
-					base.triggerSidebar(true);
-					base.hovered_item = $(this);
-					clearTimeout(base.infobar_timeout);
-					base.showInfo('grid',list,type);
-					e.stopPropagation();
-				}
-			}).click(function(e){
-				var slug = $(this).data('slug');
-				if(isMobile || base.isSmallScreen){
-					base.triggerSidebar(true);
-					base.showInfo('grid',list,type);
-					base.hovered_item = $(this);
-				}
-				e.stopPropagation();
-			}).fadeIn('fast').find('.title').text(list.length);
-        }
-        base.init_sidebar_items = function(new_pane){
-        	new_pane.find('li:not(.empty)').mouseenter(function(e){
-        		if(!isMobile && !base.isSmallScreen){
-					clearTimeout(base.sidebar_timeout);
-					base.triggerSidebar(true);
-					base.hovered_item = $(this);
-					var slug = $(this).data('slug');
-                    clearTimeout(base.infobar_timeout);
-					base.load_info(slug,$(this).parents('.pane').first().data('type'));
-					e.stopPropagation();
-				}
-			}).click(function(e){
-				var slug = $(this).data('slug');
-				if(!isMobile && !isTablet && !base.isSmallScreen){
-					var node = scalarapi.getNode(slug);
-					var path = $(this).parent('ul.path').data('path');
-
-					var target_url = node.url+base.get_vars;
-
-					window.location = target_url;
-				}else{
-                    base.hovered_item = $(this);
-					base.triggerSidebar(true);
-					base.load_info(slug,$(this).parents('.pane').first().data('type'));
-				}
-				e.stopPropagation();
-			});
-        }
-
-        base.triggerSidebar = function(do_expand){
-        	if($('#sidebar_panes .pane.active').length>0){
-        		var scrollmid =  ($('#sidebar_panes .pane.active')[0].scrollHeight-$('#sidebar_panes .pane.active')[0].clientHeight)/2.0;
-        	}else{
-        		var scrollmid = 0;
-        	}
-
-        	if(typeof do_expand !== 'undefined'){
-        		if(do_expand === true && !$('body').hasClass('sidebar_expanded')){
-        			$('body').addClass('sidebar_expanded').removeClass('sidebar_collapsed');
-
-        			$('#sidebar_panes').animate({
-						scrollTop: scrollmid
-					},10);
-        			
-        		}else if(do_expand === false && $('body').hasClass('sidebar_expanded')){
-        			$('body').removeClass('sidebar_expanded sidebar_full').addClass('sidebar_collapsed');
-        			base.hideOverlay();
-        			$('#sidebar_inside>header').removeClass('selector_open');
-					$('#sidebar_panes').animate({
-						scrollTop: scrollmid
-					},10);
-					base.hideInfo();
-        		}
-        	}else if($('body').hasClass('sidebar_expanded')){
-				base.triggerSidebar(false);
-        	}else{
-        		base.triggerSidebar(true);
-        	}
-        }
-
-        base.showInfo = function(view,page,slug){
-        	if($('#sidebar').hasClass('tall')){
-        		$('#info_panel').addClass('tall');
-        	}else{
-        		$('#info_panel').removeClass('tall');
-        	}
-
-        	$('#sidebar .hovered_item').removeClass('hovered_item');
-        	base.hovered_item.addClass('hovered_item');
-
-			$('#info_panel .view').hide();
-
-        	switch(view){
-        		case 'recent':
-                case 'paths':
-        		case 'tags':
-					$('#info_panel .info.view').show();
-        			if(typeof base.loaded_nodes[slug].info_panel == 'undefined' || base.loaded_nodes[slug].info_panel == null || typeof base.loaded_nodes[slug].info_panel.standard == 'undefined' || base.loaded_nodes[slug].info_panel.standard==null){
-        				if(typeof base.loaded_nodes[slug].info_panel == 'undefined' || base.loaded_nodes[slug].info_panel == null){
-        					base.loaded_nodes[slug].info_panel = {
-        						standard : {}
-        					};
-        				}
-	        			var thumbnail = '';
-	        			if(page.thumbnail != null && typeof page.thumbnail != 'undefined'){
-	        				thumbnail = page.thumbnail;
-	        			}else if(page.current.mediaSource.contentType=='image'){
-	        				thumbnail = page.current.sourceFile;
-	        			}else{
-	        				var outgoing_references = page.getRelations('referee', 'outgoing', 'reverseindex');
-	        				for(var i = 0; i< outgoing_references.length; i++){
-			        			var this_reference = outgoing_references[i].target;
-			        			if(this_reference.current.mediaSource.contentType=='image'){
-	        						thumbnail = this_reference.current.sourceFile;
-	        						break;
-	        					}
-	        				}
-	        			}
-
-	        			if(thumbnail!='' && thumbnail.indexOf('http') != 0){
-	        				thumbnail = scalarapi.model.urlPrefix+thumbnail;
-	        			}
-
-	        			base.loaded_nodes[slug].info_panel.standard.thumbnail = thumbnail;
-
-	        			var target_url = page.url+base.get_vars;
-
-			        	$('body>#info_panel .info_visit').attr('href',target_url);
-
-			        	var featured_in = page.getRelations('referee', 'incoming', 'reverseindex');
-						var features = page.getRelations('referee', 'outgoing', 'reverseindex');
-			        	var tagged_by = page.getRelations('tag', 'incoming', 'reverseindex');
-			        	var tag_of = page.getRelations('tag', 'outgoing', 'reverseindex');
-                        var annotates = page.getRelations('annotation', 'outgoing', 'reverseindex');
-                        var annotated_by = page.getRelations('annotation', 'incoming', 'reverseindex');
-
-                        var comments_on = page.getRelations('comment', 'outgoing', 'reverseindex');
-                        var has_comments = page.getRelations('comment', 'incoming', 'reverseindex');
-			        	
-
-                        console.log(comments_on,has_comments);
-
-			        	//Handle incoming featured
-			        	base.loaded_nodes[slug].info_panel.standard.featured_block = '';
-			        	if(featured_in.length > 0){
-			        		for(var i = 0; i< featured_in.length; i++){
-			        			var this_reference = featured_in[i].body;
-
-			        			target_url = this_reference.url;
-
-					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-					        		target_url += '?v='+base.queryVars.visualization;	
-					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-					        		target_url += '?v='+base.queryVars.v;	
-					        	}
-					        	base.loaded_nodes[slug].info_panel.standard.featured_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
-			        		}
-			        	}
-
-
-
-			        	//Handle outgoing featured
-			        	base.loaded_nodes[slug].info_panel.standard.features_block = '';
-			        	if(features.length > 0){
-			        		for(var i = 0; i< features.length; i++){
-			        			var this_reference = features[i].target;
-
-			        			target_url = this_reference.url;
-
-					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-					        		target_url += '?v='+base.queryVars.visualization;	
-					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-					        		target_url += '?v='+base.queryVars.v;	
-					        	}
-
-			        			base.loaded_nodes[slug].info_panel.standard.features_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
-			        		}
-			        	}
-
-			        	//Handle incoming tagged
-			        	base.loaded_nodes[slug].info_panel.standard.tagged_by_block = '';
-			        	if(tagged_by.length > 0){
-			        		for(var i = 0; i< tagged_by.length; i++){
-			        			var this_reference = tagged_by[i].body;
-
-			        			target_url = this_reference.url;
-
-					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-					        		target_url += '?v='+base.queryVars.visualization;	
-					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-					        		target_url += '?v='+base.queryVars.v;	
-					        	}
-					        	
-					        	base.loaded_nodes[slug].info_panel.standard.tagged_by_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
-			        		}
-			        	}
-
-			        	//Handle outgoing tagged
-
-			        	base.loaded_nodes[slug].info_panel.standard.tag_of_block = '';
-			        	if(tag_of.length > 0){
-			        		for(var i = 0; i< tag_of.length; i++){
-			        			var this_reference = tag_of[i].target;
-
-			        			target_url = this_reference.url;
-
-					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-					        		target_url += '?v='+base.queryVars.visualization;	
-					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-					        		target_url += '?v='+base.queryVars.v;	
-					        	}
-					        	
-			        			base.loaded_nodes[slug].info_panel.standard.tag_of_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
-			        		}
-			        	}
-
-			        	//Handle incoming annotation
-			        	base.loaded_nodes[slug].info_panel.standard.annotated_by_block = '';
-			        	if(annotated_by.length > 0){
-			        		for(var i = 0; i< annotated_by.length; i++){
-			        			var this_reference = annotated_by[i].body;
-			        			console.log(this_reference);
-
-			        			target_url = this_reference.url;
-
-					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-					        		target_url += '?v='+base.queryVars.visualization;	
-					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-					        		target_url += '?v='+base.queryVars.v;	
-					        	}
-					        	
-			        			base.loaded_nodes[slug].info_panel.standard.annotated_by_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
-			        		}
-			        	}
-
-			        	//Handle outgoing annotation
-			        	base.loaded_nodes[slug].info_panel.standard.annotates_block = '';
-			        	if(annotates.length > 0){
-			        		for(var i = 0; i< annotates.length; i++){
-			        			var this_reference = annotates[i].target;
-
-			        			target_url = this_reference.url;
-
-					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-					        		target_url += '?v='+base.queryVars.visualization;	
-					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-					        		target_url += '?v='+base.queryVars.v;	
-					        	}
-					        	
-			        			base.loaded_nodes[slug].info_panel.standard.annotates_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
-			        		}
-			        	}
-
-			        	//Handle the comments:
-                        //Handle outgoing comments
-                        base.loaded_nodes[slug].info_panel.standard.comments_on_block = '';
-                        if(comments_on.length > 0){
-                            for(var i = 0; i< comments_on.length; i++){
-                                var this_reference = comments_on[i].target;
-
-                                target_url = this_reference.url;
-
-                                if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-                                    target_url += '?v='+base.queryVars.visualization;   
-                                }else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-                                    target_url += '?v='+base.queryVars.v;   
+                        var thumbnail = '';
+                        if(item.thumbnail != null && typeof item.thumbnail != 'undefined'){
+                            thumbnail = item.thumbnail;
+                        }else if(item.current.mediaSource.contentType=='image'){
+                            thumbnail = item.current.sourceFile;
+                        }else{
+                            var outgoing_references = item.getRelations('referee', 'outgoing', 'reverseindex');
+                            for(var i = 0; i< outgoing_references.length; i++){
+                                var this_reference = outgoing_references[i].target;
+                                if(this_reference.current.mediaSource.contentType=='image'){
+                                    thumbnail = this_reference.current.sourceFile;
+                                    break;
                                 }
-                                
-                                base.loaded_nodes[slug].info_panel.standard.comments_on_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
                             }
                         }
+                        item.thumbnail = thumbnail;
+                        if(thumbnail!=''){
 
-			        	base.loaded_nodes[slug].info_panel.standard.comments = '';
-			        	var has_comments = page.getRelations('comment', 'incoming', 'reverseindex');
+                            if(thumbnail.indexOf('http') != 0){
+                                thumbnail = scalarapi.model.urlPrefix+thumbnail;
+                                item.thumbnail = thumbnail;
+                            }
+
+                            item.info_panel += '<section id="info_panel_thumbnail" style="background-image: url('+thumbnail+')"><img src="'+thumbnail+'"></section>';
+                        }
+
+                        item.info_panel += '<h2 id="info_panel_title" class="heading_font">'+item.current.title+'</h2>';
                         
-                        base.loaded_nodes[slug].info_panel.standard.has_comments_block = '';
-                            
-			        	if(has_comments.length > 0){
-			        		for(var c in has_comments){
-			        			comment = has_comments[c];				
-                                 var this_reference = comment.body;
+                        if(item.current.description!=null){
+                            item.info_panel += '<section id="info_panel_description" class="caption_font">'+item.current.description+'</section>';
+                        }
 
-                                target_url = this_reference.url;
+                        var featured_in = item.getRelations('referee', 'incoming', 'reverseindex');
+                        var features = item.getRelations('referee', 'outgoing', 'reverseindex');
+                        var tagged_by = item.getRelations('tag', 'incoming', 'reverseindex');
+                        var tag_of = item.getRelations('tag', 'outgoing', 'reverseindex');
+                        var annotates = item.getRelations('annotation', 'outgoing', 'reverseindex');
+                        var annotated_by = item.getRelations('annotation', 'incoming', 'reverseindex');
 
-                                if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-                                    target_url += '?v='+base.queryVars.visualization;   
-                                }else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-                                    target_url += '?v='+base.queryVars.v;   
+                        var comments_on = item.getRelations('comment', 'outgoing', 'reverseindex');
+                        var has_comments = item.getRelations('comment', 'incoming', 'reverseindex');
+                        
+                        if(featured_in.length > 0 || features.length > 0 || tagged_by.length > 0 || tag_of.length > 0 || annotates.length > 0 || annotated_by.length > 0 || comments_on.length > 0 || has_comments.length > 0){
+                        
+                            //Handle incoming featured
+                            if(featured_in.length > 0){
+                                item.info_panel += '<section id="info_panel_featured_in"><h3 class="heading_font">Featured In</h3><ul class="caption_font">';
+                                for(var i = 0; i< featured_in.length; i++){
+                                    var this_reference = featured_in[i].body;
+
+                                    target_url = base.getURL(this_reference.url,{});
+
+                                    item.info_panel += '<li><a href="'+target_url+'"><span class="text caption_font">'+this_reference.current.title+'</span></a></li>';
+
                                 }
+                                item.info_panel += '</ul></section>';
+                            }
+
+                            //Handle outgoing featured
+                            if(features.length > 0){
+                                item.info_panel += '<section id="info_panel_features_in"><h3 class="heading_font">Features</h3><ul class="caption_font">';
+                                for(var i = 0; i< features.length; i++){
+                                    var this_reference = features[i].target;
+
+                                    target_url = base.getURL(this_reference.url,{});
+
+
+                                    item.info_panel += '<li><a href="'+target_url+'"><span class="text caption_font">'+this_reference.current.title+'</span></a></li>';
+                                }
+                                item.info_panel += '</ul></section>';
+                            }
+
+                            //Handle incoming tagged
+                            if(tagged_by.length > 0){
+                                item.info_panel += '<section id="info_panel_tagged_by"><h3 class="heading_font">Tagged By</h3><ul class="caption_font">';
+                                for(var i = 0; i< tagged_by.length; i++){
+                                    var this_reference = tagged_by[i].body;
+
+                                    target_url = base.getURL(this_reference.url,{});
+                                    
+                                    item.info_panel += '<li><a href="'+target_url+'"><span class="text caption_font">'+this_reference.current.title+'</span></a></li>';
+                                }
+                                item.info_panel += '</ul></section>';
+                            }
+
+                            //Handle outgoing tagged
+                            if(tag_of.length > 0){
+                                item.info_panel += '<section id="info_panel_tagged_by"><h3 class="heading_font">Tag Of</h3><ul class="caption_font">';
+                                for(var i = 0; i< tag_of.length; i++){
+                                    var this_reference = tag_of[i].target;
+
+                                    target_url = base.getURL(this_reference.url,{});
+                                    
+                                    item.info_panel += '<li><a href="'+target_url+'"><span class="text caption_font">'+this_reference.current.title+'</span></a></li>';
+                                }
+                                item.info_panel += '</ul></section>';
+                            }
+
+                            //Handle incoming annotation
+                            if(annotated_by.length > 0){
+                                item.info_panel += '<section id="info_panel_tagged_by"><h3 class="heading_font">Annotated By</h3><ul class="caption_font">';
+                                for(var i = 0; i< annotated_by.length; i++){
+                                    var this_reference = annotated_by[i].body;
+
+                                    target_url = base.getURL(this_reference.url,{});
+                                    
+                                    item.info_panel += '<li><a href="'+target_url+'"><span class="text caption_font">'+this_reference.current.title+'</span></a></li>';
+                                }
+                                item.info_panel += '</ul></section>';
+                            }
+
+                            //Handle outgoing annotation
+                            if(annotates.length > 0){
+                                item.info_panel += '<section id="info_panel_tagged_by"><h3 class="heading_font">Annotates</h3><ul class="caption_font">';
+                                for(var i = 0; i< annotates.length; i++){
+                                    var this_reference = annotates[i].target;
+
+                                    target_url = base.getURL(this_reference.url,{});
+                                    
+                                    item.info_panel += '<li><a href="'+target_url+'"><span class="text caption_font">'+this_reference.current.title+'</span></a></li>';
+                                }
+                                item.info_panel += '</ul></section>';
+                            }
+
+                            //Handle the comments:
+                            //Handle outgoing comments
+                            if(comments_on.length > 0){
+                                item.info_panel += '<section id="info_panel_comment_of"><h3 class="heading_font">Comment Of</h3><ul class="caption_font">';
+                                for(var i = 0; i< comments_on.length; i++){
+                                    var this_reference = comments_on[i].target;
+
+                                    target_url = base.getURL(this_reference.url,{});
+                                    
+                                    item.info_panel += '<li><a href="'+target_url+'"><span class="text caption_font">'+this_reference.current.title+'</span></a></li>';
+                                }
+                                item.info_panel += '</ul></section>';
+                            }
+                        }
+
+                        //We show the comments section regardless...
+                        item.info_panel += '<section id="info_panel_comments"><h3 class="heading_font">Comments</h3><ul class="caption_font">';
+                        
+                        //Hide discuss link if not current item...
+                        if(item.slug==currentNode.slug && base.logged_in){
+
+                            item.info_panel += '<div id="info_panel_discuss_field"><a href="#" class="btn btn-lg center-block caption_font"><i class="icon-add-comment"></i> Discuss</a></div>';
+                            
+                        }
+                        if(has_comments.length > 0){
+
+                            for(var c in has_comments){              
+                                var this_reference = has_comments[c].body;
+
+                                target_url = base.getURL(this_reference.url,{});
                                 
-                                base.loaded_nodes[slug].info_panel.standard.has_comments_block += '<li><a href="'+target_url+'"><div class="icon"><span class="'+base.getIconByType(this_reference.current.mediaSource.contentType)+'"></span></div><span class="text caption_font"><strong>'+this_reference.current.title+'</strong></span></a></li>';
-			        			
-
-								var date = new Date(comment.properties.datetime);
-
-			        			target_url = this_reference.url;
-
-					        	if(base.queryVars.visualization!=null && typeof base.queryVars.visualization!='undefined'){
-					        		target_url += '?v='+base.queryVars.visualization;	
-					        	}else if(base.queryVars.v!=null && typeof base.queryVars.v!='undefined'){
-					        		target_url += '?v='+base.queryVars.v;	
-					        	}
-
-								base.loaded_nodes[slug].info_panel.standard.comments += '<li class="comment caption_font"><a href="'+target_url+'"><div class="icon"><span class="icon-add-comment"></span></div> <span class="text"><strong class="title caption_font">'+this_reference.getDisplayTitle()+'</strong> <span class="caption_font body">'+this_reference.current.content+'</span></span></a></li>';
-				        	}
-			        	}else{
-			        		base.loaded_nodes[slug].info_panel.standard.comments += '<li class="caption_font">There are currently no comments for this page.</li>';
-			        	}
-
-			        	//Handle Metadata
-			        	var properties = page.current.properties;
-		        		var items = {
-		        			dcterms : {},
-		        			scalarterms : {},
-		        			art : {},
-		        			rdf : {},
-		        			other : {}
-		        		};
-
-		        		for(prop in properties){
-		        			if(typeof properties[prop] != 'undefined' && properties[prop] != null && properties[prop].length > 0 && properties[prop][properties[prop].length-1].value!=''){
-			        			var filtered_prop = properties[prop][properties[prop].length-1].value.replace('http://scalar.usc.edu/2012/01/scalar-ns#','').replace(scalarapi.model.urlPrefix,'');
-
-				        		if(prop.indexOf('dc/terms')>=0){
-				        			items.dcterms[prop.replace('http://purl.org/dc/terms/','dc.')] = filtered_prop;
-				        		}else if(prop.indexOf('scalar.usc.edu')>=0){
-				        			items.scalarterms[prop.replace('http://scalar.usc.edu/2012/01/scalar-ns#','scalar.')] = filtered_prop;
-				        		}else if(prop.indexOf('artstor')>=0){
-				        			items.art[prop.replace('http://simile.mit.edu/2003/10/ontologies/artstor#','art.')] = filtered_prop;
-				        		}else if(prop.indexOf('rdf-syntax-ns')>=0){
-				        			items.rdf[prop.replace('http://www.w3.org/1999/02/22-rdf-syntax-ns#','rdf.')] = filtered_prop;
-				        		}else if(
-				        			prop == 'http://rdfs.org/sioc/ns#content' || 
-				        			prop == 'http://xmlns.com/foaf/0.1/homepage' || 
-				        			prop == 'http://open.vocab.org/terms/versionnumber'
-				        		){
-				        			//Skip these ones - either they are more content than metadata, or they are back-end info.
-				        		}else{
-				        			items.other[prop] = filtered_prop;
-				        		}
-				        	}
-		        		}
-		        		base.loaded_nodes[slug].info_panel.standard.metadata = '';
-		        		for(type in items){
-		        			for(term in items[type]){
-		        				base.loaded_nodes[slug].info_panel.standard.metadata += '<dt class="caption_font">'+term+'</dt> <dd class="caption_font">'+(items[type][term])+'</dd><br />';
-		        			}
-		        			if(items[type].length > 0){
-		        				base.loaded_nodes[slug].info_panel.standard.metadata += '<br />';	
-		        			}
-		        		}
-		        	}
-
-		        	//Display content
-		        	if(base.loaded_nodes[slug].info_panel.standard.thumbnail!=''){
-        				$('#info_panel_thumbnail').show().html('<img src="'+base.loaded_nodes[slug].info_panel.standard.thumbnail+'">');
-        			}else{
-        				$('#info_panel_thumbnail').hide().html('');
-        			}
-        			
-        			$('#info_panel .title>strong').html(page.current.title);
-
-		        	$('#info_panel .description').html(page.current.description);
-
-		        	$('#info_panel .featured_block').hide();
-		        	if(base.loaded_nodes[slug].info_panel.standard.featured_block !=''){
-		        		$('#info_panel .featured_block').fadeIn('fast').find('ul.featured_list').html(base.loaded_nodes[slug].info_panel.standard.featured_block);
-		        	}
-
-		        	$('#info_panel .features_block').hide();
-		        	if(base.loaded_nodes[slug].info_panel.standard.features_block !=''){
-		        		$('#info_panel .features_block').fadeIn('fast').find('ul.features_list').html(base.loaded_nodes[slug].info_panel.standard.features_block);
-		        	}
-
-		        	$('#info_panel .tagged_by_block').hide();
-			        if(base.loaded_nodes[slug].info_panel.standard.tagged_by_block != ''){
-		        		$('#info_panel .tagged_by_block').fadeIn('fast').find('ul.tagged_by_list').html(base.loaded_nodes[slug].info_panel.standard.tagged_by_block);
-		        	}
-
-		        	$('#info_panel .tag_of_block').hide();
-		        	if(base.loaded_nodes[slug].info_panel.standard.tag_of_block != ''){
-		        		$('#info_panel .tag_of_block').fadeIn('fast').find('ul.tag_of_list').html(base.loaded_nodes[slug].info_panel.standard.tag_of_block);
-		        	}
-
-		        	$('#info_panel .annotated_by_block').hide();
-		        	if(base.loaded_nodes[slug].info_panel.standard.annotated_by_block != ''){
-		        		$('#info_panel .annotated_by_block').fadeIn('fast').find('ul.annotated_by_list').html(base.loaded_nodes[slug].info_panel.standard.annotated_by_block);
-		        	}
-
-                    $('#info_panel .annotates_block').hide();
-                    if(base.loaded_nodes[slug].info_panel.standard.annotates_block != ''){
-                        $('#info_panel .annotates_block').fadeIn('fast').find('ul.annotates_list').html(base.loaded_nodes[slug].info_panel.standard.annotates_block);
-                    }
-
-
-                    $('#info_panel .has_comments_block').hide();
-                    if(base.loaded_nodes[slug].info_panel.standard.has_comments_block != ''){
-                        $('#info_panel .has_comments_block').fadeIn('fast').find('ul.has_comments_list').html(base.loaded_nodes[slug].info_panel.standard.has_comments_block);
-                    }
-
-
-                    $('#info_panel .comments_on_block').hide();
-                    if(base.loaded_nodes[slug].info_panel.standard.comments_on_block != ''){
-                        $('#info_panel .comments_on_block').fadeIn('fast').find('ul.comments_on_list').html(base.loaded_nodes[slug].info_panel.standard.comments_on_block);
-                    }
-
-		        	$('#info_panel #comments_info .comment_list').html(base.loaded_nodes[slug].info_panel.standard.comments);
-		        	
-		        	//Hide discuss link if not current page...
-		        	if(page.slug!=currentNode.slug){
-		        		$('#comments_info .discuss_link').hide();
-		        	}else{
-		        		$('#comments_info .discuss_link').show();
-		        	}
-
-		        	$('#info_panel #metadata_info .metadata_list').html(base.loaded_nodes[slug].info_panel.standard.metadata);
-
-                    if(!isMobile && !isTablet && !base.isSmallScreen){
-                        var tallest_panel = 0;
-                        $('#info_panel .info_panel_content .section').each(function(){
-                            if($(this).height() > tallest_panel){
-                                tallest_panel = $(this).height();
+                                var date = new Date(this_reference.properties.datetime);
+                                item.info_panel += '<li class="comment caption_font"><a href="'+target_url+'"><span class="icon"><i class="icon-comment"></i></span><span class="text"><span class="title caption_font">'+this_reference.getDisplayTitle()+'</span> <span class="caption_font body">'+this_reference.current.content+'</span></span></a></li>';
                             }
-                        });
-
-                        tallest_panel += 50+$('#info_panel_thumbnail').height()+$('#info_panel .info_panel_content h3.title').height();
-
-                        $('#info_panel .info_panel_content').height(tallest_panel);
-
-                        var toppos =  ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop())) - ($('#info_panel').height()/2);
-                        $('#info_panel').removeAttr('style');
-                        if($('#info_panel').height() > $('#sidebar_inside').height()){
-                            //We have a tall info panel - make it full height and scrolly
-                            $('#info_panel').addClass('full_height');  
-                            $('#info_panel .info_panel_content').removeAttr('style');
                         }else{
-                            if(toppos+$('#info_panel').height()>$('#sidebar_inside').height()){
-                                $('#info_panel').removeClass('full_height').css('bottom','0px');
-                            }else{
-                                $('#info_panel').removeClass('full_height').css('top',toppos+'px');
+                            item.info_panel += '<li class="caption_font">There are currently no comments for this item.</li>';
+                        }
+                        item.info_panel += '</ul></section>';
+
+                        //Handle Metadata
+                        var properties = item.current.properties;
+                        var items = {
+                            dcterms : {},
+                            scalarterms : {},
+                            art : {},
+                            rdf : {},
+                            other : {}
+                        };
+                        var no_items = 0;
+                        for(prop in properties){
+                            if(typeof properties[prop] != 'undefined' && properties[prop] != null && properties[prop].length > 0 && properties[prop][properties[prop].length-1].value!=''){
+                                no_items++;
+                                var filtered_prop = properties[prop][properties[prop].length-1].value.replace('http://scalar.usc.edu/2012/01/scalar-ns#','').replace(scalarapi.model.urlPrefix,'');
+
+                                if(prop.indexOf('dc/terms')>=0){
+                                    items.dcterms[prop.replace('http://purl.org/dc/terms/','dc.')] = filtered_prop;
+                                }else if(prop.indexOf('scalar.usc.edu')>=0){
+                                    items.scalarterms[prop.replace('http://scalar.usc.edu/2012/01/scalar-ns#','scalar.')] = filtered_prop;
+                                }else if(prop.indexOf('artstor')>=0){
+                                    items.art[prop.replace('http://simile.mit.edu/2003/10/ontologies/artstor#','art.')] = filtered_prop;
+                                }else if(prop.indexOf('rdf-syntax-ns')>=0){
+                                    items.rdf[prop.replace('http://www.w3.org/1999/02/22-rdf-syntax-ns#','rdf.')] = filtered_prop;
+                                }else if(
+                                    prop == 'http://rdfs.org/sioc/ns#content' || 
+                                    prop == 'http://xmlns.com/foaf/0.1/homepage' || 
+                                    prop == 'http://open.vocab.org/terms/versionnumber'
+                                ){
+                                    //Skip these ones - either they are more content than metadata, or they are back-end info.
+                                }else{
+                                    items.other[prop] = filtered_prop;
+                                }
                             }
                         }
-                    }else{
-                        $('#info_panel').removeAttr('style').removeClass('full_height');
-                        $('#info_panel .info_panel_content').removeAttr('style');
+                        if(no_items > 0){
+                            item.info_panel += '<section id="info_panel_metadata"><h3 class="heading_font">Metadata</h3><dl class="caption_font">';
+                            for(type in items){
+                                for(term in items[type]){
+                                    item.info_panel += '<div class="term"><dt class="caption_font">'+term+'</dt> <dd class="caption_font">'+(items[type][term])+'</dd></div>';
+                                }
+                                if(items[type].length > 0){
+                                    item.info_panel += '<br />';
+                                }
+                            }
+                            item.info_panel += '</dl></section>';
+                        }
                     }
-	        		
-
-	        		
-	        		break;
-	        	case 'grid':
-	        		$('body').addClass('info_panel_open');
-					$('#info_panel .title>strong').text('Loading...');
-					var grid_list = $('#info_panel .list.view').show().find('ul');
-					grid_list.html('');
-					console.log(page);
-					for(var i in page){
-						var this_node = page[i].current;
-						var new_item = $('<li data-url="'+page[i].url+'"><div class="title">'+this_node.title+'</div></li>').appendTo(grid_list);
-						var slug = page[i].slug;
-
-						new_item.click(function(e){
-							var target_url = $(this).data('url')+base.get_vars;
-							window.location = target_url;
-						});
-
-
-						if(typeof base.loaded_nodes[slug] == 'undefined' || base.loaded_nodes[slug] == null){
-							if(typeof base.loaded_nodes[slug] != 'undefined'){
-								//We already have this page loaded - let's show it now.
-								base.loaded_nodes[slug] = currentNode;
-								base.show_icon(slug, new_item);
-							}else{
-								new_item.hide();
-								if(slug == currentNode.slug){
-									new_item.show();
-									base.loaded_nodes[slug] = currentNode;
-									base.show_icon(slug, new_item);	
-								}else{
-									//We don't have this loaded yet - let's do a little bit of asynchronous magic here; Self-calling anonymous function to load the icon using the API.
-									(function(slug, new_item){
-										scalarapi.loadNode(
-											slug,
-											true,
-											function(json){
-												if(typeof scalarapi.getNode(slug)!='undefined'){
-													new_item.show();
-													base.loaded_nodes[slug] = scalarapi.getNode(slug);
-													base.show_icon(slug, new_item);	
-												}else{
-													new_item.remove();
-												}
-											},
-											function(err){ console.log(err); },
-											1, true);
-									})(slug, new_item);
-								}
-							}
-						}else{
-							base.show_icon(slug, new_item);
-						}
-					}
-                    $('#info_panel').removeAttr('style').removeClass('full_height');
-                    $('#info_panel .info_panel_content').removeAttr('style');
                     
-                    if(!isMobile && !isTablet && !base.isSmallScreen){
+                    sidebar_html = item.info_panel;
 
-                        var tallest_panel = 20+$('#info_panel .list.view').height();
-                        console.log(tallest_panel);
-                        $('#info_panel').height(tallest_panel);
+                    break;
+                case 'grid':
+                    //item = page type
+                    var pages = base[item];
+                    
+                    sidebar_html = '<header class="heading_font">'+item+'s</header><ul id="info_panel_grid_list" class="caption_font">';
+                    for(var i in pages){
+                        var page = pages[i];
+                        sidebar_html += '<li><a href="'+base.getURL(page.url,{p:'grid',path:''})+'">'+page.current.title+'</a></li>';
+                    }
+                    sidebar_html += '</ul>';
+                    break;
+            }
+            var sidebar_content = $(sidebar_html);
+            if(typeof item.url != 'undefined' && item.url != ''){
+                var path = base.queryVars.path;
+                if(path == item.slug){
+                    path = null;
+                }
+                base.info_container.find('#visit_info_panel').attr('href',base.getURL(item.url,{p:panel,path:path}));
+            }
+            if(typeof item.thumbnail != 'undefined' && item.thumbnail != ''){
+                $("<img/>").attr("src", item.thumbnail).load(function(){
+                    var ratio = base.info_container.find('#info_panel').width()/this.width;
+                    var offset = (ratio*this.height)-160;
+                    base.info_container.find('#info_panel').html('').append(sidebar_content).stop().scrollTop(0).animate({ scrollTop: offset }, 400);
+                });
+            }else{
+                //No sidebar thumbnail to figure out - just show it, already!
+                base.info_container.find('#info_panel').html('').append(sidebar_content).stop().scrollTop(0);
+            }
+        };
 
-                        var toppos =  ((base.hovered_item.height()/2)+(base.hovered_item.offset().top - $(window).scrollTop())) - ($('#info_panel').height()/2);
-                        $('#info_panel').removeAttr('style');
-                        if($('#info_panel').height() > $('#sidebar_inside').height()){
-                            //We have a tall info panel - make it full height and scrolly
-                            $('#info_panel').addClass('full_height');  
-                            $('#info_panel .info_panel_content').removeAttr('style');
-                        }else{
-                            if(toppos+$('#info_panel').height()>$('#sidebar_inside').height()){
-                                $('#info_panel').removeClass('full_height').css('bottom','0px');
-                            }else{
-                                $('#info_panel').removeClass('full_height').css('top',toppos+'px');
+        base.init = function(){
+            if(currentNode != null && base.hideSidebarViews.indexOf(currentNode.current.defaultView)<0){
+                if(base.fullScreenViews.indexOf(currentNode.current.defaultView)>=0){
+                    $('body').addClass('fullscreen_page');
+                }
+                base.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
+                base.isMobile = isMobile;
+
+                $(window).on('resize',base.detectScreenSize);
+                base.detectScreenSize();
+
+                base.queryVars = scalarapi.getQueryVars( document.location.href );
+
+                var sidebar_html =  '<div id="sidebar_container" class="small">' +
+                                        '<header class="heading_font">'+
+                                            '<nav id="sidebar_nav">'+
+                                                '<div id="current_menu_item"><i class="icon-path"></i><span class="text">Path</span></li></div>'+
+                                                '<ul>'+
+                                                    '<li data-sidebar="path" class="selected"><i class="icon-path"></i><span class="text">Path</span></li>'+
+                                                    '<li data-sidebar="tags"><i class="icon-tags"></i><span class="text">Tags</span></li>'+
+                                                    '<li data-sidebar="grid"><i class="icon-index"></i><span class="text">Grid</span></li>'+
+                                                    '<li data-sidebar="linear"><i class="icon-linear"></i><span class="text">Linear</span></li>'+
+                                                    '<li data-sidebar="recent"><i class="icon-recent"></i><span class="text">Recent</span></li>'+
+                                                '</ul>'+
+                                            '</nav>'+
+                                        '</header>'+
+                                        '<div id="sidebar">'+
+                                            '<section id="path">'+
+                                                '<div class="left tall panel">'+
+                                                    '<header class="heading_font panel_header">'+
+                                                    '</header>'+
+                                                    '<ul id="path_list" class="heading_font">'+
+                                                    '</ul>'+
+                                                '</div>'+
+                                            '</section>'+
+                                            '<section id="tags">'+
+                                                '<div class="left tall panel">'+
+                                                    '<header class="heading_font panel_header">Tags</header>'+
+                                                    '<ul id="tags_list" class="heading_font">'+
+                                                    '</ul>'+
+                                                '</div>'+
+                                            '</section>'+
+                                            '<section id="grid">'+
+                                                '<div class="left tall panel">'+
+                                                    '<header class="heading_font panel_header">Grid</header>'+
+                                                    '<div id="grid_list" class="heading_font row">'+
+                                                    '</ul>'+
+                                                '</div>'+
+                                            '</section>'+
+                                            '<section id="linear">'+
+                                                '<div class="left short panel">'+
+                                                    '<a id="linear_left" href="#" class="heading_font btn btn-lg center-block"><i class="icon-arrow-left pull-left"></i><span class="title">Title Here</span></a>'+
+                                                '</div>'+
+                                                '<div class="right short panel">'+
+                                                    '<a id="linear_right" href="#" class="heading_font btn btn-lg center-block"><i class="icon-arrow-right pull-right"></i><span class="title">Title Here</span></a>'+
+                                                '</div>'+
+                                            '</section>'+
+                                            '<section id="recent">'+
+                                                '<div class="left tall panel">'+
+                                                    '<header class="heading_font panel_header">Recent</header>'+
+                                                    '<ul id="recent_list" class="heading_font">'+
+                                                    '</ul>'+
+                                                '</div>'+
+                                            '</section>'+
+                                        '</div>'+
+                                        '<footer>'+
+                                            '<a id="close_sidebar" href="#" class="heading_font btn btn-lg btn-primary center-block">Close</a>'+
+                                        '</footer>'+
+                                    '</div>';
+                
+                var info_panel_html =   '<div id="info_panel_container">'+
+                                            '<div id="info_panel"><section id="info_panel_loading_text">Loading&hellip;</section></div>'+
+                                            '<footer>'+
+                                                '<a id="close_info_panel" href="#" class="heading_font btn btn-lg btn-primary center-block half_width">Back</a>'+
+                                                '<a id="visit_info_panel" href="#" class="heading_font btn btn-lg btn-primary center-block half_width">Visit</a>'+
+                                            '</footer>'+
+                                        '</div>';
+
+                base.container = $(sidebar_html).appendTo('body').hide();
+                base.info_container = $(info_panel_html).appendTo('body');
+
+                base.container.find('#sidebar_nav').click(function(e){
+                    if(base.isMobile && (base.container.hasClass('small') && !$('body').hasClass('linear'))){
+                        base.changeSidebarSize('medium');
+                    }else{
+                        $(this).toggleClass('open',!$(this).hasClass('open'));
+                    }
+                    e.stopPropagation();
+                });
+
+                base.container.find('#sidebar_nav li').click(function(e){
+                    if(base.container.find('#sidebar_nav').hasClass('open')){
+                        if(!$(this).hasClass('active')){
+                            base.changePanel($(this).data('sidebar'));
+                            $(this).addClass('selected').siblings().removeClass('selected');
+                            base.container.find('#current_menu_item').html($(this).html());
+                        }
+                        base.container.find('#sidebar_nav').removeClass('open');
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+
+                base.changeSidebarSize('small');
+                base.container.find('#close_sidebar').click(function(e){
+                    base.container.find('#sidebar_nav').removeClass('open');
+                    base.changeSidebarSize('small');
+                    base.info_container.removeClass();
+                    e.preventDefault();
+                    return false;
+                });
+
+                base.load_path_linear(base.container.find('#path'),base.container.find('#linear'));
+                base.load_tags(base.container.find('#tags'));
+                base.load_grid(base.container.find('#grid'));
+                $.when(
+                    $.getScript( arbors_uri+'/html/common.js' ),
+                    $.getScript( widgets_uri+'/cookie/jquery.cookie.js' ),
+                    $.getScript( widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js' ),
+                    $.getScript( widgets_uri+'/nav/jquery.scalarrecent.js' ),
+                    $.Deferred(function( deferred ){
+                        $( deferred.resolve );
+                    })
+                ).done(function(){
+                        scalarrecent_log_page();
+                        base.load_recent(base.container.find('#recent'));
+                });
+
+                base.container.addClass('loaded');
+
+                base.current_panel = 'path';
+
+                $('body').addClass(base.current_panel);
+
+                base.info_container.find('#close_info_panel').click(function(e){
+                    base.info_container.removeClass().find('#info_panel').html('');
+                    $('.info_panel_item').removeClass('info_panel_item');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                });
+
+                if (!base.isMobile){
+                    base.lastScroll = $(document).scrollTop();
+                    $(window).scroll(function() {
+                        var currentScroll = $(document).scrollTop();
+                        if ((currentScroll > base.lastScroll) && (currentScroll > 50) && (state == ViewState.Reading)) {
+                            $('body').addClass('tall');
+                        } else if ((base.lastScroll - currentScroll) > 10) {
+                            $('body').removeClass('tall');
+                        }
+                        base.lastScroll = currentScroll;
+                    });
+                    $('#header').mouseenter(function(){
+                        $('body').removeClass('tall');
+                    });
+                }
+
+                if(typeof base.queryVars.p != 'undefined'){
+                    base.changePanel(base.queryVars.p,false);
+                    var menu_item = base.container.find('#sidebar_nav li[data-sidebar='+base.queryVars.p+']');
+                    menu_item.addClass('selected').siblings().removeClass('selected');
+                    base.container.show().find('#current_menu_item').html(menu_item.html());
+                }else{
+                    base.container.fadeIn('fast');
+                }
+                $('html').click(function(){
+                    base.info_container.removeClass('open');
+                    $('#sidebar_nav').removeClass('open');
+                    base.changeSidebarSize('small');
+                    $('.info_panel_item').removeClass('info_panel_item');
+                });
+                base.info_container.click(function(e){
+                    e.stopPropagation();
+                });
+                $([base.info_container, base.container]).each(function(){
+                    $(this).hover(
+                        function(e){
+                            if(!base.isMobile){
+                                clearTimeout(base.sidebar_timeout);
+                                clearTimeout(base.info_panel_timeout);
+                            }
+                        },function(e){
+                            if(!base.isMobile){
+                                base.info_panel_timeout = setTimeout(function(){
+                                    base.info_container.removeClass();
+                                    $('.info_panel_item').removeClass('info_panel_item');
+                                },100);
+                                base.sidebar_timeout = setTimeout(function(){
+                                    base.info_container.removeClass('open');
+                                    $('#sidebar_nav').removeClass('open');
+                                    base.changeSidebarSize('small');
+                                    $('.info_panel_item').removeClass('info_panel_item');
+                                },100);
                             }
                         }
-                    }
-                     
-	        		break;
-		    }
-
-            if(!isMobile && !isTablet && !base.isSmallScreen){
-                var top_offset = (base.hovered_item.height()/2)+base.hovered_item.offset().top-$('#info_panel').offset().top;
-
-                $('#info_panel_arrow').css({
-                    'top':top_offset+'px'
+                    );
                 });
             }
-        }
+        }; 
 
-        base.hideInfo = function(){
-        	$('body').removeClass('info_panel_open');
-			$('#info_panel').removeData('slug');
-			$('#info_panel .view').hide();
-        	$('#sidebar .hovered_item').removeClass('hovered_item');
-        }
+        //THE MEAT AND POTATO FUNCTIONS
+        base.changePanel = function(new_panel,expand){
+            base.previous_panel = base.current_panel;
+            base.current_panel = new_panel;
 
-        base.getIconByType = function(type){
-        	//console.log(type);
-        	var icons = {
-        		'image' : 'icon-photo',
-        		'default' : 'icon-page'
-        	};
-        	if(typeof icons[type] !== 'undefined'){
-        		return icons[type];
-        	}else{
-        		return icons.default;
-        	}
-        }
-        
-        base.showOverlay = function(type){
-        	$('#sidebar_inside>header>.title').text(type.toUpperCase());
-        	$('#sidebar_panes .overlay').removeClass('overlay');
-        	$('#sidebar_panes #sidebar_'+type+'_pane').addClass('overlay');
-        }
-        base.hideOverlay = function(){
-			$('#sidebar_inside>header>.user_actions a').removeClass('active');
-        	$('#sidebar_inside>header>.title').text($('#sidebar_panes .pane.active').data('type').toUpperCase());
-        	$('#sidebar_panes .overlay').removeClass('overlay');
-        }
-        // Run initializer
+            $('body').removeClass(base.previous_panel).addClass(base.current_panel);
+            if(base.current_panel=='linear'){
+                base.changeSidebarSize('small');
+            }else if(expand!==false){
+                if(base.container.hasClass('small')){
+                    base.changeSidebarSize('medium');
+                }
+            }
+
+            $('.info_panel_item').removeClass('info_panel_item');
+            base.info_container.removeClass();
+        };
+
+        base.load_path_linear = function(path_container,linear_container){
+            var paths = currentNode.getRelations('path', 'incoming', 'reverseindex');
+            var path_of = currentNode.getRelations('path', 'outgoing', 'reverseindex');
+
+            //Do we have a path currently?
+            var current_path = null;
+            var current_page_on_path = false;
+            if(typeof base.queryVars.path != 'undefined' || base.queryVars.path != null){
+                for(path in paths){
+                    if(paths[path].body.slug == base.queryVars.path){
+                        current_page_on_path = true;
+                        current_path =  paths[path].body.outgoingRelations;
+                        path_container.addClass('has_header');
+                        path_container.find('.panel_header').html(paths[path].body.title).data({
+                            slug : paths[path].body.slug,
+                            url : paths[path].body.url
+                        });
+                        break;
+                    }
+                }
+            }else if(path_of.length > 0){
+                current_path = path_of;
+                path_container.addClass('has_header');
+                path_container.find('.panel_header').html(currentNode.title).data({
+                    slug : currentNode.slug,
+                    url : currentNode.url
+                });
+                base.queryVars.path = currentNode.slug;
+            }
+
+            var path_items = [];
+            if(current_path!=null){
+                
+                var previous_item = null;
+                var next_item = null;
+
+                //Determine the correct order that the items should be displayed in...
+                current_page_index = 0;
+                for(relationship in current_path){
+                    var this_relationship = current_path[relationship];
+                    if(this_relationship.target.slug == currentNode.slug){
+                        current_page_index = this_relationship.index;
+                    }
+                    path_items[this_relationship.index] = $('<li class="'+(current_page_index==this_relationship.index?'current':'')+'" data-url="'+this_relationship.target.url+'" data-slug="'+this_relationship.target.slug+'"><span class="index">'+this_relationship.index+'</span><span class="title">'+this_relationship.target.current.title+'</span></li>');
+                }
+                for(index in path_items){
+                    //Now just to add them in the right order.
+                    var this_item = path_items[index];
+
+                    var distance = Math.abs(index-current_page_index);
+                    
+                     if(current_page_on_path){
+                        this_item.data('distance',distance);
+                    }
+
+                    if(distance == 1){
+                        next_item = this_item;
+                    }else if(distance == -1){
+                        previous_item = this_item;
+                    }
+
+                    $('#path_list').append(this_item);
+                }
+                if(current_page_on_path && previous_item==null){
+                    previous_item = path_container.find('.panel_header');
+                }
+
+                //We can also do the linear panel now!
+                if(previous_item == null){
+                    base.container.find('#linear .left.panel').hide();
+                }else{
+                    if(previous_item.hasClass('panel_header')){
+                        base.container.find('#linear_left .title').html(previous_item.html());
+                    }else{
+                        base.container.find('#linear_left .title').html(previous_item.find('.title').html());
+                    }
+                    base.container.find('#linear_left').data({
+                        url : previous_item.data('url'),
+                        path : previous_item.hasClass('panel_header')?'':path_container.find('.panel_header').data('slug')
+                    }).show().click(function(e){
+                        window.location = base.getURL($(this).data('url'),{path:$(this).data('path'), p : 'linear'});
+                        e.preventDefault();
+                        return false;
+                    });
+                }
+                if(next_item == null){
+                    base.container.find('#linear .right.panel').hide();
+                }else{
+                    base.container.find('#linear_right').data({
+                        url : next_item.data('url'),
+                        path : path_container.find('.panel_header').data('slug')
+                    }).click(function(e){
+                        window.location = base.getURL($(this).data('url'),{path:$(this).data('path'), p : 'linear'});
+                        e.preventDefault();
+                        return false;
+                    }).show().find('.title').html(next_item.find('.title').html());
+                }
+            }else{
+                //No path, just show the current page.
+                path_container.removeClass('has_header');
+                $('<li class="current" data-url="'+currentNode.url+'" data-slug="'+currentNode.slug+'"><span class="index">1</span><span class="title">'+currentNode.current.title+'</span></li>').appendTo($('#path_list'));
+                base.container.find('#linear').hide();
+                $('body').addClass('no_linear');
+            }
+            $('#sidebar #path header, #sidebar #path #path_list li').click(function(e){
+                if(base.isMobile && !$(this).hasClass('info_panel_item')){
+                    base.changeSidebarSize('medium');
+                    base.hovered_item = $(this);
+                    $('.info_panel_item').removeClass('info_panel_item');
+                    $(this).addClass('info_panel_item');
+                    base.load_info_panel('path',$(this).data('slug'));
+                    e.stopPropagation();
+                }else if(!base.isMobile){
+                    window.location = base.getURL($(this).data('url'),{'p':'path'});
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            }).hover(
+                function(e){
+                    if(!base.isMobile){
+                        if(!$(this).hasClass('info_panel_item')){
+                            base.changeSidebarSize('medium');
+                            base.hovered_item = $(this);
+                            $('.info_panel_item').removeClass('info_panel_item');
+                            $(this).addClass('info_panel_item');
+                            base.load_info_panel('path',$(this).data('slug'));
+                        }
+                    }
+                },function(e){
+                }
+            );
+        };
+
+        base.load_tags = function(container){
+            var tags = currentNode.getRelations('tag', 'incoming', 'reverseindex');
+            var index = 0;
+            if(tags.length > 0){
+                for(t in tags){
+                    index++;
+                    var tag = tags[t];
+
+                    var item_html = '<li class="" data-url="'+tag.body.url+'" data-slug="'+tag.body.slug+'"><span class="index">'+index+'</span><span class="title">'+tag.body.current.title+'</span></li>';
+
+                    var new_item = $(item_html).appendTo(container.find('#tags_list'));
+                }
+                container.find('#tags_list li').click(function(e){
+                    if(base.isMobile && !$(this).hasClass('info_panel_item')){
+                        base.changeSidebarSize('medium');
+                        $('.info_panel_item').removeClass('info_panel_item');
+                        $(this).addClass('info_panel_item');
+                        base.hovered_item = $(this);
+                        base.load_info_panel('tags',$(this).data('slug'));
+                        e.stopPropagation();
+                    }else if(!base.isMobile){
+                        window.location = base.getURL($(this).data('url'),{'p':'path'});
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                }).hover(
+                    function(e){
+                        if(!base.isMobile){
+                            if(!$(this).hasClass('info_panel_item')){
+                                base.changeSidebarSize('medium');
+                                $('.info_panel_item').removeClass('info_panel_item');
+                                $(this).addClass('info_panel_item');
+                                base.hovered_item = $(this);
+                                base.load_info_panel('tags',$(this).data('slug'));
+                                e.stopPropagation();
+                            }
+                        }
+                    },function(e){
+                    }
+                );
+            }
+        };
+
+        base.load_grid = function(container){
+            var type_urls = {
+                path : scalarapi.model.urlPrefix+'rdf/instancesof/path?format=json',
+                page : scalarapi.model.urlPrefix+'rdf/instancesof/page?format=json',
+                media : scalarapi.model.urlPrefix+'rdf/instancesof/media?format=json',
+                comment : scalarapi.model.urlPrefix+'rdf/instancesof/reply?format=json',
+                annotation : scalarapi.model.urlPrefix+'rdf/instancesof/annotation?format=json',
+                tag : scalarapi.model.urlPrefix+'rdf/instancesof/tag?format=json'
+            }
+
+            for(type in type_urls){
+                url = type_urls[type];
+                if(type == 'media'){
+                    item_html = '<div data-type="image" class="col-xs-6 col-sm-12 grid_item text-center"><span class="sidebar_icon icon-photo"></span><br /><div class="title"></div></div>';
+                    var images_item = $(item_html).appendTo(base.container.find('#grid_list')).hide();
+
+                    //Video...
+                    item_html = '<div data-type="video" class="col-xs-6 col-sm-12 grid_item text-center"><span class="sidebar_icon icon-video"></span><br /><div class="title"></div></div>';
+                    var video_item = $(item_html).appendTo(base.container.find('#grid_list')).hide();
+
+                    //Audio...
+                    item_html = '<div data-type="audio" class="col-xs-6 col-sm-12 grid_item text-center"><span class="sidebar_icon icon-audio"></span><br /><div class="title"></div></div>';
+                    var audio_item = $(item_html).appendTo(base.container.find('#grid_list')).hide();
+                    (function(url,images_item,video_item,audio_item){
+                        $.getJSON(url,function(json){
+                            base.media = scalarapi.model.parseNodes(json);
+                            base.image = [];
+                            base.video = [];
+                            base.audio = [];
+
+                            for(var i in base.media){
+                                switch(base.media[i].current.mediaSource.contentType){
+                                    case 'image':
+                                        base.image.push(base.media[i]);
+                                        break;
+                                    case 'video':
+                                        base.video.push(base.media[i]);
+                                        break;
+                                    case 'audio':
+                                        base.audio.push(base.media[i]);
+                                        break;
+                                }
+                            }
+
+                            if(base.image.length > 0){
+                                images_item.show().click(function(e){
+                                    if(base.isMobile && !$(this).hasClass('info_panel_item')){
+                                        base.changeSidebarSize('medium');
+                                        $('.info_panel_item').removeClass('info_panel_item');
+                                        $(this).addClass('info_panel_item');
+                                        base.hovered_item = $(this);
+                                        base.load_info_panel('grid',$(this).data('type'));
+                                        e.stopPropagation();
+                                    }
+                                }).hover(
+                                    function(e){
+                                        if(!base.isMobile){
+                                            if(!$(this).hasClass('info_panel_item')){
+                                                base.changeSidebarSize('medium');
+                                                $('.info_panel_item').removeClass('info_panel_item');
+                                                $(this).addClass('info_panel_item');
+                                                base.hovered_item = $(this);
+                                                base.load_info_panel('grid',$(this).data('type'));
+                                                e.stopPropagation();
+                                            }
+                                        }
+                                    },function(e){}
+                                ).find('.title').text(base.image.length);
+                            }
+                            
+                            if(base.video.length > 0){
+                                video_item.show().click(function(e){
+                                    if(base.isMobile && !$(this).hasClass('info_panel_item')){
+                                        base.changeSidebarSize('medium');
+                                        $('.info_panel_item').removeClass('info_panel_item');
+                                        $(this).addClass('info_panel_item');
+                                        base.hovered_item = $(this);
+                                        base.load_info_panel('grid',$(this).data('type'));
+                                        e.stopPropagation();
+                                    }
+                                }).hover(
+                                    function(e){
+                                        if(!base.isMobile){
+                                            if(!$(this).hasClass('info_panel_item')){
+                                                base.changeSidebarSize('medium');
+                                                $('.info_panel_item').removeClass('info_panel_item');
+                                                $(this).addClass('info_panel_item');
+                                                base.hovered_item = $(this);
+                                                base.load_info_panel('grid',$(this).data('type'));
+                                                e.stopPropagation();
+                                            }
+                                        }
+                                    },function(e){}
+                                ).find('.title').text(base.video.length);
+                            }
+                            
+                            if(base.audio.length > 0){
+                                audio_item.show().click(function(e){
+                                    if(base.isMobile && !$(this).hasClass('info_panel_item')){
+                                        base.changeSidebarSize('medium');
+                                        $('.info_panel_item').removeClass('info_panel_item');
+                                        $(this).addClass('info_panel_item');
+                                        base.hovered_item = $(this);
+                                        base.load_info_panel('grid',$(this).data('type'));
+                                        e.stopPropagation();
+                                    }
+                                }).hover(
+                                    function(e){
+                                        if(!base.isMobile){
+                                            if(!$(this).hasClass('info_panel_item')){
+                                                base.changeSidebarSize('medium');
+                                                $('.info_panel_item').removeClass('info_panel_item');
+                                                $(this).addClass('info_panel_item');
+                                                base.hovered_item = $(this);
+                                                base.load_info_panel('grid',$(this).data('type'));
+                                                e.stopPropagation();
+                                            }
+                                        }
+                                    },function(e){}
+                                ).find('.title').text(base.audio.length);
+                            }
+                        });
+                    })(url,images_item,video_item,audio_item);
+                }else{
+                    icon = type;   
+                    (function(url,item,type){
+                        $.getJSON(url,function(json){
+                            base[type] = scalarapi.model.parseNodes(json);
+                            if(base[type].length > 0){
+                                item.show().click(function(e){
+                                    if(base.isMobile && !$(this).hasClass('info_panel_item')){
+                                        base.changeSidebarSize('medium');
+                                        $('.info_panel_item').removeClass('info_panel_item');
+                                        $(this).addClass('info_panel_item');
+                                        base.hovered_item = $(this);
+                                        base.load_info_panel('grid',$(this).data('type'));
+                                        e.stopPropagation();
+                                    }
+                                }).hover(
+                                    function(e){
+                                        if(!base.isMobile){
+                                            if(!$(this).hasClass('info_panel_item')){
+                                                base.changeSidebarSize('medium');
+                                                $('.info_panel_item').removeClass('info_panel_item');
+                                                $(this).addClass('info_panel_item');
+                                                base.hovered_item = $(this);
+                                                base.load_info_panel('grid',$(this).data('type'));
+                                                e.stopPropagation();
+                                            }
+                                        }
+                                    },function(e){}
+                                ).find('.title').text(base[type].length);
+                            }
+                        });
+                    })(url,$('<div data-type="'+type+'" class="col-xs-6 col-sm-12 grid_item text-center"><span class="sidebar_icon icon-'+icon+'"></span><br /><div class="title"></div></div>').appendTo(base.container.find('#grid_list')).hide(),type);
+                }
+            }
+        };
+
+        base.load_recent = function(container){
+            try {
+                var prev_string = localStorage.getItem('scalar_user_history');
+            } catch(err) {
+                // Most likely user is in Safari private browsing mode
+            }
+            if ('undefined'==typeof(prev_string) || !prev_string || !prev_string.length) {
+                //No nodes - handle empty recent pane here...
+                container.find('#recent_list').append('<li class="empty active">Your history is currently empty.</li>');
+            } else {
+                var nodes = JSON.parse(prev_string);
+                var index = 0;
+                for(var uri in nodes){
+                    var this_node = nodes[uri];
+                    if(uri.indexOf(scalarapi.model.urlPrefix)>=0){
+                        var slug = uri.replace(scalarapi.model.urlPrefix,'');
+                        index++;
+                        if(typeof this_node['http://purl.org/dc/elements/1.1/title']!='undefined' && this_node['http://purl.org/dc/elements/1.1/title'] != null && this_node['http://purl.org/dc/elements/1.1/title'].length > 0){
+                            var title = this_node['http://purl.org/dc/elements/1.1/title'][this_node['http://purl.org/dc/elements/1.1/title'].length-1].value;
+                        }else{
+                            //We don't have a title... Skip this one?
+                            index--;
+                            continue;
+                        }
+                        var item_html = '<li data-url="'+uri+'" data-slug="'+slug+'"><span class="index">'+index+'</span><div class="title">'+title+'</div></li>';
+                        var new_item = $(item_html).appendTo(container.find('#recent_list')).find('.title');
+
+                        if(slug == currentNode.slug){
+                            new_item.addClass('active');
+                        }
+                    }
+                }
+                container.find('#recent_list li').click(function(e){
+                    if(base.isMobile && !$(this).hasClass('info_panel_item')){
+                        base.changeSidebarSize('medium');
+                        $('.info_panel_item').removeClass('info_panel_item');
+                        $(this).addClass('info_panel_item');
+                        base.hovered_item = $(this);
+                        base.load_info_panel('recent',$(this).data('slug'));
+                        e.stopPropagation();
+                    }else if(!base.isMobile){
+                        window.location = base.getURL($(this).data('url'),{'p':'path'});
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                }).hover(
+                    function(e){
+                        if(!base.isMobile){
+                            if(!$(this).hasClass('info_panel_item')){
+                                base.changeSidebarSize('medium');
+                                $('.info_panel_item').removeClass('info_panel_item');
+                                $(this).addClass('info_panel_item');
+                                base.hovered_item = $(this);
+                                base.load_info_panel('recent',$(this).data('slug'));
+                                e.stopPropagation();
+                            }
+                        }
+                    },function(e){}
+                );
+            }
+        };
+
         base.init();
     };
     
-    $.scalarSidebar.defaultOptions = {
-    };
-    
-    $.fn.scalarSidebar = function(options){
+    $.fn.scalarSidebar = function(){
         return this.each(function(){
-            (new $.scalarSidebar(this, options));
+            (new $.scalarSidebar(this));
         });
     };
     
+
 })(jQuery);
