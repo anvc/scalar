@@ -2293,8 +2293,9 @@ function ScalarModel(options) {
 		{property:'urn', uri:'http://scalar.usc.edu/2012/01/scalar-ns#urn', type:'string'},
 		{property:'sortNumber', uri:'http://scalar.usc.edu/2012/01/scalar-ns#sort_number', type:'int'},
 		{property:'continueTo', uri:'http://scalar.usc.edu/2012/01/scalar-ns#continue_to_content_id', type:'int'},
-		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},  // Add by Craig 21 July 2014
-		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'}  // Add by Craig 15 August 2014
+		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},
+		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},
+		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'}
 	];
 	
 	this.auxPropertyMap = [
@@ -2479,7 +2480,7 @@ ScalarModel.prototype.parseNodes = function(json) {
 					versionData.push({url:versionUrl, json:json[versionUrl]});
 				}
 			}
-	
+			
 			// if this node has already been created, then update it
 			if (this.nodesByURL[property]) {
 				node = this.nodesByURL[property];
