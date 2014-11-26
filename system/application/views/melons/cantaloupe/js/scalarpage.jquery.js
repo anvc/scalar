@@ -530,12 +530,30 @@
 				if ( publisherNode != null ) {
 					var publisherThumbnail = publisherNode.properties[ 'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail' ];
 					if ( publisherThumbnail != null ) {
-						publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
+
+						// extract the first link from the publisher info and wrap it around the publisher thumbnail
+						var link;
+						var tempA = publisherNode.title.split( '</a>' );
+						if ( tempA.length > 1 ) {
+							var tempB = tempA[ 0 ].split( '<a' );
+							var link = $( '<a' + tempB[ 1 ] + '</a>' );
+							link.empty();
+						}
+
+						if ( link != null ) {
+							link.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
+							publisherInfo.append( link );
+
+						// otherwise, just add the publisher thumbnail
+						} else {
+							publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
+						}
+
 					}
 					publisherInfo.append( ' ' + (publisherNode.title?publisherNode.title:'') );
 				}
 				$( '#colophon' ).prepend( publisherInfo );
-			
+
 			},
 			
 			addMediaElements: function() {
