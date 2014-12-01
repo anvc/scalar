@@ -1,7 +1,18 @@
 <?php
 
+// Melon metadata
+$config['melon_meta'] = array(
+    'is_selectable' => false,
+	'slug'=>'cantaloupe',
+	'name'=>'Template 2.0',
+	'description'=>''
+);
+
 // Arbor (wrapper) to use, e.g., 'html5_RDFa'
 $config['arbor'] = 'html5_RDFa';
+
+// Stylesheets
+$config['stylesheets'] = array();
 
 // Array of views; leave value empty and it won't be displayed as a default view option in the editor
 $config['views'] = array(
