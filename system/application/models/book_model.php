@@ -357,13 +357,15 @@ class Book_model extends MY_Model {
     public function add($array=array()) {
 
     	if ('array'!=gettype($array)) $array = (array) $array;
-    	$CI =& get_instance(); 	
+    	$CI =& get_instance();
     	
  		$title =@ $array['title'];
  		if (empty($title)) $title = 'Untitled';
-    	$user_id =@ (int) $array['user_id'];	 // Don't validate, as admin functions can create books not connected to any author
- 		$template = (isset($array['template'])) ? $array['template'] : null;
-		$chmod_mode = $this->config->item('chmod_mode'); 	
+    	$user_id =@ (int) $array['user_id'];  // Don't validate, as admin functions can create books not connected to any author
+ 		$book_user = (empty($user_id)&&isset($CI->data['login'])) ? (int) $CI->data['login']->user_id : $user_id;
+    	$template = (isset($array['template'])&&!empty($array['template'])) ? $array['template'] : null; 
+    	$stylesheet = (isset($array['stylesheet'])&&!empty($array['stylesheet'])) ? $array['stylesheet'] : $this->default_stylesheet;
+		$chmod_mode = $this->config->item('chmod_mode');
  		
     	if (empty($title)) throw new Exception('Could not resolve title');
     	$active_melon = $this->config->item('active_melon');
@@ -378,28 +380,30 @@ class Book_model extends MY_Model {
  		}
 
  		if (!mkdir($uri)) {
- 			die('There was a problem creating the book\'s folder on the filesystem.');
+ 			throw new Exception('There was a problem creating the book\'s folder on the filesystem -- check permissions of the parent folder.');
  		}
  		if (!mkdir(confirm_slash($uri).'media')) {
- 			echo 'Alert: could not create media folder.';
+ 			throw new Exception('Could not create media folder in book folder -- check permissions on the parent folder.');
  		}
     	    	
     	@chmod($uri, $chmod_mode);
     	@chmod(confirm_slash($uri).'media', $chmod_mode);
  	
     	// Required fields
-		$data = array('title' => $title, 'slug' =>$uri, 'created'=>$mysqldate = date('Y-m-d H:i:s'), 'stylesheet'=>$this->default_stylesheet );
-		// Custom fields
+		$data = array('title' => $title, 'slug' =>$uri, 'user'=>$book_user, 'created'=>$mysqldate = date('Y-m-d H:i:s'), 'stylesheet'=>$stylesheet);
+		// Optional fields
 		if (!empty($template)) $data['template'] = $template;
-		if (isset($CI->data['login']->user_id)) $data['user'] = (int) $CI->data['login']->user_id;
 		if (isset($array['subtitle']) && !empty($array['subtitle'])) 		$data['subtitle'] = $array['subtitle'];
+		if (isset($array['description']) && !empty($array['description'])) 	$data['description'] = $array['description'];
 		if (isset($array['thumbnail']) && !empty($array['thumbnail'])) 		$data['thumbnail'] = $array['thumbnail'];
 		if (isset($array['background']) && !empty($array['background'])) 	$data['background'] = $array['background'];
 		if (isset($array['template']) && !empty($array['template'])) 		$data['template'] = $array['template'];
 		if (isset($array['custom_style']) && !empty($array['custom_style'])) $data['custom_style'] = $array['custom_style'];
 		if (isset($array['custom_js']) && !empty($array['custom_js'])) 		$data['custom_js'] = $array['custom_js'];
 		if (isset($array['scope']) && !empty($array['scope'])) 				$data['scope'] = $array['scope'];
-
+		if (isset($array['publisher']) && !empty($array['publisher'])) 		$data['publisher'] = $array['publisher'];
+		if (isset($array['publisher_thumbnail']) && !empty($array['publisher_thumbnail'])) $data['publisher_thumbnail'] = $array['publisher_thumbnail'];
+		
 		$this->db->insert($this->books_table, $data); 
 		$book_id = mysql_insert_id();
 		

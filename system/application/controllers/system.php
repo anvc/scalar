@@ -297,48 +297,43 @@ class System extends MY_Controller {
 		 			exit;
 				case 'do_duplicate_book':   // My Account  TODO
 					$user_id =@ (int)$_POST['user_id'];
+					$array = $_POST;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
-					$book_id = (int) $this->books->duplicate($_POST);
-					//@Lucas - added option to redirect to page of choice
-					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
-						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
-					
-						$redirect_url = $_POST['redirect'];
-						
-						if(!isset($url_has_query)){
-							if(substr($redirect_url, -1)!='?'){
-								$redirect_url .= '?';
-							}
-						}else{
+					$book_id = (int) $this->books->duplicate($array);
+					// Option to redirect to page of choice
+					if (isset($array['redirect']) && filter_var($array['redirect'],FILTER_VALIDATE_URL)) {
+						$url_has_query = parse_url($array['redirect'],PHP_URL_QUERY);
+						$redirect_url = $array['redirect'];
+						if (!isset($url_has_query)) {
+							if (substr($redirect_url, -1)!='?') $redirect_url .= '?';
+						} else {
 							$redirect_url .= '&';
 						}
-						$redirect_url .= 'duplicated=1';
-						
+						$redirect_url .= 'duplicated=1';  // TODO: Change to action=duplicated
 						header('Location: '.$redirect_url);
-					}else{
+					// Redirect to Dashboard > My Account
+					} else {
 						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=duplicated');
 					}
 					exit; 		 			
-				case 'do_add_book':   // Admin: All Books (requires title) & My Account (request user_id & title)
-					$user_id =@ (int)$_POST['user_id'];
-					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout(); 
-					$book_id = (int) $this->books->add($_POST);
-					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
-						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
-					
-						$redirect_url = $_POST['redirect'];
-						
-						if(!isset($url_has_query)){
-							if(substr($redirect_url, -1)!='?'){
-								$redirect_url .= '?';
-							}
-						}else{
+				case 'do_add_book':   // Admin: All Books (requires title) & My Account (user_id & title)
+					$user_id =@ (int) $_POST['user_id'];
+					$array = $_POST;
+					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout();   
+					$book_id = (int) $this->books->add($array);
+					// Option to redirect to page of choice
+					if (isset($array['redirect']) && filter_var($array['redirect'],FILTER_VALIDATE_URL)) {
+						$url_has_query = parse_url($array['redirect'],PHP_URL_QUERY);
+						$redirect_url = $array['redirect'];
+						if (!isset($url_has_query)) {
+							if(substr($redirect_url, -1)!='?') $redirect_url .= '?';
+						} else {
 							$redirect_url .= '&';
 						}
 						$redirect_url .= 'created=1';
-						
 						header('Location: '.$redirect_url);
-					}else{
+					// Redirect to Dashboard > My Account	
+					} else {
 						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					}
 					exit; 			 					 			

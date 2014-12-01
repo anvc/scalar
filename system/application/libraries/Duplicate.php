@@ -68,19 +68,17 @@ class Duplicate {
 	 	$uri = confirm_slash(base_url()).$book->slug;
 	 	$path = confirm_slash(FCPATH).$book->slug;
 	 	
-	 	// Copy thumbnail and background images (if applicable)
-	 	$book->thumbnail  = '';
-	 	$book->background = '';
+	 	// Copy book physical media
 	 	if (!empty($duplicated_book->thumbnail) && file_exists($duplicated_path.'/'.$duplicated_book->thumbnail)) {
-	 		if (copy($duplicated_path.'/'.$duplicated_book->thumbnail, $path.'/'.$duplicated_book->thumbnail)) {	
-	 			$book->thumbnail = $duplicated_book->thumbnail;
+	 		if (!copy($duplicated_path.'/'.$duplicated_book->thumbnail, $path.'/'.$duplicated_book->thumbnail)) {	
+	 			// Not critical so don't throw an exception
 	 		}
 	 	}
-    	 if (!empty($duplicated_background) && file_exists($duplicated_path.'/'.$duplicated_book->background)) {
-	 		if (copy($duplicated_path.'/'.$duplicated_book->background, $path.'/'.$duplicated_book->background)) {	
-	 			$book->background = $duplicated_book->background;
+    	if (!empty($duplicated_book->publisher_thumbnail) && file_exists($duplicated_path.'/'.$duplicated_book->publisher_thumbnail)) {
+	 		if (!copy($duplicated_path.'/'.$duplicated_book->publisher_thumbnail, $path.'/'.$duplicated_book->publisher_thumbnail)) {	
+	 			// Not critical so don't throw an exception
 	 		}
-	 	}	 	
+	 	} 	
 
 	 	// Copy pages
 	 	$pages = $this->CI->pages->get_all($duplicated_book_id);  // Only live pages
