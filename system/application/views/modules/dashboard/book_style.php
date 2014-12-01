@@ -5,21 +5,55 @@
 .removed a {color:#999999;}
 </style>			
 <script>
+var interfaces = <?=json_encode($interfaces)?>;
+var active_melon = '<?=$this->config->item('active_melon')?>';
+var book_melon = '<?=$book->template?>';
+var book_stylesheet = '<?=$book->stylesheet?>';
+function select_interface(melon) {
+    $('#interface').empty();
+    var $template = $('<span style="display:none;">Template: <select name="template"></select>&nbsp; &nbsp; </span>').appendTo('#interface');
+    var selected_melon = null;
+    for (var j in interfaces) {
+        if (melon==interfaces[j]['meta']['slug']) selected_melon = interfaces[j];
+		$('<option '+((melon==interfaces[j]['meta']['slug'])?'SELECTED ':'')+' '+((!interfaces[j]['meta']['is_selectable'])?'DISABLED ':'')+' value="'+interfaces[j]['meta']['slug']+'">'+interfaces[j]['meta']['name']+((interfaces[j]['meta']['description'].length)?' - '+interfaces[j]['meta']['description']:'')+'</option>').appendTo($template.find('select:first'));
+    }
+    $template.find('select:first').change(function() {
+		var selected = $(this).find(':selected').val();
+		select_interface(selected);
+    });    
+    if (selected_melon['stylesheets'].length) {
+   		var $stylesheets = $('<span>Theme: <select name="stylesheet"></select>&nbsp; &nbsp; </span>').appendTo('#interface');
+   		var stylesheet = selected_melon['stylesheets'][0]['slug'];
+   		if (book_stylesheet.length) stylesheet = book_stylesheet;
+   		var style_thumb = '';
+   		for (var j in selected_melon['stylesheets']) {
+   	   		if (stylesheet==selected_melon['stylesheets'][j]['slug']) style_thumb = selected_melon['stylesheets'][j]['thumb_app_path'];
+			$('<option '+((stylesheet==selected_melon['stylesheets'][j]['slug'])?'SELECTED ':'')+'value="'+selected_melon['stylesheets'][j]['slug']+'">'+selected_melon['stylesheets'][j]['name']+'</option>').appendTo($stylesheets.find('select:first'));
+   		}
+   		var $style_thumb = $('<span id="style_thumb"><img src="'+$('link#approot').attr('href')+style_thumb+'" align="top" /></span>').appendTo('#interface');
+		$stylesheets.find('select:first').change(function() {
+			var selected = $(this).find(':selected').val();
+			for (var j in selected_melon['stylesheets']) {
+				if (selected==selected_melon['stylesheets'][j]['slug']) {
+					var url = $('link#approot').attr('href')+selected_melon['stylesheets'][j]['thumb_app_path'];
+					$(this).closest('#interface').find('#style_thumb img').attr('src', url);
+					break;
+				}
+			}
+		});
+   	} else {
+		$('<span>There are no theme options for the current template</span>').appendTo('#interface');
+    }
+}
 $(window).ready(function() {
 	
     $('.save_changes').next('a').click(function() {
     	$('#style_form').submit();
     	return false;
     });
-    
-    $('#select_stylesheet').change(function() {
-    	var url = $('#img_stylesheet').attr('src');
-    	var url = dirname(url)+'/theme_'+$(this).val()+'.jpg';
-    	$('#img_stylesheet').fadeOut('fast', function() {
-    		$(this).attr('src', url);
-    		$(this).fadeIn('fast');
-    	});
-    });
+
+    if (!book_melon.length) book_melon = active_melon;
+	select_interface(book_melon);   
     
     $('#book_versions').sortable();
     $('#book_versions a').live('click', function() {
@@ -117,7 +151,7 @@ $(window).ready(function() {
 		<? endif ?>
 		<table cellspacing="0" cellpadding="0" style="width:100%;" class="trim_horz_padding">
 <?
-		$row = $book;  // TEMP
+		$row = $book; 
 		if (!empty($row)):
 			if (!empty($book_id) && $row->book_id != $book_id) continue;	
 			// Title
@@ -148,42 +182,20 @@ $(window).ready(function() {
 			echo "</td>\n";
 			echo "</tr>\n";	
 			// URI segment
-			echo '<tr typeof="books">';
+			echo '<tr>';
 			echo '<td style="vertical-align:middle;">URI Segment';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" class="row_div" colspan="2">';
 			echo confirm_slash(base_url()).'<input name="slug" type="text" value="'.htmlspecialchars($row->slug).'" style="width:150px;" />';
 			echo "</td>\n";
-			echo "</tr>\n";	
-			// Row div
-			//echo '<tr class="row_div"><td colspan="3"></td></tr>';	
-			// Stylesheet
+			echo "</tr>\n";		
 			echo '<tr typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Style</h4></td><td></td></tr>';
+			// Interface
 			echo '<tr>';
-			echo '<td><p>Template &amp; theme</p>';
-			echo '</td>'."\n";
+			echo '<td><p>Interface</p></td>'."\n";
 			echo '<td>';
-			echo '<p>';
-			//echo '<input type="hidden" name="template" value="honeydew" />';
-			/*
-			echo 'Template: <select name="template" id="select_template">';
-			foreach ($this->template->config['selectable_templates'] as $template):
-				echo '<option value="'.$template.'"'.(($row->template==$template)?' SELECTED':'').'>'.ucwords($template).(('cantaloupe'==$template)?' (Experimental)':'').'</option>';		
-			endforeach;
-			echo '</select>';
-			echo str_repeat("&nbsp; ", 5);
-			*/
-			echo 'Theme: <select name="stylesheet" id="select_stylesheet">';
-			echo '<option value="minimal"'.(($row->stylesheet=='minimal')?' SELECTED':'').'>Minimal</option>';
-			echo '<option value="denim"'.(($row->stylesheet=='denim')?' SELECTED':'').'>Denim</option>';
-			echo '<option value="slate"'.(($row->stylesheet=='slate')?' SELECTED':'').'>Slate</option>';
-			echo '<option value="linen"'.(($row->stylesheet=='linen')?' SELECTED':'').'>Linen</option>';
-			echo '<option value="gloss"'.(($row->stylesheet=='gloss')?' SELECTED':'').'>Gloss</option>';
-			echo '<option value="fathom"'.(($row->stylesheet=='fathom')?' SELECTED':'').'>Fathom</option>';
-			echo '<option value="shale"'.(($row->stylesheet=='shale')?' SELECTED':'').'>Shale</option>';
-			echo '</select>';
-			echo ' <img id="img_stylesheet" style="vertical-align:top;margin-left:10px;" src="'.confirm_slash(base_url()).'system/application/views/modules/dashboard/honeydew/theme_'.$row->stylesheet.'.jpg" />';
+			echo '<p id="interface">';
 			echo '</p>';
 			echo "</td>\n";
 			echo '<td>';

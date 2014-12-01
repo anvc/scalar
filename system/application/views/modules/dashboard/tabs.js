@@ -41,7 +41,7 @@ $(document).ready(function() {
 	$('form input, form textarea').keyup(function() {
 		$(this).closest('form').find('.save_changes').fadeIn();
 	});
-	$('form select, form input:checkbox').change(function() {
+	$('form').on('change', 'select, input:checkbox', function() {
 		$(this).closest('form').find('.save_changes').fadeIn();
 	});
 	

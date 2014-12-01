@@ -277,6 +277,23 @@ abstract class MY_Controller extends Controller {
    		
    	} 	
    	
+   	/** 
+   	 * Get paths to melons
+   	 */
+   	
+   	protected function melon_paths() {
+   		
+   		$melon_dir = APPPATH.'views/melons';
+   		$files = scandir($melon_dir);
+   		$paths = array();
+   		foreach ($files as $file) {
+   			if ($file=='.'||$file=='..') continue;
+   			$paths[] = $melon_dir.'/'.$file.'/';
+   		}
+   		return $paths;
+   		
+   	}
+   	
    	/**
    	 * Determine if paywall page should be presented rather than the protected page content
    	 */
