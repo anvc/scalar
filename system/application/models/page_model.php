@@ -366,7 +366,7 @@ class Page_model extends MY_Model {
     	}
     
     	$slug = $this->safe_slug($slug, $array['book_id']);	
-    
+    	
     	$data = array();
     	$data['book_id']    = (int) $array['book_id'];
 		$data['slug']       = (string) $slug;

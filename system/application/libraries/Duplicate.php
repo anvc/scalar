@@ -97,7 +97,7 @@ class Duplicate {
 
 	 	// Save relate (after all the pages have been created)
 	 	foreach ($pages as $page) {
-	 		$parent = $this->CI->pages->get_by_slug($book->book_id, $page->slug);
+	 		$parent = $this->CI->pages->get_by_slug($book->book_id, $page->slug);  // Get the page from the new book's content
 			$parent->versions = $this->CI->versions->get_all($parent->content_id, null, 1);  // Most recent version	 		 		
 	 		$this->_do_relate($book, $page, $parent);
 	 	}
