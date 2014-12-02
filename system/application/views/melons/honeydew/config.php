@@ -4,8 +4,9 @@
 $config['melon_meta'] = array(
     'is_selectable' => true,
 	'slug'=>'honeydew',
-	'name'=>'Template 1.0',
-	'description'=>''
+	'name'=>'Scalar 1.0',
+	'description'=>'Scalar\'s first interface that has been used for a number of publications',
+	'thumb_app_path'=>'views/melons/honeydew/images/generic_media_thumb.jpg'
 );
 
 // Arbor (wrapper) to use, e.g., 'html5_RDFa'

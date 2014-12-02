@@ -19,6 +19,9 @@
 
 @import url(http://fonts.googleapis.com/css?family=Lato:400,900,400italic,900italic);
 
+/** Comment out to hide Dashboard > Book properties > Interface Template (Melon) select **/
+/** #select_template {display:none} **/
+
 body {
 	margin:0px 0px 0px 0px;
 	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;  color:#000000; font-size:0.8em;
@@ -28,6 +31,8 @@ body {
 
 a {text-decoration:none; color:#026697;}
 a:hover {text-decoration:underline;}
+
+label {cursor:pointer;}
 
 .system_wrapper {clear:both; margin-left:2.0em; margin-right:2.0em;}
 
@@ -171,6 +176,13 @@ a:hover {text-decoration:underline;}
 	width: 100%;
 	border-collapse: collapse;
 }
+
+#interface > span {padding-right:20px;}
+.whatsthis {font-size:smaller;}
+.melondialog table {width:100%;}
+.melondialog td {padding-right:20px; width:50%;}
+.melondialog p {line-height:110%;}
+.melondialog img {width:100%; cursor:pointer;}
 
 /* Duplicate from content.css (which isn't loaded on the system screens */
 

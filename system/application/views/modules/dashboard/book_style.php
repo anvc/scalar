@@ -1,30 +1,41 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.melondialog.js')?>
 	
 <style>
 .removed {color:#bbbbbb;}
 .removed a {color:#999999;}
 </style>			
+<script id="interfaces" type="application/json"><?=json_encode($interfaces)?></script>
+<link id=active_melon href="<?=$this->config->item('active_melon')?>" />
+<link id="book_melon" href="<?=@$book->template?>" />
+<link id="book_stylesheet" href="<?=@$book->stylesheet?>" />
 <script>
-var interfaces = <?=json_encode($interfaces)?>;
-var active_melon = '<?=$this->config->item('active_melon')?>';
-var book_melon = '<?=$book->template?>';
-var book_stylesheet = '<?=$book->stylesheet?>';
 function select_interface(melon) {
     $('#interface').empty();
-    var $template = $('<span style="display:none;">Template: <select name="template"></select>&nbsp; &nbsp; </span>').appendTo('#interface');
+    var $template = $('<span id="select_template">Template: <select name="template"></select>&nbsp; </span>').appendTo('#interface');
+    var $whats_this = $('<a class="whatsthis" href="javascript:void(null);">What\'s this?</a>').appendTo($template);
+    $whats_this.click(function() {
+		$('<div></div>').melondialog({
+			data:JSON.parse($("#interfaces").text()),
+			select:$(this).siblings('select:first'),
+			urlroot:$('#approot').attr('href'),
+			selected:melon
+		});
+    });
+    var interfaces = JSON.parse($("#interfaces").text());
     var selected_melon = null;
     for (var j in interfaces) {
         if (melon==interfaces[j]['meta']['slug']) selected_melon = interfaces[j];
-		$('<option '+((melon==interfaces[j]['meta']['slug'])?'SELECTED ':'')+' '+((!interfaces[j]['meta']['is_selectable'])?'DISABLED ':'')+' value="'+interfaces[j]['meta']['slug']+'">'+interfaces[j]['meta']['name']+((interfaces[j]['meta']['description'].length)?' - '+interfaces[j]['meta']['description']:'')+'</option>').appendTo($template.find('select:first'));
+		$('<option '+((melon==interfaces[j]['meta']['slug'])?'SELECTED ':'')+' '+((!interfaces[j]['meta']['is_selectable'])?'DISABLED ':'')+' value="'+interfaces[j]['meta']['slug']+'">'+interfaces[j]['meta']['name']+'</option>').appendTo($template.find('select:first'));
     }
     $template.find('select:first').change(function() {
 		var selected = $(this).find(':selected').val();
 		select_interface(selected);
     });    
     if (selected_melon['stylesheets'].length) {
-   		var $stylesheets = $('<span>Theme: <select name="stylesheet"></select>&nbsp; &nbsp; </span>').appendTo('#interface');
+   		var $stylesheets = $('<span>Theme: <select name="stylesheet"></select></span>').appendTo('#interface');
    		var stylesheet = selected_melon['stylesheets'][0]['slug'];
-   		if (book_stylesheet.length) stylesheet = book_stylesheet;
+   		if ($('#book_stylesheet').attr('href').length) stylesheet = $('#book_stylesheet').attr('href');
    		var style_thumb = '';
    		for (var j in selected_melon['stylesheets']) {
    	   		if (stylesheet==selected_melon['stylesheets'][j]['slug']) style_thumb = selected_melon['stylesheets'][j]['thumb_app_path'];
@@ -52,6 +63,8 @@ $(window).ready(function() {
     	return false;
     });
 
+	var active_melon = $('#active_melon').attr('href');
+    var book_melon = $('#book_melon').attr('href');
     if (!book_melon.length) book_melon = active_melon;
 	select_interface(book_melon);   
     

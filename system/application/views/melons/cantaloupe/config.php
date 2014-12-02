@@ -2,10 +2,11 @@
 
 // Melon metadata
 $config['melon_meta'] = array(
-    'is_selectable' => false,
+    'is_selectable' => true,
 	'slug'=>'cantaloupe',
-	'name'=>'Template 2.0',
-	'description'=>''
+	'name'=>'Scalar 2.0',
+	'description'=>'Evolutionary Scalar interface optimized for desktop, tablet, and mobile',
+	'thumb_app_path'=>'views/melons/honeydew/images/generic_media_thumb.jpg'
 );
 
 // Arbor (wrapper) to use, e.g., 'html5_RDFa'
