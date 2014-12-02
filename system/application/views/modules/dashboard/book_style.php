@@ -12,7 +12,7 @@
 <script>
 function select_interface(melon) {
     $('#interface').empty();
-    var $template = $('<span id="select_template">Template: <select name="template"></select>&nbsp; </span>').appendTo('#interface');
+    var $template = $('<span id="select_template">Interface: <select name="template"></select>&nbsp; </span>').appendTo('#interface');
     var $whats_this = $('<a class="whatsthis" href="javascript:void(null);">What\'s this?</a>').appendTo($template);
     $whats_this.click(function() {
 		$('<div></div>').melondialog({
@@ -204,9 +204,9 @@ $(window).ready(function() {
 			echo "</tr>\n";		
 			echo '<tr typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Style</h4></td><td></td></tr>';
-			// Interface
+			// Template/stylesheet
 			echo '<tr>';
-			echo '<td><p>Interface</p></td>'."\n";
+			echo '<td><p>Design</p></td>'."\n";
 			echo '<td>';
 			echo '<p id="interface">';
 			echo '</p>';

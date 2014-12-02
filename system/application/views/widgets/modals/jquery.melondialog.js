@@ -6,8 +6,8 @@
 			modal: true,
 			urlroot: '',
 			selected: null,
-			title: 'Scalar template',
-			msg: 'Please choose a Scalar template.<br /><small>This can be changed later, however there are differents between templates that might cause problems when transitioning content.</small>',
+			title: 'Choose a Scalar interface',
+			msg: '<small>This can be changed at any time. However, there are differences between interfaces that might cause alignment problems when transitioning previously authored content.</small>',
 			width: 600,
 			height: 500
 	};  	
@@ -40,7 +40,7 @@
     		$('<p>'+opts.data[j]['meta']['name']+'</p>').appendTo($cell);
     		var $img = $('<img src="'+opts.urlroot+opts.data[j]['meta']['thumb_app_path']+'" />').appendTo($cell);
     		$('<p><small>'+opts.data[j]['meta']['description']+'</small></p>').appendTo($cell);
-    		var $radio = $('<p><small><input id="cb_'+j+'" type="radio" name="template" value="'+opts.data[j]['meta']['slug']+'" /><label for="cb_'+j+'"> Selected template</label></small></p>').appendTo($cell);
+    		var $radio = $('<p><small><input id="cb_'+j+'" type="radio" name="template" value="'+opts.data[j]['meta']['slug']+'" /><label for="cb_'+j+'"> Selected interface</label></small></p>').appendTo($cell);
     		if (opts.selected==opts.data[j]['meta']['slug']) $radio.find('input').prop('checked', true);
     		$img.click(function() {
     			$(this).parent().find('input[type="radio"]').prop('checked', true);
