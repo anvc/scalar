@@ -241,7 +241,7 @@
 							containingPathOptionCount++;
 							
 						} else if (page.containingPathIndex == (page.containingPathNodes.length - 1)) {
-							section.append( '<p><a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo; Back to “' + page.containingPathNodes[ page.containingPathIndex - 1 ].getDisplayTitle() + '”</a></p>' );
+							section.append( '<p><a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[ page.containingPathIndex - 1 ].getDisplayTitle() + '&rdquo;</a></p>' );
 						}
 					}
 				}
@@ -255,7 +255,7 @@
 					if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
 						section = $('<section class="relationships"></section').appendTo('article');
 						links = $( '<p></p>' );
-						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path “' + page.containingPath.getDisplayTitle() + '”. <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
+						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;. <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
 						
 						// back button
 						if ( page.containingPathIndex > 0 ) {
@@ -313,8 +313,8 @@
 							nodes = currentNode.getRelatedNodes('path', 'outgoing');
 							if (nodes.length > 0) {
 								button = $( '<p><a class="nav_btn" href="' + nodes[ 0 ].url + '?path=' + 
-									currentNode.slug + '">Begin with “' + nodes[0].getDisplayTitle() +
-									'”</a></p>' ).appendTo( section );
+									currentNode.slug + '">Begin with &ldquo;' + nodes[0].getDisplayTitle() +
+									'&rdquo;</a></p>' ).appendTo( section );
 								if (( page.containingPaths.length == 0 ) || !showLists ) {
 									button.find( 'a' ).addClass( 'primary' );
 								}
