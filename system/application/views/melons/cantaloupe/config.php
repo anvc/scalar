@@ -39,12 +39,29 @@ $config['default_view'] = 'plain';
 
 // Media reference options (will translate to, e.g., data-property="value")
 $config['reference_options'] = array(
-			'size' => array('small', 'medium', 'large', 'full'),
-			'align' => array('right', 'left'),
-			'caption' => array('description', 'title', 'title-and-description', 'none'),
-			/*'autoplay' => array('false', 'true'),
-			'display-content-preview-box' => array('true', 'false')*/
-		);
+	'insertMediaLink' 		=> array( 
+								'size' => array('small', 'medium', 'large', 'full'),
+								'align' => array('right', 'left'),
+								'caption' => array('description', 'title', 'title-and-description', 'none')
+						 		),
+	'insertMediaelement' 	=> array( 
+								'size' => array('small', 'medium', 'large', 'full'),
+								'align' => array('left', 'center', 'right'),
+								'caption' => array('description', 'title', 'title-and-description', 'none')
+						    	),
+	'insertAnnotation' 		=> array( 
+								'size' => array('small', 'medium', 'large', 'full'),
+								'align' => array('right', 'left'),
+								'caption' => array('description', 'title', 'title-and-description', 'none')
+						  		),
+	'insertInlineAnnotation'=> array( 
+								'size' => array('small', 'medium', 'large', 'full'),
+								'align' => array('left', 'center', 'right'),
+								'caption' => array('description', 'title', 'title-and-description', 'none')
+							    ),
+	'insertNote' 			=> array(),
+	'createInternalLink' 	=> array()							   							   							   							   							   
+);	
 
 //Available Visualization Methods
 $config['available_visualizations'] = array(

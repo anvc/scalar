@@ -513,21 +513,24 @@ function listeditor_search(sq) {
 }
 
 function listeditor_save($list, insert_func, $row, select_single) {
+	// Multiple items selected
 	if ('undefined'==typeof($row)) { 
 		$(".content_wrapper tr input[type='checkbox']:checked").each(function() {
 			var $row = $(this).closest('tr');
 			listeditor_commit_save($list, insert_func, $row.data('node'));	
 		});
+	// Single item selected
 	} else {
-		var insert_func_accepts_data_fields = (9 < ((typeof(insert_func)=='function')?insert_func:window[insert_func]).length) ? true : false;  // Magic number
-		if ('undefined'!=typeof(window['reference_options']) && select_single && insert_func_accepts_data_fields) {
+		// Melon config defines insert function reference options
+		var insert_func_name = (typeof(insert_func)=='function')?insert_func.funcname:window[insert_func].funcname;
+		if ('undefined'!=typeof(window['reference_options']) && (insert_func_name in window['reference_options']) && !jQuery.isEmptyObject(window['reference_options'][insert_func_name])) {
 			var $options_div = $('<div class="media_options"></div>').appendTo('body');
 			$options_div.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
-			$options_div.html('<p>Please select media presentation options below.  Some options might not be applicable to all media types.</p>');
-			for (var option_name in reference_options) {
+			$options_div.html('<p>Please select media reference options below.  Some options might not be applicable to all relationship types.</p>');
+			for (var option_name in window['reference_options'][insert_func_name]) {
 				var $option = $('<p>'+ucwords(dash_to_space(option_name))+': <select name="'+option_name+'"></select></p>');
-				for (var j = 0; j < reference_options[option_name].length; j++) {
-					$option.find('select:first').append('<option value="'+reference_options[option_name][j]+'">'+ucwords(dash_to_space(reference_options[option_name][j]))+'</option>');
+				for (var j = 0; j < window['reference_options'][insert_func_name][option_name].length; j++) {
+					$option.find('select:first').append('<option value="'+window['reference_options'][insert_func_name][option_name][j]+'">'+ucwords(dash_to_space(window['reference_options'][insert_func_name][option_name][j]))+'</option>');
 				}
 				$options_div.append($option);
 			}
@@ -538,12 +541,13 @@ function listeditor_save($list, insert_func, $row, select_single) {
 			});
 			$options_div.find('input:last').bind('click', {$list:$list,insert_func:insert_func,node_data:node_data}, function() {
 				var data_fields = {};
-				for (var option_name in reference_options) {
+				for (var option_name in window['reference_options'][insert_func_name]) {
 					data_fields[option_name] = $options_div.find('select[name="'+option_name+'"] option:selected"').val();
 				}
 				listeditor_commit_save($list, insert_func, node_data, data_fields);
 				$options_div.remove();
 			});
+		// No reference options
 		} else {
 			listeditor_commit_save($list, insert_func, $row.data('node'));
 		}

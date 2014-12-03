@@ -258,7 +258,7 @@ function br2nl(str) {
 
             separator05 : { separator : true },
 
-            //John added...
+            // Scalar
             initiateMediaLink : {
             	visible: true,
             	exec: function(){
@@ -273,7 +273,8 @@ function br2nl(str) {
 							if (source_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
 							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
-						}				
+						}	
+						_callback.funcname = 'insertMediaLink';
 						listeditor_add(null, _callback, 'media', true, true);
 						
                     } else if ( this.options.messages.nonSelection )
@@ -283,7 +284,7 @@ function br2nl(str) {
                 tags : ['a'],
                 tooltip : "Add reference to Scalar media file (for display in views which allow media)"
             },
-            
+            // Scalar
             insertMediaLink:{
             	visible: false,
             	exec: function(source_url, scalar_url, version_urn, data_fields){
@@ -318,20 +319,21 @@ function br2nl(str) {
                 tags : ['a'],
                 tooltip : "Add reference to Scalar media file (for display in views which allow media)"
             },
-             
+            // Scalar
             initiateMediaelement : {
             	visible: true,
             	exec: function(){
 
 						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertMediaelement.exec, this);						
-						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url) {
+						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields) {
 							// scalar_url -> resource
 							// source_url -> href
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							if (source_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
 							fn(source_url, scalar_url, version_urn);
 							return true;
-						}					
+						}			
+						_callback.funcname = 'insertMediaelement';
 						listeditor_add(null, _callback, 'media', true, true);					
                     	
                 },
@@ -339,7 +341,7 @@ function br2nl(str) {
                 tags : ['a'],
                 tooltip : "Add inline Scalar media file (for display directly within the text)"
             },   
-
+            // Scalar
             insertMediaelement : {
                 visible : false,
                 exec    : function(source_url, scalar_url, version_urn)
@@ -357,8 +359,7 @@ function br2nl(str) {
                 tags : ['img'],
                 tooltip : "Add inline Scalar media file (for display directly within the text)"
             },                       
-           
-            //Craig added...
+            // Scalar
             initiateAnnotation : {
             	visible: true,
             	exec: function(){
@@ -375,7 +376,8 @@ function br2nl(str) {
 							if (annotation_of_source_url.length==0) return alert('There was a problem resolving the annotation type. Please try again.');
 							fn(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields);
 							return true;
-						}					
+						}		
+						_callback.funcname = 'insertAnnotation';
 						listeditor_add(null, _callback, 'annotation', true, true);					
                   	
                     } else if ( this.options.messages.nonSelection )
@@ -385,7 +387,7 @@ function br2nl(str) {
                 tags : ['span'],
                 tooltip : "Add reference to Scalar media annotation (media will be cued to the annotation in views that allow media)"
             },
-            
+            // Scalar
             insertAnnotation:{
             	visible: false,
             	exec: function(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields){
@@ -420,15 +422,14 @@ function br2nl(str) {
                 tags : ['span'],
                 tooltip : "Add reference to Scalar media annotation (media will be cued to the annotation in views that allow media)"
             },             
-          
-            //Craig added...
+            // Scalar
             initiateInlineAnnotation : {
             	visible: true,
             	exec: function(){
 
 						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertInlineAnnotation.exec, this);
 
-						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url) {
+						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields) {
 							// scalar_url -> the annotation (after #)
 							// annotation_of_scalar_url -> the media page url (resource="")
 							// annotation_of_source_url -> the media file url (before #)
@@ -437,7 +438,8 @@ function br2nl(str) {
 							if (annotation_of_source_url.length==0) return alert('There was a problem resolving the annotation type. Please try again.');
 							fn(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn);
 							return true;
-						}					
+						}				
+						_callback.funcname = 'insertInlineAnnotation';
 						listeditor_add(null, _callback, 'annotation', true, true);					
                   	
                 },
@@ -445,7 +447,7 @@ function br2nl(str) {
                 tags : ['span'],
                 tooltip : "Add inline Scalar annotation (media will be displayed inline [e.g., not in sidebar] and will be cued to the annotation)"
             },
-            
+            // Scalar
             insertInlineAnnotation:{
             	visible: false,
             	exec: function(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn){
@@ -466,8 +468,7 @@ function br2nl(str) {
                 tags : ['span'],
                 tooltip : "Add inline Scalar annotation (media will be displayed inline [e.g., not in sidebar] and will be cued to the annotation)"
             },               
-             
-            //John added...
+            // Scalar
             initiateNote : {
             	visible: true,
             	exec: function(){
@@ -475,11 +476,12 @@ function br2nl(str) {
                     if ( selection.length > 0 )
                     {
 						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertNote.exec, this);
-						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url) {
+						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields) {
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							fn(source_url, scalar_url, version_urn);
 							return true;
-						}					
+						}				
+						_callback.funcname = 'insertNote';
 						listeditor_add(null, _callback, null, false, true);		
                     	
                     } else if ( this.options.messages.nonSelection )
@@ -489,7 +491,7 @@ function br2nl(str) {
                 tags : ['span'],
                 tooltip : "Add a note (specially-colored link to another Scalar page)"
             },
-            
+            // Scalar
             insertNote:{
             	visible: false,
             	exec: function(source_url, scalar_url, version_urn){
@@ -518,7 +520,7 @@ function br2nl(str) {
                 tags : ['span'],
                 tooltip : "Add a note (specially-colored link to another Scalar page)"
             },       
-                       
+            // Scalar   
             initiateInternalLink : {
             	visible: true,
             	exec: function(){
@@ -531,6 +533,7 @@ function br2nl(str) {
 							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
 						}					
+						_callback.funcname = 'createInternalLink';
 						listeditor_add(null, _callback, null, false, true);											
                     	
                     } else if ( this.options.messages.nonSelection )
@@ -540,7 +543,7 @@ function br2nl(str) {
                 tags : ['a'],
                 tooltip : "Add a link to a Scalar page or media file (link only; media will not be displayed)"
             },            
-            
+            // Scalar
             createInternalLink : {
                 visible : false,
                 exec    : function(source_url, scalar_url, version_urn, data_fields)
@@ -579,7 +582,7 @@ function br2nl(str) {
                 tags : ['a'],
                 tooltip : "Add a link to a Scalar page or media file (link only; media will not be displayed)"
             },    
-            
+            // Scalar
             createLink : {
                 visible : true,
                 exec    : function()
