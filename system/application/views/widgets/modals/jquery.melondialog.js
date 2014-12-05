@@ -23,9 +23,10 @@
     	  	{ text: "Continue", class: "generic_button default", click: function() { 
     	  		var selected = $(this).find(':checked').val();
     	  		$(opts.select).val(selected).trigger('change');
-    	  		$(this).dialog('close');
+    	  		$this.dialog('destroy');
+    	  		$this.remove();
     	  	} },
-    	  	{ text: "Cancel", class: "generic_button", click: function() { $( this ).dialog( "close" ); } }
+    	  	{ text: "Cancel", class: "generic_button", click: function() { $this.dialog( "destroy" ); $this.remove(); } }
     	];
     	
     	// Structure

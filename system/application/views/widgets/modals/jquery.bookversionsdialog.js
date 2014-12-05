@@ -26,9 +26,10 @@
     	  			selected.push( $(this).closest('.item').data('item') );
     	  		});
     	  		opts.callback(selected);
-    	  		$( this ).dialog( "close" );
+    	  		$this.dialog( "destroy" );
+    	  		$this.remove();
     	  	} },
-    	  	{ text: "Cancel", class: "generic_button", click: function() { $( this ).dialog( "close" ); } }
+    	  	{ text: "Cancel", class: "generic_button", click: function() { $this.dialog( "destroy" ); $this.remove(); } }
     	];
 
     	// Selected items

@@ -41,16 +41,15 @@ $(document).ready(function() {
 	$('form input, form textarea').keyup(function() {
 		$(this).closest('form').find('.save_changes').fadeIn();
 	});
-	$('form').on('change', 'select, input:checkbox', function() {
-		$(this).closest('form').find('.save_changes').fadeIn();
+	$('select').live('change', function() {  
+		$('form').find('.save_changes').fadeIn();
 	});
-	
-	$('form input:file').live('change', function(){
+	$('form input:file').live('change', function() {
 		$(this).closest('form').find('.save_changes').fadeIn();
     });
 	$('form .ui-sortable').live('sortchange', function(event, ui) {
 		$(this).closest('form').find('.save_changes').fadeIn();
-	});  
+	});
     $('form input:submit').button();		
     
     // Excerpts

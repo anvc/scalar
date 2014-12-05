@@ -92,7 +92,8 @@ function select_versions() {
 		$('#versions_add_another').html('Add menu item');	
 	}
 }
-function set_versions(nodes) {
+function set_versions(nodes, init) {
+	if ('undefined'==init) init = false;
 	var $versions = $('#versions');
 	$('#versions').find('input[value="0"]').closest('li').remove();
 	var book_version_ids = [];
@@ -114,6 +115,7 @@ function set_versions(nodes) {
 		$li.addClass('removed');
 		$li.find('input').attr('value', 0);
 	});
+	if (!init) $versions.trigger('sortchange');
 }
 $(window).ready(function() {
 	
@@ -129,7 +131,7 @@ $(window).ready(function() {
     
     $('#versions').sortable(); 
     var book_versions = JSON.parse($("#book_versions").text());
-    set_versions(book_versions);
+    set_versions(book_versions, true);
     $('#versions_add_another').click(function() {
 		select_versions();
     });
