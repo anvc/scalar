@@ -1,11 +1,13 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.melondialog.js')?>
-	
+<?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.bookversionsdialog.js')?>
 <style>
 .removed {color:#bbbbbb;}
 .removed a {color:#999999;}
 </style>			
 <script id="interfaces" type="application/json"><?=json_encode($interfaces)?></script>
+<script id="book_versions" type="application/json"><?=json_encode($current_book_versions)?></script>
+<link id="book_id" href="<?=((int)$_GET['book_id'])?>" />
 <link id=active_melon href="<?=$this->config->item('active_melon')?>" />
 <link id="book_melon" href="<?=@$book->template?>" />
 <link id="book_stylesheet" href="<?=@$book->stylesheet?>" />
@@ -56,6 +58,63 @@ function select_interface(melon) {
 		$('<span>There are no theme options for the current template</span>').appendTo('#interface');
     }
 }
+function select_versions() {
+	if ($('#versions_add_another').data('loading')) return;
+	$('#versions_add_another').data('loading', true);
+	$('#versions_add_another').html('Loading ...');
+	var book_id = $('link#book_id').attr('href');
+	var book_versions = [];
+	$('#versions').find('input[type="hidden"]').each(function() {
+		var $this = $(this);
+		if ($this.val()!='1') return;
+		book_versions.push( $this.closest('li').data('node') );
+	});
+	if ('undefined'==typeof(content_data)) {
+		$.getJSON("api/get_content?book_id="+book_id, function(data) {
+			content_data = data;  // Global
+			$('<div></div>').bookversionsdialog({
+				data:content_data,
+				selected:book_versions,
+				urlroot:$('#approot').attr('href'),
+				callback:set_versions
+			});		
+			$('#versions_add_another').data('loading', false);
+			$('#versions_add_another').html('Add menu item');
+		});
+	} else {
+		$('<div></div>').bookversionsdialog({
+			data:content_data,
+			selected:book_versions,
+			urlroot:$('#approot').attr('href'),
+			callback:set_versions
+		});	
+		$('#versions_add_another').data('loading', false);
+		$('#versions_add_another').html('Add menu item');	
+	}
+}
+function set_versions(nodes) {
+	var $versions = $('#versions');
+	$('#versions').find('input[value="0"]').closest('li').remove();
+	var book_version_ids = [];
+	$('#versions').find('input[type="hidden"]').each(function() {
+		book_version_ids.push( $(this).closest('li').data('node').versions[0].version_id );
+	});	
+	var used_version_ids = [];
+	for (var j = 0; j < nodes.length; j++) {
+		used_version_ids.push(nodes[j].versions[0].version_id);
+		if (-1!=book_version_ids.indexOf(nodes[j].versions[0].version_id)) continue;
+		var $node = $('<li><input type="hidden" name="book_version_'+nodes[j].versions[0].version_id+'" value="1" />'+nodes[j].versions[0].title+' <small>(<a href="javascript:void(null);">remove</a>)</small></li>').appendTo($versions);
+		$node.data('node', nodes[j]);
+	}
+	$('#versions').find('li').each(function() {
+		if (-1==used_version_ids.indexOf($(this).data('node').versions[0].version_id)) $(this).remove();
+	});
+	$versions.find('a').click(function() {
+		var $li = $(this).closest('li');
+		$li.addClass('removed');
+		$li.find('input').attr('value', 0);
+	});
+}
 $(window).ready(function() {
 	
     $('.save_changes').next('a').click(function() {
@@ -68,74 +127,12 @@ $(window).ready(function() {
     if (!book_melon.length) book_melon = active_melon;
 	select_interface(book_melon);   
     
-    $('#book_versions').sortable();
-    $('#book_versions a').live('click', function() {
-		$(this).closest('li').find('input').attr('value', 0);
-		$(this).closest('li').addClass('removed');
+    $('#versions').sortable(); 
+    var book_versions = JSON.parse($("#book_versions").text());
+    set_versions(book_versions);
+    $('#versions_add_another').click(function() {
+		select_versions();
     });
-    $('#book_versions_add_another').click(function() {
-        var $link = $(this);
-        if (true==$link.data('loading')) return false;
-        $link.data('loading', true);
-        var prev_link_text = $link.html();
-        $link.html('Loading...');
-    	$('#book_versions_add_box').remove();
-    	var book_id = parseInt(document.getElementById('style_form').book_id.value);
-    	$.get('api/get_content', {book_id:book_id}, function(data) {
-    	    var $wrapper = $('<div id="book_versions_add_box"><h4>Please choose a content item to be added to the main menu</h4><a href="javascript:void(null);" onclick="$(this).parent().remove();" style="font-weight:bold;position:absolute;top:10px;right:10px;font-size:larger;"> X </a></div>');
-    	    $wrapper.append('<div style="padding:10px 0px 10px 0px; font-weight:bold;">Pages</div>');
-  			var $content = $('<ul class="nodots"></ul>');
-  			for (var j = 0; j < data.length; j++) {
-  				if (data[j].type!='composite') continue;
-				if ('undefined'==typeof(data[j].versions) || !data[j].versions.length) {
-					 console.log('Missing composite version:');
-					 console.log(data[j]);
-					 continue;
-				}  	  			
-  				var $li = $('<li><a href="#version_id_'+data[j].versions[0].version_id+'">'+data[j].versions[0].title+'</a></li>');
-  				$content.append($li);
-  			}
-  			$wrapper.append($content);
-    	    $wrapper.append('<div style="padding:10px 0px 10px 0px; font-weight:bold;">Media</div>');
-  			var $content = $('<ul class="nodots"></ul>');
-  			for (var j = 0; j < data.length; j++) {
-  				if (data[j].type!='media') continue;
-				if ('undefined'==typeof(data[j].versions) || !data[j].versions.length) {
-					 console.log('Missing media version:');
-					 console.log(data[j]);
-					 continue;
-				}  	  			
-  				var $li = $('<li><a href="#version_id_'+data[j].versions[0].version_id+'">'+data[j].versions[0].title+'</a></li>');
-  				$content.append($li);
-  			}
-  			$wrapper.append($content);
-  			var padding = 400;
-  			$wrapper.css({
-  				position: 'absolute',
-  				width: (parseInt($(window).width())-padding)+'px',
-  				height: (parseInt($(window).height())-padding)+'px',
-  				top: (padding/2)+parseInt($(window).scrollTop())+'px',
-  				left: (padding/2)+'px',
-  				overflow: 'auto',
-  				padding: '20px',
-  				background: 'white',
-  				border: 'solid 8px #bbbbbb'
-  			}); 	
-  			$wrapper.find('a').click(function() {
-  				var version_id = parseInt($(this).attr('href').replace('#version_id_',''));
-  				var title = $(this).html();
-  				var $ol = $('#book_versions_add_another').prev();
-  				$ol.append('<li><input type="hidden" name="book_version_'+version_id+'" value="1" />'+title+' <small>(<a href="javascript:void(null);">remove</a>)</small></li>');
-  				$('#book_versions_add_box').remove();
-  				$('.save_changes').fadeIn();
-  				return false;
-  			});
-  			$('body').append($wrapper);
-  			$link.data('loading', false);
-  			$link.html(prev_link_text);
-    		return false;
-    	});
-    });    
     
 });
 </script>
@@ -201,9 +198,19 @@ $(window).ready(function() {
 			echo '<td style="vertical-align:middle;" class="row_div" colspan="2">';
 			echo confirm_slash(base_url()).'<input name="slug" type="text" value="'.htmlspecialchars($row->slug).'" style="width:150px;" />';
 			echo "</td>\n";
-			echo "</tr>\n";		
+			echo "</tr>\n";	
+			// Main menu
+			echo '<tr typeof="books">';
+			echo '<td style="width:190px;">Main menu items';
+			echo '<br /><small>Drag menu items to reorder</small>';
+			echo '</td>'."\n";
+			echo '<td colspan="2">';
+			echo '<ol id="versions"></ol>';
+			echo '<a href="javascript:void(null);" id="versions_add_another">Add menu item</a></td>'."\n";
+			echo "</tr>\n";					
 			echo '<tr typeof="books" class="styling_sub">';
-			echo '<td><h4 class="content_title">Style</h4></td><td></td></tr>';
+			echo '<td><h4 class="content_title">Style</h4></td><td></td>';
+			echo '</tr>';
 			// Template/stylesheet
 			echo '<tr>';
 			echo '<td><p>Design</p></td>'."\n";
@@ -271,20 +278,11 @@ $(window).ready(function() {
 			echo '<textarea name="custom_js" style="width:100%;height:80px;">';
 			echo (!empty($row->custom_js)) ? trim($row->custom_js) : '';
 			echo '</textarea></td>'."\n";
-			echo "</tr>\n";										
-			// Row div
-			//echo '<tr class="row_div"><td colspan="3"></td></tr>';	
-			// Availability
-			echo '<tr typeof="books" class="styling_sub">';
-			echo '<td><h4 class="content_title">Public/Private</h4></td><td></td></tr>';
-			echo '<tr>';
-			echo '<td colspan="2">';
-			echo 'This section has been moved to the <b>sharing</b> tab.';
-			echo '</td>';
-			echo "</tr>\n";								
+			echo "</tr>\n";																	
 			// Scope
 			echo '<tr typeof="books" class="styling_sub">';
-			echo '<td><h4 class="content_title">Other</h4></td><td></td></tr>';
+			echo '<td><h4 class="content_title">Publisher</h4></td><td></td>';
+			echo '</tr>';
 			echo '<tr>';
 			echo '<td style="vertical-align:middle;">Scope';
 			echo '</td>'."\n";
@@ -295,22 +293,7 @@ $(window).ready(function() {
 			echo '<option value="project"'.(($row->scope=='project')?' SELECTED':'').'>Project</option>';
 			echo '</select>';
 			echo "</td>\n";
-			echo "</tr>\n";												
-			// Main menu
-			echo '<tr typeof="books">';
-			echo '<td style="width:190px;">Main menu items';
-			echo '<br /><small>Drag items to reorder</small>';
-			echo '</td>'."\n";
-			echo '<td style="vertical-align:middle;" colspan="2"><ol id="book_versions">';
-			foreach ($current_book_versions as $book_version) {
-				echo '<li>';
-				echo '<input type="hidden" name="book_version_'.$book_version->versions[0]->version_id.'" value="1" />';
-				echo $book_version->versions[0]->title;
-				echo ' <small>(<a href="javascript:void(null);">remove</a>)</small>';
-				echo '</li>';
-			}
-			echo '</ol><a href="javascript:void(null);" id="book_versions_add_another"><small>Add menu item</small></a></td>'."\n";
-			echo "</tr>\n";		
+			echo "</tr>\n";													
 			// Publisher
 			echo '<tr>';
 			echo '<td style="vertical-align:middle;">Publisher name<br /><small>Include HTML <b>'.htmlspecialchars('<a>').'</b> to create link</small>';

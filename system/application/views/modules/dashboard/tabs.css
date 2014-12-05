@@ -98,6 +98,13 @@ td.styling_last {text-align:right; padding-right:0px;}
 .ui-sortable li {cursor:pointer;}
 
 #interface {padding-bottom:0px; margin-bottom:0px;}
+.bookversionsdialog .pages, .bookversionsdialog .media {width:48%;}
+.bookversionsdialog .pages {float:left;}
+.bookversionsdialog .media {float:right;}
+.bookversionsdialog .item {background-color:#ffffff; border-bottom:solid 1px #dddddd; padding:4px 0px 4px 0px;}
+.bookversionsdialog input {float:left; margin-top:4px;}
+.bookversionsdialog .title {padding-left:20px; font-size:smaller;}
+#versions li {height:auto !important;}
 
 .textarea_list {width:100%; height:75px; margin-top:8px; border:solid 1px #aaaaaa;}
 

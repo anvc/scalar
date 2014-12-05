@@ -586,7 +586,7 @@ class System extends MY_Controller {
 		$this->data['content'] = '';
 		if (!$this->data['login']->is_logged_in) $this->kickout();
 		$this->load->model('book_model', 'books');
-		
+	
 		switch ($action) {
 			
 			// Read
@@ -602,10 +602,10 @@ class System extends MY_Controller {
 				$this->load->model('page_model', 'pages');
 				$this->load->model('version_model', 'versions');
 				$book_id =@ (int) $_REQUEST['book_id'];
+				if (empty($book_id)) $this->kickout();
 				$this->data['book'] = $this->books->get($book_id);
 				$this->set_user_book_perms();
 				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');					
-				if (empty($book_id)) $this->kickout();
 				$this->data['content'] = $this->pages->get_all($book_id);		
 		        foreach ($this->data['content'] as $key => $row) {
 					$versions = $this->versions->get_all($row->content_id, null, 1);
