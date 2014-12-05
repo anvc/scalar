@@ -1137,7 +1137,7 @@ a.nav_btn:hover {
 
 /* Hidden elements */
 aside { display: none; }
-span[property="dcterms:description"] { display: none; }
+.metadata { display: none; }
 .mediaElementHeader { display: none; }
 
 .no_selection {

@@ -27,10 +27,25 @@ if (isset($page->version_index)) {
 	$is_new = false;
 }
 if (isset($mode) && !empty($mode)) $background = null;
+function print_rdf($rdf, $tabs=0, $ns=array()) {
+	$hide = array('rdf:type','sioc:content','dcterms:title');
+	foreach ($rdf as $p => $values) {
+		if (in_array($p, $hide)) continue;
+		foreach ($values as $value) {
+			if (isURL($value['value'])) {
+				$str = '<a class="metadata" rel="'.toNS($p,$ns).'" href="'.$value['value'].'"></a>'."\n";
+			} else {
+				$str = '<span class="metadata" property="'.toNS($p,$ns).'">'.$value['value'].'</span>'."\n";
+			}
+			for ($j = 0; $j < $tabs; $j++) {$str = "\t".$str;}
+			echo $str;
+		}
+	}
+}
 echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 ?>
 <!DOCTYPE html>
-<html xml:lang="en" lang="en" xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:oac="http://www.openannotation.org/ns/" xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#">
+<html xml:lang="en" lang="en" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:oac="http://www.openannotation.org/ns/" xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#" xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
 <title><?=strip_tags($title)?></title>
 <base href="<?=$base_uri.((isset($page)&&!empty($page))?$page->slug.'.'.$page->versions[$page->version_index]->version_num:$slug.'.0')?>" />
@@ -108,32 +123,31 @@ endif;
 ?>	
 		<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
 		<span resource="<?=rtrim($base_uri,'/')?>" typeof="scalar:Book">
-			<a href="<?=$base_uri?>index"><span id="book-title" property="dcterms:title"><?=$book->title?> </span></a>
-			<a rel="dcterms:hasPart" href="<?=$base_uri.$page->slug?>"></a>
+			<a href="<?=$base_uri?>index"><span id="book-title" property="dcterms:title"><?=$book->title?></span></a>
+			<a class="metadata" rel="dcterms:hasPart" href="<?=$base_uri.$page->slug?>"></a>
 		</span>
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
-			<a rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
-			<a rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>	
+			<a class="metadata" rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
+			<a class="metadata" rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>	
+<? 		print_rdf($this->pages->rdf($page), 3, $ns); ?>
 		</span>	
-		<span id="book-id" property=""><?=$book->book_id?></span>
-		<span property="dcterms:description"><?=$page->versions[$page->version_index]->description?></span>
-		<span property="art:url"><?=$page->versions[$page->version_index]->url?></span>
-		<span property="scalar:defaultView"><?=$page->versions[$page->version_index]->default_view?></span>
-		<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
+		<span class="metadata" id="book-id"><?=$book->book_id?></span>
+		<a class="metadata" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>	
 <?
+		print_rdf($this->versions->rdf($page->versions[$page->version_index]), 2, $ns);
 		if (isset($page->versions[$page->version_index]->continue_to)):
 			echo '	<a rel="scalar:continue_to" href="'.$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num.'"></a>'."\n";
 ?>
 		<span resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>" typeof="scalar:<?=('media'==$base_uri.$page->versions[$page->version_index]->continue_to[0]->type)?'Media':'Composite'?>">
-			<span class="color" style="background-color:<?=$page->versions[$page->version_index]->continue_to[0]->color?>" property="scalar:color" content="<?=$page->versions[$page->version_index]->continue_to[0]->color?>"></span>
-			<a rel="dcterms:hasVersion" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>"></a>
+			<span class="metadata" class="color" style="background-color:<?=$page->versions[$page->version_index]->continue_to[0]->color?>" property="scalar:color" content="<?=$page->versions[$page->version_index]->continue_to[0]->color?>"></span>
+			<a class="metadata" rel="dcterms:hasVersion" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>"></a>
 		</span>				
 		<span resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>" typeof="scalar:Version">				
 			<span property="dcterms:title" content="<?=htmlspecialchars($page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title)?>">
 				<a href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title?></a>
 			</span>
-			<span property="dcterms:description"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->description?></span>
-			<a rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>	
+			<span class="metadata" property="dcterms:description"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->description?></span>
+			<a class="metadata" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>	
 		</span>	
 <?	
 		endif;
