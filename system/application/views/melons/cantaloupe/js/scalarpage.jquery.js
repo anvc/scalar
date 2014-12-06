@@ -148,6 +148,20 @@
 					if ($(slot).hasClass('inline')) {
 						link.after(slotDOMElement);
 						link.hide();
+						if(size != 'full') {
+							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
+							if(align == 'right') {
+								slotMediaElement.model.element.css('float','right');
+							}
+							else if(align == 'left') {
+								slotMediaElement.model.element.css('float','left');
+							}
+							else if(align == 'center') {
+								//implement later.  need width of parent element after non-inline media elements are rendered
+								// console.log(slotMediaElement.model.element.parent().width());
+							}
+
+						}
 					} else if (size != 'full') {
 						parent.before(slotDOMElement);
 						count = page.incrementData(parent, align+'_count');
