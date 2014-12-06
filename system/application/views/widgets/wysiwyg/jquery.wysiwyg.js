@@ -291,9 +291,9 @@ function br2nl(str) {
             		var selection = $(this.editor).documentSelection();
                     if ( selection.length > 0 )
                     {
-                    	var theHTML = "<a href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'"
+                    	var theHTML = "<a href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'";
                     	for (var field in data_fields) {
-                    		theHTML += " data-"+field+"='"+data_fields[field]+"'"
+                    		theHTML += " data-"+field+"='"+data_fields[field]+"'";
                     	}
                     	theHTML += ">"+selection+"</a>";
 
@@ -330,7 +330,7 @@ function br2nl(str) {
 							// source_url -> href
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							if (source_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
-							fn(source_url, scalar_url, version_urn);
+							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
 						}			
 						_callback.funcname = 'insertMediaelement';
@@ -344,9 +344,13 @@ function br2nl(str) {
             // Scalar
             insertMediaelement : {
                 visible : false,
-                exec    : function(source_url, scalar_url, version_urn)
+                exec    : function(source_url, scalar_url, version_urn, data_fields)
                 {
-                    	var theHTML = "<a class='inline' href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'></a>";
+		            	var theHTML = "<a class='inline' href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'"
+		            	for (var field in data_fields) {
+		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
+		            	}
+		            	theHTML += "></a>";            	
                            
                         this.focus();
                         this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -436,7 +440,7 @@ function br2nl(str) {
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							if (annotation_of_scalar_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
 							if (annotation_of_source_url.length==0) return alert('There was a problem resolving the annotation type. Please try again.');
-							fn(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn);
+							fn(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields);
 							return true;
 						}				
 						_callback.funcname = 'insertInlineAnnotation';
@@ -450,9 +454,13 @@ function br2nl(str) {
             // Scalar
             insertInlineAnnotation:{
             	visible: false,
-            	exec: function(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn){
-
-                    	var theHTML = "<a class='inline' href='"+annotation_of_source_url+"#"+scalar_url+"' resource='"+annotation_of_scalar_url+"' rel='"+version_urn+"'></a>";
+            	exec: function(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields){
+            	
+                    	var theHTML = "<a class='inline' href='"+annotation_of_source_url+"#"+scalar_url+"' resource='"+annotation_of_scalar_url+"' rel='"+version_urn+"'";
+		            	for (var field in data_fields) {
+		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
+		            	}                   	
+                    	theHTML += "></a>";
                     	
                         this.focus();
                         if (!strip_tags(this.editorDoc.body.innerHTML).length) this.editorDoc.body.innerHTML = '[EDITOR_INSERT_PADDING]';
@@ -478,7 +486,7 @@ function br2nl(str) {
 						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertNote.exec, this);
 						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields) {
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
-							fn(source_url, scalar_url, version_urn);
+							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
 						}				
 						_callback.funcname = 'insertNote';
@@ -494,12 +502,18 @@ function br2nl(str) {
             // Scalar
             insertNote:{
             	visible: false,
-            	exec: function(source_url, scalar_url, version_urn){
+            	exec: function(source_url, scalar_url, version_urn, data_fields){
             		var selection = $(this.editor).documentSelection();
                     if ( selection.length > 0 )
                     {
-                    	var theHTML = "<span class='note' rev='scalar:has_note' resource='"+scalar_url+"' rel='"+version_urn+"'>"+selection+"</span>";
-                        if (1) {   // Always route to this approach; Chrome seems to have a problem with the insert if its at the end of a paragraph
+                    	
+                    	var theHTML = "<span class='note' rev='scalar:has_note' resource='"+scalar_url+"' rel='"+version_urn+"'";
+		            	for (var field in data_fields) {
+		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
+		            	}           	
+                    	theHTML += ">"+selection+"</span>";
+
+                    	if (1) {   // Always route to this approach; Chrome seems to have a problem with the insert if its at the end of a paragraph
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
                             var img = this.getElementByAttributeValue('img', 'src', '#jwysiwyg#');
