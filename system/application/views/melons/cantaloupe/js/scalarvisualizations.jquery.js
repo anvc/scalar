@@ -79,6 +79,8 @@
 		
 		this.setup();
 
+		$( 'body' ).bind( 'delayedResize', function() { me.view.update( false ); } );
+
 	}
 
 	/**
@@ -1201,7 +1203,11 @@
 			if (!updateOnly) {
 			
 				this.model.element.addClass( 'page_margins' );
-				this.visualization.css( 'min-height', '568px' );
+				if ( window.innerWidth > 768 ) {
+					this.visualization.css( 'min-height', '568px' );
+				} else {
+					this.visualization.css( 'min-height', '300px' );
+				}
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
 		
@@ -1588,7 +1594,11 @@
 			if (!updateOnly) {
 			
 				this.model.element.addClass( 'page_margins' );
-				this.visualization.css( 'min-height', '568px' );
+				if ( window.innerWidth > 768 ) {
+					this.visualization.css( 'min-height', '568px' );
+				} else {
+					this.visualization.css( 'min-height', '300px' );
+				}
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
 		
@@ -1829,7 +1839,11 @@
 			this.helpButton.attr( "data-content", "This visualization shows how <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul><li>Each colored arc represents a connection, color-coded by type.</li><li>Roll over the visualization to browse connections.</li><li>Click to add more content to the current selection.</li><li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li><li>Click any item's title to navigate to it.</li></ul>" );
 			
 			this.visualization.empty();
-			this.visualization.css( 'min-height', '568px' );
+			if ( window.innerWidth > 768 ) {
+				this.visualization.css( 'min-height', '568px' );
+			} else {
+				this.visualization.css( 'min-height', '300px' );
+			}
 			this.visualization.css('padding', '10px');
 			
 			var maxNodeChars = 115 / 6;
