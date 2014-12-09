@@ -127,12 +127,12 @@
 		switch (this.model.options.default_tab) {
 		
 			case "vispath":
-			// if this is the global path vis page, try to load all paths
+			// just load the local paths
 			if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
 				this.loadSequence = [
 					{id:'currentRelations', desc:"current page"}
 				];
-			// otherwise, just load the local paths
+			// if this is the global path vis page, try to load all paths
 			} else {
 				this.loadSequence = [
 					{id:'path', desc:"paths"} 
@@ -141,12 +141,12 @@
 			break;
 		
 			case "vismedia":
-			// if this is the global media vis page, try to load all media
+			// just load the local media
 			if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
 				this.loadSequence = [
 					{id:'currentRelations', desc:"current page"}
 				];
-			// otherwise, just load the local media
+			// if this is the global media vis page, try to load all media
 			} else {
 				this.loadSequence = [
 					{id:'media', desc:"media"}
@@ -155,12 +155,12 @@
 			break;
 		
 			case "vistag":
-			// if this is the global tag vis page, try to load all tags
+			// just load the local tags
 			if ( window.location.href.indexOf( 'resources.vistag' ) == -1 ) {
 				this.loadSequence = [
 					{id:'current', desc:"current page"}
 				];
-			// otherwise, just load the local tags
+			// if this is the global tag vis page, try to load all tags
 			} else {
 				this.loadSequence = [
 					{id:'tag', desc:"tags"}
@@ -201,7 +201,7 @@
 			scalarapi.loadNode( slug, true, me.parseNode, null, 1, ref );
 		}
 		
-		jQuery.VisController.prototype.parseNode = function() {
+		jQuery.VisController.prototype.parseNode = function( data ) {
 			me.view.update( true );
 		}
 		
@@ -1063,7 +1063,7 @@
 			var targetNode;
 			var maxNodeChars = 15;
 			
-			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows all of the media referenced or annotated by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the media it references or annotates in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
 
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
@@ -1077,18 +1077,28 @@
 				this.mediaLinksByURL = {};
 				this.mediaLinks = [];
 			}
-
-			this.mediaNodesByURL[ scalarapi.model.currentPageNode.url ] = scalarapi.model.currentPageNode;
 				
 			var link;
 			var datum;
 			var targetDatum;
+
+			if ( this.mediaNodesByURL[ scalarapi.model.currentPageNode.url ] == null ) {
+				datum = {
+					index: this.mediaNodes.length,
+					node: scalarapi.model.currentPageNode,
+					title: scalarapi.model.currentPageNode.getDisplayTitle( true ),
+					shortTitle: this.getShortenedString( scalarapi.model.currentPageNode.getDisplayTitle( true ), maxNodeChars ),
+					type: scalarapi.model.currentPageNode.getDominantScalarType().id
+				}
+				this.mediaNodesByURL[ scalarapi.model.currentPageNode.url ] = datum;
+				this.mediaNodes.push( datum );
+			}
 						
 			// loop through all the media files
 			var rawMediaNodes = scalarapi.model.getNodesWithProperty('scalarType', 'media');
 			n = rawMediaNodes.length;
 			for (i=0; i<n; i++) {
-			
+
 				// add each file to the array of nodes
 				node = rawMediaNodes[i];
 				if (!this.mediaNodesByURL[node.url]) {
@@ -1102,13 +1112,9 @@
 				// loop through all the nodes which reference the media file
 				var referencingNodes = node.getRelatedNodes('referee', 'incoming');
 
-				/*console.log( '--------' );
-				console.log( node );
-				console.log( referencingNodes );*/
-
 				o = referencingNodes.length;
 				for (j=0; j<o; j++) {
-				
+
 					// add them to the array of nodes
 					targetNode = referencingNodes[j];
 					if ( this.mediaNodesByURL[targetNode.url] == null ) {
@@ -1118,20 +1124,11 @@
 					} else {
 						targetDatum = this.mediaNodesByURL[targetNode.url];
 					}
-
-					console.log( targetDatum );
 			
 					// add the link to the array of links
 					if ( this.mediaLinksByURL[node.url+targetNode.url] == null ) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
 						this.mediaLinksByURL[node.url+targetNode.url] = link;
-
-						//console.log( datum );
-						//console.log( targetDatum );
-						//console.log( link.source + ' ' + link.target );
-
-						// INDEXES ARE BEING LOST
-
 						this.mediaLinks.push(link);
 					}
 				}
@@ -1152,22 +1149,13 @@
 					}
 				
 					// add the link to the array of links
-					if ( this.mediaLinksByURL[node.url+targetNode.url] = null ) {
+					if ( this.mediaLinksByURL[node.url+targetNode.url] == null ) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
 						this.mediaLinksByURL[node.url+targetNode.url] = link;
-
-						//console.log( link );
-
 						this.mediaLinks.push(link);
 					}
 				}
 			}
-
-			console.log( '----' );
-			console.log( (this.selectedNodes.length > 0) );
-			console.log( this.selectedNodes );
-			console.log( this.mediaNodes );
-			console.log( this.mediaLinks );
 					
 			// now, figure out which of those stored nodes we are actually going to show
 			this.currentMediaNodes = [];
@@ -1177,9 +1165,6 @@
 			n = this.selectedNodes.length;
 			for (i=0; i<n; i++) {
 				this.currentMediaNodes.push(this.mediaNodesByURL[this.selectedNodes[i].url]);
-				console.log( this.selectedNodes[i].url );
-				console.log( this.mediaNodesByURL[this.selectedNodes[i].url] );
-
 			}
 			n = this.mediaLinks.length;
 			for (i=0; i<n; i++) {
@@ -1206,7 +1191,7 @@
 					if (this.currentMediaNodes.indexOf(datum) == -1) this.currentMediaNodes.push(datum);
 					if (this.currentMediaNodes.indexOf(targetDatum) == -1) this.currentMediaNodes.push(targetDatum);
 					if (this.currentMediaLinks.indexOf(link) == -1) {
-						this.currentMediaLinks.push(link);
+						this.currentMediaLinks.push( link );
 					}
 				}
 				
@@ -1258,23 +1243,21 @@
 					.attr('height', fullHeight)
 					.attr('class', 'textLayer');
 
-				console.log( this.currentMediaNodes );
-				console.log( this.currentMediaLinks );
-								
 				// force-directed layout
 				this.force = d3.layout.force()
-					.nodes((this.selectedNodes.length > 0) ? this.currentMediaNodes : this.mediaNodes)
+					.nodes( this.mediaNodes )
 					.links((this.selectedNodes.length > 0) ? this.currentMediaLinks : this.mediaLinks)
 					.linkDistance(120)
 					.charge(-400)
 					.size([fullWidth, fullHeight])
-					.start();		
+					.start();	
 
 			// if the vis is already set up, then
 			} else {
-				
+
 				// update the force-directed layout's data
-				this.force.nodes((this.selectedNodes.length > 0) ? this.currentMediaNodes : this.mediaNodes) // modified here
+				this.force
+					.nodes( this.mediaNodes )
 					.links((this.selectedNodes.length > 0) ? this.currentMediaLinks : this.mediaLinks)
 					.start();		
 
@@ -1331,10 +1314,6 @@
 				.attr('cx', function(d) { return d.x; })
 				.attr('cy', function(d) { return d.y; })
 				.attr('r', '16')
-				.attr('fill', function(d) { 
-					var interpolator = d3.interpolateRgb(me.highlightColorScale(d.type), d3.rgb(255,255,255));
-					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
-				 })
 				.call(me.force.drag)
 				.on('touchstart', function(d) { d3.event.stopPropagation(); })
 				.on('mousedown', function(d) { d3.event.stopPropagation(); })
@@ -1345,17 +1324,17 @@
 					var index = me.selectedNodes.indexOf(d.node);
 					if (index == -1) {
 						me.selectedNodes.push(d.node);
-						me.controller.loadNode( d.node.slug, false );
+						me.controller.loadNode( d.node.slug, true );
 						if (d.node == scalarapi.model.currentPageNode) {
 							me.deselectedSelf = false;
 						}
-					} else {
+					} else if ( d.node != scalarapi.model.currentPageNode ) {
 						me.selectedNodes.splice(index, 1);
 						if (d.node == scalarapi.model.currentPageNode) {
 							me.deselectedSelf = true;
 						}
 					}
-					me.drawTagVisualization(true);
+					me.drawMediaVisualization(true);
 				})
 				.on("mouseover", function(d) { 
 					me.currentNode = d.node; 
@@ -1364,6 +1343,10 @@
 				.on("mouseout", function() { 
 					me.currentNode = null; 
 					updateGraph( 'mouseout' );
+				})
+				.attr('fill', function(d) { 
+					var interpolator = d3.interpolateRgb(me.highlightColorScale(d.type), d3.rgb(255,255,255));
+					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 				});
 				
 			dots.exit().remove();
@@ -1511,7 +1494,6 @@
 				} else {
 					datum = this.tagNodesByURL[node.url];
 				}
-					
 				
 				// loop through all the nodes tagged by the tag
 				var taggedNodes = node.getRelatedNodes('tag', 'outgoing');
@@ -1596,7 +1578,7 @@
 					if (this.currentTagNodes.indexOf(datum) == -1) this.currentTagNodes.push(datum);
 					if (this.currentTagNodes.indexOf(targetDatum) == -1) this.currentTagNodes.push(targetDatum);
 					if (this.currentTagLinks.indexOf(link) == -1) {
-						this.currentTagLinks.push(link);
+						this.currentTagLinks.push( link );
 					}
 				}
 				
@@ -1650,7 +1632,7 @@
 								
 				// force-directed layout
 				this.force = d3.layout.force()
-					.nodes((this.selectedNodes.length > 0) ? this.currentTagNodes : this.tagNodes)
+					.nodes( this.tagNodes )
 					.links((this.selectedNodes.length > 0) ? this.currentTagLinks : this.tagLinks)
 					.linkDistance(120)
 					.charge(-400)
@@ -1661,7 +1643,8 @@
 			} else {
 					
 				// update the force-directed layout's data
-				this.force.nodes((this.selectedNodes.length > 0) ? this.tagNodes : this.tagNodes) // modified here
+				this.force
+					.nodes( this.tagNodes )
 					.links((this.selectedNodes.length > 0) ? this.currentTagLinks : this.tagLinks)
 					.start();
 			

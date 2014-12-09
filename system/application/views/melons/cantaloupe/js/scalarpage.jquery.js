@@ -1018,8 +1018,8 @@
 					break;
 					
 					/*case "vis":
-			  		case "vispath":
-			  		case "vismedia":*/
+			  		case "vispath":*/
+			  		case "vismedia":
 			  		case "visindex":
 			  		case "visradial":
 			  		case "vistag":
