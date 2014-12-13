@@ -172,15 +172,15 @@ class Version_model extends MY_Model {
 	 */         
     public function get_book($version_id=0) {
     	
-    	$this->db->select($this->pages_table.'.book_id');
-    	$this->db->from($this->versions_table);
-    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
-    	$this->db->where($this->versions_table.'.version_id', $version_id);
-    	$query = $this->db->get();
-    	if (mysql_errno()!=0) die(mysql_error());
-    	$result = $query->result();
-    	if (!isset($result[0])) return false;
-    	return (int) $result[0]->book_id;
+	    $this->db->select($this->pages_table.'.book_id');
+	    $this->db->from($this->versions_table);
+	    $this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
+	    $this->db->where($this->versions_table.'.version_id', $version_id);
+	    $query = $this->db->get();
+	    if (mysql_errno()!=0) die(mysql_error());
+	    $result = $query->result();
+	    if (!isset($result[0])) return false;
+	    return (int) $result[0]->book_id;
     	
     }
     

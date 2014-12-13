@@ -181,9 +181,10 @@ function send_form_relationships($form, version_urn, redirect_url) {
 	var textarea = $('textarea[name="sioc:content"]').val();
 	var $temp = $('<div>'+textarea+'</div>');
 	$temp.find('a').each(function() {
-		var rel = $(this).attr('rel');
-		if ('undefined'==typeof(rel)) return;
-		values['references'].push($('<input value="'+rel+'" />'));
+		var resource = $(this).attr('resource');
+		if ('undefined'==typeof(resource)) return;
+		values['references'].push($('<input value="'+resource+'" />'));
+		// TODO: reference_text
 	});
 	
 	// Has container

@@ -52,7 +52,7 @@ Class Api extends Controller {
 	//Defaults
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
-	private $allowable_metadata_prefixes = array('dcterms', 'art', 'shoah', 'scalar');	
+	private $allowable_metadata_prefixes = array('dc', 'dcterms', 'art', 'shoah', 'scalar');	
 	private $disallowable_metadata_prefixes = array('scalar:metadata');
 	protected $data;
 	
@@ -351,45 +351,44 @@ Class Api extends Controller {
 	
 	private function _load_relate_data() {
 		
+		// Required fields
 		foreach($this->relate_fields as $idx) {
 			$this->data[$idx] = $this->input->post($idx);
 			if(!$this->data[$idx]) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field.');
 		}
-		// Check scalar:urn book permissions
-		$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:urn'])));
-		if (!$book_id) {
-			$this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn does not exist');
-		}
-		if($book_id != $this->user->book_id){
-			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
-		}
-		// Check scalar:child_urn book permissions
-		$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:child_urn'])));
-		if (!$book_id) {
-			$this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn does not exist');
+		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
+		if (isset($this->$rel_meta)) {
+			foreach($this->$rel_meta as $idx){
+				if($this->input->post('scalar:'.$idx)!==false){
+					$this->data['scalar:'.$idx] = $this->input->post('scalar:'.$idx);
+				}
+			}
 		}		
-		if($book_id != $this->user->book_id){
-			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
-		}
-
+		
+		// Addtional metadata: not the same as with ADD or UPDATE where metadata is saved into the version, rather this is relational meta such as "sort_number"
 		$all_post_data = $_POST;   // $this->input->post() is supposed to return the full array, but doesn't
 		foreach ($all_post_data as $key => $value) {
-			foreach ($this->allowable_metadata_prefixes as $prefix) {
+			foreach ($this->allowable_metadata_prefixes as $prefix) {   // Includes 'scalar' which is the only form relational meta should take
 				if (substr($key, 0, strlen($prefix))==$prefix) $this->data[$key] = $value;
 			}
 		}			
 		
-		// TODO: remove scalar:metadata block once migrations are complete
-		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
-		if (isset($this->$rel_meta)) {
-			foreach($this->$rel_meta as $idx){
-				if($this->input->post('scalar:metadata:'.$idx)===false){
-					//$this->data['scalar:metadata:'.$idx] = '';
-				} else {
-					$this->data['scalar:metadata:'.$idx] = $this->input->post('scalar:metadata:'.$idx);
-				}
-			}
-		}
+		// Check scalar:urn existance
+		$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:urn'])));
+		if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn does not exist');
+		if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
+		// Check scalar:child_urn existance + possibly overwrite scalar:child_urn based on its type from user input
+		if (strpos($this->data['scalar:child_urn'], ':')) {   // e.g., urn:scalar:version:12345
+			$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:child_urn'])));
+			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn does not exist');
+			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
+		} else {   // e.g., my-first-scalar-page
+			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:child_urn']);
+			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not exist');
+			$version = $this->versions->get_all($page->content_id, null, 1);
+			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not have a version');
+			$this->data['scalar:child_urn'] = $this->versions->urn($version[0]->version_id);		
+		}		
 		
 	}
 	
@@ -549,11 +548,10 @@ Class Api extends Controller {
 	
 	/**
 	 * 
-	 * _do_relate relates a passed parent_id (numeric) to the child specified in post data.  Call after parsing and cleaning.
+	 * _do_relate relates a passed parent_id to the child specified in post data.  Call after parsing and cleaning.
 	 * @param int $parent_id
 	 */
-	private function _do_relate($parent_id) {
-
+	private function _do_relate($parent_id=0) {
 		$save = array();
 		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
 		if (isset($this->$rel_meta)) {
@@ -591,7 +589,8 @@ Class Api extends Controller {
 				$this->tags->save_children($parent_id, array($this->data['scalar:child_urn']));
 				break;
 		}
-				
+		
+		return $parent_id;
 	}
 	
 	private function _fill_user_session_data(){

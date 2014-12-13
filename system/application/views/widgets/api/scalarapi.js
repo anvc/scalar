@@ -1008,7 +1008,6 @@ ScalarAPI.prototype.decimalSecondsToHMMSS = function(seconds, showMilliseconds) 
  */
 ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 
-	version_urn = 'urn:blah:1';
 	var self = this;
 
 	// Queue container_of 

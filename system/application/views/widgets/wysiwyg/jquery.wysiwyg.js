@@ -291,7 +291,7 @@ function br2nl(str) {
             		var selection = $(this.editor).documentSelection();
                     if ( selection.length > 0 )
                     {
-                    	var theHTML = "<a href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'";
+                    	var theHTML = "<a href='"+source_url+"' resource='"+scalar_url+"'";
                     	for (var field in data_fields) {
                     		theHTML += " data-"+field+"='"+data_fields[field]+"'";
                     	}
@@ -346,7 +346,7 @@ function br2nl(str) {
                 visible : false,
                 exec    : function(source_url, scalar_url, version_urn, data_fields)
                 {
-		            	var theHTML = "<a class='inline' href='"+source_url+"' resource='"+scalar_url+"' rel='"+version_urn+"'"
+		            	var theHTML = "<a class='inline' href='"+source_url+"' resource='"+scalar_url+"'";
 		            	for (var field in data_fields) {
 		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
 		            	}
@@ -398,7 +398,7 @@ function br2nl(str) {
             		var selection = $(this.editor).documentSelection();
                     if ( selection.length > 0 )
                     {
-                    	var theHTML = "<a href='"+annotation_of_source_url+"#"+scalar_url+"' resource='"+annotation_of_scalar_url+"' rel='"+version_urn+"'";
+                    	var theHTML = "<a href='"+annotation_of_source_url+"#"+scalar_url+"' resource='"+annotation_of_scalar_url+"'";
                     	for (var field in data_fields) {
                     		theHTML += " data-"+field+"='"+data_fields[field]+"'"
                     	}
@@ -456,7 +456,7 @@ function br2nl(str) {
             	visible: false,
             	exec: function(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields){
             	
-                    	var theHTML = "<a class='inline' href='"+annotation_of_source_url+"#"+scalar_url+"' resource='"+annotation_of_scalar_url+"' rel='"+version_urn+"'";
+                    	var theHTML = "<a class='inline' href='"+annotation_of_source_url+"#"+scalar_url+"' resource='"+annotation_of_scalar_url+"'";
 		            	for (var field in data_fields) {
 		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
 		            	}                   	
@@ -507,7 +507,7 @@ function br2nl(str) {
                     if ( selection.length > 0 )
                     {
                     	
-                    	var theHTML = "<span class='note' rev='scalar:has_note' resource='"+scalar_url+"' rel='"+version_urn+"'";
+                    	var theHTML = "<span class='note' rev='scalar:has_note' resource='"+scalar_url+"'";
 		            	for (var field in data_fields) {
 		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
 		            	}           	
@@ -567,7 +567,7 @@ function br2nl(str) {
                     if ( selection.length > 0 )
                     {
                     
-                    	var theHTML = "<a href='"+scalar_url+"' rel='"+version_urn+"'";
+                    	var theHTML = "<a href='"+scalar_url+"'";
                     	for (var field in data_fields) {
                     		theHTML += " data-"+field+"='"+data_fields[field]+"'"
                     	}                    	
