@@ -70,7 +70,6 @@
 	ScalarIndex.prototype.tabPageCount = {}; // # of pages for each tab for pagination
 
 	ScalarIndex.prototype.init = function () {
-
 		var me = this;
 
 		this.currentPage = 1;
