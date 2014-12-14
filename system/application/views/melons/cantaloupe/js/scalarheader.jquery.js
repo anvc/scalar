@@ -102,7 +102,7 @@
 		// Home
 		list.append( '<li id="home-item"><img src="' + this.options.root_url + '/images/home_icon.png" alt="Click to go to home page." width="30" height="30" /></li>' );
 		$( '#home-item' ).click(function() {
-			document.location = addTemplateToURL( $('#book-title').parent().attr("href"), 'cantaloupe');
+			document.location = addTemplateToURL( $('#book-title').attr("href"), 'cantaloupe');
 		});
 
 		// Main menu
@@ -170,24 +170,24 @@
 
 			// Hide most editing options from mobile until they're better optimized
 			if ( !isMobile ) {
-			
+
 				// New page
 				list.append( '<li id="new-item"><a href="' + scalarapi.model.urlPrefix + 'new.edit"><img src="' + this.options.root_url + '/images/new_icon.png" alt="New page button. Click to create a new page." width="30" height="30" /></a></li>' );
-	
+
 				// Edit page/media
 				list.append( '<li id="edit-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.edit"><img src="' + this.options.root_url + '/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /></a></li>' );
-	
+
 				// Annotate media
 				if ( currentNode != null ) {
 					if ( currentNode.hasScalarType( 'media' ) ) {
 						list.append( '<li id="annotate-item"><a href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /></a></li>' );
 					}
 				}
-	
+
 				// Import media
 				list.append( '<li id="import-item"><img src="' + this.options.root_url + '/images/import_icon.png" alt="Import menu. Roll over to show import options." width="30" height="30" /></li>' );
 				this.buildImportMenu();
-	
+
 				// Delete page/media
 				if ( !isNaN( this.bookId ) ) { // bookID will be NaN if page doesn't exist, so no reason to offer delete functionality
 					list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
@@ -204,7 +204,7 @@
 		// Sign in
 		list.append( '<li id="user-item"><img src="' + this.options.root_url + '/images/user_icon.png" alt="Account menu. Roll over to show account options." width="30" height="30" /></li>' );
 		this.buildUserMenu();
-		
+
 		// Hypothesis integration
 		if ( "true" == $( "link#hypothesis" ).attr( "href" ) ) {
 			$( "#header" ).addClass( "hypothesis" );
@@ -260,7 +260,7 @@
 		var result = confirm('Are you sure you wish to hide this page from view (move it to the trash)?');
 
 		if (result) {
-				
+
 			// assemble params for the trash action
 			var node = scalarapi.model.currentPageNode,
 				baseProperties =  {
@@ -378,13 +378,13 @@
 					tocNode = menuItems[i];
 					listItem = $( '<li><a href="' + tocNode.url + '">' + ( i + 1 ) + '. ' + tocNode.getDisplayTitle() + '</a></li>' ).appendTo( menu );
 					listItem.data( 'slug', tocNode.slug );
-					
+
 					// don't show submenus if we're on mobile
 					if ( !isMobile ) {
 
 						subMenu = $( '<ul id="toc-submenu-' + i + '" class="align-left scrollable-menu"></ul>' ).appendTo( listItem );
 						//subMenuItem = $( '<li><a href="" class="pulsate-anim">...</a>' ).appendTo( subMenu );
-	
+
 						// on mouseover, add the item to the list of items we'll query (after a delay) for their path children
 						// for the purposes of showing them in a submenu
 						listItem.mouseover( function() {
@@ -395,7 +395,7 @@
 								me.requestTimer = setTimeout( me.handleRequestTimer, 1000 );
 							}
 						} );
-	
+
 						// on mouseout, remove the item from the query list
 						listItem.mouseout( function() {
 							var slug = $( this ).data( 'slug' );
@@ -405,7 +405,7 @@
 								me.requestQueue.splice( index, 1 );
 							}
 						} )
-						
+
 					}
 				}
 			}
@@ -529,7 +529,7 @@
 		this.handleDelayedResize();
 
 	}
-	
+
 	ScalarHeader.prototype.buildUserMenu = function() {
 
 		var listItem,
@@ -544,7 +544,7 @@
 			} else {
 				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/logout?action=do_logout', 'cantaloupe') + '">Sign out</a></li>' ).appendTo( menu );
 			}
-			
+
 		} else {
 			if ( currentNode != null ) {
 				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Sign in</a></li>' ).appendTo( menu );
@@ -554,7 +554,7 @@
 				listItem = $( '<li><a href="' + addTemplateToURL(system_uri+'/register', 'cantaloupe') + '">Register</a></li>' ).appendTo( menu );
 			}
 		}
-		
+
 	}
 
     $.fn[pluginName] = function ( options ) {
