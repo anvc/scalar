@@ -1,50 +1,50 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses/ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 (function($) {
 
 	$.scalarmedia = function(m, e, options) {
-	
+
 		var mediaelement = m;
 		var element = e;
-		
+
 		var media = {
-		
+
 			options: $.extend({
 				'shy':true,
 				'details': null,
 				'caption': 'description'
 			}, options),
-			
+
 			showAnnotation: function(e, relation, m, forceShow) {
-			
+
 				// make sure this is the right mediaelement
 				if ( mediaelement.model.id == m.model.id ) {
-				
+
 					// and that we already know about the annotation
 					if (annotations.indexOf(relation) != -1) {
 						var currentAnnotationTable = currentAnnotation.find('table');
 						var annotationTable = annotationPane.find('table');
-						
+
 						// if the annotation isn't already highlighted or we're showing it no matter what, then
 						if ((currentRelation != relation) || forceShow) {
-						
+
 							// if the annotation tab is hidden, then show the single annotation display
 							if (annotationPane.css('display') == 'none') {
 								currentAnnotationTable.empty();
@@ -55,7 +55,7 @@
 									row = $('<tr><td>'+relation.startString+'</td><td><p>'+relation.body.getDisplayTitle()+'</p></td></tr>').appendTo(currentAnnotationTable);
 								}
 								currentAnnotation.slideDown();
-								
+
 							// otherwise, update the list of all annotations
 							} else {
 								$(annotationTable).find('tr').removeClass('current');
@@ -72,7 +72,7 @@
 											col.find('p').slideDown();
 											page.addMediaElementsForElement( col );
 										}
-										
+
 									// hide the content of all other annotations
 									} else {
 										col.find( 'h4' ).siblings().remove();
@@ -80,9 +80,9 @@
 									}
 								});
 							}
-							
+
 							currentRelation = relation;
-							
+
 						} else {
 							if (annotationPane.css('display') == 'none') {
 								currentAnnotationTable.find('td').eq(0).text( relation.startString );
@@ -91,16 +91,16 @@
 					}
 				}
 			},
-			
+
 			hideAnnotation: function(e, relation, m, forceHide) {
-			
+
 				if ( mediaelement.model.id == m.model.id ) {
 					//if ((currentRelation != null) || forceHide) {
-					
+
 						if (annotationPane) {
-						
+
 							//console.log('hide '+((relation == null) ? 'null' : relation.body.getDisplayTitle())+' for '+mediaelement.model.node.getDisplayTitle());
-							
+
 							if (annotationPane.css('display') == 'none') {
 								if (currentRelation == relation) {
 									currentAnnotation.slideUp();
@@ -125,10 +125,10 @@
 								if (currentRelation == relation) currentRelation = null;
 							}
 						}
-					//}	
-				}	
+					//}
+				}
 			},
-			
+
 			minimizeAnnotationPane: function() {
 				if (annotationPane) {
 					var annotationTable = annotationPane.find('table');
@@ -137,32 +137,32 @@
 						var col = $(this).find('td').eq(1);
 						col.empty();
 						col.append('<p>'+rowRelation.body.getDisplayTitle()+'</p>');
-					});			
+					});
 				}
 			}
-			
+
 		}
-		
+
 		var node = mediaelement.model.node;
-		
+
 		//if (node.current.description != null) mediaelement.view.footer.append('<div><a class="media_info" href="javascript:;">i</a> '+node.current.description+'</div>');
-		
+
 		if (element != null) {
 			var currentAnnotation = $('<div class="current_annotation"><table></table></div>').appendTo(element);
 
 			var currentRelation = null;
-			
+
 			var mediaTabs = $('<div class="media_tabs"></div>').appendTo(element);
-			
+
 			var foundAuxContent = false;
-			
+
 			var description;
 			switch ( media.options.caption ) {
-			
+
 				case 'title':
 				description = node.getDisplayTitle();
 				break;
-				
+
 				case 'title-and-description':
 				if ( node.current.description != null ) {
 					description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
@@ -170,14 +170,14 @@
 					description = node.getDisplayTitle();
 				}
 				break;
-			
+
 				default:
 				description = node.current.description;
 				if ( node.current.description == null ) {
 					description = '<p><i>No description available.</i></p>';
 				}
 				break;
-			
+
 			}
 			if ( media.options.caption != 'none' ) {
 				if ( node.current.source != null ) {
@@ -198,7 +198,7 @@
 				element.find('.media_description').show();
 			}
 			foundAuxContent = true;
-			
+
 			var i, annotation, row, prop, value;
 			var annotations = node.getRelations('annotation', 'incoming', 'index');
 			if (annotations.length > 0) {
@@ -224,7 +224,11 @@
 						var relation = $(this).data('relation');
 						mediaelement.seek(relation);
 						if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
-							mediaelement.play();
+              setTimeout(function() {
+                if(!mediaelement.is_playing()) {
+      							mediaelement.play();
+                }
+              },250);
 						}
 					});
 				}
@@ -234,7 +238,7 @@
 					foundAuxContent = true;
 				}
 			}
-			
+
 			var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
 			var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
 			metadataTab.click(function() {
@@ -248,7 +252,7 @@
 				}
 			});
 			var table = $( '<table></table>' ).appendTo( metadataPane );
-			
+
 			// basic Scalar properties
 			table.append('<tr><td>Title</td><td>'+node.getDisplayTitle()+'</td></tr>');
 			table.append('<tr><td>Scalar url</td><td><a href="'+node.url+'">'+node.url+'</a></td></tr>');
@@ -256,7 +260,7 @@
 			table.append('<tr><td>Created</td><td>'+node.current.created+'</td></tr>');
 			table.append('<tr><td>Content type</td><td>'+node.current.mediaSource.contentType+' ('+node.current.mediaSource.name+')</td></tr>');
 			table.append('<tr><td>Source file</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a></td></tr>');
-			
+
 			// API links
 			table.append('<tr><td>Raw</td><td><a href="'+node.url+'.rdf">RDF</a>, <a href="'+node.url+'.json">JSON</a></td></tr>');
 
@@ -272,17 +276,17 @@
 				metadataTab.addClass('select');
 				foundAuxContent = true;
 			}
-			
+
 			var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
 			detailsTab.click( function() {
 				media.options[ 'details' ].show( node );
 			} );
-			
+
 			var sourceTab = $( '<div class="media_tab">Source</div>' ).appendTo( mediaTabs );
 			sourceTab.click( function() {
 				window.open( node.current.sourceFile, 'popout' );
 			} );
-			
+
 			/*
 			var appearancesTab = $('<div class="media_tab">Appearances</div>').appendTo(mediaTabs);
 			var appearancesPane = $('<div class="media_metadata pane"></div>').appendTo(element);
@@ -296,14 +300,14 @@
 					media.showAnnotation(null, currentRelation, mediaelement, true);
 				}
 			});
-			
+
 			var citations = $('<div class="citations"></div>').appendTo(appearancesPane);
 			var citations, relation, relations;
 
 			// show media references with excerpts
-			relations = node.getRelations('referee', 'incoming'); 
+			relations = node.getRelations('referee', 'incoming');
 			for (i in relations) {
-			
+
 				relation = relations[i];
 				var temp = $('<div>'+relation.body.current.content+'</div>').appendTo(overlay);
 				wrapOrphanParagraphs(temp);
@@ -315,28 +319,28 @@
 				citations.append('<blockquote>&ldquo;'+citingContent+'&rdquo;</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 				temp.remove();
 			}
-			
+
 			// show containing paths
 			relations = mediaelement.model.node.getRelations('path', 'incoming', 'index');
 			for (i in relations) {
 				relation = relations[i];
 				citations.append('<p>As Step '+relation.index+' of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
 			}
-			
+
 			// show tags
 			relations = mediaelement.model.node.getRelations('tag', 'incoming');
 			for (i in relations) {
 				relation = relations[i];
 				citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 			}
-			
+
 			if (citations.children().length == 1) {
 				appearancesTab.remove();
 				appearancesPane.remove();
 			}
 			*/
-			
-			
+
+
 			if (media.options.shy) {
 				mediaelement.model.element.mouseenter(function() {
 					var timeout = $(this).data('timeout');
@@ -358,7 +362,7 @@
 			} else {
 				mediaTabs.show();
 			}
-			
+
 			mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
 				var position = $(e.currentTarget).parent().parent().parent().offset();
 				metadata.css({
@@ -367,16 +371,16 @@
 				});
 				metadata.fadeIn();
 			})
-			
+
 			$('body').bind('show_annotation', media.showAnnotation);
-			
+
 			$('body').bind('hide_annotation', media.hideAnnotation);
-			
+
 			element.addClass('caption_font');
 			element.addClass('mediainfo');
 		  	$('.media_metadata').addClass('caption_font');
 		}
-		
+
 	}
-	
+
 })(jQuery);
