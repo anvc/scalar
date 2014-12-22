@@ -660,12 +660,12 @@
 
 								// do not provide label over media if image height is too small
 								var min_height = 50;
-								if(mediaelement.model.node.current.mediaSource.contentType == 'image' && $mediaelement.find('img').height() >= min_height) {
-
-									var $media_label = $mediaelement.find('.scalar-image-label');
+                var mediaHeight = $mediaelement.find('.mediaObject').height();
+								if(mediaHeight >= min_height) {
+									var $media_label = $mediaelement.find('.scalar-media-label');
 									if($media_label.length == 0) {
 
-										var label = '<span class="scalar-image-label label label-default">'+mediaelement.model.node.current.title+'</span>'
+										var label = '<span class="scalar-media-label label label-default">'+mediaelement.model.node.current.title+'</span>'
 										$media_label = $(label).appendTo($mediaelement);
 
 										var font_size = parseInt($media_label.css('font-size').replace('px',''));
@@ -676,7 +676,7 @@
 
 										var label_style = 'white-space:normal;position:absolute;max-width:'+$mediaelement.width()+'px;font-size:'+font_size;
 										$media_label.attr('style',label_style);
-										$media_label.css('top',(($mediaelement.find('img').height()-$media_label.outerHeight())/2));
+										$media_label.css('top',((mediaHeight-$media_label.outerHeight())/2));
 										$media_label.css('left',(($mediaelement.width()-$media_label.outerWidth())/2));
 									}
 									var label_hide_delay = 3000;
