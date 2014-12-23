@@ -130,7 +130,7 @@
 				var align = link.attr('data-align');
 				if (align == undefined) align = 'right';
 
-				// create a temporary element and remove it so we can get it's width; this allows us to specify
+				// create a temporary element and remove it so we can get its width; this allows us to specify
 				// the various media element widths via CSS
 				var temp = $('<div class="'+size+'_dim"></div>').appendTo('.page');
 				var width = parseInt(temp.width());
@@ -660,7 +660,7 @@
 
 								// do not provide label over media if image height is too small
 								var min_height = 50;
-                var mediaHeight = $mediaelement.find('.mediaObject').height();
+                				var mediaHeight = $mediaelement.find('.mediaObject').height();
 								if(mediaHeight >= min_height) {
 									var $media_label = $mediaelement.find('.scalar-media-label');
 									if($media_label.length == 0) {
@@ -687,16 +687,15 @@
 
 						}
 					});
-					$('[property="art:url"]').each(function() {
 
-						if ($(this).text().length > 0) {
-							$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
-							page.addMediaElementForLink($(this).find('a'), $(this));
-							$(this).css('display', 'none');
-
-						}
-
-					});
+					// if this is a media page, embed the media at 'full' size
+					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
+						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>' ).appendTo( '[property="sioc:content"]' );
+						link.wrap( '<div></div>' );
+						page.addMediaElementForLink( link, link.parent() );
+						link.css('display', 'none');
+					};
+					
 					$('[data-relation="annotation"]').each(function() {
 						page.addMediaElementForLink( $(this), $(this).parent().parent() );
 						//$(this).css('display', 'none');
