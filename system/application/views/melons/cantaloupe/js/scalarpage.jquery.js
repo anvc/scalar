@@ -695,7 +695,7 @@
 						page.addMediaElementForLink( link, link.parent() );
 						link.css('display', 'none');
 					};
-					
+
 					$('[data-relation="annotation"]').each(function() {
 						page.addMediaElementForLink( $(this), $(this).parent().parent() );
 						//$(this).css('display', 'none');
@@ -1020,8 +1020,8 @@
 					}, 1, true);
 					break;
 
-					/*case "vis":
-			  		case "vispath":*/
+					case "vis":
+			  		case "vispath":
 			  		case "vismedia":
 			  		case "visindex":
 			  		case "visradial":
@@ -1031,6 +1031,9 @@
 						default_tab: viewType,
 						minimal: true
 					};
+					if ( viewType == "vis" ) {
+						options.default_tab = "visindex";
+					}
 					var visualization = $(  '<div id="#visualization"></div>' );
 					$( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
 					$( 'article > header' ).after( visualization );

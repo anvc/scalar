@@ -129,17 +129,9 @@
 		switch (this.model.options.default_tab) {
 		
 			case "vispath":
-			// just load the local paths
-			if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
-				this.loadSequence = [
-					{id:'currentRelations', desc:"current page"}
-				];
-			// if this is the global path vis page, try to load all paths
-			} else {
-				this.loadSequence = [
-					{id:'path', desc:"paths"} 
-				];
-			}
+			this.loadSequence = [
+				{id:'path', desc:"paths"}
+			];
 			break;
 		
 			case "vismedia":
@@ -637,7 +629,26 @@
 			if (str == null) {
 				shortStr = '';
 			} else if (str.length > maxChars) {
-				shortStr = str.substr(0, maxChars - 3) + '...';
+
+				var i,
+					words = str.split( " " ),
+					n = words.length;
+
+				shortStr = words[ 0 ];
+				if ( shortStr.length > maxChars ) {
+					shortStr = shortStr.substr(0, maxChars - 3) + '...';
+
+				} else {
+					for ( i = 1; i < n; i++ ) {
+						if (( shortStr.length + ( words[ i ].length + 1 ) ) > maxChars ) {
+							shortStr += "...";
+							break;
+						} else {
+							shortStr += " " + words[ i ];
+						}
+					}					
+				}
+				
 			} else {
 				shortStr = str;
 			}
@@ -695,18 +706,23 @@
 			}
 			
 			this.visualization.empty();
-			this.visualization.css('padding', '10px');
-			//this.instructions.html('<b>All paths and their contents.</b> Double-click an item to view.<br><br>');
 			
-			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
+			var columnWidth;
 
-			var i;
-			var j;
-			var k;
-			var n;
-			var o;
-			
-			// build a tree starting with the index page
+			this.model.element.addClass( 'page_margins' );
+			if ( window.innerWidth > 768 ) {
+				this.visualization.css( 'min-height', '568px' );
+				columnWidth = 180;
+			} else {
+				this.visualization.css( 'min-height', '300px' );
+				columnWidth = 90;
+			}
+		
+			this.helpButton.attr( "data-content", "This visualization shows all of the content in the path <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold empty areas to drag.</li><li>Filled circles indicate sub-paths; click them to show their contents.</li><li>Click the title of any item to navigate to it.</li></ul>" );
+
+			var i, j, k, n, o,
+				
+				maxNodeChars = Math.floor( columnWidth / 6 );
 			
 			var processedNodes = [];
 			
@@ -723,9 +739,12 @@
 					o = pathContents.length;
 					for (j=0; j<o; j++) {
 						destNode = pathContents[j];
-						destData = {name:destNode.getDisplayTitle( true ), node:destNode, children:null};
-						if (destNode == home) destData.name += ' [Home]';
-						//comboUrl = sourceData.node.url+destData.node.url;
+						destData = { 
+							name: me.getShortenedString( destNode.getDisplayTitle( true ), maxNodeChars ), 
+							node: destNode, 
+							type: destNode.getDominantScalarType().id,
+							children: null 
+						};
 						sourceData.children.push(destData);
 						if (processedNodes.indexOf(sourceData.node) == -1) {
 							processedNodes.push(sourceData.node);
@@ -734,36 +753,18 @@
 					}
 				}
 			}
+
+			var root = { 
+				name: this.getShortenedString( currentNode.getDisplayTitle( true ), maxNodeChars ), 
+				type: currentNode.getDominantScalarType().id, 
+				children:[] 
+			};
 			
-			var root = { name: scalarapi.removeMarkup( this.model.book_title ), type:'root', children:[] };
-			var home = scalarapi.model.nodesByURL[scalarapi.model.urlPrefix+'index'];
-			
-			// if we can find a home node,
-			/*if (home) {
-			
-				// and if it's contained by a path, then insert that path above it
-				// in the hierarchy and then parse the home node's children
-				var containingPaths = home.getRelatedNodes('path', 'incoming');
-				if (containingPaths.length > 0) {
-					n = containingPaths.length;
-					for (i=0; i<n; i++) {
-						node = containingPaths[i];
-						data = {name:node.getDisplayTitle( true ), node:node, type:'pseudo', children:null};
-						root.children.push(data);
-						getRelationsForData(data);
-					}
-					
-				// otherwise, make the home node next in the hierarchy and parse its
-				// children
-				} else {
-					data = {name:home.getDisplayTitle( true ) +' [Home]', node:home, children:null};
-					root.children.push(data);
-					getRelationsForData(data);
-				}
-			}*/
+			//var root = { name: scalarapi.removeMarkup( this.model.book_title ), type:'root', children:[] };
 			
 			// add all other paths and their children to the graph
-			var paths = scalarapi.model.getNodesWithProperty('scalarType', 'path');
+			//var paths = scalarapi.model.getNodesWithProperty('scalarType', 'path');
+			var paths = currentNode.getRelatedNodes( "path", "outgoing" );
 			if (paths.length > 0) {
 			
 				var pathChildren = [];
@@ -772,76 +773,32 @@
 				for (i=0 ;i<n; i++) {
 					node = paths[i];
 					if (processedNodes.indexOf(node) == -1) {
-						data = {name:node.getDisplayTitle( true ), node:node, children:null};
+						data = { 
+							name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+							node: node, 
+							type: node.getDominantScalarType().id,
+							children: null 
+						};
 						pathChildren.push(data);
 						getRelationsForData(data);
 					}
 				}
 
 				root.children = pathChildren;
-			
-				/*if (pathChildren.length > 0) {
-					var otherPaths = {name:'Other paths', type:'cipher', children:pathChildren};
-					root.children.push(otherPaths);
-				}*/
 				
 			}
 			
 			if (root.children.length > 0) {
-			
+
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
+
 				var fullWidth = this.visualization.width();
 				var fullHeight = this.visualization.height();
 
-				fullHeight = 650;
-				
-				// do initial cluster processing
-				/*var cluster = d3.layout.cluster()
-					.size([fullHeight, fullWidth - 210]);
-				var clusterNodes = cluster.nodes(root);
-					
-				// find out how deep the cluster goes (used to figure out long to let
-				// the titles get)
-				var maxDepth = d3.max(clusterNodes, function(d) { return d.depth; });
-	
-				var maxNodeChars = Math.floor((fullWidth / (maxDepth + 1)) / 6);
-				var curNode;
-				var name;
-				var shortName;
-				var data;
-				
-				// generate short versions of node names that will fit in the node boxes
-				/*for (i=0; i<this.model.nodes.length; i++) {    
-					curNode = this.model.nodes[i];
-					name = curNode.name;
-					if (curNode == home) name += ' [Home]';
-					if (name.length > maxNodeChars) {
-						shortName = name.substr(0, maxNodeChars - 3) + '...';
-					} else {
-						shortName = name;
-					}
-					curNode.shortName = shortName;
-				}*/
-				
-				// find out how many nodes are at the lowest level (used to figure out
-				// how tall the vis should be)
-				/*var maxDepthCount = 0;
-				clusterNodes.forEach(function(d) {
-					if (d.children == null) {
-						maxDepthCount++;
-					}
-				});
-				
-				// resize the cluster accordingly
-				if (paths.length > 0) {
-					fullHeight = Math.max(this.visualization.height(), 20 + (15 * maxDepthCount) + (30 * (paths.length - 1)));
-					cluster.size([fullHeight, fullWidth - (fullWidth / (maxDepth + 1)) - 20]);
-					cluster.nodes(root);
-				}
-					
-				var diagonal = d3.svg.diagonal()
-					.projection(function(d) { return [d.y, d.x]; });*/
+				$( '#loadingMsg' ).addClass( 'bounded' );
+				$( '.vis_footer' ).addClass( 'bounded' );
+				$( '#scalarvis' ).addClass( 'bounded' );
 
 				root.x0 = fullHeight * .5;
 				root.y0 = 0;
@@ -853,11 +810,11 @@
 				    .projection(function(d) { return [d.y, d.x]; });
 
 				// create visualization base element
-				var vis = d3.select('#scalarvis').append('svg:svg')
+				var visparent = d3.select('#scalarvis').append('svg:svg')
 					.attr('width', fullWidth)
-					.attr('height', fullHeight)
-					.append("svg:g")
-					.attr("transform", "translate(15, 0)");
+					.attr('height', fullHeight);
+
+				var vis = visparent.append("svg:g");
 
 
 				  function pathToggleAll(d) {
@@ -866,161 +823,125 @@
 				      pathToggle(d);
 				    }
 				  }
+			
+				var zoom = d3.behavior.zoom().scaleExtent([ .25, 7 ])
+				zoom.on("zoom", function() {
+					vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+				});
+				visparent.call( zoom );
+				visparent.style( "cursor", "move" );
 
-				  // Initialize the display to show a few nodes.
-				  root.children.forEach(pathToggleAll);
-				  /*pathToggle(root.children[1]);
-				  pathToggle(root.children[1].children[2]);
-				  pathToggle(root.children[9]);
-				  pathToggle(root.children[9].children[0]);*/
+				// expand the root node
+				root.children.forEach(pathToggleAll);
 
-				pathUpdate(root);
+				pathUpdate( root, true );
 			}
 
-			function pathUpdate(source) {
-			  var duration = d3.event && d3.event.altKey ? 5000 : 500;
+			function pathUpdate( source, instantaneous ) {
 
-			  // Compute the new tree layout.
-			  var nodes = tree.nodes(root).reverse();
+				var duration = instantaneous ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
 
-			  // Normalize for fixed-depth.
-			  nodes.forEach(function(d) { d.y = d.depth * 180; });
+				// Compute the new tree layout.
+				var nodes = tree.nodes(root).reverse();
 
-			  // Update the nodes…
-			  var node = vis.selectAll("g.node")
-			      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+				// Normalize for fixed-depth.
+				nodes.forEach(function(d) { d.y = ( d.depth + 1 ) * columnWidth; });
 
-			  // Enter any new nodes at the parent's previous position.
-			  var nodeEnter = node.enter().append("svg:g")
-			      .attr("class", "node")
-			      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-			      .on("click", function(d) { pathToggle(d); pathUpdate(d); });
+				// Update the nodes…
+				me.pathvis_node = vis.selectAll("g.node")
+					.data(nodes, function(d) { return d.id || (d.id = ++i); });
 
-			  nodeEnter.append("svg:circle")
-			      .attr("r", 1e-6)
-			      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+				// Enter any new nodes at the parent's previous position.
+				var nodeEnter = me.pathvis_node.enter().append("svg:g")
+					.attr("class", "node")
+					.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
 
-			  nodeEnter.append("svg:text")
-			      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-			      .attr("dy", ".35em")
-			      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-			      .text(function(d) { return d.name; })
-			      .style("fill-opacity", 1e-6);
+				nodeEnter.append("svg:circle")
+					.attr("r", 1e-6)
+					.style("fill", function(d) { return d._children ? d3.hsl( me.highlightColorScale( d.type, "noun" ) ).brighter( 1.5 ) : "#fff"; })
+					.style( "stroke", function(d) { return me.highlightColorScale( d.type, "noun" ) })  
+				.on('touchstart', function(d) { d3.event.stopPropagation(); })
+				.on('mousedown', function(d) { d3.event.stopPropagation(); })
+				.on("click", function(d) { 
+					if (d3.event.defaultPrevented) return; // ignore drag
+					pathToggle(d); pathUpdate(d); 
+				});
 
-			  // Transition nodes to their new position.
-			  var nodeUpdate = node.transition()
-			      .duration(duration)
-			      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+				nodeEnter.append("svg:text")
+					.attr("x", function(d) { return d.children || d._children ? -14 : 14; })
+					.attr("dy", ".35em")
+					.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+					.text(function(d) { return d.name; })
+					.style("fill-opacity", 1e-6)
+				.on('touchstart', function(d) { d3.event.stopPropagation(); })
+				.on('mousedown', function(d) { d3.event.stopPropagation(); })
+				.on( 'click', function(d) { 
+					if (d3.event.defaultPrevented) return; // ignore drag
+					d3.event.stopPropagation();
+					if ( self.location != d.node.url ) {
+						return self.location = d.node.url;
+					}
+				});
 
-			  nodeUpdate.select("circle")
-			      .attr("r", 4.5)
-			      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+				// Transition nodes to their new position.
+				var nodeUpdate = me.pathvis_node.transition()
+					.duration(duration)
+					.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
-			  nodeUpdate.select("text")
-			      .style("fill-opacity", 1);
+				nodeUpdate.select("circle")
+					.attr("r", 8)
+					.style("fill", function(d) { return d._children ? d3.hsl( me.highlightColorScale( d.type, "noun" ) ).brighter( 1.5 ) : "#fff"; });
 
-			  // Transition exiting nodes to the parent's new position.
-			  var nodeExit = node.exit().transition()
-			      .duration(duration)
-			      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-			      .remove();
+				nodeUpdate.select("text")
+					.style("fill-opacity", 1);
 
-			  nodeExit.select("circle")
-			      .attr("r", 1e-6);
-
-			  nodeExit.select("text")
-			      .style("fill-opacity", 1e-6);
-
-			  // Update the links…
-			  var link = vis.selectAll("path.clusterlink")
-			      .data(tree.links(nodes), function(d) { return d.target.id; });
-
-			  // Enter any new links at the parent's previous position.
-			  link.enter().insert("svg:path", "g")
-			      .attr("class", "clusterlink")
-			      .attr("d", function(d) {
-			        var o = {x: source.x0, y: source.y0};
-			        return diagonal({source: o, target: o});
-			      })
-			    .transition()
-			      .duration(duration)
-			      .attr("d", diagonal);
-
-			  // Transition links to their new position.
-			  link.transition()
-			      .duration(duration)
-			      .attr("d", diagonal);
-
-			  // Transition exiting nodes to the parent's new position.
-			  link.exit().transition()
-			      .duration(duration)
-			      .attr("d", function(d) {
-			        var o = {x: source.x, y: source.y};
-			        return diagonal({source: o, target: o});
-			      })
-			      .remove();
-
-			  // Stash the old positions for transition.
-			  nodes.forEach(function(d) {
-			    d.x0 = d.x;
-			    d.y0 = d.y;
-			  });
-			}
-
-
-
-			/*function update() {
-
-				console.log( 'update' );
-
-				// lines
-				var link = vis.selectAll("path.clusterlink")
-					.data(cluster.links(clusterNodes))
-					.enter().append("svg:path")
-					.attr("class", "clusterlink")
-					.attr("d", diagonal);
-					
-				// node groups
-				var clusterNode = vis.selectAll("g.clusternode")
-					.data(clusterNodes);
-
-				var clusterNodeEnter = clusterNode.enter().append("svg:g")
-					.attr("class", "clusternode")
-					.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
-					.on("dblclick", function(d) {
-						if (d.node) {
-							return self.location = d.node.url;
-						}
-					})
-					.on( "click", function( d ) { toggle( d ); update( d ); } );
-					
-				// dots
-				clusterNodeEnter.append("svg:circle")
-					.style('fill', function(d, i) { return (d.node) ? me.highlightColorScale(d.node.getDominantScalarType().id) : (d.type == 'root') ? '#ddd' : '#fff'; } )
-					.attr("class", function(d) { return d.type == 'cipher' ? 'cipher' : ''; })
-					/*.attr("class", function(d) { if (d.node) { console.log(d.node.name+' '+home.name); } return d.node == home ? 'current' : ''; })*
-					.attr("r", 5);
-					
-				// texts
-				clusterNodeEnter.append("svg:text")
-					.attr("dx", function(d) { return /*d.children ? -8 :* 8; })
-					.attr("dy", 3)
-					.attr("class", function(d) { return d.type == 'cipher' ? 'cipher' : ''; })
-					.attr('font-weight', function(d) { return (((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) && d.node) ? 'bold' : 'normal'; })
-					.attr("text-anchor", function(d) { /*return d.children ? "end" :* "start"; })
-					.text(function(d) { return (d.node) ? me.getShortenedString(d.name, maxNodeChars) : d.name; });
-					
-				var clusterNodeExit = clusterNode.exit().select("svg:g")
+				// Transition exiting nodes to the parent's new position.
+				var nodeExit = me.pathvis_node.exit().transition()
+					.duration(duration)
+					.attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
 					.remove();
 
-				console.log( clusterNodeExit );
+				nodeExit.select("circle")
+					.attr("r", 1e-6);
 
-				clusterNodeExit.select( "svg:circle" ).remove();
+				nodeExit.select("text")
+					.style("fill-opacity", 1e-6);
 
-				clusterNodeExit.select( "svg:text" ).remove();
+				// Update the links…
+				me.pathvis_link = vis.selectAll("path.clusterlink")
+					.data(tree.links(nodes), function(d) { return d.target.id; });
 
-				//this.drawLegend(vis, -5, fullHeight);			
-			}*/
+				// Enter any new links at the parent's previous position.
+				me.pathvis_link.enter().insert("svg:path", "g")
+					.attr("class", "clusterlink")
+					.attr("d", function(d) {
+					var o = {x: source.x0, y: source.y0};
+						return diagonal({source: o, target: o});
+					})
+				.transition()
+					.duration(duration)
+					.attr("d", diagonal);
+
+				// Transition links to their new position.
+				me.pathvis_link.transition()
+					.duration(duration)
+					.attr("d", diagonal);
+
+				// Transition exiting nodes to the parent's new position.
+				me.pathvis_link.exit().transition()
+					.duration(duration)
+					.attr("d", function(d) {
+						var o = {x: source.x, y: source.y};
+						return diagonal({source: o, target: o});
+					})
+					.remove();
+
+				// Stash the old positions for transition.
+				nodes.forEach(function(d) {
+					d.x0 = d.x;
+					d.y0 = d.y;
+				});
+			}
 
 			// Toggle children.
 			function pathToggle(d) {
