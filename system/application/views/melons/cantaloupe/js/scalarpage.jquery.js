@@ -148,10 +148,10 @@
 					if ($(slot).hasClass('inline')) {
 						link.after(slotDOMElement);
 						link.hide();
-						if(!slotDOMElement.parent().hasClass('body_copy')) {
-						  slotDOMElement.wrap('<div class="body_copy"></div>');
-						}
 						if(size != 'full') {
+  						if(!slotDOMElement.parent().hasClass('body_copy')) {
+	  					  slotDOMElement.wrap('<div class="body_copy"></div>');
+		  				}
 							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
 							if(align == 'right') {
 								slotMediaElement.model.element.css('float','right');
@@ -783,7 +783,6 @@
 		  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
 
 			page.getContainingPathInfo();
-
 			switch (viewType) {
 
 				case 'splash':
