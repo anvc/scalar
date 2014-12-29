@@ -267,7 +267,14 @@ class System extends MY_Controller {
 		 			if ($this->users->email_exists_for_different_user($array['email'], $this->data['login']->user_id)) {
 			 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=email_exists');
 		 				exit;		 					
-		 			}		 			
+		 			}		 
+		 			if (empty($array['fullname'])) {
+			 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=fullname_required');
+		 				exit;		 		 				
+		 			}			
+		 			if (!empty($array['url'])) {
+		 				if (!isURL($array['url'])) $array['url'] = 'http://'.$array['url'];
+		 			}
 		 			if (!empty($array['password'])) {
 		 				if (!$this->users->get_by_email_and_password($array['email'], $array['old_password'])) {
 		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=incorrect_password');
@@ -731,6 +738,7 @@ class System extends MY_Controller {
 				
 			// Write
 			case 'save_row':
+				$this->load->model('user_book_model', 'user_books');
 				$this->load->model('page_model', 'pages');  
 				$this->load->model('version_model', 'versions');
 				$this->load->model('path_model', 'paths');
@@ -743,14 +751,16 @@ class System extends MY_Controller {
 				$book_id = (isset($_REQUEST['book_id']) && !empty($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
 				$this->data['book'] = $this->books->get($book_id);
 				$this->set_user_book_perms();
-				if ('users'==$section) {
-					if (!$this->login_is_book_admin() && !$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit user"}');
+				if ('users'==$section) {  // All users
+					if (!$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit user"}');
+				} elseif ('books'==$section) {  // All books
+					if (!$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit book"}');	
+				} elseif ('user_books'==$section) {  // Book users
+					if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');										
 				} elseif ('pages'==$section) {
 					if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$id)) die ('{"error":"Invalid permissions"}');		
 				} elseif ('versions'==$section) {
 					if (!$this->login_is_book_admin() && !$this->versions->is_owner($this->data['login']->user_id,$id)) die ('{"error":"Invalid permissions"}');
-				} elseif ('books'==$section) {
-					if (!$this->data['login_is_super']) die ('{"error":"Invalid permissions to edit book"}');	
 				} else {
 					die ('{"error":"Invalid section"}');
 				}

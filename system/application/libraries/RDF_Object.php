@@ -22,7 +22,7 @@
  * @projectDescription		Convert internal structures into RDF; includes two approaches -- one where the object is
  *                          non-hierarchical/recursive, the other nested -- based on arguments passed to book() or index()
  * @author					Craig Dietrich
- * @version					1.2
+ * @version					1.3
  */
 
 if ( ! defined('BASEPATH')) exit('No direct script access allowed'); 
@@ -57,7 +57,7 @@ class RDF_Object {
 	                         'pagination'   => self::NO_PAGINATION, 
 	                         'max_recurses' => 0,  
 	                         'num_recurses' => 0,
-							 'total'   => 0,
+							 'total'   		=> 0
 							 );
 	
 	public function __construct() {
@@ -193,7 +193,7 @@ class RDF_Object {
 			$sort_number = (int) $row->sort_number;
 			$user_base = $settings['base_uri'].'users/'.$row->user_id;
 			$settings['book']->users[] = $user_base.$this->_annotation_append($row);
-		}	 	
+		}
 		
 		// Book node
 	 	$return[rtrim($settings['base_uri'],'/')] = $CI->books->rdf($settings['book'], $settings['base_uri']);
@@ -230,7 +230,7 @@ class RDF_Object {
 				$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
 			}
 		}   
-    	
+
     }    
     
     private function _index($settings=array()) {

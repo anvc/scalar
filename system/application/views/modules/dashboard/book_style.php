@@ -7,7 +7,7 @@
 </style>			
 <script id="interfaces" type="application/json"><?=json_encode($interfaces)?></script>
 <script id="book_versions" type="application/json"><?=json_encode($current_book_versions)?></script>
-<link id="book_id" href="<?=((int)$_GET['book_id'])?>" />
+<link id="book_id" href="<?=@((int)$_GET['book_id'])?>" />
 <link id=active_melon href="<?=$this->config->item('active_melon')?>" />
 <link id="book_melon" href="<?=@$book->template?>" />
 <link id="book_stylesheet" href="<?=@$book->stylesheet?>" />

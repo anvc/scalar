@@ -21,6 +21,9 @@ $(window).ready(function() {
 <? if (isset($_REQUEST['error']) && 'email_exists'==$_REQUEST['error']): ?>
 <div class="error">The email address entered already exists in the system. Please try again with a different email.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>	
+<? if (isset($_REQUEST['error']) && 'fullname_required'==$_REQUEST['error']): ?>
+<div class="error">Full name is a required field.  Please enter a full name and try again.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<? endif ?>
 <? if (isset($_REQUEST['error']) && 'incorrect_password'==$_REQUEST['error']): ?>
 <div class="error">Incorrect current password<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>	
@@ -39,7 +42,7 @@ $(window).ready(function() {
 </tr>
 <tr class="odd" typeof="books">
 	<td style="vertical-align:middle;white-space:nowrap;">Admin status</td>
-	<td style="vertical-align:middle;">You are a super admin</td>
+	<td style="vertical-align:middle;">You are an admin</td>
 </tr>
 <? endif ?>
 <tr class="odd" typeof="books">
@@ -52,6 +55,12 @@ $(window).ready(function() {
 	<td style="vertical-align:middle;white-space:nowrap;">Full name</td>
 	<td style="vertical-align:middle;">
 		<input name="fullname" type="text" value="<?=htmlspecialchars($login->fullname)?>" style="width:100%;" />
+	</td>
+</tr>
+<tr class="odd" typeof="books">
+	<td style="vertical-align:middle;white-space:nowrap;">Website</td>
+	<td style="vertical-align:middle;">
+		<input name="url" type="text" value="<?=htmlspecialchars($login->url)?>" style="width:100%;" placeholder="http://" />
 	</td>
 </tr>
 <tr class="odd" typeof="books">

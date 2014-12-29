@@ -440,19 +440,12 @@ class User_model extends My_Model {
 		$password =@ $array['password'];
 		unset($array['password']);		
 		
-    	// Remove relationship fields, for saving later
-		if (!empty($book_id)) {
-			$rel_fields = array('relationship', 'list_in_index', 'sort_number');
-			$spool = array();
-			foreach ($rel_fields as $rel_field) {
-				if (!isset($array[$rel_field])) continue;
-				$this->db->where('user_id', $user_id);
-				$this->db->where('book_id', $book_id);
-				$this->db->update($this->user_book_table, array($rel_field=>$array[$rel_field])); 
-				$spool[$rel_field] = $array[$rel_field];
-				unset($array[$rel_field]);
-			}
-		}			
+    	// Remove user_book fields
+		$rel_fields = array('relationship', 'list_in_index', 'sort_number');
+		foreach ($rel_fields as $rel_field) {
+			if (!isset($array[$rel_field])) continue;
+			unset($array[$rel_field]);
+		}		
 		
 		// Save row
 		$this->db->where('user_id', $user_id);
@@ -477,14 +470,11 @@ class User_model extends My_Model {
 		if (!empty($single_result->password)) $password_is_null = false;
 		$array['password_is_null'] = $password_is_null;
 		
-		// Add relationship fields back
-		if (isset($spool)) $array = array_merge($array, $spool);	
-		
 		return $array;
     	
     }    
     
-    public function save_books($user_id, $book_ids=array(), $role='author', $list_in_index=1) {
+    public function save_books($user_id, $book_ids=array(), $role='author', $list_in_index=1, $sort_number=0) {
     	
     	foreach ($book_ids as $book_id) {
     		if (empty($book_id)) continue;
@@ -495,7 +485,8 @@ class User_model extends My_Model {
                'book_id' => $book_id,
                'user_id' => $user_id,
                'relationship' => $role,
-               'list_in_index' => $list_in_index
+               'list_in_index' => $list_in_index,
+			   'sort_number' => $sort_number
             );
 			$this->db->insert($this->user_book_table, $data); 
     	}
