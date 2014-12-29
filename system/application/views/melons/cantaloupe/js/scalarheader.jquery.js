@@ -61,7 +61,8 @@
 
 		$( 'body' ).bind( 'setState', me.handleSetState );
 
-		this.bookId = parseInt($('#book-id').text());
+		this.bookId = parseInt($('#book_id').attr( "href" ));
+
 		$('header').hide();
 
 		// Header remains fixed on mobile devices
@@ -189,14 +190,14 @@
 				this.buildImportMenu();
 
 				// Delete page/media
-				if ( !isNaN( this.bookId ) ) { // bookID will be NaN if page doesn't exist, so no reason to offer delete functionality
+				if ( currentNode != null ) { // no reason to offer delete functionality if we're not looking at a valid page
 					list.append( '<li id="delete-item"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /></li>' );
 					$( '#delete-item' ).click( this.handleDelete );
 				}
 			}
 
 			// Dashboard
-			if ( !isNaN( this.bookId ) ) { // bookID will be NaN if page doesn't exist, so can't construct link to Dashboard
+			if ( !isNaN( this.bookId ) ) {
 				list.append( '<li id="options-item"><a href="' + system_uri + '/dashboard?book_id=' + this.bookId + '&zone=style#tabs-style"><img src="' + this.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /></a></li>' );
 			}
 		}
