@@ -72,7 +72,7 @@ class Version_model extends MY_Model {
   		if (!empty($row->rdf)) {
 	  		foreach ($row->rdf as $p => $values) {
 	  			if (array_key_exists($p, $rdf)) {
-	  				// TODO: Not sure we should allow a collision between the semantic and relational tables?
+	  				// TODO: Not sure we should allow a collision between the semantic and relational tables? For now, don't.
 	  			} else {
 	  				$rdf[$p] = $values;
 	  			}
