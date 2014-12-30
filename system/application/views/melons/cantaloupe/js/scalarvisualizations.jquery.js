@@ -765,77 +765,75 @@
 			// add all other paths and their children to the graph
 			//var paths = scalarapi.model.getNodesWithProperty('scalarType', 'path');
 			var paths = currentNode.getRelatedNodes( "path", "outgoing" );
-			if (paths.length > 0) {
 			
-				var pathChildren = [];
-			
-				n = paths.length;
-				for (i=0 ;i<n; i++) {
-					node = paths[i];
-					if (processedNodes.indexOf(node) == -1) {
-						data = { 
-							name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
-							node: node, 
-							type: node.getDominantScalarType().id,
-							children: null 
-						};
-						pathChildren.push(data);
-						getRelationsForData(data);
-					}
+			var pathChildren = [];
+		
+			n = paths.length;
+			for (i=0 ;i<n; i++) {
+				node = paths[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					pathChildren.push(data);
+					getRelationsForData(data);
 				}
+			}
 
-				root.children = pathChildren;
-				
+			root.children = pathChildren;
+
+			if ( pathChildren.length == 0 ) {
+				root.name += " (not a path)";
 			}
 			
-			if (root.children.length > 0) {
+			this.visualization.css('width', this.model.element.width());
+			this.visualization.css('padding', '0px');
 
-				this.visualization.css('width', this.model.element.width());
-				this.visualization.css('padding', '0px');
+			var fullWidth = this.visualization.width();
+			var fullHeight = this.visualization.height();
 
-				var fullWidth = this.visualization.width();
-				var fullHeight = this.visualization.height();
+			$( '#loadingMsg' ).addClass( 'bounded' );
+			$( '.vis_footer' ).addClass( 'bounded' );
+			$( '#scalarvis' ).addClass( 'bounded' );
 
-				$( '#loadingMsg' ).addClass( 'bounded' );
-				$( '.vis_footer' ).addClass( 'bounded' );
-				$( '#scalarvis' ).addClass( 'bounded' );
+			root.x0 = fullHeight * .5;
+			root.y0 = 0;
+							
+			var tree = d3.layout.tree()
+			    .size([fullHeight, fullWidth]);
 
-				root.x0 = fullHeight * .5;
-				root.y0 = 0;
-								
-				var tree = d3.layout.tree()
-				    .size([fullHeight, fullWidth]);
+			var diagonal = d3.svg.diagonal()
+			    .projection(function(d) { return [d.y, d.x]; });
 
-				var diagonal = d3.svg.diagonal()
-				    .projection(function(d) { return [d.y, d.x]; });
+			// create visualization base element
+			var visparent = d3.select('#scalarvis').append('svg:svg')
+				.attr('width', fullWidth)
+				.attr('height', fullHeight);
 
-				// create visualization base element
-				var visparent = d3.select('#scalarvis').append('svg:svg')
-					.attr('width', fullWidth)
-					.attr('height', fullHeight);
-
-				var vis = visparent.append("svg:g");
+			var vis = visparent.append("svg:g");
 
 
-				  function pathToggleAll(d) {
-				    if (d.children) {
-				      d.children.forEach(pathToggleAll);
-				      pathToggle(d);
-				    }
-				  }
-			
-				var zoom = d3.behavior.zoom().scaleExtent([ .25, 7 ])
-				zoom.on("zoom", function() {
-					vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-				});
-				visparent.call( zoom );
-				visparent.style( "cursor", "move" );
+			  function pathToggleAll(d) {
+			    if (d.children) {
+			      d.children.forEach(pathToggleAll);
+			      pathToggle(d);
+			    }
+			  }
+		
+			var zoom = d3.behavior.zoom().scaleExtent([ .25, 7 ])
+			zoom.on("zoom", function() {
+				vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+			});
+			visparent.call( zoom );
+			visparent.style( "cursor", "move" );
 
-				// expand the root node
-				root.children.forEach(pathToggleAll);
+			// expand the root node
+			root.children.forEach(pathToggleAll);
 
-				pathUpdate( root, true );
-			}
+			pathUpdate( root, true );
 
 			function pathUpdate( source, instantaneous ) {
 
