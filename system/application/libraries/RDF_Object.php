@@ -259,7 +259,7 @@ class RDF_Object {
     	$settings = $this->_settings($settings);
 		if (empty($settings['content'])) return;
 		if (!is_array($settings['content'])) $settings['content'] = array($settings['content']);	
-		$total = count($settings['content']);
+		$settings['total'] = count($settings['content']);
 		if (!empty($settings['pagination']) && $settings['pagination']['start']>0) $settings['content'] = array_slice($settings['content'], $settings['pagination']['start']);
 		$count = 0;
 
@@ -274,27 +274,7 @@ class RDF_Object {
 			$count++;
 		}
 
-		if (empty($return)) return;
-		
-		$CI =& get_instance(); 
-		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
-		if (!empty($settings['sq'])) {
-			$total = 0;
-			foreach ($return as $uri => $values) {
-				if (
-				    !$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('composite')) &&
-					!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('media'))    
-				) continue;
-				$total++;
-			}		
-		}
-		foreach ($return as $uri => $values) {
-			if (
-				!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('composite')) &&
-				!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('media'))    
-			) continue;			
-			$return[$uri] = array_merge($values, $CI->pages->rdf(array('citation'=>'method='.$settings['method'].';methodNumNodes='.$total.';'), $settings['base_uri']));
-		}
+		$this->_pagination_by_ref($return, $settings);
 		    	
     }
     
@@ -302,16 +282,7 @@ class RDF_Object {
 		
 		// Grab list of relationship models
 		$CI =& get_instance(); 	
-		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');	
-		$models = $CI->config->item('rel');	
-		$ref_models = $CI->config->item('ref');	
-		if ('array'!=gettype($models)) {
-			$CI->config->load('local_settings');
-			$models = $CI->config->item('rel');	
-			$ref_models = $CI->config->item('ref');
-		}
-		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');		
-		if (!empty($ref_models)) $models = array_merge($models, $ref_models);	
+		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');		
 		
 		// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
@@ -335,33 +306,10 @@ class RDF_Object {
 		//if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $row->versions[$row->version_index]->version_id);
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
 
-		// Relationships
-		for ($j = 0; $j < count($row->versions); $j++) {
-			$version_id = $row->versions[$j]->version_id;
-			foreach ($models as $model) {
-				if (!empty($settings['restrict']) && $model != $settings['restrict']) continue;
-				$model_s = singular($model);
-				if ('object'!=@gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
-				if ($settings['rel'] == self::REL_PARENTS_ONLY || $settings['rel'] == self::REL_ALL) {
-					$name = 'has_'.$model;
-					$row->versions[$j]->$name = array();
-					$nodes = $CI->$model->get_parents($version_id, null, null, null, 1);
-					foreach ($nodes as $node) {
-						array_push($row->versions[$j]->$name, $this->_annotation_parent($node, $settings));
-					}
-				}
-				if ($settings['rel'] == self::REL_CHILDREN_ONLY || $settings['rel'] == self::REL_ALL) {
-					$name = $model_s.'_of';
-					$row->versions[$j]->$name = array();
-					$nodes = $CI->$model->get_children($version_id, null, null, null, 1);
-					foreach ($nodes as $node) {
-						array_push($row->versions[$j]->$name, $this->_annotation_child($node, $settings));
-					}	
-				}			
-			}		
-		}	
+		$row = $this->_provenance($row, $settings);
+		$row = $this->_relationships($row, $settings);
+		$row = $this->_pagination($row, $settings);
 
-		$row = $this->_relationship_pagination($row);
 		return $row;
 		 
 	}    
@@ -454,6 +402,9 @@ class RDF_Object {
 			}
 		}	
 		
+		// Write provenance nodes
+		$this->_provenance_by_ref($return, $settings);
+		
 		// Write category relationships (again, down here so they show up at the bottom of the graph)
 		foreach ($this->version_cache[$row->content_id] as $version) {
 			if (!empty($version->category)) {
@@ -463,7 +414,20 @@ class RDF_Object {
     	
     }
     
-	private function _relationship_pagination($page) {
+	private function _provenance($page, $settings) {
+		
+		// TODO
+		return $page;
+		
+	} 
+	
+	private function _provenance_by_ref(&$return, $settings) {
+		
+		// TODO
+		
+	}    
+    
+	private function _pagination($page, $settings) {
 
 		$CI =& get_instance(); 	
 		$models = $CI->config->item('rel');	
@@ -534,11 +498,74 @@ class RDF_Object {
 		if (!empty($page->versions[$page->version_index]->path_of)) $type = 'path';
 		$scalar_ns = $namespaces['scalar'];
 		$page->primary_role = $scalar_ns.ucwords($type);
-		//print_r($page);
+		
 		return $page;		
 		
 	}    
     
+	private function _pagination_by_ref(&$return, $settings) {
+		
+		if (empty($return)) return;
+		
+		$CI =& get_instance(); 
+		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
+		if (!empty($settings['sq'])) {
+			$settings['total'] = 0;
+			foreach ($return as $uri => $values) {
+				if (
+				    !$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('composite')) &&
+					!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('media'))    
+				) continue;
+				$settings['total']++;
+			}		
+		}
+		foreach ($return as $uri => $values) {
+			if (
+				!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('composite')) &&
+				!$this->_object_exists($values, 'rdf:type', $CI->pages->rdf_type('media'))    
+			) continue;			
+			$return[$uri] = array_merge($values, $CI->pages->rdf(array('citation'=>'method='.$settings['method'].';methodNumNodes='.$settings['total'].';'), $settings['base_uri']));
+		}		
+		
+	}
+	
+	private function _relationships($row, $settings) {
+		
+		$CI =& get_instance(); 	
+		$models = $CI->config->item('rel');	
+		$ref_models = $CI->config->item('ref');	
+		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');		
+		if (!empty($ref_models)) $models = array_merge($models, $ref_models);		
+		
+		for ($j = 0; $j < count($row->versions); $j++) {
+			$version_id = $row->versions[$j]->version_id;
+			foreach ($models as $model) {
+				if (!empty($settings['restrict']) && $model != $settings['restrict']) continue;
+				$model_s = singular($model);
+				if ('object'!=@gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
+				if ($settings['rel'] == self::REL_PARENTS_ONLY || $settings['rel'] == self::REL_ALL) {
+					$name = 'has_'.$model;
+					$row->versions[$j]->$name = array();
+					$nodes = $CI->$model->get_parents($version_id, null, null, null, 1);
+					foreach ($nodes as $node) {
+						array_push($row->versions[$j]->$name, $this->_annotation_parent($node, $settings));
+					}
+				}
+				if ($settings['rel'] == self::REL_CHILDREN_ONLY || $settings['rel'] == self::REL_ALL) {
+					$name = $model_s.'_of';
+					$row->versions[$j]->$name = array();
+					$nodes = $CI->$model->get_children($version_id, null, null, null, 1);
+					foreach ($nodes as $node) {
+						array_push($row->versions[$j]->$name, $this->_annotation_child($node, $settings));
+					}	
+				}			
+			}		
+		}	
+
+		return $row;
+		
+	}
+	
     private function _relationships_by_ref(&$return, $versions, $settings) {
 
 		if (empty($versions)) return;
@@ -658,7 +685,7 @@ class RDF_Object {
 		
 	}	    
     
-	private function _annotation_category_by_ref(&$return, $version, $settings) {
+	private function _annotation_category_by_ref(&$return, $version, $settings) {  // E.g., "review", "commentary"
 
 		$CI =& get_instance(); 	
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
