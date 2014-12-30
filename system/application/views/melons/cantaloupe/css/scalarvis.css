@@ -120,8 +120,10 @@ svg {
 
 .node {
 	cursor: pointer;
-	stroke: #fff;
-	stroke-width: 2;
+}
+
+.node circle {
+  stroke-width: 1.5px;
 }
 
 .label {

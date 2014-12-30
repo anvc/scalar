@@ -31,7 +31,7 @@ var ViewState = {
 }
 
 /**
- * Get paths to script and style directories 
+ * Get paths to script and style directories
  */
 var script_uri = $('script[src]')[0].src;
 var base_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-2).join('/');
@@ -159,38 +159,38 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
  */
 function wrapOrphanParagraphs(selection) {
 	selection.each(function() {
-	  	var buffer = null;
 	  	$(this).contents().each(function() {
-	  		if ($(this).is('p,div,br')) {
-	  			if (buffer != null) {
-	  				$(buffer).wrapAll('<div></div>');
-	  				buffer = null;
-	  			}
-	  			// unwrap inline media links and set them to full size if not already specified
-	  			$( this ).find( '.inline' ).unwrap().each( function() {
-	  				if ( $( this ).attr( 'data-size' ) == null ) {
-	  					$( this ).attr( 'data-size', 'full' );
-	  				}
-	  			} );
-	  			// if the element has no children after whitespace and line breaks are removed, then remove it
-	  			if ( $( this ).text().trim().length < 1 ) {
-	  				$( this ).find( 'br' ).remove();
-	  				if ( $( this ).children().length == 0 ) {
-		  				$(this).remove();
-	  				}
-	  			}
-	  		} else {
-	  			if (buffer == null) {
-	  				buffer = $(this);
-	  			} else {
-	  				buffer = buffer.add(this);
-	  			}
+        $element = $(this);
+	  		if (!$element.is('p,div,br')) {
+	  				$element.wrap('<div></div>');
+            $element = $element.parent();
 	  		}
+  			// unwrap inline media links and set them to full size if not already specified
+  			$element.find( '.inline' ).each( function() {
+          // remove inline links from wrapper while maintaining position relative to siblings
+          var $clone = $(this).parent().clone();
+          $clone.empty();
+          var $nextElement = $(this).next();
+          while($nextElement.length != 0) {
+            $nextElement.appendTo($clone);
+            $nextElement = $nextElement.next();
+          }
+          if($clone.children().length !== 0){
+            $clone.insertAfter($(this).parent());
+          }
+  			  $(this).insertAfter($(this).parent());
+  				if ( $( this ).attr( 'data-size' ) == null ) {
+  					$( this ).attr( 'data-size', 'full' );
+  				}
+  			});
+  			// if the element has no children after whitespace and line breaks are removed, then remove it
+  			if ( $element.text().trim().length < 1 ) {
+  				$element.find( 'br' ).remove();
+  				if ( $element.children().length == 0 ) {
+	  				$element.remove();
+  				}
+  			}
 	  	});
-		if (buffer != null) {
-			$(buffer).wrapAll('<div></div>');
-			buffer = null;
-		}
 	});
 }
 
@@ -301,12 +301,12 @@ $(window).ready(function() {
 				/**
 				 * Get raw JSON
 				 */
-	
+
 				var rdf = $(document.body).RDFa();
 				var rdf_json = rdf.dump();
 				//console.log('------- RDFa JSON ----------------------------');
 				//console.log(rdf_json);
-				
+
 				// use the RDF data for the book to set the book's base URL
 				var datum;
 				for ( var i in rdf_json ) {
@@ -318,12 +318,12 @@ $(window).ready(function() {
 						}
 					}
 				}
-				
+
 				// fallback method for determining the book URL; will fail if URL structure is non-standard
 				if ( scalarapi.model.urlPrefix == null ) {
 					scalarapi.setBook( document.location.href );
 				}
-				
+
 				// use scalarapi to parse the JSON
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
@@ -376,11 +376,11 @@ $(window).ready(function() {
 				  	$('article').before($('#book-title').parent().parent());
 		   		}
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-				
+
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
 
 				$( '[property="art:url"]' ).css( 'display', 'none' );
-				
+
 				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
 
 				var timeout;
@@ -390,7 +390,7 @@ $(window).ready(function() {
 				});
 
 		  }},
-		  
+
 		  // Mediaelement
 		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',
 		          widgets_uri+'/mediaelement/flowplayer.js',
@@ -437,7 +437,7 @@ $(window).ready(function() {
 			  test: ('true'==$('link#hypothesis').attr('href')),
 			  yep: 'https://hypothes.is/embed.js'
 		  },
-		  
+
 	]);  // !yepnope
 
 });
