@@ -267,7 +267,7 @@ class RDF_Object {
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
 			$this->_content_by_ref($return, $row, $settings);
 			if (!isset($this->version_cache[$row->content_id])) {
-				$total--;
+				$settings['total']--;
 				continue;
 			} 
 			$this->_relationships_by_ref($return, $this->version_cache[$row->content_id], $settings);
