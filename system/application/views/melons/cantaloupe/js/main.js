@@ -159,14 +159,30 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
  */
 function wrapOrphanParagraphs(selection) {
 	selection.each(function() {
+      var buffer = null;
 	  	$(this).contents().each(function() {
-        $element = $(this);
-	  		if (!$element.is('p,div,br')) {
-	  				$element.wrap('<div></div>');
-            $element = $element.parent();
+	  	  console.log(buffer);
+	  		if (!$(this).is('p,div,br')) {
+          if(buffer === null) {
+            buffer = $(this);
+            buffer.wrap("<div></div>");
+            buffer = buffer.parent();
+          } else {
+            $(this).appendTo(buffer);
+          }
+	  		} else if(buffer !== null) {
+          buffer.insertBefore(this);
+	  		  buffer = null;
 	  		}
+	  	});
+      if(buffer !== null) {
+        buffer.appendTo(this);
+        buffer = null;
+      }
+
+	  	$(this).contents().each(function() {
   			// unwrap inline media links and set them to full size if not already specified
-  			$element.find( '.inline' ).each( function() {
+  			$(this).find( '.inline' ).each( function() {
           // remove inline links from wrapper while maintaining position relative to siblings
           var $clone = $(this).parent().clone();
           $clone.empty();
@@ -184,10 +200,10 @@ function wrapOrphanParagraphs(selection) {
   				}
   			});
   			// if the element has no children after whitespace and line breaks are removed, then remove it
-  			if ( $element.text().trim().length < 1 ) {
-  				$element.find( 'br' ).remove();
-  				if ( $element.children().length == 0 ) {
-	  				$element.remove();
+  			if ( $(this).text().trim().length < 1 ) {
+  				$(this).find( 'br' ).remove();
+  				if ( $(this).children().length == 0 ) {
+	  				$(this).remove();
   				}
   			}
 	  	});
