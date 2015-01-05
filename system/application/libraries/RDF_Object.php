@@ -201,6 +201,9 @@ class RDF_Object {
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
 		$settings = $this->_settings($settings);
 		
+		// Remove user field (the book creator)
+		unset($settings['book']->user);
+
 		// Publisher
 		if($settings['book']->publisher || $settings['book']->publisher_thumbnail) {
 	 		$pub = new stdClass;
