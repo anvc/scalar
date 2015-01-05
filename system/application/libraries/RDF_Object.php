@@ -39,8 +39,11 @@ class RDF_Object {
 	const REFERENCES_NONE = 0;
 	const NO_SEARCH = null;
 	const NO_PAGINATION = null;
+	const PROVENANCE_ALL = 1;
+	const PROVENANCE_NONE = null;
 	public $ns = array();
 	private $version_cache = array();
+	private $user_cache = array();
 	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');	
 	private $defaults = array(
 							 'books'		=> null,
@@ -54,10 +57,12 @@ class RDF_Object {
 							 'sq'           => self::NO_SEARCH,
 							 'versions'     => self::VERSIONS_MOST_RECENT, 
 						     'ref'          => self::REFERENCES_NONE, 
+							 'prov'			=> self::PROVENANCE_NONE,
 	                         'pagination'   => self::NO_PAGINATION, 
 	                         'max_recurses' => 0,  
 	                         'num_recurses' => 0,
-							 'total'   		=> 0
+							 'total'   		=> 0,
+							 'anon_name'	=> 'anonymous'
 							 );
 	
 	public function __construct() {
@@ -91,6 +96,29 @@ class RDF_Object {
 		return $return;  // by value
     	
     }
+    
+	public function annotation_append($content) {
+
+		$append = '';
+		if (!empty($content->start_seconds) || !empty($content->end_seconds)) {
+			$append = '#t=npt:'.$content->start_seconds.','.$content->end_seconds;
+		} elseif (!empty($content->start_line_num) || !empty($content->end_line_num)) {
+			$append = '#line='.$content->start_line_num.','.$content->end_line_num;
+		} elseif (!empty($content->points)) {
+			$append = '#xywh='.$content->points;
+		} elseif (!empty($content->datetime)) {
+			$append = '#datetime='.rdf_timestamp($content->datetime);
+			if (!empty($content->paragraph_num)) $append .= '&paragraph='.$content->paragraph_num;		
+		} elseif (isset($content->sort_number)) {
+			if (!empty($content->sort_number) || !empty($content->relationship) || isset($content->list_in_index)) {
+				$append = '#index='.$content->sort_number;
+				if (!empty($content->relationship)) $append .= '&role='.$content->relationship;
+				if (isset($content->list_in_index)) $append .= '&listed='.$content->list_in_index;	
+			}
+		}
+		return $append;		
+		
+	}      
     
     public function system(&$arg0=null, $arg1=null) {
 
@@ -192,7 +220,7 @@ class RDF_Object {
 			if (!$row->list_in_index) continue;  
 			$sort_number = (int) $row->sort_number;
 			$user_base = $settings['base_uri'].'users/'.$row->user_id;
-			$settings['book']->users[] = $user_base.$this->_annotation_append($row);
+			$settings['book']->users[] = $user_base.$this->annotation_append($row);
 		}
 		
 		// Book node
@@ -210,7 +238,7 @@ class RDF_Object {
 	 	$toc->references = array();	 
 	 	$toc_content = $CI->books->get_book_versions($settings['book']->book_id, true);
 		foreach ($toc_content as $row) {
-			$toc->references[] = $settings['base_uri'].$row->slug.$this->_annotation_append($row);
+			$toc->references[] = $settings['base_uri'].$row->slug.$this->annotation_append($row);
 		}	 	
 	 	$return[$settings['base_uri'].'toc'] = $CI->versions->rdf($toc);
 
@@ -249,7 +277,7 @@ class RDF_Object {
 				$count++;
 			}
 		}
-		
+		//print_r($return);
 		return $return;    	
     	
     }
@@ -270,6 +298,7 @@ class RDF_Object {
 				$settings['total']--;
 				continue;
 			} 
+			$this->_provenance_by_ref($return, $row, $this->version_cache[$row->content_id], $settings);
 			$this->_relationships_by_ref($return, $this->version_cache[$row->content_id], $settings);
 			$count++;
 		}
@@ -279,10 +308,10 @@ class RDF_Object {
     }
     
 	private function _content($row, $settings) {
-		
+
 		// Grab list of relationship models
 		$CI =& get_instance(); 	
-		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');		
+		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');						
 		
 		// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
@@ -304,9 +333,9 @@ class RDF_Object {
 		if (!count($row->versions)) return null;
 		$row->version_index = 0; 
 		//if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $row->versions[$row->version_index]->version_id);
-		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
-
 		$row = $this->_provenance($row, $settings);
+		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
+		
 		$row = $this->_relationships($row, $settings);
 		$row = $this->_pagination($row, $settings);
 
@@ -324,6 +353,18 @@ class RDF_Object {
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');	
 		if ('object'!=gettype($CI->references)) $CI->load->model('reference_model','references');	
 
+    	// User
+		if ($settings['prov']) {
+			if (array_key_exists($row->user, $this->user_cache)) {
+				$row->user = $this->user_cache[$row->user];
+			} else {
+				if ('object'!=gettype($CI->users)) $CI->load->model('user_model','users');
+				if (!empty($row->user)) $row->user = $CI->users->get_by_user_id($row->user);
+				if (is_object($row->user)) $this->user_cache[$row->user->user_id] = $row->user;		
+			}
+			if (empty($row->user)) $row->user = $CI->users->prov_wasAttributedTo($settings['anon_name'],$settings['base_uri']);
+		}		
+		
 		// Versions attached to each node
     	// if (!is_int($settings['versions']) || empty($row->recent_version_id)) {
 			$versions = $CI->versions->get_all(
@@ -343,7 +384,7 @@ class RDF_Object {
 		if (!count($versions)) return;
 		// if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $versions[0]->version_id);
 		
-		// Special fields including references (if applicable)
+		// Special fields including references and users (if applicable)
 		$row->version = $settings['base_uri'].$row->slug.'.'.$versions[0]->version_num; 
 		foreach ($versions as $key => $version) {
 			$row->has_version[] = $settings['base_uri'].$row->slug.'.'.$version->version_num;
@@ -362,6 +403,16 @@ class RDF_Object {
 					$versions[$key]->references[] = $settings['base_uri'].$node->child_content_slug;
 				}		
 			}
+			// User
+			if ($settings['prov']) {
+				if (array_key_exists($versions[$key]->user, $this->user_cache)) {
+					$versions[$key]->user = $this->user_cache[$versions[$key]->user];
+				} else {
+					if (!empty($versions[$key]->user)) $versions[$key]->user = $CI->users->get_by_user_id($versions[$key]->user);
+					if (is_object($versions[$key]->user)) $this->user_cache[$versions[$key]->user->user_id] = $versions[$key]->user;
+				}
+				if (empty($versions[$key]->user)) $versions[$key]->user = $CI->users->prov_wasAttributedTo($settings['anon_name'],$settings['base_uri'],$versions[$key]->attribution);
+			}					
 			// Categories (commentaries, reviews) (comments on the book itself)
 			if (!empty($row->category)) $versions[$key]->category = $row->category;				
 		}
@@ -371,6 +422,7 @@ class RDF_Object {
 		unset($versions);
 			
 		// Write page RDF before version RDF so they show up in the correct human-readable order
+		
 		$return[$settings['base_uri'].$row->slug] = $CI->pages->rdf($row, $settings['base_uri']);
 		foreach ($this->version_cache[$row->content_id] as $version) {
 			$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
@@ -402,9 +454,6 @@ class RDF_Object {
 			}
 		}	
 		
-		// Write provenance nodes
-		$this->_provenance_by_ref($return, $settings);
-		
 		// Write category relationships (again, down here so they show up at the bottom of the graph)
 		foreach ($this->version_cache[$row->content_id] as $version) {
 			if (!empty($version->category)) {
@@ -416,14 +465,96 @@ class RDF_Object {
     
 	private function _provenance($page, $settings) {
 		
-		// TODO
+		if (!$settings['prov']) return;
+  		$CI =& get_instance();
+  		if ('object'!=gettype($CI->users)) $CI->load->model('user_model','users');		
+		
+  		// Create anonymous user object
+  		$blank_user = new stdClass();
+  		$blank_user->uri = $CI->users->prov_wasAttributedTo($settings['anon_name'],$settings['base_uri']);
+  		$blank_user->user_id = 0;
+  		$blank_user->type = '';
+  		$blank_user->fullname = ucwords($settings['anon_name']);
+  		$blank_user->url = '';
+  		
+	    // Content user
+		if (array_key_exists($page->user, $this->user_cache)) {
+			$page->user = $this->user_cache[$page->user];
+		} else {				
+			if (!empty($page->user)) $page->user = $CI->users->get_by_user_id($page->user);
+			if (is_object($page->user)) {
+				$page->user->uri = $CI->users->prov_wasAttributedTo($page->user->user_id,$settings['base_uri']);
+				$this->user_cache[$page->user->user_id] = $page->user;	
+			}
+		}
+		if (empty($page->user) || !is_object($page->user)) $page->user = clone $blank_user;
+
+		// Version users
+		foreach ($page->versions as $key => $version) {
+			if (array_key_exists($version->user, $this->user_cache)) {
+				$page->versions[$key]->user = $this->user_cache[$version->user];
+			} else {
+				if (!empty($version->user)) $page->versions[$key]->user = $CI->users->get_by_user_id($version->user);
+				if (is_object($page->versions[$key]->user)) {
+					$page->versions[$key]->user->uri = $CI->users->prov_wasAttributedTo($page->versions[$key]->user->user_id,$settings['base_uri']);
+					$this->user_cache[$page->versions[$key]->user->user_id] = $page->versions[$key]->user;	
+				}
+			}
+			if (empty($page->versions[$key]->user) || !is_object($page->versions[$key]->user)) {
+				$page->versions[$key]->user = clone $blank_user;
+				$page->versions[$key]->user->uri = $CI->users->prov_wasAttributedTo($page->versions[$key]->user->user_id,$settings['base_uri'],$page->versions[$key]->attribution);
+				$page->versions[$key]->user->fullname = $CI->users->foaf_name($page->versions[$key]->user->fullname,$page->versions[$key]->attribution);				
+			}
+		}		
+		
 		return $page;
 		
 	} 
 	
-	private function _provenance_by_ref(&$return, $settings) {
+	private function _provenance_by_ref(&$return, $row, $versions, $settings) {
+
+		if (!$settings['prov']) return;
+  		$CI =& get_instance();
+  		if ('object'!=gettype($CI->users)) $CI->load->model('user_model','users');
+
+		// Content user
+		if (isset($row->user) && is_object($row->user)) {  // User was found
+			$uri = $CI->users->prov_wasAttributedTo($row->user->user_id,$settings['base_uri']);
+			if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf($row->user);
+		} elseif (isset($row->user) && is_numeric($row->user)) {  // User wasn't found by there is an ID number (could be "0")
+			$uri = $CI->users->prov_wasAttributedTo($row->user,$settings['base_uri']);
+			if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf((object)array(
+																					'fullname'=>'Anonymous'
+																					));			
+		} elseif (isset($row->user)) {  // Catch-all
+			$uri = $CI->users->prov_wasAttributedTo('anonymous',$settings['base_uri']);
+			if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf((object)array(
+																					'fullname'=>'Anonymous'
+																					));
+		}
 		
-		// TODO
+		// Version users
+		foreach ($versions as $version) {
+			if (isset($version->user) && is_object($version->user)) {  // User was found
+				$uri = $CI->users->prov_wasAttributedTo($version->user->user_id,$settings['base_uri'],$version->attribution);
+				if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf($version->user);
+			} elseif (isset($version->user) && isset($version->attribution) && !empty($version->attribution->fullname)) {  // Attribution is set
+				$uri = $CI->users->prov_wasAttributedTo('anonymous',$settings['base_uri'],$version->attribution);		
+				if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf((object)array(
+																						'fullname'=>$version->attribution->fullname
+																						));							
+			} elseif (isset($version->user) && is_numeric($version->user)) {  // User wasn't found by there is an ID number (could be "0")
+				$uri = $CI->users->prov_wasAttributedTo($version->user,$settings['base_uri']);
+				if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf((object)array(
+																						'fullname'=>'Anonymous'
+																						));
+			} elseif (isset($version->user)) {  // Catch-all
+				$uri = $CI->users->prov_wasAttributedTo('anonymous',$settings['base_uri'],$version->attribution);
+				if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf((object)array(
+																						'fullname'=>'Anonymous'
+																						));
+			}
+		}		
 		
 	}    
     
@@ -632,7 +763,7 @@ class RDF_Object {
 		if ('object'!=gettype($CI->annotations)) $CI->load->model('annotation_model','annotations');		
 		
 		$annotation->has_body = $settings['base_uri'].$annotation->parent_content_slug.'.'.$annotation->parent_version_num;
-		$annotation->has_target = $target_uri.$this->_annotation_append($annotation);
+		$annotation->has_target = $target_uri.$this->annotation_append($annotation);
 		$return[$annotation->urn] = $CI->annotations->rdf($annotation);	
 		// Body might not exist in the graph
 		// Target should already exist because it's what pulled its annotations
@@ -673,7 +804,7 @@ class RDF_Object {
 		
 		$annotation->has_body = $body_uri;		
 		$target_base = $settings['base_uri'].$annotation->child_content_slug.'.'.$annotation->child_version_num;
-		$annotation->has_target = $target_base.$this->_annotation_append($annotation);
+		$annotation->has_target = $target_base.$this->annotation_append($annotation);
 		$return[$annotation->urn] = $CI->annotations->rdf($annotation);	
 		// Target might not exist in the graph
 		// Body should already exist because it's what pulled its annotations
@@ -721,30 +852,7 @@ class RDF_Object {
 		}
 		return false;
 		
-	}
-    
-	private function _annotation_append($content) {
-
-		$append = '';
-		if (!empty($content->start_seconds) || !empty($content->end_seconds)) {
-			$append = '#t=npt:'.$content->start_seconds.','.$content->end_seconds;
-		} elseif (!empty($content->start_line_num) || !empty($content->end_line_num)) {
-			$append = '#line='.$content->start_line_num.','.$content->end_line_num;
-		} elseif (!empty($content->points)) {
-			$append = '#xywh='.$content->points;
-		} elseif (!empty($content->datetime)) {
-			$append = '#datetime='.rdf_timestamp($content->datetime);
-			if (!empty($content->paragraph_num)) $append .= '&paragraph='.$content->paragraph_num;		
-		} elseif (isset($content->sort_number)) {
-			if (!empty($content->sort_number) || !empty($content->relationship) || isset($content->list_in_index)) {
-				$append = '#index='.$content->sort_number;
-				if (!empty($content->relationship)) $append .= '&role='.$content->relationship;
-				if (isset($content->list_in_index)) $append .= '&listed='.$content->list_in_index;	
-			}
-		}
-		return $append;		
-		
-	}    	
+	}  	
 	
 }
 

@@ -130,6 +130,7 @@ class Book extends MY_Controller {
 									'base_uri'     => $this->data['base_uri'],
 									'versions'     => ((!empty($this->data['version_datetime']))?$this->data['version_datetime']:RDF_Object::VERSIONS_MOST_RECENT),
 									'ref'          => RDF_Object::REFERENCES_ALL,
+									'prov'		   => RDF_Object::PROVENANCE_ALL,
 							  		'max_recurses' => $this->max_recursions	
 								 );
 				$index = $this->rdf_object->index($settings);   
@@ -141,8 +142,6 @@ class Book extends MY_Controller {
 				// Set the view based on the page's default view
 				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
-				// Page creator
-				$this->set_page_user_fields(); 
 			} else {
 				$this->data['slug'] = $slug;
 			}
@@ -464,34 +463,76 @@ class Book extends MY_Controller {
 			exit;			
 		}
 		
-		// Overwrite versions array (which only has the most recent version)
-		$this->data['page']->versions = $this->versions->get_all($this->data['page']->content_id);	
-		$this->set_page_user_fields();
+		// Overwrite previous page array (which only has the most recent version)
+		$this->data['page']->user = (int) $this->data['page']->user->user_id;
+		unset($this->data['page']->versions);
+		$settings = array(
+							'book'         => $this->data['book'], 
+							'content'      => array($this->data['page']), 
+							'base_uri'     => $this->data['base_uri'],
+							'versions'     => RDF_Object::VERSIONS_ALL,
+							'ref'          => RDF_Object::REFERENCES_NONE,
+							'prov'		   => RDF_Object::PROVENANCE_ALL,
+							'max_recurses' => 0
+								 );
+		$index = $this->rdf_object->index($settings);  
+		if (!count($index)) throw new Exception('Problem getting page index');     
+		$this->data['page'] = $index[0];
+		unset($index);
+		$this->data['page']->version_index = key($this->data['page']->versions);
 		$this->data['hide_edit_bar'] = true;
 		
 	}
 	
 	private function history_view() {
 		
-		// Overwrite versions array (which only has the most recent version by default)
-		$this->data['page']->versions = $this->versions->get_all($this->data['page']->content_id);	
-		end($this->data['page']->versions); 
+		// Overwrite previous page array (which only has the most recent version)
+		$this->data['page']->user = (int) $this->data['page']->user->user_id;
+		unset($this->data['page']->versions);
+		$settings = array(
+							'book'         => $this->data['book'], 
+							'content'      => array($this->data['page']), 
+							'base_uri'     => $this->data['base_uri'],
+							'versions'     => RDF_Object::VERSIONS_ALL,
+							'ref'          => RDF_Object::REFERENCES_NONE,
+							'prov'		   => RDF_Object::PROVENANCE_ALL,
+							'max_recurses' => 0
+								 );
+		$index = $this->rdf_object->index($settings);  
+		if (!count($index)) throw new Exception('Problem getting page index');     
+		$this->data['page'] = $index[0];
+		unset($index);
 		$this->data['page']->version_index = key($this->data['page']->versions);
-		$this->set_page_user_fields();
+		$this->data['hide_edit_bar'] = true;
 		
 	}
 	
 	private function meta_view() {
 		
-		$versions = $this->versions->get_all($this->data['page']->content_id);  // TODO: trap for current datetime
-		foreach ($versions as $version) {
-			if ($version->version_id == $this->data['page']->versions[$this->data['page']->version_index]->version_id) continue;
-			$version->meta = $this->versions->rdf($version);
-			$this->data['page']->versions[] = $version;
+		// Overwrite previous page array (which only has the most recent version)
+		$this->data['page']->user = (int) $this->data['page']->user->user_id;
+		unset($this->data['page']->versions);
+		$settings = array(
+							'book'         => $this->data['book'], 
+							'content'      => array($this->data['page']), 
+							'base_uri'     => $this->data['base_uri'],
+							'versions'     => RDF_Object::VERSIONS_ALL,
+							'ref'          => RDF_Object::REFERENCES_NONE,
+							'prov'		   => RDF_Object::PROVENANCE_ALL,
+							'max_recurses' => 0
+								 );
+		$index = $this->rdf_object->index($settings);  
+		if (!count($index)) throw new Exception('Problem getting page index');     
+		$this->data['page'] = $index[0];
+		unset($index);
+		$this->data['page']->version_index = key($this->data['page']->versions);
+		
+		foreach ($this->data['page']->versions as $key => $version) {
+			$this->data['page']->versions[$key]->meta = $this->versions->rdf($this->data['page']->versions[$key]);
 		}
-		$this->set_page_user_fields();
+		
 		$this->data['page']->meta = $this->pages->rdf($this->data['page']);
-		$this->data['page']->versions[$this->data['page']->version_index]->meta = $this->versions->rdf($this->data['page']->versions[$this->data['page']->version_index]);
+		$this->data['hide_edit_bar'] = true;
 		
 	}
 	

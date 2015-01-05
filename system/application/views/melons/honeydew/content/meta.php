@@ -10,7 +10,7 @@ endif;
 ?>
 <table class="metadata" cellspacing="2" cellpadding="0">
 <tr><th colspan="3">Page</th></tr>
-<tr><td style="white-space:nowrap;"><b>URL</b></td><td>html:url</td><td><a href="<?=$base_uri.$page->slug?>"><?=$base_uri.$page->slug?></a></td></tr>
+<tr><td style="white-space:nowrap;"><b>resource</b></td><td>rdf:resource</td><td><a href="<?=$base_uri.$page->slug?>"><?=$base_uri.$page->slug?></a></td></tr>
 <?
 foreach ($page->meta as $p => $values) {
 	foreach ($values as $value) {
@@ -33,8 +33,8 @@ foreach ($page->meta as $p => $values) {
 <?
 foreach ($page->versions as $key => $version) {
 	echo '<table class="metadata" cellspacing="2" cellpadding="0">';
-	echo '<tr><th colspan="3">'.(($key==$page->version_index)?'Current ':'Past ').'Version'.(($key==$page->version_index)?'':' ('.$version->version_num.')').'</th></tr>';
-	echo '<tr><td style="white-space:nowrap;"><b>URL</b></td><td>html:url</td><td><a href="'.$base_uri.$page->slug.'.'.$version->version_num.'">'.$base_uri.$page->slug.'.'.$version->version_num.'</a></td></tr>';		
+	echo '<tr><th colspan="3">Version ('.$version->version_num.')</th></tr>';
+	echo '<tr><td style="white-space:nowrap;"><b>resource</b></td><td>rdf:resource</td><td><a href="'.$base_uri.$page->slug.'.'.$version->version_num.'">'.$base_uri.$page->slug.'.'.$version->version_num.'</a></td></tr>';		
 	foreach ($version->meta as $p => $values) {
 		if ('http://rdfs.org/sioc/ns#content'==$p) continue;
 		foreach ($values as $value) {

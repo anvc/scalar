@@ -47,16 +47,16 @@ elseif (!$page_by_contributor) {
 	echo 'This '.$page_name.' was created by ';
 	if (empty($page->user)) {
 		echo 'an anonymous contributor';
-	} elseif (isset($page->fullname)) { 
-		echo $page->fullname;
+	} elseif (isset($page->user->fullname)) { 
+		echo $page->user->fullname;
 	} else {
 		echo '(Unknown user)';
 	}
 	echo '.&nbsp; ';
-	if (isset($page->versions) && !empty($page->versions) && $page->versions[$page->version_index]->user != $page->user) {
-		$fullname = $page->versions[0]->fullname;
+	if (isset($page->versions) && !empty($page->versions) && $page->versions[$page->version_index]->user->user_id != $page->user->user_id) {
+		$fullname = $page->versions[0]->user->fullname;
 		if (empty($fullname)) $fullname = '(Unknown user)';
-		echo 'The last update was by '.$page->versions[0]->fullname.'.';
+		echo 'The last update was by '.$page->versions[0]->user->fullname.'.';
 	}
 	echo '</p></div>';
 }
@@ -70,12 +70,12 @@ elseif (!empty($page->category)) {
 	if (!empty($page->versions[$page->version_index]->reply_of)) $page_name = 'comment';	
 	echo '<div class="notice"><p>';
 	echo 'This '.$page_name.' is a <b>'.strtolower($page->category).'</b> on the '.$book->scope.', written by ';
-	echo $page->fullname;
+	echo $page->user->fullname;
 	echo ' on <a href="'.$base_uri.$page->slug.'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[$page->version_index]->created)).'</a>.';
 	if (isset($page->versions) && !empty($page->versions) && $page->versions[$page->version_index]->user != $page->user) {
-		$fullname = $page->versions[0]->fullname;
+		$fullname = $page->versions[0]->user->fullname;
 		if (empty($fullname)) $fullname = '(Unknown user)';
-		echo '<br />The last update was by '.$page->versions[0]->fullname.' on <a href="'.$_SERVER['REDIRECT_URL'].'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[0]->created)).'</a>.';
+		echo '<br />The last update was by '.$page->versions[0]->user->fullname.' on <a href="'.$_SERVER['REDIRECT_URL'].'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[0]->created)).'</a>.';
 	}	
 	echo '</p></div>';
 }

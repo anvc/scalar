@@ -9,13 +9,9 @@ foreach ($page->versions as $version) {
 	echo '<li class="versionbrowser_item">';
 	echo '<span class="versionbrowser_num">'.$version->version_num.'.</span> ';
 	echo '<span class="versionbrowser_byline">';
-	if (isset($version->attribution->fullname) && !empty($version->attribution->fullname)) {
-		echo $version->attribution->fullname;
-	} else {
-		if (isset($version->homepage)) echo '<a href="'.$version->homepage.'">'; 
-		echo $version->fullname;
-		if (isset($version->homepage)) echo '</a>';  
-	}
+	if (isset($version->user->uri)) echo '<a href="'.$version->user->uri.'">'; 
+	echo $version->user->fullname;
+	if (isset($version->user->uri)) echo '</a>';  
 	echo ', <a href="'.$version_uri.'">'.$date.'</a></span>';
 	echo '<span class="versionbrowser_title">'.$title.'</span>';
 	echo '<div class="versionbrowser_content">'.nl2br(trim($version->content)).'</div>';

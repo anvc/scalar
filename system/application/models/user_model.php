@@ -35,12 +35,8 @@ class User_model extends My_Model {
     }
     
   	public function rdf($row, $prefix='') {
-
-  		$row->type = 'http://xmlns.com/foaf/0.1/Person';
-  		if (isset($row->fullname) && !isset($row->name)) {
-			$row->name = $row->fullname;
-			unset($row->fullname);
-		}						  
+  		
+  		$row->type = 'http://xmlns.com/foaf/0.1/Person';					  
 		if (isset($row->url) && !isset($row->homepage)) {
 			$row->homepage = $row->url;
 			unset($row->url);
@@ -120,7 +116,7 @@ class User_model extends My_Model {
     }
     
     public function get_by_user_id($user_id='') {
-    	
+
     	$this->db->select('*');
     	$this->db->from($this->users_table);
     	$this->db->where('user_id', $user_id);

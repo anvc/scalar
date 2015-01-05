@@ -19,7 +19,8 @@ $config['namespaces'] = array(
   						'ov'		=> 'http://open.vocab.org/terms/',
   						'oac'		=> 'http://www.openannotation.org/ns/',
   						'scalar'    => 'http://scalar.usc.edu/2012/01/scalar-ns#',
-  						'shoah'		=> 'http://tempuri.org/'
+  						'shoah'		=> 'http://tempuri.org/',
+						'prov'		=> 'http://www.w3.org/ns/prov#'
 					   );
 					   
 // Internet Archive allowable filetypes when importing
@@ -42,10 +43,9 @@ $config['internet_archive']['filetypes'] = array(
 // Database fields to namespace
 $config['rdf_fields'] = array(
 		'type' => 					'rdf:type',
-		'name' =>					'foaf:name',
 		'homepage' =>				'foaf:homepage',
-		'user' => 					'foaf:homepage',
-		'fullname' =>				'dcterms:creator',
+		'user' => 					array('foaf:homepage','prov:wasAttributedTo'), 
+		'fullname' =>				'foaf:name', 
 		'title' => 					'dcterms:title',
 		'description' => 			'dcterms:description',
 		'created' => 				'dcterms:created',

@@ -229,7 +229,7 @@ abstract class MY_Model extends Model {
 	public function rdf($row, $base_uri='') {
 
 		$return = array();
-		foreach ($row as $field => $values) { 
+		foreach ($row as $field => $values) {
 			if (empty($values) || !array_key_exists($field, $this->rdf_fields)) continue;	
 			if (!is_array($values)) $values = array($values); 
 			if (!is_array($this->rdf_fields[$field])) $this->rdf_fields[$field] = array($this->rdf_fields[$field]);  
@@ -284,10 +284,40 @@ abstract class MY_Model extends Model {
 		
 	}
 	
-	public function foaf_homepage($value, $base_uri) {
+	public function foaf_homepage($value, $base_uri, $attribution=null) {  // TODO: temporary for legacy
 
+		if (isset($value->uri) && !empty($value->uri)) {
+			$value = $value->uri;	
+		} elseif (!empty($attribution) && isset($attribution->fullname) && !empty($attribution->fullname)) {
+			$value = safe_name($attribution->fullname);
+		} elseif (!is_numeric($value) && isset($value->user_id)) {
+			$value = $value->user_id;
+		}		
 		if (isURL($value)) return $value;
 		return confirm_slash($base_uri).'users/'.$value;
+
+	}
+	
+	public function prov_wasAttributedTo($value, $base_uri, $attribution=null) {
+
+		if (isset($value->uri) && !empty($value->uri)) {
+			$value = $value->uri;
+		} elseif (!empty($attribution) && isset($attribution->fullname) && !empty($attribution->fullname)) {
+			$value = safe_name($attribution->fullname);
+		} elseif (!is_numeric($value) && isset($value->user_id)) {
+			$value = $value->user_id;
+		}		
+		if (isURL($value)) return $value;
+		return confirm_slash($base_uri).'users/'.$value;
+
+	}	
+	
+	public function foaf_name($value, $attribution=null) {
+		
+		if (!empty($attribution) && isset($attribution->fullname) && !empty($attribution->fullname)) {
+			$value = $attribution->fullname;
+		}
+		return $value;
 		
 	}
 	

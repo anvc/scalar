@@ -77,6 +77,8 @@ class Rdf extends MY_Controller {
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;		
 		// Search terms
 		$this->data['sq'] = (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) ? search_split_terms($_REQUEST['sq']) : null;
+		// Provenance
+		$this->data['provenance'] = (isset($_REQUEST['prov']) && !empty($_REQUEST['prov'])) ? 1 : null;
 		// Show hidden content
 		$this->data['hidden'] = (isset($_REQUEST['hidden']) && !empty($_REQUEST['hidden'])) ? (int) $_REQUEST['hidden'] : 0;
 		$this->set_user_book_perms();
@@ -147,7 +149,7 @@ class Rdf extends MY_Controller {
 			$slug = no_version(no_ext(str_replace($this->data['book']->slug.'/', '', $slug))); 
 			$content = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
 			// Don't throw an error here if $content is empty, let through to return empty RDF			
-			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect				
+			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect		
 			$this->rdf_object->index(
 			 						   $this->data['content'],
 									   array(
@@ -157,7 +159,8 @@ class Rdf extends MY_Controller {
 									   	 'method'		=> __FUNCTION__.'/'.$slug,
 				                         'restrict'     => $this->data['restrict'], 
 										 'versions'     => (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT), 
-									     'ref'          => (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE), 
+									     'ref'          => (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+									     'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE), 
 				                         'pagination'   => $this->data['pagination'], 
 				                         'max_recurses' => $this->data['recursion']
 									   )
@@ -228,6 +231,7 @@ class Rdf extends MY_Controller {
 			                         	 'sq'			=> $this->data['sq'],
 			                         	 'versions'		=> (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 			                         	 'ref'			=> (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 			                         	 'pagination'   => $this->data['pagination'],
 			                         	 'max_recurses' => $this->data['recursion']
 			                           )

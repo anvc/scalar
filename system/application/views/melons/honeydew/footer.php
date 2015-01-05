@@ -34,9 +34,9 @@ if (isset($page->version_index) && isset($page->versions[$page->version_index]) 
 	$version_num = $page->versions[$page->version_index]->version_num;
 	echo '<span class="screen-version"><a href="'.$base_uri.$page->slug.'.'.$version_num.'.versions">Version '.$version_num.'</a> <span id="screen-version-id">id '.$page->versions[$page->version_index]->version_id.'</span> ';
 	echo 'of this page'.((!empty($created))?', updated '.date('d F Y', strtotime($created)):'');
-	echo '<span id="version_created_by"> by <a href="'.@$page->versions[$page->version_index]->homepage.'">'.$page->versions[$page->version_index]->fullname.'</a></span>';
+	echo '<span id="version_created_by"> by <a href="'.@$page->versions[$page->version_index]->user->uri.'">'.$page->versions[$page->version_index]->user->fullname.'</a></span>';
 	echo '.';
-	echo '<span id="page_created_by"> Created by <a href="'.@$page->homepage.'">'.$page->fullname.'</a>.</span>';
+	echo '<span id="page_created_by"> Created by <a href="'.@$page->user->uri.'">'.$page->user->fullname.'</a>.</span>';
 	echo '</span><br />';
 }
 

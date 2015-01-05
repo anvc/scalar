@@ -52,17 +52,13 @@ if (!count($page->versions)) {
 		<? endif; ?> 		
 		<a href="<?=$page_uri.'.'.$version->version_num?>"><?=strip_tags($title)?></a>
 		<?=($version->version_num == $page->versions[$page->version_index]->version_num)?' <b>&bull;</b> <span style="color:#7c2438">Version being viewed</span>':''?>
-		<?=($version->version_num == $page->versions[0]->version_num)?' <b>&bull;</b> <a href="'.$page_uri.'">View live version</a>':''?>
+		<?=($version->version_num == $page->versions[0]->version_num)?' <b>&bull;</b> <a href="'.$page_uri.'">Always up-to-date URL</a>':''?>
 		<br />
 		Version <b title="Version ID <?=$version->version_id?>"><?=$version->version_num?></b> by 
 		<?
-		if (isset($version->attribution->fullname) && !empty($version->attribution->fullname)) {
-			echo $version->attribution->fullname;
-		} else {
-			if (isset($version->homepage)) echo '<a href="'.$version->homepage.'">'; 
-			echo $version->fullname;
-			if (isset($version->homepage)) echo '</a>';  
-		}
+		if (!empty($version->user->uri)) echo '<a href="'.$version->user->uri.'">'; 
+		echo $version->user->fullname;
+		if (isset($version->user->uri)) echo '</a>';  
 		?>
 		on 
 		<?=$date?>

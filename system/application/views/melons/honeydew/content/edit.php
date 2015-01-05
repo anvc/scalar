@@ -523,16 +523,18 @@ endif;
 			    </select>
 			    <!--
 			    <span style="padding-left:40px;">Page creator</span>
-			    <span style="padding-left:16px;"><select name="page_creator"><option value="0" <?=((@$page->user==0)?'selected':'')?>>Anonymous</option>
+			    <span style="padding-left:16px;"><select name="page_creator"><option value="0" <?=((@$page->user->user_id==0)?'selected':'')?>>Anonymous</option>
 			<?
+			/*
 			    $page_creator = false;
 				foreach ($book->contributors as $contributor) {
-					if (@$page->user==$contributor->user_id) $page_creator = true;
-					echo '<option value="'.$contributor->user_id.'" '.((@$page->user==$contributor->user_id)?'selected':'').'>'.$contributor->fullname.'</option>';
+					if (@$page->user->user_id==$contributor->user->user_id) $page_creator = true;
+					echo '<option value="'.$contributor->user->user_id.'" '.((@$page->user->user_id==$contributor->user->user_id)?'selected':'').'>'.$contributor->user->fullname.'</option>';
 				}
 				if (!$page_creator && isset($page->user) && !empty($page->user)) {  // Could be created by someone not attached to the book
-					echo 'option value="'.$page->user.'">'.$page->fullname.'</option>';
+					echo 'option value="'.$page->user->user_id.'">'.$page->user->fullname.'</option>';
 				}
+			*/
 			?>
 			    </select></span>
 			    -->

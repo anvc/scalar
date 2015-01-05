@@ -50,6 +50,7 @@
 	        	.prefix('dcterms', 'http://purl.org/dc/terms/')
 	        	.prefix('sioc', 'http://rdfs.org/sioc/ns#')
 	        	.prefix('art', 'http://simile.mit.edu/2003/10/ontologies/artstor#')
+	        	.prefix('prov', 'http://www.w3.org/ns/prov#')
 	        	.where('?o oac:hasBody <'+this.options.subject+'>')
 	        	.where('?o oac:hasTarget ?s');
 	        	$q.each(function() {
@@ -62,6 +63,7 @@
 	        	.prefix('dcterms', 'http://purl.org/dc/terms/')
 	        	.prefix('sioc', 'http://rdfs.org/sioc/ns#')
 	        	.prefix('art', 'http://simile.mit.edu/2003/10/ontologies/artstor#')
+	        	.prefix('prov', 'http://www.w3.org/ns/prov#')
 	        	.where('?o a oac:Annotation')
 	        	.where('?o oac:hasBody ?b')
 	        	.where('?o oac:hasTarget ?s');
