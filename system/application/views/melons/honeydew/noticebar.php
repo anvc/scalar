@@ -4,7 +4,7 @@ if ($mode || !isset($page->user) || !isset($book->contributors) || !isset($page-
 // Check the page creator against the book's contributor
 $page_by_contributor = false;
 foreach ($book->contributors as $contrib) {
-	if ($contrib->user_id == $page->user) {
+	if ($contrib->user_id == $page->user->user_id) {
 		$page_by_contributor = true;
 		break;
 	}
