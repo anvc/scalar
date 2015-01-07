@@ -7,7 +7,8 @@ function error() {
 	exit;
 }
 
-$url =@urldecode($_REQUEST['url']);
+$url =@ urldecode($_REQUEST['url']);
+$url = str_replace(' ', '%20', $url);  // rfc3986 for file_get_contents() to work properly
 
 if (empty($url)) error();
 if (substr($url, 0, 7)!='http://' && substr($url, 0, 8) !='https://' ) error();
