@@ -595,6 +595,7 @@ a:hover { text-decoration: underline; }
 .full_dim { width: 103.8rem; display: none; }
 
 .full { margin-top: 4rem; clear:both; }
+.full .mediaelement {margin:0 auto;}
 .full .mediaElementFooter { padding: 1rem 7.2rem 0 7.2rem; max-width: 85.4rem; }
 
 /* So the top-most media element aligns with the top of its paragraph */
