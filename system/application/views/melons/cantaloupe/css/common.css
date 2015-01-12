@@ -370,7 +370,7 @@ section.relationships {
 
 .path-breadcrumb > a {
 	color: #888;
-} 
+}
 
 .title_card > .path-breadcrumb {
 	color: white;
@@ -378,7 +378,7 @@ section.relationships {
 
 .title_card > .path-breadcrumb > a {
 	color: white;
-} 
+}
 
 p {
     margin-top: 0;
@@ -594,7 +594,8 @@ a:hover { text-decoration: underline; }
 .large_dim { width: 62.0rem; display: none; }
 .full_dim { width: 103.8rem; display: none; }
 
-.full { margin-top: 4rem; }
+.full { margin-top: 4rem; clear:both; }
+.full .mediaelement {margin:0 auto;}
 .full .mediaElementFooter { padding: 1rem 7.2rem 0 7.2rem; max-width: 85.4rem; }
 
 /* So the top-most media element aligns with the top of its paragraph */
