@@ -151,6 +151,24 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 	return button;
 }
 
+function pullOutElement($pull) {
+  var $par = $pull.parent();
+  while($par.attr('property') !== 'sioc:content') {
+    var $clone = $par.clone();
+    $clone.empty();
+    var $nextElement = $($pull[0].nextSibling);
+    while($nextElement.length != 0) {
+      $nextElement.appendTo($clone);
+      $nextElement = $($nextElement[0].nextSibling);
+    }
+    if($clone.contents().length !== 0){
+      $clone.insertAfter($par);
+    }
+    $pull.insertAfter($par);
+    $par = $pull.parent();
+  }
+}
+
 /**
  * Finds all contiguous elements that aren't paragraphs or divs and wraps them
  * in divs.
@@ -161,7 +179,6 @@ function wrapOrphanParagraphs(selection) {
 	selection.each(function() {
       var buffer = null;
 	  	$(this).contents().each(function() {
-	  	  console.log(buffer);
 	  		if (!$(this).is('p,div,br')) {
           if(buffer === null) {
             buffer = $(this);
@@ -170,9 +187,11 @@ function wrapOrphanParagraphs(selection) {
           } else {
             $(this).appendTo(buffer);
           }
-	  		} else if(buffer !== null) {
-          buffer.insertBefore(this);
-	  		  buffer = null;
+	  		} else {
+	  		  if(buffer !== null) {
+            buffer.insertBefore(this);
+	  		    buffer = null;
+	  		  }
 	  		}
 	  	});
       if(buffer !== null) {
@@ -180,21 +199,16 @@ function wrapOrphanParagraphs(selection) {
         buffer = null;
       }
 
+      $(this).find('br').each(function() {
+        pullOutElement($(this));
+      })
+
+
 	  	$(this).contents().each(function() {
   			// unwrap inline media links and set them to full size if not already specified
   			$(this).find( '.inline' ).each( function() {
           // remove inline links from wrapper while maintaining position relative to siblings
-          var $clone = $(this).parent().clone();
-          $clone.empty();
-          var $nextElement = $(this).next();
-          while($nextElement.length != 0) {
-            $nextElement.appendTo($clone);
-            $nextElement = $nextElement.next();
-          }
-          if($clone.children().length !== 0){
-            $clone.insertAfter($(this).parent());
-          }
-  			  $(this).insertAfter($(this).parent());
+          pullOutElement($(this))
   				if ( $( this ).attr( 'data-size' ) == null ) {
   					$( this ).attr( 'data-size', 'full' );
   				}
@@ -218,7 +232,6 @@ function wrapOrphanParagraphs(selection) {
  */
 
 $.fn.slotmanager_create_slot = function(width, height, options) {
-
 	$tag = $(this);
 	//if ($tag.hasClass('inline')) return;
 	$tag.data( 'slot', $('<div class="slot"></div>') );
@@ -271,7 +284,6 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	$tag.data('path', url);
 	$tag.data('meta', resource);
 	$tag.mediaelement(opts);
-
 	// Insert media element's embed markup
 
 	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
