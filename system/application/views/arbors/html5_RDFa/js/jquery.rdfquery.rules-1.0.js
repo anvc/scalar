@@ -3875,7 +3875,8 @@
             while (a !== null) {
               if (!/^jQuery/.test(a[1])) {
                 string += ' ' + a[1] + '=';
-                string += a[2] ? a[3] : '"' + a[1] + '"';
+                // string += a[2] ? a[3] : '"' + a[1] + '"';
+                string += a[2] ? '"' + a[2] + '"' : '""';  // Updated by Craig Dietrich 12 January 2015; the RegEx pattern only returns a[1] and a[2], so not sure why a[3] was being asked for; a[2] is the attribute value
               }
               a = attRegex.exec(tag);
             }
