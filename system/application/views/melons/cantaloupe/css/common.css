@@ -505,7 +505,7 @@ a:hover { text-decoration: underline; }
 	top: 0;
 	padding: 14rem 3.6rem 0 3.6rem;
 	height: 100%;
-	overflow-y: scroll;
+	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	width: 100%;
 }
