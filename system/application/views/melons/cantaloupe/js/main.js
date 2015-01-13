@@ -156,10 +156,10 @@ function pullOutElement($pull) {
   while($par.attr('property') !== 'sioc:content') {
     var $clone = $par.clone();
     $clone.empty();
-    var $nextElement = $($pull[0].nextSibling);
+    var $nextElement = ($pull[0].nextSibling ? $($pull[0].nextSibling) : $pull.next());
     while($nextElement.length != 0) {
       $nextElement.appendTo($clone);
-      $nextElement = $($nextElement[0].nextSibling);
+      $nextElement = ($pull[0].nextSibling ? $($pull[0].nextSibling) : $pull.next());
     }
     if($clone.contents().length !== 0){
       $clone.insertAfter($par);
