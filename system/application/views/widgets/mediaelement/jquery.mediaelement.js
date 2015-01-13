@@ -1,21 +1,21 @@
 /**
- * Scalar
+ * Scalar    
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0
- * (the "License"); you may not use this file except in compliance
+ * Licensed under the Educational Community License, Version 2.0 
+ * (the "License"); you may not use this file except in compliance 
  * with the License. You may obtain a copy of the License at
- *
- * http://www.osedu.org/licenses /ECL-2.0
- *
+ * 
+ * http://www.osedu.org/licenses /ECL-2.0 
+ * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
+ * permissions and limitations under the License.       
+ */  
 
 /**
  * @projectDescription		The MediaElement plug-in creates and manages the interface for a Scalar media resource.
@@ -43,17 +43,17 @@ String.prototype.trim = function() {
 function handleFlashVideoPlay(data) {
 
 	var flashData = data;
-
+	
 	// look for a link referencing the mediaelement instance we want
 	$('a').each(function() {
-
+	
 		// look for maximized mediaelements (they get 'cloned' so as not to conflict with their non-maximized versions)
 		if ($(this).data('clone')) {
 			var clone = $(this).data('clone');
 			if (clone.data('mediaelement').model.id == flashData.id) {
 				clone.data('mediaelement').view.startTimer();
 			}
-
+			
 		// look for conventional mediaelements
 		} else if ($(this).data('mediaelement')) {
 			if ($(this).data('mediaelement').model.id == flashData.id) {
@@ -72,17 +72,17 @@ function handleFlashVideoPlay(data) {
 function handleFlashVideoStop(data) {
 
 	var flashData = data;
-
+	
 	// look for a link referencing the mediaelement instance we want
 	$('a').each(function() {
-
+	
 		// look for maximized mediaelements (they get 'cloned' so as not to conflict with their non-maximized versions)
 		if ($(this).data('clone')) {
 			var clone = $(this).data('clone');
 			if (clone.data('mediaelement').model.id == flashData.id) {
 				clone.data('mediaelement').view.startTimer();
 			}
-
+			
 		// look for conventional mediaelements
 		} else if ($(this).data('mediaelement')) {
 			if ($(this).data('mediaelement').model.id == flashData.id) {
@@ -98,17 +98,17 @@ function handleFlashVideoStop(data) {
 function handleFlashVideoMetadata(data) {
 
 	var flashData = data;
-
+	
 	// look for a link referencing the mediaelement instance we want
 	$('a').each(function() {
-
+	
 		// look for maximized mediaelements (they get 'cloned' so as not to conflict with their non-maximized versions)
 		if ($(this).data('clone')) {
 			var clone = $(this).data('clone');
 			if (clone.data('mediaelement').model.id == flashData.id) {
 				clone.data('mediaelement').view.mediaObjectView.handleMetadata(flashData);
 			}
-
+			
 		// look for conventional mediaelements
 		} else if ($(this).data('mediaelement')) {
 			if ($(this).data('mediaelement').model.id == flashData.id) {
@@ -124,7 +124,7 @@ function handleFlashVideoMetadata(data) {
 * @url: http://takien.com
 * For PHP YouTube parser, go here http://takien.com/864
 */
-
+ 
 function YouTubeGetID(url){
   var ID = '';
   url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
@@ -272,7 +272,7 @@ function YouTubeGetID(url){
 		this.is_valid = function() {
 			return (this.link.data('meta') && this.link.data('meta').length);
 		}
-
+		
 		/**
 		 * Returns true if the media element instance is currently playing (time-based media only).
 		 * @return	Returns true if the time-based media is currently playing.
@@ -305,7 +305,7 @@ function YouTubeGetID(url){
 
 				// store the class in the data of the element itself
 				element.data('mediaelement', mediaelement);
-
+				
 				// broadcast an event to the page once the element is created
 				$('body').trigger( 'mediaElementComplete', [$(this)] );
 
@@ -338,7 +338,7 @@ function YouTubeGetID(url){
 		 * @param 	{Object} options	An object containing other relevant data for the media element.
 		 */
 		jQuery.MediaElementModel.prototype.init = function(link, options) {
-
+		
 			this.link = link; 															// encapsulates the original hyperlink and other data
 			this.sidebarWidth = 270;  			   										// width of the annotation sidebar
 
@@ -347,22 +347,23 @@ function YouTubeGetID(url){
 			}
 
 			// path to the media file
-			this.path = (this.link.data('path')) ? this.link.data('path') : '';
+			this.path = (this.link.data('path')) ? this.link.data('path') : '';	
 			this.path = (this.path.indexOf('://')==-1) ? scalarapi.model.urlPrefix + this.path : this.path;
-
+			
 			// Scalar url for the media
 			this.meta = this.link.data('meta');
 			this.meta = (this.meta.indexOf('://')==-1) ? scalarapi.model.urlPrefix + this.meta : this.meta;
-
+			
 			// filename of the media
 			this.filename = scalarapi.basename(this.path);
 			this.filename = this.filename.replace(/ /g, '_');
 			this.filename = this.filename.replace(/%20/g, '_');
 			this.filename = this.filename.replace(/[^a-zA-Z 0-9-_]+/g, '');
+
 			// if height has been specified, assume the container has a horizontal layout
 			if (this.options.height) {
  				this.containerLayout = "horizontal";
-
+				
 			// if width has been specified, assume the container has a vertical layout
 			} else if (this.options.width) {
 				this.containerLayout = "vertical";
@@ -405,13 +406,13 @@ function YouTubeGetID(url){
 		 * @param {Object} json		JSON data comprising the media metadata.
 		 */
 		jQuery.MediaElementController.prototype.handleMetadata = function(json) {
-
+			
 			me.model.node = scalarapi.model.nodesByURL[me.model.meta];
-
+			
 			if ( me.model.node != null ) {
 				me.model.mediaSource = me.model.node.current.mediaSource;
 				me.view.beginSetup();
-
+				
 				// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
 				// will take care of displaying the annotations)
 				if ((me.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
@@ -419,9 +420,9 @@ function YouTubeGetID(url){
 				}
 
 			}
-
+			
 			$('body').trigger('mediaElementMetadataHandled', [$(link)]);
-
+			
  		}
 
 		/**
@@ -434,6 +435,7 @@ function YouTubeGetID(url){
 		 * @return								An object containing the new source rectangle dimensions.
 		 */
 		jQuery.MediaElementController.prototype.getFittedDimensions = function(sourceWidth, sourceHeight, destWidth, destHeight) {
+
 			var fittedWidth;
 			var fittedHeight;
 			var sourceAspectRatio = sourceWidth / sourceHeight;
@@ -498,27 +500,28 @@ function YouTubeGetID(url){
 		jQuery.MediaElementView.prototype.beginSetup = function() {
 
 			this.parseMediaType();
-
+		
 			this.header = $('<div class="mediaElementHeader"></div>').appendTo(this.model.element);
   			this.annotationSidebar = $('<div class="mediaElementAnnotationSidebar"></div>').appendTo(this.model.element);
   			this.mediaContainer = $('<div class="mediaContainer"></div>').appendTo(this.model.element);
   			if (this.model.mediaSource.name == "image") this.spatialAnnotation = $('<div class="spatialAnnotation"><div></div></div>').appendTo(this.mediaContainer);
   			this.footer = $('<div class="mediaElementFooter"></div>').appendTo(this.model.element);
-
+ 
  			this.initialContainerWidth = parseInt(this.mediaContainer.width());
+ 			
 			this.populateHeader();
    			this.populateFooter();
-
+  			
   			this.calculateContainerSize();
 
   			this.populateSidebar();
 			this.populateContainer();
-
+			
 			if ('undefined'!=typeof(this.mediaObjectView)) {
-
+			
 				// Native YouTube player requires that we download API code first
 				if (this.model.mediaSource.name == "YouTube") {
-
+				
 					// check to see if another mediaelement instance has already downloaded the API
 					this.foundYouTubeAPI = false;
 					$('script').each(
@@ -528,19 +531,19 @@ function YouTubeGetID(url){
 							}
 						}
 					);
-
+					
 					// if not, then do so, delay creation of the media object, and create function which
 					// will create all the YouTube instances once the API is ready
 					if (!this.foundYouTubeAPI) {
 						youTubeMediaElementViews.push(this);
-
+						
 						// load the API
 						var tag = document.createElement('script');
 						tag.src = "//www.youtube.com/player_api";
 						//tag.src = "https://www.youtube.com/iframe_api"; // needed only if testing locally
 						var firstScriptTag = document.getElementsByTagName('script')[0];
 						firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+						
 						// set up function to handle API arrival
 						window['onYouTubePlayerAPIReady'] = function() {
 							var i;
@@ -555,32 +558,32 @@ function YouTubeGetID(url){
 							youTubeMediaElementViews = [];
 						}
 
-					// if this is a maximized instance or the array of waiting YouTube views has been emptied,
+					// if this is a maximized instance or the array of waiting YouTube views has been emptied, 
 					// assume the API has been loaded and create the player immediately
 					} else if ((this.model.options.header == 'nav_bar') || (youTubeMediaElementViews.length == 0)) {
 			  			var mediaObjectHTML = this.mediaObjectView.createObject();
 						if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
 						$('body').trigger('mediaElementReady', [$(this)]);
 						this.layoutMediaObject();
-
+						
 					// otherwise, delay creation of the player until the API loads
 					} else {
 						youTubeMediaElementViews.push(this);
 					}
-
+					
 				// intialize the SoundCloud API if we haven't already
 				} else if (this.model.mediaSource.name == 'SoundCloud') {
-
+					
 					if (!soundCloudInitialized) {
 						SC.initialize({client_id: $('#soundcloud_id').attr('href')});
 						soundCloudInitialized = true;
 					}
-
+					
 		  			var mediaObjectHTML = this.mediaObjectView.createObject();
 					if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
 					$('body').trigger('mediaElementReady', [$(this)]);
 					this.layoutMediaObject();
-
+									
 				// otherwise, create the media object now
 				} else {
 		  			var mediaObjectHTML = this.mediaObjectView.createObject();
@@ -588,21 +591,21 @@ function YouTubeGetID(url){
 					$('body').trigger('mediaElementReady', [$(this)]);
 					this.layoutMediaObject();
 				}
-
+				
 			}
-
+			
 		}
 
 		/**
 		 * Populates the header element with content.
 		 */
 		jQuery.MediaElementView.prototype.populateHeader = function() {
-
+		
 			if (!this.model.isChromeless) {
-
+			
 				// Menu header (for "maximized" mediaelements only)
 				if (this.model.options.header == 'nav_bar') {
-
+					
 					// tabs
 		    		var tabs = '<ul class="nav_bar_options">';
 		    		tabs += '<span class="downArrow"><li id="max_file_button" class="sel" title="Display the media alone">Media</li></span>';
@@ -612,12 +615,12 @@ function YouTubeGetID(url){
 		    		tabs += '<span class="noArrow"><li id="max_perm_button" title="Load the media\'s permanent page">Permalink</li></span>';
 		    		tabs += '<span class="noArrow"><li id="max_popout_button" title="Launch the file in a new browser window">Popout</li></span>';
 		    		tabs += '</ul>';
-
+		    		
 		    		this.header.addClass('mediaElementHeaderWithNavBar');
 		    		this.header.append(tabs);
-
+		    		
 		    		// Media button: maximize the media
-					this.header.find('#max_file_button').click(function() {
+					this.header.find('#max_file_button').click(function() {   
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -629,9 +632,9 @@ function YouTubeGetID(url){
 							me.updateSidebarDisplay();
 						}
 					});
-
+		    		
 					// Description button: open the title|description panel
-					this.header.find('#max_desc_button').click(function() {
+					this.header.find('#max_desc_button').click(function() {  
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -649,9 +652,9 @@ function YouTubeGetID(url){
 						$(sidebar).find('.mediaElementSidebarMeta').removeAttr('padding');
 						$(sidebar).find('.annotationChip').hide();
 					});
-
+					
 					// Annotation button: open the annotation panel
-					this.header.find('#max_anno_button').click(function() {
+					this.header.find('#max_anno_button').click(function() {    
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -669,9 +672,9 @@ function YouTubeGetID(url){
 						$(sidebar).find('.mediaElementSidebarMeta').removeAttr('padding');
 						$(sidebar).find('.annotationChip').show();
 					});
-
+					
 					// Metadata button: open the meta panel
-					this.header.find('#max_meta_button').click(function() {
+					this.header.find('#max_meta_button').click(function() {    
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -689,17 +692,17 @@ function YouTubeGetID(url){
 						$(sidebar).find('.mediaElementSidebarMeta').removeAttr('padding');
 						$(sidebar).find('.annotationChip').hide();
 					});
-
+					
 					// Permalink button: take user to file page
-					this.header.find('#max_perm_button').data('meta',this.model.meta).click(function() {
+					this.header.find('#max_perm_button').data('meta',this.model.meta).click(function() {    
 						window.location.href = $(this).data('meta');
 					});
-
+					
 					// Source button: open the file in a new browser window
-					this.header.find('#max_popout_button').data('path',this.model.path).click(function() {
+					this.header.find('#max_popout_button').data('path',this.model.path).click(function() {  
 						window.open($(this).data('path'), 'popout', 'width='+(parseInt($(window).width())-100)+',height='+(parseInt($(window).height())-100));
 					});
-
+	
 					// Close button: close the maximize panel
 					var close_link = $('<a alt="Close" href="javascript:;">&nbsp;</a>');
 					var close_span = $('<span class="close_link"></span>');
@@ -710,15 +713,15 @@ function YouTubeGetID(url){
 						$('.vert_slots').find('.slot').find('object, embed').css('visibility','visible');
 					});
 					$slot.find('.mediaElementAlignRight').remove();
-
+					
 					// makes the description tab the default on open
 					this.header.find('#max_desc_button').click();
-
+	
 		    	// Simple header
 		    	} else {
-
+					
 					this.header.append('<p class="mediaElementAlignLeft">'+this.model.node.getDisplayTitle()+'<span style="font-size:10px"></span></p>');
-
+					
 					if (this.model.node.current.publisher != null) {
 						this.header.find('span').append(' / '+this.model.node.current.publisher);
 					}
@@ -728,7 +731,7 @@ function YouTubeGetID(url){
 					if (this.model.node.current.source != null) {
 						this.header.find('span').append(' / '+this.model.node.current.source);
 					}
-
+		    		
 		    		// toggle annotation display
 					if (this.model.containerLayout == "horizontal") {
 						var cntrllr = this.controller;
@@ -741,8 +744,8 @@ function YouTubeGetID(url){
 						this.annotationLink = temp.append(this.annotationLink);
 						this.annotationLink.appendTo(this.header);
 					}
-
-		    	}
+						    		
+		    	}		
 			}
 		}
 
@@ -750,8 +753,9 @@ function YouTubeGetID(url){
 		 * Populates the media container element with content.
 		 */
 		jQuery.MediaElementView.prototype.populateContainer = function() {
-
+		
 			switch (this.model.containerLayout) {
+
 				case "horizontal":
 				if ((this.mediaContainer.closest('.slot').length > 0) || (this.model.options.header == 'nav_bar')) {
 					// only set the height of the container if we're in a slot manager
@@ -767,25 +771,25 @@ function YouTubeGetID(url){
  				break;
 
 			}
-
+			
 			if ((this.model.mediaSource.contentType == 'image') && (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native') && (this.mediaObjectView.annotations != null)) {
 				this.mediaObjectView.setupAnnotations(this.mediaObjectView.annotations);
-			}
-
+			}		
+			
 		}
 
 		/**
 		 * Populates the sidebar element with content.
 		 */
 		jQuery.MediaElementView.prototype.populateSidebar = function() {
-
+		
 			if (this.model.containerLayout == "horizontal") {
 				this.annotationSidebar.append('<div style="display:none;" class="annotationChip dark">No annotations to display.</div>');
 				this.annotationSidebar.height(this.containerDim.y);
 			}
-
+			
 			if (this.model.options.header == 'nav_bar') {
-
+			
 				// Title-description panel
 				var title = this.model.node.getDisplayTitle();
 				if (!title || !title.length) title = '(No title)';
@@ -793,7 +797,7 @@ function YouTubeGetID(url){
 				if (!desc || !desc.length) desc = '(No description)';
 				var $desc = $('<div class="mediaElementSidebarDesc"><div class="desc_title">'+title+'</div>'+desc+'</div>');
 				this.annotationSidebar.append($desc);
-
+				
 				// Meta
 				var $meta = $('<div class="mediaElementSidebarMeta"><table cellspacing="0" cellpadding="0"></table></div>');
 				var $table = $meta.find('table:first');
@@ -817,30 +821,30 @@ function YouTubeGetID(url){
 				}
 				$table.append('<tr><td><a href="'+this.model.node.url+'.rdf" class="rdf_link""">View as RDF</a></td></tr>');
 				this.annotationSidebar.append($meta);
-
+				
 				// Float sidebar to left
 				this.annotationSidebar.addClass('annotationSidebarWithNavBar');
 				this.mediaContainer.addClass('mediaContainerWithNavBar');
-
-			}
-
+				
+			}	
+			
 			this.updateSidebarDisplay();
-
+					
 		}
 
 		/**
 		 * Populates the footer element with content.
 		 */
 		jQuery.MediaElementView.prototype.populateFooter = function() {
-
+		
 			// no footer if menu is showing
 			if ((this.model.options.header == 'nav_bar') || ('undefined'!=typeof(this.model.options.show_footer) && !this.model.options.show_footer)) {
 				this.footer.hide();
 				this.footer.remove();
-
+				
 			// standard footer
 			} else if (!this.model.isChromeless) {
-
+			
 				// show number of annotations if we're in vertical layout and not in the annotation editor
 				if (this.model.containerLayout == "vertical") {
 					if (-1==document.location.href.indexOf('annotation_editor')) {
@@ -848,10 +852,10 @@ function YouTubeGetID(url){
 						annoQuantity.css('width', '50%');
 					}
 				}
-
+				
 				// if we're not in the annotation editor, then
 				if (-1==document.location.href.indexOf('annotation_editor')) {
-
+		
 					// the View Page/View PDF button is initially hidden, this gives it the right text
 					// in case we do end up showing it
 					var extension = scalarapi.getFileExtension(this.model.path);
@@ -859,12 +863,12 @@ function YouTubeGetID(url){
 					if (extension.toLowerCase() == 'pdf') {
 						viewString = 'View PDF';
 					}
-
+					
 					var maximizeButton = $('<p class="mediaElementAlignRight"><a id="viewPageLink" class="generic_button">'+viewString+'</a> <a id="maximizeLink" class="generic_button" href="javascript:;">Details</a></p>').appendTo(this.footer);
 					maximizeButton.addClass('mediaElementAlignRightDetails');
 					maximizeButton.siblings('.mediaElementAlignLeft').addClass('mediaElementAlignLeftDetails');
-
-					// opens original media file (for HTML pages and PDFs only)
+					
+					// opens original media file (for HTML pages and PDFs only)					
 					maximizeButton.find('a#viewPageLink').data('me', this).click(function() {
 						var $this = $(this);
 						var base_dir = scalarapi.model.urlPrefix;
@@ -873,11 +877,11 @@ function YouTubeGetID(url){
 						if ($this.data('me').model.node.current.sourceLocation != null) link = $this.data('me').model.node.current.sourceLocation;
 						document.location.href = base_dir+'external?link='+encodeURIComponent(link)+'&prev='+encodeURIComponent(document.location.href);
 					});
-
+					
 					// maximize link (now called 'Details' in the interface)
 					maximizeButton.find('a#maximizeLink').data('link', this.link).data('me', this).click(function() {
 						if (!$.isFunction($.fn.scalarmaximize)) return alert('Could not find maximize script.');
-
+						
 						// pause all playing mediaelement instances
 						var view;
 						$('a').each(function() {
@@ -900,21 +904,21 @@ function YouTubeGetID(url){
 						$link.scalarmaximize();
 					});
 				}
-
+				
 				// dynamic blue annotation highlight
 	   			this.annotationDisplay = $('<div class="annotationDisplay"><p>This is the display</p></div>').appendTo(this.footer);
 	    		this.annotationDisplay.hide();
 			}
 
 		}
-
+		
 		/**
 		 * Parses the media type to determine what kind of player to create.
 		 */
 		jQuery.MediaElementView.prototype.parseMediaType = function() {
-
+		
 			switch (this.model.mediaSource.contentType) {
-
+				
 				case 'image':
 				if (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'QuickTime') {
 					this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
@@ -922,11 +926,11 @@ function YouTubeGetID(url){
 					this.mediaObjectView = new $.ImageObjectView(this.model, this);
 				}
 				break;
-
+				
 				case 'tiledImage':
 				this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
 				break;
-
+				
 				case 'audio':
 				if (this.model.mediaSource.name == 'SoundCloud') {
 					this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);
@@ -938,10 +942,10 @@ function YouTubeGetID(url){
 					this.mediaObjectView = new $.JPlayerAudioObjectView(this.model, this);
 				}
 				break;
-
+				
 				case 'video':
 				switch (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player) {
-
+				
 					case 'QuickTime':
 					if (this.model.mediaSource.name == 'QuickTimeStreaming') {
 						this.mediaObjectView = new $.StreamingQuickTimeObjectView(this.model, this);
@@ -949,39 +953,39 @@ function YouTubeGetID(url){
 						this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
 					}
 					break;
-
+					
 					case 'Flash':
 					this.mediaObjectView = new $.FlowplayerVideoObjectView(this.model, this);
 					break;
-
+					
 					case 'native':
 					this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
 					break;
-
+					
 					case 'proprietary':
 					switch (this.model.mediaSource.name) {
-
+					
 						case 'HIDVL':
 						this.mediaObjectView = new $.HemisphericInstituteVideoObjectView(this.model, this);
 						break;
-
+						
 						case 'Vimeo':
 						this.mediaObjectView = new $.VimeoVideoObjectView(this.model, this);
 						break;
-
+						
 						case 'YouTube':
 						this.mediaObjectView = new $.YouTubeVideoObjectView(this.model, this);
 						break;
-
+						
 					}
 					break;
-
+					
 				}
 				break;
-
+				
 				case 'map':
 				switch (this.model.mediaSource.name) {
-
+				
 					case 'HyperCities':
 					if ((this.model.options.header == 'nav_bar') || (this.model.meta == scalarapi.stripAllExtensions(window.location.href)) || this.model.options.height) {
 						this.mediaObjectView = new $.HyperCitiesObjectView(this.model, this);
@@ -992,26 +996,25 @@ function YouTubeGetID(url){
 						this.model.path = this.model.mediaelement_dir +'hypercities_card.gif';
 					}
 					break;
-
+					
 					case 'KML':
 					this.mediaObjectView = new $.GoogleMapsObjectView(this.model, this);
 					break;
-
+					
 				}
 				break;
-
+				
 				case 'document':
 				switch (this.model.mediaSource.name) {
-
+				
 					case 'HTML':
-					  console.log('it thinks this is html')
 					this.mediaObjectView = new $.HTMLObjectView(this.model, this);
 					break;
-
+				
 					case 'PDF':
 					this.mediaObjectView = new $.PDFObjectView(this.model, this);
 					break;
-
+					
 					case 'PlainText':
 					var queryVars = scalarapi.getQueryVars( this.model.path );
 					if ( queryVars.lang != null ) {
@@ -1020,22 +1023,22 @@ function YouTubeGetID(url){
 						this.mediaObjectView = new $.TextObjectView(this.model, this);
 					}
 					break;
-
+					
 					case 'SourceCode':
 					this.mediaObjectView = new $.SourceCodeObjectView(this.model, this);
 					break;
-
+					
 					case 'Prezi':
 					this.mediaObjectView = new $.PreziObjectView(this.model, this);
 					break;
-
+				
 				}
 				break;
-
+				
 				case 'other':
 				this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
 				break;
-
+				
 			}
 
 		}
@@ -1044,9 +1047,9 @@ function YouTubeGetID(url){
 		 * Lays out the media object.
 		 */
 		jQuery.MediaElementView.prototype.layoutMediaObject = function() {
-
+		
 			this.calculateMediaSize();
-
+			
 			this.mediaObjectView.resize(this.resizedDim.x, this.resizedDim.y);
 
 			// magic number stuff to get layouts to look right
@@ -1055,48 +1058,48 @@ function YouTubeGetID(url){
 				var hMargin;
 				if (!this.annotationsVisible) {
 					switch (this.model.mediaSource.contentType) {
-
+						
 						case 'audio':
 						if (this.model.mediaSource.name != 'SoundCloud') {
 							fudgeAmount = 1;
 						}
 						break;
-
+						
 					}
 					switch (this.model.mediaSource.name) {
-
+					
 						case "YouTube":
 						fudgeAmount = -2;
 						break;
-
+						
 					}
 					this.model.element.width(Math.max(this.resizedDim.x + fudgeAmount + (this.gutterSize * 2), this.minContainerDim.x));
 				} else {
 					switch (this.model.mediaSource.name) {
-
+					
 						case "Vimeo":
 						fudgeAmount = 6;
 						break;
-
+						
 						case "YouTube":
 						fudgeAmount = 2;
 						break;
-
+						
 						case "MPEG-3":
 						case "WAV":
 						case "OGA":
 						case "AIFF":
 						fudgeAmount = 3;
 						break;
-
+						
 						default:
 						fudgeAmount = 2;
 						break;
-
+						
 					}
 					this.model.element.width(Math.max(this.resizedDim.x + fudgeAmount + parseInt(this.annotationSidebar.width()-1) + (this.gutterSize * 2), this.minContainerDim.x));
 				}
-
+				
 				// update horizontal margins around media element
 				if (!this.model.isChromeless) {
 					hMargin = (this.initialContainerWidth - parseFloat(this.model.element.width())) * .5;
@@ -1107,16 +1110,16 @@ function YouTubeGetID(url){
 					this.model.element.width(this.resizedDim.x);
 				}
 			}
-
+				
 			//console.log('element width: '+this.model.filename+' '+this.model.element.width());
-
+		
 		}
 
 		/**
 		 * Calculates the maximum allowed size of the media container.
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
-
+			
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
@@ -1146,9 +1149,7 @@ function YouTubeGetID(url){
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
  					if ( this.model.mediaSource.contentType != 'image' ) {
-						this.containerDim.y = window.innerHeight - parseInt($('.dialog_header').outerHeight()) - parseInt(this.header.height()) - parseInt(this.footer.height());
-            //these media types shouldn't scroll
-            $('.manual_slideshow').css('overflow','hidden');
+						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height());
 					} else {
  						this.containerDim.y = 1040 - parseInt(this.header.height()) - parseInt(this.footer.height());
 					}
@@ -1158,67 +1159,67 @@ function YouTubeGetID(url){
  				this.minContainerDim.x = this.containerDim.x;
  				this.minContainerDim.y = Math.round(this.containerDim.x * .33);
 				break;
-
+ 				
 			}
-
-		// 	if ( this.model.mediaSource.contentType != 'image' ) {
-		// 		this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
-		// 	}
-
+			
+			if ( this.model.mediaSource.contentType != 'image' ) {
+				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
+			}
+	   		
 	   		if (!this.annotationsVisible) {
 	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x);
 	   		} else {
 	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x + this.annotationSidebar.width());
 	   		}
-
+			
 			if (this.model.mediaSource.name == 'HyperCities')  this.containerDim.x -= 4;
-
+			
 			//console.log(this.model.containerLayout+' '+this.initialContainerWidth+' '+this.containerDim.x+' '+this.containerDim.y+' '+this.footer.height()+' '+this.annotationSidebar.width());
-
+		
 		}
-
+		
 		/**
 		 * Calculates the optimum display size for the media.
 		 */
 		jQuery.MediaElementView.prototype.calculateMediaSize = function() {
-
+		
 			// if this is liquid media, always make it the maximum size
 			if (this.mediaObjectView.isLiquid) {
 				this.intrinsicDim.x = this.containerDim.x;
 				this.intrinsicDim.y = this.containerDim.y;
 			}
-
+		
 			if (this.intrinsicDim.x == 0) {
-
+			
 				// intrinsic dim unknown; assume 640x480
 				if (this.intrinsicDim.y == 0) {
 					this.intrinsicDim.x = 640;
 					this.intrinsicDim.y = 480;
-
+					
 				// only y dimension known; make 1.33:1
 				} else {
 					this.intrinsicDim.x = this.intrinsicDim.y * 1.33;
 					this.intrinsicDim.y = this.intrinsicDim.y;
 				}
 			} else {
-
+			
 				// only x dimension known; make 1.33:1
 				if (this.intrinsicDim.y == 0) {
 					this.intrinsicDim.x = this.intrinsicDim.x;
 					this.intrinsicDim.y = this.intrinsicDim.x / 1.33;
-
+					
 				// both dimensions known; use as is
 				} else {
 					this.intrinsicDim.x = this.intrinsicDim.x;
 					this.intrinsicDim.y = this.intrinsicDim.y;
 				}
 			}
-
+			
 			var mediaAR = this.intrinsicDim.x / this.intrinsicDim.y;
 			var containerAR = this.containerDim.x / this.containerDim.y;
-
+			
 			//console.log(this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
-
+			
 			if (mediaAR > containerAR) {
 				if (this.model.isChromeless) {
 					this.resizedDim.x = this.containerDim.x;
@@ -1234,20 +1235,20 @@ function YouTubeGetID(url){
 				}
 				this.resizedDim.x = (this.resizedDim.y - this.controllerOffset) * mediaAR;
 			}
-
+		
 			//console.log(this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
-
+			
 			this.mediaScale = this.resizedDim.x / this.intrinsicDim.x;
-
+			
 			this.updateMargins();
-
+			
 		}
 
 		/**
-		 * Calculates and updates the media object's margins
+		 * Calculates and updates the media object's margins	
 		 */
 		jQuery.MediaElementView.prototype.updateMargins = function() {
-
+		
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
@@ -1264,7 +1265,7 @@ function YouTubeGetID(url){
 					this.mediaMargins.vert = Math.max(0, (this.containerDim.y - this.resizedDim.y) * .5);
 				}
 				break;
-
+				
 				case "vertical":
 				this.mediaMargins.horz = (this.containerDim.x - this.resizedDim.x) * .5;
 				if (this.controllerOnly) {
@@ -1275,27 +1276,27 @@ function YouTubeGetID(url){
 					this.mediaMargins.vert = this.gutterSize;
 				}
 				break;
-
+				
 			}
-
+			
 			this.mediaMargins.horz = Math.round(this.mediaMargins.horz);
-
+			
 			var additive = 0;
 			if (this.model.options.header == 'nav_bar') {
 				additive = Math.max(0, this.gutterSize + Math.round(this.containerDim.x - (this.resizedDim.x+this.mediaMargins.horz+this.mediaMargins.horz))) - 2;
 			} else {
 				this.mediaMargins.horz--;
 			}
-
+			
 			//console.log('margins '+this.mediaMargins.horz+' '+this.mediaMargins.vert);
-
+		
 			if (!this.model.isChromeless) {
 				this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz));
 				this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive));
 				this.mediaContainer.find('.mediaObject').css('padding-top', Math.floor(this.mediaMargins.vert));
 				this.mediaContainer.find('.mediaObject').css('padding-bottom', Math.floor(this.mediaMargins.vert));
 			}
-
+			
 		}
 
 		/**
@@ -1305,15 +1306,15 @@ function YouTubeGetID(url){
 			this.annotationsVisible = !this.annotationsVisible;
 			this.updateSidebarDisplay();
 		}
-
+	
 		/**
 		 * Makes adjustments to show/hide the sidebar.
 		 */
 		jQuery.MediaElementView.prototype.updateSidebarDisplay = function() {
-
+		
 			this.calculateContainerSize();
 			this.layoutMediaObject();
-
+			
 			if (this.annotationsVisible) {
 				if (this.model.options.header != 'nav_bar') {
 					$(this.annotationLink).find('a').text('Hide Annotations');
@@ -1352,17 +1353,17 @@ function YouTubeGetID(url){
 					}
 				}
 			}
-
+			
 			// update horizontal margins around media element
 			if (!this.model.isChromeless) {
 				var hMargin = Math.max(0, (this.initialContainerWidth - parseFloat(this.model.element.width())) * .5);
 				this.model.element.css('margin-left', hMargin);
 			}
-
-			this.doInstantUpdate();
-
+			
+			this.doInstantUpdate();	
+	
 		}
-
+		
 		/**
 		 * Removes the loading message.
 		 */
@@ -1370,9 +1371,9 @@ function YouTubeGetID(url){
 			this.mediaContainer.css('background-image', 'url()');
 			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
 		}
-
+				
 		/**
-		 * Begins playback of time-based media.
+		 * Begins playback of time-based media.	
 		 */
 		jQuery.MediaElementView.prototype.play = function() {
 			if ((this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'document')) {
@@ -1415,7 +1416,7 @@ function YouTubeGetID(url){
 				me.playingSeekAnnotation = false;
 				me.pause();
 			}
-
+			
 			if (me.annotations) {
 
 				var annotation;
@@ -1429,30 +1430,30 @@ function YouTubeGetID(url){
 				var newCurrentAnnotation;
 				var i;
 				var n = me.annotations.length;
-
+				
 				// loop through all the annotations
 				for (i=0; i<n; i++) {
 					annotation = me.annotations[i];
 					startPosition = annotation.properties.start;
 					endPosition = annotation.properties.end;
-
+					
 					// if the annotation sidebar is showing,
 					if (me.annotationSidebar.css('display') == 'block') {
 						chip = me.annotationSidebar.find('div.annotationChip').eq(i);
-
+						
 						// if this annotation is active,
 						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
-
+							
 							// generate a display title for the annotation
 							if (me.model.mediaSource.contentType == 'document') {
 								annoTitle = 'Line '+currentPosition+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
 							} else {
 								annoTitle = scalarapi.decimalSecondsToHMMSS(me.getCurrentTime())+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
 							}
-
+							
 							newCurrentAnnotation = annotation;
-
+							
 							// if we just arrived at this annotation, then set up highlighting
 							if (!chip.hasClass('selectedAnnotation')) {
 								action = 'fadeIn';
@@ -1461,11 +1462,11 @@ function YouTubeGetID(url){
 									if (scrollTop == null) scrollTop = chip.position().top + me.annotationSidebar.scrollTop() - 30;
 								}
 							}
-
+							
 							if (annotation == me.model.play) {
 								me.playingSeekAnnotation = true;
 							}
-
+							
 						// if this annotation is inactive, turn off any highlighting
 						} else {
 							if (chip.hasClass('selectedAnnotation')) {
@@ -1473,43 +1474,43 @@ function YouTubeGetID(url){
 								chip.removeClass('selectedAnnotation');
 							}
 						}
-
+						
 					// if the annotation sidebar is hidden,
 					} else {
-
+						
 						// if this annotation is active, set up highlighting
 						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
-
+							
 							// generate a display title for the annotation
 							if (me.model.mediaSource.contentType == 'document') {
 								annoTitle = 'Line '+currentPosition+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
 							} else {
 								annoTitle = scalarapi.decimalSecondsToHMMSS(me.getCurrentTime())+'&nbsp;&nbsp;<strong>'+annotation.body.getDisplayTitle()+'</strong>';
 							}
-
+							
 							newCurrentAnnotation = annotation;
 							action = 'fadeIn';
 							if (annotation == me.model.seekAnnotation) {
 								me.playingSeekAnnotation = true;
 							}
-
+							
 						// otherwise, turn off highlighting
 						} else {
 							if (action == null) action = 'fadeOut';
 						}
 					}
 				}
-
+				
 				if (me.annotationDisplay) {
-
+				
 					// annotation highlight bar behavior
 					switch (action) {
-
+		
 						case 'fadeIn':
 						me.annotationDisplay.fadeIn();
 						break;
-
+		
 						case 'fadeOut':
 						if ((liveCount == 0) && (me.annotationDisplay.find('.annoSeekMessage').length == 0)) {
 							me.annotationDisplay.fadeOut();
@@ -1518,7 +1519,7 @@ function YouTubeGetID(url){
 							}
 						}
 						break;
-
+		
 					}
 
 					if (liveCount > 0) {
@@ -1537,12 +1538,12 @@ function YouTubeGetID(url){
 								$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
 							}
 						}
-					}
-
+					} 
+		
 					if ((scrollTop != null) && (me.annotationsVisible)) me.annotationSidebar.animate({scrollTop:scrollTop}, 500);
-
+					
 				} else if (me.model.isChromeless) {
-
+					
 					if (liveCount > 0) {
 						if ((me.model.mediaSource.name == 'Vimeo') ||(me.model.mediaSource.name == 'SoundCloud')) {
 							// this prevents Vimeo videos generated from linked annotations from displaying
@@ -1563,7 +1564,7 @@ function YouTubeGetID(url){
 					}
 				}
 			}
-
+			
 			if (liveCount == 0) {
 				this.currentAnnotation = null;
 			} else {
@@ -1590,16 +1591,16 @@ function YouTubeGetID(url){
 				this.mediaObjectView.pause();
 			}
 		}
-
+		
 		/**
 		 * Seeks to a given time position within a piece of time-based media.
 		 *
 		 * @param {Object} annotation			The annotation to seek to.
 		 */
 		this.seek = function(annotation) {
-
+		
  			switch (this.model.mediaSource.contentType) {
-
+ 				
  				case 'audio':
  				case 'video':
  				case 'document':
@@ -1610,13 +1611,13 @@ function YouTubeGetID(url){
  				if (!this.annotationTimerRunning) {
 
  					var delay = 3000;
-
+ 					
  					// if the user clicked on an annotation chip, then they're expecting the clip to play asap,
  					// so schedule our first check sooner than normal
 					if (this.cachedPlayCommand) {
 						delay = 1000;
 					}
-
+					
 					this.annotationTimer = setTimeout(checkSeekSuccessful, delay);
 					this.annotationTimerRunning = true;
  				}
@@ -1625,59 +1626,59 @@ function YouTubeGetID(url){
  				this.lastSeekTime = annotation.properties.start;
  				handleTimer();
  				break;
-
+ 				
  				case 'image':
  				this.showSpatialAnnotation(annotation);
  				break;
-
+ 				
  			}
-
-		}
-
+ 			
+		}	
+		
 		/**
 		 * Shows the specified spatial annotation.
 		 *
 		 * @param {Object} annotation 		The spatial annotation to be shown.
 		 */
 		this.showSpatialAnnotation = function(annotation) {
-
+			
             this.mediaContainer.find('.image-annotate-view').show();
-
+            
 			var temp = annotation.body.urn.split(':');
 			var urn = temp[temp.length - 1];
-
+			
 			$($('.image-annotate-area')).hide();
 			$($('#'+this.model.id+'_'+urn)).show();
-
+			
 			$($('.image-annotate-note')).hide();
 			$($('#'+this.model.id+'_'+urn+'_note')).show();
-
+			
 			if (document.location.href.indexOf('.annotation_editor')==-1) {
 				$('body').trigger('show_annotation', [annotation, this]);
 			}
-
+		
 		}
-
+		
 		/**
 		 * Checks to see if the last attempted seek has succeeded; if not, tries to seek there again.
 		 * @return		Returns true if the seek was successful.
 		 */
 		 function checkSeekSuccessful() {
-
+		 
 		 	//console.log('check to see if seek successful: '+me.lastSeekTime);
-
+		 	
 		 	var result = false;
-
+			
 			if ( me.annotationDisplay || me.model.isChromeless ) {
-
+				
 				// we're not yet in range; seek must have failed
 				if ((me.lastSeekTime - me.mediaObjectView.getCurrentTime()) > 5) {
 					me.mediaObjectView.seek(me.lastSeekTime);
 					me.annotationTimer = setTimeout(checkSeekSuccessful, 3000);
 					me.seekAttemptCount++;
-
+					
 					//console.log('not yet in range, making attempt #'+me.seekAttemptCount);
-
+					
 				// we are in range; stop seeking and hide the 'attempting' message if visible
 				} else {
 					if ( !me.model.isChromeless ) {
@@ -1691,21 +1692,21 @@ function YouTubeGetID(url){
 					if ( me.cachedPlayCommand || me.model.options.autoplay ) {
 						me.play();
 					} else {
-
+					
 						// SoundCloud must be playing in order to seek, so pause if we've arrived
 						if (me.model.mediaSource.name == 'SoundCloud') {
 							me.mediaObjectView.pause();
 							me.mediaObjectView.initialPauseDone = true;
 						}
-
+						
 					}
 					result = true;
 				}
 			}
-
+		
 			return result;
-		}
-
+		}	
+		
 		/**
 		 * Returns true if time-based media is currently playing.
 		 * @return	Returns true if the media is playing.
@@ -1725,7 +1726,7 @@ function YouTubeGetID(url){
 				return null;
 			}
 		}
-
+		
 		jQuery.MediaElementView.prototype.updateAnnotations = function( annotations ) {
 			this.annotations = annotations;
 		}
@@ -1741,14 +1742,14 @@ function YouTubeGetID(url){
 			var data;
 			var index;
 			var coordinate;
-
+			
 			this.annotations = this.model.node.getRelations('annotation', 'incoming');
 			/*if ( this.annotationSidebar ) {
 				if (this.model.options.header != 'nav_bar') {
 					this.annotationSidebar.empty();
 				}
 			}*/
-
+			
 			// if this instance was passed an initial seek value, then keep track
 			// of the annotation it was directed to seek to
 			var i;
@@ -1758,9 +1759,9 @@ function YouTubeGetID(url){
 				annotation = this.annotations[i];
 				if (annotation.body.url == this.model.seek) {
 					this.model.seekAnnotation = annotation;
-				}
+				}				
 			}
-
+			
 			if ((this.model.mediaSource.contentType == 'document') && this.mediaObjectView.hasFrameLoaded) {
 				this.mediaObjectView.highlightAnnotatedLines();
 			}
@@ -1793,7 +1794,7 @@ function YouTubeGetID(url){
 				var annotationChip;
 				var extents;
 				var stripeType;
-
+					
 				var i;
 				var n = this.annotations.length;
 				for (i=0; i<n; i++) {
@@ -1820,13 +1821,13 @@ function YouTubeGetID(url){
 
 						annotationChip.append('<p class="annotationTitle"><strong>'+annotation.body.getDisplayTitle()+'</strong></p>');
 						annotationChip.append(extents);
-
+						
 
 						break;
 
 						case 'image':
 						annotationChip.append('<p class="annotationTitle"><strong>'+annotation.body.getDisplayTitle()+'</strong></p>');
-						annotationChip.append('<p class="annotationExtents"><a href="javascript:;">'+annotation.startString+annotation.separator+annotation.endString+'</a></p>');
+						annotationChip.append('<p class="annotationExtents"><a href="javascript:;">'+annotation.startString+annotation.separator+annotation.endString+'</a></p>');						
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
 						annotationChip.click( function() {
@@ -1834,11 +1835,11 @@ function YouTubeGetID(url){
 							$(this).data('me').seek($(this).data('annotation'));
 							// don't show live annotations if we're in the annotation editor or the maximize view
 							if (document.location.href.indexOf('.annotation_editor') && ($(this).data('me').model.options.header != 'nav_bar')) {
-								$('body').trigger('show_annotation', [$(this).data('annotation'), $(this).data('me')]);
+								$('body').trigger('show_annotation', [$(this).data('annotation'), $(this).data('me')]); 
 							}
 						});
 						break;
-
+						
 						case 'document':
 						extents = $('<p class="annotationExtents"></p>');
 						var link = $('<a href="javascript:;">'+annotation.startString+annotation.separator+annotation.endString+'</a>').appendTo(extents);
@@ -1857,9 +1858,9 @@ function YouTubeGetID(url){
 						break;
 
 					}
-
+						
 					var annoText = $('<span class="annotationDescription"></span>');
-
+					
 					// if the annotation has a description, then show it
 					if (annotation.body.current.description != null) {
 						annoText.append('<i>'+annotation.body.current.description+'</i>');
@@ -1870,15 +1871,15 @@ function YouTubeGetID(url){
 						if (annotation.body.current.description != null) annoText.append('<br />');
 						var the_content = annotation.body.current.content;
 						var num_words = 35; // Magic number
-						if ('function' == typeof(window['create_excerpt'])) the_content = create_excerpt(the_content,num_words);
+						if ('function' == typeof(window['create_excerpt'])) the_content = create_excerpt(the_content,num_words); 
 						annoText.append(the_content);
 					}
-
+					
 					// Permalink
 					annoText.append('<br /><a href="'+annotation.body.url+'" style="white-space:nowrap;">Permalink &raquo;</a>');
-
+					
 					annotationChip.append(annoText);
-
+					
 					if (this.annotationSidebar) {
 						this.annotationSidebar.append(annotationChip);
 					}
@@ -1900,7 +1901,7 @@ function YouTubeGetID(url){
 				break;
 
 			}
-
+				
 			// show image annotations if there are any
 			if ((this.model.mediaSource.contentType == 'image') && (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native') && (this.annotations.length > 0)) {
 				this.mediaObjectView.setupAnnotations(this.annotations);
@@ -1964,18 +1965,18 @@ function YouTubeGetID(url){
 		 * Creates the image media object.
 		 */
  		jQuery.ImageObjectView.prototype.createObject = function() {
-
+ 		
 			this.wrapper = $('<div class="mediaObject"></div>');
 			this.image = new Image();
 			if (this.model.node.current.description != undefined) {
 				this.image.alt = this.model.node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
 			} else {
 				this.image.alt = '';
-			}
+			}			
 			$(this.image).appendTo(this.wrapper);
 			$(this.image).css('display', 'none');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
-
+			
 			var url = this.model.path;
 			var queryVars = scalarapi.getQueryVars( document.location.href );
 			if ( queryVars.t != null ) {
@@ -1986,12 +1987,12 @@ function YouTubeGetID(url){
 			$(this.image).load(function() {
 
 				var $this = $(this);
-
+				
 				me.hasLoaded = true;
-
+				
 				me.parentView.intrinsicDim.x = this.width;
 				me.parentView.intrinsicDim.y = this.height;
-
+				
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
 
@@ -2001,7 +2002,7 @@ function YouTubeGetID(url){
 				} else {
 					$this.fadeIn();
 				}
-
+				
 				if (me.annotations != null) {
 					me.setupAnnotations(me.annotations);
 				}
@@ -2016,12 +2017,12 @@ function YouTubeGetID(url){
 		 * @param {Array} annotations		The annotations to be added to the image.
 		 */
  		jQuery.ImageObjectView.prototype.setupAnnotations = function(annotations) {
-
+ 		
   			if (!this.hasLoaded) {
  				this.annotations = annotations;
-
+ 			
  			} else {
-
+ 				
 	 			var i;
 	 			var n = annotations.length;
 	 			var annotation;
@@ -2032,44 +2033,44 @@ function YouTubeGetID(url){
 				var notes = [];
 				var temp;
 				var urn;
-
+	 			
 	 			for (i=0; i<n; i++) {
-
+	 			
 	 				annotation = annotations[i];
-
+			
 					// parse dimensions of the annotation
-
+					
 					if (annotation.properties.x.charAt(annotation.properties.x.length - 1) == '%') {
 						x = (parseFloat(annotation.properties.x.substr(0, annotation.properties.x.length - 1)) * .01) * this.parentView.mediaScale;
 						x *= this.parentView.intrinsicDim.x;
 					} else {
 						x = parseFloat(annotation.properties.x) * this.parentView.mediaScale;
 					}
-
+					
 					if (annotation.properties.y.charAt(annotation.properties.y.length - 1) == '%') {
 						y = (parseFloat(annotation.properties.y.substr(0, annotation.properties.y.length - 1)) * .01) * this.parentView.mediaScale;
 						y *= this.parentView.intrinsicDim.y;
 					} else {
 						y = parseFloat(annotation.properties.y) * this.parentView.mediaScale;
 					}
-
+					
 					if (annotation.properties.width.charAt(annotation.properties.width.length - 1) == '%') {
 						width = (parseFloat(annotation.properties.width.substr(0, annotation.properties.width.length - 1)) * .01) * this.parentView.mediaScale;
 						width *= this.parentView.intrinsicDim.x;
 					} else {
 						width = parseFloat(annotation.properties.width) * this.parentView.mediaScale;
 					}
-
+					
 					if (annotation.properties.height.charAt(annotation.properties.height.length - 1) == '%') {
 						height = (parseFloat(annotation.properties.height.substr(0, annotation.properties.height.length - 1)) * .01) * this.parentView.mediaScale;
 						height *= this.parentView.intrinsicDim.y;
 					} else {
 						height = parseFloat(annotation.properties.height) * this.parentView.mediaScale;
 					}
-
+					
 					temp = annotation.body.urn.split(':');
 					urn = temp[temp.length - 1];
-
+					
 					notes.push({
 						'top': y,
 						'left': x,
@@ -2080,35 +2081,35 @@ function YouTubeGetID(url){
 						'id': this.model.id+'_'+urn,
 						'editable': false
 					});
-
+	 			
 	 			}
-
+	 			
  				// if annotations are already attached, then remove and then reload them
  				if (this.annotatedImage != null) {
 	 				this.annotatedImage.clear();
 	 				this.annotatedImage.updateSize();
 	 				this.annotatedImage.reload(notes);
-
+	 				
 	 			// otherwise, load for the first time
 				} else {
-
+				
 					var editable = (document.location.href.indexOf('.annotation_editor') != -1)
-
+				
 		 			this.annotatedImage = $(this.image).annotateImage({
 		 				editable: editable,
 		 				useAjax: false,
 		 				notes: notes
 		 			});
-
+		 			
 		 			$('body').bind('image_annotation_clicked', function(e, note) {
 		 				$('body').trigger('show_annotation', [note.annotation, me.parentView]);
 		 			})
 
 				}
-
-
+	 			
+	 			
  			}
-
+ 			
  		}
 
 		// These functions are basically irrelevant for images
@@ -2131,7 +2132,7 @@ function YouTubeGetID(url){
 					width *= scaleFactor;
 					height *= scaleFactor;
 				}
-
+				
 			}
 			$(this.image).parent().width(width+'px');
 			$(this.image).parent().height(height+'px');
@@ -2162,14 +2163,14 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.QuickTimeObjectView.prototype.createObject = function() {
-
+		
 			if ('undefined'==typeof(QT_GenerateOBJECTText_XHTML)) return;
-
+			
 			var showController = 'True';
 			if (this.model.mediaSource.contentType == 'image') {
 				showController = 'False';
 			}
-
+			
 		    var movie = QT_GenerateOBJECTText_XHTML(
 		    	this.model.path, '100%', '100%', '',
 		    	"obj#id", this.model.filename+'_object'+this.model.id,
@@ -2183,13 +2184,13 @@ function YouTubeGetID(url){
 		    );
 		    var $theHTML = $('<div class="mediaObject">'+movie+'</div>');
 			this.parentView.mediaContainer.html($theHTML);
-
+					
 			this.parentView.controllerOffset = 15;
-
+			
 			this.metadataFunc = function() {
-
+				
 				if (!me.hasReceivedMetadata) {
-
+					
 					me.hasReceivedMetadata = true;
 
 					var video = document.getElementById(me.model.filename+'_embed'+me.model.id);
@@ -2197,13 +2198,13 @@ function YouTubeGetID(url){
 					var temp = dimensions.split(',');
 					var h = Number(temp[3]);
 					var w = Number(temp[2]);
-
+					
 					me.parentView.intrinsicDim.x = Number(temp[2]);
 					me.parentView.intrinsicDim.y = Number(temp[3]);
-
+					
 					me.parentView.layoutMediaObject();
 					me.parentView.removeLoadingMessage();
-
+					
 				}
 
 			}
@@ -2281,7 +2282,7 @@ function YouTubeGetID(url){
 			parent.width(Math.round(width));
 			parent.height(Math.round(height));
 		}
-
+		
 		/**
 		 * Returns true if the QuickTime video is currently playing.
 		 * @return	Returns true if the video is playing.
@@ -2315,14 +2316,14 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.StreamingQuickTimeObjectView.prototype.createObject = function() {
-
+		
 			if ('undefined'==typeof(QT_GenerateOBJECTText_XHTML)) return;
-
+			
 			var segments = this.model.base_dir.split('/');
 			segments.pop();
 			segments.pop();
 			appDir = segments.join('/');
-
+			
 		    var movie = QT_GenerateOBJECTText_XHTML(
 		    	this.model.path, '100%', '100%', '',
 		    	"obj#id", this.model.filename+'_object'+this.model.id,
@@ -2337,7 +2338,7 @@ function YouTubeGetID(url){
 		    );
 		    var $theHTML = $('<div class="mediaObject">'+movie+'</div>');
 			this.parentView.mediaContainer.html($theHTML);
-
+			
 			this.metadataFunc = function() {
 				if (!me.hasReceivedMetadata) {
 					me.hasReceivedMetadata = true;
@@ -2359,22 +2360,22 @@ function YouTubeGetID(url){
 			}
 			return;
 		}
-
+		
 		/**
 		 * Lays out the player to accommodate the movie's native dimensions.
 		 */
 		jQuery.StreamingQuickTimeObjectView.prototype.resizeMovie = function() {
-
+		
 			var video = document.getElementById(me.model.filename+'_embed'+me.model.id);
 			w = video.videoWidth;
 			h = video.videoHeight;
-
+			
 			me.parentView.intrinsicDim.x = w + 6;
 			me.parentView.intrinsicDim.y = h;
-
+			
 			me.parentView.layoutMediaObject();
 			me.parentView.removeLoadingMessage();
-
+		
 		}
 
 		/**
@@ -2438,7 +2439,7 @@ function YouTubeGetID(url){
 			parent.width(Math.round(width));
 			parent.height(Math.round(height));
 		}
-
+		
 		/**
 		 * Returns true if the QuickTime video is currently playing.
 		 * @return	Returns true if the video is playing.
@@ -2475,20 +2476,20 @@ function YouTubeGetID(url){
 
 			var mimeType;
 			switch (this.model.mediaSource.name) {
-
+			
 				case "QuickTime":
 				mimeType = "video/quicktime"
 				break;
-
+				
 				case "MPEG-4":
 				case "M4V":
 				mimeType = "video/mp4";
 				break;
-
+				
 				case "OGG":
 				mimeType = "video/ogg";
 				break;
-
+				
 				case "CriticalCommons-LegacyVideo":
 				var path_segments = this.model.path.split('.');
 				if (path_segments.length > 1) {
@@ -2497,7 +2498,7 @@ function YouTubeGetID(url){
 				}
 				mimeType = "video/mp4";
 				break;
-
+				
 				case "CriticalCommons-Video":
 				var ext;
 				if (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].format == 'MPEG-4') {
@@ -2515,60 +2516,60 @@ function YouTubeGetID(url){
 					this.model.path = path_segments.join('.');
 				}
 				break;
-
+				
 				case "WebM":
 				mimeType = "video/webm";
 				break;
-
+			
 			}
-
+			
 			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'" controls="controls"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
 			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
 				obj.find( 'video' ).attr( 'autoplay', 'true' );
 			}
-
+			
 			// apply the poster image only if the thumbnail loads successfully
 			var thumbnailURL;
 			if (this.model.node.thumbnail) {
 				thumbnailURL = this.model.node.thumbnail;
-
+				
 			// legacy thumbnails are sometimes stored with the version
-			} else if (this.model.node.current.thumbnail) {
+			} else if (this.model.node.current.thumbnail) { 
 				thumbnailURL = this.model.node.current.thumbnail;
 			}
-
+			
 			if (thumbnailURL != undefined) {
-
+				
 				// finding the right thumbnail Critical Commons thumbnail image
 				if ((this.model.mediaSource.name == 'CriticalCommons-LegacyVideo') || (this.model.mediaSource.name == 'CriticalCommons-Video')) {
 					thumbnailURL = thumbnailURL.replace('thumbnailImage_thumb', 'thumbnailImage');
 					thumbnailURL = thumbnailURL.replace('thumbnailImage_small', 'thumbnailImage');
 				}
-
+				
 				this.image = new Image();
-
+	
 				// setup actions to be taken on image load
 				$(this.image).load(function() {
 					var $this = $(this);
 					me.video.attr('poster', $this.attr('src'));
 				}).attr('src', thumbnailURL);
 			}
-
+			
 			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id);
-
+				
 			this.parentView.controllerOffset = 22;
 
 			var metadataFunc = function() {
-
+				
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
-
+				
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
 
 			}
-
+				
 			this.parentView.layoutMediaObject();
 
 			if (document.addEventListener) {
@@ -2583,7 +2584,7 @@ function YouTubeGetID(url){
 				this.video[0].attachEvent('pause', me.parentView.endTimer);
 				this.video[0].attachEvent('ended', me.parentView.endTimer);
 			}
-
+			
 			return;
 		}
 
@@ -2642,7 +2643,7 @@ function YouTubeGetID(url){
 				this.video[0].height = height;
 			}
 		}
-
+		
 		/**
 		 * Returns true if the video is currently playing.
 		 * @return	Returns true if the video is playing.
@@ -2679,12 +2680,12 @@ function YouTubeGetID(url){
 				obj.find( 'audio' ).attr( 'autoplay', 'true' );
 			}
 			this.audio = obj.find('audio');
-
+			
 			this.parentView.controllerOnly = true;
 			this.parentView.controllerHeight = 25;
-
+			
 			this.parentView.intrinsicDim.y = 45;
-
+			
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
 
@@ -2737,7 +2738,7 @@ function YouTubeGetID(url){
 			$(this.model.element).find('.mediaObject').width(width);
 			$(this.model.element).find('.mediaObject').height(height);
 		}
-
+		
 		/**
 		 * Returns true if the audio is currently playing.
 		 * @return	Returns true if the audio is playing.
@@ -2766,15 +2767,15 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.YouTubeVideoObjectView.prototype.createObject = function() {
-
+		
 			// TODO: the 'origin' param will have to become dynamic for Scalar to be able to live on different servers
-
+			
 			obj = $('<div class="mediaObject"><div id="youtube'+this.model.filename+'_'+this.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
 
 			var params = {
 				videoId: YouTubeGetID( this.model.path ),
 				playerVars: {
-					modestbranding:1,
+					modestbranding:1, 
 					enablejsapi:1,
 					origin:'scalar.usc.edu',
 					rel:0,
@@ -2782,11 +2783,11 @@ function YouTubeGetID(url){
 				},
 				events: {
 					'onStateChange': function(event) {
-
+					
 						var theMediaelement;
 						var playerId = event.target.a.id;
 						var idString;
-
+						
 						// loop through every link and find the media element data whose id matches this instance
 						$('a').each(function() {
 							if ($(this).data('clone')) {
@@ -2805,34 +2806,34 @@ function YouTubeGetID(url){
 								}
 							}
 						});
-
+						
 						// handle video state changes
 						switch (event.data) {
-
+							
 							case YT.PlayerState.PLAYING:
 							theMediaelement.view.startTimer();
 							break;
-
+						
 							case YT.PlayerState.ENDED:
 							case YT.PlayerState.PAUSED:
 							theMediaelement.view.endTimer();
 							break;
-
+							
 						}
 					}
 				}
 			}
-
+			
 			/*if ((this.model.seekAnnotation != null) && (scalarapi.scalarBrowser != 'MobileSafari')) {
 				params.playerVars.start = Math.round( this.model.seekAnnotation.properties.start );
 				params.playerVars.end = Math.round( this.model.seekAnnotation.properties.end );
 			}*/
-
+			
 			this.video = new YT.Player('youtube'+this.model.filename+'_'+this.model.id, params);
-
+			
 			this.parentView.controllerOffset = 30;
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
 
@@ -2896,7 +2897,7 @@ function YouTubeGetID(url){
 				this.video.setSize(width - 2, height);
 			}
 		}
-
+		
 		/**
 		 * Returns true if the video is currently playing.
 		 * @return	Returns true if the video is playing.
@@ -2936,20 +2937,20 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.VimeoVideoObjectView.prototype.createObject = function() {
-
+		
 			var url = 'http://player.vimeo.com/video/'+this.model.filename+'?api=1&player_id=vimeo'+this.model.filename+'_'+this.model.id
 			if ( this.model.options.autoplay ) {
 				url += '&autoplay=1';
 			}
 			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="'+url+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
-
+			
 			var ready = function(player_id) {
 				me.froogaloop = $froogaloop(player_id);
 				$froogaloop(player_id).addEvent('playProgress', function(data) {
-					if ((me.model.seekAnnotation != null) && !me.initialPauseDone && !me.parentView.cachedPlayCommand) {
-						me.froogaloop.api('pause');
+					if ((me.model.seekAnnotation != null) && !me.initialPauseDone && !me.parentView.cachedPlayCommand) { 
+						me.froogaloop.api('pause'); 
 					}
-					me.currentTime = data.seconds;
+					me.currentTime = data.seconds;  
 					me.initialPauseDone = true;
 				});
 				$froogaloop(player_id).addEvent('loadProgress', function(data) {
@@ -2960,11 +2961,11 @@ function YouTubeGetID(url){
 				$froogaloop(player_id).addEvent('pause', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
 				$froogaloop(player_id).addEvent('finish', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
 			}
-
+			
 			var video = document.getElementById('vimeo'+this.model.filename+'_'+this.model.id);
 			$froogaloop(video).addEvent('ready', ready);
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
 
@@ -3017,7 +3018,7 @@ function YouTubeGetID(url){
 				$(video).height(height);
 			}
 		}
-
+		
 		/**
 		 * Returns true if the video is currently playing.
 		 * @return	Returns true if the video is playing.
@@ -3027,7 +3028,7 @@ function YouTubeGetID(url){
 		}
 
 	}
-
+	
 	/**
 	 * View for the Flowplayer video player.
 	 * @constructor
@@ -3043,7 +3044,7 @@ function YouTubeGetID(url){
 		this.model = model;  					// instance of the model
 		this.parentView = parentView;   		// primary view for the media element
 		this.playStopped = false;				// keep track of initial pause
-
+		
 		// this is a kludge to deal with the fact that flowplayer doesn't correctly report getTime() until
 		// the third time playing back
 		this.justPlayedSeekAnnotation = false;
@@ -3052,9 +3053,9 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.FlowplayerVideoObjectView.prototype.createObject = function() {
-
+		
 			switch (this.model.mediaSource.name) {
-
+			
 				case "CriticalCommons-Video":
 				var path_segments = this.model.path.split('.');
 				if (path_segments.length > 1) {
@@ -3063,13 +3064,13 @@ function YouTubeGetID(url){
 				}
 				mimeType = "video/mp4";
 				break;
-
+			
 			}
 
  			var theElement = $('<div class="mediaObject" id="'+this.model.filename+'_mediaObject'+this.model.id+'"/>"').appendTo(this.parentView.mediaContainer);
-
+ 			
  			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.swf", {
-
+ 			
  				key: $('#flowplayer_key').attr('href'),
 
 			    clip: {
@@ -3079,23 +3080,23 @@ function YouTubeGetID(url){
 			        autoPlay: true,
 			        autoBuffering: true
 			    },
-
-			    canvas:  {
+			    
+			    canvas:  { 
 					backgroundGradient: 'none',
 					backgroundColor: '#000000'
 				},
-
+			    
 			    onStart: function() {
 			    	if (!me.playStopped && !me.model.options.autoplay) {
 			    		this.pause();
 			    		me.playStopped = true;
 			    	}
 			    },
-
+			    
 			    onBufferFull: function() { me.parentView.startTimer(); },
-
+			    
 			    onPause: function() { me.parentView.endTimer(); },
-
+			    
 			    onFinish: function() { me.parentView.endTimer(); },
 
 			    // streaming plugins are configured under the plugins node
@@ -3112,7 +3113,7 @@ function YouTubeGetID(url){
 			                fullscreen: 'Start video to enable Fullscreen'
 			            }
 			        }
-
+			        
 			    },
 
 			    onError: function(errorCode, errorMessage) {
@@ -3120,9 +3121,9 @@ function YouTubeGetID(url){
 			    }
 
 			});
-
+			
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
 
@@ -3196,7 +3197,7 @@ function YouTubeGetID(url){
 				$(theElement).height(height);
 			}
 		}
-
+		
 		/**
 		 * Returns true if the video is currently playing.
 		 * @return	Returns true if the video is playing.
@@ -3211,7 +3212,7 @@ function YouTubeGetID(url){
 		}
 
 	}
-
+	
 	/**
 	 * View for the Hemispheric Institute video player.
 	 * @constructor
@@ -3227,7 +3228,7 @@ function YouTubeGetID(url){
 		this.model = model;  									// instance of the model
 		this.parentView = parentView;   						// primary view for the media element
 		this.bsn = this.model.filename.replace('html','');		// id of the video
-
+		
 		// this is a kludge to deal with the fact that flowplayer doesn't correctly report getTime() until
 		// the third time playing back
 		this.justPlayedSeekAnnotation = false;
@@ -3252,11 +3253,11 @@ function YouTubeGetID(url){
 			            { url: 'mp4:'+this.bsn+'_800k_s.mp4', width: 640, height: 480, bitrate: 800 }
 			        ]
 			    },
-
+			    
 			    onBufferFull: function() { me.parentView.startTimer(); },
-
+			    
 			    onPause: function() { me.parentView.endTimer(); },
-
+			    
 			    onFinish: function() { me.parentView.endTimer(); },
 
 			    // streaming plugins are configured under the plugins node
@@ -3282,7 +3283,7 @@ function YouTubeGetID(url){
 			                fullscreen: 'Start video to enable Fullscreen'
 			            }
 			        },
-
+			        
 			        content: {
 			            url: this.model.mediaelement_dir+'flowplayer.content.swf',
 			            opacity: 0
@@ -3306,9 +3307,9 @@ function YouTubeGetID(url){
 			    }
 
 			});
-
+			
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
 
@@ -3382,7 +3383,7 @@ function YouTubeGetID(url){
 				$(theElement).height(height);
 			}
 		}
-
+		
 		/**
 		 * Returns true if the video is currently playing.
 		 * @return	Returns true if the video is playing.
@@ -3417,14 +3418,14 @@ function YouTubeGetID(url){
 		 * Creates the image media object.
 		 */
  		jQuery.HyperCitiesObjectView.prototype.createObject = function() {
-
+ 		
  			obj = $('<div class="mediaObject"><iframe id="hypercities'+this.model.filename+'_'+this.model.id+'" src="'+this.model.path+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
-
+ 			
  			this.map = obj.find('iframe');
-
+			
 			this.parentView.intrinsicDim.x = this.parentView.containerDim.x;
 			this.parentView.intrinsicDim.y = this.parentView.containerDim.y;
-
+			
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
 
@@ -3475,49 +3476,49 @@ function YouTubeGetID(url){
 		 * Creates the media object.
 		 */
 		jQuery.JPlayerAudioObjectView.prototype.createObject = function() {
-
+			
 			var obj = $('<div class="mediaObject"><div id="jplayer'+this.model.filename+'_'+this.model.id+'"></div><div class="jp-audio"><div class="jp-type-single"><div id="jp_interface_'+this.model.id+'" class="jp-interface"><ul class="jp-controls"><li><a href="#" class="jp-play" tabindex="1">play</a></li><li><a href="#" class="jp-pause" tabindex="1">pause</a></li><li><a href="#" class="jp-mute" tabindex="1">mute</a></li><li><a href="#" class="jp-unmute" tabindex="1">unmute</a></li></ul><div class="jp-progress"><div class="jp-seek-bar"><div class="jp-play-bar"></div></div></div><div class="jp-volume-bar"><div class="jp-volume-bar-value"></div></div><div class="jp-current-time"></div><div class="jp-duration"></div></div></div></div></div>').appendTo(this.parentView.mediaContainer);
-
+			
 			var approot = $('link#approot').attr('href').substr(6);  // has a trailing slash
 			var url_to_swf = 'http:/'+approot+'views/widgets/mediaelement/';
-
+			
 			var options;
 			switch (this.model.mediaSource.name) {
-
+			
 				case "MPEG-3":
 				options = {mp3: me.model.path};
 				break;
-
+				
 				case "WAV":
 				options = {wav: me.model.path};
 				break;
-
+				
 				case "OGG-Audio":
 				options = {oga: me.model.path};
 				break;
-
+				
 			}
-
-			var readyFunc = function() {
-				$(this).jPlayer('setMedia', options);
+			
+			var readyFunc = function() { 
+				$(this).jPlayer('setMedia', options); 
 			};
 
 			this.audio = $('#jplayer'+this.model.filename+'_'+this.model.id).jPlayer({ready:readyFunc, backgroundColor:null, swfPath: url_to_swf, supplied:this.model.extension, cssSelectorAncestor:'#jp_interface_'+this.model.id});
-
+			
 			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.pause, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.endTimer(); });
 			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.play, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.startTimer(); $(this).jPlayer("pauseOthers"); });
 			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.timeupdate, function(e) { me.currentTime = e.jPlayer.status.currentTime; });
-
+			
 			this.parentView.controllerOnly = true;
 			this.parentView.controllerHeight = 80;
-
+			
 			this.parentView.intrinsicDim.x = this.parentView.containerDim.x;
 			this.parentView.intrinsicDim.y = this.parentView.containerDim.y;
-
+			
 			this.parentView.calculateContainerSize();
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
 
@@ -3574,7 +3575,7 @@ function YouTubeGetID(url){
 			$(this.model.element).find('.jp-audio').width(width - 1);
 			$(this.model.element).find('.jp-progress').width(width - 160);
 		}
-
+		
 		/**
 		 * Returns true if the video is currently playing.
 		 * @return	Returns true if the media is playing.
@@ -3608,11 +3609,12 @@ function YouTubeGetID(url){
 		 * Creates the text media object.
 		 */
 		jQuery.TextObjectView.prototype.createObject = function() {
-
+		
 			var approot = $('link#approot').attr('href');
 			var path = approot+'helpers/proxy.php?url='+this.model.path;
-
+			
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
+			
 			var obj = $('<div class="mediaObject"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+path+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
 			this.frame = obj.find('#'+this.frameId)[0];
 
@@ -3628,42 +3630,42 @@ function YouTubeGetID(url){
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
-
+		
 		/**
 		 * Styles the source code for presentation.
 		 */
 		jQuery.TextObjectView.prototype.codeToList = function() {
-
+		
 			var extension = scalarapi.getFileExtension(me.model.path);
-
+			
 			if (extension != 'txt') {
-
+			
 				var code = $('<code>'+$('#'+this.frameId)[0].contentWindow.document.body.innerHTML+'</code>');
-
+				
 				code.find('pre').prepend('\n');
 				code.find('pre').css('white-space', 'pre');
 				code.find('pre').css('word-wrap', 'normal');
-
+	
 				//Convert code elements to ordered lists
 				code.html("<ol class='code'>" + code.html().replace(/\n/g, "<li>").trim() + "</ol>");
-
+			
 			} else {
-
+			
 				var code = $($('#'+this.frameId)[0].contentWindow.document.body.innerHTML);
-
+				
 				code.prepend('\n');
-
+	
 				//Convert code elements to ordered lists
 				code.html("<ol class='plain'>" + code.html().replace(/\n/g, "<li>").trim() + "</ol>");
 			}
-
+			
 			code.find('li').each(function() {
 				$(this).attr('title', 'Line '+($(this).index()+1));
 			});
-
+			
 			$('#'+this.frameId)[0].contentWindow.document.body.innerHTML = code.html();
 
 			var approot = $('link#approot').attr('href');
@@ -3671,19 +3673,19 @@ function YouTubeGetID(url){
 			cssLink.href = approot+'views/widgets/mediaelement/mediaelement_code.css';
 			cssLink.rel = "stylesheet";
 			cssLink.type = "text/css";
-
+			
 			var doc = $('#'+this.frameId)[0].contentWindow.document;
 			doc.body.appendChild(cssLink);
-
+			
 			// Used http://www.nealgrosskopf.com/tech/thread.php?pid=33 to help out here
-
+				
 		}
-
+		
 		/**
 		 * Highlights all of the annotated lines in the text.
 		 */
 		jQuery.TextObjectView.prototype.highlightAnnotatedLines = function() {
-
+		
 			var i;
 			var n = this.parentView.annotations.length;
 			var textAnnotations = [];
@@ -3696,19 +3698,19 @@ function YouTubeGetID(url){
 			}
 			if (textAnnotations.length > 0) this.highlightLinesForAnnotations( textAnnotations, 'highlightLight' );
 
-		}
-
+		}		 
+		
 		/**
 		 * Highlights the lines of the text associated with the specified annotations.
 		 */
 		jQuery.TextObjectView.prototype.highlightLinesForAnnotations = function( textAnnotations, style ) {
-
+		
 			if ( style == null ) {
 				style = 'highlightLight';
 			}
 			var li = $('#'+this.frameId).contents().find('li');
-			li.removeClass( style );
-
+			li.removeClass( style );	
+			
 			var i;
 			var n = textAnnotations.length;
 			var annotation;
@@ -3728,9 +3730,9 @@ function YouTubeGetID(url){
 					}
 				});
 			}
-
+			
 		}
-
+		
 		/**
 		 * Returns the top-most visible annotation.
 		 * @return		The annotation object.
@@ -3739,12 +3741,12 @@ function YouTubeGetID(url){
 			var theWindow = $('#'+this.frameId)[0].contentWindow;
 		    var docViewTop = $(theWindow).scrollTop();
 		    var docViewBottom = docViewTop + $(theWindow).height();
-
+			
 			var li = $('#'+this.frameId).contents().find('li');
 			var result = null;
-
+			
 			var topLineNum = -1;
-
+			
 			var i;
 			var n = li.length;
 			for (i=0; i<n; i++) {
@@ -3761,10 +3763,10 @@ function YouTubeGetID(url){
 					}
 				}
 			}
-
+		
 		    return result;
 		}
-
+		
 		/**
 		 * Scrolls to the given line.
 		 *
@@ -3839,7 +3841,7 @@ function YouTubeGetID(url){
 			$('#'+this.frameId).parent().width(width);
 			$('#'+this.frameId).parent().height(height);
 		}
-
+		
 		/**
 		 * Returns true if the media is currently playing.
 		 * @return	Returns true if the media is playing.
@@ -3873,18 +3875,18 @@ function YouTubeGetID(url){
 		 * Creates the source code media object.
 		 */
 		jQuery.SourceCodeObjectView.prototype.createObject = function() {
-
+			
 			var approot = $('link#approot').attr('href');
 			var path = approot+'helpers/proxy.php?url='+this.model.path;
-
+			
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
-
+			
 			var queryVars = scalarapi.getQueryVars( path );
 			var lang = scalarapi.getFileExtension(me.model.path);
 			if ( queryVars.lang != null ) {
 				lang = queryVars.lang;
 			}
-
+			
 			this.object = $( '<div class="mediaObject"></div>' ).appendTo( this.parentView.mediaContainer );
 			var temp = $( '<pre id="' + me.frameId + '" data-src="' + path + '" class="line-numbers" style="width: 100%; height: 100%;"><code></code></pre>' );
 			if ( lang != null ) {
@@ -3896,13 +3898,13 @@ function YouTubeGetID(url){
 			cssLink.href = approot+'views/widgets/mediaelement/prism.css';
 			cssLink.rel = "stylesheet";
 			cssLink.type = "text/css";
-
+			
 			this.object.click( function( e ) {
-
+			
 				var i, n, htop, hbottom, highlight,
 		            posY = e.pageY - $(this).offset().top,
 		            highlights = me.object.find( '.line-highlight' );
-
+		            
 		        n = highlights.length;
 		        if ( n > 0 ) {
 		        	posY -= parseInt( highlights.eq( 0 ).css( 'margin-top' ) );
@@ -3920,15 +3922,15 @@ function YouTubeGetID(url){
 						me.highlightSelectedAnnotations( [ annotation ] );
 	            	}
 	            }
-
+		        
 			} )
 
 			me.parentView.intrinsicDim.x = me.parentView.containerDim.x;
 			me.parentView.intrinsicDim.y = me.parentView.containerDim.y;
-
+			
 			me.parentView.layoutMediaObject();
 			me.parentView.removeLoadingMessage();
-
+			
 			var doc = document;
 			doc.body.appendChild(cssLink);
 			$.getScript( approot+'views/widgets/mediaelement/prism.js', function( script, textStatus ) {
@@ -3941,15 +3943,15 @@ function YouTubeGetID(url){
 			} ).fail( function( jqxhr, settings, exception ) {
 				console.log( 'error loading prism.js: ' + exception );
 			} );
-
+			
 			return;
 		}
-
+		
 		/**
 		 * Highlights all of the annotated lines in the text.
 		 */
 		jQuery.SourceCodeObjectView.prototype.highlightAnnotatedLines = function() {
-
+		
 			var i, annotation
 				n = this.parentView.annotations.length,
 				this.textAnnotations = [];
@@ -3961,8 +3963,8 @@ function YouTubeGetID(url){
 			}
 			if (this.textAnnotations.length > 0) this.highlightLinesForAnnotations( this.textAnnotations );
 
-		}
-
+		}		 
+		
 		/**
 		 * Highlights the specified annotation in a darker color.
 		 */
@@ -3979,16 +3981,16 @@ function YouTubeGetID(url){
 				}
 			}
 		}
-
+		
 		/**
 		 * Highlights the lines of the text associated with the specified annotations.
 		 */
 		jQuery.SourceCodeObjectView.prototype.highlightLinesForAnnotations = function( textAnnotations ) {
-
+			
 			var i, annotation, j, row,
 				n = textAnnotations.length,
 				highlightStr = '';
-
+				
 			for ( i=0; i<n; i++ ) {
 				annotation = textAnnotations[ i ];
 				if ( annotation.properties.start == annotation.properties.end ) {
@@ -4000,13 +4002,13 @@ function YouTubeGetID(url){
 					highlightStr += ',';
 				}
 			}
-
+			
 			var e = this.object.find( 'pre' );
 			e.attr( 'data-line', highlightStr );
 			Prism.highlightElement( e );
-
+			
 		}
-
+		
 		/**
 		 * Scrolls to the given line.
 		 *
@@ -4081,7 +4083,7 @@ function YouTubeGetID(url){
 			$('#'+this.frameId).parent().width(width);
 			$('#'+this.frameId).parent().height(height);
 		}
-
+		
 		/**
 		 * Returns true if the media is currently playing.
 		 * @return	Returns true if the media is playing.
@@ -4091,7 +4093,7 @@ function YouTubeGetID(url){
 		}
 
 	}
-
+	
 	/**
 	 * View for rendered HTML content.
 	 * @constructor
@@ -4112,10 +4114,11 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.HTMLObjectView.prototype.createObject = function() {
-
+		
 			var approot = $('link#approot').attr('href');
-
+			
 			this.frameId = 'html'+this.model.filename+'_'+this.model.id;
+			
 			var obj = $('<div class="mediaObject"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
 			this.frame = obj.find('#'+this.frameId)[0];
 
@@ -4125,9 +4128,9 @@ function YouTubeGetID(url){
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			$(this.parentView.mediaContainer).parent().find('#viewPageLink').show();
-
+			
 			return;
 		}
 
@@ -4148,7 +4151,7 @@ function YouTubeGetID(url){
 			$('#'+this.frameId).parent().width(width);
 			$('#'+this.frameId).parent().height(height);
 		}
-
+		
 	}
 
 	/**
@@ -4170,19 +4173,19 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.PDFObjectView.prototype.createObject = function() {
-
+		
 			var approot = $('link#approot').attr('href');
-
+			
 			this.frameId = 'pdf'+this.model.filename+'_'+this.model.id;
-
+			
 			var obj = $('<div class="mediaObject"><object style="width: 100%; height: 100%;" id="'+this.frameId+'" data="'+this.model.path+'"><p class="download_link"><a href="'+this.model.path+'">Download PDF</a></p></object></div>').appendTo(this.parentView.mediaContainer);
 			this.frame = obj.find('#'+this.frameId)[0];
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			$(this.parentView.mediaContainer).parent().find('#viewPageLink').show();
-
+			
 			return;
 		}
 
@@ -4203,7 +4206,7 @@ function YouTubeGetID(url){
 			$('#'+this.frameId).parent().width(width);
 			$('#'+this.frameId).parent().height(height);
 		}
-
+		
 	}
 
 	/**
@@ -4225,20 +4228,20 @@ function YouTubeGetID(url){
 		 * Creates the media object.
 		 */
 		jQuery.PreziObjectView.prototype.createObject = function() {
-
+		
 			var approot = $('link#approot').attr('href');
-
+			
 			this.frameId = 'prezi'+this.model.filename+'_'+this.model.id;
-
+			
 			var obj = $('<div class="mediaObject"><iframe id="'+this.frameId+'" src="'+this.model.path+'?bgcolor=ffffff&amp;lock_to_path=0&amp;autoplay=no&amp;autohide_ctrls=0" width="100%" height="100%" frameBorder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
 			this.frame = obj.find('#'+this.frameId)[0];
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
-
+		
 		// These functions are basically irrelevant for Prezis
 		jQuery.PreziObjectView.prototype.play = function() { }
 		jQuery.PreziObjectView.prototype.pause = function() { }
@@ -4256,9 +4259,9 @@ function YouTubeGetID(url){
 			$('#'+this.frameId).parent().width(width);
 			$('#'+this.frameId).parent().height(height);
 		}
-
+		
 	}
-
+		
 	/**
 	 * View for unsupported media content.
 	 * @constructor
@@ -4277,12 +4280,12 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.UnsupportedObjectView.prototype.createObject = function() {
-
+		
 			$('<div class="mediaelement_warning">This type of media is currently unsupported by Scalar.</div>').appendTo(this.parentView.mediaContainer);
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
 
@@ -4303,10 +4306,10 @@ function YouTubeGetID(url){
 			$(this.parentView.mediaContainer).find('.mediaelement_warning').width(width);
 			$(this.parentView.mediaContainer).find('.mediaelement_warning').height(height);
 		}
-
+		
 
 	}
-
+	
 	/**
 	 * View for the SoundCloud audio player.
 	 * @constructor
@@ -4332,9 +4335,9 @@ function YouTubeGetID(url){
 		 * Creates the media object.
 		 */
 		jQuery.SoundCloudAudioObjectView.prototype.createObject = function() {
-
+		
 			this.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
-
+			
 			SC.oEmbed(this.model.path, {auto_play: true, download: true}, function(oembed){
 				$(oembed.html).appendTo(me.mediaObject.children()[0]);
 				me.parentView.controllerHeight = oembed.height;
@@ -4374,16 +4377,16 @@ function YouTubeGetID(url){
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
 			});
-
+			
 			this.parentView.controllerOnly = true;
 			this.parentView.controllerHeight = 166;
-
+			
 			this.parentView.intrinsicDim.x = this.parentView.containerDim.x;
 			this.parentView.intrinsicDim.y = this.parentView.containerDim.y;
-
+			
 			this.parentView.calculateContainerSize();
 			this.parentView.layoutMediaObject();
-
+			
 			return;
 		}
 
@@ -4448,7 +4451,7 @@ function YouTubeGetID(url){
 				$(theElement).height(height);
 			}
 		}
-
+		
 		/**
 		 * Returns true if the video is currently playing.
 		 * @return	Returns true if the media is playing.
@@ -4478,21 +4481,21 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.GoogleMapsObjectView.prototype.createObject = function() {
-
+		
 			var approot = $('link#approot').attr('href');
-
+			
 			this.mediaObject = $('<div class="mediaObject" id="googlemaps'+me.model.id+'"></div>').appendTo(this.parentView.mediaContainer);
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			var mapOptions = {
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			}
 			var map = new google.maps.Map(document.getElementById('googlemaps'+me.model.id), mapOptions);
 			var kmlLayer = new google.maps.KmlLayer(this.model.path);
 			kmlLayer.setMap(map);
-
+			
 			return;
 		}
 
@@ -4513,7 +4516,7 @@ function YouTubeGetID(url){
 			$('#googlemaps'+me.model.id).width(Math.round(width));
 			$('#googlemaps'+me.model.id).height(Math.round(height));
 		}
-
+		
 	}
 
 	/**
@@ -4535,22 +4538,22 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.DeepZoomImageObjectView.prototype.createObject = function() {
-
+		
 			var approot = $('link#approot').attr('href');
 			var path = approot + 'helpers/proxy.php?url=' + this.model.path;
-
+			
 			this.mediaObject = $( '<div class="mediaObject" style="background-color:black;" id="openseadragon' + this.model.id + '"></div>' ).appendTo( this.parentView.mediaContainer );
-
+			
 			this.viewer = OpenSeadragon( {
 				id: "openseadragon" + this.model.id,
 				prefixUrl: approot + "views/widgets/mediaelement/openseadragon/images/",
 				showNavigator: true,
 				tileSources: path
 			} );
-
+			
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-
+			
 			return;
 		}
 
@@ -4571,7 +4574,7 @@ function YouTubeGetID(url){
 			$('#openseadragon'+me.model.id).width(Math.round(width));
 			$('#openseadragon'+me.model.id).height(Math.round(height));
 		}
-
+		
 	}
-
+				
 }) (jQuery);
