@@ -153,6 +153,8 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 
 function pullOutElement($pull) {
   var $par = $pull.parent();
+  if($pull.parents('.manual_slideshow').length != 0)
+  	return;
   while($par.attr('property') !== 'sioc:content') {
     var $clone = $par.clone();
     $clone.empty();
