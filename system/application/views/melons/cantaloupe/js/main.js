@@ -202,7 +202,12 @@ function wrapOrphanParagraphs(selection) {
       }
 
       $(this).find('br').each(function() {
-        pullOutElement($(this));
+      	if($(this).next().is('br')) {
+	        pullOutElement($(this));
+      	}
+      	else {
+      		$(this).remove();
+      	}
       })
 
 
