@@ -202,11 +202,13 @@ function wrapOrphanParagraphs(selection) {
       }
 
       $(this).find('br').each(function() {
-      	if($(this).next().is('br')) {
-	        pullOutElement($(this));
-      	}
-      	else {
-      		$(this).remove();
+      	if($(this).parents('pre').length === 0) {
+	      	if($(this).next().is('br')) {
+		        pullOutElement($(this));
+	      	}
+	      	else {
+	      		$(this).remove();
+	      	}      		
       	}
       })
 
