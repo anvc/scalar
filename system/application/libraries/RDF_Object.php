@@ -271,6 +271,7 @@ class RDF_Object {
 		if (!is_array($settings['content'])) $settings['content'] = array($settings['content']);
 		if (!empty($settings['pagination']) && $settings['pagination']['start']>0) $settings['content'] = array_slice($settings['content'], $settings['pagination']['start']);
 		$count = 0;	
+		// Don't cast $return, so a key won't be set if there is no $index returned below
 		
 		foreach ($settings['content'] as $row) {
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
@@ -280,7 +281,7 @@ class RDF_Object {
 				$count++;
 			}
 		}
-		//print_r($return);
+
 		return $return;    	
     	
     }
@@ -333,12 +334,14 @@ class RDF_Object {
 			}
 			*/
 		}
+
 		if (!count($row->versions)) return null;
-		$row->version_index = 0; 
+		$row->version_index = 0;
 		//if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $row->versions[$row->version_index]->version_id);
 		$row = $this->_provenance($row, $settings);
+		if (!isset($settings['max_recurses'])) return $row;	
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
-		
+
 		$row = $this->_relationships($row, $settings);
 		$row = $this->_pagination($row, $settings);
 
@@ -468,7 +471,7 @@ class RDF_Object {
     
 	private function _provenance($page, $settings) {
 		
-		if (!$settings['prov']) return;
+		if (!$settings['prov']) return $page;
   		$CI =& get_instance();
   		if ('object'!=gettype($CI->users)) $CI->load->model('user_model','users');		
 		
