@@ -1121,9 +1121,8 @@ function YouTubeGetID(url){
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
 
  		  //test to see if this is a full sized image or in media details view
-      var $slot_temp = this.model.element.parent('.slot');
-			var stretchToFull = ($slot_temp.hasClass('full') || $slot_temp[0].classList.length == 1);
-
+      var $slot_temp = this.mediaContainer.closest('.slot');
+			var stretchToFull = ($slot_temp.hasClass('full') || ($slot_temp[0].classList.length == 1 && !($(this.link).hasClass('inline') && $(this.link).attr('data-size') != 'full')));
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
