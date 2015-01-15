@@ -75,7 +75,7 @@
     // TODO: use parse_url() [http://stackoverflow.com/questions/6240414/add-http-prefix-to-url-when-missing]
     function isURL($uri='') {
 
-    	return (strstr($uri, '://') || substr($uri, 0, 4)=='urn:') ? true : false;
+    	return (substr($uri,0,7)== 'http://'||substr($uri,0,8)== 'https://'||substr($uri,0,4)=='urn:') ? true : false;
 
     }
     
