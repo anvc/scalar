@@ -121,7 +121,7 @@ $(window).ready(function() {
 	}
 	
 	// View options
-    $('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});
+	$('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});
 	
 	// WYSIWYG
 	var can_use_wysiwyg = (isIOS()) ? false : true;

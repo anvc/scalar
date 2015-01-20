@@ -339,13 +339,12 @@ class Version_model extends MY_Model {
      	$data['default_view'] = 'plain';
      	if (isset($array['default_view'])) {
      		if (is_array($array['default_view'])) {
-     			$data['default_view'] = implode(',',array_unique($array['default_view']));
+     			$data['default_view'] = implode(',',array_unique_no_empty($array['default_view']));
      		} else {
      			$data['default_view'] = trim($array['default_view']);
      		}
      	}   
-     	print_r($data);
-     	exit;	
+
  		$this->db->insert($this->versions_table, $data);
  		if (mysql_errno()!=0) throw new Exception('Error trying to save to the relational tables: '.mysql_error());
  		$version_id = mysql_insert_id();		

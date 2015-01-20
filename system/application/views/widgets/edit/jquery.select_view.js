@@ -11,6 +11,7 @@
     	var self = this;
     	var $this = $(this);
     	var opts = $.extend( {}, defaults, options );
+    	opts.default_values = opts.default_value.split(',');
 
     	// View pulldown
     	var $select = $('<select name="scalar:default_view" class="generic_button large"></select>').appendTo($this);
@@ -23,7 +24,7 @@
     		console.log(value);
     		// Add base select
     		if (value.name.length) $select.show();
-    		$select.append('<option value="'+key+'"'+((key==opts.default_value)?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>');
+    		$select.append('<option value="'+key+'"'+((-1!=opts.default_values.indexOf(key))?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>');
     		// Component pulldowns
     		var $components = $('<div style="display:table;" id="'+key+'_components" class="components"></div>').appendTo($this);
     		if (!jQuery.isEmptyObject(value.components)) {
@@ -42,7 +43,7 @@
     				$component_wrapper.append('<span style="display:table-cell;" class="component_desc"></span>');
     				$component_select = $component_wrapper.find('select:first');
     				for (var view_key in value.components[component_key].views) {
-    					var $option = $('<option value="'+view_key+'"'+((view_key==opts.default_value)?' SELECTED':'')+'>'+value.components[component_key].views[view_key].name+'</option>').appendTo($component_select);
+    					var $option = $('<option value="'+view_key+'"'+((-1!=opts.default_values.indexOf(view_key))?' SELECTED':'')+'>'+value.components[component_key].views[view_key].name+'</option>').appendTo($component_select);
     					$option.data('desc', value.components[component_key].views[view_key].description);
     				}
     			}

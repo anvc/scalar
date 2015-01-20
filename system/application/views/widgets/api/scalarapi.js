@@ -1699,12 +1699,6 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 			}		
 		}
 		
-		/*
-		console.log('formatted:');
-		console.log(tosend_formatted);
-		return false;
-		*/
-		
 		// Save
 		// TODO: use JSONP if native=false
 		$.ajax({

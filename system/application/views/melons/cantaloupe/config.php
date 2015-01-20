@@ -144,7 +144,7 @@ $config['views'] = array(
 				'name' => 'Footer',
 				'multi' => false,
 				'views' => array(
-					'metadata' => array(
+					'metadata_footer' => array(
 						'name' => 'Additional metadata',
 						'description' => 'Footer displays page metadata'
 					),			
@@ -152,15 +152,15 @@ $config['views'] = array(
 						'name' => 'None',
 						'description' => ''	
 					),
-					'tags' => array(
+					'tags_footer' => array(
 						'name' => 'Tag list',
 						'description' => 'Footer displays list of tags'	
 					),
-					'path' => array(
+					'path_footer' => array(
 						'name' => 'Path options',
 						'description' => 'Footer displays current path navigation'	
 					),		
-					'pathtags' => array(
+					'pathtags_footer' => array(
 						'name' => 'Tag list + path options',
 						'description' => 'Footer displays tags and path navigation'	
 					),												
@@ -170,7 +170,7 @@ $config['views'] = array(
 				'name' => 'Nav bar',
 				'multi' => false,
 				'views' => array(
-					'page' => array(
+					'page_nav' => array(
 						'name' => 'Current page info',
 						'description' => 'Displays the current page info in the sidebar nav'
 					)
