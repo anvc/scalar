@@ -18,10 +18,10 @@ if (isset($page->versions) && isset($page->versions[$page->version_index]->has_p
 if (isset($page->version_index)) {
 	$title = $page->versions[$page->version_index]->title;
 	$description = $page->versions[$page->version_index]->description;
+	$default_view = $page->versions[$page->version_index]->default_view;
 	$color = $page->color;
 	$primary_role = $page->primary_role;
 	if (!empty($page->background)) $background = trim($page->background);
-	if (!empty($page->default_view)) $default_view = $page->default_view;
 	if (!empty($page->custom_style)) $style .= $page->custom_style."\n";
 	if (!empty($page->custom_scripts)) $js .= $page->custom_scripts."\n";		
 	$is_new = false;
@@ -45,7 +45,8 @@ echo doctype('html5')."\n"
 <link rel="shortcut icon" href="<?=confirm_slash($app_root)?>views/arbors/html/favicon_16.gif" />
 <link rel="apple-touch-icon" href="<?=confirm_slash($app_root)?>views/arbors/html/favicon_114.jpg" />
 <? if (!empty($view)): ?>
-<link id="default_view" href="<?=('vis'==$view)?$viz_view:$view?>" />
+<link id="view" href="<?=('vis'==$view)?$viz_view:$view?>" />
+<link id="default_view" href="<?=$default_view?>" />
 <? endif ?>
 <? if (!empty($color)): ?>
 <link id="color" href="<?=$color?>" />

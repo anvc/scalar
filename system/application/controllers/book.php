@@ -85,7 +85,7 @@ class Book extends MY_Controller {
 		if (empty($this->data['melon'])) $this->data['melon'] = $this->fallback_melon;
 		$this->load_melon_config($this->data['melon']);
 		// Init
-		$this->data['views'] = array_with_strings_to_multi_array($this->config->item('views'));
+		$this->data['views'] = $this->config->item('views');
 		$this->data['view'] = key($this->data['views']);
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null;
@@ -598,11 +598,10 @@ class Book extends MY_Controller {
 			// Don't use rtrim(..., '.edit'.), seems to have a bug with "workscited.edit" => "worksc"
 			if ('.edit'==substr($this->data['page_url'], -5, 5)) $this->data['page_url'] = substr($this->data['page_url'], 0, -5);
 		}
-
+		
 		// Metadata terms
 		$this->data['ontologies'] = $this->config->item('ontologies');
 		$this->data['rdf_fields'] = $this->versions->rdf_fields;
-		// TODO: remove built in fields
 		
 		// Styling 
 		$this->data['book_images'] = $this->books->get_images($book_id);

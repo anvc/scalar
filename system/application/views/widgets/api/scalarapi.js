@@ -1698,6 +1698,13 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 				tosend_formatted.push({name: j, value: jQuery.trim(tosend[j])});
 			}		
 		}
+		
+		/*
+		console.log('formatted:');
+		console.log(tosend_formatted);
+		return false;
+		*/
+		
 		// Save
 		// TODO: use JSONP if native=false
 		$.ajax({

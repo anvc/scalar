@@ -1,12 +1,14 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
 <?
 if ($this->config->item('reference_options')) {
 	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 }
+$this->template->add_js('var views='.json_encode($views), 'embed');
 ?>
 <?
 $page = (isset($page->version_index)) ? $page : null;
@@ -103,39 +105,10 @@ endif;
 		</td>
 	</tr>
 
-	<!--  default view -->
-	<script type="text/javascript">
-		function updateViewInfo() {
-			$( '#view-thumbnail' ).attr( 'src', $('#approot').attr('href') + 'views/melons/honeydew/images/' + $( 'option[value="' + $('#default_view_select').val() + '"]' ).attr( 'data-image' ) );
-			$( '#view-description' ).html( $( 'option[value="' + $('#default_view_select').val() + '"]' ).attr( 'data-description' ) );
-		}
-	</script>
-	<tr id="default_view" class="type_composite">
-	  <td class="field" valign="top">Default view</td>
-	  <td class="spacer" valign="top">
-	    <select name="scalar:default_view" class="generic_button large" id="default_view_select" onchange="updateViewInfo()"><?
-			foreach ($views as $view_slug => $view_arr) {
-				if (empty($view_arr)) continue;
-				echo '<option value="'.strtolower($view_slug).'" ';
-				if (isset($page->version_index) && $page->versions[$page->version_index]->default_view==$view_slug) echo ' SELECTED ';
-				if (isset($view_arr['image']) && !empty($view_arr['image'])) echo 'data-image="'.$view_arr['image'].'"';
-				if (isset($view_arr['description']) && !empty($view_arr['description'])) echo ' data-description="'.$view_arr['description'].'"';
-				echo '>';
-				echo (isset($view_arr['name']) && !empty($view_arr['name'])) ? $view_arr['name'] : strtoupper($view_slug);
-				echo '</option>'."\n";
-			}
-			?>
-        </select>
-        <?
-        	if ('cantaloupe' == $book->template) {
-  				echo( '<div class="view_description">'."\n" );
-	        	echo( '<img id="view-thumbnail" src="" width="90px"/>'."\n" );
-	        	echo( '<p id="view-description"></p>'."\n" );
-        		echo( '</div>'."\n" );
-        	}
-        ?>
-		<script type="text/javascript" type="text/javascript">updateViewInfo();</script>
-      </td>
+	<!--  default view + components-->
+	<tr id="select_view" class="type_composite">
+	  <td class="field" valign="top" style="padding-top:10px;">Layout</td>
+	  <td valign="top"></td>
 	</tr>
 
 	<!-- relationships -->

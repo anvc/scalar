@@ -68,16 +68,6 @@ function escpaeLastURISegment(uri) {
 
 function ucwords (str) {
 	// http://kevin.vanzonneveld.net
-	// +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
-	// +   improved by: Waldo Malqui Silva
-	// +   bugfixed by: Onno Marsman
-	// +   improved by: Robin
-	// +      input by: James (http://www.james-bell.co.uk/)
-	// +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-	// *     example 1: ucwords('kevin van  zonneveld');
-	// *     returns 1: 'Kevin Van  Zonneveld'
-	// *     example 2: ucwords('HELLO WORLD');
-	// *     returns 2: 'HELLO WORLD'
 	return (str + '').replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function ($1) {
 		return $1.toUpperCase();
 	});
@@ -129,6 +119,9 @@ $(window).ready(function() {
 		$("#type_media").attr("checked", "checked"); 
 		checkTypeSelect();
 	}
+	
+	// View options
+    $('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});
 	
 	// WYSIWYG
 	var can_use_wysiwyg = (isIOS()) ? false : true;

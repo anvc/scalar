@@ -1,5 +1,11 @@
 <?php
 
+function is_multi($arr) {
+	if (!is_array($arr)) return false;
+	if (count($arr) == count($arr, COUNT_RECURSIVE)) return false;
+	return true;
+}
+
 function array_with_strings_to_multi_array($arr=array(), $default_key='name') {
 	
 	foreach ($arr as $key => $value) {
