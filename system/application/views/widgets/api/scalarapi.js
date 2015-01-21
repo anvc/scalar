@@ -2268,7 +2268,8 @@ function ScalarModel(options) {
 		{property:'background', uri:'http://scalar.usc.edu/2012/01/scalar-ns#background', type:'string'},
 		{property:'audio', uri:'http://scalar.usc.edu/2012/01/scalar-ns#audio', type:'string'},
 		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},  // Add by Craig 21 July 2014
-		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'}  // Add by Craig 15 August 2014
+		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},  // Add by Craig 15 August 2014
+		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'} 
 	];
 	
 	// one-shot properties which can be pulled automatically from version data
@@ -2294,7 +2295,8 @@ function ScalarModel(options) {
 		{property:'continueTo', uri:'http://scalar.usc.edu/2012/01/scalar-ns#continue_to_content_id', type:'int'},
 		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},
 		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},
-		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'}
+		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'},
+		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'}
 	];
 	
 	this.auxPropertyMap = [
