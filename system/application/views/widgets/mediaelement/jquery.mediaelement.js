@@ -1169,9 +1169,9 @@ function YouTubeGetID(url){
 
 			}
 
-			/*if ( this.model.mediaSource.contentType != 'image' && !stretchToFull) {
+			if ( this.model.mediaSource.contentType != 'image') { //&& !stretchToFull) {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
-			}*/
+			}
 
 	   		if (!this.annotationsVisible) {
 	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x);
