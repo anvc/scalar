@@ -42,7 +42,7 @@ $config['views'] = array(
 						'name' => 'Title',
 						'description' => 'Display the page title'
 					),
-					'' => array(
+					'no_textheader' => array(
 						'name' => 'None',
 						'description' => ''
 					),					
@@ -60,7 +60,7 @@ $config['views'] = array(
 				'name' => 'Visual header',
 				'multi' => false,
 				'views' => array(
-					'' => array(
+					'no_visheader' => array(
 						'name' => 'None',
 						'description' => ''
 					),	
@@ -98,7 +98,7 @@ $config['views'] = array(
 						'name' => 'Content + media',
 						'description' => 'Content area includes text content and attached media'
 					),				
-					'' => array(
+					'no_body' => array(
 						'name' => 'None',
 						'description' => ''
 					),	
@@ -148,7 +148,7 @@ $config['views'] = array(
 						'name' => 'Additional metadata',
 						'description' => 'Footer displays page metadata'
 					),			
-					'' => array(
+					'no_footer' => array(
 						'name' => 'None',
 						'description' => ''	
 					),

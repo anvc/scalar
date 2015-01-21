@@ -393,7 +393,7 @@ endif;
   				}
   			?></select><br /><br />
   			<p>Or enter any URL:</p>
-  			<input type="text value="" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" style="margin:3px 0px 3px 0px; width:100%;" />
+  			<input type="text" value="" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" style="margin:3px 0px 3px 0px; width:100%;" />
   			</td>
   		</tr>
   		<tr class="styling_sub"><!-- color -->
@@ -429,7 +429,7 @@ endif;
   		<tr class="styling_sub">
    			<td style="position:relative;">
    				Custom Javascript
-   				<div style="width:150px;white-space:normal;"><small>Javascript or jQuery source</div>
+   				<div style="width:150px;white-space:normal;"><small>Javascript or jQuery source</small></div>
    			</td>
   			<td colspan="2"><textarea name="scalar:custom_scripts" style="width:100%;height:50px;"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea></td>
   		</tr>  		
