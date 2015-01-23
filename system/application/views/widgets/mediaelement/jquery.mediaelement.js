@@ -2789,45 +2789,50 @@ function YouTubeGetID(url){
 					autoplay: this.model.options.autoplay ? 1 : 0
 				},
 				events: {
-					'onStateChange': function(event) {
+					'onStateChange': 'onYouTubeStateChange' + this.model.id
+				}
+			}
 
-						var theMediaelement;
-						var playerId = event.target.a.id;
-						var idString;
+			var myId = this.model.id;
 
-						// loop through every link and find the media element data whose id matches this instance
-						$('a').each(function() {
-							if ($(this).data('clone')) {
-								var clone = $(this).data('clone');
-								idString = String(clone.data('mediaelement').model.id);
-								if (idString == playerId.substr(playerId.length - idString.length)) {
-									theMediaelement = clone.data('mediaelement');
-								}
-							}
-							if (theMediaelement == undefined) {
-								if ($(this).data('mediaelement')) {
-									idString = String($(this).data('mediaelement').model.id);
-									if (idString == playerId.substr(playerId.length - idString.length)) {
-										theMediaelement = $(this).data('mediaelement');
-									}
-								}
-							}
-						});
+			// the event doesn't pass back reliable data about which instance it refers so, so we create
+			// separate event handlers for each instance, named according to the mediaelement id
+			window[ 'onYouTubeStateChange' + this.model.id ] = function( event ) {
 
-						// handle video state changes
-						switch (event.data) {
+				var theMediaelement;
+				var idString;
 
-							case YT.PlayerState.PLAYING:
-							theMediaelement.view.startTimer();
-							break;
-
-							case YT.PlayerState.ENDED:
-							case YT.PlayerState.PAUSED:
-							theMediaelement.view.endTimer();
-							break;
-
+				// loop through every link and find the media element data whose id matches this instance
+				$('a').each(function() {
+					if ($(this).data('clone')) {
+						var clone = $(this).data('clone');
+						idString = clone.data('mediaelement').model.id;
+						if (idString == myId) {
+							theMediaelement = clone.data('mediaelement');
 						}
 					}
+					if (theMediaelement == undefined) {
+						if ($(this).data('mediaelement')) {
+							idString = $(this).data('mediaelement').model.id;
+							if (idString == myId) {
+								theMediaelement = $(this).data('mediaelement');
+							}
+						}
+					}
+				});
+
+				// handle video state changes
+				switch (event.data) {
+
+					case YT.PlayerState.PLAYING:
+					theMediaelement.view.startTimer();
+					break;
+
+					case YT.PlayerState.ENDED:
+					case YT.PlayerState.PAUSED:
+					theMediaelement.view.endTimer();
+					break;
+
 				}
 			}
 
