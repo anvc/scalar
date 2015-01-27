@@ -5,6 +5,7 @@
 <?$this->template->add_css(path_from_file(__FILE__).'css/responsive.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/scalarvis.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/sidebar_vis.css')?>
+<?$this->template->add_css(path_from_file(__FILE__).'css/header.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/icons.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/screen_print.css', 'link', 'screen,print')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');?>

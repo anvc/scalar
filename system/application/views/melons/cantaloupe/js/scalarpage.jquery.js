@@ -228,85 +228,77 @@
 					pathOptionCount = 0,
 					containingPathOptionCount = 0,
 					queryVars = scalarapi.getQueryVars( document.location.href ),
-					foundQueryPath = ( queryVars.path != null ),
-					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value,
-					isSplashView = (( viewType == "splash" ) || ( viewType == "book_splash" ));
+					foundQueryPath = ( queryVars.path != null );
 
-				if ( !isSplashView ) {
+				// path back/continue buttons
+				if (page.containingPaths.length > 0) {
+					section = $('<section class="relationships"></section').appendTo('article');
+					if ( page.containingPathNodes.length > 1 ) {
+						if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
 
-					// path back/continue buttons
-					if (page.containingPaths.length > 0) {
-						section = $('<section class="relationships"></section').appendTo('article');
-						if ( page.containingPathNodes.length > 1 ) {
-							if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
+							// This option is on the current path or we don't know what path we're on
+							if (( foundQueryPath && ( page.containingPath.slug == queryVars.path )) || !foundQueryPath ) {
 
-								// This option is on the current path or we don't know what path we're on
-								if (( foundQueryPath && ( page.containingPath.slug == queryVars.path )) || !foundQueryPath ) {
-
-									// continue button
-									links = $( '<p></p>' );
-									links.append( '<a class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
-										'?path=' + page.containingPath.slug + '">Continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
-										'&rdquo;</a>' );
-									if ( pathOptionCount == 0 ) {
-										links.find( 'a' ).addClass( 'primary' );
-									}
-
-									// back button
-									if ( page.containingPathIndex > 0 ) {
-										links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
-									}
-									section.append( links );
+								// continue button
+								links = $( '<p></p>' );
+								links.append( '<a class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
+									'?path=' + page.containingPath.slug + '">Continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
+									'&rdquo;</a>' );
+								if ( pathOptionCount == 0 ) {
+									links.find( 'a' ).addClass( 'primary' );
 								}
-								pathOptionCount++;
-								containingPathOptionCount++;
 
-							} else if (page.containingPathIndex == (page.containingPathNodes.length - 1)) {
-								section.append( '<p><a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[ page.containingPathIndex - 1 ].getDisplayTitle() + '&rdquo;</a></p>' );
+								// back button
+								if ( page.containingPathIndex > 0 ) {
+									links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
+								}
+								section.append( links );
 							}
+							pathOptionCount++;
+							containingPathOptionCount++;
+
+						} else if (page.containingPathIndex == (page.containingPathNodes.length - 1)) {
+							section.append( '<p><a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[ page.containingPathIndex - 1 ].getDisplayTitle() + '&rdquo;</a></p>' );
 						}
 					}
-
-					var cont_btn = $('.nav_btn.primary');
-					var back_btn = $('#back-btn');
-					if(cont_btn.length !== 0) {
-						if(back_btn.length !== 0) {
-							cont_btn.parent().addClass('container');
-							back_btn.wrap('<div style="padding:0;padding-right:5px;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
-							cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
-
-							var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
-							back_btn.css('padding-top',temp);
-							back_btn.css('padding-bottom',temp);
-							back_btn.css('vertical-align','top');
-						}
-					}
-
 				}
 
 				// end-of-path continue button
 				$( '[rel="scalar:continue_to"]' ).each( function() {
-					var span = $( "header" ).find( '[resource="' + $( this ).attr( 'href' ) + '"]' );
+					var span = $( '[resource="' + $( this ).attr( 'href' ) + '"]' );
 					span.hide();
-					if ( !isSplashView ) {
-						link = span.find( 'span[property="dcterms:title"] > a' );
-						node = scalarapi.getNode( link.attr( 'href' ) );
-						if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
-							section = $('<section class="relationships"></section').appendTo('article');
-							links = $( '<p></p>' );
-							links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;. <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
+					link = span.find( 'span[property="dcterms:title"] > a' );
+					node = scalarapi.getNode( link.attr( 'href' ) );
+					if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
+						section = $('<section class="relationships"></section').appendTo('article');
+						links = $( '<p></p>' );
+						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;. <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
 
-							// back button
-							if ( page.containingPathIndex > 0 ) {
-								$( '#back-btn' ).remove();
-								links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
-							}
-							section.append( links );
-							pathOptionCount++;
-							containingPathOptionCount++;
+						// back button
+						if ( page.containingPathIndex > 0 ) {
+							$( '#back-btn' ).remove();
+							links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
 						}
+						section.append( links );
+						pathOptionCount++;
+						containingPathOptionCount++;
 					}
 				} );
+
+				var cont_btn = $('.nav_btn.primary');
+				var back_btn = $('#back-btn');
+				if(cont_btn.length !== 0) {
+					if(back_btn.length !== 0) {
+						cont_btn.parent().addClass('container');
+						back_btn.wrap('<div style="padding:0;padding-right:5px;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
+						cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
+
+						var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
+						back_btn.css('padding-top',temp);
+						back_btn.css('padding-bottom',temp);
+						back_btn.css('vertical-align','top');
+					}
+				}
 
 				// path contents
 				$('.path_of').each(function() {
@@ -805,12 +797,13 @@
 				$('.paragraph_wrapper').remove();
 				page.addRelationshipNavigation(false);
 				$('.relationships').appendTo('.title_card');
-
-				$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
-					$( '.blackout' ).remove();
-					$( '.title_card' ).addClass( 'fade_in' );
-					next();
-				} );
+				window.setTimeout(function(){
+					$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
+						$( '.blackout' ).remove();
+						$( '.title_card' ).addClass( 'fade_in' );
+						next();
+					} );
+				},200);
 				break;
 
 				case 'book_splash':
@@ -1033,7 +1026,6 @@
 			  		case "visindex":
 			  		case "visradial":
 			  		case "vistag":
-			  		case "vistree":
 					var options = {
 						parent_uri: scalarapi.model.urlPrefix,
 						default_tab: viewType,

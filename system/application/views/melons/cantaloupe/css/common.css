@@ -172,91 +172,6 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 #new-item { border-left: 1px solid #999; max-height: 5rem; display: block; }
 
 /* --- CSS MENUS --- */
-
-nav ul {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	position: relative;
-	display: table;
-	border-spacing: 0;
-	border-collapse: collapse;
-	border: none;
-	width: 100%;
-}
-nav ul:after {
-	content: '';
-	clear: both;
-	display: block;
-}
-nav ul li {
-	display: table-cell;
-	cursor: pointer;
-	width: 5rem;
-	height: 5rem;
-	padding: 0 1.2rem;
-	vertical-align: top;
-	position: relative;
-}
-nav ul li:hover, nav ul li:active {
-	background-color: #026697;
-	color: white;
-}
-nav ul li img {
-	position: relative;
-	top: 1rem;
-}
-nav ul li a {
-	display: block;
-	text-decoration: none;
-}
-nav ul li:hover > ul, nav ul li:active > ul {
-	display: block;
-}
-nav ul ul {
-	display: none;
-	position: absolute;
-	top: 5rem; /* was 100%; changed for IE 10 */
-	background-color: #444;
-	margin-left: -1.2rem;
-	box-shadow: 5px 0 5px rgba( 0, 0, 0, 0.5 );
-	width: auto;
-}
-nav ul ul.align-right {
-	right: 0;
-}
-nav ul ul li {
-	display: list-item;
-	float: none;
-	position: relative;
-	white-space: nowrap;
-	width: inherit;
-	line-height: 5rem;
-	padding: 0 2rem;
-}
-nav ul ul li a {
-	line-height: 5rem;
-	cursor: pointer;
-}
-nav ul ul ul {
-	position: absolute;
-	left: 100%;
-	top: 0;
-	width: auto;
-	margin-left: 0;
-}
-nav ul ul ul.align-right {
-	left: inherit;
-	right: 100%;
-	width: auto;
-}
-nav a {
-	color: #eee;
-}
-nav a:hover, nav a:active {
-	text-decoration: none;
-	color: #fff;
-}
 .scrollable-menu {
 	-webkit-overflow-scrolling: touch;
 	overflow-y: auto;
@@ -370,7 +285,7 @@ section.relationships {
 
 .path-breadcrumb > a {
 	color: #888;
-}
+} 
 
 .title_card > .path-breadcrumb {
 	color: white;
@@ -378,7 +293,7 @@ section.relationships {
 
 .title_card > .path-breadcrumb > a {
 	color: white;
-}
+} 
 
 p {
     margin-top: 0;
@@ -505,7 +420,7 @@ a:hover { text-decoration: underline; }
 	top: 0;
 	padding: 14rem 3.6rem 0 3.6rem;
 	height: 100%;
-	overflow-y: auto;
+	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
 	width: 100%;
 }
@@ -594,8 +509,7 @@ a:hover { text-decoration: underline; }
 .large_dim { width: 62.0rem; display: none; }
 .full_dim { width: 103.8rem; display: none; }
 
-.full { margin-top: 4rem; clear:both; }
-.full .mediaelement {margin:0 auto;}
+.full { margin-top: 4rem; }
 .full .mediaElementFooter { padding: 1rem 7.2rem 0 7.2rem; max-width: 85.4rem; }
 
 /* So the top-most media element aligns with the top of its paragraph */
