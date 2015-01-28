@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance 
  * with the License. You may obtain a copy of the License at
  * 
- * http://www.osedu.org/licenses /ECL-2.0 
+ * http://www.osedu.org/licenses/ECL-2.0  
  * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -20,7 +20,7 @@
 /**
  * @projectDescription  Find HTML links in a text and broadcast information about them including their location in a scroll area
  * @author              Craig Dietrich
- * @version             2.1  (Version 1.0 is installed in Publishing Learning From YouTube)
+ * @version             2.2  (Version 1.0 is used by http://vectors.usc.edu/projects/learningfromyoutube)
  * @abstract			Needs to be refactored
  * 
  * Usage:
@@ -35,15 +35,14 @@
  * $('#content').texteo();
  * </script>
  * 
- * Broadcasts two events:
+ * Broadcasts events:
  * texteoTags - An array of $tags.  Each has $tag.data('is_on_screem') which, if true, means that the tag is in the viewable area of the browser
  * texteoTagClicked - A $tag, which has just been clicked. 
  * texteoTagMouseOver - A $tag, which has just been moused-over.   
  * 
- * Transforms each tag, bound to <body>:
+ * Transforms each tag:
  * 1) Trims inner html
- * 2) Adds class to "texteo_element" to each found tag
- * 3) [not implemented yet] If receives event 'mediaElementComplete', will add an icon before the tag based on the content type of its href="" if exists
+ * 2) Adds class "texteo_element" to each found tag
  */
 
 (function($) {
@@ -89,15 +88,17 @@
 				var hide_icon = ($link.hasClass('hide_icon')) ? true : false;	
 				if (!hide_icon && !jQuery.trim($link.html()).length) hide_icon = true
 
-				// Link with resource="" (media)
+				// Link with resource="..." (media)
 				if ('undefined'!=typeof(resource)) {
 					$link.data('texteo_resource_link', true);
 					if (!hide_icon) {
 						$link.addClass('texteo_icon');
 						$link.addClass('texteo_icon_generic_resource');
-						if ($link.hasClass('note')) {  // Hack?
+						// Link is a note
+						if ($link.hasClass('note')) {
 							$link.addClass('texteo_icon_note');
 							$link.click(function() { 
+								console.log('is a note');
 								var resource = $(this).attr('resource');
 								var link_to = resource;
 								if (resource.indexOf('://')==-1) {  // relative url
@@ -106,14 +107,39 @@
 								}
 								link_to += '?origin=note';
 								document.location.href = link_to;
+								return false;
 							});
+						// Link doesn't need to worry about slot managers on the page
+						} else if (options['click']=='native') {
+							$link.click(function(event) {
+								console.log('click:native');
+								var resource = $(this).attr('resource');
+								var link_to = (resource && resource.length) ? resource : $(this).attr('href');
+								if (link_to.indexOf('://')==-1) {  // relative url
+									var parent = $('link#parent').attr('href');
+									link_to = parent + link_to;
+								}
+								document.location.href = link_to;
+								return false;
+							});
+						// Link operates slot manager media	
+						} else {
+							$link.click(function(event) { 
+								console.log('slot manager click');
+								texteo_tag_clicked_event($(this), event);
+							});
+							$link.bind('touchstart', function(event) {  // iOS
+								texteo_tag_clicked_event($(this), event);
+								texteo_tag_over_event($(this), event);					
+							}); 
 						}
-					}			
+					}			 
 				// Link without resource=""	(external or internal)		
 				} else if ('undefined'!=typeof(href) && base_url) {
 					if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
 						$link.data('texteo_external_link', true);
 						$link.click(function() {  // Open with previous header
+							console.log('external');
 							if (target) {  // E.g., open in a new page
 								$link.click();
 								return false;
@@ -121,38 +147,16 @@
 								var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
 								document.location.href=link_to;
 								return false;
-							
 							}
 						});
 					} else {  // Internal link
-						$link.data('texteo_internal_link', true);					
-					}
+						console.log('internal');
+						$link.data('texteo_internal_link', true);		
+					} 
 				}	
-		
+
 				// Bind events	
 				$link.mouseover(function(event) { texteo_tag_over_event($(this), event) });
-				// TODO: this should really be handled by the slot managers, and a default click event should be made routing resource -> href
-				// TODO: this is a stop-gap to let plain view links go through
-				if (options['click']=='native' && !$link.data('texteo_external_link')) {
-					$link.click(function(event) { 
-						var resource = $(this).attr('resource');
-						var link_to = (resource && resource.length) ? resource : $(this).attr('href');
-						if (link_to.indexOf('://')==-1) {  // relative url
-							var parent = $('link#parent').attr('href');
-							link_to = parent + link_to;
-						}
-						document.location.href = link_to;
-						return false;
-					});
-				} else {
-					$link.click(function(event) { 
-						texteo_tag_clicked_event($(this), event);
-					});
-					$link.bind('touchstart', function(event) {  // iOS
-						texteo_tag_clicked_event($(this), event);
-						texteo_tag_over_event($(this), event);					
-					});  
-				}
 				
 				// Listen for media element and change icon if needed
 				$('body').bind('mediaElementMetadataHandled', function(event, $link) {
