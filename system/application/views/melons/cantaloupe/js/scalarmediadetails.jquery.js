@@ -41,13 +41,11 @@
 				mediaDetails.infoElement = $('<div></div>').appendTo(mediaDetails.contentElement);
 				var slotHeight = Math.min(maxMediaHeight, parseInt(mediaDetails.slideshowElement.height()) - 20);
 				var slotWidth = Math.round(parseInt($(element).width() - 108) * .68);
-				
 				if (collection == undefined) {
 		
 					var link = $('<a href="'+node.current.sourceFile+'" resource="'+node.slug+'" rel="'+node.urn+'">Media file</a>');
 					link.data('mediaDetails', mediaDetails);
-					
-					var slot = link.slotmanager_create_slot(slotWidth, null, {url_attributes: ['href', 'src'], solo: true, getRelated: true });
+ 					var slot = link.slotmanager_create_slot(slotWidth, null, {url_attributes: ['href', 'src'], solo: true, getRelated: true,details_view:true });
 					if (slot) {
 						slotDOMElement = slot.data('slot');
 						slotMediaElement = slot.data('mediaelement');
