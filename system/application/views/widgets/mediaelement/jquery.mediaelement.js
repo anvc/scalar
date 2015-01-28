@@ -338,7 +338,6 @@ function YouTubeGetID(url){
 		 * @param 	{Object} options	An object containing other relevant data for the media element.
 		 */
 		jQuery.MediaElementModel.prototype.init = function(link, options) {
-
 			this.link = link; 															// encapsulates the original hyperlink and other data
 			this.sidebarWidth = 270;  			   										// width of the annotation sidebar
 
@@ -493,7 +492,6 @@ function YouTubeGetID(url){
 		this.seekAttemptCount = 0;									// number of times we've tried to seek
 		this.cachedPlayCommand = false;								// if true, then we should play after a successful seek
 		this.currentAnnotation = null;								// currently active annotation
-
 		/**
 		 * Starts the process of initializing the view.
 		 */
@@ -1120,9 +1118,8 @@ function YouTubeGetID(url){
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
 
+			var details_view = this.model.options.details_view;
 			//test to see if this is a full sized image or in media details view
-			var $slot_temp = this.mediaContainer.closest('.slot, .inline_slot');
-			//var stretchToFull = ($slot_temp.hasClass('full') || ($slot_temp[0].classList.length == 1 && !($(this.link).hasClass('inline') && $(this.link).attr('data-size') != 'full')));
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
@@ -1152,11 +1149,11 @@ function YouTubeGetID(url){
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
  					if ( this.model.mediaSource.contentType != 'image' ) {
- 					  /*if(stretchToFull) {
-  						this.containerDim.y = window.innerHeight - parseInt($('.dialog_header').outerHeight()) - parseInt(this.header.height()) - parseInt(this.footer.height());
- 					  } else {*/
-  						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height());
- 					  //}
+ 						if(details_view) {
+ 							this.containerDim.y = window.innerHeight - 50 - parseInt($('.dialog_header').outerHeight()) - parseInt(this.header.height()) - parseInt(this.footer.height());
+ 						} else {
+ 							this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height()); 							
+ 						}
 					} else {
  						this.containerDim.y = 1040 - parseInt(this.header.height()) - parseInt(this.footer.height());
 					}
@@ -1169,7 +1166,7 @@ function YouTubeGetID(url){
 
 			}
 
-			if ( this.model.mediaSource.contentType != 'image') { //&& !stretchToFull) {
+			if ( this.model.mediaSource.contentType != 'image' && !details_view) {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
 			}
 
