@@ -50,14 +50,6 @@
 
 	ScalarComments.prototype.init = function () {
 
-		// initializes incomingRelationAttributions variable which stores the fullname attribute before it gets overwritten.
-		if(currentNode && currentNode.incomingRelations && currentNode.incomingRelations.length != 0) {
-			window.incomingRelationAttributions = {};
-			for(var i in currentNode.incomingRelations) {
-				window.incomingRelationAttributions[currentNode.incomingRelations[i].body.slug] = currentNode.incomingRelations[i].body.current.fullname;
-			}			
-		}
-
 		var node, container,
 			me = this;
 
@@ -67,6 +59,7 @@
 			title: 'Comments',
 			size_class: 'modal-lg'
 		}).appendTo(this.element);
+
 
 		this.bodyContent = this.element.find('.modal-body');
 		this.results = this.element.find('.results');
@@ -124,7 +117,7 @@
 			relation = relations[i];
 			container = $('<div class="comment"></div>').appendTo(this.results);
 			var date = new Date(relation.properties.datetime);
-			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+incomingRelationAttributions[relation.body.slug]+'</div>');
+			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+scalarapi.getNode(relation.body.author).getDisplayTitle()+'</div>');
 		}
 
 		if (relations.length > 0) {
