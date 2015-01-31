@@ -364,7 +364,8 @@ $(window).ready(function() {
 				// use scalarapi to parse the JSON
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
-				currentNode = scalarapi.model.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];
+				currentNode = scalarapi.model.getCurrentPageNode();
+
 				//console.log(JSON.stringify(rdf_json));
 				/**
 				 * Navigating the RDFa using jquery.RDFa.js' methods if needed
@@ -455,11 +456,6 @@ $(window).ready(function() {
 				}
 
 				var savedState = $.cookie('viewstate');
-
-				// Load info about the book
-				scalarapi.loadBook(true, function() {
-					$( 'body' ).trigger( 'handleBook' );
-				});
 
 
 		  }},

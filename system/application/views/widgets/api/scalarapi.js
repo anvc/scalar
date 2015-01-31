@@ -2013,7 +2013,7 @@ ScalarAPI.prototype.loadBook = function(forceReload, successCallback, errorCallb
 	var node = this.model.nodesByURL[this.model.urlPrefix];
 
 	// if we're forcing the data to load, or if the data hasn't already been loaded, then
-	if (forceReload || (this.model.bookNode == null)) {
+	if (forceReload || (this.model.getBookNode() == null)) {
 	
 		// if the data isn't already loading, then load it
 		if (!this.loadBookStatus.isLoading) {
@@ -2783,7 +2783,7 @@ ScalarModel.prototype.getMainMenuNode = function() {
  * @return				The book node.
  */
 ScalarModel.prototype.getBookNode = function() {
-	return this.bookNode;
+	return this.nodesByURL[scalarapi.model.urlPrefix.substr( 0, scalarapi.model.urlPrefix.length - 1 )];
 }
 
 /**
@@ -2792,7 +2792,7 @@ ScalarModel.prototype.getBookNode = function() {
  * @return				The current page node.
  */
 ScalarModel.prototype.getCurrentPageNode = function() {
-	return this.currentPageNode;
+	return this.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];
 }
 
 /**

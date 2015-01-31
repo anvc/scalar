@@ -515,8 +515,8 @@
 		jQuery.NavView.prototype.updateModeView = function() {
 		
 			// if data about the Scalar has been loaded, display its title
-			if (scalarapi.model.bookNode) {
-				me.home_link.html(scalarapi.model.bookNode.getDisplayTitle());
+			if (scalarapi.model.getBookNode() != null) {
+				me.home_link.html(scalarapi.model.getBookNode().getDisplayTitle());
 			}
 			
 			// update and display the current mode view
@@ -757,12 +757,12 @@
 				}
 				
 				// show a spinner if we're still loading data
-				if (!scalarapi.model.bookNode) {
+				if (scalarapi.model.getBookNode() == null) {
 					this.element = this.element.add('<div class="loader_anim"></div>');
 				}
 				
 			// show a spinner if we're still loading data
-			} else if (!scalarapi.model.bookNode) {				
+			} else if (scalarapi.model.getBookNode() == null) {				
 				this.element = $('<div class="loader_anim"></div>');
 			}
 
@@ -1098,7 +1098,7 @@
 			this.element = this.element.add(button);	
 			
 			// show spinner if data is still loading		
-			if (!scalarapi.model.bookNode) {
+			if (scalarapi.model.getBookNode() == null) {
 				this.element = this.element.add('<div class="loader_anim"></div>');
 			}
 			

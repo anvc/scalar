@@ -441,13 +441,10 @@ a:hover { text-decoration: underline; }
 	-moz-transform: scale( 1.2, 1.2 );
 	-o-transform: scale( 1.2, 1.2 );
 	transform: scale( 1.2, 1.2 );
+	transition: opacity;
 	opacity: 0;
-
 }
 .splash.fade_in {
-	-webkit-transition: all 1s ease-in-out;
-	-moz-transition: all 1s ease-in-out;
-	-o-transition: all 1s ease-in-out;
 	transition: all 1s ease-in-out;
 	-webkit-transform: scale( 1.0, 1.0 );
 	-moz-transform: scale( 1.0, 1.0 );

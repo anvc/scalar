@@ -303,24 +303,26 @@
 				// path contents
 				$('.path_of').each(function() {
 					if ($(this).parent().is('section')) {
+
 						section = $(this).parent();
 						section.addClass('relationships');
-
-						// only say what kind of contents these are if both kinds are present
-						if ( $('.tag_of').length > 0 ) {
-							section.find('h1').text('Path contents');
-						} else {
-							section.find('h1').text('Contents');
-						}
-
 						section.show();
-						section.find( '[property="dcterms:title"] > a' ).each( function() {
-							var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
-							$( this ).attr( 'href', href );
-						});
 
-						// hide contents if requested
-						if (!showLists) {
+						if ( showLists ) {
+
+							// only say what kind of contents these are if both kinds are present
+							if ( $('.tag_of').length > 0 ) {
+								section.find('h1').text('Path contents');
+							} else {
+								section.find('h1').text('Contents');
+							}	
+
+							section.find( '[property="dcterms:title"] > a' ).each( function() {
+								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
+								$( this ).attr( 'href', href );
+							});	
+
+						} else {
 							section.find('h1').hide();
 							section.find('ol').hide();
 						}
@@ -509,10 +511,11 @@
 
 				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
 
+				// add book authors if this is a book splash page
 				if ( viewType == 'book_splash' ) {
 
 					var i, n,
-						owners = scalarapi.model.bookNode.properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
+						owners = scalarapi.model.getBookNode().properties[ 'http://rdfs.org/sioc/ns#has_owner' ],
 						authors = [];
 					if ( owners ) {
 						n = owners.length;
@@ -545,15 +548,15 @@
 				var publisherNode = scalarapi.model.getPublisherNode();
 				var publisherInfo = $( '<p id="publisher-credit"></p>' );
 				if ( publisherNode != null ) {
-					var publisherThumbnail = publisherNode.properties[ 'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail' ];
+					var publisherThumbnail = publisherNode.thumbnail;
 					if ( publisherThumbnail != null ) {
 
 						var link = $( '<div>' + publisherNode.title + '</div>' ).find( 'a' );
 						if ( link.length ) {
-							 link.eq( 0 ).html( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
+							 link.eq( 0 ).html( '<img src="' + publisherThumbnail + '" alt="Publisher logo"/>' );
 							 publisherInfo.append( link.eq( 0 ) );
 						} else {
-							 publisherInfo.append( '<img src="' + scalarapi.model.urlPrefix + publisherThumbnail[0].value + '" alt="Publisher logo"/>' );
+							 publisherInfo.append( '<img src="' + publisherThumbnail + '" alt="Publisher logo"/>' );
 						}
 
 					}
@@ -786,17 +789,24 @@
 			switch (viewType) {
 
 				case 'splash':
+				case 'book_splash':
 				$( 'article' ).before( '<div class="blackout"></div>' );
 				element.addClass('splash');
 				$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
-				//$('.title_card').append('<h2>By Steve Anderson</h2>');
-				//$('.title_card').delay(500).fadeIn(2000);
+
+				// add book title and placeholder for author list
+				if ( viewType == "book_splash" ) {
+					$( 'h1[property="dcterms:title"]' ).html( $( '#book-title' ).html() );
+					$( '.title_card' ).append('<h2></h2>');
+				}
+
 				$('[property="art:url"]').hide();
 				element.css('backgroundImage', $('body').css('backgroundImage'));
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
 				page.addRelationshipNavigation(false);
 				$('.relationships').appendTo('.title_card');
+
 				window.setTimeout(function(){
 					$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
 						$( '.blackout' ).remove();
@@ -804,27 +814,6 @@
 						next();
 					} );
 				},200);
-				break;
-
-				case 'book_splash':
-				$( 'article' ).before( '<div class="blackout"></div>' );
-				element.addClass('splash');
-				$('h1[property="dcterms:title"]').wrap('<div class="title_card"></div>');
-				$( 'h1[property="dcterms:title"]' ).html( $( '#book-title' ).html() );
-				$( '.title_card' ).append('<h2></h2>');
-				$('[property="art:url"]').hide();
-				element.css('backgroundImage', $('body').css('backgroundImage'));
-				$('body').css('backgroundImage', 'none');
-				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation(false);
-				$('.relationships').appendTo('.title_card');
-
-				$( '.splash' ).delay( 1000 ).addClass( 'fade_in' ).queue( 'fx', function( next ) {
-					$( '.blackout' ).remove();
-					$( '.title_card' ).addClass( 'fade_in' );
-					next();
-				} );
-
 				break;
 
 				case 'gallery':
@@ -1109,7 +1098,7 @@
 			} );
 			*/
 
-			$( 'body' ).bind( 'handleBook', page.handleBook );
+			page.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
 			$('.note_viewer').click(function(e) {
 				e.stopPropagation();

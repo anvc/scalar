@@ -32,7 +32,6 @@
         base.init = function(){
             //Replace undefined options with defaults...
             base.options = $.extend({},$.scalarheader.defaultOptions, options);
-            console.log(scalarapi.model);
             //Are we logged in? Check the RDF metadata.
             base.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
 
@@ -260,8 +259,7 @@
             }
             author_text.parent('.author_text').fadeIn('fast');
             
-
-            $('body').bind('handleBook', base.handleBook);
+            base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
             var helpElement = $('<div></div>').appendTo('body');
             base.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );
