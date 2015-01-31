@@ -167,7 +167,7 @@ endif;
 ?>
 		<span resource="<?=$base_uri?>publisher" typeof="scalar:Resource">
 			<span class="metadata" property="dcterms:title"><?=$publisher?></span>
-			<a class="metadata" rel="art:thumbnail" href="<?=abs_url($publisher_thumbnail, $base_uri)?>"></a>
+<? if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
 		</span>
 <?		endif; ?>
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
