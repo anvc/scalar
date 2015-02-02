@@ -13,14 +13,13 @@
     	var $this = $(this);
     	var opts = $.extend( {}, defaults, options );
     	opts.default_values = opts.default_value.split(',');  
-    	opts.values = []; 
+    	opts.values = [];  // Values set previously
     	for (var key in opts.default_values) {
     		if (opts.no_prefix==opts.default_values[key].substr(0,3) || !opts.default_values[key].length) continue;
     		opts.values.push(opts.default_values[key]);
     	}
-    	
-    	// http://stackoverflow.com/questions/3954438/remove-item-from-array-by-value
-    	var array_remove = function(arr) {
+
+    	var array_remove = function(arr) {  // http://stackoverflow.com/questions/3954438/remove-item-from-array-by-value
     	    var what, a = arguments, L = a.length, ax;
     	    while (L > 1 && arr.length) {
     	        what = a[--L];
@@ -46,7 +45,7 @@
     		// Remove name field from all
     		$this.find('.components').hide();
     		$this.find('select.component').attr('name','');
-    		// Add values and other things to selected components
+    		// Add name field and other things to selected components
     		var selected = $select.val();
     		$comp = $this.find('#'+selected+'_components');
     		$comp.find('.'+selected+'_component').children().css('padding','3px 16px 3px 0px').css('vertical-align','middle');
@@ -59,11 +58,9 @@
     	};
     	
     	var set_descriptions = function() {
-    		$('.components').each(function() {
-    			$(this).find('select').each(function() {
-    				var desc = $(this).find(':selected').data('desc');
-    				$(this).parent().siblings('.component_desc').html(desc);
-    			});
+    		$this.find('select').each(function() {
+    			var desc = $(this).find(':selected').data('desc');
+    			$(this).parent().siblings('.select_desc, .component_desc').html(desc);
     		});
     	};    	
     	
@@ -83,7 +80,14 @@
     	};
     	
     	// View pulldown
+    	/*
     	var $select = $('<select name="scalar:default_view" class="generic_button large"></select>').appendTo($this);
+    	$select.wrap('<span style="display:table-cell;padding:3px 16px 3px 0px;vertical-align:middle;"></span>');
+    	$('<span class="component_desc" style="display:table-cell;padding:3px 16px 3px 0px;vertical-align:middle;"></span>').insertAfter($select.parent());
+    	*/
+    	var $select_wrapper = $('<div><select name="scalar:default_view" class="generic_button large"></select></div>').appendTo($this);
+    	var $select = $select_wrapper.find('select:first');
+    	$('<div class="select_desc" style="margin-top:10px;"></div>').insertAfter($select_wrapper);
     	$select.hide();
     	for (var key in opts.data) {
     		// Validate
@@ -92,7 +96,8 @@
     		if ('string'==typeof(value)) value = {name:value};
     		// Add base select
     		if (value.name.length) $select.show();
-    		$select.append('<option value="'+key+'"'+((-1!=opts.default_values.indexOf(key))?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>');
+    		var $option = $('<option value="'+key+'"'+((-1!=opts.default_values.indexOf(key))?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>').appendTo($select);
+    		$option.data('desc', ('undefined'!=typeof(value.description))?value.description:'');
     		// Component pulldowns
     		var $components = $('<div style="display:table;" id="'+key+'_components" class="components"></div>').appendTo($this);
     		if (!jQuery.isEmptyObject(value.components)) {
@@ -111,8 +116,8 @@
     						$component_select.data('selected', view_key);
     						opts.values = array_remove(opts.values, view_key);
     					}
-    					var $option = $('<option value="'+view_key+'"'+(($component_select.data('selected')==view_key)?' SELECTED':'')+'>'+value.components[component_key].views[view_key].name+'</option>').appendTo($component_select);
-    					$option.data('desc', value.components[component_key].views[view_key].description);
+    					var $component_option = $('<option value="'+view_key+'"'+(($component_select.data('selected')==view_key)?' SELECTED':'')+'>'+value.components[component_key].views[view_key].name+'</option>').appendTo($component_select);
+    					$component_option.data('desc', value.components[component_key].views[view_key].description);
     				}
     			}
     		}
@@ -124,7 +129,6 @@
     		var value = opts.values[key];
     		var component_key = get_component_key(value);
     		if (!component_key) continue;
-    		console.log('duplicating '+component_key + ' with value '+value);
     		duplicate(component_key, value);
     	}
     	
