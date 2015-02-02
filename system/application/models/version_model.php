@@ -324,20 +324,27 @@ class Version_model extends MY_Model {
     	if ('http://'==$url) $url = ''; // the default value
     	
     	// Save to the relational tables
-    	
     	$data = array();
     	$data['content_id'] = $content_id;
     	$data['title'] = (isset($array['title'])) ? trim($array['title']) : '';
     	$data['description'] = (isset($array['description'])) ? trim($array['description']) : '';
     	$data['content'] = (isset($array['content'])) ? trim($array['content']) : '';
     	$data['url'] = $url;
-    	$data['default_view'] = (isset($array['default_view']) && !empty($array['default_view'])) ? trim($array['default_view']) : 'plain';
     	$data['user'] = $user_id;
     	$data['created'] = date('c');
     	$data['continue_to_content_id'] = (isset($array['continue_to_content_id'])) ? (int) $array['continue_to_content_id'] : 0; 
     	$data['version_num'] = ($this->get_version_num($content_id) + 1);
     	$data['sort_number'] = (isset($array['sort_number'])) ? (int) $array['sort_number'] : 0;
     	$data['attribution'] = isset($array['attribution']) ? serialize($array['attribution']) : 0;
+     	$data['default_view'] = 'plain';
+     	if (isset($array['default_view'])) {
+     		if (is_array($array['default_view'])) {
+     			$data['default_view'] = implode(',',array_unique_no_empty($array['default_view']));
+     		} else {
+     			$data['default_view'] = trim($array['default_view']);
+     		}
+     	}   
+
  		$this->db->insert($this->versions_table, $data);
  		if (mysql_errno()!=0) throw new Exception('Error trying to save to the relational tables: '.mysql_error());
  		$version_id = mysql_insert_id();		

@@ -94,7 +94,7 @@ $(window).ready(function() {
 		  {load: [widgets_uri+'/slotmanager/jquery.texteo.js',widgets_uri+'/slotmanager/texteo.css',widgets_uri+'/slotmanager/jquery.inlineslotmanager.js'], complete:function() {
 			// View being asked for or revert to the default view
 		    var ext = get_url_extension();
-		    var view = (ext.length) ? ext : $('link#default_view').attr('href');
+		    var view = (ext.length) ? ext : $('link#view').attr('href');
 		    switch(view) {
 		      case 'split':
 		      case 'text':
@@ -132,7 +132,7 @@ $(window).ready(function() {
 		        yepnope({load: [widgets_uri+'/d3/d3.min.js',widgets_uri+'/vis/scalarvis.css',widgets_uri+'/vis/jquery.scalarvis.js'], complete:function() {
 		          $('#content').texteo({scrolling_element:'window', click:'native'});
 		          var default_tab = get_url_extension();
-		          if (!default_tab.length) default_tab = $('link#default_view').attr('href').toLowerCase();
+		          if (!default_tab.length) default_tab = $('link#view').attr('href').toLowerCase();
 		          var options = {parent_uri:$('link#parent').attr('href'), default_tab:default_tab}; 
 		          $('#visualization').scalarvis(options);	
 		        }});   
