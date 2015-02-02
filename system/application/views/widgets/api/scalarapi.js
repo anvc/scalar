@@ -1698,6 +1698,7 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 				tosend_formatted.push({name: j, value: jQuery.trim(tosend[j])});
 			}		
 		}
+		
 		// Save
 		// TODO: use JSONP if native=false
 		$.ajax({

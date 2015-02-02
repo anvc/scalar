@@ -86,7 +86,7 @@ class Book extends MY_Controller {
 		if (empty($this->data['melon'])) $this->data['melon'] = $this->fallback_melon;
 		$this->load_melon_config($this->data['melon']);
 		// Init
-		$this->data['views'] = array_with_strings_to_multi_array($this->config->item('views'));
+		$this->data['views'] = $this->config->item('views');
 		$this->data['view'] = key($this->data['views']);
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null;
@@ -603,9 +603,8 @@ class Book extends MY_Controller {
 		// Metadata terms
 		$this->data['ontologies'] = $this->config->item('ontologies');
 		$this->data['rdf_fields'] = $this->versions->rdf_fields;
-		// TODO: remove built in fields
 
-		// Styling
+		// List of images/audio
 		$this->data['book_images'] = $this->books->get_images($book_id);
 		$this->data['book_audio'] = $this->books->get_audio($book_id);
 

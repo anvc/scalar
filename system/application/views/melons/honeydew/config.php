@@ -1,5 +1,8 @@
 <?php
 
+// Arbor (wrapper) to use, e.g., 'html5_RDFa'
+$config['arbor'] = 'html';
+
 // Melon metadata
 $config['melon_meta'] = array(
     'is_selectable' => true,
@@ -8,9 +11,6 @@ $config['melon_meta'] = array(
 	'description'=>'Scalar\'s first interface that has been used for a number of publications',
 	'thumb_app_path'=>'views/melons/honeydew/images/generic_media_thumb.jpg'
 );
-
-// Arbor (wrapper) to use, e.g., 'html5_RDFa'
-$config['arbor'] = 'html';
 
 // Stylesheets
 $config['stylesheets'] = array(
@@ -23,25 +23,25 @@ $config['stylesheets'] = array(
 	array('slug'=>'shale','name'=>'Shale','description'=>'','thumb_app_path'=>'views/modules/dashboard/honeydew/theme_shale.jpg')
 );
 
-// Array of views; leave value empty and it won't be displayed as a default view option in the editor
+// Array of views; leave a key value empty and it won't be displayed as a default view option in the editor
 $config['views'] = array(
-			'plain' => 'Single column',
-			'text' => 'Text emphasis',
-			'media' => 'Media emphasis',
-			'split' => 'Split emphasis',
-			'par' => 'Media per paragraph (above)',
-		    'revpar' => 'Media per paragraph (below)',
-			'vis' => 'Visualization: Radial',
-			'visindex' => 'Visualization: Index',
-			'vispath' => 'Visualization: Paths',
-			'vismedia' => 'Visualization: Media',
-			'vistag' => 'Visualization: Tags',
-			'versions' => 'History',
-			'history' => 'History browser',
-			'meta' => 'Metadata',
-			'edit' => '',
-			'annotation_editor' => ''
-		);
+	'plain' => 'Single column',
+	'text' => 'Text emphasis',
+	'media' => 'Media emphasis',
+	'split' => 'Split emphasis',
+	'par' => 'Media per paragraph (above)',
+	'revpar' => 'Media per paragraph (below)',
+	'vis' => 'Visualization: Radial',
+	'visindex' => 'Visualization: Index',
+	'vispath' => 'Visualization: Paths',
+	'vismedia' => 'Visualization: Media',
+	'vistag' => 'Visualization: Tags',
+	'versions' => 'History',
+	'history' => 'History browser',
+	'meta' => 'Metadata',
+	'edit' => '',
+	'annotation_editor' => ''
+);
 
 // Default view
 $config['default_view'] = 'plain';

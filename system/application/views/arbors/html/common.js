@@ -145,7 +145,7 @@ function send_form($form, additional_values, redirect_url) {
 		alert('Something went wrong while attempting to save: '+obj.statusText);
 		send_form_hide_loading();
 	}
-	
+
 	scalarapi.savePage(values, success, error);
 	return false;
 
