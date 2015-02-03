@@ -1,23 +1,23 @@
 <?php
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */                            
- 
+ * permissions and limitations under the License.
+ */
+
 /**
  * @projectDescription		Base controller class to handle database and login tasks useful for all controllers
  * @author					Craig Dietrich
@@ -34,29 +34,29 @@ abstract class MY_Controller extends Controller {
 
 		header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 		header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-		
+
 		// GET vars, note that this requires 'uri_protocol' to be 'PATH_INFO' in config.php
-		parse_str($_SERVER['QUERY_STRING'], $_GET);		
-		
-		$this->load->library( 'session' );	
+		parse_str($_SERVER['QUERY_STRING'], $_GET);
+
+		$this->load->library( 'session' );
 		$this->load->helper( 'url' );
 		$this->load->helper( 'html' );
 		$this->load->helper( 'string' );
 		$this->load->helper( 'language' );
-		$this->load->helper( 'array' );	
-		$this->load->helper( 'directory' );	
+		$this->load->helper( 'array' );
+		$this->load->helper( 'directory' );
 		$this->config->load( 'rdf' );
-		$this->config->load( 'local_settings' );	
+		$this->config->load( 'local_settings' );
 		$this->data['recaptcha_public_key'] = ($this->config->item('recaptcha_public_key')) ? $this->config->item('recaptcha_public_key') : '';
-		
+
 		// Models
 		$this->load->model( 'user_model', 'users' );   // Interact with user database
-		$this->load->model( 'login_model', 'login' );  // Handle login session		
-		
+		$this->load->model( 'login_model', 'login' );  // Handle login session
+
 		// Language (default set in config/config.php)
 		$lang = (isset($_REQUEST['lang']) && file_exists(APPPATH.'language/'.$_REQUEST['lang'])) ? $_REQUEST['lang'] : null;
 		$this->lang->load('content', $lang);
-		
+
 		// Database
 		// TODO: I believe this opens two different connections to the same database
 		$this->load->database();
@@ -70,40 +70,40 @@ abstract class MY_Controller extends Controller {
 		try {
 			if ($this->login->do_logout()) {
 				header('Location: '.$this->redirect_url());
-				exit;				
-			} elseif ($this->login->do_login()) {			
+				exit;
+			} elseif ($this->login->do_login()) {
 				header('Location: '.$this->redirect_url());
 				exit;
-			}			
+			}
 			$this->set_login_params();
 		} catch (Exception $e) {
 			$this->data['login_error'] =  $e->getMessage();
-		}			
-		
+		}
 
-	}		
-	
+
+	}
+
 	/**
 	 * Set information about the logged-in user such as the books they are attached to
 	 * @requires	$this->login
 	 * @requires	$this->data
 	 * @return 		null
 	 */
-	
+
 	protected function set_login_params() {
-		
+
 		$this->data['login']          = $this->login->get();
 		$this->data['login_is_super'] = (isset($this->data['login']->is_super) && $this->data['login']->is_super) ? true : false;
 		$this->data['login_books']    = (isset($this->data['login']->user_id)) ? $this->login->get_books($this->data['login']->user_id) : array();
-		$this->data['login_book_ids'] = $this->login->get_book_ids($this->data['login_books']);		
-		
+		$this->data['login_book_ids'] = $this->login->get_book_ids($this->data['login_books']);
+
 	}
-	
+
 	/**
 	 * Set information about whether a logged-in user can edit a book or open the dashboard
 	 * @requires	$this->data
 	 * @return 		null
-	 */	
+	 */
 
 	protected function set_user_book_perms() {
 
@@ -115,33 +115,33 @@ abstract class MY_Controller extends Controller {
 		} elseif (!empty($this->data['book']) && in_array($this->data['book']->book_id, $this->data['login_book_ids'])) {
 			$user_level = array_get_node('book_id', $this->data['book']->book_id, $this->data['login_books']);
 			$this->data['user_level'] = ucwords($user_level['value']['relationship']);
-		}	
-		
+		}
+
 	}
-	
+
 	/**
 	 * Test a user level against logged-in status
 	 * @param 	int $book_id
-	 * @param	str $level 
+	 * @param	str $level
 	 * @return 	bool
-	 */	
-	
+	 */
+
 	protected function login_is_book_admin($level='Author') {
 
 		if ($this->users->is_a(strtolower($this->data['user_level']), $level)) return true;
 		return false;
 
-	}		
-	
+	}
+
 	/**
 	 * Protect a book against a user level
 	 * @param 	int $book_id
 	 * @param	str	$level
 	 * @return 	null
-	 */	
-	
+	 */
+
 	protected function protect_book($level='Author') {
-		
+
 		if (!$this->login_is_book_admin($level)) $this->kickout();
 
 	}
@@ -152,33 +152,33 @@ abstract class MY_Controller extends Controller {
 	 */
 
 	protected function kickout() {
-		
+
 		header('Location: '.base_url());
 		exit;
-		
-	}		
-	
+
+	}
+
 	/**
 	 * Redirect the page to login
 	 * @return 	null
-	 */	
-	
+	 */
+
 	protected function require_login($msg='') {
-		
+
 		$uri = (confirm_slash(base_url())).'system/login?redirect_url='.urlencode($this->redirect_url());
 		if (!empty($msg)) $uri .= '&msg='.$msg;
 		header('Location: '.$uri);
 		exit;
-		
+
 	}
 
 	/**
 	 * Return a redirect URL
 	 * @return 	str 	URI
-	 */  
-	
+	 */
+
    	protected function redirect_url() {
-   		
+
    		// A specific redirect URL has been sent via GET/POST
    		if (isset($_REQUEST{'redirect_url'}) && !empty($_REQUEST['redirect_url'])) return urldecode(trim($_REQUEST{'redirect_url'}));
     	// Book is present and might have a page slug
@@ -187,38 +187,38 @@ abstract class MY_Controller extends Controller {
     		return confirm_slash(base_url()).implode('/',$segs);
     	}
    		// Default to the install index
-   		return base_url(); 
-   		
-   	}		
-   	
+   		return base_url();
+
+   	}
+
    	/**
    	 * Determine if a melon (skin) exists
-   	 */ 
-	
+   	 */
+
    	protected function melon_exists($name='') {
-   		
+
    		$path = confirm_slash(APPPATH).'views/melons/'.$name;
    		if (!file_exists($path)) return false;
    		return true;
-   		
+
    	}
-   	
+
    	/**
    	 * Load info about a melon (skin)
    	 */
-   	
+
    	protected function load_melon_config($name='') {
 
    		$this->config->load('../views/melons/'.$name.'/config');
-   		
-   	} 	
-   	
-   	/** 
+
+   	}
+
+   	/**
    	 * Get paths to melons
    	 */
-   	
+
    	protected function melon_paths() {
-   		
+
    		$melon_dir = APPPATH.'views/melons';
    		$files = scandir($melon_dir);
    		$paths = array();
@@ -227,15 +227,15 @@ abstract class MY_Controller extends Controller {
    			$paths[] = $melon_dir.'/'.$file.'/';
    		}
    		return $paths;
-   		
+
    	}
-   	
+
    	/**
    	 * Determine if paywall page should be presented rather than the protected page content
    	 */
-   	
+
    	protected function paywall() {
-   		
+
    		try {
    			// Validate
    			if ($this->login_is_book_admin('Reader')) throw new Exception('Reader logged in');
@@ -251,13 +251,13 @@ abstract class MY_Controller extends Controller {
 				$this->data['buttonHTML'] = $this->tinypass_helper->getHTML();
 				$this->template->set_template('external');
 				$this->template->write_view('content', 'melons/'.$this->data['melon'].'/tinypass', $this->data);
-				$this->template->render();	
-				$this->template_has_rendered = true;		
+				$this->template->render();
+				$this->template_has_rendered = true;
 			}
-		} catch (Exception $e) {}   		
-   		
+		} catch (Exception $e) {}
+
    	}
-   	
-} 
+
+}
 
 ?>
