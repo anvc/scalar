@@ -1479,7 +1479,7 @@ function YouTubeGetID(url){
 								}
 							}
 
-							if (annotation == me.model.play) {
+							if (annotation == me.model.seekAnnotation) {
 								me.playingSeekAnnotation = true;
 							}
 
