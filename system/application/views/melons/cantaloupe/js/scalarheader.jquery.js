@@ -55,8 +55,9 @@
             //Store the home URL so that we can use these later without making extra queries on the DOM
             var home_url = base.$el.find('#book-title').attr("href");
 
-            //While we're at it, also grab the book URL by stripping the index out of the home URL
-            var book_url = home_url.replace('index','');
+            //Book URL and Home URL (the latter can simply be the Book URL, since it will redirect to /index)
+            var book_url = $('link#parent').attr('href');
+            var home_url = $('link#parent').attr('href');
 
             var index_url = book_url.slice(0,-1);
             index_url = index_url.substr(0, index_url.lastIndexOf('/'))+'/';
