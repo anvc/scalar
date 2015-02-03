@@ -80,7 +80,6 @@ abstract class MY_Controller extends Controller {
 			$this->data['login_error'] =  $e->getMessage();
 		}
 
-
 	}
 
 	/**
