@@ -123,35 +123,46 @@
 			},
 
 			addMediaElementForLink: function(link, parent) {
-
+				var inline = link.hasClass('inline');
 				var size = link.attr('data-size');
-				if (size == undefined) size = 'medium';
+				var native_size = false;
 
 				var align = link.attr('data-align');
 				if (align == undefined) align = 'right';
 
+				if (size == undefined) {
+					size = 'medium';
+				} else if (size == 'native') {
+ 					size = 'full';
+					native_size = true;
+				}
+
+				var temp = $('<div class="'+size+'_dim"></div>');
+				if (inline && size == 'large') {
+					temp = $('<div class="body_copy"></div>');
+				} 
+				temp.appendTo('.page');
+
 				// create a temporary element and remove it so we can get its width; this allows us to specify
 				// the various media element widths via CSS
-				var temp = $('<div class="'+size+'_dim"></div>').appendTo('.page');
 				var width = parseInt(temp.width());
 				temp.remove();
-
 				var height = null;
 				if (size == 'full') {
 					height = maxMediaHeight;
-				}
-				slot = link.slotmanager_create_slot(width, height, { url_attributes: ['href', 'src'], autoplay: link.attr( 'data-autoplay' ) == 'true' });
+				} 
+				slot = link.slotmanager_create_slot(width, height, { url_attributes: ['href', 'src'], autoplay: link.attr( 'data-autoplay' ) == 'true',native_size:native_size });
 				if (slot) {
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
 					slotMediaElement.model.element.css('visibility','hidden');
-					if ($(slot).hasClass('inline')) {
+					if (inline) {
 						link.after(slotDOMElement);
 						link.hide();
 						if(size != 'full') {
-  						if(!slotDOMElement.parent().hasClass('body_copy')) {
-	  					  slotDOMElement.wrap('<div class="body_copy"></div>');
-		  				}
+							if(!slotDOMElement.parent().hasClass('body_copy')) {
+								slotDOMElement.wrap('<div class="body_copy"></div>');
+							}
 							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
 							if(align == 'right') {
 								slotMediaElement.model.element.css('float','right');
@@ -174,7 +185,7 @@
 						parent.after(slotDOMElement);
 						slotDOMElement.addClass('full');
 					}
-				}
+			  	}
 
 			},
 
