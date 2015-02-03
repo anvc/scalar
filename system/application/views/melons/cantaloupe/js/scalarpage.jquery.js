@@ -860,6 +860,7 @@
 				page.setupScreenedBackground();
 				var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 				page.addHeaderPathInfo();
+				page.addRelationshipNavigation( false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
