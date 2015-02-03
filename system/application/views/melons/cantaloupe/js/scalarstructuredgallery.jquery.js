@@ -196,7 +196,7 @@
 							var spinner = new Spinner(opts).spin(spinnerElement[0]);
 						}
 						
-						scalarapi.loadPage( node.slug, true, function( data ) {
+						scalarapi.loadNode( node.slug, true, function( data ) {
 						
 							var node, index, children;
 							
@@ -225,7 +225,8 @@
 			
 			addHeaderForNode: function( node ) {
 			
-				var queryVars = scalarapi.getQueryVars( document.location.href );
+				var queryVars = scalarapi.getQueryVars( document.location.href ),
+					currentNode = scalarapi.model.getCurrentPageNode();
 			
 				var block = $( '#block_' + node.slug.replace( "/", "-" ) );
 				
@@ -329,7 +330,7 @@
 			
 			addMedia: function() {
 				interval = setInterval(gallery.handleTimer, 1000);
-				children = gallery.getChildrenOfType(currentNode, 'all');
+				children = gallery.getChildrenOfType( scalarapi.model.getCurrentPageNode(), 'all');
 				gallery.createContentBlocks();
 			}
 
