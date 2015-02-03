@@ -420,7 +420,7 @@ a:hover { text-decoration: underline; }
 	top: 0;
 	padding: 14rem 3.6rem 0 3.6rem;
 	height: 100%;
-	overflow-y: scroll;
+	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 	width: 100%;
 }
@@ -504,9 +504,10 @@ a:hover { text-decoration: underline; }
 .small_dim { width: 20.6rem; display: none; }
 .medium_dim { width: 41.2rem; display: none; }
 .large_dim { width: 62.0rem; display: none; }
+.inline.large_dim {width:inherit;display:none;}
 .full_dim { width: 103.8rem; display: none; }
 
-.full { margin-top: 4rem; }
+.full { margin-top: 4rem; clear:both; }
 .full .mediaElementFooter { padding: 1rem 7.2rem 0 7.2rem; max-width: 85.4rem; }
 
 /* So the top-most media element aligns with the top of its paragraph */

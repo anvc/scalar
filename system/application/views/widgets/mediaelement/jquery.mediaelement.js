@@ -1117,7 +1117,6 @@ function YouTubeGetID(url){
 		 * Calculates the maximum allowed size of the media container.
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
-
 			var details_view = this.model.options.details_view;
 			//test to see if this is a full sized image or in media details view
 			switch (this.model.containerLayout) {
@@ -1224,25 +1223,38 @@ function YouTubeGetID(url){
 
 			//console.log(this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
 
+			var native_size = this.model.options.native_size;
+			var tempDims = {
+				x: this.containerDim.x,
+				y: this.containerDim.y
+			};
+
 			if (mediaAR > containerAR) {
+				if(native_size && this.intrinsicDim.x < tempDims.x) {
+					tempDims.x = this.intrinsicDim.x;
+				}
 				if (this.model.isChromeless) {
-					this.resizedDim.x = this.containerDim.x;
+					this.resizedDim.x = tempDims.x;
 				} else {
-					this.resizedDim.x = this.containerDim.x - (this.gutterSize * 2);
+					this.resizedDim.x = tempDims.x - (this.gutterSize * 2);
 				}
 				this.resizedDim.y = this.resizedDim.x / mediaAR + this.controllerOffset;
 			} else {
+				if(native_size && this.intrinsicDim.y < tempDims.y) {
+					tempDims.y = this.intrinsicDim.y;
+				}
 				if (this.model.isChromeless) {
-					this.resizedDim.y = this.containerDim.y;
+					this.resizedDim.y = tempDims.y;
 				} else {
-					this.resizedDim.y = this.containerDim.y - (this.gutterSize * 2);
+					this.resizedDim.y = tempDims.y - (this.gutterSize * 2);
 				}
 				this.resizedDim.x = (this.resizedDim.y - this.controllerOffset) * mediaAR;
 			}
 
-			//console.log(this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
+			// console.log(this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
 
 			this.mediaScale = this.resizedDim.x / this.intrinsicDim.x;
+
 
 			this.updateMargins();
 

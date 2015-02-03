@@ -289,6 +289,8 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	opts.solo = options.solo;
 	opts.getRelated = options.getRelated;
 	opts.autoplay = options.autoplay;
+	opts.details_view = options.details_view;
+	opts.native_size = options.native_size;
 	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
 	$tag.data('path', url);
 	$tag.data('meta', resource);
@@ -297,7 +299,6 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 
 	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
 	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
-
 	$tag.data('mediaelement').model.element.addClass('caption_font');
 
 	return $tag;
