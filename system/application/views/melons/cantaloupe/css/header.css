@@ -3,6 +3,9 @@
 	padding: 9px;
 	line-height: 30px;
 }
+.navbar{
+	z-index: 1039;
+}
 .navbar li a.headerIcon{
 	outline: 0;
 }

@@ -40,13 +40,17 @@
                 base.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
                 base.is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';
                 base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
+
+                if(base.is_author || base.is_commentator || base.is_reviewer){
+                     base.$el.addClass('edit_enabled');
+                }
             }
 
             //We should also grab the book ID from the RDF stuff
             base.bookId = parseInt($('#book-id').text());
 
             //We need some wrapper classes for Bootstrap, so we'll add those here. There are also some helper classes as well.
-            base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');;
+            base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
 
             //Store the home URL so that we can use these later without making extra queries on the DOM
             var home_url = base.$el.find('#book-title').attr("href");
@@ -54,8 +58,11 @@
             //While we're at it, also grab the book URL by stripping the index out of the home URL
             var book_url = home_url.replace('index','');
 
+            var index_url = book_url.slice(0,-1);
+            index_url = index_url.substr(0, index_url.lastIndexOf('/'))+'/';
+
             //We might not have the current page loaded, but we can still get the slug; strip the book URL and the GET params from the current URL
-            var current_slug = window.location.href.split("?")[0].replace(book_url,'');
+            base.current_slug = window.location.href.split("?")[0].replace(book_url,'');
 
             //Pop the title link DOM element off for a minute - we'll use this again later on.
             var title_link = base.$el.find('#book-title').addClass('navbar-link').detach();
@@ -76,7 +83,7 @@
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li role="presentation" class="static divider"></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/works/guide">Scalar User\'s Guide</a></li>'+
-                                                    '<li class="static"><a href="http://scalar.usc.edu/works">More Scalar Projects</a></li>'+
+                                                    '<li class="static"><a href="'+index_url+'">More Scalar Projects</a></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/">More About Scalar</a></li>'+
                                                 '</ul>'+
                                             '</li>'+
@@ -97,18 +104,18 @@
                                                 '</a>'+
                                             '</li>'+
                                             '<li  class="dropdown mainMenu hidden-sm hidden-md hidden-lg">'+
-                                                '<a href="#" class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
                                                     '<img src="' + base.options.root_url + '/images/menu_icon.png" alt="Main menu. Roll over to access navigation to primary sections." width="30" height="30" /><span>Main menu</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li role="presentation" class="static divider"></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/works/guide">Scalar User\'s Guide</a></li>'+
-                                                    '<li class="static"><a href="http://scalar.usc.edu/works">More Scalar Projects</a></li>'+
+                                                    '<li class="static"><a href="'+index_url+'">More Scalar Projects</a></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/">More About Scalar</a></li>'+
                                                 '</ul>'+
                                             '</li>'+
                                             '<li class="" id="ScalarHeaderMenuSearch">'+
-                                                '<a href="#" class="headerIcon">'+
+                                                '<a class="headerIcon">'+
                                                     '<img src="' + base.options.root_url + '/images/search_icon.png" alt="Search button. Click to open search field." width="30" height="30" />'+
                                                     '<span class="hidden-sm hidden-md hidden-lg">Search book</span>'+
                                                 '</a>'+
@@ -120,19 +127,28 @@
                                                     '</div>'+
                                                   '</form>'+
                                             '</li>'+
-
+                                            '<li id="ScalarHeaderVisualization" class="hidden-xs">'+
+                                                '<a class="headerIcon">'+
+                                                    '<img src="' + base.options.root_url + '/images/visualization_icon.png" alt="Visualization button. Click to toggle visualization showing current position." width="30" height="30" />'+
+                                                '</a>'+
+                                            '</li>'+
+                                            '<li id="ScalarHeaderHelp" class="hidden-xs">'+
+                                                '<a class="headerIcon">'+
+                                                    '<img src="' + base.options.root_url + '/images/help_icon.png" alt="Help button. Click to toggle help info." width="30" height="30" />'+
+                                                '</a>'+
+                                            '</li>'+
                                             ((base.is_author||base.is_commentator||base.is_reviewer)?
                                                 '<li id="ScalarHeaderNew" class="hidden-xs"><a class="headerIcon" href="' + scalarapi.model.urlPrefix + 'new.edit"><img src="' + base.options.root_url + '/images/new_icon.png" alt="New page button. Click to create a new page." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">New page</span></a></li>'+
-                                                '<li id="ScalarHeaderEdit" class="hidden-xs"><a class="headerIcon" href="' + scalarapi.model.urlPrefix + current_slug + '.edit"><img src="' + base.options.root_url + '/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Edit page</span></a></li>'+
+                                                '<li id="ScalarHeaderEdit" class="hidden-xs"><a class="headerIcon" href="' + scalarapi.model.urlPrefix + base.current_slug + '.edit"><img src="' + base.options.root_url + '/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Edit page</span></a></li>'+
                                                 ((currentNode!=null && currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew"><img src="' + this.options.root_url + '/images/annotate_icon.png" alt="Annotate button. Click to annotate the current media." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Annotate media</span></a></li>':'')+
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
-                                                    '<a href="#" class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
+                                                    '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
                                                         '<img src="' + this.options.root_url + '/images/import_icon.png" alt="Import menu. Roll over to show import options." width="30" height="30" />'+
                                                         '<span class="hidden-sm hidden-md hidden-lg">Import</span>'+
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
-                                                            '<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-target="#" role="button" aria-expanded="false">Affiliated archives</a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Affiliated archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/critical_commons">Critical Commons</a></li>'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive">Cuban Theater Digital Archive</a></li>'+
@@ -145,7 +161,7 @@
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-target="#" role="button" aria-expanded="false">Other archives</a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Other archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/getty_museum_collection">Getty Museum Collection</a></li>'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/prezi">Prezi</a></li>'+
@@ -166,22 +182,12 @@
                                                     '</ul>'+
                                                 '</li>'+
                                                 ((!isNaN( base.bookId ))?
-                                                    '<li id="ScalarHeaderDelete" class="hidden-xs"><a href="#" class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>'+
+                                                    '<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>'+
                                                     '<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon"><img src="' + base.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>'
                                                 :'')
                                             :'')+
-                                            '<li id="ScalarHeaderVisualization" class="hidden-xs">'+
-                                                '<a href="#" class="headerIcon">'+
-                                                    '<img src="' + base.options.root_url + '/images/visualization_icon.png" alt="Visualization button. Click to toggle visualization showing current position." width="30" height="30" />'+
-                                                '</a>'+
-                                            '</li>'+
-                                            '<li id="ScalarHeaderHelp" class="hidden-xs">'+
-                                                '<a href="#" class="headerIcon">'+
-                                                    '<img src="' + base.options.root_url + '/images/help_icon.png" alt="Help button. Click to toggle help info." width="30" height="30" />'+
-                                                '</a>'+
-                                            '</li>'+
                                             '<li class="dropdown" id="ScalarHeaderMenuMain">'+
-                                                '<a href="#" class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
                                                     '<img src="' + base.options.root_url + '/images/user_icon.png" alt="User menu. Roll over to show account options." width="30" height="30" />'+
                                                     '<span class="hidden-sm hidden-md hidden-lg">User</span>'+
                                                 '</a>'+
@@ -195,18 +201,21 @@
             base.$el.append(navbar_html).find('#title_wrapper').prepend(title_link);
             
             base.$el.find('#ScalarHeaderMenuLeft>li.dropdown, #ScalarHeaderMenuRight>li.dropdown').hover(function(e){
+                var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
                     $(this).addClass('open').trigger('show.bs.dropdown');
                 }else{
                     return true;
                 }
             },function(e){
+                var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
                     $(this).removeClass('open').trigger('hide.bs.dropdown');
                 }else{
                     return true;
                 }
             }).find("ul.dropdown-menu>li.dropdown").hover(function(e){
+                var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
                     base.initSubmenus(this);
                     e.preventDefault();
@@ -215,7 +224,15 @@
                 }else{
                     return true;
                 }
-            }).children('a').first().click(function(e){
+            },function(e){
+                var base = $('#scalarheader.navbar').data('scalarheader');
+                if(!base.usingMobileView){
+                    $(this).removeClass('open').trigger('hide.bs.dropdown');
+                }else{
+                    return true;
+                }
+            }).children('a').click(function(e){
+                var base = $('#scalarheader.navbar').data('scalarheader');
                 if(base.usingMobileView){
                     base.initSubmenus(this);
                     e.preventDefault();
@@ -259,6 +276,7 @@
             }
             author_text.parent('.author_text').fadeIn('fast');
             
+
             base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
             var helpElement = $('<div></div>').appendTo('body');
@@ -353,7 +371,6 @@
             if(mainMenu.hasClass('ready') && !mainMenu.hasClass('loaded')){
                 mainMenu.addClass('loaded');
                 var unloaded = mainMenu.find('li:not(".static, .loaded, .in_progress")');
-                console.log(unloaded);
                 if(unloaded.length>0){
                     unloaded.each(function(){
                         listItem = $(this);
@@ -403,6 +420,7 @@
                     "role" : "button",
                     "aria-expanded" : "false"
                 }).click(function(e){
+                    var base = $('#scalarheader.navbar').data('scalarheader');
                     if(base.usingMobileView){
                         base.initSubmenus(this);
                         e.preventDefault();
@@ -416,12 +434,13 @@
                 var i = 0;
                 for(c in pathChildren){
                     var child = pathChildren[c];
-                    $( '<li><a href="' + child.url + '">' + ( i + 1 ) + '. ' + child.getDisplayTitle() + '</a></li>' ).appendTo( new_list );
+                    $( '<li><a href="' + child.url + '">' + ( ++i ) + '. ' + child.getDisplayTitle() + '</a></li>' ).appendTo( new_list );
                 }
             }
 
         }
         base.handleResize = function(extra_offset){
+            var base = $('#scalarheader.navbar').data('scalarheader');
             var screen_width = $(window).width();
             var max_width = (base.$el.width() - ($('#ScalarHeaderMenuLeft').outerWidth() + $('#ScalarHeaderMenuRight').outerWidth()))-30;
 
@@ -454,6 +473,8 @@
                 max_width -= extra_offset;
             }
             $('#title_wrapper').css('max-width',max_width+'px');
+
+            base.$el.removeClass('mobile_view desktop_view').addClass(base.usingMobileView?'mobile_view':'desktop_view');
         };
 
         base.buildUserMenu = function(userList){
@@ -486,6 +507,7 @@
         base.handleBook = function(){
             //Build the main menu
             var node = scalarapi.model.getMainMenuNode();
+
             var menu = $( '.mainMenu>.dropdown-menu' );
 
             if (node != null) {
@@ -505,6 +527,40 @@
             if($( '#ScalarHeaderMenuLeft .mainMenu' ).hasClass('open')){
                 base.renderMainMenuDropdownChildren();
             }
+
+            
+            base.$el.find('#ScalarHeaderDelete').click(function(){
+                var result = confirm('Are you sure you wish to hide this page from view (move it to the trash)?');
+
+                if (result) {
+                    var base = $('#scalarheader.navbar').data('scalarheader');        
+                    // assemble params for the trash action
+                    var node = currentNode,
+                        baseProperties =  {
+                            'native': 1,
+                            id: $('link#parent').attr('href'),
+                            api_key: $('input[name="api_key"]').val()
+                        },
+                        pageData = {
+                            action: 'UPDATE',
+                            'scalar:urn': $('link#urn').attr('href'),
+                            uriSegment: base.current_slug,
+                            'dcterms:title': node.current.title,
+                            'dcterms:description': node.current.description,
+                            'sioc:content': node.current.content,
+                            'rdf:type': node.baseType,
+                            'scalar:metadata:is_live': 0
+                        },
+                        relationData = {};
+
+                    // execute the trash action (i.e. make is_live=0)
+                    scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, function(result) {
+                        window.location.reload();
+                    }, function(result) {
+                        alert('An error occurred while moving this content to the trash. Please try again.');
+                    });
+                }
+            });
         }
         
         // Run initializer
