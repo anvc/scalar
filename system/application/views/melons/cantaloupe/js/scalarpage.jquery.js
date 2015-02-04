@@ -236,6 +236,7 @@
 			addRelationshipNavigation: function(showLists) {
 
 				var button, href, section, nodes, node, link, links,
+					currentNode = scalarapi.model.getCurrentPageNode(),
 					pathOptionCount = 0,
 					containingPathOptionCount = 0,
 					queryVars = scalarapi.getQueryVars( document.location.href ),
@@ -411,13 +412,23 @@
 							section.find('h1').text('This content annotates:');
 						}
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
-						section.show();
 
-						/*section.find( 'li > span > span > a' ).each( function() {
+						// add extents to title of annotated media
+						section.find( 'span[property="dcterms:title"] > a' ).each( function() {
 							node = scalarapi.getNode( $( this ).attr( 'href' ) );
-							page.annotatedMedia.push( node );
+							var i, relation,
+								n = node.incomingRelations.length;
+							for ( i = 0; i < n; i++ ) {
+								relation = node.incomingRelations[ i ];
+								if ( relation.body == currentNode ) {
+									$( this ).parent().append( "(" + relation.startString + relation.separator + relation.endString + ")" );
+								}
+							}
+							//age.annotatedMedia.push( node );
 						} );
-						page.loadNextAnnotatedMedia();*/
+						/*page.loadNextAnnotatedMedia();*/
+
+						section.show();
 					}
 				});
 
@@ -610,20 +621,47 @@
 				  	$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 					$('a').each(function() {
 
-						// resource property signifies a media link
-						if ( ($( this ).attr( 'resource' ) || ( $( this ).find( '[property="art:url"]' ).length > 0 ) ) && ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
+						if (						 
+							( 
+								$( this ).attr( 'resource' ) || // linked media
+								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
+								(( $( this ).parents( 'li[typeof="oac:Annotation"]' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 )) // annotated media
+							) && 
+							( 
+								$( this ).attr( 'rev' ) != 'scalar:has_note' ) && 
+								( $( this ).attr( 'data-relation' ) == null )
+							) {
 
-							var slot;
-							var slotDOMElement;
-							var slotMediaElement;
-							var count;
-							var parent;
+							var slot, slotDOMElement, slotMediaElement, count, parent,
+								currentNode = scalarapi.model.getCurrentPageNode();
 
 							if ($(this).attr('resource') == undefined) {
-								$(this).attr('href', currentNode.current.sourceFile);
-								$(this).attr('resource', currentNode.slug);
-								$(this).attr('data-size', 'full');
-								parent = $(this);
+
+								// inline media link
+								if ( $(this).attr('href') == undefined ) {
+									$(this).attr('href', currentNode.current.sourceFile);
+									$(this).attr('resource', currentNode.slug);
+									$(this).attr('data-size', 'full');
+									parent = $(this);
+
+								// annotated media link
+								} else {
+									var annotatedMedia = currentNode.getRelatedNodes( "annotation", "outgoing" );
+									var i, node,
+										n = annotatedMedia.length;
+									for ( i = 0; i < n; i++ ) {
+										node = annotatedMedia[ i ];
+										if ( node.url == $(this).attr('href') ) {
+											$(this).attr('href', node.current.sourceFile + "#" + currentNode.slug );
+											$(this).attr('resource', node.slug);
+											$(this).attr('data-size', 'full');
+											parent = $(this).closest('section');
+											break;
+										}
+									}
+								}
+								
+							// standard media link
 							} else {
 								parent = $(this).closest('.body_copy');
 							}
