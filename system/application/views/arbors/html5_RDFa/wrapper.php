@@ -1,7 +1,7 @@
 <?
 // Define page style based on precedence (book -> current path -> page)
-$title = $description = $color = $primary_role = '';
-$background = $default_view = $style = $js = $hypothesis = null;
+$title = $description = $color = $primary_role = $default_view = '';
+$background = $style = $js = $hypothesis = null;
 $publisher = $publisher_thumbnail = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {

@@ -1,7 +1,7 @@
 <?
 // Define page style based on precedence (book -> current path -> page)
-$title = $description = $color = $primary_role = '';
-$background = $default_view = $style = $js = $hypothesis = null;
+$title = $description = $color = $primary_role = $default_view = '';
+$background = $style = $js = $hypothesis = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {
 	$title = $book->title;
@@ -13,7 +13,7 @@ if (isset($book) && !empty($book)) {
 if (isset($page->versions) && isset($page->versions[$page->version_index]->has_paths) && !empty($page->versions[$page->version_index]->has_paths)) {
 	if (!empty($page->versions[$page->version_index]->has_paths[0]->background)) $background = trim($page->versions[$page->version_index]->has_paths[0]->background);
 	if (!empty($page->versions[$page->version_index]->has_paths[0]->custom_style)) $style .= trim($page->versions[$page->version_index]->has_paths[0]->custom_style)."\n";
-	if (!empty($page->versions[$page->version_index]->has_paths[0]->custom_scripts)) $js .= trim($page->versions[$page->version_index]->has_paths[0]->custom_scripts)."\n";		
+	if (!empty($page->versions[$page->version_index]->has_paths[0]->custom_scripts)) $js .= trim($page->versions[$page->version_index]->has_paths[0]->custom_scripts)."\n";
 }
 if (isset($page->version_index)) {
 	$title = $page->versions[$page->version_index]->title;
@@ -23,7 +23,7 @@ if (isset($page->version_index)) {
 	$primary_role = $page->primary_role;
 	if (!empty($page->background)) $background = trim($page->background);
 	if (!empty($page->custom_style)) $style .= $page->custom_style."\n";
-	if (!empty($page->custom_scripts)) $js .= $page->custom_scripts."\n";		
+	if (!empty($page->custom_scripts)) $js .= $page->custom_scripts."\n";
 	$is_new = false;
 }
 if (isset($mode) && !empty($mode)) $background = null;
@@ -97,7 +97,7 @@ endif;
 </div>
 
 <div class="middle cover">
-<?php 
+<?php
 $this->load->view('modules/cover/login');
 $this->load->view('modules/cover/title');
 ?>

@@ -21,7 +21,7 @@ function checkVersionForm() {
 	}
 	if (checked.length == num_checkboxes) {
 		alert('Can\'t continue because ALL of the versions for this page have been selected.\n\nTo delete this page, return to its main view then click the "delete" button at the bottom of the page.  Otherwise, to delete specific versions please de-select one or more versions.');
-		return false;		
+		return false;
 	}
 	if (!confirm('Are you sure you wish to delete selected version'+((checked.length>1)?'s':'')+'?')) return false;
 	return true;
@@ -48,24 +48,24 @@ if (!count($page->versions)) {
 	?>
 		<li>
 		<? if ($login_is_super || in_array($book->book_id, $login_book_ids)): ?>
-		<input type="checkbox" name="delete_version[]" value="<?=$version->version_id?>" />&nbsp;  
-		<? endif; ?> 		
+		<input type="checkbox" name="delete_version[]" value="<?=$version->version_id?>" />&nbsp;
+		<? endif; ?>
 		<a href="<?=$page_uri.'.'.$version->version_num?>"><?=strip_tags($title)?></a>
 		<?=($version->version_num == $page->versions[$page->version_index]->version_num)?' <b>&bull;</b> <span style="color:#7c2438">Version being viewed</span>':''?>
 		<?=($version->version_num == $page->versions[0]->version_num)?' <b>&bull;</b> <a href="'.$page_uri.'">Always up-to-date URL</a>':''?>
 		<br />
-		Version <b title="Version ID <?=$version->version_id?>"><?=$version->version_num?></b> by 
+		Version <b title="Version ID <?=$version->version_id?>"><?=$version->version_num?></b> by
 		<?
-		if (!empty($version->user->uri)) echo '<a href="'.$version->user->uri.'">'; 
+		if (!empty($version->user->uri)) echo '<a href="'.$version->user->uri.'">';
 		echo $version->user->fullname;
-		if (isset($version->user->uri)) echo '</a>';  
+		if (isset($version->user->uri)) echo '</a>';
 		?>
-		on 
+		on
 		<?=$date?>
 		<?=(!empty($version->content)) ? '<br />'.create_excerpt($content, 14).' <span style="color:#777777;">'.strlen($content).' chars</span>' : '' ?>
 		<?=(!empty($version->url)) ? '<br />URL: <a href="'.abs_url($version->url,$base_uri).'">'.$version->url.'</a>' : '' ?>
 		</li>
-	<?		
+	<?
 	endforeach;
 	echo '</ol>'."\n";
 }
@@ -76,5 +76,5 @@ if (!count($page->versions)) {
 		<input type="submit" value="Delete selected versions" class="generic_button" />&nbsp; &nbsp; <a href="javascript:" onclick="reorderVersionNums()">Re-order version numbers</a>
 <?
 	endif;
-?> 
+?>
 </form>
