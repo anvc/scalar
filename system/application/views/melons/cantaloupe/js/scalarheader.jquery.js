@@ -82,6 +82,7 @@
                                                     '<span class="hidden-sm hidden-md hidden-lg">Main menu</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
+                                                    '<li class="index_link static"><a>Index</a></li>'+
                                                     '<li role="presentation" class="static divider"></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/works/guide">Scalar User\'s Guide</a></li>'+
                                                     '<li class="static"><a href="'+index_url+'">More Scalar Projects</a></li>'+
@@ -109,6 +110,7 @@
                                                     '<img src="' + base.options.root_url + '/images/menu_icon.png" alt="Main menu. Roll over to access navigation to primary sections." width="30" height="30" /><span>Main menu</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
+                                                    '<li class="index_link static"><a>Index</a></li>'+
                                                     '<li role="presentation" class="static divider"></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/works/guide">Scalar User\'s Guide</a></li>'+
                                                     '<li class="static"><a href="'+index_url+'">More Scalar Projects</a></li>'+
@@ -242,6 +244,13 @@
                 }else{
                     return true;
                 }
+            });
+
+            //Handle the book index...
+            var indexElement = $( '<div></div>' ).prependTo( 'body' );
+            base.index = indexElement.scalarindex( {} );
+            base.$el.find('.index_link').click(function(e){
+                $('#scalarheader.navbar').data('scalarheader').index.data('plugin_scalarindex').showIndex();
             });
 
             base.book_id = $('link#book_id').attr('href');

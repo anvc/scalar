@@ -1,4 +1,7 @@
 /*New CSS*/
+.navbar a{
+	cursor: pointer;
+}
 .navbar a.headerIcon{
 	padding: 9px;
 	line-height: 30px;
@@ -27,6 +30,10 @@
 .navbar li a.headerIcon>span{
 	padding-left: 9px;
 	text-transform: uppercase;
+}
+
+.navbar.edit_enabled #ScalarHeaderHelp{
+	border-right: 1px solid #888;
 }
 
 .navbar #ScalarHeaderMenuLeft a.headerIcon:hover, .navbar #ScalarHeaderMenuLeft a.headerIcon:active,
