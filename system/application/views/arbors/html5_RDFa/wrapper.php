@@ -115,20 +115,16 @@ endif;
 </head>
 <body<?=(!empty($background))?' style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
 
-<?php echo $content ?>
-<?php // print_r($page) ?>
-<?php if (isset($page) && !empty($page)):?>
-
+<?php echo $content; ?>
 <article>
-
 	<header>
 <?
 		$this->load->view('arbors/html5_RDFa/noticebar');
 ?>
-		<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
+		<!-- Book -->
 		<span resource="<?=rtrim($base_uri,'/')?>" typeof="scalar:Book">
 			<span property="dcterms:title" content="<?=htmlspecialchars(strip_tags($book->title))?>"><a id="book-title" href="<?=$base_uri?>index"><?=$book->title?></a></span>
-			<a class="metadata" rel="dcterms:hasPart" href="<?=$base_uri.$page->slug?>"></a>
+<? if (isset($page->slug)) echo '			<a class="metadata" rel="dcterms:hasPart" href="'.$base_uri.$page->slug.'"></a>'."\n"; ?>
 			<a class="metadata" rel="dcterms:tableOfContents" href="<?=$base_uri?>toc"></a>
 <?
 			foreach ($book->contributors as $contrib):
@@ -145,7 +141,7 @@ endif;
 <?	 		endfor;?>
 		</span>
 <?		for ($j = 0; $j < count($book->versions); $j++):
-			if ($book->versions[$j]->content_id == $page->content_id) continue;
+			if ($book->versions[$j]->content_id == @$page->content_id) continue;
 ?>
 		<span resource="<?=$base_uri.$book->versions[$j]->slug?>" typeof="scalar:<?=('media'==$book->versions[$j]->type)?'Media':'Composite'?>">
 			<a class="metadata" rel="dcterms:hasVersion" href="<?=$base_uri.$book->versions[$j]->slug.'.'.$book->versions[$j]->versions[0]->version_num?>"></a>
@@ -171,6 +167,9 @@ endif;
 <? if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
 		</span>
 <?		endif; ?>
+<?php if (isset($page) && !empty($page)): ?>
+		<!-- Page -->
+		<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
 			<a class="metadata" rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
 			<a class="metadata" rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>
@@ -205,8 +204,9 @@ endif;
 <?
 		endif;
 ?>
+<?php endif; ?>
 	</header>
-
+<?php if (isset($page) && !empty($page)): ?>
 	<span property="sioc:content"><?=str_replace("\r",'',str_replace("\n",'',nl2br($page->versions[$page->version_index]->content)))?></span>
 <?
 
@@ -290,7 +290,6 @@ foreach ($models as $rel):
 <? 		endforeach; ?>
 		</ol>
 	</section>
-
 <?
 	endif;
 	if (!empty($outward_array)):
@@ -372,10 +371,8 @@ if (!empty($has_references)): ?>
 		</ol>
 	</section>
 <? endif; ?>
-
+<?php endif; ?>
 </article>
-
-<?php endif?>
 
 </body>
 </html>
