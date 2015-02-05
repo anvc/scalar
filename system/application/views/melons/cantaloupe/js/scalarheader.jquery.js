@@ -491,6 +491,8 @@
             var redirect_url = '';
             if ( currentNode != null ) {
                 redirect_url = encodeURIComponent(currentNode.url);
+            }else{
+            	redirect_url = encodeURIComponent(window.location.href);
             }
 
             if (base.logged_in){
@@ -498,7 +500,7 @@
                 userList.append('<li><a href="' + addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+redirect_url, 'cantaloupe') + '">Sign out</a></li>');
             } else {
                 userList.append('<li><a href="' + addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url, 'cantaloupe') + '">Sign in</a></li>');
-                userList.append('<li><a href="' + addTemplateToURL(system_uri+'/register?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe') + '">Register</a></li>');
+                userList.append('<li><a href="' + addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url, 'cantaloupe') + '">Register</a></li>');
             }       
         }
 
