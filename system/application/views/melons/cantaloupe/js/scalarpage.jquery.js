@@ -60,11 +60,21 @@
 			handleMediaElementMetadata: function(event, link) {
 				var mediaelement = link.data('mediaelement');
 				//mediaelement.view.adjustMediaWidth(300);
+
+				var native_embed = false;
+				// Adjusts functionality based on native size of media
+				if(mediaelement.model.options.native_size == true) {
+					if(parseInt(mediaelement.model.element.find('.mediaObject').width()) < mediaelement.view.containerDim.x) {
+						link.data('slot').removeClass('full');
+						native_embed = true;
+					}
+				}
+
 				if ( mediaelement.model.options.solo != true ) {
 					if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
 						mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
 					}
-					if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null)) {
+					if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null) && !native_embed) {
 						var infoElement = $('<div class="body_copy"></div>');
 						mediaelement.model.element.parent().after(infoElement);
 						mediaelement.model.element.css('marginBottom','0');
@@ -132,6 +142,7 @@
 
 				if (size == undefined) {
 					size = 'medium';
+				// Initially, allow for native size to be set to full.  This will be adjusted in handleMetadata callback if native size is smaller
 				} else if (size == 'native') {
  					size = 'full';
 					native_size = true;
@@ -176,11 +187,14 @@
 							}
 
 						}
-					} else if (size != 'full') {
+					} else if (size != 'full' || native_size) {
 						parent.before(slotDOMElement);
 						count = page.incrementData(parent, align+'_count');
 						if (count == 1) slotDOMElement.addClass('top');
 						slotDOMElement.addClass(align);
+						if(native_size) {
+							slotDOMElement.addClass('full');
+						}
 					} else {
 						parent.after(slotDOMElement);
 						slotDOMElement.addClass('full');

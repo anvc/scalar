@@ -492,6 +492,7 @@ function YouTubeGetID(url){
 		this.seekAttemptCount = 0;									// number of times we've tried to seek
 		this.cachedPlayCommand = false;								// if true, then we should play after a successful seek
 		this.currentAnnotation = null;								// currently active annotation
+		this.native_full = true;                                    // whether media is set to full in native size
 		/**
 		 * Starts the process of initializing the view.
 		 */
@@ -1071,7 +1072,11 @@ function YouTubeGetID(url){
 						break;
 
 					}
-					this.model.element.width(Math.max(this.resizedDim.x + fudgeAmount + (this.gutterSize * 2), this.minContainerDim.x));
+					if(this.native_full === false) {
+						this.model.element.width(Math.max(this.resizedDim.x + fudgeAmount));
+					} else {
+						this.model.element.width(Math.max(this.resizedDim.x + fudgeAmount + (this.gutterSize * 2), this.minContainerDim.x));
+					}
 				} else {
 					switch (this.model.mediaSource.name) {
 
@@ -1232,6 +1237,7 @@ function YouTubeGetID(url){
 			if (mediaAR > containerAR) {
 				if(native_size && this.intrinsicDim.x < tempDims.x) {
 					tempDims.x = this.intrinsicDim.x;
+					this.native_full = false;
 				}
 				if (this.model.isChromeless) {
 					this.resizedDim.x = tempDims.x;
@@ -1254,7 +1260,6 @@ function YouTubeGetID(url){
 			// console.log(this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
 
 			this.mediaScale = this.resizedDim.x / this.intrinsicDim.x;
-
 
 			this.updateMargins();
 
