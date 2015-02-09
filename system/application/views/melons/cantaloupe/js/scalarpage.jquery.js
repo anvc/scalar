@@ -34,7 +34,9 @@
 			containingPathNodes: [],
 			pathIndex: null,
 
-			/**
+			mobileWidth: 670,
+			adaptiveMedia: 'full',
+ 			/**
 			  * Increments the data with the given name attached to the selection.
 			  *
 			  * @param {Object} selection		The selection whose data is to be incremented.
@@ -132,7 +134,7 @@
 
 			},
 
-			addMediaElementForLink: function(link, parent) {
+			addMediaElementForLink: function(link, parent, options) {
 				var inline = link.hasClass('inline');
 				var size = link.attr('data-size');
 				var native_size = false;
@@ -140,13 +142,19 @@
 				var align = link.attr('data-align');
 				if (align == undefined) align = 'right';
 
-				if (size == undefined) {
+				if (page.adaptiveMedia == 'mobile') {
+					size = 'full';
+				}
+				else if (size == undefined) {
 					size = 'medium';
+				}
 				// Initially, allow for native size to be set to full.  This will be adjusted in handleMetadata callback if native size is smaller
-				} else if (size == 'native') {
+				else if (size == 'native') {
  					size = 'full';
 					native_size = true;
 				}
+
+
 
 				var temp = $('<div class="'+size+'_dim"></div>');
 				if (inline && size == 'large') {
@@ -813,6 +821,25 @@
 				element.find('[data-relation="annotation"]').each(function() {
 					page.addMediaElementForLink( $(this), $(this).parent().parent() );
 				});
+			},
+
+			handleMediaResize: function() {
+				$('a.media_link').each(function() {
+					var me = $(this).data('mediaelement');
+					var parent = $(this).parents('p,div');
+					var me_parent = me.model.element.parents('.slot');
+					var temp = me_parent;
+
+					me.model.element.remove();
+					while(me_parent.children().length <= 1 && (me_parent.attr('property') != 'sioc:content')) {
+						temp = me_parent;
+						me_parent = me_parent.parent();
+					}
+					temp.remove();
+					$(this).removeData('mediaelement');
+					$('.mediainfo').remove();
+					page.addMediaElementForLink($(this),parent,{adaptive:page.adaptiveMedia});
+				});
 			}
 
 		};
@@ -832,8 +859,30 @@
 	  			$( this ).addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
 	  		}
 	  	});*/
-
+	
 		$('section').hide(); // TODO: Make this more targeted
+
+		$(window).on('resize',function() {
+			if(page.initialMediaLoad === true) {
+				if($('body').width() <= page.mobileWidth) {
+					if(page.adaptiveMedia != 'mobile') {
+						page.adaptiveMedia = 'mobile';
+						page.handleMediaResize();
+					}
+				} else {
+					if(page.adaptiveMedia != 'full') {
+						page.adaptiveMedia = 'full';
+						page.handleMediaResize();
+					}
+				}
+			}
+		});
+		if($('body').width() <= page.mobileWidth) {
+			page.adaptiveMedia = 'mobile';
+		}
+		$('body').on('mediaElementMediaLoaded',function() {
+			page.initialMediaLoad = true;
+		});
 
 		var i, node, nodes, link;
 
