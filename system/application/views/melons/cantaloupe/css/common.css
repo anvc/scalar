@@ -260,6 +260,7 @@ li.divider-above { border-top: 1px dotted #888; }
 	transition: opacity .5s ease-in-out;
 	-webkit-backface-visibility: hidden;
 }
+section { clear:both; }
 section ol,ul {margin-bottom: 1rem;}
 section.relationships {
     margin-top: 2.4rem;
@@ -270,10 +271,6 @@ section.relationships {
 	padding-left: 7.2rem;
 	padding-right: 7.2rem;
 }
-
-/*section {
-	clear:both;
-}*/
 
 .path-breadcrumb {
 	text-transform: uppercase;
@@ -325,7 +322,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* Body copy */
-.paragraph_wrapper { max-width: none !important; /*clear: both;*/ margin-bottom: 2.4rem; }
+.paragraph_wrapper { max-width: none !important; clear: both; margin-bottom: 2.4rem; }
 .body_copy { max-width: 85.4rem; padding-left: 7.2rem; padding-right: 7.2rem; }
 .dialog .body_copy { margin-top: 10rem; max-width: none; padding-left: 3.6rem; padding-right: 3.6rem; }
 /*.help .body_copy { margin-top: 10rem; }*/
@@ -688,7 +685,7 @@ a.media_info {
 #scalar-credit img { vertical-align: middle; margin-top: -.2rem; }
 #scalar-credit { margin-bottom: 0; clear: both; padding-top: 1rem; }
 
-#incoming_comments, #outgoing_comments { padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
+#incoming_comments, #outgoing_comments { clear: both; padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
 #comment_control {
 	color: #a6a6a6;
 	background: url(images/comments.png) no-repeat;
