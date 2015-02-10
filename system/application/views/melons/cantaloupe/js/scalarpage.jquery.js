@@ -66,16 +66,18 @@
 				var native_embed = false;
 				// Adjusts functionality based on native size of media
 				if(mediaelement.model.options.native_size == true) {
-					if(parseInt(mediaelement.model.element.find('.mediaObject').width()) < mediaelement.view.containerDim.x) {
-						link.data('slot').removeClass('full');
-						native_embed = true;
-					}
-					else {
-						link.data('slot').removeClass('top')
-						if(link.attr('data-align') !== undefined) {
-							link.data('slot').removeClass(link.attr('data-align'))
+					if(!link.hasClass('inline')) {
+						if(parseInt(mediaelement.model.element.find('.mediaObject').width()) < mediaelement.view.containerDim.x) {
+							link.data('slot').removeClass('full');
+							native_embed = true;
 						}
-						link.parent().after(link.data('slot'));
+						else {
+							link.data('slot').removeClass('top')
+							if(link.attr('data-align') !== undefined) {
+								link.data('slot').removeClass(link.attr('data-align'))
+							}
+							link.parent().after(link.data('slot'));
+						}
 					}
 				}
 
