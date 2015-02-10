@@ -343,6 +343,13 @@ class Book extends MY_Controller {
 			} catch (Exception $e) {
 				$return['error'] =  $e->getMessage();
 			}
+
+			/*
+			$path = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$return['url'];
+			require_once(confirm_slash(FCPATH).'system/application/libraries/Image_IPTC/Image_IPTC.php');
+			$iptc = new Image_IPTC($path);
+			*/
+
 			echo json_encode($return);
 			exit;
 		}

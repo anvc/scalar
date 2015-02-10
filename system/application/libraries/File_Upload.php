@@ -1,15 +1,15 @@
 <?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
     class File_Upload {
-    	
+
     	const THUMB_WIDTH = 120;
-    	
+
         public function __construct() {
 
         }
         private function upload($tempFile,$targetFile,$chmodMode) {
-            if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');              
-            @chmod($targetFile, $chmodMode); 
+            if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');
+            @chmod($targetFile, $chmodMode);
         }
 
         public function uploadMedia($slug,$chmodMode,$versions=null) {
@@ -17,7 +17,7 @@
 
             $path =@ $_POST['slug_prepend'];
             $targetPath = confirm_slash(FCPATH).$slug.$path;
-            if (!file_exists($targetPath)) mkdir($targetPath, $chmod_mode, true);        
+            if (!file_exists($targetPath)) mkdir($targetPath, $chmodMode, true);
             $tempFile = $_FILES['source_file']['tmp_name'];
             $name = $_FILES['source_file']['name'];
             if (!empty($_POST['replace']) && !empty($versions)) {
@@ -29,9 +29,9 @@
             $targetFile = rtrim($targetPath,'/') . '/' . $name;
             $this->upload($tempFile,$targetFile,$chmodMode);
             $url = ((!empty($path))?confirm_slash($path):'').$name;
-            return $url;            
+            return $url;
         }
-        
+
         public function uploadThumb($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
             $tempFile = $_FILES['upload_thumb']['tmp_name'];
@@ -60,7 +60,7 @@
         }
 
         private function resize($targetFile,$width) {
-            require confirm_slash(APPPATH).'libraries/wideimage/WideImage.php';            
+            require confirm_slash(APPPATH).'libraries/wideimage/WideImage.php';
             WideImage::load($targetFile)->resize($width)->saveToFile($targetFile);
         }
     }
