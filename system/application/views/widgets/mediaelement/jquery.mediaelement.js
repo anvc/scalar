@@ -1048,7 +1048,6 @@ function YouTubeGetID(url){
 		jQuery.MediaElementView.prototype.layoutMediaObject = function() {
 
 			this.calculateMediaSize();
-
 			this.mediaObjectView.resize(this.resizedDim.x, this.resizedDim.y);
 
 			// magic number stuff to get layouts to look right
@@ -1123,11 +1122,16 @@ function YouTubeGetID(url){
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
 			var details_view = this.model.options.details_view;
+			var native_size = this.model.options.native_size;
 			//test to see if this is a full sized image or in media details view
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
-				this.containerDim.x = this.initialContainerWidth;
+				if (native_size === true) {
+					this.containerDim.x = parseInt(this.model.options.width);
+				} else {
+					this.containerDim.x = this.initialContainerWidth;
+				}
 				if (!this.model.isChromeless) {
 					this.containerDim.x--;
 					this.mediaContainer.css('float', 'right'); // needed to prevent vertical offsets for wide media
