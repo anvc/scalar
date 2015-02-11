@@ -442,7 +442,7 @@
 						} else {
 							section.find('h1').text('This content annotates:');
 						}
-						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+						section.find('ol').contents().unwrap().wrapAll('<ul class="annotation_of"></ul>');
 
 						// add extents to title of annotated media
 						section.find( 'span[property="dcterms:title"] > a' ).each( function() {
@@ -652,16 +652,10 @@
 				  	$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 					$('a').each(function() {
 
-						if (						 
-							( 
-								$( this ).attr( 'resource' ) || // linked media
-								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-								(( $( this ).parents( 'li[typeof="oac:Annotation"]' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 )) // annotated media
-							) && 
-							( 
-								$( this ).attr( 'rev' ) != 'scalar:has_note' ) && 
-								( $( this ).attr( 'data-relation' ) == null )
-							) {
+						if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
+							( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
+							(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media 
+							&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
 							var slot, slotDOMElement, slotMediaElement, count, parent,
 								currentNode = scalarapi.model.getCurrentPageNode();
