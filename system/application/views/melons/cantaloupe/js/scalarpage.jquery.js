@@ -63,29 +63,43 @@
 				var mediaelement = link.data('mediaelement');
 				//mediaelement.view.adjustMediaWidth(300);
 
-				var native_embed = false;
-				// Adjusts functionality based on native size of media
+				var native_full = true;
+				// Adjusts appearance of native sized media of smaller than "full"
 				if(mediaelement.model.options.native_size == true) {
-					if(!link.hasClass('inline')) {
-						if(parseInt(mediaelement.model.element.find('.mediaObject').width()) < mediaelement.view.containerDim.x) {
-							link.data('slot').removeClass('full');
-							native_embed = true;
-						}
-						else {
-							link.data('slot').removeClass('top')
-							if(link.attr('data-align') !== undefined) {
-								link.data('slot').removeClass(link.attr('data-align'))
+					var slotDOMElement = link.data('slot');
+					var align = link.attr('data-align');
+					if(parseInt(mediaelement.model.element.find('.mediaObject').width()) < mediaelement.view.containerDim.x) {
+						native_full = false;
+						if(!link.hasClass('inline')) {
+							link.parent().before(slotDOMElement);
+							// count = page.incrementData(parent, align+'_count');
+							// if (count == 1) slotDOMElement.addClass('top');
+							slotDOMElement.addClass(align);
+							slotDOMElement.removeClass('full');
+						} else {
+							if(!slotDOMElement.parent().hasClass('body_copy')) {
+								slotDOMElement.wrap('<div class="body_copy"></div>');
 							}
-							link.parent().after(link.data('slot'));
+							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
+							if(align == 'right') {
+								mediaelement.model.element.css('float','right');
+							}
+							else if(align == 'left') {
+								mediaelement.model.element.css('float','left');
+							}
+							else if(align == 'center') {
+								mediaelement.model.element.css('margin-right','auto');
+								mediaelement.model.element.css('margin-left','auto');
+							}
 						}
-					}
+					} 
 				}
 
 				if ( mediaelement.model.options.solo != true ) {
 					if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
 						mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
 					}
-					if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null) && !native_embed) {
+					if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null) && native_full) {
 						var infoElement = $('<div class="body_copy"></div>');
 						mediaelement.model.element.parent().after(infoElement);
 						mediaelement.model.element.css('marginBottom','0');
@@ -204,14 +218,11 @@
 							}
 
 						}
-					} else if (size != 'full' || native_size) {
+					} else if (size != 'full') {
 						parent.before(slotDOMElement);
 						count = page.incrementData(parent, align+'_count');
 						if (count == 1) slotDOMElement.addClass('top');
 						slotDOMElement.addClass(align);
-						if(native_size) {
-							slotDOMElement.addClass('full');
-						}
 					} else {
 						parent.after(slotDOMElement);
 						slotDOMElement.addClass('full');
@@ -767,7 +778,7 @@
 
 					// if this is a media page, embed the media at 'full' size
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
-						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>' ).appendTo( '[property="sioc:content"]' );
+						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="center" class="inline" data-size="native"></a>' ).appendTo( '[property="sioc:content"]' );
 						link.wrap( '<div></div>' );
 						page.addMediaElementForLink( link, link.parent() );
 						link.css('display', 'none');
@@ -839,7 +850,14 @@
 						me_parent = me_parent.parent();
 					}
 					temp.remove();
-					$(this).removeData('mediaelement');
+					// $(this).removeData('mediaelement');
+					// $(this).removeData('slot');
+					// $(this).removeData('meta');
+					// $(this).removeData('path');
+					// $(this).removeData('xmlns');
+					// $(this).removeData('size');
+					// $(this).removeData('caption');
+					// $(this).removeData('align');
 					$('.mediainfo').remove();
 					page.addMediaElementForLink($(this),parent);
 				});
