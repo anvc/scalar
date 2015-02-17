@@ -284,7 +284,7 @@
                 }
                 author_text.append( author );
             }
-            author_text.parent('.author_text').fadeIn('fast');
+            author_text.parent('.author_text').show();
             
 
             base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
@@ -310,7 +310,7 @@
             });
 
             $('#ScalarHeaderMenuSearch a').click(function(e){
-                if(base.isMobile || $(window).width()<=768){
+                if(base.isMobile || $(window).width()<768){
                     $('#ScalarHeaderMenuSearch').toggleClass('search_open');
                     $('#ScalarHeaderMenuSearchForm').toggleClass('open');
                 }else{
@@ -359,7 +359,7 @@
             base.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
             $('#ScalarHeaderMenuSearchForm form').submit(function(e) {
                 base.search.data('plugin_scalarsearch').doSearch($(this).find('input').first().val());
-                if(base.isMobile || $(window).width()<=768){
+                if(base.isMobile || $(window).width()<768){
                     $('#ScalarHeaderMenuSearchForm').removeClass('open');
                 }else{
                     $('#ScalarHeaderMenuSearchForm').css('width','0px');
@@ -454,7 +454,7 @@
             var screen_width = $(window).width();
             var max_width = (base.$el.width() - ($('#ScalarHeaderMenuLeft').outerWidth() + $('#ScalarHeaderMenuRight').outerWidth()))-30;
 
-            if(base.isMobile || screen_width<=768){
+            if(base.isMobile || screen_width<768){
                 max_width -= base.$el.find('.navbar-toggle').outerWidth()+15;
                 if(!base.usingMobileView){
                     //reset search form if switching to mobile view
