@@ -32,10 +32,12 @@
 			containingPaths: [],
 			containingPath: null,
 			containingPathNodes: [],
+			elementsWithIncrementedData: [],
 			pathIndex: null,
 
 			mobileWidth: 670,
 			adaptiveMedia: 'full',
+
  			/**
 			  * Increments the data with the given name attached to the selection.
 			  *
@@ -49,8 +51,22 @@
 				} else {
 					value = 1;
 				}
+				if ( page.elementsWithIncrementedData.indexOf( selection ) == -1 ) {
+					page.elementsWithIncrementedData.push( selection );
+				}
 				selection.data(data, value);
 				return value;
+			},
+
+			clearIncrementedData: function() {
+
+				var i,
+					n = page.elementsWithIncrementedData.length;
+
+				for ( i = 0; i < n; i++) {
+					page.elementsWithIncrementedData[ i ].removeData();
+				}
+				page.elementsWithIncrementedData = [];
 			},
 
 			/**
@@ -59,64 +75,104 @@
 			 * @param {Object} event			The event object.
 			 * @param {Object} link				The link which spawned the mediaelement, and which contains its data.
 			 */
-			handleMediaElementMetadata: function(event, link) {
-				var mediaelement = link.data('mediaelement');
-				//mediaelement.view.adjustMediaWidth(300);
+			handleMediaElementMetadata: function( event, link ) {
 
-				var native_full = true;
-				// Adjusts appearance of native sized media of smaller than "full"
-				if(mediaelement.model.options.native_size == true) {
-					var slotDOMElement = link.data('slot');
-					var align = link.attr('data-align');
-					if(parseInt(mediaelement.model.element.find('.mediaObject').width()) < mediaelement.view.containerDim.x) {
-						native_full = false;
-						if(!link.hasClass('inline')) {
-							link.parent().before(slotDOMElement);
-							// count = page.incrementData(parent, align+'_count');
-							// if (count == 1) slotDOMElement.addClass('top');
-							slotDOMElement.addClass(align);
-							slotDOMElement.removeClass('full');
-						} else {
-							if(!slotDOMElement.parent().hasClass('body_copy')) {
-								slotDOMElement.wrap('<div class="body_copy"></div>');
-							}
-							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
-							if(align == 'right') {
-								mediaelement.model.element.css('float','right');
-							}
-							else if(align == 'left') {
-								mediaelement.model.element.css('float','left');
-							}
-							else if(align == 'center') {
-								mediaelement.model.element.css('margin-right','auto');
-								mediaelement.model.element.css('margin-left','auto');
-							}
-						}
-					} 
+				var mediaelement = link.data('mediaelement'),
+					pageWidth = parseInt( $( '.page' ).width() ),
+					mediaWidth = mediaelement.model.element.find( '.mediaObject' ).width(),
+					isInline = link.hasClass( "inline" ),
+					isFullWidth = false;
+
+				// calculate the size of the content area minus margins
+				temp = $('<div class="body_copy"></div>');
+				temp.appendTo('.page');
+				var pageWidthMinusMargins = pageWidth - ( parseInt( temp.css( 'padding-left' ) ) * 2 );
+				temp.remove();
+
+				//console.log( "size: " + mediaelement.model.options.size + " media: " + mediaWidth + " page w/ margins: " + pageWidthMinusMargins + " page: " + pageWidth );
+
+				// 'full' and 'native' sized media get special sizing treatment
+				if (( mediaelement.model.options.size == "full" ) || ( mediaelement.model.options.size == "native" )) {
+
+					// if the media is the full width of the page, then remove any align styles
+					if ( mediaWidth >= pageWidth ) {
+						mediaelement.model.element.parent().removeClass( 'left right' );					
+						isFullWidth = true;
+					
+					// if the media is smaller than than the width of the page, but larger than the width of the
+					// page minus its margins, then center it and add pillarboxing to separate it from the 
+					// rest of the page
+					} else if ( mediaWidth > pageWidthMinusMargins ) {
+						mediaelement.model.element.css( { 
+							'margin-right': 'auto',
+							'margin-left': 'auto',
+						});
+						mediaelement.model.element.parent().addClass( "pillarbox" );
+						mediaelement.model.element.parent().removeClass( 'left right' );
+						isFullWidth = true;
+
+					// otherwise, left align it with the body copy
+					} else if ( mediaelement.model.options.size != "native" ) {
+						mediaelement.model.element.parent().removeClass( 'left right' );
+						mediaelement.model.element.addClass( 'body_left_margin' );
+					}			
 				}
 
+				// the "solo" option is used when showing media items that don't get media details tabs beneath
 				if ( mediaelement.model.options.solo != true ) {
-					if ((parseInt(mediaelement.model.element.find('.mediaObject').width()) - mediaelement.view.mediaMargins.horz) <= (mediaelement.view.initialContainerWidth - 144)) {
-						mediaelement.model.element.parent().prepend('<div class="left_margin">&nbsp</div>');
-					}
-					if ((mediaelement.model.options.width != null) && (mediaelement.model.options.height != null) && native_full) {
-						var infoElement = $('<div class="body_copy"></div>');
+
+					if (( mediaelement.model.options.width != null ) && ( mediaelement.model.options.height != null )) {
+
+						// create and add the element where media tabs will appear
+						var infoElement = $('<div></div>');
 						mediaelement.model.element.parent().after(infoElement);
-						mediaelement.model.element.css('marginBottom','0');
+
+						// make sure the tags are aligned left with the body copy
+						if ( isFullWidth ||  ( mediaelement.model.options.size == "full" )) {
+							infoElement.addClass( "body_copy" );
+						}
+
+						// modify default media element design
+						mediaelement.model.element.css( 'marginBottom', '0' );
 						mediaelement.view.footer.hide();
-						$.scalarmedia(mediaelement, infoElement, { 'shy': false, 'details': page.mediaDetails, 'caption': link.attr( 'data-caption' ) });
+
+						// add the tabs
+						$.scalarmedia( mediaelement, infoElement, { 
+							'shy': false, 
+							'details': page.mediaDetails, 
+							'caption': link.attr( 'data-caption' ) 
+						});
+
 					} else {
-						$.scalarmedia(mediaelement, mediaelement.view.footer, { 'shy': !isMobile, 'details': page.mediaDetails, 'caption': link.attr( 'data-caption' ) });
+
+						// make sure the tags are aligned left with the body copy
+						if ( isFullWidth ||  ( mediaelement.model.options.size == "full" )) {
+							mediaelement.view.footer.addClass( "body_copy" );
+						}
+
+						// add the tabs
+						$.scalarmedia( mediaelement, mediaelement.view.footer, { 
+							'shy': !isMobile, 
+							'details': page.mediaDetails, 
+							'caption': link.attr( 'data-caption' ) 
+						});
 					}
 				}
+
+				// make images that don't come from Critical Commons open the image file in a new tab when clicked
 				if (( mediaelement.model.node.current.mediaSource.contentType == 'image' ) && ( mediaelement.model.node.current.sourceFile.indexOf( 'criticalcommons.org' ) == -1 )) {
 					mediaelement.model.element.find( '.mediaObject' ).click( function() {
 						window.open( mediaelement.model.node.current.sourceFile, 'popout' );
 					} ).css( 'cursor', 'pointer' );
 				}
-				mediaelement.model.element.css('visibility','visible');
-				link.addClass('texteo_icon');
-				link.addClass('texteo_icon_'+mediaelement.model.node.current.mediaSource.contentType);
+
+				// show the media
+				mediaelement.model.element.css( 'visibility', 'visible' );
+
+				// add the media icon next to the link
+				link.addClass( 'texteo_icon' );
+				link.addClass( 'texteo_icon_' + mediaelement.model.node.current.mediaSource.contentType );
+
 			},
 
 			handleSetState: function(event, data) {
@@ -157,75 +213,127 @@
 
 			},
 
-			addMediaElementForLink: function(link, parent) {
-				var inline = link.hasClass('inline');
-				var size = link.attr('data-size');
-				var native_size = false;
+			addMediaElementForLink: function( link, parent ) {
 
-				var align = link.attr('data-align');
-				if (align == undefined) align = 'right';
+				var inline = link.hasClass( 'inline' ),
+					size = link.attr( 'data-size' ),
+					align = link.attr( 'data-align' );
 
-				if (page.adaptiveMedia == 'mobile') {
-					size = 'full';
+				// default alignment is 'right'
+				if ( align == undefined ) {
+					align = 'right';
 				}
-				else if (size == undefined) {
+
+				// on small screens, all media are set to 'full' size
+				if ( page.adaptiveMedia == 'mobile' ) {
+					size = 'full';
+
+				// default size is 'medium'
+				} else if ( size == undefined ) {
 					size = 'medium';
 				}
-				// Initially, allow for native size to be set to full.  This will be adjusted in handleMetadata callback if native size is smaller
-				else if (size == 'native') {
- 					size = 'full';
-					native_size = true;
-				}
 
+				var pageWidth = parseInt( $( '.page' ).width() );
 
-
-				var temp = $('<div class="'+size+'_dim"></div>');
-				if (inline && size == 'large') {
-					temp = $('<div class="body_copy"></div>');
-				} 
+				// calculate the size of the content area minus margins
+				temp = $('<div class="body_copy"></div>');
 				temp.appendTo('.page');
+				var pageWidthMinusMargins = pageWidth - ( parseInt( temp.css( 'padding-left' ) ) * 2 ),
+					bodyCopyWidth = parseInt( temp.width() );
+				temp.remove();
 
 				// create a temporary element and remove it so we can get its width; this allows us to specify
 				// the various media element widths via CSS
-				var width = parseInt(temp.width());
+				var temp = $( '<div class="' + size + '_dim"></div>') ;
+				temp.appendTo( '.page' );
+				var width = parseInt( temp.width() );
 				temp.remove();
+
+				// inline media elements can't get bigger than the width of the body copy
+				if ( inline ) {
+					width = Math.min( width, bodyCopyWidth );
+
+				// 'full' size media elements can't get bigger than the width of the page
+				} else if ( size == "full" ) {
+					width = Math.min( width, pageWidth );
+
+				// everything else is limited to the width of the page minus margins
+				} else {
+					width = Math.min( width, pageWidthMinusMargins );
+				}
+
+				// media at 'full' size get a maximum height
 				var height = null;
-				if (size == 'full') {
-					height = maxMediaHeight;
-				} 
-				slot = link.slotmanager_create_slot(width, height, { url_attributes: ['href', 'src'], autoplay: link.attr( 'data-autoplay' ) == 'true',native_size:native_size });
-				if (slot) {
+				if ( size == 'full' ) {
+					// eventually we want to add a conditional here so that videos don't get larger
+					// than the height of the page, but other items (like images) can
+					height = maxMediaHeight; // this varies depending on window size
+				}
+
+				// create the slot where the media will be added
+				slot = link.slotmanager_create_slot( 
+					width, height, 
+					{ 
+						url_attributes: [ 'href', 'src' ], 
+						autoplay: link.attr( 'data-autoplay' ) == 'true',
+						size: size
+					});
+
+				// if the slot was successfully created,
+				if ( slot ) {
+
+					// hide the media element until we get it fully set up (after its metadata has loaded)
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
-					slotMediaElement.model.element.css('visibility','hidden');
-					if (inline) {
-						link.after(slotDOMElement);
+					slotMediaElement.model.element.css( 'visibility', 'hidden' );
+
+					// if this is an inline media element, then
+					if ( inline ) {
+
+						// hide its originating link (which we created dynamically anyway)
+						link.after( slotDOMElement );
 						link.hide();
-						if(size != 'full') {
+
+						if ( size != 'full' ) {
+
+							// wrap the media in a body copy element so its alignment happens inside the
+							// dimensions of the body copy
 							if(!slotDOMElement.parent().hasClass('body_copy')) {
 								slotDOMElement.wrap('<div class="body_copy"></div>');
 							}
+
+							// prevent scroll bars
 							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
-							if(align == 'right') {
-								slotMediaElement.model.element.css('float','right');
-							}
-							else if(align == 'left') {
-								slotMediaElement.model.element.css('float','left');
-							}
-							else if(align == 'center') {
-								slotMediaElement.model.element.css('margin-right','auto');
-								slotMediaElement.model.element.css('margin-left','auto');
+
+							// align the media appropriately
+							if( align == 'right' ) {
+								slotMediaElement.model.element.css( 'float', 'right' );
+							} else if ( align == 'left' ) {
+								slotMediaElement.model.element.css( 'float', 'left' );
+							} else if ( align == 'center' ) {
+								slotMediaElement.model.element.css( 'margin-right', 'auto' );
+								slotMediaElement.model.element.css( 'margin-left', 'auto' );
 							}
 
 						}
-					} else if (size != 'full') {
-						parent.before(slotDOMElement);
-						count = page.incrementData(parent, align+'_count');
-						if (count == 1) slotDOMElement.addClass('top');
-						slotDOMElement.addClass(align);
+
+					// if this is not an inline media element, and its size isn't set to 'full', then
+					} else if ( size != 'full' ) {
+
+						// put the media before its linking text, and align it appropriately
+						parent.before( slotDOMElement );
+						slotDOMElement.addClass( align );
+
+						// if this is the top-most linked media, then align it with the top of its paragraph
+						count = page.incrementData( parent, align + '_count' );
+						if ( count == 1 ) {
+							slotDOMElement.addClass('top');
+						}
+		
+					// if this is not inline media element, and its size is set to 'full', then put the media after its linking text
 					} else {
-						parent.after(slotDOMElement);
-						slotDOMElement.addClass('full');
+						parent.after( slotDOMElement );
+						slotDOMElement.addClass( 'full' );
 					}
 			  	}
 
@@ -636,7 +744,6 @@
 				switch (viewType) {
 
 					case 'gallery':
-					$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 					scalarapi.loadPage(currentNode.slug, true, function() {
 						var i,node,link,
 							nodes = getChildrenOfType(currentNode, 'media');
@@ -660,7 +767,6 @@
 					if ( viewType == 'structured_gallery' ) {
 						gallery.addMedia();
 					}
-				  	$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 					$('a').each(function() {
 
 						if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
@@ -673,29 +779,42 @@
 
 							if ($(this).attr('resource') == undefined) {
 
-								// inline media link
+								// inline media (first time)
 								if ( $(this).attr('href') == undefined ) {
 									$(this).attr('href', currentNode.current.sourceFile);
 									$(this).attr('resource', currentNode.slug);
 									$(this).attr('data-size', 'full');
 									parent = $(this);
 
+								// inline media (subsequent)
+								} else if ( $(this).attr('href') == currentNode.current.sourceFile ) {
+									parent = $(this);
+
 								// annotated media link
 								} else {
 									var annotatedMedia = currentNode.getRelatedNodes( "annotation", "outgoing" );
-									var i, node,
+									var i, node, annotationURL,
 										n = annotatedMedia.length;
 									for ( i = 0; i < n; i++ ) {
 										node = annotatedMedia[ i ];
+										annotationURL = node.current.sourceFile + "#" + currentNode.slug;
+
+										// process the link for the first time
 										if ( node.url == $(this).attr('href') ) {
 											$(this).attr('href', node.current.sourceFile + "#" + currentNode.slug );
 											$(this).attr('resource', node.slug);
 											$(this).attr('data-size', 'full');
 											parent = $(this).closest('section');
 											break;
+
+										// if the link has already been processed, then we just need its parent
+										} else if ( $(this).attr('href') == annotationURL ) {
+											parent = $(this).closest('section');
+											break;
 										}
 									}
 								}
+								$( this ).addClass( "resource-added" );
 								
 							// standard media link
 							} else {
@@ -720,7 +839,7 @@
 									} else {
 										$('a.media_link').each(function() {
 											var me = $( this ).data( 'mediaelement' );
-											if ( me != null  ) {
+											if ( me != null ) {
 												if(me === mediaelement) {
 													mediaelement.play();
 												}
@@ -776,10 +895,11 @@
 						}
 					});
 
-					// if this is a media page, embed the media at 'full' size
+					// if this is a media page, embed the media at native size
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
-						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="center" class="inline" data-size="native"></a>' ).appendTo( '[property="sioc:content"]' );
+						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).appendTo( '[property="sioc:content"]' );
 						link.wrap( '<div></div>' );
+
 						page.addMediaElementForLink( link, link.parent() );
 						link.css('display', 'none');
 					};
@@ -838,8 +958,22 @@
 			},
 
 			handleMediaResize: function() {
+
+				// remove elements that were added the last time
+				// the page was parsed for media to show
+				$( '.slot' ).remove();
+				$( '.mediainfo' ).remove();
+				$( '.media-page-link' ).remove();
+
+				page.clearIncrementedData();
+				
 				$('a.media_link').each(function() {
-					var me = $(this).data('mediaelement');
+					$( this ).removeData( "mediaelement" );
+					$( this ).off();
+					if ( $( this ).hasClass( "resource-added" ) ) {
+						$( this ).removeAttr( "resource" );
+					}
+					/*var me = $(this).data('mediaelement');
 					var parent = $(this).parents('p,div');
 					var me_parent = me.model.element.parents('.slot');
 					var temp = me_parent;
@@ -859,13 +993,17 @@
 					// $(this).removeData('caption');
 					// $(this).removeData('align');
 					$('.mediainfo').remove();
-					page.addMediaElementForLink($(this),parent);
+					page.addMediaElementForLink($(this),parent);*/
 				});
+
+				page.addMediaElements();
+
 			}
 
 		};
 
 		$('body').bind('setState', page.handleSetState);
+		$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
 		element.addClass('page');
 
@@ -883,7 +1021,7 @@
 	
 		$('section').hide(); // TODO: Make this more targeted
 
-		$(window).on('resize',function() {
+		$( 'body' ).bind( 'delayedResize', function() {
 			if(page.initialMediaLoad === true) {
 				if($('body').width() <= page.mobileWidth) {
 					if(page.adaptiveMedia != 'mobile') {
@@ -897,7 +1035,24 @@
 					}
 				}
 			}
-		});
+		} );
+
+		/*$(window).on('resize',function() {
+			console.log( "resuze" );
+			if(page.initialMediaLoad === true) {
+				if($('body').width() <= page.mobileWidth) {
+					if(page.adaptiveMedia != 'mobile') {
+						page.adaptiveMedia = 'mobile';
+						page.handleMediaResize();
+					}
+				} else {
+					if(page.adaptiveMedia != 'full') {
+						page.adaptiveMedia = 'full';
+						page.handleMediaResize();
+					}
+				}
+			}
+		});*/
 		if($('body').width() <= page.mobileWidth) {
 			page.adaptiveMedia = 'mobile';
 		}

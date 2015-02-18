@@ -503,9 +503,12 @@ a:hover { text-decoration: underline; }
 .large_dim { width: 62.0rem; display: none; }
 .inline.large_dim {width:inherit;display:none;}
 .full_dim { width: 103.8rem; display: none; }
+.body_left_margin { margin-left: 7.2rem; }
 
 .full { margin-top: 4rem; clear:both; }
 .full .mediaElementFooter { padding: 1rem 7.2rem 0 7.2rem; max-width: 85.4rem; }
+
+.pillarbox { padding-top: 2.4rem; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; background-color: #f8f8f8; }
 
 /* So the top-most media element aligns with the top of its paragraph */
 .slot.top { margin-top: .5rem !important; clear: both; }

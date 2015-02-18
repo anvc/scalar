@@ -49,8 +49,7 @@ var sidebar = null;
 var state = ViewState.Reading;
 var lastState = state;
 var template_getvar = 'template';
-//var maxMediaHeight = window.innerHeight - 250;
-var maxMediaHeight = 1040;
+var maxMediaHeight = Math.min( window.innerWidth, 1040 );
 var isMobile = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/KFOT/i)) || (navigator.userAgent.match(/Kindle/i)) || (navigator.userAgent.match(/iPad/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i))));
 var isTablet = ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.match(/KFOT/i)) || (navigator.userAgent.match(/Kindle/i)) || (navigator.userAgent.match(/Android/i)));
 var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
@@ -140,6 +139,7 @@ function getChildrenOfType(node, type) {
 }
 
 function handleDelayedResize() {
+	maxMediaHeight = Math.min( window.innerWidth, 1040 );
 	$( 'body' ).trigger( 'delayedResize' );
 }
 
@@ -280,17 +280,23 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	// Create media element object
 
 	var opts = {};
-	if (width != null) opts.width = width;
-	if (height != null) opts.height = height;
+	
+	if ( width != null ) {
+		opts.width = width;
+	}
+	if ( height != null ) {
+		opts.height = height;
+	}
+
 	opts.player_dir = $('link#approot').attr('href')+'static/players/';
 	opts.base_dir = scalarapi.model.urlPrefix;
 	opts.seek = annotation_url;
 	opts.chromeless = true;
-	opts.solo = options.solo;
-	opts.getRelated = options.getRelated;
-	opts.autoplay = options.autoplay;
-	opts.details_view = options.details_view;
-	opts.native_size = options.native_size;
+
+	// copy all other properties
+	for ( var prop in options ) {
+		opts[ prop ] = options[ prop ];
+	}
 	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
 	$tag.data('path', url);
 	$tag.data('meta', resource);
