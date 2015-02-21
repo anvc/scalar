@@ -120,7 +120,6 @@
 
 				// the "solo" option is used when showing media items that don't get media details tabs beneath
 				if ( mediaelement.model.options.solo != true ) {
-
 					if (( mediaelement.model.options.width != null ) && ( mediaelement.model.options.height != null )) {
 
 						// create and add the element where media tabs will appear
@@ -157,7 +156,7 @@
 							'caption': link.attr( 'data-caption' ) 
 						});
 					}
-				}
+				} 
 
 				// make images that don't come from Critical Commons open the image file in a new tab when clicked
 				if (( mediaelement.model.node.current.mediaSource.contentType == 'image' ) && ( mediaelement.model.node.current.sourceFile.indexOf( 'criticalcommons.org' ) == -1 )) {
@@ -236,7 +235,7 @@
 				var pageWidth = parseInt( $( '.page' ).width() );
 
 				// calculate the size of the content area minus margins
-				temp = $('<div class="body_copy"></div>');
+				temp = $('<div class="body_copy"></div>'); 
 				temp.appendTo('.page');
 				var pageWidthMinusMargins = pageWidth - ( parseInt( temp.css( 'padding-left' ) ) * 2 ),
 					bodyCopyWidth = parseInt( temp.width() );
@@ -978,12 +977,13 @@
 					var me_parent = me.model.element.parents('.slot');
 					var temp = me_parent;
 
-					me.model.element.remove();
 					while(me_parent.children().length <= 1 && (me_parent.attr('property') != 'sioc:content')) {
 						temp = me_parent;
 						me_parent = me_parent.parent();
 					}
 					temp.remove();
+					$(this).remove();
+					$('.mediainfo').remove();
 					// $(this).removeData('mediaelement');
 					// $(this).removeData('slot');
 					// $(this).removeData('meta');

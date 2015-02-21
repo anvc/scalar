@@ -643,6 +643,11 @@ a.media_info {
 	-webkit-font-smoothing: subpixel-antialiased;
 }
 
+.media_page_wrap .body_copy{
+	margin-left:auto;
+	margin-right:auto;
+}
+
 .pane {
 	margin-top: 1.2rem;
 }
