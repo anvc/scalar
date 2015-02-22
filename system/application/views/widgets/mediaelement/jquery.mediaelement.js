@@ -1122,7 +1122,7 @@ function YouTubeGetID(url){
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
 			var details_view = this.model.options.details_view;
-			var native_size = this.model.options.native_size;
+			var native_size = this.model.options.size == 'native';
 			//test to see if this is a full sized image or in media details view
 			switch (this.model.containerLayout) {
 
@@ -1232,7 +1232,7 @@ function YouTubeGetID(url){
 
 			//console.log(this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
 
-			var native_size = this.model.options.native_size;
+			var native_size = this.model.options.size == 'native';
 			var tempDims = {
 				x: this.containerDim.x,
 				y: this.containerDim.y

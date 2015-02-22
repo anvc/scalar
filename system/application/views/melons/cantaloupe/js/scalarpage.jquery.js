@@ -103,7 +103,7 @@
 					// page minus its margins, then center it and add pillarboxing to separate it from the 
 					// rest of the page
 					} else if ( mediaWidth > pageWidthMinusMargins ) {
-						mediaelement.model.element.css( { 
+						mediaelement.model.element.find('.mediaObject').css( { 
 							'margin-right': 'auto',
 							'margin-left': 'auto',
 						});
@@ -251,6 +251,10 @@
 				// inline media elements can't get bigger than the width of the body copy
 				if ( inline ) {
 					width = Math.min( width, bodyCopyWidth );
+					// we want 'large' inline media to be as wide as the text
+					if (size == 'large') {
+						width = bodyCopyWidth;
+					}
 
 				// 'full' size media elements can't get bigger than the width of the page
 				} else if ( size == "full" ) {
