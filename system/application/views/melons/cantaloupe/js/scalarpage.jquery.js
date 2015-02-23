@@ -81,6 +81,7 @@
 					pageWidth = parseInt( $( '.page' ).width() ),
 					mediaWidth = mediaelement.model.element.find( '.mediaObject' ).width(),
 					isInline = link.hasClass( "inline" ),
+					size = link.attr('data-size'),
 					isFullWidth = false;
 
 				// calculate the size of the content area minus margins
@@ -92,12 +93,26 @@
 				//console.log( "size: " + mediaelement.model.options.size + " media: " + mediaWidth + " page w/ margins: " + pageWidthMinusMargins + " page: " + pageWidth );
 
 				// 'full' and 'native' sized media get special sizing treatment
-				if (( mediaelement.model.options.size == "full" ) || ( mediaelement.model.options.size == "native" )) {
+				if ( size == 'native' || size == 'full' ) {
 
 					// if the media is the full width of the page, then remove any align styles
 					if ( mediaWidth >= pageWidth ) {
-						mediaelement.model.element.parent().removeClass( 'left right' );					
+						console.log(link.attr('data-align'))
+						mediaelement.model.element.parent().removeClass( 'left right' );
 						isFullWidth = true;
+
+						// full width native elements should have no body_copy wrapping them
+						// and they should come after their link, not before
+						if ( size == 'native' ) {
+							// remove body_copy wrapper for inline elements
+							if(isInline) {
+								link.data('slot').unwrap();
+
+							// align full size elements below their links instead of above
+							} else {
+								link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
+							}
+						}
 					
 					// if the media is smaller than than the width of the page, but larger than the width of the
 					// page minus its margins, then center it and add pillarboxing to separate it from the 
@@ -112,24 +127,29 @@
 						isFullWidth = true;
 
 					// otherwise, left align it with the body copy
-					} else if ( mediaelement.model.options.size != "native" ) {
-						mediaelement.model.element.parent().removeClass( 'left right' );
-						mediaelement.model.element.addClass( 'body_left_margin' );
-					}			
+					} else if (mediaelement.model.element.parents('.body_copy').length == 0) {
+						// -- we don't want native elements to be alignable?
+						if ( size == "native" ) {
+							if(isInline) {
+								link.data('slot').wrap('<div class="body_copy"></div>');
+							}
+						}
+						else {
+							mediaelement.model.element.addClass( 'body_left_margin' );
+						}
+					}		
 				}
 
 				// the "solo" option is used when showing media items that don't get media details tabs beneath
 				if ( mediaelement.model.options.solo != true ) {
-					if (( mediaelement.model.options.width != null ) && ( mediaelement.model.options.height != null )) {
+					if (isFullWidth) {
 
 						// create and add the element where media tabs will appear
 						var infoElement = $('<div></div>');
 						mediaelement.model.element.parent().after(infoElement);
 
 						// make sure the tags are aligned left with the body copy
-						if ( isFullWidth ||  ( mediaelement.model.options.size == "full" )) {
-							infoElement.addClass( "body_copy" );
-						}
+						infoElement.addClass( "body_copy" );
 
 						// modify default media element design
 						mediaelement.model.element.css( 'marginBottom', '0' );
@@ -144,10 +164,11 @@
 
 					} else {
 
-						// make sure the tags are aligned left with the body copy
-						if ( isFullWidth ||  ( mediaelement.model.options.size == "full" )) {
-							mediaelement.view.footer.addClass( "body_copy" );
-						}
+						// -- will this ever happen?
+  						// make sure the tags are aligned left with the body copy
+						// if ( size == "full" ) {
+							// mediaelement.view.footer.addClass( "body_copy" );
+						// }
 
 						// add the tabs
 						$.scalarmedia( mediaelement, mediaelement.view.footer, { 
@@ -237,8 +258,7 @@
 				// calculate the size of the content area minus margins
 				temp = $('<div class="body_copy"></div>'); 
 				temp.appendTo('.page');
-				var pageWidthMinusMargins = pageWidth - ( parseInt( temp.css( 'padding-left' ) ) * 2 ),
-					bodyCopyWidth = parseInt( temp.width() );
+				var bodyCopyWidth = parseInt( temp.width() );
 				temp.remove();
 
 				// create a temporary element and remove it so we can get its width; this allows us to specify
@@ -249,25 +269,16 @@
 				temp.remove();
 
 				// inline media elements can't get bigger than the width of the body copy
-				if ( inline ) {
-					width = Math.min( width, bodyCopyWidth );
+				if (inline ) {
 					// we want 'large' inline media to be as wide as the text
 					if (size == 'large') {
 						width = bodyCopyWidth;
 					}
-
-				// 'full' size media elements can't get bigger than the width of the page
-				} else if ( size == "full" ) {
-					width = Math.min( width, pageWidth );
-
-				// everything else is limited to the width of the page minus margins
-				} else {
-					width = Math.min( width, pageWidthMinusMargins );
 				}
 
 				// media at 'full' size get a maximum height
 				var height = null;
-				if ( size == 'full' ) {
+				if ( size == 'full' || size == 'native') {
 					// eventually we want to add a conditional here so that videos don't get larger
 					// than the height of the page, but other items (like images) can
 					height = maxMediaHeight; // this varies depending on window size
