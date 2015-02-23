@@ -62,12 +62,3 @@ $config['reference_options'] = array(
 	'insertNote' 			=> array(),
 	'createInternalLink' 	=> array()
 );
-
-// Available visualization methods
-$config['available_visualizations'] = array(
-	'pinwheel',
-	'sidebar'
-);
-
-// Default visualization method
-$config['visualization'] = 'pinwheel';

@@ -46,7 +46,6 @@
 		var canEdit = ( !isMobile && ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")));
 
 		var content = $('<div class="body_copy"></div>');
-		content.append('<p>This <a href="http://scalar.usc.edu/scalar" title="Go to Scalar\'s website">Scalar</a> book is presented using an <strong>experimental interface</strong> designed to streamline and enhance the reading experience. As this interface is <strong>currently under active development</strong>, you may encounter bugs.</p>');
 		content.append('<p>The <strong>header bar</strong> at the top of the screen gives you access to utilities for navigating and editing (if you&rsquo;re logged in and have editing privileges). If the header bar is currently hidden, scroll towards the top of the page to make it appear. Here&rsquo;s a quick reference guide to the header bar icons:</p>');
 
 		var table = $( '<table summary="Description of icons"></table>' ).appendTo( content );
@@ -64,9 +63,6 @@
 		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/search_icon.png" alt="Search icon" width="30" height="30" /></td><td class="' + descStyle + '">Search</td>' );
 
 		row = $( '<tr></tr>' ).appendTo( table );
-		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/visualization_icon.png" alt="Visualization icon" width="30" height="30" /></td><td class="' + descStyle + '">Toggles &ldquo;pinwheel&rdquo; visualization of your current location in the book</td>' );
-
-		row = $( '<tr></tr>' ).appendTo( table );
 		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/help_icon.png" alt="Help icon" width="30" height="30" /></td><td class="' + descStyle + '">Help</td>' );
 
 		row = $( '<tr></tr>' ).appendTo( table );
@@ -78,9 +74,11 @@
 			table.find( 'tr' ).eq( 2 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/annotate_icon.png" alt="Annotate icon" width="30" height="30" /></td><td class="' + descStyle + '">Annotate images or time-based media</td>' );
 			table.find( 'tr' ).eq( 3 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/import_icon.png" alt="Import icon" width="30" height="30" /></td><td class="' + descStyle + '">Import media</td>' );
 			table.find( 'tr' ).eq( 4 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/options_icon.png" alt="Book dashboard icon" width="30" height="30" /></td><td class="' + descStyle + '">Dashboard</td>' );
+			
+			content.append('<p>If you need help authoring your Scalar project, please consult the <a href="http://scalar.usc.edu/works/guide">User’s Guide.</a></p>')
 		}
 
-		content.append('<p>If you\'re used to reading Scalar books in their standard interface, you\'ll find that many things have changed, and that not all of Scalar\'s features have been implemented yet. Thanks for your patience as we continue to expand the capabilities of this new interface. We welcome <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback" title="Send your feedback by email">your feedback.</a></p>')
+		content.append('<p>Got a question or concern? We welcome <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback" title="Send your feedback by email">your feedback.</a></p>')
 		this.modal = content.bootstrapModal({title: 'Help'});
 
 		this.modal.on('shown.bs.modal', function() {

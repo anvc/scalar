@@ -4,7 +4,6 @@
 <?$this->template->add_css(path_from_file(__FILE__).'css/common.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/responsive.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/scalarvis.css')?>
-<?$this->template->add_css(path_from_file(__FILE__).'css/sidebar_vis.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/header.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/icons.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/screen_print.css', 'link', 'screen,print')?>
@@ -22,27 +21,8 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarsearch.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarvisualizations.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarstructuredgallery.jquery.js')?>
-<?$this->template->add_js(path_from_file(__FILE__).'js/scalarpinwheel.jquery.js')?>
-<?$this->template->add_js(path_from_file(__FILE__).'js/scalarsidebar.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
 <?
-
-//Check which visualization type we are using - default is 'pinwheel'
-$visualization = $this->config->item('visualization');
-
-//If we have the GET variable "visualization" set, also set the "v" parameter to that value
-if(isset($_GET['visualization'])){
-	$_GET['v'] = $_GET['visualization'];
-}
-
-//If we have a valid value for the GET variable, "v," use it instead.
-
-if(isset($_GET['v']) && in_array($_GET['v'], $this->config->item('available_visualizations'))){
-	$visualization = $_GET['v'];
-}
-
-$this->template->add_js("var cantaloupe_visualization = '$visualization'; \$(function(){\$('body').addClass(cantaloupe_visualization+'_vis');});",'embed');
-
 if (file_exists(confirm_slash(APPPATH).'views/melons/cantaloupe/'.$view.'.php')) {
   $this->load->view('melons/cantaloupe/'.$view);
 }

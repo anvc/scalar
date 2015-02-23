@@ -130,11 +130,6 @@
                                                     '</div>'+
                                                   '</form>'+
                                             '</li>'+
-                                            '<li id="ScalarHeaderVisualization" class="hidden-xs">'+
-                                                '<a class="headerIcon">'+
-                                                    '<img src="' + base.options.root_url + '/images/visualization_icon.png" alt="Visualization button. Click to toggle visualization showing current position." width="30" height="30" />'+
-                                                '</a>'+
-                                            '</li>'+
                                             '<li id="ScalarHeaderHelp" class="hidden-xs">'+
                                                 '<a class="headerIcon">'+
                                                     '<img src="' + base.options.root_url + '/images/help_icon.png" alt="Help button. Click to toggle help info." width="30" height="30" />'+

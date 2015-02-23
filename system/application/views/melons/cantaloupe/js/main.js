@@ -448,15 +448,6 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/annotation.css',
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
 		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
-				if(typeof cantaloupe_visualization !== 'undefined' && cantaloupe_visualization=='sidebar'){
-					sidebar = $.scalarSidebar();
-				}else{
-					if ($('.bg_screen').length > 0) {
-						pinwheel = $.scalarpinwheel($('.bg_screen').after('<div id="graph"></div>'));
-					} else {
-						pinwheel = $.scalarpinwheel($('body').prepend('<div id="graph"></div>'));
-					}
-				}
 
 				if ( currentNode != null ) {
 					page.addMediaElements();
