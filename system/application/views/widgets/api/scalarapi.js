@@ -200,12 +200,12 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
-				'Explorer': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
-				'MobileSafari': {extensions:['mov'], format:'QuickTime', player:'native', specifiesDimensions:true},
-				'Safari': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
-				'Chrome': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
-				'Other': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true}
+				'Mozilla': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
+				'Explorer': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
+				'MobileSafari': {extensions:['3gp'], format:'3GPP', player:'native', specifiesDimensions:true},
+				'Safari': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
+				'Chrome': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
+				'Other': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true}
 			}},
 		'AIFF': {
 			name:'AIFF',
