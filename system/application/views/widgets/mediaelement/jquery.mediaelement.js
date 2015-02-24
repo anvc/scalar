@@ -979,6 +979,10 @@ function YouTubeGetID(url){
 					}
 					break;
 
+					default:
+					this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
+					break;
+
 				}
 				break;
 
@@ -998,6 +1002,10 @@ function YouTubeGetID(url){
 
 					case 'KML':
 					this.mediaObjectView = new $.GoogleMapsObjectView(this.model, this);
+					break;
+
+					default:
+					this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
 					break;
 
 				}
@@ -4311,7 +4319,7 @@ function YouTubeGetID(url){
 		 */
 		jQuery.UnsupportedObjectView.prototype.createObject = function() {
 
-			$('<div class="mediaelement_warning">This type of media is currently unsupported by Scalar.</div>').appendTo(this.parentView.mediaContainer);
+			$('<div class="mediaelement_warning">This type of media is unsupported, either by your current browser or by Scalar.</div>').appendTo(this.parentView.mediaContainer);
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
