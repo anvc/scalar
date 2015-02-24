@@ -161,11 +161,12 @@
                                                         '<li class="dropdown">'+
                                                             '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Other archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
+                                                                '<li><a href="' + scalarapi.model.urlPrefix + 'import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</a></li>'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/getty_museum_collection">Getty Museum Collection</a></li>'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/prezi">Prezi</a></li>'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/soundcloud">SoundCloud</a></li>'+
-                                                                '<li><a href="' + scalarapi.model.urlPrefix + 'import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</a></li>'+
                                                                 '<li><a href="' + scalarapi.model.urlPrefix + 'import/vimeo">Vimeo</a></li>'+
+                                                                '<li><a href="' + scalarapi.model.urlPrefix + 'import/youtube">YouTube</a></li>'+
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li>'+
