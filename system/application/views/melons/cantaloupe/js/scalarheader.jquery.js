@@ -478,6 +478,7 @@
             if(typeof extra_offset != 'undefined' && extra_offset!=null){
                 max_width -= extra_offset;
             }
+            max_width -= 10;
             $('#title_wrapper').css('max-width',max_width+'px');
 
             base.$el.removeClass('mobile_view desktop_view').addClass(base.usingMobileView?'mobile_view':'desktop_view');
