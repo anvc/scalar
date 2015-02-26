@@ -88,6 +88,7 @@
 				temp = $('<div class="body_copy"></div>');
 				temp.appendTo('.page');
 				var pageWidthMinusMargins = pageWidth - ( parseInt( temp.css( 'padding-left' ) ) * 2 );
+				var bodyCopyWidth = temp.width();
 				temp.remove();
 
 				//console.log( "size: " + mediaelement.model.options.size + " media: " + mediaWidth + " page w/ margins: " + pageWidthMinusMargins + " page: " + pageWidth );
@@ -97,27 +98,18 @@
 
 					// if the media is the full width of the page, then remove any align styles
 					if ( mediaWidth >= pageWidth ) {
-						console.log(link.attr('data-align'))
 						mediaelement.model.element.parent().removeClass( 'left right' );
 						isFullWidth = true;
-
-						// full width native elements should have no body_copy wrapping them
-						// and they should come after their link, not before
-						if ( size == 'native' ) {
-							// remove body_copy wrapper for inline elements
-							if(isInline) {
-								link.data('slot').unwrap();
-
-							// align full size elements below their links instead of above
-							} else {
-								link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
-							}
-						}
 					
 					// if the media is smaller than than the width of the page, but larger than the width of the
 					// page minus its margins, then center it and add pillarboxing to separate it from the 
 					// rest of the page
-					} else if ( mediaWidth > pageWidthMinusMargins ) {
+					} else if ( mediaWidth > bodyCopyWidth ) {
+						mediaelement.model.element.css( { 
+							'margin-right': 'auto',
+							'margin-left': 'auto',
+							'float':'none'
+						});
 						mediaelement.model.element.find('.mediaObject').css( { 
 							'margin-right': 'auto',
 							'margin-left': 'auto',
@@ -136,6 +128,21 @@
 						}
 						else {
 							mediaelement.model.element.addClass( 'body_left_margin' );
+						}
+					}
+
+					if(isFullWidth) {
+						// full width native elements should have no body_copy wrapping them
+						// and they should come after their link, not before
+						if ( size == 'native' ) {
+							// remove body_copy wrapper for inline elements
+							if(isInline) {
+								link.data('slot').unwrap();
+
+							// align full size elements below their links instead of above
+							} else {
+								link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
+							}
 						}
 					}		
 				}
@@ -987,28 +994,6 @@
 					if ( $( this ).hasClass( "resource-added" ) ) {
 						$( this ).removeAttr( "resource" );
 					}
-					/*var me = $(this).data('mediaelement');
-					var parent = $(this).parents('p,div');
-					var me_parent = me.model.element.parents('.slot');
-					var temp = me_parent;
-
-					while(me_parent.children().length <= 1 && (me_parent.attr('property') != 'sioc:content')) {
-						temp = me_parent;
-						me_parent = me_parent.parent();
-					}
-					temp.remove();
-					$(this).remove();
-					$('.mediainfo').remove();
-					// $(this).removeData('mediaelement');
-					// $(this).removeData('slot');
-					// $(this).removeData('meta');
-					// $(this).removeData('path');
-					// $(this).removeData('xmlns');
-					// $(this).removeData('size');
-					// $(this).removeData('caption');
-					// $(this).removeData('align');
-					$('.mediainfo').remove();
-					page.addMediaElementForLink($(this),parent);*/
 				});
 
 				page.addMediaElements();
@@ -1052,22 +1037,6 @@
 			}
 		} );
 
-		/*$(window).on('resize',function() {
-			console.log( "resuze" );
-			if(page.initialMediaLoad === true) {
-				if($('body').width() <= page.mobileWidth) {
-					if(page.adaptiveMedia != 'mobile') {
-						page.adaptiveMedia = 'mobile';
-						page.handleMediaResize();
-					}
-				} else {
-					if(page.adaptiveMedia != 'full') {
-						page.adaptiveMedia = 'full';
-						page.handleMediaResize();
-					}
-				}
-			}
-		});*/
 		if($('body').width() <= page.mobileWidth) {
 			page.adaptiveMedia = 'mobile';
 		}
