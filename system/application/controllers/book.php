@@ -177,23 +177,10 @@ class Book extends MY_Controller {
 
 		header('Content-type: application/json');
 		if ($this->data['login']->is_logged_in) {
-			echo '{"is_logged_in":1,"user_id":'.$this->data['login']->user_id.',"fullname":"'.htmlspecialchars($this->data['login']->fullname).'"}';
-			exit;
-		} else {
-			die('{"is_logged_in":0}');
-		}
-
-	}
-
-	// Return admin status in JSON format
-	private function author_status() {
-
-		header('Content-type: application/json');
-		if (!$this->data['login']->is_logged_in) {
-			die('{"is_logged_in":0}');
-		} else {
 			echo '{"is_logged_in":1,"is_author":'.(($this->login_is_book_admin())?'1':'0').',"user_id":'.$this->data['login']->user_id.',"fullname":"'.htmlspecialchars($this->data['login']->fullname).'"}';
 			exit;
+		} else {
+			die('{"is_logged_in":0}');
 		}
 
 	}
