@@ -1129,8 +1129,9 @@ function YouTubeGetID(url){
 		 * Calculates the maximum allowed size of the media container.
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
-			var deferTypeSizing = this.model.options.deferTypeSizing === true;
+			var details_view = this.model.options.details_view;
 			var native_size = this.model.options.size == 'native';
+			//test to see if this is a full sized image or in media details view
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
@@ -1163,8 +1164,12 @@ function YouTubeGetID(url){
  				if (this.controllerOnly) {
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
- 					if (!deferTypeSizing && this.model.mediaSource.contentType != 'image' ) {
+ 					if ( this.model.mediaSource.contentType != 'image' ) {
+ 						if(details_view) {
+ 							this.containerDim.y = window.innerHeight - 50 - parseInt($('.dialog_header').outerHeight()) - parseInt(this.header.height()) - parseInt(this.footer.height());
+ 						} else {
  							this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height()); 							
+ 						}
 					} else {
  						this.containerDim.y = 1040 - parseInt(this.header.height()) - parseInt(this.footer.height());
 					}
@@ -1177,7 +1182,7 @@ function YouTubeGetID(url){
 
 			}
 
-			if (!deferTypeSizing && this.model.mediaSource.contentType != 'image') {
+			if ( this.model.mediaSource.contentType != 'image' && !details_view) {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
 			}
 
@@ -1197,23 +1202,6 @@ function YouTubeGetID(url){
 		 * Calculates the optimum display size for the media.
 		 */
 		jQuery.MediaElementView.prototype.calculateMediaSize = function() {
-			console.log(this.model.options.size);
-			var native_size = this.model.options.size == 'native';
-			var heightLimited = false;
-			var tempDims = {
-				x: this.containerDim.x,
-				y: this.containerDim.y
-			};
-
-			// There is something effecting videos more drastically than this code making it inconsequential
-			typeLimits = this.model.options.typeLimits;
-			contentType = this.model.mediaSource.contentType;
-			$.each(typeLimits,function(k,v) {
-				if(contentType == k) {
-					tempDims.y = Math.min(tempDims.y,v);
-					heightLimited = true;
-				}
-			});
 
 			// if this is liquid media, always make it the maximum size
 			if (this.mediaObjectView.isLiquid) {
@@ -1252,10 +1240,13 @@ function YouTubeGetID(url){
 
 			//console.log(this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
 
+			var native_size = this.model.options.size == 'native';
+			var tempDims = {
+				x: this.containerDim.x,
+				y: this.containerDim.y
+			};
+
 			if (mediaAR > containerAR) {
-				if(heightLimited && (tempDims.y < tempDims.x/mediaAR)) {
-					tempDims.x = tempDims.y * mediaAR;
-				}
 				if(native_size && this.intrinsicDim.x < tempDims.x) {
 					tempDims.x = this.intrinsicDim.x;
 					this.native_full = false;
@@ -1277,6 +1268,7 @@ function YouTubeGetID(url){
 				}
 				this.resizedDim.x = (this.resizedDim.y - this.controllerOffset) * mediaAR;
 			}
+
 			// console.log(this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
 
 			this.mediaScale = this.resizedDim.x / this.intrinsicDim.x;
@@ -1646,7 +1638,7 @@ function YouTubeGetID(url){
  				case 'video':
  				case 'document':
  				if (this.annotationDisplay) {
-	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+annotation.startString+'â€¦</p>');
+	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+annotation.startString+'…</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
  				if (!this.annotationTimerRunning) {
@@ -1953,7 +1945,7 @@ function YouTubeGetID(url){
 			// params to seek instead)
 			if ((this.model.seekAnnotation != null) /*&& (this.model.mediaSource.contentType != 'image') && ((this.model.mediaSource.name != 'YouTube') || ((this.model.mediaSource.name == 'YouTube') && (scalarapi.scalarBrowser == 'MobileSafari')))*/) {
  				if (this.annotationDisplay && (this.model.mediaSource.contentType != 'image')) {
-	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+this.model.seekAnnotation.startString+'â€¦</p>');
+	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+this.model.seekAnnotation.startString+'…</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
   				if ( ( this.model.mediaSource.contentType != 'image' ) && ( this.model.mediaSource.contentType != 'document' ) ) {
