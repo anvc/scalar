@@ -67,9 +67,14 @@
     };
     
     function sort_data_by_title(arr) {
-    	
+    
         var titles = [];
         for (var j = 0; j < arr.length; j++) {
+        	if ('undefined'==typeof(arr[j].versions)) {
+        		console.log('No versions for the following, skipping:');
+        		console.log(arr[j]);
+        		continue;
+        	}
         	titles.push(arr[j].versions[0].title.toLowerCase());
         }
         titles.sort();
