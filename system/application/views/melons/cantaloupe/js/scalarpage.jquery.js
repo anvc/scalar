@@ -1028,16 +1028,22 @@
 
 		$( 'body' ).bind( 'delayedResize', function() {
 			if(page.initialMediaLoad === true) {
+				var reload = false;
 				if($('body').width() <= page.mobileWidth) {
 					if(page.adaptiveMedia != 'mobile') {
 						page.adaptiveMedia = 'mobile';
 						page.handleMediaResize();
 					}
-				} else {
-					if(page.adaptiveMedia != 'full') {
-						page.adaptiveMedia = 'full';
-						page.handleMediaResize();
-					}
+				} else if(page.adaptiveMedia != 'full') {
+					page.adaptiveMedia = 'full';
+					reload = true;
+				}
+				if(Math.abs(page.heightOnMediaLoad-$(window).height()) > 200) {
+					page.heightOnMediaLoad = $(window).height();
+					reload = true;
+				}
+				if(reload == true) {
+					page.handleMediaResize();					
 				}
 			}
 		} );
@@ -1047,6 +1053,7 @@
 		}
 		$('body').on('mediaElementMediaLoaded',function() {
 			page.initialMediaLoad = true;
+			page.heightOnMediaLoad = $(window).height();
 		});
 
 		var i, node, nodes, link;
