@@ -1129,9 +1129,8 @@ function YouTubeGetID(url){
 		 * Calculates the maximum allowed size of the media container.
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
-			var details_view = this.model.options.details_view;
 			var native_size = this.model.options.size == 'native';
-			//test to see if this is a full sized image or in media details view
+			var deferTypeSizing = this.model.options.deferTypeSizing === true;
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
@@ -1164,12 +1163,8 @@ function YouTubeGetID(url){
  				if (this.controllerOnly) {
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
- 					if ( this.model.mediaSource.contentType != 'image' ) {
- 						if(details_view) {
- 							this.containerDim.y = window.innerHeight - 50 - parseInt($('.dialog_header').outerHeight()) - parseInt(this.header.height()) - parseInt(this.footer.height());
- 						} else {
- 							this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height()); 							
- 						}
+ 					if (!deferTypeSizing && this.model.mediaSource.contentType != 'image' ) {
+ 						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height()); 							
 					} else {
  						this.containerDim.y = 1040 - parseInt(this.header.height()) - parseInt(this.footer.height());
 					}
@@ -1182,7 +1177,7 @@ function YouTubeGetID(url){
 
 			}
 
-			if ( this.model.mediaSource.contentType != 'image' && !details_view) {
+			if (!deferTypeSizing && this.model.mediaSource.contentType != 'image') {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
 			}
 
@@ -1202,7 +1197,6 @@ function YouTubeGetID(url){
 		 * Calculates the optimum display size for the media.
 		 */
 		jQuery.MediaElementView.prototype.calculateMediaSize = function() {
-
 			// if this is liquid media, always make it the maximum size
 			if (this.mediaObjectView.isLiquid) {
 				this.intrinsicDim.x = this.containerDim.x;
@@ -1245,6 +1239,20 @@ function YouTubeGetID(url){
 				x: this.containerDim.x,
 				y: this.containerDim.y
 			};
+
+			var typeLimits = this.model.options.typeLimits;
+			var contentType = this.model.mediaSource.contentType;
+			if (typeof typeLimits == 'object') {
+				$.each(typeLimits, function(type, maxHeight) {
+					if (contentType == type) {
+						if (mediaAR > containerAR) {
+							tempDims.x = Math.min(maxHeight * mediaAR,tempDims.x);
+						} else {
+							tempDims.y = Math.min(maxHeight, tempDims.y);
+						}
+					}
+				});
+			}
 
 			if (mediaAR > containerAR) {
 				if(native_size && this.intrinsicDim.x < tempDims.x) {
