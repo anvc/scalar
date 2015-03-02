@@ -241,10 +241,13 @@
 			},
 
 			addMediaElementForLink: function( link, parent ) {
-
 				var inline = link.hasClass( 'inline' ),
 					size = link.attr( 'data-size' ),
-					align = link.attr( 'data-align' );
+					align = link.attr( 'data-align' ),
+					typeLimits = {
+						'video':$(window).height()*0.85, // videos should be limited to never be larger than the height of the window
+						// 'default':$(window).height()*1.3 // do we need to limit anything else at all?
+					};
 
 				// default alignment is 'right'
 				if ( align == undefined ) {
@@ -297,7 +300,9 @@
 					{ 
 						url_attributes: [ 'href', 'src' ], 
 						autoplay: link.attr( 'data-autoplay' ) == 'true',
-						size: size
+						size: size,
+						typeLimits: typeLimits,
+						deferTypeSizing:true
 					});
 
 				// if the slot was successfully created,
