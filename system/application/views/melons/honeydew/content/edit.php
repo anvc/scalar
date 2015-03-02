@@ -70,7 +70,7 @@ endif;
 	  <td class="field">Title</td><td class="value"><input type="text" id="title" class="input_text" name="dcterms:title" value="<?=@htmlspecialchars($version->title)?>" /></td>
 	<tr>
 	  <td class="field">Description</td><td class="value"><input type="text" class="input_text" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>" /></td>
-	</tr>	
+	</tr>
 
 	<!--  Media file URL -->
 	<tr class="type_media">
@@ -79,7 +79,7 @@ endif;
 	<? if (isset($page) && $this->versions->url_is_local($page->versions[0]->url)): ?>
 	<tr class="type_media">
 		<td class="field"></td><td>File can be replaced with another upload at <a href="<?=confirm_slash(base_url()).$book->slug?>/upload#replace=<?=$version->version_id?>">Import > Local Media Files</a></td>
-	</tr>	
+	</tr>
 	<? endif ?>
 
 	<!-- Edit content -->
@@ -115,9 +115,9 @@ endif;
 	<tr id="relationships">
 		<td class="field" valign="top"><div class="field_bump_down">Relationships</div></td>
 		<td valign="top">
-		
+
 			<table class="form_fields">
-			
+
 			  <!-- paths -->
 			  <tr id="tr_container_of">
 			    <td valign="top"><span class="inline_icon_link path"></span></td>
@@ -142,9 +142,9 @@ endif;
 			echo "      </ol>\n";
 			?>
 			      <div class="form_fields_sub_element" id="container_of_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#container_of_editor'), 'add_path_item')">Add more content</a> or drag items to reorder</div>
-			     
+
 			      <div class="form_fields_sub_element form_fields_sub_element_border_top form_fields_sub_element_border_bottom" id="path_continue_to" style="display:none;margin-top:12px;">After path is completed, continue to <input type="hidden" name="scalar:continue_to_content_id" value="<?=((!empty($continue_to))?$continue_to->content_id:'')?>" /><span style="font-weight:bold"><?=((!empty($continue_to))?$continue_to->versions[$continue_to->version_index]->title:'none')?></span>&nbsp; <a href="javascript:;" onclick="listeditor_add(null,'add_continue_to', null, false, true)">add</a> | <a href="javascript:" onclick="clear_continue_to();">clear</a></div>
-			
+
 			<? if (!empty($page)&&!empty($page->versions[$page->version_index]->has_paths)): ?>
 				  <div id="has_path">
 			        <b>This page is contained by</b> the following paths:<br />
@@ -169,13 +169,13 @@ endif;
 					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
 					echo '</li>';
 				}
-			?>	  
+			?>
 			        </ul>
 			      </div>
-			<? endif ?>   
+			<? endif ?>
 			    </td>
 			  </tr>
-			
+
 			  <!-- replies -->
 			  <tr id="tr_reply_of">
 			    <td valign="top"><span class="inline_icon_link reply"></span></td>
@@ -218,13 +218,13 @@ endif;
 					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
 					echo '</li>';
 				}
-			?>	  
+			?>
 			      	</ul>
 			      </div>
-			<? endif ?>   
+			<? endif ?>
 			    </td>
-			  </tr>    
-			
+			  </tr>
+
 			  <!-- annotations -->
 			  <tr id="tr_annotation_of">
 			    <td valign="top"><span class="inline_icon_link annotation"></span></td>
@@ -235,31 +235,31 @@ endif;
 					echo '<span id="annotation_msg"><b>To make this <span class="content_type">page</span> an annotation</b>, <a href="javascript:void(null);" onclick="listeditor_add($(this).parent().parent().find(\'#annotation_of_editor\'), \'add_annotation_of_item\', \'media\', true)">specify media that it annotates</a></span>'."\n";
 				} else {
 					echo '<span id="annotation_msg"><b>This <span class="content_type">page</span> is also a annotation</b> which annotates:</span><br />'."\n";
-				}    
+				}
 				echo '      <ul id="annotation_of_editor" class="edit_relationship_list">'."\n";
 				if (!empty($page)&&!empty($page->versions[$page->version_index]->annotation_of)) {
 					foreach ($page->versions[$page->version_index]->annotation_of as $node) {
 						$title = $node->versions[0]->title;
 						$rel_slug = $base_uri.$node->slug;
 						echo '      <li>';
-						echo '<input type="hidden" name="annotation_of" value="'.$node->versions[0]->urn.'" />';		
+						echo '<input type="hidden" name="annotation_of" value="'.$node->versions[0]->urn.'" />';
 						echo '<a class="rel_link" href="'.$rel_slug.'" title="'.htmlspecialchars($rel_slug).'">'.$title.'</a><br />';
 						if (!empty($node->versions[0]->start_seconds) || !empty($node->versions[0]->end_seconds)) {
 							echo 'Start seconds: <input onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_seconds" value="'.$node->versions[0]->start_seconds.'" />';
-							echo '&nbsp; End seconds<input onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_seconds" value="'.$node->versions[0]->end_seconds.'" />';				
-							echo '<input type="hidden" name="annotation_of_start_line_num[]" value="'.@$node->versions[0]->start_line_num.'" />';	
-							echo '<input type="hidden" name="annotation_of_end_line_num[]" value="'.@$node->versions[0]->end_line_num.'" />';	
+							echo '&nbsp; End seconds<input onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_seconds" value="'.$node->versions[0]->end_seconds.'" />';
+							echo '<input type="hidden" name="annotation_of_start_line_num[]" value="'.@$node->versions[0]->start_line_num.'" />';
+							echo '<input type="hidden" name="annotation_of_end_line_num[]" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="annotation_of_points[]" value="'.@$node->versions[0]->points.'" />';
 						} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 							echo 'Start line #: <input  onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_line_num" value="'.$node->versions[0]->start_line_num.'" />';
-							echo '&nbsp; End line #<input onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_line_num" value="'.$node->versions[0]->end_line_num.'" />';	
-							echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';	
-							echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';	
+							echo '&nbsp; End line #<input onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_line_num" value="'.$node->versions[0]->end_line_num.'" />';
+							echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+							echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
 						} elseif (!empty($node->versions[0]->points)) {
 							echo 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="annotation_of_points" value="'.$node->versions[0]->points.'" />';
-							echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';	
-							echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';	
+							echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+							echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 							echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
@@ -275,7 +275,7 @@ endif;
 				</div>
 			<?
 			   if (!empty($page)&&!empty($page->versions[$page->version_index]->has_annotations)): ?>
-			
+
 			      <div id="has_annotation">
 			        <b>This <span class="content_type">page</span> is annotated by</b> the following annotations:<br />
 			        <ul class="edit_relationship_list">
@@ -288,34 +288,34 @@ endif;
 					echo '<a class="rel_link" href="'.$rel_slug.'" title="'.htmlspecialchars($rel_slug).'">'.$title.'</a><br />';
 					if (!empty($node->versions[0]->start_seconds) || !empty($node->versions[0]->end_seconds)) {
 						echo 'Start seconds: <input type="text" style="width:75px;" name="has_annotation_start_seconds" value="'.$node->versions[0]->start_seconds.'" />';
-						echo '&nbsp; End seconds<input type="text" style="width:75px;" name="has_annotation_end_seconds" value="'.$node->versions[0]->end_seconds.'" />';				
-						echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';	
-						echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';	
+						echo '&nbsp; End seconds<input type="text" style="width:75px;" name="has_annotation_end_seconds" value="'.$node->versions[0]->end_seconds.'" />';
+						echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+						echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 						echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
 					} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 						echo 'Start line #: <input type="text" style="width:75px;" name="has_annotation_start_line_num" value="'.$node->versions[0]->start_line_num.'" />';
-						echo '&nbsp; End line #<input type="text" style="width:75px;" name="has_annotation_end_line_num" value="'.$node->versions[0]->end_line_num.'" />';	
-						echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';	
-						echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';	
+						echo '&nbsp; End line #<input type="text" style="width:75px;" name="has_annotation_end_line_num" value="'.$node->versions[0]->end_line_num.'" />';
+						echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+						echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 						echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
 					} elseif (!empty($node->versions[0]->points)) {
 						echo 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="has_annotation_points" value="'.$node->versions[0]->points.'" />';
 						echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
-						echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';	
-						echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';	
+						echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
+						echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 						echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 						echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
-					}		
+					}
 					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
 					echo '</li>';
 				}
-			?>	  
+			?>
 			       </ul>
 			     </div>
-			<? endif ?>   
+			<? endif ?>
 			    </td>
-			  </tr>  
-			
+			  </tr>
+
 			  <!-- tags -->
 			  <tr id="tr_tag_of">
 			    <td valign="top"><span class="inline_icon_link tag"></span></td>
@@ -366,16 +366,16 @@ endif;
 						echo '</li>';
 					endforeach;
 				}
-			?>	  
+			?>
 				</ul>
-				
+
 				<div class="form_fields_sub_element" id="has_tag_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#has_tag_editor'), 'add_has_tag_item')">Add additional tags</a></div>
 				</div>
 			    </td>
 			  </tr>
 			</table>
 		</td>
-	</tr>	
+	</tr>
 
   <!-- styling -->
   <tr id="styling">
@@ -383,7 +383,7 @@ endif;
   	<td valign="top">
   		<table cellspacing="0" cellpadding="0" class="styling_table">
   		<tr class="styling_sub"><!-- thumbnail -->
-  			<td valign="top">Thumbnail</td>	
+  			<td valign="top">Thumbnail</td>
   			<td colspan="2">
   			<p>Choose an image from your library:</p>
   			<select id="choose_thumbnail" style="margin:3px 0px 3px 0px; max-width:100%;"><option value="">Choose an image</option><?
@@ -403,10 +403,10 @@ endif;
   				 <a href="javascript:;" class="generic_button" onclick="$(this).next().toggle();">Choose</a>
   				<div style="display:none;margin-top:6px;"><div id="colorpicker"></div></div>
   			</td>
-  		</tr>  	
+  		</tr>
   		<tr class="styling_sub"><!-- background image -->
   			<td>Background image</td>
-  			<td><?=((@!empty($page->background))?'<img src="'.confirm_slash(base_url()).confirm_slash($book->slug).$page->background.'" class="thumb_preview" />':'No background image has been set')?></td>
+  			<td><?=((@!empty($page->background))?'<img src="'.abs_url($page->background,confirm_slash(base_url()).confirm_slash($book->slug)).'" class="thumb_preview" />':'No background image has been set')?></td>
   			<td class="styling_last"><select name="scalar:background"><option value="">Choose an uploaded image</option><?
   				$matched = false;
   				foreach ($book_images as $book_image_row) {
@@ -418,21 +418,21 @@ endif;
   					echo '<option value="'.@$page->background.'" selected>'.@$page->background.'</option>';
   				}
   			?></td>
-  		</tr>	
+  		</tr>
   		<tr class="styling_sub"><!-- custom style -->
    			<td style="position:relative;">
    				Custom CSS style<br />
    				<small>e.g., .cover_title {color:red;}</small><div style="height:6px;overflow:hidden;"></div>
    			</td>
   			<td colspan="2"><textarea name="scalar:custom_style" style="width:100%;height:50px;"><?=!empty($page->custom_style) ? $page->custom_style : ''?></textarea></td>
-  		</tr>  	
+  		</tr>
   		<tr class="styling_sub">
    			<td style="position:relative;">
    				Custom Javascript
    				<div style="width:150px;white-space:normal;"><small>Javascript or jQuery source</small></div>
    			</td>
   			<td colspan="2"><textarea name="scalar:custom_scripts" style="width:100%;height:50px;"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea></td>
-  		</tr>  		
+  		</tr>
   		<tr class="styling_sub"><!-- background audio -->
   			<td>Background audio</td>
   			<td><?=((@!empty($page->audio))?basename($page->audio):'No background audio has been set')?></td>
@@ -445,10 +445,10 @@ endif;
   				}
   				if (!$matched) {
   					echo '<option value="'.@$page->audio.'" selected>'.@$page->audio.'</option>';
-  				} 			
+  				}
   			?></td>
-  		</tr>   	
-  		</table>  			
+  		</tr>
+  		</table>
   	</td>
   </tr>
 
@@ -456,7 +456,7 @@ endif;
 	<tr id="add_meta">
 	  <td class="field" valign="top"><a class="edit_page_arrow edit_page_arrow_down">Metadata</a></td>
 	  <td valign="top">
-	  
+
 		<table id="page_meta">
 			<tr>
 			  <td class="field">Scalar URL</td>
@@ -468,19 +468,19 @@ endif;
 			  <td><input class="input_text" name="scalar:fullname" value="<?=htmlspecialchars($page->versions[$page->version_index]->attribution->fullname)?>" style="width:180px;"/>&nbsp; &nbsp; <small style="white-space:nowrap;">Alerts readers that page is by someone other than the book's authors (e.g. comments)</small></td>
 			</tr>
 			<? endif ?>
-			
+
 			<tr>
 				<td>Page visibility?</td>
 			    <td><select name="scalar:is_live"><option value="0" <?=((@!$page->is_live)?'selected':'')?>>Hidden</option><option value="1" <?=(!isset($page->version_index)||(@$page->is_live)?'selected':'')?>>Visible</option></select></td>
-			</tr>			
-			
+			</tr>
+
 			  <tr>
 			  <td class="field">Content type</td>
 			  <td>
 			    <span style="display:none;"><!-- jQuery uses these fields to show/hide form fields related to page or media -->
 			   	 	<input type="radio" name="rdf:type" id="type_text" onchange="checkTypeSelect()" value="http://scalar.usc.edu/2012/01/scalar-ns#Composite"<?=((!isset($page->type)||$page->type=='composite')?' CHECKED':'')?>><label for="type_text">Page</label>
 			    	<input type="radio" name="rdf:type" id="type_media" onchange="checkTypeSelect()" value="http://scalar.usc.edu/2012/01/scalar-ns#Media"<?=((isset($page->type)&&$page->type!='composite')?' CHECKED':'')?>><label for="type_media">Media File</label>
-			    	&nbsp; &nbsp; 
+			    	&nbsp; &nbsp;
 			    </span>
 			    <select name="scalar:category">
 			<?
@@ -491,7 +491,7 @@ endif;
 				}
 			  	echo '<option value="" '.((empty($category))?'selected':'').'>'.@ucwords($book->scope).' content</option>';
 			  	echo '<option value="commentary" '.(('commentary'==$category)?'selected':'').'>Commentary</option>';
-			  	echo '<option value="review" '.(('review'==$category)?'selected':'').'>Review</option>';  		
+			  	echo '<option value="review" '.(('review'==$category)?'selected':'').'>Review</option>';
 			?>
 			    </select>
 			    <!--
@@ -512,33 +512,33 @@ endif;
 			    </select></span>
 			    -->
 			  </td>
-		   </tr>  			
-		</table>	  
-	  
+		   </tr>
+		</table>
+
 	  	<table id="metadata_rows">
 		<?
 		if (isset($page->version_index) && isset($page->versions[$page->version_index]->rdf) && !empty($page->versions[$page->version_index]->rdf)):
 			foreach ($page->versions[$page->version_index]->rdf as $p => $values):
 				$p = toNS($p, $ns);
-				foreach ($values as $value) {	
+				foreach ($values as $value) {
 					echo '<tr class="'.$p.'">';
 					echo '<td class="field">';
 					echo $p;
 					echo '</td>';
-					echo '<td class="value">';				
+					echo '<td class="value">';
 					$o = trim($value['value']);
 					echo '<input type="text" name="'.$p.'" class="input_text" value="'.htmlspecialchars($o).'" />';
 					echo '</td>';
 					echo "</tr>\n";
-				}			
+				}
 			endforeach;
 		endif;
-		?>	  
+		?>
 		</table>
-	
+
 		<div class="pulldown pulldown_click" style="width:190px;">
 			  <a href="javascript:;" class="generic_button border_radius">Add additional metadata</a>
-			  <ul class="pulldown-content nodots" style="width:600px;white-space:normal;line-height:150%;">	
+			  <ul class="pulldown-content nodots" style="width:600px;white-space:normal;line-height:150%;">
 <?
 				foreach ($ontologies as $ont => $ontterms):
 ?>
@@ -552,13 +552,13 @@ endif;
 				}
 				echo implode(', &nbsp; ',$terms);
 ?>
-				</li>	
+				</li>
 <?
 				endforeach;
-?>						
+?>
 			  </ul>
 		</div>
-		
+
 	  </td>
 	</tr>
 
@@ -566,14 +566,14 @@ endif;
 
 <div style="text-align:right;margin-top:10px;">
 	<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div>
-	<a href="javascript:;" class="generic_button large" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a> 
+	<a href="javascript:;" class="generic_button large" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>
 	<input type="submit" class="generic_button large default" value="Save" />
  </div>
 <br />
 
-<? 
+<?
 if (isset($page->version_index)):
-	// Has references 
+	// Has references
 	if (!empty($page->versions[$page->version_index]->has_references)) {
 		foreach ($page->versions[$page->version_index]->has_references as $node) {
 			echo '<input type="hidden" name="has_reference" value="'.$node->versions[0]->urn.'" />';
@@ -583,7 +583,7 @@ if (isset($page->version_index)):
 	// Table of Contents
 	echo '<input type="hidden" name="scalar:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />';
 endif;
-?> 
+?>
 
 </form>
 
