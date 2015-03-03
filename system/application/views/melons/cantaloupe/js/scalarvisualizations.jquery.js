@@ -320,8 +320,6 @@
 			if ( jQuery.isEmptyObject( json ) || ( json == null ) ) {
 				me.reachedLastPage = true;
 			}
-
-			me.typeCounts[ me.loadSequence[me.loadIndex].id ]
 			
 			// parse its relations with other nodes
 			if ((me.loadSequence[me.loadIndex].id != 'book') && (me.loadSequence[me.loadIndex].id != 'current') && (me.loadSequence[me.loadIndex].id != 'currentRelations')) {
