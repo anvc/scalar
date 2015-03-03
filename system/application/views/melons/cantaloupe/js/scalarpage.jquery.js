@@ -409,7 +409,7 @@
 
 			},
 
-			addRelationshipNavigation: function( showLists, showChildNav, isCentered ) {
+			addRelationshipNavigation: function( showLists, showChildNav, showLateralNav, isCentered ) {
 
 				var button, href, section, nodes, node, link, links,
 					currentNode = scalarapi.model.getCurrentPageNode(),
@@ -419,7 +419,7 @@
 					foundQueryPath = ( queryVars.path != null );
 
 				// path back/continue buttons
-				if (( page.containingPaths.length > 0 ) && showChildNav ) {
+				if (( page.containingPaths.length > 0 ) && showLateralNav ) {
 					section = $('<section class="relationships"></section').appendTo('article');
 					if ( page.containingPathNodes.length > 1 ) {
 						if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
@@ -452,26 +452,28 @@
 				}
 
 				// end-of-path continue button
-				$( '[rel="scalar:continue_to"]' ).each( function() {
-					var span = $( '[resource="' + $( this ).attr( 'href' ) + '"]' );
-					span.hide();
-					link = span.find( 'span[property="dcterms:title"] > a' );
-					node = scalarapi.getNode( link.attr( 'href' ) );
-					if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
-						section = $('<section class="relationships"></section').appendTo('article');
-						links = $( '<p></p>' );
-						links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;. <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
+				if ( showLateralNav ) {
+					$( '[rel="scalar:continue_to"]' ).each( function() {
+						var span = $( '[resource="' + $( this ).attr( 'href' ) + '"]' );
+						span.hide();
+						link = span.find( 'span[property="dcterms:title"] > a' );
+						node = scalarapi.getNode( link.attr( 'href' ) );
+						if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
+							section = $('<section class="relationships"></section').appendTo('article');
+							links = $( '<p></p>' );
+							links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
 
-						// back button
-						if ( page.containingPathIndex > 0 ) {
-							$( '#back-btn' ).remove();
-							links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
+							// back button
+							if ( page.containingPathIndex > 0 ) {
+								$( '#back-btn' ).remove();
+								links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
+							}
+							section.append( links );
+							pathOptionCount++;
+							containingPathOptionCount++;
 						}
-						section.append( links );
-						pathOptionCount++;
-						containingPathOptionCount++;
-					}
-				} );
+					} );
+				}
 
 				// if relationship nav isn't centered, add bootstrap column formatting to help
 				// accommodate long labels that wrap to multiple lines (if it is centered, then
@@ -521,7 +523,7 @@
 						}
 
 						// "begin with" button
-						if ( pathOptionCount == 0 ) {
+						if (( pathOptionCount == 0 ) && showChildNav ) {
 							nodes = currentNode.getRelatedNodes('path', 'outgoing');
 							if (nodes.length > 0) {
 								button = $( '<p><a class="nav_btn" href="' + nodes[ 0 ].url + '?path=' +
@@ -1093,7 +1095,7 @@
 				element.css('backgroundImage', $('body').css('backgroundImage'));
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation( false, false, true );
+				page.addRelationshipNavigation( false, true, false, true );
 				$('.relationships').appendTo('.title_card');
 
 				window.setTimeout(function(){
@@ -1122,7 +1124,7 @@
 					console.log('an error occurred while retrieving gallery info.');
 				}, 1, true);*/
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, false );
+				page.addRelationshipNavigation( true, true, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
@@ -1138,7 +1140,7 @@
 				page.setupScreenedBackground();
 				var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( false, true, false );
+				page.addRelationshipNavigation( false, false, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
@@ -1157,7 +1159,7 @@
 				$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, false );
+				page.addRelationshipNavigation( true, true, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
@@ -1363,7 +1365,7 @@
 				});*/
 
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, false );
+				page.addRelationshipNavigation( true, true, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
