@@ -607,6 +607,10 @@
 				case "vistag":
 		 		this.drawTagVisualization(updateOnly);
 				break;
+
+				case "vistree":
+				this.drawTreeVisualization(updateOnly);
+				break;
 				
 				default:
 		 		this.drawRadialVisualization(updateOnly);
@@ -953,7 +957,503 @@
 			}
 
 		}
+					
+		/**
+		 * Draws the tree visualization.
+		 */
+		jQuery.VisView.prototype.drawTreeVisualization = function() {
+
+			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
+			// haven't selected the current page yet, then see if we can find the node for the current page
+			// and select it
+			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
+				if (scalarapi.model.currentPageNode != null) {
+					this.selectedNodes = [scalarapi.model.currentPageNode];
+					if (this.model.doneLoading) {
+						this.hasSelectedCurrentContent = true;
+					}
+				}
+			}
+			
+			this.visualization.empty();
+			
+			var columnWidth;
+
+			this.model.element.addClass( 'page_margins' );
+			if ( window.innerWidth > 768 ) {
+				this.visualization.css( 'min-height', '568px' );
+				columnWidth = 180;
+			} else {
+				this.visualization.css( 'min-height', '300px' );
+				columnWidth = 90;
+			}
+		
+			this.helpButton.attr( "data-content", "This visualization shows all of the content in the path <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold empty areas to drag.</li><li>Filled circles indicate sub-paths; click them to show their contents.</li><li>Click the title of any item to navigate to it.</li></ul>" );
+
+			var i, j, k, n, o,
 				
+				maxNodeChars = Math.floor( columnWidth / 8 );
+			
+			var processedNodes = [];
+			
+			// recursively parse through the nodes contained by this node and store their relationships
+			function getRelationsForData(sourceData) {
+				var destNode;
+				var destData;
+				var j;
+				var o;
+				var comboUrl;
+
+				var nodes = sourceData.node.getRelatedNodes('path', 'outgoing');
+				if (nodes.length > 0) {
+					if ( sourceData.children == null ) {
+						sourceData.children = [];
+					}
+					o = nodes.length;
+					for (j=0; j<o; j++) {
+						destNode = nodes[j];
+						destData = { 
+							name: me.getShortenedString( destNode.getDisplayTitle( true ), maxNodeChars ), 
+							node: destNode, 
+							type: destNode.getDominantScalarType().id,
+							children: null 
+						};
+						sourceData.children.push(destData);
+						if (processedNodes.indexOf(sourceData.node) == -1) {
+							processedNodes.push(sourceData.node);
+							getRelationsForData(destData);
+						}
+					}
+				}
+
+				var nodes = sourceData.node.getRelatedNodes('tag', 'outgoing');
+				if (nodes.length > 0) {
+					if ( sourceData.children == null ) {
+						sourceData.children = [];
+					}
+					o = nodes.length;
+					for (j=0; j<o; j++) {
+						destNode = nodes[j];
+						destData = { 
+							name: me.getShortenedString( destNode.getDisplayTitle( true ), maxNodeChars ), 
+							node: destNode, 
+							type: destNode.getDominantScalarType().id,
+							children: null 
+						};
+						sourceData.children.push(destData);
+						if (processedNodes.indexOf(sourceData.node) == -1) {
+							processedNodes.push(sourceData.node);
+							getRelationsForData(destData);
+						}
+					}
+				}
+
+				var nodes = sourceData.node.getRelatedNodes('annotation', 'outgoing');
+				if (nodes.length > 0) {
+					sourceData.children = [];
+					o = nodes.length;
+					for (j=0; j<o; j++) {
+						destNode = nodes[j];
+						destData = { 
+							name: me.getShortenedString( destNode.getDisplayTitle( true ), maxNodeChars ), 
+							node: destNode, 
+							type: destNode.getDominantScalarType().id,
+							children: null 
+						};
+						sourceData.children.push(destData);
+						if (processedNodes.indexOf(sourceData.node) == -1) {
+							processedNodes.push(sourceData.node);
+							getRelationsForData(destData);
+						}
+					}
+				}
+
+				var nodes = sourceData.node.getRelatedNodes('comment', 'outgoing');
+				if (nodes.length > 0) {
+					sourceData.children = [];
+					o = nodes.length;
+					for (j=0; j<o; j++) {
+						destNode = nodes[j];
+						destData = { 
+							name: me.getShortenedString( destNode.getDisplayTitle( true ), maxNodeChars ), 
+							node: destNode, 
+							type: destNode.getDominantScalarType().id,
+							children: null 
+						};
+						sourceData.children.push(destData);
+						if (processedNodes.indexOf(sourceData.node) == -1) {
+							processedNodes.push(sourceData.node);
+							getRelationsForData(destData);
+						}
+					}
+				}
+			}
+
+			function addChildNodes( parent, nodes ) {
+
+				var i, node, data,
+					n = nodes.length;
+
+				for ( i=0; i<n; i++ ) {
+					node = nodes[i];
+					if (processedNodes.indexOf(node) == -1) {
+						data = { 
+							name: me.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+							node: node, 
+							type: node.getDominantScalarType().id,
+							children: null 
+						};
+						parent.children.push(data);
+						getRelationsForData(data);
+					}
+				}
+
+			}
+
+			var root = { 
+				name: this.getShortenedString( scalarapi.removeMarkup( this.model.book_title ), maxNodeChars ), 
+				type: 'root', 
+				children:[] 
+			};
+
+			var tocRoot = {
+				name: "Table of Contents",
+				type: "root",
+				children: []
+			}
+
+			root.children.push( tocRoot );
+
+			var nodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'referee', 'outgoing', true );
+			n = nodes.length;
+			for ( i=0; i<n; i++ ) {
+				node = nodes[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					tocRoot.children.push(data);
+					getRelationsForData(data);
+				}
+			}
+			//addChildNodes( root, nodes );
+			//console.log( root );
+
+			var pathRoot = {
+				name: "Paths",
+				type: "path",
+				children: []
+			}
+
+			root.children.push( pathRoot );
+
+			nodes = scalarapi.model.getNodesWithProperty( 'scalarType', 'path', 'alphabetical' );
+			n = nodes.length;
+			for ( i=0; i<n; i++ ) {
+				node = nodes[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					pathRoot.children.push(data);
+					getRelationsForData(data);
+				}
+			}
+
+			var tagRoot = {
+				name: "Tags",
+				type: "tag",
+				children: []
+			}
+
+			root.children.push( tagRoot );
+
+			nodes = scalarapi.model.getNodesWithProperty( 'scalarType', 'tag', 'alphabetical' );
+			n = nodes.length;
+			for ( i=0; i<n; i++ ) {
+				node = nodes[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					tagRoot.children.push(data);
+					getRelationsForData(data);
+				}
+			}
+
+			var mediaRoot = {
+				name: "Media",
+				type: "media",
+				children: []
+			}
+
+			root.children.push( mediaRoot );
+
+			nodes = scalarapi.model.getNodesWithProperty( 'scalarType', 'media', 'alphabetical' );
+			n = nodes.length;
+			for ( i=0; i<n; i++ ) {
+				node = nodes[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					mediaRoot.children.push(data);
+					getRelationsForData(data);
+				}
+			}
+
+			var annotationRoot = {
+				name: "Annotations",
+				type: "annotation",
+				children: []
+			}
+
+			root.children.push( annotationRoot );
+
+			nodes = scalarapi.model.getNodesWithProperty( 'scalarType', 'annotation', 'alphabetical' );
+			n = nodes.length;
+			for ( i=0; i<n; i++ ) {
+				node = nodes[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					annotationRoot.children.push(data);
+					getRelationsForData(data);
+				}
+			}
+
+			var commentRoot = {
+				name: "Comments",
+				type: "comment",
+				children: []
+			}
+
+			root.children.push( commentRoot );
+
+			nodes = scalarapi.model.getNodesWithProperty( 'scalarType', 'comment', 'alphabetical' );
+			n = nodes.length;
+			for ( i=0; i<n; i++ ) {
+				node = nodes[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					commentRoot.children.push(data);
+					getRelationsForData(data);
+				}
+			}
+
+			// add all other paths and their children to the graph
+			//var paths = scalarapi.model.getNodesWithProperty('scalarType', 'path');
+			/*var paths = currentNode.getRelatedNodes( "path", "outgoing" );
+			
+			var pathChildren = [];
+		
+			n = paths.length;
+			for (i=0 ;i<n; i++) {
+				node = paths[i];
+				if (processedNodes.indexOf(node) == -1) {
+					data = { 
+						name: this.getShortenedString( node.getDisplayTitle( true ), maxNodeChars ), 
+						node: node, 
+						type: node.getDominantScalarType().id,
+						children: null 
+					};
+					pathChildren.push(data);
+					getRelationsForData(data);
+				}
+			}
+
+			root.children = pathChildren;
+
+			if ( pathChildren.length == 0 ) {
+				root.name += " (not a path)";
+			}*/
+			
+			this.visualization.css('width', this.model.element.width());
+			this.visualization.css('padding', '0px');
+
+			var fullWidth = this.visualization.width();
+			var fullHeight = this.visualization.height();
+
+			$( '#loadingMsg' ).addClass( 'bounded' );
+			$( '.vis_footer' ).addClass( 'bounded' );
+			$( '#scalarvis' ).addClass( 'bounded' );
+
+			root.x0 = fullHeight * .5;
+			root.y0 = 0;
+							
+			var tree = d3.layout.tree().nodeSize([ 30, fullHeight ])
+			    /*.size([fullHeight, fullWidth])*/;
+
+			var diagonal = d3.svg.diagonal()
+			    .projection(function(d) { return [d.y, d.x]; });
+
+			// create visualization base element
+			var visparent = d3.select('#scalarvis').append('svg:svg')
+				.attr('width', fullWidth)
+				.attr('height', fullHeight);
+
+			var vis = visparent.append("svg:g");
+
+
+			  function pathToggleAll(d) {
+			    if (d.children) {
+			      d.children.forEach(pathToggleAll);
+			      pathToggle(d);
+			    }
+			  }
+		
+			var zoom = d3.behavior.zoom().scaleExtent([ .25, 7 ])
+			zoom.on("zoom", function() {
+				vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+			});
+			visparent.call( zoom );
+			visparent.style( "cursor", "move" );
+
+			// expand the root node
+			root.children.forEach(pathToggleAll);
+
+			pathUpdate( root, true );
+
+			function pathUpdate( source, instantaneous ) {
+
+				var duration = instantaneous ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
+
+				// Compute the new tree layout.
+				var nodes = tree.nodes(root).reverse();
+
+				// Normalize for fixed-depth.
+				nodes.forEach(function(d) { d.y = ( d.depth + 1 ) * columnWidth; });
+
+				// Update the nodes…
+				me.pathvis_node = vis.selectAll("g.node")
+					.data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+				// Enter any new nodes at the parent's previous position.
+				var nodeEnter = me.pathvis_node.enter().append("svg:g")
+					.attr("class", "node")
+					.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
+
+				nodeEnter.append("svg:circle")
+					.attr("r", 1e-6)
+					.style("fill", function(d) { return d._children ? d3.hsl( me.highlightColorScale( d.type, "noun" ) ).brighter( 1.5 ) : "#fff"; })
+					.style( "stroke", function(d) { return me.highlightColorScale( d.type, "noun" ) })  
+				.on('touchstart', function(d) { d3.event.stopPropagation(); })
+				.on('mousedown', function(d) { d3.event.stopPropagation(); })
+				.on("click", function(d) { 
+					if (d3.event.defaultPrevented) return; // ignore drag
+					pathToggle(d); pathUpdate(d); 
+				});
+
+				nodeEnter.append("svg:text")
+					.attr("x", function(d) { return d.children || d._children ? -14 : 14; })
+					.attr("dy", ".35em")
+					.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+					.text(function(d) { return d.name; })
+					.style("fill-opacity", 1e-6)
+				.on('touchstart', function(d) { d3.event.stopPropagation(); })
+				.on('mousedown', function(d) { d3.event.stopPropagation(); })
+				.on( 'click', function(d) { 
+					if (d3.event.defaultPrevented) return; // ignore drag
+					d3.event.stopPropagation();
+					if ( self.location != d.node.url ) {
+						return self.location = d.node.url;
+					}
+				});
+
+				// Transition nodes to their new position.
+				var nodeUpdate = me.pathvis_node.transition()
+					.duration(duration)
+					.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+				nodeUpdate.select("circle")
+					.attr("r", 8)
+					.style("fill", function(d) { return d._children ? d3.hsl( me.highlightColorScale( d.type, "noun" ) ).brighter( 1.5 ) : "#fff"; });
+
+				nodeUpdate.select("text")
+					.style("fill-opacity", 1);
+
+				// Transition exiting nodes to the parent's new position.
+				var nodeExit = me.pathvis_node.exit().transition()
+					.duration(duration)
+					.attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+					.remove();
+
+				nodeExit.select("circle")
+					.attr("r", 1e-6);
+
+				nodeExit.select("text")
+					.style("fill-opacity", 1e-6);
+
+				// Update the links…
+				me.pathvis_link = vis.selectAll("path.clusterlink")
+					.data(tree.links(nodes), function(d) { return d.target.id; });
+
+				// Enter any new links at the parent's previous position.
+				me.pathvis_link.enter().insert("svg:path", "g")
+					.attr("class", "clusterlink")
+					.attr("d", function(d) {
+					var o = {x: source.x0, y: source.y0};
+						return diagonal({source: o, target: o});
+					})
+				.transition()
+					.duration(duration)
+					.attr("d", diagonal);
+
+				// Transition links to their new position.
+				me.pathvis_link.transition()
+					.duration(duration)
+					.attr("d", diagonal);
+
+				// Transition exiting nodes to the parent's new position.
+				me.pathvis_link.exit().transition()
+					.duration(duration)
+					.attr("d", function(d) {
+						var o = {x: source.x, y: source.y};
+						return diagonal({source: o, target: o});
+					})
+					.remove();
+
+				// Stash the old positions for transition.
+				nodes.forEach(function(d) {
+					d.x0 = d.x;
+					d.y0 = d.y;
+				});
+			}
+
+			// Toggle children.
+			function pathToggle(d) {
+				if (d.children) {
+					d._children = d.children;
+					d.children = null;
+				} else {
+					d.children = d._children;
+					d._children = null;
+				}
+			}
+
+		}
+
 		/**
 		 * Draws the media visualization.
 		 *
@@ -1476,7 +1976,16 @@
 			var target;
 			n = this.selectedNodes.length;
 			for (i=0; i<n; i++) {
-				this.currentTagNodes.push(this.tagNodesByURL[this.selectedNodes[i].url]);
+				node = this.tagNodesByURL[this.selectedNodes[i].url];
+				if ( node == null ) {
+					node = this.selectedNodes[i];
+					targetDatum = {index:this.tagNodes.length, node:node, title:node.getDisplayTitle( true ), shortTitle:this.getShortenedString(node.getDisplayTitle( true ), maxNodeChars), type:node.getDominantScalarType().id};
+					this.tagNodesByURL[node.url] = targetDatum;
+					this.tagNodes.push( targetDatum );
+					this.currentTagNodes.push( targetDatum );
+				} else {
+					this.currentTagNodes.push( node );
+				}
 			}
 			n = this.tagLinks.length;
 			for (i=0; i<n; i++) {
