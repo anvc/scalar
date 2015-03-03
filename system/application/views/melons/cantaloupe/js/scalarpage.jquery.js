@@ -409,7 +409,7 @@
 
 			},
 
-			addRelationshipNavigation: function(showLists) {
+			addRelationshipNavigation: function( showLists, showChildNav, isCentered ) {
 
 				var button, href, section, nodes, node, link, links,
 					currentNode = scalarapi.model.getCurrentPageNode(),
@@ -419,7 +419,7 @@
 					foundQueryPath = ( queryVars.path != null );
 
 				// path back/continue buttons
-				if (page.containingPaths.length > 0) {
+				if (( page.containingPaths.length > 0 ) && showChildNav ) {
 					section = $('<section class="relationships"></section').appendTo('article');
 					if ( page.containingPathNodes.length > 1 ) {
 						if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
@@ -473,18 +473,23 @@
 					}
 				} );
 
-				var cont_btn = $('.nav_btn.primary');
-				var back_btn = $('#back-btn');
-				if(cont_btn.length !== 0) {
-					if(back_btn.length !== 0) {
-						cont_btn.parent().addClass('container');
-						back_btn.wrap('<div style="padding:0;padding-right:5px;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
-						cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
+				// if relationship nav isn't centered, add bootstrap column formatting to help
+				// accommodate long labels that wrap to multiple lines (if it is centered, then
+				// we likely aren't showing lateral relationship nav anyway so don't worry about it)
+				if ( !isCentered ) {
+					var cont_btn = $('.nav_btn.primary');
+					var back_btn = $('#back-btn');
+					if(cont_btn.length !== 0) {
+						if(back_btn.length !== 0) {
+							cont_btn.parent().addClass('container');
+							back_btn.wrap('<div style="padding:0;padding-right:5px;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
+							cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
 
-						var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
-						back_btn.css('padding-top',temp);
-						back_btn.css('padding-bottom',temp);
-						back_btn.css('vertical-align','top');
+							var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
+							back_btn.css('padding-top',temp);
+							back_btn.css('padding-bottom',temp);
+							back_btn.css('vertical-align','top');
+						}
 					}
 				}
 
@@ -555,7 +560,7 @@
 						}
 
 						// "visit random" button
-						if ( pathOptionCount == 0 ) {
+						if (( pathOptionCount == 0 ) && showChildNav ) {
 							nodes = currentNode.getRelatedNodes('tag', 'outgoing');
 							if (nodes.length > 1) {
 								section.append('<p><a class="nav_btn" href="'+nodes[Math.floor(Math.random() * nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
@@ -1088,7 +1093,7 @@
 				element.css('backgroundImage', $('body').css('backgroundImage'));
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation(false);
+				page.addRelationshipNavigation( false, false, true );
 				$('.relationships').appendTo('.title_card');
 
 				window.setTimeout(function(){
@@ -1117,7 +1122,7 @@
 					console.log('an error occurred while retrieving gallery info.');
 				}, 1, true);*/
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation(true);
+				page.addRelationshipNavigation( true, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
@@ -1133,7 +1138,7 @@
 				page.setupScreenedBackground();
 				var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( false );
+				page.addRelationshipNavigation( false, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
@@ -1152,7 +1157,7 @@
 				$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation(true);
+				page.addRelationshipNavigation( true, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
@@ -1358,7 +1363,7 @@
 				});*/
 
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation(true);
+				page.addRelationshipNavigation( true, true, false );
 				page.addIncomingComments();
 				page.addColophon();
 				page.addNotes();
