@@ -1021,6 +1021,47 @@
 
 				page.addMediaElements();
 
+			},
+
+			addAdditionalMetadata: function() {
+
+				var prop, value, 
+					count = 0,
+					table = $( '<table></table>' ),
+					currentNode = scalarapi.model.getCurrentPageNode();
+
+				// build table of auxiliary properties (and count how many there are)
+				for ( prop in currentNode.current.auxProperties ) {
+					for ( i in currentNode.current.auxProperties[ prop ] ) {
+						value = currentNode.current.auxProperties[ prop ][ i ];
+						table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
+						count++;
+					}
+				}
+
+				// if we have auxiliary properties, add a button to toggle their display
+				if ( count > 0 ) {
+
+					var metadata = $( '<div class="body_copy additional_metadata caption_font" style="clear: both;"></div>' );
+					var button = $( '<a class="btn btn-default" aria-expanded="false" aria-controls="additionalMetadata">Additional metadata</a>' ).appendTo( metadata );
+					button.click( function() {
+						var isExpanded = $( this ).attr( "aria-expanded" );
+						if ( isExpanded == "false" ) {
+							$( "#additionalMetadata" ).show();
+							$( this ).attr( "aria-expanded", "true" );
+						} else {
+							$( "#additionalMetadata" ).hide();
+							$( this ).attr( "aria-expanded", "false" );
+						}
+					} );
+					var collapsible = $( '<div id="additionalMetadata"><div class="well"></div></div>' ).appendTo( metadata );
+					var well = collapsible.find( ".well" );
+					well.append( table );
+
+					$( ".relationships" ).prepend( metadata );
+
+				}
+
 			}
 
 		};
@@ -1138,6 +1179,7 @@
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( true, true, true, false );
 				page.addIncomingComments();
+				page.addAdditionalMetadata();
 				page.addColophon();
 				page.addNotes();
 				break;
@@ -1154,6 +1196,7 @@
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( false, false, true, false );
 				page.addIncomingComments();
+				page.addAdditionalMetadata();
 				page.addColophon();
 				page.addNotes();
 				break;
@@ -1173,6 +1216,7 @@
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( true, true, true, false );
 				page.addIncomingComments();
+				page.addAdditionalMetadata();
 				page.addColophon();
 				page.addNotes();
 				break;
@@ -1379,6 +1423,7 @@
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( true, true, true, false );
 				page.addIncomingComments();
+				page.addAdditionalMetadata();
 				page.addColophon();
 				page.addNotes();
 				break;
