@@ -454,7 +454,7 @@
 				// end-of-path continue button
 				if ( showLateralNav ) {
 					$( '[rel="scalar:continue_to"]' ).each( function() {
-						var span = $( '[resource="' + $( this ).attr( 'href' ) + '"]' );
+						var span = $( 'header > [resource="' + $( this ).attr( 'href' ) + '"]' );
 						span.hide();
 						link = span.find( 'span[property="dcterms:title"] > a' );
 						node = scalarapi.getNode( link.attr( 'href' ) );
