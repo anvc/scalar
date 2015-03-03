@@ -41,7 +41,6 @@ var arbors_uri = base_uri.substr(0, base_uri.lastIndexOf('/'));
 var views_uri = arbors_uri.substr(0, arbors_uri.lastIndexOf('/'));
 var modules_uri = views_uri+'/melons';
 var widgets_uri = views_uri+'/widgets';
-var currentNode = null;
 var header = null;
 var page = null;
 var pinwheel = null;
@@ -371,7 +370,7 @@ $(window).ready(function() {
 				// use scalarapi to parse the JSON
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
-				currentNode = scalarapi.model.getCurrentPageNode();
+				var currentNode = scalarapi.model.getCurrentPageNode();
 
 				//console.log(JSON.stringify(rdf_json));
 				/**
@@ -413,6 +412,8 @@ $(window).ready(function() {
 		  {load: [widgets_uri+'/spinner/spin.min.js',
 		          widgets_uri+'/d3/d3.min.js',], complete:function() {
 
+		        var currentNode = scalarapi.model.getCurrentPageNode();
+		        
 		   		if ( currentNode == null ) {
 		   			$( 'body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
 		   			$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );

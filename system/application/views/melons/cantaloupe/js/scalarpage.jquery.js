@@ -368,7 +368,8 @@
 			// gathers info about this node's containing paths -- must be called before addHeaderPathInfo and addRelationshipNavigation
 			getContainingPathInfo: function() {
 
-				var queryVars = scalarapi.getQueryVars( document.location.href );
+				var queryVars = scalarapi.getQueryVars( document.location.href ),
+					currentNode = scalarapi.model.getCurrentPageNode();
 
 				page.containingPaths = currentNode.getRelatedNodes('path', 'incoming');
 
@@ -630,7 +631,7 @@
 			},
 
 			addIncomingComments: function() {
-				var comments = currentNode.getRelatedNodes('comment', 'incoming');
+				var comments = scalarapi.model.getCurrentPageNode().getRelatedNodes('comment', 'incoming');
 				//$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
 				$('article').append('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>'+((comments.length > 0) ? comments.length : '&nbsp;')+'</strong></div></div>');
 				var commentDialogElement = $('<div></div>').appendTo('body');
@@ -714,7 +715,7 @@
 
 			handleBook: function() {
 
-				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				var viewType = scalarapi.model.getCurrentPageNode().current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
 
 				// add book authors if this is a book splash page
 				if ( viewType == 'book_splash' ) {
@@ -773,7 +774,9 @@
 
 			addMediaElements: function() {
 
-				var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				var currentNode = scalarapi.model.getCurrentPageNode(),
+					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+
 				switch (viewType) {
 
 					case 'gallery':
@@ -969,11 +972,8 @@
 					// resource property signifies a media link
 					if ( ($( this ).attr( 'resource' ) || ( $( this ).find( '[property="art:url"]' ).length > 0 ) ) && ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
-						var slot;
-						var slotDOMElement;
-						var slotMediaElement;
-						var count;
-						var parent;
+						var slot, slotDOMElement, slotMediaElement, count, parent,
+							currentNode = scalarapi.model.getCurrentPageNode();
 
 						if ($(this).attr('resource') == undefined) {
 							$(this).attr('href', currentNode.current.sourceFile);
@@ -1068,7 +1068,8 @@
 			page.heightOnMediaLoad = $(window).height();
 		});
 
-		var i, node, nodes, link;
+		var i, node, nodes, link,
+			currentNode = scalarapi.model.getCurrentPageNode();
 
 		if ( currentNode != null ) {
 

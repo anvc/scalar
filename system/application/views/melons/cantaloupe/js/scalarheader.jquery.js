@@ -59,6 +59,8 @@
             var book_url = $('link#parent').attr('href');
             var home_url = $('link#parent').attr('href');
 
+            var currentNode = scalarapi.model.getCurrentPageNode();
+
             var index_url = book_url.slice(0,-1);
             index_url = index_url.substr(0, index_url.lastIndexOf('/'))+'/';
 
@@ -485,7 +487,10 @@
         };
 
         base.buildUserMenu = function(userList){
-            var redirect_url = '';
+
+            var redirect_url = ''
+                currentNode = scalarapi.model.getCurrentPageNode();
+                
             if ( currentNode != null ) {
                 redirect_url = encodeURIComponent(currentNode.url);
             }else{
@@ -544,7 +549,7 @@
                 if (result) {
                     var base = $('#scalarheader.navbar').data('scalarheader');        
                     // assemble params for the trash action
-                    var node = currentNode,
+                    var node = scalarapi.model.getCurrentPageNode(),
                         baseProperties =  {
                             'native': 1,
                             id: $('link#parent').attr('href'),

@@ -100,7 +100,7 @@
 		var me = this;
 
 		this.results.empty();
-		scalarapi.loadPage(currentNode.slug, true, function() {
+		scalarapi.loadPage( scalarapi.model.getCurrentPageNode().slug, true, function() {
 			me.handleComments();
 		}, null, 1, false, 'reply');
 
@@ -109,7 +109,7 @@
 	ScalarComments.prototype.handleComments = function() {
 
 		var relation, node,
-			relations = currentNode.getRelations('comment', 'incoming', 'reverseindex');
+			relations = scalarapi.model.getCurrentPageNode().getRelations('comment', 'incoming', 'reverseindex');
 
 		this.tabIndex = 100;
 
@@ -153,7 +153,8 @@
 	
 	ScalarComments.prototype.setupCommentForm = function() {
 	
-		var me = this;
+		var me = this,
+			currentNode = scalarapi.model.getCurrentPageNode();
 
 		this.userReply = $('<div class="comment_form"></div>').appendTo(this.bodyContent);
 		this.userReply.append('<h3 class="heading_font heading_weight">Add your voice</h3>');
