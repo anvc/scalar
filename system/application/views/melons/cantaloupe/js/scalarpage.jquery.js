@@ -796,6 +796,11 @@
 					page.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
 					break;
 
+					case "splash":
+					case "book_splash":
+					// splash views don't get media
+					break;
+
 					default:
 					if ( viewType == 'structured_gallery' ) {
 						gallery.addMedia();
