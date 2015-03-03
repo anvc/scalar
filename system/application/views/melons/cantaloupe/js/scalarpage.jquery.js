@@ -616,6 +616,12 @@
 					}
 				});
 
+				// show items that tag this page
+				var hasTags = $( ".has_tags" );
+				hasTags.siblings( "h1" ).text( "Tagged by" );
+				$( ".relationships" ).prepend( hasTags.parent() );
+				hasTags.unwrap();
+
 			},
 
 			loadNextAnnotatedMedia: function() {

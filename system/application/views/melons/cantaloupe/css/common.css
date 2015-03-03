@@ -272,6 +272,12 @@ section.relationships {
 	padding-right: 7.2rem;
 }
 
+/* shows has_tags ordered lists as comma-separated inline lists */
+ol.has_tags { display: inline; list-style: none; }
+ol.has_tags li { display: inline; }
+ol.has_tags li:after { content: "| "; }
+ol.has_tags li:last-child:after { content: ""; }
+
 .path-breadcrumb {
 	text-transform: uppercase;
 	padding-left: 7.2rem;
