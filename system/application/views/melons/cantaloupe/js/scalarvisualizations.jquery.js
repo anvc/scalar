@@ -190,6 +190,7 @@
 		this.pageIndex = 0;
 		this.resultsPerPage = 25;
 		this.reachedLastPage = true;
+		this.typeCounts = {};
 		
 		jQuery.VisController.prototype.loadNode = function( slug, ref ) {
 			scalarapi.loadNode( slug, true, me.parseNode, null, 1, ref );
@@ -273,8 +274,16 @@
 					break;
 				
 				}
+
+				//console.log( "load next data: " + this.loadSequence[this.loadIndex].id + ' ' + start + ' ' + end );
 		
-				this.view.updateLoadingMsg(this.loadSequence[this.loadIndex].desc, ((this.loadIndex + 1) / (this.loadSequence.length + 1)) * 100, ( start == -1 ) ? -1 : start + 1, end );
+				this.view.updateLoadingMsg(
+					this.loadSequence[this.loadIndex].desc, 
+					((this.loadIndex + 1) / (this.loadSequence.length + 1)) * 100, 
+					( start == -1 ) ? -1 : start + 1, 
+					end,
+					me.typeCounts[ me.loadSequence[me.loadIndex].id ]
+				);
 				
 				if (result == 'loaded') me.parseData();
 				
@@ -311,11 +320,43 @@
 			if ( jQuery.isEmptyObject( json ) || ( json == null ) ) {
 				me.reachedLastPage = true;
 			}
+
+			me.typeCounts[ me.loadSequence[me.loadIndex].id ]
 			
 			// parse its relations with other nodes
 			if ((me.loadSequence[me.loadIndex].id != 'book') && (me.loadSequence[me.loadIndex].id != 'current') && (me.loadSequence[me.loadIndex].id != 'currentRelations')) {
+
 				var typedNodes = scalarapi.model.getNodesWithProperty('scalarType', me.loadSequence[me.loadIndex].id);
 				me.model.maxNodesPerType = Math.max(me.model.maxNodesPerType, typedNodes.length);
+
+				// attempt to find the total count of the current item type as returned in the data
+				var i, n, count, citation, tempA, tempB;
+				for ( var prop in json ) {
+					citation = json[ prop ][ "http://scalar.usc.edu/2012/01/scalar-ns#citation" ];
+					if ( citation != null ) {
+						tempA = citation[ 0 ].value.split( ";" );
+						n = tempA.length;
+						for ( i = 0; i < n; i++ ) {
+							if ( tempA[ i ].indexOf( "methodNumNodes=" ) == 0 ) {
+								tempB = tempA[ i ].split( "=" );
+								count = parseInt( tempB[ tempB.length - 1 ] );
+								break;
+							}
+						}
+						break;
+					}
+				}
+
+				// if a count was found, store it
+				if ( count != null ) {
+					me.typeCounts[ me.loadSequence[me.loadIndex].id ] = count;	
+
+					// if the count is less than the point at which we'd start our next load, then
+					// we've reached the last page of data for this item type
+					if ( count < (( me.pageIndex + 1 ) * me.resultsPerPage )) {
+						me.reachedLastPage = true;
+					}
+				}
 			}
 		
 			// redraw the view
@@ -552,7 +593,7 @@
 		 * @param {String} typeName			The type of node being loaded.
 		 * @param {Number} percentDone		Percentage of loads completed (0-100)
 		 */
-		jQuery.VisView.prototype.updateLoadingMsg = function( typeName, percentDone, start, end ) {
+		jQuery.VisView.prototype.updateLoadingMsg = function( typeName, percentDone, start, end, total ) {
 		
 			// only show the loading message if it's taking a while to load the data
 			if ( !this.loadingMsgShown && (( new Date().getTime() - this.startTime.getTime() ) > 1000 )) {
@@ -561,8 +602,8 @@
 				this.loadingMsgShown = true;
 			}
 			
-			if ( start != -1 ) {
-				this.loadingMsg.find('p').text( 'Loading ' + typeName + ' ' + start + ' through ' + end + '...' );
+			if (( start != -1 ) && ( total != null )) {
+				this.loadingMsg.find('p').text( 'Loading ' + typeName + ' (' + start + '/' + total + ')...' );
 			} else {
 				this.loadingMsg.find('p').text( 'Loading ' + typeName + '...' );
 			}
