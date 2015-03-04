@@ -619,7 +619,8 @@
 				// show items that tag this page
 				var hasTags = $( ".has_tags" );
 				hasTags.siblings( "h1" ).text( "Tagged by" );
-				$( ".relationships" ).prepend( hasTags.parent() );
+				$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
+				hasTags.parent().wrap( '<section class="relationships"></section>' );
 				hasTags.unwrap();
 
 			},
@@ -1058,7 +1059,7 @@
 					var well = collapsible.find( ".well" );
 					well.append( table );
 
-					$( ".relationships" ).prepend( metadata );
+					$( ".relationships" ).eq( 0 ).prepend( metadata );
 
 				}
 
