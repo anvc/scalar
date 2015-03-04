@@ -1240,18 +1240,29 @@ function YouTubeGetID(url){
 				y: this.containerDim.y
 			};
 
+			// Set Maximum height for media types designated in typeLimits object;
 			var typeLimits = this.model.options.typeLimits;
 			var contentType = this.model.mediaSource.contentType;
+			var maxHeight;
 			if (typeof typeLimits == 'object') {
-				$.each(typeLimits, function(type, maxHeight) {
+				$.each(typeLimits, function(type, max) {
 					if (contentType == type) {
+						maxHeight = max;
+					} else if (type == 'default') {
+						if(typeof maxHeight == 'undefined') {
+							maxHeight = max;
+						}
+					}
+				});
+
+				if(typeof maxHeight != 'undefined') {
 						if (mediaAR > containerAR) {
+							// Must limit width in order to get the right height limit
 							tempDims.x = Math.min(maxHeight * mediaAR,tempDims.x);
 						} else {
 							tempDims.y = Math.min(maxHeight, tempDims.y);
 						}
-					}
-				});
+				}
 			}
 
 			if (mediaAR > containerAR) {

@@ -248,8 +248,12 @@
 					size = link.attr( 'data-size' ),
 					align = link.attr( 'data-align' ),
 					typeLimits = {
-						'video':$(window).height()*0.85, // videos should be limited to never be larger than the height of the window
-						// 'default':$(window).height()*1.3 // do we need to limit anything else at all?
+						// Add more exceptions to height limitations if needed
+						
+						// Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
+						'image':$(window).height()*1.3 ,
+						// The default for media should be to limit their size to fit within the bounds of the window
+						'default':$(window).height()*0.85, 
 					};
 
 				// default alignment is 'right'
