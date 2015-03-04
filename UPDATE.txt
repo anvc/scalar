@@ -32,12 +32,12 @@ a) Download the most recent version of Scalar at "Scalar versions for download" 
 b) Extract the ZIP file and prepare to upload its contents.
 
 Step 3
-a) Upload folders insidie:
+a) Upload folders inside:
 system/application
 Upload all of the folders inside system/application **except** the aforementioned config folders (system/application/config & system/application/language). 
 This will ensure that you don't overwrite your config files with default values.
 b) Make sure that hidden files are copied to your server (some FTP clients hide .htaccess files).
 
 All done!  To test, you can check certain elements of Scalar including the Dashboard, media elements (media 
-included in pages), and page editing.
+included in pages), and the page editor.
 
