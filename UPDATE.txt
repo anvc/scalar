@@ -1,0 +1,35 @@
+----------------------------
+Scalar Updating Instructions
+----------------------------
+
+Scalar is a PHP and MySQL application built with CodeIgniter.
+
+***
+This document assumes that you have a working copy of Scalar operating on your server, and that you wish to update to the most recent Scalar build. If you wish to install Scalar from scratch please see INSTALL.txt.
+***
+
+***
+A note on Scalar versions: 
+Of course, you can always update your Scalar install from the most recent build on GitHub.  However, sometimes bugs can be introduced by commits to GitHub that haven't yet been verified by Scalar's development team.  For this reason we keep checkpoints ("versions") of Scalar in a separate location.  Full details below.
+***
+ 
+To begin take a look at the "Changes to config files over time" wiki page (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).  Here we list any updates to Scalar config files or the database scheme that will need to be made on your install for the update to work properly.  Each update is marked by the date it was added (and therefore the date that the codebase assumes that the update exists).
+
+Step 1
+a) Update your database scheme based on "Changes to config files over time" (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).
+b) Update your config files based on "Changes to config files over time".  Config files are kept in two places:
+system/application/config -- most changes to config files will be here
+system/application/language -- text such as the name of your Scalar install is kept here
+
+Step 2
+a) Download the most recent version of Scalar at "Scalar versions for download" (https://github.com/anvc/scalar/wiki/Scalar-versions-for-download).
+b) Extract the ZIP file and prepare to upload its contents.
+
+Step 3
+a) Upload folders insidie:
+system/application
+Upload all of the folders inside system/application **except** the aforementioned config folders (system/application/config & system/application/language). This will ensure that you don't overwrite your config files with default values.
+b) Make sure that hidden files are copied to your server (some FTP clients hide .htaccess files).
+
+All done!  To test, you can check certain elements of Scalar including the Dashboard, media elements (media included in pages), and page editing.
+
