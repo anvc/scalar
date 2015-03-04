@@ -137,7 +137,10 @@
 						if ( size == 'native' ) {
 							// remove body_copy wrapper for inline elements
 							if(isInline) {
-								link.data('slot').unwrap();
+								// Don't unwrap the inline element if it's parent is the main content wrapper
+								if(link.data('slot').parent('[property="sioc:content"]').length == 0) {
+									link.data('slot').unwrap();
+								}
 
 							// align full size elements below their links instead of above
 							} else {
