@@ -19,9 +19,10 @@ seem to be working properly.  Please make sure short_open_tag is turned on in PH
 ***
 
 ***
-Also, on occasion we make changes to config files or the database schema, therefore please take a look at this page
-if you plan to update your local Scalar installation:
-https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time
+You can download the most recent Scalar build from GitHub. However, we also occassionally package Scalar into a ZIP 
+file "version" kept at the "Scalar versions for download" wiki page (https://github.com/anvc/scalar/wiki/Scalar-versions-for-download).
+Installing Scalar from a ZIP file version ensures that the Scalar team has tested its contents on development and 
+live environments (e.g., scalar.usc.edu).  To update an existing Scalar install, see UPDATE.txt.
 ***
 
 1) 
