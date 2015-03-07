@@ -1,0 +1,29 @@
+body {margin:20px;}
+h2, h3, h4 {margin-top:4px; padding-top:4px;}
+form {padding:0px 20px 20px 20px; background-color:#eeeeee; border-radius: 0 0 15px 15px;}
+textarea[id="source_rdf"] {width:100%; height:200px;}
+textarea.source_rdf {width:100%; height:200px;}
+input[type='text'].dest_url {margin-bottom:12px;}
+#wrapper .alert {margin-bottom:0px;}
+#urlform .example, #rdfform .example {display:inline-block; padding-left:12px; font-size:13px;}
+.modal-dialog {width:90%;}
+#commit .book_msg {float:left;}
+.adaptive-padding{padding-top:20px;}
+.progress {margin-bottom:6px;}
+#progress_log {display:none; width:100%; height:50px; background-color:white; color:red; font-size:smaller; overflow:auto;}
+.progress-bar {text-align:left;}
+.progress-bar span {padding-left:5px;}
+
+.scalar-logo {
+	background-image:url(images/scalar-logo.png); background-repeat:no-repeat; width:20px; height:18px;
+	display:inline-block; background-size:cover; margin-right:10px;
+}
+.rdf-logo {
+	background-image:url(images/rdf-logo.png); background-repeat:no-repeat; width:20px; height:22px;
+	display:inline-block; background-size:cover; margin-right:10px;
+}
+.btn-beta-notes {float:right; color:#337ab7;}
+
+@media (max-width: 768px) {
+	.adaptive-padding{padding-top:10px;}
+}
