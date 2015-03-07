@@ -29,6 +29,17 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 		<li><a href="#tabs-annotations" style="color:#241d7d;">Annotations<?=((!empty($annotations_not_live))?'<sup>'.$annotations_not_live.'</sup>':'')?></a></li>
 		<li><a href="#tabs-replies" style="color:#241d7d;">Comments<?=((!empty($replies_not_live))?'<sup>'.$replies_not_live.'</sup>':'')?></a></li>
 		<!--<li><a href="#tabs-api">API</a></li>-->
+		<?php
+		if(is_object($plugin)) {
+			foreach ($plugin as $key => $val) {
+				if(property_exists($val, 'tag')) {
+		?>
+					<li><a href="#tabs-<?=urlencode($key)?>"><?=print_r($val->{'tag'},true)?></a></li>
+		<?php
+				}
+			}
+		}
+		?>
 		<? if ($login_is_super): ?>
 		<li><a href="#tabs-all-users" style="color:#7d1d1d;">All users</a></li>
 		<li><a href="#tabs-all-books" style="color:#7d1d1d;">All books</a></li>
@@ -55,6 +66,18 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 	<div id="tabs-annotations"><? if ('annotations'==$zone) { $this->load->view('modules/dashboard/annotations'); } else {echo 'Loading...';} ?></div>
 
 	<div id="tabs-replies"><? if ('replies'==$zone) { $this->load->view('modules/dashboard/replies'); } else {echo 'Loading...';} ?></div>
+	<?php
+	if(is_object($plugin)) {
+		foreach ($plugin as $key => $val) {
+			if(property_exists($val, 'tag')) {
+				$safe_key = urlencode($key);
+	?>	
+				<div id="tabs-<?=$safe_key?>"><? if ($safe_key==$zone) { $this->load->plugin($key.'/'.$key); } else {echo 'Loading...';} ?></div>
+	<?php
+			}
+		}
+	}
+	?>
 
 	<!--
 	<div id="tabs-api"><? if ('api'==$zone) { $this->load->view('modules/dashboard/api'); } else {echo 'Loading...';} ?></div>
