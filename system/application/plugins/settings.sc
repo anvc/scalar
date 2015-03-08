@@ -1,5 +1,5 @@
 {
 	"book_import": {
-		"tag":"Import/Export"
+		"class":"Book_Import"
 	}
 }

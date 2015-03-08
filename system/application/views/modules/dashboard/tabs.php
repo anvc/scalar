@@ -30,13 +30,11 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 		<li><a href="#tabs-replies" style="color:#241d7d;">Comments<?=((!empty($replies_not_live))?'<sup>'.$replies_not_live.'</sup>':'')?></a></li>
 		<!--<li><a href="#tabs-api">API</a></li>-->
 		<?php
-		if(is_object($plugin)) {
-			foreach ($plugin as $key => $val) {
-				if(property_exists($val, 'tag')) {
+		if(!empty($plugins)) {
+			foreach ($plugins as $key => $obj) {
 		?>
-					<li><a href="#tabs-<?=urlencode($key)?>"><?=print_r($val->{'tag'},true)?></a></li>
+				<li><a href="#tabs-<?=$obj->get_extension()?>"><?=print_r($obj->get_tag(),true)?></a></li>
 		<?php
-				}
 			}
 		}
 		?>
@@ -67,14 +65,12 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 
 	<div id="tabs-replies"><? if ('replies'==$zone) { $this->load->view('modules/dashboard/replies'); } else {echo 'Loading...';} ?></div>
 	<?php
-	if(is_object($plugin)) {
-		foreach ($plugin as $key => $val) {
-			if(property_exists($val, 'tag')) {
-				$safe_key = urlencode($key);
-	?>	
-				<div id="tabs-<?=$safe_key?>"><? if ($safe_key==$zone) { $this->load->plugin($key.'/'.$key); } else {echo 'Loading...';} ?></div>
+	if(!empty($plugins)) {
+		foreach ($plugins as $key => $obj) {
+			$ext = $obj->get_extension();
+	?>			
+			<div id="tabs-<?=$ext?>"><? if ($ext==$zone) { $obj->get_view(); } else {echo 'Loading...';} ?></div>
 	<?php
-			}
 		}
 	}
 	?>

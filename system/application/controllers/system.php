@@ -224,11 +224,6 @@ class System extends MY_Controller {
 		$user_id = (isset($_REQUEST['user_id']) && !empty($_REQUEST['user_id'])) ? $_REQUEST['user_id'] : 0;
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 
-		// Load plugin list
-		$plugins = file_get_contents(getcwd().'/system/application/plugins/settings.sc');
-		$plugins = json_decode(utf8_encode($plugins));
-		$this->data['plugin'] = $plugins;
-		
 		// There is more specific validation in each call below, but here run a general check on calls on books and users
 		if (!$this->data['login']->is_logged_in) $this->kickout();
 		if (!empty($book_id)) {
@@ -582,6 +577,18 @@ class System extends MY_Controller {
 
 					break;
 			}
+		}
+
+		// Load plugin list
+		$plugin_list = file_get_contents(getcwd().'/system/application/plugins/settings.sc');
+		$plugin_list = json_decode(utf8_encode($plugin_list));
+		if(is_object($plugin_list)) {
+			$plugins = array();
+			foreach ($plugin_list as $key => $val) {
+				$this->load->plugin($key.'/'.$key);
+				$plugins[] = new $val->{'class'}($this->data);
+			}
+			$this->data['plugins'] = $plugins;
 		}
 
 		// Load dashboard
