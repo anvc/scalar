@@ -2,7 +2,7 @@
 if ($mode || !isset($page->version_index)) return;
 
 function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
-	
+
 	if (!$has_reply) return $has_reply;
 	$indent_px = 50;
 	$indent = ($indent_px * $level);
@@ -11,7 +11,7 @@ function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
 	foreach ($has_reply as $reply):
 
 		if (!$reply->is_live) continue;
-		$reply_version = $reply->versions[$reply->version_index];	
+		$reply_version = $reply->versions[$reply->version_index];
 		echo '<div class="comment level-'.$level.'" style="margin-left:'.$indent.'px"><a name="comment-'.$reply_version->version_id.'"></a>'."\n";
 		if (!empty($reply_version->title)) echo '<p class="comment_title">'.$reply_version->title.'</p>'."\n";
 		echo nl2br(trim($reply_version->content));
@@ -24,7 +24,7 @@ function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
 		if (isset($reply_version->attribution->fullname) && !empty($reply_version->attribution->fullname)) {
 			echo $reply_version->attribution->fullname;
 		} else {
-			echo ((!empty($reply_version->fullname))?$reply_version->fullname:'(Missing name)');	
+			echo ((!empty($reply_version->fullname))?$reply_version->fullname:'(Missing name)');
 		}
 		echo ' &nbsp;<span style="font-size:smaller;">| &nbsp;';
 		echo '<a href="'.$base_uri.$reply->slug.'" title="Permalink" onclick="return commentCheckPermalink(this);">Permalink</a>';
@@ -33,58 +33,46 @@ function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
 		echo '</div><!--comment-->'."\n";
 
 		print_comments(@$reply_version->has_replies, $book, $base_uri, $user_id, ($level+1));
-		
+
 		$count++;
-		
-	endforeach;		
-	
+
+	endforeach;
+
 	return $count;
-	
+
 }
 
 function count_live($replies) {
-	
+
 	$count = 0;
 	foreach ($replies as $reply):
 		if ($reply->is_live) $count++;
 	endforeach;
 	return $count;
-	
+
 }
 
 $type = ($page->type == 'composite') ? 'page' : 'media page';
 ?>
 <!-- Reply list -->
 <div id="reply_list">
-  
+
  <? if (isset($page->versions[$page->version_index]->has_replies) && $count=count_live($page->versions[$page->version_index]->has_replies)): ?>
 	<a href="javascript:;" class="inline_icon_link reply reply_link">Join this <?=$type?>'s discussion (<?=$count?> comment<?=(($count>1)?'s':'')?>)</a>
 <? else: ?>
 	<a href="javascript:;" class="inline_icon_link reply reply_link">Comment on this <?=$type?></a>
-<? endif ?> 
+<? endif ?>
 <? if (!empty($page->versions[$page->version_index]->rdf)): ?>
-	<div class="inline_icon_link meta meta_link pulldown pulldown_click"><a href="javascript:;">Additional metadata</a>
-	  	<ul class="pulldown-content pulldown-content-nudge-center pulldown-content-no-mouseover nodots">
-<? 
-		foreach ($page->versions[$page->version_index]->rdf as $p => $values) {
-			$p = toNS($p, $ns);
-			echo '<li>';
-			echo '<b>'.$p.'</b><br />';				
-			foreach ($values as $value) {
-				$value = $value['value'];
-				$value = (isURL($value)) ? '<a href="'.$value.'">'.$value.'</a>' : $value;
-				echo $value.'<br />';
-			}
-			echo "</li>\n";
-		}
-?>
-		</ul>	
-	</div>
+	<div class="inline_icon_link meta meta_link"><a href="javascript:;">Additional metadata</a></div>
+	<script>
+	var additional_metadata = <?=json_encode($page->versions[$page->version_index]->rdf)?>;
+	var ns = <?=json_encode($ns)?>;
+	</script>
 <? endif; ?>
-  
+
 	<div class="maximize" id="comments" style="opacity: 1;">
 		<div class="maximize_fade"></div>
-		<div class="maximize_content maximize_content_static_width">	
+		<div class="maximize_content maximize_content_static_width">
 			<div class="mediaElementHeader mediaElementHeaderWithNavBar">
 				<ul class="nav_bar_options">
 					<span class="downArrow"><li id="max_desc_button" class="sel" title="Comments for this page">Local Discussion</li></span>
@@ -97,14 +85,14 @@ $type = ($page->type == 'composite') ? 'page' : 'media page';
 				<h4 class="content_title">Discussion of "<?=str_replace('"',"'",$page->versions[$page->version_index]->title)?>"</h4>
 			<? if (@$_GET['action']=='comment_saved'): ?>
 			<div class="saved" style="margin-bottom:14px;"><b>Your comment has been saved and is now awaiting moderation.</b><br />Thank you for your contribution!</div>
-			<? endif ?>				
+			<? endif ?>
 				<div class="discussion">
-	
-<?	
-				$num_comments = print_comments(@$page->versions[$page->version_index]->has_replies, $book, $base_uri, @$login->user_id);		
+
+<?
+				$num_comments = print_comments(@$page->versions[$page->version_index]->has_replies, $book, $base_uri, @$login->user_id);
 				if (!$num_comments && !@$_GET['action']=='comment_saved') echo '<p>No comments yet.</p>';
 ?>
-				</div><!--discussion-->  
+				</div><!--discussion-->
 
 	<div id="comment_contribute">
 		<h4 class="content_title">Add your voice to this discussion.</h4>
@@ -114,7 +102,7 @@ $type = ($page->type == 'composite') ? 'page' : 'media page';
 		<div id="comment_form_wrapper" style="display:none;">
 			<form id="comment_contribute_form" method="post" action="<?=$base_uri.$page->slug?>#comments" onsubmit="ajaxComment();return false;">
 			<input type="hidden" name="action" value="ADD" />
-			<input type="hidden" name="scalar:child_urn" value="<?=$page->versions[$page->version_index]->urn?>" />		
+			<input type="hidden" name="scalar:child_urn" value="<?=$page->versions[$page->version_index]->urn?>" />
 			<input type="hidden" name="dcterms:description" value="" />
 			<input type="hidden" name="user" value="0" id="comment_user_id" />
 			<input type="hidden" name="recaptcha_public_key" value="<?=$recaptcha_public_key?>" />
@@ -128,9 +116,9 @@ $type = ($page->type == 'composite') ? 'page' : 'media page';
 			</form>
 		</div>
 	</div>
-						
+
 				</div><!--comments-->
 		</div><!--maximize_content-->
-	</div><!--maximize-->	  
-  
+	</div><!--maximize-->
+
 </div>

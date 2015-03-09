@@ -195,13 +195,16 @@ $(window).ready(function() {
 		    });
 		  }},
 		  
-		  // Maximize + comments
-		  {load: [widgets_uri+'/maximize/maximize.css',widgets_uri+'/maximize/jquery.scalarmaximize.js','//www.google.com/recaptcha/api/js/recaptcha_ajax.js',widgets_uri+'/replies/replies.js'], complete:function() {
+		  // Maximize + comments + additional metadata
+		  {load: [widgets_uri+'/maximize/maximize.css',widgets_uri+'/maximize/jquery.scalarmaximize.js','//www.google.com/recaptcha/api/js/recaptcha_ajax.js',widgets_uri+'/replies/replies.js',widgets_uri+'/modals/jquery.additionalmetadata.js'], complete:function() {
 			$('.reply_link').click(function() {
 		    	commentFormDisplayForm();
 		    	return false;
 		    });
 			if (document.location.hash.indexOf('comment')!=-1) commentFormDisplayForm();
+			$('.meta_link').find('a:first').click(function() {
+				$(this).additionalmetadata({data:additional_metadata,ns:ns});
+			});
 		  }},
 		  
 		  // Hypothesis

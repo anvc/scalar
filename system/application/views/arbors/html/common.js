@@ -49,34 +49,42 @@ function validate_upload_form_file_return($form) {
 	var iframe = $form.find('iframe:first')[0];
 	var content = iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
 	var obj = jQuery.parseJSON(content);
-	if (obj.error.length) {
+	console.log(obj);
+	if ('undefined'!=typeof(obj.error) && obj.error.length) {
 		$(iframe).unbind();
 		$(iframe).attr('src', '');
+		send_form_hide_loading();
 		alert('There was an error saving the file: '+obj.error);
 		return;
 	}
 	
-	validate_upload_form($form, obj.url);
+	validate_upload_form($form, obj);
 
 }
 
-function validate_upload_form($form, url) {
+function validate_upload_form($form, obj) {
+	
+	for (var url in obj) break;
+	var metadata = obj[url];
 
 	// Make sure title is present
 	var title = $form.find('input[name="dcterms:title"]').val();
 	if (title.length==0) {
+		send_form_hide_loading();
 		alert('Title is a required field.  Please enter a title at the top of the form.');
 		return false;
 	}
 	
 	// Make sure URL is present
 	if ('undefined'==typeof(url) || url.length==0) {
+		send_form_hide_loading();
 		alert('Could not resolve the file URL for creating the new page.');
 		return false;
 	}	
 	
 	var values = {};
-	values['scalar:url'] = url;  
+	values['scalar:url'] = url;
+	if (!jQuery.isEmptyObject(metadata)) $.extend( values, metadata );
 	
 	// Construct slug (if applicable)
 	var name_policy = $form.find('input[name="name_policy"]:checked').val();

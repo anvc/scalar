@@ -76,6 +76,33 @@ class System extends MY_Controller {
 	public function ontologies() {
 
 		$this->data['content'] = $this->config->item('ontologies');
+		$rdf_fields = $this->config->item('rdf_fields');
+		// Remove built-in values
+		foreach ($this->data['content'] as $prefix => $values) {
+			foreach ($values as $key => $value) {
+				if (in_array($prefix.':'.$value, $rdf_fields)) {
+					unset($this->data['content'][$prefix][$key]);
+				}
+			}
+		}
+		// Reset keys to 1..N
+		foreach ($this->data['content'] as $prefix => $values) {
+			$this->data['content'][$prefix] = array_values($values);
+		}
+
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/json', $this->data);
+		$this->template->render();
+
+	}
+
+	public function image_metadata() {
+
+		$url =@ $_GET['url'];
+		$this->data['content'] = array();
+
+		$this->load->library('Image_Metadata', 'image_metadata');
+		$this->data['content'][$url] = $this->image_metadata->get($url, Image_Metadata::FORMAT_NS);
 
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/json', $this->data);
@@ -228,7 +255,7 @@ class System extends MY_Controller {
 		$plugins = file_get_contents(getcwd().'/system/application/plugins/settings.sc');
 		$plugins = json_decode(utf8_encode($plugins));
 		$this->data['plugin'] = $plugins;
-		
+
 		// There is more specific validation in each call below, but here run a general check on calls on books and users
 		if (!$this->data['login']->is_logged_in) $this->kickout();
 		if (!empty($book_id)) {

@@ -80,7 +80,17 @@ class Image_IPTC
     {
         $this->_sFilename = $sFilename;
 
-        if (is_file($this->_sFilename)) {
+        // Added by Craig Dietrich 8 March 2015 to add external check
+		$isURL = filter_var($this->_sFilename, FILTER_VALIDATE_URL);
+		$exists = false;
+   		if ($isURL) {
+   			$header_response = get_headers($this->_sFilename, 1);
+   			if (false===strpos($header_response[0],"404")) $exists = true;
+        } elseif (!$isURL && is_file($this->_sFilename)) {
+        	$exists = true;
+        }
+
+        if ($exists) {
 
            if (@getimagesize($this->_sFilename, $aAPP) && !empty($aAPP['APP13'])) {
 

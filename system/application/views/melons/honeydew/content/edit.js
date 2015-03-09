@@ -123,6 +123,25 @@ $(window).ready(function() {
 	// View options
 	$('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});
 	
+	// Additional metadata
+	$('#metadata_rows').nextAll('.add_additional_metadata:first').click(function() {
+		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
+		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
+	});
+	$('#metadata_rows').nextAll('.populate_exif_fields:first').click(function() {
+		if (!confirm('This feature will find any Exif metadata fields embedded in the file, and add the field/values as additional metadata. Exif metadata can only be embedded in JPEG and TIFF files by external applications. Do you wish to continue?')) return;
+		var url = $('input[name="scalar:url"]').val();
+		if (!url.length) {
+			alert('Media File URL is empty');
+			return;
+		}
+		if (-1==url.indexOf('://')) {
+			url = $('link#parent').attr('href')+url;
+		}
+		var image_metadata_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/image_metadata';
+		$('#metadata_rows').find_and_add_exif_metadata({parser_url:image_metadata_url,url:url,button:this});
+	});
+	
 	// WYSIWYG
 	var can_use_wysiwyg = (isIOS()) ? false : true;
 	editor_wysiwyg = null;
