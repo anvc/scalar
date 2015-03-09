@@ -339,19 +339,21 @@ class Book extends MY_Controller {
 			$return = array('error'=>'');
 			try {
 	            $slug = confirm_slash($this->data['book']->slug);
-				$return['url'] = $this->file_upload->uploadMedia($slug,$chmod_mode, $this->versions);
+				$url = $this->file_upload->uploadMedia($slug,$chmod_mode, $this->versions);
+				$path = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$url;
 			} catch (Exception $e) {
 				$return['error'] =  $e->getMessage();
+				echo json_encode($return);
+				exit;
 			}
 
-			/*
-			$path = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$return['url'];
-			require_once(confirm_slash(FCPATH).'system/application/libraries/Image_IPTC/Image_IPTC.php');
-			$iptc = new Image_IPTC($path);
-			*/
+			$this->load->library('Image_Metadata', 'image_metadata');
+			$return = array();
+			$return[$url] = $this->image_metadata->get($path, Image_Metadata::FORMAT_NS);
 
 			echo json_encode($return);
 			exit;
+
 		}
 
 		// List of media pages

@@ -2,6 +2,7 @@
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
 <?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
 <?
@@ -536,28 +537,8 @@ endif;
 		?>
 		</table>
 
-		<div class="pulldown pulldown_click" style="width:190px;">
-			  <a href="javascript:;" class="generic_button border_radius">Add additional metadata</a>
-			  <ul class="pulldown-content nodots" style="width:600px;white-space:normal;line-height:150%;">
-<?
-				foreach ($ontologies as $ont => $ontterms):
-?>
-				<li style="color:black;"><?=strtoupper($ont)?></li>
-				<li>
-<?
-				$terms = array();
-				foreach ($ontterms as $p) {
-					if (in_array($ont.':'.$p,$rdf_fields)) continue;
-					$terms[] = '<a href="javascript:;" onclick="add_meta_row(\''.$ont.':'.$p.'\')" title="'.$ont.':'.$p.'">'.$p.'</a>';
-				}
-				echo implode(', &nbsp; ',$terms);
-?>
-				</li>
-<?
-				endforeach;
-?>
-			  </ul>
-		</div>
+		<a href="javascript:;" class="generic_button border_radius default add_additional_metadata">Add additional metadata</a>&nbsp; &nbsp;
+		<a href="javascript:;" class="generic_button border_radius populate_exif_fields">Auto-populate Exif fields</a>
 
 	  </td>
 	</tr>
