@@ -17,11 +17,11 @@ Options -MultiViews
 #RewriteRule (.*) /Library/WebServer/scalar.usc.edu/anvc_site/ [L]
 
 # Block malicious uploads
-RewriteCond %{REQUEST_URI} !^/system.* [NC]
-RewriteCond %{REQUEST_URI} !^/codeigniter.php [NC]
 RewriteCond %{REQUEST_FILENAME} -f
-RewriteCond %{REQUEST_URI} \.(php)$ [NC]
-RewriteRule (.*) codeigniter.php/$1 [L]
+#RewriteCond %{REQUEST_URI} !^/scalar/system(.*) [NC]
+RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
+RewriteCond %{REQUEST_FILENAME} (\.php)$ [NC]
+RewriteRule ^(.*)$ - [R=404,L]
 
 # Route to codeigniter if file or directory doesn't exist
 RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
