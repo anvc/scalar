@@ -84,6 +84,10 @@
 					size = link.attr('data-size'),
 					isFullWidth = false;
 
+
+				if (page.adaptiveMedia == 'mobile') {
+					size = 'full';
+				}
 				// calculate the size of the content area minus margins
 				temp = $('<div class="body_copy"></div>');
 				temp.appendTo('.page');
