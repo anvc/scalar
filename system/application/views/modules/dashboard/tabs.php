@@ -29,61 +29,60 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 		<li><a href="#tabs-annotations" style="color:#241d7d;">Annotations<?=((!empty($annotations_not_live))?'<sup>'.$annotations_not_live.'</sup>':'')?></a></li>
 		<li><a href="#tabs-replies" style="color:#241d7d;">Comments<?=((!empty($replies_not_live))?'<sup>'.$replies_not_live.'</sup>':'')?></a></li>
 		<!--<li><a href="#tabs-api">API</a></li>-->
-		<?php
-		if(!empty($plugins)) {
-			foreach ($plugins as $key => $obj) {
-		?>
-				<li><a href="#tabs-<?=$obj->get_extension()?>"><?=print_r($obj->get_tag(),true)?></a></li>
-		<?php
-			}
-		}
-		?>
+<?php
+		if (!empty($plugins)):
+			foreach ($plugins as $key => $obj):
+?>
+				<li><a href="#tabs-<?=$key?>"><?=$obj->name?></a></li>
+<?php
+			endforeach;
+		endif;
+?>
 		<? if ($login_is_super): ?>
 		<li><a href="#tabs-all-users" style="color:#7d1d1d;">All users</a></li>
 		<li><a href="#tabs-all-books" style="color:#7d1d1d;">All books</a></li>
 		<li><a href="#tabs-tools" style="color:#7d1d1d;">Tools</a></li>
-		<? endif ?>			
+		<? endif ?>
 	</ul>
-	
+
 	<div id="tabs-user"><? if ('user'==$zone) { $this->load->view('modules/dashboard/user'); } else {echo 'Loading...';}?></div>
-	
-	<div id="tabs-style"><? if ('style'==$zone) { $this->load->view('modules/dashboard/book_style'); } else {echo 'Loading...';}?></div>	
-	
-	<div id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboard/book_users'); } else {echo 'Loading...';} ?></div>	
-	
-	<div id="tabs-sharing"><? if ('sharing'==$zone) { $this->load->view('modules/dashboard/sharing'); } else {echo 'Loading...';} ?></div>	
 
-	<div id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboard/pages'); } else {echo 'Loading...';} ?></div>	
+	<div id="tabs-style"><? if ('style'==$zone) { $this->load->view('modules/dashboard/book_style'); } else {echo 'Loading...';}?></div>
 
-	<div id="tabs-media"><? if ('media'==$zone) { $this->load->view('modules/dashboard/media'); } else {echo 'Loading...';} ?></div>		
+	<div id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboard/book_users'); } else {echo 'Loading...';} ?></div>
 
-	<div id="tabs-paths"><? if ('paths'==$zone) { $this->load->view('modules/dashboard/paths'); } else {echo 'Loading...';} ?></div>	
+	<div id="tabs-sharing"><? if ('sharing'==$zone) { $this->load->view('modules/dashboard/sharing'); } else {echo 'Loading...';} ?></div>
 
-	<div id="tabs-tags"><? if ('tags'==$zone) { $this->load->view('modules/dashboard/tags'); } else {echo 'Loading...';} ?></div>	
-	
+	<div id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboard/pages'); } else {echo 'Loading...';} ?></div>
+
+	<div id="tabs-media"><? if ('media'==$zone) { $this->load->view('modules/dashboard/media'); } else {echo 'Loading...';} ?></div>
+
+	<div id="tabs-paths"><? if ('paths'==$zone) { $this->load->view('modules/dashboard/paths'); } else {echo 'Loading...';} ?></div>
+
+	<div id="tabs-tags"><? if ('tags'==$zone) { $this->load->view('modules/dashboard/tags'); } else {echo 'Loading...';} ?></div>
+
 	<div id="tabs-annotations"><? if ('annotations'==$zone) { $this->load->view('modules/dashboard/annotations'); } else {echo 'Loading...';} ?></div>
 
 	<div id="tabs-replies"><? if ('replies'==$zone) { $this->load->view('modules/dashboard/replies'); } else {echo 'Loading...';} ?></div>
-	<?php
-	if(!empty($plugins)) {
-		foreach ($plugins as $key => $obj) {
-			$ext = $obj->get_extension();
-	?>			
-			<div id="tabs-<?=$ext?>"><? if ($ext==$zone) { $obj->get_view(); } else {echo 'Loading...';} ?></div>
-	<?php
-		}
-	}
+<?php
+	if (!empty($plugins)):
+		foreach ($plugins as $key => $obj):
+?>
+			<div id="tabs-<?=$key?>"><? if ($key==$zone) { $obj->get(); } else {echo 'Loading...';} ?></div>
+<?php
+		endforeach;
+	endif;
 	?>
 
 	<!--
 	<div id="tabs-api"><? if ('api'==$zone) { $this->load->view('modules/dashboard/api'); } else {echo 'Loading...';} ?></div>
 	-->
 
-	<? if ($login_is_super): ?>	
-	<div id="tabs-all-users"><? if ('all-users'==$zone) { $this->load->view('modules/dashboard/all-users'); } else {echo 'Loading...';} ?></div>	
-	<div id="tabs-all-books"><? if ('all-books'==$zone) { $this->load->view('modules/dashboard/all-books'); } else {echo 'Loading...';} ?></div>	
-	<div id="tabs-tools"><? if ('tools'==$zone) { $this->load->view('modules/dashboard/tools'); } else {echo 'Loading...';} ?></div>	
-	<? endif ?>	
+	<? if ($login_is_super): ?>
+	<div id="tabs-all-users"><? if ('all-users'==$zone) { $this->load->view('modules/dashboard/all-users'); } else {echo 'Loading...';} ?></div>
+	<div id="tabs-all-books"><? if ('all-books'==$zone) { $this->load->view('modules/dashboard/all-books'); } else {echo 'Loading...';} ?></div>
+	<div id="tabs-tools"><? if ('tools'==$zone) { $this->load->view('modules/dashboard/tools'); } else {echo 'Loading...';} ?></div>
+	<? endif ?>
 
 </div>
 </div>

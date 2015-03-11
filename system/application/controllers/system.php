@@ -251,11 +251,6 @@ class System extends MY_Controller {
 		$user_id = (isset($_REQUEST['user_id']) && !empty($_REQUEST['user_id'])) ? $_REQUEST['user_id'] : 0;
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 
-		// Load plugin list
-		$plugins = file_get_contents(getcwd().'/system/application/plugins/settings.sc');
-		$plugins = json_decode(utf8_encode($plugins));
-		$this->data['plugin'] = $plugins;
-
 		// There is more specific validation in each call below, but here run a general check on calls on books and users
 		if (!$this->data['login']->is_logged_in) $this->kickout();
 		if (!empty($book_id)) {
@@ -516,7 +511,7 @@ class System extends MY_Controller {
 		$this->data['tags_not_live'] = $this->count_not_live($this->data['current_book_tags']);
 		$this->data['annotations_not_live'] = $this->count_not_live($this->data['current_book_annotations']);
 		$this->data['replies_not_live'] = $this->count_not_live($this->data['current_book_replies']);
-		// $this->data['plugins'] = $this->plugins->get_all();
+
 		// Get specific data for each zone (no case for pages or media, since these are handled via the API)
 		switch ($this->data['zone']) {
 			case '':
@@ -611,16 +606,16 @@ class System extends MY_Controller {
 			}
 		}
 
-		// Load plugin list
-		$plugin_list = file_get_contents(getcwd().'/system/application/plugins/settings.sc');
-		$plugin_list = json_decode(utf8_encode($plugin_list));
-		if(is_object($plugin_list)) {
-			$plugins = array();
-			foreach ($plugin_list as $key => $val) {
-				$this->load->plugin($key.'/'.$key);
-				$plugins[] = new $val->{'class'}($this->data);
+		// Load Dashboard plugins
+		$this->config->load('plugins');
+		$plugins = $this->config->item('plugins');
+		$this->data['plugins'] = array();
+		if (isset($plugins['dashboard'])) {
+			foreach ($plugins['dashboard'] as $value) {
+				$this->load->plugin($value.'/'.$value);
+				$cvalue = ucwords($value);
+				$this->data['plugins'][$value] = new $cvalue($this->data);
 			}
-			$this->data['plugins'] = $plugins;
 		}
 
 		// Load dashboard
