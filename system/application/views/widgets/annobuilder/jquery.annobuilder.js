@@ -433,7 +433,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		}
 		
 		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a>?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
-		this.annotationForm.find('tbody').append('<tr><td class="field">Abstract</td><td class="value"><input id="annotationDescription" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a>?</a><em>Optional abstract of the annotation that, if entered, will be shown alongside the media instead of the full content above. The full content will be available through an additional link.</em></div></td></tr>');
+		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a>?</a><em>Optional abstract of the annotation that, if entered, will be shown alongside the media instead of the full content above. The full content will be available through an additional link.</em></div></td></tr>');
 		$('#setStartTimeBtn').click(this.handleSetStartTime);
 		$('#setEndTimeBtn').click(this.handleSetEndTime);
 		
