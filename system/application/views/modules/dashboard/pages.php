@@ -143,7 +143,7 @@
 			if (!confirm(str)) {
 				return false;
 			}
-			
+			$('#check_all').prop('checked',false);
 			var data = {};
 			data.action = 'delete_content';
 			data.book_id = parseInt($('select[name="book_id"]').val());
