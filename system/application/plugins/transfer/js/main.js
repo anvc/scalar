@@ -28,10 +28,12 @@ $(document).ready(function() {
 		$modal.find('.book_title').html($commitform.find('#dest_title').val());
 		$modal.modal('show');
 		$modal.find('button').attr('disabled', 'disabled');
+		$modal.find('button.cancel').unbind("click");
 		$modal.find('button.cancel').click(function() {
 			$modal.modal('hide');
 			commit.active = 0;
 		});
+		$modal.find('button[type="submit"]').unbind("click");
 		$modal.find('button[type="submit"]').click(function() {
 			$dest_id = $commitform.find('#dest_id').val()
 			$dest_urn = $commitform.find('#dest_urn').val();

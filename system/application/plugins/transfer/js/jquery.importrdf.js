@@ -47,11 +47,14 @@
 			
 		init : function(options, callback) {
 			opts = $.extend( {}, defaults, options );
+			opts.queue = {};
+			opts.urn_map = {}
+			opts.relations = {};			
 			return this.each(function() {
 				var $this = $(this);
 				opts['$this'] = $this;
 				// Queue incoming RDF-JSON pages and relationships
-		        $.fn.rdfimporter('queue', options, function() {	        	
+		        $.fn.rdfimporter('queue', options, function() {	  
 		        	// Once queued, save pages
 		        	$content_progress = $this.find('#content_progress'); 
 		        	$content_progress_text = $content_progress.find('span');
