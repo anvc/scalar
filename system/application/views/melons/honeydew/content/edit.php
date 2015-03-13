@@ -394,7 +394,7 @@ endif;
   				}
   			?></select><br /><br />
   			<p>Or enter any URL:</p>
-  			<input type="text" value="" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" style="margin:3px 0px 3px 0px; width:100%;" />
+  			<input type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" style="margin:3px 0px 3px 0px; width:100%;" />
   			</td>
   		</tr>
   		<tr class="styling_sub"><!-- color -->
