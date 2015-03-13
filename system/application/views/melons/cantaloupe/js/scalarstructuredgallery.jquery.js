@@ -295,7 +295,9 @@
 				}		
 
 				var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
-				
+				tooltipText = tooltipText.replace(/"/g,'&quot;');
+	
+	
 				// custom thumbnail
 				if ( node.thumbnail != undefined ) {
 					var url;
