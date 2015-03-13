@@ -1114,6 +1114,7 @@
 					reload = true;
 				}
 				if(reload == true) {
+					$('#google-maps').css('max-height',0.8*page.heightOnMediaLoad);
 					page.handleMediaResize();					
 				}
 			}
@@ -1122,6 +1123,7 @@
 		if($('body').width() <= page.mobileWidth) {
 			page.adaptiveMedia = 'mobile';
 		}
+
 		$('body').on('mediaElementMediaLoaded',function() {
 			page.initialMediaLoad = true;
 			page.heightOnMediaLoad = $(window).height();
