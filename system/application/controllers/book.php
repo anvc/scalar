@@ -489,7 +489,19 @@ class Book extends MY_Controller {
 		if (!count($index)) throw new Exception('Problem getting page index');
 		$this->data['page'] = $index[0];
 		unset($index);
-		$this->data['page']->version_index = key($this->data['page']->versions);
+
+		$key = 0;
+		$version_num = get_version($this->uri->uri_string());
+		// If version_num is 0 then the version number was not in the uri (i.e. it is the current index)
+		if($version_num != 0) {
+			foreach ($this->data['page']->versions as $key => $version) {
+				if($version->version_num == $version_num) {
+					break;
+				}
+			}
+		}
+
+		$this->data['page']->version_index = $key;
 		$this->data['hide_edit_bar'] = true;
 
 	}
