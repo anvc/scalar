@@ -3014,7 +3014,7 @@ function YouTubeGetID(url){
 					me.percentLoaded = data.percent;
 					me.duration = data.duration;
 				});
-				$froogaloop(player_id).addEvent('play', function() { if (me.initialPauseDone) me.parentView.startTimer(); me.isVideoPlaying = true; });
+				$froogaloop(player_id).addEvent('play', function() { me.parentView.startTimer(); me.isVideoPlaying = true; });
 				$froogaloop(player_id).addEvent('pause', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
 				$froogaloop(player_id).addEvent('finish', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
 			}
