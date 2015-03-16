@@ -8,7 +8,7 @@
 <select name="book_id" onchange="$(this).parent().submit();" style="margin:0;max-width:300px;">
 <option value="0">Select a book to manage</option>
 <?
-foreach ($books as $row) {
+foreach ($my_books as $row) {
 	echo '<option value="'.$row->book_id.'"'.((@$book->book_id==$row->book_id)?' SELECTED':'').'>';
 	echo strip_tags($row->title);
 	echo '</option>';
