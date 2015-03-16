@@ -575,6 +575,8 @@
                     });
                 }
             });
+            //Run a second resize call here, in case the header was not fully loaded when we first ran it.
+            base.handleResize();
         }
         
         // Run initializer
