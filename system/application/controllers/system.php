@@ -489,7 +489,6 @@ class System extends MY_Controller {
 		}
 
 		// Books and current book
-		$this->data['books'] = ($this->data['login_is_super']) ? $this->books->get_all() : $this->books->get_all($this->data['login']->user_id);
 		$this->data['my_books'] = $this->books->get_all($this->data['login']->user_id, false);
 		$this->data['book'] = ($book_id) ? $this->books->get($book_id) : array();
 		$this->data['title'] = (!empty($this->data['book'])) ? $this->data['book']->title.' Dashboard' : $this->config->item('install_name').': Dashboard';
