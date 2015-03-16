@@ -1335,7 +1335,7 @@ function YouTubeGetID(url){
 
 			var additive = 0;
 			if (this.model.options.header == 'nav_bar') {
-				additive = Math.max(0, this.gutterSize + Math.round(this.containerDim.x - (this.resizedDim.x+this.mediaMargins.horz+this.mediaMargins.horz))) - 2;
+				additive = Math.max(0, this.gutterSize + Math.round(this.containerDim.x - (this.resizedDim.x+this.mediaMargins.horz+this.mediaMargins.horz))) - 3;
 			} else {
 				this.mediaMargins.horz--;
 			}
