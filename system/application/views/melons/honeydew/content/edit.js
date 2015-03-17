@@ -129,7 +129,7 @@ $(window).ready(function() {
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
 	});
 	$('#metadata_rows').nextAll('.populate_exif_fields:first').click(function() {
-		if (!confirm('This feature will find any Exif metadata fields embedded in the file, and add the field/values as additional metadata. Exif metadata can only be embedded in JPEG and TIFF files by external applications. Do you wish to continue?')) return;
+		if (!confirm('This feature will find any IPTC metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files by external applications. Do you wish to continue?')) return;
 		var url = $('input[name="scalar:url"]').val();
 		if (!url.length) {
 			alert('Media File URL is empty');
