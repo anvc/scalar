@@ -538,7 +538,7 @@ endif;
 		</table>
 
 		<a href="javascript:;" class="generic_button border_radius default add_additional_metadata">Add additional metadata</a>&nbsp; &nbsp;
-		<a href="javascript:;" class="generic_button border_radius populate_exif_fields">Auto-populate Exif fields</a>
+		<a href="javascript:;" class="generic_button border_radius populate_exif_fields">Auto-populate IPTC fields</a>
 
 	  </td>
 	</tr>
