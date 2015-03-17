@@ -533,6 +533,10 @@ a:hover { text-decoration: underline; }
 	-webkit-backface-visibility: hidden;
 }
 
+.body_copy.mediainfo {
+	margin-bottom:2.4rem;
+}
+
 .mediaContainer,.mediaElementFooter {
 	border: none;
 	background-color: inherit;
