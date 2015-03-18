@@ -3,7 +3,8 @@ if ($mode || !isset($page->version_index)) return;
 
 $audio = null;
 if (isset($page->versions) && isset($page->versions[$page->version_index]->has_paths) && !empty($page->versions[$page->version_index]->has_paths)) {
-	if (!empty($page->versions[$page->version_index]->has_paths[0]->audio)) $audio = trim($page->versions[$page->version_index]->has_paths[0]->audio);		
+	$path_index = $page->versions[$page->version_index]->requested_path_index;
+	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->audio)) $audio = trim($page->versions[$page->version_index]->has_paths[$path_index]->audio);		
 }
 if (isset($page->version_index)) {
 	if (!empty($page->audio)) $audio = $page->audio;	

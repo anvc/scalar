@@ -11,9 +11,10 @@ if (isset($book) && !empty($book)) {
 	if (stristr($book->title, 'data-hypothesis="true"')) $hypothesis = true;
 }
 if (isset($page->versions) && isset($page->versions[$page->version_index]->has_paths) && !empty($page->versions[$page->version_index]->has_paths)) {
-	if (!empty($page->versions[$page->version_index]->has_paths[0]->background)) $background = trim($page->versions[$page->version_index]->has_paths[0]->background);
-	if (!empty($page->versions[$page->version_index]->has_paths[0]->custom_style)) $style .= trim($page->versions[$page->version_index]->has_paths[0]->custom_style)."\n";
-	if (!empty($page->versions[$page->version_index]->has_paths[0]->custom_scripts)) $js .= trim($page->versions[$page->version_index]->has_paths[0]->custom_scripts)."\n";
+	$path_index = $page->versions[$page->version_index]->requested_path_index;
+	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->background)) $background = trim($page->versions[$page->version_index]->has_paths[$path_index]->background);
+	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->custom_style)) $style .= trim($page->versions[$page->version_index]->has_paths[$path_index]->custom_style)."\n";
+	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)) $js .= trim($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)."\n";
 }
 if (isset($page->version_index)) {
 	$title = $page->versions[$page->version_index]->title;
@@ -91,7 +92,6 @@ endif;
 ?>
 </head>
 <body<?=(!empty($background))?' style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
-
 <div class="left">
 <?$this->load->view('melons/honeydew/nav')?>
 </div>
