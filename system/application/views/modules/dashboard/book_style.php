@@ -4,7 +4,7 @@
 <style>
 .removed {color:#bbbbbb;}
 .removed a {color:#999999;}
-</style>			
+</style>
 <script id="interfaces" type="application/json"><?=json_encode($interfaces)?></script>
 <script id="book_versions" type="application/json"><?=json_encode($current_book_versions)?></script>
 <link id="book_id" href="<?=@((int)$_GET['book_id'])?>" />
@@ -33,7 +33,7 @@ function select_interface(melon) {
     $template.find('select:first').change(function() {
 		var selected = $(this).find(':selected').val();
 		select_interface(selected);
-    });    
+    });
     if (selected_melon['stylesheets'].length) {
    		var $stylesheets = $('<span>Theme: <select name="stylesheet"></select></span>').appendTo('#interface');
    		var stylesheet = selected_melon['stylesheets'][0]['slug'];
@@ -77,7 +77,7 @@ function select_versions() {
 				selected:book_versions,
 				urlroot:$('#approot').attr('href'),
 				callback:set_versions
-			});		
+			});
 			$('#versions_add_another').data('loading', false);
 			$('#versions_add_another').html('Add menu item');
 		});
@@ -87,9 +87,9 @@ function select_versions() {
 			selected:book_versions,
 			urlroot:$('#approot').attr('href'),
 			callback:set_versions
-		});	
+		});
 		$('#versions_add_another').data('loading', false);
-		$('#versions_add_another').html('Add menu item');	
+		$('#versions_add_another').html('Add menu item');
 	}
 }
 function set_versions(nodes, init) {
@@ -99,7 +99,7 @@ function set_versions(nodes, init) {
 	var book_version_ids = [];
 	$('#versions').find('input[type="hidden"]').each(function() {
 		book_version_ids.push( $(this).closest('li').data('node').versions[0].version_id );
-	});	
+	});
 	var used_version_ids = [];
 	for (var j = 0; j < nodes.length; j++) {
 		used_version_ids.push(nodes[j].versions[0].version_id);
@@ -118,7 +118,7 @@ function set_versions(nodes, init) {
 	if (!init) $versions.trigger('sortchange');
 }
 $(window).ready(function() {
-	
+
     $('.save_changes').next('a').click(function() {
     	$('#style_form').submit();
     	return false;
@@ -127,15 +127,15 @@ $(window).ready(function() {
 	var active_melon = $('#active_melon').attr('href');
     var book_melon = $('#book_melon').attr('href');
     if (!book_melon.length) book_melon = active_melon;
-	select_interface(book_melon);   
-    
-    $('#versions').sortable(); 
+	select_interface(book_melon);
+
+    $('#versions').sortable();
     var book_versions = JSON.parse($("#book_versions").text());
     set_versions(book_versions, true);
     $('#versions_add_another').click(function() {
 		select_versions();
     });
-    
+
 });
 </script>
 <?
@@ -153,8 +153,8 @@ $(window).ready(function() {
 		echo '</div>';
 		echo '</div><br />';
 	}
-?>		
-		
+?>
+
 		<form id="style_form" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="action" value="do_save_style" />
 		<input type="hidden" name="zone" value="style" />
@@ -163,9 +163,9 @@ $(window).ready(function() {
 		<? endif ?>
 		<table cellspacing="0" cellpadding="0" style="width:100%;" class="trim_horz_padding">
 <?
-		$row = $book; 
+		$row = $book;
 		if (!empty($row)):
-			if (!empty($book_id) && $row->book_id != $book_id) continue;	
+			if (!empty($book_id) && $row->book_id != $book_id) continue;
 			// Title
 			echo '<tr typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Basics</h4></td><td></td></tr>';
@@ -184,7 +184,7 @@ $(window).ready(function() {
 			echo '<td style="vertical-align:middle;" colspan="2">';
 			echo '<input name="subtitle" type="text" value="'.htmlspecialchars($row->subtitle).'" style="width:100%;" />';
 			echo "</td>\n";
-			echo "</tr>\n";			
+			echo "</tr>\n";
 			// Description
 			echo '<tr typeof="books">';
 			echo '<td style="vertical-align:middle;">Description';
@@ -192,7 +192,7 @@ $(window).ready(function() {
 			echo '<td style="vertical-align:middle;" colspan="2">';
 			echo '<input name="description" type="text" value="'.htmlspecialchars($row->description).'" style="width:100%;" />';
 			echo "</td>\n";
-			echo "</tr>\n";	
+			echo "</tr>\n";
 			// URI segment
 			echo '<tr>';
 			echo '<td style="vertical-align:middle;">URI Segment';
@@ -200,7 +200,7 @@ $(window).ready(function() {
 			echo '<td style="vertical-align:middle;" class="row_div" colspan="2">';
 			echo confirm_slash(base_url()).'<input name="slug" type="text" value="'.htmlspecialchars($row->slug).'" style="width:150px;" />';
 			echo "</td>\n";
-			echo "</tr>\n";	
+			echo "</tr>\n";
 			// Main menu
 			echo '<tr typeof="books">';
 			echo '<td style="width:190px;">Main menu items';
@@ -209,7 +209,7 @@ $(window).ready(function() {
 			echo '<td colspan="2">';
 			echo '<ol id="versions"></ol>';
 			echo '<a href="javascript:void(null);" id="versions_add_another">Add menu item</a></td>'."\n";
-			echo "</tr>\n";					
+			echo "</tr>\n";
 			echo '<tr typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Style</h4></td><td></td>';
 			echo '</tr>';
@@ -222,7 +222,7 @@ $(window).ready(function() {
 			echo "</td>\n";
 			echo '<td>';
 			echo "</td>\n";
-			echo "</tr>\n";															
+			echo "</tr>\n";
 			// Background
 			echo '<tr typeof="books">';
 			echo '<td><p>Background image</p></td>'."\n";
@@ -244,14 +244,14 @@ $(window).ready(function() {
 			if (!empty($row->background)) echo '<p><input type="checkbox" name="remove_background" id="remove_background" value="1" /><label for="remove_background"> Remove image</label></p></td>'."\n";
 			echo '<td>';
 			echo '</td>'."\n";
-			echo "</tr>\n";																			
+			echo "</tr>\n";
 			// Thumbnail
 			echo '<tr typeof="books">';
 			echo '<td><p>Thumbnail image</p></td>'."\n";
 			echo '<td style="vertical-align:middle;">';
 			if (!empty($row->thumbnail)) {
 				echo '<input type="hidden" name="thumbnail" value="'.$row->thumbnail.'" />';
-				echo '<img src="'.confirm_slash(base_url()).confirm_slash($row->slug).$row->thumbnail.'?t='.time().'" style="vertical-align:middle;margin-right:10px;height:75px;border:solid 1px #aaaaaa;" /> ';
+				echo '<img src="'.confirm_slash(base_url()).confirm_slash($row->slug).$row->thumbnail.'?t='.time().'" style="vertical-align:middle;margin-right:10px;border:solid 1px #aaaaaa;" /> ';
 				echo basename($row->thumbnail)."\n";
 			}
 			echo '<p>Upload image: <input type="file" name="upload_thumb" />';
@@ -260,7 +260,7 @@ $(window).ready(function() {
 			echo '</td>'."\n";
 			echo '<td>';
 			echo '</td>'."\n";
-			echo "</tr>\n";										
+			echo "</tr>\n";
 			// Custom style
 			echo '<tr typeof="books">';
 			echo '<td style="width:190px;">Custom style';
@@ -270,7 +270,7 @@ $(window).ready(function() {
 			echo '<textarea name="custom_style" style="width:100%;height:80px;">';
 			echo (!empty($row->custom_style)) ? trim($row->custom_style) : '';
 			echo '</textarea></td>'."\n";
-			echo "</tr>\n";	
+			echo "</tr>\n";
 			// Custom javascript
 			echo '<tr typeof="books">';
 			echo '<td style="width:190px;">Custom Javascript';
@@ -280,7 +280,7 @@ $(window).ready(function() {
 			echo '<textarea name="custom_js" style="width:100%;height:80px;">';
 			echo (!empty($row->custom_js)) ? trim($row->custom_js) : '';
 			echo '</textarea></td>'."\n";
-			echo "</tr>\n";																	
+			echo "</tr>\n";
 			// Scope
 			echo '<tr typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Publisher</h4></td><td></td>';
@@ -295,7 +295,7 @@ $(window).ready(function() {
 			echo '<option value="project"'.(($row->scope=='project')?' SELECTED':'').'>Project</option>';
 			echo '</select>';
 			echo "</td>\n";
-			echo "</tr>\n";													
+			echo "</tr>\n";
 			// Publisher
 			echo '<tr>';
 			echo '<td style="vertical-align:middle;">Publisher name<br /><small>Include HTML <b>'.htmlspecialchars('<a>').'</b> to create link</small>';
@@ -303,29 +303,29 @@ $(window).ready(function() {
 			echo '<td style="vertical-align:middle;" colspan="2">';
 			echo '<input name="publisher" type="text" value="'.htmlspecialchars($row->publisher).'" style="width:100%;" />';
 			echo "</td>\n";
-			echo "</tr>\n";		
+			echo "</tr>\n";
 			// Publisher icon
 			echo '<tr>';
 			echo '<td><p>Publisher logo<br /><small><b>'.htmlspecialchars('<a>').'</b> in previous field makes link</p></td>'."\n";
 			echo '<td style="vertical-align:middle;">';
 			if (!empty($row->publisher_thumbnail)) {
 				echo '<input type="hidden" name="publisher_thumbnail" value="'.$row->publisher_thumbnail.'" />';
-				echo '<img src="'.confirm_slash(base_url()).confirm_slash($row->slug).$row->publisher_thumbnail.'?t='.time().'" style="vertical-align:middle;margin-right:10px;height:75px;border:solid 1px #aaaaaa;" />';
+				echo '<img src="'.confirm_slash(base_url()).confirm_slash($row->slug).$row->publisher_thumbnail.'?t='.time().'" style="vertical-align:middle;margin-right:10px;border:solid 1px #aaaaaa;" />';
 				echo '<b>'.$row->publisher_thumbnail.'</b>';
 			}
 			echo '<p>Upload image: <input type="file" name="upload_publisher_thumb" /><br /><span style="font-size:smaller;">JPG, PNG, or GIF format; will be resized to 120px</span></p>'."\n";
 			if (!empty($row->publisher_thumbnail)) echo '<p><input type="checkbox" name="remove_publisher_thumbnail" value="1" /> Remove image</p>';
 			echo '</td>'."\n";
-			echo "</tr>\n";								
-			// Saves				
+			echo "</tr>\n";
+			// Saves
 			echo "<tr>\n";
 			echo '<td style="padding-top:8px;text-align:right;" colspan="3"><span class="save_changes">You have unsaved changes.</span> &nbsp; <a class="generic_button large default" href="javascript:;">Save</a></td>';
-			echo "</tr>\n";							
-		endif;	
+			echo "</tr>\n";
+		endif;
 ?>
 		<td>
 
 		</td>
 		</tr>
-		</table>	
+		</table>
 		</form>
