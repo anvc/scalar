@@ -13,7 +13,7 @@ to update to the most recent Scalar build. If you wish to install Scalar from sc
 A note on Scalar versions: 
 Of course, you can always update your Scalar install from the most recent build on GitHub.  However, 
 sometimes bugs can be introduced by commits to GitHub that haven't yet been verified by Scalar's development 
-team.  For this reason we keep checkpoints ("versions") of Scalar in a separate location.  Full details below.
+team.  For this reason we keep checkpoints ("releases") of Scalar using GitHub's Releases.  Full details below.
 ***
  
 To begin take a look at the "Changes to config files over time" wiki page (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).  
@@ -28,7 +28,7 @@ system/application/config -- most changes to config files will be here
 system/application/language -- text such as the name of your Scalar install is kept here
 
 Step 2
-a) Download the most recent version of Scalar at "Scalar versions for download" (https://github.com/anvc/scalar/wiki/Scalar-versions-for-download).
+a) Download the most recent release of Scalar (URL PENDING).
 b) Extract the ZIP file and prepare to upload its contents.
 
 Step 3
