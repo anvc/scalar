@@ -5,7 +5,7 @@ $config['arbor'] = 'html5_RDFa';
 
 // Melon metadata
 $config['melon_meta'] = array(
-    'is_selectable' => true,
+	'is_selectable' => false,
 	'slug'=>'cantaloupe',
 	'name'=>'Scalar 2.0',
 	'description'=>'Evolutionary Scalar interface optimized for desktop, tablet, and mobile',
