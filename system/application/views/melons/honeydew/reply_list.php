@@ -23,6 +23,8 @@ function print_comments($has_reply, $book, $base_uri, $user_id=0, $level=0) {
 		echo ' by ';
 		if (isset($reply_version->attribution->fullname) && !empty($reply_version->attribution->fullname)) {
 			echo $reply_version->attribution->fullname;
+		} elseif (isset($reply_version->user) && !empty($reply_version->user)) {
+			echo ((!empty($reply_version->user->fullname))?$reply_version->user->fullname:'(Missing name)');
 		} else {
 			echo ((!empty($reply_version->fullname))?$reply_version->fullname:'(Missing name)');
 		}
