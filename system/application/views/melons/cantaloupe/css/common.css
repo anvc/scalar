@@ -708,7 +708,7 @@ a.media_info {
 #colophon { padding-left: 7.2rem; padding-right: 7.2rem; font-size: 1.2rem; color: #666; clear: both; padding-top: 6rem; }
 #colophon img { margin-right: .3rem; }
 #publisher-credit { margin-bottom: 1.2rem; line-height: 110%; vertical-align: top; }
-#publisher-credit img { float: left; margin-right: .6rem; }
+#publisher-credit img { margin-right: .6rem; vertical-align: bottom;}
 #scalar-credit img { vertical-align: middle; margin-top: -.2rem; }
 #scalar-credit { margin-bottom: 0; clear: both; padding-top: 1rem; }
 
