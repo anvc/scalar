@@ -90,7 +90,7 @@ class CI_Session {
 		{
 			$this->sess_expiration = (60*60*24*365*2);
 		}
-		 
+
 		// Set the cookie name
 		$this->sess_cookie_name = $this->cookie_prefix.$this->sess_cookie_name;
 
