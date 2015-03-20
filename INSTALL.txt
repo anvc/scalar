@@ -38,7 +38,7 @@ system/application/config/database.php
 
 2)
 
-Add a new SALT string, reCAPTCHA key (for you domain, http://www.google.com/recaptcha/whyrecaptcha), 
+Add a new SALT string, reCAPTCHA key (for your domain, http://www.google.com/recaptcha/whyrecaptcha), 
 registration key, SoundCloud key, and a few other keys:
 
 system/application/config/local_settings.php
