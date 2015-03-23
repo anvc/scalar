@@ -611,7 +611,7 @@ class System extends MY_Controller {
 		$this->data['plugins'] = array();
 		if (isset($plugins['dashboard'])) {
 			foreach ($plugins['dashboard'] as $value) {
-				$this->load->plugin($value.'/'.$value);
+				$this->load->plugin($value);
 				$cvalue = ucwords($value);
 				$this->data['plugins'][$value] = new $cvalue($this->data);
 			}
