@@ -84,7 +84,6 @@
 					size = link.attr('data-size'),
 					isFullWidth = false;
 
-
 				if (page.adaptiveMedia == 'mobile') {
 					size = 'full';
 				}
@@ -146,10 +145,14 @@
 									link.data('slot').unwrap();
 								}
 
+								link.data('slot').css( 'clear', 'both' );
+
 							// align full size elements below their links instead of above
 							} else {
 								link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
 							}
+
+							
 						}
 					}		
 				}
@@ -1079,7 +1082,7 @@
 					var well = collapsible.find( ".well" );
 					well.append( table );
 
-					$( ".relationships" ).eq( 0 ).prepend( metadata );
+					$( ".relationships" ).eq( 0 ).before( metadata );
 
 				}
 
