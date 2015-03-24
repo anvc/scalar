@@ -633,8 +633,8 @@ function listeditor_createnew($list, insert_func) {
 		}
 		scalarapi.loadPage(slug, true, node_success, node_error);
 	}
-	var error = function(obj) {
-		alert('Something went wrong while attempting to save: '+obj.statusText);
+	var error = function(message) {
+		alert('Something went wrong while attempting to save: '+message);
 		send_form_hide_loading();
 	}
 	scalarapi.savePage(to_send, success, error);
