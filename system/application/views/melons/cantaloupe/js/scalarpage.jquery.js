@@ -84,7 +84,6 @@
 					size = link.attr('data-size'),
 					isFullWidth = false;
 
-
 				if (page.adaptiveMedia == 'mobile') {
 					size = 'full';
 				}
@@ -147,10 +146,14 @@
 									link.data('slot').unwrap();
 								}
 
+								link.data('slot').css( 'clear', 'both' );
+
 							// align full size elements below their links instead of above
 							} else {
 								link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
 							}
+
+							
 						}
 					}		
 				}
@@ -422,7 +425,7 @@
 
 			},
 
-			addRelationshipNavigation: function( showLists, showChildNav, showLateralNav, isCentered ) {
+			addRelationshipNavigation: function( showLists, showParentNav, showChildNav, showLateralNav, isCentered ) {
 
 				var button, href, section, nodes, node, link, links,
 					currentNode = scalarapi.model.getCurrentPageNode(),
@@ -433,7 +436,7 @@
 
 				// path back/continue buttons
 				if (( page.containingPaths.length > 0 ) && showLateralNav ) {
-					section = $('<section class="relationships"></section').appendTo('article');
+					section = $('<section class="relationships"></section');
 					if ( page.containingPathNodes.length > 1 ) {
 						if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
 
@@ -461,6 +464,9 @@
 						} else if (page.containingPathIndex == (page.containingPathNodes.length - 1)) {
 							section.append( '<p><a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[ page.containingPathIndex - 1 ].getDisplayTitle() + '&rdquo;</a></p>' );
 						}
+					}
+					if ( section.children().length > 0 ) {
+						$('article').append( section );
 					}
 				}
 
@@ -629,11 +635,13 @@
 				});
 
 				// show items that tag this page
-				var hasTags = $( ".has_tags" );
-				hasTags.siblings( "h1" ).text( "Tagged by" );
-				$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
-				hasTags.parent().wrap( '<section class="relationships"></section>' );
-				hasTags.unwrap();
+				if ( showParentNav ) {
+					var hasTags = $( ".has_tags" );
+					hasTags.siblings( "h1" ).text( "Tagged by" );
+					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
+					hasTags.parent().wrap( '<section class="relationships"></section>' );
+					hasTags.unwrap();		
+				}
 
 			},
 
@@ -846,7 +854,7 @@
 									$(this).attr('data-size', 'full');
 									parent = $(this);
 
-								// inline media (subsequent)
+								// inline media (subsequent, after page resize)
 								} else if ( $(this).attr('href') == currentNode.current.sourceFile ) {
 									parent = $(this);
 
@@ -868,6 +876,7 @@
 											break;
 
 										// if the link has already been processed, then we just need its parent
+										// (for example if the user just resized the page)
 										} else if ( $(this).attr('href') == annotationURL ) {
 											parent = $(this).closest('section');
 											break;
@@ -882,6 +891,9 @@
 							}
 
 							$(this).addClass('media_link');
+
+							// uncomment to cause any paragraph with a media link to clear both
+							//$( this ).parents( '.paragraph_wrapper' ).css( 'clear', 'both' );
 
 							page.addMediaElementForLink($(this), parent);
 
@@ -1071,7 +1083,7 @@
 					var well = collapsible.find( ".well" );
 					well.append( table );
 
-					$( ".relationships" ).eq( 0 ).prepend( metadata );
+					$( ".relationships" ).eq( 0 ).before( metadata );
 
 				}
 
@@ -1163,7 +1175,7 @@
 				element.css('backgroundImage', $('body').css('backgroundImage'));
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation( false, true, false, true );
+				page.addRelationshipNavigation( false, false, true, false, true );
 				$('.relationships').appendTo('.title_card');
 
 				window.setTimeout(function(){
@@ -1192,7 +1204,7 @@
 					console.log('an error occurred while retrieving gallery info.');
 				}, 1, true);*/
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, true, false );
+				page.addRelationshipNavigation( true, true, true, true, false );
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
 				page.addColophon();
@@ -1209,7 +1221,7 @@
 				page.setupScreenedBackground();
 				var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( false, false, true, false );
+				page.addRelationshipNavigation( false, true, false, true, false );
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
 				page.addColophon();
@@ -1229,7 +1241,7 @@
 				$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, true, false );
+				page.addRelationshipNavigation( true, true, true, true, false );
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
 				page.addColophon();
@@ -1436,7 +1448,7 @@
 				});*/
 
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, true, false );
+				page.addRelationshipNavigation( true, true, true, true, false );
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
 				page.addColophon();

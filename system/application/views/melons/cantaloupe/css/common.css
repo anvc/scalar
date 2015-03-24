@@ -49,6 +49,7 @@ h4 {
 .left_margin { min-width: 7.2rem; float: left; }
 
 blockquote { padding-left: 3.6rem; padding-right: 3.6rem; font-style: italic; }
+pre { margin: 1.2rem 0; }
 i,em { font-style: italic; }
 b,strong { font-weight: bold; }
 sub {
