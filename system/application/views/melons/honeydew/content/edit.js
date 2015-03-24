@@ -280,11 +280,11 @@ function validate_form($form, ignoreViewCheck) {
 			return false;
 		}	
 	}
-
 	if (!ignoreViewCheck) {
 		// If default view is 'plain', send warning if media has been linked in the WYSIWYG
-		var default_view_value = $("#default_view_select option:selected").val();
-		var default_view_name = $("#default_view_select option:selected").html();
+		var default_view_value = $("[name='scalar:default_view'] option:selected").val();
+		var default_view_name = $("[name='scalar:default_view'] option:selected").html();
+		console.log(default_view_value);
 		if ('plain'==default_view_value) {
 			var textarea_content = $('#edit_content textarea:first').val();
 			var confirm_default_view_msg = 'The page content appears to have one or more links to imported Scalar media.  However, the default view of the page is set to empty.  Pages with embedded media work best in other views such as text-emphasis or media-emphasis.  Do you wish to save this page with the current settings?';
