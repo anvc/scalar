@@ -1233,7 +1233,7 @@ function YouTubeGetID(url){
 			var containerAR = this.containerDim.x / this.containerDim.y;
 
 			//console.log(this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
-
+	
 			var native_size = this.model.options.size == 'native';
 			var tempDims = {
 				x: this.containerDim.x,
@@ -1285,7 +1285,11 @@ function YouTubeGetID(url){
 				} else {
 					this.resizedDim.y = tempDims.y - (this.gutterSize * 2);
 				}
-				this.resizedDim.x = (this.resizedDim.y - this.controllerOffset) * mediaAR;
+				if(this.mediaObjectView.isLiquid) {
+					this.resizedDim.x = tempDims.x;
+				} else {
+					this.resizedDim.x = (this.resizedDim.y - this.controllerOffset) * mediaAR;
+				}
 			}
 
 			// console.log(this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
