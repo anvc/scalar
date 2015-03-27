@@ -891,8 +891,10 @@
 
 							$(this).addClass('media_link');
 
-							// uncomment to cause any paragraph with a media link to clear both
-							//$( this ).parents( '.paragraph_wrapper' ).css( 'clear', 'both' );
+							// uncomment to cause any paragraph with a media link to clear both (unless it contains a .clearnone)
+							if ( $( this ).parents( '.paragraph_wrapper' ).find( '.clearnone' ).length == 0 ) {
+								$( this ).parents( '.paragraph_wrapper' ).addClass( 'clearboth' );
+							}
 
 							page.addMediaElementForLink($(this), parent);
 
