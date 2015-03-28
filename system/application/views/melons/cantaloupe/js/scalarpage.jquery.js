@@ -108,7 +108,7 @@
 					// if the media is smaller than than the width of the page, but larger than the width of the
 					// page minus its margins, then center it and add pillarboxing to separate it from the 
 					// rest of the page
-					} else if ( mediaWidth > bodyCopyWidth ) {
+					} else if (size == 'full' || mediaWidth > bodyCopyWidth ) {
 						mediaelement.model.element.css( { 
 							'margin-right': 'auto',
 							'margin-left': 'auto',
@@ -123,16 +123,8 @@
 						isFullWidth = true;
 
 					// otherwise, left align it with the body copy
-					} else if (mediaelement.model.element.parents('.body_copy').length == 0) {
-						// -- we don't want native elements to be alignable?
-						if ( size == "native" ) {
-							if(isInline) {
-								link.data('slot').wrap('<div class="body_copy"></div>');
-							}
-						}
-						else {
-							mediaelement.model.element.addClass( 'body_left_margin' );
-						}
+					} else if (isInline && mediaelement.model.element.parents('.body_copy').length == 0) {
+						link.data('slot').wrap('<div class="body_copy"></div>');
 					}
 
 					if(isFullWidth) {
