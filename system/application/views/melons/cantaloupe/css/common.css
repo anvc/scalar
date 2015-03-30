@@ -586,21 +586,11 @@ a.media_info {
 	overflow-y: auto;
 }
 
-.mediainfo table, .additional_metadata table {
-	width: 100%;
-}
+.mediainfo table, .additional_metadata table { width: 100%; }
 
-.media_annotations tr {
-	cursor: pointer;
-}
-
-.media_annotations tr:hover {
-	background-color: #eee;
-}
-
-.media_annotations tr.current {
-	background-color: #c5dceb;
-}
+.media_annotations tr { cursor: pointer; }
+.media_annotations tr:hover { background-color: #eee; }
+.media_annotations tr.current { background-color: #c5dceb; }
 
 .current_annotation { background-color: #c5dceb; margin-bottom: 1.0rem; display: none; }
 
@@ -639,7 +629,7 @@ a.media_info {
 	line-height: 100%;
 }*/
 
-.mediainfo td, .additional_metadata td {
+.mediainfo td, .additional_metadata td, .citations td {
 	padding: .5rem 0;
 }
 

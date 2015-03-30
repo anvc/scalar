@@ -850,7 +850,7 @@
 								} else if ( $(this).attr('href') == currentNode.current.sourceFile ) {
 									parent = $(this);
 
-								// annotated media link
+								// annotated media link (as appears on an annotation page)
 								} else {
 									var annotatedMedia = currentNode.getRelatedNodes( "annotation", "outgoing" );
 									var i, node, annotationURL,
@@ -900,21 +900,31 @@
 								var mediaelement = $( this ).data( 'mediaelement' );
 
 								if ( mediaelement != null ) {
-									if ( mediaelement.is_playing() ) {
+
+									// if this is an annotation link, then seek to the annotation and play
+									// the media if it isn't already playing
+									var annotationURL = $( this ).data( 'targetAnnotation' );
+									if ( annotationURL != null ) {
+										mediaelement.seek( mediaelement.model.seekAnnotation );
+										if ( !mediaelement.is_playing() ) {
+											mediaelement.play();
+										}
+
+									} else if ( mediaelement.is_playing() ) {
 										mediaelement.pause();
 									} else {
-										$('a.media_link').each(function() {
-											var me = $( this ).data( 'mediaelement' );
-											if ( me != null ) {
-												if(me === mediaelement) {
-													mediaelement.play();
-												}
-												else if ( me.is_playing() ) {
-													me.pause();
-												}
-											}
-										})
+										mediaelement.play();
 									}
+
+									// pause all other media on the page
+									$( 'a.media_link' ).each(function() {
+										var me = $( this ).data( 'mediaelement' );
+										if ( me != null ) {
+											if ( me !== mediaelement ) {
+												me.pause();
+											}
+										}
+									});
 								}
 
 								var $mediaelement = mediaelement.model.element;
@@ -952,7 +962,7 @@
 										$media_label.css('top',((mediaHeight-$media_label.outerHeight())/2));
 										$media_label.css('left',(($mediaelement.width()-$media_label.outerWidth())/2));
 									}
-									var label_hide_delay = 3000;
+									var label_hide_delay = 1500;
 									var label_fade_delay = 400;
 									$media_label.show().delay(label_hide_delay).fadeOut(label_fade_delay);
 								}

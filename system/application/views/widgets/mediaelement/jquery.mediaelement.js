@@ -232,6 +232,7 @@ function YouTubeGetID(url){
 					for (i=0; i<n; i++) {
 						if (this.model.node == annotations[i].target) {
 							this.view.seek(annotations[i]);
+							break;
 						}
 					}
 				}
@@ -2173,7 +2174,7 @@ function YouTubeGetID(url){
 		jQuery.ImageObjectView.prototype.pause = function() { }
 		jQuery.ImageObjectView.prototype.seek = function(time) { }
 		jQuery.ImageObjectView.prototype.getCurrentTime = function() { return null; }
-		jQuery.ImageObjectView.prototype.isPlaying = function() { return false; }
+		jQuery.ImageObjectView.prototype.isPlaying = function() { return true; } // we depend on images returning true here to handle annotation cueing
 
 		/**
 		 * Resizes the image to the specified dimensions.

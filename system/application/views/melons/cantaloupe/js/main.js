@@ -268,9 +268,10 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	} else if (uri_components.length>1) {
 		var url = uri_components[0];
 		annotation_url = uri_components[1];
-		//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;
-		// modified by Erik below to remove duplicated 'annotations/' in url
-		if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;
+		if (annotation_url && annotation_url.indexOf('://')==-1) {
+			annotation_url = scalarapi.model.urlPrefix+annotation_url;
+			$tag.data( 'targetAnnotation', annotation_url );
+		}
 	}
 
 	// Metadata resource
