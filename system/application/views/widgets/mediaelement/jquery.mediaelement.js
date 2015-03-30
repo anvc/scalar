@@ -1677,7 +1677,7 @@ function YouTubeGetID(url){
 					this.annotationTimer = setTimeout(checkSeekSuccessful, delay);
 					this.annotationTimerRunning = true;
  				}
- 				//this.overrideAutoSeek = true;
+ 				this.overrideAutoSeek = true;
  				this.mediaObjectView.seek(annotation.properties.start);
  				this.lastSeekTime = annotation.properties.start;
  				handleTimer();

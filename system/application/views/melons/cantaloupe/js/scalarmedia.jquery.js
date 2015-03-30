@@ -224,11 +224,11 @@
 						var relation = $(this).data('relation');
 						mediaelement.seek(relation);
 						if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
-              setTimeout(function() {
-                if(!mediaelement.is_playing()) {
-      							mediaelement.play();
-                }
-              },250);
+              				setTimeout(function() {
+                				if(!mediaelement.is_playing()) {
+      								mediaelement.play();
+                				}
+              				},250);
 						}
 					});
 				}
