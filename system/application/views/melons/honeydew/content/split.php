@@ -13,10 +13,11 @@ if (isset($page->versions[$page->version_index]) && !empty($page->versions[$page
 	echo '<div id="content">'.nl2brPre($page->versions[$page->version_index]->content).'</div>';
 else:
 	if ('Author'==$user_level):
-		echo $no_content_author;
+		echo lang('page.no_content_author');
 	else:
-		echo $no_content;
+		echo lang('page.no_content');
 	endif;
+	echo '<br /><br />';
 endif;
 ?>
 

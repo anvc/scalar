@@ -280,14 +280,13 @@ function validate_form($form, ignoreViewCheck) {
 			return false;
 		}	
 	}
-
 	if (!ignoreViewCheck) {
 		// If default view is 'plain', send warning if media has been linked in the WYSIWYG
-		var default_view_value = $("#default_view_select option:selected").val();
-		var default_view_name = $("#default_view_select option:selected").html();
+		var default_view_value = $("[name='scalar:default_view'] option:selected").val();
+		var default_view_name = $("[name='scalar:default_view'] option:selected").html();
 		if ('plain'==default_view_value) {
 			var textarea_content = $('#edit_content textarea:first').val();
-			var confirm_default_view_msg = 'The page content appears to have one or more links to imported Scalar media.  However, the default view of the page is set to empty.  Pages with embedded media work best in other views such as text-emphasis or media-emphasis.  Do you wish to save this page with the current settings?';
+			var confirm_default_view_msg = 'The page content appears to have one or more links to imported Scalar media.  However, the layout of the page is set to its default value.  Pages with embedded media work best in other layouts such as text-emphasis or media-emphasis.  Do you wish to save this page with the current settings?';
 			try {
 				$('<div>'+textarea_content+'</div>').find('a:not(.inline)').each(function() {
 					if ($(this).attr('resource')) throw 'resource link present';
@@ -298,9 +297,9 @@ function validate_form($form, ignoreViewCheck) {
 		}
 	
 		// If no media has been linked, send warning (ie, media-emphasis view)
-		var media_views = ['text','media','split','par'];
+		var media_views = ['text','media','split','par','revpar'];
 		if (media_views.indexOf(default_view_value)!=-1) {
-			var confirm_default_view_msg = 'You have selected a default view, '+default_view_name+', that works best when media have been connected directly to pieces of text (e.g., using the first blue button in the text editor). However, it appears there are no direct text-media links established.  We recommend changing the default view to empty or establishing direct text-media links.  Do you wish to save this page with the current settings?';
+			var confirm_default_view_msg = 'You have selected a layout, '+default_view_name+', that works best when media have been connected directly to pieces of text (e.g., using the first blue button in the text editor). However, it appears there are no direct text-media links established.  We recommend changing the layout to empty or establishing direct text-media links.  Do you wish to save this page with the current settings?';
 			var textarea_content = $('#edit_content textarea:first').val();
 			if (!$('<div>'+textarea_content+'</div>').find('a:not(.inline)').length) {
 				if (!confirm(confirm_default_view_msg)) return false;
@@ -633,8 +632,8 @@ function listeditor_createnew($list, insert_func) {
 		}
 		scalarapi.loadPage(slug, true, node_success, node_error);
 	}
-	var error = function(obj) {
-		alert('Something went wrong while attempting to save: '+obj.statusText);
+	var error = function(message) {
+		alert('Something went wrong while attempting to save: '+message);
 		send_form_hide_loading();
 	}
 	scalarapi.savePage(to_send, success, error);

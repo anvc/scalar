@@ -149,8 +149,8 @@ function send_form($form, additional_values, redirect_url) {
 		send_form_relationships($form, version_urn, redirect_url);     
 	}
 	
-	var error = function(obj) {
-		alert('Something went wrong while attempting to save: '+obj.statusText);
+	var error = function(message) {
+		alert('Something went wrong while attempting to save: '+message);
 		send_form_hide_loading();
 	}
 
