@@ -1,0 +1,33 @@
+.cke_chrome {border-radius:0px !important;}
+.cke_reset {width:100% !important;}
+.cke_dialog_ui_html {white-space: normal !important;}
+.cke_dialog_ui_checkbox label {cursor:pointer !important;}
+
+
+
+.cke_button__scalar1, 
+.cke_button__scalar2,
+.cke_button__scalar3, 
+.cke_button__scalar4,
+.cke_button__scalar5, 
+.cke_button__scalar6 {
+	background-color:#2894b8 !important;
+	margin-left:1px !important;
+	margin-right:1px !important;
+}
+.cke_button__scalar7 {
+	background-color:#9b9b9b !important;	
+	margin-left:1px !important;
+	margin-right:1px !important;	
+}
+.cke_button__scalar1:hover, 
+.cke_button__scalar2:hover,
+.cke_button__scalar3:hover, 
+.cke_button__scalar4:hover,
+.cke_button__scalar5:hover, 
+.cke_button__scalar6:hover {
+	background-color:#1d6e88 !important;
+}
+.cke_button__scalar7:hover {
+	background-color:#6f6f6f !important;
+}
