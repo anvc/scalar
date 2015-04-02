@@ -259,9 +259,13 @@ function search_for_content(sq, $div, $list, _insert_func, default_type, only_de
 
 function validate_form($form, ignoreViewCheck) {
 
- 	// Commit WYSIWYG, but only if on the WYSIWYG tab (otherwise the old content in the WYSIWYG editor will overwrite new context in the textarea)	
+ 	// Commit WYSIWYG content to textarea
 	if (editor_wysiwyg && !$('.wysiwyg:hidden > iframe').length) {
 		editor_wysiwyg.data('wysiwyg').saveContent();
+	}
+	if ('undefined'!=typeof(CKEDITOR)) {
+		var textarea = CKEDITOR.instances['sioc:content'].getData();
+		$form.find('textarea[name="sioc:content"]').val(textarea);
 	}
 
 	// Make sure title is present

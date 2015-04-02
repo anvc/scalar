@@ -1,12 +1,18 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_css('system/application/views/melons/honeydew/content/edit.css')?>
+<?$this->template->add_css('system/application/views/widgets/ckeditor/custom.css')?>
+<?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
+<?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
+<?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
-<?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
+<?$this->template->add_js('system/application/views/melons/honeydew/content/edit.js')?>
+<?$this->template->add_js('system/application/views/widgets/ckeditor/ckeditor.js')?>
+<?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
-<?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
-<?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
-<?$this->template->add_js('system/application/views/widgets/ckeditor/ckeditor.js')?>
-<?$this->template->add_css('system/application/views/widgets/ckeditor/custom.css')?>
+<?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
+<?$this->template->add_js('system/application/views/widgets/farbtastic/farbtastic.js')?>
+<?$this->template->add_js('system/application/views/widgets/spinner/spin.min.js')?>
 <?
 if ($this->config->item('reference_options')) {
 	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
@@ -94,7 +100,7 @@ endif;
 				}
 			?>
 			<!-- <div class="wysiwyg_options"><span><a href="javascript:;" class="textarea_tab wysiwyg_handle_selected to_wysiwyg_handle" title="In the editor, view a visual representation of the HTML">Visual</a>&nbsp;<a href="javascript:;" class="textarea_tab to_html_handle" title="In the editor, view the source HTML">HTML</a></span><br clear="both"></div> -->
-			<textarea class="ckeditor" wrap="soft" name="sioc:content"><?
+			<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
 			if (isset($page->version_index)):
 				$content = $page->versions[$page->version_index]->content;
 				if (!empty($content)) {

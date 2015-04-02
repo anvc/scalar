@@ -77,7 +77,6 @@ $(window).ready(function() {
  
 		  // Scalar API
 		  {load: [widgets_uri+'/api/scalarapi.js'], complete:function() {
-
 		  	$('.hide_page_link').click(function() {
 		  		var uri = document.location.href;
 		  		if (uri.indexOf('?')!=-1) uri = uri.substr(0, uri.indexOf('?'));
@@ -140,8 +139,7 @@ $(window).ready(function() {
 		      case 'history':
 		        yepnope({load: [widgets_uri+'/historybrowser/historybrowser.css']});   
 		      case 'edit':
-		        yepnope({load: [modules_uri+'/honeydew/content/edit.css',widgets_uri+'/farbtastic/farbtastic.js',widgets_uri+'/farbtastic/farbtastic.css',widgets_uri+'/wysiwyg/jquery.wysiwyg.js',widgets_uri+'/wysiwyg/jquery.wysiwyg.css',modules_uri+'/honeydew/content/edit.js',widgets_uri+'/spinner/spin.min.js'], complete:function() {
-		        }});    
+		    	// Resources loaded in edit.php
 		        break;     
 		      case 'annotation_editor':
 		        yepnope({load: [widgets_uri+'/annobuilder/jquery.annobuilder.js',widgets_uri+'/annobuilder/annobuilder.css',widgets_uri+'/spinner/spin.min.js'], complete:function() {    

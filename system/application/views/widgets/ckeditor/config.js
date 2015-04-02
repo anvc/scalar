@@ -10,6 +10,7 @@ CKEDITOR.editorConfig = function( config ) {
 	config.plugins = 'dialogui,dialog,a11yhelp,basicstyles,blockquote,clipboard,panel,floatpanel,panelbutton,menu,button,toolbar,elementspath,enterkey,entities,wysiwygarea,indent,indentlist,list,maximize,pastetext,pastefromword,removeformat,sourcearea,specialchar,menubutton,undo,colorbutton,colordialog,codeTag,fakeobjects,iframe,scalar';
 	config.skin = 'bootstrapck';
 	config.extraAllowedContent = 'code pre a[*]';
+	config.disableNativeSpellChecker = false;
 	config.height = 350;
 	config.font_defaultLabel = 'Lucida Grande';
 	config.fontSize_defaultLabel = '12px';	
