@@ -139,7 +139,7 @@
 							row.data('relation', relation);
 							row.click(function() {
 								var relation = $(this).data('relation');
-								mediaelement.seek(relation.properties.start); // TODO - handle other media types
+								mediaelement.seek(relation);
 								mediaelement.play();
 							});
 						}
