@@ -87,7 +87,7 @@
 
 	ScalarComments.prototype.showComments = function( qs ) {
 		this.quickStart = qs;
-		this.getComments();
+		this.formatComments();
 		this.modal.modal('show');
 	}
 
@@ -95,22 +95,12 @@
 		this.modal.modal('hide');
 	}
 
-	ScalarComments.prototype.getComments = function() {
-
-		var me = this;
-
-		this.results.empty();
-		scalarapi.loadPage( scalarapi.model.getCurrentPageNode().slug, true, function() {
-			me.handleComments();
-		}, null, 1, false, 'reply');
-
-	}
-
-	ScalarComments.prototype.handleComments = function() {
+	ScalarComments.prototype.formatComments = function() {
 
 		var relation, node,
 			relations = scalarapi.model.getCurrentPageNode().getRelations('comment', 'incoming', 'reverseindex');
 
+		this.results.empty();
 		this.tabIndex = 100;
 
 		for (var i in relations) {
