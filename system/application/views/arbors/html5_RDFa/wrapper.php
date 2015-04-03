@@ -124,7 +124,7 @@ endif;
 ?>
 		<!-- Book -->
 		<span resource="<?=rtrim($base_uri,'/')?>" typeof="scalar:Book">
-			<span property="dcterms:title" content="<?=htmlspecialchars(strip_tags($book->title))?>"><a id="book-title" href="<?=$base_uri?>index"><?=$book->title?></a></span>
+			<span property="dcterms:title" content="<?=htmlspecialchars(strip_tags($book->title))?>"><a id="book-title" href="<?=$base_uri?>index"><?=$book->title?><?=(isset($book->subtitle)&&!empty($book->subtitle))?'<span class="subtitle">: '.$book->subtitle.'</span>':''?></a></span>
 <? if (isset($page->slug)) echo '			<a class="metadata" rel="dcterms:hasPart" href="'.$base_uri.$page->slug.'"></a>'."\n"; ?>
 			<a class="metadata" rel="dcterms:tableOfContents" href="<?=$base_uri?>toc"></a>
 <?
