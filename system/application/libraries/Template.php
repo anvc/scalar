@@ -28,10 +28,10 @@
  * @link		http://www.williamsconcepts.com/ci/libraries/template/index.html
  * @copyright  Copyright (c) 2008, Colin Williams.
  * @version 1.4.1
- * 
+ *
  */
 class CI_Template {
-   
+
    var $CI;
    var $config;
    var $template;
@@ -39,30 +39,32 @@ class CI_Template {
    var $regions = array(
       '_scripts' => array(),
       '_styles' => array(),
-   	  '_meta' => array()
+   	  '_meta' => array(),
+      '_html' => array()
    );
    var $output;
    var $js = array();
    var $css = array();
    var $meta = array();
+   var $html = array();
    var $parser = 'parser';
    var $parser_method = 'parse';
    var $parse_template = FALSE;
-   
+
    /**
 	 * Constructor
 	 *
-	 * Loads template configuration, template regions, and validates existence of 
+	 * Loads template configuration, template regions, and validates existence of
 	 * default template
 	 *
 	 * @access	public
 	 */
-   
+
    function CI_Template()
    {
       // Copy an instance of CI so we can use the entire framework.
       $this->CI =& get_instance();
-      
+
       // Load the template config file and setup our master template and regions
       include(APPPATH.'config/template'.EXT);
       if (isset($template))
@@ -71,9 +73,9 @@ class CI_Template {
          $this->set_template($template['active_template']);
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Use given template settings
     *
@@ -81,7 +83,7 @@ class CI_Template {
     * @param   string   array key to access template settings
     * @return  void
     */
-   
+
    function set_template($group)
    {
       if (isset($this->config[$group]))
@@ -94,9 +96,9 @@ class CI_Template {
       }
       $this->initialize($this->template);
    }
-   
+
       // --------------------------------------------------------------------
-   
+
    /**
     * Set master template
     *
@@ -104,7 +106,7 @@ class CI_Template {
     * @param   string   filename of new master template file
     * @return  void
     */
-   
+
    function set_master_template($filename)
    {
       if (file_exists(APPPATH .'views/'. $filename) or file_exists(APPPATH .'views/'. $filename . EXT))
@@ -116,9 +118,9 @@ class CI_Template {
          show_error('The filename provided does not exist in <strong>'. APPPATH .'views</strong>. Remember to include the extension if other than ".php"');
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Dynamically add a template and optionally switch to it
     *
@@ -127,7 +129,7 @@ class CI_Template {
     * @param   array properly formed
     * @return  void
     */
-   
+
    function add_template($group, $template, $activate = FALSE)
    {
       if ( ! isset($this->config[$group]))
@@ -143,9 +145,9 @@ class CI_Template {
          show_error('The "'. $group .'" template group already exists. Use a different group name.');
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Initialize class settings using config settings
     *
@@ -153,27 +155,27 @@ class CI_Template {
     * @param   array   configuration array
     * @return  void
     */
-   
+
    function initialize($props)
    {
       // Set master template
-      if (isset($props['template']) 
+      if (isset($props['template'])
          && (file_exists(APPPATH .'views/'. $props['template']) or file_exists(APPPATH .'views/'. $props['template'] . EXT)))
       {
          $this->master = $props['template'];
       }
-      else 
+      else
       {
          // Master template must exist. Throw error.
          show_error('Either you have not provided a master template or the one provided does not exist in <strong>'. APPPATH .'views</strong>. Remember to include the extension if other than ".php"');
       }
-      
+
       // Load our regions
       if (isset($props['regions']))
       {
          $this->set_regions($props['regions']);
       }
-      
+
       // Set parser and parser method
       if (isset($props['parser']))
       {
@@ -183,13 +185,13 @@ class CI_Template {
       {
          $this->set_parser_method($props['parser_method']);
       }
-      
+
       // Set master template parser instructions
       $this->parse_template = isset($props['parse_template']) ? $props['parse_template'] : FALSE;
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Set regions for writing to
     *
@@ -197,7 +199,7 @@ class CI_Template {
     * @param   array   properly formed regions array
     * @return  void
     */
-   
+
    function set_regions($regions)
    {
       if (count($regions))
@@ -205,11 +207,12 @@ class CI_Template {
          $this->regions = array(
             '_scripts' => array(),
             '_styles' => array(),
-         	'_meta' => array()
+         	'_meta' => array(),
+         	'_html' => array()
          );
-         foreach ($regions as $key => $region) 
+         foreach ($regions as $key => $region)
          {
-            // Regions must be arrays, but we take the burden off the template 
+            // Regions must be arrays, but we take the burden off the template
             // developer and insure it here
             if ( ! is_array($region))
             {
@@ -221,9 +224,9 @@ class CI_Template {
          }
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Dynamically add region to the currently set template
     *
@@ -232,14 +235,14 @@ class CI_Template {
     * @param   array Optional array with region defaults
     * @return  void
     */
-   
+
    function add_region($name, $props = array())
    {
       if ( ! is_array($props))
       {
          $props = array();
       }
-      
+
       if ( ! isset($this->regions[$name]))
       {
          $this->regions[$name] = $props;
@@ -249,9 +252,9 @@ class CI_Template {
          show_error('The "'. $name .'" region has already been defined.');
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Empty a region's content
     *
@@ -259,7 +262,7 @@ class CI_Template {
     * @param   string   Name to identify the region
     * @return  void
     */
-   
+
    function empty_region($name)
    {
       if (isset($this->regions[$name]['content']))
@@ -271,9 +274,9 @@ class CI_Template {
          show_error('The "'. $name .'" region is undefined.');
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Set parser
     *
@@ -281,20 +284,20 @@ class CI_Template {
     * @param   string   name of parser class to load and use for parsing methods
     * @return  void
     */
-   
+
    function set_parser($parser, $method = NULL)
    {
       $this->parser = $parser;
       $this->CI->load->library($parser);
-      
+
       if ($method)
       {
          $this->set_parser_method($method);
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Set parser method
     *
@@ -302,14 +305,14 @@ class CI_Template {
     * @param   string   name of parser class member function to call when parsing
     * @return  void
     */
-   
+
    function set_parser_method($method)
    {
       $this->parser_method = $method;
    }
 
    // --------------------------------------------------------------------
-   
+
    /**
 	 * Write contents to a region
 	 *
@@ -319,7 +322,7 @@ class CI_Template {
 	 * @param	boolean	FALSE to append to region, TRUE to overwrite region
 	 * @return	void
 	 */
-   
+
    function write($region, $content, $overwrite = FALSE)
    {
       if (isset($this->regions[$region]))
@@ -331,16 +334,16 @@ class CI_Template {
             $this->regions[$region]['content'][] = $content;
          }
       }
-      
+
       // Regions MUST be defined
       else
       {
          show_error("Cannot write to the '{$region}' region. The region is undefined.");
       }
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
 	 * Write content from a View to a region. 'Views within views'
 	 *
@@ -351,14 +354,14 @@ class CI_Template {
 	 * @param	boolean	FALSE to append to region, TRUE to overwrite region
 	 * @return	void
 	 */
-   
+
    function write_view($region, $view, $data = NULL, $overwrite = FALSE)
    {
       $args = func_get_args();
-      
+
       // Get rid of non-views
       unset($args[0], $args[2], $args[3]);
-      
+
       // Do we have more view suggestions?
       if (count($args) > 1)
       {
@@ -372,14 +375,14 @@ class CI_Template {
             }
          }
       }
-      
+
       $content = $this->CI->load->view($view, $data, TRUE);
       $this->write($region, $content, $overwrite);
 
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Parse content from a View to a region with the Parser Class
     *
@@ -390,16 +393,16 @@ class CI_Template {
     * @param   boolean  FALSE to append to region, TRUE to overwrite region
     * @return  void
     */
-   
+
    function parse_view($region, $view, $data = NULL, $overwrite = FALSE)
    {
       $this->CI->load->library('parser');
-      
+
       $args = func_get_args();
-      
+
       // Get rid of non-views
       unset($args[0], $args[2], $args[3]);
-      
+
       // Do we have more view suggestions?
       if (count($args) > 1)
       {
@@ -413,17 +416,17 @@ class CI_Template {
             }
          }
       }
-      
+
       $content = $this->CI->{$this->parser}->{$this->parser_method}($view, $data, TRUE);
       $this->write($region, $content, $overwrite);
 
    }
 
    // --------------------------------------------------------------------
-   
+
    /**
     * Dynamically include javascript in the template
-    * 
+    *
     * NOTE: This function does NOT check for existence of .js file
     *
     * @access  public
@@ -432,14 +435,14 @@ class CI_Template {
     * @param   boolean  TRUE to use 'defer' attribute, FALSE to exclude it
     * @return  TRUE on success, FALSE otherwise
     */
-   
+
    function add_js($script, $type = 'import', $defer = FALSE)
    {
       $success = TRUE;
       $js = NULL;
-      
+
       $this->CI->load->helper('url');
-      
+
       switch ($type)
       {
          case 'import':
@@ -451,7 +454,7 @@ class CI_Template {
             }
             $js .= "></script>\n";
             break;
-         
+
          case 'embed':
             $js = '<script type="text/javascript"';
             if ($defer)
@@ -462,27 +465,27 @@ class CI_Template {
             $js .= $script;
             $js .= '</script>'."\n";
             break;
-            
+
          default:
             $success = FALSE;
             break;
       }
-      
+
       // Add to js array if it doesn't already exist
       if ($js != NULL && !in_array($js, $this->js))
       {
          $this->js[] = $js;
          $this->write('_scripts', $js);
       }
-      
+
       return $success;
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Dynamically include CSS in the template
-    * 
+    *
     * NOTE: This function does NOT check for existence of .css file
     *
     * @access  public
@@ -491,19 +494,19 @@ class CI_Template {
     * @param   string  media attribute to use with 'link' type only, FALSE for none
     * @return  TRUE on success, FALSE otherwise
     */
-   
+
    function add_css($style, $type = 'link', $media = FALSE)
    {
       $success = TRUE;
       $css = NULL;
-      
+
       $this->CI->load->helper('url');
       $filepath = base_url() . $style;
-      
+
       switch ($type)
       {
          case 'link':
-            
+
             $css = '<link type="text/css" rel="stylesheet" href="'. $filepath .'"';
             if ($media)
             {
@@ -511,32 +514,32 @@ class CI_Template {
             }
             $css .= ' />'."\n";
             break;
-         
+
          case 'import':
             $css = '<style type="text/css">@import url('. $filepath .');</style>';
             break;
-         
+
          case 'embed':
             $css = '<style type="text/css">';
             $css .= $style;
             $css .= '</style>';
             break;
-            
+
          default:
             $success = FALSE;
             break;
       }
-      
+
       // Add to js array if it doesn't already exist
       if ($css != NULL && !in_array($css, $this->css))
       {
          $this->css[] = $css;
          $this->write('_styles', $css);
       }
-      
+
       return $success;
    }
-      
+
    /**
     * Dynamically include <meta> in the template
 	*
@@ -547,27 +550,56 @@ class CI_Template {
     * @param   string  value for the content="" attribute
     * @return  TRUE on success, FALSE otherwise
     */
-   
+
    function add_meta($name='', $content='')
    {
       $success = TRUE;
       $meta = NULL;
-      
+
       $this->CI->load->helper('url');
-      
+
 	  $meta = '<meta name="'.$name.'" content="'.$content.'">';
-      
+
       if ($meta != NULL)
       {
          $this->meta[] = $meta;
          $this->write('_meta', $meta);
       }
-      
+
       return $success;
-   }   
-   
+   }
+
+   /**
+    * Dynamically include HTML
+	*
+	* Added by Craig Dietrich, 3 April 2015
+    *
+    * @access  public
+    * @param   string the HTML
+    * @param   string to be placed into <div class="">
+    * @return  TRUE on success, FALSE otherwise
+    */
+
+   function add_html($content='', $class='')
+   {
+      $success = TRUE;
+      $html = NULL;
+
+      $this->CI->load->helper('url');
+
+	  $html = '<div class="ci-template-html'.((!empty($class))?' '.$class:'').'">'.$content.'</div>'."\n";
+
+      if ($html != NULL)
+      {
+         $this->html[] = $html;
+         $this->write('_html', $html);
+      }
+
+      return $success;
+   }
+
    // --------------------------------------------------------------------
-   
+
    /**
 	 * Render the master template or a single region
 	 *
@@ -576,7 +608,7 @@ class CI_Template {
 	 * @param	boolean	FALSE to output the rendered template, TRUE to return as a string. Always TRUE when $region is supplied
 	 * @return	void or string (result of template build)
 	 */
-   
+
    function render($region = NULL, $buffer = FALSE, $parse = FALSE)
    {
       // Just render $region if supplied
@@ -591,7 +623,7 @@ class CI_Template {
             show_error("Cannot render the '{$region}' region. The region is undefined.");
          }
       }
-      
+
       // Build the output array
       else
       {
@@ -604,7 +636,7 @@ class CI_Template {
          {
             // Use provided parser class and method to render the template
             $output = $this->CI->{$this->parser}->{$this->parser_method}($this->master, $this->output, TRUE);
-            
+
             // Parsers never handle output, but we need to mimick it in this case
             if ($buffer === FALSE)
             {
@@ -617,28 +649,28 @@ class CI_Template {
             $output = $this->CI->load->view($this->master, $this->output, $buffer);
          }
       }
-      
+
       return $output;
    }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
     * Load the master template or a single region
     *
     * DEPRECATED!
-    * 
+    *
     * Use render() to compile and display your template and regions
     */
-    
+
     function load($region = NULL, $buffer = FALSE)
     {
        $region = NULL;
        $this->render($region, $buffer);
     }
-   
+
    // --------------------------------------------------------------------
-   
+
    /**
 	 * Build a region from it's contents. Apply wrapper if provided
 	 *
@@ -648,17 +680,17 @@ class CI_Template {
 	 * @param	array	Multidimensional array of HTML elements to apply to $wrapper
 	 * @return	string	Output of region contents
 	 */
-   
+
    function _build_content($region, $wrapper = NULL, $attributes = NULL)
    {
       $output = NULL;
-      
+
       // Can't build an empty region. Exit stage left
       if ( ! isset($region['content']) or ! count($region['content']))
       {
          return FALSE;
       }
-      
+
       // Possibly overwrite wrapper and attributes
       if ($wrapper)
       {
@@ -668,13 +700,13 @@ class CI_Template {
       {
          $region['attributes'] = $attributes;
       }
-      
+
       // Open the wrapper and add attributes
-      if (isset($region['wrapper'])) 
+      if (isset($region['wrapper']))
       {
          // This just trims off the closing angle bracket. Like '<p>' to '<p'
          $output .= substr($region['wrapper'], 0, strlen($region['wrapper']) - 1);
-         
+
          // Add HTML attributes
          if (isset($region['attributes']) && is_array($region['attributes']))
          {
@@ -684,26 +716,26 @@ class CI_Template {
                $output .= " $name=\"$value\"";
             }
          }
-         
+
          $output .= ">";
       }
-      
+
       // Output the content items.
       foreach ($region['content'] as $content)
       {
          $output .= $content;
       }
-      
+
       // Close the wrapper tag
       if (isset($region['wrapper']))
       {
          // This just turns the wrapper into a closing tag. Like '<p>' to '</p>'
          $output .= str_replace('<', '</', $region['wrapper']) . "\n";
       }
-      
+
       return $output;
    }
-   
+
 }
 // END Template Class
 

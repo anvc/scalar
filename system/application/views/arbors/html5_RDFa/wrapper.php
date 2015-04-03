@@ -207,18 +207,24 @@ endif;
 ?>
 <?php endif; ?>
 	</header>
-<?php if (isset($page) && !empty($page)): ?>
-	<span property="sioc:content"><?=str_replace("\r",'',str_replace("\n",'',nl2br($page->versions[$page->version_index]->content)))?></span>
-<?
+	<span property="sioc:content"><?php
+		if (!empty($_html)) {
+			echo $_html;
+		} elseif (isset($page) && !empty($page)) {
+			echo str_replace("\r",'',str_replace("\n",'',nl2br($page->versions[$page->version_index]->content)));
+		}
+	?></span>
 
-$has_references = $page->versions[$page->version_index]->has_references;
-$reference_of = $page->versions[$page->version_index]->reference_of;
+<?php
+if (isset($page) && !empty($page)):
+$has_references = (isset($page->versions[$page->version_index]->has_references)) ? $page->versions[$page->version_index]->has_references : array();
+$reference_of = (isset($page->versions[$page->version_index]->reference_of)) ? $page->versions[$page->version_index]->reference_of : array();
 unset($models[array_search('references',$models)]);
 foreach ($models as $rel):
 	$inward_rel = 'has_'.$rel;
-	$inward_array = $page->versions[$page->version_index]->$inward_rel;
+	$inward_array = (isset($page->versions[$page->version_index]->$inward_rel)) ? $page->versions[$page->version_index]->$inward_rel : array();;
 	$outward_rel = singular($rel).'_of';
-	$outward_array = $page->versions[$page->version_index]->$outward_rel;
+	$outward_array = (isset($page->versions[$page->version_index]->$outward_rel)) ? $page->versions[$page->version_index]->$outward_rel : array();
 	if (!empty($inward_array)):
 ?>
 	<section>

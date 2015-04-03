@@ -31,7 +31,10 @@ $config['views'] = array(
 	'vismedia' => array('name'=>'Media','description'=>'<b>Visualize and navigate this page’s media.</b> The Media view embeds a force-directed visualization at the top of the page that shows the media it references or annotates. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'view_tag.gif'),
 	'vistag' => array('name'=>'Tag','description'=>'<b>Visualize and navigate content tagged by this page.</b> The Tag view embeds a force-directed visualization at the top of the page that shows the content it tags. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'view_tag.gif'),
 	'edit' => '',
-	'annotation_editor' => ''
+	'annotation_editor' => '',
+	'versions' => '',
+	'meta' => '',
+	'history' => ''
 );
 
 // Default view
@@ -39,12 +42,12 @@ $config['default_view'] = 'plain';
 
 // Media reference options (will translate to, e.g., data-property="value")
 $config['reference_options'] = array(
-	'insertMediaLink' 		=> array( 
+	'insertMediaLink' 		=> array(
 								'size' => array('small', 'medium', 'large', 'native', 'full'),
 								'align' => array('right', 'left'),
 								'caption' => array('description', 'title', 'title-and-description', 'none')
 						 		),
-	'insertMediaelement' 	=> array( 
+	'insertMediaelement' 	=> array(
 								'size' => array('small', 'medium', 'large', 'native', 'full'),
 								'align' => array('left', 'center', 'right'),
 								'caption' => array('description', 'title', 'title-and-description', 'none')
