@@ -1969,7 +1969,7 @@ function YouTubeGetID(url){
 			// if we were passed an annotation to seek to, wait a while before attempting to seek
 			// (if YouTube, then don't try to seek if we're not on Mobile Safari, since we'll set player
 			// params to seek instead)
-			if ((this.model.seekAnnotation != null) /*&& (this.model.mediaSource.contentType != 'image') && ((this.model.mediaSource.name != 'YouTube') || ((this.model.mediaSource.name == 'YouTube') && (scalarapi.scalarBrowser == 'MobileSafari')))*/) {
+			if ((this.model.seekAnnotation != null) /*&& (this.model.mediaSource.contentType != 'image')*/ && ((this.model.mediaSource.name != 'YouTube') || ((this.model.mediaSource.name == 'YouTube') && (scalarapi.scalarBrowser == 'MobileSafari')))) {
  				if (this.annotationDisplay && (this.model.mediaSource.contentType != 'image')) {
 	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+this.model.seekAnnotation.startString+'&hellip;</p>');
 	 				this.annotationDisplay.fadeIn();
@@ -2843,6 +2843,10 @@ function YouTubeGetID(url){
 				events: {
 					'onStateChange': 'onYouTubeStateChange' + this.model.id
 				}
+			}
+
+			if ( this.model.initialSeekAnnotation != null ) {
+				params.playerVars.start = Math.round( this.model.initialSeekAnnotation.properties.start );
 			}
 
 			var myId = this.model.id;
