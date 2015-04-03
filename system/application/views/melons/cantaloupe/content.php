@@ -19,10 +19,10 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-modal.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-accessibility.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/main.js')?>
-<?$this->template->add_js(path_from_file(__FILE__).'js/jquery.dotdotdot.min.js');?>
-<?$this->template->add_js(path_from_file(__FILE__).'js/jquery.scrollTo.min.js')?>
 <?php 
 	if($new_header){
+		$this->template->add_js(path_from_file(__FILE__).'js/jquery.dotdotdot.min.js');
+		$this->template->add_js(path_from_file(__FILE__).'js/jquery.scrollTo.min.js');
 		$this->template->add_js(path_from_file(__FILE__).'js/updated_scalarheader.jquery.js');
 	}else{
 		$this->template->add_js(path_from_file(__FILE__).'js/scalarheader.jquery.js');

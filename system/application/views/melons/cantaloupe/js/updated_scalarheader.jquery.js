@@ -38,6 +38,8 @@
             //Are we logged in? Check the RDF metadata.
             base.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
 
+            base.currentNode = scalarapi.model.getCurrentPageNode();
+
             if(base.logged_in){
                 //While we are logged in, check what our user level is, and set the appropriate bools
                 base.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
@@ -188,7 +190,7 @@
                                             ((base.is_author||base.is_commentator||base.is_reviewer)?
                                                 '<li id="ScalarHeaderNew" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" class="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'+
                                                 '<li id="ScalarHeaderEdit" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit')+'" class="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'+
-                                                ((currentNode!=null && currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
+                                                ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
                                                     '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
                                                         '<img src="' + this.options.root_url + '/images/import_icon.png" alt="Import menu. Roll over to show import options."/>'+
@@ -559,7 +561,7 @@
                 container.prepend('<div class="close"><span class="menuIcon closeIcon"></span></div>');
             }
 
-            if(container.data('slug') == currentNode.slug){
+            if(container.data('slug') == base.currentNode.slug){
                 container.addClass('is_current');
             }else if(base.parentNodes.indexOf(container.data('slug') >= 0)){
                 container.addClass('is_parent');
@@ -680,8 +682,8 @@
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != currentNode.slug )  || relNode.slug == currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -699,8 +701,8 @@
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != currentNode.slug )  || relNode.slug == currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -720,8 +722,8 @@
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != currentNode.slug )  || relNode.slug == currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -740,8 +742,8 @@
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != currentNode.slug )  || relNode.slug == currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -760,8 +762,8 @@
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != currentNode.slug )  || relNode.slug == currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -909,8 +911,8 @@
 
         base.buildUserMenu = function(userList){
             var redirect_url = '';
-            if ( currentNode != null ) {
-                redirect_url = encodeURIComponent(currentNode.url);
+            if ( base.currentNode != null ) {
+                redirect_url = encodeURIComponent(base.currentNode.url);
             }else{
                 redirect_url = encodeURIComponent(window.location.href);
             }
@@ -1025,7 +1027,7 @@
 
             for(n in this_parent_nodes){
                 var slug = this_parent_nodes[n];
-                if(slug != currentNode.slug){
+                if(slug != base.currentNode.slug){
                     (function(slug,depth){
                         scalarapi.loadPage( slug, true, function(){
                             var base = $('#scalarheader.navbar').data('scalarheader');
@@ -1049,11 +1051,11 @@
                 if(base.parentNodes.indexOf($(this).data('slug')) >= 0){
                     $(this).addClass('is_parent');
                     $(this).find('ol>li').each(function(){
-                        if($(this).data('slug') == currentNode.slug || base.parentNodes.indexOf($(this).data('slug')) >= 0){
+                        if($(this).data('slug') == base.currentNode.slug || base.parentNodes.indexOf($(this).data('slug')) >= 0){
                             $(this).addClass('is_parent');
                         }
                     });
-                }else if($(this).data('slug') == currentNode.slug){
+                }else if($(this).data('slug') == base.currentNode.slug){
                     $(this).addClass('is_current');
                 }
             });
@@ -1079,8 +1081,8 @@
                                         'slug': tocNode.slug,
                                         'node': tocNode
                                     })
-                                    .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && tocNode.slug != currentNode.slug)?'':'is_parent')
-                                    .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && tocNode.url != currentNode.url)?'':'visited');
+                                    .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && tocNode.slug != base.currentNode.slug)?'':'is_parent')
+                                    .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && tocNode.url != base.currentNode.url)?'':'visited');
                         $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).click(function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             var target_toc_item = $(this).parent().data('node');
@@ -1103,7 +1105,7 @@
                 if (result) {
                     var base = $('#scalarheader.navbar').data('scalarheader');        
                     // assemble params for the trash action
-                    var node = currentNode,
+                    var node = base.currentNode,
                         baseProperties =  {
                             'native': 1,
                             id: $('link#parent').attr('href'),
@@ -1131,7 +1133,7 @@
             });
 
             //First attempt at determining the uber-parents of this page.
-            base.getParents(currentNode,0);
+            base.getParents(base.currentNode,0);
             
         }
         
