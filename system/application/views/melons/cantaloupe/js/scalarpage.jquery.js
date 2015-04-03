@@ -182,7 +182,7 @@
 
 						// add the tabs
 						$.scalarmedia( mediaelement, mediaelement.view.footer, { 
-							'shy': !isMobile, 
+							'shy': ( !isMobile && !link.hasClass( 'media-page-link' ) ), 
 							'details': page.mediaDetails, 
 							'caption': link.attr( 'data-caption' ) 
 						});
@@ -905,9 +905,14 @@
 									// the media if it isn't already playing
 									var annotationURL = $( this ).data( 'targetAnnotation' );
 									if ( annotationURL != null ) {
-										mediaelement.seek( mediaelement.model.seekAnnotation );
-										if ( !mediaelement.is_playing() ) {
-											mediaelement.play();
+										
+										mediaelement.seek( mediaelement.model.initialSeekAnnotation );
+										if (( mediaelement.model.mediaSource.contentType != 'document' ) && ( mediaelement.model.mediaSource.contentType != 'image' )) {
+				              				setTimeout(function() {
+				                				if(!mediaelement.is_playing()) {
+				      								mediaelement.play();
+				                				}
+				              				},250);
 										}
 
 									} else if ( mediaelement.is_playing() ) {

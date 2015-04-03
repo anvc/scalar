@@ -1661,8 +1661,10 @@ function YouTubeGetID(url){
  				case 'audio':
  				case 'video':
  				case 'document':
+ 				this.model.seekAnnotation = annotation;
+ 				this.playingSeekAnnotation = true;
  				if (this.annotationDisplay) {
-	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+annotation.startString+'…</p>');
+	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+annotation.startString+'&hellip;</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
  				if (!this.annotationTimerRunning) {
@@ -1815,7 +1817,7 @@ function YouTubeGetID(url){
 			for (i=0; i<n; i++) {
 				annotation = this.annotations[i];
 				if (annotation.body.url == this.model.seek) {
-					this.model.seekAnnotation = annotation;
+					this.model.initialSeekAnnotation = this.model.seekAnnotation = annotation;
 				}
 			}
 
@@ -1873,7 +1875,7 @@ function YouTubeGetID(url){
 						annotationChip.click( function() {
 							$(this).data('me').cachedPlayCommand = true;
 							$(this).data('me').seek($(this).data('annotation'));
-							$(this).data('me').pause();
+							$(this).data('me').play();
 						});
 
 						annotationChip.append('<p class="annotationTitle"><strong>'+annotation.body.getDisplayTitle()+'</strong></p>');
@@ -1969,7 +1971,7 @@ function YouTubeGetID(url){
 			// params to seek instead)
 			if ((this.model.seekAnnotation != null) /*&& (this.model.mediaSource.contentType != 'image') && ((this.model.mediaSource.name != 'YouTube') || ((this.model.mediaSource.name == 'YouTube') && (scalarapi.scalarBrowser == 'MobileSafari')))*/) {
  				if (this.annotationDisplay && (this.model.mediaSource.contentType != 'image')) {
-	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+this.model.seekAnnotation.startString+'…</p>');
+	 				this.annotationDisplay.html('<p class="annoSeekMessage">Seeking to '+this.model.seekAnnotation.startString+'&hellip;</p>');
 	 				this.annotationDisplay.fadeIn();
  				}
   				if ( ( this.model.mediaSource.contentType != 'image' ) && ( this.model.mediaSource.contentType != 'document' ) ) {
@@ -2928,8 +2930,10 @@ function YouTubeGetID(url){
 		jQuery.YouTubeVideoObjectView.prototype.seek = function(time) {
 			if (this.video) {
 				if (this.video.seekTo) {
+					//var wasPlaying = this.isPlaying();
 					this.video.seekTo(time, true);
-					if (scalarapi.scalarBrowser != 'MobileSafari') this.pause(); // because the seek command tries to start playing automagically
+					//console.log( 'was playing' + wasPlaying );
+					//if ( (scalarapi.scalarBrowser != 'MobileSafari') && !wasPlaying ) this.pause(); // because the seek command tries to start playing automagically
 				}
 			}
 		}
@@ -3014,6 +3018,7 @@ function YouTubeGetID(url){
 					}
 					me.currentTime = data.seconds;
 					me.initialPauseDone = true;
+					me.isVideoPlaying = false; // need to set this manually because the pause event isn't firing here
 				});
 				$froogaloop(player_id).addEvent('loadProgress', function(data) {
 					me.percentLoaded = data.percent;

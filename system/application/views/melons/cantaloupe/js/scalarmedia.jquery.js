@@ -58,13 +58,19 @@
 
 							// otherwise, update the list of all annotations
 							} else {
+								
 								$(annotationTable).find('tr').removeClass('current');
 								$(annotationTable).find('tr').each(function() {
+
 									var rowRelation = $(this).data('relation');
 									var col = $(this).find('td').eq(1);
+
 									// show the content of the selected annotation
 									if (rowRelation == relation) {
+
 										$(this).addClass('current');
+
+										// only turn the title into a permalink and show its content if it actually has content
 										if (rowRelation.body.current.content != null) {
 											col.empty();
 											col.append('<h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</a></h4>');
@@ -76,7 +82,7 @@
 									// hide the content of all other annotations
 									} else {
 										col.find( 'h4' ).siblings().remove();
-										col.find( 'h4' ).replaceWith( '<p>' + relation.body.getDisplayTitle() + '</p>' );
+										col.find( 'h4' ).replaceWith( '<p>' + rowRelation.body.getDisplayTitle() + '</p>' );
 									}
 								});
 							}
