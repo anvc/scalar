@@ -117,7 +117,7 @@
 			relation = relations[i];
 			container = $('<div class="comment"></div>').appendTo(this.results);
 			var date = new Date(relation.properties.datetime);
-			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+scalarapi.getNode(relation.body.author).getDisplayTitle()+'</div>');
+			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+scalarapi.getNode(relation.body.current.author).getDisplayTitle()+'</div>');
 		}
 
 		if (relations.length > 0) {
