@@ -252,9 +252,6 @@ li.divider-above { border-top: 1px dotted #888; }
 	margin: 0 auto;
 	padding: 9.8rem 0 7.8rem 0;
 	min-height: 100%;
-	/*box-shadow: 0px 0px 10px #666;*/
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
 	line-height: 2.4rem;
 	position: relative;
 	-webkit-transition: opacity .5s ease-in-out;
@@ -527,7 +524,7 @@ a:hover { text-decoration: underline; }
 .full { margin-top: 4rem; clear:both; }
 .full .mediaElementFooter { padding: 1rem 7.2rem 0 7.2rem; max-width: 85.4rem; }
 
-.pillarbox { border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; background-color: #f8f8f8; }
+.pillarbox { background-color: #444; }
 /* So the top-most media element aligns with the top of its paragraph */
 .slot.top { margin-top: .5rem !important; clear: both; }
 

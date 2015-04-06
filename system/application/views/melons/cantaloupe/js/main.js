@@ -451,6 +451,8 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
 		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
 
+		        var currentNode = scalarapi.model.getCurrentPageNode();
+		        
 				if ( currentNode != null ) {
 					page.addMediaElements();
 				}

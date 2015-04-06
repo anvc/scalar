@@ -184,7 +184,7 @@
 						$.scalarmedia( mediaelement, mediaelement.view.footer, { 
 							'shy': ( !isMobile && !link.hasClass( 'media-page-link' ) ), 
 							'details': page.mediaDetails, 
-							'caption': caption
+							'caption': link.attr( 'data-caption' )
 						});
 					}
 				} else {
