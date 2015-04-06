@@ -35,7 +35,7 @@
 			elementsWithIncrementedData: [],
 			pathIndex: null,
 
-			mobileWidth: 670,
+			mobileWidth: 520, // this should be set to the same value as the mobile (tiny.css) breakpoint in responsive.css
 			adaptiveMedia: 'full',
 
  			/**
@@ -184,10 +184,16 @@
 						$.scalarmedia( mediaelement, mediaelement.view.footer, { 
 							'shy': ( !isMobile && !link.hasClass( 'media-page-link' ) ), 
 							'details': page.mediaDetails, 
-							'caption': link.attr( 'data-caption' ) 
+							'caption': caption
 						});
 					}
-				} 
+				} else {
+					if (isFullWidth) {
+						// modify default media element design
+						mediaelement.model.element.css( 'marginBottom', '0' );
+						mediaelement.view.footer.hide();					
+					}
+				}
 
 				// make images that don't come from Critical Commons open the image file in a new tab when clicked
 				if (( mediaelement.model.node.current.mediaSource.contentType == 'image' ) && ( mediaelement.model.node.current.sourceFile.indexOf( 'criticalcommons.org' ) == -1 )) {
@@ -253,7 +259,7 @@
 						// Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
 						'image':$(window).height()*1.3 ,
 						// The default for media should be to limit their size to fit within the bounds of the window
-						'default':$(window).height()*0.85, 
+						'default':$(window).height()*0.75, 
 					};
 
 				// default alignment is 'right'
@@ -307,6 +313,7 @@
 					{ 
 						url_attributes: [ 'href', 'src' ], 
 						autoplay: link.attr( 'data-autoplay' ) == 'true',
+						solo: link.attr( 'data-caption' ) == 'none',
 						size: size,
 						typeLimits: typeLimits,
 						deferTypeSizing:true

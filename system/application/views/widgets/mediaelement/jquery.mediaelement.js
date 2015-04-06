@@ -1198,10 +1198,12 @@ function YouTubeGetID(url){
 		 * Calculates the optimum display size for the media.
 		 */
 		jQuery.MediaElementView.prototype.calculateMediaSize = function() {
+
 			// if this is liquid media, always make it the maximum size
 			if (this.mediaObjectView.isLiquid) {
 				this.intrinsicDim.x = this.containerDim.x;
-				this.intrinsicDim.y = this.containerDim.y;
+				// don't let the height of liquid items exceed 65% of the width (this prevents pillarboxing in full width cantaloupe sizes)
+				this.intrinsicDim.y = Math.min( this.containerDim.y, this.containerDim.x * .65 );
 			}
 
 			if (this.intrinsicDim.x == 0) {
