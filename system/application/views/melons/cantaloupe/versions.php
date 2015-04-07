@@ -39,7 +39,7 @@ if (!count($page->versions)) {
 	if ($login_is_super || in_array($book->book_id, $login_book_ids)):
 		echo '<th></th>';
 	endif;
-	echo '<th>#</th><th style="width: 20rem;">Title</th><th>Content</th><th style="width: 10rem;">Creator</th><th>Date</th></tr></thead>'."\n";
+	echo '<th>#</th><th style="width: 20rem;">Title</th><th>Content</th><th style="width: 10rem;">Creator</th><th style="width: 11rem;">Date</th></tr></thead>'."\n";
 	echo '<tbody>'."\n";
 	foreach ($page->versions as $version):
 		$title = (strlen($version->title)) ? $version->title : '(No title)';
