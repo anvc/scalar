@@ -29,6 +29,7 @@
         base.parentNodes = [];
         base.checkedParents = [];
         base.visitedPages = [];
+        base.oldScrollTop = 0;
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
 
@@ -134,22 +135,19 @@
                                                             '<li><i class="loader"></i></li>'+
                                                         '</ul>'+
                                                     '</li>'+
-                                                    '<li id="bookmark_menu" class="dropdown">'+
+                                                    /*'<li id="bookmark_menu" class="dropdown">'+
                                                         '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="bookmarkIcon"></span> Bookmarks <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
-                                                            '<li>Bookmark Item</li>'+
-                                                            '<li>Bookmark Item</li>'+
-                                                            '<li>Bookmark Item</li>'+
                                                         '</ul>'+
-                                                    '</li>'+
+                                                    '</li>'+*/
                                                     '<li id="vis_menu" class="dropdown">'+
                                                         '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span> Visualizations <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><a><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
                                                             '<li><a><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
-                                                            '<li><a><span class="menuIcon pathIcon"></span> Path</a></li>'+
-                                                            '<li><a><span class="menuIcon mediaIcon"></span> Media</a></li>'+
-                                                            '<li><a><span class="menuIcon tagIcon"></span> Tag</a></li>'+
+                                                            '<li><a><span class="menuIcon" id="pathIcon"></span> Path</a></li>'+
+                                                            '<li><a><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
+                                                            '<li><a><span class="menuIcon" id="tagIcon"></span> Tag</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                     '<li id="scalar_menu" class="dropdown">'+
@@ -188,12 +186,11 @@
                                                 '<a class="headerIcon" id="helpIcon" title="Help button. Click to toggle help info."/></a>'+
                                             '</li>'+
                                             ((base.is_author||base.is_commentator||base.is_reviewer)?
-                                                '<li id="ScalarHeaderNew" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" class="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'+
-                                                '<li id="ScalarHeaderEdit" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit')+'" class="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'+
+                                                '<li id="ScalarHeaderNew" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'+
+                                                '<li id="ScalarHeaderEdit" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit')+'" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'+
                                                 ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor?template=honeydew')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
-                                                    '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
-                                                        '<img src="' + this.options.root_url + '/images/import_icon.png" alt="Import menu. Roll over to show import options."/>'+
+                                                    '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
                                                         '<span class="visible-xs">Import</span>'+
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
@@ -232,8 +229,8 @@
                                                     '</ul>'+
                                                 '</li>'+
                                                 ((!isNaN( base.bookId ))?
-                                                    '<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete"/><span class="visible-xs">Delete page</span></a></li>'+
-                                                    '<li id="ScalarHeaderOptions"><a href="' + base.get_param(system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style')+'" class="headerIcon"><img src="' + base.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard."/><span class="visible-xs">Dashboard</span></a></li>'
+                                                    '<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"  id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>'+
+                                                    '<li id="ScalarHeaderOptions"><a href="' + base.get_param(system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style')+'" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."/><span class="visible-xs">Dashboard</span></a></li>'
                                                 :'')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
@@ -278,6 +275,8 @@
                     e.stopPropagation();
                     return false;
                 }
+            }).mouseover(function(e){
+            	$(this).removeClass('short');
             });
             base.$el.append(navbar_html).find('.title_wrapper').prepend(title_link.clone());
             base.$el.find('#ScalarHeaderMenuLeft .mainMenu').on('hide.bs.dropdown',function(){
@@ -416,7 +415,7 @@
             });
 
             $('#ScalarHeaderMenuSearch a').click(function(e){
-                if(base.isMobile || $(window).width()<=768){
+                if(base.isMobile || base.$el.find('.navbar-toggle').is(':visible')){
                     $('#ScalarHeaderMenuSearch').toggleClass('search_open');
                     $('#ScalarHeaderMenuSearchForm').toggleClass('open');
                 }else{
@@ -465,7 +464,7 @@
             base.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
             $('#ScalarHeaderMenuSearchForm form').submit(function(e) {
                 base.search.data('plugin_scalarsearch').doSearch($(this).find('input').first().val());
-                if(base.isMobile || $(window).width()<=768){
+                if(base.isMobile || base.$el.find('.navbar-toggle').is(':visible')){
                     $('#ScalarHeaderMenuSearchForm').removeClass('open');
                 }else{
                     $('#ScalarHeaderMenuSearchForm').css('width','0px');
@@ -490,7 +489,25 @@
                     });
             });
 
-            $(window).resize(function(){base.handleResize()});
+            $(window).resize(function(){
+            			var base = $('#scalarheader.navbar').data('scalarheader');
+            			base.handleResize();
+            		 })
+            		 .scroll(function(e){
+                		var base = $('#scalarheader.navbar').data('scalarheader');
+                		if(base.usingMobileView){
+                			base.oldScrollTop = 0;
+                			base.$el.removeClass('short');
+                		}else{
+	                		var scrollTop = $(this).scrollTop();
+	            		 	if(scrollTop >= 50 && scrollTop > base.oldScrollTop){
+	                			base.$el.addClass('short');
+	                		}else if(scrollTop < 50){
+	                			base.$el.removeClass('short');
+	                		}
+	       					base.oldScrollTop = scrollTop;
+	       				}
+           			 });
             base.handleResize();
         };
         base.buildSubItem = function($container){
@@ -525,10 +542,8 @@
             }else if(base.usingMobileView){
                 offset = ($(window).width()*-n);
             }
-            console.log(offset);
 
             var translateX = 'translateX('+offset+'px)';
-            console.log(translateX);
             if(base.usingMobileView){
                 $('#ScalarHeaderMenu').css({
                     'transform' : 'translateX(-'+$(window).width()+'px)',
@@ -598,7 +613,6 @@
                     offset = parseInt('-'+(currentMenuWidth - ($(window).width()-484)));
                 }else if(base.usingMobileView){
                     offset = $(window).width()*(-max_n);
-                    console.log(-max_n, max_n, offset);
                 }
 
                 var translateX = 'translateX('+offset+'px)';
@@ -713,7 +727,6 @@
 
                         if(tag_of.length > 0){
                             var newList = $('<li><strong>Tags</strong><ol></ol></li>').appendTo(splitList).find('ol');
-                            console.log(tag_of);
                             for(var i in tag_of){
                                 var rel = tag_of[i];
                                 var relNode = rel.target;
@@ -833,13 +846,15 @@
 
         }
         base.handleResize = function(extra_offset){
+
             var base = $('#scalarheader.navbar').data('scalarheader');
             var screen_width = $(window).width();
+            var menu_button_visible = base.$el.find('.navbar-toggle').is(':visible');
             var max_width = (base.$el.width() - ($('#ScalarHeaderMenuLeft').outerWidth() + $('#ScalarHeaderMenuRight').outerWidth()))-30;
-
-            if(base.isMobile || screen_width<=768){
+            if(base.isMobile || menu_button_visible){
                 max_width -= base.$el.find('.navbar-toggle').outerWidth()+15;
                 if(!base.usingMobileView){
+                	base.$el.removeClass('short')
                     $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
                     base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
                     //reset search form if switching to mobile view
@@ -901,11 +916,23 @@
                     $(this).find('ul.dropdown-menu').css('max-width',max_width+'px');
                 });
             }
-            if(typeof extra_offset != 'undefined' && extra_offset!=null){
-                max_width -= extra_offset;
-            }
-            $('#ScalarHeaderMenuLeft .title_wrapper').css('max-width',max_width+'px');
+            var title_width = $(window).width();
 
+            if(base.usingMobileView){
+            	title_width -= 90;
+            }else{
+            	title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
+
+	        	if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
+	        		title_width -= 190;
+	        	}else if(typeof extra_offset != 'undefined' && extra_offset!=null){
+	                title_width -= extra_offset;
+	            }
+
+
+	        }
+			
+			$('#scalarheader .title_wrapper').css('max-width',title_width+'px');
             base.$el.removeClass('mobile_view desktop_view').addClass(base.usingMobileView?'mobile_view':'desktop_view');
         };
 
