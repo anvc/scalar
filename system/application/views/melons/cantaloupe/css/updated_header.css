@@ -47,6 +47,18 @@ a.headerIcon{
 .navbar #wayfindingIcon{
 	background-image: url(../images/wayfinding_icon.png);
 }
+.navbar #deleteIcon{
+	background-image: url(../images/delete_icon.png);
+}
+.navbar #importIcon{
+	background-image: url(../images/import_icon.png);
+}
+.navbar #optionsIcon{
+	background-image: url(../images/options_icon.png);
+}
+.navbar #newIcon{
+	background-image: url(../images/new_icon.png);
+}
 .navbar .rightArrowIcon, #mobileMainMenuSubmenus .rightArrowIcon{
 	background-image: url(../images/menu_arrow_icon.png);
 	height: 22px;
@@ -528,7 +540,21 @@ i.loader{
 	background: url(../images/header_loader.gif) no-repeat;
 	background-position: center center;
 }
+@media (min-width: 768px){
+	#scalarheader{
+		-webkit-transition: -webkit-transform .25s;
+		-moz-transition: -moz-transform .25s;
+	    transition: transform .25s;
 
+		transform : translatey(0px);
+		-webkit-transform : translatey(0px);
+		-moz-transform : translatey(0px);
+	}
+	#scalarheader.short{transform : translatey(-40px);
+		-webkit-transform : translatey(-40px);
+		-moz-transform : translatey(-40px);
+	}
+}
 @media (max-width: 767px){
 
 	#ScalarHeaderMenuSearchForm
