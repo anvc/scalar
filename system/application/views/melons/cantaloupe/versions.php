@@ -34,41 +34,53 @@ function reorderVersionNums() {
 if (!count($page->versions)) {
 	echo 'There are no versions of this page<br /><br />';
 } else {
-	echo '<ol class="listview nodots versions_list">'."\n";
+	echo '<table class="table table-striped caption_font small">'."\n";
+	echo '<thead><tr>';
+	if ($login_is_super || in_array($book->book_id, $login_book_ids)):
+		echo '<th></th>';
+	endif;
+	echo '<th>#</th><th style="width: 20rem;">Title</th><th>Content</th><th style="width: 10rem;">Creator</th><th>Date</th></tr></thead>'."\n";
+	echo '<tbody>'."\n";
 	foreach ($page->versions as $version):
 		$title = (strlen($version->title)) ? $version->title : '(No title)';
 		$page_uri = $base_uri.$page->slug;
 		$content = remove_HTML($version->content);
 		$date = date('j M Y, g:ia T', strtotime($version->created));
 	?>
-		<li>
+		<?=($version->version_num == $page->versions[$page->version_index]->version_num)?' <tr class="success">':'<tr>'?>
+
 		<? if ($login_is_super || in_array($book->book_id, $login_book_ids)): ?>
-		<input type="checkbox" name="delete_version[]" value="<?=$version->version_id?>" />&nbsp;
+		<td><input type="checkbox" name="delete_version[]" value="<?=$version->version_id?>" />&nbsp;</td>
 		<? endif; ?>
-		<a href="<?=$page_uri.'.'.$version->version_num?>"><?=strip_tags($title)?></a>
-		<?=($version->version_num == $page->versions[$page->version_index]->version_num)?' <b>&bull;</b> <span style="color:#7c2438">Version being viewed</span>':''?>
-		<?=($version->version_num == $page->versions[0]->version_num)?' <b>&bull;</b> <a href="'.$page_uri.'">Always up-to-date URL</a>':''?>
-		<br />
-		Version <b title="Version ID <?=$version->version_id?>"><?=$version->version_num?></b> by
+
+		<td><b title="Version ID <?=$version->version_id?>"><?=$version->version_num?></b></td>
+
+		<td><a href="<?=$page_uri.'.'.$version->version_num?>"><?=strip_tags($title)?></a>
+		<?=($version->version_num == $page->versions[0]->version_num)?' (<a href="'.$page_uri.'">Current</a>)':''?>
+		</td>
+
+		<?=(!empty($version->content)) ? '<td>'.create_excerpt($content, 14).' <span style="color:#777777;">['.strlen($content).' chars]</span></td>' : '' ?>
+		<?=(!empty($version->url)) ? '<td>URL: <a href="'.abs_url($version->url,$base_uri).'">'.$version->url.'</a></td>' : '' ?>
+
 		<?
-		if (!empty($version->user->uri)) echo '<a href="'.$version->user->uri.'">';
+		if (!empty($version->user->uri)) echo '<td><a href="'.$version->user->uri.'">';
 		echo $version->user->fullname;
-		if (isset($version->user->uri)) echo '</a>';
+		if (isset($version->user->uri)) echo '</a></td>';
 		?>
-		on
-		<?=$date?>
-		<?=(!empty($version->content)) ? '<br />'.create_excerpt($content, 14).' <span style="color:#777777;">'.strlen($content).' chars</span>' : '' ?>
-		<?=(!empty($version->url)) ? '<br />URL: <a href="'.abs_url($version->url,$base_uri).'">'.$version->url.'</a>' : '' ?>
-		</li>
+
+		<td><?=$date?></td>
+
+		</tr>
 	<?
 	endforeach;
-	echo '</ol>'."\n";
+	echo '</tbody>'."\n";
+	echo '</table>'."\n";
 }
 ?>
 <?
 	if ($login_is_super || in_array($book->book_id, $login_book_ids)):
 ?>
-		<input type="submit" value="Delete selected versions" class="generic_button" />&nbsp; &nbsp; <a href="javascript:" onclick="reorderVersionNums()">Re-order version numbers</a>
+		<div class="caption_font"><input type="submit" value="Delete selected versions" class="btn btn-primary" />&nbsp; <a class="btn btn-default" href="javascript:" onclick="reorderVersionNums()">Re-order version numbers</a></div>
 <?
 	endif;
 ?>

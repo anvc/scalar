@@ -1163,7 +1163,18 @@
 
 		if ( currentNode != null ) {
 
-			var viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+			var viewType;
+			var extension = scalarapi.getFileExtension( window.location.href );
+			var extensionAsNum = parseInt( extension );
+
+			if (( extension == '' ) || !isNaN( extensionAsNum ) ) {
+				viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				if ( extensionAsNum ) {
+					$( 'h1[property="dcterms:title"]' ).append( ' (Version' + extensionAsNum + ')' );
+				}
+			} else {
+				viewType = extension;
+			}
 
 			if ( viewType != 'iframe' ) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
@@ -1420,55 +1431,22 @@
 					visualization.scalarvis( options );
 					break;
 
+					case "versions":
+					$( 'h1[property="dcterms:title"]' ).after( '<h2>Version history</h2>' );
+					$( '.versions-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					break;
+
 			  	}
 
 				page.setupScreenedBackground();
-
-			  	// add mediaelements
-				/*$('a').each(function() {
-
-					// resource property signifies a media link
-					if ($(this).attr('resource') || ($(this).find('[property="art:url"]').length > 0)) {
-
-						var slot;
-						var slotDOMElement;
-						var slotMediaElement;
-						var count;
-						var parent;
-
-						if ($(this).attr('resource') == undefined) {
-							$(this).attr('href', currentNode.current.sourceFile);
-							$(this).attr('resource', currentNode.slug);
-							$(this).attr('data-size', 'full');
-							parent = $(this);
-						} else {
-							parent = $(this).parent('p,div');
-						}
-
-						$(this).addClass('media_link');
-
-						page.addMediaElementForLink($(this), parent);
-
-					}
-				});
-
-				$('[property="art:url"]').each(function() {
-
-					if ($(this).text().length > 0) {
-						$(this).wrapInner('<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-size="full"></a>');
-						page.addMediaElementForLink($(this).find('a'), $(this));
-						$(this).css('display', 'none');
-
-					}
-
-				});*/
-
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, true, true, false );
-				page.addIncomingComments();
-				page.addAdditionalMetadata();
+				if ( extension == '' ) {				
+					page.addRelationshipNavigation( true, true, true, true, false );
+					page.addIncomingComments();
+					page.addAdditionalMetadata();
+					page.addNotes();
+				}
 				page.addColophon();
-				page.addNotes();
 				break;
 
 			}
