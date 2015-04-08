@@ -59,13 +59,17 @@ if (!count($page->versions)) {
 		<?=($version->version_num == $page->versions[0]->version_num)?' (<a href="'.$page_uri.'">Current</a>)':''?>
 		</td>
 
-		<?=(!empty($version->content)) ? '<td>'.create_excerpt($content, 14).' <span style="color:#777777;">['.strlen($content).' chars]</span></td>' : '' ?>
-		<?=(!empty($version->url)) ? '<td>URL: <a href="'.abs_url($version->url,$base_uri).'">'.$version->url.'</a></td>' : '' ?>
+		<td>
+		<?=(!empty($content))?create_excerpt($content, 14).' <span style="color:#777777;">['.strlen($content).' chars]</span><br />':''?>
+		<?=(!empty($version->url))?'URL: <a href="'.abs_url($version->url,$base_uri).'">'.$version->url.'</a>':''?>
+		</td>
 
 		<?
-		if (!empty($version->user->uri)) echo '<td><a href="'.$version->user->uri.'">';
+		echo '<td>';
+		if (!empty($version->user->uri)) echo '<a href="'.$version->user->uri.'">';
 		echo $version->user->fullname;
-		if (isset($version->user->uri)) echo '</a></td>';
+		if (isset($version->user->uri)) echo '</a>';
+		echo '</td>';
 		?>
 
 		<td><?=$date?></td>

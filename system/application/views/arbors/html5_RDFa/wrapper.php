@@ -31,8 +31,8 @@ if (isset($page->version_index)) {
 	$is_new = false;
 }
 if (isset($mode) && !empty($mode)) $background = null;
-function print_rdf($rdf, $tabs=0, $ns=array()) {
-	$hide = array('rdf:type','sioc:content','dcterms:title');
+function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array()) {
+	$hide = array_merge($hide, array('rdf:type','dcterms:title'));
 	foreach ($rdf as $p => $values) {
 		if (in_array($p, $hide)) continue;
 		foreach ($values as $value) {
@@ -182,7 +182,7 @@ endif;
 		<span class="metadata" id="book-id"><?=$book->book_id?></span>
 		<a class="metadata" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
 <?
-		print_rdf($this->versions->rdf($page->versions[$page->version_index], $base_uri), 2, $ns);
+		print_rdf($this->versions->rdf($page->versions[$page->version_index], $base_uri), 2, $ns, array('sioc:content'));
 ?>
 		<span resource="<?=$page->versions[$page->version_index]->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($page->versions[$page->version_index]->user, $base_uri), 3, $ns); ?>
@@ -250,7 +250,7 @@ foreach ($models as $rel):
 						<a href="<?=$base_uri.$inward_item->slug?>"><?=$inward_item->versions[$inward_item->version_index]->title?></a>
 					</span>
 					<span property="scalar:fullname"><?=@$inward_item->versions[$inward_item->version_index]->user->fullname?></span>
-<? 		print_rdf($this->versions->rdf($inward_item->versions[$inward_item->version_index], $base_uri), 5, $ns); ?>				</span>
+<?		print_rdf($this->versions->rdf($inward_item->versions[$inward_item->version_index], $base_uri), 5, $ns); ?>				</span>
 				<span resource="<?=$inward_item->versions[$inward_item->version_index]->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($inward_item->versions[$inward_item->version_index]->user, $base_uri), 5, $ns); ?>				</span>
 				<a rel="oac:hasTarget" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?><?=annotation_append($inward_item->versions[$inward_item->version_index])?>"></a>
