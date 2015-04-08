@@ -2,8 +2,7 @@ h1, h2, h3, h4 { padding-left: 2rem; padding-right: 2rem; }
 h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
 .page { padding-top: 7.0rem; padding-bottom: 2.4rem; overflow-x: hidden; }
 .body_copy { padding-left: 2rem; padding-right: 2rem; }
-.relationships ol, .relationships ul, .relationships p, #incoming_comments, #outgoing_comments, #colophon { padding-left: 2rem; padding-right: 2rem; }
-#colophon { padding-top: 2.4rem; }
+.relationships ol, .relationships ul, .relationships p, #incoming_comments, #outgoing_comments, #footer { padding-left: 2rem; padding-right: 2rem; }
 .full .mediaElementFooter { padding-left: 2rem; padding-right: 2rem; }
 .slot.right { margin-left: 2rem; float: none; }
 .slot.left { margin-right: 2rem; float: none; }
