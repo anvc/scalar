@@ -17,6 +17,7 @@ body { visibility: hidden; background-repeat: no-repeat; background-position: -9
 
 h1, h2, h3, h4 { padding-left: 7.2rem; padding-right: 7.2rem; }
 .body_copy h1,.body_copy h2,.body_copy h3,.body_copy h4 { padding-left: 0; padding-right: 0; }
+.page_margins h1,.page_margins h2,.page_margins h3,.page_margins h4 { padding-left: 0; padding-right: 0; }
 h1 {
     font-size: 4.9rem;
     line-height: 6rem;

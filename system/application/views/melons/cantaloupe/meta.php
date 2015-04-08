@@ -1,8 +1,6 @@
-<style>
-th {text-align:left; padding:5px 0px 5px 10px; font-weight:normal;}
-</style>
-<table cellspacing="2" cellpadding="0">
-<tr><th colspan="3">Page</th></tr>
+<div class="caption_font"><a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfxml?versions=1">View as RDF-XML</a> <a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfjson?versions=1">View as RDF-JSON</a></div>
+<h3>Page</h3>
+<table class="table table-striped caption_font small" cellspacing="2" cellpadding="0">
 <tr><td style="white-space:nowrap;"><b>resource</b></td><td>rdf:resource</td><td><a href="<?=$base_uri.$page->slug?>"><?=$base_uri.$page->slug?></a></td></tr>
 <?
 foreach ($page->meta as $p => $values) {
@@ -25,8 +23,8 @@ foreach ($page->meta as $p => $values) {
 </table>
 <?
 foreach ($page->versions as $key => $version) {
-	echo '<table cellspacing="2" cellpadding="0">';
-	echo '<tr><th colspan="3">Version ('.$version->version_num.')</th></tr>';
+	echo '<h3>Version '.$version->version_num.'</h3>';
+	echo '<table class="table table-striped caption_font small" cellspacing="2" cellpadding="0">';
 	echo '<tr><td style="white-space:nowrap;"><b>resource</b></td><td>rdf:resource</td><td><a href="'.$base_uri.$page->slug.'.'.$version->version_num.'">'.$base_uri.$page->slug.'.'.$version->version_num.'</a></td></tr>';
 	foreach ($version->meta as $p => $values) {
 		if ('http://rdfs.org/sioc/ns#content'==$p) continue;
@@ -49,6 +47,3 @@ foreach ($page->versions as $key => $version) {
 	echo "</table>\n";
 }
 ?>
-<br />
-View as <a href="<?=$base_uri.$page->slug?>.rdfxml?versions=1">RDF-XML</a>, <a href="<?=$base_uri.$page->slug?>.rdfjson?versions=1">RDF-JSON</a>
-<br /><br />
