@@ -73,17 +73,19 @@ a.headerIcon{
 	top: 1rem;
 	opacity: 1;
 	background-color: #303030;
-	width: 32px;
+	width: 22px;
 	z-index: 100;
 	outline: 0;
+	height: 22px;
+	line-height: 0px;
 }
 
 .navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon{
 	background-image: url(../images/menu_close_icon.png);
-	height: 32px;
-	background-size: 32px;
+	background-size: 22px;
+	height: 22px;
 	padding: 0;
-	width: 32px;
+	width: 22px;
 	margin-right: .25em;
 }
 .navbar .close:hover, #mobileMainMenuSubmenus .close:hover{
@@ -295,8 +297,6 @@ a.headerIcon{
 #navMenu ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
 	width: 300px;
 	margin: 0;
-	padding: 10px 0;
-	overflow-x
 }
 #navMenu>ul>li, #ScalarHeaderMenuUserList>li{
 	margin: 0;
@@ -525,9 +525,8 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 	font-size: 1.2rem;
 }
 .tocMenu .expandedPage .links{
-	margin: 1rem 0;
-	padding: .5rem 3rem;
-	border-top: 1px solid #444;
+	margin: 1rem 0 3rem;
+	padding: .5rem 3rem 3rem;
 	border-bottom: 1px solid #444;
 }
 .tocMenu .expandedPage .links a{

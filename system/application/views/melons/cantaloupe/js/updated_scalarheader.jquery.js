@@ -40,7 +40,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.$el.data("scalarheader", base);
 
         base.init = function(){
-            console.log(base.remToPx);
             //Replace undefined options with defaults...
             base.options = $.extend({},$.scalarheader.defaultOptions, options);
             //Are we logged in? Check the RDF metadata.
@@ -544,6 +543,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     }
                 });
             }
+
             if(!base.usingMobileView && ($(window).width() - currentMenuWidth) < (base.remToPx*38)){
                 offset = parseInt('-'+(currentMenuWidth - ($(window).width()-(base.remToPx*38))));
             }else if(base.usingMobileView){
@@ -576,7 +576,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 offset = -n*(base.remToPx*38);
             }
 
-            console.log(offset);
             var description = node.current.description;
 
             var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><div class="links"><a class="details">Details</a><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
@@ -597,7 +596,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if(base.usingMobileView){
                     expanded_menu = $('#mobileMainMenuSubmenus .pages');
                 }
-                var currentMenuWidth = $('.mainMenuDropdown').width();
+                var currentMenuWidth = base.remToPx*38;
+
                 if(base.usingMobileView){
                     max_n = $('#mobileMainMenuSubmenus .expandedPage').length - 2;
                 }else{
@@ -612,14 +612,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     if(!base.usingMobileView){
                         if($(this).data('index') > max_n){
                             $(this).remove();
-                        }else{
-                            currentMenuWidth += base.remToPx*38;
                         }
                     }
                 });
-
-                if(!base.usingMobileView && ($(window).width() - currentMenuWidth) < (base.remToPx*38)){
-                    offset = parseInt('-'+(currentMenuWidth - ($(window).width()-(base.remToPx*38))));
+                currentMenuWidth += (expanded_menu.find('.expandedPage').length * (base.remToPx*38));
+                offset = 0;
+                if(!base.usingMobileView && ($(window).width() - currentMenuWidth) < 0){
+                    offset = ($(window).width() - currentMenuWidth);
                 }else if(base.usingMobileView){
                     offset = $(window).width()*(-max_n);
                 }
