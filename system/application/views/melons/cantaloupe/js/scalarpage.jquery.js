@@ -1446,6 +1446,11 @@
 					$( '.meta-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
 					break;
 
+					case "history":
+					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Version history</h2>' );
+					$( '.history-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					break;
+
 			  	}
 
 				page.setupScreenedBackground();

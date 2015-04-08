@@ -941,3 +941,8 @@ button, input, optgroup, select, textarea {
 }
 
 .btn-primary { background-color: #026697; border-color: #026697; }
+
+/* utility pages */
+
+.history-page li { list-style-type: none; }
+.history-page h3 { margin-bottom: 1rem; }
