@@ -67,6 +67,17 @@ a.headerIcon{
 	width: 22px;
 }
 
+.navbar .close, #mobileMainMenuSubmenus .close{
+	position: absolute;
+	right: 1rem;
+	top: 1rem;
+	opacity: 1;
+	background-color: #303030;
+	width: 32px;
+	z-index: 100;
+	outline: 0;
+}
+
 .navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon{
 	background-image: url(../images/menu_close_icon.png);
 	height: 32px;
@@ -75,14 +86,13 @@ a.headerIcon{
 	width: 32px;
 	margin-right: .25em;
 }
+.navbar .close:hover, #mobileMainMenuSubmenus .close:hover{
+	background-color: #006793;
+	color: white;
+}
 
 .expandedPage .close{
 	margin-right: 0;
-	outline: 0;
-}
-.mainMenuDropdown>.close{
-	position: relative;
-	z-index: 100;
 	outline: 0;
 }
 .mainMenuDropdown{
@@ -112,10 +122,10 @@ a.headerIcon{
 	background-image: url(../images/menu_scalar_icon_selected.png);
 }
 
-.navbar li>a>.pathIcon{
+.navbar li>a>#pathIcon{
 	background-image: url(../images/menu_path_icon.png);
 }
-.navbar li:hover>a>.pathIcon{
+.navbar li:hover>a>#pathIcon{
 	background-image: url(../images/menu_path_icon_selected.png);
 }
 
@@ -126,17 +136,17 @@ a.headerIcon{
 	background-image: url(../images/menu_page_icon_selected.png);
 }
 
-.navbar li>a>.mediaIcon{
+.navbar li>a>#mediaIcon{
 	background-image: url(../images/menu_media_icon.png);
 }
-.navbar li:hover>a>.mediaIcon{
+.navbar li:hover>a>#mediaIcon{
 	background-image: url(../images/menu_media_icon_selected.png);
 }
 
-.navbar li>a>.tagIcon{
+.navbar li>a>#tagIcon{
 	background-image: url(../images/menu_tag_icon.png);
 }
-.navbar li:hover>a>.tagIcon{
+.navbar li:hover>a>#tagIcon{
 	background-image: url(../images/menu_tag_icon_selected.png);
 }
 
@@ -191,8 +201,10 @@ a.headerIcon{
 	background-color: transparent;
 	border-top: 1px dotted #888;
 }
-.navbar{
-	letter-spacing: 1px;
+.navbar, .title_wrapper{
+	-webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: 0;
 }
 .navbar .open .dropdown-menu>{li>a
 	text-overflow: ellipsis;
@@ -269,8 +281,8 @@ a.headerIcon{
 	background-color: #353535;
 }
 .navbar li.mainMenu ul.dropdown-menu{
-	width: 484px;
-	padding: 10px 0;
+	width: 38rem;
+	padding: 3rem 0;
 	border-right: 2px solid #070707;
 }
 .navbar ul.dropdown-menu li{
@@ -296,11 +308,11 @@ a.headerIcon{
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	padding: 0 6px;
+	padding: 0 3rem;
 	line-height: 22px;
 }
 .navbar .mainMenuDropdown>li>ul>li>a,.navbar .mainMenuDropdown>li>ol>li>a{
-	margin-right: 32px;
+	margin-right: 3.5rem;
 }
 .navbar li.visited>a, .navbar ul.dropdown-menu li.visited>a, #mobileMainMenuSubmenus li.visited>a{
 	color: #808080
@@ -327,7 +339,7 @@ a.headerIcon{
     line-height: 22px;
 	color: #b3b3b3;
 	position: absolute;
-	left: 15px;
+	left: .5rem;
 	top: 0;
 }
 .navbar li.mainMenu>ul.dropdown-menu>li>ol>li.visited>a:first-child:before, .tocMenu .expandedPage .relationships ol>li.visited>a:first-child:before {
@@ -339,36 +351,34 @@ a.headerIcon{
 .tocMenu .expandedPage .relationships ol>li.active>a:first-child:before {
 	color: #fff;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li{
-	padding-left: 20px;
-}
 .navbar li.mainMenu>ul.dropdown-menu>li.header h2, .tocMenu .expandedPage h2.title{
-	font-size: 2.8rem;
-	line-height: 2.9rem;
+	font-size: 1.6rem;
+	line-height: 1.8rem;
 	font-weight: normal;
-	padding-left: 50px;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	margin-right: 0;
-	padding-right: 50px;
+	margin: 1.8rem 0 2rem 0;
+	padding: 0 3rem 0 3.8rem;
+	color: #fff;
+}
+.tocMenu .expandedPage h2.title{
+	font-size: 1.6rem;
+	line-height: 1.8rem;
+	font-weight: normal;
+	margin: 1.8rem 4.8rem 1rem 3rem;
+	padding: 0;
 	color: #fff;
 }
 .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a, .tocMenu .expandedPage .relationships ol>li>a{
 	position: absolute;
 	width: auto;
 	left: 0;
-	right: 10px;
-	margin-left: 10px;
-	padding-left: 40px;
+	padding-left: 1.8rem;
+	margin-left: 3rem;
+	right: 3rem;
 }
 .tocMenu .expandedPage .relationships ol>li>a{
-	right: 30px;
+	margin-right: 3.5rem;
 }
 
-.tocMenu .expandedPage .relationships ol>li{
-	margin-left: 0;
-	margin-right: 10px;
-}
 .navbar li.mainMenu>ul.dropdown-menu>li>ul{
 	list-style-type: none;
 }
@@ -395,18 +405,20 @@ a.headerIcon{
 .navbar li.mainMenu ul.dropdown-menu>li:hover{
 	background-color: transparent;
 }
+.navbar .mainMenuDropdown li.static{
+	padding: 0 3rem;
+}
 .navbar .mainMenuDropdown li.static>a{
-	margin-right: 10px;
-	padding-left: 40px;
 	display: block;
 	width: auto;
-	margin-left: 10px;
-	padding-right: 0;
+	margin-right: 0px;
+	padding-left: 1.8rem;
+	padding-right: 0px;
 }
 .mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
-	right: 10px;
+	right: 0rem;
 	margin-left: 0;
-	margin-right: 0;
+	margin-right: 3rem;
 	width: 22px;
 	left: auto;
 	text-align: center;
@@ -427,6 +439,8 @@ a.headerIcon{
 	-moz-border-radius: 0;
 	border-radius: 0;
 	border: 0;
+	padding: 3rem 0;
+  	width: 38rem;
 }
 .navbar .dropdown-menu li:hover, .navbar .dropdown-menu li:active{
 	background-color: #353535;
@@ -460,6 +474,10 @@ a.headerIcon{
 .nav ul.dropdown-menu li.dropdown.right ul.dropdown-menu{
 	left: 100%;
 }
+.nav ul.mainMenu li.dropdown.right ul.dropdown-menu{
+	left: 100%;
+	transform: translateX(2px);
+}
 .nav ul.dropdown-menu li.open>ul.dropdown-menu{
 	height: auto;
 	overflow: auto;
@@ -482,16 +500,18 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 	display: none;
 }
 .tocMenu .expandedPage{
-	width: 484px;
+	width: 38rem;
 	position: absolute;
 	top: 0;
+	padding: 3rem 0 0 0;
 	background-color: #353535;
 	border-right: 2px solid #070707;
 }
 .tocMenu .expandedPage.is_parent h2.title:after, .tocMenu .expandedPage.is_current h2.title:after{
 	content: 'Contains the current page';
 	display: block;
-	font-size: 14px;
+	font-size: 1.2rem;
+	font-style: italic;
 	color: #717171;
 	line-height: 16px;
 }
@@ -501,31 +521,26 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 .tocMenu .expandedPage .description{
 	max-height: 3em;
 	color: #ababab;
-	margin-top: 20px;
-	padding: 0 50px;
+	padding: 0 3rem;
+	font-size: 1.2rem;
 }
 .tocMenu .expandedPage .links{
-	margin-top: 20px;
-	padding-top: 10px;
-	padding-left: 50px;
-	padding-right: 50px;
+	margin: 1rem 0;
+	padding: .5rem 3rem;
+	border-top: 1px solid #444;
+	border-bottom: 1px solid #444;
 }
 .tocMenu .expandedPage .links a{
-	margin-right: 10px;
+	margin-right: 1rem;
 	color: #fff;
-	padding: 10px;
-	background-color: #303030;
-}
-
-.tocMenu .expandedPage .links a:hover{
-	background-color: #006793;
-	text-decoration: none;
+	font-size: 1.2rem;
 }
 .tocMenu .expandedPage .relationships{
-	margin-top: 20px;
+	padding: 1.5rem 0 3rem 0;
 }
 .tocMenu .expandedPage .relationships strong{
-	padding-left: 50px;
+	padding-left: 4.8rem;
+	font-size: 1.2rem;
 }
 
 .tocMenu .expandedPage .relationships ul, 

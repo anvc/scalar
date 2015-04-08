@@ -1,3 +1,8 @@
+//getComputedStyle Polyfill - needed for IE<=8
+"getComputedStyle"in this||(this.getComputedStyle=function(){function g(a,b,c,e){var d=b[c];b=parseFloat(d);d=d.split(/\d/)[0];e=null!=e?e:/%|em/.test(d)&&a.parentElement?g(a.parentElement,a.parentElement.currentStyle,"fontSize",null):16;a="fontSize"==c?e:/width/i.test(c)?a.clientWidth:a.clientHeight;return"em"==d?b*e:"in"==d?96*b:"pt"==d?96*b/72:"%"==d?b/100*a:b}function h(a,b){var c="border"==b?"Width":"",e=b+"Top"+c,d=b+"Right"+c,f=b+"Bottom"+c,c=b+"Left"+c;a[b]=(a[e]==a[d]==a[f]==a[c]?[a[e]]:
+a[e]==a[f]&&a[c]==a[d]?[a[e],a[d]]:a[c]==a[d]?[a[e],a[d],a[f]]:[a[e],a[d],a[f],a[c]]).join(" ")}function k(a){var b=a.currentStyle,c=g(a,b,"fontSize",null);for(property in b)/width|height|margin.|padding.|border.+W/.test(property)&&"auto"!==this[property]?this[property]=g(a,b,property,c)+"px":"styleFloat"===property?this["float"]=b[property]:this[property]=b[property];h(this,"margin");h(this,"padding");h(this,"border");this.fontSize=c+"px";return this}k.prototype={constructor:k,getPropertyPriority:function(){},
+getPropertyValue:function(a){return this[a]||""},item:function(){},removeProperty:function(){},setProperty:function(){},getPropertyCSSValue:function(){}};return function(a){return new k(a)}}(this));
+
 /**
  * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
@@ -30,10 +35,12 @@
         base.checkedParents = [];
         base.visitedPages = [];
         base.oldScrollTop = 0;
+        base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
 
         base.init = function(){
+            console.log(base.remToPx);
             //Replace undefined options with defaults...
             base.options = $.extend({},$.scalarheader.defaultOptions, options);
             //Are we logged in? Check the RDF metadata.
@@ -111,10 +118,10 @@
                                                             '<li class="index_link static dropdown">'+
                                                                 '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                                 '<ul class="dropdown-menu" role="menu">'+
-                                                                    '<li><a><span class="menuIcon pathIcon"></span> Paths</a></li>'+
+                                                                    '<li><a><span class="menuIcon" id="pathIcon"></span> Paths</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="pageIcon"></span> Pages</a></li>'+
-                                                                    '<li><a><span class="menuIcon mediaIcon"></span> Media</a></li>'+
-                                                                    '<li><a><span class="menuIcon tagIcon"></span> Tags</a></li>'+
+                                                                    '<li><a><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
+                                                                    '<li><a><span class="menuIcon" id="tagIcon"></span> Tags</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="annotationIcon"></span> Annotations</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="commentIcon"></span> Comments</a></li>'+
                                                                 '</ul>'+
@@ -502,7 +509,7 @@
 	                		var scrollTop = $(this).scrollTop();
 	            		 	if(scrollTop >= 50 && scrollTop > base.oldScrollTop){
 	                			base.$el.addClass('short');
-	                		}else if(scrollTop < 50){
+	                		}else{
 	                			base.$el.removeClass('short');
 	                		}
 	       					base.oldScrollTop = scrollTop;
@@ -533,12 +540,12 @@
                     if($(this).data('index') >= n){
                         $(this).remove();
                     }else{
-                        currentMenuWidth += 484;
+                        currentMenuWidth += (base.remToPx*38);
                     }
                 });
             }
-            if(!base.usingMobileView && ($(window).width() - currentMenuWidth) < 484){
-                offset = parseInt('-'+(currentMenuWidth - ($(window).width()-484)));
+            if(!base.usingMobileView && ($(window).width() - currentMenuWidth) < (base.remToPx*38)){
+                offset = parseInt('-'+(currentMenuWidth - ($(window).width()-(base.remToPx*38))));
             }else if(base.usingMobileView){
                 offset = ($(window).width()*-n);
             }
@@ -566,8 +573,10 @@
             if(base.usingMobileView){
                 offset = -n*$(window).width();
             }else{
-                offset = -n*484;
+                offset = -n*(base.remToPx*38);
             }
+
+            console.log(offset);
             var description = node.current.description;
 
             var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><div class="links"><a class="details">Details</a><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
@@ -604,13 +613,13 @@
                         if($(this).data('index') > max_n){
                             $(this).remove();
                         }else{
-                            currentMenuWidth += 484;
+                            currentMenuWidth += base.remToPx*38;
                         }
                     }
                 });
 
-                if(!base.usingMobileView && ($(window).width() - currentMenuWidth) < 484){
-                    offset = parseInt('-'+(currentMenuWidth - ($(window).width()-484)));
+                if(!base.usingMobileView && ($(window).width() - currentMenuWidth) < (base.remToPx*38)){
+                    offset = parseInt('-'+(currentMenuWidth - ($(window).width()-(base.remToPx*38))));
                 }else if(base.usingMobileView){
                     offset = $(window).width()*(-max_n);
                 }
