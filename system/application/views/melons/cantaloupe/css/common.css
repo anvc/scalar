@@ -691,21 +691,24 @@ a.media_info {
 #footer {
 	clear: both;
 	margin-top: 2rem;
-	padding-left: 7.2rem; padding-right: 7.2rem;
+	padding-left: 7.2rem; 
+	padding-right: 7.2rem;
+	font-size: 1.2rem; 
+	padding-top: 6rem; 
 }
 
 #footer-right {
 	float: right;
 }
 
-#colophon { padding-left: 7.2rem; padding-right: 7.2rem; font-size: 1.2rem; color: #666; clear: both; padding-top: 6rem; }
+#colophon { color: #666; }
 #colophon img { margin-right: .3rem; }
 #publisher-credit { margin-bottom: 1.2rem; line-height: 110%; vertical-align: top; }
 #publisher-credit img { margin-right: .6rem; vertical-align: bottom;}
 #scalar-credit img { vertical-align: middle; margin-top: -.2rem; }
 #scalar-credit { margin-bottom: 0; clear: both; padding-top: 1rem; }
 
-#incoming_comments, #outgoing_comments { clear: both; padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
+#incoming_comments { clear: both; padding-left: 7.2rem; padding-right: 7.2rem; margin-top: 2.4rem; }
 #comment_control {
 	color: #a6a6a6;
 	background: url(images/comments.png) no-repeat;

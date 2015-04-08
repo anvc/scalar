@@ -465,7 +465,7 @@
 						}
 					}
 					if ( section.children().length > 0 ) {
-						$('article').append( section );
+						$('#footer').before( section );
 					}
 				}
 
@@ -659,7 +659,7 @@
 			addIncomingComments: function() {
 				var comments = scalarapi.model.getCurrentPageNode().getRelatedNodes('comment', 'incoming');
 				//$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
-				$('article').append('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>'+((comments.length > 0) ? comments.length : '&nbsp;')+'</strong></div></div>');
+				$('#footer').before('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>'+((comments.length > 0) ? comments.length : '&nbsp;')+'</strong></div></div>');
 				var commentDialogElement = $('<div></div>').appendTo('body');
 				commentDialog = commentDialogElement.scalarcomments( { root_url: modules_uri+'/cantaloupe'} );
 				$('.reply_link').click(function() {
@@ -672,7 +672,13 @@
 			},
 
 			addColophon: function() {
-				$('article').append('<div id="colophon" class="caption_font"><p id="scalar-credit"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></p></div>');
+				$('#footer').append('<div id="colophon" class="caption_font"><p id="scalar-credit"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></p></div>');
+			},
+
+			addVersionInfo: function() {
+	            if ( page.is_author || page.is_commentator || page.is_reviewer ) {
+					$('#footer').append('<div id="version-info" class="caption_font"><p><a href="">Version editor</a> | <a href="">Version history</a> | <a href="">Version metadata</a></p></div>');
+	            }
 			},
 
 			setupScreenedBackground: function() {
@@ -794,7 +800,7 @@
 					}
 					publisherInfo.append( ' ' + (publisherNode.title?publisherNode.title:'') );
 				}
-				$( '#colophon' ).prepend( publisherInfo );
+				$( '#colophon' ).before( publisherInfo );
 
 			},
 
@@ -1122,14 +1128,18 @@
 		$( '[property="scalar:fullname"]' ).hide();
 		$( '[property="dcterms:description"]' ).hide();
 
-	  	// This code makes full-sized inline media truly full instead of having margins
-	  	/*$('[property="sioc:content"]').children('p,div').each( function() {
-	  		if ( $( this ).find('.inline[data-size="full"]').length == 0 ) {
-	  			$( this ).addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
-	  		}
-	  	});*/
-	
+        //Are we logged in? Check the RDF metadata.
+        page.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
+        if(page.logged_in){
+            //While we are logged in, check what our user level is, and set the appropriate bools
+            page.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
+            page.is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';
+            page.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
+       	}
+
 		$('section').hide(); // TODO: Make this more targeted
+
+		$( 'article' ).append( '<div id="footer" class="caption_font"></div>' );
 
 		$( 'body' ).bind( 'delayedResize', function() {
 			if(page.initialMediaLoad === true) {
