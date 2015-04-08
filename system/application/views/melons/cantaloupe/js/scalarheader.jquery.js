@@ -308,7 +308,7 @@
             });
 
             $('#ScalarHeaderMenuSearch a').click(function(e){
-                if(base.isMobile || $(window).width()<768){
+                if(base.isMobile || base.$el.find('.navbar-toggle').is(':visible')){
                     $('#ScalarHeaderMenuSearch').toggleClass('search_open');
                     $('#ScalarHeaderMenuSearchForm').toggleClass('open');
                 }else{
@@ -357,7 +357,7 @@
             base.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
             $('#ScalarHeaderMenuSearchForm form').submit(function(e) {
                 base.search.data('plugin_scalarsearch').doSearch($(this).find('input').first().val());
-                if(base.isMobile || $(window).width()<768){
+                if(base.isMobile || base.$el.find('.navbar-toggle').is(':visible')){
                     $('#ScalarHeaderMenuSearchForm').removeClass('open');
                 }else{
                     $('#ScalarHeaderMenuSearchForm').css('width','0px');
@@ -451,8 +451,9 @@
             var base = $('#scalarheader.navbar').data('scalarheader');
             var screen_width = $(window).width();
             var max_width = (base.$el.width() - ($('#ScalarHeaderMenuLeft').outerWidth() + $('#ScalarHeaderMenuRight').outerWidth()))-30;
+            var menu_button_visible = base.$el.find('.navbar-toggle').is(':visible');
 
-            if(base.isMobile || screen_width<768){
+            if(base.isMobile || menu_button_visible){
                 max_width -= base.$el.find('.navbar-toggle').outerWidth()+15;
                 if(!base.usingMobileView){
                     //reset search form if switching to mobile view
@@ -477,11 +478,23 @@
                     $(this).find('ul.dropdown-menu').css('max-width',max_width+'px');
                 });
             }
-            if(typeof extra_offset != 'undefined' && extra_offset!=null){
-                max_width -= extra_offset;
+            
+            var title_width = $(window).width();
+
+            if(base.usingMobileView){
+                title_width -= 90;
+            }else{
+                title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
+
+                if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
+                    title_width -= 190;
+                }else if(typeof extra_offset != 'undefined' && extra_offset!=null){
+                    title_width -= extra_offset;
+                }
+
             }
-            max_width -= 10;
-            $('#title_wrapper').css('max-width',max_width+'px');
+            
+            $('#title_wrapper').css('max-width',title_width+'px');
 
             base.$el.removeClass('mobile_view desktop_view').addClass(base.usingMobileView?'mobile_view':'desktop_view');
         };

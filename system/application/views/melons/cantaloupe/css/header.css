@@ -2,6 +2,10 @@
 .navbar a{
 	cursor: pointer;
 }
+.navbar, .title_wrapper{
+	-webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 .navbar a.headerIcon{
 	padding: 9px;
 	line-height: 30px;
