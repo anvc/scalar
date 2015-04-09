@@ -112,6 +112,7 @@ $(window).ready(function() {
 		}
 	});
 	
+	// $('#title').autocomplete({source:titleSuggestions});
 	// If  the type is passed via GET
 	checkTypeSelect();  
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {

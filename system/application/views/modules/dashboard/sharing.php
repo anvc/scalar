@@ -11,16 +11,18 @@ $(window).ready(function() {
 	var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 	var is_duplicatable = ('undefined'==typeof($title.children(":first").attr('data-duplicatable'))) ? 0 : 1;
 	var is_joinable = ('undefined'==typeof($title.children(":first").attr('data-joinable'))) ? 0 : 1;
+	var auto_approve = ('undefined'==typeof($title.children(":first").attr('data-auto-approve'))) ? 0 : 1;
 	var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? 0 : 1;
 	$('#duplicatable').val(is_duplicatable);
 	$('#joinable').val(is_joinable);
 	$('#hypothesis').val(hypothesis);
+	$('#auto-approve').val(auto_approve);
 	    
-	$('#duplicatable, #joinable, #hypothesis').change(function() {
+	$('#duplicatable, #joinable, #hypothesis,#auto-approve').change(function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable', 'hypothesis'];
+		var prop_arr = ['duplicatable', 'joinable', 'hypothesis','auto-approve'];
 		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
@@ -100,6 +102,14 @@ $(window).ready(function() {
 	echo '<p>';
 	echo 'Add the <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> sidebar? &nbsp;<select id="hypothesis"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 	echo '<br /><small>A sidebar will be layered over your book adding <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> collaborative review and commenting features</small>';
+	echo '</p>';
+	echo "</td>\n";
+	echo "</tr>\n";		
+	echo '<tr typeof="books">';
+	echo '<td></td>'."\n";
+	echo '<td style="vertical-align:middle;" colspan="2">';
+	echo '<p>';
+	echo 'Automatically approve all user comments? &nbsp;<select id="auto-approve"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 	echo '</p>';
 	echo "</td>\n";
 	echo "</tr>\n";		

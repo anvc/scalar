@@ -86,7 +86,7 @@ $type = ($page->type == 'composite') ? 'page' : 'media page';
 			<div class="comments">
 				<h4 class="content_title">Discussion of "<?=str_replace('"',"'",$page->versions[$page->version_index]->title)?>"</h4>
 			<? if (@$_GET['action']=='comment_saved'): ?>
-			<div class="saved" style="margin-bottom:14px;"><b>Your comment has been saved and is now awaiting moderation.</b><br />Thank you for your contribution!</div>
+			<div class="saved" style="margin-bottom:14px;"><b>Your comment has been saved.</b><br />If you do not see your comment below, it is awaiting moderation.</div>
 			<? endif ?>
 				<div class="discussion">
 

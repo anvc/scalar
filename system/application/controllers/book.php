@@ -417,7 +417,7 @@ class Book extends MY_Controller {
 			$save['user_id'] = 0;
 			$save['title'] = $title;  // for creating slug
 			$save['type'] = 'composite';
-			$save['is_live'] = 0;  // the save API allows for 0 or 1, which is why the "backdoor" is here, not there
+			$save['is_live'] = $this->books->is_auto_approve($this->data['book']);  // the save API allows for 0 or 1, which is why the "backdoor" is here, not there
 			$content_id = $this->pages->create($save);
 			if (empty($content_id)) throw new Exception('Could not save the new content');
 

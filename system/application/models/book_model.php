@@ -195,11 +195,14 @@ class Book_model extends MY_Model {
     	if (stristr($book->title, 'data-joinable="false"')) return false;  // TODO: not sure the reverse logic here... Joinable by default? ~cd
     	return true;
     }
-
 	public function is_hypothesis($book) {
     	if (stristr($book->title, 'data-hypothesis="true"')) return true;
     	return false;
     }
+    public function is_auto_approve($book) {
+        if (stristr($book->title, 'data-auto-approve="true"')) return true;
+        return false;
+    }    
 
 	public function has_paywall($book) {
 		if (empty($book)) return false;
