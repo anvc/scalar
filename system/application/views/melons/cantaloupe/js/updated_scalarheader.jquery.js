@@ -400,6 +400,27 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var helpElement = $('<div></div>').appendTo('body');
             base.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );
+
+            $('body').on('click',function(e){
+                $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
+                base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+
+            base.$el.on('click',function(e){
+                console.log('test1');
+                e.stopPropagation();
+            })
+
+            $( '#ScalarHeaderHelp>a' ).click(function(e) {
+                base.help.data( 'plugin_scalarhelp' ).toggleHelp();
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+
             $( '#ScalarHeaderHelp>a' ).click(function(e) {
                 base.help.data( 'plugin_scalarhelp' ).toggleHelp();
                 e.preventDefault();
@@ -582,9 +603,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 container.prepend('<div class="close"><span class="menuIcon closeIcon"></span></div>');
             }
 
-            if(container.data('slug') == base.currentNode.slug){
+            if(typeof base.currentNode !== 'undefined' && container.data('slug') == base.currentNode.slug){
                 container.addClass('is_current');
-            }else if(base.parentNodes.indexOf(container.data('slug') >= 0)){
+            }else if(typeof base.currentNode !== 'undefined' && base.parentNodes.indexOf(container.data('slug') >= 0)){
                 container.addClass('is_parent');
             }
 
