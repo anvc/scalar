@@ -59,7 +59,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }
 
             //We should also grab the book ID from the RDF stuff
-            base.bookId = parseInt($('#book-id').text());
+            base.bookId = parseInt($('link#book_id').attr('href'));
 
             //We need some wrapper classes for Bootstrap, so we'll add those here. There are also some helper classes as well.
             base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
@@ -234,10 +234,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
-                                                ((!isNaN( base.bookId ))?
-                                                    '<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"  id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>'+
-                                                    '<li id="ScalarHeaderOptions"><a href="' + base.get_param(system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style')+'" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."/><span class="visible-xs">Dashboard</span></a></li>'
-                                                :'')
+                                                (typeof currentNode!=='undefined'?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+
+                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon"><img src="' + base.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
@@ -704,8 +702,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -723,8 +721,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -743,8 +741,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -763,8 +761,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -783,8 +781,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -946,7 +944,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
         base.buildUserMenu = function(userList){
             var redirect_url = '';
-            if ( base.currentNode != null ) {
+            if ( base.currentNode != null && typeof base.currentNode !== 'undefined') {
                 redirect_url = encodeURIComponent(base.currentNode.url);
             }else{
                 redirect_url = encodeURIComponent(window.location.href);
@@ -1002,79 +1000,81 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             return url;
         }
         base.getParents = function(node,depth){
-            var in_path = node.getRelations('path', 'incoming', 'reverseindex');
-            var featured = node.getRelations('referee', 'incoming', 'reverseindex');
-            var tagged_by = node.getRelations('tag', 'incoming', 'reverseindex');
-            var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
-            var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
-            
-            var this_parent_nodes = [];
-            var rel = '';
-            for(n in in_path){
-                rel = in_path[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+            if(typeof base.currentNode !== 'undefined'){
+                var in_path = node.getRelations('path', 'incoming', 'reverseindex');
+                var featured = node.getRelations('referee', 'incoming', 'reverseindex');
+                var tagged_by = node.getRelations('tag', 'incoming', 'reverseindex');
+                var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
+                var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
+                
+                var this_parent_nodes = [];
+                var rel = '';
+                for(n in in_path){
+                    rel = in_path[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
 
-            for(n in featured){
-                rel = featured[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+                for(n in featured){
+                    rel = featured[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
 
-            for(n in tagged_by){
-                rel = tagged_by[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+                for(n in tagged_by){
+                    rel = tagged_by[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
+                
+                for(n in annotated_by){
+                    rel = annotated_by[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-            }
-            
-            for(n in annotated_by){
-                rel = annotated_by[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+                
+                for(n in commented_by){
+                    rel = commented_by[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
-            
-            for(n in commented_by){
-                rel = commented_by[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
-                }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
 
-            for(n in this_parent_nodes){
-                var slug = this_parent_nodes[n];
-                if(slug != base.currentNode.slug){
-                    (function(slug,depth){
-                        scalarapi.loadPage( slug, true, function(){
-                            var base = $('#scalarheader.navbar').data('scalarheader');
-                            if(base.checkedParents.indexOf(rel.body.slug)<0){
-                                base.checkedParents.push(rel.body.slug);
-                                base.getParents(scalarapi.getNode(slug),++depth);
-                            }
-                        }, null, 1, false, 1, 0, 20 );
-                    })(slug,depth);
+                for(n in this_parent_nodes){
+                    var slug = this_parent_nodes[n];
+                    if(slug != base.currentNode.slug){
+                        (function(slug,depth){
+                            scalarapi.loadPage( slug, true, function(){
+                                var base = $('#scalarheader.navbar').data('scalarheader');
+                                if(base.checkedParents.indexOf(rel.body.slug)<0){
+                                    base.checkedParents.push(rel.body.slug);
+                                    base.getParents(scalarapi.getNode(slug),++depth);
+                                }
+                            }, null, 1, false, 1, 0, 20 );
+                        })(slug,depth);
+                    }
                 }
+                base.updateParents();
             }
-            base.updateParents();
         }
         base.updateParents = function(){
             $('.mainMenu>.dropdown-menu .body>ol>li').each(function(){
@@ -1107,7 +1107,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     n = menuItems.length;
                 if (n > 0) {
                     var tocNode, listItem;
-
                     for (i=n-1; i>=0; i--) { //going in reverse here, since we're prepending...
                         tocNode = menuItems[i];
                         listItem = $( '<li><a href="' + base.get_param(tocNode.url) + '">'+ tocNode.getDisplayTitle() + '</a></li>' )
@@ -1116,8 +1115,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         'slug': tocNode.slug,
                                         'node': tocNode
                                     })
-                                    .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && tocNode.slug != base.currentNode.slug)?'':'is_parent')
-                                    .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && tocNode.url != base.currentNode.url)?'':'visited');
+                                    .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug))?'':'is_parent')
+                                    .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url))?'':'visited');
                         $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).click(function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             var target_toc_item = $(this).parent().data('node');

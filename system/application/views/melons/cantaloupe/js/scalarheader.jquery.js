@@ -47,7 +47,8 @@
             }
 
             //We should also grab the book ID from the RDF stuff
-            base.bookId = parseInt($('#book-id').text());
+            base.bookId = parseInt($('link#book_id').attr('href'));
+
 
             //We need some wrapper classes for Bootstrap, so we'll add those here. There are also some helper classes as well.
             base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
@@ -60,7 +61,7 @@
             var home_url = $('link#parent').attr('href');
 
             var currentNode = scalarapi.model.getCurrentPageNode();
-
+            
             var index_url = book_url.slice(0,-1);
             index_url = index_url.substr(0, index_url.lastIndexOf('/'))+'/';
 
@@ -182,10 +183,8 @@
                                                         '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
-                                                ((!isNaN( base.bookId ))?
-                                                    '<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>'+
-                                                    '<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon"><img src="' + base.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>'
-                                                :'')
+                                                (typeof currentNode!=='undefined'?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+
+                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon"><img src="' + base.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="ScalarHeaderMenuMain">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
