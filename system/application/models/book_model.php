@@ -203,7 +203,10 @@ class Book_model extends MY_Model {
         if (stristr($book->title, 'data-auto-approve="true"')) return true;
         return false;
     }    
-
+    public function is_email_authors($book) {
+        if (stristr($book->title, 'data-email-authors="true"')) return true;
+        return false;
+    }    
 	public function has_paywall($book) {
 		if (empty($book)) return false;
 		$tinypass_config_path = confirm_slash(FCPATH).$book->slug.'/tinypass.php';

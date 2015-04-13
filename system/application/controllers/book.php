@@ -58,6 +58,7 @@ class Book extends MY_Controller {
 		$this->load->model('tag_model', 'tags');
 		$this->load->model('reply_model', 'replies');
 		$this->load->model('reference_model', 'references');
+		$this->load->library('SendMail', 'sendmail');
 		$this->load->library('RDF_Object', 'rdf_object');
 		$this->load->library('File_Upload', 'file_upload');
 		$this->load->library('statusCodes');
@@ -369,6 +370,37 @@ class Book extends MY_Controller {
 
 	}
 
+	private function process_new_comment() {
+		$return = $this->save_anonymous_comment();
+		echo json_encode($return);
+		if($return['error'] == '') {
+			if($this->books->is_email_authors($this->data['book'])) {
+				$this->comment_email_authors();
+			}
+		}
+		exit;
+	}
+
+	private function comment_email_authors() {
+		$child_urn   =@ trim($_POST['scalar:child_urn']);
+		$title       =@ trim($_POST['dcterms:title']);
+		$description =@ trim($_POST['dcterms:description']);
+		$content     =@ trim($_POST['sioc:content']);
+		$user_id     =@ (int) trim($_POST['user']);
+		$msg = '';
+		if($title) {
+			$msg .= $title . "\n\n\n";
+		}
+		if($description) {
+			$msg .= $description . "\n\n";
+		}
+		if($content) {
+			$msg .= $content . "\n\n";
+		}
+		$this->sendmail->new_comment($this->data['book'],$msg);
+		return;
+	}
+
 	// Save a comment (an anonymous new page) with ReCAPTCHA check (not logged in) or authentication check (logged in)
 	// This is a special case; we didn't want to corrupt the security of the save API and its native (session) vs non-native (api_key) authentication
 	private function save_anonymous_comment() {
@@ -439,9 +471,7 @@ class Book extends MY_Controller {
 			$return['error'] =  $e->getMessage();
 		}
 
-		echo json_encode( $return );
-		exit;
-
+		return $return;
 	}
 
 	/**

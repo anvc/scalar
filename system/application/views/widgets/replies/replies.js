@@ -126,7 +126,7 @@ function ajaxComment() {
 	// Otherwise route through the page controller
 	} else {
 		$.ajax({
-		  url: parent+'save_anonymous_comment',
+		  url: parent+'process_new_comment',
 		  data: post,
 		  type: 'POST',
 		  dataType: 'json',

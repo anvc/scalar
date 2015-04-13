@@ -12,17 +12,19 @@ $(window).ready(function() {
 	var is_duplicatable = ('undefined'==typeof($title.children(":first").attr('data-duplicatable'))) ? 0 : 1;
 	var is_joinable = ('undefined'==typeof($title.children(":first").attr('data-joinable'))) ? 0 : 1;
 	var auto_approve = ('undefined'==typeof($title.children(":first").attr('data-auto-approve'))) ? 0 : 1;
+	var email_authors = ('undefined'==typeof($title.children(":first").attr('data-email-authors'))) ? 0 : 1;
 	var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? 0 : 1;
 	$('#duplicatable').val(is_duplicatable);
 	$('#joinable').val(is_joinable);
 	$('#hypothesis').val(hypothesis);
 	$('#auto-approve').val(auto_approve);
+	$('#email-authors').val(email_authors);
 	    
-	$('#duplicatable, #joinable, #hypothesis,#auto-approve').change(function() {
+	$('#duplicatable, #joinable, #hypothesis,#auto-approve,#email-authors').change(function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable', 'hypothesis','auto-approve'];
+		var prop_arr = ['duplicatable', 'joinable', 'hypothesis','auto-approve','email-authors'];
 		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
@@ -110,6 +112,14 @@ $(window).ready(function() {
 	echo '<td style="vertical-align:middle;" colspan="2">';
 	echo '<p>';
 	echo 'Automatically approve all user comments? &nbsp;<select id="auto-approve"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+	echo '</p>';
+	echo "</td>\n";
+	echo "</tr>\n";		
+	echo '<tr typeof="books">';
+	echo '<td></td>'."\n";
+	echo '<td style="vertical-align:middle;" colspan="2">';
+	echo '<p>';
+	echo 'Email book authors about new comments? &nbsp;<select id="email-authors"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 	echo '</p>';
 	echo "</td>\n";
 	echo "</tr>\n";		
