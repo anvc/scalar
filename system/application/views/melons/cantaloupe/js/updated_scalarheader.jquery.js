@@ -721,22 +721,19 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var groupList = $('<ol></ol>');
                         var splitList = $('<ul></ul>');
 
-                        var scalarSort = function(a,b){
-                        	return a.index-b.index;
-                        }
-
                         var node = scalarapi.getNode(container.data('slug'));
-                        var path_of = node.getRelations('path', 'outgoing', 'reverseindex').sort(scalarSort);
-                        var features = node.getRelations('referee', 'outgoing', 'reverseindex').sort(scalarSort);
-                        var tag_of = node.getRelations('tag', 'outgoing', 'reverseindex').sort(scalarSort);
-                        var annotates = node.getRelations('annotation', 'outgoing', 'reverseindex').sort(scalarSort);
-                        var comments_on = node.getRelations('comment', 'outgoing', 'reverseindex').sort(scalarSort);
+                        
+                        var path_of = node.getRelatedNodes('path', 'outgoing');
+                    
+                        var features = node.getRelatedNodes('referee', 'outgoing');
+                        var tag_of = node.getRelatedNodes('tag', 'outgoing');
+                        var annotates = node.getRelatedNodes('annotation', 'outgoing');
+                        var comments_on = node.getRelatedNodes('comment', 'outgoing');
                         
                         if(path_of.length > 0){
                             var newList = $('<li><strong>Paths</strong><ol></ol></li>').appendTo(splitList).find('ol');
                             for(var i in path_of){
-                                var rel = path_of[i];
-                                var relNode = rel.target;
+                                var relNode = path_of[i];
                                 var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'">'+relNode.current.title+'</a></li>')
                                                     .data({
                                                         'slug': relNode.slug,
@@ -754,8 +751,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         if(features.length > 0){
                             var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
                             for(var i in features){
-                                var rel = features[i];
-                                var relNode = rel.target;
+                                var relNode = features[i];
                                 var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'">'+relNode.current.title+'</a></li>')
                                                     .data({
                                                         'slug': relNode.slug,
@@ -774,8 +770,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         if(tag_of.length > 0){
                             var newList = $('<li><strong>Tags</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
                             for(var i in tag_of){
-                                var rel = tag_of[i];
-                                var relNode = rel.target;
+                                var relNode = tag_of[i];
                                 var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'">'+relNode.current.title+'</a></li>')
                                                     .data({
                                                         'slug': relNode.slug,
@@ -794,8 +789,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         if(annotates.length > 0){
                             var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
                             for(var i in annotates){
-                                var rel = annotates[i];
-                                var relNode = rel.target;
+                                var relNode = annotates[i];
                                 var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'">'+relNode.current.title+'</a></li>')
                                                     .data({
                                                         'slug': relNode.slug,
@@ -814,8 +808,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         if(comments_on.length > 0){
                             var newList = $('<li><strong>Comments On</strong><ol></ol></li>').appendTo(splitList).find('ol');
                             for(var i in comments_on){
-                                var rel = comments_on[i];
-                                var relNode = rel.target.current;
+                                var relNode = comments_on[i];
                                 var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'">'+relNode.current.title+'</a></li>')
                                                     .data({
                                                         'slug': relNode.slug,
