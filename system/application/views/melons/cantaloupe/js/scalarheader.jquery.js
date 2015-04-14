@@ -25,7 +25,10 @@
         // Access to jQuery and DOM versions of element
         base.$el = $(el);
         base.el = el;
+        
         base.usingMobileView = false;
+        base.usingHypothesis = $('link#hypothesis').attr('href') === 'true';
+
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
 
@@ -52,6 +55,10 @@
 
             //We need some wrapper classes for Bootstrap, so we'll add those here. There are also some helper classes as well.
             base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
+
+            if(base.usingHypothesis){
+                base.$el.addClass('hypothesis_active');
+            }
 
             //Store the home URL so that we can use these later without making extra queries on the DOM
             var home_url = base.$el.find('#book-title').attr("href");
@@ -484,6 +491,10 @@
                 title_width -= 90;
             }else{
                 title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
+
+                if(base.usingHypothesis){
+                    title_width -= 40;
+                }
 
                 if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
                     title_width -= 190;

@@ -35,6 +35,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.checkedParents = [];
         base.visitedPages = [];
         base.oldScrollTop = 0;
+        base.usingHypothesis = $('link#hypothesis').attr('href') === 'true';
         base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
@@ -63,6 +64,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             //We need some wrapper classes for Bootstrap, so we'll add those here. There are also some helper classes as well.
             base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
+
+            if(base.usingHypothesis){
+            	base.$el.addClass('hypothesis_active');
+            }
 
             //Store the home URL so that we can use these later without making extra queries on the DOM
             var home_url = base.$el.find('#book-title').attr("href");
@@ -234,8 +239,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
-                                                (typeof currentNode!=='undefined'?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+
-                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon"><img src="' + base.options.root_url + '/images/options_icon.png" alt="Options button. Click to access the Dashboard." width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
+                                                (typeof currentNode!=='undefined'?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon" id="deleteIcon" title="Delete" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+
+                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard." /><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
@@ -949,13 +954,16 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             	title_width -= 90;
             }else{
             	title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
+            	
+            	if(base.usingHypothesis){
+            		title_width -= 40;
+            	}
 
 	        	if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
 	        		title_width -= 190;
 	        	}else if(typeof extra_offset != 'undefined' && extra_offset!=null){
 	                title_width -= extra_offset;
 	            }
-
 
 	        }
 			
