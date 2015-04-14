@@ -524,15 +524,21 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 	content: 'Current page';
 }
 .tocMenu .expandedPage .description{
-	max-height: 3em;
+	max-height: 6.5rem;
 	color: #ababab;
 	padding: 0 3rem;
 	font-size: 1.2rem;
+	line-height: 1.3rem;
 }
 .tocMenu .expandedPage .links{
 	margin: 1rem 0 3rem;
 	padding: .5rem 3rem 3rem;
 	border-bottom: 1px solid #444;
+}
+.tocMenu .expandedPage .description_more_link{
+	float: right;
+	color: #fff;
+	padding-right: 3rem;
 }
 .tocMenu .expandedPage .links a{
 	margin-right: 1rem;

@@ -602,15 +602,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var description = node.current.description;
 
-            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><div class="links"><a class="details">Details</a><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
+            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><a class="description_more_link">more</a><div class="links"><a class="details">Details</a><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
             
             if(!base.usingMobileView){
                 container.prepend('<div class="close"><span class="menuIcon closeIcon"></span></div>');
             }
-
             if(typeof base.currentNode !== 'undefined' && container.data('slug') == base.currentNode.slug){
                 container.addClass('is_current');
-            }else if(typeof base.currentNode !== 'undefined' && base.parentNodes.indexOf(container.data('slug') >= 0)){
+            }else if(typeof base.currentNode !== 'undefined' && base.parentNodes.indexOf(container.data('slug')) >= 0){
                 container.addClass('is_parent');
             }
 
@@ -700,6 +699,15 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 ellipsis: '…',
                 watch: "window"
             });
+
+            if(container.find('.description').triggerHandler("isTruncated")){
+            	container.find('.description_more_link').click(function(){
+            		container.find('.description').trigger('destroy').css('max-height','none');
+            		container.find('.description_more_link').remove();
+            	});
+            }else{
+				container.find('.description_more_link').remove();            	
+            }
 
             // Sort of crafty here - we're doing a self-calling anonymous function here to pull this element out of the scope; 
             // We are then shoving it back into this class when we get the ajax response; this allows us to pass the call directly back to ScalarHeader
