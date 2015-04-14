@@ -206,7 +206,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Affiliated archives</a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Affiliated archives <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive') + '">Cuban Theater Digital Archive</a></li>'+
@@ -219,7 +219,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Other archives</a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Other archives <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/getty_museum_collection') + '">Getty Museum Collection</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/prezi') + '">Prezi</a></li>'+
@@ -240,7 +240,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</ul>'+
                                                 '</li>'+
                                                 (typeof currentNode!=='undefined'?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon" id="deleteIcon" title="Delete" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+
-                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard." /><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
+                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
@@ -252,7 +252,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         '</ul>'+
                                     '</div>'+
                                 '</div>';
-            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"><</button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
+            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"></button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
             base.mobileTOCMenu.find('.close_menu, header>a').click(function(e){
                 $('#mobileMainMenuSubmenus').removeClass('active');
                 $('.mainMenuDropdown, #ScalarHeaderMenu').css({
@@ -407,16 +407,18 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );
 
             $('body').on('click',function(e){
-                $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
-                base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
+            	var base = $('#scalarheader.navbar').data('scalarheader');
+        		if(!base.usingMobileView){
+                	$('#mainMenuSubmenus').hide().find('.expandedPage').remove();
+	                base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                }
             });
 
             base.$el.on('click',function(e){
-                console.log('test1');
-                e.stopPropagation();
+        		var base = $('#scalarheader.navbar').data('scalarheader');
+        		if(!base.usingMobileView){
+                	e.stopPropagation();
+                }
             })
 
             $( '#ScalarHeaderHelp>a' ).click(function(e) {
@@ -722,7 +724,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var scalarSort = function(a,b){
                         	return a.index-b.index;
                         }
-                        
+
                         var node = scalarapi.getNode(container.data('slug'));
                         var path_of = node.getRelations('path', 'outgoing', 'reverseindex').sort(scalarSort);
                         var features = node.getRelations('referee', 'outgoing', 'reverseindex').sort(scalarSort);
@@ -770,7 +772,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         }
 
                         if(tag_of.length > 0){
-                            var newList = $('<li><strong>Tags</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                            var newList = $('<li><strong>Tags</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
                             for(var i in tag_of){
                                 var rel = tag_of[i];
                                 var relNode = rel.target;
@@ -963,7 +965,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             var title_width = $(window).width();
 
             if(base.usingMobileView){
-            	title_width -= 90;
+            	title_width -= 120;
             }else{
             	title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
             	
