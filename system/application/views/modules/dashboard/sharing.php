@@ -19,7 +19,7 @@ $(window).ready(function() {
 	$('#hypothesis').val(hypothesis);
 	$('#auto-approve').val(auto_approve);
 	$('#email-authors').val(email_authors);
-	    
+
 	$('#duplicatable, #joinable, #hypothesis,#auto-approve,#email-authors').change(function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
@@ -42,7 +42,7 @@ $(window).ready(function() {
 		}
 		$('input[name="title"]').val( $title.html() );
 	});
-    
+
 });
 </script>
 
@@ -70,16 +70,16 @@ $(window).ready(function() {
 		echo '</div><br />';
 	}
 
-	$row = $book; 
+	$row = $book;
 	if (!empty($row)):
 		// Double check that we're looking at the correct book
-		if (!empty($book_id) && $row->book_id != $book_id) die('Could not match book with book ID');	
+		if (!empty($book_id) && $row->book_id != $book_id) die('Could not match book with book ID');
 
 	echo '<tr style="display:none;">';
 	echo '<td><p>Title</p></td>';
 	echo '<td colspan="2"><input name="title" type="text" value="'.htmlspecialchars($row->title).'" style="width:100%;" /></td>';
-	echo '</tr>'."\n";	
-		
+	echo '</tr>'."\n";
+
 	echo '<tr typeof="books" class="styling_sub">';
 	echo '<td><h4 class="content_title">Public/private</h4></td><td></td></tr>';
 	echo '<tr>';
@@ -96,33 +96,24 @@ $(window).ready(function() {
 	echo '<br /><small>Book will be listed in lists of public books, feeds, etc</small>';
 	echo '</p>';
 	echo "</td>\n";
-	echo "</tr>\n";	
+	echo "</tr>\n";
 	echo '<tr typeof="books">';
 	echo '<td><p>Reviewability</p>';
 	echo '</td>'."\n";
 	echo '<td style="vertical-align:middle;" colspan="2">';
 	echo '<p>';
+	echo 'Automatically approve all user comments? &nbsp;<select id="auto-approve"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+	echo '<br /><small>If set to "No" comments are moderated and can be approved by authors in the Comments tab</small>';
+	echo '</p>';
+	echo '<p>';
+	echo 'Email book authors about new comments? &nbsp;<select id="email-authors"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+	echo '<br /><small>If set to "Yes" users with author prilages (set in Book users tab) will be emailed when new comments are contributed</small>';
+	echo '</p>';
 	echo 'Add the <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> sidebar? &nbsp;<select id="hypothesis"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 	echo '<br /><small>A sidebar will be layered over your book adding <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> collaborative review and commenting features</small>';
 	echo '</p>';
 	echo "</td>\n";
-	echo "</tr>\n";		
-	echo '<tr typeof="books">';
-	echo '<td></td>'."\n";
-	echo '<td style="vertical-align:middle;" colspan="2">';
-	echo '<p>';
-	echo 'Automatically approve all user comments? &nbsp;<select id="auto-approve"><option value="0" selected>No</option><option value="1">Yes</option></select>';
-	echo '</p>';
-	echo "</td>\n";
-	echo "</tr>\n";		
-	echo '<tr typeof="books">';
-	echo '<td></td>'."\n";
-	echo '<td style="vertical-align:middle;" colspan="2">';
-	echo '<p>';
-	echo 'Email book authors about new comments? &nbsp;<select id="email-authors"><option value="0" selected>No</option><option value="1">Yes</option></select>';
-	echo '</p>';
-	echo "</td>\n";
-	echo "</tr>\n";		
+	echo "</tr>\n";
 	echo '<td><p>Joinability</p>';
 	echo '</td>'."\n";
 	echo '<td style="vertical-align:middle;" colspan="2">';
@@ -131,7 +122,7 @@ $(window).ready(function() {
 	echo '<br /><small>An email will be sent to you when a user requests book authorship</small>';
 	echo '</p>';
 	echo "</td>\n";
-	echo "</tr>\n";									
+	echo "</tr>\n";
 	echo '<tr typeof="books">';
 	echo '<td><p>Duplicability</p>';
 	echo '</td>'."\n";
@@ -141,12 +132,12 @@ $(window).ready(function() {
 	echo '<br /><small>Book will display in list of duplicatable books regardless of availability settings</small>';
 	echo '</p>';
 	echo "</td>\n";
-	echo "</tr>\n";								
-	// Saves				
+	echo "</tr>\n";
+	// Saves
 	echo "<tr>\n";
 	echo '<td style="padding-top:8px;text-align:right;" colspan="3"><span class="save_changes">You have unsaved changes.</span> &nbsp; <a class="generic_button large default" href="javascript:;">Save</a></td>';
-	echo "</tr>\n";		
-	endif;					
+	echo "</tr>\n";
+	endif;
 ?>
-</table>	
+</table>
 </form>

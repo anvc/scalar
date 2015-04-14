@@ -98,7 +98,6 @@ function commentCheckPermalink(the_link) {
 }
 function ajaxComment() {
 	var parent = $('link#parent').attr('href');
-	var post_url = parent+'/save_comment';
 	var the_form = document.getElementById('comment_contribute_form');
 	var post = {};
 	post['action'] = 'do_save';
@@ -114,33 +113,24 @@ function ajaxComment() {
 	var redirect_url = document.location.href;
 	if (redirect_url.indexOf('?')!=-1) redirect_url = redirect_url.substr(0, redirect_url.indexOf('?'));
 	if (redirect_url.indexOf('#')!=-1) redirect_url = redirect_url.substr(0, redirect_url.indexOf('#'));
-	redirect_url=redirect_url+'?action=comment_saved#comments';
-	// If logged in, route through Scalar's save API
-	if (parseInt(post['native'])) {
-		scalarapi.savePage(post, function(json) {
-			document.location.href=redirect_url;
-			return;
-		}, function(e) {
-			alert(e);
-		});
-	// Otherwise route through the page controller
-	} else {
-		$.ajax({
-		  url: parent+'process_new_comment',
-		  data: post,
-		  type: 'POST',
-		  dataType: 'json',
-		  success: function(data) {
-		    if (data['error'].length) {
-		    	alert('There was an error saving comment: '+data['error']);
-		    	return;
-		    } else {
-				document.location.href=redirect_url;
+	redirect_url=redirect_url+'?action=comment_saved';
+	// Save through page refresh
+	$.ajax({
+		url: parent+'save_anonymous_comment',
+		data: post,
+		type: 'POST',
+		dataType: 'json',
+		success: function(data) {
+			if (data['error'].length) {
+				alert('There was an error saving comment: '+data['error']);
 				return;
-		    }
-		  }
-		});
-	}
+			} else {
+				if (data['moderated']) redirect_url += '&moderated=1';
+				document.location.href= redirect_url + '#comments';
+				return;
+			}
+		}
+	});
 	return false;
 }
 function popoutContent(title, content) {   // help from http://www.javascripter.net/faq/writingt.htm 

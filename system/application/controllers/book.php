@@ -370,37 +370,6 @@ class Book extends MY_Controller {
 
 	}
 
-	private function process_new_comment() {
-		$return = $this->save_anonymous_comment();
-		echo json_encode($return);
-		if($return['error'] == '') {
-			if($this->books->is_email_authors($this->data['book'])) {
-				$this->comment_email_authors();
-			}
-		}
-		exit;
-	}
-
-	private function comment_email_authors() {
-		$child_urn   =@ trim($_POST['scalar:child_urn']);
-		$title       =@ trim($_POST['dcterms:title']);
-		$description =@ trim($_POST['dcterms:description']);
-		$content     =@ trim($_POST['sioc:content']);
-		$user_id     =@ (int) trim($_POST['user']);
-		$msg = '';
-		if($title) {
-			$msg .= $title . "\n\n\n";
-		}
-		if($description) {
-			$msg .= $description . "\n\n";
-		}
-		if($content) {
-			$msg .= $content . "\n\n";
-		}
-		$this->sendmail->new_comment($this->data['book'],$msg);
-		return;
-	}
-
 	// Save a comment (an anonymous new page) with ReCAPTCHA check (not logged in) or authentication check (logged in)
 	// This is a special case; we didn't want to corrupt the security of the save API and its native (session) vs non-native (api_key) authentication
 	private function save_anonymous_comment() {
@@ -437,7 +406,7 @@ class Book extends MY_Controller {
 			// Note that we're not saving the user as the creator of the page -- just using their info to get fullname
 			} else {
  				$user = $this->users->get_by_user_id($user_id);
- 				if(!$user) throw new Exception('Could not find user');
+ 				if (!$user) throw new Exception('Could not find user');
  				if ($user->user_id != $this->data['login']->user_id) throw new Exception('Could not match your user ID with your login session.  You could be logged out.');
  				$fullname = $user->fullname;
  				if (empty($fullname)) throw new Exception('Logged in user does not have a name');
@@ -446,16 +415,16 @@ class Book extends MY_Controller {
 			// Save page
 			$save = array();
 			$save['book_id'] = $this->data['book']->book_id;
-			$save['user_id'] = 0;
+			$save['user_id'] = $user_id;
 			$save['title'] = $title;  // for creating slug
 			$save['type'] = 'composite';
-			$save['is_live'] = $this->books->is_auto_approve($this->data['book']);  // the save API allows for 0 or 1, which is why the "backdoor" is here, not there
+			$save['is_live'] = $this->books->is_auto_approve($this->data['book']);
 			$content_id = $this->pages->create($save);
 			if (empty($content_id)) throw new Exception('Could not save the new content');
 
 			// Save version
 			$save = array();
-			$save['user_id'] = 0;
+			$save['user_id'] = $user_id;
 			$save['title'] = $title;
 			$save['description'] = '';
 			$save['content'] = $content;
@@ -467,11 +436,19 @@ class Book extends MY_Controller {
 			if (!$this->replies->save_children($version_id, array($child_urn), array(0))) throw new Exception('Could not save relation');  // TODO: delete prev made content and version
 			// I suppose we could get the newly created node and output as RDF-JSON to sync with the save API return, but since this is a special case anyways...
 
+			// Email authors
+			if ($this->books->is_email_authors($this->data['book'])) {
+				$this->sendmail->new_comment($this->data['book'], $save, $this->books->is_auto_approve($this->data['book']));
+			}
+
 		} catch (Exception $e) {
 			$return['error'] =  $e->getMessage();
 		}
 
-		return $return;
+		$return['moderated'] = ($this->books->is_auto_approve($this->data['book'])) ? 0 : 1;
+		echo json_encode($return);
+		exit;
+
 	}
 
 	/**

@@ -1,7 +1,7 @@
 <?php
 // English
 
-$lang['scalar']       = 'Scalar';  
+$lang['scalar']       = 'Scalar';
 
 $lang['install_name'] = 'Scalar';  // Will be displayed on the top of the book index page, e.g., could be changed to "Scalar for the Maker Lab"
 
@@ -45,9 +45,11 @@ $lang['email.admin_intro'] = 'You are receiving this email because you are a Sca
 $lang['email.forgot_password_intro'] = 'You are receiving this email because you provided your email address in Scalar\'s forgot password form.  Please follow the link below to reset your password.'."\n\n".'The link may be broken due to a line break, in which case please cut-and-paste the full URL into your browser window.'."\n\n";
 $lang['email.forgot_password_outro'] = 'Thank you!'."\n\n".'The Scalar Team';
 
-$lang['email.new_comment_subject'] = $lang['install_name'] . ': New Comment on "%s"';
-$lang['email.new_comment_intro'] = 'A new comment has been submitted to the book, "%s":';
-$lang['email.forgot_password_outro'] = 'To moderate this new comment, please visit the Comments tab on the book\'s dashboard.'."\n\n".'Thank you.';
+$lang['email.new_comment_subject'] = 'New Comment for "%s"';
+$lang['email.new_comment_intro'] = 'A new comment has been submitted to the book "%s":';
+$lang['email.new_comment_outro'] = 'The comment is already live, but you can manage it in the book\'s Dashboard Comments tab:';
+$lang['email.new_comment_outro_moderated'] = 'The comment isn\'t live yet&mdash;to moderate, visit the Comments tab in the book\'s Dashboard:';
+$lang['email.new_comment_footer'] = 'Thank you!'."\n\n".'The Scalar Team';
 
 //@LUCAS - general book list strings for ACLS Workbench
 $lang['acls.site_header'] = $lang['install_name'].' <small>Powered by <a href="http://scalar.usc.edu">Scalar</a></small>';  // Will be displayed on the top of the ACLS Workbench book index page

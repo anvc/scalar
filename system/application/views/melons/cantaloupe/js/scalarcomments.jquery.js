@@ -67,7 +67,11 @@
 
 		var queryVars = scalarapi.getQueryVars( document.location.href );
 		if ( queryVars.action == 'comment_saved' ) {
-			this.bodyContent.prepend( '<div class="alert alert-success heading_font"><span class="heading_weight">Your comment has been saved.</span> <br />If you do not see your comment below, it is awaiting moderation.</div>' )
+			if (queryVars.moderated) {
+				this.bodyContent.prepend( '<div class="alert alert-success heading_font"><span class="heading_weight">Your comment has been saved and is awaiting moderation.</span></div>' );
+			} else {
+				this.bodyContent.prepend( '<div class="alert alert-success heading_font"><span class="heading_weight">Your comment has been saved and is viewable below.</span></div>' );
+			}
 		}
 
 		this.modal.on('shown.bs.modal', function() { me.firstFocus() });
