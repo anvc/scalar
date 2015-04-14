@@ -34,10 +34,11 @@ class SendMail {
     public function new_comment($book, $message) {
     	$arr = array();
     	$author_emails = array();
+		$book_title = strip_tags($book->title);
 
     	$arr['from'] = 'no-reply@'.$this->domain_name();
     	$arr['fromName'] = $this->install_name();
-		foreach($book->users as $author){
+		foreach($book->contributors as $author){
 			if($author->relationship == 'author'){
 				$author_emails[] = $author->email;
 			}
@@ -46,9 +47,9 @@ class SendMail {
     	$arr['replyTo'] = $this->replyto_address();
     	$arr['replyToName'] = $this->replyto_name();
 
-		$arr['subject'] = sprintf($this->CI->lang->line('email.new_comment_subject'),$data['book_title']);
+		$arr['subject'] = sprintf($this->CI->lang->line('email.new_comment_subject'),$book_title);
 		$subject = 
-    	$arr['msg']  = sprintf($this->CI->lang->line('email.new_comment_intro'),$data['book_title']);
+    	$arr['msg']  = sprintf($this->CI->lang->line('email.new_comment_intro'),$book_title);
 		$arr['msg'] .= $message;
 		$arr['msg'] .= $this->CI->lang->line('email.new_comment_outro');
 
