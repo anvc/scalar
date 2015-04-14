@@ -125,6 +125,14 @@
 	background-color: black;
 	color: white;
 }
+
+.navbar.hypothesis_active{
+	padding-right: 40px;
+}
+.annotator-frame .annotator-toolbar{
+	top: 60px;
+}
+
 .nav ul.dropdown-menu ul.dropdown-menu{
 	position: absolute;
 	top: 0px;

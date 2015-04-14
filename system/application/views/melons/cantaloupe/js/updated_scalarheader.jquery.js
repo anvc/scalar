@@ -35,6 +35,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.checkedParents = [];
         base.visitedPages = [];
         base.oldScrollTop = 0;
+        base.usingHypothesis = $('link#hypothesis').attr('href') === 'true';
         base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
@@ -59,10 +60,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }
 
             //We should also grab the book ID from the RDF stuff
-            base.bookId = parseInt($('#book-id').text());
+            base.bookId = parseInt($('link#book_id').attr('href'));
 
             //We need some wrapper classes for Bootstrap, so we'll add those here. There are also some helper classes as well.
             base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
+
+            if(base.usingHypothesis){
+            	base.$el.addClass('hypothesis_active');
+            }
 
             //Store the home URL so that we can use these later without making extra queries on the DOM
             var home_url = base.$el.find('#book-title').attr("href");
@@ -201,7 +206,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Affiliated archives</a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Affiliated archives <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive') + '">Cuban Theater Digital Archive</a></li>'+
@@ -214,7 +219,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Other archives</a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Other archives <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/getty_museum_collection') + '">Getty Museum Collection</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/prezi') + '">Prezi</a></li>'+
@@ -234,10 +239,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
-                                                ((!isNaN( base.bookId ))?
-                                                    '<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"  id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>'+
-                                                    '<li id="ScalarHeaderOptions"><a href="' + base.get_param(system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style')+'" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."/><span class="visible-xs">Dashboard</span></a></li>'
-                                                :'')
+                                                (typeof currentNode!=='undefined'?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon" id="deleteIcon" title="Delete" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+
+                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
@@ -249,7 +252,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         '</ul>'+
                                     '</div>'+
                                 '</div>';
-            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"><</button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
+            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"></button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
             base.mobileTOCMenu.find('.close_menu, header>a').click(function(e){
                 $('#mobileMainMenuSubmenus').removeClass('active');
                 $('.mainMenuDropdown, #ScalarHeaderMenu').css({
@@ -402,6 +405,29 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var helpElement = $('<div></div>').appendTo('body');
             base.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );
+
+            $('body').on('click',function(e){
+            	var base = $('#scalarheader.navbar').data('scalarheader');
+        		if(!base.usingMobileView){
+                	$('#mainMenuSubmenus').hide().find('.expandedPage').remove();
+	                base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                }
+            });
+
+            base.$el.on('click',function(e){
+        		var base = $('#scalarheader.navbar').data('scalarheader');
+        		if(!base.usingMobileView){
+                	e.stopPropagation();
+                }
+            })
+
+            $( '#ScalarHeaderHelp>a' ).click(function(e) {
+                base.help.data( 'plugin_scalarhelp' ).toggleHelp();
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+
             $( '#ScalarHeaderHelp>a' ).click(function(e) {
                 base.help.data( 'plugin_scalarhelp' ).toggleHelp();
                 e.preventDefault();
@@ -578,15 +604,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var description = node.current.description;
 
-            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><div class="links"><a class="details">Details</a><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
+            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><a class="description_more_link">more</a><div class="links"><a class="details">Details</a><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
             
             if(!base.usingMobileView){
                 container.prepend('<div class="close"><span class="menuIcon closeIcon"></span></div>');
             }
-
-            if(container.data('slug') == base.currentNode.slug){
+            if(typeof base.currentNode !== 'undefined' && container.data('slug') == base.currentNode.slug){
                 container.addClass('is_current');
-            }else if(base.parentNodes.indexOf(container.data('slug') >= 0)){
+            }else if(typeof base.currentNode !== 'undefined' && base.parentNodes.indexOf(container.data('slug')) >= 0){
                 container.addClass('is_parent');
             }
 
@@ -677,6 +702,15 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 watch: "window"
             });
 
+            if(container.find('.description').triggerHandler("isTruncated")){
+            	container.find('.description_more_link').click(function(){
+            		container.find('.description').trigger('destroy').css('max-height','none');
+            		container.find('.description_more_link').remove();
+            	});
+            }else{
+				container.find('.description_more_link').remove();            	
+            }
+
             // Sort of crafty here - we're doing a self-calling anonymous function here to pull this element out of the scope; 
             // We are then shoving it back into this class when we get the ajax response; this allows us to pass the call directly back to ScalarHeader
             // without having to dig for it again
@@ -687,12 +721,16 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var groupList = $('<ol></ol>');
                         var splitList = $('<ul></ul>');
 
+                        var scalarSort = function(a,b){
+                        	return a.index-b.index;
+                        }
+
                         var node = scalarapi.getNode(container.data('slug'));
-                        var path_of = node.getRelations('path', 'outgoing', 'reverseindex');
-                        var features = node.getRelations('referee', 'outgoing', 'reverseindex');
-                        var tag_of = node.getRelations('tag', 'outgoing', 'reverseindex');
-                        var annotates = node.getRelations('annotation', 'outgoing', 'reverseindex');
-                        var comments_on = node.getRelations('comment', 'outgoing', 'reverseindex');
+                        var path_of = node.getRelations('path', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var features = node.getRelations('referee', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var tag_of = node.getRelations('tag', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var annotates = node.getRelations('annotation', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var comments_on = node.getRelations('comment', 'outgoing', 'reverseindex').sort(scalarSort);
                         
                         if(path_of.length > 0){
                             var newList = $('<li><strong>Paths</strong><ol></ol></li>').appendTo(splitList).find('ol');
@@ -704,8 +742,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -723,8 +761,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -734,7 +772,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         }
 
                         if(tag_of.length > 0){
-                            var newList = $('<li><strong>Tags</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                            var newList = $('<li><strong>Tags</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
                             for(var i in tag_of){
                                 var rel = tag_of[i];
                                 var relNode = rel.target;
@@ -743,8 +781,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -763,8 +801,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -783,8 +821,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         'slug': relNode.slug,
                                                         'node': relNode
                                                     })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && relNode.slug != base.currentNode.slug )  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && relNode.url != base.currentNode.url)?'':'visited');
+                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
@@ -927,9 +965,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             var title_width = $(window).width();
 
             if(base.usingMobileView){
-            	title_width -= 90;
+            	title_width -= 120;
             }else{
             	title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
+            	
 
 	        	if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
 	        		title_width -= 190;
@@ -937,6 +976,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 	                title_width -= extra_offset;
 	            }
 
+            	if(base.usingHypothesis){
+            		title_width -= 60;
+            	}
 
 	        }
 			
@@ -946,7 +988,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
         base.buildUserMenu = function(userList){
             var redirect_url = '';
-            if ( base.currentNode != null ) {
+            if ( base.currentNode != null && typeof base.currentNode !== 'undefined') {
                 redirect_url = encodeURIComponent(base.currentNode.url);
             }else{
                 redirect_url = encodeURIComponent(window.location.href);
@@ -1002,79 +1044,81 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             return url;
         }
         base.getParents = function(node,depth){
-            var in_path = node.getRelations('path', 'incoming', 'reverseindex');
-            var featured = node.getRelations('referee', 'incoming', 'reverseindex');
-            var tagged_by = node.getRelations('tag', 'incoming', 'reverseindex');
-            var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
-            var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
-            
-            var this_parent_nodes = [];
-            var rel = '';
-            for(n in in_path){
-                rel = in_path[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+            if(typeof base.currentNode !== 'undefined'){
+                var in_path = node.getRelations('path', 'incoming', 'reverseindex');
+                var featured = node.getRelations('referee', 'incoming', 'reverseindex');
+                var tagged_by = node.getRelations('tag', 'incoming', 'reverseindex');
+                var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
+                var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
+                
+                var this_parent_nodes = [];
+                var rel = '';
+                for(n in in_path){
+                    rel = in_path[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
 
-            for(n in featured){
-                rel = featured[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+                for(n in featured){
+                    rel = featured[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
 
-            for(n in tagged_by){
-                rel = tagged_by[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+                for(n in tagged_by){
+                    rel = tagged_by[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
+                
+                for(n in annotated_by){
+                    rel = annotated_by[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-            }
-            
-            for(n in annotated_by){
-                rel = annotated_by[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
+                
+                for(n in commented_by){
+                    rel = commented_by[n];
+                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
+                        this_parent_nodes.push(rel.body.slug);
+                    }
+                    if(base.parentNodes.indexOf(rel.body.slug)<0){
+                        base.parentNodes.push(rel.body.slug);
+                    }
                 }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
-            
-            for(n in commented_by){
-                rel = commented_by[n];
-                if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                    this_parent_nodes.push(rel.body.slug);
-                }
-                if(base.parentNodes.indexOf(rel.body.slug)<0){
-                    base.parentNodes.push(rel.body.slug);
-                }
-            }
 
-            for(n in this_parent_nodes){
-                var slug = this_parent_nodes[n];
-                if(slug != base.currentNode.slug){
-                    (function(slug,depth){
-                        scalarapi.loadPage( slug, true, function(){
-                            var base = $('#scalarheader.navbar').data('scalarheader');
-                            if(base.checkedParents.indexOf(rel.body.slug)<0){
-                                base.checkedParents.push(rel.body.slug);
-                                base.getParents(scalarapi.getNode(slug),++depth);
-                            }
-                        }, null, 1, false, 1, 0, 20 );
-                    })(slug,depth);
+                for(n in this_parent_nodes){
+                    var slug = this_parent_nodes[n];
+                    if(slug != base.currentNode.slug){
+                        (function(slug,depth){
+                            scalarapi.loadPage( slug, true, function(){
+                                var base = $('#scalarheader.navbar').data('scalarheader');
+                                if(base.checkedParents.indexOf(rel.body.slug)<0){
+                                    base.checkedParents.push(rel.body.slug);
+                                    base.getParents(scalarapi.getNode(slug),++depth);
+                                }
+                            }, null, 1, false, 1, 0, 20 );
+                        })(slug,depth);
+                    }
                 }
+                base.updateParents();
             }
-            base.updateParents();
         }
         base.updateParents = function(){
             $('.mainMenu>.dropdown-menu .body>ol>li').each(function(){
@@ -1107,7 +1151,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     n = menuItems.length;
                 if (n > 0) {
                     var tocNode, listItem;
-
                     for (i=n-1; i>=0; i--) { //going in reverse here, since we're prepending...
                         tocNode = menuItems[i];
                         listItem = $( '<li><a href="' + base.get_param(tocNode.url) + '">'+ tocNode.getDisplayTitle() + '</a></li>' )
@@ -1116,8 +1159,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         'slug': tocNode.slug,
                                         'node': tocNode
                                     })
-                                    .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && tocNode.slug != base.currentNode.slug)?'':'is_parent')
-                                    .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && tocNode.url != base.currentNode.url)?'':'visited');
+                                    .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug))?'':'is_parent')
+                                    .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url))?'':'visited');
                         $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).click(function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             var target_toc_item = $(this).parent().data('node');

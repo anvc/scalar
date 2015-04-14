@@ -66,7 +66,12 @@ a.headerIcon{
 	padding: 0;
 	width: 22px;
 }
-
+.navbar.hypothesis_active{
+	padding-right: 40px;
+}
+.annotator-frame .annotator-toolbar{
+	top: 60px;
+}
 .navbar .close, #mobileMainMenuSubmenus .close{
 	position: absolute;
 	right: 1rem;
@@ -208,6 +213,12 @@ a.headerIcon{
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: 0;
 }
+.title_wrapper{
+	letter-spacing: 1px;
+}
+.title_wrapper .book-title{
+  font-weight: bold;
+}
 .navbar .open .dropdown-menu>{li>a
 	text-overflow: ellipsis;
 	max-width: 100%;
@@ -290,17 +301,13 @@ a.headerIcon{
 .navbar ul.dropdown-menu li{
 	position: relative;
 	font-size: 12px;
-	margin-bottom: 10px;
+	margin-bottom: 1rem;
 	font-weight: bold;
 }
 
 #navMenu ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
 	width: 300px;
 	margin: 0;
-}
-#navMenu>ul>li, #ScalarHeaderMenuUserList>li{
-	margin: 0;
-	padding: 5px 10px;
 }
 
 .navbar ul.dropdown-menu li>a{
@@ -326,8 +333,10 @@ a.headerIcon{
 	counter-reset: mainMenu;
 }
 .tocMenu .expandedPage .relationships ol, .tocMenu .expandedPage .relationships ul{
-	padding-left: 0;
-	padding-right: 0;
+	padding: 0;
+}
+.tocMenu .expandedPage .relationships ol{
+	padding: 2rem 0 0 0;
 }
 .navbar li.mainMenu>ul.dropdown-menu>li>ol>li:before, .tocMenu .expandedPage .relationships ol>li:before{
 	content: "\00a0";
@@ -341,6 +350,18 @@ a.headerIcon{
 	position: absolute;
 	left: .5rem;
 	top: 0;
+	text-align: center;
+	width: 2.5rem;
+}
+.tocMenu .expandedPage .relationships ol.tags>li>a:first-child:before {
+    content: '\25CF';
+    line-height: 22px;
+	color: #b3b3b3;
+	position: absolute;
+	left: .5rem;
+	top: 0;
+	text-align: center;
+	width: 2.5rem;
 }
 .navbar li.mainMenu>ul.dropdown-menu>li>ol>li.visited>a:first-child:before, .tocMenu .expandedPage .relationships ol>li.visited>a:first-child:before {
     color: #808080;
@@ -371,9 +392,9 @@ a.headerIcon{
 	position: absolute;
 	width: auto;
 	left: 0;
-	padding-left: 1.8rem;
+  	padding-left: 3.5rem;
 	margin-left: 3rem;
-	right: 3rem;
+	right: 2.2rem;
 }
 .tocMenu .expandedPage .relationships ol>li>a{
 	margin-right: 3.5rem;
@@ -412,7 +433,7 @@ a.headerIcon{
 	display: block;
 	width: auto;
 	margin-right: 0px;
-	padding-left: 1.8rem;
+	padding-left: 3.5rem;
 	padding-right: 0px;
 }
 .mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
@@ -519,15 +540,21 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 	content: 'Current page';
 }
 .tocMenu .expandedPage .description{
-	max-height: 3em;
+	max-height: 6.5rem;
 	color: #ababab;
 	padding: 0 3rem;
 	font-size: 1.2rem;
+	line-height: 1.3rem;
 }
 .tocMenu .expandedPage .links{
 	margin: 1rem 0 3rem;
 	padding: .5rem 3rem 3rem;
 	border-bottom: 1px solid #444;
+}
+.tocMenu .expandedPage .description_more_link{
+	float: right;
+	color: #fff;
+	padding-right: 3rem;
 }
 .tocMenu .expandedPage .links a{
 	margin-right: 1rem;
@@ -535,7 +562,7 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 	font-size: 1.2rem;
 }
 .tocMenu .expandedPage .relationships{
-	padding: 1.5rem 0 3rem 0;
+	padding: 0 0 3rem 0;
 }
 .tocMenu .expandedPage .relationships strong{
 	padding-left: 4.8rem;
@@ -554,6 +581,16 @@ i.loader{
 	background: url(../images/header_loader.gif) no-repeat;
 	background-position: center center;
 }
+
+	.navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
+		padding: 1.5rem 0 .5rem 0;
+	}
+	.navbar ul.dropdown-menu>li, .navbar-nav .open .dropdown-menu>li{
+		padding: 0 1.5rem
+	}
+	.navbar-nav .open .dropdown-menu>li>a, .navbar-nav .open .dropdown-menu .dropdown-header{
+		padding: .5rem;
+	}
 @media (min-width: 768px){
 	#scalarheader{
 		-webkit-transition: -webkit-transform .25s;
@@ -571,25 +608,33 @@ i.loader{
 }
 @media (max-width: 767px){
 
+	.navbar.hypothesis_active{
+		padding-right: 0;
+	}
+
 	#ScalarHeaderMenuSearchForm
 	.navbar a.headerIcon span{
 		padding-left: 9px;
 	}
 	.navbar a.headerIcon {
-	  width: 100%;
-	  text-align: left;
-	  font-size: 24px;
-	  background-position: 10px center;
-	  display: block;
-	  padding-left: 50px;
-	  line-height: 30px;
+		width: 100%;
+		text-align: left;
+		font-size: 1.2rem;
+		background-position: 10px center;
+		display: block;
+		padding-left: 3rem;
+		line-height: 3rem;
+		background-size: 3rem;
+		height: 5rem;
+		padding: 1rem 0 1rem 4rem;
+		margin: 0;
 	}
 	.nav ul.dropdown-menu>li.dropdown>a.dropdown-toggle:after{
 		right: 20px;
 	}
 	.navbar .open .dropdown-menu>li>a.dropdown-toggle, .navbar .open .dropdown-menu>li a, #mobileMainMenuSubmenus li a {
 		line-height: 40px;
-		font-size: 16px;
+		font-size: 1.2rem;
 		font-weight: normal;
 	}
 	.nav ul.dropdown-menu ul.dropdown-menu{
@@ -648,6 +693,7 @@ i.loader{
 	}
 	#mobileMainMenuSubmenus li,.navbar-nav li.mainMenu.open ul.mainMenuDropdown>li li, #navMenu ul li, .mainMenuDropdown .dropdown-menu li, #ScalarHeaderMenuUserList li{
 		min-height: 40px;
+		margin-bottom: .5rem;
 	}
 	#mobileMainMenuSubmenus .expandedPage{
 		width: 100%;
@@ -658,17 +704,19 @@ i.loader{
 		line-height: 40px;
 	}
 	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a, .tocMenu .expandedPage .relationships ol>li>a{
-		right: 30px;
-	}.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
+		  right: 2rem;
+		  margin-left: 1rem;
+	}
+	.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
 		min-height: 40px;
 		width: 40px;
 	}
 	.navbar .rightArrowIcon, #mobileMainMenuSubmenus .rightArrowIcon{
-		background-image: url(../images/menu_arrow_icon.png);
-		height: 40px;
-		background-size: 40px;
-		padding: 0;
-		width: 40px;
+		  background-image: url(../images/menu_arrow_icon.png);
+		  height: 4rem;
+		  background-size: 22px;
+		  padding: 0;
+		  width: 4rem;
 	}
 
 	#ScalarHeaderMenu{
@@ -684,6 +732,7 @@ i.loader{
 		overflow-y: auto;
 		border-right: 0px;
 		bottom: 50px;
+		padding: 0;
 	}
 	#mobileMainMenuSubmenus footer{
 		position: absolute;
@@ -703,11 +752,22 @@ i.loader{
 		top: 0px;
 		bottom: 0px;
 		width: 50px;
+		background-image: url(../images/back_icon.png);
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 3rem;
 	}
 	#mobileMainMenuSubmenus footer .close_menu{
 		width: 100%;
 		height: 50px;
-		padding-left: 50px;
+		padding: 0 0 0 5rem;
+	}
+	.navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon {
+	  background-image: url(../images/menu_close_icon.png);
+	  background-size: 4rem;
+	  height: 5rem;
+	  width: 5rem;
+	  margin-right: 0em;
 	}
 	#mobileMainMenuSubmenus{
 		display: block;
@@ -739,19 +799,27 @@ i.loader{
 		height: 50px;
 	}
 	#mobileMainMenuSubmenus header .headerIcon{
-		height: 50px;
-		display: block;
+		
 		width: 100%;
-		margin: 0px;
-		background-position: 10px;
 		text-align: left;
-		padding-left: 50px;
-		line-height: 50px;
+		font-size: 1.2rem;
+		background-position: 10px center;
+		display: block;
+		padding-left: 3rem;
+		line-height: 3rem;
+		background-size: 3rem;
+		height: 5rem;
+		padding: 1rem 0 1rem 4rem;
+		margin: 0;
+		text-align: left;
 		background-color: #444;
 		color: #ccc;
 		z-index: 1000;
 		border-top: 1px solid rgb(16, 16, 16);
 		box-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px 0px inset;
+	}
+	.mainMenuDropdown .header, .mainMenuDropdown .close{
+		display: none;
 	}
 	#mobileMainMenuSubmenus header .headerIcon:hover{
 		background-color: #353535;
@@ -792,9 +860,9 @@ i.loader{
 	}
 	.nav ul.dropdown-menu li.dropdown.right ul.dropdown-menu{
 		right: 0px;
-		margin-right: 10px;
+		margin-right: 0px;
 		width: auto;
-		margin-left: 10px;
+		margin-left: 0px;
 		border: 0px;
 	}
 	.navbar-inverse .navbar-nav .open .dropdown-menu>li.dropdown.open>a.dropdown-toggle, li.dropdown.open>a.dropdown-toggle{
@@ -802,5 +870,30 @@ i.loader{
 		border-radius: 0px;
 		color: #fff;
 		outline: 0px;
+	}
+	.tocMenu .expandedPage .relationships strong{
+		color: #fff;
+		padding-left: 3.2rem
+	}
+	.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand {
+	  margin-right: 1rem;
+	}
+	.tocMenu .expandedPage h2.title {
+	  margin: 1rem;
+	}
+	.tocMenu .expandedPage .links {
+	  padding: .5rem 1rem 1rem;
+	}
+	.tocMenu .expandedPage .relationships ol {
+	  padding: .5rem;
+	}
+	.navbar .mainMenuDropdown li.static {
+	  padding: 0 1rem;
+	}
+	.navbar li.mainMenu ul.dropdown-menu {
+	  padding: 1rem 0;
+	}
+	.navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
+		width: 100%;
 	}
 }
