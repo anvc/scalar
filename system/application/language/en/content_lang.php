@@ -48,7 +48,7 @@ $lang['email.forgot_password_outro'] = 'Thank you!'."\n\n".'The Scalar Team';
 $lang['email.new_comment_subject'] = 'New Comment for "%s"';
 $lang['email.new_comment_intro'] = 'A new comment has been submitted to the book "%s":';
 $lang['email.new_comment_outro'] = 'The comment is already live, but you can manage it in the book\'s Dashboard Comments tab:';
-$lang['email.new_comment_outro_moderated'] = 'The comment isn\'t live yet&mdash;to moderate, visit the Comments tab in the book\'s Dashboard:';
+$lang['email.new_comment_outro_moderated'] = '<b>The comment isn\'t live yet.</b> To moderate, visit the Comments tab in the book\'s Dashboard:';
 $lang['email.new_comment_footer'] = 'Thank you!'."\n\n".'The Scalar Team';
 
 //@LUCAS - general book list strings for ACLS Workbench
