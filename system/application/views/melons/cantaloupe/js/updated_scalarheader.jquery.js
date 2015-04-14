@@ -741,7 +741,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.add(groupList).prepend(nodeItem);
                             }
                         }
 
@@ -760,7 +760,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.add(groupList).prepend(nodeItem);
 
                             }
                         }
@@ -780,7 +780,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.add(groupList).prepend(nodeItem);
 
                             }
                         }
@@ -800,7 +800,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.add(groupList).prepend(nodeItem);
 
                             }
                         }
@@ -820,7 +820,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.add(groupList).prepend(nodeItem);
                             }
                         }
                         if(splitList.children('li').length > 1){
@@ -963,15 +963,16 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }else{
             	title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
             	
-            	if(base.usingHypothesis){
-            		title_width -= 40;
-            	}
 
 	        	if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
 	        		title_width -= 190;
 	        	}else if(typeof extra_offset != 'undefined' && extra_offset!=null){
 	                title_width -= extra_offset;
 	            }
+
+            	if(base.usingHypothesis){
+            		title_width -= 60;
+            	}
 
 	        }
 			
