@@ -292,7 +292,7 @@
 				temp.remove();
 
 				// inline media elements can't get bigger than the width of the body copy
-				if (inline ) {
+				if (inline) {
 					// we want 'large' inline media to be as wide as the text
 					if (size == 'large') {
 						width = bodyCopyWidth;
@@ -843,7 +843,7 @@
 						if ( viewType == 'structured_gallery' ) {
 							gallery.addMedia();
 						}
-						$('a').each(function() {
+						$( 'article > span[property="sioc:content"]' ).find( 'a' ).each(function() {
 
 							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
@@ -994,9 +994,8 @@
 
 						// if this is a media page, embed the media at native size
 						if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
-							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).appendTo( '[property="sioc:content"]' );
+							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).appendTo( 'article > span[property="sioc:content"]' );
 							link.wrap( '<div></div>' );
-
 							page.addMediaElementForLink( link, link.parent() );
 							link.css('display', 'none');
 						};
