@@ -78,7 +78,6 @@
 
 		this.modal.find('.close').onTab(function() { me.firstFocus() });
 
-
 	}
 
 	ScalarComments.prototype.firstFocus = function() {
@@ -101,7 +100,7 @@
 
 	ScalarComments.prototype.formatComments = function() {
 
-		var relation, node,
+		var relation, node, authorNode, date,
 			relations = scalarapi.model.getCurrentPageNode().getRelations('comment', 'incoming', 'reverseindex');
 		this.results.empty();
 
@@ -109,8 +108,13 @@
 		for (var i in relations) {
 			relation = relations[i];
 			container = $('<div class="comment"></div>').appendTo(this.results);
-			var date = new Date(relation.properties.datetime);
-			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+scalarapi.getNode(relation.body.current.author).getDisplayTitle()+'</div>');
+			date = new Date(relation.body.current.created);
+			if ( relation.body.current.author != null ) {
+				authorNode = scalarapi.getNode(relation.body.current.author);
+			} else {
+				authorNode = scalarapi.getNode(relation.body.author);
+			}
+			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+authorNode.getDisplayTitle()+'</div>');
 		}
 
 		if (relations.length > 0) {
