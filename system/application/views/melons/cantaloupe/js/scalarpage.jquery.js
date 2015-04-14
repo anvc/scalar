@@ -1190,7 +1190,7 @@
 				viewType = extension;
 			}
 
-			if ( viewType != 'iframe' ) {
+			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 		  	}
 
