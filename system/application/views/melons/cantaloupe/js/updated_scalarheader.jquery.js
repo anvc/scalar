@@ -719,12 +719,16 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var groupList = $('<ol></ol>');
                         var splitList = $('<ul></ul>');
 
+                        var scalarSort = function(a,b){
+                        	return a.index-b.index;
+                        }
+                        
                         var node = scalarapi.getNode(container.data('slug'));
-                        var path_of = node.getRelations('path', 'outgoing', 'reverseindex');
-                        var features = node.getRelations('referee', 'outgoing', 'reverseindex');
-                        var tag_of = node.getRelations('tag', 'outgoing', 'reverseindex');
-                        var annotates = node.getRelations('annotation', 'outgoing', 'reverseindex');
-                        var comments_on = node.getRelations('comment', 'outgoing', 'reverseindex');
+                        var path_of = node.getRelations('path', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var features = node.getRelations('referee', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var tag_of = node.getRelations('tag', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var annotates = node.getRelations('annotation', 'outgoing', 'reverseindex').sort(scalarSort);
+                        var comments_on = node.getRelations('comment', 'outgoing', 'reverseindex').sort(scalarSort);
                         
                         if(path_of.length > 0){
                             var newList = $('<li><strong>Paths</strong><ol></ol></li>').appendTo(splitList).find('ol');
@@ -741,7 +745,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).prepend(nodeItem);
+                                newList.add(groupList).append(nodeItem);
                             }
                         }
 
@@ -760,7 +764,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).prepend(nodeItem);
+                                newList.add(groupList).append(nodeItem);
 
                             }
                         }
@@ -780,7 +784,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).prepend(nodeItem);
+                                newList.add(groupList).append(nodeItem);
 
                             }
                         }
@@ -800,7 +804,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).prepend(nodeItem);
+                                newList.add(groupList).append(nodeItem);
 
                             }
                         }
@@ -820,7 +824,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).prepend(nodeItem);
+                                newList.add(groupList).append(nodeItem);
                             }
                         }
                         if(splitList.children('li').length > 1){
