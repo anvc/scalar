@@ -23,7 +23,7 @@ function checkVersionForm() {
 }
 function reorderVersionNums() {
 	if (!confirm('Are you sure you wish to re-order version numbers?  This could break links to specific versions of your book.')) return false;
-	var url = '?action=do_reorder_versions';
+	var url = location.protocol + '//' + location.host + location.pathname + '?action=do_reorder_versions';
 	document.location.href=url;
 }
 </script>
