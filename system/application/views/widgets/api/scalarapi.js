@@ -670,7 +670,9 @@ ScalarAPI.prototype.stripAllExtensions = function(uri) {
  *
  * @return	The uri's extension, if any.
  */
-ScalarAPI.prototype.getFileExtension = function(uri) {
+ScalarAPI.prototype.getFileExtension = function(uri) {	
+	var array = uri.split('?');
+	uri = array[0];
 	var basename = this.basename(uri);
 	if (basename.indexOf('.') == -1) return '';
 	var ext = basename.substr(basename.indexOf('.') + 1);
@@ -1544,7 +1546,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			var subproperty;
 			for (property in relationData) {
 				// add base properties
-				if (completePageData[property] == undefined) {
+				if (completePageData[property] == null) {
 					completePageData[property] = {};
 				}
 				completePageData[property].action = 'RELATE';
@@ -1786,10 +1788,10 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 	var node = this.model.nodesByURL[this.model.urlPrefix+uriSegment];
 	
 	var queryString = 'format=json';
-	if (depth == undefined) depth = 0;
+	if (depth == null) depth = 0;
 	queryString += '&rec='+depth;
 	var ref;
-	if (references == undefined) {
+	if (references == null) {
 		ref = 0;
 	} else {
 		ref = references ? 1 : 0;
@@ -1798,19 +1800,19 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 	if (relation !== null) {
 		queryString += '&res='+relation;
 	}
-	if (start != undefined) {
+	if (start != null) {
 		queryString += '&start='+start;
 	}
-	if (results != undefined) {
+	if (results != null) {
 		queryString += '&results='+results;
 	}
 
-	if (this.loadPageStatus[url] == undefined) {
+	if (this.loadPageStatus[url] == null) {
 		this.loadPageStatus[url] = {isLoading:false, queuedSuccessCallbacks:[], queuedErrorCallbacks:[]};
 	}
 	
 	// if we're forcing the data to load, or if the data hasn't already been loaded, then
-	if (forceReload || (node == undefined)) {
+	if (forceReload || (node == null)) {
 	
 		// if the data isn't already loading, then load it
 		if (!this.loadPageStatus[url].isLoading) {
@@ -1869,7 +1871,7 @@ ScalarAPI.prototype.parsePage = function(json) {
 	for (var j in nodes) {
 		node = nodes[j];
 		var url = node.url;
-		if (scalarapi.loadPageStatus[url] != undefined) {
+		if (scalarapi.loadPageStatus[url] != null) {
 			scalarapi.loadPageStatus[url].isLoading = false;
 			n = scalarapi.loadPageStatus[url].queuedSuccessCallbacks.length;
 			for (i=0; i<n; i++) {
@@ -1897,16 +1899,16 @@ ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = func
 	// TODO: Potentially rejigger this to call loadPage or loadMedia
 	
 	var queryString = 'format=json';
-	if (depth == undefined) depth = 0;
+	if (depth == null) depth = 0;
 	queryString += '&rec='+depth;
 	var ref;
-	if (references == undefined) {
+	if (references == null) {
 		ref = 0;
 	} else {
 		ref = references ? 1 : 0;
 	}
 	queryString += '&ref='+ref;
-	if (relation != undefined) {
+	if (relation != null) {
 		queryString += '&res='+relation;
 	}
 	
@@ -2093,10 +2095,10 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 	var nodes = this.model.getNodesWithProperty('scalarType', type);
 	
 	var queryString = 'format=json';
-	if (depth == undefined) depth = 0;
+	if (depth == null) depth = 0;
 	queryString += '&rec='+depth;
 	var ref;
-	if (references == undefined) {
+	if (references == null) {
 		ref = 0;
 	} else {
 		ref = references ? 1 : 0;
@@ -2166,10 +2168,10 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 
 	var queryString = 'sq='+encodeURIComponent(sq)+'&format=json';
 
-	if (depth == undefined) depth = 0;
+	if (depth == null) depth = 0;
 	queryString += '&rec='+depth;
 	var ref;
-	if (references == undefined) {
+	if (references == null) {
 		ref = 0;
 	} else {
 		ref = references ? 1 : 0;
@@ -2178,13 +2180,13 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 	if (relation) {
 		queryString += '&res='+relation;
 	}
-	if (start != undefined) {
+	if (start != null) {
 		queryString += '&start='+start;
 	}
-	if (results != undefined) {
+	if (results != null) {
 		queryString += '&results='+results;
 	}
-	if (hidden != undefined) {  // Added by Craig 21 July 2014
+	if (hidden != null) {  // Added by Craig 21 July 2014
 		queryString += '&hidden='+hidden;
 	}
 	
@@ -2948,7 +2950,7 @@ ScalarNode.prototype.parseRelations = function() {
 			body = this;
 			target = scalarapi.model.nodesByURL[scalarapi.stripAllExtensions(arr[i].value)];
 			anchorVars = scalarapi.getAnchorVars(arr[i].value);
-			if ((body && target) && (scalarapi.model.relationsById[body.url+target.url] == undefined)) {
+			if ((body && target) && (scalarapi.model.relationsById[body.url+target.url] == null)) {
 				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.referee);
 				//scalarapi.model.relations.push(relation);
 				scalarapi.model.relationsById[relation.id] = relation;
@@ -3154,7 +3156,7 @@ ScalarNode.prototype.getDominantScalarType = function() {
  * @return						A boolean indicating if the type is associated with the node.
  */
 ScalarNode.prototype.hasScalarType = function(typeName) {
-	return (this.scalarTypes[typeName] != undefined);
+	return (this.scalarTypes[typeName] != null);
 }
 
 /**
@@ -3174,7 +3176,7 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 	var relations = [];
 	var results = [];
 	
-	if (includeNonPages == undefined) includeNonPages = false;
+	if (includeNonPages == null) includeNonPages = false;
 	
 	/*for (i=0; i<n; i++) {
 		relation = scalarapi.model.relations[i];
@@ -3254,7 +3256,7 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 	var relation;
 	var results = [];
 	
-	if (includeNonPages == undefined) includeNonPages = false;
+	if (includeNonPages == null) includeNonPages = false;
 	
 	switch (direction) {
 	
@@ -3436,7 +3438,7 @@ ScalarVersion.prototype.parseData = function(data, node) {
 		if (this.mediaSource == scalarapi.mediaSources.Unsupported) {
 			var dctype;
 			if (this.properties['http://purl.org/dc/terms/type']) dctype = this.properties['http://purl.org/dc/terms/type'][0].value;
-			if (dctype != undefined) {
+			if (dctype != null) {
 				if (dctype.indexOf('image') != -1) {
 					this.mediaSource = scalarapi.mediaSources.JPEG;
 				} else if (dctype.indexOf('sound') != -1) {
@@ -3625,7 +3627,7 @@ function ScalarRelation(json, body, target, type) {
 		this.body = body;
 		this.target = target;
 		this.id = this.body.url+this.target.url;
-		if (type != undefined) {
+		if (type != null) {
 			this.type = type;
 		} else {
 			this.type = scalarapi.model.relationTypes.unknown;
