@@ -3,7 +3,8 @@
 	var defaults = {
 			data: null,
 			default_value: null,
-			no_prefix: 'no_'
+			no_prefix: 'no_',
+			approot: $('link#approot').attr('href')
 	};  	
 	
     $.fn.select_view = function(options) {
@@ -60,7 +61,9 @@
     	var set_descriptions = function() {
     		$this.find('select').each(function() {
     			var desc = $(this).find(':selected').data('desc');
-    			$(this).parent().siblings('.select_desc, .component_desc').html(desc);
+    			var img_path = $(this).find(':selected').data('img');
+    			var img = (img_path.length)? '<img src="'+opts.approot+img_path+'" align="left" style="margin-right:10px;width:100px;" />' : '';
+    			$(this).parent().siblings('.select_desc, .component_desc').html(img+desc);
     		});
     	};    	
     	
@@ -80,11 +83,6 @@
     	};
     	
     	// View pulldown
-    	/*
-    	var $select = $('<select name="scalar:default_view" class="generic_button large"></select>').appendTo($this);
-    	$select.wrap('<span style="display:table-cell;padding:3px 16px 3px 0px;vertical-align:middle;"></span>');
-    	$('<span class="component_desc" style="display:table-cell;padding:3px 16px 3px 0px;vertical-align:middle;"></span>').insertAfter($select.parent());
-    	*/
     	var $select_wrapper = $('<div><select name="scalar:default_view" class="generic_button large"></select></div>').appendTo($this);
     	var $select = $select_wrapper.find('select:first');
     	$('<div class="select_desc" style="margin-top:10px;"></div>').insertAfter($select_wrapper);
@@ -98,6 +96,7 @@
     		if (value.name.length) $select.show();
     		var $option = $('<option value="'+key+'"'+((-1!=opts.default_values.indexOf(key))?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>').appendTo($select);
     		$option.data('desc', ('undefined'!=typeof(value.description))?value.description:'');
+    		$option.data('img', ('undefined'!=typeof(value.image))?value.image:'');
     		// Component pulldowns
     		var $components = $('<div style="display:table;" id="'+key+'_components" class="components"></div>').appendTo($this);
     		if (!jQuery.isEmptyObject(value.components)) {
