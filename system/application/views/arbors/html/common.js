@@ -217,7 +217,11 @@ function send_form_relationships($form, version_urn, redirect_url) {
 	
 	// Save relationships
 	var success = function() {
-		document.location.href=redirect_url + '?t=' + (new Date).getTime();
+		var get_str = '';
+		var path = ($form.find('input[name="path"]').length) ? $form.find('input[name="path"]').val() : '';
+		if (path.length) get_str = 'path='+path;  // Maintain current path
+		get_str += ((get_str.length)?'&':'') + 't=' + (new Date).getTime();  // Override cache (so, e.g., replaced images are properly displayed)
+		document.location.href=redirect_url + '?' + get_str;
 	} 
 	scalarapi.saveManyRelations(values, success);   	
 

@@ -63,6 +63,7 @@ if ('cantaloupe' == $book->template) {
 <input type="hidden" name="scalar:child_rel" value="page" />
 <? endif ?>
 <input type="hidden" name="urn:scalar:book" value="<?=$book->urn?>" />
+<input type="hidden" name="path" value="<?=(isset($_GET['path']))?trim($_GET['path']):''?>" />
 <?
 // Commit message (if applicable)
 if (@$_GET['commit']):
