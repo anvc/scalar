@@ -77,7 +77,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 .saved > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
 .error {background:#efcdcd; border:solid 1px #cccccc; padding:8px 0px 8px 0px; margin-bottom:6px;}
 .error > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
-.notice {background:#eeeeee; padding:8px 0px 8px 0px; margin-bottom:6px;}
+.notice { background:#eeeeee; padding:8px 0px 8px 0px; margin-bottom:6px; color: black; }
 .notice > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
 
 #centered-message { position: absolute; left: 50%; margin-left: -30rem; width: 60rem; top: 45%; text-align: center; color: #888; }
