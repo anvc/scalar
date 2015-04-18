@@ -25,6 +25,7 @@ class Image_Metadata {
 		$return = array();
 
 		$iptc_arr = (!empty($this->iptc_ns)) ? $this->get_iptc($path) : array();
+		//$exif_arr = $this->get_exif($path);
 		foreach ($iptc_arr as $field => $value) {
 			switch ($format) {
 				case Image_Metadata::FORMAT_NS:
@@ -42,7 +43,7 @@ class Image_Metadata {
 
 	private function get_exif($path='') {
 
-		// TODO
+		$exif = exif_read_data($path);
 
 	}
 

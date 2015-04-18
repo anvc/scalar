@@ -41,6 +41,10 @@ $config['views'] = array(
 // Default view
 $config['default_view'] = 'plain';
 
+// By default, HTML5-RDFa 'sioc:content' won't be outputted for relationship nodes (nodes other than the current page node)
+// Possible values: true | false | array('<rel name, e.g., "replies","reply","references","reference",etc>')
+$config['output_rel_node_content'] = array('replies','references');
+
 // Media reference options (will translate to, e.g., data-property="value")
 $config['reference_options'] = array(
 	'insertMediaLink' 		=> array(

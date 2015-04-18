@@ -31,8 +31,10 @@ if (isset($page->version_index)) {
 	$is_new = false;
 }
 if (isset($mode) && !empty($mode)) $background = null;
+$rdf_fields = $this->config->item('rdf_fields');
+if (!isset($rdf_fields['content'])) $rdf_fields['content'] = 'sioc:content';
 function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array()) {
-	$hide = array_merge($hide, array('rdf:type','dcterms:title'));
+	$hide = array_merge($hide, array('rdf:type','dcterms:title','sioc:content'));
 	foreach ($rdf as $p => $values) {
 		if (in_array($p, $hide)) continue;
 		foreach ($values as $value) {
@@ -207,7 +209,7 @@ endif;
 ?>
 <?php endif; ?>
 	</header>
-	<span property="sioc:content"><?php
+	<span property="<?=$rdf_fields['content']?>"><?php
 		if (!empty($_html)) {
 			echo $_html;
 		} elseif (isset($page) && !empty($page)) {
@@ -223,8 +225,10 @@ unset($models[array_search('references',$models)]);
 foreach ($models as $rel):
 	$inward_rel = 'has_'.$rel;
 	$inward_array = (isset($page->versions[$page->version_index]->$inward_rel)) ? $page->versions[$page->version_index]->$inward_rel : array();;
+	$output_inward_content = (true===$this->config->item('output_rel_node_content')||@in_array($rel,$this->config->item('output_rel_node_content'))) ? true : false;
 	$outward_rel = singular($rel).'_of';
 	$outward_array = (isset($page->versions[$page->version_index]->$outward_rel)) ? $page->versions[$page->version_index]->$outward_rel : array();
+	$output_outward_content = (true===$this->config->item('output_rel_node_content')||@in_array(singular($rel),$this->config->item('output_rel_node_content'))) ? true : false;
 	if (!empty($inward_array)):
 ?>
 	<section>
@@ -250,7 +254,10 @@ foreach ($models as $rel):
 						<a href="<?=$base_uri.$inward_item->slug?>"><?=$inward_item->versions[$inward_item->version_index]->title?></a>
 					</span>
 					<span property="scalar:fullname"><?=@$inward_item->versions[$inward_item->version_index]->user->fullname?></span>
-<?		print_rdf($this->versions->rdf($inward_item->versions[$inward_item->version_index], $base_uri), 5, $ns); ?>				</span>
+<?
+		print_rdf($this->versions->rdf($inward_item->versions[$inward_item->version_index], $base_uri), 5, $ns);
+		if ($output_inward_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$inward_item->versions[$inward_item->version_index]->content.'</span>'."\n";
+?>				</span>
 				<span resource="<?=$inward_item->versions[$inward_item->version_index]->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($inward_item->versions[$inward_item->version_index]->user, $base_uri), 5, $ns); ?>				</span>
 				<a rel="oac:hasTarget" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?><?=annotation_append($inward_item->versions[$inward_item->version_index])?>"></a>
@@ -286,7 +293,10 @@ foreach ($models as $rel):
 								<span property="dcterms:title" content="<?=htmlspecialchars($outward_item->versions[$outward_item->version_index]->title)?>">
 									<a href="<?=$base_uri.$outward_item->slug?>"><?=$outward_item->versions[$outward_item->version_index]->title?></a>
 								</span>
-<? 		print_rdf($this->versions->rdf($outward_item->versions[$outward_item->version_index], $base_uri), 8, $ns); ?>							</span>
+<?
+		print_rdf($this->versions->rdf($outward_item->versions[$outward_item->version_index], $base_uri), 8, $ns);
+		if ($output_inward_content) echo "\t\t\t\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$outward_item->versions[$outward_item->version_index]->content.'</span>'."\n";
+?>							</span>
 							<a rel="oac:hasTarget" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?><?=annotation_append($outward_item->versions[$outward_item->version_index])?>"></a>
 						</li>
 <? 					endforeach; ?>
@@ -325,7 +335,10 @@ foreach ($models as $rel):
 						<a href="<?=$base_uri.$outward_item->slug?>"><?=$outward_item->versions[$outward_item->version_index]->title?></a>
 					</span>
 					<span property="scalar:fullname"><?=@$outward_item->versions[$outward_item->version_index]->fullname?></span>
-<? 		print_rdf($this->versions->rdf($outward_item->versions[$outward_item->version_index]), 5, $ns); ?>				</span>
+<?
+		print_rdf($this->versions->rdf($outward_item->versions[$outward_item->version_index]), 5, $ns);
+		if ($output_outward_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$outward_item->versions[$outward_item->version_index]->content.'</span>'."\n";
+?>				</span>
 				<span resource="<?=$outward_item->versions[$outward_item->version_index]->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($outward_item->versions[$outward_item->version_index]->user, $base_uri), 5, $ns); ?>				</span>
 			</li>
@@ -336,7 +349,9 @@ foreach ($models as $rel):
 	endif;
 endforeach;
 
-if (!empty($has_references)): ?>
+if (!empty($has_references)):
+	$output_references_content = (true===$this->config->item('output_rel_node_content')||@in_array('references',$this->config->item('output_rel_node_content'))) ? true : false;
+?>
 	<section>
 		<h1>This page is referenced by:</h1>
 		<ol>
@@ -351,13 +366,19 @@ if (!empty($has_references)): ?>
 						<a href="<?=$base_uri.$reference_item->slug?>"><?=$reference_item->versions[$reference_item->version_index]->title?></a>
 					</span>
 					<a rel="dcterms:isVersionOf" href="<?=$base_uri.$reference_item->slug?>"></a>
-<? 		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns); ?>				</span>
+<?
+		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns);
+		if ($output_references_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$reference_item->versions[$reference_item->version_index]->content.'</span>'."\n";
+?>				</span>
 			</li>
 <? 		endforeach; ?>
 		</ol>
 	</section>
 <? endif; ?>
-<? if (!empty($reference_of)): ?>
+<?
+if (!empty($reference_of)):
+	$output_reference_content = (true===$this->config->item('output_rel_node_content')||@in_array('reference',$this->config->item('output_rel_node_content'))) ? true : false;
+?>
 	<section>
 		<h1>This page references:</h1>
 		<ol class="reference_of">
@@ -372,7 +393,10 @@ if (!empty($has_references)): ?>
 						<a href="<?=$base_uri.$reference_item->slug?>"><?=$reference_item->versions[$reference_item->version_index]->title?></a>
 					</span>
 					<a rel="dcterms:isVersionOf" href="<?=$base_uri.$reference_item->slug?>"></a>
-<? 		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns); ?>				</span>
+<?
+		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns);
+		if ($output_reference_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$reference_item->versions[$reference_item->version_index]->content.'</span>'."\n";
+?>				</span>
 			</li>
 <? 		endforeach; ?>
 		</ol>
