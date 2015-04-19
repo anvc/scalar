@@ -1085,6 +1085,7 @@
 				for ( prop in currentNode.current.auxProperties ) {
 					for ( i in currentNode.current.auxProperties[ prop ] ) {
 						value = currentNode.current.auxProperties[ prop ][ i ];
+						if (-1!=value.indexOf('://')) value = '<a href="'+value+'">'+value+'</a>';
 						table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
 						count++;
 					}

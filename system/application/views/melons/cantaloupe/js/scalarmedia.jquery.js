@@ -258,18 +258,13 @@
 				}
 			});
 			var table = $( '<table></table>' ).appendTo( metadataPane );
-
 			// basic Scalar properties
-			table.append('<tr><td>Title</td><td>'+node.getDisplayTitle()+'</td></tr>');
-			table.append('<tr><td>Scalar url</td><td><a href="'+node.url+'">'+node.url+'</a></td></tr>');
-			table.append('<tr><td>Version number</td><td>'+node.current.number+'</td></tr>');
-			table.append('<tr><td>Created</td><td>'+node.current.created+'</td></tr>');
-			table.append('<tr><td>Content type</td><td>'+node.current.mediaSource.contentType+' ('+node.current.mediaSource.name+')</td></tr>');
-			table.append('<tr><td>Source file</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a></td></tr>');
-
-			// API links
-			table.append('<tr><td>Raw</td><td><a href="'+node.url+'.rdf">RDF</a>, <a href="'+node.url+'.json">JSON</a></td></tr>');
-
+			table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
+			table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
+			table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
+			if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+node.current.description+'</td></tr>');
+			if (null!=node.current.source) table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
+			if (null!=node.current.sourceLocation) table.append('<tr><td>dcterms:sourceLocation</td><td><a href="'+node.current.sourceLocation+'">'+node.current.sourceLocation+'</a></td></tr>');
 			// auxiliary properties
 			for ( prop in node.current.auxProperties ) {
 				for ( i in node.current.auxProperties[ prop ] ) {
@@ -277,6 +272,8 @@
 					table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
 				}
 			}
+			// API links
+			table.append('<tr><td colspan="2" align="center">View as <a href="'+node.url+'.rdfxml">RDF-XML</a> or <a href="'+node.url+'.rdfjson">RDF-JSON</a></td></tr>');
 			if (!foundAuxContent) {
 				element.find('.media_metadata').show();
 				metadataTab.addClass('select');
