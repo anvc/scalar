@@ -2664,7 +2664,7 @@ ScalarModel.prototype.getNodesWithProperty = function(property, value, sort) {
 			
 				case 'scalarType':
 				if (value == 'reply') value = 'comment'; // internally called 'reply', colloquially called 'comment'; handle both
-				if (node.scalarTypes[value]) results.push(node);
+				if ( node.scalarTypes[value] != null ) results.push(node);
 				break;
 				
 				case 'dominantScalarType':
@@ -2672,11 +2672,11 @@ ScalarModel.prototype.getNodesWithProperty = function(property, value, sort) {
 				break;
 				
 				case 'mediaSource':
-				if (node.scalarTypes.media && (node.current.mediaSource.name == value)) results.push(node);
+				if (( node.scalarTypes.media != null ) && (node.current.mediaSource.name == value)) results.push(node);
 				break;
 				
 				case 'contentType':
-				if (node.scalarTypes.media && (node.current.mediaSource.contentType == value)) results.push(node);
+				if (( node.scalarTypes.media != null ) && (node.current.mediaSource.contentType == value)) results.push(node);
 				break;
 				
 				default:
@@ -3114,11 +3114,9 @@ ScalarNode.prototype.hasScalarType = function(typeName) {
  */
 ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages) {
 
-	var i;
-	var n;
-	var relation;
-	var relations = [];
-	var results = [];
+	var i, n, relation,
+		relations = [],
+		results = [];
 	
 	if (includeNonPages == null) includeNonPages = false;
 	
@@ -3133,32 +3131,28 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 		}
 	}*/
 	
-	switch (direction) {
-	
-		case 'incoming':
+	if (( direction == "incoming" ) || ( direction == "both" )) {
 		n = this.incomingRelations.length;
 		for (i=0; i<n; i++) {
 			relation = this.incomingRelations[i];
-			if (relation.type.id == type) {
+			if (( relation.type.id == type ) || ( type == null )) {
 				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
 					relations.push(relation);
 				}
 			}
 		}
-		break;
+	}
 		
-		case 'outgoing':
+	if (( direction == "outgoing" ) || ( direction == "both" )) {
 		n = this.outgoingRelations.length;
 		for (i=0; i<n; i++) {
 			relation = this.outgoingRelations[i];
-			if (relation.type.id == type) {
+			if (( relation.type.id == type ) || ( type == null )) {
 				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
 					relations.push(relation);
 				}
 			}
 		}
-		break;
-	
 	}
 	
 	relations.sort(function(a,b) {
@@ -3168,16 +3162,12 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 	
 	n = relations.length;
 	for (i=0; i<n; i++) {
-		switch (direction) {
-		
-			case 'incoming':
+		relation = relations[ i ];
+		if ( relation.body != this ) {
 			results.push(relations[i].body);
-			break;
-			
-			case 'outgoing':
+		}
+		if ( relation.target != this ) {
 			results.push(relations[i].target);
-			break;
-			
 		}
 	}
 	
@@ -3195,16 +3185,12 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
  */
 ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPages) {
 
-	var i;
-	var n;
-	var relation;
-	var results = [];
+	var i, n, relation,
+		results = [];
 	
 	if (includeNonPages == null) includeNonPages = false;
 	
-	switch (direction) {
-	
-		case 'incoming':
+	if (( direction == "incoming" ) || ( direction == "both" )) {
 		n = this.incomingRelations.length;
 		for (i=0; i<n; i++) {
 			relation = this.incomingRelations[i];
@@ -3214,9 +3200,9 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 				}
 			}
 		}
-		break;
+	}
 		
-		case 'outgoing':
+	if (( direction == "outgoing" ) || ( direction == "both" )) {
 		n = this.outgoingRelations.length;
 		for (i=0; i<n; i++) {
 			relation = this.outgoingRelations[i];
@@ -3226,8 +3212,6 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 				}
 			}
 		}
-		break;
-	
 	}
 	
 	n = results.length;
