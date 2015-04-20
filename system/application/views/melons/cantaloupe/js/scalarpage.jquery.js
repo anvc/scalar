@@ -1110,7 +1110,7 @@
 					var well = collapsible.find( ".well" );
 					well.append( table );
 
-					$( ".relationships" ).eq( 0 ).before( metadata );
+					$( 'article > span[property="sioc:content"]' ).after( metadata );
 
 				}
 
