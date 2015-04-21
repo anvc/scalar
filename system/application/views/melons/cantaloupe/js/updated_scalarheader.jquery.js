@@ -98,12 +98,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                          '<ul class="nav navbar-nav" id="ScalarHeaderMenuLeft">'+
                                             '<li class="visible-xs">'+
                                                 '<a href="'+base.get_param(addTemplateToURL( title_link.attr("href"), 'cantaloupe'))+'" class="headerIcon" id="homeLink">'+
-                                                    '<span class="visible-xs">Home Page</span>'+
+                                                    '<span class="visible-xs">Home page</span>'+
                                                 '</a>'+
                                             '</li>'+
                                             '<li class="dropdown mainMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
-                                                    '<span class="visible-xs">Table of Contents</span>'+
+                                                    '<span class="visible-xs">Table of contents</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu mainMenuDropdown" role="menu">'+
                                                     '<div class="close"><span class="menuIcon closeIcon"></span></div>'+
@@ -176,7 +176,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         '<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight">'+
                                             '<li class="" id="ScalarHeaderMenuSearch">'+
                                                 '<a class="headerIcon" id="searchIcon" title="Search button. Click to open search field.">'+
-                                                    '<span class="visible-xs">Search Book</span>'+
+                                                    '<span class="visible-xs">Search book</span>'+
                                                 '</a>'+
                                             '</li>'+
                                             '<li id="ScalarHeaderMenuSearchForm">'+
@@ -252,7 +252,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         '</ul>'+
                                     '</div>'+
                                 '</div>';
-            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of Contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"></button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
+            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"></button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
             base.mobileTOCMenu.find('.close_menu, header>a').click(function(e){
                 $('#mobileMainMenuSubmenus').removeClass('active');
                 $('.mainMenuDropdown, #ScalarHeaderMenu').css({
