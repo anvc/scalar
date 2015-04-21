@@ -737,7 +737,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var path_of = node.getRelatedNodes('path', 'outgoing');
                     
                         var features = node.getRelatedNodes('referee', 'outgoing');
-                        var tag_of = node.getRelatedNodes('tag', 'outgoing');
+                        var tag_of = node.getRelatedNodes('tag', 'incoming');
                         var annotates = node.getRelatedNodes('annotation', 'outgoing');
                         var comments_on = node.getRelatedNodes('comment', 'outgoing');
                         
