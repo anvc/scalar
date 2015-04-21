@@ -1180,12 +1180,12 @@
 
 			var viewType;
 			var extension = scalarapi.getFileExtension( window.location.href );
-			var extensionAsNum = parseInt( extension );
+			var version = scalarapi.getVersionExtension( window.location.href );
 
-			if (( extension == '' ) || !isNaN( extensionAsNum ) ) {
+			if (( extension == '' ) || ( version != '' )) {
 				viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
-				if ( extensionAsNum ) {
-					$( 'h1[property="dcterms:title"]' ).append( ' (Version' + extensionAsNum + ')' );
+				if ( version != '' ) {
+					$( 'h1[property="dcterms:title"]' ).append( ' (Version ' + parseInt( version ) + ')' );
 				}
 			} else {
 				viewType = extension;

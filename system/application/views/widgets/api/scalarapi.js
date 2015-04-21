@@ -680,6 +680,23 @@ ScalarAPI.prototype.getFileExtension = function(uri) {
 	if (ext.charAt(ext.length - 1) == '#') ext = ext.substr(0, ext.length - 1);
 	return ext;
 }	
+
+/**
+ * Returns the version extension of the specified uri.
+ *
+ * @return	The uri's version extension, if any.
+ */
+ScalarAPI.prototype.getVersionExtension = function(uri) {	
+	var array = uri.split('?');
+	uri = array[0];
+	var basename = this.basename(uri);
+	array = basename.split( '.' );
+	if ( array.length == 1 ) return '';
+	var arrayB = array[ array.length - 1 ].split( '#' );
+	var ext = arrayB[ 0 ];
+	if (ext != parseInt(ext)) return '';
+	return ext;
+}	
 	
 /**
  * Removes HTML markup from the specified string.
@@ -2739,7 +2756,7 @@ ScalarModel.prototype.getBookNode = function() {
  * @return				The current page node.
  */
 ScalarModel.prototype.getCurrentPageNode = function() {
-	return this.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];
+	return this.nodesByURL[unescape(scalarapi.stripVersion(scalarapi.stripAllExtensions(document.location.href)))];
 }
 
 /**
