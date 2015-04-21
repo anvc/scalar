@@ -257,7 +257,7 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	}
 	if (!url) return;
 
-	// Seperate seek hash if present
+	// Separate seek hash if present
 
 	var annotation_url = null;
 	var uri_components = url.split('#');
@@ -365,7 +365,7 @@ $(window).ready(function() {
 
 				// fallback method for determining the book URL; will fail if URL structure is non-standard
 				if ( scalarapi.model.urlPrefix == null ) {
-					scalarapi.setBook( document.location.href );
+					scalarapi.model.urlPrefix = $( 'link[id="parent"]' ).attr( "href" );
 				}
 
 				// use scalarapi to parse the JSON
