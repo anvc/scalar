@@ -76,7 +76,7 @@
 			options = $.fn.scalardashboardtable('set_hide_columns', options);
 			window['scalarapi'] = new ScalarAPI();
 			options.scalarapi = window['scalarapi'];
-			options.scalarapi.setBook(options.book_uri);
+			options.scalarapi.model.urlPrefix = options.book_uri;
 			options.callee = 'paginate';
 
 			return this.each(function() {
@@ -96,7 +96,7 @@
 			options = $.fn.scalardashboardtable('set_hide_columns', options);
 			window['scalarapi'] = new ScalarAPI();
 			options.scalarapi = window['scalarapi'];
-			options.scalarapi.setBook(options.book_uri);
+			options.scalarapi.model.urlPrefix = options.book_uri;
 			options.callee = 'search';
 
 			return this.each(function() {
