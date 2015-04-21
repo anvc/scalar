@@ -3,12 +3,12 @@
 	cursor: pointer;
 }
 a.headerIcon{
-	height: 50px;
-	width: 50px;
+	height: 5rem;
+	width: 5rem;
 	text-align: center;
 	font-size: 24px;
 	background-position: center center;
-	background-size: 30px;
+	background-size: 3rem;
 	background-repeat: no-repeat;
 }
 .menuIcon{
@@ -67,10 +67,10 @@ a.headerIcon{
 	width: 22px;
 }
 .navbar.hypothesis_active{
-	padding-right: 40px;
+	padding-right: 4rem;
 }
 .annotator-frame .annotator-toolbar{
-	top: 60px;
+	top: 6rem;
 }
 .navbar .close, #mobileMainMenuSubmenus .close{
 	position: absolute;
@@ -82,7 +82,7 @@ a.headerIcon{
 	z-index: 100;
 	outline: 0;
 	height: 22px;
-	line-height: 0px;
+	line-height: 0;
 }
 
 .navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon{
@@ -227,7 +227,7 @@ a.headerIcon{
 }
 
 .navbar .dropdown-menu .dropdown-menu li{
-	margin: 0 10px 10px 10px;
+	margin: 0 1rem 1rem 1rem;
 }
 .navbar .dropdown-menu .dropdown-menu li:last-child{
 	margin-bottom: 0;
@@ -256,7 +256,7 @@ a.headerIcon{
 }
 #ScalarHeaderMenuSearchForm{
 	background-color: #353535;
-	height: 50px;
+	height: 5rem;
 }
 .navbar .title_wrapper{
 	font-size: 13px;
@@ -268,7 +268,7 @@ a.headerIcon{
 	display: block;
 	margin-top: 0;
 	margin-bottom: 0;
-	line-height: 50px;
+	line-height: 5rem;
 }
 .navbar .title_wrapper>a{
 	color: #fff;
@@ -306,7 +306,7 @@ a.headerIcon{
 }
 
 #navMenu ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
-	width: 300px;
+	width: 30rem;
 	margin: 0;
 }
 
@@ -355,7 +355,7 @@ a.headerIcon{
 }
 .tocMenu .expandedPage .relationships ol.tags>li>a:first-child:before {
     content: '\25CF';
-    line-height: 22px;
+    line-height: 4rem;
 	color: #b3b3b3;
 	position: absolute;
 	left: .5rem;
@@ -432,9 +432,9 @@ a.headerIcon{
 .navbar .mainMenuDropdown li.static>a{
 	display: block;
 	width: auto;
-	margin-right: 0px;
+	margin-right: 0;
 	padding-left: 3.5rem;
-	padding-right: 0px;
+	padding-right: 0;
 }
 .mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
 	right: 0rem;
@@ -575,8 +575,8 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 }
 i.loader{
 	display: block;
-	height: 30px;
-	width: 30px;
+	height: 3rem;
+	width: 3rem;
 	margin: 0 auto;
 	background: url(../images/header_loader.gif) no-repeat;
 	background-position: center center;
@@ -597,17 +597,20 @@ i.loader{
 		-moz-transition: -moz-transform .25s;
 	    transition: transform .25s;
 
-		transform : translatey(0px);
-		-webkit-transform : translatey(0px);
-		-moz-transform : translatey(0px);
+		transform : translatey(0);
+		-webkit-transform : translatey(0);
+		-moz-transform : translatey(0);
 	}
-	#scalarheader.short{transform : translatey(-40px);
-		-webkit-transform : translatey(-40px);
-		-moz-transform : translatey(-40px);
+	#scalarheader.short{
+		transform : translatey(-4rem);
+		-webkit-transform : translatey(-4rem);
+		-moz-transform : translatey(-4rem);
 	}
 }
 @media (max-width: 767px){
-
+	.tocMenu .expandedPage .links {
+		margin: 1rem 0 1rem;
+	}
 	.navbar.hypothesis_active{
 		padding-right: 0;
 	}
@@ -620,7 +623,7 @@ i.loader{
 		width: 100%;
 		text-align: left;
 		font-size: 1.2rem;
-		background-position: 10px center;
+		background-position: 1rem center;
 		display: block;
 		padding-left: 3rem;
 		line-height: 3rem;
@@ -630,10 +633,10 @@ i.loader{
 		margin: 0;
 	}
 	.nav ul.dropdown-menu>li.dropdown>a.dropdown-toggle:after{
-		right: 20px;
+		right: 2rem;
 	}
 	.navbar .open .dropdown-menu>li>a.dropdown-toggle, .navbar .open .dropdown-menu>li a, #mobileMainMenuSubmenus li a {
-		line-height: 40px;
+		line-height: 3rem;
 		font-size: 1.2rem;
 		font-weight: normal;
 	}
@@ -645,10 +648,10 @@ i.loader{
 	}
 	#ScalarHeaderMenuSearchForm{
 		display: none;
-		height: 70px;
+		height: 7rem;
 	}
 	.navbar #ScalarHeaderMenuSearchForm .navbar-form{
-		padding: 20px 30px 10px;
+		padding: 2rem 3rem 1rem;
 		margin-top: 0;
 		margin-bottom: 0;
 	}
@@ -676,7 +679,7 @@ i.loader{
 		background-color: #444;
 		color: #ccc;
 		position: fixed;
-		top: 50px;
+		top: 5rem;
 		bottom: 0;
 		width: 100%;
 		z-index: 1000;
@@ -692,31 +695,41 @@ i.loader{
 		width: auto;
 	}
 	#mobileMainMenuSubmenus li,.navbar-nav li.mainMenu.open ul.mainMenuDropdown>li li, #navMenu ul li, .mainMenuDropdown .dropdown-menu li, #ScalarHeaderMenuUserList li{
-		min-height: 40px;
+		min-height: 3rem;
 		margin-bottom: .5rem;
 	}
 	#mobileMainMenuSubmenus .expandedPage{
 		width: 100%;
-		bottom: 0px;
-		border: 0px;
+		bottom: 0;
+		border: 0;
 	}
-	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol>li>a:first-child:before{
-		line-height: 40px;
+	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol.tags>li>a:first-child:before{
+		line-height: 3rem;
 	}
-	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a, .tocMenu .expandedPage .relationships ol>li>a{
+	.tocMenu .expandedPage .relationships ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol.tags>li>a:first-child:before{
+		line-height: 3rem;
+		text-align: left;
+	}
+	.tocMenu .expandedPage .relationships ol>li>a{
+		right: 1rem;
+		margin-left: .5rem;
+  		padding-left: 3rem;
+	}
+	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a{
 		  right: 2rem;
 		  margin-left: 1rem;
 	}
+
 	.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
-		min-height: 40px;
-		width: 40px;
+		min-height: 3rem;
+		width: 3rem;
 	}
 	.navbar .rightArrowIcon, #mobileMainMenuSubmenus .rightArrowIcon{
 		  background-image: url(../images/menu_arrow_icon.png);
-		  height: 4rem;
+		  height: 3rem;
 		  background-size: 22px;
 		  padding: 0;
-		  width: 4rem;
+		  width: 3rem;
 	}
 
 	#ScalarHeaderMenu{
@@ -726,18 +739,18 @@ i.loader{
 	    overflow: auto;
 	}
 	#ScalarHeaderMenu .mainMenuDropdown{
-		border-right: 0px;
+		border-right: 0;
 	}
 	#mobileMainMenuSubmenus .expandedPage{
 		overflow-y: auto;
-		border-right: 0px;
-		bottom: 50px;
+		border-right: 0;
+		bottom: 5rem;
 		padding: 0;
 	}
 	#mobileMainMenuSubmenus footer{
 		position: absolute;
-		bottom: 50px;
-		height: 50px;
+		bottom: 5rem;
+		height: 5rem;
 		width: 100%;
   		z-index: 1000;
 	}
@@ -748,10 +761,10 @@ i.loader{
 	}
 	#mobileMainMenuSubmenus footer .back{
 		position: absolute;
-		left: 0px;
-		top: 0px;
-		bottom: 0px;
-		width: 50px;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 5rem;
 		background-image: url(../images/back_icon.png);
 		background-repeat: no-repeat;
 		background-position: center;
@@ -759,27 +772,33 @@ i.loader{
 	}
 	#mobileMainMenuSubmenus footer .close_menu{
 		width: 100%;
-		height: 50px;
-		padding: 0 0 0 5rem;
+		height: 5rem;
+		padding: 0;
+	}
+	.tocMenu .expandedPage .description {
+	  padding: 0 1rem;
+	}
+	.navbar li a.headerIcon>span{
+		text-transform: none;
 	}
 	.navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon {
 	  background-image: url(../images/menu_close_icon.png);
 	  background-size: 4rem;
 	  height: 5rem;
 	  width: 5rem;
-	  margin-right: 0em;
+	  margin-right: 0;
 	}
 	#mobileMainMenuSubmenus{
 		display: block;
 		position: fixed;
-		top: 50px;
-		padding-top: 50px;
-		left: 0px;
-		right: 0px;
-		bottom: 0px;
+		top: 5rem;
+		padding-top: 5rem;
+		left: 0;
+		right: 0;
+		bottom: 0;
 		z-index: 9999;
-		margin: 0px;
-		padding-bottom: 50px;
+		margin: 0;
+		padding-bottom: 5rem;
 
 		overflow-x: hidden;
 
@@ -793,17 +812,20 @@ i.loader{
 	}
 	#mobileMainMenuSubmenus .toc header{
 		position: absolute;
-		top: 0px;
-		left: 0px;
-		right: 0px;
-		height: 50px;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 5rem;
 	}
 	#mobileMainMenuSubmenus header .headerIcon{
-		
+		background-color: #353535;
+		color: white;
+		outline: 0;
+		text-decoration: none;
 		width: 100%;
 		text-align: left;
 		font-size: 1.2rem;
-		background-position: 10px center;
+		background-position: 1rem center;
 		display: block;
 		padding-left: 3rem;
 		line-height: 3rem;
@@ -812,20 +834,18 @@ i.loader{
 		padding: 1rem 0 1rem 4rem;
 		margin: 0;
 		text-align: left;
-		background-color: #444;
-		color: #ccc;
 		z-index: 1000;
 		border-top: 1px solid rgb(16, 16, 16);
-		box-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px 0px inset;
+		box-shadow: rgba(255, 255, 255, 0.0980392) 0 1px 0 0 inset;
+	}
+	#mobileMainMenuSubmenus header .headerIcon>span{
+		padding-left: 9px;
+	}
+	.tocMenu .expandedPage {
+	  background-color: #333;
 	}
 	.mainMenuDropdown .header, .mainMenuDropdown .close{
 		display: none;
-	}
-	#mobileMainMenuSubmenus header .headerIcon:hover{
-		background-color: #353535;
-		color: white;
-		outline: 0;
-		text-decoration: none;
 	}
 	#mobileMainMenuSubmenus.active{
 
@@ -850,30 +870,30 @@ i.loader{
 
 	#mobileMainMenuSubmenus footer button{
 		background-color: #006793;
-		border-radius: 0px;
+		border-radius: 0;
 		color: #fff;
-		outline: 0px;
+		outline: 0;
 	}
 	#mobileMainMenuSubmenus footer button:hover, #mobileMainMenuSubmenus footer button:active{
 		background-color: #000;
 		color: #fff
 	}
 	.nav ul.dropdown-menu li.dropdown.right ul.dropdown-menu{
-		right: 0px;
-		margin-right: 0px;
+		right: 0;
+		margin-right: 0;
 		width: auto;
-		margin-left: 0px;
-		border: 0px;
+		margin-left: 0;
+		border: 0;
 	}
 	.navbar-inverse .navbar-nav .open .dropdown-menu>li.dropdown.open>a.dropdown-toggle, li.dropdown.open>a.dropdown-toggle{
 		background-color: #006793;
-		border-radius: 0px;
+		border-radius: 0;
 		color: #fff;
-		outline: 0px;
+		outline: 0;
 	}
 	.tocMenu .expandedPage .relationships strong{
 		color: #fff;
-		padding-left: 3.2rem
+		padding-left: 1rem
 	}
 	.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand {
 	  margin-right: 1rem;
@@ -885,7 +905,7 @@ i.loader{
 	  padding: .5rem 1rem 1rem;
 	}
 	.tocMenu .expandedPage .relationships ol {
-	  padding: .5rem;
+	  padding: 1rem;
 	}
 	.navbar .mainMenuDropdown li.static {
 	  padding: 0 1rem;

@@ -98,12 +98,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                          '<ul class="nav navbar-nav" id="ScalarHeaderMenuLeft">'+
                                             '<li class="visible-xs">'+
                                                 '<a href="'+base.get_param(addTemplateToURL( title_link.attr("href"), 'cantaloupe'))+'" class="headerIcon" id="homeLink">'+
-                                                    '<span class="visible-xs">Home page</span>'+
+                                                    '<span class="visible-xs">Home Page</span>'+
                                                 '</a>'+
                                             '</li>'+
                                             '<li class="dropdown mainMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
-                                                    '<span class="visible-xs">Table of contents</span>'+
+                                                    '<span class="visible-xs">Table of Contents</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu mainMenuDropdown" role="menu">'+
                                                     '<div class="close"><span class="menuIcon closeIcon"></span></div>'+
@@ -176,7 +176,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         '<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight">'+
                                             '<li class="" id="ScalarHeaderMenuSearch">'+
                                                 '<a class="headerIcon" id="searchIcon" title="Search button. Click to open search field.">'+
-                                                    '<span class="visible-xs">Search book</span>'+
+                                                    '<span class="visible-xs">Search Book</span>'+
                                                 '</a>'+
                                             '</li>'+
                                             '<li id="ScalarHeaderMenuSearchForm">'+
@@ -252,7 +252,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         '</ul>'+
                                     '</div>'+
                                 '</div>';
-            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"></button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
+            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of Contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"></button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
             base.mobileTOCMenu.find('.close_menu, header>a').click(function(e){
                 $('#mobileMainMenuSubmenus').removeClass('active');
                 $('.mainMenuDropdown, #ScalarHeaderMenu').css({
@@ -718,7 +718,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 var handleRequest = function(){ //this function is scoped instantaneously to this anonymous function, so we can pass it to loadPage while preserving the container reference
                         var relationships = container.find('.relationships');
                         
-                        var groupList = $('<ol></ol>');
                         var splitList = $('<ul></ul>');
 
                         var node = scalarapi.getNode(container.data('slug'));
@@ -731,7 +730,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var comments_on = node.getRelatedNodes('comment', 'outgoing');
                         
                         if(path_of.length > 0){
-                            var newList = $('<li><strong>Paths</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                            var newList = $('<li><strong>Contents</strong><ol></ol></li>').appendTo(splitList).find('ol');
                             for(var i in path_of){
                                 var relNode = path_of[i];
                                 var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'">'+relNode.current.title+'</a></li>')
@@ -744,7 +743,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.append(nodeItem);
                             }
                         }
 
@@ -762,7 +761,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.append(nodeItem);
 
                             }
                         }
@@ -781,7 +780,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.append(nodeItem);
 
                             }
                         }
@@ -800,13 +799,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.append(nodeItem);
 
                             }
                         }
 
                         if(comments_on.length > 0){
-                            var newList = $('<li><strong>Comments On</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                            var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
                             for(var i in comments_on){
                                 var relNode = comments_on[i];
                                 var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'">'+relNode.current.title+'</a></li>')
@@ -819,19 +818,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 
                                 $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
-                                newList.add(groupList).append(nodeItem);
+                                newList.append(nodeItem);
                             }
                         }
-                        if(splitList.children('li').length > 1){
-                            //Use the split list;
+                        if(splitList.children('li').length > 0){
                             relationships.html(splitList);
-                            groupList.remove();
-                        }else if(groupList.children('li').length > 0){
-                            relationships.html('<strong>Contents</strong>').append(groupList);
-                            splitList.remove();
                         }else{
                             relationships.html('');
-                            groupList.remove();
                             splitList.remove();
                         }
                         relationships.find('.expand').click(function(e){
