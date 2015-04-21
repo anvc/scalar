@@ -476,7 +476,7 @@
 						span.hide();
 						link = span.find( 'span[property="dcterms:title"] > a' );
 						node = scalarapi.getNode( link.attr( 'href' ) );
-						if ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) ) {
+						if (( page.containingPathNodes.length > 0 ) && ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) )) {
 							section = $('<section class="relationships"></section').appendTo('article');
 							links = $( '<p></p>' );
 							links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
@@ -1319,7 +1319,7 @@
 
 						var marker,
 							markers = [],
-							foundError = false;;
+							foundError = false;
 
 						// if the current page has the spatial property, then
 						if ( currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
