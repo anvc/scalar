@@ -527,6 +527,7 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 	padding: 3rem 0 0 0;
 	background-color: #353535;
 	border-right: 2px solid #070707;
+	overflow: auto;
 }
 .tocMenu .expandedPage.is_parent h2.title:after, .tocMenu .expandedPage.is_current h2.title:after{
 	content: 'Contains the current page';
@@ -550,6 +551,11 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a:active{
 	margin: 1rem 0 3rem;
 	padding: .5rem 3rem 3rem;
 	border-bottom: 1px solid #444;
+}
+
+.tocMenu .noRelations .links{
+	padding: .5rem 3rem 0;
+	border-bottom: 0;
 }
 .tocMenu .expandedPage .description_more_link{
 	float: right;
