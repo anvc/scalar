@@ -355,7 +355,7 @@ a.headerIcon{
 }
 .tocMenu .expandedPage .relationships ol.tags>li>a:first-child:before {
     content: '\25CF';
-    line-height: 4rem;
+    line-height: 22px;
 	color: #b3b3b3;
 	position: absolute;
 	left: .5rem;

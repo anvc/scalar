@@ -704,8 +704,18 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             if(container.find('.description').triggerHandler("isTruncated")){
             	container.find('.description_more_link').click(function(){
-            		container.find('.description').trigger('destroy').css('max-height','none');
-            		container.find('.description_more_link').remove();
+                    if($(this).text() == 'more'){
+                        container.find('.description').trigger('destroy').css('max-height','none');
+                        container.find('.description_more_link').text('less');
+                    }else{
+                        container.find('.description').css('max-height','6.5rem')
+                                                      .dotdotdot({
+                                                            ellipsis: '…',
+                                                            watch: "window"
+                                                      });
+                        container.find('.description_more_link').text('more');
+                    }
+            		
             	});
             }else{
 				container.find('.description_more_link').remove();            	
