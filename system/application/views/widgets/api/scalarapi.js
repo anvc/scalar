@@ -917,13 +917,16 @@ ScalarAPI.prototype.getQueryVars = function(uri) {
  * @return	The de-versioned uri.
  */
 ScalarAPI.prototype.stripVersion = function(versionURI) {
-	var temp = versionURI.split('.');
-	if (temp.length > 1) {
-		temp.splice(temp.length - 1, 1);
-		var uri = temp.join('.');
-		return uri;
+	var tempA = versionURI.split( '/' );
+	var segment = tempA[ tempA.length - 1];
+	var tempB = segment.split('.');
+	if (tempB.length > 1) {
+		tempB.splice(tempB.length - 1, 1);
+		segment = tempB.join('.');
 	}
-	return versionURI;
+	tempA[ tempA.length - 1 ] = segment;
+	var uri = tempA.join( '/' );
+	return uri;
 }
  
 ScalarAPI.prototype.basename = function(path, suffix) {
