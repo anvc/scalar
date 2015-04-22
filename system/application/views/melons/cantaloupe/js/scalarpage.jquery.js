@@ -1114,6 +1114,38 @@
 
 				}
 
+			},
+
+			addExternalLinks: function() {
+				$( 'article > span[property="sioc:content"]' ).find( 'a' ).each( function() {
+
+					var base_url = $('link#parent').attr('href');
+					var $link = $(this);
+					var resource = $link.attr('resource');
+					var href = $link.attr('href');
+					var target = ('undefined'!=typeof($link.attr('target'))) ? $link.attr('target') : null;
+					var url = $( this ).attr( "href" );
+
+					// Link without resource=""	(external or internal)	
+					if ('undefined'!=typeof(href) && base_url) {
+						console.log('a');
+						if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
+						console.log('b');
+							$link.click(function() {  // Open with previous header
+								if (target) {  // E.g., open in a new page
+									$link.click();
+									return false;
+								} else {
+									var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
+									document.location.href=link_to;
+									return false;
+								}
+							});
+						} else {  
+							// Internal link	
+						} 
+					}
+				});
 			}
 
 		};
@@ -1188,7 +1220,13 @@
 					$( 'h1[property="dcterms:title"]' ).append( ' (Version ' + parseInt( version ) + ')' );
 				}
 			} else {
-				viewType = extension;
+				// handle case where the extension specifies a version number to be viewed
+				// in the versions view, i.e. "2.versions"
+				if (( extension.indexOf( "versions" ) != -1 ) && ( extension != "versions" )) {
+					viewType = "versions";
+				} else {
+					viewType = extension;					
+				}
 			}
 
 			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' )) {
@@ -1249,6 +1287,7 @@
 				page.addRelationshipNavigation( true, true, true, true, false );
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
+				page.addExternalLinks();
 				page.addColophon();
 				page.addNotes();
 				break;
@@ -1266,6 +1305,7 @@
 				page.addRelationshipNavigation( false, true, false, true, false );
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
+				page.addExternalLinks();
 				page.addColophon();
 				page.addNotes();
 				break;
@@ -1286,6 +1326,7 @@
 				page.addRelationshipNavigation( true, true, true, true, false );
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
+				page.addExternalLinks();
 				page.addColophon();
 				page.addNotes();
 				break;
@@ -1469,6 +1510,7 @@
 					page.addRelationshipNavigation( true, true, true, true, false );
 					page.addIncomingComments();
 					page.addAdditionalMetadata();
+					page.addExternalLinks();
 					page.addNotes();
 				}
 				page.addColophon();
