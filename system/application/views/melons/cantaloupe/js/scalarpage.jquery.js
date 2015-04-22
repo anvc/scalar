@@ -1128,9 +1128,7 @@
 
 					// Link without resource=""	(external or internal)	
 					if ('undefined'!=typeof(href) && base_url) {
-						console.log('a');
 						if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
-						console.log('b');
 							$link.click(function() {  // Open with previous header
 								if (target) {  // E.g., open in a new page
 									$link.click();
