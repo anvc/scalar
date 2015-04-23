@@ -111,8 +111,26 @@ $(window).ready(function() {
 			return true;
 		}
 	});
-	
-	// $('#title').autocomplete({source:titleSuggestions});
+	var url_segments = window.location.pathname.split('/');
+	var book_slug = url_segments[url_segments.length-2];
+	var currentURL = window.location.href.substring(0,window.location.href.indexOf(book_slug));
+	$.getJSON(currentURL+"system/api/get_onomy",
+		{
+			name:"title_suggest",
+			slug:book_slug
+		},
+		function(data) {
+			var suggestions = [];
+			for(key in data) {
+				if (key.match(/term\/[0-9]*$/g) != null) {
+					if("http://www.w3.org/2004/02/skos/core#prefLabel" in data[key]) {
+						suggestions.push(data[key]["http://www.w3.org/2004/02/skos/core#prefLabel"][0].value);
+					}
+				}
+			}
+			$('#title').autocomplete({source:suggestions});
+		});
+
 	// If  the type is passed via GET
 	checkTypeSelect();  
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {

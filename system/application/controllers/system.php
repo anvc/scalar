@@ -740,6 +740,19 @@ class System extends MY_Controller {
 				$this->data['content'] = $this->users->get_all();
 				for ($j = 0; $j < count($this->data['content']); $j++) unset($this->data['content'][$j]->password);
 				break;
+			case 'get_onomy':
+				if(isset($_REQUEST['name']) && isset($_REQUEST['slug'])) {
+					$onomy_name = $_REQUEST['name'];
+					$slug = $_REQUEST['slug'];
+					$file_path = FCPATH.$slug."/onomy/".$onomy_name.".json";
+					if(file_exists($file_path)) {
+						echo file_get_contents($file_path);
+					} else {
+						echo '{"error":"No such file"}';
+					}
+				}
+				exit;
+				break;
 			case 'user_search':
 				if (!$this->data['login']->is_logged_in) $this->kickout();
 				$fullname =@ $_REQUEST['fullname'];
