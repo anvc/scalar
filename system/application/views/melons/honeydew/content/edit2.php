@@ -3,13 +3,14 @@
 <?$this->template->add_css('system/application/views/widgets/ckeditor/custom.css')?>
 <?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
 <?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
-<?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
+<?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/content/edit.js')?>
 <?$this->template->add_js('system/application/views/widgets/ckeditor/ckeditor.js')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/farbtastic/farbtastic.js')?>
 <?$this->template->add_js('system/application/views/widgets/spinner/spin.min.js')?>
