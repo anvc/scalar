@@ -21,11 +21,12 @@
 .content_selector .wrapper .content .even {}
 .content_selector .wrapper .content .odd {}
 .content_selector .wrapper .content .thumb {max-height:22px; max-width:30px; cursor:pointer;}
+.content_selector .wrapper .content .anno {height:22px; cursor:pointer;}
 .content_selector .wrapper .footer {position:absolute; bottom:0px; left:0px; right:0px; text-align:left; height:42px;}
 .content_selector .wrapper .footer .generic_button {float:right; margin:10px;}
 .content_selector .wrapper .footer .msg {margin:11px 0px 0px 10px; float:left; color:#555555;}
 .tt {
-	position:absolute; top:0px; left:0px; background-color:#eeeeee; width:300px; border:solid 1px #bbbbbb; z-index:9;
-	padding:0; margin:0;
+	position:absolute; top:0px; left:0px; background-color:#eeeeee; width:280px; border:solid 1px #bbbbbb; z-index:9;
+	padding:10px; margin:0;
 }
-.tt img {margin:10px; width:280px;}
+.tt img {width:280px;}
