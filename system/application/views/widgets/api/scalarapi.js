@@ -918,6 +918,9 @@ ScalarAPI.prototype.getQueryVars = function(uri) {
  */
 ScalarAPI.prototype.stripVersion = function(versionURI) {
 	var tempA = versionURI.split( '/' );
+	if ( tempA[ tempA.length - 1 ] == '' ) {
+		tempA.pop();
+	}
 	var segment = tempA[ tempA.length - 1];
 	var tempB = segment.split('.');
 	if (tempB.length > 1) {
@@ -3073,13 +3076,18 @@ ScalarNode.prototype.getSortTitle = function() {
 /**
  * Returns the dominant Scalar type for the node.
  *
+ * @param {String} preferredType	If the node has two types, which one to prefer (overriding the dominant)
  * @return	A scalar type object representing the dominant type.
  */
-ScalarNode.prototype.getDominantScalarType = function() {
+ScalarNode.prototype.getDominantScalarType = function( preferredType ) {
 
 	var dominantType = '';
 
 	for (var prop in this.scalarTypes) {
+
+		if ( prop == preferredType ) {
+			return ( this.scalarTypes[ prop ] );
+		}
 	
 		switch (prop) {
 		
@@ -3214,7 +3222,7 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 		n = this.incomingRelations.length;
 		for (i=0; i<n; i++) {
 			relation = this.incomingRelations[i];
-			if (relation.type.id == type) {
+			if ((relation.type.id == type) || (type == null)) {
 				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
 					results.push(relation);
 				}
@@ -3226,7 +3234,7 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 		n = this.outgoingRelations.length;
 		for (i=0; i<n; i++) {
 			relation = this.outgoingRelations[i];
-			if (relation.type.id == type) {
+			if ((relation.type.id == type) || (type == null)) {
 				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
 					results.push(relation);
 				}
