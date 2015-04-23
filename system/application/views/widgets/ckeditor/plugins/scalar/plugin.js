@@ -1,6 +1,6 @@
 CKEDITOR._scalar = {
 	selectcontent : function(options) {
-		alert('Clicked: '+options.msg);
+		$('<div></div>').content_selector(options);
 	},
 	external_link : function(editor, options) {
 		CKEDITOR.dialog.add( 'external_link', function(editor) {
@@ -79,32 +79,32 @@ CKEDITOR.plugins.add( 'scalar', {
     init: function( editor ) {
         editor.addCommand( 'insertScalar1', {
             exec: function( editor ) {
-        		CKEDITOR._scalar.selectcontent({msg:'Insert Scalar Media Link'});
+        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,msg:'Insert Scalar Media Link'});
             }
         });
         editor.addCommand( 'insertScalar2', {
             exec: function( editor ) {
-        		CKEDITOR._scalar.selectcontent({msg:'Insert Inline Scalar Media Link'});
+        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,msg:'Insert Inline Scalar Media Link'});
             }
         });
         editor.addCommand( 'insertScalar3', {
             exec: function( editor ) {
-        		CKEDITOR._scalar.selectcontent({msg:'Insert Scalar Annotation'});
+        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,msg:'Insert Scalar Annotation'});
             }
         });     
         editor.addCommand( 'insertScalar4', {
             exec: function( editor ) {
-        		CKEDITOR._scalar.selectcontent({msg:'Insert Inline Scalar Annotation'});
+        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,msg:'Insert Inline Scalar Annotation'});
             }
         });   
         editor.addCommand( 'insertScalar5', {
             exec: function( editor ) {
-        		CKEDITOR._scalar.selectcontent({msg:'Insert Scalar Note'});
+        		CKEDITOR._scalar.selectcontent({changeable:true,msg:'Insert Inline Scalar Media Link'});
             }
         });   
         editor.addCommand( 'insertScalar6', {
             exec: function( editor ) {
-        		CKEDITOR._scalar.selectcontent({msg:'Insert Link to a Scalar Page'});
+        		CKEDITOR._scalar.selectcontent({changeable:true,msg:'Insert Link to a Scalar Page'});
             }
         });     
         editor.addCommand( 'insertScalar7', {  // External link
