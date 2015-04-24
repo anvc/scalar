@@ -741,12 +741,18 @@ class System extends MY_Controller {
 				for ($j = 0; $j < count($this->data['content']); $j++) unset($this->data['content'][$j]->password);
 				break;
 			case 'get_onomy':
-				if(isset($_REQUEST['name']) && isset($_REQUEST['slug'])) {
-					$onomy_name = $_REQUEST['name'];
+				$result = array();
+				if(isset($_REQUEST['slug'])) {
 					$slug = $_REQUEST['slug'];
-					$file_path = FCPATH.$slug."/onomy/".$onomy_name.".json";
+					$file_path = FCPATH.$slug."/onomy/";
 					if(file_exists($file_path)) {
-						echo file_get_contents($file_path);
+						$onomies = scandir($file_path);
+						foreach($onomies as $onomy) {
+							if(pathinfo($onomy,PATHINFO_EXTENSION) == 'json') {
+								$result[] = json_decode((file_get_contents($file_path.$onomy)));								
+							}
+						}
+						echo json_encode($result);
 					} else {
 						echo '{"error":"No such file"}';
 					}
