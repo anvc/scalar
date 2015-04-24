@@ -34,7 +34,7 @@ $config['views'] = array(
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
-	'meta' => '',
+	'meta' => array('name'=>'Metadata','description'=>'<b>Display all metadata for the page.</b>','image'=>''),
 	'history' => ''
 );
 
