@@ -5,10 +5,13 @@
 			type:null,
 			changeable:true,
 			multiple:false,
+			rec:0,
+			sq:null,
 			desc_max_length: 100,
 			filename_max_length: 20,
 			data:[],
-			msg:''
+			msg:'',
+			callback:null
 	};  	
     $.fn.content_selector = function(options) {
     	// Options
@@ -40,9 +43,12 @@
     		return uri.substr(0, uri.lastIndexOf('.'));
     	}
     	// Reset
-    	var reset = function() {  // TODO: for some reason defaults.data is getting set when it should only be opts.data that is
+    	var reset = function() {  // TODO: for some reason 'defaults' fields are getting set when it should only be 'opts' that is touched
     		defaults.type = null;
     		defaults.changeable = true;
+    		defaults.multiple = false;
+    		defaults.rec = 0;
+    		defaults.sq = null;
     		defaults.data = [];
     		defaults.msg = '';
     	}
@@ -58,12 +64,13 @@
     			type = opts.type;
     		}
     		opts.type = type;
-    		if ('annotation'==opts.type) get_vars.rec = 1;
+    		get_vars.rec = (opts.rec>0) ? opts.rec : 0;
+    		if (opts.sq!=null) get_vars.sq = opts.sq;
     		var url = opts.parent+'rdf/instancesof/'+type+'?format=json&'+obj_to_vars(get_vars);
     		return url;
     	};
     	// Search
-    	var isearch = function(val) {
+    	var isearch = function(val) {  // Search items already loaded
     		var $rows = $this.find('tr:not(:first)');
     		val = val.toLowerCase();
     		if (!val.length) {
@@ -76,7 +83,13 @@
     				if ($(this).text().toLowerCase().indexOf(val)!=-1) $row.show();
     			});
     		});
-    	}
+    	};
+    	var esearch = function(val) {  // Search via the API
+    		opts.type = 'content';
+    		opts.sq = val;
+    		$this.find('input[type="radio"]').prop('checked', false);
+    		go();
+    	};
     	// Initialize the interface
     	var init = function() {
     		$this.addClass('content_selector');
@@ -86,12 +99,12 @@
     		var $content = $('<div class="content"><div class="howto">Select a content type or enter a search term above</div></div>').appendTo($wrapper);
     		var $footer = $('<div class="footer"><div class="msg">'+opts.msg+'</div><a href="javascript:void(null);" class="generic_button">Cancel</a></div>').appendTo($wrapper);
     		$options.append('<form class="search_form"><input type="text" name="sq" placeholder="Search" /> <input type="submit" value="Go" />&nbsp; &nbsp; <label><input type="radio" name="type" value="content"> All</label> &nbsp;<label><input type="radio" name="type" value="composite"> Pages</label> &nbsp;<label><input type="radio" name="type" value="media"> Media</label> &nbsp;<label><input type="radio" name="type" value="path"> Paths</label> &nbsp;<label><input type="radio" name="type" value="tag"> Tags</label> &nbsp;<label><input type="radio" name="type" value="annotation"> Annotations</label> &nbsp;<label><input type="radio" name="type" value="reply"> Comments</label></form>');
-    		$footer.find('a:first').click(function() {
+    		$footer.find('a:first').click(function() {  // Cancel button
     			reset();
     			$(this).closest('.content_selector').remove();
     		});
     		$options.find('input[value="'+opts.type+'"]').prop('checked',true);
-    		if (!opts.changeable) {
+    		if (!opts.changeable) {  // Selected type is locked
     			$options.find('input[type="radio"]').prop('disabled', true);
     			$options.find('input[type="text"]').keyup(function() {
     				isearch($(this).val());
@@ -100,14 +113,15 @@
     				isearch($(this).find('input[type="text"]').val());
     				return false;
     			});    			
-    		} else {
+    		} else {  // User can select a type
     			$options.find('input[name="type"]').change(function() {
     				var val = $(this).filter(':checked').val();
     				opts.type = val;
+    				opts.sq = null;
     				go();
     			});
     			$options.submit(function() {
-    				alert('TODO');
+    				esearch($(this).find('input[type="text"]').val());
     				return false;
     			});
     		}
@@ -140,16 +154,18 @@
     			$tr.append('<td valign="top">'+filename+'</td>');
     			$tr.append('<td valign="top"><a target="_blank" class="generic_button" href="'+((url)?url:opts.data[j].uri)+'">'+((url)?'Preview':'Visit')+'</a></td>');
     		}
-    		$this.find('tr').find('a').click(function(event) {
+    		$this.find('tr').find('a').click(function(event) {  // Preview|Visit button
     			event.stopPropagation();
     			return true;
     		});
-    		if (!opts.multiple) {
+    		if (!opts.multiple) {  // Select a single row
     			$this.find('tr').click(function() {
-    				alert('row clicked');
+    				opts.callback($(this).data('node'));
+    				reset();
+    				$(this).closest('.content_selector').remove();
     			});
     		}    		
-    		$('.thumb').parent().mouseover(function() {
+    		$('.thumb').parent().mouseover(function() {  // Expand thumbnail
     			var $this = $(this).children('.thumb:first');
     			var offset = $this.offset();
     			var $div = $('<div class="tt"></div>');
@@ -161,7 +177,7 @@
     				$div.remove();
     			});
     		});
-    		$('.anno').parent().mouseover(function() {
+    		$('.anno').parent().mouseover(function() {  // Show item that is annotated
     			var $this = $(this).children('.anno:first');
     			var str = '<i>Could not find target of this annotation</i>';
     			var targets = $this.closest('tr').data('node').targets;

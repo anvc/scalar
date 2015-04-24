@@ -1,0 +1,5 @@
+.note {color:#038200; text-decoration:underline;}
+a.inline {
+	display:block; background:#cccccc; border:solid 5px #bbbbbb; height:75px; margin:0;
+	background-image:url(media.png); background-position:center center; background-repeat:no-repeat;
+}

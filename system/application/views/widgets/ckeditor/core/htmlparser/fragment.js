@@ -62,7 +62,10 @@ CKEDITOR.htmlParser.fragment = function() {
 			return false;
 
 		// Empty link is to be removed when empty but not anchor. (#7894)
-		return node.name == 'a' && node.attributes.href || CKEDITOR.dtd.$removeEmpty[ node.name ];
+		// Updated by Craig Dietrich 23 April 2015, to allow empty links
+		//return node.name == 'a' && node.attributes.href || CKEDITOR.dtd.$removeEmpty[ node.name ];
+		if (node.name=='a') return false;
+		return CKEDITOR.dtd.$removeEmpty[ node.name ];
 	}
 
 	/**
