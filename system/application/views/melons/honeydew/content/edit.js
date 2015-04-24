@@ -111,20 +111,33 @@ $(window).ready(function() {
 			return true;
 		}
 	});
-	var url_segments = window.location.pathname.split('/');
-	var book_slug = url_segments[url_segments.length-2];
-	var currentURL = window.location.href.substring(0,window.location.href.indexOf(book_slug));
-	$.getJSON(currentURL+"system/api/get_onomy",
+	
+	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
+	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
+	book_slug = book_slug.replace(/\//g,'');
+	$.getJSON(fcroot+"/system/api/get_onomy",
 		{
-			name:"title_suggest",
 			slug:book_slug
 		},
 		function(data) {
 			var suggestions = [];
-			for(key in data) {
-				if (key.match(/term\/[0-9]*$/g) != null) {
-					if("http://www.w3.org/2004/02/skos/core#prefLabel" in data[key]) {
-						suggestions.push(data[key]["http://www.w3.org/2004/02/skos/core#prefLabel"][0].value);
+			for(index in data) {
+				var taxonomy_name;
+				for(key in data[index]) {
+					if("http://purl.org/dc/terms/title" in data[index][key]) {
+						taxonomy_name = data[index][key]["http://purl.org/dc/terms/title"][0].value;
+					}
+					break;
+				}
+				for(key in data[index]) {
+					if (key.match(/term\/[0-9]*$/g) != null) {
+						if("http://www.w3.org/2004/02/skos/core#prefLabel" in data[index][key]) {
+							var term_label = data[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"][0].value;
+							suggestions.push({
+								label:term_label+" ("+taxonomy_name+")",
+								value:term_label
+							});
+						}
 					}
 				}
 			}
