@@ -1507,7 +1507,9 @@
 				if ( extension == '' ) {				
 					page.addRelationshipNavigation( true, true, true, true, false );
 					page.addIncomingComments();
-					page.addAdditionalMetadata();
+					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length == 0 ) {
+						page.addAdditionalMetadata();
+					}
 					page.addExternalLinks();
 					page.addNotes();
 				}

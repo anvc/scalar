@@ -95,11 +95,6 @@ endif;
 	<!-- Edit content -->
 	<tr id="edit_content" class="type_composite">
 		<td colspan="2">
-			<?
-				if ($book->template == 'cantaloupe') {
-					echo('<p>This book is set up to use an experimental new reading interface for Scalar which is still in development and may not implement all of Scalar\'s features. If you wish to view any page in the standard interface, simply add <code>?m=honeydew</code> to the end of its URL and reload the page. <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback">Feedback</a> is welcomed.</p>');
-				}
-			?>
 			<!-- <div class="wysiwyg_options"><span><a href="javascript:;" class="textarea_tab wysiwyg_handle_selected to_wysiwyg_handle" title="In the editor, view a visual representation of the HTML">Visual</a>&nbsp;<a href="javascript:;" class="textarea_tab to_html_handle" title="In the editor, view the source HTML">HTML</a></span><br clear="both"></div> -->
 			<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
 			if (isset($page->version_index)):
