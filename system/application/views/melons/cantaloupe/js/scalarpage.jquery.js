@@ -95,6 +95,11 @@
 				var bodyCopyWidth = temp.width();
 				temp.remove();
 
+				temp = $( '<div class="small_dim"></div>') ;
+				temp.appendTo( '.page' );
+				var minTabWidth = parseInt( temp.width() );
+				temp.remove();
+
 				//console.log( "size: " + mediaelement.model.options.size + " media: " + mediaWidth + " page w/ margins: " + pageWidthMinusMargins + " page: " + pageWidth );
 
 				// 'full' and 'native' sized media get special sizing treatment
@@ -126,6 +131,12 @@
 					} else if (isInline && mediaelement.model.element.parents('.body_copy').length == 0) {
 						link.data('slot').wrap('<div class="body_copy"></div>');
 					}
+
+					// If the media is smaller than the "small" size, remove tabs below media
+					if ( mediaWidth < minTabWidth) {
+						mediaelement.model.options.solo = true;
+					}
+
 
 					if(isFullWidth) {
 						// full width native elements should have no body_copy wrapping them
