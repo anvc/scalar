@@ -93,6 +93,18 @@
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li class="index_link static"><a>Index</a></li>'+
+                                                    /*
+                                                    '<li class="dropdown static">'+  
+                                                    '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Visualizations</a>'+
+                                                        '<ul class="dropdown-menu" role="menu">'+
+                                                            '<li class="vis_link static" data-vistype="visindex"><a>Grid</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="visradial"><a>Radial</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="vispath"><a>Path</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="vismedia"><a>Media</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="vistag"><a>Tag</a></li>'+
+                                                        '</ul>'+
+                                                    '</li>'+
+                                                    */
                                                     '<li role="presentation" class="static divider"></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/works/guide">Scalar User\'s Guide</a></li>'+
                                                     '<li class="static"><a href="'+index_url+'">More Scalar Projects</a></li>'+
@@ -121,6 +133,18 @@
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li class="index_link static"><a>Index</a></li>'+
+                                                    /*
+                                                    '<li class="dropdown static">'+  
+                                                    '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Visualizations</a>'+
+                                                        '<ul class="dropdown-menu" role="menu">'+
+                                                            '<li class="vis_link static" data-vistype="visindex"><a>Grid</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="visradial"><a>Radial</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="vispath"><a>Path</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="vismedia"><a>Media</a></li>'+
+                                                            '<li class="vis_link static" data-vistype="vistag"><a>Tag</a></li>'+
+                                                        '</ul>'+
+                                                    '</li>'+
+                                                    */
                                                     '<li role="presentation" class="static divider"></li>'+
                                                     '<li class="static"><a href="http://scalar.usc.edu/works/guide">Scalar User\'s Guide</a></li>'+
                                                     '<li class="static"><a href="'+index_url+'">More Scalar Projects</a></li>'+
@@ -256,6 +280,67 @@
             base.$el.find('.index_link').click(function(e){
                 $('#scalarheader.navbar').data('scalarheader').index.data('plugin_scalarindex').showIndex();
             });
+
+            //Handle the visualizations...
+            /*var visElement = $( '<div></div>' ).prependTo( 'body' );
+            base.vis = visElement.scalarvis( { modal: true, local: false } );
+            base.$el.find('.vis_link').click(function(e){
+
+                var options = {
+                    modal: true
+                }
+
+                switch ( $( this ).attr( 'data-vistype' ) ) {
+
+                    case "vis":
+                    case "visindex":
+                    options.content = 'all';
+                    options.relations = 'all';
+                    options.format = 'grid';
+                    break;
+
+                    case "visradial":
+                    options.content = 'all';
+                    options.relations = 'all';
+                    options.format = 'radial';
+                    break;
+
+                    case "vispath":
+                    options.content = 'path';
+                    options.relations = 'path';
+                    options.format = 'tree';
+                    break;
+
+                    case "vismedia":
+                    options.content = 'media';
+                    options.relations = 'referee';
+                    options.format = 'force-directed';
+                    break;
+
+                    case "vistag":
+                    options.content = 'tag';
+                    options.relations = 'none';
+                    options.format = 'force-directed';
+                    break;
+
+                }
+
+                $( '#modalVisualization' ).data( 'scalarvis' ).showModal( options );
+
+            });*/
+
+            /*var options = {
+                parent_uri: scalarapi.model.urlPrefix,
+                default_tab: viewType,
+                minimal: true
+            };
+            if ( viewType == "vis" ) {
+                options.default_tab = "visindex";
+            }
+            var visualization = $(  '<div id="#visualization"></div>' );
+            $( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
+            $( 'article > header' ).after( visualization );
+            visualization.scalarvis( options );*/  
 
             base.book_id = $('link#book_id').attr('href');
 
