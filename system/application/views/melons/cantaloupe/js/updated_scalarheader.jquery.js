@@ -430,13 +430,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 return false;
             });
 
-            $( '#ScalarHeaderHelp>a' ).click(function(e) {
-                base.help.data( 'plugin_scalarhelp' ).toggleHelp();
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            });
-
             $( '#ScalarHeaderVisualization>a' ).click(function(e) {
                 if (state != ViewState.Navigating) {
                     setState(ViewState.Navigating);
