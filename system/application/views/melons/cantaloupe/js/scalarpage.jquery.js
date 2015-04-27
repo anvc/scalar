@@ -847,7 +847,10 @@
 
 						case "splash":
 						case "book_splash":
-						// splash views don't get media
+						case "meta":
+						case "versions":
+						case "history":
+						// these views don't get media
 						break;
 
 						default:
@@ -1342,6 +1345,7 @@
 
 				default:
 			  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+			  	var okToAddExtras = true;
 
 			  	switch ( viewType ) {
 
@@ -1499,23 +1503,26 @@
 					case "versions":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2>Version editor</h2>' );
 					$( '.versions-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					okToAddExtras = false;
 					break;
 
 					case "meta":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Metadata</h2>' );
 					$( '.meta-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					okToAddExtras = false;
 					break;
 
 					case "history":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Version history</h2>' );
 					$( '.history-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					okToAddExtras = false;
 					break;
 
 			  	}
 
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
-				if ( extension == '' ) {				
+				if ( okToAddExtras ) {				
 					page.addRelationshipNavigation( true, true, true, true, false );
 					page.addIncomingComments();
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length == 0 ) {
