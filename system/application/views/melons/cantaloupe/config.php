@@ -34,7 +34,7 @@ $config['views'] = array(
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
-	'meta' => array('name'=>'Metadata','description'=>'<b>Display all metadata for the page.</b>','image'=>''),
+	'meta' => array('name'=>'Metadata','description'=>'<b>Display all metadata for the page.</b> The Metadata view displays a table containing all of the metadata for the page, including all of its prior versions.','image'=>'views/melons/honeydew/images/view_metadata.gif'),
 	'history' => ''
 );
 
