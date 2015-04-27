@@ -120,15 +120,16 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<li class="bottom">'+
                                                         '<ul>'+
                                                             '<li class="index_link static dropdown">'+
-                                                                '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
-                                                                '<ul class="dropdown-menu" role="menu">'+
+                                                                '<a role="button">Index <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                                //'<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                                /*'<ul class="dropdown-menu" role="menu">'+
                                                                     '<li><a><span class="menuIcon" id="pathIcon"></span> Paths</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="pageIcon"></span> Pages</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="tagIcon"></span> Tags</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="annotationIcon"></span> Annotations</a></li>'+
                                                                     '<li><a><span class="menuIcon" id="commentIcon"></span> Comments</a></li>'+
-                                                                '</ul>'+
+                                                                '</ul>'+*/
                                                             '</li>'+
                                                         '</ul>'+
                                                     '</li>'+
@@ -605,7 +606,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var description = node.current.description;
 
-            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><a class="description_more_link">more</a><div class="links"><a class="details">Details</a><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
+            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><a class="description_more_link">more</a><div class="links"><!--<a class="details">Details</a>--><a class="visit" href="'+base.get_param(node.url)+'">Visit</a></div><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
             
             if(!base.usingMobileView){
                 container.prepend('<div class="close"><span class="menuIcon closeIcon"></span></div>');

@@ -308,7 +308,7 @@ a.headerIcon{
 	font-weight: bold;
 }
 
-#navMenu ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
+#navMenu>ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
 	width: 30rem;
 	margin: 0;
 }
@@ -492,6 +492,9 @@ a.headerIcon{
 .nav ul.dropdown-menu li.dropdown.open ul.dropdown-menu{
 	display: block;
 }
+.nav ul.dropdown-menu ul.dropdown-menu{
+  margin-top: -3rem;
+}
 .nav ul.dropdown-menu li.dropdown.left ul.dropdown-menu{
 	right: 100%;
 }
@@ -591,15 +594,12 @@ i.loader{
 	background-position: center center;
 }
 
-	.navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
-		padding: 1.5rem 0 .5rem 0;
-	}
-	.navbar ul.dropdown-menu>li, .navbar-nav .open .dropdown-menu>li{
-		padding: 0 1.5rem
-	}
-	.navbar-nav .open .dropdown-menu>li>a, .navbar-nav .open .dropdown-menu .dropdown-header{
-		padding: .5rem;
-	}
+.navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
+	padding: 3rem 0;
+}
+.navbar ul.dropdown-menu>li, .navbar-nav .open .dropdown-menu>li{
+	padding: 0 3rem;
+}
 @media (min-width: 768px){
 	#scalarheader{
 		-webkit-transition: -webkit-transform .25s;
