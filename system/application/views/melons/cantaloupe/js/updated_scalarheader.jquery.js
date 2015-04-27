@@ -110,7 +110,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<li class="header"><h2>Table of Contents</h2></li>'+
                                                     '<li class="top hidden-xs">'+
                                                         '<ul>'+
-                                                            '<li class="home_link static"><a href="'+base.get_param(home_url)+'">Home <span class="menuIcon rightArrowIcon pull-right"></span></a></li>'+
+                                                            '<li class="home_link static"><a href="'+base.get_param(home_url)+'"><span class="menuIcon rightArrowIcon pull-right"></span>Home</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                     '<li class="body">'+
@@ -120,7 +120,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<li class="bottom">'+
                                                         '<ul>'+
                                                             '<li class="index_link static dropdown">'+
-                                                                '<a role="button">Index <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                                '<a role="button"><span class="menuIcon rightArrowIcon pull-right"></span>Index</a>'+
                                                                 //'<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                                 /*'<ul class="dropdown-menu" role="menu">'+
                                                                     '<li><a><span class="menuIcon" id="pathIcon"></span> Paths</a></li>'+
@@ -142,7 +142,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li id="recent_menu" class="dropdown">'+
-                                                        '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="recentIcon"></span> Recent <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                        '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="recentIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Recent</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><i class="loader"></i></li>'+
                                                         '</ul>'+
@@ -153,7 +153,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</ul>'+
                                                     '</li>'+*/
                                                     '<li id="vis_menu" class="dropdown">'+
-                                                        '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span> Visualizations <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                        '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><a><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
                                                             '<li><a><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
@@ -163,7 +163,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</ul>'+
                                                     '</li>'+
                                                     '<li id="scalar_menu" class="dropdown">'+
-                                                        '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="scalarIcon"></span> Scalar <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                        '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="scalarIcon"></span> Scalar</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><a href="http://scalar.usc.edu/">About Scalar</a></li>'+
                                                             '<li><a href="http://scalar.usc.edu/works/guide">User\'s Guide</a></li>'+
@@ -207,7 +207,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Affiliated archives <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false"<span class="menuIcon rightArrowIcon pull-right"></span>>Affiliated archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive') + '">Cuban Theater Digital Archive</a></li>'+
@@ -220,7 +220,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false">Other archives <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Other archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/getty_museum_collection') + '">Getty Museum Collection</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/prezi') + '">Prezi</a></li>'+
