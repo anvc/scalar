@@ -533,6 +533,7 @@ class Book extends MY_Controller {
 		if (!count($index)) throw new Exception('Problem getting page index');
 		$this->data['page'] = $index[0];
 		unset($index);
+		reset($this->data['page']->versions);
 		$this->data['page']->version_index = key($this->data['page']->versions);
 		$this->data['hide_edit_bar'] = true;
 
@@ -556,6 +557,7 @@ class Book extends MY_Controller {
 		if (!count($index)) throw new Exception('Problem getting page index');
 		$this->data['page'] = $index[0];
 		unset($index);
+		reset($this->data['page']->versions);
 		$this->data['page']->version_index = key($this->data['page']->versions);
 
 		foreach ($this->data['page']->versions as $key => $version) {
