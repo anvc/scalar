@@ -1,4 +1,7 @@
 /*New CSS*/
+body.in_menu{
+	overflow: hidden !important;
+}
 .navbar a, #mobileMainMenuSubmenus a{
 	cursor: pointer;
 }

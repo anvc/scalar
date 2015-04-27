@@ -290,6 +290,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.$el.append(navbar_html).find('.title_wrapper').prepend(title_link.clone());
             base.$el.find('#ScalarHeaderMenuLeft .mainMenu').on('hide.bs.dropdown',function(){
                 if(base.usingMobileView || $('#mainMenuSubmenus .expandedPage').length == 0){
+                    $('body').removeClass('in_menu');
                     $(this).find('li.active').removeClass('active');
                     return true;
                 }else{
@@ -610,6 +611,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 container.prepend('<div class="close"><span class="menuIcon closeIcon"></span></div>');
                 var max_height = $(window).height()-50;
                 container.css('max-height',max_height+'px');
+                $('body').addClass('in_menu');
             }
             if(typeof base.currentNode !== 'undefined' && container.data('slug') == base.currentNode.slug){
                 container.addClass('is_current');
