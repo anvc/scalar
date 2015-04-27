@@ -403,7 +403,7 @@ a.headerIcon{
 .navbar li.mainMenu>ul.dropdown-menu>li>ul{
 	list-style-type: none;
 }
-.navbar ul.dropdown-menu li>a{
+.navbar ul.dropdown-menu li>a, .tocMenu li>a{
 	color: #b3b3b3;
 }
 .navbar ul.dropdown-menu li a:hover,
