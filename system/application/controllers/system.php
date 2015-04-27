@@ -742,22 +742,21 @@ class System extends MY_Controller {
 				break;
 			case 'get_onomy':
 				$result = array();
-				if(isset($_REQUEST['slug'])) {
+				if (isset($_REQUEST['slug'])) {
 					$slug = $_REQUEST['slug'];
 					$file_path = FCPATH.$slug."/onomy/";
-					if(file_exists($file_path)) {
+					if (file_exists($file_path)) {
 						$onomies = scandir($file_path);
-						foreach($onomies as $onomy) {
-							if(pathinfo($onomy,PATHINFO_EXTENSION) == 'json') {
-								$result[] = json_decode((file_get_contents($file_path.$onomy)));								
+						foreach ($onomies as $onomy) {
+							if ('json'==pathinfo($onomy,PATHINFO_EXTENSION)) {
+								$result[] = json_decode((file_get_contents($file_path.$onomy)));
 							}
 						}
-						echo json_encode($result);
+						$this->data['content'] = json_encode($result);
 					} else {
-						echo '{"error":"No such file"}';
+						$this->data['content'] = '{"error":"No such file"}';
 					}
 				}
-				exit;
 				break;
 			case 'user_search':
 				if (!$this->data['login']->is_logged_in) $this->kickout();
