@@ -207,7 +207,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false"<span class="menuIcon rightArrowIcon pull-right"></span>>Affiliated archives</a>'+
+                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Affiliated archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive') + '">Cuban Theater Digital Archive</a></li>'+

@@ -493,6 +493,9 @@ a.headerIcon{
 	display: block;
 }
 .nav ul.dropdown-menu ul.dropdown-menu{
+  margin-top: -1.5rem;
+}
+.mainMenu ul.dropdown-menu ul.dropdown-menu{
   margin-top: -3rem;
 }
 .nav ul.dropdown-menu li.dropdown.left ul.dropdown-menu{
@@ -595,10 +598,10 @@ i.loader{
 }
 
 .navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
-	padding: 3rem 0;
+	padding: 1.5rem 0;
 }
 .navbar ul.dropdown-menu>li, .navbar-nav .open .dropdown-menu>li{
-	padding: 0 3rem;
+	padding: 0 1.5rem;
 }
 @media (min-width: 768px){
 	#scalarheader{
@@ -614,6 +617,10 @@ i.loader{
 		transform : translatey(-4rem);
 		-webkit-transform : translatey(-4rem);
 		-moz-transform : translatey(-4rem);
+	}
+
+	#userMenu li:last-child, #ScalarHeaderImport li:last-child, #navMenu li:last-child{
+		margin-bottom: 0;
 	}
 }
 @media (max-width: 767px){
