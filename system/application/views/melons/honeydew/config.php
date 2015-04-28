@@ -8,8 +8,8 @@ $config['melon_meta'] = array(
     'is_selectable' => true,
 	'slug'=>'honeydew',
 	'name'=>'Scalar 1.0',
-	'description'=>'Scalar\'s first interface that has been used for a number of publications',
-	'thumb_app_path'=>'views/melons/honeydew/images/generic_media_thumb.jpg'
+	'description'=>'The original Scalar interface.',
+	'thumb_app_path'=>'views/melons/honeydew/images/scalar_honeydew_thumb.png'
 );
 
 // Stylesheets
