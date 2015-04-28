@@ -1,5 +1,4 @@
 <?
-//$this->template->add_css(path_from_file(__FILE__).'content.css');
 $path_to_icon = $app_root.'views/melons/cantaloupe/images/scalar_logo_small.png';
 $css = <<<EOT
 @import url(http://fonts.googleapis.com/css?family=Lato:900,400);
@@ -44,5 +43,18 @@ $this->template->add_css($css, 'embed');
 </div>
 
 <div class="external-page">
-	<iframe src="<?=$link?>"></iframe>
+	<iframe id="external-iframe" onload="checkCross()" src="<?=$link?>"></iframe>
 </div>
+<script>
+function checkCross()
+{
+	var url = "<?=$link?>";
+	var iframe = document.getElementById("external-iframe");
+	try
+	{
+		var loc = iframe.contentDocument.location.href;
+	} catch(e) {
+		document.location = url;
+	}
+}
+</script>
