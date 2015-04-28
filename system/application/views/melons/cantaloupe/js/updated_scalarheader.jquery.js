@@ -120,7 +120,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<li class="bottom">'+
                                                         '<ul>'+
                                                             '<li class="index_link static dropdown">'+
-                                                                '<a role="button"><span class="menuIcon rightArrowIcon pull-right"></span>Index</a>'+
+                                                                '<a role="button">Index</a>'+
                                                                 //'<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Index <span class="menuIcon rightArrowIcon pull-right"></span></a>'+
                                                                 /*'<ul class="dropdown-menu" role="menu">'+
                                                                     '<li><a><span class="menuIcon" id="pathIcon"></span> Paths</a></li>'+
