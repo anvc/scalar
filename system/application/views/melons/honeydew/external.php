@@ -21,5 +21,18 @@ if (isset($book->stylesheet) && !empty($book->stylesheet)) $this->template->add_
 </div>
 
 <div class="outside-page">
-	<iframe src="<?=$link?>"></iframe>
+	<iframe id="external-iframe" onload="checkCross()" src="<?=$link?>"></iframe>
 </div>
+<script>
+function checkCross()
+{
+	var url = "<?=$link?>";
+	var iframe = document.getElementById("external-iframe");
+	try
+	{
+		var loc = iframe.contentDocument.location.href;
+	} catch(e) {
+		document.location = url;
+	}
+}
+</script>
