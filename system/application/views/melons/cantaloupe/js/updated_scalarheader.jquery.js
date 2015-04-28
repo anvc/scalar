@@ -1011,7 +1011,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }else{
                 max_width = a.offset().left;
             }
-            var max_height = ($(window).height() - li.offset().top)+$(window).scrollTop();
+            var max_height = ($(window).height() - (li.offset().top-15))+$(window).scrollTop();
             if(!base.usingMobileView){
                 dropdown.css({
                     'max-height':max_height+'px',
