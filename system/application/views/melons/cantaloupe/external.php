@@ -22,9 +22,28 @@ body, div {margin:0;}
 .external-page {position:absolute; top:54px; left:0px; right:0px; bottom:0px;}
 .external-page iframe {width:100%; height:100%; margin:0; padding:0; border:0; overflow:auto; background:white;}
 EOT;
-// Place Cantaloupe stylesheet(s) here for default look and feel (e.g., the header)?
 $this->template->add_css($css, 'embed');
 ?>
+<script>
+function checkCross() {
+	var url = "<?=$link?>";
+	var iframe = document.getElementById("external-iframe");
+	var seen_page_before = document.getElementById('seen_page_before');
+	try {
+		var loc = iframe.contentDocument.location.href;
+		console.log(loc);
+	} catch(e) {
+		if ('1'==seen_page_before.value) {
+			seen_page_before.value = '0';
+			if (document.referrer.length) document.location = document.referrer;
+		} else {
+			seen_page_before.value = '1';
+			document.location = url;
+		}
+	}
+}
+</script>
+<form style="display:none;"><input type="hidden" id="seen_page_before" name="seen_page_before" value="0" /></form>
 <div class="external-header">
 	<div class="external-back-link">
 		<a href="<?=$prev?>" class="path_nav_previous_btn"></a>
@@ -45,16 +64,3 @@ $this->template->add_css($css, 'embed');
 <div class="external-page">
 	<iframe id="external-iframe" onload="checkCross()" src="<?=$link?>"></iframe>
 </div>
-<script>
-function checkCross()
-{
-	var url = "<?=$link?>";
-	var iframe = document.getElementById("external-iframe");
-	try
-	{
-		var loc = iframe.contentDocument.location.href;
-	} catch(e) {
-		document.location = url;
-	}
-}
-</script>
