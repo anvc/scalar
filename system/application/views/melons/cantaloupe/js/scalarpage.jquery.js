@@ -437,12 +437,20 @@
 
 			addRelationshipNavigation: function( showLists, showParentNav, showChildNav, showLateralNav, isCentered ) {
 
-				var button, href, section, nodes, node, link, links,
+				var button, href, section, nodes, node, link, links, selfType,
 					currentNode = scalarapi.model.getCurrentPageNode(),
 					pathOptionCount = 0,
 					containingPathOptionCount = 0,
 					queryVars = scalarapi.getQueryVars( document.location.href ),
 					foundQueryPath = ( queryVars.path != null );
+
+				if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Composite' ) {
+					selfType = 'page';
+				} else if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media' ) {
+					selfType = 'media';
+				} else {
+					selfType = 'content';
+				}
 
 				// path back/continue buttons
 				if (( page.containingPaths.length > 0 ) && showLateralNav ) {
@@ -534,12 +542,7 @@
 
 						if ( showLists ) {
 
-							// only say what kind of contents these are if both kinds are present
-							if ( $('.tag_of').length > 0 ) {
-								section.find('h1').text('Path contents');
-							} else {
-								section.find('h1').text('Contents');
-							}	
+							section.find('h1').text('Contents');
 
 							section.find( '[property="dcterms:title"] > a' ).each( function() {
 								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
@@ -573,14 +576,7 @@
 					if ($(this).parent().is('section')) {
 						section = $(this).parent();
 						section.addClass('relationships');
-
-						// only say what kind of contents these are if both kinds are present
-						if ( $('.path_of').length > 0 ) {
-							section.find('h1').text('Tag contents');
-						} else {
-							section.find('h1').text('Contents');
-						}
-
+						section.find('h1').text('This page is a tag of:');
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
 						section.show();
 
@@ -605,7 +601,7 @@
 					if ($(this).parent().is('section')) {
 						section = $(this).parent();
 						section.addClass('relationships');
-						section.find('h1').text('Comments on');
+						section.find('h1').text('This ' + selfType + ' comments on:');
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
 						section.show();
 					}
@@ -647,7 +643,7 @@
 				// show items that tag this page
 				if ( showParentNav ) {
 					var hasTags = $( ".has_tags" );
-					hasTags.siblings( "h1" ).text( "Tagged by" );
+					hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
 					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
 					hasTags.parent().wrap( '<section class="relationships"></section>' );
 					hasTags.unwrap();		
