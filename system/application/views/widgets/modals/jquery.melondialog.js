@@ -6,10 +6,10 @@
 			modal: true,
 			urlroot: '',
 			selected: null,
-			title: 'Choose a Scalar interface',
-			msg: '<small>This can be changed at any time. However, there are differences between interfaces that might cause alignment problems when transitioning previously authored content.</small>',
-			width: 600,
-			height: 500
+			title: 'Choose a Scalar reader interface',
+			msg: '<small>We\'ve updated Scalar\'s reader interface with a clean new design and lots of new features. This "2.0" interface will soon become the default for all new Scalar books, so we encourage you to give it a try now!<br><br>You can switch your existing Scalar books back and forth between the two interfaces as much as you like, though some reformatting may be required.</small>',
+			width: 800,
+			height: 700
 	};  	
 	
     $.fn.melondialog = function(options) {
@@ -38,10 +38,9 @@
     	for (var j = 0; j < opts.data.length; j++) {
     		if (!opts.data[j]['meta']['is_selectable']) continue;
     		var $cell = $('<td></td>').appendTo($table.find('tr'));
-    		$('<p>'+opts.data[j]['meta']['name']+'</p>').appendTo($cell);
-    		var $img = $('<img src="'+opts.urlroot+opts.data[j]['meta']['thumb_app_path']+'" />').appendTo($cell);
+            var $radio = $('<p><input id="cb_'+j+'" type="radio" name="template" value="'+opts.data[j]['meta']['slug']+'" /><label for="cb_'+j+'"> '+opts.data[j]['meta']['name']+'</label></p>').appendTo($cell);
+   		    var $img = $('<img style="border: 1px solid #aaa;" src="'+opts.urlroot+opts.data[j]['meta']['thumb_app_path']+'" />').appendTo($cell);
     		$('<p><small>'+opts.data[j]['meta']['description']+'</small></p>').appendTo($cell);
-    		var $radio = $('<p><small><input id="cb_'+j+'" type="radio" name="template" value="'+opts.data[j]['meta']['slug']+'" /><label for="cb_'+j+'"> Selected interface</label></small></p>').appendTo($cell);
     		if (opts.selected==opts.data[j]['meta']['slug']) $radio.find('input').prop('checked', true);
     		$img.click(function() {
     			$(this).parent().find('input[type="radio"]').prop('checked', true);

@@ -8,8 +8,8 @@ $config['melon_meta'] = array(
 	'is_selectable' => false,
 	'slug'=>'cantaloupe',
 	'name'=>'Scalar 2.0',
-	'description'=>'Evolutionary Scalar interface optimized for desktop, tablet, and mobile',
-	'thumb_app_path'=>'views/melons/honeydew/images/generic_media_thumb.jpg'
+	'description'=>'Clean design, new page layout options including splash pages and media galleries, new media sizing and placement options, mobile support, and more...',
+	'thumb_app_path'=>'views/melons/cantaloupe/images/scalar_cantaloupe_thumb.png'
 );
 
 // Stylesheets
