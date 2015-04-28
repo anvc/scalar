@@ -2331,7 +2331,7 @@ function ScalarModel(options) {
 		{property:'sourceLocation', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#sourceLocation', type:'string'},
 		{property:'urn', uri:'http://scalar.usc.edu/2012/01/scalar-ns#urn', type:'string'},
 		{property:'sortNumber', uri:'http://scalar.usc.edu/2012/01/scalar-ns#sort_number', type:'int'},
-		{property:'continueTo', uri:'http://scalar.usc.edu/2012/01/scalar-ns#continue_to_content_id', type:'int'},
+		{property:'continueTo', uri:'http://scalar.usc.edu/2012/01/scalar-ns#continue_to', type:'int'},
 		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},
 		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},
 		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'},
