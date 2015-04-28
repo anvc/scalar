@@ -1,5 +1,5 @@
 <?
-$path_to_icon = $app_root.'views/melons/cantaloupe/images/scalar_logo_small.png';
+$path_to_icon = $app_root.'views/melons/cantaloupe/images/scalar_logo_white.png';
 $css = <<<EOT
 @import url(http://fonts.googleapis.com/css?family=Lato:900,400);
 html, body {height:100%;}
