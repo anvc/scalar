@@ -32,7 +32,7 @@ h2 {
     margin-bottom: 2.4rem;
 }
 
-h3, .relationships h1 {
+h3 {
     font-size: 2.1rem;
     line-height: 2.4rem;
     margin-top: 2.4rem;
@@ -71,7 +71,7 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 
 .blackout { position: absolute; width: 100%; height: 100%; background-color: black; }
 
-.modal-content { border-radius: 0px; }
+.modal-content { border-radius: 0; }
 
 .saved {background:#deeedc; border:solid 1px #cccccc; padding:8px 10px 8px 10px; margin-bottom:6px;}
 .saved > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
@@ -264,13 +264,18 @@ li.divider-above { border-top: 1px dotted #888; }
 section { clear:both; }
 section ol,ul {margin-bottom: 1rem;}
 section.relationships {
-    margin-top: 2.4rem;
+    padding-top: 2.4rem;
 	max-width: 85.4rem;
 	clear:both;
 }
 .relationships ol,.relationships ul,.relationships p {
 	padding-left: 7.2rem;
 	padding-right: 7.2rem;
+}
+.relationships h1 {
+    font-size: 2.1rem;
+    line-height: 2.4rem;
+    margin-bottom: 1.2rem;
 }
 
 /* shows has_tags ordered lists as comma-separated inline lists */
@@ -790,6 +795,11 @@ a.nav_btn:hover {
 .modal-dialog p { margin-bottom: 1rem; margin-top: 1rem; }
 .modal-dialog h2, .dialog h3, .dialog h4, .dialog h5 { display: inline-block; padding-left: 0; padding-right: 0; margin-top: 0; margin-bottom: 0; }
 .modal-dialog h3 { margin-bottom: 1rem; }
+
+
+
+.modal-xlg { width: 90%; height: 90%; padding: 0; }
+.modal-xlg .modal-content { min-height: 90%; }
 
 /* the 'dialog' styles below will eventually be deprecated once bootstrap modal support is in place */
 .dialog {

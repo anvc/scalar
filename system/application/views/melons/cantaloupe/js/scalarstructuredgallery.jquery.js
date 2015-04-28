@@ -156,6 +156,8 @@
 					// create a block where the node's thumbnail can be displayed
 					block_head.append( '<span id="block_head_' + node.slug.replace( "/", "-" ) + '"></span>' );
 				}
+
+				$( 'section > ol.path_of' ).parent().css( 'display', 'none' );
 				
 			},
 			

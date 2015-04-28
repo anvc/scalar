@@ -64,7 +64,7 @@
 
 		$('<form role="form" class="form-inline"><div class="form-group" style="margin-right: 10px"><label class="sr-only" for="modal_keyword">Search</label><input type="text" autocomplete="off" class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword" placeholder="Enter search terms" /></div><button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button></form><br>').appendTo(this.bodyContent);
 
-		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive"></table></div>' ).appendTo( this.bodyContent );
+		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive small"></table></div>' ).appendTo( this.bodyContent );
 		$( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
 		$('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 

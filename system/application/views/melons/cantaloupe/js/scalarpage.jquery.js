@@ -34,6 +34,7 @@
 			containingPathNodes: [],
 			elementsWithIncrementedData: [],
 			pathIndex: null,
+			gallery: null,
 
 			mobileWidth: 520, // this should be set to the same value as the mobile (tiny.css) breakpoint in responsive.css
 			adaptiveMedia: 'full',
@@ -437,12 +438,20 @@
 
 			addRelationshipNavigation: function( showLists, showParentNav, showChildNav, showLateralNav, isCentered ) {
 
-				var button, href, section, nodes, node, link, links,
+				var button, href, section, nodes, node, link, links, selfType,
 					currentNode = scalarapi.model.getCurrentPageNode(),
 					pathOptionCount = 0,
 					containingPathOptionCount = 0,
 					queryVars = scalarapi.getQueryVars( document.location.href ),
 					foundQueryPath = ( queryVars.path != null );
+
+				if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Composite' ) {
+					selfType = 'page';
+				} else if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media' ) {
+					selfType = 'media';
+				} else {
+					selfType = 'content';
+				}
 
 				// path back/continue buttons
 				if (( page.containingPaths.length > 0 ) && showLateralNav ) {
@@ -466,6 +475,7 @@
 								if ( page.containingPathIndex > 0 ) {
 									links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
 								}
+
 								section.append( links );
 							}
 							pathOptionCount++;
@@ -488,13 +498,14 @@
 						link = span.find( 'span[property="dcterms:title"] > a' );
 						node = scalarapi.getNode( link.attr( 'href' ) );
 						if (( page.containingPathNodes.length > 0 ) && ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) )) {
-							section = $('<section class="relationships"></section').appendTo('article');
+							section = $('<section class="relationships"></section');
+							$( "#footer" ).before( section );
 							links = $( '<p></p>' );
 							links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
 
 							// back button
 							if ( page.containingPathIndex > 0 ) {
-								$( '#back-btn' ).remove();
+								$( '#back-btn' ).parents( 'section' ).remove(); // remove the intra-path back button and its enclosing section
 								links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
 							}
 							section.append( links );
@@ -534,12 +545,7 @@
 
 						if ( showLists ) {
 
-							// only say what kind of contents these are if both kinds are present
-							if ( $('.tag_of').length > 0 ) {
-								section.find('h1').text('Path contents');
-							} else {
-								section.find('h1').text('Contents');
-							}	
+							section.find('h1').text('Contents');
 
 							section.find( '[property="dcterms:title"] > a' ).each( function() {
 								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
@@ -573,14 +579,7 @@
 					if ($(this).parent().is('section')) {
 						section = $(this).parent();
 						section.addClass('relationships');
-
-						// only say what kind of contents these are if both kinds are present
-						if ( $('.path_of').length > 0 ) {
-							section.find('h1').text('Tag contents');
-						} else {
-							section.find('h1').text('Contents');
-						}
-
+						section.find('h1').text('This page is a tag of:');
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
 						section.show();
 
@@ -605,7 +604,7 @@
 					if ($(this).parent().is('section')) {
 						section = $(this).parent();
 						section.addClass('relationships');
-						section.find('h1').text('Comments on');
+						section.find('h1').text('This ' + selfType + ' comments on:');
 						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
 						section.show();
 					}
@@ -647,7 +646,7 @@
 				// show items that tag this page
 				if ( showParentNav ) {
 					var hasTags = $( ".has_tags" );
-					hasTags.siblings( "h1" ).text( "Tagged by" );
+					hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
 					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
 					hasTags.parent().wrap( '<section class="relationships"></section>' );
 					hasTags.unwrap();		
@@ -830,7 +829,7 @@
 							var i,node,link,
 								nodes = getChildrenOfType(currentNode, 'media');
 							$('article > header').after('<div id="gallery"></div>');
-							var gallery = $('#gallery');
+							page.gallery = $('#gallery');
 							for (i in nodes) {
 								node = nodes[i];
 								link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
@@ -855,7 +854,7 @@
 
 						default:
 						if ( viewType == 'structured_gallery' ) {
-							gallery.addMedia();
+							page.gallery.addMedia();
 						}
 						$( 'article > span[property="sioc:content"]' ).find( 'a' ).each(function() {
 
@@ -1312,7 +1311,10 @@
 
 				case 'structured_gallery':
 				page.setupScreenedBackground();
-				var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
+				//page.gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
+				var galleryElement = $('<div></div>');
+				$( 'article > span[property="sioc:content"]' ).after( galleryElement );
+				page.gallery = $.scalarstructuredgallery( galleryElement );
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( false, true, false, true, false );
 				page.addIncomingComments();
