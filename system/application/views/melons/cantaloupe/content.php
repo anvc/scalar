@@ -1,5 +1,6 @@
 <?php
-	$new_header = isset($_GET['h']) && $_GET['h']=='1';
+	//$new_header = isset($_GET['h']) && $_GET['h']=='1';
+	$new_header = true;
 ?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/reset.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/bootstrap.min.css')?>
