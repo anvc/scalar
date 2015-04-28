@@ -89,3 +89,6 @@ Template (libraries/Template.php):
 
 rdfQuery (views/arbors/HTML5_RDFa/js/jquery.rdfquery.rules-1.0.js):
 1) Replaced "elem.contents().each(function () {" with "elem.contents(':not(iframe)').each(function () {"
+
+CKEditor (views/widgets/ckeditor/.../):
+A few updates to core/htmlparser files, found by searching for 'Updated by Craig Dietrich'

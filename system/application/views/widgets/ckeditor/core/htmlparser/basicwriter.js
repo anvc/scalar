@@ -50,8 +50,10 @@ CKEDITOR.htmlParser.basicWriter = CKEDITOR.tools.createClass( {
 		 * like `<br>` or `<img>`.
 		 */
 		openTagClose: function( tagName, isSelfClose ) {
+			// Updated by Craig Dietrich 27 April 2015, to add line breaks after certain tags (instanceReady writer.setRules not working)
+			var tags = ['br'];  // Tags to add \n after
 			if ( isSelfClose )
-				this._.output.push( ' />' );
+				this._.output.push( ' />', ((tags.indexOf(tagName)!=-1)?"\n":'') );
 			else
 				this._.output.push( '>' );
 		},
@@ -83,7 +85,9 @@ CKEDITOR.htmlParser.basicWriter = CKEDITOR.tools.createClass( {
 		 * @param {String} tagName The element name for this tag.
 		 */
 		closeTag: function( tagName ) {
-			this._.output.push( '</', tagName, '>' );
+			// Updated by Craig Dietrich 27 April 2015, to add line breaks after certain tags (instanceReady writer.setRules not working)
+			var tags = ['p','div'];  // Tags to add \n after			
+			this._.output.push( '</', tagName, '>', ((tags.indexOf(tagName)!=-1)?"\n":'') );
 		},
 
 		/**
