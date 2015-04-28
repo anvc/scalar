@@ -417,14 +417,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 	                base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
                 }
             });
-
-            base.$el.on('click',function(e){
-        		var base = $('#scalarheader.navbar').data('scalarheader');
-        		if(!base.usingMobileView){
-                	e.stopPropagation();
-                }
-            })
-
+            
             $( '#ScalarHeaderHelp>a' ).click(function(e) {
                 base.help.data( 'plugin_scalarhelp' ).toggleHelp();
                 e.preventDefault();
@@ -1039,8 +1032,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 });
             });
         };
-        base.get_param = function(url){
-            if (url.indexOf('?') < 0) { url += '?h=1';} else {url += '&h=1';}
+         base.get_param = function(url){
+            //@TODO: Add non-book related Get Params back to URLs Here
+            /*
+            if (url.indexOf('?') < 0) { url += '?';}
+            url += ((scalarapi.getQuerySegment(window.location.href).length)?scalarapi.getQuerySegment(window.location.href):'');
+            */
             return url;
         }
         base.getParents = function(node,depth){
