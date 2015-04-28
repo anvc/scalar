@@ -152,6 +152,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                         '</ul>'+
                                                     '</li>'+*/
+                                                    /*
                                                     '<li id="vis_menu" class="dropdown">'+
                                                         '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
@@ -162,6 +163,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '<li><a><span class="menuIcon" id="tagIcon"></span> Tag</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
+                                                    */
                                                     '<li id="scalar_menu" class="dropdown">'+
                                                         '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="scalarIcon"></span> Scalar</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+

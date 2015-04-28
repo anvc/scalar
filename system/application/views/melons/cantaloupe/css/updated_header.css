@@ -192,21 +192,11 @@ a.headerIcon{
 	background-image: url(../images/menu_bookmark_icon_selected.png);
 }
 
-.navbar a.headerIcon>img{
-	height: 24px;
-	width: 24px;
-	vertical-align: -3px;
-}
 .navbar{
 	z-index: 1039;
 }
 .navbar li a.headerIcon{
 	outline: 0;
-}
-.navbar .dropdown-menu .divider{
-	padding: 0;
-	background-color: transparent;
-	border-top: 1px dotted #888;
 }
 .navbar, .title_wrapper{
 	-webkit-font-smoothing: antialiased;
@@ -219,7 +209,7 @@ a.headerIcon{
 .title_wrapper .book-title{
   font-weight: bold;
 }
-.navbar .open .dropdown-menu>{li>a
+.navbar .open .dropdown-menu>li>a{
 	text-overflow: ellipsis;
 	max-width: 100%;
 	overflow: hidden;
