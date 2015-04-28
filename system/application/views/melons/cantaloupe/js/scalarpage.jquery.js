@@ -34,6 +34,7 @@
 			containingPathNodes: [],
 			elementsWithIncrementedData: [],
 			pathIndex: null,
+			gallery: null,
 
 			mobileWidth: 520, // this should be set to the same value as the mobile (tiny.css) breakpoint in responsive.css
 			adaptiveMedia: 'full',
@@ -826,7 +827,7 @@
 							var i,node,link,
 								nodes = getChildrenOfType(currentNode, 'media');
 							$('article > header').after('<div id="gallery"></div>');
-							var gallery = $('#gallery');
+							page.gallery = $('#gallery');
 							for (i in nodes) {
 								node = nodes[i];
 								link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
@@ -851,7 +852,7 @@
 
 						default:
 						if ( viewType == 'structured_gallery' ) {
-							gallery.addMedia();
+							page.gallery.addMedia();
 						}
 						$( 'article > span[property="sioc:content"]' ).find( 'a' ).each(function() {
 
@@ -1308,7 +1309,10 @@
 
 				case 'structured_gallery':
 				page.setupScreenedBackground();
-				var gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
+				//page.gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
+				var galleryElement = $('<div></div>');
+				$( 'article > span[property="sioc:content"]' ).after( galleryElement );
+				page.gallery = $.scalarstructuredgallery( galleryElement );
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( false, true, false, true, false );
 				page.addIncomingComments();
