@@ -96,8 +96,8 @@
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		$('body').append($this);
     		var $options = $('<div class="options"></div>').appendTo($wrapper);
-    		var $content = $('<div class="content"><div class="howto">Select a content type or enter a search term above</div></div>').appendTo($wrapper);
-    		var $footer = $('<div class="footer"><div class="msg">'+opts.msg+'</div><a href="javascript:void(null);" class="generic_button">Cancel</a></div>').appendTo($wrapper);
+    		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search term above</div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div class="msg"></div><a href="javascript:void(null);" class="generic_button">Cancel</a></div>').appendTo($wrapper);
     		$options.append('<form class="search_form"><input type="text" name="sq" placeholder="Search" /> <input type="submit" value="Go" />&nbsp; &nbsp; <label><input type="radio" name="type" value="content"> All</label> &nbsp;<label><input type="radio" name="type" value="composite"> Pages</label> &nbsp;<label><input type="radio" name="type" value="media"> Media</label> &nbsp;<label><input type="radio" name="type" value="path"> Paths</label> &nbsp;<label><input type="radio" name="type" value="tag"> Tags</label> &nbsp;<label><input type="radio" name="type" value="annotation"> Annotations</label> &nbsp;<label><input type="radio" name="type" value="reply"> Comments</label></form>');
     		$footer.find('a:first').click(function() {  // Cancel button
     			reset();
@@ -105,6 +105,7 @@
     		});
     		$options.find('input[value="'+opts.type+'"]').prop('checked',true);
     		if (!opts.changeable) {  // Selected type is locked
+    			$options.addClass('unchangeable');
     			$options.find('input[type="radio"]').prop('disabled', true);
     			$options.find('input[type="text"]').keyup(function() {
     				isearch($(this).val());
@@ -114,6 +115,7 @@
     				return false;
     			});    			
     		} else {  // User can select a type
+    			$options.addClass('changeable');
     			$options.find('input[name="type"]').change(function() {
     				var val = $(this).filter(':checked').val();
     				opts.type = val;

@@ -5,12 +5,13 @@
 .content_selector .wrapper {position:relative; width:100%; height:100%;}
 .content_selector .wrapper .options {height:44px;}
 .content_selector .wrapper .options .search_form {padding:10px; white-space:nowrap; margin:0px;}
+.content_selector .wrapper .unchangeable label {visibility:hidden;}
 .content_selector .wrapper .content {
 	position:absolute; top:44px; left:0px; right:0px; bottom:44px; overflow:auto; 
 	border-top:solid 1px #bbbbbb; border-bottom:solid 1px #bbbbbb;
 }
 .content_selector .wrapper .content .loading {text-align:center; margin-top:50px; font-size:13px; color:red;}
-.content_selector .wrapper .content .howto {text-align:center; margin-top:50px; font-size:14px;}
+.content_selector .wrapper .content .howto {text-align:center; margin-top:50px; font-size:14px; line-height:200%;}
 .content_selector .wrapper .content > table {width:100%;}
 .content_selector .wrapper .content th:first-of-type {max-width:44px;}
 .content_selector .wrapper .content th {padding:7px 10px 7px 10px; font-size:13px; text-align:left; font-weight:bold; background-color:#dddddd;}

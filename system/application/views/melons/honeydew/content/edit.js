@@ -120,7 +120,7 @@ $(window).ready(function() {
 		},
 		function(data) {
 			var suggestions = [];
-			for(index in data) {
+			for(var index in data) {
 				var taxonomy_name;
 				for(var key in data[index]) {
 					if('undefined'!=typeof(data[index][key]["http://purl.org/dc/terms/title"])) {

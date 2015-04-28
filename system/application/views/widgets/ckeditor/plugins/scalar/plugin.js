@@ -170,7 +170,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	    			alert('Please select text to transform into a link');
 	    			return;
 	    		}	        	
-        		CKEDITOR._scalar.selectcontent(editor, {changeable:true,multiple:false,msg:'Insert Link to another Scalar Page',callback:function(node){
+        		CKEDITOR._scalar.selectcontent(editor, {changeable:true,multiple:false,msg:'Insert link to Scalar content',callback:function(node){
         			var sel = editor.getSelection();			
             		element = editor.document.createElement('a');
             		element.setHtml(sel.getSelectedText());
