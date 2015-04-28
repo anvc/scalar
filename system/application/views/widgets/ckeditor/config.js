@@ -26,7 +26,28 @@ $(document).on('paste', 'textarea', function (e) {
 			},10);
 		};
 		codemirror_cke_1.on('change', myFunc);
-	}
+	} 
+});
+CKEDITOR.on('instanceReady', function (ev) {
+    ev.editor.on('paste', function (ev) {
+    	var val = ev.data.dataValue;
+    	if (val.length) {
+	    	ev.editor.on('change', function (ev) {
+	    		ev.removeListener();
+	        	// add name="" to inline <a>
+	        	var $val = $('<div></div>');
+	    		$val.html(val);
+	    		$val.find('a').each(function() {
+	    			var $this = $(this);
+	    			if (!$this.hasClass('inline')) return;
+	    			if ($this.is('[name]')) return;
+	    			$this.attr('name', 'scalar-inline-media');
+	    		});
+	    		// Insert
+	    		ev.editor.setData($val.html()); 
+	    	});
+    	}
+    });
 });
 
 CKEDITOR.editorConfig = function( config ) {
