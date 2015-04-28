@@ -273,7 +273,7 @@
 				}
 			}
 			// API links
-			table.append('<tr><td colspan="2" align="center">View as <a href="'+node.url+'.rdfxml">RDF-XML</a>, <a href="'+node.url+'.rdfjson">RDF-JSON</a>, or <a href="'+node.url+'.meta">HTML</a></td></tr>');
+			table.append('<tr><td>View as</td><td><a href="'+node.url+'.rdfxml">RDF-XML</a>, <a href="'+node.url+'.rdfjson">RDF-JSON</a>, or <a href="'+node.url+'.meta">HTML</a></td></tr>');
 			if (!foundAuxContent) {
 				element.find('.media_metadata').show();
 				metadataTab.addClass('select');
