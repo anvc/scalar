@@ -57,7 +57,7 @@
 		}
 
 		var row = $( '<tr></tr>' ).appendTo( table );
-		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/menu_icon.png" alt="Main menu icon" width="30" height="30" /></td><td class="' + descStyle + '">Main menu</td>' );
+		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/menu_icon.png" alt="Main menu icon" width="30" height="30" /></td><td class="' + descStyle + '">Table of contents</td>' );
 
 		row = $( '<tr></tr>' ).appendTo( table );
 		row.append( '<td class="icon"><img src="'+this.options.root_url+'/images/search_icon.png" alt="Search icon" width="30" height="30" /></td><td class="' + descStyle + '">Search</td>' );
