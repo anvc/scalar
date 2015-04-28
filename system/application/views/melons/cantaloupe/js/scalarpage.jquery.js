@@ -475,6 +475,7 @@
 								if ( page.containingPathIndex > 0 ) {
 									links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
 								}
+
 								section.append( links );
 							}
 							pathOptionCount++;
@@ -497,13 +498,14 @@
 						link = span.find( 'span[property="dcterms:title"] > a' );
 						node = scalarapi.getNode( link.attr( 'href' ) );
 						if (( page.containingPathNodes.length > 0 ) && ( page.containingPathNodes.indexOf( currentNode ) == ( page.containingPathNodes.length - 1 ) )) {
-							section = $('<section class="relationships"></section').appendTo('article');
+							section = $('<section class="relationships"></section');
+							$( "#footer" ).before( section );
 							links = $( '<p></p>' );
 							links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
 
 							// back button
 							if ( page.containingPathIndex > 0 ) {
-								$( '#back-btn' ).remove();
+								$( '#back-btn' ).parents( 'section' ).remove(); // remove the intra-path back button and its enclosing section
 								links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
 							}
 							section.append( links );
