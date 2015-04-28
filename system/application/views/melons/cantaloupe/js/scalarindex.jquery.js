@@ -115,7 +115,7 @@
 		});
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
-		this.resultsTable = $( '<table summary="" class="table table-striped table-hover table-responsive"></table>' ).appendTo( resultsDiv );
+		this.resultsTable = $( '<table summary="" class="table table-striped table-hover table-responsive small"></table>' ).appendTo( resultsDiv );
 		this.loading = $('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 
 		this.pagination = $( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
