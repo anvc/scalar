@@ -38,9 +38,6 @@ a.headerIcon{
 .navbar #userIcon{
 	background-image: url(../images/user_icon.png);
 }
-.navbar #addIcon{
-	background-image: url(../images/add_icon.png);
-}
 .navbar #editIcon{
 	background-image: url(../images/edit_icon.png);
 }
@@ -459,8 +456,6 @@ a.headerIcon{
 }
 .navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
 	color: #fff;
-	-webkit-border-radius: 0;
-	-moz-border-radius: 0;
 	border-radius: 0;
 	border: 0;
 	padding: 3rem 0;
