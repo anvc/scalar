@@ -3,6 +3,15 @@
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
+// Convert \n to <br /> when pasting into the textarea
+// http://stackoverflow.com/questions/17528107/how-to-keep-line-breaks-in-ckeditor-wysiwyg-editor
+$(document).on('paste', 'textarea', function (e) {
+    $(e.target).keyup(function (e) {
+        var inputText = $(e.target).val();
+        $(e.target).val(inputText.replace(/\n/g, '<br />'+"\n")).unbind('keyup');
+    });
+});
+
 CKEDITOR.editorConfig = function( config ) {
 	
 	// %REMOVE_START%
