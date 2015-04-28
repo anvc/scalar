@@ -43,7 +43,6 @@ function ScalarAPI() {
 	
 	/**
 	 * Browser detection script from http://www.quirksmode.org/js/detect.html
-	 * Last revised 8/2011
 	 * @private
 	 *
 	 * User agent sniffing is notoriously unreliable, but at the moment it's the best way to tell
@@ -117,7 +116,7 @@ function ScalarAPI() {
 				subString: "Camino",
 				identity: "Camino"
 			},
-			{		// for newer Netscapes (6+)
+			{	// for newer Netscapes (6+)
 				string: navigator.userAgent,
 				subString: "Netscape",
 				identity: "Netscape"
@@ -128,13 +127,18 @@ function ScalarAPI() {
 				identity: "Explorer",
 				versionSearch: "MSIE"
 			},
+			{	// For IE 11
+				string: navigator.userAgent,
+				subString: "Trident/7.0",
+				identity: "Explorer"
+			},
 			{
 				string: navigator.userAgent,
 				subString: "Gecko",
 				identity: "Mozilla",
 				versionSearch: "rv"
 			},
-			{ 		// for older Netscapes (4-)
+			{ 	// for older Netscapes (4-)
 				string: navigator.userAgent,
 				subString: "Mozilla",
 				identity: "Netscape",
@@ -3190,10 +3194,10 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 	
 	n = relations.length;
 	for (i=0; i<n; i++) {
-		relation = relations[ i ];
+		relation = relations[ i ];	
 		if ( relation.body != this ) {
 			results.push(relations[i].body);
-		}
+		}	
 		if ( relation.target != this ) {
 			results.push(relations[i].target);
 		}
