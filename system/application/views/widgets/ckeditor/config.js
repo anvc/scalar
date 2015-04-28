@@ -32,7 +32,7 @@ CKEDITOR.editorConfig = function( config ) {
 	config.toolbar_Scalar =
 	[
 		{ name: 'document', items : [ 'Source' ] },
-		{ name: 'size', items : [ 'Maximize' ] },
+		/* { name: 'size', items : [ 'Maximize' ] }, */
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
 		{ name: 'formatting', items : [ 'NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },

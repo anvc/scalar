@@ -115,23 +115,22 @@ $(window).ready(function() {
 	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
 	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
 	book_slug = book_slug.replace(/\//g,'');
-	$.getJSON(fcroot+"/system/api/get_onomy",
-		{
+	$.getJSON(fcroot+"/system/api/get_onomy", {
 			slug:book_slug
 		},
 		function(data) {
 			var suggestions = [];
 			for(index in data) {
 				var taxonomy_name;
-				for(key in data[index]) {
-					if("http://purl.org/dc/terms/title" in data[index][key]) {
+				for(var key in data[index]) {
+					if('undefined'!=typeof(data[index][key]["http://purl.org/dc/terms/title"])) {
 						taxonomy_name = data[index][key]["http://purl.org/dc/terms/title"][0].value;
 					}
 					break;
 				}
-				for(key in data[index]) {
+				for(var key in data[index]) {
 					if (key.match(/term\/[0-9]*$/g) != null) {
-						if("http://www.w3.org/2004/02/skos/core#prefLabel" in data[index][key]) {
+						if('undefined'!=typeof(data[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"])) {
 							var term_label = data[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"][0].value;
 							suggestions.push({
 								label:term_label+" ("+taxonomy_name+")",
