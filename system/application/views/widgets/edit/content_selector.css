@@ -31,3 +31,12 @@
 	padding:10px; margin:0;
 }
 .tt img {width:280px;}
+
+/* Options box */
+
+.media_options {
+	position:absolute; z-index:9; background:#eeeeee; left:30%; right:30%; padding:15px; 
+	box-shadow: 0px 0px 6px #000000; border-radius: 5px; border-width:0;
+}
+.media_options .h {border-bottom:solid 1px #aaaaaa; font-weight:bold; padding-bottom:10px; margin-bottom:20px;}
+.media_options .buttons {float:right; padding:10px 0px 0px 0px; margin:0;}

@@ -121,8 +121,6 @@ label {cursor:pointer;}
 #listeditor_editbox .content .select_msg {background:#ffffff; text-align:center;}
 #listeditor_editbox .content_loading {display:none; font-weight:bold; color:#e32626;}
 
-/* Media options */
-
 .media_options {
 	position:absolute; z-index:9;
 	background:#eeeeee; 
@@ -131,7 +129,8 @@ label {cursor:pointer;}
 	border-left:solid 3px #aaa; 
 	border-bottom:solid 4px #999; 
 	border-right:solid 4px #999; 
-	padding:15px;}
+	padding:15px;
+}
 
 #alignment_popup {
 	position:absolute;top:0px;z-index:9;border:solid 2px #999999; background:white;

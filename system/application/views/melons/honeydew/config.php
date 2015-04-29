@@ -53,5 +53,5 @@ $config['reference_options'] = array(
 	'insertAnnotation' 		=> array( 'display-content-preview-box' => array('true', 'false') ),
 	'insertInlineAnnotation'=> array(),
 	'insertNote' 			=> array( 'display-content-preview-box' => array('true', 'false') ),
-	'createInternalLink' 	=> array( 'display-content-preview-box' => array('true', 'false') )		
+	'createInternalLink' 	=> array( 'display-content-preview-box' => array('true', 'false') )
 );
