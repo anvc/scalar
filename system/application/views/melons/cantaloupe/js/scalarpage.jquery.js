@@ -1140,21 +1140,21 @@
 					var url = $( this ).attr( "href" );
 
 					// Link without resource=""	(external or internal)	
-					if ('undefined'!=typeof(href) && base_url) {
-						if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
-							$link.click(function() {  // Open with previous header
-								if (target) {  // E.g., open in a new page
-									$link.click();
-									return false;
-								} else {
-									var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
-									document.location.href=link_to;
-									return false;
-								}
-							});
-						} else {  
-							// Internal link	
-						} 
+					if ( resource == null ) {    
+						if ('undefined'!=typeof(href) && base_url) {
+							if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
+								$link.click(function() {  // Open with previous header
+									if (target) {  // E.g., open in a new page
+										$link.click();
+										return false;
+									} else {
+										var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
+										document.location.href=link_to;
+										return false;
+									}
+								});
+							} 
+						}
 					}
 				});
 			}
