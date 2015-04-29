@@ -13,6 +13,50 @@
 			msg:'',
 			callback:null
 	};  	
+	$.fn.content_options = function(opts) {
+    	// Options
+    	var self = this;
+    	var $this = $(this);
+    	var options = {};
+    	if ('undefined'==typeof(opts.data) || $.isEmptyObject(opts.data)) {
+    		console.log('no');
+    		opts.callback(options);
+    		return;
+    	}
+    	// Helpers
+    	var ucwords = function (str) {  // http://kevin.vanzonneveld.net
+    		return (str + '').replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function ($1) {
+    			return $1.toUpperCase();
+    		});
+    	};
+    	var dash_to_space = function(str) {
+    		return str.replace(/-/g, ' ');
+    	}    	
+    	// Init options box
+    	$this.addClass('media_options').appendTo('body');
+    	$this.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
+    	$this.html('<p class="h">Please select options for the media link below</p>');
+		// Add options
+    	for (var option_name in opts.data) {
+			var $option = $('<p>'+ucwords(dash_to_space(option_name))+': <select name="'+option_name+'"></select></p>');
+			for (var j = 0; j < opts.data[option_name].length; j++) {
+				$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
+			}
+			$this.append($option);
+		}
+    	$this.append('<p class="buttons"><input type="button" class="generic_button" value="Cancel" />&nbsp; <input type="button" class="generic_button default" value="Continue" /></p>');
+    	$this.find('input:first').click(function() {
+    		$this.remove();
+		});
+    	$this.find('input:last').click(function() {
+			var data_fields = {};
+			for (var option_name in opts.data) {
+				data_fields[option_name] = $this.find('select[name="'+option_name+'"] option:selected"').val();
+			}
+			$this.remove();
+			opts.callback(data_fields);
+		});
+	};
     $.fn.content_selector = function(options) {
     	// Options
     	var self = this;
@@ -162,9 +206,10 @@
     		});
     		if (!opts.multiple) {  // Select a single row
     			$this.find('tr').click(function() {
-    				opts.callback($(this).data('node'));
-    				reset();
+    				var node = $(this).data('node');
     				$(this).closest('.content_selector').remove();
+    				opts.callback(node);
+    				reset();
     			});
     		}    		
     		$('.thumb').parent().mouseover(function() {  // Expand thumbnail
