@@ -797,6 +797,7 @@
 				}
 			}
 
+			var currentNode = scalarapi.model.getCurrentPageNode();
 			var root = { 
 				name: this.getShortenedString( currentNode.getDisplayTitle( true ), maxNodeChars ), 
 				type: currentNode.getDominantScalarType().id, 

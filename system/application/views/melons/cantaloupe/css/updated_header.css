@@ -1,6 +1,12 @@
 /*New CSS*/
+body{
+	/*overflow-y: scroll;*/
+}
 body.in_menu{
 	overflow: hidden !important;
+	/*position: fixed; 
+    overflow-y: scroll;
+    width: 100%;*/
 }
 .navbar a, #mobileMainMenuSubmenus a{
 	cursor: pointer;
@@ -80,7 +86,6 @@ a.headerIcon{
 	background-color: #303030;
 	width: 22px;
 	z-index: 100;
-	outline: 0;
 	height: 22px;
 	line-height: 0;
 }
@@ -100,7 +105,6 @@ a.headerIcon{
 
 .expandedPage .close{
 	margin-right: 0;
-	outline: 0;
 }
 .mainMenuDropdown{
 	-webkit-transition: -webkit-transform .5s;
@@ -195,9 +199,6 @@ a.headerIcon{
 .navbar{
 	z-index: 1039;
 }
-.navbar li a.headerIcon{
-	outline: 0;
-}
 .navbar, .title_wrapper{
 	-webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -242,7 +243,6 @@ a.headerIcon{
 #ScalarHeaderMenuSearch.search_open, #ScalarHeaderMenuSearch.search_open a{
 	background-color: #353535;
 	color: white;
-	outline: 0;
 }
 #ScalarHeaderMenuSearchForm{
 	background-color: #353535;
@@ -821,7 +821,6 @@ i.loader{
 	#mobileMainMenuSubmenus header .headerIcon{
 		background-color: #353535;
 		color: white;
-		outline: 0;
 		text-decoration: none;
 		width: 100%;
 		text-align: left;
@@ -873,7 +872,6 @@ i.loader{
 		background-color: #006793;
 		border-radius: 0;
 		color: #fff;
-		outline: 0;
 	}
 	#mobileMainMenuSubmenus footer button:hover, #mobileMainMenuSubmenus footer button:active{
 		background-color: #000;
@@ -890,7 +888,6 @@ i.loader{
 		background-color: #006793;
 		border-radius: 0;
 		color: #fff;
-		outline: 0;
 	}
 	.tocMenu .expandedPage .relationships strong{
 		color: #fff;
