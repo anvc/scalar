@@ -293,7 +293,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.$el.append(navbar_html).find('.title_wrapper').prepend(title_link.clone());
             base.$el.find('#ScalarHeaderMenuLeft .mainMenu').on('hide.bs.dropdown',function(){
                 if(base.usingMobileView || $('#mainMenuSubmenus .expandedPage').length == 0){
-                    $('body').removeClass('in_menu').css('margin-top','0px').scrollTop($('body').data('scrollTop'));
+                    $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
                     $(this).find('li.active').removeClass('active');
                     return true;
                 }else{
@@ -518,13 +518,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     if(containerHeight >= max_height){
                         $(this).css('max-height',max_height+'px').addClass('tall');
                         var offset = $('body').scrollTop();
-                        $('body').addClass('in_menu').css('margin-top','-'+offset+'px').data('scrollTop',offset);
+                        $('body').addClass('in_menu'); //.css('margin-top','-'+offset+'px').data('scrollTop',offset);
                     }
                 }
             },function(){
                 if($(this).hasClass('tall')){
                     $(this).css('max-height','').removeClass('tall');
-                    $('body').removeClass('in_menu').css('margin-top','0px').scrollTop($('body').data('scrollTop'));
+                    $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
                 }
             });
 
@@ -702,7 +702,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
 
                 if(!base.usingMobileView && expanded_menu.find('.tall').length == 0){
-                    $('body').removeClass('in_menu').css('margin-top','0px').scrollTop($('body').data('scrollTop'));
+                    $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
                 }
                 
                 return false;
@@ -863,7 +863,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                     container.css('max-height',max_height+'px').addClass('tall');
                                     
                                     var offset = $('body').scrollTop();
-                                    $('body').addClass('in_menu').css('margin-top','-'+offset+'px').data('scrollTop',offset);
+                                    $('body').addClass('in_menu'); //.css('margin-top','-'+offset+'px').data('scrollTop',offset);
                                 }
                             }
                         }else{
