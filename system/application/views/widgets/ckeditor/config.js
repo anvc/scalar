@@ -3,8 +3,13 @@
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
-// Convert \n to <br /> when pasting into the source mode (codemirror)
-$(document).on('paste', 'textarea', function (e) {
+/** The following conforms texts originating from other sources (including Scalar's older WYSIWYG)
+ * 1) Convert \n to <br /> when cut-and-paste in to 'source' mode
+ * 2) Add a name="" attribute to empty <a> tags when cut-and-paste into either mode, and on load from the <textarea>
+ * @author 	Craig Dietrich
+ * @version	1.0
+ */
+$(document).on('paste', 'textarea', function (e) {  // Text is cut-and-paste into 'source' mode
 	if ('undefined'!=typeof(codemirror_cke_1)) {
 		var myFunc = function(obj1, obj2) {
 			codemirror_cke_1.off('change', myFunc);
@@ -28,7 +33,7 @@ $(document).on('paste', 'textarea', function (e) {
 		codemirror_cke_1.on('change', myFunc);
 	} 
 });
-CKEDITOR.on('instanceReady', function (ev) {
+CKEDITOR.on('instanceReady', function (ev) {  // Text is cut-and-paste into WYSIWYG
     ev.editor.on('paste', function (ev) {
     	var val = ev.data.dataValue;
     	if (val.length) {
@@ -49,7 +54,17 @@ CKEDITOR.on('instanceReady', function (ev) {
     	}
     });
 });
+var $textarea = $('.ckeditor:first');  // Text from <textarea>
+var $val = $('<div></div>').html($textarea.val());
+$val.find('a').each(function() {
+	var $this = $(this);
+	if (!$this.hasClass('inline')) return;
+	if ($this.is('[name]')) return;
+	$this.attr('name', 'scalar-inline-media');
+});;
+$textarea.val($val.html());
 
+// Editor config
 CKEDITOR.editorConfig = function( config ) {
 	
 	// %REMOVE_START%
