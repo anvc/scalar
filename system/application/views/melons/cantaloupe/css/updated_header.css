@@ -1,8 +1,12 @@
 /*New CSS*/
+body{
+	/*overflow-y: scroll;*/
+}
 body.in_menu{
-	position: fixed; 
+	overflow: hidden !important;
+	/*position: fixed; 
     overflow-y: scroll;
-    width: 100%;
+    width: 100%;*/
 }
 .navbar a, #mobileMainMenuSubmenus a{
 	cursor: pointer;
