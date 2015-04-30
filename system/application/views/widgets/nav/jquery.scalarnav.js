@@ -820,8 +820,8 @@
 			
 				// add editing buttons if the user has the right privileges
 				if (((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) && (window.location.href.substr(window.location.href.length - 5) != '.edit')) {
-					this.element = this.element.add('<div class="utility"><p><a class="utility_button" href="'+scalarapi.model.urlPrefix+'/new.edit">New</a> <a class="utility_button" href="'+this.node.url+'.edit">Edit</a> <a class="utility_button" href="javascript:;"></a> </p></div>').appendTo(this.model.element);
-					this.element.find('.utility_button').eq(1).click(this.handleDelete);
+					this.element = this.element.add('<div class="utility"><p><a class="utility_button" href="'+scalarapi.model.urlPrefix+'/new.edit">New</a> <a class="utility_button" href="'+this.node.url+'.edit">Edit</a> <a class="utility_button" href="javascript:;">Hide</a> </p></div>').appendTo(this.model.element);
+					this.element.find('.utility_button').eq(2).click(this.handleDelete);
 				}
 				
 				// show a spinner if we're still loading data
