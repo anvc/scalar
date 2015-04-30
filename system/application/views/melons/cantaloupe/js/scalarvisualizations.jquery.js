@@ -736,12 +736,14 @@
 		 */
 		jQuery.VisView.prototype.drawPathVisualization = function() {
 
+			var currentNode = scalarapi.model.getCurrentPageNode();
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
-				if (scalarapi.model.currentPageNode != null) {
-					this.selectedNodes = [scalarapi.model.currentPageNode];
+				if (currentNode != null) {
+					this.selectedNodes = [currentNode];
 					if (this.model.doneLoading) {
 						this.hasSelectedCurrentContent = true;
 					}
@@ -761,7 +763,7 @@
 				columnWidth = 90;
 			}
 		
-			this.helpButton.attr( "data-content", "This visualization shows all of the content in the path <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold empty areas to drag.</li><li>Filled circles indicate sub-paths; click them to show their contents.</li><li>Click the title of any item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows all of the content in the path <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold empty areas to drag.</li><li>Filled circles indicate sub-paths; click them to show their contents.</li><li>Click the title of any item to navigate to it.</li></ul>" );
 
 			var i, j, k, n, o,
 				
@@ -797,7 +799,6 @@
 				}
 			}
 
-			var currentNode = scalarapi.model.getCurrentPageNode();
 			var root = { 
 				name: this.getShortenedString( currentNode.getDisplayTitle( true ), maxNodeChars ), 
 				type: currentNode.getDominantScalarType().id, 
@@ -1003,12 +1004,14 @@
 		 */
 		jQuery.VisView.prototype.drawTreeVisualization = function() {
 
+			var currentNode = scalarapi.model.getCurrentPageNode();
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
-				if (scalarapi.model.currentPageNode != null) {
-					this.selectedNodes = [scalarapi.model.currentPageNode];
+				if (currentNode != null) {
+					this.selectedNodes = [currentNode];
 					if (this.model.doneLoading) {
 						this.hasSelectedCurrentContent = true;
 					}
@@ -1028,7 +1031,7 @@
 				columnWidth = 90;
 			}
 		
-			this.helpButton.attr( "data-content", "This visualization shows all of the content in the path <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold empty areas to drag.</li><li>Filled circles indicate sub-paths; click them to show their contents.</li><li>Click the title of any item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows all of the content in the path <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold empty areas to drag.</li><li>Filled circles indicate sub-paths; click them to show their contents.</li><li>Click the title of any item to navigate to it.</li></ul>" );
 
 			var i, j, k, n, o,
 				
@@ -1501,14 +1504,16 @@
 		 */
 		jQuery.VisView.prototype.drawMediaVisualization = function(updateOnly) {
 			
+			var currentNode = scalarapi.model.getCurrentPageNode();
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
-				if (scalarapi.model.currentPageNode != null) {
+				if (currentNode != null) {
 					this.selectedNodes = [];
 					if (!this.deselectedSelf) {	
-						this.selectedNodes.push(scalarapi.model.currentPageNode);
+						this.selectedNodes.push(currentNode);
 					}
 					if (this.model.doneLoading) {
 						this.hasSelectedCurrentContent = true;
@@ -1524,7 +1529,7 @@
 			var targetNode;
 			var maxNodeChars = 15;
 			
-			this.helpButton.attr( "data-content", "This visualization shows all of the media referenced or annotated by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the media it references or annotates in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows all of the media referenced or annotated by <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the media it references or annotates in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
 
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
@@ -1543,15 +1548,15 @@
 			var datum;
 			var targetDatum;
 
-			if ( this.mediaNodesByURL[ scalarapi.model.currentPageNode.url ] == null ) {
+			if ( this.mediaNodesByURL[ currentNode.url ] == null ) {
 				datum = {
 					index: this.mediaNodes.length,
-					node: scalarapi.model.currentPageNode,
-					title: scalarapi.model.currentPageNode.getDisplayTitle( true ),
-					shortTitle: this.getShortenedString( scalarapi.model.currentPageNode.getDisplayTitle( true ), maxNodeChars ),
-					type: scalarapi.model.currentPageNode.getDominantScalarType().id
+					node: currentNode,
+					title: currentNode.getDisplayTitle( true ),
+					shortTitle: this.getShortenedString( currentNode.getDisplayTitle( true ), maxNodeChars ),
+					type: currentNode.getDominantScalarType().id
 				}
-				this.mediaNodesByURL[ scalarapi.model.currentPageNode.url ] = datum;
+				this.mediaNodesByURL[ currentNode.url ] = datum;
 				this.mediaNodes.push( datum );
 			}
 						
@@ -1790,12 +1795,12 @@
 					if (index == -1) {
 						me.selectedNodes.push(d.node);
 						me.controller.loadNode( d.node.slug, true );
-						if (d.node == scalarapi.model.currentPageNode) {
+						if (d.node == currentNode) {
 							me.deselectedSelf = false;
 						}
-					} else if ( d.node != scalarapi.model.currentPageNode ) {
+					} else if ( d.node != currentNode ) {
 						me.selectedNodes.splice(index, 1);
-						if (d.node == scalarapi.model.currentPageNode) {
+						if (d.node == currentNode) {
 							me.deselectedSelf = true;
 						}
 					}
@@ -1869,12 +1874,12 @@
 			
 				me.mediavis_textLayer.selectAll('rect.visit-button')
 					.style( 'display', function(d) { 
-						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (currentNode != d.node)) ? 'inherit' : 'none'; 
 					});
 			
 				me.mediavis_textLayer.selectAll('text.visit-button')
 					.style( 'display', function(d) { 
-						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (currentNode != d.node)) ? 'inherit' : 'none'; 
 					});
 
 			}
@@ -1890,14 +1895,16 @@
 		 */
 		jQuery.VisView.prototype.drawTagVisualization = function(updateOnly) {
 			
+			var currentNode = scalarapi.model.getCurrentPageNode();
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
-				if (scalarapi.model.currentPageNode != null) {
+				if (currentNode != null) {
 					this.selectedNodes = [];
 					if (!this.deselectedSelf) {	
-						this.selectedNodes.push(scalarapi.model.currentPageNode);
+						this.selectedNodes.push(currentNode);
 					}
 					if (this.model.doneLoading) {
 						this.hasSelectedCurrentContent = true;
@@ -1913,7 +1920,7 @@
 			var targetNode;
 			var maxNodeChars = 15;
 
-			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows all of the content tagged by <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b>.<ul><li>Content is color-coded by type.</li><li>Scroll or pinch to zoom, or click and hold to drag.</li><li>Click any item to add it to the current selection, and to reveal the content it tags in turn.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
 			
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
@@ -2191,12 +2198,12 @@
 					if (index == -1) {
 						me.selectedNodes.push(d.node);
 						me.controller.loadNode( d.node.slug, false );
-						if (d.node == scalarapi.model.currentPageNode) {
+						if (d.node == currentNode) {
 							me.deselectedSelf = false;
 						}
 					} else {
 						me.selectedNodes.splice(index, 1);
-						if (d.node == scalarapi.model.currentPageNode) {
+						if (d.node == currentNode) {
 							me.deselectedSelf = true;
 						}
 					}
@@ -2272,12 +2279,12 @@
 			
 				me.tagvis_textLayer.selectAll('rect.visit-button')
 					.style( 'display', function(d) { 
-						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (currentNode != d.node)) ? 'inherit' : 'none'; 
 					});
 			
 				me.tagvis_textLayer.selectAll('text.visit-button')
 					.style( 'display', function(d) { 
-						return ((me.selectedNodes.indexOf(d.node) != -1) && (scalarapi.model.currentPageNode != d.node)) ? 'inherit' : 'none'; 
+						return ((me.selectedNodes.indexOf(d.node) != -1) && (currentNode != d.node)) ? 'inherit' : 'none'; 
 					});
 			
 			}
@@ -2291,11 +2298,13 @@
 		 */
 		jQuery.VisView.prototype.drawRadialVisualization = function() {
 		
+			var currentNode = scalarapi.model.getCurrentPageNode();
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
-				node = scalarapi.model.currentPageNode;
+				node = currentNode;
 				if (node != null) {
 					this.selectedNodes = [node];
 					if (this.model.doneLoading) {
@@ -2304,7 +2313,7 @@
 				}
 			}
 			
-			this.helpButton.attr( "data-content", "This visualization shows how <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul><li>Each colored arc represents a connection, color-coded by type.</li><li>Roll over the visualization to browse connections.</li><li>Click to add more content to the current selection.</li><li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li><li>Click any item's title to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul><li>Each colored arc represents a connection, color-coded by type.</li><li>Roll over the visualization to browse connections.</li><li>Click to add more content to the current selection.</li><li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li><li>Click any item's title to navigate to it.</li></ul>" );
 			
 			this.visualization.empty();
 			if ( window.innerWidth > 768 ) {
@@ -2340,7 +2349,7 @@
 			indexType = { name: "", id: "current" };
 			var nodeForCurrentContent = {title:indexType.name, type:indexType.id, isTopLevel:true, index:0, size:1, parent:types, maximizedAngle:360, children:[], descendantCount:1};
 			types.children.push(nodeForCurrentContent);
-			nodeForCurrentContent.children = setChildren(nodeForCurrentContent, [ scalarapi.model.currentPageNode ]);
+			nodeForCurrentContent.children = setChildren(nodeForCurrentContent, [ currentNode ]);
 			
 			//var maximizedNode = nodeForCurrentContent;
 			var maximizedNode = null;
@@ -2356,7 +2365,7 @@
 				typedNodes = scalarapi.model.getNodesWithProperty('scalarType', indexType.id, 'alphabetical');
 				
 				// don't allow the current node to be added anywhere else
-				index = typedNodes.indexOf( scalarapi.model.currentPageNode );
+				index = typedNodes.indexOf( currentNode );
 				if ( index != -1 ) {
 					typedNodes.splice( index, 1 );
 				}
@@ -3161,11 +3170,13 @@
 		 */
 		jQuery.VisView.prototype.drawIndexVisualization = function() {
 			
+			var currentNode = scalarapi.model.getCurrentPageNode();
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
-				node = scalarapi.model.currentPageNode;
+				node = currentNode;
 				if (node != null) {
 					this.selectedNodes = [node];
 					if (this.model.doneLoading) {
@@ -3174,7 +3185,7 @@
 				}
 			}
 			
-			this.helpButton.attr( "data-content", "This visualization shows how <b>&ldquo;" + scalarapi.model.currentPageNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul><li>Each box represents a piece of content, color-coded by type.</li><li>The darker the box, the more connections it has to other content.</li><li>Each line represents a connection, color-coded by type.</li><li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
+			this.helpButton.attr( "data-content", "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul><li>Each box represents a piece of content, color-coded by type.</li><li>The darker the box, the more connections it has to other content.</li><li>Each line represents a connection, color-coded by type.</li><li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li><li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>" );
 			
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');
