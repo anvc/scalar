@@ -960,16 +960,11 @@ ScalarAPI.prototype.basename = function(path, suffix) {
 
 ScalarAPI.prototype.basepath = function(path) {
 	path = this.stripAllExtensions(path);
-	var arr = path.split('://');
-	var str;
-	if (arr.length > 1) {
-		str = arr[1];
+	if ( path.indexOf( '://' ) != -1 ) {
+		return path.slice( $( 'link[id="parent"]' ).attr( 'href' ).length );
 	} else {
-		str = arr[0];
+		return null;
 	}
-	arr = str.split('/');
-	arr.splice(0, 3);
-	return arr.join('/');
 }
 	 		
 /**
