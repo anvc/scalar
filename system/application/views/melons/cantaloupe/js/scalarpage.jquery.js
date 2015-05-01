@@ -1258,7 +1258,7 @@
 
 				// add book title and placeholder for author list
 				if ( viewType == "book_splash" ) {
-					$( 'h1[property="dcterms:title"]' ).html( $( '#book-title' ).html() );
+					$( 'h1[property="dcterms:title"]' ).html( $( '.book-title' ).html() );
 					$( '.title_card' ).append('<h2></h2>');
 				}
 
