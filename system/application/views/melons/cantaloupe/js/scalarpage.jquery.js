@@ -493,7 +493,8 @@
 				// end-of-path continue button
 				if ( showLateralNav ) {
 					$( '[rel="scalar:continue_to"]' ).each( function() {
-						var span = $( 'header > [resource="' + $( this ).attr( 'href' ) + '"]' );
+						var href = $( this ).attr( 'href' );
+						var span = $( 'header > [resource="' + href + '"]' );
 						span.hide();
 						link = span.find( 'span[property="dcterms:title"] > a' );
 						node = scalarapi.getNode( link.attr( 'href' ) );
@@ -513,6 +514,12 @@
 							containingPathOptionCount++;
 						}
 					} );
+				} else {
+					// hide continue_to metadata
+					$( '[rel="scalar:continue_to"]' ).each( function() {
+						var href = $( this ).attr( 'href' );
+						$( 'span[resource="' + href + '"]' ).hide();
+					});					
 				}
 
 				// if relationship nav isn't centered, add bootstrap column formatting to help
