@@ -147,7 +147,7 @@ endif;
 			?>
 			      <div class="form_fields_sub_element path_of_msg" style="display:none;"><a class="generic_button border_radius">Add more content</a> or drag items to reorder</div>
 
-			      <div class="form_fields_sub_element form_fields_sub_element_border_top form_fields_sub_element_border_bottom path_of_continue_msg" style="display:none;margin-top:12px;">After path is completed, continue to <input type="hidden" name="scalar:continue_to_content_id" value="<?=((!empty($continue_to))?$continue_to->content_id:'')?>" /><span style="font-weight:bold"><?=((!empty($continue_to))?$continue_to->versions[$continue_to->version_index]->title:'none')?></span>&nbsp; <a href="javascript:;">add</a> | <a href="javascript:">clear</a></div>
+			      <div class="form_fields_sub_element form_fields_sub_element_border_top form_fields_sub_element_border_bottom path_of_continue_msg" style="display:none;margin-top:12px;">After path is completed, continue to <input type="hidden" name="scalar:continue_to_content_id" value="<?=((!empty($continue_to))?$continue_to->content_id:'')?>" /><span class="title" style="font-weight:bold"><?=((!empty($continue_to))?$continue_to->versions[$continue_to->version_index]->title:'none')?></span>&nbsp; <a href="javascript:;">add</a> | <a href="javascript:">clear</a></div>
 
 			<? if (!empty($page)&&!empty($page->versions[$page->version_index]->has_paths)): ?>
 				  <div id="has_path">

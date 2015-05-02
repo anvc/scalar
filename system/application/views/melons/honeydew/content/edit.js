@@ -45,10 +45,28 @@ $(window).ready(function() {
 	$('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});    
     
 	// Relationships (path, comment, annotation, tag)
+	$(document).on('click', '#relationships .remove a', function() {  // Delegated
+		if (!confirm('Are you sure you wish to remove this relationship?')) return;
+		$(this).closest('li').remove();
+	}); 	
 	if ($('#path_of').find('li').length) {
 		$('.path_of_msg').show();
 		$('.path_of_continue_msg').show();
 	}
+	var $path_of_continue_msg = $('.path_of_continue_msg');
+	$path_of_continue_msg.find('a:first').click(function() {
+		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){	
+			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+			var content_id = urn.substr(urn.lastIndexOf(':')+1);
+			var title = node.version["http://purl.org/dc/terms/title"][0].value;
+			$path_of_continue_msg.find('input[name="scalar:continue_to_content_id"]').val(content_id);
+			$path_of_continue_msg.find('.title').html(title);
+		}});
+	});
+	$path_of_continue_msg.find('a:last').click(function() {
+		$path_of_continue_msg.find('input[name="scalar:continue_to_content_id"]').val('');
+		$path_of_continue_msg.find('.title').html('none');		
+	});
 	$('.path_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose contents of the path',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
@@ -152,10 +170,6 @@ $(window).ready(function() {
 			}
 		}});
 	});
-	$(document).on('click', '#relationships .remove a', function() {  // Delegated
-		if (!confirm('Are you sure you wish to remove this relationship?')) return;
-		$(this).closest('li').remove();
-	}); 
 	
 	// Taxonomies for title typeahead
 	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
