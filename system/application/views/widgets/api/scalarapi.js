@@ -960,7 +960,7 @@ ScalarAPI.prototype.basename = function(path, suffix) {
 
 ScalarAPI.prototype.basepath = function(path) {
 	path = this.stripAllExtensions(path);
-	if ( path.indexOf( '://' ) != -1 ) {
+	if ( path.indexOf( '://' ) != -1 && $( 'link[id="parent"]' ).length ) {
 		return path.slice( $( 'link[id="parent"]' ).attr( 'href' ).length );
 	} else {
 		return null;
