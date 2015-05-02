@@ -140,8 +140,8 @@
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		$('body').append($this);
     		var $options = $('<div class="options"></div>').appendTo($wrapper);
-    		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search term above</div></div>').appendTo($wrapper);
-    		var $footer = $('<div class="footer"><div class="msg"></div><a href="javascript:void(null);" class="generic_button">Cancel</a></div>').appendTo($wrapper);
+    		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		$options.append('<form class="search_form"><input type="text" name="sq" placeholder="Search" /> <input type="submit" value="Go" />&nbsp; &nbsp; <label><input type="radio" name="type" value="content"> All</label> &nbsp;<label><input type="radio" name="type" value="composite"> Pages</label> &nbsp;<label><input type="radio" name="type" value="media"> Media</label> &nbsp;<label><input type="radio" name="type" value="path"> Paths</label> &nbsp;<label><input type="radio" name="type" value="tag"> Tags</label> &nbsp;<label><input type="radio" name="type" value="annotation"> Annotations</label> &nbsp;<label><input type="radio" name="type" value="reply"> Comments</label></form>');
     		$footer.find('a:first').click(function() {  // Cancel button
     			reset();
@@ -172,12 +172,27 @@
     			});
     		}
     		if (opts.multiple) {
-    			// TODO
+    			$footer.find('div:first').append('<a href="javascript:void(null);" class="generic_button default">Add Selected</a>');
+    			$footer.find('a:last').click(function() {
+    				var nodes = [];
+    				$(this).closest('.content_selector').find('input[type="checkbox"]').each(function() {
+    					var $this = $(this);
+    					if (!$this.is(":checked")) return;
+    					nodes.push($this.closest('tr').data('node'));
+    				});
+    				if (!nodes.length) {
+    					alert('Please select one or more items');
+    					return;
+    				}
+    				$(this).closest('.content_selector').remove();
+    				opts.callback(nodes);
+    				reset();
+    			});
     		}
     	};
     	// Propagate the interface
     	var propagate = function() {
-    		$this.find('.content').html('<table cellspacing="0" cellpadding="0"><tbody><tr><th></th><th>Title</th><th>Description</th><th>URL</th><th></th></tr></tbody></table>');
+    		$this.find('.content').html('<table cellspacing="0" cellpadding="0"><tbody><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th>Description</th><th>URL</th><th></th></tr></tbody></table>');
     		var $tbody = $this.find('tbody:first');
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
@@ -189,6 +204,9 @@
     			var filename = (url) ? basename(url) : basename(opts.data[j].uri);
 	    		if (filename.length > opts.filename_max_length) filename = filename.substr(0, opts.filename_max_length)+'...';
     			var thumb = ('undefined'!=typeof(opts.data[j].content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'])) ? opts.data[j].content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value : null;
+    			if (opts.multiple) {
+    				$('<td valign="top"><input type="checkbox" name="s_'+j+'" value="1" /></td>').appendTo($tr);
+    			}
     			var $first = $('<td valign="top"></td>').appendTo($tr);
     			if (thumb) {
     				$first.html('<img class="thumb" src="'+thumb+'" />');
@@ -211,7 +229,18 @@
     				opts.callback(node);
     				reset();
     			});
-    		}    		
+    		} else {  // Select multiple rows
+    			$this.find('tr').click(function() {
+    				var $this = $(this);
+    				var checked = $this.find('input[type="checkbox"]').is(":checked");
+    				$(this).find('input[type="checkbox"]').prop('checked', ((checked)?false:true));
+    				if (checked) {
+    					$this.removeClass('checked');
+    				} else {
+    					$this.addClass('checked');
+    				}
+    			});
+    		}
     		$('.thumb').parent().mouseover(function() {  // Expand thumbnail
     			var $this = $(this).children('.thumb:first');
     			var offset = $this.offset();

@@ -19,63 +19,10 @@
 
 /**
  * @projectDescription		Provide interactions for the page editor
- * @note					Procedural and in need of a re-write to jQuery plugins, but gets the job done
+ * @note					Prepping to remove all listeditor_ functions with release of CKEditor
  * @author					Craig Dietrich
- * @version					1.2
+ * @version					1.3
  */
-
-/**
- * Toggle a zone (e.g., style, metadata, etc)
- */
-
-(function($){
-    $.fn.extend({ 
-        toggle_zone: function() {
-            return this.each(function() {
-            	var $arrow = $(this);
-            	var $parent = $arrow.closest('tr, div');
-            	var is_open = $arrow.hasClass('edit_page_arrow_down') ? true : false;
-            	if (is_open) {
-            		$arrow.removeClass('edit_page_arrow_down').addClass('edit_page_arrow_right');
-            	} else {
-            		$arrow.removeClass('edit_page_arrow_right').addClass('edit_page_arrow_down');
-            	}
-            	$parent.children(':nth-child(2)').toggle();
-            });
-        }
-    });  
-})(jQuery);
-
-/** 
- * Escape the last URI segment (the filename)
- */
-
-function escpaeLastURISegment(uri) {
-	if (!uri || 'undefined'==typeof(uri) || -1==uri.indexOf('/')) return uri;
-	if (uri.indexOf('%')!=-1) return uri;
-	var segments = uri.split('/');
-	var filename_segments = segments[segments.length-1].split('?');
-	var filename = filename_segments[0];
-	var getvars = ('undefined'!=typeof(filename_segments[1])) ? filename_segments[1] : null;;
-    var uri_to_return = '';
-    for (var j = 0; j < segments.length-1; j++) {
-    	uri_to_return += segments[j]+'/';
-    }
-    uri_to_return += escape(filename);
-    if (getvars) uri_to_return += '?'+getvars
-	return uri_to_return;
-}
-
-function ucwords (str) {
-	// http://kevin.vanzonneveld.net
-	return (str + '').replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function ($1) {
-		return $1.toUpperCase();
-	});
-}
-
-function dash_to_space(str) {
-	return str.replace(/-/g, ' ');
-}
 
 /**
  * Boot the interface
@@ -86,80 +33,160 @@ $(window).ready(function() {
     // Warnings
     if ($.browser.msie) $('#ie_warning').show();
 
-	// Display add new buttons if content exists in relational areas
-	if ($('#container_of_editor').find('li').length) {
-		$('#container_of_add_content').show();
-		$('#path_continue_to').show();
-		$('#path_color').show();
-	}
-	if ($('#tag_of_editor').find('li').length) {
-		$('#tag_of_add_content').show();
-	}
-	if ($('#has_tag_editor').find('li').length) {
-		$('#has_tag_add_content').show();
-	}
-	if ($('#annotation_of_editor').find('li').length) {
-		$('#annotation_of_add_content').show();
-	}			
-	if ($('#reply_of_editor').find('li').length) {
-		$('#reply_of_add_content').show();
-	}	
-	$('.rel_link').click(function() {
-		if (!confirm('Are you sure you wish to follow this link?  Any unsaved changes will be lost.')) {
-			return false;
-		} else {
-			return true;
-		}
-	});
-	
-	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
-	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
-	book_slug = book_slug.replace(/\//g,'');
-	$.getJSON(fcroot+"/system/api/get_onomy", {
-			slug:book_slug
-		},
-		function(data) {
-			var suggestions = [];
-			for(var index in data) {
-				var taxonomy_name;
-				for(var key in data[index]) {
-					if('undefined'!=typeof(data[index][key]["http://purl.org/dc/terms/title"])) {
-						taxonomy_name = data[index][key]["http://purl.org/dc/terms/title"][0].value;
-					}
-					break;
-				}
-				for(var key in data[index]) {
-					if (key.match(/term\/[0-9]*$/g) != null) {
-						if('undefined'!=typeof(data[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"])) {
-							var term_label = data[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"][0].value;
-							suggestions.push({
-								label:term_label+" ("+taxonomy_name+")",
-								value:term_label
-							});
-						}
-					}
-				}
-			}
-			suggestions.sort(function(a,b) {
-				if (a.value < b.value)
-				     return -1;
-				  if (a.value > b.value)
-				    return 1;
-				  return 0;
-			})
-			$('#title').autocomplete({source:suggestions});
-		});
-
-	// If  the type is passed via GET
+	// If the type is passed via GET
 	checkTypeSelect();  
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
 		$("#type_text").removeAttr('checked'); 
 		$("#type_media").attr("checked", "checked"); 
 		checkTypeSelect();
-	}
+	}	
 	
-	// View options
-	$('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});
+	// Layout options
+	$('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});    
+    
+	// Relationships (path, comment, annotation, tag)
+	if ($('#path_of').find('li').length) {
+		$('.path_of_msg').show();
+		$('.path_of_continue_msg').show();
+	}
+	$('.path_of_msg').find('a').click(function() {
+		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose contents of the path',callback:function(nodes){
+			for (var j = 0; j < nodes.length; j++) {
+				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				$('#path_of').append('<li><input type="hidden" name="container_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('.path_of_msg:first').html('<b>This <span class="content_type">page</span> is also a path</b> which contains:');
+				$('.path_of_msg').show();
+				$('.path_of_continue_msg').show();
+			}
+		}});
+	});
+	if ($('#reply_of').find('li').length) {
+		$('.reply_of_msg').show();
+	}
+	$('.reply_of_msg').find('a').click(function() {
+		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose items to be commented on',callback:function(nodes){
+			for (var j = 0; j < nodes.length; j++) {
+				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				$('#reply_of').append('<li><input type="hidden" name="reply_of" value="'+urn+'" /><input type="hidden" name="reply_of_rel_created" value="">'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('.reply_of_msg:first').html('<b>This <span class="content_type">page</span> is also a comment</b> which comments on:');
+				$('.reply_of_msg').show();
+			}
+		}});
+	});	
+	if ($('#annotation_of').find('li').length) {
+		$('.annotation_of_msg').show();
+	}	
+	$('.annotation_of_msg').find('a').click(function() {
+		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
+			for (var j = 0; j < nodes.length; j++) {
+				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				var url = nodes[j].version["http://simile.mit.edu/2003/10/ontologies/artstor#url"][0].value;
+				var annotation_type = scalarapi.parseMediaSource(url).contentType;
+				var $annotation = $('<li><input type="hidden" name="annotation_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
+				switch (annotation_type) { 
+					case "audio":
+					case "video":
+						var str = 'Start seconds: <input type="text" style="width:75px;" name="annotation_of_start_seconds" value="" />';
+						str += '&nbsp; End seconds: <input type="text" style="width:75px;" name="annotation_of_end_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						$annotation.append('<div>'+str+'</div>');
+						break;
+					case "html":
+					case "text":
+					case "document":
+						var str = 'Start line #: <input type="text" style="width:75px;" name="annotation_of_start_line_num" value="" />';
+						str += '&nbsp; End line #: <input type="text" style="width:75px;" name="annotation_of_end_line_num" value="" />';	
+						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_points" value="" />';	
+						$annotation.append('<div>'+str+'</div>');
+						break;
+					case "image":
+						var str = 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="annotation_of_points" value="0,0,0,0" />';	
+						str += '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
+						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';	
+						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
+						$annotation.append('<div>'+str+'</div>');
+						break;
+					default:
+						alert('A selected media ('+title+') is of a type not presently supported for annotation.');
+						return false;						
+				}
+				$('.annotation_of_msg:first').html('<b>This <span class="content_type">page</span> is also a annotation</b> which annotates:');
+				$('.annotation_of_msg').show();
+			}
+		}});
+	});	
+	if ($('#tag_of').find('li').length) {
+		$('.tag_of_msg').show();
+	}
+	$('.tag_of_msg').find('a').click(function() {
+		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose items to be tagged',callback:function(nodes){
+			for (var j = 0; j < nodes.length; j++) {
+				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				$('#tag_of').append('<li><input type="hidden" name="tag_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('.annotation_of_msg:first').html('<b>This <span class="content_type">page</span> is also a tag</b> which tags:');
+				$('.annotation_of_msg').show();
+			}
+		}});
+	});
+	if ($('#has_tag').find('li').length) {
+		$('.has_tag_msg').show();
+	}	
+	$('.has_tag_msg').find('a').click(function() {
+		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose items that tag the current page',callback:function(nodes){
+			for (var j = 0; j < nodes.length; j++) {
+				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				$('#has_tag').append('<li><input type="hidden" name="has_tag" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('.has_tag_msg:first').html('<b>This <span class="content_type">page</span> is tagged by</b> the following tags:');
+				$('.has_tag_msg').show();
+			}
+		}});
+	});
+	$(document).on('click', '#relationships .remove a', function() {  // Delegated
+		if (!confirm('Are you sure you wish to remove this relationship?')) return;
+		$(this).closest('li').remove();
+	}); 
+	
+	// Taxonomies for title typeahead
+	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
+	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
+	book_slug = book_slug.replace(/\//g,'');
+	$.getJSON(fcroot+"/system/api/get_onomy", {slug:book_slug}, function(data) {
+		var suggestions = [];
+		for (var index in data) {
+			var taxonomy_name;
+			for (var key in data[index]) {
+				if('undefined'!=typeof(data[index][key]["http://purl.org/dc/terms/title"])) {
+					taxonomy_name = data[index][key]["http://purl.org/dc/terms/title"][0].value;
+					break;
+				}
+			}
+			for(var key in data[index]) {
+				if (key.match(/term\/[0-9]*$/g) != null) {
+					if('undefined'!=typeof(data[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"])) {
+						var term_label = data[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"][0].value;
+						suggestions.push({label:term_label+" ("+taxonomy_name+")", value:term_label});
+					}
+				}
+			}
+		}
+		suggestions.sort(function(a,b) {
+			if (a.value < b.value) return -1;
+			if (a.value > b.value) return 1;
+			return 0;
+		})
+		$('#title').autocomplete({source:suggestions});
+	});
 	
 	// Additional metadata
 	$('#metadata_rows').nextAll('.add_additional_metadata:first').click(function() {
@@ -230,8 +257,6 @@ $(window).ready(function() {
 
 });
 
-
-
 /**
  * Determine if the page is a composite or media and show/hide certain elements accordingly
  */
@@ -248,6 +273,59 @@ function checkTypeSelect() {
 		$('.type_composite').hide();
 		$('.content_type').html('media');
 	}
+}
+
+/**
+ * Toggle a zone (e.g., style, metadata, etc)
+ */
+
+(function($){
+    $.fn.extend({ 
+        toggle_zone: function() {
+            return this.each(function() {
+            	var $arrow = $(this);
+            	var $parent = $arrow.closest('tr, div');
+            	var is_open = $arrow.hasClass('edit_page_arrow_down') ? true : false;
+            	if (is_open) {
+            		$arrow.removeClass('edit_page_arrow_down').addClass('edit_page_arrow_right');
+            	} else {
+            		$arrow.removeClass('edit_page_arrow_right').addClass('edit_page_arrow_down');
+            	}
+            	$parent.children(':nth-child(2)').toggle();
+            });
+        }
+    });  
+})(jQuery);
+
+/** 
+ * Escape the last URI segment (the filename)
+ */
+
+function escpaeLastURISegment(uri) {
+	if (!uri || 'undefined'==typeof(uri) || -1==uri.indexOf('/')) return uri;
+	if (uri.indexOf('%')!=-1) return uri;
+	var segments = uri.split('/');
+	var filename_segments = segments[segments.length-1].split('?');
+	var filename = filename_segments[0];
+	var getvars = ('undefined'!=typeof(filename_segments[1])) ? filename_segments[1] : null;;
+    var uri_to_return = '';
+    for (var j = 0; j < segments.length-1; j++) {
+    	uri_to_return += segments[j]+'/';
+    }
+    uri_to_return += escape(filename);
+    if (getvars) uri_to_return += '?'+getvars
+	return uri_to_return;
+}
+
+function ucwords (str) {
+	// http://kevin.vanzonneveld.net
+	return (str + '').replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function ($1) {
+		return $1.toUpperCase();
+	});
+}
+
+function dash_to_space(str) {
+	return str.replace(/-/g, ' ');
 }
 
 /**

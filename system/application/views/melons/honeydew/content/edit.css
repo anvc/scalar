@@ -53,7 +53,7 @@ label {cursor:pointer;}
 
 #path_color {margin-top:22px;}
 #path_continue_to {margin-bottom:12px;}
-#has_path, #has_tag, #has_annotation, #has_reply {margin-top:20px;}
+/* #has_path, #has_tag, #has_annotation, #has_reply {margin-top:20px;} */
 
 .editor_generic_popup {
 	border:solid 6px #999999;
