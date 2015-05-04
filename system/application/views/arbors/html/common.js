@@ -48,9 +48,16 @@ function validate_upload_form_file_return($form) {
 
 	var iframe = $form.find('iframe:first')[0];
 	var content = iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
-	var obj = jQuery.parseJSON(content);
-	console.log(obj);
-	if ('undefined'!=typeof(obj.error) && obj.error.length) {
+	try {
+		var obj = jQuery.parseJSON(content);
+	} catch(err) {
+		$(iframe).unbind();
+		$(iframe).attr('src', '');
+		send_form_hide_loading();
+		alert('There was an error saving the file: the filesize is too large ('+err+')');
+		return;
+	}
+	if ('undefined'!=typeof(obj) && 'undefined'!=typeof(obj.error) && obj.error.length) {
 		$(iframe).unbind();
 		$(iframe).attr('src', '');
 		send_form_hide_loading();
@@ -388,6 +395,7 @@ function get_str(remove_arr) {
 
 // http://stackoverflow.com/questions/11920697/how-to-get-hash-value-in-a-url-in-js
 function getHashValue(key) {
+	if (!location.hash.length) return false;
 	return location.hash.match(new RegExp(key+'=([^&]*)'))[1];
 }
 

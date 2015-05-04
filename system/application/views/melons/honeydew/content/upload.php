@@ -36,9 +36,9 @@ function insert_rel_fields(current_urn, current_slug) {
         } else {
         	fields.push({name:'has_container',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
         	var path_index = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#index=')+7);
-        	fields.push({name:'has_container_sort_number',value:path_index});       	
+        	fields.push({name:'has_container_sort_number',value:path_index});
         }
-      }      
+      }
       // Replies
       if (-1!=s.indexOf('urn:scalar:reply')) {
         if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
@@ -47,7 +47,7 @@ function insert_rel_fields(current_urn, current_slug) {
         	var datetime = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#datetime=')+10);
         	datetime = datetime.replace('T',' ');
         	datetime = datetime.substr(0, datetime.indexOf('+'));
-        	fields.push({name:'reply_of_datetime',value:datetime});         	
+        	fields.push({name:'reply_of_datetime',value:datetime});
         } else {
         	fields.push({name:'has_reply',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
         	fields.push({name:'has_reply_paragraph_num',value:0});
@@ -56,7 +56,7 @@ function insert_rel_fields(current_urn, current_slug) {
         	datetime = datetime.substr(0, datetime.indexOf('+'));
         	fields.push({name:'has_reply_datetime',value:datetime});
         }
-      }            
+      }
       // Annotations
       if (-1!=s.indexOf('urn:scalar:anno')) {
         if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
@@ -67,12 +67,12 @@ function insert_rel_fields(current_urn, current_slug) {
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
         	var seconds = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')+5);
         	var start_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[0] : 0;
-        	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;    
-        	fields.push({name:'annotation_of_points',value:points});    
+        	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
+        	fields.push({name:'annotation_of_points',value:points});
 			fields.push({name:'annotation_of_start_line_num',value:start_line_num});
 			fields.push({name:'annotation_of_end_line_num',value:end_line_num});
 			fields.push({name:'annotation_of_start_seconds',value:start_seconds});
-			fields.push({name:'annotation_of_end_seconds',value:end_seconds});        	
+			fields.push({name:'annotation_of_end_seconds',value:end_seconds});
         } else {
         	fields.push({name:'has_annotation',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
         	var points = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#xywh=')+6);
@@ -81,14 +81,14 @@ function insert_rel_fields(current_urn, current_slug) {
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
         	var seconds = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')+5);
         	var start_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[0] : 0;
-        	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;    
-        	fields.push({name:'has_annotation_points',value:points});    
+        	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
+        	fields.push({name:'has_annotation_points',value:points});
 			fields.push({name:'has_annotation_start_line_num',value:start_line_num});
 			fields.push({name:'has_annotation_end_line_num',value:end_line_num});
 			fields.push({name:'has_annotation_start_seconds',value:start_seconds});
 			fields.push({name:'has_annotation_end_seconds',value:end_seconds});
         }
-      }          
+      }
       // Tags
       if (-1!=s.indexOf('urn:scalar:tag')) {
         if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
@@ -103,7 +103,7 @@ function insert_rel_fields(current_urn, current_slug) {
       	version = data[version]['http://scalar.usc.edu/2012/01/scalar-ns#version'][0].value;
       	fields.push({name:'has_reference',value:get_urn_from_uri(data,version)});
       	fields.push({name:'has_reference_reference_text',value:''})
-      }                
+      }
     }
     for (var j = 0; j < fields.length; j++) {
       insert_into.append('<input type="hidden" name="'+fields[j].name+'" value="'+fields[j].value+'" />');
@@ -142,7 +142,7 @@ $this->template->add_js($js, 'embed');
 Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than 2 MB in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).
 <br /><br />
 
-<b>Recommended formats (most compatible):</b><br />css, gif, html, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml 
+<b>Recommended formats (most compatible):</b><br />css, gif, html, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml
 <br /><br />
 
 Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm
