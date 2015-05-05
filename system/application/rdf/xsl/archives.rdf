@@ -96,8 +96,9 @@
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>SoundCloud</dc:title>
 		<dcterms:description><![CDATA[SoundCloud is the "the world's largest community of sound creators." (SoundCloud.com)]]></dcterms:description>
-		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/soundcloud.xsl" />
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/soundcloud_2.xsl" />
 		<scalar:getStr><![CDATA[q=$1&limit=50&offset=$2&consumer_key=55070ba50cb72b8e26f220916c4d54a3]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>		
 	
 	<rdf:Description rdf:about="http://www.play.annenberginnovationlab.org/play2.0/api/search.php">
