@@ -202,11 +202,11 @@ class Book_model extends MY_Model {
     public function is_auto_approve($book) {
         if (stristr($book->title, 'data-auto-approve="true"')) return true;
         return false;
-    }    
+    }
     public function is_email_authors($book) {
         if (stristr($book->title, 'data-email-authors="true"')) return true;
         return false;
-    }    
+    }
 	public function has_paywall($book) {
 		if (empty($book)) return false;
 		$tinypass_config_path = confirm_slash(FCPATH).$book->slug.'/tinypass.php';
@@ -252,7 +252,7 @@ class Book_model extends MY_Model {
     		 "AND A.book_id = $book_id " .
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
-    		 "AND (B.url LIKE '%.wav' OR B.url LIKE '%.mp3' OR B.url LIKE '%.oga' OR B.url LIKE '%WAVE%' OR B.url LIKE '%MP3%') " .
+    		 "AND (B.url LIKE '%.wav' OR B.url LIKE '%.mp3' OR B.url LIKE '%soundcloud%' OR B.url LIKE '%.oga' OR B.url LIKE '%.wav' OR B.url LIKE '%WAVE%' OR B.url LIKE '%MP3%') " .
     		 "ORDER BY B.title ASC";
     	$query = $this->db->query($q);
     	if (mysql_errno()!=0) echo 'Error: '.mysql_error()."\n";
