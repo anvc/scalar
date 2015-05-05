@@ -522,7 +522,7 @@ class CI_Template {
          case 'embed':
             $css = '<style type="text/css">';
             $css .= $style;
-            $css .= '</style>';
+            $css .= '</style>'."\n";
             break;
 
          default:
