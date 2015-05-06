@@ -132,7 +132,7 @@ END;
 $this->template->add_js($js, 'embed');
 $css = <<<END
 h2 {margin-top:0; padding-top:0; margin-left:0; padding-left:0; margin-right:0; padding-right:0;}
-.ci-template-html {font-family:Georgia,Times,serif !important;}
+.ci-template-html {font-family:Georgia,Times,serif !important; padding-left:7.2rem; padding-right:7.2rem;}
 #centered-message {display:none;}
 .upload-page table label {margin-bottom:0;}
 .upload-page table tr td:first-of-type {font-family:"Lato",Arial,sans-serif !important; padding-right:20px; white-space:nowrap;}
