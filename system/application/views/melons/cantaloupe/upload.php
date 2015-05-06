@@ -132,14 +132,16 @@ END;
 $this->template->add_js($js, 'embed');
 $css = <<<END
 h2 {margin-top:0; padding-top:0; margin-left:0; padding-left:0; margin-right:0; padding-right:0;}
+.ci-template-html {font-family:Georgia,Times,serif !important;}
 #centered-message {display:none;}
-.upload-page table tr td:first-of-type {padding-right:20px; white-space:nowrap;}
+.upload-page table label {margin-bottom:0;}
+.upload-page table tr td:first-of-type {font-family:"Lato",Arial,sans-serif !important; padding-right:20px; white-space:nowrap;}
 .upload-page table td {vertical-align:middle !important; padding-bottom:12px;}
 .upload-page table .buttons {padding-top:12px;}
 END;
 $this->template->add_css($css, 'embed');
 ?>
-<h2>Import Local Media Files</h2>
+<h2 class="heading_font">Import Local Media Files</h2>
 <?=(!empty($content)) ? $content.'<br /><br />' : ''?>
 Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than <?=ini_get('upload_max_filesize')?> in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).<br /><br />
 Recommended formats (most compatible): css, gif, html, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml<br />
@@ -160,12 +162,12 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	<tr><td>Title</td><td><input type="text" id="title" name="dcterms:title" class="form-control" /></td></tr>
 	<tr><td>Description</td><td><input type="text" id="description" name="dcterms:description" class="form-control" /></td></tr>
 	<tr><td>Upload to</td><td>
-		<label><input type="radio" name="slug_prepend" value="" /> <?=confirm_slash($book->slug)?></label>&nbsp; &nbsp;
-		<label><input type="radio" id="upload_to" name="slug_prepend" value="media" CHECKED /> <?=confirm_slash($book->slug)?>media</label>
+		<label><input type="radio" name="slug_prepend" value="" />&nbsp; <?=confirm_slash($book->slug)?></label>&nbsp; &nbsp;
+		<label><input type="radio" id="upload_to" name="slug_prepend" value="media" CHECKED />&nbsp; <?=confirm_slash($book->slug)?>media</label>
 	</td></tr>
 	<tr><td>Media page URL</td><td>
-		<label><input type="radio" name="name_policy" value="filename" /> Create from filename</label>&nbsp; &nbsp;
-		<label><input type="radio" name="name_policy" value="title" CHECKED /> Create from title</label>
+		<label><input type="radio" name="name_policy" value="filename" />&nbsp; Create from filename</label>&nbsp; &nbsp;
+		<label><input type="radio" name="name_policy" value="title" CHECKED />&nbsp; Create from title</label>
 	</td></tr>
 	<tr><td class="field">Replace existing</td><td>
 		<select name="replace" class="form-control"><option rel="" value="">-- choose an existing local media file to replace with this upload</option><?
