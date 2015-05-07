@@ -292,16 +292,25 @@ class RDF_Object {
 		if (empty($settings['content'])) return;
 		if (!is_array($settings['content'])) $settings['content'] = array($settings['content']);	
 		$settings['total'] = count($settings['content']);
-		if (!empty($settings['pagination']) && $settings['pagination']['start']>0) $settings['content'] = array_slice($settings['content'], $settings['pagination']['start']);
-		$count = 0;
 
+		$count = 0;
+		$skips = 0;
 		foreach ($settings['content'] as $row) {
+	    	$temp_return = array();
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
-			$this->_content_by_ref($return, $row, $settings);
-			if (!isset($this->version_cache[$row->content_id])) {
+
+			$this->_content_by_ref($temp_return, $row, $settings);
+			if(sizeof($temp_return) == 0 || !isset($this->version_cache[$row->content_id])) {
 				$settings['total']--;
 				continue;
-			} 
+			}
+			if (!empty($settings['pagination']) && $settings['pagination']['start']>$skips) {
+				$settings['total']--;
+				$skips++;
+				continue;				
+			}
+			$return = array_merge((array)$return,(array)$temp_return);
+
 			$this->_provenance_by_ref($return, $row, $this->version_cache[$row->content_id], $settings);
 			$this->_relationships_by_ref($return, $this->version_cache[$row->content_id], $settings);
 			$count++;
