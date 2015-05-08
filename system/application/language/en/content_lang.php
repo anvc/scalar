@@ -64,6 +64,6 @@ $lang['acls_email.request_author_role_subject'] = $lang['install_name'].': Reque
 $lang['acls_email.user_joined_subject'] = $lang['install_name'].': A User has Joined  Your Book, "%s"';
 $lang['acls_email.elevate_user_subject'] = $lang['install_name'].': Author Request for "%s" Approved';
 
-//EOF
+//EOF 
 
 ?>
