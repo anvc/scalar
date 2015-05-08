@@ -200,8 +200,12 @@
 					if ( rulesGroup ) {
 						ret = rulesGroup.exec( context, element, this );
 
-						if ( ret === false )
-							return null;
+						if ( ret === false ) {
+							// Updated by Craig Dietrich 6 May 2015
+							// This removes empty <a>'s .. which is a problem for Scalar's <a class="inline"></a>
+							// return null;
+							if (element.name != 'a') return null;
+						}
 
 						if ( ret && ret != element )
 							return this.onNode( context, ret );

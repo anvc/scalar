@@ -1690,7 +1690,10 @@
 			case 'a':
 				// Code borrowed from htmlDataProcessor, so ACF does the same clean up.
 				if ( !( element.children.length || element.attributes.name ) )
-					return false;
+					// Upated by Craig Dietrich 6 May 2015
+					// This, along with filter.onElement, removes empty <a> tags
+					//return false;
+					return true;
 				break;
 			case 'img':
 				if ( !element.attributes.src )

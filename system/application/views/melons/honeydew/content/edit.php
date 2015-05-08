@@ -3,13 +3,14 @@
 <?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
 <?$this->template->add_css('system/application/views/widgets/wysiwyg/jquery.wysiwyg.css')?>
 <?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
-<?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
+<?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/content/edit.js')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/wysiwyg/jquery.wysiwyg.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/farbtastic/farbtastic.js')?>
 <?$this->template->add_js('system/application/views/widgets/spinner/spin.min.js')?>
@@ -128,11 +129,11 @@ endif;
 			    <td valign="top"><span class="inline_icon_link path"></span></td>
 			    <td valign="top"><?
 			if (empty($page) || empty($page->versions[$page->version_index]->path_of)) {
-				echo '<span id="path_msg"><b>To make this <span class="content_type">page</span> a path</b>, <a href="javascript:void(null);" onclick="listeditor_add($(this).parent().parent().find(\'#container_of_editor\'), \'add_path_item\')">specify the items that it contains</a></span><br />'."\n";
+				echo '<span class="path_of_msg"><b>To make this <span class="content_type">page</span> a path</b>, <a href="javascript:void(null);">specify the items that it contains</a></span><br />'."\n";
 			} else {
-				echo '<span id="path_msg"><b>This <span class="content_type">page</span> is also a path</b> which contains:</span><br />'."\n";
+				echo '<span class="path_of_msg"><b>This <span class="content_type">page</span> is also a path</b> which contains:</span><br />'."\n";
 			}
-			echo '      <ol id="container_of_editor" class="edit_relationship_list sortable">'."\n";
+			echo '      <ol id="path_of" class="edit_relationship_list sortable">'."\n";
 			if (!empty($page)&&!empty($page->versions[$page->version_index]->path_of)) {
 				foreach ($page->versions[$page->version_index]->path_of as $node) {
 					$title = $node->versions[0]->title;
@@ -140,40 +141,40 @@ endif;
 					echo '      <li>';
 					echo '<input type="hidden" name="container_of" value="'.$node->versions[0]->urn.'" />';
 					echo $title;
-					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
+					echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 					echo '</li>'."\n";
 				}
 			}
 			echo "      </ol>\n";
 			?>
-			      <div class="form_fields_sub_element" id="container_of_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#container_of_editor'), 'add_path_item')">Add more content</a> or drag items to reorder</div>
+			      <div class="form_fields_sub_element path_of_msg" style="display:none;"><a class="generic_button border_radius">Add more content</a> or drag items to reorder</div>
 
-			      <div class="form_fields_sub_element form_fields_sub_element_border_top form_fields_sub_element_border_bottom" id="path_continue_to" style="display:none;margin-top:12px;">After path is completed, continue to <input type="hidden" name="scalar:continue_to_content_id" value="<?=((!empty($continue_to))?$continue_to->content_id:'')?>" /><span style="font-weight:bold"><?=((!empty($continue_to))?$continue_to->versions[$continue_to->version_index]->title:'none')?></span>&nbsp; <a href="javascript:;" onclick="listeditor_add(null,'add_continue_to', null, false, true)">add</a> | <a href="javascript:" onclick="clear_continue_to();">clear</a></div>
+			      <div class="form_fields_sub_element form_fields_sub_element_border_top form_fields_sub_element_border_bottom path_of_continue_msg" style="display:none;margin-top:12px;">After path is completed, continue to <input type="hidden" name="scalar:continue_to_content_id" value="<?=((!empty($continue_to))?$continue_to->content_id:'')?>" /><span class="title" style="font-weight:bold"><?=((!empty($continue_to))?$continue_to->versions[$continue_to->version_index]->title:'none')?></span>&nbsp; <a href="javascript:;">add</a> | <a href="javascript:">clear</a></div>
 
 			<? if (!empty($page)&&!empty($page->versions[$page->version_index]->has_paths)): ?>
 				  <div id="has_path">
 			        <b>This page is contained by</b> the following paths:<br />
 			        <ul class="edit_relationship_list">
 			<?
-				foreach ($page->versions[$page->version_index]->has_paths as $node) {
-					$title = $node->versions[0]->title;
-					$rel_uri = $base_uri.$node->slug;
-					$rel_sort_number = 0;
-					$count = 1;
-					foreach ($node->versions[0]->path_of as $path_of) {
-						if ($path_of->content_id == $page->content_id) {
-							$rel_sort_number = $count;
-							break;
+					foreach ($page->versions[$page->version_index]->has_paths as $node) {
+						$title = $node->versions[0]->title;
+						$rel_uri = $base_uri.$node->slug;
+						$rel_sort_number = 0;
+						$count = 1;
+						foreach ($node->versions[0]->path_of as $path_of) {
+							if ($path_of->content_id == $page->content_id) {
+								$rel_sort_number = $count;
+								break;
+							}
+							$count++;
 						}
-						$count++;
+						echo '<li>';
+						echo '<input type="hidden" name="has_container" value="'.$node->versions[0]->urn.'" />';
+						echo '<input type="hidden" name="has_container_sort_number" value="'.$rel_sort_number.'" />';
+						echo $title.' (page '.$rel_sort_number.')';
+						echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
+						echo '</li>';
 					}
-					echo '<li>';
-					echo '<input type="hidden" name="has_container" value="'.$node->versions[0]->urn.'" />';
-					echo '<input type="hidden" name="has_container_sort_number" value="'.$rel_sort_number.'" />';
-					echo '<a class="rel_link" href="'.$rel_uri.'" title="'.$rel_uri.'">'.$title.'</a> (page '.$rel_sort_number.')';
-					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
-					echo '</li>';
-				}
 			?>
 			        </ul>
 			      </div>
@@ -186,11 +187,11 @@ endif;
 			    <td valign="top"><span class="inline_icon_link reply"></span></td>
 			    <td valign="top"><?
 			if (empty($page) || empty($page->versions[$page->version_index]->reply_of)) {
-				echo '<span id="reply_msg"><b>To make this <span class="content_type">page</span> a comment</b>, <a href="javascript:void(null);" onclick="listeditor_add($(this).parent().parent().find(\'#reply_of_editor\'), \'add_reply_of_item\')">specify the items that it comments on</a></span><br />'."\n";
+				echo '<span class="reply_of_msg"><b>To make this <span class="content_type">page</span> a comment</b>, <a href="javascript:void(null);">specify the items that it comments on</a></span><br />'."\n";
 			} else {
-				echo '<span id="reply_msg"><b>This <span class="content_type">page</span> is also a comment</b> which comments on:</span><br />'."\n";
+				echo '<span class="reply_of_msg"><b>This <span class="content_type">page</span> is also a comment</b> which comments on:</span><br />'."\n";
 			}
-			echo '      <ul id="reply_of_editor" class="edit_relationship_list">'."\n";
+			echo '      <ul id="reply_of" class="edit_relationship_list">'."\n";
 			if (!empty($page)&&!empty($page->versions[$page->version_index]->reply_of)) {
 				foreach ($page->versions[$page->version_index]->reply_of as $node) {
 					$title = $node->versions[0]->title;
@@ -199,14 +200,15 @@ endif;
 					echo '<input type="hidden" name="reply_of" value="'.$node->versions[0]->urn.'" />';
 					echo '<input type="hidden" name="reply_of_paragraph_num" value="'.$node->versions[0]->paragraph_num.'" />';
 					echo '<input type="hidden" name="reply_of_datetime" value="'.$node->versions[0]->datetime.'" />';
-					echo '<a class="rel_link" href="'.$rel_slug.'" title="'.$rel_slug.'">'.$title.'</a> ('.date("j F Y", strtotime($node->versions[0]->datetime)).')&nbsp; ';
-					echo '<span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
+					echo $title.' ('.date("j F Y", strtotime($node->versions[0]->datetime)).')&nbsp; ';
+					echo '<span class="remove">(<a href="javascript:;">remove</a>)</span>';
 					echo '</li>'."\n";
 				}
 			}
 			echo "      </ul>\n";
 			?>
-			      <div class="form_fields_sub_element" id="reply_of_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#reply_of_editor'), 'add_reply_of_item')">Add more content</a></div>
+			      <div class="form_fields_sub_element reply_of_msg" style="display:none;"><a class="generic_button border_radius">Add more content</a></div>
+
 			<? if (!empty($page)&&!empty($page->versions[$page->version_index]->has_replies)): ?>
 			 	  <div id="has_reply">
 			      	<b>This <span class="content_type">page</span> is commented on by</b> the following comments:<br />
@@ -219,8 +221,8 @@ endif;
 					echo '<input type="hidden" name="has_reply" value="'.$node->versions[$node->version_index]->urn.'" />';
 					echo '<input type="hidden" name="has_reply_paragraph_num" value="'.$node->versions[$node->version_index]->paragraph_num.'" />';
 					echo '<input type="hidden" name="has_reply_datetime" value="'.$node->versions[$node->version_index]->datetime.'" />';
-					echo '<a class="rel_link" href="'.$rel_slug.'" title="'.$rel_slug.'">'.$title.'</a> ('.date("j F Y", strtotime($node->versions[$node->version_index]->datetime)).')';
-					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
+					echo $title.' ('.date("j F Y", strtotime($node->versions[$node->version_index]->datetime)).')';
+					echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 					echo '</li>';
 				}
 			?>
@@ -234,21 +236,20 @@ endif;
 			  <tr id="tr_annotation_of">
 			    <td valign="top"><span class="inline_icon_link annotation"></span></td>
 			    <td valign="top">
-			    <div id="annotation_of">
 			    <?
 				if (empty($page) || empty($page->versions[$page->version_index]->annotation_of)) {
-					echo '<span id="annotation_msg"><b>To make this <span class="content_type">page</span> an annotation</b>, <a href="javascript:void(null);" onclick="listeditor_add($(this).parent().parent().find(\'#annotation_of_editor\'), \'add_annotation_of_item\', \'media\', true)">specify media that it annotates</a></span>'."\n";
+					echo '<span class="annotation_of_msg"><b>To make this <span class="content_type">page</span> an annotation</b>, <a href="javascript:void(null);">specify media that it annotates</a></span><br />'."\n";
 				} else {
-					echo '<span id="annotation_msg"><b>This <span class="content_type">page</span> is also a annotation</b> which annotates:</span><br />'."\n";
+					echo '<span class="annotation_of_msg"><b>This <span class="content_type">page</span> is also a annotation</b> which annotates:</span><br />'."\n";
 				}
-				echo '      <ul id="annotation_of_editor" class="edit_relationship_list">'."\n";
+				echo '      <ul id="annotation_of" class="edit_relationship_list">'."\n";
 				if (!empty($page)&&!empty($page->versions[$page->version_index]->annotation_of)) {
 					foreach ($page->versions[$page->version_index]->annotation_of as $node) {
 						$title = $node->versions[0]->title;
 						$rel_slug = $base_uri.$node->slug;
 						echo '      <li>';
 						echo '<input type="hidden" name="annotation_of" value="'.$node->versions[0]->urn.'" />';
-						echo '<a class="rel_link" href="'.$rel_slug.'" title="'.htmlspecialchars($rel_slug).'">'.$title.'</a><br />';
+						echo $title.'<br />';
 						if (!empty($node->versions[0]->start_seconds) || !empty($node->versions[0]->end_seconds)) {
 							echo 'Start seconds: <input onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_seconds" value="'.$node->versions[0]->start_seconds.'" />';
 							echo '&nbsp; End seconds<input onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_seconds" value="'.$node->versions[0]->end_seconds.'" />';
@@ -269,15 +270,15 @@ endif;
 							echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 						}
-						echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)';
+						echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)';
 						echo '</span>';
 						echo '</li>'."\n";
 					}
 				}
 				echo "      </ul>\n";
 			?>
-				<div class="form_fields_sub_element" id="annotation_of_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#annotation_of_editor'), 'add_annotation_of_item', 'media')">Annotate additional media</a></div>
-				</div>
+				<div class="form_fields_sub_element annotation_of_msg" style="display:none;"><a class="generic_button border_radius">Annotate additional media</a></div>
+
 			<?
 			   if (!empty($page)&&!empty($page->versions[$page->version_index]->has_annotations)): ?>
 
@@ -290,7 +291,7 @@ endif;
 					$rel_slug = $base_uri.$node->slug;
 					echo' <li resource="'.$node->slug.'">';
 					echo '<input type="hidden" name="has_annotation" value="'.$node->versions[0]->urn.'" />';
-					echo '<a class="rel_link" href="'.$rel_slug.'" title="'.htmlspecialchars($rel_slug).'">'.$title.'</a><br />';
+					echo $title.'<br />';
 					if (!empty($node->versions[0]->start_seconds) || !empty($node->versions[0]->end_seconds)) {
 						echo 'Start seconds: <input type="text" style="width:75px;" name="has_annotation_start_seconds" value="'.$node->versions[0]->start_seconds.'" />';
 						echo '&nbsp; End seconds<input type="text" style="width:75px;" name="has_annotation_end_seconds" value="'.$node->versions[0]->end_seconds.'" />';
@@ -311,7 +312,7 @@ endif;
 						echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 						echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 					}
-					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
+					echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 					echo '</li>';
 				}
 			?>
@@ -325,40 +326,37 @@ endif;
 			  <tr id="tr_tag_of">
 			    <td valign="top"><span class="inline_icon_link tag"></span></td>
 			    <td valign="top">
-			    	<div class="tag_of">
 			    <?
 			if (empty($page) || empty($page->versions[$page->version_index]->tag_of)) {
-				echo '<span id="tag_msg"><b>To make this <span class="content_type">page</span> a tag</b>, <a href="javascript:void(null);" onclick="listeditor_add($(this).parent().parent().find(\'#tag_of_editor\'), \'add_tag_of_item\')">specify the items that it tags</a></span><br />'."\n";
+				echo '<span class="tag_of_msg"><b>To make this <span class="content_type">page</span> a tag</b>, <a href="javascript:void(null);">specify the items that it tags</a></span><br />'."\n";
 			} else {
-				echo '<span id="tag_msg"><b>This <span class="content_type">page</span> is also a tag</b> which tags:</span><br />'."\n";
+				echo '<span class="tag_of_msg"><b>This <span class="content_type">page</span> is also a tag</b> which tags:</span><br />'."\n";
 			}
-			echo '      <ul id="tag_of_editor" class="edit_relationship_list">'."\n";
+			echo '      <ul id="tag_of" class="edit_relationship_list">'."\n";
 			if (isset($page->version_index) && !empty($page->versions[$page->version_index]->tag_of)) {
 				foreach ($page->versions[$page->version_index]->tag_of as $node) {
 					$title = $node->versions[0]->title;
 					$rel_uri = $base_uri.$node->slug;
 					echo '      <li>';
 					echo '<input type="hidden" name="tag_of" value="'.$node->versions[0]->urn.'" />';
-					echo '<a class="rel_link" href="'.$rel_uri.'" title="">';
 					echo $title;
-					echo '</a>';
-					echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
+					echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 					echo '</li>'."\n";
 				}
 			}
 			echo "      </ul>\n";
 			?>
-				<div class="form_fields_sub_element" id="tag_of_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#tag_of_editor'), 'add_tag_of_item')">Tag additional content</a></div>
-				</div>
-				<div id="has_tag">
+				<div class="form_fields_sub_element tag_of_msg" style="display:none;"><a class="generic_button border_radius">Tag additional content</a><br /><br /></div>
+
+				<div id="tr_has_tag">
 			<?
 				if (empty($page) || empty($page->versions[$page->version_index]->has_tags)) {
-					echo '<span id="has_tag_msg"><b>To tag this <span class="content_type">page</span>,</b> <a href="javascript:void(null);" onclick="listeditor_add($(this).parent().parent().find(\'#has_tag_editor\'), \'add_has_tag_item\', \'tag\')">specify items that tag it</a></span><br />'."\n";
+					echo '<span class="has_tag_msg"><b>To tag this <span class="content_type">page</span>,</b> <a href="javascript:void(null);">specify items that tag it</a></span><br />'."\n";
 				} else {
-					echo '<span id="has_tag_msg"><b>This <span class="content_type">page</span> is tagged by</b> the following tags:</span><br />'."\n";
+					echo '<span class="has_tag_msg"><b>This <span class="content_type">page</span> is tagged by</b> the following tags:</span><br />'."\n";
 				}
 			?>
-				<ul id="has_tag_editor" class="edit_relationship_list">
+				<ul id="has_tag" class="edit_relationship_list">
 			<?
 				if (isset($page->version_index) && !empty($page->versions[$page->version_index]->has_tags)) {
 					foreach ($page->versions[$page->version_index]->has_tags as $node):
@@ -366,15 +364,15 @@ endif;
 						$rel_uri = $base_uri.$node->slug;
 						echo' <li>';
 						echo '<input type="hidden" name="has_tag" value="'.$node->versions[$page->version_index]->urn.'" />';
-						echo '<a class="rel_link" href="'.$rel_uri.'" title="'.$rel_uri.'">'.$title.'</a>';
-						echo '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
+						echo $title;
+						echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 						echo '</li>';
 					endforeach;
 				}
 			?>
 				</ul>
 
-				<div class="form_fields_sub_element" id="has_tag_add_content" style="display:none;"><a class="generic_button border_radius" onclick="listeditor_add($(this).parent().parent().find('#has_tag_editor'), 'add_has_tag_item')">Add additional tags</a></div>
+				<div class="form_fields_sub_element" class="has_tag_msg" style="display:none;"><a class="generic_button border_radius">Add additional tags</a></div>
 				</div>
 			    </td>
 			  </tr>
