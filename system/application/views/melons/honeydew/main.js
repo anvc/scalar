@@ -148,7 +148,7 @@ $(window).ready(function() {
 					for (var j = 0; j < tags.length; j++) {
 						var $tag = $(tags[j]);
 						if (typeof($tag.data('mediaelement'))=='object') {
-							$('.annobuilder:first').annobuilder( {link:$tag} );  /* Erik: not sure why this isn't firing */
+							$('.annobuilder:first').annobuilder( {link:$tag} ); 
 							break;
 						}
 					}       	

@@ -647,11 +647,13 @@ class Book extends MY_Controller {
 	private function annotation_editor_view() {
 
 		// Force the honeydew melon; presently no other melon has editing features
+		/*
 		$this->data['melon'] = 'honeydew';
 		if (!file_exists(APPPATH.'views/melons/honeydew/config.php')) echo '<p>Warning: Honeydew theme does not exist, this page might render oddly.</p>';
 		include(APPPATH.'views/melons/honeydew/config.php');  // Hardcoding
 		$this->config->set_item('arbor', $config['arbor']);
 		$this->data['template'] = $this->template->config['active_template'];
+		*/
 
 	}
 

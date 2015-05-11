@@ -827,7 +827,33 @@
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value,
 					extension = scalarapi.getFileExtension( window.location.href );
 
-				if ( extension == '' ) {
+				// Using defaultView rather than <link id="view" /> means that a view can not be chosen via URL extension,
+				// but rather only by setting it as the default view for the page.  Since 'annotation_editor' and 'edit' views
+				// can only be called by extension, then they need to be special cased here ~Craig
+				
+				if ( 'annotation_editor' == extension) {
+					
+					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
+						var approot = $('link#approot').attr('href');
+						$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
+						$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
+							var content = $( 'article > span[property="sioc:content"]' );
+							content.prepend('<br clear="both" />');
+							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="medium"></a>' ).prependTo(content);
+							link.wrap( '<div></div>' );
+							page.addMediaElementForLink( link, link.parent() );
+							link.css('display', 'none');	
+							$('.annobuilder:first').annobuilder( {link:link} ); 
+						});
+					} else {
+						$('article > span[property="sioc:content"]').append('<div>This is not a media page.</div>');
+					}
+					
+				} else if ( 'edit' == extension) {
+					
+					console.log('edit');  // TODO
+				
+				} else if ( '' == extension ) {
 
 					switch (viewType) {
 
@@ -1039,7 +1065,7 @@
 
 					}
 					
-				}
+				} //if(extension)
 
 			},
 
