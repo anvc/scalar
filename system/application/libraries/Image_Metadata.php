@@ -53,14 +53,16 @@ class Image_Metadata {
 		$return = array();
 		if (!$iptc->isValid()) return $return;
 		$arr = $iptc->getAllTags();
-		foreach ($arr as $field => $value) {
-			if (!isset($this->iptc[$field])) continue;
-			$_field = $this->iptc[$field];
-			$_value = array();
-			foreach ($value as $val) {
-				if (!empty($val)) $_value[] = utf8_encode($val);
+		if (is_array($arr)) {
+			foreach ($arr as $field => $value) {
+				if (!isset($this->iptc[$field])) continue;
+				$_field = $this->iptc[$field];
+				$_value = array();
+				foreach ($value as $val) {
+					if (!empty($val)) $_value[] = utf8_encode($val);
+				}
+				if (!empty($_value)) $return[$_field] = $_value;
 			}
-			if (!empty($_value)) $return[$_field] = $_value;
 		}
 		return $return;
 
