@@ -476,7 +476,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		
 		$.annobuilder.view.builder.update();
 
-		console.log( $($.annobuilder.model.element).html() );
+		//console.log( $($.annobuilder.model.element).html() );
 
 	}
 
