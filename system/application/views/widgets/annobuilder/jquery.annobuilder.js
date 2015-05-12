@@ -400,45 +400,44 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.setup = function() {
 
 		this.container = $('<div class="annotationListContainer"></div>');
-		$($.annobuilder.model.element).html(this.container);
+		$($.annobuilder.model.element).append(this.container);
 		
 		var leftColumn = $('<div class="left_column"></div>').appendTo(this.container);
 		this.annotationList = $('<div class="annotationList"></div>').appendTo(leftColumn);
 		
-		var buttonBar = $('<div class="button_bar"><a class="bar_button" href="javascript:;"><img src="'+widgets_uri+'/annobuilder/plus_btn.png" alt="Add" width="13" height="13" /></a><a class="bar_button" href="javascript:;"><img src="'+widgets_uri+'/annobuilder/minus_btn.png" alt="Trash" width="13" height="13" /></a></div>').appendTo(leftColumn);
+		var buttonBar = $('<div class="button_bar"><a class="bar_button" role="button" href="javascript:;"><img src="'+widgets_uri+'/annobuilder/plus_btn.png" alt="Add" width="13" height="13" /></a><a class="bar_button" role="button" href="javascript:;"><img src="'+widgets_uri+'/annobuilder/minus_btn.png" alt="Trash" width="13" height="13" /></a></div>').appendTo(leftColumn);
 		buttonBar.find('a').eq(1).click(this.handleDelete);
 		buttonBar.find('a').eq(0).click(this.handleAdd);
-		
+
 		this.annotationFormMessage = $('<div class="annotationFormMessage">To proceed, select an existing annotation from the list to the left, or create a new one using the plus button.</div>').appendTo(this.container);
 		
-		this.annotationForm = $('<div class="annotationForm"><table class="form_fields"><tbody></tbody></table></div>').appendTo(this.container);
-		this.annotationForm.find('tbody').append('<tr><td class="field">Title</td><td class="value"><input id="annotationTitle" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditTitle()" onkeyup="$.annobuilder.view.builder.handleEditTitle()"/></td></tr>');
+		this.annotationForm = $('<div class="annotationForm"><table class="form_fields form-inline"><tbody></tbody></table></div>').appendTo(this.container);
+		this.annotationForm.find('tbody').append('<tr><td class="field">Title</td><td class="value"><input id="annotationTitle" class="form-control" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditTitle()" onkeyup="$.annobuilder.view.builder.handleEditTitle()"/></td></tr>');
 		
 		switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 		
 			case 'audio':
 			case 'video':
-			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Start: <span id="startTime">00:00:00</span> <a id="setStartTimeBtn" class="generic_button border_radius" style="margin-right:20px;">Set</a> End: <span id="endTime">00:00:00</span> <a id="setEndTimeBtn" class="generic_button border_radius">Set</a></td></tr>');
+			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Start: <span id="startTime">00:00:00</span> &nbsp;<a id="setStartTimeBtn" class="btn btn-success btn-sm generic_button border_radius" role="button" style="margin-right:20px;">Set</a> End: <span id="endTime">00:00:00</span> &nbsp;<a id="setEndTimeBtn" class="btn btn-success btn-sm generic_button border_radius" role="button">Set</a></td></tr>');
 			break;
 			
 			case 'image':
-			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">X: <input id="x" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="xDimType" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select> &nbsp;&nbsp; Y: <input id="y" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="yDimType" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select></td></tr>');
-			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">W: <input id="width" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="widthDimType" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select> &nbsp;&nbsp; H: <input id="height" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="heightDimType" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select></td></tr>');
+			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">X: <input id="x" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="xDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select> &nbsp;&nbsp; Y: <input id="y" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="yDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select></td></tr>');
+			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">W: <input id="width" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="widthDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select> &nbsp;&nbsp; H: <input id="height" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="heightDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select></td></tr>');
 			break;
 			
 			case 'document':
-			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Starting line: <input id="startLine" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()">&nbsp;&nbsp; Ending line: <input id="endLine" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()"></td></tr>');
+			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Starting line: <input id="startLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()">&nbsp;&nbsp; Ending line: <input id="endLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()"></td></tr>');
 			break;
 		
 		}
 		
-		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a>?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
-		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a>?</a><em>Optional abstract of the annotation that, if entered, will be shown alongside the media instead of the full content above. The full content will be available through an additional link.</em></div></td></tr>');
+		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a role="button">?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" class="form-control" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
+		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" class="form-control" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a role="button">?</a><em>Optional abstract of the annotation.</em></div></td></tr>');
 		$('#setStartTimeBtn').click(this.handleSetStartTime);
 		$('#setEndTimeBtn').click(this.handleSetEndTime);
 		
 		this.footerControls = $('<div class="annotationFooterControls"></div>').appendTo($.annobuilder.model.element);
-		$('<div class="annotationInstructions"><p>&nbsp;</p></div>').appendTo($.annobuilder.model.element);
 		
 		var footerRight = $('<span class="annotationFooterRight"></span>').appendTo(this.footerControls);
 		if ($.annobuilder.model.node.current.mediaSource.contentType == 'video') {
@@ -447,13 +446,13 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		
 		footerRight.append('<div id="spinner_wrapper"></div>');
 		
-		var saveLink = $('<span id="saveLink"><strong>You have unsaved changes.</strong> <a class="generic_button large default" href="javascript:;">Save</a></span>').appendTo(footerRight);
+		var saveLink = $('<span id="saveLink"><strong>You have unsaved changes.</strong> <a class="btn btn-primary generic_button large default" role="button" href="javascript:;">Save</a></span>').appendTo(footerRight);
 		saveLink.click(this.handleSave);
 		saveLink.css('display', 'none');
 		var doneMessage = $('<span id="doneMessage">Your changes were saved.</span>').appendTo(footerRight);
 		doneMessage.css('display', 'none');
 		
-		var doneButton = $('<a class="generic_button large" href="javascript:;">Done</a>').appendTo(footerRight);
+		var doneButton = $('<a class="btn btn-default generic_button large" role="button" href="javascript:;">Done</a>').appendTo(footerRight);
 		doneButton.click(function() {
 			var temp = document.location.href.split('.');
 			temp.pop();
@@ -476,6 +475,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		});
 		
 		$.annobuilder.view.builder.update();
+
+		console.log( $($.annobuilder.model.element).html() );
 
 	}
 

@@ -839,7 +839,7 @@
 						$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
 							var content = $( 'article > span[property="sioc:content"]' );
 							content.prepend('<br clear="both" />');
-							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="medium"></a>' ).prependTo(content);
+							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-caption="none" data-size="native"></a>' ).prependTo(content);
 							link.wrap( '<div></div>' );
 							page.addMediaElementForLink( link, link.parent() );
 							link.css('display', 'none');	
@@ -889,7 +889,7 @@
 						if ( viewType == 'structured_gallery' ) {
 							page.gallery.addMedia();
 						}
-						$( 'article > span[property="sioc:content"]' ).find( 'a' ).each(function() {
+						$( 'article > span[property="sioc:content"],.relationships > .annotation_of' ).find( 'a' ).each(function() {
 
 							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
@@ -1273,7 +1273,7 @@
 				}
 			}
 
-			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' )) {
+			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 		  	}
 
@@ -1526,7 +1526,7 @@
                     case "vispath":
                     case "vismedia":
                     case "vistag":
-                    
+
                     switch ( viewType ) {
 
 	                    case "vis":
@@ -1597,6 +1597,13 @@
 					case "history":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Version history</h2>' );
 					$( '.history-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					okToAddExtras = false;
+					break;
+
+					case "annotation_editor":
+					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Annotation editor</h2>' );
+					$( '.annotation_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					$( '.annobuilder' ).addClass( 'caption_font' );
 					okToAddExtras = false;
 					break;
 

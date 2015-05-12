@@ -2,6 +2,7 @@
 .annobuilder {
 	/*margin-top: -41px;*/
 	margin-right: 2px;
+	margin-bottom: 40px;
 }
 
 .annobuilderWarning {
@@ -22,6 +23,7 @@
 	width:250px;
 	border-right: solid 1px #cbcbcb;
 	margin-right: 10px;
+	background: #ebebeb;
 }
 
 .annotationList {
@@ -58,6 +60,7 @@
 	width: 500px;
 	border-spacing: 10px;
 	table-layout: fixed;
+	border-collapse: inherit;
 }
 
 .field {
@@ -83,11 +86,6 @@
 	background-color:#b5d5ff !important;
 }
 
-.annotationInstructions {
-	padding:0 0 20px 0;
-	font-size: 12px;
-}
-
 .annotationFooterControls {
 	padding: 10px 0 10px 0;
 }
@@ -109,6 +107,7 @@
 	top: -25px;
 	border-top: 1px solid #cbcbcb;
 	height: 24px;
+	line-height: 18px;
 	background: #fefefe; /* Old browsers */
 	background: -moz-linear-gradient(top,  #fefefe 0%, #ebebeb 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(100%,#ebebeb)); /* Chrome,Safari4+ */
@@ -123,9 +122,10 @@
 	border-right: 1px solid #cbcbcb;
 	font-weight: normal;
 	color: #858585;
-	font-size: 18px;
+	font-size: 13px;
 	padding: 3px 0;
 	width: 40px;
+	line-height: 18px;
 	text-align: center;
 	background: #fefefe; /* Old browsers */
 	background: -moz-linear-gradient(top,  #fefefe 0%, #ebebeb 100%); /* FF3.6+ */
@@ -172,7 +172,7 @@
 	line-height: 16px;
 	text-align: center;
 	border-radius: 8px;
-	font-size: 10px;
+	font-size: 12px;
 	margin-left: 0px;
 	margin-top: 3px;
 	background: #858585;
