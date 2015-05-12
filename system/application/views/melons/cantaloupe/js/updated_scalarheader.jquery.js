@@ -124,6 +124,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<span class="visible-xs">Navigation</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
+                                                    '<li id="recent_menu" class="dropdown">'+
+                                                        '<a role="button" aria-expanded="false"><span class="menuIcon" id="recentIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Recent</a>'+
+                                                        '<ul class="dropdown-menu" role="menu">'+
+                                                            '<li><i class="loader"></i></li>'+
+                                                        '</ul>'+
+                                                    '</li>'+
                                                 	'<li id="vis_menu" class="dropdown">'+
                                                         '<a role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
@@ -140,12 +146,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '<li><a href="http://scalar.usc.edu/">About Scalar</a></li>'+
                                                             '<li><a href="http://scalar.usc.edu/works/guide">User\'s Guide</a></li>'+
                                                             '<li><a href="'+base.get_param(index_url)+'">More Scalar Projects</a></li>'+
-                                                        '</ul>'+
-                                                    '</li>'+
-                                                    '<li id="recent_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon" id="recentIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Recent</a>'+
-                                                        '<ul class="dropdown-menu" role="menu">'+
-                                                            '<li><i class="loader"></i></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                 '</ul>'+
