@@ -108,13 +108,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '<ul class="dropdown-menu mainMenuDropdown" role="menu">'+
                                                     '<div class="close"><span class="menuIcon closeIcon"></span></div>'+
                                                     '<li class="header"><h2>Table of Contents</h2></li>'+
-                                                    '<li class="top hidden-xs home_link static"><a href="'+base.get_param(home_url)+'"><span class="menuIcon rightArrowIcon pull-right"></span>Home</a></li>'+
+                                                    '<li class="top hidden-xs home_link static"><a href="'+base.get_param(home_url)+'">Home</a></li>'+
                                                     '<li class="body">'+
                                                         '<ol>'+
                                                         '</ol>'+
                                                     '</li>'+
                                                     '<li class="bottom index_link static dropdown" id="indexLink">'+
-                                                        '<a role="button"><span class="menuIcon rightArrowIcon pull-right"></span>Index</a>'+
+                                                        '<a role="button">Index</a>'+
                                                     '</li>'+
                                                     '<div id="mainMenuSubmenus" class="tocMenu"></div>'+
                                                 '</ul>'+
