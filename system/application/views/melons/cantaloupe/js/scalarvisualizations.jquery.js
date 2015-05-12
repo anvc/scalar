@@ -2024,6 +2024,17 @@
 
 				var container = base.svg.selectAll( 'g.container' );
 
+				// Toggle children.
+				function branchToggle(d) {
+					if (d.children) {
+						d._children = d.children;
+						d.children = null;
+					} else {
+						d.children = d._children;
+						d._children = null;
+					}
+				}  
+
 				function branchToggleAll(d) {
 				    if (d.children) {
 				      	d.children.forEach(branchToggleAll);
@@ -2045,8 +2056,6 @@
 				} else {
 					base.hierarchy.children.forEach( branchToggleAll );
 				}
-
-				pathUpdate( base.hierarchy, true );
 
 				function pathUpdate( source, instantaneous ) {
 
@@ -2168,17 +2177,7 @@
 					});
 				}
 
-				// Toggle children.
-				function branchToggle(d) {
-					if (d.children) {
-						d._children = d.children;
-						d.children = null;
-					} else {
-						d.children = d._children;
-						d._children = null;
-					}
-				}  
-
+				pathUpdate( base.hierarchy, true );
 
 			}
 				      	
