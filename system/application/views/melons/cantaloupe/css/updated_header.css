@@ -128,6 +128,28 @@ a.headerIcon{
 	background-image: url(../images/menu_vis_icon_selected.png);
 }
 
+
+.navbar li>a>#homeIcon{
+	width: 3.5rem;
+	margin-right: 0;
+	background-image: url(../images/home_gray.png);
+	background-size: 2rem;
+}
+.navbar li:hover>a>#homeIcon{
+	background-image: url(../images/home_white.png);
+}
+
+
+.navbar li>a>#indexIcon{
+	background-size: 1.5rem;
+	width: 3.5rem;
+	margin-right: 0;
+	background-image: url(../images/index_gray.png);
+}
+.navbar li:hover>a>#indexIcon{
+	background-image: url(../images/index_white.png);
+}
+
 .navbar li>a>#scalarIcon{
 	background-image: url(../images/menu_scalar_icon.png);
 }
@@ -457,7 +479,7 @@ a.headerIcon{
 	display: block;
 	width: auto;
 	margin-right: 0;
-	padding-left: 3.5rem;
+	padding-left: 0;
 	padding-right: 0;
 }
 .mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
