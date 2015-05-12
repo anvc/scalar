@@ -686,10 +686,10 @@ i.loader{
 		padding: 1rem 0 1rem 4rem;
 		margin: 0;
 	}
-	.nav ul.dropdown-menu>li.dropdown>a.dropdown-toggle:after{
+	.nav ul.dropdown-menu>li.dropdown>a:after{
 		right: 2rem;
 	}
-	.navbar .open .dropdown-menu>li>a.dropdown-toggle, .navbar .open .dropdown-menu>li a, #mobileMainMenuSubmenus li a {
+	.navbar .open .dropdown-menu>li>a, .navbar .open .dropdown-menu>li a, #mobileMainMenuSubmenus li a {
 		line-height: 3rem;
 		font-size: 1.2rem;
 		font-weight: normal;
@@ -937,10 +937,13 @@ i.loader{
 		margin-left: 0;
 		border: 0;
 	}
-	.navbar-inverse .navbar-nav .open .dropdown-menu>li.dropdown.open>a.dropdown-toggle, li.dropdown.open>a.dropdown-toggle{
+	.navbar-inverse .navbar-nav .open .dropdown-menu>li.dropdown.open>a, li.dropdown.open>a{
 		background-color: #006793;
 		border-radius: 0;
 		color: #fff;
+	}
+	.navbar-inverse .navbar-nav .open .dropdown-menu>li.dropdown.open>a{
+		margin-bottom: 1.5rem;
 	}
 	.tocMenu .expandedPage .relationships strong{
 		color: #fff;
