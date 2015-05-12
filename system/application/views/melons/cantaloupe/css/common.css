@@ -798,7 +798,7 @@ a.nav_btn:hover {
 
 
 
-.modal-xlg { width: 90%; height: 90%; padding: 0; }
+.modal-xlg { min-width: 90%; height: 90%; padding: 0; }
 .modal-xlg .modal-content { min-height: 90%; }
 
 /* the 'dialog' styles below will eventually be deprecated once bootstrap modal support is in place */

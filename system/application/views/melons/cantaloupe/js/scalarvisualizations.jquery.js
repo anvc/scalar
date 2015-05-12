@@ -507,7 +507,9 @@
 			base.maxConnections = 0;
 			base.hierarchy = null;
 			base.selectedHierarchyNodes = null;
- 
+
+ 			base.visualization.css( 'height', '' );
+
 			if ( base.options.modal ) {
 				base.visualization.removeClass( 'bounded' );
 				base.visElement.find( '.loadingMsg' ).addClass( 'bounded' );
