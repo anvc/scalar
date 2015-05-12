@@ -152,18 +152,16 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                         '</ul>'+
                                                     '</li>'+*/
-                                                    /*
                                                     '<li id="vis_menu" class="dropdown">'+
                                                         '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
-                                                            '<li><a><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
-                                                            '<li><a><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
-                                                            '<li><a><span class="menuIcon" id="pathIcon"></span> Path</a></li>'+
-                                                            '<li><a><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
-                                                            '<li><a><span class="menuIcon" id="tagIcon"></span> Tag</a></li>'+
+                                                            '<li class="vis_link" data-vistype="visindex"><a role="button"><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
+                                                            '<li class="vis_link" data-vistype="visradial"><a role="button"><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vispath"><a role="button"><span class="menuIcon" id="pathIcon"></span> Path</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vismedia"><a role="button"><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vistag"><a role="button"><span class="menuIcon" id="tagIcon"></span> Tag</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
-                                                    */
                                                     '<li id="scalar_menu" class="dropdown">'+
                                                         '<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="scalarIcon"></span> Scalar</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
@@ -369,6 +367,54 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.index = indexElement.scalarindex( {} );
             base.$el.find('.index_link').click(function(e){
                 $('#scalarheader.navbar').data('scalarheader').index.data('plugin_scalarindex').showIndex();
+            });
+
+            //Handle the visualizations...
+            var visElement = $( '<div></div>' ).prependTo( 'body' );
+            base.vis = visElement.scalarvis( { modal: true, local: false } );
+            base.$el.find('.vis_link').click(function(e){
+
+                var options = {
+                    modal: true
+                }
+
+                switch ( $( this ).attr( 'data-vistype' ) ) {
+
+                    case "vis":
+                    case "visindex":
+                    options.content = 'all';
+                    options.relations = 'all';
+                    options.format = 'grid';
+                    break;
+
+                    case "visradial":
+                    options.content = 'all';
+                    options.relations = 'all';
+                    options.format = 'radial';
+                    break;
+
+                    case "vispath":
+                    options.content = 'path';
+                    options.relations = 'path';
+                    options.format = 'tree';
+                    break;
+
+                    case "vismedia":
+                    options.content = 'media';
+                    options.relations = 'referee';
+                    options.format = 'force-directed';
+                    break;
+
+                    case "vistag":
+                    options.content = 'tag';
+                    options.relations = 'tag';
+                    options.format = 'force-directed';
+                    break;
+
+                }
+
+                $( '.modalVisualization' ).data( 'scalarvis' ).showModal( options );
+
             });
 
             base.book_id = $('link#book_id').attr('href');

@@ -1,45 +1,42 @@
-#visualization {
+.visualization {
 	text-align: left;
 }
 
-.vis_footer.bounded, #loadingMsg.bounded {
+.vis_footer.bounded, .loadingMsg.bounded {
 	padding-left: 0;
 	padding-right: 0;
 	margin-right: 0;
 	margin-left: 0;
 }
 
-#progressbar {
-	width: 300px;
+.progressbar {
 	height: 8px;
 	margin-bottom: 5px;
 }
 
-#loadingMsg {
-	width: 50rem;
-	padding-left: 7.2rem;
+.loadingMsg {
 	font-size: 1.2rem;
 	color: #666;
 	vertical-align: middle;
 	display: none;
 }
 
-#loadingMsg > p {
+.loadingMsg > p {
 	margin-bottom: 4px;
 }
 
-#scalarvis {
-	margin-top:10px;
-	margin-bottom:10px; /* Added by Craig 6 April 2012 */
-	padding: 10px;
+.scalarvis {
+	margin-top: 10px;
+	margin-bottom: 10px;
 	background-color: #fff;
+	min-height: 300px;
 }
 
-#scalarvis.bounded {
+.scalarvis.bounded {
 	border: 1px solid #ccc;
 }
 
-#visualization form {
+.visualization form {
 	float:right;
 	margin-left: 10px;
 }
@@ -54,7 +51,7 @@
 
 .rollover {
 	display: none;
-  	font: 10px sans-serif;
+  	font: 11px sans-serif;
   	font-weight: bold;
 	position:absolute;
 	padding: 5px 8px;
@@ -80,9 +77,8 @@
 }
 
 .vis_footer {
-	text-align: right;
-	margin-right: 7.2rem;
 	margin-bottom: 2.4rem;
+	text-align: right;
 	font-size: 1.4rem;
 	line-height: 140%;
 	color: #666;
@@ -105,7 +101,6 @@ svg {
 
 .link.tag {
 	fill: #ff0000;
-	/*stroke: #ff0000;*/
 }
 
 .pathLink {
@@ -115,7 +110,6 @@ svg {
 
 .link.mediaFile {
 	fill: #0000ff;
-	/*stroke: #0000ff;*/
 }
 
 .node {
@@ -172,6 +166,7 @@ text.visit-button {
 	position: absolute;
 	width: 11rem;
 	margin-left: -5.5rem;
+	pointer-events: none;
 }
 
 .info_box .content {
@@ -180,7 +175,6 @@ text.visit-button {
 	box-shadow: 1px 1px 3px #888888;
 	color: white;
 	text-align: center;
-	/*padding: 8px 5px 2px 5px;*/
 	padding: 1.0rem;
 	font-size: 1.2rem;
 	line-height: 140%;
@@ -192,9 +186,10 @@ text.visit-button {
 
 .info_box .content a.btn {
 	margin-top: .9rem;
+	pointer-events: auto;
 }
 
-.info_box .arrow {
+.info_box .arrow, .d3-tip .arrow {
 	background-image: url(images/vis_up_arrow.png);
 	background-position: center top;
 	background-repeat: no-repeat;

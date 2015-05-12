@@ -1249,7 +1249,7 @@
 			page.heightOnMediaLoad = $(window).height();
 		});
 
-		var i, node, nodes, link,
+		var i, node, nodes, link, visOptions, visualization,
 			currentNode = scalarapi.model.getCurrentPageNode();
 
 		if ( currentNode != null ) {
@@ -1337,9 +1337,14 @@
 				break;
 
 				case 'visualization':
-				var options = {parent_uri:scalarapi.urlPrefix, default_tab:'visindex'};
-				var visualization = $('<div id="#visualization"></div>').appendTo(element);
-				visualization.scalarvis(options);
+				var visOptions = { 
+					modal: false,
+                    content: 'all',
+                    relations: 'all',
+                    format: 'grid'
+				};
+				var visualization = $('<div class="visualization"></div>').appendTo(element);
+				visualization.scalarvis( visOptions );
 				break;
 
 				case 'structured_gallery':
@@ -1515,25 +1520,67 @@
 					}, 1, true);
 					break;
 
-					case "vis":
-			  		case "vispath":
-			  		case "vismedia":
-			  		case "visindex":
-			  		case "visradial":
-			  		case "vistag":
-					var options = {
-						parent_uri: scalarapi.model.urlPrefix,
-						default_tab: viewType,
-						minimal: true
-					};
-					if ( viewType == "vis" ) {
-						options.default_tab = "visindex";
-					}
-					var visualization = $(  '<div id="#visualization"></div>' );
+                    case "vis":
+                    case "visindex":
+                   	case "visradial":
+                    case "vispath":
+                    case "vismedia":
+                    case "vistag":
+                    
+                    switch ( viewType ) {
+
+	                    case "vis":
+	                    case "visindex":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'all',
+	                    	relations: 'all',
+	                    	format: 'grid'
+	                    }
+	                    break;
+
+                  	 	case "visradial":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'all',
+	                    	relations: 'all',
+	                    	format: 'radial'
+	                    }
+	                    break;
+
+	                    case "vispath":
+	                 	visOptions = {
+	                    	modal: false,
+	                    	content: 'current',
+	                    	relations: 'path',
+	                    	format: 'tree'
+	                    }
+	                    break;
+
+	                    case "vismedia":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'current',
+	                    	relations: 'referee',
+	                    	format: 'force-directed'
+	                    }
+	                    break;
+
+	                    case "vistag":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'current',
+	                    	relations: 'tag',
+	                    	format: 'force-directed'
+	                    }
+	                    break;
+
+                    }
+ 					visualization = $(  '<div class="visualization"></div>' );
 					$( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
 					$( 'article > header' ).after( visualization );
-					visualization.scalarvis( options );
-					break;
+					visualization.scalarvis( visOptions );
+                    break;
 
 					case "versions":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2>Version editor</h2>' );
