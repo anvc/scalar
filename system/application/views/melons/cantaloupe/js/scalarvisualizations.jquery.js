@@ -58,6 +58,7 @@
 			"current": "Current page"
 		}
 		base.currentNode = scalarapi.model.getCurrentPageNode();
+		base.modalIsOpen = false;
 
         // one-time setup
         base.init = function(){
@@ -88,11 +89,13 @@
 					}
 					$( 'body' ).trigger( 'closeModalVis' );
 					base.pause();
+					base.modalIsOpen = false;
 				});
 
 				// when the modal is shown, redraw the visualization
 				base.$el.on( 'shown.bs.modal', function() {
 					base.draw();
+					base.modalIsOpen = true;
 				});
 
 				// adjust overflow so the modal hides correctly
@@ -258,7 +261,11 @@
 				base.visualize();
 			}
 
-			$( 'body' ).bind( 'delayedResize', function() { base.visualize(); } );
+			$( 'body' ).bind( 'delayedResize', function() { 
+				if (( base.options.modal && base.modalIsOpen ) || !base.options.modal ) {
+					base.visualize(); 
+				}
+			} );
 
         };
 
@@ -756,46 +763,50 @@
 			}
 
 			var loadInstruction = base.loadSequence[ base.loadIndex ];
-			
-			var typedNodes = scalarapi.model.getNodesWithProperty( 'scalarType', loadInstruction.id );
-			base.maxNodesPerType = Math.max( base.maxNodesPerType, typedNodes.length );
 
-			// attempt to find the total count of the current item type as returned in the data
-			var i, n, count, citation, tempA, tempB;
-			for ( var prop in json ) {
-				citation = json[ prop ][ "http://scalar.usc.edu/2012/01/scalar-ns#citation" ];
-				if ( citation != null ) {
-					tempA = citation[ 0 ].value.split( ";" );
-					n = tempA.length;
-					for ( i = 0; i < n; i++ ) {
-						if ( tempA[ i ].indexOf( "methodNumNodes=" ) == 0 ) {
-							tempB = tempA[ i ].split( "=" );
-							count = parseInt( tempB[ tempB.length - 1 ] );
-							break;
+			if ( loadInstruction != null ) {
+			
+				var typedNodes = scalarapi.model.getNodesWithProperty( 'scalarType', loadInstruction.id );
+				base.maxNodesPerType = Math.max( base.maxNodesPerType, typedNodes.length );
+
+				// attempt to find the total count of the current item type as returned in the data
+				var i, n, count, citation, tempA, tempB;
+				for ( var prop in json ) {
+					citation = json[ prop ][ "http://scalar.usc.edu/2012/01/scalar-ns#citation" ];
+					if ( citation != null ) {
+						tempA = citation[ 0 ].value.split( ";" );
+						n = tempA.length;
+						for ( i = 0; i < n; i++ ) {
+							if ( tempA[ i ].indexOf( "methodNumNodes=" ) == 0 ) {
+								tempB = tempA[ i ].split( "=" );
+								count = parseInt( tempB[ tempB.length - 1 ] );
+								break;
+							}
 						}
+						break;
 					}
-					break;
 				}
-			}
 
-			// if a count was found, store it
-			if ( count != null ) {
-				base.typeCounts[ loadInstruction.id ] = count;	
+				// if a count was found, store it
+				if ( count != null ) {
+					base.typeCounts[ loadInstruction.id ] = count;	
 
-				// if the count is less than the point at which we'd start our next load, then
-				// we've reached the last page of data for this item type
-				if ( count < (( base.pageIndex + 1 ) * base.resultsPerPage )) {
-					base.reachedLastPage = true;
+					// if the count is less than the point at which we'd start our next load, then
+					// we've reached the last page of data for this item type
+					if ( count < (( base.pageIndex + 1 ) * base.resultsPerPage )) {
+						base.reachedLastPage = true;
+					}
 				}
-			}
-		
-			// redraw the view
-			base.filter();
-			base.draw();
 			
-			// get next chunk of data
-			if ( !base.loadingPaused ) {
-				base.loadNextData();
+				// redraw the view
+				base.filter();
+				base.draw();
+				
+				// get next chunk of data
+				if ( !base.loadingPaused ) {
+					base.loadNextData();
+				}
+
 			}
 
         };

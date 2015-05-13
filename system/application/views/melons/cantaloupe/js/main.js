@@ -433,7 +433,7 @@ $(window).ready(function() {
 				var timeout;
 				$(window).resize( function() {
 					clearTimeout( timeout );
-					timeout = setTimeout( handleDelayedResize, 100 );
+					timeout = setTimeout( handleDelayedResize, 300 );
 				});
 
 		  }},
