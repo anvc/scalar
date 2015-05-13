@@ -821,6 +821,14 @@
 
 			},
 
+			embedMediaToAnnotate: function( content ) {
+				var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-caption="none" data-size="native"></a>' ).prependTo(content);
+				link.wrap( '<div></div>' );
+				page.addMediaElementForLink( link, link.parent() );
+				link.css('display', 'none');
+				return link;
+			},
+
 			addMediaElements: function() {
 
 				var currentNode = scalarapi.model.getCurrentPageNode(),
@@ -833,18 +841,28 @@
 				
 				if ( 'annotation_editor' == extension) {
 					
+					// is this a media page?
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
-						var approot = $('link#approot').attr('href');
-						$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
-						$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
-							var content = $( 'article > span[property="sioc:content"]' );
-							content.prepend('<br clear="both" />');
-							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-caption="none" data-size="native"></a>' ).prependTo(content);
-							link.wrap( '<div></div>' );
-							page.addMediaElementForLink( link, link.parent() );
-							link.css('display', 'none');	
-							$('.annobuilder:first').annobuilder( {link:link} ); 
-						});
+
+						var link, 
+							content = $( 'article > span[property="sioc:content"]' ),
+							approot = $('link#approot').attr('href');
+
+						// has the annobuilder already been set up? if not, then do so
+						if ( $( 'link[href="' + approot + 'views/widgets/annobuilder/annobuilder.css"]').length == 0 ) {
+							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
+							$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
+								content.prepend('<br clear="both" />');
+								link = page.embedMediaToAnnotate( content );	
+								$('.annobuilder:first').annobuilder( {link:link} ); 
+							});
+
+						// if the annobuilder has been set up, then just re-embed the media
+						} else {
+							page.embedMediaToAnnotate( content );
+						}
+
+					// not a media page
 					} else {
 						$('article > span[property="sioc:content"]').append('<div>This is not a media page.</div>');
 					}

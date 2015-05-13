@@ -198,8 +198,10 @@ jQuery.AnnoBuilderController = function() {
 	 * Initializes the controller.
 	 */
 	jQuery.AnnoBuilderController.prototype.init = function() {
-		$.annobuilder.model.setup();
-		me.setup();
+		if ( $.annobuilder.model.node == null ) {
+			$.annobuilder.model.setup();
+			me.setup();
+		}
 	}
 
 	/**
@@ -475,8 +477,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		});
 		
 		$.annobuilder.view.builder.update();
-
-		//console.log( $($.annobuilder.model.element).html() );
 
 	}
 
