@@ -203,6 +203,21 @@ abstract class MY_Controller extends Controller {
    	}
 
    	/**
+   	 * Force a melon to be loaded/used
+   	 */
+
+   	protected function force_melon($name='') {
+
+   		$name = strtolower($name);
+		$this->data['melon'] = $name;
+		if (!file_exists(APPPATH.'views/melons/'.$name.'/config.php')) echo '<p>Warning: '.ucwords($name).' theme does not exist, this page might render oddly.</p>';
+		include(APPPATH.'views/melons/'.$name.'/config.php');
+		$this->config->set_item('arbor', $config['arbor']);
+		$this->data['template'] = $this->template->config['active_template'];
+
+   	}
+
+   	/**
    	 * Load info about a melon (skin)
    	 */
 

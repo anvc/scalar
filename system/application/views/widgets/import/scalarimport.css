@@ -12,8 +12,8 @@
 #results > .result_content {overflow-y: auto; -webkit-overflow-scrolling: touch;}
 #results > .result_content table {width:100%; border-top: 1px solid #ccc; border-left: 1px solid #ccc; border-right: 1px solid #ccc;background: #eee;}
 #results > .result_content table td {padding-top:8px; padding-bottom:6px; padding-left: 10px; border-bottom:solid 1px #ccc; }
-#results > .result_content table .thumbnail {width:100px;}
-#results > .result_content table .thumbnail img {width:100px; border: 1px solid #444; }
+#results > .result_content table .thumb {width:100px;}
+#results > .result_content table .thumb img {width:100px; border: 1px solid #444; }
 #results > .result_content table .title {font-weight:bold; margin:0px 0px 4px 0px; padding:0; background:0; font-size:13px; padding:0; height:inherit;}
 #results > .result_content table .desc {font-weight:normal; margin:0px 0px 4px 0px; padding:0;}
 #results > .result_content table .contributor {font-weight:normal; font-size:smaller; margin:0px 0px 4px 0px; padding:0;}
@@ -30,7 +30,8 @@
 #results .result_footer {margin:0; text-align:left; margin:10px 0px 10px 0px;}
 #results .result_footer .import_btn_wrapper {float:right;}
 #results .result_footer .import_loading {display:none;}
-#results .result_footer .pagination a {font-weight:bold;}
+#results .result_footer .paginate a {font-weight:bold;}
+#external .input_search_query {width:300px;}
 
 /* Importing */
 
@@ -49,6 +50,15 @@
 .custom_meta .invalid_input {border:solid 1px red;}
 .custom_meta .custom_meta_footer {text-align:right;margin-top:12px;}
 .custom_meta .custom_meta_footer .reload {color:#026697; font-size:smaller; float:left; padding-top:4px;}
+
+.imported_dialog ul {padding:6px 0px 0px 12px; margin:0}
+.imported_dialog ul a {color:#026697 !important;}
+
+.bootbox .custom_meta {font-family:"Lato",Arial,sans-serif !important;}
+.bootbox .custom_meta .nopadding {padding-bottom:6px !important;}
+.bootbox .imported_dialog li small {line-height:120%;}
+.bootbox .imported_dialog li {padding-top:10px; padding-bottom:10px;}
+.bootbox .imported_dialog .alert {margin-bottom:0px;}
 
 /* Overlay */
 

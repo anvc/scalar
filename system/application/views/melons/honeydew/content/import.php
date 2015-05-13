@@ -16,7 +16,7 @@ EOT;
 $this->template->add_js($js, 'embed');
 
 $titles = $external->getPropValues('dc:title');
-if (!empty($titles)): 
+if (!empty($titles)):
 ?>
 <h4 class="content_title">
 	<?
@@ -27,26 +27,26 @@ if (!empty($titles)):
 </h4>
 <? endif ?>
 
-The import feature links Scalar to <a href="http://scalar.usc.edu/anvc/?page_id=23">partner archives</a>.  When media are imported,  source media files remain on the
-archives' servers.  However, information about the media (including title, description, subject) are converted to <a href="http://dublincore.org/">Dublin Core</a> (and other) 
+The import feature links Scalar to <a href="http://scalar.usc.edu/people/">partner archives</a>.  When media are imported,  source media files remain on the
+archives' servers.  However, information about the media (including title, description, subject) are converted to <a href="http://dublincore.org/">Dublin Core</a> (and other)
 metadata fields and saved locally in Scalar. Metadata can be updated manually or by re-importing the media.
 
 <br /><br />
 
-<div class="search_archive_form_wrapper" id="external">	
+<div class="search_archive_form_wrapper" id="external">
 <?
 	$desc = $external->getPropValue('dcterms:description');
 	if (!empty($desc)):
 		echo $desc;
 		echo '<br /><br />'."\n\n";
 	endif;
-	
+
 	$availability = $external->getPropValue('scalar:availability');
 	if (empty($availability) || 'available' == $availability):
-?>	
-		
-	<div id="error"></div>		
-		
+?>
+
+	<div id="error"></div>
+
 	<form action="" id="search_archive_form" method="get">
 		<!-- Fields used for proxy search -->
 		<input type="hidden" name="proxy" value="<?=confirm_slash($app_root)?>rdf/proxy.php" />
@@ -63,21 +63,21 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 		<!-- Fields used for ADD -->
 		<input type="hidden" name="action" value="add" />
 		<input type="hidden" name="native" value="1" />
-		<input type="hidden" name="id" value="<?=@$login->email?>" />	
+		<input type="hidden" name="id" value="<?=@$login->email?>" />
 		<input type="hidden" name="api_key" value="0" />
 		<input type="hidden" name="child_urn" value="<?=$book->urn?>" />
 		<input type="hidden" name="child_type" value="http://scalar.usc.edu/2012/01/scalar-ns#Book" />
-		<input type="hidden" name="child_rel" value="page" />		
-	</form>		
-		
+		<input type="hidden" name="child_rel" value="page" />
+	</form>
+
 	<p id="loading"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; Searching the archive (may take a moment)</p>
-		
+
 	<div id="results"></div>
 
-	<div class="search_results_footer"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="generic_button large default" href="javascript:;" onclick="search_archive_import();">Import selected media</a></div>
+	<div class="search_results_footer"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="generic_button large default" href="javascript:;">Import selected media</a></div>
 
 	<br clear="both" />
-	
+
 <? endif; ?>
 
 </div>
