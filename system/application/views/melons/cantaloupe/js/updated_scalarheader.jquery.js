@@ -144,7 +144,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '<a role="button" aria-expanded="false"><span class="menuIcon" id="scalarIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Scalar</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><a href="http://scalar.usc.edu/">About Scalar</a></li>'+
-                                                            '<li><a href="http://scalar.usc.edu/works/guide">User\'s Guide</a></li>'+
+                                                            '<li><a href="http://scalar.usc.edu/works/guide2" target="_scalar">User\'s Guide</a></li>'+
                                                             '<li><a href="'+base.get_param(index_url)+'">More Scalar Projects</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
