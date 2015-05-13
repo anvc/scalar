@@ -456,6 +456,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 author_text.append( author );
             }
             author_text.parent('.author_text').fadeIn('fast');
+
+            // remove the 'by' if there are no authors to list
+            if ( n == 0 ) {
+                $( '.author_text' ).empty();
+            }
             
 
             base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
