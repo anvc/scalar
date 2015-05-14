@@ -15,7 +15,10 @@ h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
 .splash h2 { line-height: 110%; font-size: 2.0rem; }
 .help, .help .dialog_header { width: inherit; }
 #book-title-item > div > span { display: none !important; }
-.media_sidebar { float: none; }
+#media_details_buffer{width:0;}
+.media_sidebar { float: none; width:100%;padding-bottom:2rem;padding-left:1rem;}
+.media_sidebar h2 {text-align:center;}
+.manual_slideshow .mediaelement {margin-bottom:20px !important;}
 #sidebar-nav { display: none; }
 .path-breadcrumb { padding-left: 2rem; padding-right: 2rem; }
 .page_margins { padding-left: 2rem; padding-right: 2rem; }

@@ -39,8 +39,10 @@
 				
 				mediaDetails.slideshowElement = $('<div class="manual_slideshow"></div>').appendTo(mediaDetails.contentElement);
 				mediaDetails.infoElement = $('<div></div>').appendTo(mediaDetails.contentElement);
+				var sizeTest = $('<div id="media_details_buffer"></div>').appendTo(mediaDetails.contentElement);
 				var slotHeight = Math.min(maxMediaHeight, parseInt(mediaDetails.slideshowElement.height()) - 20);
-				var slotWidth = Math.round(parseInt($(element).width() - 108) * .68);
+				var slotWidth = Math.round(parseInt($(element).width() - sizeTest.width()) * .68);
+				// sizeTest.remove();
 				if (collection == undefined) {
 		
 					var link = $('<a href="'+node.current.sourceFile+'" resource="'+node.slug+'" rel="'+node.urn+'">Media file</a>');
@@ -122,15 +124,16 @@
 						}
 					}
 				}
-					
+
 				if ( okToProceed ) {
-					var overlay = $('<div class="media_sidebar caption_font"><h2><a href="' + mediaelement.model.node.url + '">'+mediaelement.model.node.getDisplayTitle()+'</a></h2></div>').prependTo(mediaelement.model.element.parent());
+					var overlay = $('<div class="media_sidebar caption_font" style="min-height:initial;"><h2><a href="' + mediaelement.model.node.url + '">'+mediaelement.model.node.getDisplayTitle()+'</a></h2></div>').prependTo(mediaelement.model.element.parent());
 					var i, relation, relations;
 							
 					// show annotations
 					relations = mediaelement.model.node.getRelations('annotation', 'incoming');
+					var annotationWrap = $('<div class="media_sidebar caption_font"></div>').appendTo(mediaelement.model.element.parent());
 					if (relations.length > 0) {
-						var annotationCitations = $('<div class="citations media_annotations"><h3>Annotations of this media</h3></div>').appendTo(overlay);
+						var annotationCitations = $('<div class="citations media_annotations"><h3>Annotations of this media</h3></div>').appendTo(annotationWrap);
 						annotationCitations.show();
 						var table = $('<table></table>').appendTo(annotationCitations);
 						for (i in relations) {
@@ -145,7 +148,7 @@
 						}
 					}
 					
-					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(overlay);
+					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(annotationWrap);
 	
 					// show media references with excerpts
 					// Edited by Craig, 1 January 2014
@@ -153,7 +156,7 @@
 					for (i in relations) {
 					
 						relation = relations[i];
-						var temp = $('<div>'+relation.body.current.content+'</div>').appendTo(overlay);
+						var temp = $('<div>'+relation.body.current.content+'</div>').appendTo(annotationWrap);
 						wrapOrphanParagraphs(temp);
 						/*
 						temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').attr('href', mediaelement.model.node.url);
