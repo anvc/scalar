@@ -185,7 +185,7 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	</td></tr>
 	<tr><td class="field">Choose file</td><td><input type="file" name="source_file" /></td></tr>
 	<tr><td>&nbsp;</td><td class="buttons">
-		<input type="submit" value="Upload" id="submit_button" />
+		<input type="submit" value="Upload" id="submit_button" class="btn btn-primary" />
 		<span style="color:red;display:none;" id="loading">&nbsp; Loading media metadata...</span>
 	</td></tr>
 </table>

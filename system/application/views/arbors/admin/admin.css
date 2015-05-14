@@ -179,8 +179,10 @@ label {cursor:pointer;}
 
 #interface > span {padding-right:20px;}
 .whatsthis {font-size:smaller;}
-.melondialog table {width:100%;}
-.melondialog td {padding-right:20px; width:50%;}
+.melondialog table {width:100%; border-collapse:collapse; table-layout:fixed;}
+.melondialog td {padding-left:10px; padding-right:10px;}
+.melondialog td:first-of-type {padding-left:0px;}
+.melondialog td:last-of-type {padding-right:0px;}
 .melondialog p {line-height:110%;}
 .melondialog img {width:100%; cursor:pointer;}
 

@@ -75,7 +75,7 @@
 			table.find( 'tr' ).eq( 3 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/import_icon.png" alt="Import icon" width="30" height="30" /></td><td class="' + descStyle + '">Import media</td>' );
 			table.find( 'tr' ).eq( 4 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/options_icon.png" alt="Book dashboard icon" width="30" height="30" /></td><td class="' + descStyle + '">Dashboard</td>' );
 			
-			content.append('<p>If you need help authoring your Scalar project, please consult the <a href="http://scalar.usc.edu/works/guide">User’s Guide.</a></p>')
+			content.append('<p>If you need help authoring your Scalar project, please consult the <a href="http://scalar.usc.edu/works/guide2" target="_scalar">User’s Guide.</a></p>')
 		}
 
 		content.append('<p>Got a question or concern? We welcome <a href="mailto:alliance4nvc@gmail.com?subject=New%20Scalar%20interface%20feedback" title="Send your feedback by email">your feedback.</a></p>')

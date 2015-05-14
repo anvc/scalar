@@ -959,12 +959,28 @@ ScalarAPI.prototype.basename = function(path, suffix) {
 }
 
 ScalarAPI.prototype.basepath = function(path) {
+
 	path = this.stripAllExtensions(path);
+
+	// more accurate method: strip the "parent" link element from the url
 	if ( path.indexOf( '://' ) != -1 && $( 'link[id="parent"]' ).length ) {
 		return path.slice( $( 'link[id="parent"]' ).attr( 'href' ).length );
+
+	// but if there's no link element, use the magic number method since that
+	// works in almost all cases (only fails when the book has a non-standard URL structure)
 	} else {
-		return null;
+		var str,
+			arr = path.split('://');
+		if ( arr.length > 1 ) {
+			str = arr[ 1 ];
+		} else {
+			str = arr[ 0 ];
+		}
+		arr = str.split( '/' );
+		arr.splice( 0, 3 );
+		return arr.join( '/' );
 	}
+
 }
 	 		
 /**

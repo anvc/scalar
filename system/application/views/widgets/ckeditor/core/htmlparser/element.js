@@ -181,6 +181,8 @@ CKEDITOR.htmlParser.cssStyle = function() {
 
 				element.name = name;
 
+				// Note by Craig Dietrich 6 May 2015
+				// The following is the caller of the method (onElement) that strips empty <a>'s
 				if ( !( element = filter.onElement( context, element ) ) ) {
 					this.remove();
 					return false;

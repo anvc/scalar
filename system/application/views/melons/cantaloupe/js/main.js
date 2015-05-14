@@ -414,7 +414,7 @@ $(window).ready(function() {
 		          widgets_uri+'/d3/d3.min.js'], complete:function() {
 
 		        var currentNode = scalarapi.model.getCurrentPageNode();
-		        
+	        
 		   		if ( currentNode == null ) {
 		   			$( 'body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
 		   			$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
@@ -433,7 +433,7 @@ $(window).ready(function() {
 				var timeout;
 				$(window).resize( function() {
 					clearTimeout( timeout );
-					timeout = setTimeout( handleDelayedResize, 100 );
+					timeout = setTimeout( handleDelayedResize, 300 );
 				});
 
 		  }},

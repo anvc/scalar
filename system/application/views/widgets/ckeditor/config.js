@@ -9,6 +9,7 @@
  * @author 	Craig Dietrich
  * @version	1.0
  */
+
 $(document).on('paste', 'textarea', function (e) {  // Text is cut-and-paste into 'source' mode
 	if ('undefined'!=typeof(codemirror_cke_1)) {
 		var myFunc = function(obj1, obj2) {
@@ -16,53 +17,14 @@ $(document).on('paste', 'textarea', function (e) {  // Text is cut-and-paste int
 			// \n => <br />
 			var val = codemirror_cke_1.getValue();
 			val = val.replace(new RegExp('\r?\n','g'), '<br />');
-			// add name="" to inline <a>
-			var $val = $('<div></div>');
-			$val.html(val);
-			$val.find('a').each(function() {
-				var $this = $(this);
-				if (!$this.hasClass('inline')) return;
-				if ($this.is('[name]')) return;
-				$this.attr('name', 'scalar-inline-media');
-			});
 			// Insert
 			setTimeout(function() {
-				codemirror_cke_1.setValue($val.html());		
+				codemirror_cke_1.setValue(val);		
 			},10);
 		};
 		codemirror_cke_1.on('change', myFunc);
 	} 
 });
-CKEDITOR.on('instanceReady', function (ev) {  // Text is cut-and-paste into WYSIWYG
-    ev.editor.on('paste', function (ev) {
-    	var val = ev.data.dataValue;
-    	if (val.length) {
-	    	ev.editor.on('change', function (ev) {
-	    		ev.removeListener();
-	        	// add name="" to inline <a>
-	        	var $val = $('<div></div>');
-	    		$val.html(val);
-	    		$val.find('a').each(function() {
-	    			var $this = $(this);
-	    			if (!$this.hasClass('inline')) return;
-	    			if ($this.is('[name]')) return;
-	    			$this.attr('name', 'scalar-inline-media');
-	    		});
-	    		// Insert
-	    		ev.editor.setData($val.html()); 
-	    	});
-    	}
-    });
-});
-var $textarea = $('.ckeditor:first');  // Text from <textarea>
-var $val = $('<div></div>').html($textarea.val());
-$val.find('a').each(function() {
-	var $this = $(this);
-	if (!$this.hasClass('inline')) return;
-	if ($this.is('[name]')) return;
-	$this.attr('name', 'scalar-inline-media');
-});;
-$textarea.val($val.html());
 
 // Editor config
 CKEDITOR.editorConfig = function( config ) {

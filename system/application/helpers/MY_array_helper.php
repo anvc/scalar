@@ -13,38 +13,47 @@ function array_unique_no_empty($arr=array()) {
 }
 
 function array_with_strings_to_multi_array($arr=array(), $default_key='name') {
-	
+
 	foreach ($arr as $key => $value) {
 		if (empty($value)) continue;
 		if (!is_array($value)) $value = array($default_key => $value);
 		$arr[$key] = $value;
 	}
 	return $arr;
-	
+
 }
 
 function sort_contributors($a, $b) {
-	
+
     if ($a->sort_number == $b->sort_number) {
         return 0;
     }
     return ($a->sort_number < $b->sort_number) ? -1 : 1;
-    
+
+}
+
+function sort_interfaces($a, $b) {
+
+    if ($a['meta']['name'] == $b['meta']['name']) {
+        return 0;
+    }
+    return ($a['meta']['name'] < $b['meta']['name']) ? -1 : 1;
+
 }
 
 function unserialize_recursive($str='') {
-	
-    if (!is_string($str)) { 
+
+    if (!is_string($str)) {
         return $str;
-    } else {	
+    } else {
     	$str = unserialize($str);
-        return unserialize_recursive($str); 
-    } 
-	
+        return unserialize_recursive($str);
+    }
+
 }
 
-function array_get_node($field, $value, $array) { 
-	
+function array_get_node($field, $value, $array) {
+
 	$j = 0;
 	foreach ($array as $key => $segment) {
 		$segment = (array) $segment;
@@ -53,12 +62,12 @@ function array_get_node($field, $value, $array) {
 		}
 		$j++;
 	}
-	return null;	
-	
+	return null;
+
 }
 
 function array_prev($field, $value, $array) {
-	
+
 	for ($j = 0; $j < count($array); $j++) {
 		$segment = (array) $array[$j];
 		if ($segment[$field] == $value)	{
@@ -68,11 +77,11 @@ function array_prev($field, $value, $array) {
 		}
 	}
 	return null;
-	
+
 }
 
 function array_next($field, $value, $array) {
-	
+
 	for ($j = 0; $j < count($array); $j++) {
 		$segment = (array) $array[$j];
 		if ($segment[$field] == $value)	{
@@ -82,7 +91,7 @@ function array_next($field, $value, $array) {
 		}
 	}
 	return null;
-	
+
 }
 
 ?>

@@ -35,8 +35,10 @@
     	var $table = $('<table><tbody><tr></tr></tbody></table>').appendTo($this);
     	
     	// List of melons
+    	var num_melons = 0;
     	for (var j = 0; j < opts.data.length; j++) {
     		if (!opts.data[j]['meta']['is_selectable']) continue;
+    		num_melons++;
     		var $cell = $('<td></td>').appendTo($table.find('tr'));
             var $radio = $('<p><input id="cb_'+j+'" type="radio" name="template" value="'+opts.data[j]['meta']['slug']+'" /><label for="cb_'+j+'"> '+opts.data[j]['meta']['name']+'</label></p>').appendTo($cell);
    		    var $img = $('<img style="border: 1px solid #aaa;" src="'+opts.urlroot+opts.data[j]['meta']['thumb_app_path']+'" />').appendTo($cell);
@@ -46,6 +48,9 @@
     			$(this).parent().find('input[type="radio"]').prop('checked', true);
     		});
     	}
+    	
+    	// Set cell widths
+    	$table.find('td').width( ((1/num_melons)*100) + '%' );
     	
     	// Hand over to jQuery UI
     	$this.dialog(opts);

@@ -234,4 +234,7 @@ $config['ontologies']['iptc'] = array(
     '2#232' => 'ExifCameraInfo',
     '2#255' => 'CatalogSets'
 );
+
+//EOF
+
 ?>

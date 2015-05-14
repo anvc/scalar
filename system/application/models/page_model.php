@@ -359,7 +359,7 @@ class Page_model extends MY_Model {
     		} elseif (isset($array['title'])) {
     			$title_for_slug = trim($array['title']);
     		}
-    		$slug = safe_name($title_for_slug);
+    		$slug = safe_name($title_for_slug, false);
     	} else {
     		$slug = safe_name($array['slug']);
     	}

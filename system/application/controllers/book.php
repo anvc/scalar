@@ -258,17 +258,10 @@ class Book extends MY_Controller {
 
 	}
 
-	// Import
+	// Import from an external archive
 	private function import() {
 
 		if (!$this->login_is_book_admin()) $this->kickout();
-
-		// Force the honeydew melon; presently no other melon has editing features
-		$this->data['melon'] = 'honeydew';
-		if (!file_exists(APPPATH.'views/melons/honeydew/config.php')) echo '<p>Warning: Honeydew theme does not exist, this page might render oddly.</p>';
-		include(APPPATH.'views/melons/honeydew/config.php');  // Hardcoding
-		$this->config->set_item('arbor', $config['arbor']);
-		$this->data['template'] = $this->template->config['active_template'];
 
 		// Set params
 		$archive = $this->uri->segment(3);
@@ -315,15 +308,6 @@ class Book extends MY_Controller {
 	// Upload a file
 	// This uploads a file only and returns its URL; all other operations to create a media page are through the save API
 	private function upload() {
-
-		// Force the honeydew melon; presently no other melon has editing features
-		/*
-		$this->data['melon'] = 'honeydew';
-		if (!file_exists(APPPATH.'views/melons/honeydew/config.php')) echo '<p>Warning: Honeydew theme does not exist, this page might render oddly.</p>';
-		include(APPPATH.'views/melons/honeydew/config.php');  // Hardcoding
-		$this->config->set_item('arbor', $config['arbor']);
-		$this->data['template'] = $this->template->config['active_template'];
-		*/
 
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
 		$chmod_mode = $this->config->item('chmod_mode');
@@ -573,12 +557,7 @@ class Book extends MY_Controller {
 
 	private function edit_view() {
 
-		// Force the honeydew melon; presently no other melon has editing features
-		$this->data['melon'] = 'honeydew';
-		if (!file_exists(APPPATH.'views/melons/honeydew/config.php')) echo '<p>Warning: Honeydew theme does not exist, this page might render oddly.</p>';
-		include(APPPATH.'views/melons/honeydew/config.php');  // Hardcoding
-		$this->config->set_item('arbor', $config['arbor']);
-		$this->data['template'] = $this->template->config['active_template'];
+		$this->force_melon('honeydew');
 
 		// User
 		$user_id = @$this->data['login']->user_id;
@@ -644,16 +623,7 @@ class Book extends MY_Controller {
 
 	}
 
-	private function annotation_editor_view() {
-
-		// Force the honeydew melon; presently no other melon has editing features
-		$this->data['melon'] = 'honeydew';
-		if (!file_exists(APPPATH.'views/melons/honeydew/config.php')) echo '<p>Warning: Honeydew theme does not exist, this page might render oddly.</p>';
-		include(APPPATH.'views/melons/honeydew/config.php');  // Hardcoding
-		$this->config->set_item('arbor', $config['arbor']);
-		$this->data['template'] = $this->template->config['active_template'];
-
-	}
+	private function annotation_editor_view() {}
 
 }
 ?>

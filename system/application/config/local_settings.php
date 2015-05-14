@@ -66,4 +66,7 @@ $config['default_stylesheet'] = 'minimal';
 
 // Number of history records per user
 $config['user_history_max_records'] = 20; 
+
+//EOF
+
 ?>

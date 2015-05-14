@@ -527,6 +527,7 @@ class System extends MY_Controller {
 					$this->load_melon_config(basename($melon_path));
 					$this->data['interfaces'][] = array('meta'=>$this->config->item('melon_meta'),'stylesheets'=>$this->config->item('stylesheets'));
 				}
+				usort($this->data['interfaces'], "sort_interfaces");
 				break;
 		    case 'users':
 		        $this->data['current_book_users'] = ($book_id) ? $this->users->get_book_users($book_id) : array();

@@ -821,13 +821,57 @@
 
 			},
 
+			embedMediaToAnnotate: function( content ) {
+				var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-caption="none" data-size="native"></a>' ).prependTo(content);
+				link.wrap( '<div></div>' );
+				page.addMediaElementForLink( link, link.parent() );
+				link.css('display', 'none');
+				return link;
+			},
+
 			addMediaElements: function() {
 
 				var currentNode = scalarapi.model.getCurrentPageNode(),
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value,
 					extension = scalarapi.getFileExtension( window.location.href );
 
-				if ( extension == '' ) {
+				// Using defaultView rather than <link id="view" /> means that a view can not be chosen via URL extension,
+				// but rather only by setting it as the default view for the page.  Since 'annotation_editor' and 'edit' views
+				// can only be called by extension, then they need to be special cased here ~Craig
+				
+				if ( 'annotation_editor' == extension) {
+					
+					// is this a media page?
+					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
+
+						var link, 
+							content = $( 'article > span[property="sioc:content"]' ),
+							approot = $('link#approot').attr('href');
+
+						// has the annobuilder already been set up? if not, then do so
+						if ( $( 'link[href="' + approot + 'views/widgets/annobuilder/annobuilder.css"]').length == 0 ) {
+							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
+							$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
+								content.prepend('<br clear="both" />');
+								link = page.embedMediaToAnnotate( content );	
+								$('.annobuilder:first').annobuilder( {link:link} ); 
+							});
+
+						// if the annobuilder has been set up, then just re-embed the media
+						} else {
+							page.embedMediaToAnnotate( content );
+						}
+
+					// not a media page
+					} else {
+						$('article > span[property="sioc:content"]').append('<div>This is not a media page.</div>');
+					}
+					
+				} else if ( 'edit' == extension) {
+					
+					console.log('edit');  // TODO
+				
+				} else if ( '' == extension ) {
 
 					switch (viewType) {
 
@@ -863,7 +907,7 @@
 						if ( viewType == 'structured_gallery' ) {
 							page.gallery.addMedia();
 						}
-						$( 'article > span[property="sioc:content"]' ).find( 'a' ).each(function() {
+						$( 'article > span[property="sioc:content"],.relationships > .annotation_of' ).find( 'a' ).each(function() {
 
 							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
@@ -1039,7 +1083,7 @@
 
 					}
 					
-				}
+				} //if(extension)
 
 			},
 
@@ -1223,7 +1267,7 @@
 			page.heightOnMediaLoad = $(window).height();
 		});
 
-		var i, node, nodes, link,
+		var i, node, nodes, link, visOptions, visualization,
 			currentNode = scalarapi.model.getCurrentPageNode();
 
 		if ( currentNode != null ) {
@@ -1247,7 +1291,7 @@
 				}
 			}
 
-			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' )) {
+			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 		  	}
 
@@ -1311,9 +1355,14 @@
 				break;
 
 				case 'visualization':
-				var options = {parent_uri:scalarapi.urlPrefix, default_tab:'visindex'};
-				var visualization = $('<div id="#visualization"></div>').appendTo(element);
-				visualization.scalarvis(options);
+				var visOptions = { 
+					modal: false,
+                    content: 'all',
+                    relations: 'all',
+                    format: 'grid'
+				};
+				var visualization = $('<div class="visualization"></div>').appendTo(element);
+				visualization.scalarvis( visOptions );
 				break;
 
 				case 'structured_gallery':
@@ -1489,25 +1538,67 @@
 					}, 1, true);
 					break;
 
-					case "vis":
-			  		case "vispath":
-			  		case "vismedia":
-			  		case "visindex":
-			  		case "visradial":
-			  		case "vistag":
-					var options = {
-						parent_uri: scalarapi.model.urlPrefix,
-						default_tab: viewType,
-						minimal: true
-					};
-					if ( viewType == "vis" ) {
-						options.default_tab = "visindex";
-					}
-					var visualization = $(  '<div id="#visualization"></div>' );
+                    case "vis":
+                    case "visindex":
+                   	case "visradial":
+                    case "vispath":
+                    case "vismedia":
+                    case "vistag":
+
+                    switch ( viewType ) {
+
+	                    case "vis":
+	                    case "visindex":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'all',
+	                    	relations: 'all',
+	                    	format: 'grid'
+	                    }
+	                    break;
+
+                  	 	case "visradial":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'all',
+	                    	relations: 'all',
+	                    	format: 'radial'
+	                    }
+	                    break;
+
+	                    case "vispath":
+	                 	visOptions = {
+	                    	modal: false,
+	                    	content: 'current',
+	                    	relations: 'path',
+	                    	format: 'tree'
+	                    }
+	                    break;
+
+	                    case "vismedia":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'current',
+	                    	relations: 'referee',
+	                    	format: 'force-directed'
+	                    }
+	                    break;
+
+	                    case "vistag":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'current',
+	                    	relations: 'tag',
+	                    	format: 'force-directed'
+	                    }
+	                    break;
+
+                    }
+ 					visualization = $(  '<div class="visualization"></div>' );
 					$( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
 					$( 'article > header' ).after( visualization );
-					visualization.scalarvis( options );
-					break;
+					visualization.scalarvis( visOptions );
+                    break;
 
 					case "versions":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2>Version editor</h2>' );
@@ -1524,6 +1615,13 @@
 					case "history":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Version history</h2>' );
 					$( '.history-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					okToAddExtras = false;
+					break;
+
+					case "annotation_editor":
+					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Annotation editor</h2>' );
+					$( '.annotation_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					$( '.annobuilder' ).addClass( 'caption_font' );
 					okToAddExtras = false;
 					break;
 

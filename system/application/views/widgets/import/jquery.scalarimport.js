@@ -20,9 +20,10 @@
 /**
  * @projectDescription  Draw and popup alert on the page
  * @author              Craig Dietrich
- * @version             1.2
+ * @version             1.3 (Added support for Bootstrap modal() in addition to jQuery UI dialog())
  * @required			Instantiated scalarapi obj (default: window['scalarapi'])
  * @required			URL to a JSON feed of ontologies and their predicates
+ * @required			Either jQuery UI .dialog() or Bootstrap bootbox.min.js
  */
 
 function scalarimport_preview(url) {
@@ -338,12 +339,6 @@ if ('undefined'==typeof(escape_html)) {
 		
 		multi_custom_meta : function ($results, form_data, options) {
 			
-			// Work in progress
-			/*
-			$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
-			return false;
-			*/
-			
 			if (!$('#edit_meta').is(':checked')) {
 				$(options.results_el).trigger(options.multi_custom_meta_complete, [form_data, options]);
 				return false;
@@ -381,13 +376,13 @@ if ('undefined'==typeof(escape_html)) {
 			
 			// Run custom meta process on an item
 			$el = $(results[index]);
+			$el.data('index', index);
 			console.log($el.data('post'));
 			var complete = function(post) {
 				$el.data('post', post);	
 				$el.data('custom_meta_complete', true);
 				console.log('index '+index+' new post:');
 				console.log($el.data('post'));	
-				console.log('---- end index ----');
 				$.fn.scalarimport('multi_custom_meta', $results, form_data, options);
 			}
 			$el.scalarimport('custom_meta', complete, options);
@@ -461,7 +456,7 @@ if ('undefined'==typeof(escape_html)) {
 				post_data[j] = post[j];
 				$tr.data('post', post_data);
 				$tr.data('orig_post', post_data);  // for use with resetting original metadata button 
-				$tr.append('<td valign="top" class="thumbnail"><img src="'+results_data[j].thumb+'" /></td>');
+				$tr.append('<td valign="top" class="thumb"><img src="'+results_data[j].thumb+'" /></td>');
 				var $content = $('<td valign="top"><div class="title"><input type="checkbox" id="result_row_'+j+'" /><label for="result_row_'+j+'"> '+results_data[j].title+'</label>&nbsp;</div><div class="desc">'+create_excerpt(results_data[j].desc, options.results_desc_num_words)+'</div></td>').appendTo($tr);
 				if (results_data[j].contributor) {
 					$content.append('<div class="contributor">'+results_data[j].contributor+'</div>');
@@ -472,8 +467,8 @@ if ('undefined'==typeof(escape_html)) {
 					$tr.find("input[id='result_row_"+j+"']").remove();
 				} else {
 					var url_str = '<div class="url">';
-					url_str += '<a href="javascript:;" onclick="scalarimport_preview(\''+results_data[j].url+'\')" class="generic_button small">Preview</a>&nbsp; ';
-					url_str += '<a href="'+results_data[j].node_uri+'" target="_blank" class="generic_button small">Source</a>&nbsp; ';
+					url_str += '<a href="javascript:;" onclick="scalarimport_preview(\''+results_data[j].url+'\')" class="btn btn-default btn-xs generic_button small">Preview</a>&nbsp; ';
+					url_str += '<a href="'+results_data[j].node_uri+'" target="_blank" class="btn btn-default btn-xs generic_button small">Source</a>&nbsp; ';
 					url_str += '<span>'+results_data[j].mediatype+': '+basename(results_data[j].url)+'</span>';
 					url_str += '</div>';
 					$(url_str).appendTo($content);			
@@ -483,12 +478,12 @@ if ('undefined'==typeof(escape_html)) {
 				
 			}
 			
-			$footer.html('<span class="'+options.import_btn_wrapper_class+'"><img class="'+options.import_loading_class+'" src="'+$('link#approot').attr('href')+'views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="'+options.import_btn_class+' generic_button large default">Import selected</a></span>Page <strong>'+form_data.pagenum+'</strong>: Found <strong>'+found+'</strong> results (<strong>'+supported+'</strong> supported)&nbsp; <span class="pagination"></span><br /><input type="checkbox" id="check_all" /><label for="check_all"> Check all</label>&nbsp; &nbsp; <input type="checkbox" id="edit_meta" checked /><label for="edit_meta"> Edit metadata before importing</label>');
+			$footer.html('<span class="'+options.import_btn_wrapper_class+'"><img class="'+options.import_loading_class+'" src="'+$('link#approot').attr('href')+'views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="'+options.import_btn_class+' btn btn-primary generic_button large default">Import selected</a></span>Page <strong>'+form_data.pagenum+'</strong>: Found <strong>'+found+'</strong> results (<strong>'+supported+'</strong> supported)&nbsp; <span class="paginate"></span><br /><input type="checkbox" id="check_all" /><label for="check_all"> Check all</label>&nbsp; &nbsp; <input type="checkbox" id="edit_meta" checked /><label for="edit_meta"> Edit metadata before importing</label>');
 			if (form_data.paginate) {
-				$footer.find('.pagination').html('<span style="'+((form_data.pagenum <= 1)?'visibility:hidden':'')+'"><a href="javascript:;" class="prev">&lt; load previous page</a>&nbsp; | &nbsp;</span>');
-				$footer.find('.pagination').append('<a href="javascript:;" class="next">load next page &gt;</a>');
+				$footer.find('.paginate').html('<span style="'+((form_data.pagenum <= 1)?'visibility:hidden':'')+'"><a href="javascript:;" class="prev">&lt; load previous page</a>&nbsp; | &nbsp;</span>');
+				$footer.find('.paginate').append('<a href="javascript:;" class="next">load next page &gt;</a>');
 			} else {
-				$footer.find('.pagination').html('No additional pages');
+				$footer.find('.paginate').html('No additional pages');
 			}
 			$footer.find('#check_all').change(function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
@@ -520,10 +515,10 @@ if ('undefined'==typeof(escape_html)) {
 			var required_fields = ['dcterms:title','dcterms:description','scalar:url','scalar:thumbnail','sioc:content','rdf:type'];
 			var mark_as_required = ['dcterms:title','scalar:url','rdf:type'];
 			
-			$('.custom_meta').remove();
+			$('.custom_meta, .bootbox, .modal-backdrop').remove();
 			var $div = $('<div class="custom_meta"></div>').appendTo('body');
 			var $content = $('<div class="custom_meta_content" style="overflow:scroll;overflow-x:hidden;"></div>').appendTo($div);
-			var $buttons = $('<div class="custom_meta_footer"><a href="javascript:void(null);" class="reload">Reload original metadata</a><a class="import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="import_btn generic_button large default">Continue</a></div>').appendTo($div);	
+			var $buttons = $('<div class="custom_meta_footer"><a href="javascript:void(null);" class="reload">Reload original metadata</a><a class="btn btn-default import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="btn btn-primary import_btn generic_button large default">Continue</a></div>').appendTo($div);	
 			
 			// Buttons
 			$buttons.find('a:first').click(function() {  // Reload
@@ -533,7 +528,11 @@ if ('undefined'==typeof(escape_html)) {
 				return false;
 			});
 			$buttons.find('a:nth-child(2)').click(function() {  // Remove
-				$(this).closest('.custom_meta').remove();
+				if ('undefined'!=typeof($.fn.dialog)) {
+					$(this).closest('.custom_meta').remove();  
+				} else if ('undefined'!=typeof($.fn.modal)) {
+					$('.bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+				}
 				return false;
 			});
 			$buttons.find('a:last').click(function() {  // Continue
@@ -541,8 +540,12 @@ if ('undefined'==typeof(escape_html)) {
 					alert('There are one or more custom metadata fields that require values');
 					return false;
 				}
-				$(this).closest('.custom_meta').remove();
 				var post = $.fn.scalarimport('load_custom_meta', uri, $(this).closest('.custom_meta'));
+				if ('undefined'!=typeof($.fn.dialog)) {
+					$(this).closest('.custom_meta').remove();  
+				} else if ('undefined'!=typeof($.fn.modal)) {
+					$('.bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+				}
 				callback(post);
 				return false;
 			});
@@ -597,15 +600,28 @@ if ('undefined'==typeof(escape_html)) {
 					$li.append('<span class="field">'+j+'</span><span class="value"><input type="text" name="'+j+'" value="'+value+'" /></span>');
 				}
 			}			
-			$other.append('<a class="generic_button border_radius" id="additional_metadata" href="javascript:void(null);">Add additional metadata</a>');
+			$other.append('<a class="btn btn-default btn-sm generic_button border_radius" id="additional_metadata" href="javascript:void(null);">Add additional metadata</a>');
 			
 			// Create the modal
 			var width = (parseInt($(window).width()) * 0.8);
 			var height = (parseInt($(window).height()) * 0.7);
-			$( ".custom_meta" ).dialog({ 
-				modal: true, width: width, height: height, 
-				title: title, resizable: true, draggable: true
-			});
+			if ('undefined'!=typeof($.fn.dialog)) {
+				$(".custom_meta").dialog({ 
+					modal: true, width: width, height: height, 
+					title: title, resizable: true, draggable: true
+				});
+			} else if ('undefined'!=typeof($.fn.modal)) {
+				bootbox.dialog({
+					message: '<div id="bootbox-content"></div>',
+					title: title,
+					animate: ((0==parseInt($el.data('index'))) ? true : false)
+				});
+				$('.custom_meta').appendTo($('#bootbox-content'));
+				$('.bootbox .modal-dialog').width(width);
+				$('.custom_meta_content').height(height);
+			} else {
+				alert('Could not find a modal/dialog library');
+			}
 			
 			// Override layout
 			$content.height((parseInt($content.parent().innerHeight())-parseInt($buttons.outerHeight())-30));
@@ -634,16 +650,18 @@ if ('undefined'==typeof(escape_html)) {
 		},
 		
 		imported : function(versions, options) {
-			
+
 			if ('undefined'==typeof(versions)||!versions.length) {
 				$.fn.scalarimport('error', 'There was a problem importing, please try again', options);
 				return;
 			}
 			
-			$(options.results_el).find('input[type="checkbox"]').prop('checked', false);
-			var $box = $('<div class="dialog"></div>');
-			$box.append(((versions.length>1)?'Files have been':'A file has been')+' imported.  You may follow the link'+((versions.length>1)?'s':'')+' below to access the imported media. Alternatively, you can access the media in Dashboard > Media.');
+			$('.custom_meta, .bootbox, .modal-backdrop').remove();
+			$(options.results_el).find('input[type="checkbox"]:not(#edit_meta)').prop('checked', false);
+			var $box = $('<div class="imported_dialog"></div>');
+			$box.append('<div class="alert alert-success">'+((versions.length>1)?'Files have been':'A file has been')+' imported.  You may follow the link'+((versions.length>1)?'s':'')+' below to access the imported media. Alternatively, you can access the media in Dashboard > Media.</div>');
 			$('body').append($box);
+			$ul = $('<ul></ul>').appendTo($box);
 
 			for (var j = 0; j < versions.length; j++) {
 				for (var uri in versions[j]) break;
@@ -656,10 +674,25 @@ if ('undefined'==typeof(escape_html)) {
 				$li = $('<li></li>');
 				$li.append('<a href="'+url+'">'+title+'</a>');
 				if (desc.length) $li.append('<br /><small>'+create_excerpt(desc, 40)+'</small>');
-				$box.append($li);
+				$ul.append($li);
 			}
+			
+			if ('undefined'!=typeof($.fn.dialog)) {
+				$( ".imported_dialog" ).dialog({ modal:true, minWidth: 700, title: 'Import successful', resizable: false, draggable: true });
+			} else if ('undefined'!=typeof($.fn.modal)) {
+				bootbox.dialog({
+					message: '<div id="bootbox-content"></div>',
+					title: 'Import successful',
+					animate: true
+				});
+				console.log($('#bootbox-content'));
+				$box.appendTo($('#bootbox-content'));
+				$('.bootbox .modal-dialog').width('85%');
+			} else {
+				alert('Could not find a modal/dialog library');
+			}			
 
-			$( ".dialog" ).dialog({ modal:true, minWidth: 700, title: 'Import successful', resizable: false, draggable: true });				
+							
 			
 		},
 		
