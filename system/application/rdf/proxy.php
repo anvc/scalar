@@ -45,6 +45,7 @@ function jsonToXML($json) {
 }
 function jsonToXMLNodes($row) {
 	$return = '';
+	if (!is_array($row)) return $return;
 	foreach ($row as $field => $value) {
 		if (is_numeric($field)) $field = 'node';
 		$field = str_replace(' ','_',$field);
