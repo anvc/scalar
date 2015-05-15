@@ -28,14 +28,13 @@
 		<scalar:getStr><![CDATA[q=$1&fl[]=avg_rating&fl[]=call_number&fl[]=collection&fl[]=contributor&fl[]=coverage&fl[]=creator&fl[]=date&fl[]=description&fl[]=downloads&fl[]=foldoutcount&fl[]=format&fl[]=headerImage&fl[]=identifier&fl[]=imagecount&fl[]=language&fl[]=licenseurl&fl[]=mediatype&fl[]=month&fl[]=num_reviews&fl[]=oai_updatedate&fl[]=publicdate&fl[]=publisher&fl[]=rights&fl[]=scanningcentre&fl[]=source&fl[]=subject&fl[]=title&fl[]=type&fl[]=volume&fl[]=week&fl[]=year&sort[]=&sort[]=&sort[]=&rows=50&page=$2&callback=callback&output=xml#raw]]></scalar:getStr>
 	</rdf:Description>			
 	
-	<rdf:Description rdf:about="http://gdata.youtube.com/feeds/api/videos">
+	<rdf:Description rdf:about="https://www.googleapis.com/youtube/v3/search">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>YouTube</dc:title>
-		<!--<dcterms:description>Note: Because its API is subject to intermittent change, and because its content is often the target of DMCA requests, YouTube media tend to be less stable than media hosted elsewhere.<br><br>Search for and import media from YouTube by typing a keyword below.</dcterms:description>-->
-		<dcterms:description><![CDATA[<div class="error"><p>YouTube recently <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol_api_query_parameters">deprecated their v2 API</a>, which Scalar has been using.  We're currently working to upgrade the YouTube importer to their v3 API.  Pleae check back soon.</p></div>]]></dcterms:description>
-		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/youtube.xsl" />
-		<scalar:getStr><![CDATA[q=$1&v=1&start-index=$2&max-results=50]]></scalar:getStr>
-		<scalar:availability>unavailable</scalar:availability>
+		<dcterms:description><![CDATA[Note: Because its API is subject to intermittent change, and because its content is often the target of DMCA requests, YouTube media tend to be less stable than media hosted elsewhere.<br><br>Search for and import media from YouTube by typing a keyword below.]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/youtube_2.xsl" />
+		<scalar:getStr><![CDATA[part=snippet&q=$1&type=video&maxResults=50&key=AIzaSyAfbHGdyPoE2IPlyGno50_o14QMq4kt9j4]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>		
 	
 	<rdf:Description rdf:about="http://vimeo.com/api/v2/$1/videos.xml">
@@ -139,13 +138,5 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/metropolitan_museum_of_art.xsl" />
 		<scalar:getStr><![CDATA[ft=$1&pg=$2]]></scalar:getStr>
 	</rdf:Description>	
-	
-	<rdf:Description rdf:about="http://www.getty.edu/art/collectionSearch/collectionSearch">
-		<rdf:type rdf:resource="scalar:External" />
-		<dc:title>Getty Museum Collection</dc:title>
-		<dcterms:description><![CDATA[Thousands of images of artworks are available for download, without charge, under the Getty's Open Content Program. (http://www.getty.edu/art/)]]></dcterms:description>
-		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/getty_museum_collection.xsl" />
-		<scalar:getStr><![CDATA[col=museum&qt=$1&pg=$2]]></scalar:getStr>
-	</rdf:Description>			
 	
 </rdf:RDF>	

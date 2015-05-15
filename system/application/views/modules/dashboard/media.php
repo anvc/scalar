@@ -261,7 +261,6 @@
 					<option value="<?=$url_base?>import/shoah_foundation_vha_online">VHA Online</option>
 					<option value="<?=$url_base?>import/shoah_foundation_vha">VHA</option>
 				<optgroup label="Other archives">
-					<option value="<?=$url_base?>import/getty_museum_collection">Getty Museum Collection</option>
 					<option value="<?=$url_base?>import/prezi">Prezi</option>
 					<option value="<?=$url_base?>import/soundcloud">SoundCloud</option>
 					<option value="<?=$url_base?>import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</option>

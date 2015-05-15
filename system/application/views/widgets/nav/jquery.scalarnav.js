@@ -1224,7 +1224,6 @@
 			} else {
 			
 				button = $('<div class="button"><p class="subhead"><b>Other archives</b></p></div>');
-				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/getty_museum_collection"><b>Getty Museum Collection</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/prezi"><b>Prezi</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/soundcloud"><b>SoundCloud</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/the_metropolitan_museum_of_art"><b>The Metropolitan Museum of Art</b></a></p>');
@@ -1252,12 +1251,6 @@
 			internetFilesBtn.data('url', scalarapi.model.urlPrefix+'new.edit#type=media');
 			internetFilesBtn.click(function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(internetFilesBtn);
-			
-			// other Scalar books button
-			var scalarBooksBtn = $('<div class="button"><p><b>Other Scalar books</b></p></div>');
-			scalarBooksBtn.data('url', scalarapi.model.urlPrefix+'import/system');
-			scalarBooksBtn.click(function() { window.location = $(this).data('url'); });
-			this.element = this.element.add(scalarBooksBtn);
 			
 		}
 		
