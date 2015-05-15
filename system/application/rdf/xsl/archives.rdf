@@ -140,12 +140,14 @@
 		<scalar:getStr><![CDATA[ft=$1&pg=$2]]></scalar:getStr>
 	</rdf:Description>	
 	
+	<!--
 	<rdf:Description rdf:about="http://www.getty.edu/art/collectionSearch/collectionSearch">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Getty Museum Collection</dc:title>
 		<dcterms:description><![CDATA[Thousands of images of artworks are available for download, without charge, under the Getty's Open Content Program. (http://www.getty.edu/art/)]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/getty_museum_collection.xsl" />
 		<scalar:getStr><![CDATA[col=museum&qt=$1&pg=$2]]></scalar:getStr>
-	</rdf:Description>			
+	</rdf:Description>
+	-->			
 	
 </rdf:RDF>	
