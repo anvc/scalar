@@ -70,8 +70,19 @@ function json_clean_line_breaks($str) {
 }
 
 if ('json'==$format) {
-	$json = json_decode(json_clean_line_breaks(file_get_contents($uri)), true);
-	$xml = jsonToXML($json);
+	if ('https' == substr($uri, 0, 5)) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $uri);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		$response = curl_exec($ch);
+		curl_close($ch);
+		$json = json_decode($response, true);
+   } else {
+	 	$json = json_decode(json_clean_line_breaks(file_get_contents($uri)), true);
+   }
+   $xml = jsonToXML($json);
 } else {
 	$xml = file_get_contents($uri);
 }
