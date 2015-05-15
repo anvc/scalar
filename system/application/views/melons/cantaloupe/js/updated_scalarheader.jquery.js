@@ -213,9 +213,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '<li>'+
                                                             '<a href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit#type=media') + '">Internet media files</a>'+
                                                         '</li>'+
-                                                        '<li>'+
-                                                            '<a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/system') + '">Other Scalar books</a>'+
-                                                        '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
                                                 (base.currentNode!=null?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon" id="deleteIcon" title="Delete" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+

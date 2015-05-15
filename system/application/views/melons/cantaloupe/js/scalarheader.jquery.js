@@ -208,9 +208,6 @@
                                                         '<li>'+
                                                             '<a href="' + scalarapi.model.urlPrefix + 'new.edit#type=media">Internet media files</a>'+
                                                         '</li>'+
-                                                        '<li>'+
-                                                            '<a href="' + scalarapi.model.urlPrefix + 'import/system">Other Scalar books</a>'+
-                                                        '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
                                                 (typeof currentNode!=='undefined'?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon"><img src="' + this.options.root_url + '/images/delete_icon.png" alt="Delete" width="30" height="30" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+

@@ -1252,12 +1252,6 @@
 			internetFilesBtn.click(function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(internetFilesBtn);
 			
-			// other Scalar books button
-			var scalarBooksBtn = $('<div class="button"><p><b>Other Scalar books</b></p></div>');
-			scalarBooksBtn.data('url', scalarapi.model.urlPrefix+'import/system');
-			scalarBooksBtn.click(function() { window.location = $(this).data('url'); });
-			this.element = this.element.add(scalarBooksBtn);
-			
 		}
 		
 	}
