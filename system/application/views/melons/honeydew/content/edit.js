@@ -151,8 +151,8 @@ $(window).ready(function() {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
 				$('#tag_of').append('<li><input type="hidden" name="tag_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
-				$('.annotation_of_msg:first').html('<b>This <span class="content_type">page</span> is also a tag</b> which tags:');
-				$('.annotation_of_msg').show();
+				$('.tag_of_msg:first').html('<b>This <span class="content_type">page</span> is also a tag</b> which tags:');
+				$('.tag_of_msg').show();
 			}
 		}});
 	});
