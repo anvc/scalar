@@ -887,6 +887,12 @@ a.nav_btn:hover {
 .texteo_icon_external {background-image:url(images/external.png); background-position:2px 5px; padding-left:21px;}
 .texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 5px; padding-left:21px;}
 
+/* TODO */
+.path_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
+.reply_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
+.annotation_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
+.tag_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
+
 /* loading */
 .loading { background: #fff; position:absolute; top:0; left:0; }
 .loading p {position: absolute; width: 100%; text-align: center; color: #cacaca; font-weight: bold; margin: 0; font-size:16px; line-height: 16px}

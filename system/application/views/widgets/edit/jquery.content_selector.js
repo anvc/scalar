@@ -62,6 +62,7 @@
     	var self = this;
     	var $this = $(this);
     	var opts = $.extend( {}, defaults, options );
+    	var bootstrap_enabled = (typeof $().modal == 'function');
     	// Object to VAR str
     	var obj_to_vars = function(obj) {
     		var str = '';
@@ -137,11 +138,12 @@
     	// Initialize the interface
     	var init = function() {
     		$this.addClass('content_selector');
+    		if (bootstrap_enabled) $this.addClass('bootstrap');
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		$('body').append($this);
     		var $options = $('<div class="options"></div>').appendTo($wrapper);
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		$options.append('<form class="search_form"><input type="text" name="sq" placeholder="Search" /> <input type="submit" value="Go" />&nbsp; &nbsp; <label><input type="radio" name="type" value="content"> All</label> &nbsp;<label><input type="radio" name="type" value="composite"> Pages</label> &nbsp;<label><input type="radio" name="type" value="media"> Media</label> &nbsp;<label><input type="radio" name="type" value="path"> Paths</label> &nbsp;<label><input type="radio" name="type" value="tag"> Tags</label> &nbsp;<label><input type="radio" name="type" value="annotation"> Annotations</label> &nbsp;<label><input type="radio" name="type" value="reply"> Comments</label></form>');
     		$footer.find('a:first').click(function() {  // Cancel button
     			reset();
@@ -172,7 +174,7 @@
     			});
     		}
     		if (opts.multiple) {
-    			$footer.find('div:first').append('<a href="javascript:void(null);" class="generic_button default">Add Selected</a>');
+    			$footer.find('div:first').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
     			$footer.find('a:last').click(function() {
     				var nodes = [];
     				$(this).closest('.content_selector').find('input[type="checkbox"]').each(function() {

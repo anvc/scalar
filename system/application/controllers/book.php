@@ -557,7 +557,7 @@ class Book extends MY_Controller {
 
 	private function edit_view() {
 
-		$this->force_melon('honeydew');
+		//$this->force_melon('honeydew');
 
 		// User
 		$user_id = @$this->data['login']->user_id;

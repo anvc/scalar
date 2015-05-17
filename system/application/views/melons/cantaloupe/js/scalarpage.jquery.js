@@ -869,7 +869,7 @@
 					
 				} else if ( 'edit' == extension) {
 					
-					console.log('edit');  // TODO
+					// Nothing needed here
 				
 				} else if ( '' == extension ) {
 
@@ -1291,12 +1291,11 @@
 				}
 			}
 
-			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
+			if (( viewType != 'edit' ) && ( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 		  	}
-
-		  	$('[property="scalar:defaultView"]').hide();
-		  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
+			
+			$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
 
 			page.getContainingPathInfo();
 			switch (viewType) {
