@@ -44,7 +44,7 @@
 			}
 			$this.append($option);
 		}
-    	$this.append('<p class="buttons"><input type="button" class="generic_button" value="Cancel" />&nbsp; <input type="button" class="generic_button default" value="Continue" /></p>');
+    	$this.append('<p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default" value="Continue" /></p>');
     	$this.find('input:first').click(function() {
     		$this.remove();
 		});

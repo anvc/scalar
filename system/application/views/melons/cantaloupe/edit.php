@@ -21,6 +21,7 @@ $css = <<<END
 article > *:not(span) {display:none !important;}
 .ci-template-html {font-family:Georgia,Times,serif !important;}
 .body_copy {max-width:100% !important;}
+label {padding-right:8px;}
 label, .sortable li {cursor:pointer;}
 .ui-sortable-helper {background-color:#dddddd;}
 form > table {width:100%;}
@@ -266,6 +267,29 @@ function checkTypeSelect() {
 		$('.type_composite').hide();
 		$('.content_type').html('media');
 	}
+}
+// Validate form data before sending to Scalar's save API
+function validate_form(form) {
+	// Commit editor content
+	var textarea = CKEDITOR.instances['sioc:content'].getData();
+	form.find('textarea[name="sioc:content"]').val(textarea);
+	// Make sure title is present
+	var title = $('#title').val();
+	if (title.length==0) {
+		alert('Title is a required field.  Please enter a title at the top of the form.');
+		return false;
+	}
+	// Make sure slug is present if the page has already been created (otherwise the API will create)
+	var action = $('input[name="action"]').val().toLowerCase();
+	if ('add'!=action) {
+		var slug = $('#slug').val();
+		if (slug.length==0) {
+			alert('Page URL is a required field.  Please enter a URL segment in the Metadata tab at the bottom of the page.');
+			return false;
+		}
+	}
+	send_form(form);
+	return false;
 }
 
 END;
