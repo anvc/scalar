@@ -41,6 +41,7 @@ tr#styling table td, tr#metadata table td {vertical-align:middle;}
 tr#styling table td:first-of-type, tr#metadata table td:first-of-type  {width:120px;}
 .bootbox h1, .bootbox h4 {margin-left:0px; padding-left:0px;}
 .bootbox h1 {margin-bottom:12px; padding-bottom:0px; font-size:30px; line-height:100%;}
+.thumb_preview {max-height:50px;}
 
 END;
 $this->template->add_css($css, 'embed');
