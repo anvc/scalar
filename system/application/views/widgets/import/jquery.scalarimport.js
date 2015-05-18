@@ -616,6 +616,8 @@ if ('undefined'==typeof(escape_html)) {
 					title: title,
 					animate: ((0==parseInt($el.data('index'))) ? true : false)
 				});
+				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
+				$('.bootbox-close-button').empty();
 				$('.custom_meta').appendTo($('#bootbox-content'));
 				$('.bootbox .modal-dialog').width(width);
 				$('.custom_meta_content').height(height);
