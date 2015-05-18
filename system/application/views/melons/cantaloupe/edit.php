@@ -611,7 +611,7 @@ if ('cantaloupe' == $book->template) {
 			?>
 				</ul>
 
-				<div class="form_fields_sub_element" class="has_tag_msg" style="display:none;"><a class="btn btn-success btn-sm generic_button border_radius">Add additional tags</a></div>
+				<div class="form_fields_sub_element has_tag_msg" style="display:none;"><a class="btn btn-success btn-sm generic_button border_radius">Add additional tags</a></div>
 				</div>
 			    </td>
 			  </tr>
