@@ -368,7 +368,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             //Handle the book index...
             var indexElement = $( '<div></div>' ).prependTo( 'body' );
             base.index = indexElement.scalarindex( {} );
-            base.$el.find('.index_link').click(function(e){
+            base.$el.find('.index_link a').click(function(e){
                 $('#scalarheader.navbar').data('scalarheader').index.data('plugin_scalarindex').showIndex();
             });
 
