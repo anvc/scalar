@@ -560,18 +560,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             });
 
             //Gonna use jQuery promises to make sure we have common, cookie, rdfquery.rules, and scalarrecent included - when they are, we'll build out the recent panel
-            $.when(
-                $.getScript( arbors_uri+'/html/common.js' ),
-                $.getScript( widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js' ),
-                $.getScript( widgets_uri+'/nav/jquery.scalarrecent.js' ),
-                $.Deferred(function( deferred ){
-                    $( deferred.resolve );
-                })
-            ).done(function(){
-                    $.when(scalarrecent_log_page()).then(function(){
-                        var base = $('#scalarheader.navbar').data('scalarheader');
-                        base.load_recent(base.$el.find('#recent_menu>ul'));
-                    });
+            $.when(scalarrecent_log_page()).then(function(){
+            	var base = $('#scalarheader.navbar').data('scalarheader');
+            	base.load_recent(base.$el.find('#recent_menu>ul'));
             });
 
             base.$el.find('.dropdown-menu').hover(function(){

@@ -19,7 +19,7 @@ $this->template->add_js('var views='.json_encode($views), 'embed');
 $css = <<<END
 
 article > *:not(span) {display:none !important;}
-.ci-template-html {font-family:Georgia,Times,serif !important;}
+.ci-template-html {font-family:Georgia,Times,serif !important; padding-left:7.2rem; padding-right:7.2rem;}
 .body_copy {max-width:100% !important;}
 label {padding-right:8px;}
 label, .sortable li {cursor:pointer;}
