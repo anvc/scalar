@@ -426,13 +426,17 @@ $(window).ready(function() {
 		          widgets_uri+'/d3/d3.min.js'], complete:function() {
 			  
 		        var currentNode = scalarapi.model.getCurrentPageNode();
+		        var extension = scalarapi.getFileExtension( window.location.href );
+
 		   		if ( currentNode == null ) {
-		   			$( 'body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
-		   			$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
-		   		} else {
-				  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
-				  	$('article').before($('#book-title').parent().parent());
+		   			if ( extension != 'edit' ) {
+		   				$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
+		   			}
 		   		}
+		   		
+			  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
+			  	$('article').before($('#book-title').parent().parent());
+
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );

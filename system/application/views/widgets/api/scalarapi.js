@@ -677,6 +677,8 @@ ScalarAPI.prototype.stripAllExtensions = function(uri) {
 ScalarAPI.prototype.getFileExtension = function(uri) {	
 	var array = uri.split('?');
 	uri = array[0];
+	array = uri.split('#');
+	uri = array[0];
 	var basename = this.basename(uri);
 	if (basename.indexOf('.') == -1) return '';
 	var ext = basename.substr(basename.indexOf('.') + 1);

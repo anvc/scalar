@@ -760,6 +760,9 @@ a.media_info {
 	display: inline-block;
 }
 
+#tr_container_of td, #tr_reply_of td, #tr_annotation_of td, #tr_tag_of td { padding-bottom: 2.4rem !important; }
+.content_selector { border-radius: 0 !important; }
+
 .design {
 	background: url(images/design.png) no-repeat bottom;
 	width: 3.1rem;
@@ -888,10 +891,10 @@ a.nav_btn:hover {
 .texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 5px; padding-left:21px;}
 
 /* TODO */
-.path_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
-.reply_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
-.annotation_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
-.tag_icon {width:31px; height:27px; background-image:url(images/comments.png); display:block; background-position:left top;}
+.path_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_path_icon.png); display:inline-block; background-position:left top;}
+.reply_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_comment_icon.png); display:inline-block; background-position:left top;}
+.annotation_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_annotation_icon.png); display:inline-block; background-position:left top;}
+.tag_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_tag_icon.png); display:inline-block; background-position:left top;}
 
 /* loading */
 .loading { background: #fff; position:absolute; top:0; left:0; }
@@ -956,7 +959,7 @@ label {
   width: 100%;
 }
 /* bootstrap override */
-button, input, optgroup, select, textarea {
+button, .btn, input, optgroup, select, textarea {
   font-family: Lato, Arial, sans-serif;
 }
 

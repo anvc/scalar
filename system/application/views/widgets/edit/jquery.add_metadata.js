@@ -59,7 +59,12 @@
 		    	  		var selected = $content.find('input:checked');
 		    	  		$.each(selected, function() {
 		    	  			var val = $(this).attr('name');
-		    	  			var $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="" /></td></tr>');
+                            var $insert;
+                            if ( $( 'article' ).length ) { // if cantaloupe
+                                $insert = $('<div class="form-group '+val+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control" value="" /></div></div>');
+                            } else {
+                                $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="" /></td></tr>');
+                            }
 		    	  			$insert_into.append($insert);
 		    	  		});
 		    	  		$('.bootbox').modal('hide').data('bs.modal', null);  
@@ -69,6 +74,7 @@
 			});
 			$this.appendTo($('#bootbox-content'));
 			$('.bootbox .modal-dialog').width(opts.width);
+            $('.bootbox-close-button').empty();
 			$('.bootbox .add_metadata_modal').height(opts.height).css('overflow', 'auto');
 		} else {
 			alert('Could not find a modal/dialog library');
@@ -123,9 +129,13 @@
         	for (var p in data[uri]) {
         		for (var j = 0; j < data[uri][p].length; j++) {
         			var val = data[uri][p][j].value;
-        			var $insert = $('<tr class="'+p+'"><td class="field">'+p+'</td><td class="value"></td></tr>');
-        			var $input = $('<input type="text" name="'+p+'" class="form-control">');
-        			$input.val(val).appendTo($insert.find('td:last'));
+                    var $insert;
+                    if ( $( 'article' ).length ) { // if cantaloupe
+                        $insert = $('<div class="form-group '+val+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"></div></div>');
+                    } else {
+           			    $insert = $('<tr class="'+p+'"><td class="field">'+p+'</td><td class="value"></td></tr>');
+                    }
+        			$input.val(val).appendTo($insert.find('div:last'));
         			$insert_into.append($insert);
         		};
         	};
