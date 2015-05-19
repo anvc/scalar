@@ -315,8 +315,6 @@ $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
 ?>
 
-<!-- <h4><?=(!empty($page))?'Edit':'Add'?> content</h4> -->
-
 <?
 if ('cantaloupe' == $book->template) {
 	echo('<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), true);">');
