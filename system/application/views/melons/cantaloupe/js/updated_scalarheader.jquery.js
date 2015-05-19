@@ -559,11 +559,15 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 return false;
             });
 
-            //Gonna use jQuery promises to make sure we have common, cookie, rdfquery.rules, and scalarrecent included - when they are, we'll build out the recent panel
-            $.when(scalarrecent_log_page()).then(function(){
-            	var base = $('#scalarheader.navbar').data('scalarheader');
-            	base.load_recent(base.$el.find('#recent_menu>ul'));
-            });
+            //Check if the current page should be logged in the "recent" menu - if so, do that and then render the menu. Otherwise, just get renderin'
+            if(['import','edit'].indexOf($('head>link#view').attr('href')) > -1){
+                $.when(scalarrecent_log_page()).then(function(){
+                    var base = $('#scalarheader.navbar').data('scalarheader');
+                    base.load_recent(base.$el.find('#recent_menu>ul'));
+                });
+            }else{
+                base.load_recent(base.$el.find('#recent_menu>ul'));
+            }
 
             base.$el.find('.dropdown-menu').hover(function(){
                 if(!base.usingMobileView){
