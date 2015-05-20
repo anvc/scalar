@@ -31,10 +31,21 @@
 			loadCount: 0,
 			
 			showMedia: function(node, source, collection) {
-			
-				mediaDetails.targetNode = node;
-				mediaDetails.collection = collection;
+				if(node != undefined) {
+					$.scalarmediadetailsstate = {
+						node:node,
+						source:source,
+						collection:collection
+					}
+				} else {
+					node = $.scalarmediadetailsstate.node;
+					source = $.scalarmediadetailsstate.source;
+					collection = $.scalarmediadetailsstate.collection;
+				}
 				mediaDetails.source = source;
+				mediaDetails.collection = collection;
+				mediaDetails.targetNode = node;
+
 				mediaDetails.loadCount = 0;
 				
 				mediaDetails.slideshowElement = $('<div class="manual_slideshow"></div>').appendTo(mediaDetails.contentElement);

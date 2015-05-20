@@ -1117,7 +1117,11 @@
 			},
 
 			handleMediaResize: function() {
-
+				// Regenerate media details view if currently open
+				if($('.media_details:visible').length == 1) {
+					$('.media_details:visible').find('[title="Close"]').click();
+					setTimeout(page.mediaDetails.show,1000);
+				}
 				// remove elements that were added the last time
 				// the page was parsed for media to show
 				$( '.slot' ).remove();
