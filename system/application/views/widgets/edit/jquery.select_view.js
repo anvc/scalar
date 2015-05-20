@@ -60,10 +60,12 @@
     	
     	var set_descriptions = function() {
     		$this.find('select').each(function() {
-    			var desc = $(this).find(':selected').data('desc');
-    			var img_path = $(this).find(':selected').data('img');
-    			var img = (img_path.length)? '<img src="'+opts.approot+img_path+'" align="left" style="margin-right:10px;width:100px;" />' : '';
-    			$(this).parent().siblings('.select_desc, .component_desc').html(img+desc);
+    			var $this = $(this);
+    			$this.blur();
+    			var desc = $this.find(':selected').data('desc');
+    			var img_path = $this.find(':selected').data('img');
+    			var img = (img_path.length)? '<img src="'+opts.approot+img_path+'" align="left" style="margin-right:15px;width:100px;" />' : '';
+    			$this.parent().siblings('.select_desc, .component_desc').html(img+desc);
     		});
     	};    	
     	
@@ -83,7 +85,7 @@
     	};
     	
     	// View pulldown
-    	var $select_wrapper = $('<div><select name="scalar:default_view" class="generic_button large"></select></div>').appendTo($this);
+    	var $select_wrapper = $('<div><select name="scalar:default_view" class="btn btn-default generic_button large form-control" style="text-align:left; max-width: 200px;"></select></div>').appendTo($this);
     	var $select = $select_wrapper.find('select:first');
     	$('<div class="select_desc" style="margin-top:10px;"></div>').insertAfter($select_wrapper);
     	$select.hide();

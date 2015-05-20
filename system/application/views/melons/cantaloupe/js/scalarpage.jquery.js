@@ -869,7 +869,7 @@
 					
 				} else if ( 'edit' == extension) {
 					
-					console.log('edit');  // TODO
+					// Nothing needed here
 				
 				} else if ( '' == extension ) {
 
@@ -1225,7 +1225,7 @@
 		$( '#book-id' ).hide();
 		$( '[property="scalar:fullname"]' ).hide();
 		$( '[property="dcterms:description"]' ).hide();
-
+	
         //Are we logged in? Check the RDF metadata.
         page.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
         if(page.logged_in){
@@ -1238,7 +1238,7 @@
 		$('section').hide(); // TODO: Make this more targeted
 
 		$( 'article' ).append( '<div id="footer" class="caption_font"></div>' );
-
+	
 		$( 'body' ).bind( 'delayedResize', function() {
 			if(page.initialMediaLoad === true) {
 				var reload = false;
@@ -1261,24 +1261,24 @@
 				}
 			}
 		} );
-
+		
 		if($('body').width() <= page.mobileWidth) {
 			page.adaptiveMedia = 'mobile';
 		}
-
+		
 		$('body').on('mediaElementMediaLoaded',function() {
 			page.initialMediaLoad = true;
 			page.heightOnMediaLoad = $(window).height();
 		});
-
+		
 		var i, node, nodes, link, visOptions, visualization,
 			currentNode = scalarapi.model.getCurrentPageNode();
 
-		if ( currentNode != null ) {
+		var viewType;
+		var extension = scalarapi.getFileExtension( window.location.href );
+		var version = scalarapi.getVersionExtension( window.location.href );
 
-			var viewType;
-			var extension = scalarapi.getFileExtension( window.location.href );
-			var version = scalarapi.getVersionExtension( window.location.href );
+		if ( currentNode != null ) {
 
 			if (( extension == '' ) || ( version != '' )) {
 				viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
@@ -1295,13 +1295,11 @@
 				}
 			}
 
-			if (( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
+			if (( viewType != 'edit' ) && ( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
+				$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
 		  	}
-
-		  	$('[property="scalar:defaultView"]').hide();
-		  	$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
-
+			
 			page.getContainingPathInfo();
 			switch (viewType) {
 
@@ -1628,7 +1626,7 @@
 					$( '.annobuilder' ).addClass( 'caption_font' );
 					okToAddExtras = false;
 					break;
-
+					         
 			  	}
 
 				page.setupScreenedBackground();
@@ -1675,6 +1673,18 @@
 					page.hideNote(this);
 				})
 			})
+
+		// current node is null
+		} else {
+			if ( extension == 'edit' ) {
+				var anchorVars = scalarapi.getAnchorVars( window.location.href );
+				if ( anchorVars != null ) {
+					if ( anchorVars.type == "media" ) {
+						$( 'article > span[property="sioc:content"]' ).prepend( '<h2 class="heading_font" style="margin-top: 0;">Import Internet Media File</h2>' );
+					}
+				}
+			}
+			page.setupScreenedBackground();
 		}
 
 		return page;

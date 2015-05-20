@@ -176,8 +176,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '<a class="headerIcon" id="helpIcon" title="Help button. Click to toggle help info."/></a>'+
                                             '</li>'+
                                             ((base.is_author||base.is_commentator||base.is_reviewer)?
-                                                '<li id="ScalarHeaderNew" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'+
-                                                '<li id="ScalarHeaderEdit" class="hidden-xs"><a class="headerIcon" href="' + scalarapi.model.urlPrefix + base.current_slug + '.edit'+ ((scalarapi.getQuerySegment(window.location.href).length)?'?'+scalarapi.getQuerySegment(window.location.href):'') +'" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'+
+                                                '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'+
+                                                '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.model.urlPrefix + base.current_slug + '.edit'+ ((scalarapi.getQuerySegment(window.location.href).length)?'?'+scalarapi.getQuerySegment(window.location.href):'') +'" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'+
                                                 ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
                                                     '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
@@ -356,7 +356,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }).keyup(function(e){
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
-                	console.log(e.keyCode);
                     if(e.keyCode == 39 || e.keyCode == 13 || e.keyCode == 32){
                         base.initSubmenus($(this).parent());
                         e.stopPropagation();
@@ -368,7 +367,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             //Handle the book index...
             var indexElement = $( '<div></div>' ).prependTo( 'body' );
             base.index = indexElement.scalarindex( {} );
-            base.$el.find('.index_link').click(function(e){
+            base.$el.find('.index_link a').click(function(e){
                 $('#scalarheader.navbar').data('scalarheader').index.data('plugin_scalarindex').showIndex();
             });
 
@@ -559,20 +558,15 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 return false;
             });
 
-            //Gonna use jQuery promises to make sure we have common, cookie, rdfquery.rules, and scalarrecent included - when they are, we'll build out the recent panel
-            $.when(
-                $.getScript( arbors_uri+'/html/common.js' ),
-                $.getScript( widgets_uri+'/nav/jquery.rdfquery.rules.min-1.0.js' ),
-                $.getScript( widgets_uri+'/nav/jquery.scalarrecent.js' ),
-                $.Deferred(function( deferred ){
-                    $( deferred.resolve );
-                })
-            ).done(function(){
-                    $.when(scalarrecent_log_page()).then(function(){
-                        var base = $('#scalarheader.navbar').data('scalarheader');
-                        base.load_recent(base.$el.find('#recent_menu>ul'));
-                    });
-            });
+            //Check if the current page should be logged in the "recent" menu - if so, do that and then render the menu. Otherwise, just get renderin'
+            if(['import','edit'].indexOf($('head>link#view').attr('href')) > -1){
+                base.load_recent(base.$el.find('#recent_menu>ul'));
+            }else{
+                $.when(scalarrecent_log_page()).then(function(){
+                    var base = $('#scalarheader.navbar').data('scalarheader');
+                    base.load_recent(base.$el.find('#recent_menu>ul'));
+                });
+            }
 
             base.$el.find('.dropdown-menu').hover(function(){
                 if(!base.usingMobileView){

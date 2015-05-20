@@ -261,7 +261,7 @@ a.headerIcon{
 	background-color: transparent;
 	color: #fff;
 }
-.navbar #ScalarHeaderMenuLeft a.headerIcon:hover, navbar #ScalarHeaderMenuLeft a.headerIcon:focus, .navbar #ScalarHeaderMenuLeft a.headerIcon:active,
+.navbar #ScalarHeaderMenuLeft a.headerIcon:hover, .navbar #ScalarHeaderMenuLeft a.headerIcon:focus, .navbar #ScalarHeaderMenuLeft a.headerIcon:active,
 .navbar #ScalarHeaderMenuRight a.headerIcon:hover, .navbar #ScalarHeaderMenuRight a.headerIcon:focus, .navbar #ScalarHeaderMenuRight a.headerIcon:active,
 .navbar #ScalarHeaderMenuLeft li.open a.headerIcon, .navbar #ScalarHeaderMenuRight li.open a.headerIcon,
 #ScalarHeaderMenuSearch.search_open, #ScalarHeaderMenuSearch.search_open a{
@@ -446,14 +446,12 @@ a.headerIcon{
 	color: #b3b3b3;
 }
 .navbar ul.dropdown-menu li a:hover,
-.navbar ul.dropdown-menu li a:focus,
 .navbar ul.dropdown-menu li.active a, 
 .navbar li.mainMenu>ul.dropdown-menu>li>ol>li.is_parent.active>a.expand, 
 .tocMenu .expandedPage .relationships ol>li.is_parent.active>a.expand,
 .navbar li.mainMenu>ul.dropdown-menu>li>ol>li.active>a.expand, 
 .tocMenu .expandedPage .relationships ol>li.active>a.expand,
 #mobileMainMenuSubmenus li a:hover,
-#mobileMainMenuSubmenus li a:focus,
 #mobileMainMenuSubmenus li.active a{
 	background-color: #006793;
 	color: #fff
@@ -498,7 +496,7 @@ a.headerIcon{
 	background-color: #4c4c4c;
 }
 .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand:hover, .tocMenu .expandedPage .relationships ol>li>a.expand:hover,
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand:focus, .tocMenu .expandedPage .relationships ol>li>a.expand:focus{
+.tocMenu .expandedPage .relationships ol>li>a.expand:focus{
 	background-color: #006793;
 }
 .navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
@@ -508,7 +506,7 @@ a.headerIcon{
 	padding: 3rem 0;
   	width: 38rem;
 }
-.navbar .dropdown-menu li:hover, .navbar .dropdown-menu li:focus, .navbar .dropdown-menu li:active{
+.navbar .dropdown-menu li:hover, .navbar .dropdown-menu li:active{
 	background-color: #353535;
 	color: white;
 }

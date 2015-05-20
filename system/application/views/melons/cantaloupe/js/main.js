@@ -349,6 +349,8 @@ $(window).ready(function() {
 		  // Scalar API
 		  {load: [base_uri+'/js/jquery.rdfquery.rules-1.0.js',
 		          base_uri+'/js/jquery.RDFa.js',
+		          base_uri+'/js/form-validation.js',
+		          widgets_uri+'/nav/jquery.scalarrecent.js',
 		          widgets_uri+'/cookie/jquery.cookie.js',
 		          widgets_uri+'/api/scalarapi.js'], complete:function() {
 
@@ -422,16 +424,19 @@ $(window).ready(function() {
 
 		  {load: [widgets_uri+'/spinner/spin.min.js',
 		          widgets_uri+'/d3/d3.min.js'], complete:function() {
-
+			  
 		        var currentNode = scalarapi.model.getCurrentPageNode();
-	        
+		        var extension = scalarapi.getFileExtension( window.location.href );
+
 		   		if ( currentNode == null ) {
-		   			$( 'body' ).append( '<nav role="navigation"><a href="#"><span id="book-title"></span></a></nav>' );
-		   			$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
-		   		} else {
-				  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
-				  	$('article').before($('#book-title').parent().parent());
+		   			if ( extension != 'edit' ) {
+		   				$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
+		   			}
 		   		}
+		   		
+			  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
+			  	$('article').before($('#book-title').parent().parent());
+
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
@@ -460,7 +465,7 @@ $(window).ready(function() {
 		          widgets_uri+'/mediaelement/annotation.css',
 		          widgets_uri+'/mediaelement/jquery.mediaelement.js',
 		          widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
-
+			
 		        var currentNode = scalarapi.model.getCurrentPageNode();
 		        
 				if ( currentNode != null ) {
@@ -475,13 +480,12 @@ $(window).ready(function() {
 
 				var savedState = $.cookie('viewstate');
 
-
 		  }},
 
 		  // Maximize + comments
 		  {load: ['//www.google.com/recaptcha/api/js/recaptcha_ajax.js',
-		          widgets_uri+'/replies/replies.js'], complete:function() {
-		  }},
+		          widgets_uri+'/replies/replies.js'], complete:function() {}
+		  },
 
 		  // Hypothesis
 		  {

@@ -137,6 +137,17 @@ function scalarrecent_log_page() {
 }
 
 /**
+ * scalarrecent_clear()
+ * Clear the localStorage so we can start over
+ * @return null
+ */
+function scalarrecent_clear() {
+	
+	localStorage.removeItem('scalar_user_history');
+	
+}
+
+/**
  * $.scalarrecent()
  * Create a pulldown list of recent pages based either on the HTML5 localStorage or the RDF API (logged in)
  * @return null
@@ -255,6 +266,10 @@ function scalarrecent_rdf_to_html($this, json, user_url, max_to_show) {
 
 	if (!json) return $this.append('<p>No history yet</p>');		
 
+	if ('undefined'==typeof(json[user_url]) || 'undefined'==typeof(json[user_url]['http://scalar.usc.edu/2012/01/scalar-ns#has_viewed'])) {
+		scalarrecent_clear();
+		return $this.append('<p>No history yet</p>');	
+	}
 	var nodes = json[user_url]['http://scalar.usc.edu/2012/01/scalar-ns#has_viewed'];
 	if (nodes.length < 1) return $this.append('<p>No history yet</p>');					
 

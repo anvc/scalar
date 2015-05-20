@@ -10,7 +10,7 @@
 	position:absolute; top:44px; left:0px; right:0px; bottom:44px; overflow:auto; 
 	border-top:solid 1px #bbbbbb; border-bottom:solid 1px #bbbbbb;
 }
-.content_selector .wrapper .content .loading {text-align:center; margin-top:50px; font-size:13px; color:red;}
+.content_selector .wrapper .content .loading {position:relative; text-align:center; margin-top:50px; font-size:13px; color:red;}
 .content_selector .wrapper .content .howto {text-align:center; margin-top:50px; font-size:14px; line-height:200%;}
 .content_selector .wrapper .content > table {width:100%;}
 .content_selector .wrapper .content th:first-of-type {max-width:44px;}
@@ -26,6 +26,7 @@
 .content_selector .wrapper .content .anno {height:22px; cursor:pointer;}
 .content_selector .wrapper .footer {position:absolute; bottom:0px; left:0px; right:0px; height:42px; text-align:right;}
 .content_selector .wrapper .footer > div {padding-top:10px;}
+.content_selector.bootstrap .wrapper .footer > div {padding-top:5px;}
 .content_selector .wrapper .footer .generic_button {margin-left:10px; margin-right:10px;}
 .tt {
 	position:absolute; top:0px; left:0px; background-color:#eeeeee; width:280px; border:solid 1px #bbbbbb; z-index:9;

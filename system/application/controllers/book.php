@@ -557,8 +557,6 @@ class Book extends MY_Controller {
 
 	private function edit_view() {
 
-		$this->force_melon('honeydew');
-
 		// User
 		$user_id = @$this->data['login']->user_id;
 		if (empty($user_id)) show_error('Not logged in');

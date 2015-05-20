@@ -417,10 +417,10 @@ if (!empty($reference_of)):
 	$audio = null;
 	if (isset($page->versions) && isset($page->versions[$page->version_index]->has_paths) && !empty($page->versions[$page->version_index]->has_paths)) {
 		$path_index = $page->versions[$page->version_index]->requested_path_index;
-		if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->audio)) $audio = trim($page->versions[$page->version_index]->has_paths[$path_index]->audio);		
+		if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->audio)) $audio = trim($page->versions[$page->version_index]->has_paths[$path_index]->audio);
 	}
 	if (isset($page->version_index)) {
-		if (!empty($page->audio)) $audio = $page->audio;	
+		if (!empty($page->audio)) $audio = $page->audio;
 	}
 	if (!empty($audio)) {
 		$audio = $this->pages->get_by_version_url($book->book_id, $audio, true); // Shortcut
@@ -437,7 +437,7 @@ if (!empty($reference_of)):
 			</div>
 		</div>
 	</section>
-<?php 
+<?php
 		}
 	}?>
 	</article>
