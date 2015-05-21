@@ -3,29 +3,6 @@
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
-/** The following conforms texts originating from other sources (including Scalar's older WYSIWYG)
- * 1) Convert \n to <br /> when cut-and-paste in to 'source' mode
- * 2) Add a name="" attribute to empty <a> tags when cut-and-paste into either mode, and on load from the <textarea>
- * @author 	Craig Dietrich
- * @version	1.0
- */
-
-$(document).on('paste', 'textarea', function (e) {  // Text is cut-and-paste into 'source' mode
-	if ('undefined'!=typeof(codemirror_cke_1)) {
-		var myFunc = function(obj1, obj2) {
-			codemirror_cke_1.off('change', myFunc);
-			// \n => <br />
-			var val = codemirror_cke_1.getValue();
-			val = val.replace(new RegExp('\r?\n','g'), '<br />');
-			// Insert
-			setTimeout(function() {
-				codemirror_cke_1.setValue(val);		
-			},10);
-		};
-		codemirror_cke_1.on('change', myFunc);
-	} 
-});
-
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
 	
