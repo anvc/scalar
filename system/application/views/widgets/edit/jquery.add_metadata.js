@@ -11,11 +11,10 @@
 	
     $.fn.add_metadata = function(options) {
     	
-    	$('.add_metadata_modal').remove();
+    	$('.add_metadata_modal, .add_metadata_bootbox').remove();
     	var $this = $('<div class="add_metadata_modal"></div>');
     	var $insert_into = $(this);
     	opts = $.extend( {}, defaults, options );
-    	$('.bootbox').remove();
     	var $div = $('<div>Loading ontologies ...</div>').appendTo($this);
 
 		if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
@@ -43,46 +42,51 @@
 				message: '<div id="bootbox-content"></div>',
 				title: opts.title+'&nbsp; (<span class="title-links"></span>)',
 				animate: true,
+				className: 'add_metadata_bootbox',
 				buttons: {
 				    cancel: {
 				      label: "Cancel",
 				      className: "btn-default",
 				      callback: function() {
-						$('.bootbox').modal('hide').data('bs.modal', null);  
+						$('.add_metadata_bootbox').modal('hide').data('bs.modal', null);  
 				      }
 				    },
 				    add: {
 				      label: "Add fields",
 				      className: "btn-primary",
 				      callback: function() {
-				    	var $content = $('.bootbox #bootbox-content:first');
+				    	var $content = $('.add_metadata_bootbox #bootbox-content:first');
 		    	  		var selected = $content.find('input:checked');
 		    	  		$.each(selected, function() {
 		    	  			var val = $(this).attr('name');
                             var $insert;
-                            if ( $( 'article' ).length ) { // if cantaloupe
+                            if ($insert_into.is('ul') || $insert_into.is('ol')) { // scalarimport
+                            	$insert = $('<li><span class="field">'+val+'</span><span class="value"><input type="text" name="'+val+'" value="" /></span></li>');
+                            } else if ( $( 'article' ).length ) { // cantaloupe
                                 $insert = $('<div class="form-group '+val+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control" value="" /></div></div>');
-                            } else {
+                            } else {  // honeydew
                                 $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="" /></td></tr>');
                             }
 		    	  			$insert_into.append($insert);
 		    	  		});
-		    	  		$('.bootbox').modal('hide').data('bs.modal', null);  
+		    	  		$('.add_metadata_bootbox').modal('hide').data('bs.modal', null);  
 				      }
 				    },
 				}				
 			});
-			$this.appendTo($('#bootbox-content'));
-			$('.bootbox .modal-dialog').width(opts.width);
-            $('.bootbox-close-button').empty();
-			$('.bootbox .add_metadata_modal').height(opts.height).css('overflow', 'auto');
+			$this.appendTo($('.add_metadata_bootbox #bootbox-content'));
+			$('.add_metadata_bootbox .modal-dialog').width(opts.width);
+            $('.add_metadata_bootbox .bootbox-close-button').empty();
+			$('.add_metadata_bootbox .add_metadata_modal').height(opts.height).css('overflow', 'auto');
+			$('.add_metadata_bootbox').css('z-index', '1070');
+			$('.add_metadata_bootbox').next().css('z-index', '1060');
 		} else {
 			alert('Could not find a modal/dialog library');
 		}
     	
     	$.getJSON(opts.ontologies_url, function( data ) {  // Propagate with ontologies from the RDF config
         	$div.empty();
-        	var $title_links = $('.bootbox .title-links');
+        	var $title_links = $('.add_metadata_bootbox .title-links');
         	var has_title_links = ($title_links.length) ? true : false;
         	var title_links = [];
         	for (var prefix in data) {
@@ -98,9 +102,9 @@
         	}
         	if (has_title_links) {
         		$title_links.append(title_links.join(', '));
-    			$('.bootbox .title-links').find('a').click(function() {
+    			$('.add_metadata_bootbox .title-links').find('a').click(function() {
     				var name = $(this).text().toLowerCase();
-    				var $content = $('.bootbox .add_metadata_modal');
+    				var $content = $('.add_metadata_bootbox .add_metadata_modal');
     				$content.scrollTop(0);
     				var top = $content.find('[name="'+name+'"]').position().top;
     				$content.scrollTop(top-20); // Magic number

@@ -588,7 +588,7 @@ if ('undefined'==typeof(escape_html)) {
 			// Additional
 			$other = $('<div></div>').appendTo($content);
 			$other.append('<h4>Additional metadata</h4>');
-			var $otherul = $('<ul class="nodots"></ul>').appendTo($other);
+			var $otherul = $('<ul id="metadata_rows" class="nodots"></ul>').appendTo($other);
 			for (var j in fields) {
 				if (required_fields.indexOf(j)!=-1) continue;
 				if (null==fields[j]) continue;
@@ -614,6 +614,7 @@ if ('undefined'==typeof(escape_html)) {
 				bootbox.dialog({
 					message: '<div id="bootbox-content"></div>',
 					title: title,
+					className: 'custom_meta_bootbox',
 					animate: ((0==parseInt($el.data('index'))) ? true : false)
 				});
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
@@ -631,21 +632,11 @@ if ('undefined'==typeof(escape_html)) {
 			
 			// Add additional metadata
 			$other.find('#additional_metadata').click(function() {
-				var $this = $(this);
-				if ($this.data('open')) {
-					$div.find('.overlay').remove();
-					$this.data('open', false);
-				} else {
-					var callback = function(link) {
-						var $link = $(link);
-						var pnode = $link.attr('title');
-						$otherul.append('<li><span class="field">'+pnode+'</span><span class="value"><input type="text" name="'+pnode+'" value="" /></span></li>');
-						$link.closest('.overlay').remove();
-						$other.find('#additional_metadata').data('open', false);	
-					}
-					$(this).scalarimport('additional_metadata', $div, options, required_fields, callback);
-					$this.data('open', true);
-				}
+				var approot = $('link#approot').attr('href');
+				$.getScript(approot+'views/widgets/edit/jquery.add_metadata.js', function() {
+					var ontologies_url = approot.replace('/system/application/','')+'/system/ontologies';
+					$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
+				});
 				return false;
 			});
 			
@@ -658,7 +649,7 @@ if ('undefined'==typeof(escape_html)) {
 				return;
 			}
 			
-			$('.custom_meta, .bootbox, .modal-backdrop').remove();
+			$('.custom_meta, .custom_meta_bootbox, .modal-backdrop').remove();
 			$(options.results_el).find('input[type="checkbox"]:not(#edit_meta)').prop('checked', false);
 			var $box = $('<div class="imported_dialog"></div>');
 			$box.append('<div class="alert alert-success">'+((versions.length>1)?'Files have been':'A file has been')+' imported.  You may follow the link'+((versions.length>1)?'s':'')+' below to access the imported media. Alternatively, you can access the media in Dashboard > Media.</div>');

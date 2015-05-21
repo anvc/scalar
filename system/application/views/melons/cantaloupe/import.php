@@ -27,6 +27,10 @@ label {display:inline !important; font-size:inherit !important; font-weight:inhe
 #results {font-family:"Lato",Arial,sans-serif !important;}
 .result_content {height:360px;}
 .result_footer {font-size:smaller;}
+.bootbox h1, .bootbox h4 {margin-left:0px; padding-left:0px;}
+.bootbox h1 {margin-bottom:12px; padding-bottom:0px; font-size:30px; line-height:100%;}
+.bootbox td {padding:0px 10px 10px 0px;}
+.bootbox label {font-size:16px !important;}
 
 END;
 $this->template->add_css($css, 'embed');
