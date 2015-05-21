@@ -555,10 +555,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
-            }).on('focus',function(){
-                if(!$('#ScalarHeaderMenuSearch').hasClass('search_open')){
-                    $(this).click();
-                }
             });
 
             base.$el.find('.navbar-toggle').click(function(){
