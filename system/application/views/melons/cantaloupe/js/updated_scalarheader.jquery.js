@@ -108,7 +108,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '<ul class="dropdown-menu mainMenuDropdown" role="menu">'+
                                                     '<div class="close"><span class="menuIcon closeIcon"></span></div>'+
                                                     '<li class="header"><h2>Table of Contents</h2></li>'+
-                                                    '<li class="top hidden-xs home_link static"><a href="'+base.get_param(home_url)+'"><span class="menuIcon" id="homeIcon"></span>Home</a></li>'+
+                                                    '<li class="top hidden-xs home_link static">'+
+                                                        '<a href="'+base.get_param(home_url)+'"><span class="menuIcon" id="homeIcon"></span>Home</a>'+
+                                                    '</li>'+
                                                     '<li class="body">'+
                                                         '<ol>'+
                                                         '</ol>'+
@@ -324,12 +326,31 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }).find("ul.dropdown-menu li.dropdown").hover(function(e){
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
+
+                    var timeout = $(this).data('hoverEvent');
+                    if($(this).data('hoverEvent')!=null){
+                        console.log('cleared!');
+                        clearTimeout($(this).data('hoverEvent'));
+                        $(this).data('hoverEvent',null);
+                    }
+
+                    $(this).siblings('li.open').each(function(){
+                        var timeout = $(this).data('hoverEvent');
+                        if($(this).data('hoverEvent')!=null){
+                            clearTimeout($(this).data('hoverEvent'));
+                            $(this).data('hoverEvent',null);
+                            $(this).removeClass('open').trigger('hide.bs.dropdown');
+                        }
+                    });
+
                     base.initSubmenus(this);
                 }
             },function(e){
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
-                    $(this).removeClass('open').trigger('hide.bs.dropdown');
+                    $(this).data('hoverEvent',setTimeout($.proxy(function(){
+                        $(this).removeClass('open').trigger('hide.bs.dropdown');
+                    },$(this)),2000));
                 }else{
                     return true;
                 }
@@ -809,157 +830,152 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 base.focusExpandedPage(container);
             }
             
-            // Sort of crafty here - we're doing a self-calling anonymous function here to pull this element out of the scope; 
-            // We are then shoving it back into this class when we get the ajax response; this allows us to pass the call directly back to ScalarHeader
-            // without having to dig for it again
-            (function(container){
-                var handleRequest = function(){ //this function is scoped instantaneously to this anonymous function, so we can pass it to loadPage while preserving the container reference
-                        var relationships = container.find('.relationships');
-                        
-                        var splitList = $('<ul></ul>');
-
-                        var node = scalarapi.getNode(container.data('slug'));
-                        
-                        var path_of = node.getRelatedNodes('path', 'outgoing');
+            var handleRequest = function(){ //this function is scoped instantaneously to this anonymous function, so we can pass it to loadPage while preserving the container reference
+                    var relationships = $(this).find('.relationships');
                     
-                        var features = node.getRelatedNodes('referee', 'outgoing');
-                        var tag_of = node.getRelatedNodes('tag', 'incoming');
-                        var annotates = node.getRelatedNodes('annotation', 'outgoing');
-                        var comments_on = node.getRelatedNodes('comment', 'outgoing');
-                        
-                        var base = $('#scalarheader.navbar').data('scalarheader');
+                    var splitList = $('<ul></ul>');
 
-                        if(path_of.length > 0){
-                            var newList = $('<li><strong>Contents</strong><ol></ol></li>').appendTo(splitList).find('ol');
-                            for(var i in path_of){
-                                var relNode = path_of[i];
-                                var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
-                                                    .data({
-                                                        'slug': relNode.slug,
-                                                        'node': relNode
-                                                    })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
+                    var node = scalarapi.getNode($(this).data('slug'));
+                    
+                    var path_of = node.getRelatedNodes('path', 'outgoing');
+                
+                    var features = node.getRelatedNodes('referee', 'outgoing');
+                    var tag_of = node.getRelatedNodes('tag', 'incoming');
+                    var annotates = node.getRelatedNodes('annotation', 'outgoing');
+                    var comments_on = node.getRelatedNodes('comment', 'outgoing');
+                    
+                    var base = $('#scalarheader.navbar').data('scalarheader');
+
+                    if(path_of.length > 0){
+                        var newList = $('<li><strong>Contents</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                        for(var i in path_of){
+                            var relNode = path_of[i];
+                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                                                .data({
+                                                    'slug': relNode.slug,
+                                                    'node': relNode
+                                                })
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
+                            
+                            $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
+
+                            newList.append(nodeItem);
+                        }
+                    }
+
+                    if(features.length > 0){
+                        var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                        for(var i in features){
+                            var relNode = features[i];
+                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                                                .data({
+                                                    'slug': relNode.slug,
+                                                    'node': relNode
+                                                })
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
+                            
+                            $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
+
+                            newList.append(nodeItem);
+
+                        }
+                    }
+
+                    if(tag_of.length > 0){
+                        var newList = $('<li><strong>Tags</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
+                        for(var i in tag_of){
+                            var relNode = tag_of[i];
+                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                                                .data({
+                                                    'slug': relNode.slug,
+                                                    'node': relNode
+                                                })
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
+                            
+                            $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
+
+                            newList.append(nodeItem);
+
+                        }
+                    }
+
+                    if(annotates.length > 0){
+                        var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                        for(var i in annotates){
+                            var relNode = annotates[i];
+                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                                                .data({
+                                                    'slug': relNode.slug,
+                                                    'node': relNode
+                                                })
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
+                            
+                            $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
+
+                            newList.append(nodeItem);
+
+                        }
+                    }
+
+                    if(comments_on.length > 0){
+                        var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                        for(var i in comments_on){
+                            var relNode = comments_on[i];
+                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                                                .data({
+                                                    'slug': relNode.slug,
+                                                    'node': relNode
+                                                })
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
+                            
+                            $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
+
+                            newList.append(nodeItem);
+                        }
+                    }
+                    if(splitList.children('li').length > 0){
+                        relationships.html(splitList);
+                        relationships.find('.expand').click(function(e){
+                            var base = $('#scalarheader.navbar').data('scalarheader');
+                            base.expandMenu($(this).parent().data('node'),$(this).parents('.expandedPage').data('index')+1);
+                            $(this).find('li.active').removeClass('active');
+                            $(this).parent().addClass('active');
+                            e.preventDefault();
+                            return false;
+                        });
+                        relationships.find('li>ol>li, li>ul>li').each(function(){
+                        	var height = $(this).find('a').first().height()+'px';
+		            		$(this).add($(this).find('.expand')).css({
+		                    	'height' : height
+		                    });
+                        });
+                        if(!base.usingMobileView){
+                            var containerHeight = $(this).height() + 50;
+                            var max_height = $(window).height()-50;
+                            if(containerHeight >= max_height){
+                                $(this).css('max-height',max_height+'px').addClass('tall');
                                 
-                                $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-
-                                newList.append(nodeItem);
+                                var offset = $('body').scrollTop();
+                                $('body').addClass('in_menu'); //.css('margin-top','-'+offset+'px').data('scrollTop',offset);
                             }
                         }
-
-                        if(features.length > 0){
-                            var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
-                            for(var i in features){
-                                var relNode = features[i];
-                                var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
-                                                    .data({
-                                                        'slug': relNode.slug,
-                                                        'node': relNode
-                                                    })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                                
-                                $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-
-                                newList.append(nodeItem);
-
-                            }
-                        }
-
-                        if(tag_of.length > 0){
-                            var newList = $('<li><strong>Tags</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
-                            for(var i in tag_of){
-                                var relNode = tag_of[i];
-                                var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
-                                                    .data({
-                                                        'slug': relNode.slug,
-                                                        'node': relNode
-                                                    })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                                
-                                $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-
-                                newList.append(nodeItem);
-
-                            }
-                        }
-
-                        if(annotates.length > 0){
-                            var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
-                            for(var i in annotates){
-                                var relNode = annotates[i];
-                                var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
-                                                    .data({
-                                                        'slug': relNode.slug,
-                                                        'node': relNode
-                                                    })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                                
-                                $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-
-                                newList.append(nodeItem);
-
-                            }
-                        }
-
-                        if(comments_on.length > 0){
-                            var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
-                            for(var i in comments_on){
-                                var relNode = comments_on[i];
-                                var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
-                                                    .data({
-                                                        'slug': relNode.slug,
-                                                        'node': relNode
-                                                    })
-                                                    .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
-                                                    .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                                
-                                $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-
-                                newList.append(nodeItem);
-                            }
-                        }
-                        if(splitList.children('li').length > 0){
-                            relationships.html(splitList);
-                            relationships.find('.expand').click(function(e){
-                                var base = $('#scalarheader.navbar').data('scalarheader');
-                                base.expandMenu($(this).parent().data('node'),$(this).parents('.expandedPage').data('index')+1);
-                                container.find('li.active').removeClass('active');
-                                $(this).parent().addClass('active');
-                                e.preventDefault();
-                                return false;
-                            });
-                            relationships.find('li>ol>li, li>ul>li').each(function(){
-                            	var height = $(this).find('a').first().height()+'px';
-			            		$(this).add($(this).find('.expand')).css({
-			                    	'height' : height
-			                    });
-                            });
-                            if(!base.usingMobileView){
-                                var containerHeight = container.height() + 50;
-                                var max_height = $(window).height()-50;
-                                if(containerHeight >= max_height){
-                                    container.css('max-height',max_height+'px').addClass('tall');
-                                    
-                                    var offset = $('body').scrollTop();
-                                    $('body').addClass('in_menu'); //.css('margin-top','-'+offset+'px').data('scrollTop',offset);
-                                }
-                            }
-                        }else{
-                            relationships.remove();
-                            container.addClass('noRelations');
-                            splitList.remove();
-                        }
-                        container.find('a').keyup(function(e){
-			                if(e.keyCode == 13 || e.keyCode == 32){
-			                    $(this).click();
-			                }
-			            });
-                }
-                scalarapi.loadPage( container.data('slug'), true, handleRequest, null, 1, false, 1, 0, 20 );
-            })(container);
+                    }else{
+                        relationships.remove();
+                        $(this).addClass('noRelations');
+                        splitList.remove();
+                    }
+                    $(this).find('a').keyup(function(e){
+		                if(e.keyCode == 13 || e.keyCode == 32){
+		                    $(this).click();
+		                }
+		            });
+            }
+            scalarapi.loadPage( container.data('slug'), true, $.proxy(handleRequest,container), null, 1, false, 1, 0, 20 );
         };
         base.focusExpandedPage = function(container){
         	if(container != null && typeof container !== 'undefined'){
@@ -1085,7 +1101,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             var li = $(el).is('li.dropdown')?$(el):$(el).parent('li.dropdown');
             var a = $(el).is('li.dropdown>a')?$(el):$(el).children('a').first();
             var dropdown = li.find('ul.dropdown-menu');
-            li.toggleClass('open').removeClass('left right').addClass(a.offset().left>($(window).width()/2)?'left':'right').siblings('li').removeClass('open left right');
+            li.addClass('open').removeClass('left right').addClass(a.offset().left>($(window).width()/2)?'left':'right').siblings('li').removeClass('open left right');
             if(li.hasClass('right')){
                 max_width = $(window).width() - (a.offset().left + a.width());
             }else{
@@ -1116,7 +1132,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.load_recent = function(container){
             container.html($('<div></div>').scalarrecent().find('.history_content').html()).find('li>a').each(function(){
                 var base = $('#scalarheader.navbar').data('scalarheader');
-                $(this).removeClass('page').attr('href',base.get_param($(this).parent().attr('id')));
+                $(this).removeClass('page').attr('href',base.get_param($(this).parent().attr('title',$(this).text()).attr('id')));
                 base.visitedPages.push($(this).parent().attr('id'));
                 $('.mainMenu>.dropdown-menu .body>ol>li>a').each(function(){
                     if(base.visitedPages.indexOf($(this).attr('href')) >= 0){
@@ -1312,7 +1328,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             $('#scalarheader>div>div>ul>li>a, .title_wrapper a').each(function(){
                 $(this).attr('tabindex',tabIndex++);
             }).add($('#scalarheader>div>div>ul>li.dropdown>ul a, #scalarheader>div>div>ul>li input').attr('tabindex','-1')).keyup(function(e){
-                if(!$(this).is('#scalarheader>div>div>ul>li.dropdown>ul a') || $(this).hasClass('expand') || $(this).parent().hasClass('vis_link') || ($(this).attr('href')!=null && $(this).attr('href')!='')){
+                if(!$(this).is('#scalarheader>div>div>ul>li.dropdown>ul a') || $(this).hasClass('expand') || $(this).parent().hasClass('vis_link') || $(this).parent().hasClass('index_link') || ($(this).attr('href')!=null && $(this).attr('href')!='')){
 	                if(e.keyCode == 13 || e.keyCode == 32){
 	                    $(this).click();
 	                }

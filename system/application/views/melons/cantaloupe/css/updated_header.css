@@ -31,6 +31,9 @@ a.headerIcon{
 	float: left;
 	margin-right: .5rem;
 }
+.expand .menuIcon{
+	margin-right: 0rem;
+}
 .mainMenu a.headerIcon{
 	background-image: url(../images/menu_icon.png);
 }
@@ -337,12 +340,10 @@ a.headerIcon{
 }
 
 #navMenu>ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
-	width: 30rem;
 	margin: 0;
 }
 .navbar ul.dropdown-menu li.static>a, .navbar ul.dropdown-menu>li>a, .navbar ul.dropdown-menu .relationships li>a, .navbar ul.dropdown-menu .body>ol>li>a{
 	width: 100%;
-	padding: 0 3rem;
 	line-height: 22px;
 	font-size: 10pt;
 	font-weight: bold;
@@ -504,7 +505,9 @@ a.headerIcon{
 	border-radius: 0;
 	border: 0;
 	padding: 3rem 0;
-  	width: 38rem;
+}
+.navbar ul.dropdown-menu li{
+  	max-width: 38rem;
 }
 .navbar .dropdown-menu li:hover, .navbar .dropdown-menu li:active{
 	background-color: #353535;
@@ -631,6 +634,12 @@ i.loader{
 	margin: 0 auto;
 	background: url(../images/header_loader.gif) no-repeat;
 	background-position: center center;
+}
+.nav ul.dropdown-menu li.dropdown>a{
+	margin-right: 27px;
+}
+.nav #navMenu ul.dropdown-menu li.dropdown>a{
+	margin-right: 54px;
 }
 
 .navbar ul.dropdown-menu, .navbar-nav .open .dropdown-menu{
