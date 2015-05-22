@@ -329,7 +329,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
                     var timeout = $(this).data('hoverEvent');
                     if($(this).data('hoverEvent')!=null){
-                        console.log('cleared!');
                         clearTimeout($(this).data('hoverEvent'));
                         $(this).data('hoverEvent',null);
                     }
@@ -851,7 +850,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     'slug': relNode.slug,
                                                     'node': relNode
                                                 })
-                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)) )?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                             
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
@@ -869,7 +868,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     'slug': relNode.slug,
                                                     'node': relNode
                                                 })
-                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                             
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
@@ -888,7 +887,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     'slug': relNode.slug,
                                                     'node': relNode
                                                 })
-                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                             
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
@@ -907,7 +906,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     'slug': relNode.slug,
                                                     'node': relNode
                                                 })
-                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                             
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
@@ -926,7 +925,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     'slug': relNode.slug,
                                                     'node': relNode
                                                 })
-                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))  || relNode.slug == base.currentNode.slug )?'':'is_parent')
+                                                .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
                             
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
@@ -939,7 +938,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         relationships.find('.expand').click(function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             base.expandMenu($(this).parent().data('node'),$(this).parents('.expandedPage').data('index')+1);
-                            $(this).find('li.active').removeClass('active');
+                            $(this).parents('.relationships').find('li.active').removeClass('active');
                             $(this).parent().addClass('active');
                             e.preventDefault();
                             return false;
@@ -1152,61 +1151,68 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         }
         base.getParents = function(node,depth){
             if(typeof base.currentNode !== 'undefined'){
+				var in_path = node.getRelatedNodes('path', 'incoming');
+				var featured = node.getRelatedNodes('referee', 'incoming');
+				var tagged_by = node.getRelatedNodes('tag', 'outgoing');
+				var annotated_by = node.getRelatedNodes('annotation', 'incoming');
+				var commented_by = node.getRelatedNodes('comment', 'incoming');
+				/*
                 var in_path = node.getRelations('path', 'incoming', 'reverseindex');
                 var featured = node.getRelations('referee', 'incoming', 'reverseindex');
-                var tagged_by = node.getRelations('tag', 'incoming', 'reverseindex');
+                var tagged_by = node.getRelations('tag', 'outgoing', 'reverseindex');
                 var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
                 var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
+                */
                 
                 var this_parent_nodes = [];
                 var rel = '';
                 for(n in in_path){
                     rel = in_path[n];
-                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                        this_parent_nodes.push(rel.body.slug);
+                    if(this_parent_nodes.indexOf(rel.slug)<0){
+                        this_parent_nodes.push(rel.slug);
                     }
-                    if(base.parentNodes.indexOf(rel.body.slug)<0){
-                        base.parentNodes.push(rel.body.slug);
+                    if(base.parentNodes.indexOf(rel.slug)<0){
+                        base.parentNodes.push(rel.slug);
                     }
                 }
 
                 for(n in featured){
                     rel = featured[n];
-                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                        this_parent_nodes.push(rel.body.slug);
+                    if(this_parent_nodes.indexOf(rel.slug)<0){
+                        this_parent_nodes.push(rel.slug);
                     }
-                    if(base.parentNodes.indexOf(rel.body.slug)<0){
-                        base.parentNodes.push(rel.body.slug);
+                    if(base.parentNodes.indexOf(rel.slug)<0){
+                        base.parentNodes.push(rel.slug);
                     }
                 }
 
                 for(n in tagged_by){
                     rel = tagged_by[n];
-                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                        this_parent_nodes.push(rel.body.slug);
+                    if(this_parent_nodes.indexOf(rel.slug)<0){
+                        this_parent_nodes.push(rel.slug);
                     }
-                    if(base.parentNodes.indexOf(rel.body.slug)<0){
-                        base.parentNodes.push(rel.body.slug);
+                    if(base.parentNodes.indexOf(rel.slug)<0){
+                        base.parentNodes.push(rel.slug);
                     }
                 }
                 
                 for(n in annotated_by){
                     rel = annotated_by[n];
-                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                        this_parent_nodes.push(rel.body.slug);
+                    if(this_parent_nodes.indexOf(rel.slug)<0){
+                        this_parent_nodes.push(rel.slug);
                     }
-                    if(base.parentNodes.indexOf(rel.body.slug)<0){
-                        base.parentNodes.push(rel.body.slug);
+                    if(base.parentNodes.indexOf(rel.slug)<0){
+                        base.parentNodes.push(rel.slug);
                     }
                 }
                 
                 for(n in commented_by){
                     rel = commented_by[n];
-                    if(this_parent_nodes.indexOf(rel.body.slug)<0){
-                        this_parent_nodes.push(rel.body.slug);
+                    if(this_parent_nodes.indexOf(rel.slug)<0){
+                        this_parent_nodes.push(rel.slug);
                     }
-                    if(base.parentNodes.indexOf(rel.body.slug)<0){
-                        base.parentNodes.push(rel.body.slug);
+                    if(base.parentNodes.indexOf(rel.slug)<0){
+                        base.parentNodes.push(rel.slug);
                     }
                 }
 
@@ -1216,8 +1222,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         (function(slug,depth){
                             scalarapi.loadPage( slug, true, function(){
                                 var base = $('#scalarheader.navbar').data('scalarheader');
-                                if(base.checkedParents.indexOf(rel.body.slug)<0){
-                                    base.checkedParents.push(rel.body.slug);
+                                if(base.checkedParents.indexOf(rel.slug)<0){
+                                    base.checkedParents.push(rel.slug);
                                     base.getParents(scalarapi.getNode(slug),++depth);
                                 }
                             }, null, 1, false, 1, 0, 20 );
