@@ -200,6 +200,9 @@
 					   	$the_row.after($row);
 					    for (var j = 0; j < data.length; j++) {
 					    	var $data_row = $('<tr class="bottom_border" id="version_row_'+data[j].version_id+'" typeof="versions"></tr>');
+					    	if(j == 0) {
+					    		$data_row.data('most_recent_version',data[j].version_id);
+					    	}
 					    	$data_row.html('<td style="white-space:nowrap;"><input type="checkbox" name="version_id_'+data[j].version_id+'" value="1" />&nbsp; <a href="javascript:;" onclick="edit_row($(this).parent().parent());" class="generic_button">Edit</a></td>');
 							$data_row.append('<td property="id" style="display:none;">'+data[j].version_id+"</td>");
 							$data_row.append('<td class="editable number" property="version_num">'+data[j].version_num+"</td>");
@@ -221,6 +224,26 @@
 						$the_link.blur();
 						$the_link.data('is_open',true);
 					}
+
+					$('body').on("contentUpdated",function(e,update_opts) {
+						var $content_row = $('#row_'+content_id);
+						var $version_row = $('#version_row_'+update_opts.version_id);
+						$content_row.find('td').each(function() {
+							var $content = $(this);
+							var prop = $content.attr('property');
+							if(prop) {
+								var $version = $version_row.find('td.editable[property="'+prop+'"]').eq(0);
+								if($version.length != 0) {
+									var $span = $version.find('span:first');
+									if($span.length != 0) {
+										$content.html($span.html());
+									} else {
+										$content.html($version.html());
+									}
+								}
+							}
+						});
+					});
 				});
 			// Remove versions
 			} else {

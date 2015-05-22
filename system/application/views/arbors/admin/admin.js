@@ -181,7 +181,10 @@ function edit_row($row) {
 			$row.find('a:first').html('Edit');
 			$row.find('a:first').removeClass('default');
 			$row.find('a:first').blur();		 
-		 
+			var version_id = $row.data('most_recent_version');
+			if(version_id) {
+			 	$('body').trigger("contentUpdated",{version_id:version_id});
+			}
 		});		
 		
 	}
