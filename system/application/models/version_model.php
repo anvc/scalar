@@ -409,9 +409,6 @@ class Version_model extends MY_Model {
  		$unset = array();
     	foreach ($array as $key => $value) {
  			if (strstr($key, ':')) $unset[] = $key;
-            else {
-                $array[$key] = $this->db->escape($value);
-            }
     	}
     	foreach ($unset as $key) {
     		unset($array[$key]);
