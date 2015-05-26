@@ -170,14 +170,14 @@ endif;
 		foreach ($book->contributors as $contrib):
 			if (empty($contrib->list_in_index)) continue;
 			echo '		<span resource="'.$base_uri.'users/'.$contrib->user_id.'" typeof="foaf:Person">'."\n";
-			print_rdf($this->users->rdf($contrib, $base_uri), 3, $ns, array(), true);
+			print_rdf($this->users->rdf($contrib, $base_uri), 3, $ns);
 			echo '		</span>'."\n";
 		endforeach;
 		if ($publisher||$publisher_thumbnail):
 ?>
-		<span resource="<?=$base_uri?>publisher" typeof="scalar:Resource">
+		<span aria-hidden="true" resource="<?=$base_uri?>publisher" typeof="scalar:Resource">
 			<span class="metadata" property="dcterms:title"><?=$publisher?></span>
-<? if ($publisher_thumbnail): echo '			<a class="metadata" aria-hidden="true" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
+<? if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
 		</span>
 <?		endif; ?>
 <?php if (isset($page) && !empty($page)): ?>
@@ -207,19 +207,19 @@ endif;
 			<span class="metadata" class="color" style="background-color:<?=$page->versions[$page->version_index]->continue_to[0]->color?>" property="scalar:color" content="<?=$page->versions[$page->version_index]->continue_to[0]->color?>"></span>
 			<a class="metadata" rel="dcterms:hasVersion" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>"></a>
 		</span>
-		<span resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>" typeof="scalar:Version">
+		<span aria-hidden="true" resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>" typeof="scalar:Version">
 			<span property="dcterms:title" content="<?=htmlspecialchars($page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title)?>">
 				<a href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title?></a>
 			</span>
-			<span class="metadata" aria-hidden="true" property="dcterms:description"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->description?></span>
-			<a class="metadata" aria-hidden="true" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>
+			<span class="metadata" property="dcterms:description"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->description?></span>
+			<a class="metadata" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>
 		</span>
 <?
 		endif;
 ?>
 <?php endif; ?>
 	</header>
-	<span property="<?=$rdf_fields['content']?>"><?php
+	<span aria-hidden="true" property="<?=$rdf_fields['content']?>"><?php
 		if (!empty($_html)) {
 			echo $_html;
 		} elseif (isset($page) && !empty($page)) {
@@ -252,7 +252,7 @@ foreach ($models as $rel):
 ?>
 			<!-- Inward item -->
 			<li resource="urn:scalar:<?=singular($rel)?>:<?=$inward_item->versions[$inward_item->version_index]->version_id?>:<?=$page->versions[$page->version_index]->version_id?>" typeof="oac:Annotation">
-				<a rel="oac:hasBody" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
+				<a aria-hidden="true" rel="oac:hasBody" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
 				<span resource="<?=$base_uri.$inward_item->slug?>" typeof="scalar:<?=('media'==$inward_item->type)?'Media':'Composite'?>">
 					<a aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
 <? 		print_rdf($this->pages->rdf($inward_item, $base_uri), 5, $ns); ?>				</span>
@@ -260,7 +260,7 @@ foreach ($models as $rel):
 <?		print_rdf($this->users->rdf($inward_item->user, $base_uri), 5, $ns); ?>				</span>
 				<span resource="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>" typeof="scalar:Version">
 					<a aria-hidden="true" rel="dcterms:isVersionOf" href="<?=$base_uri.$inward_item->slug?>"></a>
-					<span property="dcterms:title" content="<?=htmlspecialchars($inward_item->versions[$inward_item->version_index]->title)?>">
+					<span aria-hidden="true" property="dcterms:title" content="<?=htmlspecialchars($inward_item->versions[$inward_item->version_index]->title)?>">
 						<a href="<?=$base_uri.$inward_item->slug?>"><?=$inward_item->versions[$inward_item->version_index]->title?></a>
 					</span>
 					<span aria-hidden="true" property="scalar:fullname"><?=@$inward_item->versions[$inward_item->version_index]->user->fullname?></span>
@@ -273,7 +273,7 @@ foreach ($models as $rel):
 				<a rel="oac:hasTarget" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?><?=annotation_append($inward_item->versions[$inward_item->version_index])?>"></a>
 <? 				if (isset($inward_item->versions[0]->$outward_rel) && !empty($inward_item->versions[0]->$outward_rel)): ?>
 				<!-- Items that the inward item contains -->
-				<aside aria-hidden="true">
+				<aside>
 					<h4>Contents of this <?=singular($rel)?>:</h4>
 					<ol class="<?=singular($rel)?>_of">
 <?					foreach ($inward_item->versions[0]->$outward_rel as $key => $outward_item):
@@ -295,10 +295,10 @@ foreach ($models as $rel):
 ?>
 						<li class="<?=$family_rel?>" resource="urn:scalar:<?=singular($rel)?>:<?=$outward_item->versions[$outward_item->version_index]->version_id?>:<?=$inward_item->versions[$inward_item->version_index]->version_id?>" typeof="oac:Annotation">
 							<a rel="oac:hasBody" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
-							<span resource="<?=$base_uri.$outward_item->slug?>" typeof="scalar:<?=('media'==$outward_item->type)?'Media':'Composite'?>">
+							<span aria-hidden="true" resource="<?=$base_uri.$outward_item->slug?>" typeof="scalar:<?=('media'==$outward_item->type)?'Media':'Composite'?>">
 								<a rel="dcterms:hasVersion" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?>"></a>
 <? 		print_rdf($this->pages->rdf($outward_item, $base_uri), 8, $ns); ?>							</span>
-							<span resource="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?>" typeof="scalar:Version">
+							<span aria-hidden="true" resource="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?>" typeof="scalar:Version">
 								<a rel="dcterms:isVersionOf" href="<?=$base_uri.$outward_item->slug?>"></a>
 								<span property="dcterms:title" content="<?=htmlspecialchars($outward_item->versions[$outward_item->version_index]->title)?>">
 									<a href="<?=$base_uri.$outward_item->slug?>"><?=$outward_item->versions[$outward_item->version_index]->title?></a>
@@ -334,14 +334,14 @@ foreach ($models as $rel):
 			<li resource="urn:scalar:<?=singular($rel)?>:<?=$page->versions[$page->version_index]->version_id?>:<?=$outward_item->versions[$outward_item->version_index]->version_id?>" typeof="oac:Annotation">
 				<a aria-hidden="true" rel="oac:hasBody" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
 				<a aria-hidden="true" rel="oac:hasTarget" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?><?=annotation_append($outward_item->versions[$outward_item->version_index])?>"></a>
-				<span aria-hidden="true" resource="<?=$base_uri.$outward_item->slug?>" typeof="scalar:<?=('media'==$outward_item->type)?'Media':'Composite'?>">
+				<span resource="<?=$base_uri.$outward_item->slug?>" typeof="scalar:<?=('media'==$outward_item->type)?'Media':'Composite'?>">
 					<a aria-hidden="true"  rel="dcterms:hasVersion" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?>"></a>
 <? 		print_rdf($this->pages->rdf($outward_item), 5, $ns); ?>				</span>
 				<span aria-hidden="true" resource="<?=$outward_item->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($outward_item->user, $base_uri), 5, $ns); ?>				</span>
 				<span resource="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?>" typeof="scalar:Version">
 					<a aria-hidden="true" rel="dcterms:isVersionOf" href="<?=$base_uri.$outward_item->slug?>"></a>
-					<span property="dcterms:title" content="<?=htmlspecialchars($outward_item->versions[$outward_item->version_index]->title)?>">
+					<span aria-hidden="true" property="dcterms:title" content="<?=htmlspecialchars($outward_item->versions[$outward_item->version_index]->title)?>">
 						<a href="<?=$base_uri.$outward_item->slug?>"><?=$outward_item->versions[$outward_item->version_index]->title?></a>
 					</span>
 					<span aria-hidden="true" property="scalar:fullname"><?=@$outward_item->versions[$outward_item->version_index]->fullname?></span>
@@ -367,11 +367,11 @@ if (!empty($has_references)):
 		<ol>
 <? 		foreach ($has_references as $reference_item): ?>
 			<li>
-				<a rel="dcterms:isReferencedBy" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
+				<a aria-hidden="true" rel="dcterms:isReferencedBy" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
 				<span resource="<?=$base_uri.$reference_item->slug?>" typeof="scalar:<?=('media'==$reference_item->type)?'Media':'Composite'?>">
-					<a rel="dcterms:hasVersion" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
+					<a aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
 <? 		print_rdf($this->pages->rdf($reference_item), 5, $ns); ?>				</span>
-				<span resource="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>" typeof="scalar:Version">
+				<span aria-hidden="true" resource="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>" typeof="scalar:Version">
 					<span property="dcterms:title" content="<?=htmlspecialchars($reference_item->versions[$reference_item->version_index]->title)?>">
 						<a href="<?=$base_uri.$reference_item->slug?>"><?=$reference_item->versions[$reference_item->version_index]->title?></a>
 					</span>
@@ -396,13 +396,13 @@ if (!empty($reference_of)):
 			<li>
 				<a rel="dcterms:references" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
 				<span resource="<?=$base_uri.$reference_item->slug?>" typeof="scalar:<?=('media'==$reference_item->type)?'Media':'Composite'?>">
-					<a rel="dcterms:hasVersion" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
+					<a aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
 <? 		print_rdf($this->pages->rdf($reference_item), 5, $ns); ?>				</span>
 				<span resource="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>" typeof="scalar:Version">
 					<span property="dcterms:title" content="<?=htmlspecialchars($reference_item->versions[$reference_item->version_index]->title)?>">
 						<a href="<?=$base_uri.$reference_item->slug?>"><?=$reference_item->versions[$reference_item->version_index]->title?></a>
 					</span>
-					<a rel="dcterms:isVersionOf" href="<?=$base_uri.$reference_item->slug?>"></a>
+					<a aria-hidden="true" rel="dcterms:isVersionOf" href="<?=$base_uri.$reference_item->slug?>"></a>
 <?
 		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns);
 		if ($output_reference_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$reference_item->versions[$reference_item->version_index]->content.'</span>'."\n";
@@ -432,7 +432,7 @@ if (!empty($reference_of)):
 		<div class="paragraph_wrapper">
 			<div class="body_copy">
 				<!-- <div style="width:200px;"> -->
-					<a class="inline auto_play media_page" data-size="medium" data-align="left" href="<?=$audio_href?>" resource="<?=$audio_uri?>"></a>
+					<a aria-hidden="true" class="inline auto_play media_page" data-size="medium" data-align="left" href="<?=$audio_href?>" resource="<?=$audio_uri?>"></a>
 				<!-- </div> -->
 			</div>
 		</div>
