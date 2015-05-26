@@ -208,7 +208,7 @@
 							$data_row.append('<td class="editable number" property="version_num">'+data[j].version_num+"</td>");
 							$data_row.append('<td class="editable" property="title">'+data[j].title+"</td>");
 							$data_row.append('<td class="editable textarea excerpt" property="description"><span class="full">'+data[j].description+'</span><span class="clip">'+create_excerpt(data[j].description,8)+'</span></td>');
-							$data_row.append('<td class="editable has_link" property="url" style="max-width:200px;overflow:hidden;"><a target="_blank" href="'+data[j].url+'">'+$.fn.scalardashboardtable('basename', data[j].url)+'</td>');
+							$data_row.append('<td class="editable has_link'+((data[j].url.indexOf('://')!=-1)?'':' uri_link')+'" property="url" style="max-width:200px;overflow:hidden;"><a target="_blank" href="'+data[j].url+'">'+((data[j].url.indexOf('://')!=-1)?$.fn.scalardashboardtable('basename', data[j].url):data[j].url)+'</td>');
 							$row.find('table').find('tr:last').after($data_row);
 					    }
 						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Re-order version numbers</a></td><td colspan="2"</td></tr>');
