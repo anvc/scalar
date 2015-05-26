@@ -208,7 +208,7 @@
 							$data_row.append('<td class="editable number" property="version_num">'+data[j].version_num+"</td>");
 							$data_row.append('<td class="editable" property="title">'+data[j].title+"</td>");
 							$data_row.append('<td class="editable textarea excerpt" property="description"><span class="full">'+data[j].description+'</span><span class="clip">'+create_excerpt(data[j].description,8)+'</span></td>');
-							$data_row.append('<td class="editable" property="url" style="max-width:200px;overflow:hidden;"><a target="_blank" href="'+data[j].url+'">'+$.fn.scalardashboardtable('basename', data[j].url)+'</td>');
+							$data_row.append('<td class="editable has_link" property="url" style="max-width:200px;overflow:hidden;"><a target="_blank" href="'+data[j].url+'">'+$.fn.scalardashboardtable('basename', data[j].url)+'</td>');
 							$row.find('table').find('tr:last').after($data_row);
 					    }
 						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Re-order version numbers</a></td><td colspan="2"</td></tr>');
@@ -224,20 +224,19 @@
 						$the_link.blur();
 						$the_link.data('is_open',true);
 					}
-
 					$('body').on("contentUpdated",function(e,update_opts) {
 						var $content_row = $('#row_'+content_id);
 						var $version_row = $('#version_row_'+update_opts.version_id);
 						$content_row.find('td').each(function() {
 							var $content = $(this);
 							var prop = $content.attr('property');
-							if(prop) {
+							if ('undefined'!=typeof(prop) && prop) {
 								var $version = $version_row.find('td.editable[property="'+prop+'"]').eq(0);
-								if($version.length != 0) {
+								if ($version.length) {
 									var $span = $version.find('span:first');
-									if($span.length != 0) {
+									if($span.length) {  // Excerpt field
 										$content.html($span.html());
-									} else {
+									} else {  // Typical field
 										$content.html($version.html());
 									}
 								}
@@ -293,7 +292,6 @@
 				<optgroup label="Files, URLs">
 					<option value="<?=$url_base?>upload">Upload file</option>
 					<option value="<?=$url_base?>new.edit#type=media">Internet URL</option>
-					<option value="<?=$url_base?>import/system">Another Scalar book</option>
 				</optgroup>
 			</select>
 		</div>

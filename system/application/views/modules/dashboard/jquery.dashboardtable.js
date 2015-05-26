@@ -171,7 +171,6 @@
 				if (-1==options.hide_columns.indexOf('description')) $tr.append('<td property="description">'+$.fn.scalardashboardtable('cut_string',nodes[j].current.description,Math.max(options.cut_long_text_to,nodes[j].getDisplayTitle(true).length*0.9))+'</td>');
 				var url_str = '<td property="url" style="max-width:200px;overflow:hidden;">';
 				url_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'">'+$.fn.scalardashboardtable('basename', nodes[j].current.sourceFile)+'</a>';
-				//if ($this->versions->url_is_local($url)) echo '<a class="generic_button" href="'.confirm_slash(base_url()).confirm_slash($book->slug).'upload#replace='.$row->versions[0]->version_id.'">replace</a>';
 				url_str += "</td>\n";
 				if (-1==options.hide_columns.indexOf('url')) $tr.append(url_str);
 				$tr.append('<td property="created" style="white-space:nowrap;">'+d+'</td>');

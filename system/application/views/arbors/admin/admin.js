@@ -31,7 +31,13 @@ function edit_row($row) {
 			var $this = $(this);
 			var value = $this.html();
 			if ('password'==$this.attr('property')) value='';
-			if ($this.hasClass('has_link')) value = $this.find('a:first').html();
+			if ($this.hasClass('has_link')) {
+				if ($this.hasClass('uri_link')) {
+					value = $this.find('a:first').html();
+				} else {
+					value = $this.find('a:first').attr('href');
+				}
+			}
 			if ($this.hasClass('excerpt')) value = $this.find("span[class='full']").html();
 			var input_type = 'text';
 			if ($this.hasClass('textarea')) input_type = 'textarea';
@@ -171,7 +177,7 @@ function edit_row($row) {
 				if ($this.hasClass('uri_link') && 'undefined'!=typeof(window['book_uri'])) {
 					value = '<a href="'+window['book_uri']+data['slug']+'">'+value+'</a>';
 				} else if ($this.hasClass('has_link')) {
-					value = '<a href="javascript:void(null);" onclick="alert(\'Please refresh to follow this link\');">'+value+'</a>';
+					value = '<a target="_blank" href="'+value+'">'+$.fn.scalardashboardtable('basename', value)+'</a>';
 				}
 				if ($this.hasClass('excerpt')) value = '<span class="full">'+value+'</span><span class="clip">'+create_excerpt(value,8)+'</span>';
 				$this.html(value);
@@ -182,7 +188,7 @@ function edit_row($row) {
 			$row.find('a:first').removeClass('default');
 			$row.find('a:first').blur();		 
 			var version_id = $row.data('most_recent_version');
-			if(version_id) {
+			if ('undefined'!=typeof(version_id) && version_id) {
 			 	$('body').trigger("contentUpdated",{version_id:version_id});
 			}
 		});		

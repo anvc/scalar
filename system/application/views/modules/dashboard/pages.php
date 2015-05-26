@@ -257,20 +257,19 @@
 						$the_link.blur();
 						$the_link.data('is_open',true);
 					}
-
 					$('body').on("contentUpdated",function(e,update_opts) {
 						var $content_row = $('#row_'+content_id);
 						var $version_row = $('#version_row_'+update_opts.version_id);
 						$content_row.find('td').each(function() {
 							var $content = $(this);
 							var prop = $content.attr('property');
-							if(prop) {
+							if ('undefined'!=typeof(prop) && prop) {
 								var $version = $version_row.find('td.editable[property="'+prop+'"]').eq(0);
-								if($version.length != 0) {
+								if ($version.length) {
 									var $span = $version.find('span:first');
-									if($span.length != 0) {
+									if($span.length) {  // Excerpt field
 										$content.html($span.html());
-									} else {
+									} else {  // Typical field
 										$content.html($version.html());
 									}
 								}
