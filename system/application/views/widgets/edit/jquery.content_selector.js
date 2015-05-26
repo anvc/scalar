@@ -224,6 +224,12 @@
     			event.stopPropagation();
     			return true;
     		});
+    		$this.find('tr').find('input[type="checkbox"]').click(function(event) {
+    			var $this = $(this);
+    			var checked = $this.is(":checked");
+    			$this.prop('checked', ((checked)?false:true));
+    			return true;
+    		});
     		if (!opts.multiple) {  // Select a single row
     			$this.find('tr').click(function() {
     				var node = $(this).data('node');
