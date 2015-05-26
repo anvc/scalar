@@ -124,7 +124,11 @@
 							'margin-right': 'auto',
 							'margin-left': 'auto',
 						});
-						mediaelement.model.element.parent().addClass( "pillarbox" );
+						if(mediaelement.model.element.parents('.manual_slideshow').length == 0) {
+							mediaelement.model.element.parent().addClass( "pillarbox" );
+						} else {
+							mediaelement.model.element.wrap("<div class='pillarbox'></div>");
+						}
 						mediaelement.model.element.parent().removeClass( 'left right' );
 						isFullWidth = true;
 
