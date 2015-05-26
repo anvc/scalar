@@ -279,10 +279,10 @@ function checkTypeSelect() {
 		$('.type_media').show();
 		$( '#editor-tabpanel > div > div.tab-pane' ).removeClass( 'active' );
 		$( '#editor-tabpanel > ul > li' ).removeClass( 'active' );
-		$( 'a[href="#metadata-pane"]' ).parent().addClass( 'active' );
-		$( '#metadata-pane' ).addClass( 'active' );
+		$( 'a[href="#path-pane"]' ).parent().parent().parent().addClass( 'active' );
+		$( '#path-pane' ).addClass( 'active' );
 		$('.type_composite').hide();
-		$('.content_type').html('media');
+		$('.content_type').html('media file');
 	}
 }
 // Validate form data before sending to Scalar's save API
@@ -389,7 +389,7 @@ if ('cantaloupe' == $book->template) {
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active type_composite"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
-		<li role="presentation" class="dropdown type_composite"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="caret"></a>
+		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="caret"></a>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path</a></li>
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment</a></li>
@@ -447,7 +447,7 @@ if ('cantaloupe' == $book->template) {
 					<? if (!empty($page)&&!empty($page->versions[$page->version_index]->has_paths)): ?>
 						<br>
 						<div id="has_path" class="p">
-					    	<b>This page is contained by</b> the following paths:<br />
+					    	<b>This <span class="content_type">page</span> is contained by</b> the following paths:<br />
 				        	<ul class="edit_relationship_list">
 					<?
 							foreach ($page->versions[$page->version_index]->has_paths as $node) {
