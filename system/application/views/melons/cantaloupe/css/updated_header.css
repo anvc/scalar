@@ -669,6 +669,10 @@ i.loader{
 	}
 }
 @media (max-width: 767px){
+
+	.navbar ul.dropdown-menu li{
+	  	max-width: none
+	}
 	.tocMenu .expandedPage .links {
 		margin: 1rem 0 1rem;
 	}
@@ -763,9 +767,6 @@ i.loader{
 		width: 100%;
 		bottom: 0;
 		border: 0;
-	}
-	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol.tags>li>a:first-child:before{
-		line-height: 3rem;
 	}
 	.tocMenu .expandedPage .relationships ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol.tags>li>a:first-child:before{
 		line-height: 3rem;
