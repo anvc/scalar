@@ -1222,8 +1222,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         (function(slug,depth){
                             scalarapi.loadPage( slug, true, function(){
                                 var base = $('#scalarheader.navbar').data('scalarheader');
-                                if(base.checkedParents.indexOf(rel.slug)<0){
-                                    base.checkedParents.push(rel.slug);
+                                if(base.checkedParents.indexOf(slug)<0){
+                                    base.checkedParents.push(slug);
                                     base.getParents(scalarapi.getNode(slug),++depth);
                                 }
                             }, null, 1, false, 1, 0, 20 );
