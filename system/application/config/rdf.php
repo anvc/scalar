@@ -46,6 +46,7 @@ $config['internet_archive']['filetypes'] = array(
 $config['rdf_fields'] = array(
 		'type' => 					'rdf:type',
 		'homepage' =>				'foaf:homepage',
+		'mbox_sha1sum' =>			'foaf:mbox_sha1sum',
 		'user' => 					'prov:wasAttributedTo',
 		'fullname' =>				'foaf:name',
 		'title' => 					'dcterms:title',

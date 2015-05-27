@@ -41,6 +41,9 @@ class User_model extends My_Model {
 			$row->homepage = $row->url;
 			unset($row->url);
 		}
+		if (isset($row->email) && !isset($row->mbox_sha1sum)) {
+			$row->mbox_sha1sum = sha1('mailto:'.$row->email);
+		}
   		return parent::rdf($row);
 
   	}
