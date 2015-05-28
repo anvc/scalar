@@ -177,46 +177,48 @@ function pullOutElement($pull) {
  * @param {Object} selection		The jQuery selection to modify.
  */
 function wrapOrphanParagraphs(selection) {
+
 	selection.each(function() {
-      var buffer = null;
+
+      	var buffer = null;
+
 	  	$(this).contents().each(function() {
 	  		if (!$(this).is('p,div,br')) {
-          if(buffer === null) {
-            buffer = $(this);
-            buffer.wrap("<div></div>");
-            buffer = buffer.parent();
-          } else {
-            $(this).appendTo(buffer);
-          }
+          		if(buffer === null) {
+            		buffer = $(this);
+            		buffer.wrap("<div></div>");
+            		buffer = buffer.parent();
+          		} else {
+            		$(this).appendTo(buffer);
+          		}
 	  		} else {
-	  		  if(buffer !== null) {
-            buffer.insertBefore(this);
-	  		    buffer = null;
-	  		  }
+	  		  	if(buffer !== null) {
+            		buffer.insertBefore(this);
+	  		    	buffer = null;
+	  		  	}
 	  		}
 	  	});
-      if(buffer !== null) {
-        buffer.appendTo(this);
-        buffer = null;
-      }
 
-      $(this).find('br').each(function() {
-      	if($(this).parents('pre').length === 0) {
-	      	if($(this).next().is('br')) {
-		        pullOutElement($(this));
-	      	}
-	      	else {
-	      		$(this).remove();
-	      	}      		
+      	if(buffer !== null) {
+       		buffer.appendTo(this);
+        	buffer = null;
       	}
-      })
 
+      	$(this).find('br').each(function() {
+      		if($(this).parents('pre').length === 0) {
+	      		if($(this).next().is('br')) {
+		        	pullOutElement($(this));
+	      		} else {
+	      			$(this).remove();
+	      		}      		
+      		}
+      	})
 
 	  	$(this).contents().each(function() {
   			// unwrap inline media links and set them to full size if not already specified
   			$(this).find( '.inline' ).each( function() {
-          // remove inline links from wrapper while maintaining position relative to siblings
-          pullOutElement($(this))
+          	// remove inline links from wrapper while maintaining position relative to siblings
+         	pullOutElement($(this))
   				if ( $( this ).attr( 'data-size' ) == null ) {
   					$( this ).attr( 'data-size', 'full' );
   				}
