@@ -344,7 +344,7 @@ a:hover { text-decoration: underline; }
 
 /* Body copy */
 .paragraph_wrapper { max-width: none !important; margin-bottom: 2.4rem; }
-.clearboth { clear: both; }
+/*.clearboth { clear: both; }*/
 .clearnone { clear: none; }
 .body_copy { max-width: 85.4rem; padding-left: 7.2rem; padding-right: 7.2rem; }
 .dialog .body_copy { margin-top: 10rem; max-width: none; padding-left: 3.6rem; padding-right: 3.6rem; }
