@@ -333,6 +333,8 @@ a:hover { text-decoration: underline; }
 	background-color: black;
 	color: white;
 	border: none;
+	background-position: center center;
+	background-size: cover;
 	/*opacity: .3;*/
 	/*background-size: cover;
 	background-position: center center; */
