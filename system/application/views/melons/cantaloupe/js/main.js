@@ -186,8 +186,9 @@ function wrapOrphanParagraphs(selection) {
 
 	  	$( this ).contents().each(function() {
 
-	  		var newParagraph = false;
+  	  		var newParagraph = false;
 	  		var is_br =  $( this ).is( 'br' );
+	  		var is_nbsp = $( this ).text() == '\xA0';
 
 	  		// trigger a new paragrph for p and div elements, or for two consecutive br tags
 	  		if ( $( this ).is('p,div') ) {
@@ -199,8 +200,10 @@ function wrapOrphanParagraphs(selection) {
 	  		// if this isn't a new paragraph, then
 	  		if ( !newParagraph ) {
 
-	  			// if this element is either not a br, or is a single br, then add it
-	  			if ( !is_br || ( is_br && ( brCount == 0 )) ) {
+	  			// if this element is either not a br, or is a single br, 
+	  			// AND if this element is either not an anbsp, or an nbsp that doesn't immediately follow a br, 
+	  			// then add it
+	  			if (( !is_br || ( is_br && ( brCount == 0 ))) && ( !is_nbsp || ( is_nbsp && ( brCount != 1 ) ))) {
 
 	  				// for the first element in a new paragraph, we need to do some extra work
 	          		if ( buffer === null ) {
