@@ -287,25 +287,35 @@ function checkTypeSelect() {
 }
 // Validate form data before sending to Scalar's save API
 function validate_form(form) {
-	// Commit editor content
-	var textarea = CKEDITOR.instances['sioc:content'].getData();
-	form.find('textarea[name="sioc:content"]').val(textarea);
-	// Make sure title is present
-	var title = $('#title').val();
-	if (title.length==0) {
-		alert('Title is a required field.  Please enter a title at the top of the form.');
-		return false;
-	}
-	// Make sure slug is present if the page has already been created (otherwise the API will create)
-	var action = $('input[name="action"]').val().toLowerCase();
-	if ('add'!=action) {
-		var slug = $('#slug').val();
-		if (slug.length==0) {
-			alert('Page URL is a required field.  Please enter a URL segment in the Metadata tab at the bottom of the page.');
+	var commit = function() {
+		// Commit editor content
+		var textarea = CKEDITOR.instances['sioc:content'].getData();
+		form.find('textarea[name="sioc:content"]').val(textarea);
+		// Make sure title is present
+		var title = $('#title').val();
+		if (title.length==0) {
+			alert('Title is a required field.  Please enter a title at the top of the form.');
 			return false;
 		}
+		// Make sure slug is present if the page has already been created (otherwise the API will create)
+		var action = $('input[name="action"]').val().toLowerCase();
+		if ('add'!=action) {
+			var slug = $('#slug').val();
+			if (slug.length==0) {
+				alert('Page URL is a required field.  Please enter a URL segment in the Metadata tab at the bottom of the page.');
+				return false;
+			}
+		}
+		send_form(form);
 	}
-	send_form(form);
+	// If in source mode, switch to WYSIWYG to invoke formatting
+	if ('source'==CKEDITOR.instances['sioc:content'].mode) {
+		CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
+			commit();
+		});
+	} else {
+		commit();
+	}
 	return false;
 }
 
