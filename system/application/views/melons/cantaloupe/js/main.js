@@ -181,30 +181,64 @@ function wrapOrphanParagraphs(selection) {
 	selection.each(function() {
 
       	var buffer = null;
+      	var lastElement;
+      	var brCount = 0;
 
-	  	$(this).contents().each(function() {
-	  		if (!$(this).is('p,div,br')) {
-          		if(buffer === null) {
-            		buffer = $(this);
-            		buffer.wrap("<div></div>");
-            		buffer = buffer.parent();
-          		} else {
-            		$(this).appendTo(buffer);
-          		}
+	  	$( this ).contents().each(function() {
+
+	  		var newParagraph = false;
+	  		var is_br =  $( this ).is( 'br' );
+
+	  		// trigger a new paragrph for p and div elements, or for two consecutive br tags
+	  		if ( $( this ).is('p,div') ) {
+	  			newParagraph = true;
+	  		} else if ( is_br && ( brCount == 1 ) ) {
+	  			newParagraph = true;
+	  		}
+
+	  		// if this isn't a new paragraph, then
+	  		if ( !newParagraph ) {
+
+	  			// if this element is either not a br, or is a single br, then add it
+	  			if ( !is_br || ( is_br && ( brCount == 0 )) ) {
+
+	  				// for the first element in a new paragraph, we need to do some extra work
+	          		if ( buffer === null ) {
+	            		buffer = $( this );
+	            		buffer.wrap( "<div></div>" );
+	            		buffer = buffer.parent();
+
+	            	// otherwise just add it
+	          		} else {
+	            		$( this ).appendTo( buffer );
+	          		}
+	          	}
+
+	        // if this is a new paragraph, then insert the contents of the previous paragraph
+	        // before the current element, and start a new paragraph buffer
 	  		} else {
-	  		  	if(buffer !== null) {
-            		buffer.insertBefore(this);
+	  		  	if( buffer !== null ) {
+            		buffer.insertBefore( this );
 	  		    	buffer = null;
 	  		  	}
 	  		}
+
+	  		// keep track of the last element traversed, and a count of consecutive br elements
+	  		lastElement = this;
+	  		if ( $( lastElement ).is( 'br' ) ) {
+	  			brCount++;
+	  		} else {
+	  			brCount = 0;
+	  		}
+
 	  	});
 
-      	if(buffer !== null) {
+      	if (buffer !== null) {
        		buffer.appendTo(this);
         	buffer = null;
       	}
 
-      	$(this).find('br').each(function() {
+      	/*$(this).find('br').each(function() {
       		if($(this).parents('pre').length === 0) {
 	      		if($(this).next().is('br')) {
 		        	pullOutElement($(this));
@@ -212,7 +246,7 @@ function wrapOrphanParagraphs(selection) {
 	      			$(this).remove();
 	      		}      		
       		}
-      	})
+      	})*/
 
 	  	$(this).contents().each(function() {
   			// unwrap inline media links and set them to full size if not already specified
