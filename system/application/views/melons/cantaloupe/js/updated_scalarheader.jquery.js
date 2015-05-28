@@ -194,7 +194,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/hemispheric_institute') + '">Hemispheric Institute Digital Video Library</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/hypercities') + '">Hypercities</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/internet_archive') + '">Internet Archive</a></li>'+
-                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/play') + '">Play!</a></li>'+
+                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/play') + '">PLAY!</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online') + '">Shoah Foundation VHA Online</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/shoah_foundation_vha') + '">Shoah Foundation VHA (partner site)</a></li>'+
                                                             '</ul>'+
@@ -202,9 +202,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '<li class="dropdown">'+
                                                             '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Other archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
-                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/prezi') + '">Prezi</a></li>'+
-                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/soundcloud') + '">SoundCloud</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/the_metropolitan_museum_of_art') + '">The Metropolitan Museum of Art</a></li>'+
+                                                                //'<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/prezi') + '">Prezi</a></li>'+
+                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/soundcloud') + '">SoundCloud</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/vimeo') + '">Vimeo</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/youtube') + '">YouTube</a></li>'+
                                                             '</ul>'+
