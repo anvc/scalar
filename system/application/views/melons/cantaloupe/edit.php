@@ -253,7 +253,6 @@ $(document).ready(function() {
 	});
 	// Predefined CSS
 	if ('undefined'!=window['predefined_css'] && !$.isEmptyObject(window['predefined_css'])) {
-	console.log('craig');
     	$('textarea[name="scalar:custom_style"]').predefined({msg:'Insert predefined CSS:',data:window['predefined_css']});
 	}
 	// Protect from clicking away from edit page
