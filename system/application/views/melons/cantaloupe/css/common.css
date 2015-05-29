@@ -382,6 +382,9 @@ a:hover { text-decoration: underline; }
 
 .tooltip-inner { -webkit-font-smoothing: subpixel-antialiased; }
 
+
+.mediaContainer iframe { border: none; }
+
 .media_details {
 	position: fixed;
 	top: 0px;
