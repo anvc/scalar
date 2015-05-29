@@ -457,6 +457,45 @@
 					selfType = 'content';
 				}
 
+				// path contents
+				$('.path_of').each(function() {
+					if ($(this).parent().is('section')) {
+
+						section = $(this).parent();
+						section.addClass('relationships');
+						section.show();
+
+						if ( showLists ) {
+
+							section.find('h1').text('Contents');
+
+							section.find( '[property="dcterms:title"] > a' ).each( function() {
+								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
+								$( this ).attr( 'href', href );
+							});	
+
+						} else {
+							section.find('h1').hide();
+							section.find('ol').hide();
+						}
+
+						// "begin with" button
+						if (( pathOptionCount == 0 ) && showChildNav ) {
+							nodes = currentNode.getRelatedNodes('path', 'outgoing');
+							if (nodes.length > 0) {
+								button = $( '<p><a class="nav_btn" href="' + nodes[ 0 ].url + '?path=' +
+									currentNode.slug + '">Begin with &ldquo;' + nodes[0].getDisplayTitle() +
+									'&rdquo;</a></p>' ).appendTo( section );
+								//if (( page.containingPaths.length == 0 ) || !showLists ) {
+									button.find( 'a' ).addClass( 'primary' );
+								//}
+								pathOptionCount++;
+							}
+						}
+
+					}
+				});
+
 				// path back/continue buttons
 				if (( page.containingPaths.length > 0 ) && showLateralNav ) {
 					section = $('<section class="relationships"></section');
@@ -545,45 +584,6 @@
 						}
 					}
 				}
-
-				// path contents
-				$('.path_of').each(function() {
-					if ($(this).parent().is('section')) {
-
-						section = $(this).parent();
-						section.addClass('relationships');
-						section.show();
-
-						if ( showLists ) {
-
-							section.find('h1').text('Contents');
-
-							section.find( '[property="dcterms:title"] > a' ).each( function() {
-								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
-								$( this ).attr( 'href', href );
-							});	
-
-						} else {
-							section.find('h1').hide();
-							section.find('ol').hide();
-						}
-
-						// "begin with" button
-						if (( pathOptionCount == 0 ) && showChildNav ) {
-							nodes = currentNode.getRelatedNodes('path', 'outgoing');
-							if (nodes.length > 0) {
-								button = $( '<p><a class="nav_btn" href="' + nodes[ 0 ].url + '?path=' +
-									currentNode.slug + '">Begin with &ldquo;' + nodes[0].getDisplayTitle() +
-									'&rdquo;</a></p>' ).appendTo( section );
-								if (( page.containingPaths.length == 0 ) || !showLists ) {
-									button.find( 'a' ).addClass( 'primary' );
-								}
-								pathOptionCount++;
-							}
-						}
-
-					}
-				});
 
 				// tag contents
 				$('.tag_of').each(function() {
@@ -1299,7 +1299,7 @@
 				}
 			}
 
-			if (( viewType != 'edit' ) && ( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
+			if (( viewType != 'edit' ) && ( viewType != 'blank' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 				$('[property="sioc:content"]').children('p,div').not( '[data-size="full"]' ).addClass('body_copy');
 				$('[property="sioc:content"]').children('p,div').wrap('<div class="paragraph_wrapper"></div>');
@@ -1387,7 +1387,7 @@
 				page.addNotes();
 				break;
 
-				case 'iframe':
+				case 'blank':
 				$( 'h1' ).hide();
 				$( '.page' ).css( 'padding-top', '5.0rem' );
 				break;
