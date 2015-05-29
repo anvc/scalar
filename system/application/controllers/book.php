@@ -597,7 +597,6 @@ class Book extends MY_Controller {
 			}
 		}
 
-
 		// Page URI segment
 		if (!empty($this->data['page']) && !empty($this->data['page']->slug)) {
 			$this->data['page_url'] = $this->data['page']->slug;

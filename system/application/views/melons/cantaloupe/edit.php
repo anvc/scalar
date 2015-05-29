@@ -8,6 +8,7 @@
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.predefined.js')?>
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
 <?$this->template->add_js('system/application/views/widgets/farbtastic/farbtastic.js')?>
 <?$this->template->add_js('system/application/views/widgets/spinner/spin.min.js')?>
@@ -16,6 +17,9 @@ if ($this->config->item('reference_options')) {
 	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 }
 $this->template->add_js('var views='.json_encode($views), 'embed');
+if ($this->config->item('predefined_css')) {
+	$this->template->add_js('var predefined_css='.json_encode($this->config->item('predefined_css')), 'embed');
+}
 $css = <<<END
 
 article > *:not(span) {display:none !important;}
@@ -46,6 +50,9 @@ tr#styling table td:first-of-type, tr#metadata table td:first-of-type  {width:12
 #editor-tabs {margin-bottom:1.2rem;}
 p {margin-bottom: 1.2rem;}
 #annotation_of li {margin-bottom:1.2rem;}
+.predefined_wrapper {padding-top:3px;}
+.predefined_wrapper select {max-width:350px;}
+.predefined_wrapper .desc {padding-top:4px; color:#333333;}
 
 END;
 $this->template->add_css($css, 'embed');
@@ -244,6 +251,11 @@ $(document).ready(function() {
 		chosen_background = choose_background.find('option:selected').val();
 		$(this).parent().parent().append('<div class="well col-md-4"><img src="'+chosen_background+'" class="thumb_preview" /></div>');
 	});
+	// Predefined CSS
+	if ('undefined'!=window['predefined_css'] && !$.isEmptyObject(window['predefined_css'])) {
+	console.log('craig');
+    	$('textarea[name="scalar:custom_style"]').predefined({msg:'Insert predefined CSS:',data:window['predefined_css']});
+	}
 	// Protect from clicking away from edit page
 	$('a').not('form a').click(function() {
 		if (!confirm('Are you sure you wish to leave this page? Any unsaved changes will be lost.')) return false;

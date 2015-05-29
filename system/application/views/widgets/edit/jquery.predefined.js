@@ -19,9 +19,9 @@
     			$this.blur();
     			var data = $this.find('option:selected').data('predefined');
     			if ('undefined'!=typeof(data) && data.description.length) {
-    				$this.closest('.predfined_wrapper').find('.desc').html(data.description);
+    				$this.closest('.predefined_wrapper').find('.desc').html(data.description);
     			} else {
-    				$this.closest('.predfined_wrapper').find('.desc').empty();
+    				$this.closest('.predefined_wrapper').find('.desc').empty();
     			}
     		});
     	};    	
@@ -32,7 +32,7 @@
     			var data = $this.find('option:selected').data('predefined');
     			if ('undefined'!=typeof(data) && data.insert.length) {
     				var val = $(self).val();
-    				val = data.insert + "\n" + val;
+    				val = '/* '+data.title+' */'+"\n" + data.insert + "\n" + val;
     				$(self).val(val);
     			} 
     		});    		
@@ -42,10 +42,10 @@
     		return;
     	}
     	
-    	$div = $('<div class="predfined_wrapper"></div>').insertAfter($this);
-    	$div.append('<span>'+opts.msg+'</span>');
-    	$div.append('<span> <select><option value=""></option></select> </span>');
-    	$div.append('<span><input type="button" value="Insert" /></span>');
+    	$div = $('<div class="predefined_wrapper"><span class="interface"></span></div>').insertAfter($this);
+    	$div.append('<span class="msg">'+opts.msg+'</span>');
+    	$div.append('<span class="select"> <select><option value=""></option></select> </span>');
+    	$div.append('<span class="button"><input type="button" value="Insert" /></span>');
     	$div.append('<div class="desc"></div>');
     	for (var j in options.data) {
     		var $option = $('<option value="">'+options.data[j].title+'</option>');

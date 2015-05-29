@@ -111,3 +111,6 @@ td.styling_last {text-align:right; padding-right:0px;}
 .table_wrapper {text-align:center;}
 .table_wrapper #loading {color:#777777; font-size:16px; margin-top:40px;}
 .table_wrapper table {text-align:left;}
+
+.predefined_wrapper {padding-top:3px;}
+.predefined_wrapper .desc {padding-top:4px; color:#333333;}
