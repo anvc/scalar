@@ -8,7 +8,7 @@
 </style>
 <script id="interfaces" type="application/json"><?=json_encode($interfaces)?></script>
 <script id="book_versions" type="application/json"><?=json_encode($current_book_versions)?></script>
-<script id="predefined_css" type="application/json"><?=json_encode($predefined_css)?></script>
+<script id="predefined_css" type="application/json"><?=(($predefined_css)?json_encode($predefined_css):'')?></script>
 <link id="book_id" href="<?=@((int)$_GET['book_id'])?>" />
 <link id="active_melon" href="<?=$this->config->item('active_melon')?>" />
 <link id="book_melon" href="<?=@$book->template?>" />
@@ -138,7 +138,8 @@ $(window).ready(function() {
 		select_versions();
     });
 
-    $('textarea[name="custom_style"]').predefined({msg:'Insert predefined CSS:',data:JSON.parse($("#predefined_css").text())});
+    var predefined_css = $("#predefined_css").text();
+    $('textarea[name="custom_style"]').predefined({msg:'Insert predefined CSS:',data:((predefined_css.length)?JSON.parse(predefined_css):{})});
 
 });
 </script>

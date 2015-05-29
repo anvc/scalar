@@ -37,6 +37,10 @@
     			} 
     		});    		
     	};
+
+    	if ('undefined'==typeof(opts.data) || $.isEmptyObject(opts.data)) {
+    		return;
+    	}
     	
     	$div = $('<div class="predfined_wrapper"></div>').insertAfter($this);
     	$div.append('<span>'+opts.msg+'</span>');
