@@ -336,6 +336,10 @@ class Book_model extends MY_Model {
 
     public function get_index_books($is_featured=true, $sq='', $orderby='title',$orderdir='asc') {
 
+        $esc_sq = $this->db->escape_str($sq);
+        $esc_orderby = $this->db->escape_str($orderby);
+        $esc_orderdir = $this->db->escape_str($orderdir);
+
         $pref = $this->db->dbprefix;
         $temp = 'SELECT DISTINCT '.$pref.$this->books_table.'.* FROM '.$pref.$this->books_table.' JOIN ('.$pref.$this->user_book_table.' CROSS JOIN '.$pref.$this->users_table.')';
         $temp .= ' ON ('.$pref.$this->users_table.'.user_id='.$pref.$this->user_book_table.'.user_id AND '
@@ -351,11 +355,11 @@ class Book_model extends MY_Model {
         }
 
         if(!empty($sq)) {
-            $temp .= ' AND ('.$pref.$this->books_table.'.slug LIKE \'%'.$sq.'%\' OR '.$pref.$this->books_table.'.title LIKE \'%'.$sq.'%\' OR '
-                .$pref.$this->books_table.'.description LIKE \'%'.$sq.'%\' OR ('
-                .$pref.$this->users_table.'.fullname LIKE \'%'.$sq.'%\' AND '.$pref.$this->user_book_table.'.list_in_index = 1))';
+            $temp .= ' AND ('.$pref.$this->books_table.'.slug LIKE \'%'.$esc_sq.'%\' OR '.$pref.$this->books_table.'.title LIKE \'%'.$esc_sq.'%\' OR '
+                .$pref.$this->books_table.'.description LIKE \'%'.$esc_sq.'%\' OR ('
+                .$pref.$this->users_table.'.fullname LIKE \'%'.$esc_sq.'%\' AND '.$pref.$this->user_book_table.'.list_in_index = 1))';
         }
-        $temp .= ' ORDER BY '.$orderby.' '.$orderdir;
+        $temp .= ' ORDER BY '.$esc_orderby.' '.$esc_orderdir;
         $query = $this->db->query($temp);
 
         $result = $query->result();
