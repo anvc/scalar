@@ -303,7 +303,7 @@
 				// custom thumbnail
 				if ( node.thumbnail != undefined ) {
 					var url;
-					if ( node.thumbnail.indexOf( "http://" ) == -1 ) {
+					if (( node.thumbnail.indexOf( "http://" ) == -1 ) && ( node.thumbnail.indexOf( "https://" ) == -1 )) {
 						url = scalarapi.model.urlPrefix + node.thumbnail;
 					} else {
 						url = node.thumbnail;
