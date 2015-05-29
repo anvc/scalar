@@ -7,7 +7,7 @@ $config['arbor'] = 'html';
 $config['melon_meta'] = array(
     'is_selectable' => true,
 	'slug'=>'honeydew',
-	'name'=>'Scalar 1.0',
+	'name'=>'Scalar 1',
 	'description'=>'The original Scalar interface.',
 	'thumb_app_path'=>'views/melons/honeydew/images/scalar_honeydew_thumb.png'
 );
