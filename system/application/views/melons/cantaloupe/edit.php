@@ -726,7 +726,7 @@ if ('cantaloupe' == $book->template) {
 				<div class="col-md-8">
 					<p>Enter custom CSS to be applied to this page and its path or tag children:</p>
 					<small>e.g., .navbar {background-color:red;}</small>
-					<textarea class="form-control" name="scalar:custom_style"><?=!empty($page->custom_style) ? $page->custom_style : ''?></textarea>
+					<textarea class="form-control" rows="10" name="scalar:custom_style"><?=!empty($page->custom_style) ? $page->custom_style : ''?></textarea>
 				</div>
 			</div>
 		</div>
@@ -736,7 +736,7 @@ if ('cantaloupe' == $book->template) {
 				<div class="col-md-8">
 					<p>Enter custom JavaScript to be applied to this page and its path or tag children:</p>
 	   				<small>Javascript or jQuery source</small>
-	   				<textarea class="form-control" name="scalar:custom_scripts"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea>
+	   				<textarea class="form-control" rows="10" name="scalar:custom_scripts"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea>
 				</div>
 			</div>
 		</div>
