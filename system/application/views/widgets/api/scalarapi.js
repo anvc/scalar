@@ -834,6 +834,12 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 					}
 				//}
 			}
+			// last ditch effort - if no match to date and it's a URL, load it in an iframe
+			if ( source == this.mediaSources['Unsupported'] ) {
+				if (( ext == '' ) && (( uri.indexOf( 'http://' ) != -1 ) || ( uri.indexOf( 'https://' ) != -1 ))) {
+					source = this.mediaSources['HTML'];
+				}
+			}
 		}
 	}
 
