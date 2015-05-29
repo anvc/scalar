@@ -442,7 +442,7 @@
 
 			addRelationshipNavigation: function( showLists, showParentNav, showChildNav, showLateralNav, isCentered ) {
 
-				var button, href, section, nodes, node, link, links, selfType,
+				var button, href, pathContents, section, nodes, node, link, links, selfType,
 					currentNode = scalarapi.model.getCurrentPageNode(),
 					pathOptionCount = 0,
 					containingPathOptionCount = 0,
@@ -461,22 +461,22 @@
 				$('.path_of').each(function() {
 					if ($(this).parent().is('section')) {
 
-						section = $(this).parent();
-						section.addClass('relationships');
-						section.show();
+						pathContents = $(this).parent();
+						pathContents.addClass('relationships');
+						pathContents.show();
 
 						if ( showLists ) {
 
-							section.find('h1').text('Contents');
+							pathContents.find('h1').text('Contents');
 
-							section.find( '[property="dcterms:title"] > a' ).each( function() {
+							pathContents.find( '[property="dcterms:title"] > a' ).each( function() {
 								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
 								$( this ).attr( 'href', href );
 							});	
 
 						} else {
-							section.find('h1').hide();
-							section.find('ol').hide();
+							pathContents.find('h1').hide();
+							pathContents.find('ol').hide();
 						}
 
 						// "begin with" button
@@ -485,7 +485,7 @@
 							if (nodes.length > 0) {
 								button = $( '<p><a class="nav_btn" href="' + nodes[ 0 ].url + '?path=' +
 									currentNode.slug + '">Begin with &ldquo;' + nodes[0].getDisplayTitle() +
-									'&rdquo;</a></p>' ).appendTo( section );
+									'&rdquo;</a></p>' ).appendTo( pathContents );
 								//if (( page.containingPaths.length == 0 ) || !showLists ) {
 									button.find( 'a' ).addClass( 'primary' );
 								//}
@@ -545,7 +545,10 @@
 							section = $('<section class="relationships"></section');
 							$( "#footer" ).before( section );
 							links = $( '<p></p>' );
-							links.append( '<a class="nav_btn primary" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
+							links.append( '<a class="nav_btn" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
+							if ( pathOptionCount == 0 ) {
+								links.find( 'a' ).addClass( 'primary' );
+							}
 
 							// back button
 							if ( page.containingPathIndex > 0 ) {
@@ -661,6 +664,27 @@
 					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
 					hasTags.parent().wrap( '<section class="relationships"></section>' );
 					hasTags.unwrap();		
+				}
+
+				// move path contents list to be the bottom-most of all relationships items
+				// (or second from bottom if we have path lateral nav)
+				if ( pathContents != null ) {
+					var relationships = $( ".relationships" );
+					if ( relationships.length > 1 ) {
+
+						// move to second from bottom
+						if (( page.containingPaths.length > 0 ) && showLateralNav ) {
+							if ( relationships.eq( relationships.length - 2 ) != pathContents ) {
+								$( ".relationships" ).last().before( pathContents );
+							}
+
+						// move to bottom
+						} else {
+							if ( relationships.last() != pathContents ) {
+								$( ".relationships" ).last().after( pathContents );
+							}
+						}
+					}
 				}
 
 			},
@@ -1397,7 +1421,9 @@
 				$( 'article > header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
 				$( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
 				$( '.title_card' ).append( $( 'header > h1' ) );
-				$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
+				if ( currentNode.current.description != null ) {
+					$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );
+				}
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( true, true, true, true, false );
