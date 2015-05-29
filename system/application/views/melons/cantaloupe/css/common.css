@@ -334,14 +334,6 @@ a:hover { text-decoration: underline; }
 	color: white;
 	border: none;
 	background-position: center center;
-	background-size: cover;
-	/*opacity: .3;*/
-	/*background-size: cover;
-	background-position: center center; */
-   /*-webkit-transform: translateZ(0);
-   -moz-transform: translateZ(0);
-   -ms-transform: translateZ(0);
-   -o-transform: translateZ(0);*/
 }
 
 /* Body copy */
