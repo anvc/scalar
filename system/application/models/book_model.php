@@ -496,10 +496,12 @@ class Book_model extends MY_Model {
     	unset($array['section']);
     	unset($array['id']);
 
+		// Remove background
+    	if (isset($array['remove_background']) && !empty($array['remove_background'])) $array['background'] = '';
+    	unset($array['remove_background']);
 		// Remove thumbnail
     	if (isset($array['remove_thumbnail']) && !empty($array['remove_thumbnail'])) $array['thumbnail'] = '';
     	unset($array['remove_thumbnail']);
-
     	// Remove publisher thumbnail
     	if (isset($array['remove_publisher_thumbnail']) && !empty($array['remove_publisher_thumbnail'])) $array['publisher_thumbnail'] = '';
     	unset($array['remove_publisher_thumbnail']);
