@@ -35,15 +35,17 @@
     	// Init options box
     	$this.addClass('media_options').appendTo('body');
     	$this.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
-    	$this.html('<p class="h">Please select options for the media link below</p>');
+    	$this.html('<p class="h heading_font">Select media formatting options</p>');
+        var $form = $('<div class="form-horizontal heading_font"></div>' );
 		// Add options
     	for (var option_name in opts.data) {
-			var $option = $('<p>'+ucwords(dash_to_space(option_name))+': <select name="'+option_name+'"></select></p>');
+			var $option = $('<div class="form-group"><label class="col-sm-2 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-4"><select class="form-control" name="'+option_name+'"></select></div></div>');
 			for (var j = 0; j < opts.data[option_name].length; j++) {
 				$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
 			}
-			$this.append($option);
+			$form.append($option);
 		}
+        $(this).append($form);
     	$this.append('<p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default" value="Continue" /></p>');
     	$this.find('input:first').click(function() {
     		$this.remove();
