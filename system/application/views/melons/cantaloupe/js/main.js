@@ -186,14 +186,27 @@ function wrapOrphanParagraphs(selection) {
 
 	  	$( this ).contents().each(function() {
 
+	  		var me = this;
   	  		var newParagraph = false;
 	  		var is_br =  $( this ).is( 'br' );
 	  		var is_nbsp = $( this ).text() == '\xA0';
 
-	  		// trigger a new paragrph for p and div elements, or for two consecutive br tags
+	  		// trigger a new paragrph for p and div elements
 	  		if ( $( this ).is('p,div') ) {
 	  			newParagraph = true;
+
+	  		// trigger a new paragraph for blockquotes, but wrap them in another div first
+	  		} else if ( $( this ).is('blockquote') ) {
+	  			newParagraph = true;
+	  			 $( this ).wrap( '<div>' );
+	  			 me = $( this ).parent();
+
+	  		// trigger a new paragraph for two consecutive br tags
 	  		} else if ( is_br && ( brCount == 1 ) ) {
+	  			newParagraph = true;
+
+	  		// trigger a new paragraph for a br tag followed by an nbsp
+	  		} else if ( is_nbsp && ( brCount == 1 ) ) {
 	  			newParagraph = true;
 	  		}
 
@@ -207,13 +220,13 @@ function wrapOrphanParagraphs(selection) {
 
 	  				// for the first element in a new paragraph, we need to do some extra work
 	          		if ( buffer === null ) {
-	            		buffer = $( this );
+	            		buffer = $( me );
 	            		buffer.wrap( "<div></div>" );
 	            		buffer = buffer.parent();
 
 	            	// otherwise just add it
 	          		} else {
-	            		$( this ).appendTo( buffer );
+	            		$( me ).appendTo( buffer );
 	          		}
 	          	}
 
@@ -221,7 +234,7 @@ function wrapOrphanParagraphs(selection) {
 	        // before the current element, and start a new paragraph buffer
 	  		} else {
 	  		  	if( buffer !== null ) {
-            		buffer.insertBefore( this );
+            		buffer.insertBefore( me );
 	  		    	buffer = null;
 	  		  	}
 	  		}
