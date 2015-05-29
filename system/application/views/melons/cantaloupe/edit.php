@@ -22,7 +22,7 @@ article > *:not(span) {display:none !important;}
 .ci-template-html {font-family:Georgia,Times,serif !important; padding-left:7.2rem; padding-right:7.2rem;}
 .body_copy {max-width:100% !important;}
 label {padding-right:8px;}
-label, .sortable li {cursor:pointer;}
+label, .sortable li, .ui-sortable-handle {cursor:pointer;}
 .ui-sortable-helper {background-color:#dddddd;}
 form > table {width:100%;}
 table, .content_selector, .bootbox {font-family:"Lato",Arial,sans-serif !important;}
@@ -52,7 +52,6 @@ $this->template->add_css($css, 'embed');
 $js = <<<END
 
 $(document).ready(function() {
-	$(".sortable").sortable();
 	// If the type is passed via GET
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
@@ -266,6 +265,22 @@ $(document).ready(function() {
 		}
 		var image_metadata_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/image_metadata';
 		$('#metadata_rows').find_and_add_exif_metadata({parser_url:image_metadata_url,url:url,button:this});
+	});
+	// Sortable path items (extra care needed to work within Boostrap Tabs)
+	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+		if ('#path-pane'==$(e.relatedTarget).attr('href')) {
+		  $('#path-pane').find(".sortable").sortable("disable");
+		}
+		var etarget = $(e.target);
+		if (etarget.data('sortable_init')) {
+		  $('#path-pane').find(".sortable").sortable("enable");
+	    } else if ('#path-pane'==etarget.attr('href')) {
+	      etarget.data('sortable_init',true);
+		  $('#path-pane').find(".sortable").sortable({
+		 	appendTo: 'body',
+    		helper: 'clone'
+		  });
+	    }
 	});
 });
 // Determine if the page is a composite or media and show/hide certain elements accordingly
