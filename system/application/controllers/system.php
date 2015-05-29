@@ -520,11 +520,13 @@ class System extends MY_Controller {
 			case 'style':
 				$this->data['current_book_images'] = ($book_id) ? $this->books->get_images($book_id) : array();
 				$this->data['current_book_versions'] = $this->books->get_book_versions($book_id);
+				$this->data['predefined_css'] = false;
 				$this->data['interfaces'] = array();
 				$melons = $this->melon_paths();
 				foreach ($melons as $melon_path) {
 					if (!file_exists($melon_path.'config.php')) continue;
 					$this->load_melon_config(basename($melon_path));
+					if (basename($melon_path)==$this->data['book']->template) $this->data['predefined_css'] = $this->config->item('predefined_css');
 					$this->data['interfaces'][] = array('meta'=>$this->config->item('melon_meta'),'stylesheets'=>$this->config->item('stylesheets'));
 				}
 				usort($this->data['interfaces'], "sort_interfaces");

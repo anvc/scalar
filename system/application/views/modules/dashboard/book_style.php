@@ -1,14 +1,16 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.melondialog.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.bookversionsdialog.js')?>
+<?$this->template->add_js(path_from_file(__FILE__).'../../widgets/edit/jquery.predefined.js')?>
 <style>
 .removed {color:#bbbbbb;}
 .removed a {color:#999999;}
 </style>
 <script id="interfaces" type="application/json"><?=json_encode($interfaces)?></script>
 <script id="book_versions" type="application/json"><?=json_encode($current_book_versions)?></script>
+<script id="predefined_css" type="application/json"><?=json_encode($predefined_css)?></script>
 <link id="book_id" href="<?=@((int)$_GET['book_id'])?>" />
-<link id=active_melon href="<?=$this->config->item('active_melon')?>" />
+<link id="active_melon" href="<?=$this->config->item('active_melon')?>" />
 <link id="book_melon" href="<?=@$book->template?>" />
 <link id="book_stylesheet" href="<?=@$book->stylesheet?>" />
 <script>
@@ -135,6 +137,8 @@ $(window).ready(function() {
     $('#versions_add_another').click(function() {
 		select_versions();
     });
+
+    $('textarea[name="custom_style"]').predefined({msg:'Insert predefined CSS:',data:JSON.parse($("#predefined_css").text())});
 
 });
 </script>

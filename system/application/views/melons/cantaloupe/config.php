@@ -70,3 +70,11 @@ $config['reference_options'] = array(
 	'insertNote' 			=> array(),
 	'createInternalLink' 	=> array()
 );
+
+$config['predefined_css'] = array(
+	array(
+		'title'=>'Keep linked media with their source paragraphs',
+		'description'=>'By default, text will wrap around linked media regardless of paragraph breaks.  This CSS will reset the text wrapping at each paragraph break, keeping linked media next to their source paragraphs.',
+		'insert'=>".clearboth { clear: both; }\n"
+	)
+);
