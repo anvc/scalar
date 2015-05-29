@@ -110,8 +110,8 @@ class Book_model extends MY_Model {
     	$this->db->select('*');
     	$this->db->from($this->books_table);
     	if (!empty($user_id)) {
-    		$this->db->join($this->user_book_table, $this->books_table.'.book_id='.$this->user_book_table.'.book_id');
-    		$this->db->where($this->user_book_table.'.user_id',$user_id);
+            $this->db->join($this->user_book_table, $this->books_table.'.book_id='.$this->user_book_table.'.book_id');
+            $this->db->where($this->user_book_table.'.user_id',$user_id);
     	}
     	if (!empty($is_live)) {
     		$this->db->where($this->books_table.'.url_is_public',1);
@@ -336,22 +336,28 @@ class Book_model extends MY_Model {
 
     public function get_index_books($is_featured=true, $sq='', $orderby='title',$orderdir='asc') {
 
+        $pref = $this->db->dbprefix;
+        $temp = 'SELECT DISTINCT '.$pref.$this->books_table.'.* FROM '.$pref.$this->books_table.' JOIN ('.$pref.$this->user_book_table.' CROSS JOIN '.$pref.$this->users_table.')';
+        $temp .= ' ON ('.$pref.$this->users_table.'.user_id='.$pref.$this->user_book_table.'.user_id AND '
+            .$pref.$this->books_table.'.book_id='.$pref.$this->user_book_table.'.book_id)';
+        $temp .= ' WHERE ';
         if (!empty($is_featured)) {
-            $temp = 'is_featured = 1 AND ';
-            $temp .= 'display_in_index = 1 ';
+            $temp .= 'is_featured = 1 AND';
+            $temp .= ' display_in_index = 1';
         }
         else {
-            $temp = 'is_featured = 0 AND ';
-            $temp .= 'display_in_index = 1 ';
+            $temp .= 'is_featured = 0 AND';
+            $temp .= ' display_in_index = 1';
         }
 
         if(!empty($sq)) {
-            $temp .= 'AND (slug LIKE \'%'.$sq.'%\' OR title LIKE \'%'.$sq.'%\' OR description LIKE \'%'.$sq.'%\')';
+            $temp .= ' AND ('.$pref.$this->books_table.'.slug LIKE \'%'.$sq.'%\' OR '.$pref.$this->books_table.'.title LIKE \'%'.$sq.'%\' OR '
+                .$pref.$this->books_table.'.description LIKE \'%'.$sq.'%\' OR ('
+                .$pref.$this->users_table.'.fullname LIKE \'%'.$sq.'%\' AND '.$pref.$this->user_book_table.'.list_in_index = 1))';
         }
-        $this->db->where($temp);
-        $this->db->order_by($orderby, $orderdir);
+        $temp .= ' ORDER BY '.$orderby.' '.$orderdir;
+        $query = $this->db->query($temp);
 
-        $query = $this->db->get($this->books_table);
         $result = $query->result();
         for ($j = 0; $j < count($result); $j++) {
             $result[$j]->users = $this->get_users($result[$j]->book_id, true);
