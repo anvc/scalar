@@ -1166,6 +1166,10 @@
 					}
 				});
 
+				if ( page.gallery != null ) {
+					page.gallery.addMedia();
+				}
+
 				page.addMediaElements();
 
 			},
