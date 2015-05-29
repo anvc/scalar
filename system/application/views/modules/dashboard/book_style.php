@@ -139,7 +139,7 @@ $(window).ready(function() {
     });
 
     var predefined_css = $("#predefined_css").text();
-    $('textarea[name="custom_style"]').predefined({msg:'Insert predefined CSS:',data:((predefined_css.length)?JSON.parse(predefined_css):{})});
+    $('textarea[name="custom_style"]').predefined({msg:'Insert CSS:',data:((predefined_css.length)?JSON.parse(predefined_css):{})});
 
 });
 </script>

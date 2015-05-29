@@ -50,7 +50,7 @@ tr#styling table td:first-of-type, tr#metadata table td:first-of-type  {width:12
 #editor-tabs {margin-bottom:1.2rem;}
 p {margin-bottom: 1.2rem;}
 #annotation_of li {margin-bottom:1.2rem;}
-.predefined_wrapper {padding-top:3px;}
+.predefined_wrapper {padding-top:10px;}
 .predefined_wrapper select {max-width:350px;}
 .predefined_wrapper .desc {padding-top:4px; color:#333333;}
 

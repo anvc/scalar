@@ -74,7 +74,7 @@ $config['reference_options'] = array(
 $config['predefined_css'] = array(
 	array(
 		'title'=>'Keep linked media with their source paragraphs',
-		'description'=>'By default, text will wrap around linked media regardless of paragraph breaks.  This CSS will reset the text wrapping at each paragraph break, keeping linked media next to their source paragraphs.',
+		'description'=>'Text wraps around linked media by default, which can sometimes result in media being positioned far away from the text that references it. This CSS adds extra space to the page to make sure that linked media are aligned with the top of the paragraphs that reference them.',
 		'insert'=>".clearboth { clear: both; }\n"
 	)
 );

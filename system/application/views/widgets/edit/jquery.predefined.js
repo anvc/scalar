@@ -42,10 +42,10 @@
     		return;
     	}
     	
-    	$div = $('<div class="predefined_wrapper"><span class="interface"></span></div>').insertAfter($this);
+    	$div = $('<div class="predefined_wrapper form-inline"><span class="interface"></span></div>').insertAfter($this);
     	$div.append('<span class="msg">'+opts.msg+'</span>');
-    	$div.append('<span class="select"> <select><option value=""></option></select> </span>');
-    	$div.append('<span class="button"><input type="button" value="Insert" /></span>');
+    	$div.append('<span class="select">&nbsp; <select class="form-control"><option value=""></option></select> </span>');
+    	$div.append('<span class="button"><input type="button" class="btn btn-default" value="Insert" /></span>');
     	$div.append('<div class="desc"></div>');
     	for (var j in options.data) {
     		var $option = $('<option value="">'+options.data[j].title+'</option>');
