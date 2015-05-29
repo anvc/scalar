@@ -1301,7 +1301,8 @@
 
 			if (( viewType != 'edit' ) && ( viewType != 'iframe' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
-				$('[property="sioc:content"]').children('p,div').addClass('body_copy').wrap('<div class="paragraph_wrapper"></div>');
+				$('[property="sioc:content"]').children('p,div').not( '[data-size="full"]' ).addClass('body_copy');
+				$('[property="sioc:content"]').children('p,div').wrap('<div class="paragraph_wrapper"></div>');
 		  	}
 			
 			page.getContainingPathInfo();
