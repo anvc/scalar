@@ -612,7 +612,7 @@ if ('undefined'==typeof(escape_html)) {
 				});
 			} else if ('undefined'!=typeof($.fn.modal)) {
 				bootbox.dialog({
-					message: '<div id="bootbox-content"></div>',
+					message: '<div id="bootbox-content" class="heading_font"></div>',
 					title: title,
 					className: 'custom_meta_bootbox',
 					animate: ((0==parseInt($el.data('index'))) ? true : false)
@@ -674,11 +674,12 @@ if ('undefined'==typeof(escape_html)) {
 				$( ".imported_dialog" ).dialog({ modal:true, minWidth: 700, title: 'Import successful', resizable: false, draggable: true });
 			} else if ('undefined'!=typeof($.fn.modal)) {
 				bootbox.dialog({
-					message: '<div id="bootbox-content"></div>',
+					message: '<div id="bootbox-content" class="heading_font"></div>',
 					title: 'Import successful',
 					animate: true
 				});
-				console.log($('#bootbox-content'));
+				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
+				$('.bootbox-close-button').empty();
 				$box.appendTo($('#bootbox-content'));
 				$('.bootbox .modal-dialog').width('85%');
 			} else {
