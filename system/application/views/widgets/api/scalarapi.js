@@ -723,9 +723,11 @@ ScalarAPI.prototype.removeMarkup = function( string ) {
 ScalarAPI.prototype.parseMediaSource = function(uri) {
 
 	var source = this.mediaSources['Unsupported'];
-	
+
 	if (uri != null) {
 		var tempPath = uri.toLowerCase();
+		tempPath = tempPath.split( '?' )[ 0 ];
+		tempPath = tempPath.split( '#' )[ 0 ];
 		var url_segments = tempPath.split('/');                                                 // Only operate on the last URL segment (the basename)
 		var file_segments = url_segments[url_segments.length-1].split('.');                     // Split filename to look for file extension
 		var ext = (file_segments.length>1) ? file_segments[file_segments.length-1] : ''; 		// File extension is the last file segment
