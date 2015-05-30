@@ -526,7 +526,7 @@ class System extends MY_Controller {
 				foreach ($melons as $melon_path) {
 					if (!file_exists($melon_path.'config.php')) continue;
 					$this->load_melon_config(basename($melon_path));
-					if (basename($melon_path)==$this->data['book']->template) $this->data['predefined_css'] = $this->config->item('predefined_css');
+					if (!empty($this->data['book']) && basename($melon_path)==$this->data['book']->template) $this->data['predefined_css'] = $this->config->item('predefined_css');
 					$this->data['interfaces'][] = array('meta'=>$this->config->item('melon_meta'),'stylesheets'=>$this->config->item('stylesheets'));
 				}
 				usort($this->data['interfaces'], "sort_interfaces");
