@@ -268,15 +268,7 @@
 			addMediaElementForLink: function( link, parent ) {
 				var inline = link.hasClass( 'inline' ),
 					size = link.attr( 'data-size' ),
-					align = link.attr( 'data-align' ),
-					typeLimits = {
-						// Add more exceptions to height limitations if needed
-						
-						// Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
-						'image':$(window).height()*1.3 ,
-						// The default for media should be to limit their size to fit within the bounds of the window
-						'default':$(window).height()*0.75, 
-					};
+					align = link.attr( 'data-align' );
 
 				// default alignment is 'right'
 				if ( align == undefined ) {
@@ -1143,8 +1135,19 @@
 					page.addMediaElementForLink( $(this), $(this).parent().parent() );
 				});
 			},
+			updateMediaHeightRestrictions: function() {
+				typeLimits = {
+					// Add more exceptions to height limitations if needed
 
+					// Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
+					'image':$(window).height()*1.3 ,
+					// The default for media should be to limit their size to fit within the bounds of the window
+					'default':$(window).height()*0.75, 
+				};
+			},
 			handleMediaResize: function() {
+				page.updateMediaHeightRestrictions();
+				
 				// Regenerate media details view if currently open
 				if($('.media_details:visible').length == 1) {
 					$('.media_details:visible').find('[title="Close"]').click();
@@ -1247,6 +1250,7 @@
 			}
 
 		};
+		page.updateMediaHeightRestrictions();
 
 		$('body').bind('setState', page.handleSetState);
 		$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);

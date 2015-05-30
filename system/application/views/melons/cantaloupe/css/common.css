@@ -409,7 +409,7 @@ a:hover { text-decoration: underline; }
 .citations p { margin-bottom: .1rem; }
 #media_details_buffer{width:108px;}
 
-.media_sidebar { width: 30%; color: #b2b3b6; margin-right: 3.6rem; padding-bottom: 5rem; text-align: left; float: left; min-height: 50rem; }
+.media_sidebar { clear:left;width: 30%; color: #b2b3b6; margin-right: 3.6rem; padding-bottom: 5rem; text-align: left; float: left; min-height: 50rem; }
 .media_sidebar h2,.media_sidebar h3 { margin: 0 0 .2rem 0; padding: 0; line-height: 100%; color: white; }
 .media_sidebar h2 { font-size: 2.9rem; }
 .media_sidebar h3 { font-size: 1.8rem; font-weight: normal; margin-bottom: 1rem; }

@@ -53,6 +53,7 @@ var isMobile = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.m
 var isTablet = ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.match(/KFOT/i)) || (navigator.userAgent.match(/Kindle/i)) || (navigator.userAgent.match(/Android/i)));
 var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
 var isNative = (document.location.href.indexOf('=cantaloupe') == -1);
+var typeLimits = null;
 
 
 

@@ -51,14 +51,21 @@
 				mediaDetails.slideshowElement = $('<div class="manual_slideshow"></div>').appendTo(mediaDetails.contentElement);
 				mediaDetails.infoElement = $('<div></div>').appendTo(mediaDetails.contentElement);
 				var sizeTest = $('<div id="media_details_buffer"></div>').appendTo(mediaDetails.contentElement);
-				var slotHeight = Math.min(maxMediaHeight, parseInt(mediaDetails.slideshowElement.height()) - 20);
-				var slotWidth = Math.round(parseInt($(element).width() - sizeTest.width()) * .68);
-				// sizeTest.remove();
+				var slotWidth = Math.round(parseInt($(element).width() - sizeTest.width()) * 0.68);
+
+				sizeTest.remove();
 				if (collection == undefined) {
 		
 					var link = $('<a href="'+node.current.sourceFile+'" resource="'+node.slug+'" rel="'+node.urn+'">Media file</a>');
 					link.data('mediaDetails', mediaDetails);
- 					var slot = link.slotmanager_create_slot(slotWidth, null, {url_attributes: ['href', 'src'], solo: true, getRelated: true,details_view:true });
+ 					var slot = link.slotmanager_create_slot(slotWidth, null, 
+ 						{
+ 							url_attributes: ['href', 'src'], 
+ 							solo: true, 
+ 							getRelated: true,
+							typeLimits: typeLimits,
+							deferTypeSizing:true
+						});
 					if (slot) {
 						slotDOMElement = slot.data('slot');
 						slotMediaElement = slot.data('mediaelement');
