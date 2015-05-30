@@ -333,6 +333,7 @@
 			},
 			
 			addMedia: function() {
+				$( '#gallery_content' ).empty();
 				interval = setInterval(gallery.handleTimer, 1000);
 				children = gallery.getChildrenOfType( scalarapi.model.getCurrentPageNode(), 'all');
 				gallery.createContentBlocks();

@@ -7,7 +7,7 @@ $config['arbor'] = 'html5_RDFa';
 $config['melon_meta'] = array(
 	'is_selectable' => false,
 	'slug'=>'cantaloupe',
-	'name'=>'Scalar 2.0',
+	'name'=>'Scalar 2',
 	'description'=>'Clean design, new page layout options including splash pages and media galleries, new media sizing and placement options, mobile support, and more...',
 	'thumb_app_path'=>'views/melons/cantaloupe/images/scalar_cantaloupe_thumb.png'
 );
