@@ -621,7 +621,7 @@ a.media_info {
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 }
-
+.meta-page .caption_font {clear:left;}
 /*.media_metadata {
 	position: absolute;
 	max-width: 400px;

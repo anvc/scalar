@@ -850,7 +850,6 @@
 			},
 
 			addMediaElements: function() {
-
 				var currentNode = scalarapi.model.getCurrentPageNode(),
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value,
 					extension = scalarapi.getFileExtension( window.location.href );
@@ -890,7 +889,17 @@
 				} else if ( 'edit' == extension) {
 					
 					// Nothing needed here
-				
+				} else if ( 'meta' == extension) {
+					// if this is a media page, embed the media at native size
+					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
+						var currentNode = scalarapi.model.getCurrentPageNode();
+						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( 'article > span[property="sioc:content"]' );
+
+						link.wrap( '<div></div>' );
+						page.addMediaElementForLink( link, link.parent() );
+						link.css('display', 'none');
+						$('.meta-header').remove();
+					};
 				} else if ( '' == extension ) {
 
 					switch (viewType) {
@@ -917,12 +926,22 @@
 
 						case "splash":
 						case "book_splash":
-						case "meta":
 						case "versions":
 						case "history":
 						// these views don't get media
 						break;
+						case "meta":
+							// if this is a media page, embed the media at native size
+							if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
+								var currentNode = scalarapi.model.getCurrentPageNode();
+								var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( 'article > span[property="sioc:content"]' );
 
+								link.wrap( '<div></div>' );
+								page.addMediaElementForLink( link, link.parent() );
+								link.css('display', 'none');
+								$('.meta-header').remove();
+							};
+						break;
 						default:
 						if ( viewType == 'structured_gallery' ) {
 							page.gallery.addMedia();
@@ -1147,7 +1166,7 @@
 			},
 			handleMediaResize: function() {
 				page.updateMediaHeightRestrictions();
-				
+
 				// Regenerate media details view if currently open
 				if($('.media_details:visible').length == 1) {
 					$('.media_details:visible').find('[title="Close"]').click();
@@ -1648,7 +1667,7 @@
 					break;
 
 					case "meta":
-					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Metadata</h2>' );
+					$( 'h1[property="dcterms:title"]' ).after( '<h2 class="meta-header" style="margin-bottom: 0rem;">Metadata</h2>' );
 					$( '.meta-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
 					okToAddExtras = false;
 					break;
