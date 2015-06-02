@@ -166,6 +166,10 @@
 						}
 					}
 					
+					if(link.data('fullWidth')) {
+						mediaelement.model.element.wrap("<div class='pillarbox'></div>");
+					}
+					
 					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(annotationWrap);
 	
 					// show media references with excerpts

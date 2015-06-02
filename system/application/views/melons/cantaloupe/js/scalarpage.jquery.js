@@ -125,9 +125,7 @@
 							'margin-left': 'auto',
 						});
 						if(mediaelement.model.element.parents('.manual_slideshow').length == 0) {
-							mediaelement.model.element.parent().addClass( "pillarbox" );
-						} else {
-							mediaelement.model.element.wrap("<div class='pillarbox'></div>");
+								mediaelement.model.element.parent().addClass( "pillarbox" );
 						}
 						mediaelement.model.element.parent().removeClass( 'left right' );
 						isFullWidth = true;
@@ -144,6 +142,7 @@
 
 
 					if(isFullWidth) {
+						link.data('fullWidth',isFullWidth);
 						// full width native elements should have no body_copy wrapping them
 						// and they should come after their link, not before
 						if ( size == 'native' ) {
