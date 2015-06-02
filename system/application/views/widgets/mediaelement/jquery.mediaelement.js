@@ -4526,7 +4526,7 @@ function YouTubeGetID(url){
 			var theElement = $('#soundcloud'+this.model.filename+'_'+this.model.id);
 			if (theElement) {
 				$(theElement).width(width);
-				$(theElement).height(height);
+				$(theElement).height("auto");
 			}
 		}
 
