@@ -15,8 +15,10 @@ $config['melon_meta'] = array(
 // Stylesheets
 $config['stylesheets'] = array();
 
-// Array of views; leave value empty and it won't be displayed as a default view option in the editor
+// Array of views
+// Items with a value will appear in the edit page's Layout pulldown as options
 // Image paths are relative to Scalar's application folder
+// First item will be the default
 $config['views'] = array(
 	'plain' => array('name'=>'Basic','description'=>'<b>Freely mixes text and media.</b> In the Basic view, the page\'s text and media are interspersed. You can set the size and placement of linked media as they are added to the page.','image'=>'views/melons/cantaloupe/images/view_basic.gif'),
 	'image_header' => array('name'=>'Image Header','description'=>'<b>Adds a large image at the top.</b> In the Image Header view, the page\'s background image is shown as a header, with the title and description of the page overlaid. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_image_header.gif'),
@@ -31,10 +33,10 @@ $config['views'] = array(
 	'vispath' => array('name'=>'Path','description'=>'<b>Visualizes the current path.</b> The Path view embeds a visualization at the top of the page that shows the path contents of the current page in a tree diagram. The reader can expand sub-paths of the tree to explore its contents. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_path.gif'),
 	'vismedia' => array('name'=>'Media','description'=>'<b>Visualizes this page’s media.</b> The Media view embeds a force-directed visualization at the top of the page that shows the media it references or annotates. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_tag.gif'),
 	'vistag' => array('name'=>'Tag','description'=>'<b>Visualizes content tagged by this page.</b> The Tag view embeds a force-directed visualization at the top of the page that shows the content it tags. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_tag.gif'),
+	'meta' => array('name'=>'Metadata','description'=>'<b>Displays all metadata for the page.</b> The Metadata view displays a table containing all of the metadata for the page, including all of its prior versions.','image'=>'views/melons/cantaloupe/images/view_metadata.gif'),
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
-	'meta' => array('name'=>'Metadata','description'=>'<b>Displays all metadata for the page.</b> The Metadata view displays a table containing all of the metadata for the page, including all of its prior versions.','image'=>'views/melons/cantaloupe/images/view_metadata.gif'),
 	'history' => ''
 );
 

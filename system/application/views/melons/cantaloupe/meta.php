@@ -1,5 +1,5 @@
 <div class="caption_font"><a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfxml?versions=1">View as RDF-XML</a> <a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfjson?versions=1">View as RDF-JSON</a></div>
-<h3>Page</h3>
+<h3><?=(('media'==strtolower($page->type))?'Media':'Page')?></h3>
 <table class="table table-striped caption_font small" cellspacing="2" cellpadding="0">
 <tr><td style="white-space:nowrap;"><b>resource</b></td><td>rdf:resource</td><td><a href="<?=$base_uri.$page->slug?>"><?=$base_uri.$page->slug?></a></td></tr>
 <?
