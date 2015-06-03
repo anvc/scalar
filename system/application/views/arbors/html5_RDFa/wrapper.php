@@ -219,7 +219,7 @@ endif;
 ?>
 <?php endif; ?>
 	</header>
-	<span aria-hidden="true" property="<?=$rdf_fields['content']?>"><?php
+	<span property="<?=$rdf_fields['content']?>"><?php
 		if (!empty($_html)) {
 			echo $_html;
 		} elseif (isset($page) && !empty($page)) {

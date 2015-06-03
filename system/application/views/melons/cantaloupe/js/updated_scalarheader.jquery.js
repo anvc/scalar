@@ -1056,7 +1056,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             if(base.usingMobileView){
                 title_width -= 120;
             }else{
-                title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 32; // 30 for the margin on the title, 2px for the border on the user menu items.
+                title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 52; // 30 for the margin on the title, 2px for the border on the user menu items, then 20 for scrollbar
                 
 
                 if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
