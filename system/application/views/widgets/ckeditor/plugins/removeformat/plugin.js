@@ -171,7 +171,8 @@ CKEDITOR.editor.prototype.addRemoveFormatFilter = function( func ) {
  * @cfg
  * @member CKEDITOR.config
  */
-CKEDITOR.config.removeFormatTags = 'a,b,big,cite,code,del,dfn,em,font,i,ins,kbd,q,s,samp,small,span,strike,strong,sub,sup,tt,u,var';
+// Updated by Craig
+CKEDITOR.config.removeFormatTags = 'h1,h2,h3,h4,h5,h6,a,b,big,cite,code,del,dfn,em,font,i,ins,kbd,q,s,samp,small,span,strike,strong,sub,sup,tt,u,var';
 
 /**
  * A comma separated list of elements attributes to be removed when executing
