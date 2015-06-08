@@ -208,7 +208,6 @@ function ScalarAPI() {
 				'Explorer': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
 				'MobileSafari': {extensions:['3gp'], format:'3GPP', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
-				'Chrome': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
 				'Other': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true}
 			}},
 		'AIFF': {
@@ -221,7 +220,6 @@ function ScalarAPI() {
 				'Explorer': {extensions:['aif','aiff'], format:'AIFF', player:'QuickTime', specifiesDimensions:false},
 				'MobileSafari': {extensions:['aif','aiff'], format:'AIFF', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['aif','aiff'], format:'AIFF', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['aif','aiff'], format:'AIFF', player:'QuickTime', specifiesDimensions:false},
 				'Other': {extensions:['aif','aiff'], format:'AIFF', player:'QuickTime', specifiesDimensions:false}
 			}},
 		'CriticalCommons-LegacyVideo': {
@@ -362,7 +360,7 @@ function ScalarAPI() {
 				'Explorer': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'MobileSafari': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['m4v'], format:'M4V', player:'QuickTime', specifiesDimensions:true},
+				'Chrome': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['m4v'], format:'M4V', player:'QuickTime', specifiesDimensions:true}
 			}},
 		'MPEG-1': {
@@ -373,8 +371,6 @@ function ScalarAPI() {
 			browserSupport: {
 				'Mozilla': {extensions:['mpg'], format:'MPEG-1', player:'QuickTime', specifiesDimensions:false},
 				'Explorer': {extensions:['mpg'], format:'MPEG-1', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['mpg'], format:'MPEG-1', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['mpg'], format:'MPEG-1', player:'QuickTime', specifiesDimensions:false},
 				'Other': {extensions:['mpg'], format:'MPEG-1', player:'QuickTime', specifiesDimensions:false}
 			}},
 		'MPEG-2': {
@@ -385,8 +381,6 @@ function ScalarAPI() {
 			browserSupport: {
 				'Mozilla': {extensions:['mpg'], format:'MPEG-2', player:'QuickTime', specifiesDimensions:false},
 				'Explorer': {extensions:['mpg'], format:'MPEG-2', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['mpg'], format:'MPEG-2', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['mpg'], format:'MPEG-2', player:'QuickTime', specifiesDimensions:false},
 				'Other': {extensions:['mpg'], format:'MPEG-2', player:'QuickTime', specifiesDimensions:false}
 			}},
 		'MPEG-3': {
@@ -422,7 +416,6 @@ function ScalarAPI() {
 			contentType:'audio',
 			browserSupport: {
 				'Mozilla': {extensions:['oga'], format:'Ogg', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['oga'], format:'Ogg', player:'QuickTime', specifiesDimensions:false},
 				'Chrome': {extensions:['oga'], format:'Ogg', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['oga'], format:'Ogg', player:'native', specifiesDimensions:false}
 			}},
@@ -433,7 +426,6 @@ function ScalarAPI() {
 			contentType:'video',
 			browserSupport: {
 				'Mozilla': {extensions:['ogg','ogv'], format:'Ogg', player:'native', specifiesDimensions:true},
-				'Safari': {extensions:['ogg','ogv'], format:'Ogg', player:'QuickTime', specifiesDimensions:true},
 				'Chrome': {extensions:['ogg','ogv'], format:'Ogg', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['ogg','ogv'], format:'Ogg', player:'native', specifiesDimensions:true}
 			}},
@@ -485,7 +477,6 @@ function ScalarAPI() {
 				'Explorer': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
 				'MobileSafari': {extensions:['mov'], format:'QuickTime', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['mov'], format:'QuickTime', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
 				'Other': {extensions:['mov'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true}
 			}},
 		'QuickTimeStreaming': {
@@ -496,7 +487,6 @@ function ScalarAPI() {
 			browserSupport: {
 				'Mozilla': {extensions:['mp4'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
 				'Explorer': {extensions:['mp4'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
-				'Chrome': {extensions:['mp4'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
 				'Other': {extensions:['mp4'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true}
 			}},
 		'TIFF': {
@@ -505,10 +495,8 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'image',
 			browserSupport: {
-				'Mozilla': {extensions:['tif','tiff'], format:'TIFF', player:'QuickTime', specifiesDimensions:true},
 				'Explorer': {extensions:['tif','tiff'], format:'TIFF', player:'QuickTime', specifiesDimensions:true},
-				'Safari': {extensions:['tif','tiff'], format:'TIFF', player:'QuickTime', specifiesDimensions:true},
-				'Chrome': {extensions:['tif','tiff'], format:'TIFF', player:'QuickTime', specifiesDimensions:true},
+				'Safari': {extensions:['tif','tiff'], format:'TIFF', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['tif','tiff'], format:'TIFF', player:'QuickTime', specifiesDimensions:true}
 			}},
 		'PlainText': {
