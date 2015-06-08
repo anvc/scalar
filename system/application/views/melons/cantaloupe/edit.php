@@ -37,6 +37,7 @@ div.p {padding-top:8px;}
 tr td:first-of-type:not([colspan]) {white-space:nowrap !important; padding-right:10px !important;}
 td {vertical-align:middle; padding-bottom:6px !important;}
 #edit_content td {padding-right:9px;} /* CKEditor extends to the right */
+#edit_content .cke_combo_text {width:18px !important;} /* Header pulldown */
 tr#select_view td, tr#relationships td, tr#styling td, tr#metadata td {vertical-align:top;}
 tr#relationships td {vertical-align:top;}
 tr#styling button:first-of-type, tr#metadata button:first-of-type {width:100%; font-size:16px; color:#026697}

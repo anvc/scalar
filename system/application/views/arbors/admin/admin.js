@@ -177,7 +177,11 @@ function edit_row($row) {
 				if ($this.hasClass('uri_link') && 'undefined'!=typeof(window['book_uri'])) {
 					value = '<a href="'+window['book_uri']+data['slug']+'">'+value+'</a>';
 				} else if ($this.hasClass('has_link')) {
-					value = '<a target="_blank" href="'+value+'">'+$.fn.scalardashboardtable('basename', value)+'</a>';
+					if (value.indexOf('://')!=-1) {
+						value = '<a target="_blank" href="'+value+'">'+$.fn.scalardashboardtable('basename', value)+'</a>';
+					} else {
+						value = '<a href="'+$('#sysroot').attr('href')+value+'">'+value+'</a>';
+					}
 				}
 				if ($this.hasClass('excerpt')) value = '<span class="full">'+value+'</span><span class="clip">'+create_excerpt(value,8)+'</span>';
 				$this.html(value);

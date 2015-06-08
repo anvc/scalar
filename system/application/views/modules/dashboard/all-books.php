@@ -1,15 +1,16 @@
+<?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
 <? if ('deleted'==@$_REQUEST['action']): ?>
 <div class="saved">
 <a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
 Book has been deleted
 </div><br />
-<? endif ?>	
+<? endif ?>
 <? if ('added'==@$_REQUEST['action']): ?>
 <div class="saved">
 <a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
 Book has been added
 </div><br />
-<? endif ?>		
+<? endif ?>
 		<style>
 		.admin-nav-wrap {
 			margin:7px 0;
@@ -61,7 +62,7 @@ Book has been added
 				form.find("input[name='section']").val(rel);
 				form.find("input[name='id']").val(id);
 				var selector = box.find('select');
-				if (multiple) {selector.attr('multiple','multiple');selector.find('#multiple_info').show();} else {selector.removeAttr('multiple');selector.find('#multiple_info').hide();}		
+				if (multiple) {selector.attr('multiple','multiple');selector.find('#multiple_info').show();} else {selector.removeAttr('multiple');selector.find('#multiple_info').hide();}
 				selector.html('<option value="0">Loading...</option>');
 				$.post('api/'+resource, post, function(data) {
 					selector.html('');
@@ -77,23 +78,23 @@ Book has been added
 						selector.append(option);
 					}
 					box.css( 'top', ((parseInt($(window).height())/2)-(parseInt(box.height())/2))+parseInt($(window).scrollTop()) );
-					box.css( 'left', ((parseInt($(window).width())/2)-(parseInt(box.width())/2)) );					
+					box.css( 'left', ((parseInt($(window).width())/2)-(parseInt(box.width())/2)) );
 					box.show();
-				});		
-						
-			});	   					
-   			
+				});
+
+			});
+
    			$(window).resize(function() { resizeList(); });
    			resizeList();
-   			
-		});	
-		
+
+		});
+
 		function resizeList() {
     		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 60))+'px'); // magic number to get list height right
 		}
-		
+
 		function submit_value_selector($this) {
-			
+
 			var section = $this.find("input[name='section']").val();
 			var id = $this.find("input[name='id']").val();
 			var selected_ids = new Array;
@@ -116,27 +117,27 @@ Book has been added
 						span.append(' <span style="color:red;font-weight:bold">*</span>');
 						span.after('<br />');
 					}
-				}	
-				$this.parent().hide();	
-			});			
-			
-		}			
-		</script>			
-		
+				}
+				$this.parent().hide();
+			});
+
+		}
+		</script>
+
 		<form style="display:inline-block" action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-books" method="post">
 		<input type="hidden" name="zone" value="all-books" />
 		<input type="hidden" name="action" value="do_add_book" />
-		Add new book: <input type="text" name="title" value="title" style="width:200px;" onfocus="if (this.value=='title') this.value='';" />&nbsp; 
+		Add new book: <input type="text" name="title" value="title" style="width:200px;" onfocus="if (this.value=='title') this.value='';" />&nbsp;
 		<select name="user_id">
 			<option value="0">(Initial author)</option>
 		<? foreach ($users as $user): ?>
 			<option value="<?=$user->user_id?>"><?=$user->fullname?></option>
 		<? endforeach ?>
-		</select>&nbsp; 
+		</select>&nbsp;
 		<input type="submit" value="Go" class="generic_button" />
-		</form>			
+		</form>
 		<div class="admin-nav-wrap">
-		<? if (!empty($books)): ?> 
+		<? if (!empty($books)): ?>
 		<?
 			if((count($books)-1) != $total)
 				$count = count($books);
@@ -146,7 +147,7 @@ Book has been added
 		<? if ($start !== 0 || (count($books)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
-		&nbsp; 
+		&nbsp;
 		<? endif ?>
 		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($books)-1 == $total): ?>
@@ -166,9 +167,9 @@ Book has been added
 		 </form>
 		</div>
 
-		
+
 		<br clear="both" />
-		
+
 		<div class="table_wrapper">
 		<table cellspacing="0" cellpadding="0" class="tablesorter">
 			<thead>
@@ -192,7 +193,7 @@ Book has been added
 		if (!empty($books)) {
 			for($i=0;$i<$count;$i++) {
 				$desc_excerpt = create_excerpt($books[$i]->description);
-				if (strlen($books[$i]->description) == strlen($desc_excerpt)) $desc_excerpt = null;				
+				if (strlen($books[$i]->description) == strlen($desc_excerpt)) $desc_excerpt = null;
 				echo '<tr class="bottom_border" typeof="books">';
 				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books#tabs-all-books" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;" class="generic_button">Remove</a></td>'."\n";
 				echo '<td property="id" style="display:none;">'.$books[$i]->book_id."</td>\n";
@@ -203,8 +204,8 @@ Book has been added
 					echo '<td class="editable textarea excerpt" property="description"><span class="full">'.$books[$i]->description.'</span><span class="clip">'.$desc_excerpt.'</span></td>'."\n";
 				} else {
 					echo '<td class="editable textarea" property="description">'.$books[$i]->description.'</td>';
-				}	*/			
-				echo '<td class="editable has_link" property="slug"><a href="'.confirm_slash(base_url()).$books[$i]->slug.'">'.$books[$i]->slug."</a></td>\n";
+				}	*/
+				echo '<td class="editable has_link uri_link" property="slug"><a href="'.confirm_slash(base_url()).$books[$i]->slug.'">'.$books[$i]->slug."</a></td>\n";
 				echo '<td class="editable boolean" property="url_is_public">'.$books[$i]->url_is_public."</td>\n";
 				echo '<td class="editable boolean" property="display_in_index">'.$books[$i]->display_in_index."</td>\n";
 				echo '<td class="editable boolean" property="is_featured">'.$books[$i]->is_featured."</td>\n";
@@ -223,7 +224,7 @@ Book has been added
 ?>
 			</tbody>
 		</table>
-		</div>	
+		</div>
 
 		<? if (!empty($books)): ?>
 		<div class="admin-nav-wrap">
@@ -236,7 +237,7 @@ Book has been added
 		<? if ($start !== 0 || (count($books)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
-		&nbsp; 
+		&nbsp;
 		<? endif ?>
 		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($books)-1 == $total): ?>
@@ -249,4 +250,4 @@ Book has been added
 		<? endif ?>
 		</div>
 		<? endif ?>
-		<br />				
+		<br />

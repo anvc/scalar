@@ -547,7 +547,7 @@ class Book_model extends MY_Model {
 					$count++;
 				}
 				// Rename folder on the filesystem
-				if (!rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) die('Could not rename directory.'); // TODO: throw exception
+				if (false === @rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) throw new Exception('Could not rename directory or the source directory doesn\'t exist.');
 				// Update hard URLs in version contet
 				$old = confirm_slash(base_url()).confirm_slash($slug);
 				$new = confirm_slash(base_url()).confirm_slash($array['slug']);

@@ -164,8 +164,6 @@ class Book extends MY_Controller {
 			exit;
 		}
 
-		if (isset($_GET['editor']) && $_GET['editor']=='2') $this->data['view'] = 'edit2';  // TEMP for testing CKEditor
-
 		if ($this->template_has_rendered) return;  // Template might be rendered in one of the methods below
 		$this->template->set_template($this->config->item('arbor'));
 		foreach ($this->template->template['regions'] as $region) {

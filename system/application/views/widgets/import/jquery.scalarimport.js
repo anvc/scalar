@@ -60,6 +60,7 @@ if ('undefined'==typeof(escape_html)) {
     		proxy_optional_fields: ['match','format','archive_api_key','keep_hash_var','remove_hash_vars'],
     		url_not_supported_msg: 'This media format is not supported',
     		url_not_supported_class: 'media_not_supported',
+    		no_results_msg: 'No items were found for the search "%1"',
     		results_desc_num_words: 40,
     		rdftype: 'http://scalar.usc.edu/2012/01/scalar-ns#Media',
     		sioccontent: ''
@@ -98,7 +99,7 @@ if ('undefined'==typeof(escape_html)) {
 					var form_data = $.fn.scalarimport('load_form_data', $form, options);
 					$.fn.scalarimport('proxy', function(rdfxml) {
 						var post = $.fn.scalarimport('rdfxml_to_post', rdfxml, options, true);
-						$.fn.scalarimport('results', $form, post, form_data, options);
+						$.fn.scalarimport('results', $form, post, $.extend({}, user_data, form_data), options);
 					}, $.extend({}, user_data, form_data), options);
 					$('.'+options.import_btn_class).live('click', function() {
 						$.fn.scalarimport('reset', options);
@@ -448,6 +449,12 @@ if ('undefined'==typeof(escape_html)) {
 			$tbody = $table.find('tbody');
 			var found = 0;
 			var supported = 0;
+			
+			if ($.isEmptyObject(results_data)) {
+				$div.html('<div class="alert alert-warning" role="alert">'+options.no_results_msg.replace('%1',form_data.sq)+'</div>');
+				$(options.results_el).fadeIn();
+				return;
+			}
 
 			for (var j in results_data) {
 			
