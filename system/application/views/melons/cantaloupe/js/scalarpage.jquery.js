@@ -1406,6 +1406,7 @@
 				}, function() {
 					console.log('an error occurred while retrieving gallery info.');
 				}, 1, true);*/
+				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( true, true, true, true, false );
 				page.addIncomingComments();
