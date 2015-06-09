@@ -123,7 +123,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                             '</li>'+
                                             '<li class="dropdown" id="navMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="wayfindingIcon">'+
-                                                    '<span class="visible-xs">Navigation</span>'+
+                                                    '<span class="visible-xs">Wayfinding</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li id="recent_menu" class="dropdown">'+
