@@ -919,7 +919,7 @@ function YouTubeGetID(url){
 
 			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] == null ) {
 				this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
-				
+
 			} else {
 
 				switch (this.model.mediaSource.contentType) {
@@ -2257,7 +2257,11 @@ function YouTubeGetID(url){
 		    var $theHTML = $('<div class="mediaObject">'+movie+'</div>');
 			this.parentView.mediaContainer.html($theHTML);
 
-			this.parentView.controllerOffset = 15;
+			if (this.model.mediaSource.contentType == 'audio') {
+				this.parentView.controllerOffset = 23;
+			} else {
+				this.parentView.controllerOffset = 15;				
+			}
 
 			this.metadataFunc = function() {
 
