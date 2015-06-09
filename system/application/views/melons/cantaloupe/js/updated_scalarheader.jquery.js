@@ -349,7 +349,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if(!base.usingMobileView){
                     $(this).data('hoverEvent',setTimeout($.proxy(function(){
                         $(this).removeClass('open').trigger('hide.bs.dropdown');
-                    },$(this)),2000));
+                    },$(this)),1000));
                 }else{
                     return true;
                 }
