@@ -574,7 +574,7 @@ function ScalarAPI() {
 				'Explorer': {extensions:['wav'], format:'WAV', player:'jPlayer', specifiesDimensions:false},
 				'MobileSafari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['wav'], format:'WAV', player:'QuickTime', specifiesDimensions:false},
+				'Chrome': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['wav'], format:'WAV', player:'jPlayer', specifiesDimensions:false}
 			}},
 		'WebM': {
