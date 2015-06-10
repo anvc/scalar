@@ -223,7 +223,7 @@ class Book_model extends MY_Model {
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
     		 "AND (B.url LIKE '%.gif' OR B.url LIKE '%.jpg' OR B.url LIKE '%.jpeg' OR B.url LIKE '%.png' OR B.url LIKE '%JPEG%') " .
-    		 "ORDER BY B.title ASC";
+    		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
     	if (mysql_errno()!=0) echo 'Error: '.mysql_error()."\n";
     	$result = $query->result();
@@ -253,7 +253,7 @@ class Book_model extends MY_Model {
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
     		 "AND (B.url LIKE '%.wav' OR B.url LIKE '%.mp3' OR B.url LIKE '%soundcloud%' OR B.url LIKE '%.oga' OR B.url LIKE '%.wav' OR B.url LIKE '%WAVE%' OR B.url LIKE '%MP3%') " .
-    		 "ORDER BY B.title ASC";
+    		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
     	if (mysql_errno()!=0) echo 'Error: '.mysql_error()."\n";
     	$result = $query->result();
