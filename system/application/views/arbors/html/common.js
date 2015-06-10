@@ -120,7 +120,7 @@ function validate_upload_form($form, obj) {
  * Functions to send form information through Scalar's save API
  */
 
-function send_form($form, additional_values, redirect_url) {
+function send_form($form, additional_values, success) {
 
 	send_form_show_loading();
 
@@ -136,7 +136,7 @@ function send_form($form, additional_values, redirect_url) {
 		}
 	});	
 	
-	if ('undefined'!=typeof(additional_values)) {
+	if ('undefined'!=typeof(additional_values) && !$.isEmptyObject(additional_values)) {
 		for (var field in additional_values) {
 			if ('undefined'!=typeof(values[field.name])) {
 				if (!is_array(values[field.name])) {
@@ -149,11 +149,13 @@ function send_form($form, additional_values, redirect_url) {
 		}
 	}
 
-	var success = function(version) {
-	    for (var version_uri in version) break;
-	    if ('undefined'==typeof(redirect_url)) redirect_url = version_uri.substr(0, version_uri.lastIndexOf('.'));
-	    var version_urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
-		send_form_relationships($form, version_urn, redirect_url);     
+	if ('undefined'==typeof(success)) {
+		var success = function(version) {
+		    for (var version_uri in version) break;
+		    if ('undefined'==typeof(redirect_url)) redirect_url = version_uri.substr(0, version_uri.lastIndexOf('.'));
+		    var version_urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+			send_form_relationships($form, version_urn, redirect_url);     
+		}
 	}
 	
 	var error = function(message) {

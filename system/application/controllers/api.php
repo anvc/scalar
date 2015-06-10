@@ -336,7 +336,7 @@ Class Api extends Controller {
 		//branch for pages
 		if($this->data['scalar:child_type'] == MY_Model::rdf_type('book')){
 			$the_book = $this->books->get(array_pop(explode(':', $this->data['scalar:child_urn'])));
-			if($the_book->book_id != $this->user->book_id){
+			if(@$the_book->book_id != @$this->user->book_id){
 				$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 			}
 		} else {

@@ -42,3 +42,16 @@
 }
 .media_options .h {border-bottom:solid 1px #aaaaaa; font-weight:bold; padding-bottom:10px; margin-bottom:20px;}
 .media_options .buttons {float:right; padding:10px 0px 0px 0px; margin:0;}
+
+/* On-the-fly */
+.create_screen {
+	position:absolute; bottom:0px; left:0px; right:0px; top:0px; background-color:#000000; 
+	filter: alpha(opacity=30); opacity: 0.3; border-radius: 3px;
+}
+.create_onthefly {
+	position:absolute; bottom:45px; left:0px; right:0px; background-color:#eeeeee; border-top:solid 1px #bbbbbb;
+}
+.create_onthefly > div, .create_onthefly > form {padding:12px 18px 12px 18px;}
+.create_onthefly .buttons {text-align:right;}
+.create_onthefly input, .create_onthefly textarea {width:100%;}
+.onthefly_loading {color:red; font-size:smaller; padding-right:20px; display:none;}

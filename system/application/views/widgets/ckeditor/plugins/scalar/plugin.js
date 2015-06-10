@@ -175,7 +175,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	    			alert('Please select text to transform into a note link');
 	    			return;
 	    		}	       	
-        		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,msg:'Insert Scalar Note',callback:function(node){
+        		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,onthefly:true,msg:'Insert Scalar Note',callback:function(node){
         			CKEDITOR._scalar.contentoptions({data:reference_options['insertNote'],callback:function(options) {
 	        			var sel = editor.getSelection();			
 	            		element = editor.document.createElement('span');
@@ -198,8 +198,8 @@ CKEDITOR.plugins.add( 'scalar', {
 	    			alert('Please select text to transform into a link');
 	    			return;
 	    		}	        	
-        		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,msg:'Insert link to Scalar content',callback:function(node){
-	        		CKEDITOR._scalar.contentoptions({data:reference_options['createInternalLink'],callback:function(options) {
+        		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,onthefly:true,msg:'Insert link to Scalar content',callback:function(node){
+        			CKEDITOR._scalar.contentoptions({data:reference_options['createInternalLink'],callback:function(options) {
 	        			var sel = editor.getSelection();			
 	            		element = editor.document.createElement('a');
 	            		element.setHtml(sel.getSelectedText());

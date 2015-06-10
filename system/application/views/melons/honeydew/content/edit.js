@@ -55,7 +55,7 @@ $(window).ready(function() {
 	}
 	var $path_of_continue_msg = $('.path_of_continue_msg');
 	$path_of_continue_msg.find('a:first').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){	
+		$('<div></div>').content_selector({changeable:true,multiple:false,onthefly:true,msg:'Choose a page to continue to',callback:function(node){	
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
 			var title = node.version["http://purl.org/dc/terms/title"][0].value;
@@ -68,7 +68,7 @@ $(window).ready(function() {
 		$path_of_continue_msg.find('.title').html('none');		
 	});
 	$('.path_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose contents of the path',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -83,7 +83,7 @@ $(window).ready(function() {
 		$('.reply_of_msg').show();
 	}
 	$('.reply_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose items to be commented on',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be commented on',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -146,7 +146,7 @@ $(window).ready(function() {
 		$('.tag_of_msg').show();
 	}
 	$('.tag_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose items to be tagged',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be tagged',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -160,7 +160,7 @@ $(window).ready(function() {
 		$('.has_tag_msg').show();
 	}	
 	$('.has_tag_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,msg:'Choose items that tag the current page',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
