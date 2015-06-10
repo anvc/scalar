@@ -105,7 +105,6 @@
 
 				// 'full' and 'native' sized media get special sizing treatment
 				if ( size == 'native' || size == 'full' ) {
-
 					// if the media is the full width of the page, then remove any align styles
 					if ( mediaWidth >= pageWidth ) {
 						mediaelement.model.element.parent().removeClass( 'left right' );
@@ -309,11 +308,16 @@
 				// media at 'full' size get a maximum height
 				var height = null;
 				if ( size == 'full' || size == 'native') {
-					// eventually we want to add a conditional here so that videos don't get larger
-					// than the height of the page, but other items (like images) can
 					height = maxMediaHeight; // this varies depending on window size
 				}
-
+				if(size == 'native') {
+					var parent_temp = $('link#parent').attr('href');
+					var mediaNode = scalarapi.model.nodesByURL[parent_temp+link.attr('resource')];
+					if(mediaNode.current.mediaSource.name == 'SoundCloud') {
+						height = null;
+						size = "large";
+					}
+				}
 				// create the slot where the media will be added
 				slot = link.slotmanager_create_slot( 
 					width, height, 
@@ -1402,6 +1406,7 @@
 				}, function() {
 					console.log('an error occurred while retrieving gallery info.');
 				}, 1, true);*/
+				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( true, true, true, true, false );
 				page.addIncomingComments();
