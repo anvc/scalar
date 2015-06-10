@@ -339,7 +339,7 @@ class Book extends MY_Controller {
 			$return = array();
 			$return[$url] = $this->image_metadata->get($path, Image_Metadata::FORMAT_NS);
 			if($thumbUrl != -1) {
-				$return['scalar:thumbnail'] = $thumbUrl;
+				$return['scalar:thumbnail'] = confirm_slash(base_url()).$slug.$thumbUrl;
 			}
 			echo json_encode($return);
 			exit;
