@@ -309,8 +309,6 @@
 				var height = null;
 				if ( size == 'full' || size == 'native') {
 					height = maxMediaHeight; // this varies depending on window size
-				}
-				if(size == 'native') {
 					var parent_temp = $('link#parent').attr('href');
 					var mediaNode = scalarapi.model.nodesByURL[parent_temp+link.attr('resource')];
 					if(mediaNode.current.mediaSource.name == 'SoundCloud') {

@@ -4414,7 +4414,7 @@ function YouTubeGetID(url){
 		this.isAudioPlaying = false;			// is audio currently playing?
 		this.currentTime = 0;					// current position in the audio file
 		this.isLiquid = true;					// media will expand to fill available space
-		this.initialPauseDone = false;			// media must be played briefly for some functions to be available; has it subsequently been paused?
+		this.initialPauseDone = true;			// media must be played briefly for some functions to be available; has it subsequently been paused?
 		this.widget = null;						// SoundClound widget
 		this.cachedSeekTime = null;				// internal storage of last seek request
 		this.wasPlayingBeforeSeek = false;		// was the audio playing before we tried to seek?
@@ -4426,7 +4426,7 @@ function YouTubeGetID(url){
 
 			this.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
 
-			SC.oEmbed(this.model.path, {auto_play: true, download: true}, function(oembed){
+			SC.oEmbed(this.model.path, {auto_play: false, download: true}, function(oembed){
 				$(oembed.html).appendTo(me.mediaObject.children()[0]);
 				me.parentView.controllerHeight = oembed.height;
 				me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
