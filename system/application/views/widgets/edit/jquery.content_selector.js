@@ -5,6 +5,7 @@
 			type:null,
 			changeable:true,
 			multiple:false,
+			onthefly:false,
 			rec:0,
 			sq:null,
 			desc_max_length: 100,
@@ -19,7 +20,7 @@
     	var $this = $(this);
     	var options = {};
     	if ('undefined'==typeof(opts.data) || $.isEmptyObject(opts.data)) {
-    		console.log('no');
+    		console.log('content options: no data');
     		opts.callback(options);
     		return;
     	}
@@ -145,9 +146,71 @@
     		$('body').append($this);
     		var $options = $('<div class="options"></div>').appendTo($wrapper);
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" style="float:left;" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		$options.append('<form class="search_form"><input type="text" name="sq" placeholder="Search" /> <input type="submit" value="Go" />&nbsp; &nbsp; <label><input type="radio" name="type" value="content"> All</label> &nbsp;<label><input type="radio" name="type" value="composite"> Pages</label> &nbsp;<label><input type="radio" name="type" value="media"> Media</label> &nbsp;<label><input type="radio" name="type" value="path"> Paths</label> &nbsp;<label><input type="radio" name="type" value="tag"> Tags</label> &nbsp;<label><input type="radio" name="type" value="annotation"> Annotations</label> &nbsp;<label><input type="radio" name="type" value="reply"> Comments</label></form>');
-    		$footer.find('a:first').click(function() {  // Cancel button
+    		$footer.find('a:first').click(function() {  // On-the-fly
+    			$footer.find('a').hide();
+    			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
+    			var $onthefly = $('<div class="create_onthefly"><div><b>Create a new page on the fly.</b> Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
+    			var $buttons = $('<div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div>').appendTo($onthefly);
+    			var $form = $onthefly.find('form');
+    			var id = $('input[name="id"]').val();  // Assuming this exists
+    			var book_urn = $('input[name="urn:scalar:book"]').val();  // Assuming this exists
+    			$form.append('<input type="hidden" name="action" value="add" />');
+    			$form.append('<input type="hidden" name="native" value="1" />');
+    			$form.append('<input type="hidden" name="scalar:urn" value="" />'); 
+    			$form.append('<input type="hidden" name="id" value="'+id+'" />');
+    			$form.append('<input type="hidden" name="api_key" value="" />');
+    			$form.append('<input type="hidden" name="scalar:child_urn" value="'+book_urn+'" />');
+    			$form.append('<input type="hidden" name="scalar:child_type" value="http://scalar.usc.edu/2012/01/scalar-ns#Book" />');
+    			$form.append('<input type="hidden" name="scalar:child_rel" value="page" />');
+    			$form.append('<input type="hidden" name="urn:scalar:book" value="'+book_urn+'" />');
+    			$form.append('<input type="hidden" name="rdf:type" value="http://scalar.usc.edu/2012/01/scalar-ns#Composite" />');
+    			$form.append('<div class="form-group"><label for="onthefly-title" class="col-sm-2">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="onthefly-title" name="dcterms:title" value="" /></div></div>');
+    			$form.append('<div class="form-group"><label for="onthefly-desc" class="col-sm-2">Description</label><div class="col-sm-10"><input type="text" class="form-control" id="onthefly-desc" name="dcterms:description" value="" /></div></div>');
+    			$form.append('<div class="form-group"><label for="onthefly-content" class="col-sm-2">Content</label><div class="col-sm-10"><textarea id="onthefly-content" name="sioc:content" class="form-control" rows="5"></textarea></div></div>');
+    			var onthefly_reset = function() {
+    				$wrapper.find('.create_screen').remove();
+    				$wrapper.find('.create_onthefly').remove();
+    				$footer.find('a').show();
+    			};
+    			$buttons.find('a:first').click(function() {
+    				onthefly_reset();
+    			});
+    			$buttons.find('a:last').click(function() {
+    				var $self = $(this);
+    				if ($self.data('clicked')) return false;
+    				$self.data('clicked', true);
+    				if (!$form.find('#onthefly-title').val().length) {
+    					alert('Title is a required field.');
+    					$self.data('clicked', false);
+    					return false;
+    				}
+    				var success = function(version) {
+    					for (var version_uri in version) break;
+    					var urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+    					var version_slug = version_uri.replace($('link#parent').attr('href'),'');
+    					slug = version_slug.substr(0, version_slug.lastIndexOf('.'));
+    					var uri = version_uri.substr(0, version_uri.lastIndexOf('.'));
+    					var version = version[version_uri];
+    					if (version_uri.substr(version_uri.length-1,1)=='/') version_uri = version_uri.substr(0, version_uri.length-1);
+    					if (version_slug.substr(version_slug.length-1,1)=='/') version_slug = version_slug.substr(0, version_slug.length-1); 					
+    					var node = {
+    						content:{},slug:slug,targets:[],uri:uri,
+    						version:version,version_slug:version_slug,version_uri:version_uri
+    					};
+    					if (opts.multiple) node = [node];
+    					if ('undefined'!=typeof(window['send_form_hide_loading'])) send_form_hide_loading();
+    					$form.closest('.content_selector').remove();
+    					opts.callback(node);
+    					reset();
+    				};
+    				$buttons.find('.onthefly_loading').show();
+    				send_form($form, {}, success);
+    			});
+    		});
+    		if (!opts.onthefly) $footer.find('a:first').hide();
+    		$footer.find('a:nth-child(2)').click(function() {  // Cancel button
     			reset();
     			$(this).closest('.content_selector').remove();
     		});
