@@ -32,6 +32,27 @@
             return $url;
         }
 
+        public function createMediaThumb($slug) {
+            $path =@ $_POST['slug_prepend'];
+            $sourcePath = rtrim(confirm_slash(FCPATH).$slug.$path,'/');
+            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
+            $sourceName = $_FILES['source_file']['name'];
+            $thumbName = substr_replace($sourceName, "_thumb", strrpos($sourceName, "."),0);
+            $sourceFile = $sourcePath . '/' . $sourceName;
+            $thumbFile = $targetPath . '/' . $thumbName;
+
+            if (!file_exists($sourceFile)) throw new Exception('Problem creating thumbnail. Source file not found.');
+            copy($sourceFile,$thumbFile);
+            try {
+                $this->resize($thumbFile,self::THUMB_WIDTH);
+            } catch (Exception $e) {
+                unlink($thumbFile);
+                return -1;
+            }
+
+            return 'media/'.$thumbName;
+        }
+
         public function uploadThumb($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
             $tempFile = $_FILES['upload_thumb']['tmp_name'];
