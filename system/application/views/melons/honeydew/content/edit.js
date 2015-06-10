@@ -97,7 +97,7 @@ $(window).ready(function() {
 		$('.annotation_of_msg').show();
 	}	
 	$('.annotation_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,onthefly:true,msg:'Choose items to be annotated',callback:function(nodes){
+		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
