@@ -432,7 +432,7 @@ if (!empty($reference_of)):
 		<div class="paragraph_wrapper">
 			<div class="body_copy">
 				<!-- <div style="width:200px;"> -->
-					<a aria-hidden="true" class="inline auto_play media_page" data-size="medium" data-align="left" href="<?=$audio_href?>" resource="<?=$audio_uri?>"></a>
+					<a aria-hidden="true" class="inline auto_play media_page" data-autoplay="true" data-size="medium" data-align="left" href="<?=$audio_href?>" resource="<?=$audio_uri?>"></a>
 				<!-- </div> -->
 			</div>
 		</div>

@@ -350,6 +350,7 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	for ( var prop in options ) {
 		opts[ prop ] = options[ prop ];
 	}
+
 	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
 	$tag.data('path', url);
 	$tag.data('meta', resource);
@@ -360,16 +361,6 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
 	$tag.data('mediaelement').model.element.addClass('caption_font');
 
-	if ($tag.hasClass('auto_play')) {
-		this.play = function() {
-			try {
-				$tag.data('mediaelement').play();  // mediaObjectView might not exist yet depending on how long the player takes to load
-			} catch(err) {
-				setTimeout(this.play, 1000);
-			};
-		};
-		this.play();
-	}		
 	return $tag;
 
 }
