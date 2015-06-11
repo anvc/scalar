@@ -326,9 +326,9 @@ class Book extends MY_Controller {
 			$return = array('error'=>'');
 			try {
 	            $slug = confirm_slash($this->data['book']->slug);
-				$url = $this->file_upload->uploadMedia($slug,$chmod_mode, $this->versions);
+				$url = $this->file_upload->uploadMedia($slug, $chmod_mode, $this->versions);
 				$path = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$url;
-				$thumbUrl = $this->file_upload->createMediaThumb($slug);
+				$thumbUrl = $this->file_upload->createMediaThumb($slug, $url, $chmod_mode);
 			} catch (Exception $e) {
 				$return['error'] =  $e->getMessage();
 				echo json_encode($return);
@@ -338,8 +338,8 @@ class Book extends MY_Controller {
 			$this->load->library('Image_Metadata', 'image_metadata');
 			$return = array();
 			$return[$url] = $this->image_metadata->get($path, Image_Metadata::FORMAT_NS);
-			if($thumbUrl != -1) {
-				$return['scalar:thumbnail'] = confirm_slash(base_url()).$slug.$thumbUrl;
+			if (false!==$thumbUrl) {
+				$return[$url]['scalar:thumbnail'] = confirm_slash(base_url()).$slug.$thumbUrl;
 			}
 			echo json_encode($return);
 			exit;

@@ -14,7 +14,6 @@
 
         public function uploadMedia($slug,$chmodMode,$versions=null) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-
             $path =@ $_POST['slug_prepend'];
             $targetPath = confirm_slash(FCPATH).$slug.$path;
             if (!file_exists($targetPath)) mkdir($targetPath, $chmodMode, true);
@@ -32,25 +31,25 @@
             return $url;
         }
 
-        public function createMediaThumb($slug) {
-            $path =@ $_POST['slug_prepend'];
-            $sourcePath = rtrim(confirm_slash(FCPATH).$slug.$path,'/');
-            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
-            $sourceName = $_FILES['source_file']['name'];
-            $thumbName = substr_replace($sourceName, "_thumb", strrpos($sourceName, "."),0);
-            $sourceFile = $sourcePath . '/' . $sourceName;
-            $thumbFile = $targetPath . '/' . $thumbName;
-
-            if (!file_exists($sourceFile)) throw new Exception('Problem creating thumbnail. Source file not found.');
-            copy($sourceFile,$thumbFile);
+        public function createMediaThumb($slug, $url, $chmod_mode) {
+        	if (empty($_FILES)) return false;  // Error thrown by uploadMedia
+            $sourcePath = confirm_slash(FCPATH).$slug.$url;
+            $targetPath = confirm_slash(FCPATH).$slug.$url;
+            $sourceName = basename($sourcePath);
+            $targetName = substr_replace($sourceName, "_thumb", strrpos($sourceName, "."),0);  // Don't depend on tmp_name because it could be changed by 'replace' feature
+            $sourcePath = dirname($sourcePath).'/'.$sourceName;
+            $targetPath = dirname($targetPath).'/'.$targetName;
+            if (!file_exists($sourcePath)) throw new Exception('Problem creating thumbnail. Source file not found.');
+            copy($sourcePath,$targetPath);
+            chmod($targetPath, $chmod_mode);
             try {
-                $this->resize($thumbFile,self::THUMB_WIDTH);
+                $this->resize($targetPath,self::THUMB_WIDTH);
             } catch (Exception $e) {
-                unlink($thumbFile);
-                return -1;
+                unlink($targetPath);
+                return false;
             }
-
-            return 'media/'.$thumbName;
+            $path = substr($targetPath, (strpos($targetPath, $slug)+strlen($slug)));
+            return $path;
         }
 
         public function uploadThumb($slug,$chmodMode) {
@@ -62,7 +61,6 @@
             $targetFile = $targetPath.'/'.$targetName;
             $this->upload($tempFile,$targetFile,$chmodMode);
             $this->resize($targetFile,self::THUMB_WIDTH);
-
             return 'media/'.$targetName;
         }
 
@@ -75,9 +73,7 @@
             $targetFile = $targetPath.'/'.$targetName;
             $this->upload($tempFile,$targetFile,$chmodMode);
             $this->resize($targetFile,self::THUMB_WIDTH);
-
             return 'media/'.$targetName;
-
         }
 
         private function resize($targetFile,$width) {

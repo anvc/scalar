@@ -91,7 +91,6 @@ function validate_upload_form($form, obj) {
 	
 	var values = {};
 	values['scalar:url'] = url;
-	values['scalar:thumbnail'] = obj['scalar:thumbnail'];
 	if (!jQuery.isEmptyObject(metadata)) $.extend( values, metadata );
 
 	// Construct slug (if applicable)

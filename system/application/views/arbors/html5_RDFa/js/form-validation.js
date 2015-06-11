@@ -70,10 +70,10 @@ function validate_upload_form_file_return($form) {
 }
 
 function validate_upload_form($form, obj) {
-	
+
 	for (var url in obj) break;
 	var metadata = obj[url];
-
+	
 	// Make sure title is present
 	var title = $form.find('input[name="dcterms:title"]').val();
 	if (title.length==0) {
@@ -91,9 +91,8 @@ function validate_upload_form($form, obj) {
 	
 	var values = {};
 	values['scalar:url'] = url;
-	values['scalar:thumbnail'] = obj['scalar:thumbnail'];
 	if (!jQuery.isEmptyObject(metadata)) $.extend( values, metadata );
-	
+
 	// Construct slug (if applicable)
 	var name_policy = $form.find('input[name="name_policy"]:checked').val();
 	if ('filename' == name_policy) {
