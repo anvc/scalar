@@ -4413,7 +4413,7 @@ function YouTubeGetID(url){
 		this.parentView = parentView;   		// primary view for the media element
 		this.isAudioPlaying = false;			// is audio currently playing?
 		this.currentTime = 0;					// current position in the audio file
-		this.isLiquid = true;					// media will expand to fill available space
+		this.isLiquid = false;					// media will expand to fill available space
 		this.initialPauseDone = true;			// media must be played briefly for some functions to be available; has it subsequently been paused?
 		this.widget = null;						// SoundClound widget
 		this.cachedSeekTime = null;				// internal storage of last seek request
@@ -4426,8 +4426,11 @@ function YouTubeGetID(url){
 
 			this.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
 			SC.oEmbed(this.model.path, {auto_play: me.model.options.autoplay, download: true}, function(oembed){
-				$(oembed.html).appendTo(me.mediaObject.children()[0]);
+				oembed.height = me.parentView.intrinsicDim.y;
 				me.parentView.controllerHeight = oembed.height;
+
+				$(oembed.html).css('height',oembed.height).appendTo(me.mediaObject.children()[0]);
+
 				me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
 				me.widget.bind(SC.Widget.Events.PLAY, function() {
 					if (!me.initialPauseDone) {
@@ -4466,10 +4469,9 @@ function YouTubeGetID(url){
 			});
 
 			this.parentView.controllerOnly = true;
-			this.parentView.controllerHeight = 166;
 
 			this.parentView.intrinsicDim.x = this.parentView.containerDim.x;
-			this.parentView.intrinsicDim.y = this.parentView.containerDim.y;
+			this.parentView.intrinsicDim.y = 0;
 
 			this.parentView.calculateContainerSize();
 			this.parentView.layoutMediaObject();
