@@ -1301,11 +1301,13 @@ ScalarAPI.prototype.runManyPages = function(completeCallback) {
 ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, relationData, completeCallback, errorCallback) {
 
 	var me = this;
-	
+
+	pageData.uriSegment = this.stripAllExtensions(pageData.uriSegment);
+
 	this.loadPage(pageData.uriSegment, true, function(json) {
 	
 		var node = scalarapi.model.nodesByURL[scalarapi.model.urlPrefix+pageData.uriSegment];
-		
+
 		// gather data from existing node
 		var completePageData = {
 			'dcterms:title': node.current.title,
@@ -1461,7 +1463,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			});
 			
 			$(node.incomingRelations).each(function() {
-				
+
 				switch(this.type.id) {
 				
 					case 'path':
