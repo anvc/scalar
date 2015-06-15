@@ -4426,46 +4426,48 @@ function YouTubeGetID(url){
 
 			this.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
 			SC.oEmbed(this.model.path, {auto_play: me.model.options.autoplay, download: true}, function(oembed){
-				oembed.height = me.parentView.intrinsicDim.y;
-				me.parentView.controllerHeight = oembed.height;
+				if ( oembed != null ) {
+					oembed.height = me.parentView.intrinsicDim.y;
+					me.parentView.controllerHeight = oembed.height;
 
-				$(oembed.html).css('height',oembed.height).appendTo(me.mediaObject.children()[0]);
+					$(oembed.html).css('height',oembed.height).appendTo(me.mediaObject.children()[0]);
 
-				me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
-				me.widget.bind(SC.Widget.Events.PLAY, function() {
-					if (!me.initialPauseDone) {
-						if ( me.model.seekAnnotation == null ) {
-							if ( !me.model.options.autoplay ) {
-								me.widget.pause();
-								me.initialPauseDone = true;
+					me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
+					me.widget.bind(SC.Widget.Events.PLAY, function() {
+						if (!me.initialPauseDone) {
+							if ( me.model.seekAnnotation == null ) {
+								if ( !me.model.options.autoplay ) {
+									me.widget.pause();
+									me.initialPauseDone = true;
+								}
+							} else {
+								me.widget.setVolume(0);
 							}
 						} else {
-							me.widget.setVolume(0);
+							me.parentView.startTimer();
 						}
-					} else {
-						me.parentView.startTimer();
-					}
-					if (me.cachedSeekTime != null) {
-						me.widget.seekTo(me.cachedSeekTime);
-						if (!me.wasPlayingBeforeSeek) me.widget.pause();
-						me.cachedSeekTime = null;
-					}
-					me.isAudioPlaying = true;
-				});
-				me.widget.bind(SC.Widget.Events.PAUSE, function() {
-					me.parentView.endTimer();
-					me.isAudioPlaying = false;
-				});
-				me.widget.bind(SC.Widget.Events.FINISH, function() {
-					me.parentView.endTimer();
-					me.isAudioPlaying = false;
-				});
-				me.widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(e) {
-					me.currentTime = e.currentPosition / 1000.0;
-				});
-				me.parentView.calculateContainerSize();
-				me.parentView.layoutMediaObject();
-				me.parentView.removeLoadingMessage();
+						if (me.cachedSeekTime != null) {
+							me.widget.seekTo(me.cachedSeekTime);
+							if (!me.wasPlayingBeforeSeek) me.widget.pause();
+							me.cachedSeekTime = null;
+						}
+						me.isAudioPlaying = true;
+					});
+					me.widget.bind(SC.Widget.Events.PAUSE, function() {
+						me.parentView.endTimer();
+						me.isAudioPlaying = false;
+					});
+					me.widget.bind(SC.Widget.Events.FINISH, function() {
+						me.parentView.endTimer();
+						me.isAudioPlaying = false;
+					});
+					me.widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(e) {
+						me.currentTime = e.currentPosition / 1000.0;
+					});
+					me.parentView.calculateContainerSize();
+					me.parentView.layoutMediaObject();
+					me.parentView.removeLoadingMessage();
+				}
 			});
 
 			this.parentView.controllerOnly = true;
