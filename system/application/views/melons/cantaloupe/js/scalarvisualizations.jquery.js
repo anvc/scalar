@@ -507,7 +507,6 @@
 			base.sortedNodes = [];
 			base.nodesBySlug = {};
 			base.svg = null;
-			base.svgLayers = {};
 			base.selectedNodes = [ base.currentNode ];
 			base.hasBeenDrawn = false;
 			base.loadSequence = null;
@@ -559,7 +558,7 @@
 				base.loadSequence.push( { id: 'current', desc: "current page's connections", relations: 'all' } );
 				base.loadSequence.push( { id: 'path', desc: "paths", relations: 'path' } );
 				base.loadSequence.push( { id: 'tag', desc: "tags", relations: 'tag' } );
-				base.loadSequence.push( { id: 'media', desc: "media", relations: 'none' } );
+				base.loadSequence.push( { id: 'media', desc: "media", relations: 'referee' } );
 				base.loadSequence.push( { id: 'page', desc: "pages", relations: 'none' } );
 				base.loadSequence.push( { id: 'annotation', desc: "annotations", relations: 'annotation' } );
 				base.loadSequence.push( { id: 'reply', desc: "comments", relations: 'reply' } );
@@ -716,7 +715,7 @@
 						relations = null;
 					} else {
 						depth = 1;
-						references = ( loadInstruction.relations == 'referee' );
+						references = (( loadInstruction.relations == 'referee' ) || ( loadInstruction.relations == 'all' ));
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
 						} else {
@@ -1658,6 +1657,18 @@
 				base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
 
 				base.svg = d3.select( base.visualization[ 0 ] ).append('svg:svg').attr('width', fullWidth);
+					
+				this.gridBoxLayer = base.svg.append('svg:g')
+					.attr('width', fullWidth)
+					.attr('height', fullHeight);	
+					
+				this.gridPathLayer = base.svg.append('svg:g')
+					.attr('width', fullWidth)
+					.attr('height', fullHeight);	
+					
+				this.gridLinkLayer = base.svg.append('svg:g')
+					.attr('width', fullWidth)
+					.attr('height', fullHeight);	
 
 			}
 
@@ -1684,7 +1695,7 @@
 				
 				base.svg.attr('height', fullHeight);
 
-				var box = base.svg.selectAll( '.rowBox' );
+				var box = base.gridBoxLayer.selectAll( '.rowBox' );
 
 				box = box.data( base.sortedNodes, function(d) { return d.type.id + '-' + d.slug; } );
 					
@@ -1733,15 +1744,15 @@
 						.attr('x', function(d,i) { d.x = colScale(i % itemsPerRow) + 0.5; return d.x; })
 						.attr('y', function(d,i) { d.y = rowScale(Math.floor(i / itemsPerRow)+1) - boxSize + 0.5; return d.y; });
 
-					base.svg.selectAll( 'path' ).attr('d', line);
-					base.svg.selectAll('circle.pathDot')
+					base.gridPathLayer.selectAll( 'path' ).attr('d', line);
+					base.gridPathLayer.selectAll('circle.pathDot')
 						.attr('cx', function(d) {
 							return d.x + (boxSize * .5);
 						})
 						.attr('cy', function(d) {
 							return d.y + (boxSize * .5);
 						});
-					base.svg.selectAll('text.pathDotText')
+					base.gridPathLayer.selectAll('text.pathDotText')
 						.attr('dx', function(d) {
 							return d.x + 3;
 						})
@@ -1755,12 +1766,12 @@
 						.style('left', function(d) { return ( d.x + visPos.left + (boxSize * .5) ) + 'px'; })
 						.style('top', function(d) { return ( d.y + visPos.top + boxSize + 5 ) + 'px'; });
 
-					base.svg.selectAll('line.connection')
+					base.gridLinkLayer.selectAll('line.connection')
 						.attr('x1', function(d) { return d.body.x + (boxSize * .5); })
 						.attr('y1', function(d) { return d.body.y + (boxSize * .5); })
 						.attr('x2', function(d) { return d.target.x + (boxSize * .5); })
 						.attr('y2', function(d) { return d.target.y + (boxSize * .5); });						
-					base.svg.selectAll('circle.connectionDot')
+					base.gridLinkLayer.selectAll('circle.connectionDot')
 						.attr('cx', function(d) {
 							return d.node.x + (boxSize * .5);
 						})
@@ -1780,7 +1791,7 @@
 					var infoBox = d3.select( base.visualization[ 0 ] ).selectAll('div.info_box');
 
 					// turn on/off path lines
-					base.svg.selectAll('g.pathGroup')
+					base.gridPathLayer.selectAll('g.pathGroup')
 						.attr('visibility', function(d) { 
 							return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden'; 
 						});
@@ -1801,7 +1812,7 @@
 					infoBox.exit().remove();
 
 					// connections
-					linkGroup = base.svg.selectAll('g.linkGroup')
+					linkGroup = base.gridLinkLayer.selectAll('g.linkGroup')
 						.data(base.activeNodes);
 					
 					// create a container group for each node's connections
@@ -1840,7 +1851,7 @@
 						.attr('y2', function(d) { return d.target.y + (boxSize * .5); })
 						.attr('stroke-width', 1)
 						.attr('stroke-dasharray', '1,2')
-						.attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id, "verb" ); });
+						.attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id ); });
 							
 					// draw connection dots
 					linkEnter.selectAll('circle.connectionDot')
@@ -1900,7 +1911,7 @@
 						allPathContents.push(pathContents);
 					}
 					
-					var pathGroups = base.svg.selectAll('g.pathGroup')
+					var pathGroups = base.gridPathLayer.selectAll('g.pathGroup')
 						.data( allPathContents, function( d ) { return d[ 0 ].slug; } );
 						
 					// create a container group for each path vis
