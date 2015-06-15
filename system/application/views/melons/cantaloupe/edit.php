@@ -423,15 +423,24 @@ if ('cantaloupe' == $book->template) {
 
 </table>
 
+<?php
+	$path_count = count($page->versions[$page->version_index]->path_of)+count($page->versions[$page->version_index]->has_paths);
+	$reply_count = count($page->versions[$page->version_index]->reply_of) + count($page->versions[$page->version_index]->has_replies);
+	$annotation_count = count($page->versions[$page->version_index]->annotation_of) + count($page->versions[$page->version_index]->has_annotations);
+	$tag_count = count($page->versions[$page->version_index]->tag_of) + count($page->versions[$page->version_index]->has_tags);
+	$rel_count = $path_count + $reply_count + $annotation_count + $tag_count;
+?>
+
+
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active type_composite"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
-		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="caret"></a>
+		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <?php if($rel_count > 0){ ?><span class="badge"><?php echo $rel_count; ?></span><?php } ?><span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#annotation-pane" aria-controls="annotation-pane" data-toggle="tab"><span class="annotation_icon"></span> Annotation</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag</a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <?php if($path_count > 0){ ?><span class="badge"><?php echo $path_count; ?></span><?php } ?></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <?php if($reply_count > 0){ ?><span class="badge"><?php echo $reply_count; ?></span><?php } ?></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#annotation-pane" aria-controls="annotation-pane" data-toggle="tab"><span class="annotation_icon"></span> Annotation <?php if($annotation_count > 0){ ?><span class="badge"><?php echo $annotation_count; ?></span><?php } ?></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag <?php if($tag_count > 0){ ?><span class="badge"><?php echo $tag_count; ?></span><?php } ?></a></li>
 			</ul>
 		</li>
 		<li role="presentation" class="dropdown type_composite"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></a></span>
