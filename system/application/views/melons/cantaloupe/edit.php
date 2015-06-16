@@ -424,11 +424,17 @@ if ('cantaloupe' == $book->template) {
 </table>
 
 <?php
-	$path_count = count($page->versions[$page->version_index]->path_of)+count($page->versions[$page->version_index]->has_paths);
-	$reply_count = count($page->versions[$page->version_index]->reply_of) + count($page->versions[$page->version_index]->has_replies);
-	$annotation_count = count($page->versions[$page->version_index]->annotation_of) + count($page->versions[$page->version_index]->has_annotations);
-	$tag_count = count($page->versions[$page->version_index]->tag_of) + count($page->versions[$page->version_index]->has_tags);
+	if(!empty($page)){
+		$path_count = count($page->versions[$page->version_index]->path_of)+count($page->versions[$page->version_index]->has_paths);
+		$reply_count = count($page->versions[$page->version_index]->reply_of) + count($page->versions[$page->version_index]->has_replies);
+		$annotation_count = count($page->versions[$page->version_index]->annotation_of) + count($page->versions[$page->version_index]->has_annotations);
+		$tag_count = count($page->versions[$page->version_index]->tag_of) + count($page->versions[$page->version_index]->has_tags);
+	}else{
+		$path_count = $reply_count = $annotation_count = $tag_count = 0;
+	}
+
 	$rel_count = $path_count + $reply_count + $annotation_count + $tag_count;
+
 ?>
 
 
