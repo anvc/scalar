@@ -441,12 +441,12 @@ if ('cantaloupe' == $book->template) {
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active type_composite"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
-		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <?php if($rel_count > 0){ ?><span class="badge"><?php echo $rel_count; ?></span><?php } ?><span class="caret"></span></a>
+		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"><?php if($rel_count > 0){ echo $rel_count; } ?></span><span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <?php if($path_count > 0){ ?><span class="badge"><?php echo $path_count; ?></span><?php } ?></a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <?php if($reply_count > 0){ ?><span class="badge"><?php echo $reply_count; ?></span><?php } ?></a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#annotation-pane" aria-controls="annotation-pane" data-toggle="tab"><span class="annotation_icon"></span> Annotation <?php if($annotation_count > 0){ ?><span class="badge"><?php echo $annotation_count; ?></span><?php } ?></a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag <?php if($tag_count > 0){ ?><span class="badge"><?php echo $tag_count; ?></span><?php } ?></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <span class="badge"><?php if($path_count > 0){echo $path_count;} ?></span></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <span class="badge"><?php if($reply_count > 0){echo $reply_count;} ?></span></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#annotation-pane" aria-controls="annotation-pane" data-toggle="tab"><span class="annotation_icon"></span> Annotation <span class="badge"><?php if($annotation_count > 0){echo $annotation_count;} ?></span></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag <span class="badge"><?php if($tag_count > 0){echo $tag_count;} ?></span></a></li>
 			</ul>
 		</li>
 		<li role="presentation" class="dropdown type_composite"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></a></span>

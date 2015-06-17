@@ -973,5 +973,7 @@ button, .btn, input, optgroup, select, textarea {
 #editor-tabs a .badge{
 	padding: 3px 5px;
 	font-size: 10px;
-	background-color: rgba(0,0,0,.326);
+	background-color: #026697;
+	margin-right: 5px;
+	margin-left: 2px;
 }
