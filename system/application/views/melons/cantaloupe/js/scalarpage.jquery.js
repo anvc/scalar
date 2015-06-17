@@ -311,7 +311,7 @@
 					height = maxMediaHeight; // this varies depending on window size
 					var parent_temp = $('link#parent').attr('href');
 					var mediaNode = scalarapi.model.nodesByURL[parent_temp+link.attr('resource')];
-					if(mediaNode.current.mediaSource.name == 'SoundCloud') {
+					if(mediaNode && mediaNode.current.mediaSource.name == 'SoundCloud') {
 						height = null;
 						size = "large";
 					}
