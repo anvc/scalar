@@ -566,7 +566,7 @@
 				// we likely aren't showing lateral relationship nav anyway so don't worry about it)
 				if ( !isCentered ) {
 					var cont_btn = $('.nav_btn.primary');
-					var back_btn = $('#back-btn');
+					var back_btn = cont_btn.parent().children('#back-btn');
 					if(cont_btn.length !== 0) {
 						if(back_btn.length !== 0) {
 							cont_btn.parent().addClass('container');
