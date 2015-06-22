@@ -25,12 +25,14 @@
 function edit_row($row) {
 
 	if (!$row.data('mode') || 'read'==$row.data('mode')) {
-
+		$row.removeData('originals');
+		var originals = {};
 		$row.data('mode', 'edit');
 		$row.find('.editable').each(function(){
 			var $this = $(this);
 			var value = $this.html();
-			if ('password'==$this.attr('property')) value='';
+			var property = $this.attr('property');
+			if ('password'==property) value='';
 			if ($this.hasClass('has_link')) {
 				if ($this.hasClass('uri_link')) {
 					value = $this.find('a:first').html();
@@ -63,13 +65,15 @@ function edit_row($row) {
 				input_values=values;
 			}
 			if (input_type == 'text') {
-				$this.html('<input type="text" style="width:100%;" value="'+htmlspecialchars(value)+'" />');
+				value = htmlspecialchars(value);
+				$this.html('<input type="text" style="width:100%;" value="'+value+'" />');
 			} else if (input_type == 'textarea') {
 				$this.html('<textarea style="width:100%;height:75px;">'+value+'</textarea>');
 			} else if (input_type == 'boolean') {
 				$this.html('<select><option value="1"'+((parseInt(value))?' selected':'')+'>Yes</option><option value="0"'+((!parseInt(value))?' selected':'')+'>No</option></select');
 			} else if (input_type == 'number') {
-				$this.html('<input type="text" style="width:35px;" value="'+htmlspecialchars(value)+'" />');
+				value = htmlspecialchars(value);
+				$this.html('<input type="text" style="width:35px;" value="'+value+'" />');
 			} else if (input_type == 'sortable') {
 				$this.find('ol').sortable();
 				$this.find('.edit_msg').show();
@@ -88,21 +92,24 @@ function edit_row($row) {
 						$link.parent().find('a:last').remove();
 					});
 				});
+				value = '';
 			} else if (input_type == 'enum') {
 				var $select = $('<select style="width:100%;"></select>');
 				var default_str = $this.html().toLowerCase();
+				value = default_str;
 				for (var j = 0; j < input_values.length; j++) {
 					$select.append('<option value="'+input_values[j]+'" '+((default_str==input_values[j].toLowerCase())?'selected':'')+'>'+input_values[j]+'</option>');
 				}
 				$this.html($select);
 			}
+			originals[property] = value;
 		});
 		$row.find('a:first').html('Save');
 		$row.find('a:first').addClass('default');
 		$row.find('a:first').blur();
-		
+		$row.data('originals',originals);
 	} else {
-	
+		var originals = $row.data('originals');
 		var urlroot = $('link#urlroot').attr('href');
 		var section = $row.attr('typeof');
 		var id = $row.find("td[property='id']").html();
@@ -140,31 +147,52 @@ function edit_row($row) {
 				value = $this.find('input').val();
 			}
 			post[property] = value;
-		});		
-
-		$.post('api/save_row', post, function(data) {
-		
-			try {
-				var _data = eval("("+data+")");
-				var error = _data['error'];
-				if (error.length) {
-					alert('Error: '+error);
-					return;
+		});
+		if(typeof post['slug'] == undefined || post['slug'] == originals['slug']) {
+			pushRow($row,post);
+		} else {
+			$("#dialog-confirm").dialog({
+				resizable:false,
+				height:250,
+				width:400,
+				modal:true,
+				buttons:{
+					"Continue":function() {
+						$(this).dialog("close");
+						pushRow($row,post);
+					},
+					"Undo":function() {
+						$(this).dialog("close");
+						$row.find('[property="slug"] input').val(originals['slug']);
+					}
 				}
-			} catch(e) {}
+			});
+		}
+	}
+}
 
+function pushRow(row,post) {
+	$.post('api/save_row', post, function(data) {
+		try {
+			var _data = eval("("+data+")");
+			var error = _data['error'];
+			if (error.length) {
+				alert('Error: '+error);
+				return;
+			}
+		} catch(e) {}
 			if ('undefined'==typeof(data['is_live']) || parseInt(data['is_live'])) {
-				$row.removeClass('not_live');
+				row.removeClass('not_live');
 			} else {
-				$row.addClass('not_live');
+				row.addClass('not_live');
 			}
 			if ('undefined'!=typeof(data['paywall']) && parseInt(data['paywall'])) {
-				$row.addClass('paywall');
+				row.addClass('paywall');
 			} else {
-				$row.removeClass('paywall');
+				row.removeClass('paywall');
 			}
 			
-			$row.find('.editable').each(function(){
+			row.find('.editable').each(function(){
 				var $this = $(this);
 				var property = $this.attr('property');
 				if (property == 'password' && 'undefined'!=typeof(data['password_is_null'])) {
@@ -187,18 +215,15 @@ function edit_row($row) {
 				$this.html(value);
 			});
 	
-			$row.data('mode','read');
-			$row.find('a:first').html('Edit');
-			$row.find('a:first').removeClass('default');
-			$row.find('a:first').blur();		 
-			var version_id = $row.data('most_recent_version');
+			row.data('mode','read');
+			row.find('a:first').html('Edit');
+			row.find('a:first').removeClass('default');
+			row.find('a:first').blur();		 
+			var version_id = row.data('most_recent_version');
 			if ('undefined'!=typeof(version_id) && version_id) {
 			 	$('body').trigger("contentUpdated",{version_id:version_id});
 			}
 		});		
-		
-	}
-	
 }
 
 function getUrlVars() {

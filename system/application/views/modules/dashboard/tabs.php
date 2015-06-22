@@ -15,7 +15,9 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 </div>
 
 <div class="dashboard">
-
+<div id="dialog-confirm" title="Change Page URI?">
+Changing the URI of a page will change it's location on the web making it unreachable from its old address.  Be sure this is what you want before you proceed.
+</div>
 <div class="tabs">
 	<ul>
 		<li><a href="#tabs-user" style="color:#7d1d1d;">My account</a></li>
