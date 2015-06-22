@@ -9,6 +9,10 @@
 	else:
 ?>
 
+	<div id="slug-change-confirm" title="URI change">
+	Changing the media page's URI will change its location on the web, which will make its old URL unavailable. Do you wish to continue?
+	</div>
+
 	<script>
 
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
