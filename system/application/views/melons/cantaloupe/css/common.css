@@ -15,9 +15,9 @@ body { visibility: hidden; background-repeat: no-repeat; background-position: -9
 
 /* Base elements */
 
-h1, h2, h3, h4 { padding-left: 7.2rem; padding-right: 7.2rem; }
-.body_copy h1,.body_copy h2,.body_copy h3,.body_copy h4 { padding-left: 0; padding-right: 0; }
-.page_margins h1,.page_margins h2,.page_margins h3,.page_margins h4 { padding-left: 0; padding-right: 0; }
+h1, h2, h3, h4, h5 { padding-left: 7.2rem; padding-right: 7.2rem; }
+.body_copy h1,.body_copy h2,.body_copy h3,.body_copy h4,.body_copy h5 { padding-left: 0; padding-right: 0; margin-top: 3.2rem; margin-bottom: 2.4rem; }
+.page_margins h1,.page_margins h2,.page_margins h3,.page_margins h4,.page_margins h5 { padding-left: 0; padding-right: 0; }
 h1 {
     font-size: 4.9rem;
     line-height: 6rem;
@@ -41,6 +41,13 @@ h3 {
 
 h4 {
     font-size: 1.6rem;
+    line-height: 2.4rem;
+    margin-top: 2.4rem;
+    margin-bottom: 1.2rem;
+}
+
+h5 {
+    font-size: 1.4rem;
     line-height: 2.4rem;
     margin-top: 2.4rem;
     margin-bottom: 1.2rem;
