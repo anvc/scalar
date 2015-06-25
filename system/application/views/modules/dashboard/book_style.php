@@ -141,6 +141,33 @@ $(window).ready(function() {
     var predefined_css = $("#predefined_css").text();
     $('textarea[name="custom_style"]').predefined({msg:'Insert CSS:',data:((predefined_css.length)?JSON.parse(predefined_css):{})});
 
+	$('input[name="slug"]').focus(function() {
+		var $this = $(this);
+		if (true!==$this.data('confirmed')) {
+			$("#slug-change-confirm").dialog({
+				resizable:false,
+				width:500,
+				height:'auto',
+				modal:true,
+				open:function() {
+					$('.ui-dialog :button').blur();
+				},
+				buttons: {
+					"Cancel":function() {
+						$this.data('confirmed',false);
+						$(this).dialog("close");
+						$this.blur();
+					},
+					"Continue":function() {
+						$this.data('confirmed',true);
+						$(this).dialog("close");
+						$this.focus();
+					}
+				}
+			});
+		}
+	});
+
 });
 </script>
 <?
@@ -159,6 +186,10 @@ $(window).ready(function() {
 		echo '</div><br />';
 	}
 ?>
+
+		<div id="slug-change-confirm" title="URI Segment">
+		Changing the URI Segment of the book will change its location on the web, which will make the old book URL unavailable.  Do you wish to continue?
+		</div>
 
 		<form id="style_form" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="action" value="do_save_style" />

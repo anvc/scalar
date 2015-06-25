@@ -148,22 +148,26 @@ function edit_row($row) {
 			}
 			post[property] = value;
 		});
-		if(typeof post['slug'] == undefined || post['slug'] == originals['slug']) {
-			pushRow($row,post);
+
+		if ( !$('#slug-change-confirm').length || 'undefined'==typeof(post['slug']) || 'undefined'==typeof(originals['slug']) || post['slug']==originals['slug'] ) {
+			push_row($row,post);
 		} else {
-			$("#dialog-confirm").dialog({
+			$("#slug-change-confirm").dialog({
 				resizable:false,
-				height:250,
-				width:400,
+				width:500,
+				height:'auto',
 				modal:true,
-				buttons:{
-					"Continue":function() {
-						$(this).dialog("close");
-						pushRow($row,post);
-					},
-					"Undo":function() {
+				open:function() {
+					$('.ui-dialog :button').blur();
+				},
+				buttons: {
+					"Cancel":function() {
 						$(this).dialog("close");
 						$row.find('[property="slug"] input').val(originals['slug']);
+					},	
+					"Continue":function() {
+						$(this).dialog("close");
+						push_row($row,post);
 					}
 				}
 			});
@@ -171,7 +175,7 @@ function edit_row($row) {
 	}
 }
 
-function pushRow(row,post) {
+function push_row(row,post) {
 	$.post('api/save_row', post, function(data) {
 		try {
 			var _data = eval("("+data+")");
@@ -181,49 +185,47 @@ function pushRow(row,post) {
 				return;
 			}
 		} catch(e) {}
-			if ('undefined'==typeof(data['is_live']) || parseInt(data['is_live'])) {
-				row.removeClass('not_live');
+		if ('undefined'==typeof(data['is_live']) || parseInt(data['is_live'])) {
+			row.removeClass('not_live');
+		} else {
+			row.addClass('not_live');
+		}
+		if ('undefined'!=typeof(data['paywall']) && parseInt(data['paywall'])) {
+			row.addClass('paywall');
+		} else {
+			row.removeClass('paywall');
+		}
+		row.find('.editable').each(function(){
+			var $this = $(this);
+			var property = $this.attr('property');
+			if (property == 'password' && 'undefined'!=typeof(data['password_is_null'])) {
+				value = (data['password_is_null']==true) ? '' : '&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;';
+			} else if ('undefined'==typeof(data[property])) {
+				return;
 			} else {
-				row.addClass('not_live');
+				value = data[property];
 			}
-			if ('undefined'!=typeof(data['paywall']) && parseInt(data['paywall'])) {
-				row.addClass('paywall');
-			} else {
-				row.removeClass('paywall');
-			}
-			
-			row.find('.editable').each(function(){
-				var $this = $(this);
-				var property = $this.attr('property');
-				if (property == 'password' && 'undefined'!=typeof(data['password_is_null'])) {
-					value = (data['password_is_null']==true) ? '' : '&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;';
-				} else if ('undefined'==typeof(data[property])) {
-					return;
+			if ($this.hasClass('uri_link') && 'undefined'!=typeof(window['book_uri'])) {
+				value = '<a href="'+window['book_uri']+data['slug']+'">'+value+'</a>';
+			} else if ($this.hasClass('has_link')) {
+				if (value.indexOf('://')!=-1) {
+					value = '<a target="_blank" href="'+value+'">'+$.fn.scalardashboardtable('basename', value)+'</a>';
 				} else {
-					value = data[property];
+					value = '<a href="'+$('#sysroot').attr('href')+value+'">'+value+'</a>';
 				}
-				if ($this.hasClass('uri_link') && 'undefined'!=typeof(window['book_uri'])) {
-					value = '<a href="'+window['book_uri']+data['slug']+'">'+value+'</a>';
-				} else if ($this.hasClass('has_link')) {
-					if (value.indexOf('://')!=-1) {
-						value = '<a target="_blank" href="'+value+'">'+$.fn.scalardashboardtable('basename', value)+'</a>';
-					} else {
-						value = '<a href="'+$('#sysroot').attr('href')+value+'">'+value+'</a>';
-					}
-				}
-				if ($this.hasClass('excerpt')) value = '<span class="full">'+value+'</span><span class="clip">'+create_excerpt(value,8)+'</span>';
-				$this.html(value);
-			});
-	
-			row.data('mode','read');
-			row.find('a:first').html('Edit');
-			row.find('a:first').removeClass('default');
-			row.find('a:first').blur();		 
-			var version_id = row.data('most_recent_version');
-			if ('undefined'!=typeof(version_id) && version_id) {
-			 	$('body').trigger("contentUpdated",{version_id:version_id});
 			}
-		});		
+			if ($this.hasClass('excerpt')) value = '<span class="full">'+value+'</span><span class="clip">'+create_excerpt(value,8)+'</span>';
+			$this.html(value);
+		});
+		row.data('mode','read');
+		row.find('a:first').html('Edit');
+		row.find('a:first').removeClass('default');
+		row.find('a:first').blur();		 
+		var version_id = row.data('most_recent_version');
+		if ('undefined'!=typeof(version_id) && version_id) {
+			$('body').trigger("contentUpdated",{version_id:version_id});
+		}
+	});		
 }
 
 function getUrlVars() {
