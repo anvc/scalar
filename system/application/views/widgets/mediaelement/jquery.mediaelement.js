@@ -4413,8 +4413,8 @@ function YouTubeGetID(url){
 		this.parentView = parentView;   		// primary view for the media element
 		this.isAudioPlaying = false;			// is audio currently playing?
 		this.currentTime = 0;					// current position in the audio file
-		this.isLiquid = false;					// media will expand to fill available space
-		this.initialPauseDone = true;			// media must be played briefly for some functions to be available; has it subsequently been paused?
+		this.isLiquid = true;					// media will expand to fill available space
+		this.initialPauseDone = false;			// media must be played briefly for some functions to be available; has it subsequently been paused?
 		this.widget = null;						// SoundClound widget
 		this.cachedSeekTime = null;				// internal storage of last seek request
 		this.wasPlayingBeforeSeek = false;		// was the audio playing before we tried to seek?
@@ -4424,38 +4424,48 @@ function YouTubeGetID(url){
 		 */
 		jQuery.SoundCloudAudioObjectView.prototype.createObject = function() {
 
-			this.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
-			SC.oEmbed(this.model.path, {auto_play: me.model.options.autoplay, download: true}, function(oembed){
+			me.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
+			SC.oEmbed(this.model.path, {auto_play: false, download: true,show_comments:false,liking:false,buying:false}, function(oembed){
 				if ( oembed != null ) {
-					oembed.height = me.parentView.intrinsicDim.y;
+					oembed.height = me.parentView.resizedDim.y;
 					me.parentView.controllerHeight = oembed.height;
 
 					$(oembed.html).css('height',oembed.height).appendTo(me.mediaObject.children()[0]);
 
 					me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
-					me.widget.bind(SC.Widget.Events.PLAY, function() {
-						if (!me.initialPauseDone) {
-							if ( me.model.seekAnnotation == null ) {
+					me.widget.bind(SC.Widget.Events.READY, function() {
+						// This event does not seem to discriminate which widget triggered it.
+						// This callback is used because it is only called once the
+						// widget has loaded.  Thus, all widgets get properly paused once ready
+						me.widget.isPaused(function() {
+							if(!me.initialPauseDone) {
+								// Sound Cloud sticks up an overlay on first pause.  Double play skips over it.
+								me.widget.play();
+								me.widget.pause();
+								me.widget.play();
 								if ( !me.model.options.autoplay ) {
 									me.widget.pause();
-									me.initialPauseDone = true;
 								}
-							} else {
-								me.widget.setVolume(0);
+								me.initialPauseDone = true;
 							}
-						} else {
+						});
+					})
+					me.widget.bind(SC.Widget.Events.PLAY, function() {
+						if(me.initialPauseDone) {
 							me.parentView.startTimer();
+							if (me.cachedSeekTime != null) {
+								me.widget.seekTo(me.cachedSeekTime);
+								if (!me.wasPlayingBeforeSeek) me.widget.pause();
+								me.cachedSeekTime = null;
+							}
+							me.isAudioPlaying = true;
 						}
-						if (me.cachedSeekTime != null) {
-							me.widget.seekTo(me.cachedSeekTime);
-							if (!me.wasPlayingBeforeSeek) me.widget.pause();
-							me.cachedSeekTime = null;
-						}
-						me.isAudioPlaying = true;
 					});
 					me.widget.bind(SC.Widget.Events.PAUSE, function() {
-						me.parentView.endTimer();
-						me.isAudioPlaying = false;
+						if(me.initialPauseDone) {
+							me.parentView.endTimer();
+							me.isAudioPlaying = false;
+						}
 					});
 					me.widget.bind(SC.Widget.Events.FINISH, function() {
 						me.parentView.endTimer();
@@ -4464,16 +4474,11 @@ function YouTubeGetID(url){
 					me.widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(e) {
 						me.currentTime = e.currentPosition / 1000.0;
 					});
-					me.parentView.calculateContainerSize();
-					me.parentView.layoutMediaObject();
 					me.parentView.removeLoadingMessage();
 				}
 			});
 
 			this.parentView.controllerOnly = true;
-
-			this.parentView.intrinsicDim.x = this.parentView.containerDim.x;
-			this.parentView.intrinsicDim.y = 0;
 
 			this.parentView.calculateContainerSize();
 			this.parentView.layoutMediaObject();
