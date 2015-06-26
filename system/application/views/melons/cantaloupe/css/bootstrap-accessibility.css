@@ -47,7 +47,7 @@ a:focus {
   outline: dotted 1px black;
 }
 
-.carousel-inner > .item {
+/*.carousel-inner > .item {
   position: absolute;
   top: -999999em; 
   display: block;
@@ -67,7 +67,7 @@ a:focus {
   position: absolute;
   top: 0;
   width: 100%;
-}
+}*/
 
 .alert-success {
     color: #2d4821;

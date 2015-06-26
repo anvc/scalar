@@ -1141,7 +1141,7 @@ function YouTubeGetID(url){
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
-				if (native_size === true) {
+				if ((native_size === true) || ( this.initialContainerWidth == 0 )) {
 					this.containerDim.x = parseInt(this.model.options.width);
 				} else {
 					this.containerDim.x = this.initialContainerWidth;
@@ -1155,8 +1155,10 @@ function YouTubeGetID(url){
 				}
 				if ((this.controllerOnly && (this.mediaContainer.closest('.slot').length == 0)) && (this.model.options.header != 'nav_bar'))  {
  					this.containerDim.y = this.controllerHeight + (this.gutterSize * 2);
- 				} else {
+ 				} else if (!this.model.isChromeless) {
 					this.containerDim.y = parseInt(this.model.options.height) - parseInt(this.header.height()) + 1;
+				} else {
+					this.containerDim.y = parseInt(this.model.options.height);
 				}
 				if (this.footer.attr('visible')) this.containerDim.y -= parseInt(this.footer.height());
 				this.minContainerDim.y = this.containerDim.y;
@@ -1360,9 +1362,11 @@ function YouTubeGetID(url){
 
 			//console.log('margins '+this.mediaMargins.horz+' '+this.mediaMargins.vert);
 
-			if (!this.model.isChromeless) {
+			if ( !this.model.isChromeless ) {
 				this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz));
 				this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive));
+			}
+			if ( !this.model.isChromeless || ( model.options.vcenter === true )) {
 				this.mediaContainer.find('.mediaObject').css('padding-top', Math.floor(this.mediaMargins.vert));
 				this.mediaContainer.find('.mediaObject').css('padding-bottom', Math.floor(this.mediaMargins.vert));
 			}
@@ -2199,11 +2203,11 @@ function YouTubeGetID(url){
 		 */
 		jQuery.ImageObjectView.prototype.resize = function(width, height) {
 			if ((this.model.containerLayout == 'horizontal') && (this.model.options.width != null)) {
-				if ((width < this.model.options.width) && (width > (1040 - 144))) {
+				/*if ((width < this.model.options.width) && (width > (1040 - 144))) {
 					var scaleFactor = (1040 - 144) / width;
 					width *= scaleFactor;
 					height *= scaleFactor;
-				}
+				}*/
 
 			}
 			$(this.image).parent().width(width+'px');
@@ -4426,7 +4430,7 @@ function YouTubeGetID(url){
 
 			me.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
 			SC.oEmbed(this.model.path, {auto_play: false, download: true,show_comments:false,liking:false,buying:false}, function(oembed){
-				if ( oembed != null ) {
+ 				if ( oembed != null ) {
 					oembed.height = me.parentView.resizedDim.y;
 					me.parentView.controllerHeight = oembed.height;
 
@@ -4443,7 +4447,7 @@ function YouTubeGetID(url){
 								me.widget.play();
 								me.widget.pause();
 								me.widget.play();
-								if ( !me.model.options.autoplay ) {
+ 								if ( !me.model.options.autoplay ) {
 									me.widget.pause();
 								}
 								me.initialPauseDone = true;
@@ -4452,7 +4456,7 @@ function YouTubeGetID(url){
 					})
 					me.widget.bind(SC.Widget.Events.PLAY, function() {
 						if(me.initialPauseDone) {
-							me.parentView.startTimer();
+ 							me.parentView.startTimer();
 							if (me.cachedSeekTime != null) {
 								me.widget.seekTo(me.cachedSeekTime);
 								if (!me.wasPlayingBeforeSeek) me.widget.pause();

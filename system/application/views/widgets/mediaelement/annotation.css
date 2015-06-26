@@ -18,7 +18,7 @@
     background-color: #eee;
 }
 .image-annotate-canvas {
-    border: solid 1px #ccc;
+    /*border: solid 1px #ccc;*/
     background-position: left top;
     background-repeat: no-repeat;
     display: block;
