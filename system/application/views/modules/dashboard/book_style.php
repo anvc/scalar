@@ -141,7 +141,13 @@ $(window).ready(function() {
     var predefined_css = $("#predefined_css").text();
     $('textarea[name="custom_style"]').predefined({msg:'Insert CSS:',data:((predefined_css.length)?JSON.parse(predefined_css):{})});
 
-	$('input[name="slug"]').focus(function() {
+	$('input[name="slug"]').keydown(function() {
+		var $this = $(this);
+		if($this.data("original") == undefined) {
+			$this.data('original',$this.val());
+		}
+	});
+	$('input[name="slug"]').keyup(function() {
 		var $this = $(this);
 		if (true!==$this.data('confirmed')) {
 			$("#slug-change-confirm").dialog({
@@ -157,6 +163,9 @@ $(window).ready(function() {
 						$this.data('confirmed',false);
 						$(this).dialog("close");
 						$this.blur();
+						if(typeof $this.data("original") != undefined) {
+							$this.val($this.data('original'));
+						}
 					},
 					"Continue":function() {
 						$this.data('confirmed',true);
