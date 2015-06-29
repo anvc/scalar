@@ -33,7 +33,14 @@ var ViewState = {
 /**
  * Get paths to script and style directories
  */
-var script_uri = $('script[src]')[0].src;
+var script_uri = '';
+$('script[src]').each(function() {  // Certain hotel wifi are injecting spam <script> tags into the page
+  var $this = $(this);
+  if ($this.attr('src').indexOf('jquery-1.7.min.js') != -1) {
+    script_uri = $this.attr('src');
+    return false;
+  } 
+});
 var base_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-2).join('/');
 var system_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-6).join('/');
 var index_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-7).join('/');

@@ -26,7 +26,14 @@
 /**
  * Get paths to script and style directories
  */
-var script_uri = document.getElementsByTagName("script")[0].src;
+var script_uri = '';
+var scripts = document.getElementsByTagName("script");
+for (var j = 0; j < scripts.length; j++) {  // Certain hotel wifi are injecting spam <script> tags into the page
+	if (scripts[j].src.indexOf('jquery-1.7.min.js') != -1) {
+		script_uri = scripts[j].src;
+		break;
+	}
+}
 var base_uri = script_uri.substr(0, script_uri.lastIndexOf('/'));
 var arbors_uri = base_uri.substr(0, base_uri.lastIndexOf('/'));
 var views_uri = arbors_uri.substr(0, arbors_uri.lastIndexOf('/'));
