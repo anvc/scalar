@@ -263,7 +263,7 @@
 
 			},
 
-			addMediaElementForLink: function( link, parent ) {
+			addMediaElementForLink: function( link, parent, height ) {
 				var inline = link.hasClass( 'inline' ),
 					size = link.attr( 'data-size' ),
 					align = link.attr( 'data-align' );
@@ -305,24 +305,28 @@
 					}
 				}
 
+				var options = { 
+					url_attributes: [ 'href', 'src' ], 
+					autoplay: link.attr( 'data-autoplay' ) == 'true',
+					solo: link.attr( 'data-caption' ) == 'none',
+					typeLimits: typeLimits,
+					deferTypeSizing: true
+				};
+
 				// media at 'full' size get a maximum height
-				var height = null;
 				if ( size == 'full' || size == 'native') {
-					height = maxMediaHeight; // this varies depending on window size
+					if ( height == null ) {
+						height = maxMediaHeight; // this varies depending on window size
+					} else {
+						options.vcenter = true;
+					}
 					var parent_temp = $('link#parent').attr('href');
 					var mediaNode = scalarapi.model.nodesByURL[parent_temp+link.attr('resource')];
 				}
+				options.size = size,
+
 				// create the slot where the media will be added
-				slot = link.slotmanager_create_slot( 
-					width, height, 
-					{ 
-						url_attributes: [ 'href', 'src' ], 
-						autoplay: link.attr( 'data-autoplay' ) == 'true',
-						solo: link.attr( 'data-caption' ) == 'none',
-						size: size,
-						typeLimits: typeLimits,
-						deferTypeSizing:true
-					});
+				slot = link.slotmanager_create_slot( width, height, options );
 
 				// if the slot was successfully created,
 				if ( slot ) {
@@ -883,9 +887,9 @@
 						$('article > span[property="sioc:content"]').append('<div>This is not a media page.</div>');
 					}
 					
-				} else if ( 'edit' == extension) {
-					
+				} else if ( 'edit' == extension) {	
 					// Nothing needed here
+					
 				} else if ( 'meta' == extension) {
 					// if this is a media page, embed the media at native size
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
@@ -897,28 +901,66 @@
 						link.css('display', 'none');
 						$('.meta-header').remove();
 					};
+
 				} else if ( '' == extension ) {
 
 					switch (viewType) {
 
 						case 'gallery':
-						scalarapi.loadPage(currentNode.slug, true, function() {
-							var i,node,link,
-								nodes = getChildrenOfType(currentNode, 'media');
-							$('article > header').after('<div id="gallery"></div>');
-							page.gallery = $('#gallery');
-							for (i in nodes) {
-								node = nodes[i];
-								link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
-								page.addMediaElementForLink(link.find('a'), link);
-								link.css('display', 'none');
+						var i, n, node, link, item, indicator, description, galleryHeight,
+							nodes = getChildrenOfType(currentNode, 'media');
+						if ( page.adaptiveMedia == "mobile" ) {
+							galleryHeight = 300;
+						} else {
+							galleryHeight = typeLimits.default;
+						}
+						$('article > header').after('<div id="gallery" class="carousel slide"></div>');
+						page.mediaCarousel = $('#gallery');
+						var wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( page.mediaCarousel );
+						n = nodes.length;
+						for ( var i = 0; i < n; i++ ) {
+							node = nodes[i];
+							item = $( '<div class="item" style="height: ' + galleryHeight + 'px;"></div>' ).appendTo( wrapper );
+							if ( i == 0 ) {
+								item.addClass( "active" );
 							}
-							//page.addRelationshipNavigation(true);
-							//page.addComments();
-						}, function() {
-							console.log('an error occurred while retrieving gallery info.');
-						}, 1, true);
-						page.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
+							link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
+							
+							if ( node.current.description != null ) {
+								description = node.current.description;
+								if ( node.current.source != null ) {
+									description += ' (Source: ' + node.current.source + ')';
+								}
+								description = description.replace( new RegExp("\"", "g"), '&quot;' );
+								item.append( '<div class="carousel-caption caption_font"><span>' + 
+									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+									'</span></div>' );
+							} else {
+								item.append( '<div class="carousel-caption caption_font"><span>' + 
+									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+									'</span></div>' );
+							}
+
+							page.addMediaElementForLink( link.find('a'), link, galleryHeight );
+							link.css('display', 'none');
+						}
+						if ( page.adaptiveMedia != "mobile" ) {
+							wrapper.find( '[data-toggle="popover"]' ).popover( { 
+								container: '#gallery',
+								template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title heading_font heading_weight"></h3><div class="popover-content caption_font"></div></div>'
+							} );
+						}
+						page.mediaCarousel.find( '.mediaelement' ).css( 'z-index', 'inherit' );
+						page.mediaCarousel.find( '.slot' ).css( 'margin-top', '0' );
+						page.mediaCarousel.append( '<a class="left carousel-control" href="#gallery" role="button" data-slide="prev">' +
+							'<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>' +
+							'<span class="sr-only">Previous</span>' +
+							'</a>' +
+							'<a class="right carousel-control" href="#gallery" role="button" data-slide="next">' + 
+							'<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>' +
+							'<span class="sr-only">Next</span>' +
+							'</a>' );
+						page.mediaCarousel.carousel( { interval: false } );
 						break;
 
 						case "splash":
@@ -927,21 +969,23 @@
 						case "history":
 						// these views don't get media
 						break;
-						case "meta":
-							// if this is a media page, embed the media at native size
-							if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
-								var currentNode = scalarapi.model.getCurrentPageNode();
-								var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( 'article > span[property="sioc:content"]' );
 
-								link.wrap( '<div></div>' );
-								page.addMediaElementForLink( link, link.parent() );
-								link.css('display', 'none');
-								$('.meta-header').remove();
-							};
+						case "meta":
+						// if this is a media page, embed the media at native size
+						if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
+							var currentNode = scalarapi.model.getCurrentPageNode();
+							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( 'article > span[property="sioc:content"]' );
+
+							link.wrap( '<div></div>' );
+							page.addMediaElementForLink( link, link.parent() );
+							link.css('display', 'none');
+							$('.meta-header').remove();
+						};
 						break;
+
 						default:
 						if ( viewType == 'structured_gallery' ) {
-							page.gallery.addMedia();
+							page.structuredGallery.addMedia();
 						}
 						$( 'article > span[property="sioc:content"],.relationships > .annotation_of' ).find( 'a' ).each(function() {
 
@@ -1185,8 +1229,12 @@
 					}
 				});
 
-				if ( page.gallery != null ) {
-					page.gallery.addMedia();
+				if ( page.structuredGallery != null ) {
+					page.structuredGallery.addMedia();
+				}
+
+				if ( page.mediaCarousel != null ) {
+					page.mediaCarousel.remove();
 				}
 
 				page.addMediaElements();
@@ -1385,21 +1433,6 @@
 				break;
 
 				case 'gallery':
-				/*$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
-				scalarapi.loadPage(currentNode.slug, true, function() {
-					var i,node,link,
-						nodes = getChildrenOfType(currentNode, 'media');
-					$('article > h1').after('<div id="gallery"></div>');
-					var gallery = $('#gallery');
-					for (i in nodes) {
-						node = nodes[i];
-						link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full">'+node.slug+'</a></span>').appendTo(gallery);
-						page.addMediaElementForLink(link.find('a'), link);
-						link.css('display', 'none');
-					}
-				}, function() {
-					console.log('an error occurred while retrieving gallery info.');
-				}, 1, true);*/
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( true, true, true, true, false );
@@ -1423,10 +1456,9 @@
 
 				case 'structured_gallery':
 				page.setupScreenedBackground();
-				//page.gallery = $.scalarstructuredgallery($('<div></div>').appendTo(element));
 				var galleryElement = $('<div></div>');
 				$( 'article > span[property="sioc:content"]' ).after( galleryElement );
-				page.gallery = $.scalarstructuredgallery( galleryElement );
+				page.structuredGallery = $.scalarstructuredgallery( galleryElement );
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( false, true, false, true, false );
 				page.addIncomingComments();
@@ -1704,7 +1736,7 @@
 			addTemplateLinks($('article'), 'cantaloupe');
 
 		  	$('body').addClass('body_font');
-		  	$('h1, h2, h3, h4, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font heading_weight');
+		  	$('h1, h2, h3, h4, h5, h6, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font heading_weight');
 
 		  	/*
 			$( document ).ready( function() {
