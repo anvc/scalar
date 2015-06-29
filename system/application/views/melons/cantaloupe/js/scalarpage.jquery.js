@@ -651,25 +651,23 @@
 					var hasTags = $( ".has_tags" );
 					hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
 					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
-					hasTags.parent().wrap( '<section class="relationships"></section>' );
-					hasTags.unwrap();		
+					hasTags.parent().addClass('relationships').show();		
 				}
-
+				
 				// move path contents list to be the bottom-most of all relationships items
 				// (or second from bottom if we have path lateral nav)
 				if ( pathContents != null ) {
 					var relationships = $( ".relationships" );
 					if ( relationships.length > 1 ) {
-
 						// move to second from bottom
 						if (( page.containingPaths.length > 0 ) && showLateralNav ) {
-							if ( relationships.eq( relationships.length - 2 ) != pathContents ) {
+							if ( !relationships.eq(relationships.length-2).children('.path_of').length ) {
 								$( ".relationships" ).last().before( pathContents );
 							}
-
 						// move to bottom
 						} else {
-							if ( relationships.last() != pathContents ) {
+							if ( !relationships.last().children('.path_of').length ) {
+								console.log('move to bottom');
 								$( ".relationships" ).last().after( pathContents );
 							}
 						}
