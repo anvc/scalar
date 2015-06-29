@@ -321,7 +321,7 @@
 						options.vcenter = true;
 					}
 					var parent_temp = $('link#parent').attr('href');
-					var mediaNode = scalarapi.model.nodesByURL[parent_temp+link.attr('resource')];
+					var mediaNode = scalarapi.getNode( parent_temp+link.attr('resource') );
 				}
 				options.size = size,
 
@@ -384,6 +384,8 @@
 						parent.after( slotDOMElement );
 						slotDOMElement.addClass( 'full' );
 					}
+
+					return slot.data('mediaelement');
 			  	}
 
 			},
@@ -848,8 +850,110 @@
 				return link;
 			},
 
+			getMediaLinks: function( element ) {
+
+				var mediaLinks = [];
+
+				$( element ).find( 'a' ).each(function() {
+
+					if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
+						( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
+						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media 
+						&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
+
+						$(this).addClass('media_link');
+						mediaLinks.push( $( this ) );
+					}
+				});
+
+				return mediaLinks;
+			},
+
+			// trigger media playback when links are clicked on
+			handleMediaLinkClick: function( e ) {
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				var mediaelement = $( this ).data( 'mediaelement' );
+
+				if ( mediaelement != null ) {
+
+					// if this is an annotation link, then seek to the annotation and play
+					// the media if it isn't already playing
+					var annotationURL = $( this ).data( 'targetAnnotation' );
+					if ( annotationURL != null ) {
+						
+						mediaelement.seek( mediaelement.model.initialSeekAnnotation );
+						if (( mediaelement.model.mediaSource.contentType != 'document' ) && ( mediaelement.model.mediaSource.contentType != 'image' )) {
+              				setTimeout(function() {
+                				if(!mediaelement.is_playing()) {
+      								mediaelement.play();
+                				}
+              				},250);
+						}
+
+					} else if ( mediaelement.is_playing() ) {
+						mediaelement.pause();
+					} else {
+						mediaelement.play();
+					}
+
+					// pause all other media on the page
+					$( 'a.media_link' ).each(function() {
+						var me = $( this ).data( 'mediaelement' );
+						if ( me != null ) {
+							if ( me !== mediaelement ) {
+								me.pause();
+							}
+						}
+					});
+				}
+
+				var $mediaelement = mediaelement.model.element;
+
+				var scroll_buffer = 100;
+				var scroll_time = 750;
+				var $body = $('html,body');
+
+				//scroll to media element when link is clicked
+				if(!(($mediaelement.offset().top + $mediaelement.height()) <= (-$body.offset().top + $body.height()) &&
+					$mediaelement.offset().top >= (-$body.offset().top))) {
+					$body.animate({
+						scrollTop: $mediaelement.offset().top-scroll_buffer
+					},scroll_time);
+				}
+
+				// do not provide label over media if image height is too small
+				var min_height = 50;
+				var mediaHeight = $mediaelement.find('.mediaObject').height();
+				if(mediaHeight >= min_height) {
+					var $media_label = $mediaelement.find('.scalar-media-label');
+					if($media_label.length == 0) {
+
+						var label = '<span class="scalar-media-label label label-default">'+mediaelement.model.node.current.title+'</span>'
+						$media_label = $(label).appendTo($mediaelement);
+
+						var font_size = parseInt($media_label.css('font-size').replace('px',''));
+
+						var font_inc  = 300;
+						var font_mult = 3;
+						font_size = (font_size + Math.floor($mediaelement.width()/font_inc)*font_mult)+'px';
+
+						var label_style = 'white-space:normal;position:absolute;max-width:'+$mediaelement.width()+'px;font-size:'+font_size;
+						$media_label.attr('style',label_style);
+						$media_label.css('top',((mediaHeight-$media_label.outerHeight())/2));
+						$media_label.css('left',(($mediaelement.width()-$media_label.outerWidth())/2));
+					}
+					var label_hide_delay = 1500;
+					var label_fade_delay = 400;
+					$media_label.show().delay(label_hide_delay).fadeOut(label_fade_delay);
+				}
+			},
+
 			addMediaElements: function() {
-				var currentNode = scalarapi.model.getCurrentPageNode(),
+				var i, n,
+					currentNode = scalarapi.model.getCurrentPageNode(),
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value,
 					extension = scalarapi.getFileExtension( window.location.href );
 
@@ -905,24 +1009,58 @@
 					switch (viewType) {
 
 						case 'gallery':
-						var i, n, node, link, item, indicator, description, galleryHeight,
-							nodes = getChildrenOfType(currentNode, 'media');
+						var node, link, mediaContainer, item, indicator, description, galleryHeight, mediaelement,
+							nodes = [];
+
+						// get all of the media links in the page content
+						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"]' ) );
+						$( mediaLinks ).each( function() {
+							node = scalarapi.getNode( $( this ).attr('resource') );
+							if ( node != null ) {
+								nodes.push( node );
+							}
+						});
+
+						nodes = nodes.concat( getChildrenOfType(currentNode, 'media') );
+
 						if ( page.adaptiveMedia == "mobile" ) {
 							galleryHeight = 300;
 						} else {
 							galleryHeight = typeLimits.default;
 						}
+
 						$('article > header').after('<div id="gallery" class="carousel slide"></div>');
 						page.mediaCarousel = $('#gallery');
 						var wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( page.mediaCarousel );
+
 						n = nodes.length;
 						for ( var i = 0; i < n; i++ ) {
+							
 							node = nodes[i];
 							item = $( '<div class="item" style="height: ' + galleryHeight + 'px;"></div>' ).appendTo( wrapper );
 							if ( i == 0 ) {
 								item.addClass( "active" );
 							}
-							link = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
+
+							// if this is a media link that's already part of the content of the page, then use it
+							if ( i < mediaLinks.length ) {
+								mediaContainer = $('<span></span>').appendTo( item );
+								link = mediaLinks[ i ];
+								if ( link.hasClass( 'inline' ) ) {
+									link.removeClass( 'inline' );
+									link.css('display', 'none');
+								}
+								link.attr({
+									'data-size': 'full',
+									'data-caption': 'none'
+								});
+
+							// otherwise, create a new link from scratch
+							} else {
+								mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
+								link = mediaContainer.find( 'a' );
+								link.css('display', 'none');
+							}
 							
 							if ( node.current.description != null ) {
 								description = node.current.description;
@@ -939,8 +1077,8 @@
 									'</span></div>' );
 							}
 
-							page.addMediaElementForLink( link.find('a'), link, galleryHeight );
-							link.css('display', 'none');
+							page.addMediaElementForLink( link, mediaContainer, galleryHeight );
+
 						}
 						if ( page.adaptiveMedia != "mobile" ) {
 							wrapper.find( '[data-toggle="popover"]' ).popover( { 
@@ -959,6 +1097,14 @@
 							'<span class="sr-only">Next</span>' +
 							'</a>' );
 						page.mediaCarousel.carousel( { interval: false } );
+						$( mediaLinks ).each( function( i ) {
+							$( this ).data( 'index', i );
+							$( this ).click( function( e ) {
+								e.preventDefault();
+								page.mediaCarousel.carousel( $( this ).data( 'index' ) );
+							} );
+							$( this ).click( page.handleMediaLinkClick );
+						} );
 						break;
 
 						case "splash":
@@ -985,15 +1131,15 @@
 						if ( viewType == 'structured_gallery' ) {
 							page.structuredGallery.addMedia();
 						}
-						$( 'article > span[property="sioc:content"],.relationships > .annotation_of' ).find( 'a' ).each(function() {
+						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"],.relationships > .annotation_of' ) );
+						$( mediaLinks ).each(function() {
 
 							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
 								(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media 
 								&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
-								var slot, slotDOMElement, slotMediaElement, count, parent,
-									currentNode = scalarapi.model.getCurrentPageNode();
+								var slot, slotDOMElement, slotMediaElement, count, parent;
 
 								if ($(this).attr('resource') == undefined) {
 
@@ -1040,96 +1186,14 @@
 									parent = $(this).closest('.body_copy');
 								}
 
-								$(this).addClass('media_link');
-
-								// uncomment to cause any paragraph with a media link to clear both (unless it contains a .clearnone)
+								// cause any paragraph with a media link to clear both (unless it contains a .clearnone)
 								if ( $( this ).parents( '.paragraph_wrapper' ).find( '.clearnone' ).length == 0 ) {
 									$( this ).parents( '.paragraph_wrapper' ).addClass( 'clearboth' );
 								}
 
 								page.addMediaElementForLink($(this), parent);
 
-								// trigger media playback when links are clicked on
-								$( this ).click( function( e ) {
-
-									e.preventDefault();
-									e.stopPropagation();
-
-									var mediaelement = $( this ).data( 'mediaelement' );
-
-									if ( mediaelement != null ) {
-
-										// if this is an annotation link, then seek to the annotation and play
-										// the media if it isn't already playing
-										var annotationURL = $( this ).data( 'targetAnnotation' );
-										if ( annotationURL != null ) {
-											
-											mediaelement.seek( mediaelement.model.initialSeekAnnotation );
-											if (( mediaelement.model.mediaSource.contentType != 'document' ) && ( mediaelement.model.mediaSource.contentType != 'image' )) {
-					              				setTimeout(function() {
-					                				if(!mediaelement.is_playing()) {
-					      								mediaelement.play();
-					                				}
-					              				},250);
-											}
-
-										} else if ( mediaelement.is_playing() ) {
-											mediaelement.pause();
-										} else {
-											mediaelement.play();
-										}
-
-										// pause all other media on the page
-										$( 'a.media_link' ).each(function() {
-											var me = $( this ).data( 'mediaelement' );
-											if ( me != null ) {
-												if ( me !== mediaelement ) {
-													me.pause();
-												}
-											}
-										});
-									}
-
-									var $mediaelement = mediaelement.model.element;
-
-									var scroll_buffer = 100;
-									var scroll_time = 750;
-									var $body = $('html,body');
-
-									//scroll to media element when link is clicked
-									if(!(($mediaelement.offset().top + $mediaelement.height()) <= (-$body.offset().top + $body.height()) &&
-										$mediaelement.offset().top >= (-$body.offset().top))) {
-										$body.animate({
-											scrollTop: $mediaelement.offset().top-scroll_buffer
-										},scroll_time);
-									}
-
-									// do not provide label over media if image height is too small
-									var min_height = 50;
-	                				var mediaHeight = $mediaelement.find('.mediaObject').height();
-									if(mediaHeight >= min_height) {
-										var $media_label = $mediaelement.find('.scalar-media-label');
-										if($media_label.length == 0) {
-
-											var label = '<span class="scalar-media-label label label-default">'+mediaelement.model.node.current.title+'</span>'
-											$media_label = $(label).appendTo($mediaelement);
-
-											var font_size = parseInt($media_label.css('font-size').replace('px',''));
-
-											var font_inc  = 300;
-											var font_mult = 3;
-											font_size = (font_size + Math.floor($mediaelement.width()/font_inc)*font_mult)+'px';
-
-											var label_style = 'white-space:normal;position:absolute;max-width:'+$mediaelement.width()+'px;font-size:'+font_size;
-											$media_label.attr('style',label_style);
-											$media_label.css('top',((mediaHeight-$media_label.outerHeight())/2));
-											$media_label.css('left',(($mediaelement.width()-$media_label.outerWidth())/2));
-										}
-										var label_hide_delay = 1500;
-										var label_fade_delay = 400;
-										$media_label.show().delay(label_hide_delay).fadeOut(label_fade_delay);
-									}
-								} );
+								$( this ).click( page.handleMediaLinkClick );
 
 							}
 						});
@@ -1193,6 +1257,7 @@
 					page.addMediaElementForLink( $(this), $(this).parent().parent() );
 				});
 			},
+
 			updateMediaHeightRestrictions: function() {
 				typeLimits = {
 					// Add more exceptions to height limitations if needed
