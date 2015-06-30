@@ -363,6 +363,19 @@
 					// Get the HTML version of the data.
 					data = editor.dataProcessor.toHtml( data );
 
+					// Added by Craig Dietrich 29 June 2015
+					// Firefox is removing empty <a> tags if it's the first HTML element
+					// Technically Firefox is doing the correct thing (since empty anchors with no name="" are invalid),
+					// but this is something we want to support, and CKEditor is already tuned to allow this special case
+					if ( CKEDITOR.env.gecko ) {
+						$tmp = $('<div>'+data+'</div>');
+						if ( $tmp.children().length && 
+							 $tmp.children(':first').is('a') &&
+							 'undefined'==typeof($tmp.children(':first').attr('name')) ) {
+							data = data.replace( /<a/, '<a name="cke-scalar-empty-anchor" ' );
+						}
+					}
+					
 					if ( fullPage ) {
 						// Check if the <body> tag is available.
 						if ( !( /<body[\s|>]/ ).test( data ) )
