@@ -187,7 +187,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Affiliated archives</a>'+
+                                                            '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Affiliated archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive') + '">Cuban Theater Digital Archive</a></li>'+
@@ -200,7 +200,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a class="dropdown-toggle" data-toggle="dropdown" data-target="" role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Other archives</a>'+
+                                                            '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Other archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/the_metropolitan_museum_of_art') + '">The Metropolitan Museum of Art</a></li>'+
                                                                 //'<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/prezi') + '">Prezi</a></li>'+
@@ -209,11 +209,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/youtube') + '">YouTube</a></li>'+
                                                             '</ul>'+
                                                         '</li>'+
-                                                        '<li>'+
-                                                            '<a href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Local media files</a>'+
+                                                        '<li class="dropdown">'+
+                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Local media files</a>'+
                                                         '</li>'+
-                                                        '<li>'+
-                                                            '<a href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit#type=media') + '">Internet media files</a>'+
+                                                        '<li class="dropdown">'+
+                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit#type=media') + '">Internet media files</a>'+
                                                         '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
@@ -361,9 +361,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     if(e.keyCode == 38){
                         //up
                         $(this).prev().children('a').focus();
+                        e.stopPropagation();
+                        return false;
                     }else if(e.keyCode == 40){
                         //down
                         $(this).next().children('a').focus();
+                        e.stopPropagation();
+                        return false;
                     }
                 }
             }).children('a').click(function(e){
