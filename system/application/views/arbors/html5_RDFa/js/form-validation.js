@@ -122,7 +122,7 @@ function validate_upload_form($form, obj) {
 
 function send_form_no_action($form) { 
 	
-	send_form($form, {}, null, location.protocol+'//'+location.host+location.pathname);
+	// TODO
 	
 }
 

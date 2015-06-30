@@ -896,7 +896,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<input id="saved_wrapper" type="button" class="btn btn-success" value="Page has been saved" style="display:none;" /> &nbsp;
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
-		<input type="button" class="btn btn-default" value="Save" onclick="send_form_no_action($('#edit_form'));" />&nbsp; &nbsp;
+		<!-- <input type="button" class="btn btn-default" value="Save" onclick="send_form_no_action($('#edit_form'));" />&nbsp; &nbsp; -->
 		<input type="submit" class="btn btn-primary" value="Save and view" />
 	</div>
 </div>
