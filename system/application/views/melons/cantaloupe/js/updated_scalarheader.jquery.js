@@ -883,7 +883,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     }
 
                     if(tag_of.length > 0){
-                        var newList = $('<li><strong>Tagged By</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
+                        var newList = $('<li><strong>Tagged by</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
                         for(var i in tag_of){
                             var relNode = tag_of[i];
                             var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
