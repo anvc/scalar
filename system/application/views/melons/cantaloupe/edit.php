@@ -352,7 +352,13 @@ $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
 ?>
 
-<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this));">
+<?
+if ('cantaloupe' == $book->template) {
+	echo('<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), true);">');
+} else {
+	echo('<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), false);">');
+}
+?>
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
@@ -893,11 +899,9 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 
 <div class="row clearboth">
 	<div class="col-md-12" style="text-align:right;margin-top:10px;">
-		<input id="saved_wrapper" type="button" class="btn btn-success" value="Page has been saved" style="display:none;" /> &nbsp;
-		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
-		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
-		<input type="button" class="btn btn-default" value="Save" onclick="send_form_no_action($('#edit_form'));" />&nbsp; &nbsp;
-		<input type="submit" class="btn btn-primary" value="Save and view" />
+		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div>
+		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp;
+		<input type="submit" class="btn btn-primary" value="Save" />
 	</div>
 </div>
 <br />

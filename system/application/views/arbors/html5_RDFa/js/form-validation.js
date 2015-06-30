@@ -120,13 +120,7 @@ function validate_upload_form($form, obj) {
  * Functions to send form information through Scalar's save API
  */
 
-function send_form_no_action($form) {
-	
-	send_form($form, {}, null, location.protocol+'//'+location.host+location.pathname);
-	
-}
-
-function send_form($form, additional_values, success, redirect_url) {
+function send_form($form, additional_values, success) {
 
 	send_form_show_loading();
 
@@ -155,12 +149,12 @@ function send_form($form, additional_values, success, redirect_url) {
 		}
 	}
 
-	if ('undefined'==typeof(success) || null==success) {
+	if ('undefined'==typeof(success)) {
 		success = function(version) {
 		    for (var version_uri in version) break;
 		    if ('undefined'==typeof(redirect_url)) redirect_url = version_uri.substr(0, version_uri.lastIndexOf('.'));
 		    var version_urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
-			send_form_relationships($form, version_urn, null, redirect_url);     
+			send_form_relationships($form, version_urn, redirect_url);     
 		}
 	}
 	
@@ -174,7 +168,7 @@ function send_form($form, additional_values, success, redirect_url) {
 
 }
 
-function send_form_relationships($form, version_urn, success, redirect_url) {		
+function send_form_relationships($form, version_urn, redirect_url) {		
 	
 	var values = {};
 	// The version just saved
@@ -231,16 +225,13 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 	values['has_reference_reference_text'] = $('input[name="has_reference_reference_text"]');		
 	
 	// Save relationships
-	if ('undefined'==typeof(success) || null==success) {
-		var success = function() {
-			var get_str = '';
-			var path = ($form.find('input[name="path"]').length) ? $form.find('input[name="path"]').val() : '';
-			if (path.length) get_str = 'path='+path;  // Maintain current path
-			get_str += ((get_str.length)?'&':'') + 't=' + (new Date).getTime();  // Override cache (so, e.g., replaced images are properly displayed)
-			document.location.href=redirect_url + '?' + get_str;
-		} 
-	}
-	
+	var success = function() {
+		var get_str = '';
+		var path = ($form.find('input[name="path"]').length) ? $form.find('input[name="path"]').val() : '';
+		if (path.length) get_str = 'path='+path;  // Maintain current path
+		get_str += ((get_str.length)?'&':'') + 't=' + (new Date).getTime();  // Override cache (so, e.g., replaced images are properly displayed)
+		document.location.href=redirect_url + '?' + get_str;
+	} 
 	scalarapi.saveManyRelations(values, success);   	
 
 }
@@ -279,8 +270,6 @@ function send_form_hide_loading() {
 	if (window['Spinner']) {
 		$('.spinner').remove();
 	}
-	
-	//$('#saved_wrapper').show().fadeOut(5000);
 
 }
 
