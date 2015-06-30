@@ -685,7 +685,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var description = node.current.description;
 
-            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="'+base.get_param(node.url)+'" title="Visit page, \''+node.current.title+'\'"tabindex="-1">Visit</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
+            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="'+base.get_param(node.url)+'" title="Visit page, \''+node.current.title+'\'"tabindex="-1">Visit page</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
             
             if(!base.usingMobileView){
                 container.prepend('<div class="close" role="link" tabindex="-1" title="Close expanded panel"><span class="menuIcon closeIcon"></span></div>');
@@ -842,7 +842,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var base = $('#scalarheader.navbar').data('scalarheader');
 
                     if(path_of.length > 0){
-                        var newList = $('<li><strong>Contents</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                        var newList = $('<li><strong>Contains</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in path_of){
                             var relNode = path_of[i];
                             var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
@@ -879,7 +879,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     }
 
                     if(tag_of.length > 0){
-                        var newList = $('<li><strong>Tags</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
+                        var newList = $('<li><strong>Tagged By</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
                         for(var i in tag_of){
                             var relNode = tag_of[i];
                             var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
