@@ -94,10 +94,12 @@ $(document).ready(function() {
 	});
 	$('.path_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
+			console.log(nodes);
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
-				$('#path_of').append('<li><input type="hidden" name="container_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('#path_of').append('<li><input type="hidden" name="container_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 				$('.path_of_msg:first').html('<b>This <span class="content_type">page</span> is a path</b> which contains:');
 				$('.path_of_msg').show();
 				$('.path_of_continue_msg').show();
@@ -111,8 +113,9 @@ $(document).ready(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be commented on',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
-				$('#reply_of').append('<li><input type="hidden" name="reply_of" value="'+urn+'" /><input type="hidden" name="reply_of_rel_created" value="">'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('#reply_of').append('<li><input type="hidden" name="reply_of" value="'+slug+'" /><input type="hidden" name="reply_of_rel_created" value="">'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 				$('.reply_of_msg:first').html('<b>This <span class="content_type">page</span> is a comment</b> on:');
 				$('.reply_of_msg').show();
 			}
@@ -125,10 +128,11 @@ $(document).ready(function() {
 		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
 				var url = nodes[j].version["http://simile.mit.edu/2003/10/ontologies/artstor#url"][0].value;
 				var annotation_type = scalarapi.parseMediaSource(url).contentType;
-				var annotation = $('<li><input type="hidden" name="annotation_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
+				var annotation = $('<li><input type="hidden" name="annotation_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
 				switch (annotation_type) {
 					case "audio":
 					case "video":
@@ -174,8 +178,9 @@ $(document).ready(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be tagged',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
-				$('#tag_of').append('<li><input type="hidden" name="tag_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('#tag_of').append('<li><input type="hidden" name="tag_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 				$('.tag_of_msg:first').html('<p><b>This <span class="content_type">page</span> is a tag</b> of:</p>');
 				$('.tag_of_msg').show();
 			}
@@ -188,8 +193,9 @@ $(document).ready(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
-				$('#has_tag').append('<li><input type="hidden" name="has_tag" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('#has_tag').append('<li><input type="hidden" name="has_tag" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 				$('.has_tag_msg:first').html('<br><p><b>This <span class="content_type">page</span> is tagged by</b> the following:</p>');
 				$('.has_tag_msg').show();
 			}
@@ -365,56 +371,48 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <? endif ?>
 <input type="hidden" name="urn:scalar:book" value="<?=$book->urn?>" />
 
+<div class="form-horizontal">
+	<div class="form-group">
+		<label for="title" class="col-sm-2">Title</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" id="title" name="dcterms:title" value="<?=@htmlspecialchars($version->title)?>" />
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="page_description" class="col-sm-2">Description</label>
+		<div class="col-sm-10">
+			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>" />
+		</div>
+	</div>
+</div>
+
+<div class="type_media form-horizontal">
+	<div class="form-group">
+		<label for="media_file_url" class="col-sm-2">Media file URL</label>
+		<div class="col-sm-10">
+			<input id="media_file_url" class="form-control" name="scalar:url" value="<?=(!empty($file_url))?$file_url:'http://'?>" style="width:100%;" onfocus="if (this.value=='http://') this.value='';" />
+		</div>
+	</div>
+<? if (isset($page) && $this->versions->url_is_local($page->versions[0]->url)): ?>
+	<div class="form-group">
+		<p class="type_media col-sm-10 col-md-offset-2">File can be replaced with another upload at <a href="<?=confirm_slash(base_url()).$book->slug?>/upload#replace=<?=$version->version_id?>">Import > Local Media Files</a></p>
+	</div>
+<? endif ?>
+</div>
+
 <table>
-
-	<div class="form-horizontal">
-		<div class="form-group">
-			<label for="title" class="col-sm-2">Title</label>
-			<div class="col-sm-10">
-				<input type="text" class="form-control" id="title" name="dcterms:title" value="<?=@htmlspecialchars($version->title)?>" />
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="page_description" class="col-sm-2">Description</label>
-			<div class="col-sm-10">
-				<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>" />
-			</div>
-		</div>
-	</div>
-
-	<!--  Media file URL -->
-	<div class="type_media form-horizontal">
-		<div class="form-group">
-			<label for="media_file_url" class="col-sm-2">Media file URL</label>
-			<div class="col-sm-10">
-				<input id="media_file_url" class="form-control" name="scalar:url" value="<?=(!empty($file_url))?$file_url:'http://'?>" style="width:100%;" onfocus="if (this.value=='http://') this.value='';" />
-			</div>
-		</div>
-
-	<? if (isset($page) && $this->versions->url_is_local($page->versions[0]->url)): ?>
-		<div class="form-group">
-			<p class="type_media col-sm-10 col-md-offset-2">File can be replaced with another upload at <a href="<?=confirm_slash(base_url()).$book->slug?>/upload#replace=<?=$version->version_id?>">Import > Local Media Files</a></p>
-		</div>
-	<? endif ?>
-	</div>
-
-	<!-- Edit content -->
-	<tr id="edit_content" class="p type_composite">
-		<td colspan="2">
-			<!-- <div class="wysiwyg_options"><span><a href="javascript:;" class="textarea_tab wysiwyg_handle_selected to_wysiwyg_handle" title="In the editor, view a visual representation of the HTML">Visual</a>&nbsp;<a href="javascript:;" class="textarea_tab to_html_handle" title="In the editor, view the source HTML">HTML</a></span><br clear="both"></div> -->
-			<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
-			if (isset($page->version_index)):
-				$content = $page->versions[$page->version_index]->content;
-				if (!empty($content)) {
-					//$content = fix_latin($content);
-					//$content = utf8_encode($content);
-					echo cleanbr(htmlspecialchars($content));
-				}
-			endif;
-			?></textarea>
-		</td>
-	</tr>
-
+<tr id="edit_content" class="p type_composite">
+	<td colspan="2">
+		<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
+		if (isset($page->version_index)):
+			$content = $page->versions[$page->version_index]->content;
+			if (!empty($content)) {
+				echo cleanbr(htmlspecialchars($content));
+			}
+		endif;
+		?></textarea>
+	</td>
+</tr>
 </table>
 
 <?php
@@ -428,9 +426,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 	}
 
 	$rel_count = $path_count + $reply_count + $annotation_count + $tag_count;
-
 ?>
-
 
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
@@ -480,7 +476,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 							$title = $node->versions[0]->title;
 							$rel_uri = $base_uri.$node->slug;
 							echo '      <li>';
-							echo '<input type="hidden" name="container_of" value="'.$node->versions[0]->urn.'" />';
+							echo '<input type="hidden" name="container_of" value="'.$node->slug.'" />';
 							echo $title;
 							echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 							echo '</li>'."\n";
@@ -509,7 +505,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 									$count++;
 								}
 								echo '<li>';
-								echo '<input type="hidden" name="has_container" value="'.$node->versions[0]->urn.'" />';
+								echo '<input type="hidden" name="has_container" value="'.$node->slug.'" />';
 								echo '<input type="hidden" name="has_container_sort_number" value="'.$rel_sort_number.'" />';
 								echo $title.' (page '.$rel_sort_number.')';
 								echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
@@ -537,7 +533,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 							$title = $node->versions[0]->title;
 							$rel_slug = $base_uri.$node->slug;
 							echo '      <li>';
-							echo '<input type="hidden" name="reply_of" value="'.$node->versions[0]->urn.'" />';
+							echo '<input type="hidden" name="reply_of" value="'.$node->slug.'" />';
 							echo '<input type="hidden" name="reply_of_paragraph_num" value="'.$node->versions[0]->paragraph_num.'" />';
 							echo '<input type="hidden" name="reply_of_datetime" value="'.$node->versions[0]->datetime.'" />';
 							echo $title.' ('.date("j F Y", strtotime($node->versions[0]->datetime)).')&nbsp; ';
@@ -558,7 +554,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 							$title = $node->versions[0]->title;
 							$rel_slug = $base_uri.$node->slug;
 							echo' <li resource="'.$node->slug.'">';
-							echo '<input type="hidden" name="has_reply" value="'.$node->versions[$node->version_index]->urn.'" />';
+							echo '<input type="hidden" name="has_reply" value="'.$node->slug.'" />';
 							echo '<input type="hidden" name="has_reply_paragraph_num" value="'.$node->versions[$node->version_index]->paragraph_num.'" />';
 							echo '<input type="hidden" name="has_reply_datetime" value="'.$node->versions[$node->version_index]->datetime.'" />';
 							echo $title.' ('.date("j F Y", strtotime($node->versions[$node->version_index]->datetime)).')';
@@ -588,7 +584,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 							$title = $node->versions[0]->title;
 							$rel_slug = $base_uri.$node->slug;
 							echo '      <li>';
-							echo '<input type="hidden" name="annotation_of" value="'.$node->versions[0]->urn.'" />';
+							echo '<input type="hidden" name="annotation_of" value="'.$node->slug.'" />';
 							echo $title.'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br />';
 							if (!empty($node->versions[0]->start_seconds) || !empty($node->versions[0]->end_seconds)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Start seconds&nbsp; <input class="form-control" onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_seconds" value="'.$node->versions[0]->start_seconds.'" /></label>';
@@ -628,7 +624,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 						$title = $node->versions[0]->title;
 						$rel_slug = $base_uri.$node->slug;
 						echo' <li resource="'.$node->slug.'">';
-						echo '<input type="hidden" name="has_annotation" value="'.$node->versions[0]->urn.'" />';
+						echo '<input type="hidden" name="has_annotation" value="'.$node->slug.'" />';
 						echo $title.'<br />';
 						if (!empty($node->versions[0]->start_seconds) || !empty($node->versions[0]->end_seconds)) {
 							echo 'Start seconds: <input type="text" style="width:75px;" name="has_annotation_start_seconds" value="'.$node->versions[0]->start_seconds.'" />';
@@ -676,7 +672,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 						$title = $node->versions[0]->title;
 						$rel_uri = $base_uri.$node->slug;
 						echo '<li>';
-						echo '<input type="hidden" name="tag_of" value="'.$node->versions[0]->urn.'" />';
+						echo '<input type="hidden" name="tag_of" value="'.$node->slug.'" />';
 						echo $title;
 						echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 						echo '</li>'."\n";
@@ -701,7 +697,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 							$title = $node->versions[$page->version_index]->title;
 							$rel_uri = $base_uri.$node->slug;
 							echo '<li>';
-							echo '<input type="hidden" name="has_tag" value="'.$node->versions[$page->version_index]->urn.'" />';
+							echo '<input type="hidden" name="has_tag" value="'.$node->slug.'" />';
 							echo $title;
 							echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 							echo '</li>';
@@ -907,7 +903,7 @@ if (isset($page->version_index)):
 	// Has references
 	if (!empty($page->versions[$page->version_index]->has_references)) {
 		foreach ($page->versions[$page->version_index]->has_references as $node) {
-			echo '<input type="hidden" name="has_reference" value="'.$node->versions[0]->urn.'" />';
+			echo '<input type="hidden" name="has_reference" value="'.$node->slug.'" />';
 			echo '<input type="hidden" name="has_reference_reference_text" value="'.htmlspecialchars(@$node->versions[0]->reference_text).'" />';
 		}
 	}

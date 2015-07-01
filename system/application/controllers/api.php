@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -23,7 +23,7 @@
 * @abstract				This controller dispatches authentication requests and database updates received via POST
 * @return				On success returns RDF-JSON; error messages are sent as HTTP response codes
 * @author				John Bell w/ Craig Dietrich
-* @version				1.1
+* @version				1.2
 */
 
 Class Api extends Controller {
@@ -169,7 +169,7 @@ Class Api extends Controller {
 		//parse data
 		$this->_load_relate_data();
 
-		$this->data['version_id'] = array_pop(explode(':', $this->data['scalar:urn']));
+		if (empty($this->data['version_id'])) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Could not find version ID from scalar:urn (version URN or slug)');
 		$this->_do_relate($this->data['version_id']);
 
 		$row = $this->versions->get($this->data['version_id']);
@@ -374,11 +374,21 @@ Class Api extends Controller {
 			}
 		}
 
-		// Check scalar:urn existance
-		$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:urn'])));
-		if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn does not exist');
-		if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
-		// Check scalar:child_urn existance + possibly overwrite scalar:child_urn based on its type from user input
+		// Validate scalar:urn (parent) and set its version ID + possibly glean URN from slug if that's what is sent
+		if (strpos($this->data['scalar:urn'], ':')) {   // e.g., urn:scalar:version:12345
+			$this->data['version_id'] = array_pop(explode(':', $this->data['scalar:urn']));
+			$book_id = $this->versions->get_book($this->data['version_id']);
+			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn does not exist');
+			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
+		} else {
+			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:urn']);
+			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not exist');
+			$version = $this->versions->get_all($page->content_id, null, 1);
+			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not have a version');
+			$this->data['version_id'] = $version[0]->version_id;
+		}
+
+		// Validate scalar:child_urn + possibly glean URN from slug if that's what is sent
 		if (strpos($this->data['scalar:child_urn'], ':')) {   // e.g., urn:scalar:version:12345
 			$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:child_urn'])));
 			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn does not exist');

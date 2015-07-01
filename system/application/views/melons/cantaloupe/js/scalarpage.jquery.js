@@ -673,7 +673,6 @@
 						// move to bottom
 						} else {
 							if ( !relationships.last().children('.path_of').length ) {
-								console.log('move to bottom');
 								$( ".relationships" ).last().after( pathContents );
 							}
 						}
