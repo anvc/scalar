@@ -8,6 +8,14 @@ body.in_menu{
     overflow-y: scroll;
     width: 100%;*/
 }
+
+.navbar .hidden_submit{
+	visibility:hidden;
+	width: 1px; 
+	height: 1px; 
+	position: absolute;
+}
+
 .navbar a, #mobileMainMenuSubmenus a{
 	cursor: pointer;
 }

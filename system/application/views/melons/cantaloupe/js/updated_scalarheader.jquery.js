@@ -161,9 +161,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</a>'+
                                             '</li>'+
                                             '<li id="ScalarHeaderMenuSearchForm">'+
-                                                '<form class="navbar-form" role="search">'+
+                                                '<form class="navbar-form" role="search" action="./">'+
                                                     '<div class="form-group">'+
                                                         '<input type="text" class="form-control" placeholder="Search this book...">'+
+                                                        '<input type="submit" class="hidden_submit">'+
                                                     '</div>'+
                                                   '</form>'+
                                             '</li>'+
@@ -566,16 +567,30 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var searchElement = $('<div></div>').appendTo('body');
             base.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
-            $('#ScalarHeaderMenuSearchForm form').submit(function(e) {
-                base.search.data('plugin_scalarsearch').doSearch($(this).find('input').first().val());
-                if(base.isMobile || base.$el.find('.navbar-toggle').is(':visible')){
-                    $('#ScalarHeaderMenuSearchForm').removeClass('open');
+            var submitForm = function(e) {
+                if($('#ScalarHeaderMenuSearchForm form input').val() != ''){
+                    var base = $('#scalarheader.navbar').data('scalarheader');
+                    base.search.data('plugin_scalarsearch').doSearch($(this).find('input').first().val());
+                    if(base.isMobile || base.$el.find('.navbar-toggle').is(':visible')){
+                        $('#ScalarHeaderMenuSearchForm').removeClass('open');
+                    }else{
+                        $('#ScalarHeaderMenuSearchForm').css('width','0px');
+                    }
+                    $('#ScalarHeaderMenuSearch').removeClass('search_open');
                 }else{
-                    $('#ScalarHeaderMenuSearchForm').css('width','0px');
+                    $('#ScalarHeaderMenuSearchForm form input').focus();
                 }
-                $('#ScalarHeaderMenuSearch').removeClass('search_open');
+
+                e.stopPropagation();
                 e.preventDefault();
                 return false;
+            };
+            $('#ScalarHeaderMenuSearchForm form').submit(submitForm).bind('keydown keypress keyup',function(e){
+                if(e.which == 13){
+                    e.stopPropagation();
+                    e.preventDefault();
+                    submitForm(e);
+                }
             });
 
             //Check if the current page should be logged in the "recent" menu - if so, do that and then render the menu. Otherwise, just get renderin'
