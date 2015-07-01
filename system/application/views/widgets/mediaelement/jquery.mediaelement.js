@@ -2577,6 +2577,10 @@ function YouTubeGetID(url){
 				mimeType = "video/ogg";
 				break;
 
+				case "3GPP":
+				mimeType = "video/3gpp";
+				break;
+
 				case "CriticalCommons-LegacyVideo":
 				var path_segments = this.model.path.split('.');
 				if (path_segments.length > 1) {
@@ -3327,6 +3331,7 @@ function YouTubeGetID(url){
 		this.model = model;  									// instance of the model
 		this.parentView = parentView;   						// primary view for the media element
 		this.bsn = this.model.filename.replace('html','');		// id of the video
+		this.initialPauseDone = false;
 
 		// this is a kludge to deal with the fact that flowplayer doesn't correctly report getTime() until
 		// the third time playing back
@@ -3345,7 +3350,7 @@ function YouTubeGetID(url){
 			        urlResolvers: 'bwcheck',
 			        provider: 'rtmp',
 			        scaling: 'uniform',
-			        autoPlay: this.model.options.autoplay,
+			        autoPlay: true,
 			        start: 0,
 			        bitrates: [
 			            { url: 'mp4:'+this.bsn+'_300k_s.mp4', width: 448, height: 336, bitrate: 300, isDefault: true },
@@ -3353,7 +3358,13 @@ function YouTubeGetID(url){
 			        ]
 			    },
 
-			    onBufferFull: function() { me.parentView.startTimer(); },
+			    onBufferFull: function() { 
+			    	me.parentView.startTimer(); 
+			    	if ( !me.model.options.autoplay && !me.initialPauseDone ) {
+			    		me.pause();
+			    	}
+				    me.initialPauseDone = true;
+			    },
 
 			    onPause: function() { me.parentView.endTimer(); },
 

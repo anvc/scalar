@@ -143,6 +143,11 @@ function ScalarAPI() {
 				subString: "Mozilla",
 				identity: "Netscape",
 				versionSearch: "Mozilla"
+			},
+			{
+				string: navigator.userAgent,
+				subString: "Android",
+				identity: "Android"
 			}
 		],
 		dataOS : [
@@ -165,7 +170,12 @@ function ScalarAPI() {
 				string: navigator.platform,
 				subString: "Linux",
 				identity: "Linux"
-			}
+			},
+			{
+				   string: navigator.userAgent,
+				   subString: "Android",
+				   identity: "Android"
+		    }
 		]
 	
 	};	
@@ -185,6 +195,7 @@ function ScalarAPI() {
 		case 'Chrome':
 		case 'Explorer':
 		case 'Mozilla':
+		case 'Android':
 		this.scalarBrowser = this.browserDetect.browser;
 		break;
 		
@@ -204,11 +215,8 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
-				'Explorer': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
-				'MobileSafari': {extensions:['3gp'], format:'3GPP', player:'native', specifiesDimensions:true},
-				'Safari': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true},
-				'Other': {extensions:['3gp'], format:'3GPP', player:'QuickTime', specifiesDimensions:true}
+				'Safari': {extensions:['3gp'], format:'3GPP', player:'native', specifiesDimensions:true},
+				'Other': {extensions:['3gp'], format:'3GPP', player:'native', specifiesDimensions:true}
 			}},
 		'AIFF': {
 			name:'AIFF',
@@ -284,6 +292,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['gif'], format:'GIF', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['gif'], format:'GIF', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['gif'], format:'GIF', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['gif'], format:'GIF', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['gif'], format:'GIF', player:'native', specifiesDimensions:true}
 			}},
 		'HIDVL': {
@@ -335,6 +344,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['jpg','jpeg'], format:'JPEG', player:'native', specifiesDimensions:true}
 			}},
 		'KML': {
@@ -453,6 +463,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['png'], format:'PNG', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['png'], format:'PNG', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['png'], format:'PNG', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['png'], format:'PNG', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['png'], format:'PNG', player:'native', specifiesDimensions:true}
 			}},
 		'Prezi': {
@@ -495,7 +506,6 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'image',
 			browserSupport: {
-				'Explorer': {extensions:['tif','tiff'], format:'TIFF', player:'QuickTime', specifiesDimensions:true},
 				'Safari': {extensions:['tif','tiff'], format:'TIFF', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['tif','tiff'], format:'TIFF', player:'QuickTime', specifiesDimensions:true}
 			}},
