@@ -300,6 +300,9 @@ $(document).ready(function() {
 		  });
 	    }
 	});
+	// Badges
+	badges();
+	$('a[role="tab"] .badge').closest('a').click(function() { badges(); });
 });
 // Determine if the page is a composite or media and show/hide certain elements accordingly
 function checkTypeSelect() {
@@ -317,6 +320,36 @@ function checkTypeSelect() {
 		$('.type_composite').hide();
 		$('.content_type').html('media file');
 	}
+}
+// Set Badges for Relationship tab
+function badges() {
+	var total = 0;
+	$('.badge').each(function() {
+		var self = $(this);
+		switch(self.parent().attr('href')) {
+			case '#path-pane':
+				var j = $('input[name="container_of"]').length;
+				self.html(((j>0)?j:''));
+				total = total + j;
+				break;
+			case '#comment-pane':
+				var j = $('input[name="reply_of"]').length;
+				self.html(((j>0)?j:''));
+				total = total + j;
+				break;
+			case '#annotation-pane':
+				var j = $('input[name="annotation_of"]').length;
+				self.html(((j>0)?j:''));
+				total = total + j;
+				break;
+			case '#tag-pane':
+				var j = $('input[name="tag_of"]').length + $('input[name="has_tag"]').length;
+				self.html(((j>0)?j:''));
+				total = total + j;
+				break;
+		};
+	});
+	$('a[role="tab"] .badge').html(((total>0)?total:''));
 }
 // Validate form data before sending to Scalar's save API
 function validate_form(form) {
@@ -415,28 +448,15 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 </tr>
 </table>
 
-<?php
-	if(!empty($page)){
-		$path_count = count($page->versions[$page->version_index]->path_of)+count($page->versions[$page->version_index]->has_paths);
-		$reply_count = count($page->versions[$page->version_index]->reply_of) + count($page->versions[$page->version_index]->has_replies);
-		$annotation_count = count($page->versions[$page->version_index]->annotation_of) + count($page->versions[$page->version_index]->has_annotations);
-		$tag_count = count($page->versions[$page->version_index]->tag_of) + count($page->versions[$page->version_index]->has_tags);
-	}else{
-		$path_count = $reply_count = $annotation_count = $tag_count = 0;
-	}
-
-	$rel_count = $path_count + $reply_count + $annotation_count + $tag_count;
-?>
-
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active type_composite"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
-		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"><?php if($rel_count > 0){ echo $rel_count; } ?></span><span class="caret"></span></a>
+		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <span class="badge"><?php if($path_count > 0){echo $path_count;} ?></span></a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <span class="badge"><?php if($reply_count > 0){echo $reply_count;} ?></span></a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#annotation-pane" aria-controls="annotation-pane" data-toggle="tab"><span class="annotation_icon"></span> Annotation <span class="badge"><?php if($annotation_count > 0){echo $annotation_count;} ?></span></a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag <span class="badge"><?php if($tag_count > 0){echo $tag_count;} ?></span></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <span class="badge"></span></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <span class="badge"></span></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#annotation-pane" aria-controls="annotation-pane" data-toggle="tab"><span class="annotation_icon"></span> Annotation <span class="badge"></span></a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag <span class="badge"></span></a></li>
 			</ul>
 		</li>
 		<li role="presentation" class="dropdown type_composite"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></a></span>
