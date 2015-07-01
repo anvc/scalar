@@ -2180,7 +2180,8 @@ function YouTubeGetID(url){
 		 			this.annotatedImage = $(this.image).annotateImage({
 		 				editable: editable,
 		 				useAjax: false,
-		 				notes: notes
+		 				notes: notes,
+		 				ignoreRollover: true
 		 			});
 
 		 			$('body').bind('image_annotation_clicked', function(e, note) {
