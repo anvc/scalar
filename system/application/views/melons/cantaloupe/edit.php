@@ -329,13 +329,13 @@ function badges() {
 		var j = 0;
 		switch(self.parent().attr('href')) {
 			case '#path-pane':
-				j = $('input[name="container_of"]').length;
+				j = $('input[name="container_of"]').length + $('input[name="has_container"]').length;
 				break;
 			case '#comment-pane':
-				j = $('input[name="reply_of"]').length;
+				j = $('input[name="reply_of"]').length + $('input[name="has_reply"]').length;
 				break;
 			case '#annotation-pane':
-				j = $('input[name="annotation_of"]').length;
+				j = $('input[name="annotation_of"]').length + $('input[name="has_annotation"]').length;
 				break;
 			case '#tag-pane':
 				j = $('input[name="tag_of"]').length + $('input[name="has_tag"]').length;
