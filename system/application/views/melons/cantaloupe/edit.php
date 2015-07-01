@@ -326,28 +326,23 @@ function badges() {
 	var total = 0;
 	$('.badge').each(function() {
 		var self = $(this);
+		var j = 0;
 		switch(self.parent().attr('href')) {
 			case '#path-pane':
-				var j = $('input[name="container_of"]').length;
-				self.html(((j>0)?j:''));
-				total = total + j;
+				j = $('input[name="container_of"]').length;
 				break;
 			case '#comment-pane':
-				var j = $('input[name="reply_of"]').length;
-				self.html(((j>0)?j:''));
-				total = total + j;
+				j = $('input[name="reply_of"]').length;
 				break;
 			case '#annotation-pane':
-				var j = $('input[name="annotation_of"]').length;
-				self.html(((j>0)?j:''));
-				total = total + j;
+				j = $('input[name="annotation_of"]').length;
 				break;
 			case '#tag-pane':
-				var j = $('input[name="tag_of"]').length + $('input[name="has_tag"]').length;
-				self.html(((j>0)?j:''));
-				total = total + j;
+				j = $('input[name="tag_of"]').length + $('input[name="has_tag"]').length;
 				break;
 		};
+		self.html(((j>0)?j:''));
+		total = total + j;
 	});
 	$('a[role="tab"] .badge').html(((total>0)?total:''));
 }
