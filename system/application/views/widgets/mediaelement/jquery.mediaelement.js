@@ -1723,11 +1723,17 @@ function YouTubeGetID(url){
 			var temp = annotation.body.urn.split(':');
 			var urn = temp[temp.length - 1];
 
-			$($('.image-annotate-area')).hide();
-			$($('#'+this.model.id+'_'+urn)).show();
+			var annotateArea = $('#'+this.model.id+'_'+urn);
+			var annotateNote = $('#'+this.model.id+'_'+urn+'_note');
+			var annotateView = annotateArea.parents( '.image-annotate-view' );
 
-			$($('.image-annotate-note')).hide();
-			$($('#'+this.model.id+'_'+urn+'_note')).show();
+			annotateView.show();
+
+			annotateView.find( '.image-annotate-area' ).hide();
+			annotateArea.show();
+
+			annotateView.find( '.image-annotate-note' ).hide();
+			annotateNote.show();
 
 			if (document.location.href.indexOf('.annotation_editor')==-1) {
 				$('body').trigger('show_annotation', [annotation, this]);
