@@ -3178,7 +3178,7 @@ function YouTubeGetID(url){
 
 			    clip: {
 			        url: this.model.path,
-			        accelerated: false,
+			        accelerated: true,
 			        scaling: 'fit',
 			        autoPlay: true,
 			        autoBuffering: true
@@ -3190,13 +3190,15 @@ function YouTubeGetID(url){
 				},
 
 			    onStart: function() {
+			    },
+
+			    onBufferFull: function() { 
+			    	me.parentView.startTimer(); 
 			    	if (!me.playStopped && !me.model.options.autoplay) {
 			    		this.pause();
 			    		me.playStopped = true;
 			    	}
-			    },
-
-			    onBufferFull: function() { me.parentView.startTimer(); },
+				},
 
 			    onPause: function() { me.parentView.endTimer(); },
 
@@ -3349,7 +3351,7 @@ function YouTubeGetID(url){
 			    clip: {
 			        urlResolvers: 'bwcheck',
 			        provider: 'rtmp',
-			        scaling: 'uniform',
+			        scaling: 'fit',
 			        autoPlay: true,
 			        start: 0,
 			        bitrates: [

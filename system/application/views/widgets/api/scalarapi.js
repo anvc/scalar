@@ -236,12 +236,12 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'Flash', specifiesDimensions:true},
+				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Explorer': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'Flash', specifiesDimensions:true},
-				'Other': {extensions:['mp4'], format:'MPEG-4', player:'Flash', specifiesDimensions:true}
+				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
+				'Other': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true}
 			}},
 		'CriticalCommons-Video': {
 			name:'CriticalCommons-Video',
@@ -254,6 +254,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}
 			}},
 		'Deep Zoom Image': {
@@ -267,6 +268,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
 				'Safari': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
 				'Chrome': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
+				'Android': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
 				'Other': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false}
 			}},
 		'FlashVideo': {
@@ -319,6 +321,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
+				'Android': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false}
 			}},
 		'HyperCities': {
@@ -358,6 +361,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
 				'Safari': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
 				'Chrome': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false},
 				'Other': {extensions:['kml','kmz'], format:'KML', player:'proprietary', specifiesDimensions:false}
 			}},
 		'M4V': {
@@ -371,6 +375,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['m4v'], format:'M4V', player:'QuickTime', specifiesDimensions:true}
 			}},
 		'MPEG-1': {
@@ -404,6 +409,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['mp3'], format:'MPEG-3', player:'jPlayer', specifiesDimensions:false},
 				'Safari': {extensions:['mp3'], format:'MPEG-3', player:'jPlayer', specifiesDimensions:false},
 				'Chrome': {extensions:['mp3'], format:'MPEG-3', player:'jPlayer', specifiesDimensions:false},
+				'Android': {extensions:['mp3'], format:'MPEG-3', player:'jPlayer', specifiesDimensions:false},
 				'Other': {extensions:['mp3'], format:'MPEG-3', player:'jPlayer', specifiesDimensions:false}
 			}},
 		'MPEG-4': {
@@ -412,12 +418,13 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'Flash', specifiesDimensions:true},
+				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Explorer': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'Flash', specifiesDimensions:true},
-				'Other': {extensions:['mp4'], format:'MPEG-4', player:'Flash', specifiesDimensions:true}
+				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
+				'Other': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true}
 			}},
 		'Ogg-Audio': {
 			name:'OGA', 
@@ -450,6 +457,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
+				'Android': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false}
 			}},
 		'PNG': {
@@ -520,6 +528,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Android': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
 				'Other': {extensions:otherSrcExt, format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
 		'SoundCloud': {
@@ -533,6 +542,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
 				'Safari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
 				'Chrome': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
 				'Other': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false}
 			}},
 		'SourceCode': {
@@ -546,6 +556,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
+				'Android': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
 				'Other': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
 		'Unsupported': {
@@ -559,6 +570,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:[], format:'Unsupported', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:[], format:'Unsupported', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:[], format:'Unsupported', player:'native', specifiesDimensions:false},
+				'Android': {extensions:[], format:'Unsupported', player:'native', specifiesDimensions:false},
 				'Other': {extensions:[], format:'Unsupported', player:'native', specifiesDimensions:false}
 			}},
 		'Vimeo': {
@@ -572,6 +584,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'Chrome': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
 				'Other': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false}
 			}},
 		'WAV': {
@@ -585,6 +598,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
+				'Android': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['wav'], format:'WAV', player:'jPlayer', specifiesDimensions:false}
 			}},
 		'WebM': {
@@ -596,6 +610,7 @@ function ScalarAPI() {
 				'Mozilla': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['webm'], format:'WebM', player:'QuickTime', specifiesDimensions:true},
 				'Chrome': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}
 			}},
 		'YouTube': {
@@ -609,6 +624,7 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'Chrome': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
 				'Other': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false}
 			}}
 	}
@@ -823,7 +839,7 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 			var currentSource;
 			for (var sourceName in this.mediaSources) {
 				currentSource = this.mediaSources[sourceName];
-				//if (!currentSource.isProprietary) {
+				if (( currentSource.name.indexOf( 'CriticalCommons' ) == -1 ) && ( currentSource.name != "HIDVL" )) {	
 					if (currentSource.extensions.indexOf(ext) != -1) {
 						if ((currentSource == 'MPEG-4') && (uri.indexOf('rtsp://') != -1)) {
 							source = this.mediaSources['QuickTimeStreaming'];
@@ -832,7 +848,7 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 						}
 						break;
 					}
-				//}
+				}
 			}
 			// last ditch effort - if no match to date and it's a URL, load it in an iframe
 			if ( source == this.mediaSources['Unsupported'] ) {
