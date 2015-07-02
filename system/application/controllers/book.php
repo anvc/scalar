@@ -88,6 +88,7 @@ class Book extends MY_Controller {
 		$this->load_melon_config($this->data['melon']);
 		// Init
 		$this->data['views'] = $this->config->item('views');
+		$this->data['media_views'] = $this->config->item('media_views');
 		$this->data['view'] = key($this->data['views']);
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null;
@@ -125,7 +126,7 @@ class Book extends MY_Controller {
 					$version = $this->versions->get_by_version_num($page->content_id, $version_num);
 					if (!empty($version)) $this->data['version_datetime'] = $version->created;
 				}
-				// Build nested array of page relationship
+				// Build (hierarchical) RDF object for the page's version(s)
 				$settings = array(
 								 	'book'         => $this->data['book'],
 									'content'      => $page,
@@ -141,6 +142,8 @@ class Book extends MY_Controller {
 			    unset($index);
 				// Paywall
 				if (isset($page->paywall) && $page->paywall) $this->paywall();
+				// If a media page, overwrite the views with the media_views if applicable
+				if ('media'==$this->data['page']->type && !empty($this->data['media_views'])) $this->data['views'] = $this->data['media_views'];
 				// Set the view based on the page's default view
 				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;

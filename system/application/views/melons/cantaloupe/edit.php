@@ -313,10 +313,6 @@ function checkTypeSelect() {
 		$('.content_type').html('page');
 	} else {
 		$('.type_media').show();
-		$( '#editor-tabpanel > div > div.tab-pane' ).removeClass( 'active' );
-		$( '#editor-tabpanel > ul > li' ).removeClass( 'active' );
-		$( 'a[href="#path-pane"]' ).parent().parent().parent().addClass( 'active' );
-		$( '#path-pane' ).addClass( 'active' );
 		$('.type_composite').hide();
 		$('.content_type').html('media file');
 	}
@@ -445,7 +441,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
-		<li role="presentation" class="active type_composite"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
+		<li role="presentation" class="active"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
 		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <span class="badge"></span></a></li>
