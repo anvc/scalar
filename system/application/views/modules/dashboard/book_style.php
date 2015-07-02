@@ -143,12 +143,6 @@ $(window).ready(function() {
 
 	$('input[name="slug"]').keydown(function() {
 		var $this = $(this);
-		if($this.data("original") == undefined) {
-			$this.data('original',$this.val());
-		}
-	});
-	$('input[name="slug"]').keyup(function() {
-		var $this = $(this);
 		if (true!==$this.data('confirmed')) {
 			$("#slug-change-confirm").dialog({
 				resizable:false,
@@ -163,9 +157,6 @@ $(window).ready(function() {
 						$this.data('confirmed',false);
 						$(this).dialog("close");
 						$this.blur();
-						if(typeof $this.data("original") != undefined) {
-							$this.val($this.data('original'));
-						}
 					},
 					"Continue":function() {
 						$this.data('confirmed',true);
