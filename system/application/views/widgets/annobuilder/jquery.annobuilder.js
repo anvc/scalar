@@ -1104,6 +1104,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
 			me.makeSelectedAnnotationDirty(annotation);
+			me.sortAnnotations();
+			var index = me.indexForAnnotation(annotation);
+			var row = me.annotationList.find('.annotationChip').eq(index);
+			var dimensions = me.unparseDimensions();
+			row.find('a').text( 'x:' + dimensions.x + ' y:' + dimensions.y );
 		}	
 	}
 
@@ -1230,15 +1235,15 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				var indexB;
 				edits = $(a).data('edits');
 				if (edits) {
-					indexA = parseFloat(edits.x) * parseFloat(edits.y);
+					indexA = ( parseFloat(edits.y) * 10000 ) + parseFloat(edits.x);
 				} else {
-					indexA = parseFloat($(a).data('annotation').properties.x) * parseFloat($(a).data('annotation').properties.y);
+					indexA = ( parseFloat($(a).data('annotation').properties.y) * 10000 ) + parseFloat($(a).data('annotation').properties.x);
 				}
 				edits = $(b).data('edits');
 				if (edits) {
-					indexB = parseFloat(edits.x) * parseFloat(edits.y);
+					indexB = ( parseFloat(edits.y) * 10000 ) + parseFloat(edits.x);
 				} else {
-					indexB = parseFloat($(b).data('annotation').properties.x) * parseFloat($(b).data('annotation').properties.y);
+					indexB = ( parseFloat($(b).data('annotation').properties.y) * 10000 ) + parseFloat($(b).data('annotation').properties.x);
 				}
 				return indexA > indexB ? 1 : -1;
 				break;
