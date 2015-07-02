@@ -55,9 +55,9 @@
 	            $(this).hide();
 	        });
 		} else { // Added by Erik Loyer to allow conditional rollovers
-            $(this).show();
+            /*$(this).show();
             $(this).children('.image-annotate-area').show();
-            $(this).children('.image-annotate-view').show();
+            $(this).children('.image-annotate-view').show();*/
 		}
 
         // load the notes
