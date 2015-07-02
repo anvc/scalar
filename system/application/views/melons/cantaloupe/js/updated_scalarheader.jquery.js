@@ -570,7 +570,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             var submitForm = function(e) {
                 if($('#ScalarHeaderMenuSearchForm form input').val() != ''){
                     var base = $('#scalarheader.navbar').data('scalarheader');
-                    base.search.data('plugin_scalarsearch').doSearch($(this).find('input').first().val());
+                    base.search.data('plugin_scalarsearch').doSearch($('#ScalarHeaderMenuSearchForm form input').first().val());
                     if(base.isMobile || base.$el.find('.navbar-toggle').is(':visible')){
                         $('#ScalarHeaderMenuSearchForm').removeClass('open');
                     }else{
