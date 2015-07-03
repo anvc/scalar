@@ -2056,6 +2056,9 @@ function YouTubeGetID(url){
 			if ( queryVars.t != null ) {
 				url += '?t=' + new Date().getTime();
 			}
+			
+			// special case some URL elements
+			if (-1!=url.indexOf('http://cubantheater.org')) url = url.replace('http://cubantheater.org','http://ctda.library.miami.edu');
 
 			// setup actions to be taken on image load
 			$(this.image).load(function() {
