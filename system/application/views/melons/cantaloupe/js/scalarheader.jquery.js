@@ -648,34 +648,25 @@
 
             
             base.$el.find('#ScalarHeaderDelete').click(function(){
-                var result = confirm('Are you sure you wish to hide this page from view (move it to the trash)?');
+                var result = confirm('Are you sure you wish to hide this page from view?');
 
                 if (result) {
-                    var base = $('#scalarheader.navbar').data('scalarheader');        
                     // assemble params for the trash action
-                    var node = scalarapi.model.getCurrentPageNode(),
-                        baseProperties =  {
-                            'native': 1,
-                            id: $('link#parent').attr('href'),
-                            api_key: $('input[name="api_key"]').val()
-                        },
-                        pageData = {
-                            action: 'UPDATE',
-                            'scalar:urn': $('link#urn').attr('href'),
-                            uriSegment: base.current_slug,
-                            'dcterms:title': node.current.title,
-                            'dcterms:description': node.current.description,
-                            'sioc:content': node.current.content,
-                            'rdf:type': node.baseType,
-                            'scalar:metadata:is_live': 0
-                        },
-                        relationData = {};
-
+                    var pageData = {
+                    		native:1,
+                    		id:$('link#parent').attr('href'),
+                    		api_key:'',
+                            action: 'DELETE',
+                            'scalar:urn': $('link#urn').attr('href')
+                        };
                     // execute the trash action (i.e. make is_live=0)
-                    scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, function(result) {
-                        window.location.reload();
+                    scalarapi.savePage(pageData, function(result) {
+                        for (var url in result) break;
+                        url = url.substr(0, url.lastIndexOf('.'));
+                    	window.location.href=url;
+                    	return;
                     }, function(result) {
-                        alert('An error occurred while moving this content to the trash. Please try again.');
+                        alert('An error occurred attempting to hide this page: '+result+'. Please try again.');
                     });
                 }
             });

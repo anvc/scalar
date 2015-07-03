@@ -221,7 +221,6 @@ Class Api extends Controller {
 
 		//validate and update content entry
 		$this->data['version_id'] = array_pop(explode(':',$this->data['scalar:urn']));
-		$save_content = $this->_array_remap_content_update();
 		if (!$this->users->is_a($this->user->relationship,'reviewer')&&!$this->pages->is_owner($this->user->user_id,$this->data['content_id'])) {
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
 		}
