@@ -581,7 +581,7 @@ a.media_info {
 
 .mediainfo table, .additional_metadata table { width: 100%; }
 
-.media_annotations tr { cursor: pointer; }
+.media_annotations tr, .current_annotation tr { cursor: pointer; }
 .media_annotations tr:hover { background-color: #eee; }
 .media_annotations tr.current { background-color: #c5dceb; }
 

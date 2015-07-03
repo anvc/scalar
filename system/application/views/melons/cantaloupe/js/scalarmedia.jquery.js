@@ -54,6 +54,19 @@
 								} else {
 									row = $('<tr><td>'+relation.startString+'</td><td><p>'+relation.body.getDisplayTitle()+'</p></td></tr>').appendTo(currentAnnotationTable);
 								}
+								row.data('relation', annotation);
+								row.click(function() {
+									var relation = $(this).data('relation');
+									mediaelement.seek(relation);
+									if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+					       				setTimeout(function() {
+					           				if(!mediaelement.is_playing()) {
+												mediaelement.play();
+					           				}
+					       				},250);
+									}
+								});
+
 								currentAnnotation.slideDown();
 
 							// otherwise, update the list of all annotations
