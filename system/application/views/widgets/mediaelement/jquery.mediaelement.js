@@ -1514,7 +1514,6 @@ function YouTubeGetID(url){
 					// if the annotation sidebar is showing,
 					if (me.annotationSidebar.css('display') == 'block') {
 						chip = me.annotationSidebar.find('div.annotationChip').eq(i);
-
 						// if this annotation is active,
 						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
@@ -1551,7 +1550,6 @@ function YouTubeGetID(url){
 
 					// if the annotation sidebar is hidden,
 					} else {
-
 						// if this annotation is active, set up highlighting
 						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
@@ -1617,9 +1615,8 @@ function YouTubeGetID(url){
 					if ((scrollTop != null) && (me.annotationsVisible)) me.annotationSidebar.animate({scrollTop:scrollTop}, 500);
 
 				} else if (me.model.isChromeless) {
-
 					if (liveCount > 0) {
-						if ((me.model.mediaSource.name == 'Vimeo') ||(me.model.mediaSource.name == 'SoundCloud')) {
+						if ((me.model.mediaSource.name == 'Vimeo')) {// ||(me.model.mediaSource.name == 'SoundCloud')) {
 							// this prevents Vimeo videos generated from linked annotations from displaying
 							// their live annotation when cueing up on page load
 							if ((me.mediaObjectView.initialPauseDone) && (me.intervalId != null)) {
@@ -4532,6 +4529,7 @@ function YouTubeGetID(url){
 		 */
 		jQuery.SoundCloudAudioObjectView.prototype.seek = function(time) {
 				this.widget.seekTo(time * 1000);
+				this.currentTime = time;
 		}
 
 		/**
