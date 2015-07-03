@@ -571,7 +571,7 @@ function YouTubeGetID(url){
 						youTubeMediaElementViews.push(this);
 					}
 
-				// intialize the SoundCloud API if we haven't already
+				// initialize the SoundCloud API if we haven't already
 				} else if (this.model.mediaSource.name == 'SoundCloud') {
 
 					if (!soundCloudInitialized) {
@@ -1773,14 +1773,6 @@ function YouTubeGetID(url){
 					// if we know the user intends for the clip to start playing, do so
 					if ( me.cachedPlayCommand || me.model.options.autoplay ) {
 						me.play();
-					} else {
-
-						// SoundCloud must be playing in order to seek, so pause if we've arrived
-						if (me.model.mediaSource.name == 'SoundCloud') {
-							me.mediaObjectView.pause();
-							me.mediaObjectView.initialPauseDone = true;
-						}
-
 					}
 					result = true;
 				}
@@ -1896,9 +1888,12 @@ function YouTubeGetID(url){
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
 						annotationChip.click( function() {
-							$(this).data('me').cachedPlayCommand = true;
-							$(this).data('me').seek($(this).data('annotation'));
-							$(this).data('me').play();
+							var $me = $(this).data('me');
+							$me.cachedPlayCommand = true;
+							$me.seek($(this).data('annotation'));
+              				setTimeout(function() {
+								$me.play();
+              				},250);
 						});
 
 						annotationChip.append('<p class="annotationTitle"><strong>'+annotation.body.getDisplayTitle()+'</strong></p>');
@@ -4449,7 +4444,7 @@ function YouTubeGetID(url){
 		jQuery.SoundCloudAudioObjectView.prototype.createObject = function() {
 
 			me.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
-			SC.oEmbed(this.model.path, {auto_play: false, download: true,show_comments:false,liking:false,buying:false}, function(oembed){
+			SC.oEmbed(this.model.path, {auto_play: true, download: true,show_comments:false,liking:false,buying:false}, function(oembed){
  				if ( oembed != null ) {
 					oembed.height = me.parentView.resizedDim.y;
 					me.parentView.controllerHeight = oembed.height;
@@ -4457,31 +4452,22 @@ function YouTubeGetID(url){
 					$(oembed.html).css('height',oembed.height).appendTo(me.mediaObject.children()[0]);
 
 					me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
+					// All Sound Cloud Event listeners are extremely unreliable when triggered programatically.
+					// This motivates the code below as any attempt to exercise fine tuned control over the order
+					// of events is unadvisable
 					me.widget.bind(SC.Widget.Events.READY, function() {
-						// This event does not seem to discriminate which widget triggered it.
-						// This callback is used because it is only called once the
-						// widget has loaded.  Thus, all widgets get properly paused once ready
 						me.widget.isPaused(function() {
 							if(!me.initialPauseDone) {
-								// Sound Cloud sticks up an overlay on first pause.  Double play skips over it.
-								me.widget.play();
-								me.widget.pause();
-								me.widget.play();
- 								if ( !me.model.options.autoplay ) {
+								if ( !me.model.options.autoplay ) {
 									me.widget.pause();
 								}
 								me.initialPauseDone = true;
 							}
 						});
-					})
+					});
 					me.widget.bind(SC.Widget.Events.PLAY, function() {
 						if(me.initialPauseDone) {
- 							me.parentView.startTimer();
-							if (me.cachedSeekTime != null) {
-								me.widget.seekTo(me.cachedSeekTime);
-								if (!me.wasPlayingBeforeSeek) me.widget.pause();
-								me.cachedSeekTime = null;
-							}
+		 					me.parentView.startTimer();
 							me.isAudioPlaying = true;
 						}
 					});
@@ -4489,7 +4475,7 @@ function YouTubeGetID(url){
 						if(me.initialPauseDone) {
 							me.parentView.endTimer();
 							me.isAudioPlaying = false;
-						}
+						} 
 					});
 					me.widget.bind(SC.Widget.Events.FINISH, function() {
 						me.parentView.endTimer();
@@ -4503,6 +4489,10 @@ function YouTubeGetID(url){
 			});
 
 			this.parentView.controllerOnly = true;
+			this.parentView.controllerHeight = 166;
+
+			this.parentView.intrinsicDim.x = this.parentView.containerDim.x;
+			this.parentView.intrinsicDim.y = this.parentView.containerDim.y;
 
 			this.parentView.calculateContainerSize();
 			this.parentView.layoutMediaObject();
@@ -4541,13 +4531,7 @@ function YouTubeGetID(url){
 		 * @param {Number} time			Seek location in seconds.
 		 */
 		jQuery.SoundCloudAudioObjectView.prototype.seek = function(time) {
-			if (!this.isAudioPlaying) {
-				this.cachedSeekTime = time * 1000;
-				this.wasPlayingBeforeSeek = this.isAudioPlaying;
-				this.widget.play();
-			} else {
 				this.widget.seekTo(time * 1000);
-			}
 		}
 
 		/**
