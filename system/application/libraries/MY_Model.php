@@ -381,7 +381,7 @@ abstract class MY_Model extends Model {
     }
 
     /**
-     * Return the verion number for a content node
+     * Return the version number for a content node
      */
 
     protected function get_version_num($content_id) {

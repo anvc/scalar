@@ -275,6 +275,8 @@ class Book_model extends MY_Model {
     }
 
 	// Table of Contents
+	// - The edit page will maintain a page's sort_number when incrementing versions
+	// - The Dashboard points to specific versions, but save_versions() will make sure to save most up-to-date version
     public function get_book_versions($book_id, $is_live=false) {
 
     	$this->db->select($this->versions_table.'.*');
@@ -597,22 +599,27 @@ class Book_model extends MY_Model {
 
     }
 
+    // Table of Contents
+    // Always save most recent version; edit page ensures links stay established in the other direction
     public function save_versions($array=array()) {
 
-    	// Get ID
     	$book_id =@ $array['book_id'];
     	if (empty($book_id)) throw new Exception('Invalid book ID');
-    	// Book versions (ie, main menu)
 		self::reset_book_versions($book_id);
+		$CI =& get_instance();
+		if (!is_object($CI->versions)) $this->load->model('version_model', 'versions');
+
 		$sort_number = 1;
 		foreach ($array as $field => $value) {
 			if (substr($field, 0, 13) != 'book_version_') continue;
-			$version_id = (int) substr($field,13);
 			$value = (int) $value;
-			if ($value) {
-				$this->db->where('version_id', $version_id);
-				$this->db->update($this->versions_table, array( 'sort_number'=>$sort_number++ ));
-			}
+			if (!$value) continue;
+			$version_id = (int) substr($field,13);
+			$content_id = $CI->versions->get_content_id($version_id);
+			$top_version = $this->get_top_version($content_id);
+			$top_version_id = $top_version->version_id;
+			$this->db->where('version_id', $top_version_id);
+			$this->db->update($this->versions_table, array( 'sort_number'=>$sort_number++ ));
 		}
 		return $array;
 
