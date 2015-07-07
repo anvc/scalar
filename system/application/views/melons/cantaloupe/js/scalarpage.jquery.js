@@ -1479,7 +1479,7 @@
 				}
 
 				var banner = currentNode.banner;
-				if (banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;				
+				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;				
 				$('[property="art:url"]').hide();
 				// element.css('backgroundImage', $('body').css('backgroundImage'));
 				element.css('background-image', 'url('+banner+')');
@@ -1540,7 +1540,7 @@
 
 				case 'image_header':
 				var banner = currentNode.banner;
-				if (banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;
+				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;	
 				$( '.page' ).css( 'padding-top', '5rem' );
 				$( 'article > header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
 				// $( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
