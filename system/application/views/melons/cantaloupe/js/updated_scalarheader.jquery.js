@@ -193,7 +193,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive') + '">Cuban Theater Digital Archive</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/hemispheric_institute') + '">Hemispheric Institute Digital Video Library</a></li>'+
-                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/hypercities') + '">Hypercities</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/internet_archive') + '">Internet Archive</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/play') + '">PLAY!</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online') + '">Shoah Foundation VHA Online</a></li>'+
