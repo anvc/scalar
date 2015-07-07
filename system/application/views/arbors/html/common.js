@@ -54,7 +54,7 @@ function validate_upload_form_file_return($form) {
 		$(iframe).unbind();
 		$(iframe).attr('src', '');
 		send_form_hide_loading();
-		alert('There was an error saving the file: the filesize is too large ('+err+')');
+		alert('There was an error saving the file: '+err);
 		return;
 	}
 	if ('undefined'!=typeof(obj) && 'undefined'!=typeof(obj.error) && obj.error.length) {
