@@ -303,6 +303,16 @@ $(document).ready(function() {
 	// Badges
 	badges();
 	$('a[role="tab"] .badge').closest('a').click(function() { badges(); });
+	
+	//Added to prevent accidental navigation away from edit/add page
+	$(window).on('beforeunload',function(e){
+		var message = 'You are now leaving the page. If you have made any changes to this page, they will be lost.';
+		e.returnvalue = message;
+		return message;
+	});
+	$('#edit_form input:submit').click(function(e){
+		$(window).off('beforeunload');
+	});
 });
 // Determine if the page is a composite or media and show/hide certain elements accordingly
 function checkTypeSelect() {
