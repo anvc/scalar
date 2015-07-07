@@ -1478,8 +1478,11 @@
 					$( '.title_card' ).append('<h2></h2>');
 				}
 
+				var banner = currentNode.banner;
+				if (banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;				
 				$('[property="art:url"]').hide();
-				element.css('backgroundImage', $('body').css('backgroundImage'));
+				// element.css('backgroundImage', $('body').css('backgroundImage'));
+				element.css('background-image', 'url('+banner+')');
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
 				page.addRelationshipNavigation( false, false, true, false, true );
@@ -1536,9 +1539,12 @@
 				break;
 
 				case 'image_header':
+				var banner = currentNode.banner;
+				if (banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;
 				$( '.page' ).css( 'padding-top', '5rem' );
 				$( 'article > header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
-				$( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
+				// $( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
+				$( '.image_header' ).css( 'background-image', 'url('+banner+')' );
 				$( '.title_card' ).append( $( 'header > h1' ) );
 				if ( currentNode.current.description != null ) {
 					$( '.title_card' ).append( '<div class="description">' + currentNode.current.description + '</div>' );

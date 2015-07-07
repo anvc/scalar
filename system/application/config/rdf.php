@@ -62,6 +62,7 @@ $config['rdf_fields'] = array(
 		'replaced_by' =>			'dcterms:isReplacedBy',
 		'publisher' =>				'dcterms:publisher',
 		'background' =>				'scalar:background',
+		'banner' =>					'scalar:banner',
 		'color' => 					'scalar:color',
 		'audio' => 					'scalar:audio',
 		'urn' => 					'scalar:urn',

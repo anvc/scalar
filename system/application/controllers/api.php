@@ -37,7 +37,7 @@ Class Api extends Controller {
 	private $update_fields = array('dcterms:title','dcterms:description','rdf:type','scalar:urn','scalar:fullname','sioc:content');
 	private $optional_update_fields = array('dcterms:description','scalar:fullname','sioc:content');
 	private $relate_fields = array('scalar:urn', 'scalar:child_urn', 'scalar:child_rel');
-	private $content_metadata = array('category', 'thumbnail', 'background', 'custom_style', 'custom_scripts', 'color', 'slug', 'audio', 'is_live');
+	private $content_metadata = array('category', 'thumbnail', 'background', 'banner', 'custom_style', 'custom_scripts', 'color', 'slug', 'audio', 'is_live');
 	private $version_metadata = array('url', 'default_view', 'continue_to_content_id', 'sort_number');
 	private $delete_fields = array('scalar:urn');
 	private $content_types = array('book', 'media', 'composite', 'version');
