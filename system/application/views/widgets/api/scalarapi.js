@@ -77,6 +77,11 @@ function ScalarAPI() {
 		dataBrowser: [
 			{
 				string: navigator.userAgent,
+				subString: "Android",
+				identity: "Android"
+			},
+			{
+				string: navigator.userAgent,
 				subString: "Chrome",
 				identity: "Chrome"
 			},
@@ -143,11 +148,6 @@ function ScalarAPI() {
 				subString: "Mozilla",
 				identity: "Netscape",
 				versionSearch: "Mozilla"
-			},
-			{
-				string: navigator.userAgent,
-				subString: "Android",
-				identity: "Android"
 			}
 		],
 		dataOS : [
@@ -162,9 +162,9 @@ function ScalarAPI() {
 				identity: "Mac"
 			},
 			{
-				   string: navigator.userAgent,
-				   subString: "iPhone",
-				   identity: "iPhone/iPod"
+				string: navigator.userAgent,
+				subString: "iPhone",
+				identity: "iPhone/iPod"
 		    },
 			{
 				string: navigator.platform,
@@ -172,9 +172,9 @@ function ScalarAPI() {
 				identity: "Linux"
 			},
 			{
-				   string: navigator.userAgent,
-				   subString: "Android",
-				   identity: "Android"
+				string: navigator.userAgent,
+				subString: "Android",
+				identity: "Android"
 		    }
 		]
 	
