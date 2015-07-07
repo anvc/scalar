@@ -453,11 +453,9 @@ function ScalarAPI() {
 			contentType:'document',
 			browserSupport: {
 				'Mozilla': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
 				'MobileSafari': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
-				'Android': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['pdf'], format:'PDF', player:'native', specifiesDimensions:false}
 			}},
 		'PNG': {
@@ -482,6 +480,7 @@ function ScalarAPI() {
 			browserSupport: {
 				'Mozilla': {extensions:[], format:'Prezi', player:'proprietary', specifiesDimensions:false},
 				'Explorer': {extensions:[], format:'Prezi', player:'proprietary', specifiesDimensions:false},
+				'MobileSafari': {extensions:[], format:'Prezi', player:'proprietary', specifiesDimensions:false},
 				'Safari': {extensions:[], format:'Prezi', player:'proprietary', specifiesDimensions:false},
 				'Chrome': {extensions:[], format:'Prezi', player:'proprietary', specifiesDimensions:false},
 				'Other': {extensions:[], format:'Prezi', player:'proprietary', specifiesDimensions:false}
