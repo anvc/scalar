@@ -53,8 +53,8 @@
           <?php
           	if (!$login->is_logged_in){
           ?>
-          	<small class="text-muted">Registration is required in order to join, clone, or create a book. You may either <?php echo '<a href="'.ACLSWORKBENCH_LOGIN_URL.'system/login?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.sign_in'), '</a> ',
-				  lang('or'),' <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/register?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.register'), '</a> ';?> to access these features.</small>
+          	<small class="text-muted">Registration is required in order to join, clone, or create a book. You may either <?php echo '<a href="'.ACLSWORKBENCH_LOGIN_URL.'system/login?redirect_url='.urlencode($_SERVER['REQUEST_URI'].(strpos($_SERVER['REQUEST_URI'],'?')!==false?'&view_all':'?view_all')).'">', lang('login.sign_in'), '</a> ',
+				  lang('or'),' <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/register?redirect_url='.urlencode($_SERVER['REQUEST_URI'].(strpos($_SERVER['REQUEST_URI'],'?')!==false?'&view_all':'?view_all')).'">', lang('login.register'), '</a> ';?> to access these features.</small>
 		  <?php 
 		  	}
 		  ?>

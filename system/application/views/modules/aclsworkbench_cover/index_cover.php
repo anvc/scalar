@@ -29,6 +29,27 @@
 	define('ACLSWORKBENCH_LOGIN_URL',$login_url);
 	
 ?>
+
+<div class="visible-xs navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+      	<li><a href="./?view_all&action=index" class="<?php echo (ACLSWORKBENCH_METHOD=='index'?'active':''); ?>"><i class="text-muted icon-index"></i> View all Books</a></li>
+        <li><a href="./?view_all&action=join" class="<?php echo (ACLSWORKBENCH_METHOD=='join'?'active':''); ?>"><i class="text-muted icon-join"></i> Join a Book</a></li>
+        <li><a href="./?view_all&action=clone" class="<?php echo (ACLSWORKBENCH_METHOD=='clone'?'active':''); ?>"><i class="text-muted icon-clone"></i> Clone a Book</a></li>
+        <li><a href="./?view_all&action=create" class="<?php echo (ACLSWORKBENCH_METHOD=='create'?'active':''); ?>"><i class="text-muted icon-create"></i> Create a Book</a></li>  
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</div>
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -56,8 +77,8 @@
           <?php
           	if (!$login->is_logged_in){
           ?>
-          	<small class="text-muted">Registration is required in order to join, clone, or create a book. You may either <?php echo '<a href="'.ACLSWORKBENCH_LOGIN_URL.'system/login?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.sign_in'), '</a> ',
-				  lang('or'),' <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/register?redirect_url='.urlencode($_SERVER['REQUEST_URI']).'">', lang('login.register'), '</a> ';?> to access these features.</small>
+          	<small class="text-muted">Registration is required in order to join, clone, or create a book. You may either <?php echo '<a href="'.ACLSWORKBENCH_LOGIN_URL.'system/login?redirect_url='.urlencode($_SERVER['REQUEST_URI'].(strpos($_SERVER['REQUEST_URI'],'?')!==false?'&view_all':'?view_all')).'">', lang('login.sign_in'), '</a> ',
+				  lang('or'),' <a href="'.ACLSWORKBENCH_LOGIN_URL.'system/register?redirect_url='.urlencode($_SERVER['REQUEST_URI'].(strpos($_SERVER['REQUEST_URI'],'?')!==false?'&view_all':'?view_all')).'">', lang('login.register'), '</a> ';?> to access these features.</small>
 		  <?php 
 		  	}
 		  ?>

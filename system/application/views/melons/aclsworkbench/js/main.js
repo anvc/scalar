@@ -287,7 +287,7 @@ $(window).ready(function() {
 	yepnope([
 	         
 		  // Scalar API
-		  {load: [base_uri+'/js/jquery.rdfquery.rules-1.0.js',
+		  {load: [base_uri+'/js/jquery.rdfquery.rules.min-1.0.js',
 		          base_uri+'/js/jquery.RDFa.js',
 		          widgets_uri+'/cookie/jquery.cookie.js',
 		          widgets_uri+'/api/scalarapi.js'], complete:function() {
@@ -305,7 +305,7 @@ $(window).ready(function() {
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
 				//currentNode = scalarapi.getNode( 'index' );
-				currentNode = scalarapi.model.nodesByURL[unescape(scalarapi.stripAllExtensions(document.location.href))];
+				currentNode = scalarapi.model.getCurrentPageNode();
 				//console.log(JSON.stringify(rdf_json));
 				/**
 				 * Navigating the RDFa using jquery.RDFa.js' methods if needed

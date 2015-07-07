@@ -167,3 +167,17 @@
 	text-shadow: none;
 	border: 1px solid #493;
 }
+.navbar-inverse .navbar-nav>li>a{
+	padding: 15px 30px;
+	font-size: 1.5em;
+}
+
+.navbar-inverse .navbar-nav>li>a.active, .navbar-inverse .navbar-nav>li>a.active>i{
+	color: #fff;
+	background-color: #428bca;
+}
+@media only screen and (max-width : 767px) {
+	.main_container{
+		margin-top: 60px;
+	}
+}

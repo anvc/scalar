@@ -18,6 +18,7 @@
 }
 
 body {
+  background-color: #000;
   background-image: url(../img/background_front.jpg);
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -166,7 +167,8 @@ ul, ol{
 	margin-bottom: 0px !important;
 }
 .navbar-inverse .navbar-nav>li>a{
-	font-size: 2em;
+	padding: 15px 30px;
+	font-size: 1.5em;
 	vertical-align: middle;
 }
 .navbar-inverse .navbar-nav>li .glyphicon{
@@ -276,4 +278,12 @@ a.nav_btn.primary{
 }
 a.nav_btn.primary:hover{
 	background-color: #2a6496;
+}
+@media only screen and (max-width : 767px) {
+	body.in_menu {
+	  overflow: hidden;
+	}
+}
+.metadata{
+	display: none;
 }

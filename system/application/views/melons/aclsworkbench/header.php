@@ -51,13 +51,13 @@
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="text-center"><a data-toggle="tooltip"  title="Workbench Index" href="<?php echo base_url(); ?>" class="link_workbench_home"><span class="icon-workbench" style=""></span><span class="mobile_only">&nbsp;&nbsp;Workbench Index</span></a></li>
-            <li class="text-center"><a data-toggle="tooltip"  title="Book Home" href="<?php echo $base_uri; ?>" class="link_book_home"><span class="glyphicon glyphicon-home" style=""></span><span class="mobile_only">&nbsp;Book Home</span></a></li>
-            <li class="text-center"><a data-toggle="tooltip"  title="Book Index" href="<?php echo $base_uri; ?>index" class="link_book_index"><span class="glyphicon glyphicon-th-list" style=""></span><span class="mobile_only">&nbsp;Book Index</span></a></li>
+            <li><a data-toggle="tooltip"  title="Workbench Index" href="<?php echo base_url().'?view_all'; ?>" class="link_workbench_home"><span class="icon-workbench" style=""></span><span class="mobile_only">&nbsp;&nbsp;Workbench Index</span></a></li>
+            <li><a data-toggle="tooltip"  title="Book Home" href="<?php echo $base_uri; ?>" class="link_book_home"><span class="glyphicon glyphicon-home" style=""></span><span class="mobile_only">&nbsp;Book Home</span></a></li>
+            <li><a data-toggle="tooltip"  title="Book Index" href="<?php echo $base_uri; ?>index" class="link_book_index"><span class="glyphicon glyphicon-th-list" style=""></span><span class="mobile_only">&nbsp;Book Index</span></a></li>
             <?php 
 				if(!empty($current_page->has_paths) || !empty($current_page->path_of) || !empty($current_page->has_tags) || !empty($current_page->tag_of)){ 
 			?>
-				<li class="text-center"><a data-toggle="tooltip"  title="Book Map" href="<?php echo $base_uri; ?>map" class="link_book_map"><span class="glyphicon glyphicon-map-marker" style=""></span><span class="mobile_only">&nbsp;Book Map</span></a></li>
+				<li><a data-toggle="tooltip"  title="Book Map" href="<?php echo $base_uri; ?>map" class="link_book_map"><span class="glyphicon glyphicon-map-marker" style=""></span><span class="mobile_only">&nbsp;Book Map</span></a></li>
 			<?php
 				}
 				$num_data_attributes = preg_match_all('/data-(?<data_type>\w+)="(?<value>\w+)"/',trim($book->title),$data_attributes);
@@ -73,12 +73,12 @@
 			<?php
 					if(!$is_member && (!isset($extra_data['joinable']) || $extra_data['joinable']!='false')){
 				?>
-					<li class="text-center"><a data-toggle="tooltip" title="Join Book" href="<?php echo $base_uri; ?>join" class="link_join"><span class="icon-join" style=""></span><span class="mobile_only">&nbsp;&nbsp;Join&quot;<?php echo strip_tags($book->title); ?>&quot;</span></a></li>
+					<li><a data-toggle="tooltip" title="Join Book" href="<?php echo $base_uri; ?>join" class="link_join"><span class="icon-join" style=""></span><span class="mobile_only">&nbsp;&nbsp;Join&quot;<?php echo strip_tags($book->title); ?>&quot;</span></a></li>
 				<?php			
 					}
 					if(isset($extra_data['duplicatable']) && $extra_data['duplicatable']=='true'){
 				?>
-					<li class="text-center"><a data-toggle="tooltip"  title="Clone Book" href="<?php echo $base_uri; ?>clone" class="link_clone"><span class="icon-clone" style=""></span><span class="mobile_only">&nbsp;&nbsp;Clone &quot;<?php echo strip_tags($book->title); ?>&quot;</span></a></li>
+					<li><a data-toggle="tooltip"  title="Clone Book" href="<?php echo $base_uri; ?>clone" class="link_clone"><span class="icon-clone" style=""></span><span class="mobile_only">&nbsp;&nbsp;Clone &quot;<?php echo strip_tags($book->title); ?>&quot;</span></a></li>
 				<?php
 					}
 				}
@@ -86,29 +86,30 @@
 		 </ul>
 		 <ul class="nav navbar-nav navbar-right">
 		<li class="divider"><hr class="dark mobile_only"></li>
-		<li class="text-center"><a data-toggle="popover"  title="Search Book" class="link_search" data-toggle="popover" data-placement="bottom" data-content="<form id='search_form'><input></form>"><span class="glyphicon glyphicon-search" style=""></span><span class="mobile_only">&nbsp;Search Book</span></a></li>
+		<li><a data-toggle="popover"  title="Search Book" class="link_search" data-toggle="popover" data-placement="bottom" data-content="<form id='search_form'><input></form>"><span class="glyphicon glyphicon-search" style=""></span><span class="mobile_only">&nbsp;Search Book</span></a></li>
 		 <?php
 			if($can_edit){
 		 ?>
-				<li class="text-center"><a data-toggle="tooltip"  title="Create New Page" href="<?php echo $base_uri; ?>new.edit"><span class="glyphicon glyphicon-file" style=""></span><span class="mobile_only">&nbsp;Create New Page</span></a></li>
-				<li class="text-center"><a data-toggle="tooltip"  title="Edit This Page" href="<?php echo $current_page_uri; ?>.edit"><span class="glyphicon glyphicon-pencil" style=""></span><span class="mobile_only">&nbsp;Edit This Page</span></a></li>
+				<li><a data-toggle="tooltip"  title="Create New Page" href="<?php echo $base_uri; ?>new.edit"><span class="glyphicon glyphicon-file" style=""></span><span class="mobile_only">&nbsp;Create New Page</span></a></li>
+				<li><a data-toggle="tooltip"  title="Edit This Page" href="<?php echo $current_page_uri; ?>.edit"><span class="glyphicon glyphicon-pencil" style=""></span><span class="mobile_only">&nbsp;Edit This Page</span></a></li>
 				<?php if(isset($page->type) && $page->type == 'media' && strpos($current_page->url,'.code')===false){ ?>
-					<li class="text-center"><a data-toggle="tooltip"  title="Anotate This Page" href="<?php echo $current_page_uri; ?>.annotation_editor"  class="link_annotate"><span class="glyphicon glyphicon-pushpin" style=""></span><span class="mobile_only">&nbsp;Annotate This Page</span></a></li>
+					<li><a data-toggle="tooltip"  title="Anotate This Page" href="<?php echo $current_page_uri; ?>.annotation_editor"  class="link_annotate"><span class="glyphicon glyphicon-pushpin" style=""></span><span class="mobile_only">&nbsp;Annotate This Page</span></a></li>
 				<?php } ?>
-				<li class="text-center"><a data-toggle="tooltip"  title="Manage Media" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id.'&zone=media#tabs-media'; ?>"><span class="glyphicon glyphicon-picture" style=""></span><span class="mobile_only">&nbsp;Manage Media</span></a></li>
-				<li class="text-center"><a data-toggle="tooltip"  title="Edit Book" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id; ?>"><span class="glyphicon glyphicon-cog" style=""></span><span class="mobile_only">&nbsp;Edit This Book</span></a></li>
+				<li><a data-toggle="tooltip"  title="Import Content" href="<?php echo $base_uri; ?>/upload"><span class="glyphicon glyphicon-import" style=""></span><span class="mobile_only">&nbsp;Import Local Content</span></a></li>
+				<li><a data-toggle="tooltip"  title="Manage Media" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id.'&zone=media#tabs-media'; ?>"><span class="glyphicon glyphicon-picture" style=""></span><span class="mobile_only">&nbsp;Manage Media</span></a></li>
+				<li><a data-toggle="tooltip"  title="Edit Book" href="<?php echo base_url().'system/dashboard?book_id='.$book->book_id; ?>"><span class="glyphicon glyphicon-cog" style=""></span><span class="mobile_only">&nbsp;Edit This Book</span></a></li>
 			
 		<?php
 			}
 			if($login->is_logged_in){
 		 ?>
-				<li class="text-center"><a href="<?php echo strip_base_ssl().'system/logout?action=do_logout&redirect_url='.urlencode($_SERVER['REQUEST_URI']); ?>" onclick="return confirm('<?php echo lang('login.confirm_sign_out'); ?>')" data-toggle="tooltip"  title="Log Out"><span class="glyphicon glyphicon-log-out" style=""></span><span class="mobile_only">&nbsp;Log Out</span></a></li>
+				<li><a href="<?php echo strip_base_ssl().'system/logout?action=do_logout&redirect_url='.urlencode($_SERVER['REQUEST_URI']); ?>" onclick="return confirm('<?php echo lang('login.confirm_sign_out'); ?>')" data-toggle="tooltip"  title="Log Out"><span class="glyphicon glyphicon-log-out" style=""></span><span class="mobile_only">&nbsp;Log Out</span></a></li>
 		<?php
 			}else{
 				$login_url = $this->config->item('force_https') ? base_ssl() : base_url();
 		?>
-			<li class="text-center"><a data-toggle="tooltip"  title="Log In" href="<?php echo $login_url; ?>system/login?redirect_url=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"><span class="glyphicon glyphicon-log-in" style=""></span><span class="mobile_only">&nbsp;Log In</span></a></li>
-			<li class="text-center"><a data-toggle="tooltip"  title="Register Account" href="<?php echo $login_url; ?>system/register?redirect_url=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"><span class="glyphicon glyphicon-user" style=""></span><span class="mobile_only">&nbsp;Register Account</span></a></li>
+			<li><a data-toggle="tooltip"  title="Log In" href="<?php echo $login_url; ?>system/login?redirect_url=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"><span class="glyphicon glyphicon-log-in" style=""></span><span class="mobile_only">&nbsp;Log In</span></a></li>
+			<li><a data-toggle="tooltip"  title="Register Account" href="<?php echo $login_url; ?>system/register?redirect_url=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"><span class="glyphicon glyphicon-user" style=""></span><span class="mobile_only">&nbsp;Register Account</span></a></li>
 		<?php
 			}
 		?>

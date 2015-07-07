@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	
+
 	$('#clone_dialogue .btn-primary').click(function(){
 		$('#clone_dialogue form').submit();
 	});
@@ -31,7 +31,6 @@ $(document).ready(function(){
 		return false;
 	});
 	$('#request_author_yes, #request_author_no').click(function(){
-		console.log($('#request_author_yes').attr('checked') == 'checked');
 		$('#author_reason_container').toggleClass('hidden',$('#request_author_yes').attr('checked')!= 'checked');
 	});
 	if(typeof(book_list) !== 'undefined' && $('#searchBox').length > 0){
@@ -40,8 +39,6 @@ $(document).ready(function(){
 			id : 'id'
 		};
 		var f = new Fuse(book_list,options);
-		
-		console.log(JSON.stringify(book_list));
 		$('#clear_form').click(function(){
 			$(this).parents('.search_well').find('.results').html('');
 			$(this).parents('.search_well').find('.original').show();
@@ -60,15 +57,6 @@ $(document).ready(function(){
 				results.html('');
 				
 				var res = f.search($(this).val());
-				console.log(res);
-				for(var a in res){
-					var id = res[a];
-					for(book in book_list){
-						if(book_list[book]['id'] == id){
-							console.log(book_list[book]);
-						}
-					}
-				}
 				var selector = [];
 				
 				for(var i = 0 in res){
@@ -77,7 +65,6 @@ $(document).ready(function(){
 					selector.push(book);
 				}
 				original.find('.book_container').each(function(){
-					console.log($.inArray($(this).data('book_id'),res));
 					if($.inArray($(this).data('book_id'),res)==-1){
 						results.append($(this).clone().css('opacity',.5));
 					}

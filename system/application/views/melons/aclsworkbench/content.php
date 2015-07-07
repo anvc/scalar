@@ -78,3 +78,4 @@
 	}else{
 		$this->load->view('melons/aclsworkbench/views/'.$view,$data);
 	}
+  $this->template->add_css('custom.css');

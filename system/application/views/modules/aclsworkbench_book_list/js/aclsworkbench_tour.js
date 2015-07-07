@@ -1,7 +1,7 @@
 $(function(){
 	$('#start_tour').click(function(){
 		introJs().setOption('doneLabel', 'Next page').start().oncomplete(function() {
-		  window.location.href = './?multipage=true&action=index';
+		  window.location.href = './?view_all&multipage=true&action=index';
 		}).onbeforechange(function(e){
 			var step = $(e).data('step');
 			if(step == 6){
@@ -21,7 +21,7 @@ $(function(){
 			var example_book = $(example_book_html).appendTo('.search_well .original');
 			$('.no_books').hide();
 			introJs().setOption('doneLabel', 'Next page').start().oncomplete(function() {
-			  window.location.href = './?multipage=true&action=join';
+			  window.location.href = './?view_all&multipage=true&action=join';
 			}).onexit(function(){
 				example_book.remove();
 				$('.no_books').show();
@@ -44,7 +44,7 @@ $(function(){
 				$('.modal-backdrop').hide();
 			});
 			introJs().setOption('doneLabel', 'Next page').start().oncomplete(function() {
-			  window.location.href = './?multipage=true&action=clone';
+			  window.location.href = './?view_all&multipage=true&action=clone';
 			}).onexit(function(){
 				example_book.remove();
 				$('.no_books').show();
@@ -75,7 +75,7 @@ $(function(){
 				$('.modal-backdrop').hide();
 			});
 			introJs().setOption('doneLabel', 'Next page').start().oncomplete(function() {
-			  window.location.href = './?multipage=true&action=create';
+			  window.location.href = './?view_all&multipage=true&action=create';
 			}).onexit(function(){
 				example_book.remove();
 				$('.no_books').show();
@@ -99,7 +99,7 @@ $(function(){
 			var original_body = $('#create_wrapper').html();
 			$('#create_wrapper').html('<p>You are about to create a new book. In order to start this process,  please enter the book\'s title. You may change this title at a later time, however your book\'s URL will be based on this initial value. You may also choose to allow or disallow users to subscribe to your book. A subscribed user will be listed as a "reader" of your book, but will be unable to edit or contribute outside of comments. By default, subscriptions are allowed.</p><p>Once you have entered your desired book title, click "Create book," below.</p><hr><div class="form-group text-center"><label for="create_book_title">New Book Title: <br /><input id="create_book_title" name="title" type="text" placeholder="New book title" style="width:200px;" disabled></label></div><div data-step="3" data-intro="Next, you must choose whether you would like people to be able to join your book. In most cases, you should allow users to join your book, as it promotes community-building within ACLS Workbench and it helps inform you of users\' interests. Users will be unable to edit or create content within your book without your permission." class="form-group text-center"><label for="joinable">Allow Users to Join* My Book:  <input id="joinable" name="joinable" type="checkbox" checked></label></div><hr><div class="form-group"><button disabled class="btn btn-muted pull-right" id="do_create_book">Create book</button></div>');
 			introJs().setOption('doneLabel', 'Finish Tour').start().oncomplete(function() {
-			  window.location.href = './?action=home';
+			  window.location.href = './?view_all&action=home';
 			}).onexit(function(){
 				$('#create_wrapper').html(original_body);
 			}).onbeforechange(function(e){

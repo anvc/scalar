@@ -2,6 +2,18 @@ var rdf_json = {};
 var index;
 $(function(){
 
+	//06/02/2015: Fix for menu height
+	$('.navbar-collapse').css('max-height',($(window).height()-50)+'px');
+	$('.navbar-collapse').on('show.bs.collapse',function(){
+		$('body').addClass('in_menu');
+	}).on('hide.bs.collapse',function(){
+		$('body').removeClass('in_menu');
+	});
+	$(window).on('resize',function(){
+		$('.navbar-collapse').css('max-height',($(window).height()-50)+'px');
+		$('.navbar-collapse').trigger('hide.bs.collapse');
+	});
+
 	var indexElement = $('#modal .modal-body');
 	var searchElement = $('#modal .modal-body');
 	$('#background-image').css('background-image',$('body').css('background-image'));
