@@ -303,7 +303,7 @@ $(document).ready(function() {
 	// Badges
 	badges();
 	$('a[role="tab"] .badge').closest('a').click(function() { badges(); });
-	
+
 	//Added to prevent accidental navigation away from edit/add page
 	$(window).on('beforeunload',function(e){
 		var message = 'You are now leaving the page. If you have made any changes to this page, they will be lost.';
@@ -912,7 +912,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 	<div class="col-md-12" style="text-align:right;margin-top:10px;">
 		<input id="saved_wrapper" type="button" class="btn btn-success" value="Page has been saved" style="display:none;" /> &nbsp;
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
-		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
+		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {$(window).off('beforeunload'); document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
 		<!-- <input type="button" class="btn btn-default" value="Save" onclick="send_form_no_action($('#edit_form'));" />&nbsp; &nbsp; -->
 		<input type="submit" class="btn btn-primary" value="Save and view" />
 	</div>
