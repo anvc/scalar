@@ -471,8 +471,8 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<li role="presentation" class="dropdown type_composite"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></a></span>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#thumbnail-pane" aria-controls="thumbnail-pane" data-toggle="tab">Thumbnail</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#background-image-pane" aria-controls="background-image-pane" data-toggle="tab">Background</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#banner-image-pane" aria-controls="#banner-image-pane" data-toggle="tab">Banner</a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#banner-image-pane" aria-controls="#banner-image-pane" data-toggle="tab">Key Image</a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#background-image-pane" aria-controls="background-image-pane" data-toggle="tab">Background Image</a></li>
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-css-pane" aria-controls="custom-css-pane" data-toggle="tab">CSS</a></li>
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-javascript-pane" aria-controls="custom-javascript-pane" data-toggle="tab">JavaScript</a></li>
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#background-audio-pane" aria-controls="background-audio-pane" data-toggle="tab">Audio</a></li>
@@ -765,7 +765,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<div id="background-image-pane" role="tabpanel" class="tab-pane">
 			<div class="row p">
 				<div class="col-md-8">
-					<p>Choose an image from your library to use as the background for this page:</p>
+					<p>Choose an image from your library to use as the background for this page (leaving this blank will cause the page to inherit the book's background):</p>
 						<div class="form-group">
 						<select id="choose_background" name="scalar:background" class="form-control"><option value="">Choose an image</option><?
 		  				$matched = false;
@@ -786,7 +786,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<div id="banner-image-pane" role="tabpanel" class="tab-pane">
 			<div class="row p">
 				<div class="col-md-8">
-					<p>Choose an image from your library to use as the banner for this page:</p>
+					<p>Choose an image from your library to use as the primary visual for the Image Header, Splash, and Book Splash layouts:</p>
 						<div class="form-group">
 						<select id="choose_banner" name="scalar:banner" class="form-control"><option value="">Choose an image</option><?
 		  				$matched = false;

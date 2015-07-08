@@ -443,7 +443,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		
 		var footerRight = $('<span class="annotationFooterRight"></span>').appendTo(this.footerControls);
 		if ($.annobuilder.model.node.current.mediaSource.contentType == 'video') {
-			var footerLeft = $('<p class="smaller" style="margin-top:7px;">Note: Video annotations are not supported on iOS devices.</p>').appendTo(this.footerControls);
+			var footerLeft = $('<p class="smaller" style="margin-top:7px;">Note: Time-based annotations may not work on mobile devices.</p>').appendTo(this.footerControls);
 		}
 		
 		footerRight.append('<div id="spinner_wrapper"></div>');
