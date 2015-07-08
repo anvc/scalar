@@ -265,7 +265,7 @@ class Book extends MY_Controller {
 		if (!$this->login_is_book_admin()) $this->kickout();
 
 		// Set params
-		$archive = $this->uri->segment(3);
+		$archive = no_ext($this->uri->segment(3));
 		$this->data['hide_edit_bar'] = true;
 
 		switch ($archive) {
