@@ -19,10 +19,6 @@ if (isset($page->versions) && isset($page->versions[$page->version_index]->has_p
 	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->custom_style)) $style .= trim($page->versions[$page->version_index]->has_paths[$path_index]->custom_style)."\n";
 	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)) $js .= trim($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)."\n";
 }
-if (!empty($view)) {
-	$current_view = (('vis'==$view)?$viz_view:$view);
-	$isSplash = ($current_view == "splash" || $current_view == "book_splash");
-}
 if (isset($page->version_index)) {
 	$title = $page->versions[$page->version_index]->title;
 	$description = $page->versions[$page->version_index]->description;
@@ -84,7 +80,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <link id="urn" rel="scalar:urn" href="<?=$page->versions[$page->version_index]->urn?>" />
 <? endif ?>
 <? if (!empty($view)): ?>
-<link id="view" href="<?=$current_view?>" />
+<link id="view" href="<?=('vis'==$view)?$viz_view:$view?>" />
 <link id="default_view" href="<?=$default_view?>" />
 <? endif ?>
 <? if (!empty($color)): ?>
@@ -323,7 +319,6 @@ foreach ($models as $rel):
 <?
 	endif;
 	if (!empty($outward_array)):
-		if($isSplash && $rel != 'paths') continue;
 ?>
 	<section>
 		<h1>Contents of this <?=singular($rel)?>:</h1>
