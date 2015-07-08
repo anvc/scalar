@@ -1190,7 +1190,6 @@
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/critical_commons"><b>Critical Commons</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/cuban_theater_digital_archive"><b>Cuban Theater Digital Archive</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/hemispheric_institute"><b>Hemispheric Institute Digital Video Library</b></a></p>');
-				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/hypercities"><b>HyperCities</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/internet_archive"><b>Internet Archive</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/play"><b>PLAY!</b></a></p>');
 				button.append('<p class="item"><a href="'+scalarapi.model.urlPrefix+'import/shoah_foundation_vha_online"><b>Shoah Foundation VHA Online</b></a></p>');

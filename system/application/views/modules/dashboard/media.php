@@ -281,7 +281,6 @@
 					<option value="<?=$url_base?>import/critical_commons">Critical Commons</option>
 					<option value="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</option>
 					<option value="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</option>
-					<option value="<?=$url_base?>import/hypercities">HyperCities</option>
 					<option value="<?=$url_base?>import/internet_archive">Internet Archive</option>
 					<option value="<?=$url_base?>import/play">PLAY!</option>
 					<option value="<?=$url_base?>import/shoah_foundation_vha_online">VHA Online</option>
