@@ -43,7 +43,7 @@ $config['views'] = array(
 // It's important to keep some functional views present, such as 'plain', 'edit', and 'versions', otherwise these will become unavailable
 $config['media_views'] = array(
 	'plain' => array('name'=>'Basic','description'=>'<b>Default media view.</b> In the Basic view, media is presented as a standalone object on an otherwise empty page.','image'=>'views/melons/cantaloupe/images/view_basic.gif'),
-	'meta' => array('name'=>'Metadata','description'=>'<b>Metadata view.</b> Displays the media at the top with all of its metadata in a table below.','image'=>'views/melons/cantaloupe/images/view_metadata.gif'),
+	'meta' => array('name'=>'Metadata','description'=>'<b>Metadata view.</b> Displays the media at the top with all of its metadata in a table below.','image'=>'views/melons/cantaloupe/images/view_media_metadata.gif'),
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
