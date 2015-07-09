@@ -42,8 +42,8 @@ $config['views'] = array(
 // Optional media views array; if not empty, will overwrite the views array when page type is scalar:Media
 // It's important to keep some functional views present, such as 'plain', 'edit', and 'versions', otherwise these will become unavailable
 $config['media_views'] = array(
-	'plain' => array('name'=>'Basic','description'=>'<b>Default media view.</b> In the Basic view, media is presented as a standalone object on an otherwise empty page.','image'=>'views/melons/cantaloupe/images/view_basic.gif'),
-	'meta' => array('name'=>'Metadata','description'=>'<b>Metadata view.</b> Displays the media at the top with all of its metadata in a table below.','image'=>'views/melons/cantaloupe/images/view_media_metadata.gif'),
+	'plain' => array('name'=>'Basic','description'=>'<b>Shows the media file on its own.</b> In the Basic view, the media file is presented as a standalone object.','image'=>'views/melons/cantaloupe/images/view_media.gif'),
+	'meta' => array('name'=>'Metadata','description'=>'<b>Displays all metadata for the media file.</b> The Metadata view displays the media file at the top with all of its metadata in a table below.','image'=>'views/melons/cantaloupe/images/view_media_metadata.gif'),
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
