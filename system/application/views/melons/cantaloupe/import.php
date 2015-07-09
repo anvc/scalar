@@ -70,6 +70,7 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 		<input type="hidden" name="proxy" value="<?=confirm_slash($app_root)?>rdf/proxy.php" />
 		<input type="hidden" name="uri" value="<?=htmlspecialchars($external->uri)?>?<?=htmlspecialchars($external->getPropValue('scalar:getStr'))?>" />
 		<input type="hidden" name="xsl" value="<?=htmlspecialchars($external->getPropValue('scalar:XSL'))?>" />
+		<input type="hidden" name="remove" value="<?=$external->getPropValue('scalar:remove')?>" />
 		<input type="hidden" name="match" value="<?=$external->getPropValue('scalar:match')?>" />
 		<input type="hidden" name="format" value="<?=$external->getPropValue('dcterms:hasFormat')?>" />
 		<input type="hidden" name="archive_api_key" value="<?=$archive_api_key?>" />
