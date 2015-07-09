@@ -435,7 +435,8 @@
 
 			},
 
-			addRelationshipNavigation: function( showLists, showParentNav, showChildNav, showLateralNav, isCentered ) {
+			// Currently used options: showLists, showParentNav, showChildNav, showLateralNav, isCentered, showAnno, showComments, showTags
+			addRelationshipNavigation: function( options ) {
 
 				var button, href, pathContents, section, nodes, node, link, links, selfType,
 					currentNode = scalarapi.model.getCurrentPageNode(),
@@ -460,7 +461,7 @@
 						pathContents.addClass('relationships');
 						pathContents.show();
 
-						if ( showLists ) {
+						if ( options.showLists ) {
 
 							pathContents.find('h1').text('Contents');
 
@@ -475,7 +476,7 @@
 						}
 
 						// "begin with" button
-						if (( pathOptionCount == 0 ) && showChildNav ) {
+						if (( pathOptionCount == 0 ) && options.showChildNav ) {
 							nodes = currentNode.getRelatedNodes('path', 'outgoing');
 							if (nodes.length > 0) {
 								button = $( '<p><a class="nav_btn" href="' + nodes[ 0 ].url + '?path=' +
@@ -492,7 +493,7 @@
 				});
 
 				// path back/continue buttons
-				if (( page.containingPaths.length > 0 ) && showLateralNav ) {
+				if (( page.containingPaths.length > 0 ) && options.showLateralNav ) {
 					section = $('<section class="relationships"></section');
 					if ( page.containingPathNodes.length > 1 ) {
 						if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
@@ -529,7 +530,7 @@
 				}
 
 				// end-of-path continue button
-				if ( showLateralNav ) {
+				if ( options.showLateralNav ) {
 					$( '[rel="scalar:continue_to"]' ).each( function() {
 						var href = $( this ).attr( 'href' );
 						var span = $( 'header > [resource="' + href + '"]' );
@@ -566,7 +567,7 @@
 				// if relationship nav isn't centered, add bootstrap column formatting to help
 				// accommodate long labels that wrap to multiple lines (if it is centered, then
 				// we likely aren't showing lateral relationship nav anyway so don't worry about it)
-				if ( !isCentered ) {
+				if ( !options.isCentered ) {
 					var cont_btn = $('.nav_btn.primary');
 					var back_btn = cont_btn.parent().children('#back-btn');
 					if(cont_btn.length !== 0) {
@@ -584,76 +585,82 @@
 				}
 
 				// tag contents
-				$('.tag_of').each(function() {
-					if ($(this).parent().is('section')) {
-						section = $(this).parent();
-						section.addClass('relationships');
-						section.find('h1').text('This page is a tag of:');
-						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
-						section.show();
+				if(options.showTags) {
+					$('.tag_of').each(function() {
+						if ($(this).parent().is('section')) {
+							section = $(this).parent();
+							section.addClass('relationships');
+							section.find('h1').text('This page is a tag of:');
+							section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+							section.show();
 
-						// hide contents if requested
-						if (!showLists) {
-							section.find('h1').hide();
-							section.find('ul').hide();
-						}
-
-						// "visit random" button
-						if (( pathOptionCount == 0 ) && showChildNav ) {
-							nodes = currentNode.getRelatedNodes('tag', 'outgoing');
-							if (nodes.length > 1) {
-								section.append('<p><a class="nav_btn" href="'+nodes[Math.floor(Math.random() * nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
+							// hide contents if requested
+							if (!options.showLists) {
+								section.find('h1').hide();
+								section.find('ul').hide();
 							}
-						}
-					}
-				});
 
-				// comments on
-				$('.reply_of').each(function() {
-					if ($(this).parent().is('section')) {
-						section = $(this).parent();
-						section.addClass('relationships');
-						section.find('h1').text('This ' + selfType + ' comments on:');
-						section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
-						section.show();
-					}
-				});
-
-				// annotates
-				$('.annotation_of').each(function() {
-					if ($(this).parent().is('section')) {
-						section = $(this).parent();
-						section.addClass('relationships');
-						if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Composite' ) {
-							section.find('h1').text('This page annotates:');
-						} else if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media' ) {
-							section.find('h1').text('This media annotates:');
-						} else {
-							section.find('h1').text('This content annotates:');
-						}
-						section.find('ol').contents().unwrap().wrapAll('<ul class="annotation_of"></ul>');
-
-						// add extents to title of annotated media
-						section.find( 'span[property="dcterms:title"] > a' ).each( function() {
-							node = scalarapi.getNode( $( this ).attr( 'href' ) );
-							var i, relation,
-								n = node.incomingRelations.length;
-							for ( i = 0; i < n; i++ ) {
-								relation = node.incomingRelations[ i ];
-								if ( relation.body == currentNode ) {
-									$( this ).parent().append( "(" + relation.startString + relation.separator + relation.endString + ")" );
+							// "visit random" button
+							if (( pathOptionCount == 0 ) && options.showChildNav ) {
+								nodes = currentNode.getRelatedNodes('tag', 'outgoing');
+								if (nodes.length > 1) {
+									section.append('<p><a class="nav_btn" href="'+nodes[Math.floor(Math.random() * nodes.length)].url+'?tag='+currentNode.slug+'">Visit a random tagged page</a></p>');
 								}
 							}
-							//age.annotatedMedia.push( node );
-						} );
-						/*page.loadNextAnnotatedMedia();*/
+						}
+					});
+				}
 
-						section.show();
-					}
-				});
+				// comments on
+				if(options.showComments) {
+					$('.reply_of').each(function() {
+						if ($(this).parent().is('section')) {
+							section = $(this).parent();
+							section.addClass('relationships');
+							section.find('h1').text('This ' + selfType + ' comments on:');
+							section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+							section.show();
+						}
+					});
+				}
+
+				// annotates
+				if(options.showAnno) {
+					$('.annotation_of').each(function() {
+						if ($(this).parent().is('section')) {
+							section = $(this).parent();
+							section.addClass('relationships');
+							if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Composite' ) {
+								section.find('h1').text('This page annotates:');
+							} else if ( currentNode.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media' ) {
+								section.find('h1').text('This media annotates:');
+							} else {
+								section.find('h1').text('This content annotates:');
+							}
+							section.find('ol').contents().unwrap().wrapAll('<ul class="annotation_of"></ul>');
+
+							// add extents to title of annotated media
+							section.find( 'span[property="dcterms:title"] > a' ).each( function() {
+								node = scalarapi.getNode( $( this ).attr( 'href' ) );
+								var i, relation,
+									n = node.incomingRelations.length;
+								for ( i = 0; i < n; i++ ) {
+									relation = node.incomingRelations[ i ];
+									if ( relation.body == currentNode ) {
+										$( this ).parent().append( "(" + relation.startString + relation.separator + relation.endString + ")" );
+									}
+								}
+								//age.annotatedMedia.push( node );
+							} );
+							/*page.loadNextAnnotatedMedia();*/
+
+							section.show();
+						}
+					});
+				}
 
 				// show items that tag this page
-				if ( showParentNav ) {
+				if ( options.showParentNav ) {
 					var hasTags = $( ".has_tags" );
 					hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
 					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
@@ -666,7 +673,7 @@
 					var relationships = $( ".relationships" );
 					if ( relationships.length > 1 ) {
 						// move to second from bottom
-						if (( page.containingPaths.length > 0 ) && showLateralNav ) {
+						if (( page.containingPaths.length > 0 ) && options.showLateralNav ) {
 							if ( !relationships.eq(relationships.length-2).children('.path_of').length ) {
 								$( ".relationships" ).last().before( pathContents );
 							}
@@ -1485,7 +1492,7 @@
 				element.css('background-image', 'url('+banner+')');
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation( false, false, true, false, true );
+				page.addRelationshipNavigation( {showChildNav:true, isCentered:true} );
 				$('.relationships').appendTo('.title_card');
 
 				window.setTimeout(function(){
@@ -1500,7 +1507,15 @@
 				case 'gallery':
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, true, true, false );
+				page.addRelationshipNavigation( {
+					showLists:true,
+					showParentNav:true,
+					showChildNav:true,
+					showLateralNav:true,
+					showAnno:true,
+					showComments:true,
+					showTags:true
+				});
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
 				page.addExternalLinks();
@@ -1525,7 +1540,13 @@
 				$( 'article > span[property="sioc:content"]' ).after( galleryElement );
 				page.structuredGallery = $.scalarstructuredgallery( galleryElement );
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( false, true, false, true, false );
+				page.addRelationshipNavigation( {
+					showParentNav:true,
+					showLateralNav:true,
+					showAnno:true,
+					showComments:true,
+					showTags:true
+				});
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
 				page.addExternalLinks();
@@ -1551,7 +1572,15 @@
 				}
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
-				page.addRelationshipNavigation( true, true, true, true, false );
+				page.addRelationshipNavigation( {
+					showLists:true,
+					showParentNav:true,
+					showChildNav:true,
+					ShowLateralNav:true,
+					showAnno:true,
+					showComments:true,
+					showTags:true
+				});
 				page.addIncomingComments();
 				page.addAdditionalMetadata();
 				page.addExternalLinks();
@@ -1767,7 +1796,7 @@
 					case "meta":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 class="meta-header" style="margin-bottom: 0rem;">Metadata</h2>' );
 					$( '.meta-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
-					okToAddExtras = false;
+					okToAddExtras = true;
 					break;
 
 					case "history":
@@ -1787,8 +1816,16 @@
 
 				page.setupScreenedBackground();
 				page.addHeaderPathInfo();
-				if ( okToAddExtras ) {				
-					page.addRelationshipNavigation( true, true, true, true, false );
+				if ( okToAddExtras ) {
+					page.addRelationshipNavigation( {
+						showLists:true,
+						showParentNav:true,
+						showChildNav:true,
+						showLateralNav:true,
+						showAnno:true,
+						showComments:true,
+						showTags:true
+					});
 					page.addIncomingComments();
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length == 0 ) {
 						page.addAdditionalMetadata();
