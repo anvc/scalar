@@ -57,7 +57,7 @@ if ('undefined'==typeof(escape_html)) {
     		multi_custom_meta_complete: 'multi_custom_meta_complete',
     		pagenum: 1,
     		proxy_required_fields: ['proxy','uri','xsl','native','id','action','api_key','child_urn','child_type','child_rel'],
-    		proxy_optional_fields: ['match','format','archive_api_key','keep_hash_var','remove_hash_vars'],
+    		proxy_optional_fields: ['remove','match','format','archive_api_key','keep_hash_var','remove_hash_vars'],
     		url_not_supported_msg: 'This media format is not supported',
     		url_not_supported_class: 'media_not_supported',
     		no_results_msg: 'No items were found for the search "%1"',
@@ -196,7 +196,6 @@ if ('undefined'==typeof(escape_html)) {
 			}
 				
 			// Hashes
-			
 			return form_data;
 			
 		},	
@@ -311,10 +310,9 @@ if ('undefined'==typeof(escape_html)) {
 	
 			to_send = $.fn.scalarimport('flatten_object', to_send);
 			if ('undefined'==typeof(to_send.format)) to_send.format = 'xml';
-
 			// Pull out part of a query (e.g., the get vars of a URL string) based on the 'match' field
-			if (to_send.match && to_send.match.length) to_send.sq = to_send.sq.replace(new RegExp(to_send.match, ""), "$1");
-			
+			if (to_send.remove && to_send.remove.length) to_send.sq = to_send.sq.replace(new RegExp(to_send.remove, "i"), "");
+			if (to_send.match && to_send.match.length) to_send.sq = to_send.sq.replace(new RegExp(to_send.match, "i"), "$1");
 			// Enter the query, page number, and api_key into the URI
 			to_send.uri = to_send.uri.replace('$1', to_send.sq);
 			to_send.uri = to_send.uri.replace($.fn.scalarimport('get_next_page_uri_component', to_send.uri),$.fn.scalarimport('get_next_page_value', to_send.uri, to_send.pagenum));

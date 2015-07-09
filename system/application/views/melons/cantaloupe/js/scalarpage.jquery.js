@@ -1557,6 +1557,11 @@
 				case 'blank':
 				$( 'h1' ).hide();
 				$( '.page' ).css( 'padding-top', '5.0rem' );
+				// hide continue_to metadata
+				$( '[rel="scalar:continue_to"]' ).each( function() {
+					var href = $( this ).attr( 'href' );
+					$( 'span[resource="' + href + '"]' ).hide();
+				});	
 				break;
 
 				case 'image_header':

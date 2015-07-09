@@ -20,6 +20,15 @@
 		<scalar:getStr><![CDATA[SearchableText=$1]]></scalar:getStr>
 	</rdf:Description>		
 		
+	<rdf:Description rdf:about="system/application/rdf/omeka_to_json.php">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Omeka</dc:title>
+		<dcterms:description><![CDATA[Find files from Omeka installs across the web. To use, <b>do not</b> enter a search term below.  Rather, <b>enter the URL to an Omeka install's home page</b>. Note that the Omeka install needs to be version 2.1 or greater and the <a href="https://omeka.readthedocs.org/en/latest/Reference/api/configuration.html">API feature enabled</a>.<br />Example: <span style="color:#4b0085;">http://mallhistory.org</span>]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/omeka.xsl" />
+		<scalar:getStr><![CDATA[uri=$1]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
+	</rdf:Description>		
+		
 	<rdf:Description rdf:about="http://www.archive.org/advancedsearch.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Internet Archive</dc:title>

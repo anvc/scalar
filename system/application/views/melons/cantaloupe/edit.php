@@ -312,14 +312,13 @@ $(document).ready(function() {
 	badges();
 	$('a[role="tab"] .badge').closest('a').click(function() { badges(); });
 
-	//Added to prevent accidental navigation away from edit/add page
-	$(window).on('beforeunload',function(e){
-		var message = 'You are now leaving the page. If you have made any changes to this page, they will be lost.';
-		e.returnvalue = message;
-		return message;
-	});
-	$('#edit_form input:submit').click(function(e){
-		$(window).off('beforeunload');
+	//Added to prevent accidental navigation away from edit/add page - matches all anchor tags
+	//with an href attribute that doesn't start with # or javascript:
+	$(document).on('click', 'a[href]:not([href!=""], [href^="#"], [href^="javascript"])', function(e){
+		if(!window.confirm('You are now leaving the page. If you have made any changes to this page, they will be lost. Continue?')){
+			e.preventDefault();
+			return false;
+		}
 	});
 });
 // Determine if the page is a composite or media and show/hide certain elements accordingly
@@ -942,7 +941,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 	<div class="col-md-12" style="text-align:right;margin-top:10px;">
 		<input id="saved_wrapper" type="button" class="btn btn-success" value="Page has been saved" style="display:none;" /> &nbsp;
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
-		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {$(window).off('beforeunload'); document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
+		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
 		<!-- <input type="button" class="btn btn-default" value="Save" onclick="send_form_no_action($('#edit_form'));" />&nbsp; &nbsp; -->
 		<input type="submit" class="btn btn-primary" value="Save and view" />
 	</div>
