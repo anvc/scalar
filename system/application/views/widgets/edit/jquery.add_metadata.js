@@ -134,12 +134,14 @@
         		for (var j = 0; j < data[uri][p].length; j++) {
         			var val = data[uri][p][j].value;
                     var $insert;
+                    var $input = $('<input type="text" name="'+p+'" class="input_text form-control">');
                     if ( $( 'article' ).length ) { // if cantaloupe
-                        $insert = $('<div class="form-group '+val+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"></div></div>');
+                        $insert = $('<div class="form-group '+p+'"><label class="col-sm-3 control-label">'+p+'</label><div class="col-sm-9"></div></div>');
+                        $input.val(val).appendTo($insert.find('div:last'));
                     } else {
            			    $insert = $('<tr class="'+p+'"><td class="field">'+p+'</td><td class="value"></td></tr>');
+           			    $input.val(val).appendTo($insert.find('td:last'));
                     }
-        			$input.val(val).appendTo($insert.find('div:last'));
         			$insert_into.append($insert);
         		};
         	};
