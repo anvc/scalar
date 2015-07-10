@@ -796,8 +796,9 @@ if ('undefined'==typeof(escape_html)) {
 		},
 		
 		valid_url : function(url, options) {
-			
-			if ("Unsupported"==options.scalarapi.parseMediaSource(url).name) {
+
+			var unsupported = ['Unsupported','HTML'];
+			if (-1!=unsupported.indexOf(options.scalarapi.parseMediaSource(url).name)) {
 				return false;
 			}
 			
