@@ -531,24 +531,26 @@ class Book extends MY_Controller {
 
 	private function meta_view() {
 
-		// Overwrite previous page array (which only has the most recent version)
-		$this->data['page']->user = (int) $this->data['page']->user->user_id;
-		unset($this->data['page']->versions);
-		$settings = array(
-							'book'         => $this->data['book'],
-							'content'      => array($this->data['page']),
-							'base_uri'     => $this->data['base_uri'],
-							'versions'     => RDF_Object::VERSIONS_ALL,
-							'ref'          => RDF_Object::REFERENCES_NONE,
-							'prov'		   => RDF_Object::PROVENANCE_ALL,
-							'max_recurses' => 0
-								 );
-		$index = $this->rdf_object->index($settings);
-		if (!count($index)) throw new Exception('Problem getting page index');
-		$this->data['page'] = $index[0];
-		unset($index);
-		reset($this->data['page']->versions);
-		$this->data['page']->version_index = key($this->data['page']->versions);
+		$all = (isset($_GET['versions']) && 1==$_GET['versions']) ? true : false;
+		if ($all || 'honeydew'==$this->data['melon']) {  // Overwrite previous page's versions array (which only has the most recent version)
+			unset($this->data['page']->versions);
+			$this->data['page']->user = $this->data['page']->user->user_id;
+			$settings = array(
+								'book'         => $this->data['book'],
+								'content'      => array($this->data['page']),
+								'base_uri'     => $this->data['base_uri'],
+								'versions'     => RDF_Object::VERSIONS_ALL,
+								'ref'          => RDF_Object::REFERENCES_NONE,
+								'prov'		   => RDF_Object::PROVENANCE_ALL,
+								'max_recurses' => 0
+									 );
+			$index = $this->rdf_object->index($settings);
+			if (!count($index)) throw new Exception('Problem getting page index');
+			$this->data['page'] = $index[0];
+			unset($index);
+			reset($this->data['page']->versions);
+			$this->data['page']->version_index = key($this->data['page']->versions);
+		}
 
 		foreach ($this->data['page']->versions as $key => $version) {
 			$this->data['page']->versions[$key]->meta = $this->versions->rdf($this->data['page']->versions[$key]);
