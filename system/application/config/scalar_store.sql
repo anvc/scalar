@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `paywall` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `thumbnail` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `background` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `banner` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `custom_style` text COLLATE utf8_unicode_ci,
   `custom_scripts` text COLLATE utf8_unicode_ci,
   `color` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
