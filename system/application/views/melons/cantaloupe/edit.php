@@ -54,10 +54,9 @@ p {margin-bottom: 1.2rem;}
 .predefined_wrapper {padding-top:10px;}
 .predefined_wrapper select {max-width:350px;}
 .predefined_wrapper .desc {padding-top:4px; color:#333333;}
-
 END;
 $this->template->add_css($css, 'embed');
-$js = <<<END
+$js = <<<'END'
 
 $(document).ready(function() {
 	// If the type is passed via GET
@@ -382,15 +381,26 @@ function validate_form(form) {
 		}
 		send_form(form);
 	}
-	// If in source mode, switch to WYSIWYG to invoke formatting
-	if ('source'==CKEDITOR.instances['sioc:content'].mode) {
-		CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
+
+	$("#style-confirm .submit,#script-confirm .submit").click(function() {
+		// If in source mode, switch to WYSIWYG to invoke formatting
+		if ('source'==CKEDITOR.instances['sioc:content'].mode) {
+			CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
+				commit();
+			});
+		} else {
 			commit();
-		});
+		}
+	})
+
+	// Check for <script> and <style> tags in custom code text boxes
+	if($('textarea[name="scalar:custom_style"]').val().search(/<\/?style>/i) != -1) {
+		$("#style-confirm").modal('show');
+	} else if($('textarea[name="scalar:custom_scripts"]').val().search(/<\/?script>/i) != -1) {
+		$("#script-confirm").modal('show');
 	} else {
-		commit();
+		$('#style-confirm .submit').click();
 	}
-	return false;
 }
 
 END;
@@ -398,8 +408,41 @@ $this->template->add_js($js, 'embed');
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
 ?>
-
-<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this));">
+<div id="script-confirm" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        <h2 class="modal-title">Extra HTML Tags</h2>
+      </div>
+      <div class="modal-body">
+        <p>You have HTML tags included in the Custom JS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;script&gt; and &lt;/script&gt; tags are automatically included by Scalar.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="submit btn btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="style-confirm" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        <h2 class="modal-title">Extra HTML Tags</h2>
+      </div>
+      <div class="modal-body">
+        <p>You have HTML tags included in the Custom CSS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;style&gt; and &lt;/style&gt; tags are automatically included by Scalar.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="submit btn btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data"onsubmit="validate_form($(this));return false;">
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
