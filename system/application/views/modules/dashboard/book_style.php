@@ -122,7 +122,52 @@ function set_versions(nodes, init) {
 $(window).ready(function() {
 
     $('.save_changes').next('a').click(function() {
-    	$('#style_form').submit();
+    	var $this = $(this);
+		if($('textarea[name="custom_style"]').val().search(/<\/?style>/i) != -1) {
+			$("#style-confirm").dialog({
+				resizable:false,
+				width:500,
+				height:'auto',
+				modal:true,
+				open:function() {
+					$('.ui-dialog :button').blur();
+				},
+				buttons: {
+					"Cancel":function() {
+						$(this).dialog("close");
+						$this.blur();
+						return false;
+					},
+					"Continue":function() {
+						$(this).dialog("close");
+				    	$('#style_form').submit();
+					}
+				}
+			});
+		} else if($('textarea[name="custom_js"]').val().search(/<\/?script>/i) != -1) {
+			$("#script-confirm").dialog({
+				resizable:false,
+				width:500,
+				height:'auto',
+				modal:true,
+				open:function() {
+					$('.ui-dialog :button').blur();
+				},
+				buttons: {
+					"Cancel":function() {
+						$(this).dialog("close");
+						$this.blur();
+						return false;
+					},
+					"Continue":function() {
+						$(this).dialog("close");
+						$('#style_form').submit();
+					}
+				}
+			});
+		} else {
+			$('#style_form').submit();
+		}
     	return false;
     });
 
@@ -188,9 +233,14 @@ $(window).ready(function() {
 ?>
 
 		<div id="slug-change-confirm" title="URI Segment">
-		Changing the URI Segment of the book will change its location on the web, which will make the old book URL unavailable.  Do you wish to continue?
+			Changing the URI Segment of the book will change its location on the web, which will make the old book URL unavailable.  Do you wish to continue?
 		</div>
-
+		<div id="style-confirm" title="Extra HTML Tags">
+			You have HTML tags included in the Custom CSS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;style&gt; and &lt;/style&gt; tags are automatically included by Scalar.
+		</div>
+		<div id="script-confirm" title="Extra HTML Tags">
+			You have HTML tags included in the Custom JS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;script&gt; and &lt;/script&gt; tags are automatically included by Scalar.
+		</div>
 		<form id="style_form" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="action" value="do_save_style" />
 		<input type="hidden" name="zone" value="style" />

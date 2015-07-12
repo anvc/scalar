@@ -441,7 +441,49 @@ function validate_form($form, ignoreViewCheck) {
 		}
 	}
 
-	send_form($form);
+	if($('textarea[name="scalar:custom_style"]').val().search(/<\/?style>/i) != -1) {
+		$("#style-confirm").dialog({
+				resizable:false,
+				width:500,
+				height:'auto',
+				modal:true,
+				open:function() {
+					$('.ui-dialog :button').blur();
+				},
+				buttons: {
+					"Cancel":function() {
+						$(this).dialog("close");
+						return false;
+					},
+					"Continue":function() {
+						$(this).dialog("close");
+						send_form($form);
+					}
+				}
+			});
+	} else if($('textarea[name="scalar:custom_scripts"]').val().search(/<\/?script>/i) != -1) {
+		$("#script-confirm").dialog({
+				resizable:false,
+				width:500,
+				height:'auto',
+				modal:true,
+				open:function() {
+					$('.ui-dialog :button').blur();
+				},
+				buttons: {
+					"Cancel":function() {
+						$(this).dialog("close");
+						return false;
+					},
+					"Continue":function() {
+						$(this).dialog("close");
+						send_form($form);
+					}
+				}
+			});
+	} else {
+		send_form($form);
+	}
 
 	return false;
 

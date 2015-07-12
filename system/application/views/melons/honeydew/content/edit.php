@@ -45,7 +45,12 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			echo 'content';
 	}
 ?></h4>
-
+<div id="style-confirm" title="Extra HTML Tags">
+You have HTML tags included in the Custom CSS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;style&gt; and &lt;/style&gt; tags are automatically included by Scalar.
+</div>
+<div id="script-confirm" title="Extra HTML Tags">
+You have HTML tags included in the Custom JS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;script&gt; and &lt;/script&gt; tags are automatically included by Scalar.
+</div>
 <?
 if ('cantaloupe' == $book->template) {
 	echo('<form id="edit_form" method="post" enctype="multipart/form-data" onsubmit="return validate_form($(this), true);">');

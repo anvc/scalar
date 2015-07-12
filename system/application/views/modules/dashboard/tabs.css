@@ -115,4 +115,4 @@ td.styling_last {text-align:right; padding-right:0px;}
 .predefined_wrapper {padding-top:3px;}
 .predefined_wrapper .desc {padding-top:4px; color:#333333;}
 
-#slug-change-confirm {display:none;}
+#style-confirm, #script-confirm, #slug-change-confirm {display:none;}

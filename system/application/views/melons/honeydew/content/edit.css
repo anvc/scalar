@@ -153,3 +153,4 @@ td.styling_last {text-align:right; padding-right:0px;}
 .custom_javascript_add_new > div {margin-bottom:4px;}
 .custom_javascript_add_new select {width:200px;}
 .custom_javascript_text_input {width:300px;}
+#script-confirm,#style-confirm {display:none;}
