@@ -103,7 +103,11 @@ if ('json'==$format) {
 		curl_close($ch);
 		$json = json_decode($response, true);
    } else {
-	 	$json = json_decode(json_clean_line_breaks(file_get_contents($uri)), true);
+   		session_start();
+		$opts = array('http' => array('header'=> 'Cookie: ' . $_SERVER['HTTP_COOKIE']."\r\n"));  // Send cookies for session_start of target
+		$context = stream_context_create($opts);
+		session_write_close();
+	 	$json = json_decode(json_clean_line_breaks(file_get_contents($uri, false, $context)), true);
    }
    $xml = jsonToXML($json);
    $xml = stripInvalidXml($xml);

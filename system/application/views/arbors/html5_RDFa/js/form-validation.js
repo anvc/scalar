@@ -462,7 +462,9 @@ function htmlspecialchars (string, quote_style, charset, double_encode) {
 function create_excerpt(str, num_words) {
 
 	if (!str || !str.length) return str;
-	var str = strip_tags(str);
+	var str = str.replace('<br />',' ');
+	str = str.replace('<br>', ' ');
+	str = strip_tags(str);
 	var arr = str.split(' ');
 	if (arr.length <= num_words) return str;
 	str = arr.slice(0,num_words).join(' ')+' ...';

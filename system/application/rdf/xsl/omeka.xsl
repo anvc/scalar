@@ -21,15 +21,17 @@
 	<xsl:template match="*"></xsl:template>
 	
 	<xsl:template match="root/node">		
-		<rdf:Description rdf:about="http://{file_data/archive}/items/show/{id}">
-			<dcterms:source><xsl:value-of select="file_data/archive" /></dcterms:source>
-			<art:filename rdf:resource="{file_data/url}" />
-			<art:thumbnail rdf:resource="{file_data/thumb}" />
-			<dcterms:identifier><xsl:value-of select="file_data/filename"/></dcterms:identifier>
-			<art:sourceLocation rdf:resource="http://{file_data/archive}/items/show/{id}" />
+		<rdf:Description rdf:about="http://{archive}/files/show/{id}">
+			<dcterms:source><xsl:value-of select="archive" /></dcterms:source>
+			<dcterms:date><xsl:value-of select="added" /></dcterms:date>
+			<art:filename rdf:resource="{url}" />
+			<art:thumbnail rdf:resource="{thumb}" />
+			<scalar:num_items><xsl:value-of select="num_items" /></scalar:num_items>
+			<dcterms:identifier><xsl:value-of select="filename"/></dcterms:identifier>
+			<art:sourceLocation rdf:resource="http://{archive}/files/show/{id}" />
 			<xsl:apply-templates select="location_data" />
 			<xsl:apply-templates select="tags/node" />
-			<xsl:apply-templates select="element_texts/node" />
+			<xsl:apply-templates select="element_texts/child::*" />
 		</rdf:Description>		
 	</xsl:template>	
 	
@@ -41,25 +43,25 @@
 		<dcterms:subject><xsl:value-of select="name"/></dcterms:subject>
 	</xsl:template>	
 	
-	<xsl:template match="element_texts/node">
+	<xsl:template match="element_texts/child::*">
 		<xsl:choose>
-			<xsl:when test="element/name = 'Title'">
-				<dcterms:title><xsl:value-of select="text"/></dcterms:title>
+			<xsl:when test="name(.) = 'Title'">
+				<dcterms:title><xsl:value-of select="."/></dcterms:title>
 			</xsl:when>
-			<xsl:when test="element/name = 'Description'">
-				<dcterms:description><xsl:value-of select="text"/></dcterms:description>
+			<xsl:when test="name(.) = 'Description'">
+				<dcterms:description><xsl:value-of select="."/></dcterms:description>
 			</xsl:when>		
-			<xsl:when test="element/name = 'Creator'">
-				<dcterms:contributor><xsl:value-of select="text"/></dcterms:contributor>
+			<xsl:when test="name(.) = 'Creator'">
+				<dcterms:contributor><xsl:value-of select="."/></dcterms:contributor>
 			</xsl:when>				
-			<xsl:when test="element/name = 'Source'">
-				<dcterms:source><xsl:value-of select="text"/></dcterms:source>
+			<xsl:when test="name(.) = 'Source'">
+				<dcterms:source><xsl:value-of select="."/></dcterms:source>
 			</xsl:when>		
-			<xsl:when test="element/name = 'Date'">
-				<dcterms:date><xsl:value-of select="text"/></dcterms:date>
+			<xsl:when test="name(.) = 'Date'">
+				<dcterms:date><xsl:value-of select="."/></dcterms:date>
 			</xsl:when>			
-			<xsl:when test="element/name = 'Coverage'">
-				<dcterms:coverage><xsl:value-of select="text"/></dcterms:coverage>
+			<xsl:when test="name(.) = 'Coverage'">
+				<dcterms:coverage><xsl:value-of select="."/></dcterms:coverage>
 			</xsl:when>								
 	  </xsl:choose>
 	</xsl:template>		 
