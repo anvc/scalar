@@ -35,6 +35,9 @@
 			elementsWithIncrementedData: [],
 			pathIndex: null,
 			gallery: null,
+			bodyCopyWidth: null,
+			pageWidth: null,
+			pageWidthMinusMargins: null,
 
 			mobileWidth: 520, // this should be set to the same value as the mobile (tiny.css) breakpoint in responsive.css
 			adaptiveMedia: 'full',
@@ -79,7 +82,6 @@
 			handleMediaElementMetadata: function( event, link ) {
 
 				var mediaelement = link.data('mediaelement'),
-					pageWidth = parseInt( $( '.page' ).width() ),
 					mediaWidth = mediaelement.model.element.find( '.mediaObject' ).width(),
 					isInline = link.hasClass( "inline" ),
 					size = link.attr('data-size'),
@@ -88,13 +90,6 @@
 				if (page.adaptiveMedia == 'mobile') {
 					size = 'full';
 				}
-
-				// calculate the size of the content area minus margins
-				temp = $('<div class="body_copy"></div>');
-				temp.appendTo('.page');
-				var pageWidthMinusMargins = pageWidth - ( parseInt( temp.css( 'padding-left' ) ) * 2 );
-				var bodyCopyWidth = temp.width();
-				temp.remove();
 
 				temp = $( '<div class="small_dim"></div>') ;
 				temp.appendTo( '.page' );
@@ -106,14 +101,14 @@
 				// 'full' and 'native' sized media get special sizing treatment
 				if ( size == 'native' || size == 'full' ) {
 					// if the media is the full width of the page, then remove any align styles
-					if ( mediaWidth >= pageWidth ) {
+					if ( mediaWidth >= page.pageWidth ) {
 						mediaelement.model.element.parent().removeClass( 'left right' );
 						isFullWidth = true;
 					
 					// if the media is smaller than than the width of the page, but larger than the width of the
 					// page minus its margins, then center it and add pillarboxing to separate it from the 
 					// rest of the page
-					} else if (size == 'full' || mediaWidth > bodyCopyWidth ) {
+					} else if (size == 'full' || mediaWidth > page.bodyCopyWidth ) {
 						mediaelement.model.element.css( { 
 							'margin-right': 'auto',
 							'margin-left': 'auto',
@@ -263,7 +258,21 @@
 
 			},
 
+			calculatePageDimensions: function() {
+
+				page.pageWidth = parseInt( $( '.page' ).width() );
+
+				// calculate the size of the content area minus margins
+				var temp = $('<div class="body_copy"></div>');
+				temp.appendTo('.page');
+				page.pageWidthMinusMargins = page.pageWidth - ( parseInt( temp.css( 'padding-left' ) ) * 2 );
+				page.bodyCopyWidth = temp.width();
+				temp.remove();
+
+			},
+
 			addMediaElementForLink: function( link, parent, height ) {
+
 				var inline = link.hasClass( 'inline' ),
 					size = link.attr( 'data-size' ),
 					align = link.attr( 'data-align' );
@@ -282,14 +291,6 @@
 					size = 'medium';
 				}
 
-				var pageWidth = parseInt( $( '.page' ).width() );
-
-				// calculate the size of the content area minus margins
-				temp = $('<div class="body_copy"></div>'); 
-				temp.appendTo('.page');
-				var bodyCopyWidth = parseInt( temp.width() );
-				temp.remove();
-
 				// create a temporary element and remove it so we can get its width; this allows us to specify
 				// the various media element widths via CSS
 				var temp = $( '<div class="' + size + '_dim"></div>') ;
@@ -301,7 +302,15 @@
 				if (inline) {
 					// we want 'large' inline media to be as wide as the text
 					if (size == 'large') {
-						width = bodyCopyWidth;
+						width = page.bodyCopyWidth;
+					}
+				} else {
+					// break point for large media elements to become full
+					if (( size == 'large' ) && (( page.pageWidthMinusMargins - page.bodyCopyWidth ) < 160 )) {
+						size = "full";
+					// break point for medium media elements to become full
+					} else if (( size == 'medium' ) && ( width > ( page.bodyCopyWidth - 160 ))) {
+						size = "full";
 					}
 				}
 
@@ -958,10 +967,13 @@
 			},
 
 			addMediaElements: function() {
+
 				var i, n,
 					currentNode = scalarapi.model.getCurrentPageNode(),
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value,
 					extension = scalarapi.getFileExtension( window.location.href );
+
+				page.calculatePageDimensions();
 
 				// Using defaultView rather than <link id="view" /> means that a view can not be chosen via URL extension,
 				// but rather only by setting it as the default view for the page.  Since 'annotation_editor' and 'edit' views
@@ -1235,6 +1247,9 @@
 			},
 
 			addMediaElementsForElement: function( element ) {
+
+				page.calculatePageDimensions();
+
 				element.find('a').each(function() {
 
 					// resource property signifies a media link
@@ -1273,6 +1288,7 @@
 					'default':$(window).height()*0.75, 
 				};
 			},
+
 			handleMediaResize: function() {
 				page.updateMediaHeightRestrictions();
 
@@ -1409,7 +1425,6 @@
 	
 		$( 'body' ).bind( 'delayedResize', function() {
 			if(page.initialMediaLoad === true) {
-				var reload = false;
 				if($('body').width() <= page.mobileWidth) {
 					if(page.adaptiveMedia != 'mobile') {
 						page.adaptiveMedia = 'mobile';
@@ -1417,16 +1432,10 @@
 					}
 				} else if(page.adaptiveMedia != 'full') {
 					page.adaptiveMedia = 'full';
-					reload = true;
 				}
-				if(Math.abs(page.heightOnMediaLoad-$(window).height()) > 200) {
-					page.heightOnMediaLoad = $(window).height();
-					reload = true;
-				}
-				if(reload == true) {
-					$('#google-maps').css('max-height',0.8*page.heightOnMediaLoad);
-					page.handleMediaResize();					
-				}
+				page.heightOnMediaLoad = $(window).height();
+				$('#google-maps').css('max-height',0.8*page.heightOnMediaLoad);
+				page.handleMediaResize();	
 			}
 		} );
 		
