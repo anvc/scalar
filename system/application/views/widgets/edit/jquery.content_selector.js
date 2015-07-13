@@ -374,6 +374,7 @@
 	    				item.version_slug = item.version_uri.replace(opts.parent, '');
 	    				item.content = _data[uri];
 	    				item.version = _data[ item.version_uri ];
+	    				item.title = ('undefined'!=typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
 	    				item.targets = [];
 	    				opts.data.push(item);
 	    			}
@@ -408,6 +409,10 @@
 	    				}
 	    			}
 	    		}
+	    		opts.data.sort(function(a,b){ 
+	    		    var x = a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; 
+	    		    return x; 
+	    		});
 	    		propagate();
 	    	});
     	};
