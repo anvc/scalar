@@ -48,7 +48,7 @@ foreach ($page->versions as $key => $version) {
 ?>
 <div class="caption_font">
 <? $all = (isset($_GET['versions'])&&1==$_GET['versions']) ? true : false; ?>
-	<a class="btn btn-default<?=(($all)?' active':'')?>" href="<?=$base_uri.$page->slug?><?=($all)?'.meta':'.meta?versions=1'?>">Show all versions</a>&nbsp; &nbsp;
-	<a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfxml?versions=1">View as RDF-XML</a>&nbsp; &nbsp;
-	<a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfjson?versions=1">View as RDF-JSON</a>&nbsp; &nbsp;
+	<a class="btn btn-default<?=(($all)?' active':'')?>" href="<?=$base_uri.$page->slug?><?=($all)?'.meta':'.meta?versions=1'?>">Show all versions</a>
+	<a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfxml?versions=1">View as RDF-XML</a>
+	<a class="btn btn-default" href="<?=$base_uri.$page->slug?>.rdfjson?versions=1">View as RDF-JSON</a>
 </div>
