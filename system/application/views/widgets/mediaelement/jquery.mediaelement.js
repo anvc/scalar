@@ -1616,15 +1616,7 @@ function YouTubeGetID(url){
 
 				} else if (me.model.isChromeless) {
 					if (liveCount > 0) {
-						if ((me.model.mediaSource.name == 'Vimeo')) {// ||(me.model.mediaSource.name == 'SoundCloud')) {
-							// this prevents Vimeo videos generated from linked annotations from displaying
-							// their live annotation when cueing up on page load
-							if ((me.mediaObjectView.initialPauseDone) && (me.intervalId != null)) {
-								$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
-							}
-						} else {
-							$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
-						}
+						$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
 						if (this.currentAnnotation != null) {
 							if (newCurrentAnnotation.body.url != this.currentAnnotation.body.url) {
 								$('body').trigger('hide_annotation', [this.currentAnnotation, me]);
