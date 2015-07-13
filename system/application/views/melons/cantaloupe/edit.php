@@ -313,7 +313,7 @@ $(document).ready(function() {
 
 	//Added to prevent accidental navigation away from edit/add page - matches all anchor tags
 	//with an href attribute that doesn't start with # or javascript:
-	$(document).on('click', 'a[href]:not([href!=""], [href^="#"], [href^="javascript"])', function(e){
+	$(document).on('click', 'a[href]:not([href=""], [href^="#"], [href^="javascript"])', function(e){
 		if(!window.confirm('You are now leaving the page. If you have made any changes to this page, they will be lost. Continue?')){
 			e.preventDefault();
 			return false;
