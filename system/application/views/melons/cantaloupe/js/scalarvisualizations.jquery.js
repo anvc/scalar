@@ -400,7 +400,7 @@
 			}
 
 			if (base.rolloverNode != null) {
-				if ((base.rolloverNode.url != d.url) || (base.selectedNodes.indexOf(d) != -1)) {
+				if ((base.rolloverNode.url != d.url) || (base.selectedNodes.indexOf(d) != -1) || isMobile) {
 					str += '<a href="'+d.url+'" class="btn btn-primary btn-xs" role="button">Visit &raquo;</a>';
 				}
 			} else {

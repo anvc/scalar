@@ -530,6 +530,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 			<div class="well col-md-8">
 				<div id="select_view"></div>
+				<div style="clear: both;"></div>
 			</div>
 		</div>
 
