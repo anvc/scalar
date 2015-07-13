@@ -1121,7 +1121,6 @@
 						break;
 
 						case "meta":
-						// if this is a media page, embed the media at native size
 						if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
 							var currentNode = scalarapi.model.getCurrentPageNode();
 							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( 'article > span[property="sioc:content"]' );
@@ -1801,6 +1800,10 @@
 					case "meta":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 class="meta-header" style="margin-bottom: 0rem;">Metadata</h2>' );
 					$( '.meta-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					// this is a hack to address a Safari bug that caused the top table to exceed the width of the page
+					var el = $( '.meta-page > table' );
+					el.css( 'display', 'inherit' );
+					setTimeout( function() { el.css( 'display', 'table' ); }, 1 );
 					okToAddExtras = true;
 					break;
 
@@ -1832,7 +1835,7 @@
 						showTags:true
 					});
 					page.addIncomingComments();
-					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length == 0 ) {
+					if (( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length == 0 ) && ( viewType != "meta" )) {
 						page.addAdditionalMetadata();
 					}
 					page.addExternalLinks();
