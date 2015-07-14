@@ -218,7 +218,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</li>'+
                                                     '</ul>'+
                                                 '</li>'+
-                                                (base.currentNode!=null?'<li id="ScalarHeaderDelete" class="hidden-xs"><a class="headerIcon" id="deleteIcon" title="Delete" /><span class="hidden-sm hidden-md hidden-lg">Delete page</span></a></li>':'')+
+                                                (base.currentNode!=null?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
                                                 ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
