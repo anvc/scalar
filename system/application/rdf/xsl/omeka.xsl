@@ -26,7 +26,6 @@
 			<dcterms:date><xsl:value-of select="added" /></dcterms:date>
 			<art:filename rdf:resource="{url}" />
 			<art:thumbnail rdf:resource="{thumb}" />
-			<scalar:num_items><xsl:value-of select="num_items" /></scalar:num_items>
 			<dcterms:identifier><xsl:value-of select="filename"/></dcterms:identifier>
 			<art:sourceLocation rdf:resource="http://{archive}/files/show/{id}" />
 			<xsl:apply-templates select="location_data" />
