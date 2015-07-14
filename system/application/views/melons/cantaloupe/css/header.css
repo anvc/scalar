@@ -342,13 +342,13 @@ a.headerIcon{
 	list-style-type: none;
 }
 .navbar ul.dropdown-menu ul.description_more_link_container li a, .navbar ul.dropdown-menu ul.links li a{
-	padding: .5rem;
+	padding: .5rem; background-color: #303030;
 }
 
 .navbar ul.dropdown-menu ul.description_more_link_container li a:active, .navbar ul.dropdown-menu ul.links li a:active,
 .navbar ul.dropdown-menu ul.description_more_link_container li a:hover, .navbar ul.dropdown-menu ul.links li a:hover,
 .navbar ul.dropdown-menu ul.description_more_link_container li a:focus, .navbar ul.dropdown-menu ul.links li a:focus{
-	background-color: transparent;
+	background-color: #303030;
 }
 
 #navMenu>ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
@@ -976,7 +976,7 @@ i.loader{
 	  margin: 1rem;
 	}
 	.tocMenu .expandedPage .links {
-	  padding: .5rem 1rem 1rem;
+	  padding: .5rem 1rem 1rem 0;
 	}
 	.tocMenu .expandedPage .relationships ol {
 	  padding: 1rem;
