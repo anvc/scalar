@@ -175,8 +175,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</a>'+
                                             '</li>'+
                                             */
-                                            '<li id="ScalarHeaderHelp" class="hidden-xs">'+
-                                                '<a class="headerIcon" id="helpIcon" title="Help button. Click to toggle help info."/></a>'+
+                                            '<li id="ScalarHeaderHelp">'+
+                                                '<a class="headerIcon" id="helpIcon" title="Help button. Click to toggle help info."><span class="hidden-sm hidden-md hidden-lg">Help</span></a>'+
                                             '</li>'+
                                             ((base.is_author||base.is_commentator||base.is_reviewer)?
                                                 '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'+
