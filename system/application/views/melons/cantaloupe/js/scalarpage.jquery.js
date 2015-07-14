@@ -858,7 +858,7 @@
 			},
 
 			embedMediaToAnnotate: function( content ) {
-				var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-caption="none" data-size="native"></a>' ).prependTo(content);
+				var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-caption="none" data-size="large"></a>' ).prependTo(content);
 				link.wrap( '<div></div>' );
 				page.addMediaElementForLink( link, link.parent() );
 				link.css('display', 'none');
