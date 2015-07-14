@@ -376,7 +376,7 @@ function ScalarAPI() {
 				'Safari': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
 				'Android': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true},
-				'Other': {extensions:['m4v'], format:'M4V', player:'QuickTime', specifiesDimensions:true}
+				'Other': {extensions:['m4v'], format:'M4V', player:'native', specifiesDimensions:true}
 			}},
 		'MPEG-1': {
 			name:'MPEG-1',
@@ -593,7 +593,6 @@ function ScalarAPI() {
 			contentType:'audio',
 			browserSupport: {
 				'Mozilla': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['wav'], format:'WAV', player:'jPlayer', specifiesDimensions:false},
 				'MobileSafari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
@@ -1842,9 +1841,10 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
  * @param	relation			If populated, will return only relations of the specified type
  * @param	start				Result number to start with
  * @param	results				Number of results to return
+ * @param 	provenance			If true, will return provenance of the nodes
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results) {
+ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results, provenance) {
 
 	var url = this.model.urlPrefix+uriSegment;
 	var node = this.model.nodesByURL[this.model.urlPrefix+uriSegment];
@@ -1868,6 +1868,13 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 	if (results != null) {
 		queryString += '&results='+results;
 	}
+	var prov;
+	if (provenance == null) {
+		prov = 0;
+	} else {
+		prov = provenance ? 1 : 0;
+	}
+	queryString += '&prov='+prov;
 
 	if (this.loadPageStatus[url] == null) {
 		this.loadPageStatus[url] = {isLoading:false, queuedSuccessCallbacks:[], queuedErrorCallbacks:[]};
