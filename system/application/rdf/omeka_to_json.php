@@ -80,7 +80,6 @@ foreach ($files as $file) {
 	$obj->filename = $file->original_filename;
 	$obj->archive = $uri;
 	$obj->added = $file->added;
-	$obj->num_items = count($items);
 	$obj->element_texts = new stdClass();
 	// First try to get Dublin Core data from the file
 	foreach ($file->element_texts as $text) {
