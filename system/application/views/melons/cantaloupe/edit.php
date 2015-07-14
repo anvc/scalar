@@ -200,6 +200,22 @@ $(document).ready(function() {
 			}
 		}});
 	});
+	// Check for <script> and <style> tags in custom code text boxes
+	$('textarea[name="scalar:custom_style"],textarea[name="scalar:custom_scripts"]').on('paste keyup',function() {
+    	var $this = $(this);
+   		var type = 'script';
+		if($this.prop('name') === 'scalar:custom_style') {
+   			type = 'style';
+		}
+    	if($("#"+type+"-confirm").data('confirmed') !== true) {
+			if($this.val().search(/<\/?(style|script)>/i) != -1) {
+				$("#"+type+"-confirm").modal('show');
+			}
+		}
+	});
+	$('#script-confirm .submit, #style-confirm .submit').click(function() {
+		$(this).parents('#style-confirm,#script-confirm').data('confirmed',true).modal('hide');
+	})
 	// Taxonomies for title typeahead
 	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
 	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
@@ -382,24 +398,13 @@ function validate_form(form) {
 		send_form(form);
 	}
 
-	$("#style-confirm .submit,#script-confirm .submit").click(function() {
-		// If in source mode, switch to WYSIWYG to invoke formatting
-		if ('source'==CKEDITOR.instances['sioc:content'].mode) {
-			CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
-				commit();
-			});
-		} else {
+	// If in source mode, switch to WYSIWYG to invoke formatting
+	if ('source'==CKEDITOR.instances['sioc:content'].mode) {
+		CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
 			commit();
-		}
-	})
-
-	// Check for <script> and <style> tags in custom code text boxes
-	if($('textarea[name="scalar:custom_style"]').val().search(/<\/?style>/i) != -1) {
-		$("#style-confirm").modal('show');
-	} else if($('textarea[name="scalar:custom_scripts"]').val().search(/<\/?script>/i) != -1) {
-		$("#script-confirm").modal('show');
+		});
 	} else {
-		$('#style-confirm .submit').click();
+		commit();
 	}
 }
 

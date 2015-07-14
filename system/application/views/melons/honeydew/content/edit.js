@@ -170,7 +170,38 @@ $(window).ready(function() {
 			}
 		}});
 	});
-	
+
+	$('textarea[name="scalar:custom_style"],textarea[name="scalar:custom_scripts"]').on('paste keyup',function() {
+    	var $this = $(this);
+    	if($this.data('confirmed') !== true) {
+			if($this.val().search(/<\/?(style|script)>/i) != -1) {
+	    		var type = 'script';
+				if($this.prop('name') === 'scalar:custom_style') {
+	    			type = 'style';
+				}
+				$("#"+type+"-confirm").dialog({
+					resizable:false,
+					width:500,
+					height:'auto',
+					modal:true,
+					open:function() {
+						$('.ui-dialog :button').blur();
+					},
+					buttons: {
+						"Cancel":function() {
+							$(this).dialog("close");
+							$this.data('confirmed',false);
+							return false;
+						},
+						"Continue":function() {
+							$(this).dialog("close");
+							$this.data('confirmed',true);
+						}
+					}
+				});
+			}
+		}
+	});	
 	// Taxonomies for title typeahead
 	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
 	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
@@ -440,53 +471,8 @@ function validate_form($form, ignoreViewCheck) {
 			}	
 		}
 	}
-
-	if($('textarea[name="scalar:custom_style"]').val().search(/<\/?style>/i) != -1) {
-		$("#style-confirm").dialog({
-				resizable:false,
-				width:500,
-				height:'auto',
-				modal:true,
-				open:function() {
-					$('.ui-dialog :button').blur();
-				},
-				buttons: {
-					"Cancel":function() {
-						$(this).dialog("close");
-						return false;
-					},
-					"Continue":function() {
-						$(this).dialog("close");
-						send_form($form);
-					}
-				}
-			});
-	} else if($('textarea[name="scalar:custom_scripts"]').val().search(/<\/?script>/i) != -1) {
-		$("#script-confirm").dialog({
-				resizable:false,
-				width:500,
-				height:'auto',
-				modal:true,
-				open:function() {
-					$('.ui-dialog :button').blur();
-				},
-				buttons: {
-					"Cancel":function() {
-						$(this).dialog("close");
-						return false;
-					},
-					"Continue":function() {
-						$(this).dialog("close");
-						send_form($form);
-					}
-				}
-			});
-	} else {
-		send_form($form);
-	}
-
+	send_form($form);
 	return false;
-
 }
 
 /**

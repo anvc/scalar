@@ -120,54 +120,40 @@ function set_versions(nodes, init) {
 	if (!init) $versions.trigger('sortchange');
 }
 $(window).ready(function() {
+	$('textarea[name="custom_style"],textarea[name="custom_js"]').on('paste keyup',function() {
+    	var $this = $(this);
+    	if($this.data('confirmed') !== true) {
+			if($this.val().search(/<\/?(style|script)>/i) != -1) {
+	    		var type = 'script';
+				if($this.prop('name') === 'custom_style') {
+	    			type = 'style';
+				}
+				$("#"+type+"-confirm").dialog({
+					resizable:false,
+					width:500,
+					height:'auto',
+					modal:true,
+					open:function() {
+						$('.ui-dialog :button').blur();
+					},
+					buttons: {
+						"Cancel":function() {
+							$(this).dialog("close");
+							$this.data('confirmed',false);
+							return false;
+						},
+						"Continue":function() {
+							$(this).dialog("close");
+							$this.data('confirmed',true);
+						}
+					}
+				});
+			}
+		}
+	});
 
     $('.save_changes').next('a').click(function() {
-    	var $this = $(this);
-		if($('textarea[name="custom_style"]').val().search(/<\/?style>/i) != -1) {
-			$("#style-confirm").dialog({
-				resizable:false,
-				width:500,
-				height:'auto',
-				modal:true,
-				open:function() {
-					$('.ui-dialog :button').blur();
-				},
-				buttons: {
-					"Cancel":function() {
-						$(this).dialog("close");
-						$this.blur();
-						return false;
-					},
-					"Continue":function() {
-						$(this).dialog("close");
-				    	$('#style_form').submit();
-					}
-				}
-			});
-		} else if($('textarea[name="custom_js"]').val().search(/<\/?script>/i) != -1) {
-			$("#script-confirm").dialog({
-				resizable:false,
-				width:500,
-				height:'auto',
-				modal:true,
-				open:function() {
-					$('.ui-dialog :button').blur();
-				},
-				buttons: {
-					"Cancel":function() {
-						$(this).dialog("close");
-						$this.blur();
-						return false;
-					},
-					"Continue":function() {
-						$(this).dialog("close");
-						$('#style_form').submit();
-					}
-				}
-			});
-		} else {
-			$('#style_form').submit();
-		}
+		$('#style_form').submit();
     	return false;
     });
 
