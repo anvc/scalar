@@ -1253,13 +1253,16 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var slug = this_parent_nodes[n];
                     if(slug != base.currentNode.slug){
                         (function(slug,depth){
+                            // if this is a comment relation, get the provenance data as well so we can 
+                            // attribute comments by name
+                            var prov = ( commented_by.indexOf( scalarapi.getNode( slug ) ) != -1 );
                             scalarapi.loadPage( slug, true, function(){
                                 var base = $('#scalarheader.navbar').data('scalarheader');
                                 if(base.checkedParents.indexOf(slug)<0){
                                     base.checkedParents.push(slug);
                                     base.getParents(scalarapi.getNode(slug),++depth);
                                 }
-                            }, null, 1, false, 1, 0, 20 );
+                            }, null, 1, false, 1, 0, 20, prov );
                         })(slug,depth);
                     }
                 }
