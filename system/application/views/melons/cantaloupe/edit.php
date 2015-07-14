@@ -438,7 +438,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
         <h2 class="modal-title">Extra HTML Tags</h2>
       </div>
       <div class="modal-body">
-        <p>You have HTML tags included in the Custom CSS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;style&gt; and &lt;/style&gt; tags are automatically included by Scalar.</p>
+        <p>You have HTML tags included in the Custom CSS box. Adding HTML to this box will cause style errors which may cause problems with your Scalar book. Note that &lt;style&gt; and &lt;/style&gt; tags are automatically included by Scalar.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
