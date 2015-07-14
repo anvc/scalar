@@ -1809,10 +1809,6 @@
 					case "meta":
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 class="meta-header" style="margin-bottom: 0rem;">Metadata</h2>' );
 					$( '.meta-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
-					// this is a hack to address a Safari bug that caused the top table to exceed the width of the page
-					var el = $( '.meta-page > table' );
-					el.css( 'display', 'inherit' );
-					setTimeout( function() { el.css( 'display', 'table' ); }, 1 );
 					okToAddExtras = true;
 					break;
 

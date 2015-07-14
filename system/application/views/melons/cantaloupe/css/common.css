@@ -609,6 +609,7 @@ a.media_info {
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 }
+.meta-page { clear: both; }
 .meta-page .caption_font {clear:left;}
 .meta-page { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .meta-page .btn { margin-bottom: .5rem; margin-right: .5rem; }
