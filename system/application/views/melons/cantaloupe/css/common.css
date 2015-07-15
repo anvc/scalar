@@ -461,7 +461,7 @@ a:hover { text-decoration: underline; }
 	opacity: 1;
 }
 .splash h1 { margin-bottom: 0; }
-.splash h2 { margin-top: 0; font-weight: normal; }
+.splash h2 { margin-top: 0; font-weight: normal; margin-bottom: 0; }
 .title_card {
 	position: absolute;
 	width: 100%;
