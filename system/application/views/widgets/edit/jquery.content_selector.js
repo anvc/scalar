@@ -14,11 +14,12 @@
 			msg:'',
 			callback:null
 	};  	
-	$.fn.content_options = function(opts) {
+	$.fn.content_options = function(opts) {  // Layout options box
     	// Options
     	var self = this;
     	var $this = $(this);
     	var options = {};
+    	var bootstrap_enabled = (typeof $().modal == 'function');
     	if ('undefined'==typeof(opts.data) || $.isEmptyObject(opts.data)) {
     		console.log('content options: no data');
     		opts.callback(options);
@@ -33,34 +34,52 @@
     	var dash_to_space = function(str) {
     		return str.replace(/-/g, ' ');
     	}    	
-    	// Init options box
-    	$this.addClass('media_options').appendTo('body');
-    	$this.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
-    	$this.html('<p class="h heading_font">Select media formatting options</p>');
-        var $form = $('<div class="form-horizontal heading_font"></div>' );
+		// Create the modal
+		if (bootstrap_enabled) {	
+			bootbox.dialog({
+				message: '<div id="bootbox-media-options-content" class="heading_font"></div>',
+				title: 'Media formatting options',
+				className: 'media_options_bootbox',
+				animate: ( (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) ? false : true )// Panel is unclickable if true for iOS
+			});
+			$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
+			$this.appendTo($('#bootbox-media-options-content'));
+			var $media_options_bootbox = $('.media_options_bootbox');
+			$('#bootbox-media-options-content div:first').append('<div id="bootbox-media-options-form" class="form-horizontal heading_font"></div>' );
+			var $form = $('#bootbox-media-options-form');
+		} else {
+			$this.addClass('media_options').appendTo('body');
+			$this.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
+			$this.html('<p class="h heading_font">Select media formatting options</p>');
+			var $form = $('<div class="form-horizontal heading_font"></div>' );
+			$(this).append($form);
+		}
 		// Add options
-    	for (var option_name in opts.data) {
+	    for (var option_name in opts.data) {
 			var $option = $('<div class="form-group"><label class="col-sm-2 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-4"><select class="form-control" name="'+option_name+'"></select></div></div>');
 			for (var j = 0; j < opts.data[option_name].length; j++) {
 				$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
 			}
 			$form.append($option);
 		}
-        $(this).append($form);
-    	$this.append('<p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default" value="Continue" /></p>');
-    	$this.find('input:first').click(function() {
-    		$this.remove();
+	    $this.append('<p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default" value="Continue" /></p>');
+	    $this.find('input:first').click(function() {
+	    	$this.remove();
 		});
-    	$this.find('input:last').click(function() {
+	    $this.find('input:last').click(function() {
 			var data_fields = {};
 			for (var option_name in opts.data) {
 				data_fields[option_name] = $this.find('select[name="'+option_name+'"] option:selected"').val();
 			}
-			$this.remove();
-			opts.callback(data_fields);
+			if ($form.closest('.media_options_bootbox').length) {
+				$form.closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+			} else {
+				$this.remove();
+			}
+				opts.callback(data_fields);
 		});
 	};
-    $.fn.content_selector = function(options) {
+    $.fn.content_selector = function(options) {  // Content selector box
     	// Options
     	var self = this;
     	var $this = $(this);
@@ -138,18 +157,73 @@
     		$this.find('input[type="radio"]').prop('checked', false);
     		go();
     	};
+    	// Set the height of the content area (only needed for Boostrap mode); TODO: very messy
+    	var modal_height = function(init) {
+    		var $content_selector_bootbox = $('.content_selector_bootbox');
+    		if (!$content_selector_bootbox.length) return;
+    		var margin = parseInt($content_selector_bootbox.find('.modal-dialog').css('marginTop'));
+    		var head = parseInt( $content_selector_bootbox.find('.modal-header').outerHeight() );
+    		if (head < 60) head = 60;  // Magic number
+	    	var foot_el = $content_selector_bootbox.find('.footer');
+	    	if (foot_el.is(':hidden')) {
+	    		var foot = 52;  // Magic number; it seems iOS ignores this while it also ensures that on desktop there's no "jump"
+	    	} else if (!foot_el.length) {
+	    		var foot = 52;  // Magic number
+	    	} else {
+	    		var foot = parseInt( foot_el.height() );
+	    	}
+	    	var window_height = parseInt($(window).height());
+	    	var val = window_height - head - foot - (margin*2); 
+    		$this.find('.content').height(val);
+    	}
     	// Initialize the interface
     	var init = function() {
+    		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
     		$this.addClass('content_selector');
-    		if (bootstrap_enabled) $this.addClass('bootstrap');
+    		$this.addClass( ((bootstrap_enabled)?'bootstrap':'no-bootstrap') );
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
-    		$('body').append($this);
-    		var $options = $('<div class="options"></div>').appendTo($wrapper);
+    		// Create the modal
+    		if (bootstrap_enabled) {  
+    			//$(document).scrollTop(0);  // iOS
+				var box = bootbox.dialog({
+					message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
+					title: '<div class="options container-fluid"></div>',
+					className: 'content_selector_bootbox',
+					animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
+				});
+				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
+				$this.appendTo($('#bootbox-content-selector-content'));
+				var $content_selector_bootbox = $('.content_selector_bootbox');
+				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px'); 		
+				var $options = $content_selector_bootbox.find('.options:first');
+				box.on("shown.bs.modal", function() {
+					modal_height();
+				});
+				$(window).resize(function() {
+					modal_height();
+				});
+    		} else {
+    			$('body').append($this);
+    			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);   			
+    		}
+    		// Default content
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" style="float:left;" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
-    		$options.append('<form class="search_form"><input type="text" name="sq" placeholder="Search" /> <input type="submit" value="Go" />&nbsp; &nbsp; <label><input type="radio" name="type" value="content"> All</label> &nbsp;<label><input type="radio" name="type" value="composite"> Pages</label> &nbsp;<label><input type="radio" name="type" value="media"> Media</label> &nbsp;<label><input type="radio" name="type" value="path"> Paths</label> &nbsp;<label><input type="radio" name="type" value="tag"> Tags</label> &nbsp;<label><input type="radio" name="type" value="annotation"> Annotations</label> &nbsp;<label><input type="radio" name="type" value="reply"> Comments</label></form>');
+    		// Footer buttons
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		// Options (search + content type)
+    		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
+    			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="content"> All</label> <label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label></div>';
+    		$options.append('<div class="row">'+options_html+'</div>');
+    		// Bootstrap positioning
+    		if (bootstrap_enabled) {
+    			$footer.find('.cancel').hide();  // Remove cancel button
+    			modal_height();  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
+    		}
+    		// Behaviors
+    		$footer.hide();  // Default 
     		$footer.find('a:first').click(function() {  // On-the-fly
-    			$footer.find('a').hide();
+    			$options.css('visibility','hidden');
+    			$footer.hide();
     			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
     			var $onthefly = $('<div class="create_onthefly"><div><b>Create a new page on the fly.</b> Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
     			var $buttons = $('<div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div>').appendTo($onthefly);
@@ -169,10 +243,12 @@
     			$form.append('<div class="form-group"><label for="onthefly-title" class="col-sm-2">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="onthefly-title" name="dcterms:title" value="" /></div></div>');
     			$form.append('<div class="form-group"><label for="onthefly-desc" class="col-sm-2">Description</label><div class="col-sm-10"><input type="text" class="form-control" id="onthefly-desc" name="dcterms:description" value="" /></div></div>');
     			$form.append('<div class="form-group"><label for="onthefly-content" class="col-sm-2">Content</label><div class="col-sm-10"><textarea id="onthefly-content" name="sioc:content" class="form-control" rows="5"></textarea></div></div>');
+    			$onthefly.css('max-height', $onthefly.closest('.modal-dialog').height());  // Mobile
     			var onthefly_reset = function() {
     				$wrapper.find('.create_screen').remove();
     				$wrapper.find('.create_onthefly').remove();
-    				$footer.find('a').show();
+    				$options.css('visibility','visible');
+    				$footer.show();
     			};
     			$buttons.find('a:first').click(function() {
     				onthefly_reset();
@@ -201,19 +277,24 @@
     					};
     					if (opts.multiple) node = [node];
     					if ('undefined'!=typeof(window['send_form_hide_loading'])) send_form_hide_loading();
-    					$form.closest('.content_selector').remove();
+    					if ($form.closest('.content_selector_bootbox').length) {
+    						$form.closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+    					} else {
+    						$form.closest('.content_selector').remove();
+    					}
+    					$('.tt').remove();
     					opts.callback(node);
     					reset();
     				};
     				$buttons.find('.onthefly_loading').show();
     				send_form($form, {}, success);
     			});
-    		});
-    		if (!opts.onthefly) $footer.find('a:first').hide();
-    		$footer.find('a:nth-child(2)').click(function() {  // Cancel button
-    			reset();
-    			$(this).closest('.content_selector').remove();
-    		});
+    		});  // /On-the-fly    		
+    		if (opts.onthefly) {  // Display on-the-fly
+    			$footer.show();
+    		} else {
+    			$footer.find('a:first').hide();
+    		}
     		$options.find('input[value="'+opts.type+'"]').prop('checked',true);
     		if (!opts.changeable) {  // Selected type is locked
     			$options.addClass('unchangeable');
@@ -238,8 +319,17 @@
     				return false;
     			});
     		}
-    		if (opts.multiple) {
-    			$footer.find('div:first').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
+    		if (opts.multiple) {  // Can choose multiple rows
+    			$footer.show();
+        		$footer.find('a').eq(1).click(function() {  // Cancel button
+        			if ($(this).closest('.content_selector_bootbox').length) {
+        				$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
+        			}
+        			reset();
+        			$(this).closest('.content_selector').remove();
+        			$('.tt').remove();
+        		});    			
+    			$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
     			$footer.find('a:last').click(function() {
     				var nodes = [];
     				$(this).closest('.content_selector').find('input[type="checkbox"]').each(function() {
@@ -251,15 +341,19 @@
     					alert('Please select one or more items');
     					return;
     				}
-    				$(this).closest('.content_selector').remove();
+    				if ($(this).closest('.content_selector_bootbox').length) {
+    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+    				} else {
+    					$(this).closest('.content_selector').remove();
+    				}
     				opts.callback(nodes);
     				reset();
     			});
-    		}
+    		} 
     	};
     	// Propagate the interface
     	var propagate = function() {
-    		$this.find('.content').html('<table cellspacing="0" cellpadding="0"><tbody><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th>Description</th><th>URL</th><th></th></tr></tbody></table>');
+    		$this.find('.content').addClass('table-responsive').html('<table class="table table-hover" cellspacing="0" cellpadding="0"><thead><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th class="hidden-xs">Description</th><th class="hidden-xs">URL</th><th></th></tr></thead><tbody></tbody></table>');
     		var $tbody = $this.find('tbody:first');
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
@@ -281,10 +375,11 @@
     				$first.html('<img class="anno" src="'+opts.anno_icon+'" />');
     			}
     			$tr.append('<td valign="top">'+title+'</td>');
-    			$tr.append('<td valign="top">'+((desc)?desc:'')+'</td>');
-    			$tr.append('<td valign="top">'+filename+'</td>');
+    			$tr.append('<td valign="top" class="hidden-xs">'+((desc)?desc:'')+'</td>');
+    			$tr.append('<td valign="top" class="hidden-xs">'+filename+'</td>');
     			$tr.append('<td valign="top"><a target="_blank" class="generic_button" href="'+((url)?url:opts.data[j].uri)+'">'+((url)?'Preview':'Visit')+'</a></td>');
     		}
+    		modal_height();
     		$this.find('tr').find('a').click(function(event) {  // Preview|Visit button
     			event.stopPropagation();
     			return true;
@@ -298,9 +393,14 @@
     		if (!opts.multiple) {  // Select a single row
     			$this.find('tr').click(function() {
     				var node = $(this).data('node');
-    				$(this).closest('.content_selector').remove();
+    				if ($(this).closest('.content_selector_bootbox').length) {
+    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
+    				} else {
+    					$(this).closest('.content_selector').remove();
+    				}
     				opts.callback(node);
     				reset();
+    				$('.tt').remove();
     			});
     		} else {  // Select multiple rows
     			$this.find('tr').click(function() {
@@ -308,9 +408,9 @@
     				var checked = $this.find('input[type="checkbox"]').is(":checked");
     				$(this).find('input[type="checkbox"]').prop('checked', ((checked)?false:true));
     				if (checked) {
-    					$this.removeClass('checked');
+    					$this.removeClass('active');
     				} else {
-    					$this.addClass('checked');
+    					$this.addClass('active');
     				}
     			});
     		}

@@ -1,55 +1,99 @@
-.content_selector {
-	position:fixed; top:70px; left:50px; right:50px; bottom:50px; z-index:8; background-color:white; 
+
+/* Style for Bootstrap modal */
+
+.content_selector_bootbox .modal-content {height:100%;}
+.content_selector_bootbox .modal-header {padding-left:0px;}
+.content_selector_bootbox .modal-header .close {position:absolute; right:8px; z-index:9;}
+.content_selector_bootbox .modal-body {padding:0;}
+.content_selector_bootbox .content {overflow-y:auto;}
+.content_selector_bootbox .table-responsive {overflow-y:auto; margin-bottom:0px;}
+.content_selector_bootbox .options label {
+	color:#555555; font-weight:normal !important; font-size:smaller !important;  
+	padding-left:0px !important; margin-left:0px !important; 
+}
+.content_selector_bootbox .unchangeable label {display:none;}
+.content_selector_bootbox .wrapper {}
+.content_selector_bootbox .loading {position:relative; text-align:center; margin-top:60px; font-size:14px; color:red;}
+.content_selector_bootbox .howto {text-align:center; padding-top:60px; padding-bottom:60px; font-size:14px; line-height:200%;}
+.content_selector_bootbox .footer {position:relative; height:52px; background-color:#eeeeee; border-top:solid 1px #dddddd;}
+.content_selector_bootbox .footer > div:first-of-type {text-align:left; position:absolute; top:5px; left:10px; z-index:5;}
+.content_selector_bootbox .footer > div:last-of-type {text-align:right; position:absolute; top:5px; right:10px; z-index:6;}
+.content_selector_bootbox .footer a {margin-top:5px; margin-bottom:5px;}
+
+.content_selector_bootbox th, .content_selector_bootbox td {font-size:smaller; cursor:pointer;}
+.content_selector_bootbox thead {background-color:#eeeeee;}
+.content_selector_bootbox .table > thead > tr > th {border-bottom:0;}
+.content_selector_bootbox th:first-of-type, .content_selector_bootbox td:first-of-type {padding-left:12px;}
+.content_selector_bootbox th:last-of-type, .content_selector_bootbox td:last-of-type {padding-right:12px;}
+.content_selector_bootbox th:first-of-type {max-width:44px;}
+.content_selector_bootbox .thumb {max-height:22px; max-width:30px; cursor:pointer;}
+.content_selector_bootbox .anno {height:22px; cursor:pointer;}
+
+.media_options_bootbox {z-index:1500; overflow:auto;}
+.media_options_bootbox .buttons {text-align:right; padding:10px 0px 0px 0px; margin:0;}
+.media_options_bootbox .buttons input:first-of-type {visibility:hidden;}
+
+/* Style for generic (not Bootstrap) modal */
+
+.content_selector.no-bootstrap {
+	position:fixed; top:50px; left:50px; right:50px; bottom:50px; z-index:8; background-color:white; 
 	padding:0; margin:0; box-shadow: 0px 0px 6px #000000; border-radius: 5px;
 }
-.content_selector .wrapper {position:relative; width:100%; height:100%;}
-.content_selector .wrapper .options {height:44px;}
-.content_selector .wrapper .options .search_form {padding:10px; white-space:nowrap; margin:0px;}
-.content_selector .wrapper .unchangeable label {visibility:hidden;}
-.content_selector .wrapper .content {
+.content_selector.no-bootstrap .wrapper {position:relative; width:100%; height:100%;}
+.content_selector.no-bootstrap .wrapper .options {height:44px;}
+.content_selector.no-bootstrap .wrapper .options .search_form {padding:10px; white-space:nowrap; margin:0px;}
+.content_selector.no-bootstrap .wrapper .options .row > div:first-of-type {float:left;}
+.content_selector.no-bootstrap .wrapper .options .row > div:last-of-type {float:left; padding-top:10px;}
+.content_selector.no-bootstrap .wrapper .unchangeable label {visibility:hidden;}
+.content_selector.no-bootstrap .wrapper .content {
 	position:absolute; top:44px; left:0px; right:0px; bottom:44px; overflow:auto; 
 	border-top:solid 1px #bbbbbb; border-bottom:solid 1px #bbbbbb;
 }
-.content_selector .wrapper .content .loading {position:relative; text-align:center; margin-top:50px; font-size:13px; color:red;}
-.content_selector .wrapper .content .howto {text-align:center; margin-top:50px; font-size:14px; line-height:200%;}
-.content_selector .wrapper .content > table {width:100%;}
-.content_selector .wrapper .content th:first-of-type {max-width:44px;}
-.content_selector .wrapper .content th {padding:7px 10px 7px 10px; font-size:13px; text-align:left; font-weight:bold; background-color:#dddddd;}
-.content_selector .wrapper .content td {padding:7px 10px 7px 10px; font-size:13px; text-align:left; font-weight:normal; border-top:solid 1px white;}
-.content_selector .wrapper .content tr {background-color:#eeeeee; cursor:pointer;}
-.content_selector .wrapper .content tr:hover {background-color:#dddddd;}
-.content_selector .wrapper .content .checked {background-color:#e1e1e1;}
-.content_selector .wrapper .content td:nth-child(3) {min-width:33%;}
-.content_selector .wrapper .content .even {}
-.content_selector .wrapper .content .odd {}
-.content_selector .wrapper .content .thumb {max-height:22px; max-width:30px; cursor:pointer;}
-.content_selector .wrapper .content .anno {height:22px; cursor:pointer;}
-.content_selector .wrapper .footer {position:absolute; bottom:0px; left:0px; right:0px; height:42px; text-align:right;}
-.content_selector .wrapper .footer > div {padding-top:10px;}
-.content_selector.bootstrap .wrapper .footer > div {padding-top:5px;}
-.content_selector .wrapper .footer .generic_button {margin-left:10px; margin-right:10px;}
-.tt {
-	position:absolute; top:0px; left:0px; background-color:#eeeeee; width:280px; border:solid 1px #bbbbbb; z-index:9;
-	padding:10px; margin:0;
-}
-.tt img {width:280px;}
-
-/* Options box */
+.content_selector.no-bootstrap .wrapper .content .loading {position:relative; text-align:center; margin-top:50px; font-size:13px; color:red;}
+.content_selector.no-bootstrap .wrapper .content .howto {text-align:center; margin-top:50px; font-size:14px; line-height:200%;}
+.content_selector.no-bootstrap .wrapper .content > table {width:100%;}
+.content_selector.no-bootstrap .wrapper .content th:first-of-type {max-width:44px;}
+.content_selector.no-bootstrap .wrapper .content th {padding:7px 10px 7px 10px; font-size:13px; text-align:left; font-weight:bold; background-color:#dddddd;}
+.content_selector.no-bootstrap .wrapper .content td {padding:7px 10px 7px 10px; font-size:13px; text-align:left; font-weight:normal; border-top:solid 1px white;}
+.content_selector.no-bootstrap .wrapper .content tr {background-color:#eeeeee; cursor:pointer;}
+.content_selector.no-bootstrap .wrapper .content tr:hover {background-color:#dddddd;}
+.content_selector.no-bootstrap .wrapper .content .active {background-color:#e1e1e1;}
+.content_selector.no-bootstrap .wrapper .content td:nth-child(3) {min-width:33%;}
+.content_selector.no-bootstrap .wrapper .content .even {}
+.content_selector.no-bootstrap .wrapper .content .odd {}
+.content_selector.no-bootstrap .wrapper .content .thumb {max-height:22px; max-width:30px; cursor:pointer;}
+.content_selector.no-bootstrap .wrapper .content .anno {height:22px; cursor:pointer;}
+.content_selector.no-bootstrap .wrapper .footer {position:absolute; bottom:0px; left:0px; right:0px; height:42px; text-align:right;}
+.content_selector.no-bootstrap .wrapper .footer a {display:inline-block;}
+.content_selector.no-bootstrap .wrapper .footer a:last-of-type {margin-left:15px;}
+.content_selector.no-bootstrap .wrapper .footer > div:first-of-type {text-align:left; position:absolute; top:10px; left:10px; z-index:5;}
+.content_selector.no-bootstrap .wrapper .footer > div:last-of-type {text-align:right; position:absolute; top:10px; right:10px; z-index:6;}
 
 .media_options {
 	position:absolute; z-index:9; background:#eeeeee; left:30%; right:30%; padding:15px; 
 	box-shadow: 0px 0px 6px #000000; border-radius: 5px; border-width:0;
 }
 .media_options .h {border-bottom:solid 1px #aaaaaa; font-weight:bold; padding-bottom:10px; margin-bottom:20px;}
-.media_options .buttons {float:right; padding:10px 0px 0px 0px; margin:0;}
+.media_options .buttons {text-align:right; padding:10px 0px 0px 0px; margin:0;}
+.media_options .buttons input:first-of-type {float:left;}
+
+/* Overlay */
+
+.tt {
+	position:absolute; top:0px; left:0px; background-color:#dddddd; width:300px; border:solid 1px #bbbbbb; z-index:1150;
+	padding:10px; margin:0;
+}
+.tt img {width:280px;}
 
 /* On-the-fly */
+
 .create_screen {
 	position:absolute; bottom:0px; left:0px; right:0px; top:0px; background-color:#000000; 
 	filter: alpha(opacity=30); opacity: 0.3; border-radius: 3px;
 }
 .create_onthefly {
-	position:absolute; bottom:45px; left:0px; right:0px; background-color:#eeeeee; border-top:solid 1px #bbbbbb;
+	position:absolute; bottom:-52px; left:0px; right:0px; overflow-y:auto; 
+	background-color:#eeeeee; border-top:solid 1px #bbbbbb;
 }
 .create_onthefly > div, .create_onthefly > form {padding:12px 18px 12px 18px;}
 .create_onthefly .buttons {text-align:right;}

@@ -625,7 +625,7 @@ if ('undefined'==typeof(escape_html)) {
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
 				$('.bootbox-close-button').empty();
 				$('.custom_meta').appendTo($('#bootbox-content'));
-				$('.bootbox .modal-dialog').width(width);
+				$('.bootbox .modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
 				$('.custom_meta_content').height(height);
 			} else {
 				alert('Could not find a modal/dialog library');
@@ -686,7 +686,7 @@ if ('undefined'==typeof(escape_html)) {
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
 				$('.bootbox-close-button').empty();
 				$box.appendTo($('#bootbox-content'));
-				$('.bootbox .modal-dialog').width('85%');
+				$('.bootbox .modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
 			} else {
 				alert('Could not find a modal/dialog library');
 			}			
