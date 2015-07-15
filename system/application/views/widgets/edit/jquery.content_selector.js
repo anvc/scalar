@@ -47,6 +47,7 @@
 			var $media_options_bootbox = $('.media_options_bootbox');
 			$('#bootbox-media-options-content div:first').append('<div id="bootbox-media-options-form" class="form-horizontal heading_font"></div>' );
 			var $form = $('#bootbox-media-options-form');
+			$('.bootbox-close-button').empty();
 		} else {
 			$this.addClass('media_options').appendTo('body');
 			$this.css( 'top', (($(window).height()*0.30) + $(document).scrollTop()) );
@@ -196,6 +197,7 @@
 				var $content_selector_bootbox = $('.content_selector_bootbox');
 				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px'); 		
 				var $options = $content_selector_bootbox.find('.options:first');
+				$('.bootbox-close-button').empty();
 				box.on("shown.bs.modal", function() {
 					modal_height();
 				});
@@ -222,11 +224,16 @@
     		// Behaviors
     		$footer.hide();  // Default 
     		$footer.find('a:first').click(function() {  // On-the-fly
-    			$options.css('visibility','hidden');
     			$footer.hide();
     			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
-    			var $onthefly = $('<div class="create_onthefly"><div><b>Create a new page on the fly.</b> Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
+    			var $onthefly = $('<div class="create_onthefly"><div>Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
     			var $buttons = $('<div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div>').appendTo($onthefly);
+    			if (bootstrap_enabled) {
+    				$('<div class="heading_font title">Create new page</div>').insertBefore($options);
+    				$options.hide();
+    			} else {
+    				$onthefly.find('div:first').prepend('<b>Create new page</b><br />');
+    			}
     			var $form = $onthefly.find('form');
     			var id = $('input[name="id"]').val();  // Assuming this exists
     			var book_urn = $('input[name="urn:scalar:book"]').val();  // Assuming this exists
@@ -247,7 +254,10 @@
     			var onthefly_reset = function() {
     				$wrapper.find('.create_screen').remove();
     				$wrapper.find('.create_onthefly').remove();
-    				$options.css('visibility','visible');
+        			if (bootstrap_enabled) {
+        				$options.parent().find('.title').remove();
+        				$options.show();
+        			}
     				$footer.show();
     			};
     			$buttons.find('a:first').click(function() {

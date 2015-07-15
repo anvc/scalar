@@ -15,6 +15,7 @@
 .content_selector_bootbox .wrapper {}
 .content_selector_bootbox .loading {position:relative; text-align:center; margin-top:60px; font-size:14px; color:red;}
 .content_selector_bootbox .howto {text-align:center; padding-top:60px; padding-bottom:60px; font-size:14px; line-height:200%;}
+.content_selector_bootbox .modal-header .title {padding-left:15px; font-weight:500;}
 .content_selector_bootbox .footer {position:relative; height:52px; background-color:#eeeeee; border-top:solid 1px #dddddd;}
 .content_selector_bootbox .footer > div:first-of-type {text-align:left; position:absolute; top:5px; left:10px; z-index:5;}
 .content_selector_bootbox .footer > div:last-of-type {text-align:right; position:absolute; top:5px; right:10px; z-index:6;}
@@ -28,6 +29,7 @@
 .content_selector_bootbox th:first-of-type {max-width:44px;}
 .content_selector_bootbox .thumb {max-height:22px; max-width:30px; cursor:pointer;}
 .content_selector_bootbox .anno {height:22px; cursor:pointer;}
+.content_selector_bootbox .create_onthefly {bottom:-52px !important;}
 
 .media_options_bootbox {z-index:1500; overflow:auto;}
 .media_options_bootbox .buttons {text-align:right; padding:10px 0px 0px 0px; margin:0;}
@@ -65,7 +67,7 @@
 .content_selector.no-bootstrap .wrapper .content .anno {height:22px; cursor:pointer;}
 .content_selector.no-bootstrap .wrapper .footer {position:absolute; bottom:0px; left:0px; right:0px; height:42px; text-align:right;}
 .content_selector.no-bootstrap .wrapper .footer a {display:inline-block;}
-.content_selector.no-bootstrap .wrapper .footer a:last-of-type {margin-left:15px;}
+.content_selector.no-bootstrap .wrapper .footer > div:last-of-type > a:last-of-type {margin-left:15px;}
 .content_selector.no-bootstrap .wrapper .footer > div:first-of-type {text-align:left; position:absolute; top:10px; left:10px; z-index:5;}
 .content_selector.no-bootstrap .wrapper .footer > div:last-of-type {text-align:right; position:absolute; top:10px; right:10px; z-index:6;}
 
@@ -88,12 +90,12 @@
 /* On-the-fly */
 
 .create_screen {
-	position:absolute; bottom:0px; left:0px; right:0px; top:0px; background-color:#000000; 
-	filter: alpha(opacity=30); opacity: 0.3; border-radius: 3px;
+	position:absolute; bottom:0px; left:0px; right:0px; top:0px; background-color:#ffffff; 
+	filter: alpha(opacity=100); opacity: 1.0; border-radius: 3px;
 }
 .create_onthefly {
-	position:absolute; bottom:-52px; left:0px; right:0px; overflow-y:auto; 
-	background-color:#eeeeee; border-top:solid 1px #bbbbbb;
+	position:absolute; bottom:0px; left:0px; right:0px; overflow-y:auto; 
+	background-color:#ffffff;
 }
 .create_onthefly > div, .create_onthefly > form {padding:12px 18px 12px 18px;}
 .create_onthefly .buttons {text-align:right;}
