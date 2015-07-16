@@ -1425,6 +1425,7 @@
 	
 		$( 'body' ).bind( 'delayedResize', function() {
 			if(page.initialMediaLoad === true) {
+				var reload = false;
 				if($('body').width() <= page.mobileWidth) {
 					if(page.adaptiveMedia != 'mobile') {
 						page.adaptiveMedia = 'mobile';
@@ -1432,10 +1433,17 @@
 					}
 				} else if(page.adaptiveMedia != 'full') {
 					page.adaptiveMedia = 'full';
+					reload = true;
 				}
-				page.heightOnMediaLoad = $(window).height();
-				$('#google-maps').css('max-height',0.8*page.heightOnMediaLoad);
-				page.handleMediaResize();	
+				var newSize = { x: $(window).width(), y: $(window).height() };
+				if (( Math.abs( page.sizeOnMediaLoad.x - newSize.x ) > 100 ) || ( Math.abs( page.sizeOnMediaLoad.y - newSize.y ) > 100 )) {
+					page.sizeOnMediaLoad = newSize;
+					reload = true;
+				}
+				if ( reload ) {
+					$('#google-maps').css('max-height',0.8*page.sizeOnMediaLoad.y);
+					page.handleMediaResize();	
+				}
 			}
 		} );
 		
@@ -1445,7 +1453,7 @@
 		
 		$('body').on('mediaElementMediaLoaded',function() {
 			page.initialMediaLoad = true;
-			page.heightOnMediaLoad = $(window).height();
+			page.sizeOnMediaLoad = { x: $(window).width(), y: $(window).height() };
 		});
 		
 		var i, node, nodes, link, visOptions, visualization,
