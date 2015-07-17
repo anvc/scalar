@@ -447,9 +447,12 @@ if ('undefined'==typeof(escape_html)) {
 			$tbody = $table.find('tbody');
 			var found = 0;
 			var supported = 0;
-			
+
 			if ($.isEmptyObject(results_data)) {
-				$div.html('<div class="alert alert-warning" role="alert">'+options.no_results_msg.replace('%1',form_data.sq)+'</div>');
+				$div.html('<div class="alert alert-warning" role="alert">'+options.no_results_msg.replace('%1',form_data.sq)+((form_data.pagenum>1)?'&nbsp; &nbsp <a href="javascript:void(null);">< go back a page</a></div>':''));
+				$div.find('a').click(function() {
+					$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum-1)}) );
+				});
 				$(options.results_el).fadeIn();
 				return;
 			}

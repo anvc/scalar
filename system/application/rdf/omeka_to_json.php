@@ -20,6 +20,7 @@
 
 function s_array_merge($array1, $array2) {  // merge array removing duplicates based on obj->id
 	if (!is_array($array1)) $array1 = array();
+	if (!is_array($array2)) return $array1;
 	foreach ($array2 as $el2) {
 		$can_add = true;
 		foreach ($array1 as $el1) {
@@ -47,12 +48,12 @@ $items_url = 'http://'.$uri.'/api/items?page='.$page;
 $files_url = 'http://'.$uri.'/api/files?page='.$page;
 $geo_url = 'http://'.$uri.'/api/geolocations?page='.$page;
 
-$files = file_get_contents($files_url);
+$files =@ file_get_contents($files_url);
 if (!$files) die('{}');
 $files = json_decode($files);
 if (!is_array($files)) die('{}');
 
-$items = file_get_contents($items_url);
+$items =@ file_get_contents($items_url);
 $items = json_decode($items);
 $s_items = array();
 if (isset($_SESSION[urlencode('http://'.$uri.'/api/items')])) {
@@ -61,7 +62,7 @@ if (isset($_SESSION[urlencode('http://'.$uri.'/api/items')])) {
 $items = s_array_merge($s_items, $items);
 $_SESSION[urlencode('http://'.$uri.'/api/items')] = $items;
 
-$locations = file_get_contents($geo_url);
+$locations =@ file_get_contents($geo_url);
 $locations = json_decode($locations);
 $s_locations = array();
 if (isset($_SESSION[urlencode('http://'.$uri.'/api/geolocations')])) {
