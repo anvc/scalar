@@ -16,7 +16,8 @@
 if ($this->config->item('reference_options')) {
 	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 }
-$this->template->add_js('var views='.json_encode($views), 'embed');
+$this->template->add_js('var views='.json_encode($this->config->item('views')), 'embed');
+$this->template->add_js('var media_views='.json_encode( $this->config->item('media_views') ? $this->config->item('media_views') : array(key($views)=>reset($views)) ), 'embed');
 if ($this->config->item('predefined_css')) {
 	$this->template->add_js('var predefined_css='.json_encode($this->config->item('predefined_css')), 'embed');
 }
@@ -64,8 +65,6 @@ $(document).ready(function() {
 		$("#type_media").attr("checked", "checked");
 		checkTypeSelect();
 	}
-	// Layout options
-	$('#select_view').select_view({data:views,default_value:$('link#default_view').attr('href')});
 	// Relationships (path, comment, annotation, tag)
 	$(document).on('click', '.tab-pane .remove a', function() {  // Delegated
 		if (!confirm('Are you sure you wish to remove this relationship?')) return;
@@ -337,14 +336,16 @@ $(document).ready(function() {
 // Determine if the page is a composite or media and show/hide certain elements accordingly
 function checkTypeSelect() {
 	var selected =  $("input:radio[name='rdf:type']:checked").val();
-	if (selected.indexOf('Composite')!=-1) {
+	if (selected.indexOf('Composite')!=-1) {  // Page
 		$('.type_media').hide();
 		$('.type_composite').show();
 		$('.content_type').html('page');
-	} else {
+		$('#select_view').select_view({data:views,default_value:$('link#default_view').attr('href')});
+	} else {  // Media
 		$('.type_media').show();
 		$('.type_composite').hide();
 		$('.content_type').html('media file');
+		$('#select_view').select_view({data:media_views,default_value:$('link#default_view').attr('href')});
 	}
 }
 // Set Badges for Relationship tab

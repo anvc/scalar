@@ -15,6 +15,7 @@
     	var opts = $.extend( {}, defaults, options );
     	opts.default_values = opts.default_value.split(',');  
     	opts.values = [];  // Values set previously
+    	$this.empty();
     	for (var key in opts.default_values) {
     		if (opts.no_prefix==opts.default_values[key].substr(0,3) || !opts.default_values[key].length) continue;
     		opts.values.push(opts.default_values[key]);
