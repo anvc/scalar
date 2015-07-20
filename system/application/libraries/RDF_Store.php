@@ -40,7 +40,7 @@ class RDF_Store {
 			$hostname_port = $ci->db->hostname;
 			$hostname = strstr($hostname_port, ':', true);
 		} else {
-			$hostname = $ci-db->hostname;
+			$hostname = $ci->db->hostname;
 		}
 
 		$config = array(
