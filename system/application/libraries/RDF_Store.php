@@ -36,8 +36,16 @@ class RDF_Store {
 
 		$ci=& get_instance();
 
+		if ($ci->db->port != '') {
+			$hostname_port = $ci->db->hostname;
+			$hostname = strstr($hostname_port, ':', true);
+		} else {
+			$hostname = $ci-db->hostname;
+		}
+
 		$config = array(
   			'db_host' => $ci->db->hostname,
+  			'db_port' => $ci->db->port,
   			'db_name' => $ci->db->database,
   			'db_user' => $ci->db->username,
   			'db_pwd'  => $ci->db->password,
