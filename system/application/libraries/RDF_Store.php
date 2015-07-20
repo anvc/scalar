@@ -44,7 +44,7 @@ class RDF_Store {
 		}
 
 		$config = array(
-  			'db_host' => $ci->db->hostname,
+  			'db_host' => $hostname,
   			'db_port' => $ci->db->port,
   			'db_name' => $ci->db->database,
   			'db_user' => $ci->db->username,
