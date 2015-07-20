@@ -45,10 +45,25 @@ class ARC2_Store extends ARC2_Class {
   /*  */
   
   function createDBCon() {
-    foreach (array('db_host' => 'localhost', 'db_user' => '', 'db_pwd' => '', 'db_name' => '') as $k => $v) {
+    $db_defaults = array(
+      'db_host' => 'localhost',
+      'db_port' => '',
+      'db_user' => '',
+      'db_pwd'  => '',
+      'db_name' => '',
+    );
+    foreach ($db_defaults as $k => $v) {
       $this->a[$k] = $this->v($k, $v, $this->a);
     }
-    if (!$db_con = mysqli_connect($this->a['db_host'],  $this->a['db_user'],  $this->a['db_pwd'])) {
+    if ($this->a['db_port'] == '') {
+      $db_con = mysqli_connect($this->a['db_host'], $this->a['db_user'],
+                               $this->a['db_pwd']);
+    } else {
+      // Use the port but don't set the database yet.
+      $db_con = mysqli_connect($this->a['db_host'], $this->a['db_user'],
+                               $this->a['db_pwd'], '', $this->a['db_port']);
+    }
+    if (!$db_con) {
       return $this->addError(mysqli_error($db_con));
     }
     $this->a['db_con'] = $db_con;
