@@ -333,7 +333,7 @@ Class Api extends Controller {
 		}
 
 		//branch for pages
-		if($this->data['scalar:child_type'] == MY_Model::rdf_type('book')){
+		if($this->data['scalar:child_type'] == $this->versions->rdf_type('book')){
 			$the_book = $this->books->get(array_pop(explode(':', $this->data['scalar:child_urn'])));
 			if(@$the_book->book_id != @$this->user->book_id){
 				$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
@@ -453,7 +453,7 @@ Class Api extends Controller {
 	private function _validate_rdf_type($type){
 		$types = (is_array($type)) ? $type : array($type);
 		$urls = array();
-		foreach($this->content_types as $name) $urls[$name] = MY_Model::rdf_type($name);
+		foreach($this->content_types as $name) $urls[$name] = $this->versions->rdf_type($name);
 		$valid_type = false;
 		foreach ($types as $type) {
 			if($hit=array_search($type, $urls)) $valid_type = true;
