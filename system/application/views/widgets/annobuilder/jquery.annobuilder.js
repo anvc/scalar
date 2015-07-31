@@ -436,9 +436,23 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		
 		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a role="button">?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" class="form-control" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
 		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" class="form-control" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a role="button">?</a><em>Optional abstract of the annotation.</em></div></td></tr>');
+		this.annotationForm.find('tbody').append('<tr><td class="field">Taxonomies</td><td class="value"><span class="tagged_by_msg" style="display:none;"><div><b>This annotation is tagged</b> by:</div></span><ul style="display:none" id="taggedBy"></ul>'
+														+'<div class="form_fields_sub_element"><a class="btn btn-default" id="tagButton" role="button">Add Tag</a><div class="help_button"><a role="button">?</a><em>If the book has imported a taxonomy, you can select terms from the taxonomy here, which will append them to the media annotation.</em></div></div></td></tr>');
 		$('#setStartTimeBtn').click(this.handleSetStartTime);
 		$('#setEndTimeBtn').click(this.handleSetEndTime);
-		
+
+		$('#tagButton').click(function() {
+			$('<div></div>').content_selector({
+				type:'composite',
+				slug_filter:/^term\/.*$/,
+				changeable:false,
+				multiple:true,
+				onthefly:false,
+				msg:'Choose terms to tag the annotation',
+				callback:$.annobuilder.view.builder.handleAddTags
+			});
+		});
+
 		this.footerControls = $('<div class="annotationFooterControls"></div>').appendTo($.annobuilder.model.element);
 		
 		var footerRight = $('<span class="annotationFooterRight"></span>').appendTo(this.footerControls);
@@ -800,6 +814,30 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							break;
 							
 						}
+						var taxNodes = annotation.body.incomingRelations;
+
+						// Add the annotation's saved taxonomy edits
+						if('object' == typeof(edits) && edits.taxonomy != '') {
+							$('.tagged_by_msg, #taggedBy').show();
+							$('#taggedBy').html(edits.taxonomy);
+							$('#taggedBy .remove a').click(me.handleRemoveTags);
+						// Add the annotation's existing taxonomy tags
+						} else if(taxNodes.length !=0) {
+							for (var j in taxNodes) {
+								var slug = taxNodes[j].body.slug;
+								if(taxNodes[j].type.id == "tag" && slug.match(/^term\/.*$/) != null) {
+									var urn = taxNodes[j].body.urn;
+									var title = taxNodes[j].body.current.title;
+									$('#taggedBy').append('<li><input type="hidden" name="tagged_by" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+								}
+							}
+							me.makeSelectedAnnotationDirty();
+							$('.tagged_by_msg, #taggedBy').show();
+							$('#taggedBy .remove a').click(me.handleRemoveTags);
+						} else {
+							$('#taggedBy').html('');
+							$('.tagged_by_msg, #taggedBy').hide();
+						}
 					}
 					
 					if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
@@ -1096,6 +1134,35 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	}
 
 	/**
+	 * Handles additions to the list of nodes tagging an annotation.
+	 *
+	 * @param {Object} nodes	A list of nodes (in rdf-json format) to add as tags to the annotation
+	 */
+	jQuery.AnnoBuilderInterfaceView.prototype.handleAddTags = function(nodes) {
+		if(nodes && nodes.length != 0) {
+			for (var j = 0; j < nodes.length; j++) {
+				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var slug = nodes[j].slug;
+				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				$('#taggedBy').append('<li><input type="hidden" name="tagged_by" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+			}
+			$('.tagged_by_msg, #taggedBy').show();
+			me.makeSelectedAnnotationDirty();
+			$('#taggedBy .remove a').click(me.handleRemoveTags);
+		}
+	}
+
+	/**
+	 * Handles removal of tagging nodes from list.
+	 *
+	 * @param {Object} event		An object representing the event.
+	 */
+	jQuery.AnnoBuilderInterfaceView.prototype.handleRemoveTags = function(event) {
+		$(this).closest('li').remove();
+		me.makeSelectedAnnotationDirty();
+	}
+
+	/**
 	 * Handles changes to the dimensions of a spatial annotation.
 	 *
 	 * @param {Object} event		An object representing the event.
@@ -1279,7 +1346,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					start: $('#startTime').data('value'),
 					end: $('#endTime').data('value'),
 					description: $('#annotationDescription').val(),
-					content: $('#annotationContent').val()
+					content: $('#annotationContent').val(),
+					taxonomy: $('#taggedBy').html()
 				}
 				break;
 				
@@ -1292,7 +1360,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					width: dimensions.width,
 					height: dimensions.height,
 					description: $('#annotationDescription').val(),
-					content: $('#annotationContent').val()
+					content: $('#annotationContent').val(),
+					taxonomy: $('#taggedBy').html()
 				}
 				break;
 				
@@ -1302,7 +1371,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					start: $('#startLine').val(),
 					end: $('#endLine').val(),
 					description: $('#annotationDescription').val(),
-					content: $('#annotationContent').val()
+					content: $('#annotationContent').val(),
+					taxonomy: $('#taggedBy').html()
 				}
 				break;
 				

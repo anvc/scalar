@@ -120,6 +120,7 @@ function set_versions(nodes, init) {
 	if (!init) $versions.trigger('sortchange');
 }
 $(window).ready(function() {
+	var book_slug = $('input[name="slug"]').val();
 	$('textarea[name="custom_style"],textarea[name="custom_js"]').on('paste keyup',function() {
     	var $this = $(this);
     	if($this.data('confirmed') !== true) {
@@ -199,7 +200,90 @@ $(window).ready(function() {
 		}
 	});
 
+	$("#tax_search").click(function() {
+		var fcroot = $("#approot").attr('href').replace('/system/application/','');
+		$.getJSON(fcroot+"/system/api/get_onomy", {slug:book_slug}, function(data) {
+			make_taxonomy_pages(fcroot+'/'+book_slug,data);
+		});
+// Tweak this once JSONP is available for onomy
+/*		var keys = $("input[name='tax_keys']").val();
+		$.ajax({
+			method:"POST",
+			url:"http://onomy.org/taxonomy/findDT",
+			data:{
+				sSearch:$(this).val(),
+				iDisplayLength:10,
+				iDisplayStart:0,
+				iSortCol_0:0,
+				mDataProp_0:'name'
+			}
+		}).done(function(msg) {
+			console.log('msg: '+msg);
+		});
+*/
+		return false;
+	});
 });
+
+function make_taxonomy_pages(url,onomy) {
+	for (var index in onomy) {
+		var taxonomy_name;
+		// for (var key in onomy[index]) {
+			// if('undefined'!=typeof(onomy[index][key]["http://purl.org/dc/terms/title"])) {
+				// taxonomy_name = onomy[index][key]["http://purl.org/dc/terms/title"].value;
+				// break;
+			// }
+		// }
+		for(var key in onomy[index]) {
+			if (key.match(/term\/[0-9]*$/g) != null) {
+				if('undefined'!=typeof(onomy[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"])) {
+					var term_label = onomy[index][key]["http://www.w3.org/2004/02/skos/core#prefLabel"].value;
+					var term_def = '';
+					if('undefined'!=typeof(onomy[index][key]["http://www.w3.org/2004/02/skos/core#definition"])) {
+						term_def = onomy[index][key]["http://www.w3.org/2004/02/skos/core#definition"].value;
+					}
+					var target = url+'/api/add';
+					var value = {};
+					value.action = 'ADD';
+					value.native = 'true';
+					value['scalar:urn'] = '';
+					value.id = '<?=$login->email?>';
+					value.api_key = '';
+					value['scalar:child_urn'] = 'scalar:book:urn:<?=$book->book_id?>';
+					value['scalar:child_type'] = 'http://scalar.usc.edu/2012/01/scalar-ns#Book';
+					value['scalar:child_rel'] = 'page';
+					value['urn:scalar:book'] = 'scalar:book:urn:<?=$book->book_id?>';
+					value['rdf:type'] = 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
+					// Extrapolated page fields
+					value['scalar:slug'] = 'term/'+term_label;
+					value['dcterms:title'] = term_label;
+					value['sioc:content'] = term_def;
+					$.post(target, value);/*.always(function(err) {
+						console.log(err);
+					});/*, function(page_data) {
+						if ('object'!=typeof(page_data)) return;
+						$.each(page_data, function(k,v) {
+							var version_urn = $.fn.rdfimporter('rdf_value',{rdf:v,p:'http://scalar.usc.edu/2012/01/scalar-ns#urn'});
+							opts.urn_map[parent_urn] = version_urn  // map old version urn to new version URN
+							opts.urn_map[key] = version_urn;  // map old URL to new version URN
+						});
+					}).always(function(err) {
+						page_count++;
+						var msg = '';
+						if ('object'!=typeof(err)) {
+							var msg = 'URL isn\'t a Scalar Save API URL ['+url+'] for "'+value['dcterms:title']+'"';
+						} else if ('error'==err.statusText) {
+							var msg = 'There was an error resolving the Save API URL ['+url+'] for "'+value['dcterms:title']+'"';
+						}
+						callback({dest_url:dest_url,url:url,count:page_count,total:page_total,error:((msg.length)?true:false)}, msg);
+					});*/
+
+				}
+			}
+		}
+	}
+}
+
 </script>
 <?
 	if (empty($book)) {
@@ -388,6 +472,24 @@ $(window).ready(function() {
 			echo '<p>Upload image: <input type="file" name="upload_publisher_thumb" /><br /><span style="font-size:smaller;">JPG, PNG, or GIF format; will be resized to 120px</span></p>'."\n";
 			if (!empty($row->publisher_thumbnail)) echo '<p><input type="checkbox" name="remove_publisher_thumbnail" value="1" /> Remove image</p>';
 			echo '</td>'."\n";
+			echo "</tr>\n";
+			// Taxonomy Search - make visible once functional
+			echo '<tr style="display:none" typeof="books" class="styling_sub">';
+			echo '<td><h4 class="content_title">Taxonomies</h4></td><td></td>';
+			echo '</tr>';
+			echo '<tr>';
+			echo '<td style="vertical-align:middle;">Search Taxonomies';
+			echo '</td>'."\n";
+			echo '<td style="vertical-align:middle;" colspan="2">';
+			echo '<input style="vertical-align:middle;" name="tax_keys" type="text" /><a class="generic_button" id="tax_search">Search</a>';
+			echo "</td>\n";
+			echo "</tr>\n";
+			// Taxonomy Results - make visible once functional
+			echo '<tr style="display:none;">';
+			echo '<td style="vertical-align:middle;">Publisher name<br /><small>Include HTML <b>'.htmlspecialchars('<a>').'</b> to create link</small>';
+			echo '</td>'."\n";
+			echo '<td style="vertical-align:middle;" colspan="2">';
+			echo "</td>\n";
 			echo "</tr>\n";
 			// Saves
 			echo "<tr>\n";

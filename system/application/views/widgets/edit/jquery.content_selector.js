@@ -480,6 +480,9 @@
 	    				var item = {};
 	    				item.uri = uri;
 	    				item.slug = uri.replace(opts.parent, '');
+                        if('undefined' != typeof(opts.slug_filter) && item.slug.match(opts.slug_filter) === null) {
+                            continue;
+                        }
 	    				item.version_uri = _data[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
 	    				item.version_slug = item.version_uri.replace(opts.parent, '');
 	    				item.content = _data[uri];

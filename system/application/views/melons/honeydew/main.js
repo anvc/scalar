@@ -149,7 +149,7 @@ $(window).ready(function() {
 		    	// Resources loaded in edit.php
 		        break;     
 		      case 'annotation_editor':
-		        yepnope({load: [widgets_uri+'/annobuilder/jquery.annobuilder.js',widgets_uri+'/annobuilder/annobuilder.css',widgets_uri+'/spinner/spin.min.js'], complete:function() {    
+		        yepnope({load: [widgets_uri+'/edit/jquery-ui-custom/jquery-ui.min.css',widgets_uri+'/edit/jquery-ui-custom/jquery-ui.min.js',widgets_uri+'/edit/content_selector.css',widgets_uri+'/edit/jquery.content_selector.js',widgets_uri+'/annobuilder/jquery.annobuilder.js',widgets_uri+'/annobuilder/annobuilder.css',widgets_uri+'/spinner/spin.min.js'], complete:function() {    
 		        	// Set up for the possibility of more than one anno builder, but for now, break after first tag
 		        	var tags = $('#content').find('.inline');
 					for (var j = 0; j < tags.length; j++) {
