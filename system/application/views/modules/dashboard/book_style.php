@@ -474,10 +474,10 @@ function make_taxonomy_pages(url,onomy) {
 			echo '</td>'."\n";
 			echo "</tr>\n";
 			// Taxonomy Search - make visible once functional
-			echo '<tr style="display:none" typeof="books" class="styling_sub">';
+			echo '<tr style="display:none;" typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Taxonomies</h4></td><td></td>';
 			echo '</tr>';
-			echo '<tr>';
+			echo '<tr style="display:none">';
 			echo '<td style="vertical-align:middle;">Search Taxonomies';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" colspan="2">';
