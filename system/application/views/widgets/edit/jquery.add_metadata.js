@@ -16,6 +16,7 @@
     	var $insert_into = $(this);
     	opts = $.extend( {}, defaults, options );
     	var $div = $('<div>Loading ontologies ...</div>').appendTo($this);
+    	var bootstrap_enabled = false;
 
 		if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
 	    	opts['buttons'] = [ 
@@ -31,16 +32,17 @@
 	    	           	  		$this.remove();
 	    	           	  	} }
 	    	           	];			
-	    	opts.width = parseInt($(window).width())*0.7;
+	    	opts.width = parseInt($(window).width())*0.8;
 	    	opts.height = parseInt($(window).height())*0.8;
-	    	opts.modal = true;			
+	    	opts.modal = true;	
 			$this.dialog(opts);
 		} else if ('undefined'!=typeof($.fn.modal)) {  // Bootstrap
+			bootstrap_enabled = true;
 	    	opts.width = parseInt($(window).width())*0.7;
 	    	opts.height = parseInt($(window).height())*0.6;			
 			bootbox.dialog({
 				message: '<div id="bootbox-content"></div>',
-				title: opts.title+'&nbsp; (<span class="title-links"></span>)',
+				title: opts.title+'&nbsp; &nbsp; <span class="title-links" style="white-space:nowrap;"></span>',
 				animate: true,
 				className: 'add_metadata_bootbox',
 				buttons: {
@@ -75,7 +77,8 @@
 				}				
 			});
 			$this.appendTo($('.add_metadata_bootbox #bootbox-content'));
-			$('.add_metadata_bootbox .modal-dialog').width(opts.width);
+			//$('.add_metadata_bootbox .modal-dialog').width(opts.width);
+			$('.add_metadata_bootbox .modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
             $('.add_metadata_bootbox .bootbox-close-button').empty();
 			$('.add_metadata_bootbox .add_metadata_modal').height(opts.height).css('overflow', 'auto');
 			$('.add_metadata_bootbox').css('z-index', '1070');
@@ -92,16 +95,21 @@
         	for (var prefix in data) {
         		$('<h1 name="'+prefix+'">'+prefix+'</h1>').appendTo($div);
         		title_links.push('<a href="javascript:void(null);">'+prefix+'</a>');
-        		var $table = $('<table cellspacing="5" style="width:100%;"></table>').appendTo($div);
+        		var $content = $('<div></div>').appendTo($div);
         		for (var j = 0; j < data[prefix].length; j+=3) {
-        			$tr = $('<tr></tr>').appendTo($table);
-        			if ('undefined'!=typeof(data[prefix][j])) $('<td><label><input type="checkbox" name="'+prefix+':'+data[prefix][j]+'" value="1" /> '+data[prefix][j]+'</label></td>').appendTo($tr);
-        			if ('undefined'!=typeof(data[prefix][j+1])) $('<td><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+1]+'" value="1" /> '+data[prefix][j+1]+'</label></td>').appendTo($tr);
-        			if ('undefined'!=typeof(data[prefix][j+2])) $('<td><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+2]+'" value="1" /> '+data[prefix][j+2]+'</label></td>').appendTo($tr);
+        			var $row = $('<div class="row"></div>').appendTo($content);
+        			if ('undefined'!=typeof(data[prefix][j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j]+'" value="1" /> '+data[prefix][j]+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(data[prefix][j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+1]+'" value="1" /> '+data[prefix][j+1]+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(data[prefix][j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+2]+'" value="1" /> '+data[prefix][j+2]+'</label></div>').appendTo($row);
         		}
+            	if (!bootstrap_enabled) {
+            		$content.css('display','table').css('width','100%');
+            		$content.children('.row').css('display','table-row');
+            		$content.find('.cell').css('display','table-cell').css('padding-top','3px').css('padding-bottom','3px');
+            	}
         	}
         	if (has_title_links) {
-        		$title_links.append(title_links.join(', '));
+        		$title_links.append(title_links.join('&nbsp; '));
     			$('.add_metadata_bootbox .title-links').find('a').click(function() {
     				var name = $(this).text().toLowerCase();
     				var $content = $('.add_metadata_bootbox .add_metadata_modal');
