@@ -523,7 +523,7 @@ function YouTubeGetID(url){
 				if (this.model.mediaSource.name == "YouTube") {
 
 					// check to see if another mediaelement instance has already downloaded the API
-					this.foundYouTubeAPI = false;
+					me.foundYouTubeAPI = false;
 					$('script').each(
 						function() {
 							if (this.src.indexOf('www.youtube.com') != -1) {
@@ -534,7 +534,7 @@ function YouTubeGetID(url){
 
 					// if not, then do so, delay creation of the media object, and create function which
 					// will create all the YouTube instances once the API is ready
-					if (!this.foundYouTubeAPI) {
+					if (!me.foundYouTubeAPI) {
 						youTubeMediaElementViews.push(this);
 
 						// load the API
@@ -1168,7 +1168,7 @@ function YouTubeGetID(url){
 
 				case "vertical":
 				this.containerDim.x = parseInt(this.model.options.width)
- 				if (!this.model.isChromeless) this.containerDim.x -=2;
+ 				if (!this.model.isChromeless) this.containerDim.x -= 2;
  				if (this.controllerOnly) {
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
