@@ -481,12 +481,13 @@ function make_taxonomy_pages(url,onomy) {
 			echo '<td style="vertical-align:middle;">Search Taxonomies';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" colspan="2">';
-			echo '<input style="vertical-align:middle;" name="tax_keys" type="text" /><a class="generic_button" id="tax_search">Search</a>';
+			// Don't use name="" as this will send value through to the book model
+			echo '<input style="vertical-align:middle;" type="text" /><a class="generic_button" id="tax_search">Search</a>';
 			echo "</td>\n";
 			echo "</tr>\n";
 			// Taxonomy Results - make visible once functional
 			echo '<tr style="display:none;">';
-			echo '<td style="vertical-align:middle;">Publisher name<br /><small>Include HTML <b>'.htmlspecialchars('<a>').'</b> to create link</small>';
+			echo '<td style="vertical-align:middle;">';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" colspan="2">';
 			echo "</td>\n";

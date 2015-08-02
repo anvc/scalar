@@ -436,8 +436,10 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		
 		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a role="button">?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" class="form-control" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
 		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" class="form-control" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a role="button">?</a><em>Optional abstract of the annotation.</em></div></td></tr>');
-		this.annotationForm.find('tbody').append('<tr><td class="field">Taxonomies</td><td class="value"><span class="tagged_by_msg" style="display:none;"><div><b>This annotation is tagged</b> by:</div></span><ul style="display:none" id="taggedBy"></ul>'
-														+'<div class="form_fields_sub_element"><a class="btn btn-default" id="tagButton" role="button">Add Tag</a><div class="help_button"><a role="button">?</a><em>If the book has imported a taxonomy, you can select terms from the taxonomy here, which will append them to the media annotation.</em></div></div></td></tr>');
+		/*
+		this.annotationForm.find('tbody').append('<tr><td class="field" style="vertical-align:middle;">Tags</td><td class="value" style="vertical-align:middle;"><span class="tagged_by_msg" style="display:none;"><div><b>This annotation is tagged</b> by:</div></span><ul style="display:none" id="taggedBy"></ul>'
+														+'<div class="form_fields_sub_element"><a class="btn btn-default" id="tagButton" role="button">Add taxonomy term</a><div class="help_button"><a role="button">?</a><em>If the book has imported a taxonomy, you can select terms from the taxonomy here, which will append them to the media annotation.</em></div></div></td></tr>');
+		*/
 		$('#setStartTimeBtn').click(this.handleSetStartTime);
 		$('#setEndTimeBtn').click(this.handleSetEndTime);
 
