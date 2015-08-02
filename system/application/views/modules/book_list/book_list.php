@@ -9,7 +9,7 @@ function print_books($books, $is_large=false) {
 		$title		   = trim($row->title);
 		$book_id       = (int) $row->book_id;
 		$thumbnail     = (!empty($row->thumbnail)) ? confirm_slash($row->slug).$row->thumbnail : null;
-		$is_live       = ($row->display_in_index) ? true : false; 
+		$is_live       = ($row->display_in_index) ? true : false;
 		if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = path_from_file(__FILE__).'default_book_logo.png';
 		$authors = array();
 		foreach ($row->users as $user) {
@@ -24,7 +24,7 @@ function print_books($books, $is_large=false) {
 		}
 		echo '</li>';
 	}
-	echo '</ul>';	
+	echo '</ul>';
 }
 
 ?>
@@ -59,7 +59,7 @@ if (count($featured_books) > 0) {
 <h3><?=lang('welcome.other_books')?></h3>
 <form action="<?=base_url()?>" id="book_list_search">
 <div>
-<div><input type="text" name="sq" class="generic_text_input" value="<?=(isset($_REQUEST['sq'])?htmlspecialchars($_REQUEST['sq']):'')?>" /></div>
+<div><input type="text" name="sq" class="generic_text_input" value="<?=(isset($_REQUEST['sq'])?trim(htmlspecialchars($_REQUEST['sq'])):'')?>" /></div>
 <div><input type="submit" class="generic_button" value="Search" /></div>
 <div><button type="submit" class="generic_button" value="1" name="view_all" >View All</button></div>
 </div>

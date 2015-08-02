@@ -126,7 +126,7 @@ END;
 $this->template->add_js($js, 'embed');
 ?>
 <? if (@$_REQUEST['action']=='upload_saved'): ?>
-<div class="saved">Media has been saved&nbsp;  (<a href="<?=((isset($_REQUEST['redirect_url']))?$_REQUEST['redirect_url']:$uri)?>">View</a>)<a style="float:right" href="<?=$uri?>">clear</a></div><br />
+<div class="saved">Media has been saved&nbsp;  (<a href="<?=((isset($_REQUEST['redirect_url']))?htmlspecialchars($_REQUEST['redirect_url']):$uri)?>">View</a>)<a style="float:right" href="<?=$uri?>">clear</a></div><br />
 <? endif ?>
 
 <div style="float:left; width:20%;">

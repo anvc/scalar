@@ -52,9 +52,9 @@ class System extends MY_Controller {
 		$this->data['featured_books'] = $this->books->get_index_books();
 
 		$this->data['other_books'] = array();
-		if(isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) {
-			$this->data['other_books'] = $this->books->get_index_books(false,$_REQUEST['sq']);
-			if (empty($this->data['other_books'])) $this->data['book_list_search_error'] = 'No books found for "'.$_REQUEST['sq'].'"';
+		if (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) {
+			$this->data['other_books'] = $this->books->get_index_books(false, $_REQUEST['sq']);
+			if (empty($this->data['other_books'])) $this->data['book_list_search_error'] = 'No books found for "'.trim(htmlspecialchars($_REQUEST['sq'])).'"';
 		} elseif(isset($_REQUEST['view_all'])) {
 			$this->data['other_books'] = $this->books->get_index_books(false);
 		} elseif (isset($_REQUEST['sq'])) {

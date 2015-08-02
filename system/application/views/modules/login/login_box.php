@@ -17,7 +17,7 @@
 	<form action="<?=confirm_slash(base_url())?>system/login" method="post" class="panel">
 		<input type="hidden" name="action" value="do_login" />
 		<input type="hidden" name="redirect_url" value="<?=@htmlspecialchars($_REQUEST['redirect_url'])?>" />
-		<input type="hidden" name="msg" value="<? echo (int) @$_REQUEST['msg'] ?>" />
+		<input type="hidden" name="msg" value="<? if (isset($_REQUEST['msg'])) echo htmlspecialchars($_REQUEST['msg']); ?>" />
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">
@@ -41,8 +41,8 @@
 		</table>
 	</form>
 	<div class="login_footer">
-		<a href="<?=base_url()?>">Return to index</a> | 
-		<a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a> | 
+		<a href="<?=base_url()?>">Return to index</a> |
+		<a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a> |
 		<a href="register">Register an account</a>
 	</div>
 </div>
