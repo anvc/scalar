@@ -17,7 +17,7 @@
 	<form action="<?=confirm_slash(base_url())?>system/login" method="post" class="panel">
 		<input type="hidden" name="action" value="do_login" />
 		<input type="hidden" name="redirect_url" value="<?=@htmlspecialchars($_REQUEST['redirect_url'])?>" />
-		<input type="hidden" name="msg" value="<? if (isset($_REQUEST['msg'])) echo htmlspecialchars($_REQUEST['msg']); ?>" />
+		<input type="hidden" name="msg" value="<? echo (int) @$_REQUEST['msg'] ?>" />
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">

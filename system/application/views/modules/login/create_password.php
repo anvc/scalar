@@ -11,7 +11,7 @@
 		<input type="hidden" name="action" value="do_create_password" />
 		<input type="hidden" name="redirect_url" value="<?=@htmlspecialchars($_REQUEST['redirect_url'])?>" />
 		<input type="hidden" name="msg" value="<? echo (int) @$_REQUEST['msg'] ?>" />
-		<input type="hidden" name="key" value="<? echo @$_REQUEST['key'] ?>" />
+		<input type="hidden" name="key" value="<? if (isset($_REQUEST['key'])) echo htmlspecialchars($_REQUEST['key']) ?>" />
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">
@@ -27,7 +27,7 @@
 			</tr>
 			<tr>
 				<td class="field">Retype password</td><td class="value"><input type="password" name="password_2" value="" class="input_text" /></td>
-			</tr>						
+			</tr>
 			<tr>
 				<td></td>
 				<td class="form_buttons">
