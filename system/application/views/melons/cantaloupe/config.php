@@ -88,5 +88,10 @@ $config['predefined_css'] = array(
 		'title'=>'Keep linked media with their source paragraphs',
 		'description'=>'Text wraps around linked media by default, which can sometimes result in media being positioned far away from the text that references it. This CSS adds extra space to the page to make sure that linked media are aligned with the top of the paragraphs that reference them.',
 		'insert'=>".clearboth { clear: both; }\n"
+	),
+	array(
+		'title'=>'Show page relationships in sidebar',
+		'description'=>'Relationships between the current page and others are displayed beneath the page content by default. This CSS (which is only recommended for pages that don\'t include media) puts the relationships in a second column to the right of the page content.',
+		'insert'=>"@media screen and (min-width: 768px) {\nspan[property=\"sioc:content\"] {width:50%; float:left; clear:none;}\nspan[property=\"sioc:content\"] .body_copy {padding-right:0px;}\n.relationships {width:50%; float:right; clear:none !important; padding-top:0px !important;}\n.relationships a.nav_btn.primary {display:none;} /* Hides begin button */ }\n"
 	)
 );
