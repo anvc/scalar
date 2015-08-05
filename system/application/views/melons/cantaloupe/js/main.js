@@ -200,7 +200,7 @@ function wrapOrphanParagraphs(selection) {
 	  		var is_nbsp = $( this ).text() == '\xA0';
 
 	  		// trigger a new paragrph for p and div elements
-	  		if ( $( this ).is('p,div') ) {
+	  		if ( $( this ).is('p,div,h1,h2,h3') ) {
 	  			newParagraph = true;
 
 	  		// trigger a new paragraph for blockquotes, but wrap them in another div first
@@ -218,11 +218,13 @@ function wrapOrphanParagraphs(selection) {
 	  			newParagraph = true;
 	  		}
 
+	  		// console.log( "new paragraph? " + newParagraph + " nsbp? " + is_nbsp + " br? " + is_br + " br count? " + brCount );
+
 	  		// if this isn't a new paragraph, then
 	  		if ( !newParagraph ) {
 
 	  			// if this element is either not a br, or is a single br, 
-	  			// AND if this element is either not an anbsp, or an nbsp that doesn't immediately follow a br, 
+	  			// AND if this element is either not an nbsp, or an nbsp that doesn't immediately follow a br, 
 	  			// then add it
 	  			if (( !is_br || ( is_br && ( brCount == 0 ))) && ( !is_nbsp || ( is_nbsp && ( brCount != 1 ) ))) {
 
