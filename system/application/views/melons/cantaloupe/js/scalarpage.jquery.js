@@ -1368,7 +1368,8 @@
 					var well = collapsible.find( ".well" );
 					well.append( table );
 
-					$( 'article > span[property="sioc:content"]' ).after( metadata );
+					$( 'article > span[property="sioc:content"]' ).append( metadata );
+					metadata.wrap( '<div class="paragraph_wrapper"></div>' );
 
 				}
 
