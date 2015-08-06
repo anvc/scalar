@@ -312,17 +312,17 @@ function ScalarAPI() {
 			}},
 		'HTML': {
 			name:'HTML', 
-			extensions:['htm','html','php','com','org','net'],
+			extensions:['htm','html','php','com','org','net','gov'],
 			isProprietary:false,
 			contentType:'document',
 			browserSupport: {
-				'Mozilla': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
-				'Explorer': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
-				'MobileSafari': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
-				'Safari': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
-				'Chrome': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
-				'Android': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false},
-				'Other': {extensions:['htm','html','php','com','org','net'], format:'HTML', player:'native', specifiesDimensions:false}
+				'Mozilla': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false},
+				'Explorer': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false},
+				'MobileSafari': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false},
+				'Safari': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false},
+				'Chrome': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false},
+				'Android': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false},
+				'Other': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false}
 			}},
 		'HyperCities': {
 			name:'HyperCities',
@@ -3519,113 +3519,116 @@ function ScalarRelation(json, body, target, type) {
 	this.properties = {};
 
 	// parse OA-formatted JSON to create the relation
-	if (json) {
+	if ( json ) {
 
-		this.id = scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasBody'][0].value)+scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value);
-		this.body = scalarapi.model.nodesByURL[scalarapi.stripVersion(json['http://www.openannotation.org/ns/hasBody'][0].value)];
-		this.target = scalarapi.model.nodesByURL[scalarapi.stripVersion(scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value))];
-		
-		// parse the relation type and populate extents (if any)
-		var anchorVars = scalarapi.getAnchorVars(json['http://www.openannotation.org/ns/hasTarget'][0].value);
-		
-		var temp;
-		if (anchorVars == null) {
-			this.type = scalarapi.model.relationTypes.tag;
-		} else {
+		if (( json['http://www.openannotation.org/ns/hasBody'] != null ) && ( json['http://www.openannotation.org/ns/hasTarget'] != null )) {
+
+			this.id = scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasBody'][0].value)+scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value);
+			this.body = scalarapi.model.nodesByURL[scalarapi.stripVersion(json['http://www.openannotation.org/ns/hasBody'][0].value)];
+			this.target = scalarapi.model.nodesByURL[scalarapi.stripVersion(scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value))];
 			
-			for (var prop in anchorVars) {
+			// parse the relation type and populate extents (if any)
+			var anchorVars = scalarapi.getAnchorVars(json['http://www.openannotation.org/ns/hasTarget'][0].value);
+			
+			var temp;
+			if (anchorVars == null) {
+				this.type = scalarapi.model.relationTypes.tag;
+			} else {
 				
-				switch (prop) {
-				
-					case 't':
+				for (var prop in anchorVars) {
 					
-					// we use this construction here and below so that if the 'title' var
-					// is specified first it won't get overwritten
-					if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
+					switch (prop) {
 					
-					temp = anchorVars[prop].slice(4).split(',');
-					this.properties.start = parseFloat(temp[0]);
-					this.properties.end = parseFloat(temp[1]);
-					this.startString = scalarapi.decimalSecondsToHMMSS(this.properties.start);
-					this.endString = scalarapi.decimalSecondsToHMMSS(this.properties.end);
-					this.separator = ' - ';
-					this.subType = 'temporal';
-					this.index = this.properties.start;
-					break;
-					
-					case 'line':
-					if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
-					temp = anchorVars[prop].split(',');
-					this.properties.start = parseInt(temp[0]);
-					this.properties.end = parseInt(temp[1]);
-					this.startString = 'Line '+this.properties.start;
-					if (this.properties.start == this.properties.end) {
-						this.separator = '';
-						this.endString = '';
-					} else {
+						case 't':
+						
+						// we use this construction here and below so that if the 'title' var
+						// is specified first it won't get overwritten
+						if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
+						
+						temp = anchorVars[prop].slice(4).split(',');
+						this.properties.start = parseFloat(temp[0]);
+						this.properties.end = parseFloat(temp[1]);
+						this.startString = scalarapi.decimalSecondsToHMMSS(this.properties.start);
+						this.endString = scalarapi.decimalSecondsToHMMSS(this.properties.end);
 						this.separator = ' - ';
-						this.endString = this.properties.end;				
-					}
-					this.subType = 'textual';
-					this.index = this.properties.start;
-					break;
-					
-					case 'xywh':
-					if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
-					temp = anchorVars[prop].split(',');
-					this.properties.x = temp[0];
-					this.properties.y = temp[1];
-					this.properties.width = temp[2];
-					this.properties.height = temp[3];
-					this.startString = 'x:'+this.properties.x+' y:'+this.properties.y;
-					if ((this.properties.width == 0) && (this.properties.height == 0)) {
-						this.endString = '';
-					} else {
-						this.endString = 'w:'+this.properties.width+' h:'+this.properties.height;
-					}
-					this.separator = ' ';
-					this.subType = 'spatial';
-					this.index = parseFloat(this.properties.x) * parseFloat(this.properties.y);
-					break;
-					
-					case 'index':
-					if (!this.type) this.type = scalarapi.model.relationTypes.path;
-					this.properties.index = parseInt(anchorVars[prop]);
-					this.startString = 'Page '+this.properties.index;
-					this.endString = '';
-					this.separator = '';
-					this.index = this.properties.index;
-					break;
-					
-					case 'datetime':
-					if (!this.type) this.type = scalarapi.model.relationTypes.comment;
-					this.properties.datetime = anchorVars[prop];
-					var date = new Date(this.properties.datetime);
-					this.startString = date.toDateString();
-					this.endString = '';
-					this.separator = '';
-					this.index = date.getTime();
-					break;
-					
-					// explicitly specified title -- store
-					case 'type':
-					switch (anchorVars[prop]) {
-					
-						case 'commentary':
-						this.type = scalarapi.model.relationTypes.commentary;
-						break;
-					
-						case 'review':
-						this.type = scalarapi.model.relationTypes.review;
+						this.subType = 'temporal';
+						this.index = this.properties.start;
 						break;
 						
-					}
-					break;
+						case 'line':
+						if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
+						temp = anchorVars[prop].split(',');
+						this.properties.start = parseInt(temp[0]);
+						this.properties.end = parseInt(temp[1]);
+						this.startString = 'Line '+this.properties.start;
+						if (this.properties.start == this.properties.end) {
+							this.separator = '';
+							this.endString = '';
+						} else {
+							this.separator = ' - ';
+							this.endString = this.properties.end;				
+						}
+						this.subType = 'textual';
+						this.index = this.properties.start;
+						break;
+						
+						case 'xywh':
+						if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
+						temp = anchorVars[prop].split(',');
+						this.properties.x = temp[0];
+						this.properties.y = temp[1];
+						this.properties.width = temp[2];
+						this.properties.height = temp[3];
+						this.startString = 'x:'+this.properties.x+' y:'+this.properties.y;
+						if ((this.properties.width == 0) && (this.properties.height == 0)) {
+							this.endString = '';
+						} else {
+							this.endString = 'w:'+this.properties.width+' h:'+this.properties.height;
+						}
+						this.separator = ' ';
+						this.subType = 'spatial';
+						this.index = parseFloat(this.properties.x) * parseFloat(this.properties.y);
+						break;
+						
+						case 'index':
+						if (!this.type) this.type = scalarapi.model.relationTypes.path;
+						this.properties.index = parseInt(anchorVars[prop]);
+						this.startString = 'Page '+this.properties.index;
+						this.endString = '';
+						this.separator = '';
+						this.index = this.properties.index;
+						break;
+						
+						case 'datetime':
+						if (!this.type) this.type = scalarapi.model.relationTypes.comment;
+						this.properties.datetime = anchorVars[prop];
+						var date = new Date(this.properties.datetime);
+						this.startString = date.toDateString();
+						this.endString = '';
+						this.separator = '';
+						this.index = date.getTime();
+						break;
+						
+						// explicitly specified title -- store
+						case 'type':
+						switch (anchorVars[prop]) {
+						
+							case 'commentary':
+							this.type = scalarapi.model.relationTypes.commentary;
+							break;
+						
+							case 'review':
+							this.type = scalarapi.model.relationTypes.review;
+							break;
+							
+						}
+						break;
+					
+					}				
 				
-				}				
-			
-			}
+				}
 
+			}
 		}
 		
 	// for relations that are specified directly instead of through OA-formatted JSON
