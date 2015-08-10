@@ -45,7 +45,7 @@ tr#styling table td, tr#metadata table td {vertical-align:middle;}
 tr#styling table td:first-of-type, tr#metadata table td:first-of-type  {width:120px;}
 .bootbox h1, .bootbox h4 {margin-left:0px; padding-left:0px;}
 .bootbox h1 {margin-bottom:12px; padding-bottom:0px; font-size:30px; line-height:100%;}
-.thumb_preview {max-height:100px;}
+.thumb_preview {max-height:100px; max-width:100%;}
 .tab-pane {min-height:225px;}
 #editor-tabs {margin-bottom:1.2rem;}
 p {margin-bottom: 1.2rem;}
@@ -514,14 +514,14 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag <span class="badge"></span></a></li>
 			</ul>
 		</li>
-		<li role="presentation" class="dropdown type_composite"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></a></span>
+		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></a></span>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#thumbnail-pane" aria-controls="thumbnail-pane" data-toggle="tab">Thumbnail</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#banner-image-pane" aria-controls="#banner-image-pane" data-toggle="tab">Key Image</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#background-image-pane" aria-controls="background-image-pane" data-toggle="tab">Background Image</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-css-pane" aria-controls="custom-css-pane" data-toggle="tab">CSS</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-javascript-pane" aria-controls="custom-javascript-pane" data-toggle="tab">JavaScript</a></li>
-				<li role="presentation"><a role="menuitem" tabindex="-1" href="#background-audio-pane" aria-controls="background-audio-pane" data-toggle="tab">Audio</a></li>
+				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#banner-image-pane" aria-controls="#banner-image-pane" data-toggle="tab">Key Image</a></li>
+				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#background-image-pane" aria-controls="background-image-pane" data-toggle="tab">Background Image</a></li>
+				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#custom-css-pane" aria-controls="custom-css-pane" data-toggle="tab">CSS</a></li>
+				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#custom-javascript-pane" aria-controls="custom-javascript-pane" data-toggle="tab">JavaScript</a></li>
+				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#background-audio-pane" aria-controls="background-audio-pane" data-toggle="tab">Audio</a></li>
 			</ul>
 		</li>
 		<li role="presentation"><a href="#metadata-pane" aria-controls="metadata-pane" role="tab" data-toggle="tab">Metadata</a></li>
