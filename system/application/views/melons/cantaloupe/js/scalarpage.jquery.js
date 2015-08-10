@@ -1208,6 +1208,12 @@
 								// standard media link
 								} else {
 									parent = $(this).closest('.body_copy');
+
+									// if the link is not a descendant of a body_copy region, then we'll put the media either
+									// before or after the link itself
+									if ( parent.length == 0 ) {
+										parent = $( this ); 
+									}
 								}
 
 								// cause any paragraph with a media link to clear both (unless it contains a .clearnone)
