@@ -1877,6 +1877,7 @@
 
 		  	$('body').addClass('body_font');
 		  	$('h1, h2, h3, h4, h5, h6, .mediaElementFooter, #comment, .media_metadata').addClass('heading_font heading_weight');
+		  	$('h1, h2, h3').addClass('clearboth');
 
 		  	/*
 			$( document ).ready( function() {
