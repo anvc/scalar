@@ -11,9 +11,9 @@ h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
 #visualization-item { display: none; }
 .dialog { left: 0; right: 0; bottom: 0; }
 .dialog_header { left: 0; right: 0; }
-.image_header { height: 30rem; }
+.image_header { min-height: 30rem; }
 .title_card { padding-left: 2.4rem; padding-right: 2.4rem; padding-bottom: 2.4rem; }
-.image_header .title_card { height: 30rem; padding-top: 1.8rem; }
+.image_header .title_card { min-height: 30rem; padding-top: 1.8rem; }
 .title_card .description { padding-left: 2rem; }
 .splash h1 { line-height: 100%; font-size: 4rem; margin-bottom: 2rem; }
 .splash h2 { line-height: 110%; font-size: 2.0rem; }
