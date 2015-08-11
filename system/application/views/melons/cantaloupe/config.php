@@ -92,6 +92,6 @@ $config['predefined_css'] = array(
 	array(
 		'title'=>'Show page relationships in sidebar',
 		'description'=>'Relationships between the current page and others are displayed beneath the page content by default. This CSS (which is only recommended for pages that don\'t include media) puts the relationships in a second column to the right of the page content.',
-		'insert'=>"@media screen and (min-width: 768px) {\nspan[property=\"sioc:content\"] {width:50%; float:left; clear:none;}\nspan[property=\"sioc:content\"] .body_copy {padding-right:0px;}\n.relationships {width:50%; float:right; clear:none !important; padding-top:0px !important;}\n.relationships a.nav_btn.primary {display:none;} /* Hides begin button */ }\n"
+		'insert'=>"@media screen and (min-width: 768px) {\nspan[property=\"sioc:content\"] {width:50%; float:left; clear:none;}\nspan[property=\"sioc:content\"] .body_copy {padding-right:0px;}\narticle .relationships {width:50%; float:right; clear:none !important; padding-top:0px !important;}\narticle .relationships a.nav_btn.primary {display:none;} /* Hides begin button */ }\n"
 	)
 );
