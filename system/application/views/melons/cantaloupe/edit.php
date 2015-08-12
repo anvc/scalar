@@ -53,6 +53,7 @@ p {margin-bottom: 1.2rem;}
 .predefined_wrapper {padding-top:10px;}
 .predefined_wrapper select {max-width:350px;}
 .predefined_wrapper .desc {padding-top:4px; color:#333333;}
+.cke_contents { overflow: auto !important; }
 END;
 $this->template->add_css($css, 'embed');
 $js = <<<'END'
