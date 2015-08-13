@@ -509,6 +509,10 @@ function YouTubeGetID(url){
 
  			this.initialContainerWidth = parseInt(this.mediaContainer.width());
 
+ 			if ( this.model.isChromeless ) {
+ 				this.gutterSize = 0;
+ 			}
+ 			
 			this.populateHeader();
    			this.populateFooter();
 
@@ -1070,15 +1074,6 @@ function YouTubeGetID(url){
 				var fudgeAmount = 0;
 				var hMargin;
 				if (!this.annotationsVisible) {
-					switch (this.model.mediaSource.contentType) {
-
-						case 'audio':
-						if (this.model.mediaSource.name != 'SoundCloud') {
-							fudgeAmount = 1;
-						}
-						break;
-
-					}
 					switch (this.model.mediaSource.name) {
 
 						case "YouTube":
@@ -1137,11 +1132,12 @@ function YouTubeGetID(url){
 		 */
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
 			var native_size = this.model.options.size == 'native';
+			var full_size = this.model.options.size == 'full';
 			var deferTypeSizing = this.model.options.deferTypeSizing === true;
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
-				if ((native_size === true) || ( this.initialContainerWidth == 0 )) {
+				if ((native_size === true) || (full_size === true) || ( this.initialContainerWidth == 0 )) {
 					this.containerDim.x = parseInt(this.model.options.width);
 				} else {
 					this.containerDim.x = this.initialContainerWidth;
@@ -1198,7 +1194,7 @@ function YouTubeGetID(url){
 
 			if (this.model.mediaSource.name == 'HyperCities')  this.containerDim.x -= 4;
 
-			//console.log(this.model.containerLayout+' '+this.initialContainerWidth+' '+this.containerDim.x+' '+this.containerDim.y+' '+this.footer.height()+' '+this.annotationSidebar.width());
+			//console.log( 'container: ' + this.model.containerLayout+' '+this.initialContainerWidth+' '+this.containerDim.x+' '+this.containerDim.y+' '+this.footer.height()+' '+this.annotationSidebar.width());
 
 		}
 
@@ -1248,7 +1244,7 @@ function YouTubeGetID(url){
 			var mediaAR = this.intrinsicDim.x / this.intrinsicDim.y;
 			var containerAR = this.containerDim.x / this.containerDim.y;
 
-			//console.log(this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
+			//console.log( 'media: ' + this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
 	
 			var native_size = this.model.options.size == 'native';
 			var tempDims = {
@@ -1308,7 +1304,7 @@ function YouTubeGetID(url){
 				}
 			}
 
-			// console.log(this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
+			//console.log( 'final container: ' + this.containerDim.x+' '+this.containerDim.y+' '+this.resizedDim.x+' '+this.resizedDim.y);
 
 			this.mediaScale = this.resizedDim.x / this.intrinsicDim.x;
 

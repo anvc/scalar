@@ -352,11 +352,14 @@
 						link.after( slotDOMElement );
 						link.hide();
 
-						if ( size != 'full' ) {
+						var node = scalarapi.getNode( slotMediaElement.model.meta );
+						var specifiesDimensions = node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ].specifiesDimensions;
+		
+						if (( size != 'full' ) && (( size != 'native' ) && !specifiesDimensions )) {
 
 							// wrap the media in a body copy element so its alignment happens inside the
 							// dimensions of the body copy
-							if(!slotDOMElement.parent().hasClass('body_copy')) {
+							if (!slotDOMElement.parent().hasClass('body_copy')) {
 								slotDOMElement.wrap('<div class="body_copy"></div>');
 							}
 
@@ -364,7 +367,7 @@
 							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
 
 							// align the media appropriately
-							if( align == 'right' ) {
+							if ( align == 'right' ) {
 								slotMediaElement.model.element.css( 'float', 'right' );
 							} else if ( align == 'left' ) {
 								slotMediaElement.model.element.css( 'float', 'left' );
@@ -373,6 +376,8 @@
 								slotMediaElement.model.element.css( 'margin-left', 'auto' );
 							}
 
+						} else {
+							slotDOMElement.addClass( 'left' );
 						}
 
 					// if this is not an inline media element, and its size isn't set to 'full', then
@@ -388,7 +393,7 @@
 							slotDOMElement.addClass('top');
 						}
 		
-					// if this is not inline media element, and its size is set to 'full', then put the media after its linking text
+					// if this is not an inline media element, and its size is set to 'full', then put the media after its linking text
 					} else {
 						parent.after( slotDOMElement );
 						slotDOMElement.addClass( 'full' );
