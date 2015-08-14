@@ -38,6 +38,7 @@
 
 .mediaObject {
 	z-index:7;
+	overflow: hidden; /* prevents iframes from exceeding bounds on iOS */
 }
 
 .mediaelement pre { border: 1px solid #cbcbcb; }
