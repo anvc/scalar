@@ -44,7 +44,7 @@ class RDF_Object {
 	public $ns = array();
 	private $version_cache = array();
 	private $user_cache = array();
-	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
+	private $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
 	private $defaults = array(
 							 'books'		=> null,
 			                 'book'         => null,
@@ -761,6 +761,7 @@ class RDF_Object {
 		$settings['versions'] = self::VERSIONS_MOST_RECENT;
 		++$settings['num_recurses'];
 		$content = $this->_content($content, $settings);
+		if (isset($content->versions[$content->version_index]->sort_number)) unset($content->versions[$content->version_index]->sort_number);  // Avoid annotation_append collision
 		foreach ($this->rel_fields as $field) {
 			if (isset($annotation->$field)) {
 				$content->versions[$content->version_index]->$field = $annotation->$field;
@@ -801,6 +802,7 @@ class RDF_Object {
 		$settings['versions'] = self::VERSIONS_MOST_RECENT;
 		++$settings['num_recurses'];
 		$content = $this->_content($content, $settings);
+		if (isset($content->versions[$content->version_index]->sort_number)) unset($content->versions[$content->version_index]->sort_number);  // Avoid annotation_append collision
 		foreach ($this->rel_fields as $field) {
 			if (isset($annotation->$field)) {
 				$content->versions[$content->version_index]->$field = $annotation->$field;
