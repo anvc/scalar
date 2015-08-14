@@ -1546,6 +1546,9 @@ function YouTubeGetID(url){
 
 					// if the annotation sidebar is hidden,
 					} else {
+
+						//console.log( currentPosition + ' ' + startPosition + ' ' + endPosition );
+
 						// if this annotation is active, set up highlighting
 						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
@@ -1684,7 +1687,7 @@ function YouTubeGetID(url){
  				this.overrideAutoSeek = true;
  				this.mediaObjectView.seek(annotation.properties.start);
  				this.lastSeekTime = annotation.properties.start;
- 				handleTimer();
+				handleTimer();
  				break;
 
  				case 'image':
@@ -2000,7 +2003,6 @@ function YouTubeGetID(url){
 			if ( me.model.mediaSource.name == 'YouTube' ) {
 				me.pause();
 			}
-			setTimeout(me.doInstantUpdate, 500);
 		}
 
 		this.doInstantUpdate = function() {
@@ -2752,7 +2754,7 @@ function YouTubeGetID(url){
 		 */
 		jQuery.HTML5AudioObjectView.prototype.createObject = function() {
 
-			obj = $('<div class="mediaObject"><audio style="width:100%" src="'+this.model.path+'" controls="controls" type="audio/'+this.model.extension+'">Your browser does not support the audio tag.</audio></div>').appendTo(this.parentView.mediaContainer);
+			obj = $('<div class="mediaObject"><audio style="width:100%;" src="'+this.model.path+'" controls="controls" type="audio/'+this.model.extension+'">Your browser does not support the audio tag.</audio></div>').appendTo(this.parentView.mediaContainer);
 			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
 				obj.find( 'audio' ).attr( 'autoplay', 'true' );
 			}
@@ -2763,8 +2765,24 @@ function YouTubeGetID(url){
 
 			this.parentView.intrinsicDim.y = 45;
 
+			// this prevents the top of the player from getting cut off in Firefox
+			if ( scalarapi.scalarBrowser == "Mozilla" ) {
+				obj.find( 'audio' ).height( this.parentView.intrinsicDim.y );
+			}
+
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
+
+			if (document.addEventListener) {
+				this.audio[0].addEventListener('play', me.parentView.startTimer, false);
+				this.audio[0].addEventListener('pause', me.parentView.endTimer, false);
+				this.audio[0].addEventListener('ended', me.parentView.endTimer, false);
+				this.audio[0].addEventListener('ended', me.parentView.endTimer, false);
+			} else {
+				this.audio[0].attachEvent('play', me.parentView.startTimer);
+				this.audio[0].attachEvent('pause', me.parentView.endTimer);
+				this.audio[0].attachEvent('ended', me.parentView.endTimer);
+			}
 
 			return;
 		}
@@ -2808,12 +2826,12 @@ function YouTubeGetID(url){
 		/**
 		 * Resizes the audio to the specified dimensions.
 		 *
-		 * @param {Number} width		The new width of the Flash video.
-		 * @param {Number} height		The new height of the Flash video.
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
 		 */
 		jQuery.HTML5AudioObjectView.prototype.resize = function(width, height) {
 			$(this.model.element).find('.mediaObject').width(width);
-			$(this.model.element).find('.mediaObject').height(height);
+			//$(this.model.element).find('.mediaObject').height(height);
 		}
 
 		/**

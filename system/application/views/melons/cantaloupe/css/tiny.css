@@ -37,6 +37,8 @@ h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
 
 .maximized-embed { height: 300px; }
 
+.full_dim, .native_dim { width: 100%; display: none; }
+
 /* 4in iphone 5 */
 @media only screen and (max-device-height : 1136px) {
   .results_list {height:200px;max-height:200px;}

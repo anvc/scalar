@@ -78,24 +78,26 @@
 									var rowRelation = $(this).data('relation');
 									var col = $(this).find('td').eq(1);
 
-									// show the content of the selected annotation
-									if (rowRelation == relation) {
+									if ( rowRelation != null ) {
+										// show the content of the selected annotation
+										if (rowRelation == relation) {
 
-										$(this).addClass('current');
+											$(this).addClass('current');
 
-										// only turn the title into a permalink and show its content if it actually has content
-										if (rowRelation.body.current.content != null) {
-											col.empty();
-											col.append('<h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</a></h4>');
-											col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
-											col.find('p').slideDown();
-											page.addMediaElementsForElement( col );
-										}
+											// only turn the title into a permalink and show its content if it actually has content
+											if (rowRelation.body.current.content != null) {
+												col.empty();
+												col.append('<h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</a></h4>');
+												col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
+												col.find('p').slideDown();
+												page.addMediaElementsForElement( col );
+											}
 
-									// hide the content of all other annotations
-									} else {
-										col.find( 'h4' ).siblings().remove();
-										col.find( 'h4' ).replaceWith( '<p>' + rowRelation.body.getDisplayTitle() + '</p>' );
+										// hide the content of all other annotations
+										} else {
+											col.find( 'h4' ).siblings().remove();
+											col.find( 'h4' ).replaceWith( '<p>' + rowRelation.body.getDisplayTitle() + '</p>' );
+										}	
 									}
 								});
 							}
@@ -302,60 +304,6 @@
 			sourceTab.click( function() {
 				window.open( node.current.sourceFile, 'popout' );
 			} );
-
-			/*
-			var appearancesTab = $('<div class="media_tab">Appearances</div>').appendTo(mediaTabs);
-			var appearancesPane = $('<div class="media_metadata pane"></div>').appendTo(element);
-			appearancesTab.click(function() {
-				$(this).parent().parent().find('.pane').hide();
-				media.minimizeAnnotationPane();
-				appearancesPane.show();
-				$(this).parent().find('.media_tab').removeClass('select');
-				appearancesTab.addClass('select');
-				if (currentRelation != null) {
-					media.showAnnotation(null, currentRelation, mediaelement, true);
-				}
-			});
-
-			var citations = $('<div class="citations"></div>').appendTo(appearancesPane);
-			var citations, relation, relations;
-
-			// show media references with excerpts
-			relations = node.getRelations('referee', 'incoming');
-			for (i in relations) {
-
-				relation = relations[i];
-				var temp = $('<div>'+relation.body.current.content+'</div>').appendTo(overlay);
-				wrapOrphanParagraphs(temp);
-				temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').attr('href', mediaelement.model.node.url);
-				temp.find('a').not('[rel="'+mediaelement.model.node.current.urn+'"]').each(function() {
-					$(this).replaceWith($(this).html());
-				});
-				citingContent = temp.find('a[rel="'+mediaelement.model.node.current.urn+'"]').parent().html();
-				citations.append('<blockquote>&ldquo;'+citingContent+'&rdquo;</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
-				temp.remove();
-			}
-
-			// show containing paths
-			relations = mediaelement.model.node.getRelations('path', 'incoming', 'index');
-			for (i in relations) {
-				relation = relations[i];
-				citations.append('<p>As Step '+relation.index+' of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
-			}
-
-			// show tags
-			relations = mediaelement.model.node.getRelations('tag', 'incoming');
-			for (i in relations) {
-				relation = relations[i];
-				citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
-			}
-
-			if (citations.children().length == 1) {
-				appearancesTab.remove();
-				appearancesPane.remove();
-			}
-			*/
-
 
 			if (media.options.shy) {
 				mediaelement.model.element.mouseenter(function() {

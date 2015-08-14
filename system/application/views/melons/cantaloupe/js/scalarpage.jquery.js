@@ -96,8 +96,6 @@
 				var minTabWidth = parseInt( temp.width() );
 				temp.remove();
 
-				//console.log( "size: " + mediaelement.model.options.size + " media: " + mediaWidth + " page w/ margins: " + pageWidthMinusMargins + " page: " + pageWidth );
-
 				// 'full' and 'native' sized media get special sizing treatment
 				if ( size == 'native' || size == 'full' ) {
 					// if the media is the full width of the page, then remove any align styles
@@ -308,10 +306,13 @@
 					// break point for large media elements to become full
 					if (( size == 'large' ) && (( page.pageWidthMinusMargins - page.bodyCopyWidth ) < 160 )) {
 						size = "full";
+						width = page.pageWidth;
 					// break point for medium media elements to become full
 					} else if (( size == 'medium' ) && ( width > ( page.bodyCopyWidth - 160 ))) {
 						size = "full";
+						width = page.pageWidth;
 					}
+
 				}
 
 				var options = { 
@@ -332,7 +333,7 @@
 					var parent_temp = $('link#parent').attr('href');
 					var mediaNode = scalarapi.getNode( parent_temp+link.attr('resource') );
 				}
-				options.size = size,
+				options.size = size;
 
 				// create the slot where the media will be added
 				slot = link.slotmanager_create_slot( width, height, options );
@@ -1308,6 +1309,7 @@
 			},
 
 			handleMediaResize: function() {
+
 				page.updateMediaHeightRestrictions();
 
 				// Regenerate media details view if currently open
@@ -1448,7 +1450,7 @@
 				if($('body').width() <= page.mobileWidth) {
 					if(page.adaptiveMedia != 'mobile') {
 						page.adaptiveMedia = 'mobile';
-						page.handleMediaResize();
+						reload = true;
 					}
 				} else if(page.adaptiveMedia != 'full') {
 					page.adaptiveMedia = 'full';
@@ -1629,7 +1631,6 @@
 				break;
 
 				default:
-			  	//$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 			  	var okToAddExtras = true;
 
 			  	switch ( viewType ) {
