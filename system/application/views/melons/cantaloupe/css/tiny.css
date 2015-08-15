@@ -30,6 +30,7 @@ h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
 #gallery { margin-bottom: 2.4rem; }
 #gallery .carousel-caption { font-size: 1.2rem; padding-top: 0; top: 0; left: 2.4rem; }
 #gallery .carousel-caption span { padding: 0.5rem 1rem 0.75rem 1rem; }
+#gallery .carousel-control { top: 45%; }
 
 .modal-body {padding:10px;}
 .results_list {margin-top:10px; overflow: auto;}

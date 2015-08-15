@@ -350,6 +350,8 @@ a:hover { text-decoration: underline; }
 #gallery .popover { color: black; font-size: 1.2rem; text-shadow: none; color: #666; line-height: 140%; }
 #gallery .item { background-color: #444; }
 
+.carousel-control .icon-prev, .carousel-control .glyphicon-chevron-left, .carousel-control .icon-next, .carousel-control .glyphicon-chevron-right { top: 45%; font-size: 40px; }
+
 .one_line_description {
 	/*color: #96989a;
 	white-space: nowrap;
