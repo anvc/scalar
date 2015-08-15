@@ -1133,7 +1133,6 @@ function YouTubeGetID(url){
 		jQuery.MediaElementView.prototype.calculateContainerSize = function() {
 			var native_size = this.model.options.size == 'native';
 			var full_size = this.model.options.size == 'full';
-			var deferTypeSizing = this.model.options.deferTypeSizing === true;
 			switch (this.model.containerLayout) {
 
 				case "horizontal":
@@ -1168,11 +1167,11 @@ function YouTubeGetID(url){
  				if (this.controllerOnly) {
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
- 					if (!deferTypeSizing && this.model.mediaSource.contentType != 'image' ) {
- 						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height()); 							
+ 					if ( this.model.mediaSource.contentType != 'image' ) {
+ 						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height()); 
 					} else {
  						this.containerDim.y = 1040 - parseInt(this.header.height()) - parseInt(this.footer.height());
-					}
+ 					}
  				} else {
  					this.containerDim.y = 375 - parseInt(this.header.height()) - parseInt(this.footer.height());
  				}
@@ -1182,7 +1181,7 @@ function YouTubeGetID(url){
 
 			}
 
-			if (!deferTypeSizing && this.model.mediaSource.contentType != 'image') {
+			if ( this.model.mediaSource.contentType != 'image') {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
 			}
 
@@ -2348,8 +2347,8 @@ function YouTubeGetID(url){
 		/**
 		 * Resizes the QuickTime movie to the specified dimensions.
 		 *
-		 * @param {Number} width		The new width of the Flash video.
-		 * @param {Number} height		The new height of the Flash video.
+		 * @param {Number} width		The new width of the video.
+		 * @param {Number} height		The new height of the video.
 		 */
 		jQuery.QuickTimeObjectView.prototype.resize = function(width, height) {
 			var video = document.getElementById(this.model.filename+'_embed'+this.model.id);
@@ -2502,8 +2501,8 @@ function YouTubeGetID(url){
 		/**
 		 * Resizes the QuickTime movie to the specified dimensions.
 		 *
-		 * @param {Number} width		The new width of the Flash video.
-		 * @param {Number} height		The new height of the Flash video.
+		 * @param {Number} width		The new width of the video.
+		 * @param {Number} height		The new height of the video.
 		 */
 		jQuery.StreamingQuickTimeObjectView.prototype.resize = function(width, height) {
 			width = Math.round(width);
@@ -2713,8 +2712,8 @@ function YouTubeGetID(url){
 		/**
 		 * Resizes the video to the specified dimensions.
 		 *
-		 * @param {Number} width		The new width of the Flash video.
-		 * @param {Number} height		The new height of the Flash video.
+		 * @param {Number} width		The new width of the video.
+		 * @param {Number} height		The new height of the video.
 		 */
 		jQuery.HTML5VideoObjectView.prototype.resize = function(width, height) {
 			if (this.video) {
@@ -2994,8 +2993,8 @@ function YouTubeGetID(url){
 		/**
 		 * Resizes the YouTube video to the specified dimensions.
 		 *
-		 * @param {Number} width		The new width of the Flash video.
-		 * @param {Number} height		The new height of the Flash video.
+		 * @param {Number} width		The new width of the video.
+		 * @param {Number} height		The new height of the video.
 		 */
 		jQuery.YouTubeVideoObjectView.prototype.resize = function(width, height) {
 			element = document.getElementById('youtube'+this.model.filename+'_'+this.model.id);

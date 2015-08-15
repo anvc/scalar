@@ -319,8 +319,7 @@
 					url_attributes: [ 'href', 'src' ], 
 					autoplay: link.attr( 'data-autoplay' ) == 'true',
 					solo: link.attr( 'data-caption' ) == 'none',
-					typeLimits: typeLimits,
-					deferTypeSizing: true
+					typeLimits: typeLimits
 				};
 
 				// media at 'full' size get a maximum height
