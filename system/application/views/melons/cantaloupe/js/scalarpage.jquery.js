@@ -1415,6 +1415,42 @@
 						}
 					}
 				});
+			},
+
+			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, map, infoWindow ) {
+
+				var marker, contentString,
+					temp = latlngstr.split( ',' );
+
+				// error checking
+				if (( temp.length != 2 ) || (( isNaN( parseFloat( temp[ 0 ] )) || isNaN( parseFloat( temp[ 1 ] ))))) {
+					return null;
+
+				} else {
+					var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
+
+					map.setCenter( latlng );
+
+					// add marker and info window for current page
+					if ( desc != null ) {
+						contentString = '<div class="google-info-window caption_font"><h2>' + title + '</h2>' + desc + '</div>';
+					} else {
+						contentString = '<div class="google-info-window caption_font"><h2>' + title + '</h2></div>';
+					}
+					marker = new google.maps.Marker({
+					    position: latlng,
+					    map: map,
+					    html: contentString,
+					    title: title
+					});
+					google.maps.event.addListener( marker, 'click', function() {
+						infoWindow.setContent( this.html );
+						infoWindow.open( map, this );
+					});
+				}
+
+				return marker;
+
 			}
 
 		};
@@ -1630,7 +1666,8 @@
 				break;
 
 				default:
-			  	var okToAddExtras = true;
+			  	var i, j, n, o, p,
+			  		okToAddExtras = true;
 
 			  	switch ( viewType ) {
 
@@ -1644,7 +1681,6 @@
 
 						// create map
 						var mapOptions = {
-							center: latlng,
 							zoom: 8,
 							mapTypeId: google.maps.MapTypeId.ROADMAP
 						}
@@ -1656,88 +1692,69 @@
 							maxWidth: 400
 						});
 
-						var marker,
+						var marker, property, contents, node, contentString,
+							properties = [
+								'http://purl.org/dc/terms/coverage',
+								'http://purl.org/dc/terms/spatial'
+							]
 							markers = [],
-							foundError = false;
+							foundError = true;
 
-						// if the current page has the spatial property, then
-						if ( currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
+						for ( p in properties ) {
 
-							var temp = currentNode.current.properties[ 'http://purl.org/dc/terms/spatial' ][ 0 ].value.split( ',' );
+							property = properties[ p ];
 
-							// error checking
-							if (( temp.length != 2 ) || (( isNaN( parseFloat( temp[ 0 ] )) || isNaN( parseFloat( temp[ 1 ] ))))) {
-								foundError = true;
+							// if the current page has the spatial property, then
+							if ( currentNode.current.properties[ property ] != null ) {
 
-							} else {
-								var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
+								n = currentNode.current.properties[ property ].length;
+								for ( i = 0; i < n; i++ ) {
+									marker = page.getMarkerFromLatLonStrForMap( 
+										currentNode.current.properties[ property ][ i ].value,
+										currentNode.getDisplayTitle(),
+										currentNode.current.description,
+										map,
+										infoWindow
+									);
 
-								map.setCenter( latlng );
+									if ( marker != null ) {
+										markers.push( marker );
+										foundError = false;
+									}
 
-								// add marker and info window for current page
-								if ( currentNode.current.description != null ) {
-									contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2>' + currentNode.current.description + '</div>';
-								} else {
-									contentString = '<div class="google-info-window caption_font"><h2>' + currentNode.getDisplayTitle() + '</h2></div>';
 								}
-								marker = new google.maps.Marker({
-								    position: latlng,
-								    map: map,
-								    html: contentString,
-								    title: currentNode.getDisplayTitle()
-								});
-								markers.push( marker );
-								google.maps.event.addListener( marker, 'click', function() {
-									infoWindow.setContent( this.html );
-									infoWindow.open( map, this );
-								});
+
 							}
 
-						}
+							// get path and tag contents of this page
+							contents = [];
+							contents = contents.concat( currentNode.getRelatedNodes( 'path', 'outgoing' ) );
+							contents = contents.concat( currentNode.getRelatedNodes( 'tag', 'outgoing' ) );
 
-						// get path and tag contents of this page
-						var contents = [];
-						contents = contents.concat( currentNode.getRelatedNodes( 'path', 'outgoing' ) );
-						contents = contents.concat( currentNode.getRelatedNodes( 'tag', 'outgoing' ) );
-						var i, node, contentString,
 							n = contents.length;
 
-						// add markers for each content element that has the spatial property
-						for ( i = 0; i < n; i++ ) {
+							// add markers for each content element that has the spatial property
+							for ( i = 0; i < n; i++ ) {
 
-							node = contents[ i ];
+								node = contents[ i ];
 
-							if ( node.current.properties[ 'http://purl.org/dc/terms/spatial' ] != null ) {
-								var temp = node.current.properties[ 'http://purl.org/dc/terms/spatial' ][ 0 ].value.split( ',' );
+								if ( node.current.properties[ property ] != null ) {
+		
+									o = node.current.properties[ property ].length;
+									for ( j = 0; j < o; j++ ) {
+										marker = page.getMarkerFromLatLonStrForMap( 
+											node.current.properties[ property ][ j ].value,
+											node.getDisplayTitle(),
+											node.current.description,
+											map,
+											infoWindow
+										);
 
-								// error checking
-								if (( temp.length != 2 ) || (( isNaN( parseFloat( temp[ 0 ] )) || isNaN( parseFloat( temp[ 1 ] ))))) {
-									// nothing
-
-								} else {
-									var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
-									if ( markers.length == 0 ) {
-										map.setCenter( latlng );
+										if ( marker != null ) {
+											markers.push( marker );
+											foundError = false;
+										}
 									}
-									if ( node.current.description != null ) {
-										contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2>' + node.current.description + '</div>';
-									} else {
-										contentString = '<div class="google-info-window caption_font"><h2><a href="' + node.url + '">' + node.getDisplayTitle() + '</a></h2></div>';
-									}
-									marker = new google.maps.Marker({
-									    position: latlng,
-									    map: map,
-									    html: contentString,
-									    title: node.getDisplayTitle()
-									});
-									markers.push( marker );
-									google.maps.event.addListener( marker, 'click', function() {
-										infoWindow.setContent( this.html );
-										infoWindow.open( map, this );
-									});
-
-									// if any valid geo locations are found, it's ok to draw the map
-									foundError = false;
 								}
 							}
 						}
