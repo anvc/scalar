@@ -2559,9 +2559,9 @@
 				    	.attr('class', 'selectedLabel')
 				    	.attr('dx', function(d) {
 				    	if (arcs.centroid(d)[0] < 0) {
-				    			return -(fullWidth * .5) + 120;
+				    			return -(fullWidth * .5) + 90;
 				    		} else {
-				    			return (fullWidth * .5) - 120;
+				    			return (fullWidth * .5) - 90;
 				    		}
 				    	})
 				    	.attr('dy', function(d) {
@@ -2587,9 +2587,9 @@
 					
 					selectedLabels.attr('dx', function(d) {
 				    	if (arcs.centroid(d)[0] < 0) {
-				    			return -(fullWidth * .5) + 120;
+				    			return -(fullWidth * .5) + 90;
 				    		} else {
-				    			return (fullWidth * .5) - 120;
+				    			return (fullWidth * .5) - 90;
 				    		}
 				    	})
 						.attr('dy', function(d) {
@@ -2613,9 +2613,9 @@
 				    		var dy = arcs.centroid(d)[1];
 				    		var hw = fullWidth * .5;
 				    		if (arcs.centroid(d)[0] < 0) {
-				    			return (125-hw)+','+dy+' '+(135-hw)+','+dy+' '+dx+','+dy;
+				    			return (95-hw)+','+dy+' '+(105-hw)+','+dy+' '+dx+','+dy;
 				    		} else {
-				    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
+				    			return (hw-95)+','+dy+' '+(hw-105)+','+dy+' '+dx+','+dy;
 				    		}
 				    	})
 				    	.attr('stroke','#444')
@@ -2628,9 +2628,9 @@
 				    		var dy = arcs.centroid(d)[1];
 				    		var hw = fullWidth * .5;
 				    		if (arcs.centroid(d)[0] < 0) {
-				    			return (125-hw)+','+dy+' '+(135-hw)+','+dy+' '+dx+','+dy;
+				    			return (95-hw)+','+dy+' '+(105-hw)+','+dy+' '+dx+','+dy;
 				    		} else {
-				    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
+				    			return (hw-95)+','+dy+' '+(hw-105)+','+dy+' '+dx+','+dy;
 				    		}
 				    	});
 
