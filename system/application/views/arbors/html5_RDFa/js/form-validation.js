@@ -247,10 +247,7 @@ function send_form_no_action($form, additional_values) {
 	    var version_num = parseInt(version_uri.substr(version_uri.lastIndexOf('.')+1));
 	    var title = version[version_uri]['http://purl.org/dc/terms/title'][0].value;
 	    var version_urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
-	    var url = document.location.href;
-	    if (url.indexOf('.') != -1) url = url.substr(0, url.indexOf('.'));
-	    if (url.indexOf('?') != -1) url = url.substr(0, url.indexOf('?'));
-	    if (url.indexOf('#') != -1) url = url.substr(0, url.indexOf('#'));
+	    var url = document.location.href.substr(0, document.location.href.lastIndexOf('.edit'));
 	    if (version_num < 2 || redirect_url != url) {  // Reload to reset the form after new page creation (/add) || Slug has changed
 	    	send_form_relationships($form, version_urn, function() {
 	    		document.location.href = redirect_url+'.edit';
