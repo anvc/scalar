@@ -375,7 +375,8 @@ function badges() {
 	$('a[role="tab"] .badge').html(((total>0)?total:''));
 }
 // Validate form data before sending to Scalar's save API
-function validate_form(form) {
+function validate_form(form, no_action) {
+	no_action = ('undefined'==typeof(no_action) || !no_action) ? false : true;
 	var commit = function() {
 		// Commit editor content
 		var textarea = CKEDITOR.instances['sioc:content'].getData();
@@ -395,7 +396,11 @@ function validate_form(form) {
 				return false;
 			}
 		}
-		send_form(form);
+		if (no_action) {
+			send_form_no_action(form);
+		} else {
+			send_form(form);
+		}
 	}
 
 	// If in source mode, switch to WYSIWYG to invoke formatting
@@ -988,10 +993,10 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 
 <div class="row clearboth">
 	<div class="col-md-12" style="text-align:right;margin-top:10px;">
-		<input id="saved_wrapper" type="button" class="btn btn-success" value="Page has been saved" style="display:none;" /> &nbsp;
+		<span id="saved_text" class="text-success" style="float:left;display:none;"></span>
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
-		<!-- <input type="button" class="btn btn-default" value="Save" onclick="send_form_no_action($('#edit_form'));" />&nbsp; &nbsp; -->
+		<input type="button" class="btn btn-default" value="Save" onclick="validate_form($('#edit_form'),true);" />&nbsp; &nbsp;
 		<input type="submit" class="btn btn-primary" value="Save and view" />
 	</div>
 </div>
