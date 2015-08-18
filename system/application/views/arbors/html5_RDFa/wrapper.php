@@ -6,6 +6,7 @@ $publisher = $publisher_thumbnail = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {
 	$title = $book->title;
+	$description = $book->description;
 	if (!empty($book->background)) $background = trim($book->background);
 	if (!empty($book->custom_style)) $style .= $book->custom_style."\n";
 	if (!empty($book->custom_js)) $js .= $book->custom_js."\n";
@@ -71,6 +72,12 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <? if (!$book->display_in_index || $is_new || !empty($version_datetime)): ?>
 <meta name="robots" content="noindex, nofollow">
 <? endif ?>
+<meta property="og:title" content="<?=((isset($book))?$book->title.': ':'').((isset($page->version_index))?$title:'Untitled')?>" />
+<meta property="og:site_name" content="<? if (isset($book)) { echo $book->title.((!empty($book->subtitle))?': '.$book->subtitle:''); } ?>" />
+<meta property="og:url" content="<? echo confirm_slash($base_uri).((isset($page->version_index))?$page->slug:''); ?>" />
+<meta property="og:description" content="<? if (isset($page->version_index)) {echo create_excerpt($page->versions[$page->version_index]->content, 34);} else {echo strip_tags($description);} ?>" />
+<meta property="og:image" content="<?=$app_root?>views/arbors/html5_RDFa/scalar_logo_300x300.png" />
+<meta property="og:type" content="article" />
 <? if (isset($page) && !empty($page)): ?>
 <link rel="canonical" href="<?=confirm_slash($base_uri).$page->slug?>" />
 <? endif ?>

@@ -120,12 +120,6 @@ function validate_upload_form($form, obj) {
  * Functions to send form information through Scalar's save API
  */
 
-function send_form_no_action($form) { 
-	
-	// TODO
-	
-}
-
 function send_form($form, additional_values, success, redirect_url) {
 
 	send_form_show_loading();
@@ -245,8 +239,35 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 
 }
 
+function send_form_no_action($form, additional_values) { 
+	
+	var success = function(version) {
+	    for (var version_uri in version) break;
+	    var redirect_url = version_uri.substr(0, version_uri.lastIndexOf('.'));
+	    var version_num = parseInt(version_uri.substr(version_uri.lastIndexOf('.')+1));
+	    var title = version[version_uri]['http://purl.org/dc/terms/title'][0].value;
+	    var version_urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+	    var url = document.location.href.substr(0, document.location.href.lastIndexOf('.edit'));
+	    if (version_num < 2 || redirect_url != url) {  // Reload to reset the form after new page creation (/add) || Slug has changed
+	    	send_form_relationships($form, version_urn, function() {
+	    		document.location.href = redirect_url+'.edit';
+	    	});
+	    } else {
+	    	send_form_relationships($form, version_urn, function() {
+	    		send_form_hide_loading();
+	    		$('#saved_text').html('Saved "'+title+'" version '+version_num).fadeIn().delay(4000).fadeOut('slow');
+	    	});
+	    }
+	    
+	}
+	
+	send_form($form, additional_values, success);
+	
+}
+
 function send_form_show_loading() {
 
+	$('input[value="Save"]').attr("disabled", "disabled");
     $('input[type="submit"]').attr("disabled", "disabled");
 
 	if (window['Spinner']) {
@@ -274,6 +295,7 @@ function send_form_show_loading() {
 
 function send_form_hide_loading() {
 
+	$('input[value="Save"]').removeAttr("disabled");
 	$('input[type="submit"]').removeAttr("disabled");
 	
 	if (window['Spinner']) {
