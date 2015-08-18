@@ -1541,6 +1541,13 @@
 				$('[property="sioc:content"]').children('p,div').not( '[data-size="full"]' ).addClass('body_copy');
 				$('[property="sioc:content"]').children('p,div').wrap('<div class="paragraph_wrapper"></div>');
 		  	}
+
+		  	// this prevents scrolling within in the WYSIWYG from locking up on Safari
+		  	if ( viewType == 'edit' ) {
+				if ( scalarapi.scalarBrowser == "Safari" ) {
+					$( '.cke_contents' ).css( 'overflow', 'auto' );
+				}
+		  	}
 			
 			page.getContainingPathInfo();
 			switch (viewType) {
@@ -1884,7 +1891,7 @@
 						showTags:true
 					});
 					page.addIncomingComments();
-					if (( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length == 0 ) && ( viewType != "meta" )) {
+					if (( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length == 0 ) && ( viewType != "meta" ) && ( viewType != "edit" )) {
 						page.addAdditionalMetadata();
 					}
 					page.addExternalLinks();
