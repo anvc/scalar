@@ -8,7 +8,7 @@ $config['melon_meta'] = array(
 	'is_selectable' => false,
 	'slug'=>'cantaloupe',
 	'name'=>'Scalar 2',
-	'description'=>'Clean design, new page layout options including splash pages and media galleries, new media sizing and placement options, mobile support, and more...',
+	'description'=>'Clean design, new page layout options including splash pages and media galleries, new media sizing and placement options, mobile support, <a target="_blank" href="http://scalar.usc.edu/works/guide2/scalar-20-whats-new">and more</a>....',
 	'thumb_app_path'=>'views/melons/cantaloupe/images/scalar_cantaloupe_thumb.png'
 );
 

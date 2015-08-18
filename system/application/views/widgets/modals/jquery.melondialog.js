@@ -7,7 +7,7 @@
 			urlroot: '',
 			selected: null,
 			title: 'Choose a Scalar reader interface',
-			msg: '<small>We\'ve updated Scalar\'s reader interface with a clean new design and lots of new features. This "2.0" interface will soon become the default for all new Scalar books, so we encourage you to give it a try now!<br><br>You can switch your existing Scalar books back and forth between the two interfaces as much as you like, though some reformatting may be required.</small>',
+			msg: '<small>We\'ve updated Scalar\'s reader interface with a clean new design and lots of new features. This "2.0" interface will soon become the default for all new Scalar books, so we encourage you to give it a try now!<br><br>You can switch your existing Scalar books back and forth between the two interfaces as much as you like, though <a target="_blank" href="http://scalar.usc.edu/works/guide2/switching-books-authored-in-scalar-10?path=scalar-20-whats-new">some reformatting may be required</a>.</small>',
 			width: 800,
 			height: 630
 	};  	
