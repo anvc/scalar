@@ -353,7 +353,10 @@
 						link.hide();
 
 						var node = scalarapi.getNode( slotMediaElement.model.meta );
-						var specifiesDimensions = node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ].specifiesDimensions;
+						var specifiesDimensions = false;
+						if ( node != null ) {
+							specifiesDimensions = node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ].specifiesDimensions;
+						}
 		
 						if (( size != 'full' ) && (( size != 'native' ) && !specifiesDimensions )) {
 
