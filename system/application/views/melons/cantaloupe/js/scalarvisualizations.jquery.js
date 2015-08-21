@@ -513,6 +513,7 @@
 			base.maxConnections = 0;
 			base.hierarchy = null;
 			base.selectedHierarchyNodes = null;
+			base.processedNodes = [];
 
  			base.visualization.css( 'height', '' );
 
@@ -895,6 +896,7 @@
 			base.maxConnections = 0.0;
 			base.relatedNodes = [];
 			base.relations = [];
+			base.processedNodes = [];
 
 			base.sortedNodes = [];
 			
@@ -1107,6 +1109,9 @@
 				node.sortTitle = node.getSortTitle();
 			}
 			node.type = node.getDominantScalarType( base.options.content );
+			if ( base.processedNodes.indexOf( node ) == -1 ) {
+				base.processedNodes.push( node );
+			}
 		}
 
 		/**
@@ -1387,8 +1392,7 @@
 		// recursively parse through the nodes contained by this node and store their relationships
 		base.addRelationsForHierarchyNode = function( sourceData ) {
 
-			var destNode, destData, i, j, n, o, relation, comboUrl, nodes,
-				processedNodes = [];
+			var destNode, destData, i, j, n, o, relation, comboUrl, nodes;
 
 			var relationList;
 			switch ( base.options.relations ) {
@@ -1434,8 +1438,7 @@
 								children: null 
 							};
 							sourceData.children.push(destData);
-							if (processedNodes.indexOf(destData.node) == -1) {
-								processedNodes.push(destData.node);
+							if (base.processedNodes.indexOf(destData.node) == -1) {
 								base.addRelationsForHierarchyNode(destData);
 							}
 						}
