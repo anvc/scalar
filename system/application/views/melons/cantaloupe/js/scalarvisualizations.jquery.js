@@ -513,7 +513,7 @@
 			base.maxConnections = 0;
 			base.hierarchy = null;
 			base.selectedHierarchyNodes = null;
-			base.processedNodes = [];
+			base.processedNodesForHierarchy = [];
 
  			base.visualization.css( 'height', '' );
 
@@ -896,7 +896,7 @@
 			base.maxConnections = 0.0;
 			base.relatedNodes = [];
 			base.relations = [];
-			base.processedNodes = [];
+			base.processedNodesForHierarchy = [];
 
 			base.sortedNodes = [];
 			
@@ -1109,9 +1109,6 @@
 				node.sortTitle = node.getSortTitle();
 			}
 			node.type = node.getDominantScalarType( base.options.content );
-			if ( base.processedNodes.indexOf( node ) == -1 ) {
-				base.processedNodes.push( node );
-			}
 		}
 
 		/**
@@ -1437,9 +1434,10 @@
 								parent: sourceData,
 								children: null 
 							};
-							sourceData.children.push(destData);
-							if (base.processedNodes.indexOf(destData.node) == -1) {
-								base.addRelationsForHierarchyNode(destData);
+							sourceData.children.push( destData );
+							if ( base.processedNodesForHierarchy.indexOf( destNode ) == -1 ) {
+								base.processedNodesForHierarchy.push( destNode );
+								base.addRelationsForHierarchyNode( destData );
 							}
 						}
 					}
