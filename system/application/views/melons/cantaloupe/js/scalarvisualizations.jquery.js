@@ -1434,14 +1434,15 @@
 								children: null 
 							};
 							sourceData.children.push(destData);
-							if (processedNodes.indexOf(sourceData.node) == -1) {
-								processedNodes.push(sourceData.node);
+							if (processedNodes.indexOf(destData.node) == -1) {
+								processedNodes.push(destData.node);
 								base.addRelationsForHierarchyNode(destData);
 							}
 						}
 					}
 				}
 			}
+
 		}
 		
 		/**
@@ -1700,7 +1701,7 @@
 				box = box.data( base.sortedNodes, function(d) { return d.type.id + '-' + d.slug; } );
 					
 				// draw squares
-				box.enter().append('svg:rect')
+				var selection = box.enter().append('svg:rect')
 					.each( function(d) { d.svgTarget = this; } )
 					.attr('class', 'rowBox')
 					.attr('x', function(d,i) { d.x = colScale(i % itemsPerRow) + 0.5; return d.x; })
@@ -1716,14 +1717,6 @@
 					.attr('fill', function(d) {
 						return base.highlightColorScale(d.type.singular);
 					})
-					.on("mouseover", function(d) { 
-						base.rolloverNode = d;
-						updateGraph();
-					})
-					.on("mouseout", function(d) { 
-						base.rolloverNode = null; 
-						updateGraph();
-					})
 					.on("click", function(d) { 
 						var index = base.selectedNodes.indexOf(d);
 						if (index == -1) {
@@ -1734,6 +1727,20 @@
 						updateGraph();
 						return true;
 					});
+
+				if ( !isMobile ) {
+					selection
+						.on("mouseover", function(d) { 
+							console.log( 'mouseover' );
+							base.rolloverNode = d;
+							updateGraph();
+						})
+						.on("mouseout", function(d) { 
+							console.log( 'mouseout' );
+							base.rolloverNode = null; 
+							updateGraph();
+						});
+				}
 
 				var linkGroup, linkEnter, infoBoxes;
 
@@ -2116,7 +2123,8 @@
 					.on('mousedown', function(d) { d3.event.stopPropagation(); })
 					.on("click", function(d) { 
 						if (d3.event.defaultPrevented) return; // ignore drag
-						branchToggle(d); pathUpdate(d); 
+						branchToggle(d); 
+						pathUpdate(d); 
 					});
 
 					nodeEnter.append("svg:text")
