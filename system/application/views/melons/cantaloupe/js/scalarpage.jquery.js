@@ -293,7 +293,7 @@
 				// the various media element widths via CSS
 				var temp = $( '<div class="' + size + '_dim"></div>') ;
 				temp.appendTo( '.page' );
-				var width = parseInt( temp.width() );
+				var width = Math.min( page.pageWidth, parseInt( temp.width() ));
 				temp.remove();
 
 				// inline media elements can't get bigger than the width of the body copy
@@ -312,7 +312,6 @@
 						size = "full";
 						width = page.pageWidth;
 					}
-
 				}
 
 				var options = { 
@@ -1059,7 +1058,9 @@
 						if ( page.adaptiveMedia == "mobile" ) {
 							galleryHeight = 300;
 						} else {
-							galleryHeight = typeLimits.default;
+							// this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
+							// keeping them synced up helps keep media vertically aligned in galleries
+							galleryHeight = window.innerHeight - 250;
 						}
 
 						$('article > header').after('<div id="gallery" class="carousel slide"></div>');
