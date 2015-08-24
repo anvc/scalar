@@ -1047,6 +1047,10 @@ ScalarAPI.prototype.decimalSecondsToHMMSS = function(seconds, showMilliseconds) 
 	seconds -= s;
 	ms = Math.round(seconds * 1000);
 
+	if ( !showMilliseconds ) {
+		s += Math.round( ms * .001 );
+	}
+
 	mString = m + '';
 	if (mString.length == 1) mString = '0' + mString;
 	sString = s + '';
