@@ -34,6 +34,10 @@ function s_array_merge($array1, $array2) {  // merge array removing duplicates b
 	return $array1;
 }
 
+function spacify($camel, $glue = ' ') {  // camel to spaces
+    return preg_replace( '/([a-z0-9])([A-Z])/', "$1$glue$2", $camel );
+}
+
 session_start();  // Storing items and geolocations from previous queries
 
 $uri =@ trim($_GET['uri']);
@@ -44,15 +48,26 @@ if (empty($page)) $page = 1;
 $uri = str_replace('http://','',$uri);
 $uri = str_replace('https://','',$uri);
 if (substr($uri, -1, 1) == '/') $uri = substr($uri, 0, -1);
-$items_url = 'http://'.$uri.'/api/items?page='.$page;
-$files_url = 'http://'.$uri.'/api/files?page='.$page;
-$geo_url = 'http://'.$uri.'/api/geolocations?page='.$page;
 
+$files_url = 'http://'.$uri.'/api/files?page='.$page;
 $files =@ file_get_contents($files_url);
 if (!$files) die('{}');
 $files = json_decode($files);
 if (!is_array($files)) die('{}');
 
+if (1==$page) {
+	$items_url = 'http://'.$uri.'/api/items?page='.$page;
+	$items =@ file_get_contents($items_url);
+	$items = json_decode($items);
+	$s_items = array();
+	if (isset($_SESSION[urlencode('http://'.$uri.'/api/items')])) {
+		$s_items = $_SESSION[urlencode('http://'.$uri.'/api/items')];
+	}
+	$items = s_array_merge($s_items, $items);
+	$_SESSION[urlencode('http://'.$uri.'/api/items')] = $items;
+}
+
+$items_url = 'http://'.$uri.'/api/items?page='.($page+1);
 $items =@ file_get_contents($items_url);
 $items = json_decode($items);
 $s_items = array();
@@ -62,6 +77,19 @@ if (isset($_SESSION[urlencode('http://'.$uri.'/api/items')])) {
 $items = s_array_merge($s_items, $items);
 $_SESSION[urlencode('http://'.$uri.'/api/items')] = $items;
 
+if (1==$page) {
+	$geo_url = 'http://'.$uri.'/api/geolocations?page='.$page;
+	$locations =@ file_get_contents($geo_url);
+	$locations = json_decode($locations);
+	$s_locations = array();
+	if (isset($_SESSION[urlencode('http://'.$uri.'/api/geolocations')])) {
+		$s_locations = $_SESSION[urlencode('http://'.$uri.'/api/geolocations')];
+	}
+	$locations = s_array_merge($s_locations, $locations);
+	$_SESSION[urlencode('http://'.$uri.'/api/geolocations')] = $locations;
+}
+
+$geo_url = 'http://'.$uri.'/api/geolocations?page='.($page+1);
 $locations =@ file_get_contents($geo_url);
 $locations = json_decode($locations);
 $s_locations = array();
@@ -111,6 +139,13 @@ foreach ($files as $file) {
 			}
 		}
 		$obj->location_data = $location;
+	}
+	if (!isset($obj->element_texts->Title) && isset($obj->filename) && strpos($obj->filename,'.')) {
+		$obj->element_texts->Title = spacify(substr($obj->filename, 0, strpos($obj->filename,'.')));
+	} elseif (!isset($obj->element_texts->Title) && isset($obj->filename) && strpos($obj->filename,'.')) {
+		$obj->element_texts->Title = $obj->filename;
+	} elseif (!isset($obj->element_texts->Title)) {
+		$obj->element_texts->Title = 'Unknown Title';
 	}
 	$output[] = $obj;
 }
