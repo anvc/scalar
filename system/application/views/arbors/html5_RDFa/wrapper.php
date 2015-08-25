@@ -132,7 +132,7 @@ echo '</script>'."\n";
 endif;
 ?>
 </head>
-<body<?=(!empty($background))?' style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
+<body<?=(!empty($background))?' class="'.((!empty($primary_role))?'primary_role_'.strtolower(substr($primary_role,strpos($primary_role,'#')+1)):'').'" style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
 
 <?php echo $content; ?>
 <article>
