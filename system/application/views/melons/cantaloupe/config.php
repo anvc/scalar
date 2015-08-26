@@ -90,8 +90,8 @@ $config['predefined_css'] = array(
 		'insert'=>".clearboth { clear: both; }\n"
 	),
 	array(
-		'title'=>'Show page relationships in sidebar',
-		'description'=>'Relationships between the current page and others are displayed beneath the page content by default. This CSS (which is only recommended for pages that don\'t include media) puts the relationships in a second column to the right of the page content.',
-		'insert'=>"@media screen and (min-width: 768px) {\nspan[property=\"sioc:content\"] {width:50%; float:left; clear:none;}\nspan[property=\"sioc:content\"] .body_copy {padding-right:0px;}\narticle .relationships {width:50%; float:right; clear:none !important; padding-top:0px !important;}\narticle .relationships a.nav_btn.primary {display:none;} /* Hides begin button */ }\n"
+		'title'=>'Show path contents in sidebar',
+		'description'=>'By default, the contents of the current path are displayed at the bottom of the page. This CSS (which is only recommended for pages that don\'t include media) places the path contents in a second column to the right of the page content.',
+		'insert'=>"@media screen and (min-width: 768px) {\n.primary_role_path span[property=\"sioc:content\"] {width:50%; float:left; clear:none;}\n.primary_role_path span[property=\"sioc:content\"] .body_copy {padding-right:0px;}\n.primary_role_path article .relationships {width:50%; float:right; clear:none !important; padding-top:0px !important;}\n.primary_role_path article .relationships a.nav_btn {display:none;} /* Hides path navigation buttons */ }\n"
 	)
 );
