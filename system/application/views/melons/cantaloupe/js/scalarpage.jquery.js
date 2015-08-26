@@ -357,7 +357,7 @@
 							specifiesDimensions = node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ].specifiesDimensions;
 						}
 		
-						if (( size != 'full' ) && (( size != 'native' ) && !specifiesDimensions )) {
+						if ( size != 'full' ) {
 
 							// wrap the media in a body copy element so its alignment happens inside the
 							// dimensions of the body copy
@@ -1484,8 +1484,9 @@
 		$( 'article' ).append( '<div id="footer" class="caption_font"></div>' );
 	
 		$( 'body' ).bind( 'delayedResize', function() {
-			if(page.initialMediaLoad === true) {
+			if ( page.initialMediaLoad === true ) {
 				var reload = false;
+				page.orientation = window.orientation;
 				if($('body').width() <= page.mobileWidth) {
 					if(page.adaptiveMedia != 'mobile') {
 						page.adaptiveMedia = 'mobile';

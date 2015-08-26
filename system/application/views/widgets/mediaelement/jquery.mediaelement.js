@@ -407,7 +407,7 @@ function YouTubeGetID(url){
 		 */
 		jQuery.MediaElementController.prototype.handleMetadata = function(json) {
 
-			me.model.node = scalarapi.model.nodesByURL[me.model.meta];
+			me.model.node = scalarapi.getNode( me.model.meta );
 
 			if ( me.model.node != null ) {
 				me.model.mediaSource = me.model.node.current.mediaSource;
@@ -1081,11 +1081,7 @@ function YouTubeGetID(url){
 						break;
 
 					}
-					if(this.native_full === false) {
-						this.model.element.width(Math.max(this.resizedDim.x + fudgeAmount));
-					} else {
-						this.model.element.width(Math.max(this.resizedDim.x + fudgeAmount + (this.gutterSize * 2), this.minContainerDim.x));
-					}
+					this.model.element.width( this.resizedDim.x + fudgeAmount  + (this.gutterSize * 2) );
 				} else {
 					switch (this.model.mediaSource.name) {
 
@@ -3175,7 +3171,7 @@ function YouTubeGetID(url){
 
  			var theElement = $('<div class="mediaObject" id="'+this.model.filename+'_mediaObject'+this.model.id+'"/>"').appendTo(this.parentView.mediaContainer);
 
- 			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.swf", {
+ 			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.commercial-3.2.18.swf", {
 
  				key: $('#flowplayer_key').attr('href'),
 
@@ -3379,7 +3375,7 @@ function YouTubeGetID(url){
 			    plugins: {
 			        // bandwidth check plugin
 			        bwcheck: {
-			            url: this.model.mediaelement_dir+'flowplayer.bwcheck.swf',
+			            url: this.model.mediaelement_dir+'flowplayer.bwcheck-3.2.13.swf',
 			            serverType: 'fms',
 			            // we use dynamic switching
 			            dynamic: true,
@@ -3400,13 +3396,13 @@ function YouTubeGetID(url){
 			        },
 
 			        content: {
-			            url: this.model.mediaelement_dir+'flowplayer.content.swf',
+			            url: this.model.mediaelement_dir+'flowplayer.content-3.2.9.swf',
 			            opacity: 0
 			        },
 
 			        // here is our rtpm plugin configuration, configured for rtmp
 			        rtmp: {
-			            url: this.model.mediaelement_dir+'flowplayer.rtmp.swf',
+			            url: this.model.mediaelement_dir+'flowplayer.rtmp-3.2.13.swf',
 			            // netConnectionUrl defines where the streams are found
 			            netConnectionUrl: 'rtmp://fms.library.nyu.edu/hidvl_r'
 			        }
