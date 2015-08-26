@@ -638,10 +638,18 @@ class RDF_Object {
 
 		// Primary role
 		if (!isset($page->version_index) || empty($page->versions)) return $page;
+		// Composite, Media only win if there are no other types
 		$type = 'composite';
 		if ('media'==$page->type) $type='media';
-		if (!empty($page->versions[$page->version_index]->tag_of)) $type = 'tag';
-		if (!empty($page->versions[$page->version_index]->path_of)) $type = 'path';
+		// Path always wins
+		if (!empty($page->versions[$page->version_index]->path_of)) {
+			$type = 'path';
+		// Other types (note precedence order)
+		} else {
+			if (!empty($page->versions[$page->version_index]->tag_of)) $type = 'tag';
+			if (!empty($page->versions[$page->version_index]->annotation_of)) $type = 'annotation';
+			if (!empty($page->versions[$page->version_index]->reply_of)) $type = 'reply';
+		}
 		$scalar_ns = $namespaces['scalar'];
 		$page->primary_role = $scalar_ns.ucwords($type);
 
