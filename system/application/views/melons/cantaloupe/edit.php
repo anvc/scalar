@@ -5,6 +5,7 @@
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/ckeditor/ckeditor.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery-ui-custom/jquery-ui.min.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.ui.touch-punch.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
@@ -28,7 +29,7 @@ article > *:not(span) {display:none !important;}
 .body_copy {max-width:100% !important;}
 label {padding-right:8px;}
 label, .sortable li, .ui-sortable-handle {cursor:pointer;}
-.ui-sortable-helper {background-color:#dddddd;}
+.ui-sortable-helper {background-color:#dddddd; font-family:"Lato",Arial,sans-serif; font-size:16px;}
 form > table {width:100%;}
 table, .content_selector, .bootbox {font-family:"Lato",Arial,sans-serif !important;}
 table .p > td {padding-top:12px;}
@@ -315,8 +316,9 @@ $(document).ready(function() {
 	    } else if ('#path-pane'==etarget.attr('href')) {
 	      etarget.data('sortable_init',true);
 		  $('#path-pane').find(".sortable").sortable({
-		 	appendTo: 'body',
-    		helper: 'clone'
+		  	scroll:false,
+		  	helper:'clone',
+			appendTo:'body'
 		  });
 	    }
 	});
@@ -452,7 +454,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
     </div>
   </div>
 </div>
-<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data"onsubmit="validate_form($(this));return false;">
+<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="validate_form($(this));return false;">
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
@@ -520,7 +522,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#tag-pane" aria-controls="tag-pane" data-toggle="tab"><span class="tag_icon"></span> Tag <span class="badge"></span></a></li>
 			</ul>
 		</li>
-		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></a></span>
+		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Styling <span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#thumbnail-pane" aria-controls="thumbnail-pane" data-toggle="tab">Thumbnail</a></li>
 				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#banner-image-pane" aria-controls="#banner-image-pane" data-toggle="tab">Key Image</a></li>
