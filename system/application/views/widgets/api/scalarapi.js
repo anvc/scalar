@@ -132,6 +132,11 @@ function ScalarAPI() {
 				identity: "Explorer",
 				versionSearch: "MSIE"
 			},
+			{	// For MS Edge
+				string: navigator.userAgent,
+				subString: "Edge/12",
+				identity: "Safari"
+			},
 			{	// For IE 11
 				string: navigator.userAgent,
 				subString: "Trident/7.0",
