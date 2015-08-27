@@ -80,6 +80,11 @@ function ScalarAPI() {
 				subString: "Android",
 				identity: "Android"
 			},
+			{	// For MS Edge
+				string: navigator.userAgent,
+				subString: "Edge/12",
+				identity: "Safari"
+			},
 			{
 				string: navigator.userAgent,
 				subString: "Chrome",
@@ -131,11 +136,6 @@ function ScalarAPI() {
 				subString: "MSIE",
 				identity: "Explorer",
 				versionSearch: "MSIE"
-			},
-			{	// For MS Edge
-				string: navigator.userAgent,
-				subString: "Edge/12",
-				identity: "Safari"
 			},
 			{	// For IE 11
 				string: navigator.userAgent,
