@@ -12,6 +12,7 @@
 			filename_max_length: 20,
 			data:[],
 			msg:'',
+			no_data_msg:'No content of the selected type was found',
 			callback:null
 	};  	
 	$.fn.content_options = function(opts) {  // Layout options box
@@ -363,6 +364,10 @@
     	};
     	// Propagate the interface
     	var propagate = function() {
+    		if (!opts.data.length) {
+    			$this.find('.content').html('<div class="loading">'+opts.no_data_msg+'</div>');
+    			return;
+    		}
     		$this.find('.content').addClass('table-responsive').html('<table class="table table-hover" cellspacing="0" cellpadding="0"><thead><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th class="hidden-xs">Description</th><th class="hidden-xs">URL</th><th></th></tr></thead><tbody></tbody></table>');
     		var $tbody = $this.find('tbody:first');
     		for (var j in opts.data) {
@@ -457,7 +462,7 @@
     	};
     	var go = function() {
     		opts.data = [];
-    		$this.find('.content').html('<div class="loading">Loading ...</a>');
+    		$this.find('.content').html('<div class="loading">Loading ...</div>');
     		// TODO: spool requests
 	    	$.getJSON(url(), function(){}).always(function(_data) {
 	    		if ('undefined'!=typeof(_data.status)) {
@@ -480,9 +485,6 @@
 	    				var item = {};
 	    				item.uri = uri;
 	    				item.slug = uri.replace(opts.parent, '');
-                        if('undefined' != typeof(opts.slug_filter) && item.slug.match(opts.slug_filter) === null) {
-                            continue;
-                        }
 	    				item.version_uri = _data[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
 	    				item.version_slug = item.version_uri.replace(opts.parent, '');
 	    				item.content = _data[uri];

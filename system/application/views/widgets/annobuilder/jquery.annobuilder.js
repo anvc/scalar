@@ -435,22 +435,19 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		}
 		
 		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a role="button">?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" class="form-control" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
-		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" class="form-control" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a role="button">?</a><em>Optional abstract of the annotation.</em></div></td></tr>');
-		/*
-		this.annotationForm.find('tbody').append('<tr><td class="field" style="vertical-align:middle;">Tags</td><td class="value" style="vertical-align:middle;"><span class="tagged_by_msg" style="display:none;"><div><b>This annotation is tagged</b> by:</div></span><ul style="display:none" id="taggedBy"></ul>'
-														+'<div class="form_fields_sub_element"><a class="btn btn-default" id="tagButton" role="button">Add taxonomy term</a><div class="help_button"><a role="button">?</a><em>If the book has imported a taxonomy, you can select terms from the taxonomy here, which will append them to the media annotation.</em></div></div></td></tr>');
-		*/
+		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" class="form-control" type="text" size="43" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a role="button">?</a><em>Optional descripiton of the annotation.</em></div></td></tr>');
+		this.annotationForm.find('tbody').append('<tr><td class="field" style="vertical-align:middle;">Tags</td><td class="value" style="vertical-align:middle;"><span class="tagged_by_msg" style="display:none;"><div style="font-size:smaller;">This annotation is tagged by:</div></span><ul style="display:none;font-size:smaller;" id="taggedBy"></ul><div class="form_fields_sub_element"><a class="btn btn-default btn-sm" id="tagButton" role="button">Add taxonomy term</a><div class="help_button"><a role="button">?</a><em>If the book has imported one or more taxonomies, you can select from their terms here which will tag the annotation.</em></div></div></td></tr>');
+
 		$('#setStartTimeBtn').click(this.handleSetStartTime);
 		$('#setEndTimeBtn').click(this.handleSetEndTime);
 
-		$('#tagButton').click(function() {
+		$('#tagButton').click(function() {  // Taxonomies
 			$('<div></div>').content_selector({
-				type:'composite',
-				slug_filter:/^term\/.*$/,
+				type:'tag', /* Replace with 'term' when available in the RDF API */
 				changeable:false,
 				multiple:true,
 				onthefly:false,
-				msg:'Choose terms to tag the annotation',
+				msg:'Choose taxonomy terms to tag the annotation',
 				callback:$.annobuilder.view.builder.handleAddTags
 			});
 		});
