@@ -38,7 +38,8 @@
 			bodyCopyWidth: null,
 			pageWidth: null,
 			pageWidthMinusMargins: null,
-
+			isFullScreen: false,
+			lastOrientation: null,
 			mobileWidth: 520, // this should be set to the same value as the mobile (tiny.css) breakpoint in responsive.css
 			adaptiveMedia: 'full',
 
@@ -95,6 +96,20 @@
 				temp.appendTo( '.page' );
 				var minTabWidth = parseInt( temp.width() );
 				temp.remove();
+
+				mediaelement.model.element.find( "video" ).bind( "webkitbeginfullscreen", function( e ) { 
+					page.isFullScreen = true;
+					page.lastOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
+				});
+
+				mediaelement.model.element.find( "video" ).bind( "webkitendfullscreen", function( e ) { 
+					page.isFullScreen = false;
+					// if orientation changed while we were full screen, then check to see if media needs to be reformatted
+					var currentOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
+					if ( page.lastOrientation != currentOrientation ) {
+						page.handleDelayedResize();
+					}
+				});
 
 				// 'full' and 'native' sized media get special sizing treatment
 				if ( size == 'native' || size == 'full' ) {
@@ -1311,6 +1326,31 @@
 				};
 			},
 
+			handleDelayedResize: function() {
+				if (( page.initialMediaLoad === true ) && !page.isFullScreen ) {
+					var reload = false;
+					page.orientation = window.orientation;
+					if($('body').width() <= page.mobileWidth) {
+						if(page.adaptiveMedia != 'mobile') {
+							page.adaptiveMedia = 'mobile';
+							reload = true;
+						}
+					} else if(page.adaptiveMedia != 'full') {
+						page.adaptiveMedia = 'full';
+						reload = true;
+					}
+					var newSize = { x: $(window).width(), y: $(window).height() };
+					if (( Math.abs( page.sizeOnMediaLoad.x - newSize.x ) > 100 ) || ( Math.abs( page.sizeOnMediaLoad.y - newSize.y ) > 100 )) {
+						page.sizeOnMediaLoad = newSize;
+						reload = true;
+					}
+					if ( reload ) {
+						$('#google-maps').css('max-height',0.8*page.sizeOnMediaLoad.y);
+						page.handleMediaResize();	
+					}
+				}
+			},
+
 			handleMediaResize: function() {
 
 				page.updateMediaHeightRestrictions();
@@ -1463,6 +1503,23 @@
 		$('body').bind('setState', page.handleSetState);
 		$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
+		$(document).bind( "mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function( e ) { 
+
+			var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+			page.isFullScreen = ( fullscreenElement != null );
+
+			if ( page.isFullScreen ) {
+				page.lastOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
+
+			} else {
+				// if orientation changed while we were full screen, then check to see if media needs to be reformatted
+				var currentOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
+				if ( page.lastOrientation != currentOrientation ) {
+					page.handleDelayedResize();
+				}
+			}
+		});
+		
 		element.addClass('page');
 
 		$( 'header' ).show();
@@ -1483,30 +1540,7 @@
 
 		$( 'article' ).append( '<div id="footer" class="caption_font"></div>' );
 	
-		$( 'body' ).bind( 'delayedResize', function() {
-			if ( page.initialMediaLoad === true ) {
-				var reload = false;
-				page.orientation = window.orientation;
-				if($('body').width() <= page.mobileWidth) {
-					if(page.adaptiveMedia != 'mobile') {
-						page.adaptiveMedia = 'mobile';
-						reload = true;
-					}
-				} else if(page.adaptiveMedia != 'full') {
-					page.adaptiveMedia = 'full';
-					reload = true;
-				}
-				var newSize = { x: $(window).width(), y: $(window).height() };
-				if (( Math.abs( page.sizeOnMediaLoad.x - newSize.x ) > 100 ) || ( Math.abs( page.sizeOnMediaLoad.y - newSize.y ) > 100 )) {
-					page.sizeOnMediaLoad = newSize;
-					reload = true;
-				}
-				if ( reload ) {
-					$('#google-maps').css('max-height',0.8*page.sizeOnMediaLoad.y);
-					page.handleMediaResize();	
-				}
-			}
-		} );
+		$( 'body' ).bind( 'delayedResize', page.handleDelayedResize );
 		
 		if($('body').width() <= page.mobileWidth) {
 			page.adaptiveMedia = 'mobile';
