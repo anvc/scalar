@@ -1,23 +1,23 @@
 <?php
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */                            
- 
+ * permissions and limitations under the License.
+ */
+
 /**
  * @projectDescription		RDF API controller for displaying RDF graphs based on REST (GET) queries
  * @return					On success outputs RDF-JSON or RDF-XML; errors are processed as HTTP response codes
@@ -26,13 +26,13 @@
  */
 
 class Rdf extends MY_Controller {
-	
+
 	/**
 	 * URL information and load the current book
 	 */
-	
+
 	public function __construct() {
-		
+
 		parent::__construct();
 		$this->load->model( 'book_model', 'books' );
 		$this->load->model( 'page_model', 'pages' );
@@ -41,12 +41,12 @@ class Rdf extends MY_Controller {
 		$this->load->model( 'annotation_model', 'annotations' );
 		$this->load->model( 'path_model', 'paths' );
 		$this->load->model( 'tag_model', 'tags' );
-		$this->load->model( 'reply_model', 'replies' );	
-		$this->load->library( 'RDF_Object', 'rdf_object' );	
+		$this->load->model( 'reply_model', 'replies' );
+		$this->load->library( 'RDF_Object', 'rdf_object' );
 		$this->load->library( 'statusCodes' );
 		$this->load->helper( 'inflector' );
 		$this->models = $this->config->item('rel');
-		
+
 		// Determine the current book being asked for (if applicable)
 		$this->scope = (strtolower(get_class($this)) == strtolower($this->uri->segment('1'))) ? null : strtolower($this->uri->segment('1'));
 		// Load book beind asked for (if applicable)
@@ -56,11 +56,11 @@ class Rdf extends MY_Controller {
 		} else {  // Book was found
 			$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
 			// Protect book; TODO: provide api_key authentication like api.php
-			$this->set_user_book_perms(); 
+			$this->set_user_book_perms();
 			if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) {
-				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
-				exit;				
-			};			
+				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+				exit;
+			};
 		}
 		// Format (e.g., 'xml', 'json')
 		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle');
@@ -72,9 +72,9 @@ class Rdf extends MY_Controller {
 		// Display references?
 		$this->data['references'] = (isset($_REQUEST['ref']) && $_REQUEST['ref']) ? true : false;
 		// Restrict relationships to a certain relationship?
-		$this->data['restrict'] = (isset($_REQUEST['res']) && in_array(plural(strtolower($_REQUEST['res'])), $this->models)) ? (string) plural(strtolower($_REQUEST['res'])) : null;		
-		// Display all versions?	
-		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;		
+		$this->data['restrict'] = (isset($_REQUEST['res']) && in_array(plural(strtolower($_REQUEST['res'])), $this->models)) ? (string) plural(strtolower($_REQUEST['res'])) : null;
+		// Display all versions?
+		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;
 		// Search terms
 		$this->data['sq'] = (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) ? search_split_terms($_REQUEST['sq']) : null;
 		// Provenance
@@ -92,14 +92,14 @@ class Rdf extends MY_Controller {
 		if (!empty($results)) $this->data['pagination']['results'] = $results;
 
 	}
-	
+
 	/**
 	 * Output information about the system or book (depending on whether 'scope' is set)
 	 */
-	
+
 	public function index() {
-		
-		try {	
+
+		try {
 			if (empty($this->data['book'])) {
 				$system = new stdClass;
 				$system->type = 'system';
@@ -118,50 +118,50 @@ class Rdf extends MY_Controller {
 				$this->rdf_object->book(
 										  $this->data['content'],
 										  array(
-										    'book'     => $this->data['book'], 
+										    'book'     => $this->data['book'],
 										  	'users'    => $contrib,
 										  	'base_uri' => $this->data['base_uri']
-										  ) 
-									   );		
-			}			   
+										  )
+									   );
+			}
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
 		} catch (Exception $e) {
 			throw new Exception(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 		}
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
-		$this->template->render();		
-		
+		$this->template->render();
+
 	}
-	
+
 	/**
 	 * Output information about a page
 	 */
-	
+
 	public function node() {
 
 		if (empty($this->data['book'])) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
 			exit;
 		}
-		try {	
+		try {
 			$slug = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
-			$slug = no_version(no_ext(str_replace($this->data['book']->slug.'/', '', $slug))); 
+			$slug = no_version(no_ext(str_replace($this->data['book']->slug.'/', '', $slug)));
 			$content = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
-			// Don't throw an error here if $content is empty, let through to return empty RDF			
-			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect		
+			// Don't throw an error here if $content is empty, let through to return empty RDF
+			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect
 			$this->rdf_object->index(
 			 						   $this->data['content'],
 									   array(
-						                 'book'         => $this->data['book'], 
-						                 'content'      => $content, 
+						                 'book'         => $this->data['book'],
+						                 'content'      => $content,
 						                 'base_uri'     => $this->data['base_uri'],
 									   	 'method'		=> __FUNCTION__.'/'.$slug,
-				                         'restrict'     => $this->data['restrict'], 
-										 'versions'     => (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT), 
+				                         'restrict'     => $this->data['restrict'],
+										 'versions'     => (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 									     'ref'          => (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
-									     'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE), 
-				                         'pagination'   => $this->data['pagination'], 
+									     'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
+				                         'pagination'   => $this->data['pagination'],
 				                         'max_recurses' => $this->data['recursion']
 									   )
 			                        );
@@ -169,17 +169,17 @@ class Rdf extends MY_Controller {
 		} catch (Exception $e) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 			exit;
-		}		
+		}
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
-		$this->template->render();			
-		
-	} 
-	
+		$this->template->render();
+
+	}
+
 	/**
 	 * Output information about a group of pages based on class name
 	 */
-	
+
 	public function instancesof($class='') {
 
 		try {
@@ -187,13 +187,13 @@ class Rdf extends MY_Controller {
 			$type = $category = null;
 			$rel = RDF_Object::REL_CHILDREN_ONLY;
 			switch ($class) {
-				case 'content':			
+				case 'content':
 					$model = 'pages';
- 					break;								
+ 					break;
 				case 'page':
 				case 'composite':
 					$model = 'pages';
-					$type = 'composite';		
+					$type = 'composite';
 					break;
 				case 'file':
 				case 'media':
@@ -201,10 +201,10 @@ class Rdf extends MY_Controller {
 					$type = 'media';
 					break;
  				case 'review':
-				case 'commentary':	
+				case 'commentary':
 					$model = 'pages';
  					$category = $class;
- 					break;						
+ 					break;
 				case 'annotation':
 				case 'reply':
 				case 'tag':
@@ -214,13 +214,13 @@ class Rdf extends MY_Controller {
 					$model = plural($class);
 					break;
 				default:
-					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));  
-					exit;		
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
 			}
 
-			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));	
+			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));
 			$this->rdf_object->index(
-			                         $this->data['content'], 
+			                         $this->data['content'],
 			                           array(
 			                         	 'book'			=> $this->data['book'],
 			                         	 'content'		=> $content,
@@ -236,17 +236,17 @@ class Rdf extends MY_Controller {
 			                         	 'max_recurses' => $this->data['recursion']
 			                           )
 			                        );
-			$this->rdf_object->serialize($this->data['content'], $this->data['format']);			
+			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
 		} catch (Exception $e) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 			exit;
 		}
-		
+
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
-		$this->template->render();	
+		$this->template->render();
 
 	}
 
-} 
+}
 ?>

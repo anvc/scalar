@@ -1012,20 +1012,15 @@
 
 						// has the annobuilder already been set up? if not, then do so
 						if ( $( 'link[href="' + approot + 'views/widgets/annobuilder/annobuilder.css"]').length == 0 ) {
-							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/edit/jquery-ui-custom/jquery-ui.min.css">');
+							$.getScript(approot+'views/melons/cantaloupe/js/bootbox.min.js');  // Assume that Bootstrap is installed (otherwise jQuery UI is needed)
 							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/edit/content_selector.css">');
+							$.getScript(approot+'views/widgets/edit/jquery.content_selector.js');
 							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
-							$.getScript(approot+'views/widgets/edit/jquery-ui-custom/jquery-ui.min.js',function() {
-								$.getScript(approot+'views/melons/cantaloupe/js/bootbox.min.js',function() {
-									$.getScript(approot+'views/widgets/edit/jquery.content_selector.js',function() {
-										$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
-											content.prepend('<br clear="both" />');
-											link = page.embedMediaToAnnotate( content );	
-											$('.annobuilder:first').annobuilder( {link:link} ); 
-										});
-									});
-								});
-							});
+							$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
+								content.prepend('<br clear="both" />');
+								link = page.embedMediaToAnnotate( content );	
+								$('.annobuilder:first').annobuilder( {link:link} ); 
+							});							
 						// if the annobuilder has been set up, then just re-embed the media
 						} else {
 							page.embedMediaToAnnotate( content );

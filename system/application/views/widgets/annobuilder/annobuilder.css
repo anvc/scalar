@@ -71,6 +71,10 @@
 	text-align: left;
 }
 
+.value a {
+	cursor:pointer;	
+}
+
 #saveLink, #doneMessage {
 	margin-right: 5px;
 }
