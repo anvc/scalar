@@ -829,7 +829,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		  					$slug_version = get_slug_version($book_image_row->slug);
 		  					echo '<option value="'.$book_image_row->versions[$book_image_row->version_index]->url.'" '.((@$page->background==$book_image_row->versions[$book_image_row->version_index]->url)?'selected':'').'>'.$book_image_row->versions[$book_image_row->version_index]->title.((!empty($slug_version))?' ('.$slug_version.')':'').'</option>';
 		  				}
-		  				if (!$matched) {
+		  				if (@!empty($page->background) && !$matched) {
 		  					echo '<option value="'.@$page->background.'" selected>'.@$page->background.'</option>';
 		  				}
 		  			?></select></div>
@@ -850,7 +850,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		  					$slug_version = get_slug_version($book_image_row->slug);
 		  					echo '<option value="'.$book_image_row->versions[$book_image_row->version_index]->url.'" '.((@$page->banner==$book_image_row->versions[$book_image_row->version_index]->url)?'selected':'').'>'.$book_image_row->versions[$book_image_row->version_index]->title.((!empty($slug_version))?' ('.$slug_version.')':'').'</option>';
 		  				}
-		  				if (!$matched) {
+		  				if (@!empty($page->banner) && !$matched) {
 		  					echo '<option value="'.@$page->banner.'" selected>'.@$page->banner.'</option>';
 		  				}
 		  			?></select></div>
@@ -891,7 +891,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		  					$slug_version = get_slug_version($book_audio_row->slug);
 		  					echo '<option value="'.$book_audio_row->versions[$book_audio_row->version_index]->url.'" '.((@$page->audio==$book_audio_row->versions[$book_audio_row->version_index]->url)?'selected':'').'>'.$book_audio_row->versions[$book_audio_row->version_index]->title.((!empty($slug_version))?' ('.$slug_version.')':'').'</option>';
 		  				}
-		  				if (!$matched) {
+		  				if (@!empty($page->audio) && !$matched) {
 		  					echo '<option value="'.@$page->audio.'" selected>'.@$page->audio.'</option>';
 		  				}
 		  			?></select></div>

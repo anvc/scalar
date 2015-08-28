@@ -393,7 +393,7 @@ function make_taxonomy_pages(url,onomy) {
   				$slug_version = get_slug_version($book_image_row->slug);
   				echo '<option value="'.$book_image_row->versions[$book_image_row->version_index]->url.'" '.((@$row->background==$book_image_row->versions[$book_image_row->version_index]->url)?'selected':'').'>'.$book_image_row->versions[$book_image_row->version_index]->title.((!empty($slug_version))?' ('.$slug_version.')':'').'</option>';
   			}
-  			if (!$matched) {
+  			if (@!empty($row->background) && !$matched) {
   				echo '<option value="'.@$row->background.'" selected>'.@$row->background.'</option>';
   			}
 			echo '</select></p>';
