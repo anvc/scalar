@@ -25,8 +25,8 @@
  */
 
 function sortBookVersions($a, $b) {
-	$x = (int) strtolower($a->sort_number);
-	$y = (int) strtolower($b->sort_number);
+	$x = (int) $a->sort_number;
+	$y = (int) $b->sort_number;
 	if ($x < $y) return -1;
 	if ($x > $y) return 1;
 	return 0;
@@ -35,6 +35,14 @@ function sortBookVersions($a, $b) {
 function sortBookContent($a, $b) {
 	$x = strtolower($a->versions[$a->version_index]->title);
 	$y = strtolower($b->versions[$b->version_index]->title);
+	if ($x < $y) return -1;
+	if ($x > $y) return 1;
+	return 0;
+}
+
+function sortBookContentVersions($a, $b) {
+	$x = (int) $a->version_num;
+	$y = (int) $b->version_num;
 	if ($x < $y) return -1;
 	if ($x > $y) return 1;
 	return 0;
@@ -246,6 +254,7 @@ class Book_model extends MY_Model {
 			$return[$row->content_id]->versions[] = $row;
 		}
 		foreach ($return as $content_id => $row) {
+			usort($return[$content_id]->versions, "sortBookContentVersions");
 			$return[$content_id]->version_index = count($return[$content_id]->versions)-1;
 		}
 		usort($return, "sortBookContent");
@@ -277,6 +286,7 @@ class Book_model extends MY_Model {
 			$return[$row->content_id]->versions[] = $row;
 		}
 		foreach ($return as $content_id => $row) {
+			usort($return[$content_id]->versions, "sortBookContentVersions");
 			$return[$content_id]->version_index = count($return[$content_id]->versions)-1;
 		}
 		usort($return, "sortBookContent");
