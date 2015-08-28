@@ -3588,11 +3588,25 @@ function ScalarRelation(json, body, target, type) {
 						this.properties.y = temp[1];
 						this.properties.width = temp[2];
 						this.properties.height = temp[3];
-						this.startString = 'x:'+this.properties.x+' y:'+this.properties.y;
+						this.startString = 'x:' + Math.round( parseFloat( this.properties.x ));
+						if ( this.properties.x.indexOf( '%' ) != -1 ) {
+							this.startString += '%';
+						}
+						this.startString += ' y:' + Math.round( parseFloat( this.properties.y ));
+						if ( this.properties.y.indexOf( '%' ) != -1 ) {
+							this.startString += '%';
+						}
 						if ((this.properties.width == 0) && (this.properties.height == 0)) {
 							this.endString = '';
 						} else {
-							this.endString = 'w:'+this.properties.width+' h:'+this.properties.height;
+							this.endString = 'w:' + Math.round( parseFloat( this.properties.width ));
+							if ( this.properties.width.indexOf( '%' ) != -1 ) {
+								this.endString += '%';
+							}
+							this.endString += ' h:' + Math.round( parseFloat( this.properties.height ));
+							if ( this.properties.height.indexOf( '%' ) != -1 ) {
+								this.endString += '%';
+							}
 						}
 						this.separator = ' ';
 						this.subType = 'spatial';

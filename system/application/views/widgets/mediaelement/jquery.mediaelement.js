@@ -1699,28 +1699,8 @@ function YouTubeGetID(url){
 		 * @param {Object} annotation 		The spatial annotation to be shown.
 		 */
 		this.showSpatialAnnotation = function(annotation) {
-
-            this.mediaContainer.find('.image-annotate-view').show();
-
-			var temp = annotation.body.urn.split(':');
-			var urn = temp[temp.length - 1];
-
-			var annotateArea = $('#'+this.model.id+'_'+urn);
-			var annotateNote = $('#'+this.model.id+'_'+urn+'_note');
-			var annotateView = annotateArea.parents( '.image-annotate-view' );
-
-			annotateView.show();
-
-			annotateView.find( '.image-annotate-area' ).hide();
-			annotateArea.show();
-
-			annotateView.find( '.image-annotate-note' ).hide();
-			annotateNote.show();
-
-			if (document.location.href.indexOf('.annotation_editor')==-1) {
-				$('body').trigger('show_annotation', [annotation, this]);
-			}
-
+			anno.highlightAnnotation( annotation.data );
+			$('body').trigger('show_annotation', [annotation, me]); 
 		}
 
 		/**
@@ -2088,16 +2068,22 @@ function YouTubeGetID(url){
 
  			} else {
 
-	 			var i;
-	 			var n = annotations.length;
-	 			var annotation;
-				var x;
-				var y;
-				var width;
-				var height;
-				var notes = [];
-				var temp;
-				var urn;
+	 			var i, annotation, x, y, width, height,
+	 				notes = [],
+	 				n = annotations.length;
+
+	 			// first time setup
+	 			if ( anno.getAnnotations( this.image.src ).length == 0 ) {
+					anno.makeAnnotatable( this.image );
+					anno.hideSelectionWidget( this.image.src );
+					anno.setProperties( { hi_stroke: "#3acad9" } );
+
+				// reload
+	 			} else {
+	 				anno.removeAll( this.image.src );
+	 			}
+
+				var editable = ( document.location.href.indexOf( '.annotation_editor' ) != -1 );
 
 	 			for (i=0; i<n; i++) {
 
@@ -2133,46 +2119,22 @@ function YouTubeGetID(url){
 						height = parseFloat(annotation.properties.height) * this.parentView.mediaScale;
 					}
 
-					temp = annotation.body.urn.split(':');
-					urn = temp[temp.length - 1];
+					annotation.data = {
+						src: this.image.src,
+						text: "<b>" + annotation.body.getDisplayTitle() + "</b> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
+						editable: editable,
+						shapes: [{
+							type: "rect",
+							units: "pixel",
+							geometry: { x: x, y: y, width: width, height: height }
+						}]
+					}
 
-					notes.push({
-						'top': y,
-						'left': x,
-						'width': width,
-						'height': height,
-						'text': annotation.body.getDisplayTitle(),
-						'annotation': annotation,
-						'id': this.model.id+'_'+urn,
-						'editable': false
-					});
+					anno.addAnnotation( annotation.data );
 
 	 			}
 
- 				// if annotations are already attached, then remove and then reload them
- 				if (this.annotatedImage != null) {
-	 				this.annotatedImage.clear();
-	 				this.annotatedImage.updateSize();
-	 				this.annotatedImage.reload(notes);
-
-	 			// otherwise, load for the first time
-				} else {
-
-					var editable = (document.location.href.indexOf('.annotation_editor') != -1)
-
-		 			this.annotatedImage = $(this.image).annotateImage({
-		 				editable: editable,
-		 				useAjax: false,
-		 				notes: notes,
-		 				ignoreRollover: true
-		 			});
-
-		 			$('body').bind('image_annotation_clicked', function(e, note) {
-		 				$('body').trigger('show_annotation', [note.annotation, me.parentView]);
-		 			})
-
-				}
-
+	 			$(this.wrapper).find( ".annotorious-popup-text" ).addClass( "caption_font" );
 
  			}
 

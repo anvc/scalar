@@ -488,6 +488,12 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				$(this).find("em").animate({opacity: "hide", left: "30"}, "fast");
 			}
 		});
+
+		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
+			anno.addHandler( "onAnnotationCreated", $.annobuilder.view.builder.handleAnnotoriousAnnotationCreated );
+			anno.addHandler( "onAnnotationUpdated", $.annobuilder.view.builder.handleAnnotoriousAnnotationUpdated );
+			anno.addHandler( "onAnnotationRemoved", $.annobuilder.view.builder.handleDelete );
+		}
 		
 		$.annobuilder.view.builder.update();
 
@@ -876,18 +882,23 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	
 		if ($.annobuilder.model.mediaElement.view.mediaObjectView.hasLoaded) {
 		
-			var x;
-			var y;
-			var width;
-			var height;
-			var notes = [];
-			var temp;
-			var urn;
-				
-			var dimensions = this.parseDimensions(data.x, data.y, data.width, data.height);
-			var mediaScale = $.annobuilder.model.mediaElement.view.mediaScale;
-			var intrinsicDim = $.annobuilder.model.mediaElement.view.intrinsicDim;
-	
+			var x, y, width, height, annoData,
+				notes = [],
+				dimensions = this.parseDimensions(data.x, data.y, data.width, data.height),
+				mediaScale = $.annobuilder.model.mediaElement.view.mediaScale,
+				intrinsicDim = $.annobuilder.model.mediaElement.view.intrinsicDim,
+				image = $.annobuilder.model.mediaElement.view.mediaObjectView.image;
+
+ 			// first time setup
+ 			if ( anno.getAnnotations( image.src ).length == 0 ) {
+				anno.makeAnnotatable( image );
+				anno.setProperties( { hi_stroke: "#3acad9" } );
+
+			// reload
+ 			} else {
+ 				anno.removeAll( image.src );
+ 			}
+
 			if (dimensions.xType == 'percent') {
 				x = (dimensions.x * .01) * mediaScale;
 				x *= intrinsicDim.x;
@@ -915,39 +926,20 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			} else {
 				height = dimensions.height * mediaScale;
 			}
-			
-			notes.push({
-				'top': y,
-				'left': x,
-				'width': width,
-				'height': height,
-				'text': name,
-				'annotation': data,
-				'id': 'selectedAnnotation',
-				'editable': false
-			});
-			
-			var image = $('.mediaObject > img')[0];
-			// if annotations are already attached, then remove and then reload them
-			if (this.annotatedImage != null) {
-				this.annotatedImage.clear();
-				this.annotatedImage.updateSize();
-				this.annotatedImage.reload(notes);
-					
-				// otherwise, load for the first time
-			} else {
-	 			this.annotatedImage = $(image).annotateImage({
-	 				editable: false,
-	 				useAjax: false,
-	 				notes: notes,
-					ignoreRollover: true
-	 			});
-	
+
+			annoData = {
+				src: image.src,
+				text: name,
+				editable: true,
+				shapes: [{
+					type: "rect",
+					units: "pixel",
+					geometry: { x: x, y: y, width: width, height: height }
+				}]
 			}
-				
-	        $('.image-annotate-view').show();
-	 		$($('.image-annotate-area')).show();
-	 		$($('.image-annotate-note')).show();
+
+			anno.addAnnotation( annoData );
+			anno.highlightAnnotation( annoData );
 	 		
 		}
 		
@@ -1174,7 +1166,15 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			var index = me.indexForAnnotation(annotation);
 			var row = me.annotationList.find('.annotationChip').eq(index);
 			var dimensions = me.unparseDimensions();
-			row.find('a').text( 'x:' + dimensions.x + ' y:' + dimensions.y );
+			var startString = 'x:' + Math.round( parseFloat( dimensions.x ));
+			if ( dimensions.x.indexOf( '%' ) != -1 ) {
+				startString += '%';
+			}
+			startString += ' y:' + Math.round( parseFloat( dimensions.y ));
+			if ( dimensions.y.indexOf( '%' ) != -1 ) {
+				startString += '%';
+			}
+			row.find('a').text( startString );
 		}	
 	}
 
@@ -1469,7 +1469,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			alert('No annotation was selected.');
 		}
 	}
-	
+
 	/**
 	 * Handles clicks on the control to add an annotation.
 	 *
@@ -1690,6 +1690,53 @@ jQuery.AnnoBuilderInterfaceView = function() {
 
 	}
 
+	jQuery.AnnoBuilderInterfaceView.prototype.handleAnnotoriousAnnotationCreated = function( annotation ) {
+
+		var geometry = annotation.shapes[ 0 ].geometry;
+		var geometryString = ( geometry.x * 100 ) + "%," + ( geometry.y * 100 ) + "%," + ( geometry.width * 100 ) + "%," + ( geometry.height * 100 ) + "%";
+		var data = {
+			action: 'ADD',
+			'native': $('input[name="native"]').val(),
+			id: $('input[name="id"]').val(),
+			api_key: $('input[name="api_key"]').val(),
+			'dcterms:title': annotation.text,
+			'dcterms:description': '',
+			'sioc:content': '',
+			'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+			'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
+			'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media', 
+			'scalar:child_rel': 'annotated',
+			'scalar:metadata:start_seconds': '',
+			'scalar:metadata:end_seconds': '',
+			'scalar:metadata:start_line_num': '',
+			'scalar:metadata:end_line_num': '',
+			'scalar:metadata:points': geometryString
+		};
+	
+		var success = function(json) {
+			me.hideSpinner();
+			$.annobuilder.controller.loadAnnotations();
+			for (var property in json) { // this should only iterate once
+				me.newAnnotationURL = scalarapi.stripVersion(property);
+			}
+		}
+		
+		var error = function() {
+			me.hideSpinner();
+			alert('An error occurred while creating a new annotation. Please check that you have permissions to edit this book, and try again.');
+		}
+		
+		me.showSpinner();
+		
+		scalarapi.savePage(data, success, error);
+
+	}
+
+	jQuery.AnnoBuilderInterfaceView.prototype.handleAnnotoriousAnnotationUpdated = function( annotation ) {
+		$('#annotationTitle').val( annotation.text );
+		$.annobuilder.view.builder.handleEditTitle();
+		$.annobuilder.view.builder.handleSave();
+	}
 
 }
 
