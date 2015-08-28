@@ -32,6 +32,14 @@ function sortBookVersions($a, $b) {
 	return 0;
 }
 
+function sortBookContent($a, $b) {
+	$x = strtolower($a->versions[$a->version_index]->title);
+	$y = strtolower($b->versions[$b->version_index]->title);
+	if ($x < $y) return -1;
+	if ($x > $y) return 1;
+	return 0;
+}
+
 class Book_model extends MY_Model {
 
 	public $default_stylesheet = '';
@@ -240,6 +248,7 @@ class Book_model extends MY_Model {
 		foreach ($return as $content_id => $row) {
 			$return[$content_id]->version_index = count($return[$content_id]->versions)-1;
 		}
+		usort($return, "sortBookContent");
     	return $return;
 
     }
@@ -270,6 +279,7 @@ class Book_model extends MY_Model {
 		foreach ($return as $content_id => $row) {
 			$return[$content_id]->version_index = count($return[$content_id]->versions)-1;
 		}
+		usort($return, "sortBookContent");
     	return $return;
 
     }
