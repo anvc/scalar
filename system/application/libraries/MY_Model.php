@@ -361,6 +361,22 @@ abstract class MY_Model extends Model {
     }
 
     /**
+     * Get possible values of an enumerated field
+     */
+
+    public function get_enum_values($table, $field) {
+
+    	$table =@ trim($this->db->dbprefix.$table);
+    	$q = "SHOW COLUMNS FROM {$table} WHERE Field = '{$field}'";
+    	$type = $this->db->query($q)->row( 0 )->Type;
+	    preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+	    $enum = explode("','", $matches[1]);
+
+	    return $enum;
+
+	}
+
+    /**
      * Determine if a version is the top version for a content node
      */
 

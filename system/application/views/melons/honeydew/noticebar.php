@@ -27,12 +27,12 @@ if (!empty($attribution)) {
 	if (!empty($page->versions[$page->version_index]->tag_of)) $page_name = 'tag';
 	if (!empty($page->versions[$page->version_index]->reply_of)) $page_name = 'comment';
 	// TODO: review & commentary
-	// Write the bar	
+	// Write the bar
 	echo '<div class="notice"><p>';
 	echo 'This '.$page_name.' was written by '.$attribution;
 	//echo ', who is not an author of this '.$book->scope.', ';
 	echo ' on <a href="'.$base_uri.$page->slug.'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[$page->version_index]->created)).'</a>.';
-	echo '</p></div>';	
+	echo '</p></div>';
 }
 
 // Page was created by someone other than a book contributor
@@ -41,13 +41,13 @@ elseif (!$page_by_contributor) {
 	if (!empty($page->versions[$page->version_index]->path_of)) $page_name = 'path';
 	if (!empty($page->versions[$page->version_index]->annotation_of)) $page_name = 'annotation';
 	if (!empty($page->versions[$page->version_index]->tag_of)) $page_name = 'tag';
-	if (!empty($page->versions[$page->version_index]->reply_of)) $page_name = 'comment';	
+	if (!empty($page->versions[$page->version_index]->reply_of)) $page_name = 'comment';
 	// TODO: review & commentary
 	echo '<div class="notice"><p>';
 	echo 'This '.$page_name.' was created by ';
 	if (empty($page->user)) {
 		echo 'an anonymous contributor';
-	} elseif (isset($page->user->fullname)) { 
+	} elseif (isset($page->user->fullname)) {
 		echo $page->user->fullname;
 	} else {
 		echo '(Unknown user)';
@@ -67,16 +67,18 @@ elseif (!empty($page->category)) {
 	if (!empty($page->versions[$page->version_index]->path_of)) $page_name = 'path';
 	if (!empty($page->versions[$page->version_index]->annotation_of)) $page_name = 'annotation';
 	if (!empty($page->versions[$page->version_index]->tag_of)) $page_name = 'tag';
-	if (!empty($page->versions[$page->version_index]->reply_of)) $page_name = 'comment';	
+	if (!empty($page->versions[$page->version_index]->reply_of)) $page_name = 'comment';
+	$cast = 'on';
+	if (strtolower($page->category) == 'term') $cast = 'in';
 	echo '<div class="notice"><p>';
-	echo 'This '.$page_name.' is a <b>'.strtolower($page->category).'</b> on the '.$book->scope.', written by ';
+	echo 'This '.$page_name.' is a <b>'.strtolower($page->category).'</b> '.$cast.' the '.$book->scope.', written by ';
 	echo $page->user->fullname;
 	echo ' on <a href="'.$base_uri.$page->slug.'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[$page->version_index]->created)).'</a>.';
 	if (isset($page->versions) && !empty($page->versions) && $page->versions[$page->version_index]->user != $page->user) {
 		$fullname = $page->versions[0]->user->fullname;
 		if (empty($fullname)) $fullname = '(Unknown user)';
 		echo '<br />The last update was by '.$page->versions[0]->user->fullname.' on <a href="'.$_SERVER['REDIRECT_URL'].'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[0]->created)).'</a>.';
-	}	
+	}
 	echo '</p></div>';
 }
 
@@ -97,7 +99,7 @@ if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie ([1-9])[^0-9]/',$
 }
 
 // Message for delete and save
-if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'deleted'): 
+if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'deleted'):
 	$old_title =@ $_REQUEST['dt'];
 	echo '<div class="error"><p>Item with title "'.$old_title.'" has been deleted<a style="float:right;" href="'.$_SERVER['REDIRECT_URL'].'">clear</a></p></div>'."\n";
 elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == 'saved'):
@@ -110,7 +112,7 @@ endif;
 <div class="error"><p>This site requires Javascript to be turned on. Please <a href="http://www.btny.purdue.edu/enablejavascript.html">enable Javascript</a> and reload the page.</p></div>
 </noscript>
 <div class="error" id="ie_warning"><p>You appear to be using an older verion of Internet Explorer.  For the best experience please upgrade your IE version or switch to a another web browser.</p></div>
-<? 
+<?
 $msg = $this->config->item('book_msg');
 $cookie = $this->config->item("book_msg_cookie_name");
 if (!empty($msg)) echo "<div class=\"scalarnotice\" style=\"display:none;\" data-cookie=\"".((!empty($cookie))?$cookie:'scalar_hide_book_msg')."\">$msg</div>\n";

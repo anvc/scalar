@@ -131,7 +131,7 @@
     			type = 'media';
     		} else if (opts.type) {
     			type = opts.type;
-    		}
+    		} 
     		opts.type = type;
     		get_vars.rec = (opts.rec>0) ? opts.rec : 0;
     		if (opts.sq!=null) get_vars.sq = opts.sq;
@@ -215,7 +215,7 @@
     		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		// Options (search + content type)
     		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
-    			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="content"> All</label> <label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label></div>';
+    			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="content"> All</label> <label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
     		$options.append('<div class="row">'+options_html+'</div>');
     		// Bootstrap positioning
     		if (bootstrap_enabled) {
@@ -495,6 +495,7 @@
 	    			}
 	    		}
 	    		if (relations.length) {  // If relations are present, place target nodes into a "target" array for each node
+	    			var num_relations = 0;
 	    			for (var j = 0; j < opts.data.length; j++) {
 	    				for (var k = 0; k < relations.length; k++) {
 	    					if (relations[k].body == opts.data[j].version_uri) {
@@ -507,21 +508,26 @@
 	    								version = opts.data[m].version;
 	    							}
 	    						}
-	    						opts.data[j].targets.push({
-	    							uri:uri,
-	    							slug:remove_version(relations[k].target).replace(opts.parent, ''),
-	    							version_uri:relations[k].target,
-	    							version_slug:relations[k].target.replace(opts.parent, ''),
-	    							content:content,
-	    							version:version
-	    						});
+	    						if (uri.length && !$.isEmptyObject(content)) {
+		    						opts.data[j].targets.push({
+		    							uri:uri,
+		    							slug:remove_version(relations[k].target).replace(opts.parent, ''),
+		    							version_uri:relations[k].target,
+		    							version_slug:relations[k].target.replace(opts.parent, ''),
+		    							content:content,
+		    							version:version
+		    						});
+		    						num_relations++;
+	    						}
 	    					}
 	    				}
 	    			}
-	    			for (var j = opts.data.length-1; j >= 0; j--) {  // Assume that relationships being present means that nodes w/o relations should be removed
-	    				if (!opts.data[j].targets.length) {
-	    					opts.data.splice(j, 1);
-	    				}
+	    			if (num_relations) {
+		    			for (var j = opts.data.length-1; j >= 0; j--) {  // Assume that relationships being present means that nodes w/o relations should be removed
+		    				if (!opts.data[j].targets.length) {
+		    					opts.data.splice(j, 1);
+		    				}
+		    			}
 	    			}
 	    		}
 	    		opts.data.sort(function(a,b){ 

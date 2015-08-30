@@ -616,6 +616,9 @@ class Book extends MY_Controller {
 			if ('.edit'==substr($this->data['page_url'], -5, 5)) $this->data['page_url'] = substr($this->data['page_url'], 0, -5);
 		}
 
+		// Enum types
+		$this->data['categories'] = $this->books->get_enum_values('content','category');
+
 		// Metadata terms
 		$this->data['ontologies'] = $this->config->item('ontologies');
 		$this->data['rdf_fields'] = $this->versions->rdf_fields;

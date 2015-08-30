@@ -498,8 +498,9 @@ endif;
 					if (strtolower($user_level)=='reviewer') $category = 'review';
 				}
 			  	echo '<option value="" '.((empty($category))?'selected':'').'>'.@ucwords($book->scope).' content</option>';
-			  	echo '<option value="commentary" '.(('commentary'==$category)?'selected':'').'>Commentary</option>';
-			  	echo '<option value="review" '.(('review'==$category)?'selected':'').'>Review</option>';
+				foreach ($categories as $_category) {
+					echo '<option value="'.strtolower($_category).'" '.((strtolower($_category)==strtolower($category))?'selected':'').'>'.ucwords($_category).'</option>';
+				}
 			?>
 			    </select>
 			    <!--

@@ -202,6 +202,7 @@ class Rdf extends MY_Controller {
 					break;
  				case 'review':
 				case 'commentary':
+				case 'term':
 					$model = 'pages';
  					$category = $class;
  					break;
