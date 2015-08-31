@@ -229,3 +229,7 @@ article .annotationForm .tagged_by_msg, article .annotationForm #taggedBy {
 #content_wrapper .annotationForm ol, #content_wrapper .annotationForm ul {
 	margin-left:14px; padding-left:0px; margin-top:3px;
 }
+
+.input-group { border-collapse: collapse; }
+span.input-group-btn:last-of-type>.btn { border-bottom-left-radius: 0; border-top-left-radius: 0; }
+span.input-group-btn:last-of-type>.btn { margin-left: -1px; }

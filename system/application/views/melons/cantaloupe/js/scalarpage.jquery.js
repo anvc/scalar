@@ -1003,7 +1003,7 @@
 				// but rather only by setting it as the default view for the page.  Since 'annotation_editor' and 'edit' views
 				// can only be called by extension, then they need to be special cased here ~Craig
 				
-				if ( 'annotation_editor' == extension) {
+				if ( 'annotation_editor' == extension ) {
 					
 					// is this a media page?
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
@@ -1017,6 +1017,8 @@
 							$.getScript(approot+'views/melons/cantaloupe/js/bootbox.min.js');  // Assume that Bootstrap is installed (otherwise jQuery UI is needed)
 							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/edit/content_selector.css">');
 							$.getScript(approot+'views/widgets/edit/jquery.content_selector.js');
+							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/jquery.bootstrap-touchspin.css">');
+							$.getScript(approot+'views/widgets/annobuilder/jquery.bootstrap-touchspin.js');
 							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
 							$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
 								content.prepend('<br clear="both" />');
@@ -1324,7 +1326,7 @@
 			},
 
 			handleDelayedResize: function() {
-				if (( page.initialMediaLoad === true ) && !page.isFullScreen ) {
+				if (( page.initialMediaLoad === true ) && !page.isFullScreen && ( document.location.href.indexOf('.annotation_editor') == -1 )) {
 					var reload = false;
 					page.orientation = window.orientation;
 					if($('body').width() <= page.mobileWidth) {
@@ -1909,6 +1911,11 @@
 					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Annotation editor</h2>' );
 					$( '.annotation_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
 					$( '.annobuilder' ).addClass( 'caption_font' );
+					// hide continue_to metadata
+					$( '[rel="scalar:continue_to"]' ).each( function() {
+						var href = $( this ).attr( 'href' );
+						$( 'span[resource="' + href + '"]' ).hide();
+					});	
 					okToAddExtras = false;
 					break;
 					         

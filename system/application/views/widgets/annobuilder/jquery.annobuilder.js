@@ -424,9 +424,47 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			break;
 			
 			case 'image':
-			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">X: <input id="x" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="xDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select> &nbsp;&nbsp; Y: <input id="y" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="yDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select></td></tr>');
-			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">W: <input id="width" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="widthDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select> &nbsp;&nbsp; H: <input id="height" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> <select name="heightDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1"><option value="percent">%</option><option value="pixels">px</option></select></td></tr>');
-			break;
+			this.annotationForm.find('tbody').append('<tr><td class="field">X</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="x" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> ' +
+					'<select name="xDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1">' +
+						'<option value="percent">%</option>' +
+						'<option value="pixels">px</option>' +
+					'</select>' +
+				'</div></td></tr>' +
+			'<tr><td class="field">Y</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="y" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> ' +
+					'<select name="yDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1">' +
+						'<option value="percent">%</option>' +
+						'<option value="pixels">px</option>' +
+					'</select>' +
+				'</div></td></tr>');
+			this.annotationForm.find('tbody').append('<tr><td class="field">Width</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="width" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> ' +
+					'<select name="widthDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1">' +
+						'<option value="percent">%</option>' +
+						'<option value="pixels">px</option>' +
+					'</select>' +
+				'</div></td></tr>' +
+			'<tr><td class="field">Height</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="height" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> ' +
+					'<select name="heightDimType" class="form-control" onchange="$.annobuilder.view.builder.handleEditDimensions()" selectedIndex="1">' +
+						'<option value="percent">%</option>' +
+						'<option value="pixels">px</option>' +
+					'</select>' +
+				'</div><br><span style="font-size: small; line-height: 90%;">For quick adjustments, click a numeric field and use mouse wheel.</span></td></tr>');
+			$( "#x" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#x" ).parent().append( $( 'select[name="xDimType"]' ) );
+			$( "#y" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#y" ).parent().append( $( 'select[name="yDimType"]' ) );
+			$( "#width" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#width" ).parent().append( $( 'select[name="widthDimType"]' ) );
+			$( "#height" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#height" ).parent().append( $( 'select[name="heightDimType"]' ) );
+		break;
 			
 			case 'document':
 			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Starting line: <input id="startLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()">&nbsp;&nbsp; Ending line: <input id="endLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()"></td></tr>');

@@ -92,3 +92,6 @@ rdfQuery (views/arbors/HTML5_RDFa/js/jquery.rdfquery.rules-1.0.js):
 
 CKEditor (views/widgets/ckeditor/.../):
 A few updates to core/htmlparser files, found by searching for 'Updated by Craig Dietrich'
+
+Annotorious (views/widgets/mediaelement/annotorious.debug.js):
+1) Replaced "Add a Comment..." with "Enter annotation title..."
