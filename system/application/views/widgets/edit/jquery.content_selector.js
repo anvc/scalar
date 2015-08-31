@@ -365,7 +365,7 @@
     	// Propagate the interface
     	var propagate = function() {
     		if (!opts.data.length) {
-    			$this.find('.content').html('<div class="loading">'+opts.no_data_msg+'</div>');
+    			$this.find('.content').html('<div class="loading" style="color:inherit;">'+opts.no_data_msg+'</div>');
     			return;
     		}
     		$this.find('.content').addClass('table-responsive').html('<table class="table table-hover" cellspacing="0" cellpadding="0"><thead><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th class="hidden-xs">Description</th><th class="hidden-xs">URL</th><th></th></tr></thead><tbody></tbody></table>');

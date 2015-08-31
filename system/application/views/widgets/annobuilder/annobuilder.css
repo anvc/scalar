@@ -213,3 +213,19 @@ div.help_button em {
 	border-radius: 8px;
 	box-shadow: 0px 2px 2px #ccc;
 }
+
+.content_selector_bootbox h4 {
+	padding-left:0px;
+}
+.content_selector_bootbox label {
+	padding-right:8px;
+}
+article .annotationForm .tagged_by_msg, article .annotationForm #taggedBy {
+	font-size:smaller;
+}
+.annotationForm ol, .annotationForm ul {
+	margin-top:0px; margin-bottom:6px;
+}
+#content_wrapper .annotationForm ol, #content_wrapper .annotationForm ul {
+	margin-left:14px; padding-left:0px; margin-top:3px;
+}
