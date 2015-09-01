@@ -101,7 +101,6 @@ $(window).ready(function() {
 		  	widgets_uri+'/mediaelement/mediaelement.css',
 			widgets_uri+'/mediaelement/annotorious.debug.js',
 			widgets_uri+'/mediaelement/css/annotorious.css',
-		  	widgets_uri+'/mediaelement/annotation.css',
 		  	widgets_uri+'/mediaelement/jquery.mediaelement.js',
 		  	widgets_uri+'/mediaelement/jquery.jplayer.min.js']},  
 		  

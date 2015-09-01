@@ -459,14 +459,17 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						'<option value="pixels">px</option>' +
 					'</select>' +
 				'</div><br><span style="font-size: small; line-height: 90%;">For quick adjustments, click a numeric field and use mouse wheel.</span></td></tr>');
-			$( "#x" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
-			$( "#x" ).parent().append( $( 'select[name="xDimType"]' ) );
-			$( "#y" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
-			$( "#y" ).parent().append( $( 'select[name="yDimType"]' ) );
-			$( "#width" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
-			$( "#width" ).parent().append( $( 'select[name="widthDimType"]' ) );
-			$( "#height" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
-			$( "#height" ).parent().append( $( 'select[name="heightDimType"]' ) );
+			// if cantaloupe
+			if ( $( 'article' ).length ) {
+				$( "#x" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
+				$( "#x" ).parent().append( $( 'select[name="xDimType"]' ) );
+				$( "#y" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
+				$( "#y" ).parent().append( $( 'select[name="yDimType"]' ) );
+				$( "#width" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
+				$( "#width" ).parent().append( $( 'select[name="widthDimType"]' ) );
+				$( "#height" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
+				$( "#height" ).parent().append( $( 'select[name="heightDimType"]' ) );
+			}
 		break;
 			
 			case 'document':
