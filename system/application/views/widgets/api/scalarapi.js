@@ -1381,7 +1381,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				switch(this.type.id) {
 				
 					case 'path':
-					completeRelationData['container_of'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1389,12 +1389,12 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': version_urn,
 						'scalar:child_urn': this.target.current.urn,
 						'scalar:child_rel': 'contained',
-						'scalar:sort_number': this.index
+						'scalar:metadata:sort_number': this.index
 					};
 					break;
 					
 					case 'comment':
-					completeRelationData['reply_of'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1402,7 +1402,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': version_urn,
 						'scalar:child_urn': this.target.current.urn,
 						'scalar:child_rel': 'replied',
-						'scalar:paragraph_num': 0
+						'scalar:metadata:paragraph_num': 0
 					};
 					// 'scalar:paragraph_num' is not currently supported in Scalar
 					break;
@@ -1411,7 +1411,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					switch (this.subType) {
 					
 						case 'temporal':
-						completeRelationData['annotation_of'] = {
+						completeRelationData[this.id] = {
 							action: 'RELATE',
 							native: baseProperties.native,
 							id: baseProperties.id,
@@ -1419,16 +1419,16 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:start_seconds': this.properties.start,
-							'scalar:end_seconds': this.properties.end,
-							'scalar:start_line_num': '',
-							'scalar:end_line_num': '',
-							'scalar:points': ''
+							'scalar:metadata:start_seconds': this.properties.start,
+							'scalar:metadata:end_seconds': this.properties.end,
+							'scalar:metadata:start_line_num': '',
+							'scalar:metadata:end_line_num': '',
+							'scalar:metadata:points': ''
 						};
 						break;
 						
 						case 'textual':
-						completeRelationData['annotation_of'] = {
+						completeRelationData[this.id] = {
 							action: 'RELATE',
 							native: baseProperties.native,
 							id: baseProperties.id,
@@ -1436,16 +1436,16 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:start_seconds': '',
-							'scalar:end_seconds': '',
-							'scalar:start_line_num': this.properties.start,
-							'scalar:end_line_num': this.properties.end,
-							'scalar:points': ''
+							'scalar:metadata:start_seconds': '',
+							'scalar:metadata:end_seconds': '',
+							'scalar:metadata:start_line_num': this.properties.start,
+							'scalar:metadata:end_line_num': this.properties.end,
+							'scalar:metadata:points': ''
 						};
 						break;
 						
 						case 'spatial':
-						completeRelationData['annotation_of'] = {
+						completeRelationData[this.id] = {
 							action: 'RELATE',
 							native: baseProperties.native,
 							id: baseProperties.id,
@@ -1453,11 +1453,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:start_seconds': '',
-							'scalar:end_seconds': '',
-							'scalar:start_line_num': '',
-							'scalar:end_line_num': '',
-							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
+							'scalar:metadata:start_seconds': '',
+							'scalar:metadata:end_seconds': '',
+							'scalar:metadata:start_line_num': '',
+							'scalar:metadata:end_line_num': '',
+							'scalar:metadata:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
 						};
 						break;
 						
@@ -1465,7 +1465,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					break;
 					
 					case 'tag':
-					completeRelationData['tag_of'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1477,7 +1477,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					break;
 					
 					case 'referee':
-					completeRelationData['references'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1499,7 +1499,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				switch(this.type.id) {
 				
 					case 'path':
-					completeRelationData['has_container'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1507,12 +1507,12 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': this.body.current.urn,
 						'scalar:child_urn': version_urn,
 						'scalar:child_rel': 'contained',
-						'scalar:sort_number': this.index
+						'scalar:metadata:sort_number': this.index
 					};
 					break;
 					
 					case 'comment':
-					completeRelationData['has_reply'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1520,7 +1520,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': this.body.current.urn,
 						'scalar:child_urn': version_urn,
 						'scalar:child_rel': 'replied',
-						'scalar:sort_number': 0
+						'scalar:metadata:paragraph_num': 0
 					};
 					break;
 					
@@ -1528,7 +1528,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					switch (this.subType) {
 					
 						case 'temporal':
-						completeRelationData['has_annotation'] = {
+						completeRelationData[this.id] = {
 							action: 'RELATE',
 							native: baseProperties.native,
 							id: baseProperties.id,
@@ -1536,16 +1536,16 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:start_seconds': this.properties.start,
-							'scalar:end_seconds': this.properties.end,
-							'scalar:start_line_num': '',
-							'scalar:end_line_num': '',
-							'scalar:points': ''
+							'scalar:metadata:start_seconds': this.properties.start,
+							'scalar:metadata:end_seconds': this.properties.end,
+							'scalar:metadata:start_line_num': '',
+							'scalar:metadata:end_line_num': '',
+							'scalar:metadata:points': ''
 						};
 						break;
 						
 						case 'textual':
-						completeRelationData['has_annotation'] = {
+						completeRelationData[this.id] = {
 							action: 'RELATE',
 							native: baseProperties.native,
 							id: baseProperties.id,
@@ -1553,16 +1553,16 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:start_seconds': '',
-							'scalar:end_seconds': '',
-							'scalar:start_line_num': this.properties.start,
-							'scalar:end_line_num': this.properties.end,
-							'scalar:points': ''
+							'scalar:metadata:start_seconds': '',
+							'scalar:metadata:end_seconds': '',
+							'scalar:metadata:start_line_num': this.properties.start,
+							'scalar:metadata:end_line_num': this.properties.end,
+							'scalar:metadata:points': ''
 						};
 						break;
 						
 						case 'spatial':
-						completeRelationData['has_annotation'] = {
+						completeRelationData[this.id] = {
 							action: 'RELATE',
 							native: baseProperties.native,
 							id: baseProperties.id,
@@ -1570,11 +1570,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:start_seconds': '',
-							'scalar:end_seconds': '',
-							'scalar:start_line_num': '',
-							'scalar:end_line_num': '',
-							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
+							'scalar:metadata:start_seconds': '',
+							'scalar:metadata:end_seconds': '',
+							'scalar:metadata:start_line_num': '',
+							'scalar:metadata:end_line_num': '',
+							'scalar:metadata:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
 						};
 						break;
 						
@@ -1582,7 +1582,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					break;
 					
 					case 'tag':
-					completeRelationData['has_tag'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1594,7 +1594,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					break;
 					
 					case 'referee':
-					completeRelationData['has_reference'] = {
+					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
 						id: baseProperties.id,
@@ -1612,8 +1612,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			});
 			
 			// overwrite with new data
-			var property;
-			var subproperty;
+			var property, subproperty, relationId;
 			for (property in relationData) {
 				// add base properties
 				if (completePageData[property] == null) {
@@ -1626,10 +1625,14 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				// add the new properties
 				for (subproperty in relationData[property]) {
 					if (subproperty != 'scalar:urn') {
+						if ( completeRelationData[property] == null ) {
+							completeRelationData[property] = {};
+						}
 						completeRelationData[property][subproperty] = relationData[property][subproperty];
 					}
 				}
 			};
+
 			for (property in completeRelationData) {
 				scalarapi.queueManyRelations(completeRelationData[property]);
 			}

@@ -257,6 +257,9 @@ jQuery.AnnoBuilderController = function() {
 			}
 			
 		}
+
+		anno.makeAnnotatable( $.annobuilder.model.mediaElement.view.mediaObjectView.image );
+		anno.setProperties( { hi_stroke: "#3acad9" } );
 		
 	}
 
@@ -456,13 +459,13 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						'<option value="pixels">px</option>' +
 					'</select>' +
 				'</div><br><span style="font-size: small; line-height: 90%;">For quick adjustments, click a numeric field and use mouse wheel.</span></td></tr>');
-			$( "#x" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#x" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
 			$( "#x" ).parent().append( $( 'select[name="xDimType"]' ) );
-			$( "#y" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#y" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
 			$( "#y" ).parent().append( $( 'select[name="yDimType"]' ) );
-			$( "#width" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#width" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
 			$( "#width" ).parent().append( $( 'select[name="widthDimType"]' ) );
-			$( "#height" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2 });
+			$( "#height" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
 			$( "#height" ).parent().append( $( 'select[name="heightDimType"]' ) );
 		break;
 			
@@ -1653,7 +1656,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					
 						case 'video':
 						case 'audio':
-						relationData['annotation_of'] = {
+						relationData[annotation.id] = {
 							action: 'RELATE',
 							'scalar:urn': annotation.body.current.urn,
 							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
@@ -1668,7 +1671,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						
 						case 'image':
 						var dimensions = me.unparseDimensions(edits);
-						relationData['annotation_of'] = {
+						relationData[annotation.id] = {
 							action: 'RELATE',
 							'scalar:urn': annotation.body.current.urn,
 							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
@@ -1683,7 +1686,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						
 						case 'document':
 						edits.end = Math.max( edits.start, edits.end );
-						relationData['annotation_of'] = {
+						relationData[annotation.id] = {
 							action: 'RELATE',
 							'scalar:urn': annotation.body.current.urn,
 							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
@@ -1734,7 +1737,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.handleAnnotoriousAnnotationCreated = function( annotation ) {
 
 		var geometry = annotation.shapes[ 0 ].geometry;
-		var geometryString = ( geometry.x * 100 ) + "%," + ( geometry.y * 100 ) + "%," + ( geometry.width * 100 ) + "%," + ( geometry.height * 100 ) + "%";
+		var geometryString = ( Math.round( geometry.x * 10000 ) / 100.0 ) + "%," + ( Math.round( geometry.y * 10000 ) / 100.0 ) + "%," + ( Math.round( geometry.width * 10000 ) / 100.0 ) + "%," + ( Math.round( geometry.height * 10000 ) / 100.0 ) + "%";
 		var data = {
 			action: 'ADD',
 			'native': $('input[name="native"]').val(),
