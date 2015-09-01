@@ -1389,7 +1389,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': version_urn,
 						'scalar:child_urn': this.target.current.urn,
 						'scalar:child_rel': 'contained',
-						'scalar:metadata:sort_number': this.index
+						'scalar:sort_number': this.index
 					};
 					break;
 					
@@ -1402,7 +1402,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': version_urn,
 						'scalar:child_urn': this.target.current.urn,
 						'scalar:child_rel': 'replied',
-						'scalar:metadata:paragraph_num': 0
+						'scalar:paragraph_num': 0
 					};
 					// 'scalar:paragraph_num' is not currently supported in Scalar
 					break;
@@ -1419,11 +1419,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': this.properties.start,
-							'scalar:metadata:end_seconds': this.properties.end,
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': this.properties.start,
+							'scalar:end_seconds': this.properties.end,
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1436,11 +1436,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': this.properties.start,
-							'scalar:metadata:end_line_num': this.properties.end,
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': this.properties.start,
+							'scalar:end_line_num': this.properties.end,
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1453,11 +1453,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': version_urn,
 							'scalar:child_urn': this.target.current.urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
 						};
 						break;
 						
@@ -1507,7 +1507,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': this.body.current.urn,
 						'scalar:child_urn': version_urn,
 						'scalar:child_rel': 'contained',
-						'scalar:metadata:sort_number': this.index
+						'scalar:sort_number': this.index
 					};
 					break;
 					
@@ -1520,7 +1520,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						'scalar:urn': this.body.current.urn,
 						'scalar:child_urn': version_urn,
 						'scalar:child_rel': 'replied',
-						'scalar:metadata:paragraph_num': 0
+						'scalar:paragraph_num': 0
 					};
 					break;
 					
@@ -1536,11 +1536,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': this.properties.start,
-							'scalar:metadata:end_seconds': this.properties.end,
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': this.properties.start,
+							'scalar:end_seconds': this.properties.end,
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1553,11 +1553,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': this.properties.start,
-							'scalar:metadata:end_line_num': this.properties.end,
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': this.properties.start,
+							'scalar:end_line_num': this.properties.end,
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1570,11 +1570,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:urn': this.body.current.urn,
 							'scalar:child_urn': version_urn,
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
 						};
 						break;
 						

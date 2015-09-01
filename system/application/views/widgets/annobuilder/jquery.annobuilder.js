@@ -1494,7 +1494,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					'dcterms:description': annotation.body.current.description,
 					'sioc:content': annotation.body.current.content,
 					'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
-					'scalar:metadata:is_live': 0
+					'scalar:is_live': 0
 				};
 				
 				var relationData = {};
@@ -1542,11 +1542,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
 				'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media', 
 				'scalar:child_rel': 'annotated',
-				'scalar:metadata:start_seconds': seconds,
-				'scalar:metadata:end_seconds': seconds + 0.5,
-				'scalar:metadata:start_line_num': '',
-				'scalar:metadata:end_line_num': '',
-				'scalar:metadata:points': ''
+				'scalar:start_seconds': seconds,
+				'scalar:end_seconds': seconds + 0.5,
+				'scalar:start_line_num': '',
+				'scalar:end_line_num': '',
+				'scalar:points': ''
 			};
 			break;
 			
@@ -1563,11 +1563,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
 				'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media', 
 				'scalar:child_rel': 'annotated',
-				'scalar:metadata:start_seconds': '',
-				'scalar:metadata:end_seconds': '',
-				'scalar:metadata:start_line_num': '',
-				'scalar:metadata:end_line_num': '',
-				'scalar:metadata:points': '0%,0%,0%,0%'
+				'scalar:start_seconds': '',
+				'scalar:end_seconds': '',
+				'scalar:start_line_num': '',
+				'scalar:end_line_num': '',
+				'scalar:points': '0%,0%,0%,0%'
 			};
 			break;
 			
@@ -1585,11 +1585,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
 				'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media', 
 				'scalar:child_rel': 'annotated',
-				'scalar:metadata:start_seconds': '',
-				'scalar:metadata:end_seconds': '',
-				'scalar:metadata:start_line_num': '1',
-				'scalar:metadata:end_line_num': '1',
-				'scalar:metadata:points': ''
+				'scalar:start_seconds': '',
+				'scalar:end_seconds': '',
+				'scalar:start_line_num': '1',
+				'scalar:end_line_num': '1',
+				'scalar:points': ''
 			};
 			break;
 		
@@ -1664,11 +1664,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:urn': annotation.body.current.urn,
 							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': edits.start,
-							'scalar:metadata:end_seconds': edits.end,
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': edits.start,
+							'scalar:end_seconds': edits.end,
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1679,11 +1679,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:urn': annotation.body.current.urn,
 							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': '',
-							'scalar:metadata:end_line_num': '',
-							'scalar:metadata:points': dimensions.string
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': dimensions.string
 						};
 						break;
 						
@@ -1694,11 +1694,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:urn': annotation.body.current.urn,
 							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
 							'scalar:child_rel': 'annotated',
-							'scalar:metadata:start_seconds': '',
-							'scalar:metadata:end_seconds': '',
-							'scalar:metadata:start_line_num': edits.start,
-							'scalar:metadata:end_line_num': edits.end,
-							'scalar:metadata:points': ''
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': edits.start,
+							'scalar:end_line_num': edits.end,
+							'scalar:points': ''
 						};
 						break;
 						
@@ -1753,11 +1753,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
 			'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media', 
 			'scalar:child_rel': 'annotated',
-			'scalar:metadata:start_seconds': '',
-			'scalar:metadata:end_seconds': '',
-			'scalar:metadata:start_line_num': '',
-			'scalar:metadata:end_line_num': '',
-			'scalar:metadata:points': geometryString
+			'scalar:start_seconds': '',
+			'scalar:end_seconds': '',
+			'scalar:start_line_num': '',
+			'scalar:end_line_num': '',
+			'scalar:points': geometryString
 		};
 	
 		var success = function(json) {
