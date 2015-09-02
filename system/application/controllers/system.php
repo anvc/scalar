@@ -761,6 +761,34 @@ class System extends MY_Controller {
 					}
 				}
 				break;
+			case 'save_onomy':
+				$this->data['book'] = $this->books->get((int) $_REQUEST['book_id']);
+	 			$this->set_login_params();
+				$this->set_user_book_perms();
+				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+
+				if(isset($_REQUEST['version']) && is_numeric($_REQUEST['version'])) {
+					$version = $_REQUEST['version'];
+					$file_path = FCPATH.$this->data['book']->slug."/onomy";
+					if (!file_exists($file_path)) {
+						if(!mkdir($file_path,0775)) {
+							die ('{"error":"Failed to create Onomy folder"}');
+						}
+					}
+					$onomy = '';
+					if(($onomy = file_get_contents('http://onomy.org/published/'.$version.'/skos')) !== false) {
+						if(file_put_contents($file_path.'/version_'.$version.'.json', $onomy)) {
+							$this->data['content'] = $onomy;
+						} else {
+							$this->data['content'] = '{"error":"Failed to save taxonomy"}';
+						}
+					} else {
+						$this->data['content'] = '{"error":"Failed to fetch taxonomy"}';
+					}
+				} else {
+					$this->data['content'] = '{"error":"Invalid Version Number"}';
+				}
+			break;
 			case 'user_search':
 				if (!$this->data['login']->is_logged_in) $this->kickout();
 				$fullname =@ $_REQUEST['fullname'];
