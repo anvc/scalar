@@ -890,7 +890,7 @@
 			},
 
 			makeRelativeLinksAbsolute: function() {
-				$( 'article' ).find( 'a' ).each( function() {
+				$( 'article > span[property="sioc:content"]' ).find( 'a' ).each( function() {
 					var href = $( this ).attr( "href" );
 					if ( href != null ) {
 						if ( href.indexOf( '://' ) == -1 ) { // relative url
