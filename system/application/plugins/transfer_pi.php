@@ -51,7 +51,7 @@
 				</div>
 				<div id="snippet_dialog" title="Importing" style="display:none;">
   				<p>
-  				In the Import area you can pull all pages and relationships from another public book using its URL. Simply grab the URL of the source book and place it into the form&mdash;Scalar will do the rest (with a few considerations; see Support Notes in the Import/Export tab for a list of attributes which will not transfer).
+  				In the Import area you can pull all pages and relationships from another public book using its URL. Simply grab the URL of the source book and place it into the form and Scalar will do the rest&mdash;with some limitations (click the <i>List of fields &amp; media that aren't transferred</i> button in the tool to read about a few considerations).
 				</p><p>
 				You can also import snippets of a Scalar book. For example, you may wish to import just a single path and its pages from a source book. Or, only the media. Any content type can be acquired by visiting our tool for this task, the <a target="_blank" href="http://scalar.usc.edu/tools/apiexplorer/">API Explorer</a>. Its friendly interface allows you to easily generate the appropriate RDF-JSON output by selecting the portion of a Scalar book you'd like to export and clicking "Get API Results." For instance, if you'd like to export only the contents of one path within a book, simply insert the path's URL, set "return related content with up to '1' degree of separation," then click "Get API Results." Finally, cut-and-paste the resulting RDF-JSON into the "Paste RDF" tab of the Dashboard's Import area.
   				</p><p>
