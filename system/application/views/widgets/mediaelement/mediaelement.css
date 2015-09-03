@@ -3,7 +3,6 @@
 	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif !important; font-size:13px;
 	white-space: normal;
 	line-height:100%;
-	overflow:hidden;
 	position:relative; top:0px; left:0px;
 	z-index:7;
 }
@@ -38,7 +37,6 @@
 
 .mediaObject {
 	z-index:7;
-	overflow: hidden; /* prevents iframes from exceeding bounds on iOS */
 }
 
 .mediaelement pre { border: 1px solid #cbcbcb; }

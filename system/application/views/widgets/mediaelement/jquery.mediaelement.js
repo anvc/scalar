@@ -765,9 +765,6 @@ function YouTubeGetID(url){
 					// only set the height of the container if we're in a slot manager
 					if (model.options.width == null) this.mediaContainer.height(this.containerDim.y);
 				}
-				if (this.model.options.header != 'nav_bar') {
-					this.mediaContainer.css('max-width', this.containerDim.x);
-				}
 				break;
 
 				case "vertical":
@@ -1139,7 +1136,6 @@ function YouTubeGetID(url){
 				}
 				if (!this.model.isChromeless) {
 					this.containerDim.x--;
-					this.mediaContainer.css('float', 'right'); // needed to prevent vertical offsets for wide media
 				}
 				if (this.annotationsVisible) {
 					this.containerDim.x -= (parseInt(this.annotationSidebar.width()) + (this.gutterSize * 2));
@@ -1187,7 +1183,7 @@ function YouTubeGetID(url){
 	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x + this.annotationSidebar.width());
 	   		}
 
-			if (this.model.mediaSource.name == 'HyperCities')  this.containerDim.x -= 4;
+			if (this.model.mediaSource.name == 'HyperCities') this.containerDim.x -= 4;
 
 			//console.log( 'container: ' + this.model.containerLayout+' '+this.initialContainerWidth+' '+this.containerDim.x+' '+this.containerDim.y+' '+this.footer.height()+' '+this.annotationSidebar.width());
 
@@ -1354,12 +1350,20 @@ function YouTubeGetID(url){
 			//console.log('margins '+this.mediaMargins.horz+' '+this.mediaMargins.vert);
 
 			if ( !this.model.isChromeless ) {
-				this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz));
-				this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive));
+				if ( this.model.mediaSource.name == "KML" ) { // exception for Google Maps, since padding just makes the map larger
+					this.mediaContainer.find('.mediaObject').css('margin-left', Math.floor(this.mediaMargins.horz));
+				} else {
+					this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz));
+					this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive));
+				}
 			}
 			if ( !this.model.isChromeless || ( model.options.vcenter === true )) {
-				this.mediaContainer.find('.mediaObject').css('padding-top', Math.floor(this.mediaMargins.vert));
-				this.mediaContainer.find('.mediaObject').css('padding-bottom', Math.floor(this.mediaMargins.vert));
+				if ( this.model.mediaSource.name == "KML" ) { // exception for Google Maps, since padding just makes the map larger
+					this.mediaContainer.find('.mediaObject').css('margin-top', Math.floor(this.mediaMargins.vert));
+				} else {
+					this.mediaContainer.find('.mediaObject').css('padding-top', Math.floor(this.mediaMargins.vert));
+					this.mediaContainer.find('.mediaObject').css('padding-bottom', Math.floor(this.mediaMargins.vert));
+				}
 			}
 
 		}
@@ -1391,6 +1395,7 @@ function YouTubeGetID(url){
 				}
 				if (this.model.containerLayout == "horizontal") {
 					this.annotationSidebar.css('display','block');
+					this.mediaContainer.css('float', 'right'); 
 					if (this.mediaContainer.closest('.slot').length == 0) {
 						if (this.controllerOnly || (this.model.options.header != 'nav_bar')) {
 							this.containerDim.y = parseInt(this.model.options.height) - parseInt(this.header.height()) + 1;
@@ -1409,6 +1414,7 @@ function YouTubeGetID(url){
 				}
 				if (this.model.containerLayout == "horizontal") {
 					this.annotationSidebar.css('display','none');
+					this.mediaContainer.css('float', 'inherit');
 					if (this.mediaContainer.closest('.slot').length == 0) {
 						if (this.controllerOnly && (this.model.options.header != 'nav_bar')) {
 		 					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
@@ -3688,7 +3694,7 @@ function YouTubeGetID(url){
 
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
 
-			var obj = $('<div class="mediaObject"><div style="-webkit-overflow-scrolling: touch; overflow-y: scroll;"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
+			var obj = $('<div class="mediaObject" style="overflow: hidden"><div style="-webkit-overflow-scrolling: touch; overflow-y: scroll;"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
 			this.frame = obj.find('#'+this.frameId)[0];
 
 			$(this.frame).bind("load", function () {
@@ -4192,7 +4198,7 @@ function YouTubeGetID(url){
 
 			this.frameId = 'html'+this.model.filename+'_'+this.model.id;
 
-			var obj = $('<div class="mediaObject"><div style="-webkit-overflow-scrolling: touch; overflow-y: scroll;"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
+			var obj = $('<div class="mediaObject" style="overflow: hidden"><div style="-webkit-overflow-scrolling: touch; overflow-y: scroll;"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
 			this.frame = obj.find('#'+this.frameId)[0];
 
 			$(this.frame).bind("load", function () {

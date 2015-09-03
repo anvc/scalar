@@ -889,6 +889,18 @@
 				return link;
 			},
 
+			makeRelativeLinksAbsolute: function() {
+				$( 'article > span[property="sioc:content"]' ).find( 'a' ).each( function() {
+					var href = $( this ).attr( "href" );
+					if ( href != null ) {
+						if ( href.indexOf( '://' ) == -1 ) { // relative url
+							var parent = $('link#parent').attr('href');
+							$( this ).attr( "href", parent + href );
+						}	
+					}	
+				});
+			},
+
 			getMediaLinks: function( element ) {
 
 				var mediaLinks = [];
@@ -1497,6 +1509,7 @@
 			}
 
 		};
+
 		page.updateMediaHeightRestrictions();
 
 		$('body').bind('setState', page.handleSetState);
@@ -1585,6 +1598,8 @@
 				if ( scalarapi.scalarBrowser == "Safari" ) {
 					$( '.cke_contents' ).css( 'overflow', 'auto' );
 				}
+		  	} else {
+		  		page.makeRelativeLinksAbsolute();
 		  	}
 			
 			page.getContainingPathInfo();
@@ -1908,7 +1923,11 @@
 					break;
 
 					case "annotation_editor":
-					$( 'h1[property="dcterms:title"]' ).after( '<h2 style="margin-bottom: 0rem;">Annotation editor</h2>' );
+					var headerString = '<h2 style="margin-bottom: 0rem;">Annotation editor</h2>';
+					if ( currentNode.current.mediaSource.contentType == 'image' ) {
+						headerString += '<p class="body_copy">To create an image annotation, click and drag on the image, or use the plus button below.</p>';
+					}
+					$( 'h1[property="dcterms:title"]' ).after( headerString );
 					$( '.annotation_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
 					$( '.annobuilder' ).addClass( 'caption_font' );
 					// hide continue_to metadata
