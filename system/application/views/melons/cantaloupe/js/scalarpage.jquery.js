@@ -889,6 +889,18 @@
 				return link;
 			},
 
+			makeRelativeLinksAbsolute: function() {
+				$( 'article' ).find( 'a' ).each( function() {
+					var href = $( this ).attr( "href" );
+					if ( href != null ) {
+						if ( href.indexOf( '://' ) == -1 ) { // relative url
+							var parent = $('link#parent').attr('href');
+							$( this ).attr( "href", parent + href );
+						}	
+					}	
+				});
+			},
+
 			getMediaLinks: function( element ) {
 
 				var mediaLinks = [];
@@ -1497,7 +1509,9 @@
 			}
 
 		};
+
 		page.updateMediaHeightRestrictions();
+		page.makeRelativeLinksAbsolute();
 
 		$('body').bind('setState', page.handleSetState);
 		$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
