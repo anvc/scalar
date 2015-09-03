@@ -1511,7 +1511,6 @@
 		};
 
 		page.updateMediaHeightRestrictions();
-		page.makeRelativeLinksAbsolute();
 
 		$('body').bind('setState', page.handleSetState);
 		$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
@@ -1599,6 +1598,8 @@
 				if ( scalarapi.scalarBrowser == "Safari" ) {
 					$( '.cke_contents' ).css( 'overflow', 'auto' );
 				}
+		  	} else {
+		  		page.makeRelativeLinksAbsolute();
 		  	}
 			
 			page.getContainingPathInfo();
