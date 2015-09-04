@@ -1355,8 +1355,8 @@ function YouTubeGetID(url){
 				if ( this.model.mediaSource.name == "KML" ) { // exception for Google Maps, since padding just makes the map larger
 					this.mediaContainer.find('.mediaObject').css('margin-left', Math.floor(this.mediaMargins.horz));
 				} else {
-					this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz));
-					this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive));
+					this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz - 10));
+					this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive - 10));
 				}
 			}
 			if ( !this.model.isChromeless || ( model.options.vcenter === true )) {
