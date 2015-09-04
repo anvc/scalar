@@ -1175,6 +1175,8 @@ function YouTubeGetID(url){
 
 			if ( this.model.mediaSource.contentType != 'image') {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
+			} else if ( scalarapi.getFileExtension( window.location.href ) == "annotation_editor" ) {
+				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 350 );
 			}
 
 	   		if (!this.annotationsVisible) {
@@ -1599,8 +1601,8 @@ function YouTubeGetID(url){
 							me.annotationDisplay.html('<p>'+annoTitle+'</p>');
 						}
 						// don't show live annotations if we're in the annotation editor
-						if (document.location.href.indexOf('.annotation_editor')==-1) {
-							if ((me.model.mediaSource.name == 'Vimeo') ||(me.model.mediaSource.name == 'SoundCloud')) {
+						if ((document.location.href.indexOf('.annotation_editor')==-1) && ('nav_bar' != me.model.options.header)) {
+							if ((me.model.mediaSource.name == 'Vimeo') || (me.model.mediaSource.name == 'SoundCloud')) {
 								// this prevents Vimeo videos generated from linked annotations from displaying
 								// their live annotation when cueing up on page load
 								if ((me.mediaObjectView.initialPauseDone) && (me.intervalId != null)) {
@@ -1706,7 +1708,9 @@ function YouTubeGetID(url){
 		 */
 		this.showSpatialAnnotation = function(annotation) {
 			anno.highlightAnnotation( annotation.data );
-			$('body').trigger('show_annotation', [annotation, me]); 
+			if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
+				$('body').trigger('show_annotation', [annotation, me]); 
+			}
 		}
 
 		/**
@@ -2058,7 +2062,10 @@ function YouTubeGetID(url){
 					me.setupAnnotations(me.annotations);
 				}
 
-			}).attr('src', url);
+			}).attr({
+				'src': url,
+				'data-original': url + '-' + this.model.id // needed to support annotorious if the same image appears on the page more than once
+			});
 
     	}
 
@@ -2079,9 +2086,9 @@ function YouTubeGetID(url){
 	 				n = annotations.length;
 
 	 			// first time setup
-	 			if ( anno.getAnnotations( this.image.src ).length == 0 ) {
+	 			if ( anno.getAnnotations( this.image.src + '-' + this.model.id ).length == 0 ) {
 					anno.makeAnnotatable( this.image );
-					anno.hideSelectionWidget( this.image.src );
+					anno.hideSelectionWidget( this.image.src + '-' + this.model.id );
 					anno.setProperties( { hi_stroke: "#3acad9" } );
 
 				// reload
@@ -2126,7 +2133,7 @@ function YouTubeGetID(url){
 					}
 
 					annotation.data = {
-						src: this.image.src,
+						src: this.image.src + '-' + this.model.id,
 						text: "<b>" + annotation.body.getDisplayTitle() + "</b> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
 						editable: editable,
 						shapes: [{
