@@ -65,9 +65,16 @@ you might notice an error from Session.php involving num_rows().  In this case, 
 
 You can register your new account using the 'register' link.
 
-To make your user (after it is registered) a "super admin" requires direct access to MySQL (e.g., phpMyAdmin). In the database table "scalar_db_users" edit your user row then set the "is_super" bit to 1. After refreshing Scalar, you will have access to all Scalar books and additional admin tabs in the "Dashboard" area. Note that even super admins can't save changes to others' books unless they are explicitly provided "author" privilege in the "Users" tab of the book's "Dashboard" area.
+To make your user (after it is registered) a "super admin" requires direct access to MySQL (e.g., phpMyAdmin).  
+In the database table "scalar_db_users" edit your user row then set the "is_super" bit to 1. After refreshing  
+Scalar, you will have access to all Scalar books and additional admin tabs in the "Dashboard" area. Note that  
+even super admins can't save changes to others' books unless they are explicitly provided "author" privilege  
+in the "Users" tab of the book's "Dashboard" area.  
 
-In the event your users wish to transfer Scalar books from other installs into your Scalar install, we have a Scalar Transfer Tool available in a different repository: https://github.com/Michael628/scalar-book-transfer-tool .  Simply download the package then place the ZIP's contents into the system/application/plugins/transfer folder.  It will then be available to users at Dashboard > Import/Export.
+In the event your users wish to transfer Scalar books from other installs into your Scalar install, we have a  
+Scalar Transfer Tool available in a different repository: https://github.com/Michael628/scalar-book-transfer-tool   
+Simply download the package then place the ZIP's contents into the system/application/plugins/transfer folder.   
+It will then be available to users at Dashboard > Import/Export.  
 
 Enjoy!
 
