@@ -1345,6 +1345,7 @@ function YouTubeGetID(url){
 			var additive = 0;
 			if (this.model.options.header == 'nav_bar') {
 				additive = Math.max(0, this.gutterSize + Math.round(this.containerDim.x - (this.resizedDim.x+this.mediaMargins.horz+this.mediaMargins.horz))) - 3;
+				additive = additive - 20;  // Magic number; keep media from bumping down below frame in Honeydew > Details
 			} else {
 				this.mediaMargins.horz--;
 			}
@@ -1355,8 +1356,8 @@ function YouTubeGetID(url){
 				if ( this.model.mediaSource.name == "KML" ) { // exception for Google Maps, since padding just makes the map larger
 					this.mediaContainer.find('.mediaObject').css('margin-left', Math.floor(this.mediaMargins.horz));
 				} else {
-					this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz - 10));
-					this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive - 10));
+					this.mediaContainer.find('.mediaObject').css('padding-left', Math.floor(this.mediaMargins.horz));
+					this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive));
 				}
 			}
 			if ( !this.model.isChromeless || ( model.options.vcenter === true )) {
