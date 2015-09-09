@@ -365,6 +365,7 @@ span.path_nav_next_btn {color:#888888; background-image:url(images/next_btn_fade
 	position:absolute; left:0px; right:0px; top:0px; line-height: 18px; 
 	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif !important; font-size:13px;
 	color: #000; opacity:0; 
+	z-index: 8;
 }
 .live_annotation .annotation_content {
 	padding: 25px 30px 45px 30px;

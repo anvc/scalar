@@ -107,13 +107,12 @@
 
 .mediaElementAlignRight {
 	font-size:10px;
-	float:right;
 	text-align:right;
-	width:19%;
 	white-space:nowrap;
 }
 .mediaElementAlignRightDetails {
-	width:45%;	
+	/*width:45%;	
+	float:right;*/
 }
 .mediaElementAlignRight #viewPageLink {
 	display:none;	
