@@ -1179,12 +1179,6 @@ function YouTubeGetID(url){
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 350 );
 			}
 
-	   		if (!this.annotationsVisible) {
-	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x);
-	   		} else {
-	   			if (this.annotationDisplay) this.annotationDisplay.width(this.containerDim.x + this.annotationSidebar.width());
-	   		}
-
 			if (this.model.mediaSource.name == 'HyperCities') this.containerDim.x -= 4;
 
 			//console.log( 'container: ' + this.model.containerLayout+' '+this.initialContainerWidth+' '+this.containerDim.x+' '+this.containerDim.y+' '+this.footer.height()+' '+this.annotationSidebar.width());
@@ -1345,7 +1339,6 @@ function YouTubeGetID(url){
 			var additive = 0;
 			if (this.model.options.header == 'nav_bar') {
 				additive = Math.max(0, this.gutterSize + Math.round(this.containerDim.x - (this.resizedDim.x+this.mediaMargins.horz+this.mediaMargins.horz))) - 3;
-				additive = additive - 20;  // Magic number; keep media from bumping down below frame in Honeydew > Details
 			} else {
 				this.mediaMargins.horz--;
 			}
@@ -1368,6 +1361,12 @@ function YouTubeGetID(url){
 					this.mediaContainer.find('.mediaObject').css('padding-bottom', Math.floor(this.mediaMargins.vert));
 				}
 			}
+
+	   		if (!this.annotationsVisible) {
+	   			if (this.annotationDisplay) this.annotationDisplay.width( this.resizedDim.x + ( this.mediaMargins.horz * 2 ));
+	   		} else {
+	   			if (this.annotationDisplay) this.annotationDisplay.width(this.resizedDim.x + ( this.mediaMargins.horz * 2 ) + additive + 1 + this.annotationSidebar.width());
+	   		}
 
 		}
 
@@ -1511,6 +1510,8 @@ function YouTubeGetID(url){
 					startPosition = annotation.properties.start;
 					endPosition = annotation.properties.end;
 
+					//console.log( currentPosition + ' ' + startPosition + ' ' + endPosition );
+
 					// if the annotation sidebar is showing,
 					if (me.annotationSidebar.css('display') == 'block') {
 						chip = me.annotationSidebar.find('div.annotationChip').eq(i);
@@ -1551,8 +1552,6 @@ function YouTubeGetID(url){
 					// if the annotation sidebar is hidden,
 					} else {
 
-						//console.log( currentPosition + ' ' + startPosition + ' ' + endPosition );
-
 						// if this annotation is active, set up highlighting
 						if ((currentPosition >= (startPosition - .1)) && (currentPosition <= endPosition)) {
 							liveCount++;
@@ -1576,6 +1575,8 @@ function YouTubeGetID(url){
 						}
 					}
 				}
+
+				//console.log( "liveCount: " + liveCount );
 
 				if (me.annotationDisplay) {
 
@@ -1737,12 +1738,12 @@ function YouTubeGetID(url){
 				// we are in range; stop seeking and hide the 'attempting' message if visible
 				} else {
 					if ( !me.model.isChromeless ) {
-						if (me.annotationDisplay.text().indexOf('Seeking') != -1) {
+						if ((me.annotationDisplay.text().indexOf('Seeking') != -1) && !me.cachedPlayCommand && !me.mediaObjectView.isPlaying() ) {
 							me.annotationDisplay.fadeOut();
 						}
 					}
 					me.annotationTimerRunning = false;
-					//console.log('seek successful');
+					//console.log( "seek successful" );
 					// if we know the user intends for the clip to start playing, do so
 					if ( me.cachedPlayCommand || me.model.options.autoplay ) {
 						me.play();
@@ -1862,7 +1863,10 @@ function YouTubeGetID(url){
 						annotationChip.data('me', this.controller.view);
 						annotationChip.click( function() {
 							var $me = $(this).data('me');
-							$me.cachedPlayCommand = true;
+							// don't cache the play command for YouTube videos since they play automatically on seeking anyway
+							if ( local_me.model.mediaSource.name != "YouTube" ) {
+								$me.cachedPlayCommand = true;
+							}
 							$me.seek($(this).data('annotation'));
               				setTimeout(function() {
 								$me.play();
