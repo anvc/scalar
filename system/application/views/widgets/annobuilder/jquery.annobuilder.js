@@ -936,14 +936,14 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				intrinsicDim = $.annobuilder.model.mediaElement.view.intrinsicDim,
 				image = $.annobuilder.model.mediaElement.view.mediaObjectView.image;
 
- 			// first time setup
- 			if ( anno.getAnnotations( image.src ).length == 0 ) {
+ 			// first time setup (the '-0' is because the mediaelement's id is always 0 in the annotation editor)
+ 			if ( anno.getAnnotations( image.src + '-0' ).length == 0 ) {
 				anno.makeAnnotatable( image );
 				anno.setProperties( { hi_stroke: "#3acad9" } );
 
 			// reload
  			} else {
- 				anno.removeAll( image.src );
+ 				anno.removeAll( image.src + '-0' );
  			}
 
 			if (dimensions.xType == 'percent') {
@@ -975,7 +975,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			}
 
 			annoData = {
-				src: image.src,
+				src: image.src + '-0',
 				text: name,
 				editable: true,
 				shapes: [{
