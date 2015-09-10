@@ -427,6 +427,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			break;
 			
 			case 'image':
+			// cantaloupe-only instructions
+			var instructions = '';
+			if ( $( 'article' ).length ) {
+				instructions = 'For quick adjustments, click a numeric field and use mouse wheel.';
+			}
 			this.annotationForm.find('tbody').append('<tr><td class="field">X</td><td class="value">' +
 				'<div class="form-group">' +
 					'<input id="x" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditDimensions()" onkeyup="$.annobuilder.view.builder.handleEditDimensions()"> ' +
@@ -458,7 +463,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						'<option value="percent">%</option>' +
 						'<option value="pixels">px</option>' +
 					'</select>' +
-				'</div><br><span style="font-size: small; line-height: 90%;">For quick adjustments, click a numeric field and use mouse wheel.</span></td></tr>');
+				'</div><br><span style="font-size: small; line-height: 90%;">' + instructions + '</span></td></tr>');
 			// if cantaloupe
 			if ( $( 'article' ).length ) {
 				$( "#x" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
