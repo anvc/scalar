@@ -107,12 +107,13 @@
 
 .mediaElementAlignRight {
 	font-size:10px;
+	float:right;
 	text-align:right;
+	width:19%;
 	white-space:nowrap;
 }
 .mediaElementAlignRightDetails {
-	/*width:45%;	
-	float:right;*/
+	width:45%;	
 }
 .mediaElementAlignRight #viewPageLink {
 	display:none;	
@@ -152,6 +153,7 @@
 /*.mediaContainerWithNavBar { background-color: #000; }*/
 
 /* Other sidebar areas (works with Navigation bar) */
+/* Added by Craig for use in maxmized view */
 
 .annotationSidebarWithNavBar { width:250px; }
 
@@ -181,7 +183,6 @@
 	position:absolute;
 	text-align:left;
 	color:#fff;
-	margin-top: -26px;
 }
 
 .annotationDisplay p {

@@ -270,11 +270,11 @@
   background-color:#fff000;
 }
 
-canvas {
+canvas.annotorious-item {
   z-index: 2;
 }
 
-canvas.hidden {
+canvas.annotorious-item.hidden {
   z-index: -1;
   visibility: hidden;
 }
