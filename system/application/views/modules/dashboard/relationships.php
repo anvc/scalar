@@ -43,10 +43,15 @@
    	   			$this.blur();
    			});
 
+   			$('body').on('rowSaved', function() {
+				pagination();
+   			});
+
 		});
 
 		function pagination(callee, num_nodes) {
-			var num_not_live = parseInt($('.table_wrapper:first').find('tr.not_live').length);
+			var $table = $('.table_wrapper:first');
+			var num_not_live = parseInt($table.find('tr.not_live').length);
 			var $tab = $('.tabs ul li a[href="#tabs-relationships"]:first');
 			$tab.find('sup').remove();
 			if (num_not_live) $tab.append('<sup>'+num_not_live+'</sup>');

@@ -225,6 +225,7 @@ function push_row(row,post) {
 		if ('undefined'!=typeof(version_id) && version_id) {
 			$('body').trigger("contentUpdated",{version_id:version_id});
 		}
+		$('body').trigger("rowSaved");
 	});		
 }
 

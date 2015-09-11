@@ -147,7 +147,8 @@
 			var nodes = options.scalarapi.model.getNodes();
 			options.scalarapi.model.numNodes = 0;
 			for (var j in nodes) {
-				if (nodes[j].baseType!=$.fn.scalardashboardtable('get_type_from_querytype',options.query_type)) continue;
+				var queryType = $.fn.scalardashboardtable('get_type_from_querytype',options.query_type);
+				if (queryType && nodes[j].baseType!=queryType) continue;
 				options.scalarapi.model.numNodes++;
 				console.log(nodes[j]);
 				var id = nodes[j].urn.slice(nodes[j].urn.lastIndexOf(':')+1);
@@ -206,7 +207,7 @@
 	
 			if ('media'==query_type) return 'http://scalar.usc.edu/2012/01/scalar-ns#Media';
 			if ('page'==query_type) return 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
-			return 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
+			return false;
 			
 		},
 		
