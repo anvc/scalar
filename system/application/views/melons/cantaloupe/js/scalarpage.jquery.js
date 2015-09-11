@@ -85,7 +85,7 @@
 				var mediaelement = link.data('mediaelement'),
 					mediaWidth = mediaelement.model.element.find( '.mediaObject' ).width(),
 					isInline = link.hasClass( "inline" ),
-					size = link.attr('data-size'),
+					size = mediaelement.model.options.size,
 					isFullWidth = false;
 
 				if (page.adaptiveMedia == 'mobile') {
@@ -113,6 +113,7 @@
 
 				// 'full' and 'native' sized media get special sizing treatment
 				if ( size == 'native' || size == 'full' ) {
+
 					// if the media is the full width of the page, then remove any align styles
 					if ( mediaWidth >= page.pageWidth ) {
 						mediaelement.model.element.parent().removeClass( 'left right' );
@@ -121,7 +122,7 @@
 					// if the media is smaller than than the width of the page, but larger than the width of the
 					// page minus its margins, then center it and add pillarboxing to separate it from the 
 					// rest of the page
-					} else if (size == 'full' || mediaWidth > page.bodyCopyWidth ) {
+					} else if ( size == 'full' || mediaWidth > page.bodyCopyWidth ) {
 						mediaelement.model.element.css( { 
 							'margin-right': 'auto',
 							'margin-left': 'auto',
@@ -148,13 +149,13 @@
 					}
 
 
-					if(isFullWidth) {
+					if (isFullWidth) {
 						link.data('fullWidth',isFullWidth);
 						// full width native elements should have no body_copy wrapping them
 						// and they should come after their link, not before
 						if ( size == 'native' ) {
 							// remove body_copy wrapper for inline elements
-							if(isInline) {
+							if (isInline) {
 								// Don't unwrap the inline element if it's parent is the main content wrapper
 								if(link.data('slot').parent('[property="sioc:content"]').length == 0) {
 									link.data('slot').unwrap();
