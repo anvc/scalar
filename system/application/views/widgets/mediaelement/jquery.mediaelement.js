@@ -4646,7 +4646,7 @@ function YouTubeGetID(url){
 			return;
 		}
 
-		// These functions are basically irrelevant for HTML pages
+		// These functions are basically irrelevant for this type of media
 		jQuery.DeepZoomImageObjectView.prototype.play = function() { }
 		jQuery.DeepZoomImageObjectView.prototype.pause = function() { }
 		jQuery.DeepZoomImageObjectView.prototype.seek = function(time) { }
