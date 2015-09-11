@@ -195,7 +195,11 @@ Book has been added
 				$desc_excerpt = create_excerpt($books[$i]->description);
 				if (strlen($books[$i]->description) == strlen($desc_excerpt)) $desc_excerpt = null;
 				echo '<tr class="bottom_border" typeof="books">';
-				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books#tabs-all-books" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;" class="generic_button">Remove</a></td>'."\n";
+				echo '<td style="white-space:nowrap;">';
+				echo '<a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> ';
+				echo '<a href="javascript:;" onclick="window.location.href=\''.confirm_slash(base_url()).'system/dashboard?book_id='.$books[$i]->book_id.'&zone=style#tabs-style\';" class="generic_button">Dashboard</a> ';
+				echo '<a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books#tabs-all-books" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;" class="generic_button">Remove</a>';
+				echo '</td>'."\n";
 				echo '<td property="id" style="display:none;">'.$books[$i]->book_id."</td>\n";
 				echo '<td property="book_id" style="display:none;">'.$books[$i]->book_id."</td>\n";
 				echo '<td class="editable" property="title" style="width:100px;">'.$books[$i]->title."</td>\n";

@@ -211,7 +211,7 @@ $(window).ready(function() {
 					$.ajax({
 						type:'post',
 						url:'api/save_onomy',
-						data:{book_id:'<?=$book->book_id?>',version:$(this).attr("version")}
+						data:{book_id:'<?=@$book->book_id?>',version:$(this).attr("version")}
 					}).done(function(onomy) {
 						make_taxonomy_pages(onomy);
 					});
@@ -238,10 +238,10 @@ function make_taxonomy_pages(onomy) {
 				value['scalar:urn'] = '';
 				value.id = '<?=$login->email?>';
 				value.api_key = '';
-				value['scalar:child_urn'] = 'scalar:book:urn:<?=$book->book_id?>';
+				value['scalar:child_urn'] = 'scalar:book:urn:<?=@$book->book_id?>';
 				value['scalar:child_type'] = 'http://scalar.usc.edu/2012/01/scalar-ns#Book';
 				value['scalar:child_rel'] = 'page';
-				value['urn:scalar:book'] = 'scalar:book:urn:<?=$book->book_id?>';
+				value['urn:scalar:book'] = 'scalar:book:urn:<?=@$book->book_id?>';
 				value['rdf:type'] = 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
 				// Extrapolated page fields
 				value['scalar:slug'] = 'term/'+term_label;
