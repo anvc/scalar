@@ -502,7 +502,7 @@
 	    						var content = {};
 	    						var version = {};
 	    						var uri = remove_version(relations[k].target);
-	    						for (var m = 0; m < opts.data.length; m++) {
+	    						for (var m = 0; m < opts.data.length; m++) {  // Make sure target is a valid node (to protect against category annotation nodes)
 	    							if (uri == opts.data[m].uri) {
 	    								content = opts.data[m].content;
 	    								version = opts.data[m].version;

@@ -65,9 +65,10 @@ $(document).ready(function() {
     	});
     });
     
-    // Scroll to top after a short delay (for Safari)
-	
-	setTimeout("$(window).scrollTop(0)", 10); 
+    // Scroll to top to counteract anchor
+    setTimeout(function() {
+    	$(window).scrollTop(0);
+    }, 100);
 	
 });
 

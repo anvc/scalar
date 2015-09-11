@@ -217,7 +217,7 @@
 			}
 		}
 
-		function get_versions(content_id, the_link) {
+		function get_versions(content_id, version_id, the_link) {
 			var $the_link = $(the_link);
 			if ($the_link.html()=='Loading...') return;
 			// Get versions
@@ -289,7 +289,6 @@
 				$the_link.data('is_open',false);
 				$the_link.blur();
 			}
-
 		}
 
 		</script>
@@ -297,7 +296,7 @@
 		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;" class="generic_button">Create new page</a>
 
 		<form style="float:left;" id="formSearch">
-		<input type="text" name="sq" style="width:300px;" value="Search for a page" onmousedown="if (this.value=='Search for a page') this.value='';" />
+		<input type="text" name="sq" style="width:300px;float:left;margin-right:3px;" class="generic_text_input" value="Search for a page" onmousedown="if (this.value=='Search for a page') this.value='';" />
 		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;">clear</a>&nbsp;
 		<? if (count($current_book_content)): ?>
 		&nbsp; <span class="prev"></span>&nbsp; <span class="pagination"></span> <b class="total"><?=count($current_book_content)?></b> page<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>

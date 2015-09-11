@@ -30,11 +30,13 @@
     		scalarapi: null,
     		query_type: null,
     		sq: null,
-    		start: 0,
-    		results: 0,
+    		start: null,
+    		results: null,
     		wrapper: null,
-    		hide_columns: {},
+    		hide_columns: [], 
+    		expand_column: {name:'Versions',func:null},
     		cut_long_text_to: 50,	
+    		cut_long_content_to: 150,
     		resize_wrapper_func: null,
     		tablesorter_func: null,
     		pagination_func: null,
@@ -81,6 +83,7 @@
 
 			return this.each(function() {
 				options.wrapper = this;
+				$(options.wrapper).html('<div id="loading">Loading</div>');
 				var success = function() {
 					$.fn.scalardashboardtable('init', options);
 				};
@@ -117,7 +120,7 @@
 		},
 		
 		setup : function(options) {
-		
+
 			var $table = $('<table cellspacing="0" cellpadding="0" class="tablesorter"><thead></thead><tbody></tbody></table>');
 			$table.find('thead').append('<tr class="head"></tr>');
 			$head = $table.find('.head');
@@ -128,11 +131,12 @@
 			$head.append('<th>URI</th>');
 			$head.append('<th>Title</th>');
 			if (-1==options.hide_columns.indexOf('description')) $head.append('<th>Description</th>');
+			if (-1==options.hide_columns.indexOf('content')) $head.append('<th>Content</th>');
 			if (-1==options.hide_columns.indexOf('url')) $head.append('<th>Filename</th>');
 			$head.append('<th>Created</th>');
-			$head.append('<th>User</th>');
+			if (-1==options.hide_columns.indexOf('user')) $head.append('<th>User</th>');
 			if (options.paywall) $head.append('<th>Paywall?</th>');
-			$head.append('<th>Versions</th>');
+			$head.append('<th style="white-space:nowrap;">'+options.expand_column.name+'</th>');
 			$(options.wrapper).html($table);
 			
 		},
@@ -147,6 +151,7 @@
 				options.scalarapi.model.numNodes++;
 				console.log(nodes[j]);
 				var id = nodes[j].urn.slice(nodes[j].urn.lastIndexOf(':')+1);
+				var version_id = nodes[j].current.urn.slice(nodes[j].urn.lastIndexOf(':')+1);
 				var d = nodes[j].created.slice(0, nodes[j].created.indexOf('T'));
 				var author = nodes[j].author;
 				var creator = (author && author.length) ? author.slice(author.lastIndexOf('/')+1) : 0;
@@ -169,25 +174,29 @@
 				$tr.append('<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'+options.book_uri+nodes[j].slug+'">'+nodes[j].slug+'</a></td>');
 				$tr.append('<td property="title">'+nodes[j].getDisplayTitle(true)+'</td>');
 				if (-1==options.hide_columns.indexOf('description')) $tr.append('<td property="description">'+$.fn.scalardashboardtable('cut_string',nodes[j].current.description,Math.max(options.cut_long_text_to,nodes[j].getDisplayTitle(true).length*0.9))+'</td>');
+				if (-1==options.hide_columns.indexOf('content')) $tr.append('<td property="content">'+$.fn.scalardashboardtable('cut_string',nodes[j].current.content,options.cut_long_content_to)+'</td>');
 				var url_str = '<td property="url" style="max-width:200px;overflow:hidden;">';
 				url_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'">'+$.fn.scalardashboardtable('basename', nodes[j].current.sourceFile)+'</a>';
 				url_str += "</td>\n";
 				if (-1==options.hide_columns.indexOf('url')) $tr.append(url_str);
 				$tr.append('<td property="created" style="white-space:nowrap;">'+d+'</td>');
-				$tr.append('<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'+creator+'</td>');
+				if (-1==options.hide_columns.indexOf('user')) $tr.append('<td class="editable number" property="user" style="white-space:nowrap;width:55px;text-align:center;">'+creator+'</td>');
 				if (options.paywall) $tr.append('<td class="editable boolean" property="paywall" style="text-align:center;width:65px;">'+((paywall)?'1':'0')+'</td>');
-				$tr.append('<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="get_versions('+id+',this);" class="view_versions generic_button">View</a></td>');
+				var func_name = (null==options.expand_column.func) ? 'get_versions' : options.expand_column.func;
+				$tr.append('<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="'+func_name+'('+id+','+version_id+',this);" class="view_versions generic_button">View</a></td>');
 				$tr.append('</tr>');			
 			}
 			
 		},
 		
 		set_hide_columns : function(options) {
-			
+
 			if ('page'==options.query_type) {
-				options.hide_columns = ['thumbnail','url'];
+				options.hide_columns = ['thumbnail','url','content'];
 			} else if ('media' == options.query_type) {
-				options.hide_columns = ['description'];
+				options.hide_columns = ['description','content'];
+			} else {
+				options.hide_columns = ['thumbnail','description','url','user'];
 			}
 			return options;
 			
@@ -197,13 +206,13 @@
 	
 			if ('media'==query_type) return 'http://scalar.usc.edu/2012/01/scalar-ns#Media';
 			if ('page'==query_type) return 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
-			return false;
+			return 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
 			
 		},
 		
 		cut_string : function(s, n) {
-
-			if (!s || !s.length) return '';
+			
+			if (!s || null == s || !s.length) return '';
 			var cut = s.indexOf(' ', n);
 		    if(cut==-1) return s;
 		    return s.substring(0, cut)+'...';

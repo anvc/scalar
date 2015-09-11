@@ -23,11 +23,7 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 		<li><a href="#tabs-sharing">Sharing</a></li>
 		<li><a href="#tabs-pages" style="color:#89169e;">Pages<?=((!empty($pages_not_live))?'<sup>'.$pages_not_live.'</sup>':'')?></a></li>
 		<li><a href="#tabs-media" style="color:#89169e;">Media<?=((!empty($media_not_live))?'<sup>'.$media_not_live.'</sup>':'')?></a></li>
-		<li><a href="#tabs-paths" style="color:#241d7d;">Paths<?=((!empty($paths_not_live))?'<sup>'.$paths_not_live.'</sup>':'')?></a></li>
-		<li><a href="#tabs-tags" style="color:#241d7d;">Tags<?=((!empty($tags_not_live))?'<sup>'.$tags_not_live.'</sup>':'')?></a></li>
-		<li><a href="#tabs-annotations" style="color:#241d7d;">Annotations<?=((!empty($annotations_not_live))?'<sup>'.$annotations_not_live.'</sup>':'')?></a></li>
-		<li><a href="#tabs-replies" style="color:#241d7d;">Comments<?=((!empty($replies_not_live))?'<sup>'.$replies_not_live.'</sup>':'')?></a></li>
-		<!--<li><a href="#tabs-api">API</a></li>-->
+		<li><a href="#tabs-relationships" style="color:#241d7d;">Relationships<?=((!empty($replies_not_live))?'<sup>'.$replies_not_live.'</sup>':'')?></a></li>
 <?php
 		if (!empty($plugins)):
 			foreach ($plugins as $key => $obj):
@@ -56,13 +52,8 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 
 	<div id="tabs-media"><? if ('media'==$zone) { $this->load->view('modules/dashboard/media'); } else {echo 'Loading...';} ?></div>
 
-	<div id="tabs-paths"><? if ('paths'==$zone) { $this->load->view('modules/dashboard/paths'); } else {echo 'Loading...';} ?></div>
+	<div id="tabs-relationships"><? if ('relationships'==$zone) { $this->load->view('modules/dashboard/relationships'); } else {echo 'Loading...';} ?></div>
 
-	<div id="tabs-tags"><? if ('tags'==$zone) { $this->load->view('modules/dashboard/tags'); } else {echo 'Loading...';} ?></div>
-
-	<div id="tabs-annotations"><? if ('annotations'==$zone) { $this->load->view('modules/dashboard/annotations'); } else {echo 'Loading...';} ?></div>
-
-	<div id="tabs-replies"><? if ('replies'==$zone) { $this->load->view('modules/dashboard/replies'); } else {echo 'Loading...';} ?></div>
 <?php
 	if (!empty($plugins)):
 		foreach ($plugins as $key => $obj):
@@ -72,10 +63,6 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 		endforeach;
 	endif;
 	?>
-
-	<!--
-	<div id="tabs-api"><? if ('api'==$zone) { $this->load->view('modules/dashboard/api'); } else {echo 'Loading...';} ?></div>
-	-->
 
 	<? if ($login_is_super): ?>
 	<div id="tabs-all-users"><? if ('all-users'==$zone) { $this->load->view('modules/dashboard/all-users'); } else {echo 'Loading...';} ?></div>

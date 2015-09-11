@@ -500,15 +500,9 @@ class System extends MY_Controller {
 		$this->data['current_book_versions'] = array();
 		$this->data['current_book_content'] = ($book_id) ? $this->pages->get_all($book_id,'composite',null,false) : array();
 		$this->data['current_book_files'] = ($book_id) ? $this->pages->get_all($book_id,'media',null,false) : array();
-		$this->data['current_book_paths'] = ($book_id) ? $this->paths->get_all($book_id, null, null, false) : array();
-		$this->data['current_book_tags'] = ($book_id) ? $this->tags->get_all($book_id, null, null, false) : array();
-		$this->data['current_book_annotations'] = ($book_id) ? $this->annotations->get_all($book_id, null, null, false) : array();
-		$this->data['current_book_replies'] = ($book_id) ? $this->replies->get_all($book_id, null, null, false) : array();
+		$this->data['current_book_replies'] = ($book_id) ? $this->replies->get_all($book_id, null, null, false) : array();  // Get hidden comments to make this clear in the UI
 		$this->data['pages_not_live'] = $this->count_not_live($this->data['current_book_content']);
 		$this->data['media_not_live'] = $this->count_not_live($this->data['current_book_files']);
-		$this->data['paths_not_live'] = $this->count_not_live($this->data['current_book_paths']);
-		$this->data['tags_not_live'] = $this->count_not_live($this->data['current_book_tags']);
-		$this->data['annotations_not_live'] = $this->count_not_live($this->data['current_book_annotations']);
 		$this->data['replies_not_live'] = $this->count_not_live($this->data['current_book_replies']);
 
 		// Get specific data for each zone (no case for pages or media, since these are handled via the API)
@@ -538,32 +532,7 @@ class System extends MY_Controller {
 			    // Do Nothing.  Nothing needs to be done.
 		    break;
 		    // Page-types follow, purposely at the bottom of the switch so that they fall into 'default'
-		    case 'paths':
-				if (!isset($data_key)) $data_key = 'current_book_paths';
-		    case 'tags':
-				if (!isset($data_key)) $data_key = 'current_book_tags';
-		    case 'annotations':
-				if (!isset($data_key)) $data_key = 'current_book_annotations';
-		    case 'replies':
-				if (!isset($data_key)) $data_key = 'current_book_replies';
 		    default:
-		    	if (isset($data_key)) {
-					foreach ($this->data[$data_key] as $key => $row) {
-			        	// if (empty($row->recent_version_id)) {  // To catch for legacy DBs where this value hasn't been set yet
-							$versions = $this->versions->get_all($row->content_id, null, 1);
-						/*
-							$this->versions->set_recent_version_id($row->content_id, $versions[0]->version_id);
-			        	} else {
-			        		$versions = array();
-			        		$version = $this->versions->get($row->recent_version_id);
-			        		if (!empty($version)) $versions[0] = $version;
-			        		unset($version);
-			        	}
-			        	*/
-						if (empty($versions)) continue;
-						$this->data[$data_key][$key]->versions = $versions;
-			        }
-		    	}
 		    	if (!empty($this->data['book'])) {
 		    		$this->data['book']->has_paywall = $this->books->has_paywall($this->data['book']);
 		    	}
@@ -661,7 +630,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->versions = $versions;
 		        }
 				break;
-			case 'get_container_of':
+			case 'get_path_of':
 				$this->load->model('path_model', 'paths');
 				$this->load->model('page_model', 'pages');
 				$this->load->model('version_model', 'versions');
@@ -714,6 +683,8 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->start_seconds = $row->start_seconds;
 					$this->data['content'][$key]->end_seconds = $row->end_seconds;
 					$this->data['content'][$key]->points = $row->points;
+					$this->data['content'][$key]->start_line_num = $row->start_line_num;
+					$this->data['content'][$key]->end_line_num = $row->end_line_num;
 					$versions = $this->versions->get_all($row->child_content_id, null, 1);
 					if (empty($versions)) continue;
 					$this->data['content'][$key]->versions = $versions;

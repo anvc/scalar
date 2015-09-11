@@ -185,7 +185,7 @@
 			}
 		}
 
-		function get_versions(content_id, the_link) {
+		function get_versions(content_id, version_id, the_link) {
 			var $the_link = $(the_link);
 			// Get versions
 			if (!$the_link.data('is_open')) {
@@ -256,13 +256,12 @@
 				$the_link.html('View');
 				$the_link.blur();
 			}
-
 		}
 
 		</script>
 
 		<form style="float:left;" id="formSearch">
-		<input type="text" name="sq" style="width:300px;" value="Search for a media file" onmousedown="if (this.value=='Search for a media file') this.value='';" />
+		<input type="text" name="sq" style="width:300px;float:left;margin-right:3px;" class="generic_text_input" value="Search for a media file" onmousedown="if (this.value=='Search for a media file') this.value='';" />
 		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;">clear</a>&nbsp;
 		<? if (count($current_book_files)): ?>
 		&nbsp; <span class="prev"></span>&nbsp; <span class="pagination"></span> <b class="total"><?=count($current_book_files)?></b> media &nbsp;<span class="next"></span>
