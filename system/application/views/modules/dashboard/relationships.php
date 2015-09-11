@@ -27,14 +27,14 @@
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
 
-			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:null,paywall:false});
+			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false});
 
    			$(window).resize(function() { resizeList(); });
    			resizeList();
 
    			$('#formRelType').submit(function() {
    				rel_type = $(this).find('[name="relType"] option:selected').val();
-   				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:null,paywall:false});
+   				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false});
    				return false;
    			});
    			$('#formRelType').find('[name="relType"]').change(function() {
@@ -44,6 +44,13 @@
    			});
 
 		});
+
+		function pagination(callee, num_nodes) {
+			var num_not_live = parseInt($('.table_wrapper:first').find('tr.not_live').length);
+			var $tab = $('.tabs ul li a[href="#tabs-relationships"]:first');
+			$tab.find('sup').remove();
+			if (num_not_live) $tab.append('<sup>'+num_not_live+'</sup>');
+		}
 
 		String.prototype.capitalizeFirstLetter = function() {
 		    return this.charAt(0).toUpperCase() + this.slice(1);
@@ -187,7 +194,7 @@
 			  }
 			  str += ' deleted. ';
 			  str += 'Do you wish to reload page content?';
-			  if (confirm(str)) $('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:null,paywall:false});
+			  if (confirm(str)) $('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false});
 			});
 
 		}
@@ -201,7 +208,6 @@
 			<option value="annotation"<?=('annotation'==$default_rel_type)?' selected':''?>>Annotations</option>
 			<option value="reply"<?=('reply'==$default_rel_type)?' selected':''?>>Comments</option>
 		</select>
-		<input type="submit" value="Go" class="generic_button" />
 		</form>
 
 		<br clear="both" /><br />
