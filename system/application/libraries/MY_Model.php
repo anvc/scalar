@@ -92,10 +92,11 @@ abstract class MY_Model extends Model {
 			$content[$row->parent_content_id][] = $row;
 		}
 
-		// Remove where parent content isn't top verison
+		// Remove where parent or child isn't the top version (TODO: remove is child isn't top version)
 		$remove = array();
 		foreach ($content as $content_id => $row) {
-			if (empty($version_datetime) && !$this->is_top_version($row[0]->parent_content_id, $row[0]->parent_version_num)) {
+			if (!empty($version_datetime)) continue;
+			if (!$this->is_top_version($row[0]->parent_content_id, $row[0]->parent_version_num)) {
 				$remove[] = $content_id;
 			}
 		}

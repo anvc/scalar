@@ -82,7 +82,7 @@
 				$.get('api/get_'+rel_type+'_of', data, function(data) {
 					$('#'+rel_type+'_of_row_'+version_id).remove();
 					if (data.length == 0) {
-						$the_row.after('<tr class="container_of_wrapper" id="'+rel_type+'_of_row_'+version_id+'"><td>&nbsp;</td><td class="odd" colspan="8">No items</td></tr>');
+						$the_row.after('<tr class="container_of_wrapper" id="'+rel_type+'_of_row_'+version_id+'"><td style="padding:0px 0px 0px 0px;" colspan="8"><div class="no_items">'+rel_type.capitalizeFirstLetter()+' of <b>0</b> items (all '+rel_type+' relationships were removed from this page)</div></td></tr>');
 					} else {
 						var $row = $('<tr class="container_of_wrapper" id="'+rel_type+'_of_row_'+version_id+'"><td colspan="8" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
 						var $header = $('<tr><th></th><th style=\"display:none;\">ID</th><th>URI</th><th>Title</th></tr>');

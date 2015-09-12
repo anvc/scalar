@@ -60,6 +60,7 @@ td.styling_last {text-align:right; padding-right:0px;}
 .version_wrapper .header td {background:#cccccc !important;}
 .version_wrapper .hl td {background-color:#F4FF91 !important; border-bottom:solid 1px #dddddd;}
 .container_of_wrapper table, .container_of_wrapper table tbody td {background:#eeeeee !important;}
+.container_of_wrapper .no_items {background:#eeeeee !important; margin:0px 0px 0px 0px; padding:10px;}
 
 .full {display:none;}
 

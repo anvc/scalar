@@ -437,7 +437,6 @@ class RDF_Object {
 		unset($versions);
 
 		// Write page RDF before version RDF so they show up in the correct human-readable order
-
 		$return[$settings['base_uri'].$row->slug] = $CI->pages->rdf($row, $settings['base_uri']);
 		foreach ($this->version_cache[$row->content_id] as $version) {
 			$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);

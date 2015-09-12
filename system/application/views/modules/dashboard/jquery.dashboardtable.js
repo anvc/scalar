@@ -214,6 +214,7 @@
 		cut_string : function(s, n) {
 			
 			if (!s || null == s || !s.length) return '';
+			s = $.fn.scalardashboardtable('strip_tags', s);
 			var cut = s.indexOf(' ', n);
 		    if(cut==-1) return s;
 		    return s.substring(0, cut)+'...';
@@ -235,6 +236,21 @@
 			  }
 			  return b;			
 			
+		},
+		
+		// http://phpjs.org/functions/strip_tags/
+		// Edited to replace with space (' ') rather than empty string ('') to avoid long string resulting
+		strip_tags : function(input, allowed) {
+			  allowed = (((allowed || '') + '')
+			    .toLowerCase()
+			    .match(/<[a-z][a-z0-9]*>/g) || [])
+			    .join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+			  var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
+			    commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+			  return input.replace(commentsAndPhpTags, ' ')
+			    .replace(tags, function($0, $1) {
+			      return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : ' ';
+			    });
 		}
 		
 	};
