@@ -40,7 +40,8 @@
     		resize_wrapper_func: null,
     		tablesorter_func: null,
     		pagination_func: null,
-    		paywall: false
+    		paywall: false,
+    		no_content_msg: 'There is no content of this type'
       };
     
 	var scalardashboardtable_methods = {
@@ -145,6 +146,10 @@
 	
 			var $tbody = $(options.wrapper).find('tbody:first');
 			var nodes = options.scalarapi.model.getNodes();
+			if (!nodes.length) {
+				$('<tr><td colspan="14" width="100%" height="100%" valign="middle" align="center" style="padding-top:40px;line-height:200%;">'+options.no_content_msg+'</td></tr>').appendTo($tbody);
+				return;
+			}
 			options.scalarapi.model.numNodes = 0;
 			for (var j in nodes) {
 				var queryType = $.fn.scalardashboardtable('get_type_from_querytype',options.query_type);
@@ -196,8 +201,12 @@
 				options.hide_columns = ['thumbnail','url','content'];
 			} else if ('media' == options.query_type) {
 				options.hide_columns = ['description','content'];
-			} else {
+			} else if ('reply' == options.query_type) {
 				options.hide_columns = ['thumbnail','description','url','user'];
+			} else if ('annotation' == options.query_type || 'tag' == options.query_type || 'path' == options.query_type) {
+				options.hide_columns = ['thumbnail','content','url','user'];
+			} else if ('term' == options.query_type || 'commentary' == options.query_type || 'review' == options.query_type) {
+				options.hide_columns = ['thumbnail','content','url'];
 			}
 			return options;
 			

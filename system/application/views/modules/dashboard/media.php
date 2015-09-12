@@ -78,9 +78,8 @@
 			$(".tablesorter").tablesorter({
         		headers: {
         			0: {sorter: false },
-        			1: {sorter: false },
-            		3: {sorter: false },
-            		10: {sorter: false }
+        			3: {sorter: false },
+        			9: {sorter: false }
         		}
    			});
 		}
@@ -274,8 +273,8 @@
 ?>
 		<div style="float:right;">
 			Import pages:&nbsp;
-			<select id="selectImportPages">
-				<option value=""></option>
+			<select id="selectImportPages" class="generic_text_input">
+				<option value="">&nbsp;</option>
 				<optgroup label="Affiliated archives">
 					<option value="<?=$url_base?>import/critical_commons">Critical Commons</option>
 					<option value="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</option>

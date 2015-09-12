@@ -293,7 +293,7 @@
 
 		</script>
 
-		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;" class="generic_button">Create new page</a>
+		<a href="<?=confirm_slash(base_url()).confirm_slash($book->slug)?>new.edit" style="float:right;font-size:11px !important;" class="generic_button">Create new page</a>
 
 		<form style="float:left;" id="formSearch">
 		<input type="text" name="sq" style="width:300px;float:left;margin-right:3px;" class="generic_text_input" value="Search for a page" onmousedown="if (this.value=='Search for a page') this.value='';" />

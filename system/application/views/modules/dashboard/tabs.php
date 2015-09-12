@@ -1,7 +1,6 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_css(path_from_file(__FILE__).'tabs.css')?>
 <?$this->template->add_js(path_from_file(__FILE__).'tabs.js')?>
-<?$this->template->add_css(path_from_file(__FILE__).'common.css')?>
 
 <div class="select_box" id="value_selector">
 <h4 class="dialog_title">Edit users</h4>
@@ -24,6 +23,7 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 		<li><a href="#tabs-pages" style="color:#89169e;">Pages<?=((!empty($pages_not_live))?'<sup>'.$pages_not_live.'</sup>':'')?></a></li>
 		<li><a href="#tabs-media" style="color:#89169e;">Media<?=((!empty($media_not_live))?'<sup>'.$media_not_live.'</sup>':'')?></a></li>
 		<li><a href="#tabs-relationships" style="color:#241d7d;">Relationships<?=((!empty($replies_not_live))?'<sup>'.$replies_not_live.'</sup>':'')?></a></li>
+		<li><a href="#tabs-categories" style="color:#241d7d;">Categories</a></li>
 <?php
 		if (!empty($plugins)):
 			foreach ($plugins as $key => $obj):
@@ -53,6 +53,8 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 	<div id="tabs-media"><? if ('media'==$zone) { $this->load->view('modules/dashboard/media'); } else {echo 'Loading...';} ?></div>
 
 	<div id="tabs-relationships"><? if ('relationships'==$zone) { $this->load->view('modules/dashboard/relationships'); } else {echo 'Loading...';} ?></div>
+
+	<div id="tabs-categories"><? if ('categories'==$zone) { $this->load->view('modules/dashboard/categories'); } else {echo 'Loading...';} ?></div>
 
 <?php
 	if (!empty($plugins)):

@@ -7,7 +7,7 @@
 	if (empty($book)):
 		echo 'Please select a book to manage using the pulldown menu above';
 	else:
-		$default_rel_type = 'reply';  // Make comments default for easy access to hidden comments
+		$default_rel_type = 'term';  // Make comments default for easy access to hidden comments
 ?>
 
 	<div id="slug-change-confirm" title="URI change">
@@ -27,14 +27,14 @@
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
 
-			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different relationship type using the pulldown above'});
+			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
 
    			$(window).resize(function() { resizeList(); });
    			resizeList();
 
    			$('#formRelType').submit(function() {
    				rel_type = $(this).find('[name="relType"] option:selected').val();
-   				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different relationship type using the pulldown above'});
+   				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
    				return false;
    			});
    			$('#formRelType').find('[name="relType"]').change(function() {
@@ -77,64 +77,74 @@
    			});
 		}
 
-		function getParentOf(content_id, version_id, the_link) {
+		function get_versions(content_id, version_id, the_link) {
 			var $the_link = $(the_link);
-			var $the_row = $the_link.parent().parent();
+			if ($the_link.html()=='Loading...') return;
+			// Get versions
 			if (!$the_link.data('is_open')) {
-				var data = {action:'get_'+rel_type+'_of',version_id:version_id}
-				$.get('api/get_'+rel_type+'_of', data, function(data) {
-					$('#'+rel_type+'_of_row_'+version_id).remove();
+				$the_link.data('orig_html', $the_link.html());
+				$the_link.blur();
+				var $the_row = $('#row_'+content_id)
+				$.get('api/get_versions', {content_id:content_id}, function(data) {
+					var $next = $the_link.parent().parent().next();
+					if ($next.hasClass('version_wrapper')) $next.remove();
 					if (data.length == 0) {
-						$the_row.after('<tr class="container_of_wrapper" id="'+rel_type+'_of_row_'+version_id+'"><td style="padding:0px 0px 0px 0px;" colspan="8"><div class="no_items">'+rel_type.capitalizeFirstLetter()+' of <b>0</b> items (all '+rel_type+' relationships were removed from this page)</div></td></tr>');
+						$the_row.after('<tr class="version_wrapper"><td>&nbsp;</td><td class="odd" colspan="8">No versions entered</td></tr>');
 					} else {
-						var $row = $('<tr class="container_of_wrapper" id="'+rel_type+'_of_row_'+version_id+'"><td colspan="8" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
-						var $header = $('<tr><th></th><th style=\"display:none;\">ID</th><th>URI</th><th>Title</th></tr>');
-						$row.find('table').html($header);
-						$the_row.after($row);
-						var has_added_th = false;
-						for (var j in data) {
-							var $data_row = $('<tr class="bottom_border '+rel_type+'_of_row"></tr>');
-							$data_row.html('<td style="white-space:nowrap;width:90px;">'+rel_type.capitalizeFirstLetter()+' of</td>');
-							$data_row.append('<td property="id" style="display:none;">'+data[j].content_id+"</td>");
-							$data_row.append('<td property="slug" style="max-width:250px;overflow:hidden;"><a href="'+book_uri+data[j].slug+'">'+data[j].slug+"</a></td>");
-							$data_row.append('<td property="title">'+data[j]['versions'][0]['title']+'</td>');
-							// Path
-							if ('undefined'!=typeof(data[j]['sort_number'])) {
-								$data_row.append('<td property="sort_number">'+data[j]['sort_number']+'</td>');
-								if (!has_added_th) {
-									has_added_th = true;
-									$header.append('<th>#</th>');
-								}
-							// Annotation
-							} else if ('undefined'!=typeof(data[j]['start_seconds'])) {
-								var str = '';
-								if (data[j]['start_seconds'].length && '0'!=data[j]['start_seconds']) str += 'start sec '+Math.round(data[j]['start_seconds'])+'; ';
-								if (data[j]['end_seconds'].length && '0'!=data[j]['end_seconds']) str += 'end sec '+Math.round(data[j]['end_seconds'])+'; ';
-								if (data[j]['points'].length && '0'!=data[j]['points']) str += 'points '+data[j]['points']+'; ';
-								if (data[j]['start_line_num'].length && '0'!=data[j]['start_line_num']) str += 'start line '+data[j]['start_line_num']+'; ';
-								if (data[j]['end_line_num'].length && '0'!=data[j]['end_line_num']) str += 'end line '+data[j]['end_line_num']+'; ';
-								$data_row.append('<td>at '+str+'</td>');
-								if (!has_added_th) {
-									has_added_th = true;
-									$header.append('<th>Parameters</th>');
-								}
-							// Other rel types
-							} else {
-								$data_row.append('<td property="description">'+$.fn.scalardashboardtable('cut_string',data[j]['versions'][0]['description'],50)+'</td>');
-								if (!has_added_th) {
-									has_added_th = true;
-									$header.append('<th>Description</th>');
+					   	var $row = $('<tr class="version_wrapper"><td colspan="11" style="padding:0px 0px 0px 0px;"><table style="width:100%;" cellspacing="0" cellpadding="0"></table></td></tr>');
+					   	var $header = ('<tr><th></th><th style=\"display:none;\">ID</th><th>Version</th><th>Title</th><th>Description</th><th>Content</th><th style=\"display:none;\">Created</th></tr>');
+					   	$row.find('table').html($header);
+					   	$the_row.after($row);
+					    for (var j = 0; j < data.length; j++) {
+					    	var $data_row = $('<tr class="bottom_border" content_id="'+content_id+'" id="version_row_'+data[j].version_id+'" typeof="versions"></tr>');
+					    	if(j == 0) {
+					    		$data_row.data('most_recent_version',data[j].version_id);
+					    	}
+					    	$data_row.html('<td style="white-space:nowrap;"><input type="checkbox" name="version_id_'+data[j].version_id+'" value="1" />&nbsp; <a href="javascript:;" onclick="edit_row($(this).parent().parent());" class="generic_button">Edit</a></td>');
+							$data_row.append('<td property="id" style="display:none;">'+data[j].version_id+"</td>");
+							$data_row.append('<td class="editable number" property="version_num">'+data[j].version_num+"</td>");
+							$data_row.append('<td class="editable" property="title">'+data[j].title+"</td>");
+							$data_row.append('<td class="editable textarea excerpt" property="description"><span class="full">'+data[j].description+'</span><span class="clip">'+create_excerpt(data[j].description,8)+'</span></td>');
+							$data_row.append('<td class="editable textarea excerpt" property="content"><span class="full">'+data[j].content+'</span><span class="clip">'+create_excerpt(data[j].content,8)+'</span></td>');
+							$row.find('table').find('tr:last').after($data_row);
+					    }
+						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Reset version numbers</a></td><td colspan="2"</td></tr>');
+						$data_row.after($reorder);
+						$reorder.find('a:first').click(function() {
+							if (!confirm('Are you sure you wish to reset version numbers? This might break links to specific versions in your book.')) return false;
+							$.get('api/reorder_versions', {content_id:content_id}, function(data) {
+								get_versions(content_id, the_link);  // close
+								get_versions(content_id, the_link);  // open
+							});
+						});
+						$the_link.html('Hide');
+						$the_link.blur();
+						$the_link.data('is_open',true);
+					}
+					$('body').on("contentUpdated",function(e,update_opts) {
+						var $content_row = $('#row_'+content_id);
+						var $version_row = $('#version_row_'+update_opts.version_id);
+						$content_row.find('td').each(function() {
+							var $content = $(this);
+							var prop = $content.attr('property');
+							if ('undefined'!=typeof(prop) && prop) {
+								var $version = $version_row.find('td.editable[property="'+prop+'"]').eq(0);
+								if ($version.length) {
+									var $span = $version.find('span:first');
+									if($span.length) {  // Excerpt field
+										$content.html($span.html());
+									} else {  // Typical field
+										$content.html($version.html());
+									}
 								}
 							}
-							$row.find('table').find('tr:last').after($data_row);
-						}
-					}
-					$the_link.html('Hide');
-					$the_link.blur();
-					$the_link.data('is_open',true);
+						});
+					});
 				});
+			// Remove versions
 			} else {
-				$('#'+rel_type+'_of_row_'+version_id).remove();
+				var $next = $the_link.parent().parent().next();
+				if ($next.hasClass('version_wrapper')) $next.remove();
 				$the_link.html('View');
 				$the_link.data('is_open',false);
 				$the_link.blur();
@@ -194,7 +204,7 @@
 			  	 var version_id = data.versions[j];
 			  	 $('#version_row_'+version_id).remove();
 			  }
-			  $('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different relationship type using the pulldown above'});
+			  $('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
 			});
 
 		}
@@ -203,10 +213,9 @@
 
 		<form style="float:left;" id="formRelType">
 		<select name="relType" style="min-width:200px;float:left;margin-right:3px;" class="generic_text_input">
-			<option value="path"<?=('path'==$default_rel_type)?' selected':''?>>Paths</option>
-			<option value="tag"<?=('tag'==$default_rel_type)?' selected':''?>>Tags</option>
-			<option value="annotation"<?=('annotation'==$default_rel_type)?' selected':''?>>Annotations</option>
-			<option value="reply"<?=('reply'==$default_rel_type)?' selected':''?>>Comments</option>
+			<option value="review"<?=('review'==$default_rel_type)?' selected':''?>>Review</option>
+			<option value="commentary"<?=('commentary'==$default_rel_type)?' selected':''?>>Commentary</option>
+			<option value="term"<?=('term'==$default_rel_type)?' selected':''?>>Term</option>
 		</select>
 		</form>
 
