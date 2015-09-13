@@ -41,9 +41,6 @@
    	   			var $this = $(this);
    	   			$this.closest('form').submit();
    	   			$this.blur();
-   			}).mousedown(function() {
-   				var $select_rel_type = $('#select-relationship-type');
-   				if (!$select_rel_type.is(':hidden')) $select_rel_type.fadeOut(3000);
    			});
 
    			$('body').on('rowSaved', function() {

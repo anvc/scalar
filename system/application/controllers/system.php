@@ -916,6 +916,18 @@ class System extends MY_Controller {
 				$this->data['content'] = $this->page->save_book($content_id, $book_id);
 				$this->data['content']->id = $this->data['content']->book_id;
 				break;
+			case 'save_content_category':
+				$this->load->model('page_model', 'page');
+				$content_id =@ (int) $_REQUEST['content_id'];
+				$valid_cats = array('commentary', 'review', 'term');
+				$category =@ trim($_REQUEST['category']);
+				if (!in_array($category, $valid_cats)) die ('{"error":"Invalid category"}');
+				$this->data['book'] = $this->books->get_by_content_id($content_id);
+				$this->set_user_book_perms();
+				if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$content_id)) die ('{"error":"Invalid permissions"}');
+				// TODO: Check the enum for term?
+				$this->data['content'] = $this->page->save( array('id'=>$content_id,'category'=>$category) );
+				break;
 			case 'delete_content':
 				$this->load->model('page_model', 'pages');
 				$this->load->model('version_model', 'versions');

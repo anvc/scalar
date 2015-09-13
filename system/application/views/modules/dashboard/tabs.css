@@ -145,4 +145,17 @@ td.styling_last {text-align:right; padding-right:0px;}
 
 .excerpt .full {display:none;}
 
+#add_term_btn {float:right;font-size:11px !important;}
+#add_term_msg {
+	display:none;background-color:#feffb1;border-radius:3px;float:right;text-align:center;
+	font-size:14px;padding:2px 10px 1px 10px;margin-right:10px;color:#008200;
+}
+
 .tax_name {width:300px;display:inline-block;}
+
+.content_selector .input-sm {padding:2px; margin:0px;}
+.content_selector .btn-sm {margin:0px;}
+.content_selector label {padding:0px 0px 0px 8px; font-size:13px;}
+.content_selector label input {margin-right:5px;}
+.content_selector .howto {font-size:16px !important;}
+.content_selector .footer .btn {font-size:12px !important;}

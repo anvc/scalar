@@ -3,6 +3,8 @@
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?$this->template->add_js('system/application/views/widgets/api/scalarapi.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
+<?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
 <?
 	if (empty($book)):
 		echo 'Please select a book to manage using the pulldown menu above';
@@ -17,6 +19,7 @@
 	<script>
 
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
+		var book_id = <?=$book->book_id?>;
 
 		$(document).ready(function() {
 
@@ -35,19 +38,38 @@
    			$('#formRelType').submit(function() {
    				rel_type = $(this).find('[name="relType"] option:selected').val();
    				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
+				$('#add_term_btn').find('span:first').html(rel_type);
    				return false;
    			});
    			$('#formRelType').find('[name="relType"]').change(function() {
    	   			var $this = $(this);
    	   			$this.closest('form').submit();
    	   			$this.blur();
-   			}).mousedown(function() {
-   				var $select_rel_type = $('#select-relationship-type');
-   				if (!$select_rel_type.is(':hidden')) $select_rel_type.fadeOut(3000);
    			});
 
    			$('body').on('rowSaved', function() {
 				pagination();
+   			});
+
+   			$('#add_term_btn').click(function() {
+   				$('<div></div>').content_selector({parent:book_uri,changeable:true,multiple:true,onthefly:true,msg:'Selected pages will be added to the <b>'+rel_type+'</b> category',callback:function(nodes){
+   					console.log(nodes);
+   					$('.table_wrapper:first').html('<div id="loading">Saving</div>');
+   					for (var j = 0; j < nodes.length; j++) {
+   						var urn = nodes[j].content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+   						var content_id = urn.substr(urn.lastIndexOf(':')+1);
+   						var post = {book_id:book_id,content_id:content_id,category:rel_type};
+   						$.post('api/save_content_category', post, function(data) {
+   	   						if ($.isEmptyObject(data)) alert('Something went wring trying to save');
+   	   						if ('undefined'!=typeof(data.error)) alert('There was an error trying to save: '+data.error);
+   							$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:function() {
+								$('#add_term_msg').show().delay(2000).fadeOut(3000);
+								pagination();
+   							},paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
+   						}, 'json');
+
+   					}
+   				}});
    			});
 
 		});
@@ -55,7 +77,7 @@
 		function pagination(callee, num_nodes) {
 			var $table = $('.table_wrapper:first');
 			var num_not_live = parseInt($table.find('tr.not_live').length);
-			var $tab = $('.tabs ul li a[href="#tabs-relationships"]:first');
+			var $tab = $('.tabs ul li a[href="#tabs-categories"]:first');
 			$tab.find('sup').remove();
 			if (num_not_live) $tab.append('<sup>'+num_not_live+'</sup>');
 		}
@@ -210,6 +232,10 @@
 		}
 
 		</script>
+
+		<a id="add_term_btn" href="javascript:void(null);" class="generic_button">Add content to <span>term</span> category</a>
+
+		<div id="add_term_msg">Content has been added</div>
 
 		<form style="float:left;" id="formRelType">
 		<select name="relType" style="min-width:200px;float:left;margin-right:3px;" class="generic_text_input">
