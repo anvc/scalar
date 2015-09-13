@@ -94,11 +94,11 @@ function edit_row($row) {
 				});
 				value = '';
 			} else if (input_type == 'enum') {
-				var $select = $('<select style="width:100%;"></select>');
+				var $select = $('<select></select>');
 				var default_str = $this.html().toLowerCase();
 				value = default_str;
 				for (var j = 0; j < input_values.length; j++) {
-					$select.append('<option value="'+input_values[j]+'" '+((default_str==input_values[j].toLowerCase())?'selected':'')+'>'+input_values[j]+'</option>');
+					$select.append('<option value="'+input_values[j]+'" '+((default_str==input_values[j].toLowerCase())?'selected':'')+'>'+((input_values[j].length)?input_values[j]:'(empty)')+'</option>');
 				}
 				$this.html($select);
 			}

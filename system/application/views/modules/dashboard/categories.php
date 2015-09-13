@@ -46,6 +46,11 @@
    	   			$this.closest('form').submit();
    	   			$this.blur();
    			});
+   			$('#formRelTypeReload a').click(function() {
+   	   			var $this = $(this);
+   	   			$this.closest('form').submit();
+   	   			$this.blur();
+   			});
 
    			$('body').on('rowSaved', function() {
 				pagination();
@@ -243,6 +248,7 @@
 			<option value="commentary"<?=('commentary'==$default_rel_type)?' selected':''?>>Commentary</option>
 			<option value="term"<?=('term'==$default_rel_type)?' selected':''?>>Term</option>
 		</select>
+		<div id="formRelTypeReload"><a href="javascript:void(null);">reload</a></div>
 		</form>
 
 		<br clear="both" /><br />
@@ -251,9 +257,13 @@
 
 		<br />
 
+		<div style="float:right;">To remove a page from a category, edit the page's row and set the category field to (empty)</div>
+
 		<form onsubmit="deleteFiles();return false;">
 		<input type="submit" value="Delete selected pages" class="generic_button" />
 		&nbsp; &nbsp;
 		<input id="check_all" type="checkbox" /><label for="check_all"> Check all</label>
 		</form>
+
+
 <? endif ?>

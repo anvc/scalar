@@ -128,6 +128,7 @@
 			$head.append('<th></th>');
 			$head.append('<th style="display:none;"></th>');
 			$head.append('<th>Live?&nbsp; </th>');
+			if (-1==options.hide_columns.indexOf('category')) $head.append('<th>Category</th>');
 			if (-1==options.hide_columns.indexOf('thumbnail')) $head.append('<th>Thumb</th>');
 			$head.append('<th>URI</th>');
 			$head.append('<th>Title</th>');
@@ -163,6 +164,7 @@
 				var creator = (author && author.length) ? author.slice(author.lastIndexOf('/')+1) : 0;
 				var is_live = ('undefined'==typeof(nodes[j].isLive)||1!=parseInt(nodes[j].isLive)) ? false : true; 
 				var paywall = ('undefined'==typeof(nodes[j].paywall)||1!=parseInt(nodes[j].paywall)) ? false : true; 
+				var category = ('undefined'==typeof(nodes[j].current.properties["http://scalar.usc.edu/2012/01/scalar-ns#category"])) ? '' : nodes[j].current.properties["http://scalar.usc.edu/2012/01/scalar-ns#category"][0].value;
 				var $tr = $('<tr class="bottom_border" id="row_'+id+'" typeof="pages"></tr>');
 				$tbody.append($tr);
 				if (!is_live) {
@@ -173,6 +175,7 @@
 				$tr.append('<td style="white-space:nowrap;width:60px;"><input type="checkbox" name="content_id_'+id+'" value="1">&nbsp; <a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a></td>');
 				$tr.append('<td style="display:none;" property="id">'+id+'</td>');
 				$tr.append('<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'+((is_live)?'1':'0')+'</td>');
+				if (-1==options.hide_columns.indexOf('category')) $tr.append('<td class="editable enum {\'review\',\'commentary\',\'term\'}" property="category">'+category+'</td>');
 				var thumb_str = '<td property="thumbnail">';
 				if (nodes[j].thumbnail && nodes[j].thumbnail.length) thumb_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'"><img src="'+nodes[j].thumbnail+'" /></a>';
 				thumb_str += '</td>';
@@ -198,13 +201,13 @@
 		set_hide_columns : function(options) {
 
 			if ('page'==options.query_type) {
-				options.hide_columns = ['thumbnail','url','content'];
+				options.hide_columns = ['category','thumbnail','url','content'];
 			} else if ('media' == options.query_type) {
-				options.hide_columns = ['description','content'];
+				options.hide_columns = ['category','description','content'];
 			} else if ('reply' == options.query_type) {
-				options.hide_columns = ['thumbnail','description','url','user'];
+				options.hide_columns = ['category','thumbnail','description','url','user'];
 			} else if ('annotation' == options.query_type || 'tag' == options.query_type || 'path' == options.query_type) {
-				options.hide_columns = ['thumbnail','content','url','user'];
+				options.hide_columns = ['category','thumbnail','content','url','user'];
 			} else if ('term' == options.query_type || 'commentary' == options.query_type || 'review' == options.query_type) {
 				options.hide_columns = ['thumbnail','content','url'];
 			}

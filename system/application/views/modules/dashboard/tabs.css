@@ -145,6 +145,7 @@ td.styling_last {text-align:right; padding-right:0px;}
 
 .excerpt .full {display:none;}
 
+#formRelTypeReload {margin:4px 0px 0px 10px; display:inline-block;}
 #add_term_btn {float:right;font-size:11px !important;}
 #add_term_msg {
 	display:none;background-color:#feffb1;border-radius:3px;float:right;text-align:center;

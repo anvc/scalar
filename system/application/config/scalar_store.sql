@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `custom_scripts` text COLLATE utf8_unicode_ci,
   `color` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `audio` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `category` enum('commentary','review') COLLATE utf8_unicode_ci DEFAULT NULL,
+  `category` enum('commentary','review','term') COLLATE utf8_unicode_ci DEFAULT NULL,
   `user` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`content_id`),
