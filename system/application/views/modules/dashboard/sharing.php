@@ -80,9 +80,6 @@ $(window).ready(function() {
 	echo '<td colspan="2"><input name="title" type="text" value="'.htmlspecialchars($row->title).'" style="width:100%;" /></td>';
 	echo '</tr>'."\n";
 
-	echo '<tr typeof="books" class="styling_sub">';
-	echo '<td><h4 class="content_title">Public/private</h4></td><td></td></tr>';
-	echo '<tr>';
 	echo '<tr typeof="books">';
 	echo '<td><p>Availability</p>';
 	echo '</td>'."\n";

@@ -148,7 +148,7 @@
 			var $tbody = $(options.wrapper).find('tbody:first');
 			var nodes = options.scalarapi.model.getNodes();
 			if (!nodes.length) {
-				$('<tr><td colspan="14" width="100%" height="100%" valign="middle" align="center" style="padding-top:40px;line-height:200%;">'+options.no_content_msg+'</td></tr>').appendTo($tbody);
+				$('<tr><td class="no_nodes" colspan="14" width="100%" height="100%" valign="middle" align="center" style="padding-top:40px;line-height:200%;">'+options.no_content_msg+'</td></tr>').appendTo($tbody);
 				return;
 			}
 			options.scalarapi.model.numNodes = 0;
