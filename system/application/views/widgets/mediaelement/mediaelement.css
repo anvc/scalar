@@ -107,13 +107,11 @@
 
 .mediaElementAlignRight {
 	font-size:10px;
-	float:right;
 	text-align:right;
-	width:19%;
 	white-space:nowrap;
 }
 .mediaElementAlignRightDetails {
-	width:45%;	
+	/*width:45%;	*/
 }
 .mediaElementAlignRight #viewPageLink {
 	display:none;	
@@ -183,6 +181,7 @@
 	position:absolute;
 	text-align:left;
 	color:#fff;
+	margin-top: -26px;
 }
 
 .annotationDisplay p {
