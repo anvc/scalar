@@ -825,7 +825,10 @@
 
 			handleBook: function() {
 
-				var viewType = scalarapi.model.getCurrentPageNode().current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				var viewType = 'plain';
+				if ('undefined'!=typeof(scalarapi.model.getCurrentPageNode().current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
+					viewType = scalarapi.model.getCurrentPageNode().current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				}
 
 				// add book authors if this is a book splash page
 				if ( viewType == 'book_splash' ) {
@@ -1007,9 +1010,13 @@
 
 				var i, n,
 					currentNode = scalarapi.model.getCurrentPageNode(),
-					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value,
+					viewType = 'plain',
 					extension = scalarapi.getFileExtension( window.location.href );
 
+				if ('undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
+					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value
+				}
+				
 				page.calculatePageDimensions();
 
 				// Using defaultView rather than <link id="view" /> means that a view can not be chosen via URL extension,
@@ -1574,7 +1581,10 @@
 		if ( currentNode != null ) {
 
 			if (( extension == '' ) || ( version != '' )) {
-				viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				viewType = 'plain';
+				if ('undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
+					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
+				}
 				if ( version != '' ) {
 					$( 'h1[property="dcterms:title"]' ).append( ' (Version ' + parseInt( version ) + ')' );
 				}
