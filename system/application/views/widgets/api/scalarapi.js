@@ -83,7 +83,7 @@ function ScalarAPI() {
 			{	// For MS Edge
 				string: navigator.userAgent,
 				subString: "Edge/12",
-				identity: "Safari"
+				identity: "Mozilla"
 			},
 			{
 				string: navigator.userAgent,
