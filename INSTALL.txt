@@ -82,6 +82,9 @@ Enjoy!
 Updates we've made to incorporated libraries, kept here for reference if they need updating
 -------------------------------------------------------------------------------------------
 
+CodeIgniter:
+1) In system/libraries/Input.php->_clean_input_keys(), change regex "/^[a-z0-9:_\/-]+$/i" to "/^[a-z0-9:_\/-~@]+$/i"
+
 ARC2 (updated 2014-10-29 from https://github.com/semsol/arc2):
 1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
 

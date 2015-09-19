@@ -93,7 +93,7 @@ class CI_Input {
 		$protected = array('_SERVER', '_GET', '_POST', '_FILES', '_REQUEST', '_SESSION', '_ENV', 'GLOBALS', 'HTTP_RAW_POST_DATA',
 							'system_folder', 'application_folder', 'BM', 'EXT', 'CFG', 'URI', 'RTR', 'OUT', 'IN');
 
-		// Unset globals for security. 
+		// Unset globals for security.
 		// This is effectively the same as register_globals = off
 		foreach (array($_GET, $_POST, $_COOKIE, $_SERVER, $_FILES, $_ENV, (isset($_SESSION) && is_array($_SESSION)) ? $_SESSION : array()) as $global)
 		{
@@ -214,9 +214,9 @@ class CI_Input {
 	*/
 	function _clean_input_keys($str)
 	{
-		if ( ! preg_match("/^[a-z0-9:_\/-]+$/i", $str))
+		if ( ! preg_match("/^[a-z0-9:_\/-~@]+$/i", $str))
 		{
-			exit('Disallowed Key Characters.');
+			exit('Disallowed Key Characters: '.$str);
 		}
 
 		return $str;
@@ -346,7 +346,7 @@ class CI_Input {
 		{
 			return $this->ip_address;
 		}
-		
+
 		if (config_item('proxy_ips') != '' && $this->server('HTTP_X_FORWARDED_FOR') && $this->server('REMOTE_ADDR'))
 		{
 			$proxies = preg_split('/[\s,]/', config_item('proxy_ips'), -1, PREG_SPLIT_NO_EMPTY);
@@ -397,7 +397,7 @@ class CI_Input {
 	* Validate IP Address
 	*
 	* Updated version suggested by Geert De Deckere
-	* 
+	*
 	* @access	public
 	* @param	string
 	* @return	string
@@ -419,7 +419,7 @@ class CI_Input {
 		// Check each segment
 		foreach ($ip_segments as $segment)
 		{
-			// IP segments must be digits and can not be 
+			// IP segments must be digits and can not be
 			// longer than 3 digits or greater then 255
 			if ($segment == '' OR preg_match("/[^0-9]/", $segment) OR $segment > 255 OR strlen($segment) > 3)
 			{
@@ -486,8 +486,8 @@ class CI_Input {
 						"%253c", 	// <
 						"%3e", 		// >
 						"%0e", 		// >
-						"%28", 		// (  
-						"%29", 		// ) 
+						"%28", 		// (
+						"%29", 		// )
 						"%2528", 	// (
 						"%26", 		// &
 						"%24", 		// $
@@ -566,7 +566,7 @@ class CI_Input {
 		$str = preg_replace('#(&\#?[0-9a-z]{2,})([\x00-\x20])*;?#i', "\\1;\\2", $str);
 
 		/*
-		* Validate UTF16 two byte encoding (x00) 
+		* Validate UTF16 two byte encoding (x00)
 		*
 		* Just as above, adds a semicolon if missing.
 		*
@@ -591,7 +591,7 @@ class CI_Input {
 		$str = rawurldecode($str);
 
 		/*
-		* Convert character entities to ASCII 
+		* Convert character entities to ASCII
 		*
 		* This permits our tests below to work reliably.
 		* We only convert entities that are within tags since
@@ -634,12 +634,12 @@ class CI_Input {
 
 		foreach ($this->never_allowed_str as $key => $val)
 		{
-			$str = str_replace($key, $val, $str);   
+			$str = str_replace($key, $val, $str);
 		}
 
 		foreach ($this->never_allowed_regex as $key => $val)
 		{
-			$str = preg_replace("#".$key."#i", $val, $str);   
+			$str = preg_replace("#".$key."#i", $val, $str);
 		}
 
 		/*
@@ -726,7 +726,7 @@ class CI_Input {
 		if ($is_image === TRUE)
 		{
 			/*
-			* Adobe Photoshop puts XML metadata into JFIF images, including namespacing, 
+			* Adobe Photoshop puts XML metadata into JFIF images, including namespacing,
 			* so we have to allow this for images. -Paul
 			*/
 			unset($event_handlers[array_search('xmlns', $event_handlers)]);
@@ -771,7 +771,7 @@ class CI_Input {
 		*/
 		foreach ($this->never_allowed_str as $key => $val)
 		{
-			$str = str_replace($key, $val, $str);   
+			$str = str_replace($key, $val, $str);
 		}
 
 		foreach ($this->never_allowed_regex as $key => $val)
