@@ -71,8 +71,13 @@ class Rdf extends MY_Controller {
 		$this->data['recursion'] = (isset($_REQUEST['rec']) && is_numeric($_REQUEST['rec'])) ? (int) $_REQUEST['rec'] : 0;
 		// Display references?
 		$this->data['references'] = (isset($_REQUEST['ref']) && $_REQUEST['ref']) ? true : false;
-		// Restrict relationships to a certain relationship?
-		$this->data['restrict'] = (isset($_REQUEST['res']) && in_array(plural(strtolower($_REQUEST['res'])), $this->models)) ? (string) plural(strtolower($_REQUEST['res'])) : null;
+		// Restrict relationships to a certain relationship or set of relationships (seperated by a comma)?
+		$this->data['restrict'] = array();
+		$restrict = (isset($_REQUEST['res']) && !empty($_REQUEST['res'])) ? explode(',',$_REQUEST['res']) : array();
+		foreach ($restrict as $res) {
+			if (!in_array(plural(strtolower($res)), $this->models)) continue;
+			$this->data['restrict'][] = (string) plural(strtolower($res));
+		}
 		// Display all versions?
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;
 		// Search terms

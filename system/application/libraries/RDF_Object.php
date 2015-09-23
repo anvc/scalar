@@ -693,7 +693,7 @@ class RDF_Object {
 		for ($j = 0; $j < count($row->versions); $j++) {
 			$version_id = $row->versions[$j]->version_id;
 			foreach ($models as $model) {
-				if (!empty($settings['restrict']) && $model != $settings['restrict']) continue;
+				if (!empty($settings['restrict']) && !in_array($model, $settings['restrict'])) continue;
 				$model_s = singular($model);
 				if ('object'!=@gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
 				if ($settings['rel'] == self::REL_PARENTS_ONLY || $settings['rel'] == self::REL_ALL) {
@@ -737,7 +737,7 @@ class RDF_Object {
 		foreach ($versions as $row) {
 			$uri = $row->version_of.'.'.$row->version_num;
 			foreach ($models as $model) {
-				if (!empty($settings['restrict']) && $model != $settings['restrict']) continue;
+				if (!empty($settings['restrict']) && !in_array($model, $settings['restrict'])) continue;
 				$model_s = singular($model);
 				if ('object'!=gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
 				if (empty($settings['rel']) || $settings['rel'] == self::REL_PARENTS_ONLY) {
