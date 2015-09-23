@@ -104,7 +104,7 @@ $(window).ready(function() {
 	echo '</p>';
 	echo '<p>';
 	echo 'Email book authors about new comments? &nbsp;<select id="email-authors"><option value="0" selected>No</option><option value="1">Yes</option></select>';
-	echo '<br /><small>If set to "Yes" users with author prilages (set in Book users tab) will be emailed when new comments are contributed</small>';
+	echo '<br /><small>If set to "Yes" users with author privileges (set in Book users tab) will be emailed when new comments are contributed</small>';
 	echo '</p>';
 	echo 'Add the <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> sidebar? &nbsp;<select id="hypothesis"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 	echo '<br /><small>A sidebar will be layered over your book adding <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> collaborative review and commenting features</small>';

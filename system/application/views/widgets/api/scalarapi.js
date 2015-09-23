@@ -2378,8 +2378,6 @@ function ScalarModel(options) {
 		{property:'defaultView', uri:'http://scalar.usc.edu/2012/01/scalar-ns#defaultView', type:'string'},
 		{property:'baseType', uri:'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type:'string'},
 		{property:'sourceFile', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#url', type:'string'},
-		{property:'creator', uri:'http://purl.org/dc/terms/creator', type:'string'},
-		{property:'contributor', uri:'http://purl.org/dc/terms/contributor', type:'string'},
 		{property:'source', uri:'http://purl.org/dc/terms/source', type:'string'},
 		{property:'thumbnail', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail', type:'string'},
 		{property:'thumbnail', uri:'artstor:thumbnail', type:'string'},
