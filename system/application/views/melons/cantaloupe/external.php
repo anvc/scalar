@@ -24,26 +24,6 @@ body, div {margin:0;}
 EOT;
 $this->template->add_css($css, 'embed');
 ?>
-<script>
-function checkCross() {
-	var url = "<?=$link?>";
-	var iframe = document.getElementById("external-iframe");
-	var seen_page_before = document.getElementById('seen_page_before');
-	try {
-		var loc = iframe.contentDocument.location.href;
-		console.log(loc);
-	} catch(e) {
-		if ('1'==seen_page_before.value) {
-			seen_page_before.value = '0';
-			if (document.referrer.length) document.location = document.referrer;
-		} else {
-			seen_page_before.value = '1';
-			document.location = url;
-		}
-	}
-}
-</script>
-<form style="display:none;"><input type="hidden" id="seen_page_before" name="seen_page_before" value="0" /></form>
 <div class="external-header">
 	<div class="external-back-link">
 		<a href="<?=$prev?>" class="path_nav_previous_btn"></a>
@@ -62,5 +42,5 @@ function checkCross() {
 </div>
 
 <div class="external-page">
-	<iframe id="external-iframe" onload="checkCross()" src="<?=$link?>"></iframe>
+	<iframe id="external-iframe" src="<?=$link?>"></iframe>
 </div>
