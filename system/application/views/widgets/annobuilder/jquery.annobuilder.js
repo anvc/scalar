@@ -216,7 +216,12 @@ jQuery.AnnoBuilderController = function() {
 	 * Loads annotations for the media file.
 	 */
 	jQuery.AnnoBuilderController.prototype.loadAnnotations = function() {
-		if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 1, false, 'annotation') == 'loaded') this.handleAnnotations();
+		if ( $( 'article' ).length ) {  // Cantaloupe loads each annotation in seperate API calls
+			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 1, false, 'annotation') == 'loaded') this.handleAnnotations();
+		} else {  // Honeydew needs tag info along with annotation info
+			scalarapi.model.removeNodes();
+			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
+		}
 	}
 
 	/**
@@ -870,15 +875,14 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						}
 						
 						var taxNodes = annotation.body.incomingRelations;
-						$('#taggedBy').html('');
+						$('#taggedBy').empty();
 						$('.tagged_by_msg, #taggedBy').hide();
-						// Add the annotation's saved taxonomy edits
-						//if('object' == typeof(edits) && edits.taxonomy != '') {
-						//	$('.tagged_by_msg, #taggedBy').show();
-						//	$('#taggedBy').html(edits.taxonomy);
-						//	$('#taggedBy .remove a').click(me.handleRemoveTags);
 						// Add the annotation's existing tags
-						if(taxNodes.length !=0) {
+						if ('undefined'!=typeof(edits) && 'undefined'!=typeof(edits.taxonomy)) {
+							$('#taggedBy').html(edits.taxonomy);
+							$('.tagged_by_msg, #taggedBy').show();
+							$('#taggedBy .remove a').click(me.handleRemoveTags);							
+						} else if(taxNodes.length !=0) {
 							var hasTaxNodes = false;
 							for (var j in taxNodes) {
 								var slug = taxNodes[j].body.slug;
