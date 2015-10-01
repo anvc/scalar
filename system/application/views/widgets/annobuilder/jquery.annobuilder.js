@@ -485,7 +485,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		
 		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a role="button">?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" class="form-control" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
 		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" class="form-control" type="text" size="43" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a role="button">?</a><em>Optional descripiton of the annotation.</em></div></td></tr>');
-		//this.annotationForm.find('tbody').append('<tr><td class="field" style="vertical-align:middle;">Tags</td><td class="value" style="vertical-align:middle;"><span class="tagged_by_msg" style="display:none;">This annotation is tagged by:</span><ul style="display:none;" id="taggedBy"></ul><div class="form_fields_sub_element"><a class="btn btn-default btn-sm" id="tagButton" role="button">Add tags</a><div class="help_button"><a role="button">?</a><em>You can select one or more content items to tag this annotation.</em></div></div></td></tr>');
+	    this.annotationForm.find('tbody').append('<tr><td class="field" style="vertical-align:middle;">Tags</td><td class="value" style="vertical-align:middle;"><span class="tagged_by_msg" style="display:none;">This annotation is tagged by:</span><ul style="display:none;" id="taggedBy"></ul><div class="form_fields_sub_element"><a class="btn btn-default btn-sm" id="tagButton" role="button">Add tags</a><div class="help_button"><a role="button">?</a><em>You can select one or more content items to tag this annotation.</em></div></div></td></tr>');
 
 		$('#setStartTimeBtn').click(this.handleSetStartTime);
 		$('#setEndTimeBtn').click(this.handleSetEndTime);
@@ -870,31 +870,30 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						}
 						
 						var taxNodes = annotation.body.incomingRelations;
+						$('#taggedBy').html('');
+						$('.tagged_by_msg, #taggedBy').hide();
 						// Add the annotation's saved taxonomy edits
-						if('object' == typeof(edits) && edits.taxonomy != '') {
-							$('.tagged_by_msg, #taggedBy').show();
-							$('#taggedBy').html(edits.taxonomy);
-							$('#taggedBy .remove a').click(me.handleRemoveTags);
+						//if('object' == typeof(edits) && edits.taxonomy != '') {
+						//	$('.tagged_by_msg, #taggedBy').show();
+						//	$('#taggedBy').html(edits.taxonomy);
+						//	$('#taggedBy .remove a').click(me.handleRemoveTags);
 						// Add the annotation's existing tags
-						} else if(taxNodes.length !=0) {
+						if(taxNodes.length !=0) {
 							var hasTaxNodes = false;
 							for (var j in taxNodes) {
 								var slug = taxNodes[j].body.slug;
 								if(taxNodes[j].type.id == "tag") {  // slug.match(/^term\/.*$/) != null
 									hasTaxNodes = true;
-									var urn = taxNodes[j].body.urn;
+									var urn = taxNodes[j].body.current.urn;
 									var title = taxNodes[j].body.current.title;
-									$('#taggedBy').append('<li><input type="hidden" name="tagged_by" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+									$('#taggedBy').append('<li><input type="hidden" data-urn="'+urn+'" name="tagged_by" value="'+slug+'" /><span class="tag_title">'+title+'</span>&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 								}
 							}
 							if (hasTaxNodes) {
 								$('.tagged_by_msg, #taggedBy').show();
 								$('#taggedBy .remove a').click(me.handleRemoveTags);
 							}
-						} else {
-							$('#taggedBy').html('');
-							$('.tagged_by_msg, #taggedBy').hide();
-						}
+						} 
 					}
 					
 					if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
@@ -1187,7 +1186,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
-				$('#taggedBy').append('<li><input type="hidden" name="tagged_by" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('#taggedBy').append('<li><input type="hidden" data-urn="'+urn+'" name="tagged_by" value="'+slug+'" /><span class="tag_title">'+title+'</span>&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 			}
 			$('.tagged_by_msg, #taggedBy').show();
 			me.makeSelectedAnnotationDirty();
@@ -1645,6 +1644,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			edits = row.data('edits');
 			if (edits) {
 				if (annotation.body.url != '') {
+					
 					baseProperties =  {
 						'native': $('input[name="native"]').val(),
 						id: $('input[name="id"]').val(),
@@ -1708,13 +1708,62 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						break;
 						
 					}
-					dataArr.push({baseProperties:baseProperties, pageData:pageData, relationData:relationData});
-				}	
-			}
-		}
+					
+					// Validate tags on each annotation 
+					// This interacts directly with scalarapi.model .. 30 September 2015 Craig Dietrich
+					var urns = [];
+					var tags = [];
+					if ('undefined'!=typeof(edits.taxonomy)) {  // List of tags we want, set in the UI
+						$(edits.taxonomy).find('input').each(function() {
+							var $this = $(this);
+							var urn = $this.data('urn');
+							urns.push(urn);
+							tags.push({slug:$this.val(),urn:urn,title:$this.next().html()});
+						});
+					}
+					// Remove tags from Scalar API that shouldn't be there
+					var indexes_to_remove = [];
+					for (var j in scalarapi.model.nodesByURL[annotation.body.url].incomingRelations) { 
+						if ('tag'!=scalarapi.model.nodesByURL[annotation.body.url].incomingRelations[j].type.id) continue;
+						var urn = scalarapi.model.nodesByURL[annotation.body.url].incomingRelations[j].body.current.urn;
+						if (-1==urns.indexOf(urn)) indexes_to_remove.push(j);
+					}
+					indexes_to_remove.sort(function(a, b){return a-b});
+					for (var j = (indexes_to_remove.length-1); j >= 0; j--) { 
+						var index = indexes_to_remove[j];
+						scalarapi.model.nodesByURL[annotation.body.url].incomingRelations.splice(index, 1);
+					}
+					// Add tags to Scalar API that should be there
+					urns = [];
+					for (var j in scalarapi.model.nodesByURL[annotation.body.url].incomingRelations) { 
+						if ('tag'!=scalarapi.model.nodesByURL[annotation.body.url].incomingRelations[j].type.id) continue;
+						var urn = scalarapi.model.nodesByURL[annotation.body.url].incomingRelations[j].body.current.urn;
+						urns.push(urn);
+					}
+					for (var j in tags) {
+						if (-1!=urns.indexOf(tags[j].urn)) continue;
+						scalarapi.model.nodesByURL[annotation.body.url].incomingRelations.push({
+							id: '_'+tags[j].slug+annotation.body.url,
+							body:{ slug:tags[j].slug, current:{ urn:tags[j].urn, title:tags[j].title } },
+							type:{ id:'tag' }
+						});
+					}
+					// Combine into object for scalarapi
+					// scalarapi's modifyManyPages calls the API again and overwrites the node changes above, so relations are cloned here to overwrite that overwrite
+					dataArr.push({
+						baseProperties:baseProperties, 
+						pageData:pageData, 
+						relationData:relationData,
+						outgoingRelations:scalarapi.model.nodesByURL[annotation.body.url].outgoingRelations.slice(), // clone
+						incomingRelations:scalarapi.model.nodesByURL[annotation.body.url].incomingRelations.slice() // clone
+					});
+					
+				} // if url
+			} // if edits
+		}  // for
 		
 		me.showSpinner();
-
+		
 		scalarapi.modifyManyPages(dataArr, function( ok ) {
 			$.annobuilder.view.builder.endSave( ok );
 		});
