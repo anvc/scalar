@@ -236,8 +236,9 @@
     				$onthefly.find('div:first').prepend('<b>Create new page</b><br />');
     			}
     			var $form = $onthefly.find('form');
-    			var id = $('input[name="id"]').val();  // Assuming this exists
-    			var book_urn = $('input[name="urn:scalar:book"]').val();  // Assuming this exists
+    			var id = $('input[name="id"]').val();  // Assuming this exists; technically not needed for session auth
+    			var book_urn = $('input[name="urn:scalar:book"]').val(); 
+    			if ('undefined'==typeof(book_urn) && $('link#book_id').length) book_urn = "urn:scalar:book:"+$('link#book_id').attr('href');
     			$form.append('<input type="hidden" name="action" value="add" />');
     			$form.append('<input type="hidden" name="native" value="1" />');
     			$form.append('<input type="hidden" name="scalar:urn" value="" />'); 
@@ -260,7 +261,12 @@
         				$options.show();
         			}
     				$footer.show();
-    			};
+    			}; 			
+    			if ('undefined'==typeof(book_urn)) {
+    				alert('Could not determine book URN and therefore can not create pages on-the-fly');
+    				onthefly_reset();
+    				return;
+    			}
     			$buttons.find('a:first').click(function() {
     				onthefly_reset();
     			});

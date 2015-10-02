@@ -1325,12 +1325,12 @@ ScalarAPI.prototype.runManyPages = function(completeCallback) {
 		self.runManyPages(completeCallback);
 	}, function(e) {
 		completeCallback(false);
-	});
+	}, data.outgoingRelations, data.incomingRelations);
 	this.savePageQueue.shift();
 	
 }
 
-ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, relationData, completeCallback, errorCallback) {
+ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, relationData, completeCallback, errorCallback, _outgoingRelations, _incomingRelations) {
 
 	var me = this;
 
@@ -1375,6 +1375,9 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			
 			// gather relations from existing node
 			var completeRelationData = {};
+			
+			if ('undefined'!=typeof(_outgoingRelations)) node.outgoingRelations = _outgoingRelations.slice(); // clone
+			if ('undefined'!=typeof(_incomingRelations)) node.incomingRelations = _incomingRelations.slice(); // clone
 			
 			$(node.outgoingRelations).each(function() {
 				
