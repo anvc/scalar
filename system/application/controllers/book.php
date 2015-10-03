@@ -262,7 +262,7 @@ class Book extends MY_Controller {
 	// Import from an external archive
 	private function import() {
 
-		if (!$this->login_is_book_admin()) $this->kickout();
+		if (!$this->login_is_book_admin('Commentator')) $this->kickout();
 
 		// Set params
 		$archive = no_ext($this->uri->segment(3));
@@ -314,7 +314,7 @@ class Book extends MY_Controller {
 		$chmod_mode = $this->config->item('chmod_mode');
 		if (empty($chmod_mode)) $chmod_mode = 0777;
 
-		if (!$this->login_is_book_admin()) {
+		if (!$this->login_is_book_admin('Commentator')) {
 			if ($action == 'add') {
 				echo json_encode( array('error'=>'Not logged in or not an author') );
 			} else {
@@ -629,7 +629,11 @@ class Book extends MY_Controller {
 
 	}
 
-	private function annotation_editor_view() {}
+	private function annotation_editor_view() {
+
+		if (!$this->login_is_book_admin('Commentator')) $this->kickout();
+
+	}
 
 }
 ?>
