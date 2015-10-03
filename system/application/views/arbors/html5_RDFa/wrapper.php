@@ -102,7 +102,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <? if ($login->is_logged_in): ?>
 <link id="logged_in" href="<?=confirm_slash(base_url())?>system/users/<?=$login->user_id?>" />
 <? endif ?>
-<? if ($login_is_super || $this->users->is_a($user_level,'commentator')): ?>
+<? if ($login_is_super || $this->users->is_a($user_level,'reviewer')): ?>
 <link id="user_level" href="scalar:<?=(($login_is_super)?'Author':ucwords($user_level))?>" />
 <? endif ?>
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
