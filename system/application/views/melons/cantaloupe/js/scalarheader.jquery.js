@@ -178,9 +178,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                             '<li id="ScalarHeaderHelp">'+
                                                 '<a class="headerIcon" id="helpIcon" title="Help button. Click to toggle help info."><span class="hidden-sm hidden-md hidden-lg">Help</span></a>'+
                                             '</li>'+
+                                            ((base.is_author||base.is_commentator)?
+                                                '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'
+                                                :'')+
                                             ((base.is_author||base.is_commentator||base.is_reviewer)?
-                                                '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'+
-                                                '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.stripAllExtensions(scalarapi.model.urlPrefix + base.current_slug) + '.edit" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'+
+                                                '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.stripAllExtensions(scalarapi.model.urlPrefix + base.current_slug) + '.edit" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
+                                                :'')+
+                                            ((base.is_author||base.is_commentator)?
                                                 ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
                                                     '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
@@ -217,7 +221,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit#type=media') + '">Internet media files</a>'+
                                                         '</li>'+
                                                     '</ul>'+
-                                                '</li>'+
+                                                '</li>'
+                                                :'')+
+                                            (base.is_author?
                                                 (base.currentNode!=null?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
                                                 ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
@@ -1117,7 +1123,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }
 
             if (base.logged_in){
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL( system_uri + '/dashboard?'+(base.is_author||base.is_commentator||base.is_reviewer?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
+                userList.append('<li><a href="' + base.get_param(addTemplateToURL( system_uri + '/dashboard?'+(base.is_author?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+redirect_url, 'cantaloupe')) + '">Sign out</a></li>');
             } else {
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url, 'cantaloupe')) + '">Sign in</a></li>');
