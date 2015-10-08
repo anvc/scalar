@@ -3121,6 +3121,29 @@ ScalarNode.prototype.getDisplayTitle = function( removeMarkup ) {
 	
 }
 
+ScalarNode.prototype.getDescription = function() {
+
+	// add the node description if available
+	var description = "";
+	if ( this.current.description != null ) {
+		description += this.current.description;
+
+		// if the node has page content as well, show a "more" link
+		if ( this.current.content != null ) {
+			description += ' &nbsp;<a href="' + this.url + '">More &raquo;</a>';
+		}
+
+	// add the node page content if available
+	} else {
+		if ( this.current.content != null ) {
+			description += this.current.content;
+		}
+	}
+
+	return description;
+}
+
+
 /**
  * Returns the sort title of the node.
  *

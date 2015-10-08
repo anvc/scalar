@@ -602,10 +602,11 @@ a.media_info {
 .media_annotations tr, .current_annotation tr { cursor: pointer; }
 .media_annotations tr:hover { background-color: #eee; }
 .media_annotations tr.current { background-color: #c5dceb; }
+.media_annotations p, .mediaElementFooter p { padding-left: 0; margin-bottom: 1.4rem; }
 
 .current_annotation { background-color: #c5dceb; margin-bottom: 1.0rem; display: none; }
 
-.mediainfo h4 { font-size: 1.2rem; margin:0; line-height: 1.6rem; padding: 0 .4rem 0 0; }
+.mediainfo h4 { font-size: 1.2rem; margin: 0 0 1rem 0; line-height: 1.6rem; padding: 0 .4rem 0 0; }
 
 .media_annotations table {
 	border-left: 1px solid #ddd;
@@ -620,6 +621,8 @@ a.media_info {
 .media_annotations td:last-child,.current_annotation td:last-child {
 	padding-right: .8rem;
 }
+
+.mini-tag-bar { margin-top: 1rem; margin-bottom: 1rem; }
 
 .media_metadata {
 	display: none;

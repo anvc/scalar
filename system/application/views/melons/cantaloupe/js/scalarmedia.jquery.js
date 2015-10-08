@@ -48,22 +48,24 @@
 							// if the annotation tab is hidden, then show the single annotation display
 							if (annotationPane.css('display') == 'none') {
 								currentAnnotationTable.empty();
-								var row;
-								if (relation.body.current.content != null) {
-									row = $('<tr><td>'+relation.startString+'</td><td><h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</h4></a><div>'+relation.body.current.content+'</div></td></tr>').appendTo(currentAnnotationTable);
-								} else {
-									row = $('<tr><td>'+relation.startString+'</td><td><p>'+relation.body.getDisplayTitle()+'</p></td></tr>').appendTo(currentAnnotationTable);
-								}
-								row.data('relation', annotation);
-								row.click(function() {
-									var relation = $(this).data('relation');
-									mediaelement.seek(relation);
-									if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
-					       				setTimeout(function() {
-					           				if(!mediaelement.is_playing()) {
-												mediaelement.play();
-					           				}
-					       				},250);
+
+								var row = $('<tr><td>'+relation.startString+'</td><td></td></tr>').appendTo(currentAnnotationTable);
+								media.addContentForAnnotationToContainer( relation.body, row.find( 'td' ).eq( 1 ) );
+
+								row.data('relation', relation);
+								row.click(function( event ) {
+
+									// only clicks on the background should cue up the annotation
+									if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
+										var relation = $(this).data('relation');
+										mediaelement.seek(relation);
+										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+						       				setTimeout(function() {
+						           				if(!mediaelement.is_playing()) {
+													mediaelement.play();
+						           				}
+						       				},250);
+										}
 									}
 								});
 
@@ -77,26 +79,33 @@
 
 									var rowRelation = $(this).data('relation');
 									var col = $(this).find('td').eq(1);
+									
 
 									if ( rowRelation != null ) {
+
 										// show the content of the selected annotation
 										if (rowRelation == relation) {
 
 											$(this).addClass('current');
 
-											// only turn the title into a permalink and show its content if it actually has content
-											if (rowRelation.body.current.content != null) {
+											// only rebuild the annotation content if it isn't already showing
+											if ( $( '.media_annotations #anno-' + rowRelation.body.slug ).length == 0 ) {
 												col.empty();
-												col.append('<h4><a href="' + relation.body.url + '">'+relation.body.getDisplayTitle()+'</a></h4>');
-												col.append('<p style="display:none;">'+relation.body.current.content+'</p>');
-												col.find('p').slideDown();
+												media.addContentForAnnotationToContainer( rowRelation.body, col );
 												page.addMediaElementsForElement( col );
+
+											} else {
+												col.find( 'h4' ).contents().wrap( '<a href="' + rowRelation.body.url + '"></a>' );
+												col.find( 'h4' ).addClass( 'heading_weight' );
 											}
+
+											col.find('div').eq( 0 ).slideDown();
 
 										// hide the content of all other annotations
 										} else {
-											col.find( 'h4' ).siblings().remove();
-											col.find( 'h4' ).replaceWith( '<p>' + rowRelation.body.getDisplayTitle() + '</p>' );
+											col.find( 'h4 > a' ).contents().unwrap();
+											col.find( 'h4' ).removeClass( 'heading_weight' );
+											col.find( 'div' ).eq( 0 ).slideUp();
 										}	
 									}
 								});
@@ -136,9 +145,8 @@
 										$(this).removeClass('current');
 										if (rowRelation.body.current.content != null) {
 											var col = $(this).find('td').eq(1);
-											col.empty();
-											col.append('<p>'+rowRelation.body.getDisplayTitle()+'</p>');
-											col.append('<div>'+rowRelation.body.current.content+'</div>');
+											col.find('h4 > a').contents().unwrap();
+											col.find('h4').removeClass( 'heading_weight' );
 											col.find('div').eq(0).slideUp();
 										}
 									}
@@ -148,6 +156,54 @@
 						}
 					//}
 				}
+			},
+
+			addContentForAnnotationToContainer: function( annotation, container ) {
+
+				var content, tag, tags, tagBar, tagItem, labelClass, i, n;
+
+				// add the title
+				container.append('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
+
+				content = $( '<div id="anno-' + annotation.slug +'"></div>' ).appendTo( container );
+
+				// add the annotation description
+				nodeContent = $( '<p>' + annotation.getDescription() + '</p>' ).appendTo( content );
+
+				// get incoming tags and display them as buttons
+				tags = annotation.getRelatedNodes( "tag", "incoming" );
+				n = tags.length;
+				if ( n > 0 ) {
+					tagBar = $( '<div class="mini-tag-bar">Tags:&nbsp; </div>' ).appendTo( content );
+				}
+				for ( i = 0; i < n; i++ ) {
+					tagBar.append( " " );
+					tag = tags[ i ];
+					tagItem = $( '<a href="javascript:;" id="anno-tag-' + tag.slug + '" class="anno-tag btn btn-xs btn-default">' + tag.getDisplayTitle() + '</a>' ).appendTo( tagBar );
+					tagItem.data( 'tag', tag );
+
+					// when a tag button is clicked, toggle it on and all the others off,
+					// and show its content below
+					tagItem.click( function( event ) {
+						event.preventDefault();
+						var me = $( this );
+						if ( me.hasClass( 'btn-primary' ) ) {
+							me.parent().find( '.anno-tag' ).removeClass( 'btn-primary' ).addClass( 'btn-default' );
+							me.parent().parent().find( '.anno-tag-content' ).empty();
+						} else {
+							$( this ).parent().find( '.anno-tag' ).removeClass( 'btn-primary' ).addClass( 'btn-default' );
+							$( this ).removeClass( 'btn-default' );
+							$( this ).addClass( 'btn-primary' );
+							var tag = $( this ).data( 'tag' );
+							var nodeContent = me.parent().parent().find( '.anno-tag-content' ).empty();
+							nodeContent.append( tag.getDescription() );
+						}
+					})
+				}
+				if ( n > 0 ) {
+					content.append( '<p class="anno-tag-content"></p>' );
+				}
+
 			},
 
 			minimizeAnnotationPane: function() {
@@ -241,16 +297,21 @@
 					annotation = annotations[i];
 					row = $('<tr><td>'+annotation.startString+'</td><td><p>'+annotation.body.getDisplayTitle()+'</p></td></tr>').appendTo(table);
 					row.data('relation', annotation);
-					row.click(function() {
-						var relation = $(this).data('relation');
-						mediaelement.seek(relation);
-						if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
-              				setTimeout(function() {
-                				if(!mediaelement.is_playing()) {
-      								mediaelement.play();
-                				}
-              				},250);
+					row.click(function( event ) {
+
+						// only clicks on the background should cue up the annotation
+						if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
+							var relation = $(this).data('relation');
+							mediaelement.seek(relation);
+							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+	              				setTimeout(function() {
+	                				if(!mediaelement.is_playing()) {
+	      								mediaelement.play();
+	                				}
+	              				},250);
+							}
 						}
+
 					});
 				}
 				if (!foundAuxContent) {

@@ -396,7 +396,7 @@ function YouTubeGetID(url){
 				if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, true) == 'loaded') this.handleMetadata();
 			} else {
 				// get annotations only
-				if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, false, 'annotation') == 'loaded') this.handleMetadata();
+				if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 2, false, 'annotation,tag') == 'loaded') this.handleMetadata();
 			}
 		}
 
@@ -2075,7 +2075,7 @@ function YouTubeGetID(url){
     	}
 
 		/**
-		 * Sets up the image's annotations (uses a modified verison of the jQuery Image Annotation Plugin: https://github.com/flipbit/jquery-image-annotate)
+		 * Sets up the image's annotations
 		 *
 		 * @param {Array} annotations		The annotations to be added to the image.
 		 */
