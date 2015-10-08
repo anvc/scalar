@@ -1724,7 +1724,7 @@
 					showLists:true,
 					showParentNav:true,
 					showChildNav:true,
-					ShowLateralNav:true,
+					showLateralNav:true,
 					showAnno:true,
 					showComments:true,
 					showTags:true
