@@ -1009,7 +1009,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         }
                     });
             }
-            scalarapi.loadPage( container.data('slug'), true, $.proxy(handleRequest,container), null, 1, false, 1, 0, 20 );
+            scalarapi.loadPage( container.data('slug'), true, $.proxy(handleRequest,container), null, 1, false, null, 0, 20 );
         };
         base.focusExpandedPage = function(container){
             if(container != null && typeof container !== 'undefined'){
@@ -1268,7 +1268,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                     base.checkedParents.push(slug);
                                     base.getParents(scalarapi.getNode(slug),++depth);
                                 }
-                            }, null, 1, false, 1, 0, 20, prov );
+                            }, null, 1, false, null, 0, 20, prov );
                         })(slug,depth);
                     }
                 }

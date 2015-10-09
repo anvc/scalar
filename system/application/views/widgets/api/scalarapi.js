@@ -1874,7 +1874,7 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 		ref = references ? 1 : 0;
 	}
 	queryString += '&ref='+ref;
-	if (relation !== null) {
+	if (relation != null) {
 		queryString += '&res='+relation;
 	}
 	if (start != null) {

@@ -212,7 +212,7 @@
 							
 						}, function() {
 							console.log('an error occurred while retrieving structured gallery info.');
-						}, 1, true);
+						}, 1, true, 'path,tag' );
 						
 						index = contentBlocks.indexOf( block );
 						contentBlocks.splice( index, 1 );
