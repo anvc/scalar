@@ -371,7 +371,7 @@
 
 						var node = scalarapi.getNode( slotMediaElement.model.meta );
 						var specifiesDimensions = false;
-						if ( node != null ) {
+						if (( node != null ) && ( node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ] != null )) {
 							specifiesDimensions = node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ].specifiesDimensions;
 						}
 		
@@ -1605,11 +1605,7 @@
 		  	}
 
 		  	// this prevents scrolling within in the WYSIWYG from locking up on Safari
-		  	if ( viewType == 'edit' ) {
-				if ( scalarapi.scalarBrowser == "Safari" ) {
-					$( '.cke_contents' ).css( 'overflow', 'auto' );
-				}
-		  	} else {
+		  	if ( viewType != 'edit' ) {
 		  		page.makeRelativeLinksAbsolute();
 		  	}
 			

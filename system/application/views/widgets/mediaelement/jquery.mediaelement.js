@@ -773,7 +773,14 @@ function YouTubeGetID(url){
 
 			}
 
-			if ((this.model.mediaSource.contentType == 'image') && (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native') && (this.mediaObjectView.annotations != null)) {
+			var playerIsNative = false;
+			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+				if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native' ) {
+					playerIsNative = true;
+				}
+			}
+
+			if ((this.model.mediaSource.contentType == 'image') && playerIsNative && (this.mediaObjectView.annotations != null)) {
 				this.mediaObjectView.setupAnnotations(this.mediaObjectView.annotations);
 			}
 
@@ -923,10 +930,15 @@ function YouTubeGetID(url){
 
 			} else {
 
+				var player;
+				if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+					player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
+				}
+
 				switch (this.model.mediaSource.contentType) {
 
 					case 'image':
-					if (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'QuickTime') {
+					if (player == 'QuickTime') {
 						this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
 					} else {
 						this.mediaObjectView = new $.ImageObjectView(this.model, this);
@@ -940,17 +952,17 @@ function YouTubeGetID(url){
 					case 'audio':
 					if (this.model.mediaSource.name == 'SoundCloud') {
 						this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);
-					} else if (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'QuickTime') {
+					} else if (player == 'QuickTime') {
 						this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
-					} else if (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native') {
+					} else if (player == 'native') {
 						this.mediaObjectView = new $.HTML5AudioObjectView(this.model, this);
-					} else if (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'jPlayer') {
+					} else if (player == 'jPlayer') {
 						this.mediaObjectView = new $.JPlayerAudioObjectView(this.model, this);
 					}
 					break;
 
 					case 'video':
-					switch (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player) {
+					switch (player) {
 
 						case 'QuickTime':
 						if (this.model.mediaSource.name == 'QuickTimeStreaming') {
@@ -1386,12 +1398,17 @@ function YouTubeGetID(url){
 			this.calculateContainerSize();
 			this.layoutMediaObject();
 
+			var player;
+			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+				player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
+			}
+
 			if (this.annotationsVisible) {
 				if (this.model.options.header != 'nav_bar') {
 					$(this.annotationLink).find('a').text('Hide Annotations');
 				} else {
 					// if we're in the maximize view and this is an image with annotations, then the image annotations need to be reset
-					if ((this.model.mediaSource.contentType == 'image') && (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native') && (this.mediaObjectView.annotations != null)) {
+					if ((this.model.mediaSource.contentType == 'image') && (player == 'native') && (this.mediaObjectView.annotations != null)) {
 						this.mediaObjectView.setupAnnotations(this.mediaObjectView.annotations);
 					}
 				}
@@ -1410,7 +1427,7 @@ function YouTubeGetID(url){
 					$(this.annotationLink).find('a').text('Annotations');
 				} else {
 					// if we're in the maximize view and this is an image with annotations, then the image annotations need to be reset
-					if ((this.model.mediaSource.contentType == 'image') && (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native') && (this.mediaObjectView.annotations != null)) {
+					if ((this.model.mediaSource.contentType == 'image') && (player == 'native') && (this.mediaObjectView.annotations != null)) {
 						this.mediaObjectView.setupAnnotations(this.mediaObjectView.annotations);
 					}
 				}
@@ -1956,8 +1973,15 @@ function YouTubeGetID(url){
 
 			}
 
+			var playerIsNative = false;
+			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+				if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native' ) {
+					playerIsNative = true;
+				}
+			}
+
 			// show image annotations if there are any
-			if ((this.model.mediaSource.contentType == 'image') && (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player == 'native') && (this.annotations.length > 0)) {
+			if ((this.model.mediaSource.contentType == 'image') && playerIsNative && (this.annotations.length > 0)) {
 				this.mediaObjectView.setupAnnotations(this.annotations);
 			}
 
@@ -2555,7 +2579,13 @@ function YouTubeGetID(url){
 
 				case "CriticalCommons-Video":
 				var ext;
-				if (this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].format == 'MPEG-4') {
+
+				var format;
+				if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+					format = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].format;
+				}
+
+				if (format == 'MPEG-4') {
 					ext = 'mp4';
 					mimeType = "video/mp4";
 				} else {
