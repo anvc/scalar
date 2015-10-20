@@ -45,8 +45,8 @@
 		var childPaths;
 		var childTags;
 		var mediaDetails, children, interval;
-		var relationships = ['path', 'tag', 'referee'],
-			childRelationships = ['path', 'tag'],
+		var childRelationships = ['path', 'tag', 'referee'],
+			relationships = ['path', 'tag'],
 			childLoadIndex = -1,
 			contentBlocks = [];
 			
@@ -65,11 +65,11 @@
 				}
 			},
 			
-			getChildrenOfType: function(node, type) {
+			getChildrenOfType: function(node, relationshipsToCheck, type) {
 				var children = [];
 				var i,j,childNodes,childNode,relationship;
-				for (j in relationships) {
-					relationship = relationships[j];
+				for (j in relationshipsToCheck) {
+					relationship = relationshipsToCheck[j];
 					childNodes = node.getRelatedNodes(relationship, 'outgoing');
 					for (i in childNodes) {
 						childNode = childNodes[i];
@@ -252,7 +252,7 @@
 				var child, i,
 					block = $( '#block_' + node.slug.replace( "/", "-" ) ),
 					block_head = $( '#block_head_' + node.slug.replace( "/", "-" ) ),
-					children = gallery.getChildrenOfType( node, 'all' ),
+					children = gallery.getChildrenOfType( node, childRelationships, 'all' ),
 					n = children.length;
 					
 				block.find('.spinner_wrapper').remove();
@@ -335,7 +335,7 @@
 			addMedia: function() {
 				$( '#gallery_content' ).empty();
 				interval = setInterval(gallery.handleTimer, 1000);
-				children = gallery.getChildrenOfType( scalarapi.model.getCurrentPageNode(), 'all');
+				children = gallery.getChildrenOfType( scalarapi.model.getCurrentPageNode(), relationships, 'all');
 				gallery.createContentBlocks();
 			}
 
