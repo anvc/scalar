@@ -1496,9 +1496,9 @@
 
 					// add marker and info window for current page
 					if ( desc != null ) {
-						contentString = '<div class="google-info-window caption_font"><h2>' + title + '</h2>' + desc + '</div>';
+						contentString = '<div class="google-info-window caption_font"><h2 class="heading_font heading_weight">' + title + '</h2>' + desc + '</div>';
 					} else {
-						contentString = '<div class="google-info-window caption_font"><h2>' + title + '</h2></div>';
+						contentString = '<div class="google-info-window caption_font"><h2 class="heading_font heading_weight">' + title + '</h2></div>';
 					}
 					marker = new google.maps.Marker({
 					    position: latlng,
