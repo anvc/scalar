@@ -2940,7 +2940,6 @@ function YouTubeGetID(url){
 
 			this.video = new YT.Player('youtube'+this.model.filename+'_'+this.model.id, params);
 
-			this.parentView.controllerOffset = 30;
 			this.parentView.removeLoadingMessage();
 
 			return;
