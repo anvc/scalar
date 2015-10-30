@@ -1874,7 +1874,7 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 		ref = references ? 1 : 0;
 	}
 	queryString += '&ref='+ref;
-	if (relation !== null) {
+	if (relation != null) {
 		queryString += '&res='+relation;
 	}
 	if (start != null) {
@@ -2393,7 +2393,8 @@ function ScalarModel(options) {
 		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},
 		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'},
 		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
-		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'}
+		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
+		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'}
 	];
 	
 	// metadata about each relation type
@@ -2462,7 +2463,6 @@ ScalarModel.prototype.relationsById = null;
 ScalarModel.prototype.crossDomain = null;
 ScalarModel.prototype.nodePropertyMap = null;
 ScalarModel.prototype.versionPropertyMap = null;
-ScalarModel.prototype.auxPropertyMap = null;
 ScalarModel.prototype.currentPageNode = null;
 ScalarModel.prototype.bookNode = null;
 ScalarModel.prototype.scalarTypes = null;

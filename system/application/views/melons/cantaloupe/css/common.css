@@ -898,7 +898,7 @@ a.nav_btn:hover {
 
 /* misc */
 .maximized-embed { width: 100%; height: 65rem; margin-bottom: 2rem; }
-.google-info-window h2 { font-size: 1.6rem; padding: 0; margin: 0; line-height: 160%; }
+.google-info-window h2 { font-size: 1.6rem; padding: 0; margin: 0 0 1rem; line-height: 100%; }
 .google-info-window { line-height: 130%; font-weight: normal; }
 
 /* Hidden elements */
