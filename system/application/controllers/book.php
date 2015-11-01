@@ -270,6 +270,11 @@ class Book extends MY_Controller {
 
 		switch ($archive) {
 
+			case false:
+
+				$this->data['view'] = 'tensor';
+				break;
+
 			case 'system':
 
 				// Import from another Scalar book on the same install
