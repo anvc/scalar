@@ -77,6 +77,7 @@ $config['archives'][] = array(
 		'content_type'	=> "xml"
 	)
 );
+/*
 $config['archives'][] = array(
 	'title'   		=> 'UBC Library Digital Collections',
 	'subtitle'		=> 'UBC Library Digital Collections represents many of the locally-created digital collections developed and maintained by the University of British Columbia Library. Collectively they document a diverse range of people and places, activities and events, and serve as a resource for students, historians, genealogists, and other researchers.',
@@ -89,6 +90,7 @@ $config['archives'][] = array(
 		'content_type'	=> "xml"
 	)
 );
+*/
 $config['archives'][] = array(
 	'title'   		=> 'Critical Commons',
 	'subtitle'		=> 'For Fair &amp; Critical Participation in Media Culture',

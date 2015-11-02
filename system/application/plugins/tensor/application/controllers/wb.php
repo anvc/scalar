@@ -30,6 +30,15 @@ class Wb extends CI_Controller {
 
 	}
 
+	public function simple_proxy() {
+
+		$url =@ $_REQUEST['url'];
+		$content = file_get_contents($url);
+		echo $content;
+		exit;
+
+	}
+
 	public function pegboard() {
 
 		$this->load->helper('array');
