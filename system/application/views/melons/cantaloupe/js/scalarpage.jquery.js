@@ -933,36 +933,40 @@
 				var mediaelement = $( this ).data( 'mediaelement' );
 
 				if ( mediaelement != null ) {
+					if ( mediaelement.model.node != null ) {
 
-					// if this is an annotation link, then seek to the annotation and play
-					// the media if it isn't already playing
-					var annotationURL = $( this ).data( 'targetAnnotation' );
-					if ( annotationURL != null ) {
-						
-						mediaelement.seek( mediaelement.model.initialSeekAnnotation );
-						if (( mediaelement.model.mediaSource.contentType != 'document' ) && ( mediaelement.model.mediaSource.contentType != 'image' )) {
-              				setTimeout(function() {
-                				if(!mediaelement.is_playing()) {
-      								mediaelement.play();
-                				}
-              				},250);
-						}
-
-					} else if ( mediaelement.is_playing() ) {
-						mediaelement.pause();
-					} else {
-						mediaelement.play();
-					}
-
-					// pause all other media on the page
-					$( 'a.media_link' ).each(function() {
-						var me = $( this ).data( 'mediaelement' );
-						if ( me != null ) {
-							if ( me !== mediaelement ) {
-								me.pause();
+						// if this is an annotation link, then seek to the annotation and play
+						// the media if it isn't already playing
+						var annotationURL = $( this ).data( 'targetAnnotation' );
+						if ( annotationURL != null ) {
+							
+							mediaelement.seek( mediaelement.model.initialSeekAnnotation );
+							if (( mediaelement.model.mediaSource.contentType != 'document' ) && ( mediaelement.model.mediaSource.contentType != 'image' )) {
+	              				setTimeout(function() {
+	                				if(!mediaelement.is_playing()) {
+	      								mediaelement.play();
+	                				}
+	              				},250);
 							}
+
+						} else if ( mediaelement.is_playing() ) {
+							mediaelement.pause();
+						} else {
+							mediaelement.play();
 						}
-					});
+
+						// pause all other media on the page
+						$( 'a.media_link' ).each(function() {
+							var me = $( this ).data( 'mediaelement' );
+							if ( me != null ) {
+								if ( me !== mediaelement ) {
+									if ( me.model.node != null ) {
+										me.pause();
+									}
+								}
+							}
+						});
+					}
 				}
 
 				var $mediaelement = mediaelement.model.element;
