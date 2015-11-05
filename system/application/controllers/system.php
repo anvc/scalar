@@ -630,6 +630,10 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->versions = $versions;
 		        }
 				break;
+			case 'get_user_books':
+				if (!$this->data['login']->is_logged_in) $this->kickout();
+				$this->data['content'] = $this->books->get_all($this->data['login']->user_id, false);
+				break;
 			case 'get_path_of':
 				$this->load->model('path_model', 'paths');
 				$this->load->model('page_model', 'pages');
