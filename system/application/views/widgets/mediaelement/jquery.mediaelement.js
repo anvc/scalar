@@ -1266,13 +1266,13 @@ function YouTubeGetID(url){
 					}
 				});
 
-				if(typeof maxHeight != 'undefined') {
-						if (mediaAR > containerAR) {
-							// Must limit width in order to get the right height limit
-							tempDims.x = Math.min(maxHeight * mediaAR,tempDims.x);
-						} else {
-							tempDims.y = Math.min(maxHeight, tempDims.y);
-						}
+				if (typeof maxHeight != 'undefined') {
+					if (mediaAR > containerAR) {
+						// Must limit width in order to get the right height limit
+						tempDims.x = Math.min(maxHeight * mediaAR,tempDims.x);
+					} else {
+						tempDims.y = Math.min(maxHeight, tempDims.y);
+					}
 				}
 			}
 
@@ -2207,6 +2207,8 @@ function YouTubeGetID(url){
 			$(this.image).parent().width(width+'px');
 			$(this.image).parent().height(height+'px');
 			if (this.hasLoaded) {
+				$(this.image).closest( '.mediaObject' ).width( '' );
+				$(this.image).closest( '.mediaObject' ).height( '' );
 				$(this.image).width(width+'px');
 				$(this.image).height(height+'px');
 			}
