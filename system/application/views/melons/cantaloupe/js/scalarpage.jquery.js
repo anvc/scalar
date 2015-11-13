@@ -1760,42 +1760,73 @@
 			  		$( '.page' ).css( 'padding-top', '5.0rem' );
 			  		$( 'header > h1' ).before( '<div id="google-maps" class="maximized-embed"></div>' );
 
-					scalarapi.loadPage( currentNode.slug, true, function() {
+					// create map
+					var mapOptions = {
+						zoom: 8,
+						mapTypeId: google.maps.MapTypeId.ROADMAP
+					}
+					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 
-						// create map
-						var mapOptions = {
-							zoom: 8,
-							mapTypeId: google.maps.MapTypeId.ROADMAP
+					// create info window
+					var infoWindow = new google.maps.InfoWindow({
+						content: contentString,
+						maxWidth: 400
+					});
+
+					var marker, property, contents, node, contentString,
+						properties = [
+							'http://purl.org/dc/terms/coverage',
+							'http://purl.org/dc/terms/spatial'
+						]
+						markers = [],
+						foundError = true;
+
+					for ( p in properties ) {
+
+						property = properties[ p ];
+
+						// if the current page has the spatial property, then
+						if ( currentNode.current.properties[ property ] != null ) {
+
+							n = currentNode.current.properties[ property ].length;
+							for ( i = 0; i < n; i++ ) {
+								marker = page.getMarkerFromLatLonStrForMap( 
+									currentNode.current.properties[ property ][ i ].value,
+									currentNode.getDisplayTitle(),
+									currentNode.current.description,
+									map,
+									infoWindow
+								);
+
+								if ( marker != null ) {
+									markers.push( marker );
+									foundError = false;
+								}
+
+							}
+
 						}
-						var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 
-						// create info window
-						var infoWindow = new google.maps.InfoWindow({
-							content: contentString,
-							maxWidth: 400
-						});
+						// get path and tag contents of this page
+						contents = [];
+						contents = contents.concat( currentNode.getRelatedNodes( 'path', 'outgoing' ) );
+						contents = contents.concat( currentNode.getRelatedNodes( 'tag', 'outgoing' ) );
 
-						var marker, property, contents, node, contentString,
-							properties = [
-								'http://purl.org/dc/terms/coverage',
-								'http://purl.org/dc/terms/spatial'
-							]
-							markers = [],
-							foundError = true;
+						n = contents.length;
 
-						for ( p in properties ) {
+						// add markers for each content element that has the spatial property
+						for ( i = 0; i < n; i++ ) {
 
-							property = properties[ p ];
+							node = contents[ i ];
 
-							// if the current page has the spatial property, then
-							if ( currentNode.current.properties[ property ] != null ) {
-
-								n = currentNode.current.properties[ property ].length;
-								for ( i = 0; i < n; i++ ) {
+							if ( node.current.properties[ property ] != null ) {
+	
+								o = node.current.properties[ property ].length;
+								for ( j = 0; j < o; j++ ) {
 									marker = page.getMarkerFromLatLonStrForMap( 
-										currentNode.current.properties[ property ][ i ].value,
-										currentNode.getDisplayTitle(),
-										currentNode.current.description,
+										node.current.properties[ property ][ j ].value,
+										node.getDisplayTitle(),
+										node.current.description,
 										map,
 										infoWindow
 									);
@@ -1804,65 +1835,28 @@
 										markers.push( marker );
 										foundError = false;
 									}
-
-								}
-
-							}
-
-							// get path and tag contents of this page
-							contents = [];
-							contents = contents.concat( currentNode.getRelatedNodes( 'path', 'outgoing' ) );
-							contents = contents.concat( currentNode.getRelatedNodes( 'tag', 'outgoing' ) );
-
-							n = contents.length;
-
-							// add markers for each content element that has the spatial property
-							for ( i = 0; i < n; i++ ) {
-
-								node = contents[ i ];
-
-								if ( node.current.properties[ property ] != null ) {
-		
-									o = node.current.properties[ property ].length;
-									for ( j = 0; j < o; j++ ) {
-										marker = page.getMarkerFromLatLonStrForMap( 
-											node.current.properties[ property ][ j ].value,
-											node.getDisplayTitle(),
-											node.current.description,
-											map,
-											infoWindow
-										);
-
-										if ( marker != null ) {
-											markers.push( marker );
-											foundError = false;
-										}
-									}
 								}
 							}
 						}
+					}
 
-						// no valid coords found on page or its children
-						if ( foundError ) {
-							$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
+					// no valid coords found on page or its children
+					if ( foundError ) {
+						$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
 
-						// no coords of any kind found
-						} else if ( markers.length == 0 ) {
-							$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
-						}
+					// no coords of any kind found
+					} else if ( markers.length == 0 ) {
+						$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
+					}
 
-						// adjust map bounds to marker bounds
-						var bounds = new google.maps.LatLngBounds();
-						$.each( markers, function ( index, marker ) {
-							bounds.extend( marker.position );
-						});
-						if ( markers.length > 1 ) {
-							map.fitBounds( bounds );
-						}
-
-					}, function() {
-						console.log('an error occurred while retrieving additional metadata.');
-					}, 1, true);
+					// adjust map bounds to marker bounds
+					var bounds = new google.maps.LatLngBounds();
+					$.each( markers, function ( index, marker ) {
+						bounds.extend( marker.position );
+					});
+					if ( markers.length > 1 ) {
+						map.fitBounds( bounds );
+					}
 					break;
 
                     case "vis":
