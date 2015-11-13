@@ -750,7 +750,19 @@
 			},
 
 			addColophon: function() {
-				$('#footer').append('<div id="colophon" class="caption_font"><p id="scalar-credit"><a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a> Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | <a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a></p></div>');
+				var currentNode = scalarapi.model.getCurrentPageNode();
+				$('#footer').append( '<div id="colophon" class="caption_font">' + 
+					'<p id="scalar-credit">' +
+						'<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date( currentNode.current.created ).toLocaleDateString() + ' | ' +
+						'<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ' +
+						'<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br>' +
+						'<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a>' +
+						' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | ' +
+						'<a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | ' +
+						'<a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | ' +
+						'<a href="http://scalar.usc.edu/contact/">Scalar Feedback</a>' +
+					'</p>' +
+				'</div>');
 			},
 
 			addVersionInfo: function() {
@@ -1916,7 +1928,11 @@
                     break;
 
 					case "versions":
-					$( 'h1[property="dcterms:title"]' ).after( '<h2>Version editor</h2>' );
+					if ( page.is_author || page.is_commentator || page.is_reviewer ) {
+						$( 'h1[property="dcterms:title"]' ).after( '<h2>Version editor</h2>' );
+					} else {
+						$( 'h1[property="dcterms:title"]' ).after( '<h2>Version history</h2>' );
+					}
 					$( '.versions-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
 					okToAddExtras = false;
 					break;
