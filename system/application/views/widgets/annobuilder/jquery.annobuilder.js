@@ -263,8 +263,12 @@ jQuery.AnnoBuilderController = function() {
 			
 		}
 
-		anno.makeAnnotatable( $.annobuilder.model.mediaElement.view.mediaObjectView.image );
-		anno.setProperties( { hi_stroke: "#3acad9" } );
+		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
+			$( $.annobuilder.model.mediaElement.view.mediaObjectView.image ).load( function() {
+				anno.makeAnnotatable( $.annobuilder.model.mediaElement.view.mediaObjectView.image );
+				anno.setProperties( { hi_stroke: "#3acad9" } );
+			});
+		}
 		
 	}
 
