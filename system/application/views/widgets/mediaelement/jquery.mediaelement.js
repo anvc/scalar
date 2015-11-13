@@ -391,12 +391,19 @@ function YouTubeGetID(url){
 		 * Loads metadata for the media.
 		 */
 		jQuery.MediaElementController.prototype.loadMetadata = function() {
-			if ( this.model.options.getRelated ) {
-				// get all relationships
-				if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, true) == 'loaded') this.handleMetadata();
+			// don't load metadata if we're in cantaloupe (unless specifically requested using the "solo' option)
+			// (only cantaloupe pages should contain the "article" element)
+			if (( $.find( 'article' ).length == 0 ) || this.model.options.solo ) {
+				if ( this.model.options.getRelated ) {
+					// get all relationships
+					if (scalarapi.loadNode(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, true) == 'loaded') this.handleMetadata();
+				} else {
+					// get annotations only
+					if (scalarapi.loadNode(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 2, false, 'annotation,tag') == 'loaded') this.handleMetadata();
+				}
 			} else {
-				// get annotations only
-				if (scalarapi.loadPage(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 2, false, 'annotation,tag') == 'loaded') this.handleMetadata();
+				// we need the delay so the plugin has the chance to make itself available to the page
+				setTimeout( this.handleMetadata, 10 );
 			}
 		}
 
@@ -3737,7 +3744,17 @@ function YouTubeGetID(url){
 
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
 
-			var obj = $('<div class="mediaObject" style="overflow: hidden"><div style="-webkit-overflow-scrolling: touch; overflow-y: scroll;"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
+			var obj = $('<div class="mediaObject" style="overflow: hidden"><div><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
+			
+			// these styles enable momentum scrolling of iframes for mobile devices;
+			// if added for desktop browsers they cause double scrollbars
+			if (( scalarapi.scalarBrowser == 'MobileSafari' ) || ( scalarapi.scalarBrowser == 'Android' )) {
+				obj.find( 'div' ).css( {
+					"-webkit-overflow-scrolling": "touch",
+					"overflow-y": "scroll"
+				})
+			}
+
 			this.frame = obj.find('#'+this.frameId)[0];
 
 			$(this.frame).bind("load", function () {
@@ -4241,7 +4258,17 @@ function YouTubeGetID(url){
 
 			this.frameId = 'html'+this.model.filename+'_'+this.model.id;
 
-			var obj = $('<div class="mediaObject" style="overflow: hidden"><div style="-webkit-overflow-scrolling: touch; overflow-y: scroll;"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
+			var obj = $('<div class="mediaObject" style="overflow: hidden"><div><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
+			
+			// these styles enable momentum scrolling of iframes for mobile devices;
+			// if added for desktop browsers they cause double scrollbars
+			if (( scalarapi.scalarBrowser == 'MobileSafari' ) || ( scalarapi.scalarBrowser == 'Android' )) {
+				obj.find( 'div' ).css( {
+					"-webkit-overflow-scrolling": "touch",
+					"overflow-y": "scroll"
+				})
+			}
+
 			this.frame = obj.find('#'+this.frameId)[0];
 
 			$(this.frame).bind("load", function () {
