@@ -11,25 +11,13 @@
 |	http://example.com/
 |
 | Modified by Craig Dietrich (Feb 2011) to make dynamic, code from http://codeigniter.com/wiki/Automatic_configbase_url/
+| Modified by Craig Dietrich (Nov 2015) to add is_https variable for use inside the application
 |
 */
 
-// $config['base_url']	= "http://localhost/";
-$config['base_url'] = 'http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '')
-                      .'://'.$_SERVER['HTTP_HOST'].str_replace('//','/',dirname($_SERVER['SCRIPT_NAME']).'/');
+$config['is_https'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? true : false;
 
-/*
-|--------------------------------------------------------------------------
-| Force HTTPS
-|--------------------------------------------------------------------------
-|
-| If your server is configured for HTTPS then setting this to true will
-| require all logged-in actions to go through SSL. This includes the 
-| save API. Make sure your server is configured so that http and https
-| go to the same web root if you turn this on.
-|
-*/
-$config['force_https'] = false;
+$config['base_url'] = 'http'.(($config['is_https']) ? 's' : '').'://'.$_SERVER['HTTP_HOST'].str_replace('//','/',dirname($_SERVER['SCRIPT_NAME']).'/');
 
 /*
 |--------------------------------------------------------------------------
