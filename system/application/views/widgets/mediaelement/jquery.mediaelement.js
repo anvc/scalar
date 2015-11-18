@@ -2880,16 +2880,34 @@ function YouTubeGetID(url){
 			// TODO: the 'origin' param will have to become dynamic for Scalar to be able to live on different servers
 
 			obj = $('<div class="mediaObject"><div id="youtube'+this.model.filename+'_'+this.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
+			var queryVars = scalarapi.getQueryVars( this.model.path );
+
+			// default player vars
+			playerVars = {
+				modestbranding:1,
+				enablejsapi:1,
+				origin:'scalar.usc.edu',
+				rel:0,
+				autoplay: this.model.options.autoplay ? 1 : 0
+			}
+
+			// overwrite defaults with any params in the youtube url
+			for ( var prop in queryVars ) {
+				if ( isNaN( parseFloat( queryVars[ prop ] ) ) ) {
+					playerVars[ prop ] = queryVars[ prop ];
+				} else {
+					// the "t" param needs to get remapped to "start"
+					if ( prop == "t" ) {
+						playerVars[ "start" ] = parseFloat( queryVars[ prop ] );
+					} else {
+						playerVars[ prop ] = parseFloat( queryVars[ prop ] );
+					}
+				}
+			}
 
 			var params = {
 				videoId: YouTubeGetID( this.model.path ),
-				playerVars: {
-					modestbranding:1,
-					enablejsapi:1,
-					origin:'scalar.usc.edu',
-					rel:0,
-					autoplay: this.model.options.autoplay ? 1 : 0
-				},
+				playerVars: playerVars,
 				events: {
 					'onStateChange': 'onYouTubeStateChange' + this.model.id
 				}
