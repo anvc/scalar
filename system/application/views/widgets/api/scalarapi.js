@@ -1758,7 +1758,7 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 		tosend['api_key'] = jQuery.trim(data['api_key']);
 		if (tosend['native'] && !tosend['id'].length) throw "Empty required user field 'id'";
 		if (!tosend['native'] && !tosend['api_key'].length) throw "Empty required user field 'api_key'";			
-		if ('http://'==data['scalar:url']) data['scalar:url'] = '';  // default value
+		if ('http://'==data['scalar:url'] || 'https://'==data['scalar:url']) data['scalar:url'] = '';  // default value
 		
 		// Add additional metadata being passed through
 		for (var j in data) {
@@ -2069,7 +2069,7 @@ ScalarAPI.prototype.parseCurrentPage = function(json) {
  */
 ScalarAPI.prototype.getNode = function(uriOrSlug) {
 	if ( uriOrSlug != null ) {
-		if (uriOrSlug.indexOf('http://') != -1) {
+		if (uriOrSlug.indexOf('http://') != -1 || uriOrSlug.indexOf('https://') != -1) {
 			return this.model.nodesByURL[uriOrSlug];
 		}
 		return this.model.nodesByURL[this.model.urlPrefix+uriOrSlug];

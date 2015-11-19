@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -19,8 +19,9 @@
 
 /**
  * @projectDescription  Boot Scalar Javascript/jQuery using yepnope.js
- * @author              Craig Dietrich
- * @version             Cantaloupe 1.0
+ * @author              Erik Loyer
+ * @author				Craig Dietrich
+ * @version             Cantaloupe 1.1
  */
 
 var ViewState = {
@@ -41,9 +42,10 @@ $('script[src]').each(function() {  // Certain hotel wifi are injecting spam <sc
     return false;
   } 
 });
-var base_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-2).join('/');
-var system_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-6).join('/');
-var index_uri = 'http://'+script_uri.replace('http://','').split('/').slice(0,-7).join('/');
+var scheme = (script_uri.indexOf('https://') != -1) ? 'https://' : 'http://';
+var base_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-2).join('/');
+var system_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-6).join('/');
+var index_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-7).join('/');
 var arbors_uri = base_uri.substr(0, base_uri.lastIndexOf('/'));
 var views_uri = arbors_uri.substr(0, arbors_uri.lastIndexOf('/'));
 var modules_uri = views_uri+'/melons';
@@ -62,12 +64,6 @@ var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.us
 var isNative = (document.location.href.indexOf('=cantaloupe') == -1);
 var typeLimits = null;
 
-
-
-/**
- * Not an easy way to wait for a CSS file to load (even with yepnope doing a good job in Firefox)
- * This function takes a test, for example, that the width of an element has changed, and runs a callback
- */
 function when(tester_func, callback) {
 	var timeout = 50;
 	var passed = tester_func();
@@ -95,8 +91,7 @@ function restoreState() {
 	$('body').trigger('setState', {state:state, instantaneous:true});
 }
 
-// rewrite Scalar hyperlinks to point to the cantaloupe melon
-function addTemplateLinks(element, templateName) {
+function addTemplateLinks(element, templateName) {  // rewrite Scalar hyperlinks to point to the cantaloupe melon
 	if (!isNative) {
 		element.find('a').each(function() {
 			var href = $(this).attr('href');
@@ -179,8 +174,7 @@ function pullOutElement($pull) {
 }
 
 /**
- * Finds all contiguous elements that aren't paragraphs or divs and wraps them
- * in divs.
+ * Finds all contiguous elements that aren't paragraphs or divs and wraps them in divs.
  *
  * @param {Object} selection		The jQuery selection to modify.
  */
@@ -295,12 +289,11 @@ function wrapOrphanParagraphs(selection) {
 }
 
 
-/*
- * $.fn.slotmanager_create_slot
- * Create a slot and attach to a tag
+/**
+ * Create a slot and attach to a tag (ported from honeydew slot manager)
+ * 
  * @param obj options, required 'url_attributes'
  */
-
 $.fn.slotmanager_create_slot = function(width, height, options) {
 	$tag = $(this);
 	//if ($tag.hasClass('inline')) return;

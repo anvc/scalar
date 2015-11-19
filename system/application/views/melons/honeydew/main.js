@@ -34,6 +34,7 @@ for (var j = 0; j < scripts.length; j++) {  // Certain hotel wifi are injecting 
 		break;
 	}
 }
+var scheme = (script_uri.indexOf('https://') != -1) ? 'https://' : 'http://';
 var base_uri = script_uri.substr(0, script_uri.lastIndexOf('/'));
 var arbors_uri = base_uri.substr(0, base_uri.lastIndexOf('/'));
 var views_uri = arbors_uri.substr(0, arbors_uri.lastIndexOf('/'));

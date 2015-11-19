@@ -199,10 +199,9 @@
 			  			search = search.replace(/content-id=[0-9]+/g,"content-id="+cid);
 			  		}
 
-			  		var dest = 'http://' + location.host+location.pathname+search+location.hash;
-			  		if(dest == location.href)
-			  			location.reload();
-					location.replace('http://' + location.host+location.pathname+search+location.hash);
+			  		var dest = '//' + location.host+location.pathname+search+location.hash;
+			  		if(dest == location.href) location.reload();
+					location.replace('//' + location.host+location.pathname+search+location.hash);
 				} else {
 					location.reload();
 				}

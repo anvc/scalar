@@ -1,7 +1,7 @@
 <?
 $path_to_icon = $app_root.'views/melons/cantaloupe/images/scalar_logo_white.png';
 $css = <<<EOT
-@import url(http://fonts.googleapis.com/css?family=Lato:900,400);
+@import url(//fonts.googleapis.com/css?family=Lato:900,400);
 html, body {height:100%;}
 body {overflow:hidden; background:white !important; }
 body, div {margin:0;}

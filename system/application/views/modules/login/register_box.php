@@ -27,7 +27,7 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 			</tr>
 			<? if ($register_key): ?>
 			<tr>
-				<td class="field">Registration<br />key <span style="color:red;">*</span> <a class="question_answer" alt="Scalar is presently in a 'closed alpha' release and requires a registration key to create a new account.  Please contact the Scalar team to acquire a registration key.  For more information please visit the <a href='http://scalar.usc.edu/anvc'>ANVC Scalar website</a>."></a></td><td class="value"><input type="text" name="registration_key" value="<?=$registration_key?>" class="input_text input_hl" /></td>
+				<td class="field">Registration<br />key <span style="color:red;">*</span></td><td class="value"><input type="text" name="registration_key" value="<?=$registration_key?>" class="input_text" /></td>
 			</tr>
 			<? endif ?>
 			<tr>
@@ -40,13 +40,13 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 				<td class="field">Terms of Service <span style="color:red;">*</span></td><td class="value"><input type="checkbox" name="tos" value="1" id="tos" /><label for="tos"> I have found, read and accepted the <a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a></label></td>
 			</tr>
 			<tr>
-				<td class="field">Title of<br />new book<br /><small>(optional)</small><a class="question_answer" alt="Create a new Scalar book by entering its title below (for temporary titles, you can use your full name).  If you're registering to access an existing book, just leave this field blank."></a></td><td class="value"><input type="text" name="book_title" value="<?=(isset($_POST['book_title']))?trim(htmlspecialchars($_POST['book_title'])):''?>" class="input_text" /></td>
+				<td class="field">Title of<br />first book<br /><small>(optional)</small></td><td class="value"><input type="text" name="book_title" value="<?=(isset($_POST['book_title']))?trim(htmlspecialchars($_POST['book_title'])):''?>" class="input_text" /></td>
 			</tr>
 			<? if (!empty($recaptcha_public_key)): ?>
 			<tr>
-				<td>CAPTCHA <span style="color:red;">*</span> <a class="question_answer" alt="This CAPTCHA combats spam by asking you to decifer natural language questions"></a></td>
+				<td>CAPTCHA <span style="color:red;">*</span></td>
 				<td>
-				<?  $this->config->item('force_https') ? print(recaptcha_get_html($recaptcha_public_key, '', true)) : print(recaptcha_get_html($recaptcha_public_key));?>
+				<?  print(recaptcha_get_html($recaptcha_public_key, '', $this->config->item('is_https'))); ?>
 				</td>
 			</tr>
 			<? endif ?>

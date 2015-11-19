@@ -78,11 +78,6 @@ Class Api extends Controller {
  		//All requests to this controller must be accompanied by authentication credentials and a valid action
  		if(!$this->_load_auth_data()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
 
- 		//Check ssl level
- 		if($this->config->item('force_https') && (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on")){
- 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, "This service requires access through https");
- 		}
-
  		$this->load->library('session');
  		$this->load->model('user_model', 'users');
  		$this->load->model('api_login_model', 'api_users');
