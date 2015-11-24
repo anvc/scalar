@@ -393,7 +393,7 @@ function YouTubeGetID(url){
 		jQuery.MediaElementController.prototype.loadMetadata = function() {
 			// don't load metadata if we're in cantaloupe (unless specifically requested using the "solo' option)
 			// (only cantaloupe pages should contain the "article" element)
-			if (( $.find( 'article' ).length == 0 ) || this.model.options.solo ) {
+			//if (( $.find( 'article' ).length == 0 ) || this.model.options.solo ) {
 				if ( this.model.options.getRelated ) {
 					// get all relationships
 					if (scalarapi.loadNode(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 1, true) == 'loaded') this.handleMetadata();
@@ -401,10 +401,10 @@ function YouTubeGetID(url){
 					// get annotations only
 					if (scalarapi.loadNode(this.model.meta.substr(scalarapi.model.urlPrefix.length), true, this.handleMetadata, null, 2, false, 'annotation,tag') == 'loaded') this.handleMetadata();
 				}
-			} else {
+			/*} else {
 				// we need the delay so the plugin has the chance to make itself available to the page
 				setTimeout( this.handleMetadata, 10 );
-			}
+			}*/
 		}
 
 		/**
