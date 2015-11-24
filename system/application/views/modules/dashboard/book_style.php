@@ -2,6 +2,8 @@
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.melondialog.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.bookversionsdialog.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/edit/jquery.predefined.js')?>
+<?$this->template->add_css(path_from_file(__FILE__).'../../widgets/edit/content_selector.css')?>
+<?$this->template->add_js(path_from_file(__FILE__).'../../widgets/edit/jquery.content_selector.js')?>
 <style>
 .removed {color:#bbbbbb;}
 .removed a {color:#999999;}
@@ -14,6 +16,9 @@
 <link id="book_melon" href="<?=@$book->template?>" />
 <link id="book_stylesheet" href="<?=@$book->stylesheet?>" />
 <script>
+var book_uri = '<?=addslashes(confirm_slash(base_url()).@confirm_slash($book->slug))?>';
+var book_id = <?=(int) @$book->book_id?>;
+// Select the reader interface (Scalar 1, Scalar 2)
 function select_interface(melon) {
     $('#interface').empty();
     var $template = $('<span id="select_template"><select name="template"></select>&nbsp; </span>').appendTo('#interface');
@@ -60,6 +65,7 @@ function select_interface(melon) {
 		$('<span>There are no theme options for the current template</span>').appendTo('#interface');
     }
 }
+// Add Main Menu items
 function select_versions() {
 	if ($('#versions_add_another').data('loading')) return;
 	$('#versions_add_another').data('loading', true);
@@ -71,47 +77,50 @@ function select_versions() {
 		if ($this.val()!='1') return;
 		book_versions.push( $this.closest('li').data('node') );
 	});
-	if ('undefined'==typeof(content_data)) {
-		$.getJSON("api/get_content?book_id="+book_id, function(data) {
-			content_data = data;  // Global
-			$('<div></div>').bookversionsdialog({
-				data:content_data,
-				selected:book_versions,
-				urlroot:$('#approot').attr('href'),
-				callback:set_versions
-			});
-			$('#versions_add_another').data('loading', false);
-			$('#versions_add_another').html('Add menu item');
-		});
-	} else {
+	$('<div></div>').content_selector({
+		parent:book_uri,
+		changeable:true,
+		multiple:true,
+		onthefly:false,
+		msg:'Selected content will be added to the <b>Main Menu</b> items',
+		callback:function(nodes){
+			console.log(nodes);
+			// Convert noes to book_versions array format
+			formatted_nodes = [];
+			for (var j = 0; j < nodes.length; j++) {
+				var title = nodes[j].title;
+				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+				var version_id = urn.substr(urn.lastIndexOf(':')+1);
+				formatted_nodes.push({versions:[{version_id:version_id,title:title}]});
+			};
+			console.log(formatted_nodes);
+			set_versions(formatted_nodes);
+		}
+	});
+	$('#versions_add_another').data('loading', false).html('Add menu item');
+	/*
 		$('<div></div>').bookversionsdialog({
 			data:content_data,
 			selected:book_versions,
 			urlroot:$('#approot').attr('href'),
 			callback:set_versions
 		});
-		$('#versions_add_another').data('loading', false);
-		$('#versions_add_another').html('Add menu item');
-	}
+	*/
 }
 function set_versions(nodes, init) {
 	if ('undefined'==init) init = false;
 	var $versions = $('#versions');
-	$('#versions').find('input[value="0"]').closest('li').remove();
+	$versions.find('a').unbind( "click" );
+	$versions.find('input[value="0"]').closest('li').remove();
 	var book_version_ids = [];
-	$('#versions').find('input[type="hidden"]').each(function() {
+	$versions.find('input[type="hidden"]').each(function() {
 		book_version_ids.push( $(this).closest('li').data('node').versions[0].version_id );
 	});
-	var used_version_ids = [];
 	for (var j = 0; j < nodes.length; j++) {
-		used_version_ids.push(nodes[j].versions[0].version_id);
 		if (-1!=book_version_ids.indexOf(nodes[j].versions[0].version_id)) continue;
 		var $node = $('<li><input type="hidden" name="book_version_'+nodes[j].versions[0].version_id+'" value="1" />'+nodes[j].versions[0].title+' <small>(<a href="javascript:void(null);">remove</a>)</small></li>').appendTo($versions);
 		$node.data('node', nodes[j]);
 	}
-	$('#versions').find('li').each(function() {
-		if (-1==used_version_ids.indexOf($(this).data('node').versions[0].version_id)) $(this).remove();
-	});
 	$versions.find('a').click(function() {
 		var $li = $(this).closest('li');
 		$li.addClass('removed');
