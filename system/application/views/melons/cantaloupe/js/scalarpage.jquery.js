@@ -1496,7 +1496,7 @@
 				});
 			},
 
-			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, map, infoWindow ) {
+			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow ) {
 
 				var marker, contentString,
 					temp = latlngstr.split( ',' );
@@ -1510,11 +1510,18 @@
 
 					map.setCenter( latlng );
 
+					var titleMarkup;
+					if ( link != null ) {
+						titleMarkup = '<h2 class="heading_font heading_weight"><a href="' + link + '">' + title + '</a></h2>';
+					} else {
+						titleMarkup = '<h2 class="heading_font heading_weight">' + title + '</h2>';
+					}
+
 					// add marker and info window for current page
 					if ( desc != null ) {
-						contentString = '<div class="google-info-window caption_font"><h2 class="heading_font heading_weight">' + title + '</h2>' + desc + '</div>';
+						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '</h2>' + desc + '</div>';
 					} else {
-						contentString = '<div class="google-info-window caption_font"><h2 class="heading_font heading_weight">' + title + '</h2></div>';
+						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '</h2></div>';
 					}
 					marker = new google.maps.Marker({
 					    position: latlng,
@@ -1794,6 +1801,7 @@
 									currentNode.current.properties[ property ][ i ].value,
 									currentNode.getDisplayTitle(),
 									currentNode.current.description,
+									null,
 									map,
 									infoWindow
 								);
@@ -1827,6 +1835,7 @@
 										node.current.properties[ property ][ j ].value,
 										node.getDisplayTitle(),
 										node.current.description,
+										node.url,
 										map,
 										infoWindow
 									);
