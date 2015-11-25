@@ -25,6 +25,12 @@ potentially malicious uploads, such as *.php files.  We have a template for this
 through requests to system files.  Test by uploading a .php file -- when viewing the file you should see 
 Scalar's 404 in the media player.
 ***
+
+***
+A note on SSL (https):
+As of Release 6.0.2 SSL (https) is supported out of the box.  If needed we have a template in the root 
+folder's .htaccess to force all requests through https.
+***
  
 To begin take a look at the "Changes to config files over time" wiki page (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).  
 Here we list any updates to Scalar config files or the database scheme that will need to be made on your 
