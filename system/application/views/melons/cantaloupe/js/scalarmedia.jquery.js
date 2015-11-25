@@ -340,7 +340,7 @@
 			table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
 			if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+node.current.description+'</td></tr>');
 			if (null!=node.current.source) table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
-			if (null!=node.current.sourceLocation) table.append('<tr><td>dcterms:sourceLocation</td><td><a href="'+node.current.sourceLocation+'">'+node.current.sourceLocation+'</a></td></tr>');
+			if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td><a href="'+node.current.sourceLocation+'">'+node.current.sourceLocation+'</a></td></tr>');
 			// auxiliary properties
 			for ( prop in node.current.auxProperties ) {
 				for ( i in node.current.auxProperties[ prop ] ) {
