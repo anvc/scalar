@@ -15,6 +15,16 @@ Of course, you can always update your Scalar install from the most recent build 
 sometimes bugs can be introduced by commits to GitHub that haven't yet been verified by Scalar's development 
 team.  For this reason we keep checkpoints ("releases") of Scalar using GitHub Releases. Details below.
 ***
+
+***
+A note on file uploads:
+Scalar authors can upload files to your server under Import > Local Media Files (the files are placed in the 
+directory corresponding to their book's URL segment).  We strongly suggest protecting your filesystem against 
+potentially malicious uploads, such as *.php files.  We have a template for this in place in the root folder's 
+.htaccess file.  Edit, uncomment the "malicious file uploads" rewrites, then set the REQUEST_URI to the system 
+folder (including the root folder).  Test by uploading a .php file -- when viewing the file you should see 
+Scalar's 404 in the media player.
+***
  
 To begin take a look at the "Changes to config files over time" wiki page (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).  
 Here we list any updates to Scalar config files or the database scheme that will need to be made on your 
