@@ -21,8 +21,8 @@ A note on file uploads:
 Scalar authors can upload files to your server under Import > Local Media Files (the files are placed in the 
 directory corresponding to their book's URL segment).  We strongly suggest protecting your filesystem against 
 potentially malicious uploads, such as *.php files.  We have a template for this in place in the root folder's 
-.htaccess file.  Edit, uncomment the "malicious file uploads" rewrites, then set the REQUEST_URI to the system 
-folder (including the root folder).  Test by uploading a .php file -- when viewing the file you should see 
+.htaccess file.  Edit, uncomment the "malicious file uploads" rewrites, and set appropriate fields to let 
+through requests to system files.  Test by uploading a .php file -- when viewing the file you should see 
 Scalar's 404 in the media player.
 ***
  
