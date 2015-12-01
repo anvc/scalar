@@ -2440,7 +2440,7 @@ function ScalarModel(options) {
 	}
 	
 	this.userTypes = ['author','commentator','reviewer'];
-	
+
 	// figure out where we are
 	if (!this.crossDomain) {
 		this.urlPrefix = options['parent_uri'];

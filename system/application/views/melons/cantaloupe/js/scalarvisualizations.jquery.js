@@ -2238,7 +2238,6 @@
 					}
 				} else {
 					fullHeight = 300;
-					
 				}
 				base.visualization.css( 'min-height', fullHeight + 'px' );
 
@@ -2297,8 +2296,8 @@
 							
 				var myModPercentage = 1;		// relative value of the farthest descendants maximized item
 				var otherModPercentage = 1;		// relative value of the farthest descendants of the not-maximized item
-				
-				var r = Math.min(fullWidth, fullHeight) / 2
+
+				var r = ( Math.min(fullWidth, fullHeight) - 70 ) * .5;
 				if ( fullWidth < fullHeight ) {
 					r -= 120;
 				} else {
