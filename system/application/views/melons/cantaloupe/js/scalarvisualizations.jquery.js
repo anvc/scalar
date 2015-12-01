@@ -2459,69 +2459,73 @@
 								
 								// if the node has children, then maximize it and transition the vis to its maximized state
 								if (d.children != null) {
-							
-									maximizedNode = d;
 								
 									var numChildren = d.descendantCount;
 									var curPercentage = numChildren / base.sortedNodes.length;
 									var targetPercentage = Math.min(.75, (numChildren * 15) / 360);
-									
-									// set the relative values of the farthest descendants of the maximized and non-maximized nodes
-									myModPercentage = targetPercentage / curPercentage;
-									otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
-									
-									path.data(partition.nodes).transition()
-										.duration(1000)
-										.style("stroke-width", function(d) { 
-											if ( d.parent != null ) {	
-												if (( d.parent.type == "current" ) || ( d.type == "current" )) {
-													return 10;
+
+									if ( targetPercentage > curPercentage ) {
+							
+										maximizedNode = d;
+										
+										// set the relative values of the farthest descendants of the maximized and non-maximized nodes
+										myModPercentage = targetPercentage / curPercentage;
+										otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
+										
+										path.data(partition.nodes).transition()
+											.duration(1000)
+											.style("stroke-width", function(d) { 
+												if ( d.parent != null ) {	
+													if (( d.parent.type == "current" ) || ( d.type == "current" )) {
+														return 10;
+													} else {
+														return (d.dx > minChordAngle) ? 1 : 0;
+													} 
 												} else {
 													return (d.dx > minChordAngle) ? 1 : 0;
-												} 
-											} else {
-												return (d.dx > minChordAngle) ? 1 : 0;
-											}
-										})
-										.attrTween('d', arcTween);
-									vis.selectAll('path.chord').transition()
-										.duration(1000)
-										.attr('display', function(d) { return ((d.source.dx > minChordAngle) || (d.target.dx > minChordAngle)) ? null : 'none'; })
-										.attrTween('d', chordTween);
-								    vis.selectAll('text.typeLabel').transition()
-								    	.duration(1000)
-								    	.attrTween('dx', textDxTween)
-								    	.attrTween('text-anchor', textAnchorTween)
-								    	.attrTween('transform', textTransformTween);
-								    vis.selectAll('text.selectedLabel').transition()
-								    	.duration(1000)
-								    	.attr('dx', function(d) {
-								    	if (arcs.centroid(d)[0] < 0) {
-								    			return -(fullWidth * .5) + 120;
-								    		} else {
-								    			return (fullWidth * .5) - 120;
-								    		}
-								    	})
-							    		.attr('dy', function(d) { return arcs.centroid(d)[1] + 4; })
-								        .attr('text-anchor', function(d) {
-								    		if (arcs.centroid(d)[0] < 0) {
-								    			return 'end';
-								    		} else {
-								    			return null;
-								    		}
-								        })
-							    		.each('end', function(d) { updateSelectedLabels() });
-								    vis.selectAll('polyline.selectedPointer').transition()
-								    		.duration(1000)
-								    		.attr('points', function(d) {
-									    		var dx = arcs.centroid(d)[0];
-									    		var dy = arcs.centroid(d)[1];
-									    		if (arcs.centroid(d)[0] < 0) {
-									    			return (125-hw)+','+dy+' '+(135-hw)+','+dy+' '+dx+','+dy;
+												}
+											})
+											.attrTween('d', arcTween);
+										vis.selectAll('path.chord').transition()
+											.duration(1000)
+											.attr('display', function(d) { return ((d.source.dx > minChordAngle) || (d.target.dx > minChordAngle)) ? null : 'none'; })
+											.attrTween('d', chordTween);
+									    vis.selectAll('text.typeLabel').transition()
+									    	.duration(1000)
+									    	.attrTween('dx', textDxTween)
+									    	.attrTween('text-anchor', textAnchorTween)
+									    	.attrTween('transform', textTransformTween);
+									    vis.selectAll('text.selectedLabel').transition()
+									    	.duration(1000)
+									    	.attr('dx', function(d) {
+									    	if (arcs.centroid(d)[0] < 0) {
+									    			return -(fullWidth * .5) + 120;
 									    		} else {
-									    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
+									    			return (fullWidth * .5) - 120;
 									    		}
-									    	});
+									    	})
+								    		.attr('dy', function(d) { return arcs.centroid(d)[1] + 4; })
+									        .attr('text-anchor', function(d) {
+									    		if (arcs.centroid(d)[0] < 0) {
+									    			return 'end';
+									    		} else {
+									    			return null;
+									    		}
+									        })
+								    		.each('end', function(d) { updateSelectedLabels() });
+									    vis.selectAll('polyline.selectedPointer').transition()
+									    		.duration(1000)
+									    		.attr('points', function(d) {
+										    		var dx = arcs.centroid(d)[0];
+										    		var dy = arcs.centroid(d)[1];
+										    		if (arcs.centroid(d)[0] < 0) {
+										    			return (125-hw)+','+dy+' '+(135-hw)+','+dy+' '+dx+','+dy;
+										    		} else {
+										    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
+										    		}
+										    	});
+
+							    	}
 								    	
 								} else {
 									toggleNodeSelected(d);
