@@ -2241,7 +2241,7 @@
 				}
 				base.visualization.css( 'min-height', fullHeight + 'px' );
 
-				if (( base.options.content == 'all' ) || ( base.options.content == 'current' )) {
+				if ((( base.options.content == 'all' ) || ( base.options.content == 'current' )) && ( currentNode != null )) {
 					helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
 				} else {
 					helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
@@ -2711,7 +2711,7 @@
 							return (
 								((d == highlightedNode) || 
 								(base.hasHierarchyNodeAsAncestor(d, highlightedNode)) || 
-								((base.selectedNodes.indexOf(d.node) != -1) /*&& (d == nodeForCurrentContent)*/)) && 
+								((base.selectedNodes.indexOf(d.node) != -1) && (d.node != null) /*&& (d == nodeForCurrentContent)*/)) && 
 								okToHighlight ) 
 							? d3.rgb(color).darker() 
 							: color;
