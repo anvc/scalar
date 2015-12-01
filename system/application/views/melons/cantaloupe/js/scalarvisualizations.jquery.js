@@ -1105,7 +1105,7 @@
 		base.processNode = function( node ) {
 			if ( node.title == null ) {
 				node.title = node.getDisplayTitle( true );
-				node.shortTitle = this.getShortenedString(node.getDisplayTitle( true ), 15 )
+				node.shortTitle = this.getShortenedString(node.getDisplayTitle( true ), 15 );
 				node.sortTitle = node.getSortTitle();
 			}
 			node.type = node.getDominantScalarType( base.options.content );
@@ -2445,15 +2445,7 @@
 							    	.each('end', function(d) { updateSelectedLabels() });
 							    vis.selectAll('polyline.selectedPointer').transition()
 							    		.duration(1000)
-							    		.attr('points', function(d) {
-								    		var dx = arcs.centroid(d)[0];
-								    		var dy = arcs.centroid(d)[1];
-								    		if (arcs.centroid(d)[0] < 0) {
-								    			return (125-hw)+','+dy+' '+(135-hw)+','+dy+' '+dx+','+dy;
-								    		} else {
-								    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
-								    		}
-								    	});
+							    		.attr('points', getPointerPoints);
 							    	
 							} else {
 								
@@ -2515,15 +2507,7 @@
 								    		.each('end', function(d) { updateSelectedLabels() });
 									    vis.selectAll('polyline.selectedPointer').transition()
 									    		.duration(1000)
-									    		.attr('points', function(d) {
-										    		var dx = arcs.centroid(d)[0];
-										    		var dy = arcs.centroid(d)[1];
-										    		if (arcs.centroid(d)[0] < 0) {
-										    			return (125-hw)+','+dy+' '+(135-hw)+','+dy+' '+dx+','+dy;
-										    		} else {
-										    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
-										    		}
-										    	});
+									    		.attr('points', getPointerPoints );
 
 							    	}
 								    	
@@ -2536,6 +2520,16 @@
 					
 				path.exit().remove();
 				
+				function getPointerPoints( d ) {
+		    		var dx = arcs.centroid(d)[0];
+		    		var dy = arcs.centroid(d)[1];
+		    		var hw = fullWidth * .5;
+		    		if (arcs.centroid(d)[0] < 0) {
+		    			return ((d.textWidth + 5)-hw)+','+dy+' '+((d.textWidth + 5)-hw)+','+dy+' '+dx+','+dy;
+		    		} else {
+		    			return (hw-(d.textWidth + 5))+','+dy+' '+(hw-(d.textWidth + 5))+','+dy+' '+dx+','+dy;
+		    		}					
+				}
 				
 				/**
 				 * Selects the given node data.
@@ -2564,16 +2558,20 @@
 				 * Updates the display of labels for selected nodes.
 				 */
 				function updateSelectedLabels() {
-				
+
 				    var selectedLabels = vis.selectAll('text.selectedLabel').data(base.selectedHierarchyNodes);
-				    
+
+					var r = ( Math.min(fullWidth, fullHeight) - 70 ) * .5;
+				    var labelCharCount = Math.round((((( fullWidth - ( r * 2 )) - 70 ) - 70 ) / 120 ) * 15 );
+	    
 				    selectedLabels.enter().append('svg:text')
 				    	.attr('class', 'selectedLabel')
 				    	.attr('dx', function(d) {
+				    	var title = base.getShortenedString( d.node.getDisplayTitle( true ), labelCharCount );
 				    	if (arcs.centroid(d)[0] < 0) {
-				    			return -(fullWidth * .5) + 90;
+				    			return -(fullWidth * .5) + (( title.length / 15 ) * 70 );
 				    		} else {
-				    			return (fullWidth * .5) - 90;
+				    			return (fullWidth * .5) - (( title.length / 15 ) * 70 );
 				    		}
 				    	})
 				    	.attr('dy', function(d) {
@@ -2593,15 +2591,17 @@
 								return self.location = d.node.url;
 							}
 						})
-				        .text(function(d) { return d.shortTitle; });
+				        .text(function(d) { return base.getShortenedString( d.node.getDisplayTitle( true ), labelCharCount ); })
+				        .each( function(d) { d.textWidth = this.getComputedTextLength(); });
 
 					selectedLabels.exit().remove();
 					
 					selectedLabels.attr('dx', function(d) {
+				    	var title = base.getShortenedString( d.node.getDisplayTitle( true ), labelCharCount );
 				    	if (arcs.centroid(d)[0] < 0) {
-				    			return -(fullWidth * .5) + 90;
+				    			return -(fullWidth * .5);
 				    		} else {
-				    			return (fullWidth * .5) - 90;
+				    			return (fullWidth * .5);
 				    		}
 				    	})
 						.attr('dy', function(d) {
@@ -2609,42 +2609,24 @@
 				    	})
 				        .attr('text-anchor', function(d) {
 				    		if (arcs.centroid(d)[0] < 0) {
-				    			return 'end';
-				    		} else {
 				    			return null;
+				    		} else {
+				    			return 'end';
 				    		}
 				        })
-				        .text(function(d) { return d.shortTitle; });
+				        .text(function(d) { return base.getShortenedString( d.node.getDisplayTitle( true ), labelCharCount ); });
 				    	
 				    var selectedPointers = vis.selectAll('polyline.selectedPointer').data(base.selectedHierarchyNodes);
 				    
 				    selectedPointers.enter().append('svg:polyline')
 				    	.attr('class', 'selectedPointer')
-				    	.attr('points', function(d) {
-				    		var dx = arcs.centroid(d)[0];
-				    		var dy = arcs.centroid(d)[1];
-				    		var hw = fullWidth * .5;
-				    		if (arcs.centroid(d)[0] < 0) {
-				    			return (95-hw)+','+dy+' '+(105-hw)+','+dy+' '+dx+','+dy;
-				    		} else {
-				    			return (hw-95)+','+dy+' '+(hw-105)+','+dy+' '+dx+','+dy;
-				    		}
-				    	})
+				    	.attr('points', getPointerPoints )
 				    	.attr('stroke','#444')
 				    	.attr('stroke-width',1);
 				    	
 				    selectedPointers.exit().remove();
 				    
-				    selectedPointers.attr('points', function(d) {
-				    		var dx = arcs.centroid(d)[0];
-				    		var dy = arcs.centroid(d)[1];
-				    		var hw = fullWidth * .5;
-				    		if (arcs.centroid(d)[0] < 0) {
-				    			return (95-hw)+','+dy+' '+(105-hw)+','+dy+' '+dx+','+dy;
-				    		} else {
-				    			return (hw-95)+','+dy+' '+(hw-105)+','+dy+' '+dx+','+dy;
-				    		}
-				    	});
+				    selectedPointers.attr('points', getPointerPoints );
 
 				}
 				
