@@ -225,8 +225,7 @@ class Page_model extends MY_Model {
 		foreach ($result as $row) {
 			$version_id = (int) $row->version_id;
 			$ci->versions->delete($version_id);
-			// Physical file
-			$url_cache[] = $row->url;
+			$url_cache[] = $row->url;  // Physical file
 		}
 
 		// Delete physical file (if not used by another page)
