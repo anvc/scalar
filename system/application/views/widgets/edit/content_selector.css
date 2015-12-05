@@ -27,6 +27,8 @@
 .content_selector_bootbox th:first-of-type, .content_selector_bootbox td:first-of-type {padding-left:12px;}
 .content_selector_bootbox th:last-of-type, .content_selector_bootbox td:last-of-type {padding-right:12px;}
 .content_selector_bootbox th:first-of-type {max-width:44px;}
+.content_selector_bootbox td.loadmore {background-color:#eeeeee; text-align:center; color:#eeeeee;}
+.content_selector_bootbox td.loadmore.loading {color:red;}
 .content_selector_bootbox .thumb {max-height:22px; max-width:30px; cursor:pointer;}
 .content_selector_bootbox .anno {height:22px; cursor:pointer;}
 .content_selector_bootbox .create_onthefly {bottom:-52px !important;}

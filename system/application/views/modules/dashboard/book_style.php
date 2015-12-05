@@ -1,6 +1,5 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.melondialog.js')?>
-<?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.bookversionsdialog.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/edit/jquery.predefined.js')?>
 <?$this->template->add_css(path_from_file(__FILE__).'../../widgets/edit/content_selector.css')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/edit/jquery.content_selector.js')?>
