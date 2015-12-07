@@ -199,6 +199,7 @@ class Book extends MY_Controller {
 			$this->data['book_tags'][$j]->versions = $this->versions->get_all($this->data['book_tags'][$j]->content_id, null, 1);
 			$this->data['book_tags'][$j]->versions[0]->tag_of = $this->tags->get_children($this->data['book_tags'][$j]->versions[0]->version_id);
 		}
+		$this->data['login_is_author'] = $this->login_is_book_admin();
 		$this->data['view'] = __FUNCTION__;
 
 	}
@@ -212,6 +213,7 @@ class Book extends MY_Controller {
 		for ($j = 0; $j < count($this->data['book_content']); $j++) {
 			$this->data['book_content'][$j]->versions = $this->versions->get_all($this->data['book_content'][$j]->content_id, null, 1);
 		}
+		$this->data['login_is_author'] = $this->login_is_book_admin();
 		$this->data['view'] = __FUNCTION__;
 
 	}
@@ -221,6 +223,7 @@ class Book extends MY_Controller {
 
 		if ($this->data['mode'] == 'editing') return;
 		$this->data['book_versions'] = $this->books->get_book_versions($this->data['book']->book_id, true);
+		$this->data['login_is_author'] = $this->login_is_book_admin();
 		$this->data['view'] = __FUNCTION__;
 
 	}

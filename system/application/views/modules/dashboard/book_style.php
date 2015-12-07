@@ -81,7 +81,7 @@ function select_versions() {
 		changeable:true,
 		multiple:true,
 		onthefly:false,
-		msg:'Selected content will be added to the <b>Main Menu</b> items',
+		msg:'Selected content will be added to the <b>Table of Contents</b> items',
 		callback:function(nodes){
 			console.log(nodes);
 			// Convert noes to book_versions array format
@@ -96,7 +96,7 @@ function select_versions() {
 			set_versions(formatted_nodes);
 		}
 	});
-	$('#versions_add_another').data('loading', false).html('Add menu item');
+	$('#versions_add_another').data('loading', false).html('Add table of contents item');
 	/*
 		$('<div></div>').bookversionsdialog({
 			data:content_data,
@@ -355,12 +355,12 @@ function make_taxonomy_pages(onomy) {
 			echo "</tr>\n";
 			// Main menu
 			echo '<tr typeof="books">';
-			echo '<td style="width:190px;">Main menu items';
-			echo '<br /><small>Drag menu items to reorder</small>';
+			echo '<td style="width:190px;">Table of Contents';
+			echo '<br /><small>Drag TOC items to reorder</small>';
 			echo '</td>'."\n";
 			echo '<td colspan="2">';
 			echo '<ol id="versions"></ol>';
-			echo '<a href="javascript:void(null);" id="versions_add_another">Add menu item</a></td>'."\n";
+			echo '<a href="javascript:void(null);" id="versions_add_another">Add table of contents item</a></td>'."\n";
 			echo "</tr>\n";
 			echo '<tr typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Style</h4></td><td></td>';

@@ -338,12 +338,17 @@ a:hover { text-decoration: underline; }
 
 .toc-page h1.toc_title {margin-top:1px; padding-top:0px;}
 .toc-page .toc {margin-bottom:40px; padding-bottom:0px;}
+.resources-page h1.resources_title {margin-top:1px; padding-top:0px; margin-bottom:2.4rem;}
 .resources-page h2.resources_title {margin-top:1px; padding-top:0px;}
 .resources-page .resources {margin-bottom:40px; padding-bottom:0px; padding-left:7.2rem; padding-right:7.2rem;}
-.resources-page .body_copy .resources {padding-left:0; padding-right:0;}
+.resources-page.body_copy .resources {padding-left:0; padding-right:0;}
+.resources-page p {padding-left:7.2rem; padding-right:7.2rem;}
+.resources-page.body_copy p {padding-left:0; padding-right:0;}
 .resources-page .resources .desc {padding-left:14px;}
 .tags-page #tags {margin-top:-20px;}  /* width and height set in JS */  
 .tags-page #tags a:hover {text-decoration:underline;}
+.tags-page p {padding-left:7.2rem; padding-right:7.2rem;}
+.tags-page.body_copy p {padding-left:0; padding-right:0;}
 
 #gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; }
 #gallery_content .thumb { margin-right: 0.7rem; margin-bottom: 0.7rem; cursor: pointer; }

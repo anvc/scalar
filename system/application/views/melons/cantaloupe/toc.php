@@ -9,6 +9,7 @@ if (!empty($content)) {
 	echo '<p>'.$content.'</p>'."\n";;
 }
 ?>
+<?php if (count($book_versions)): ?>
 <ol class="toc">
 	<?
 	foreach ($book_versions as $row):
@@ -17,5 +18,16 @@ if (!empty($content)) {
 	<li>
 	<a href="<?=$base_uri.$row->slug?>"><?=$title?></a>
 	</li>
-	<? endforeach ?>
+	<? endforeach; ?>
 </ol>
+<?php else: ?>
+<p>
+  The table of contents hasn't been set up.
+</p>
+<p>
+  <?php if ($login_is_author): ?>
+  <img width="30" height="30" alt="" src="<?php echo base_url() ?>system/application/views/melons/cantaloupe/images/edit_icon.png">
+  You can add items in the Dashboard's Book properties tab.
+  <?php endif; ?>
+</p>
+<?php endif; ?>
