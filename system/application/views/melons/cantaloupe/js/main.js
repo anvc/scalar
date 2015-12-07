@@ -432,9 +432,6 @@ $(window).ready(function() {
 				var currentNode = scalarapi.model.getCurrentPageNode();
 
 				//console.log(JSON.stringify(rdf_json));
-				/**
-				 * Navigating the RDFa using jquery.RDFa.js' methods if needed
-				 */
 				/*console.log('------- Current page from RDFa ---------------');
 				console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
 				console.log( 'current page description: '+rdf.predicate('http://purl.org/dc/terms/description') );
@@ -475,7 +472,7 @@ $(window).ready(function() {
 		        var extension = scalarapi.getFileExtension( window.location.href );
 
 		   		if ( currentNode == null ) {
-		   			if ( extension != 'edit' ) {
+		   			if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
 		   				$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
 		   			}
 		   		}
@@ -496,6 +493,8 @@ $(window).ready(function() {
 					clearTimeout( timeout );
 					timeout = setTimeout( handleDelayedResize, 300 );
 				});
+				
+				$('body').trigger( "pageLoadComplete" );
 
 		  }},
 

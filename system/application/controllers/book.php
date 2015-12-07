@@ -193,11 +193,47 @@ class Book extends MY_Controller {
 	private function tags() {
 
 		if (strlen($this->uri->segment(3))) return;
+		if ($this->data['mode'] == 'editing') return;
 		$this->data['book_tags'] = $this->tags->get_all($this->data['book']->book_id, null, null, true);
 		for ($j = 0; $j < count($this->data['book_tags']); $j++) {
 			$this->data['book_tags'][$j]->versions = $this->versions->get_all($this->data['book_tags'][$j]->content_id, null, 1);
 			$this->data['book_tags'][$j]->versions[0]->tag_of = $this->tags->get_children($this->data['book_tags'][$j]->versions[0]->version_id);
 		}
+		$this->data['view'] = __FUNCTION__;
+
+	}
+
+	// Resources (list of all pages|media)
+	private function resources() {
+
+		if ('vis'==$this->data['view']) return;
+		if ($this->data['mode'] == 'editing') return;
+		$this->data['book_content'] = $this->pages->get_all($this->data['book']->book_id, null, null, true);
+		for ($j = 0; $j < count($this->data['book_content']); $j++) {
+			$this->data['book_content'][$j]->versions = $this->versions->get_all($this->data['book_content'][$j]->content_id, null, 1);
+		}
+		$this->data['view'] = __FUNCTION__;
+
+	}
+
+	// Table of contents (designed by each books' authors)
+	private function toc() {
+
+		if ($this->data['mode'] == 'editing') return;
+		$this->data['book_versions'] = $this->books->get_book_versions($this->data['book']->book_id, true);
+		$this->data['view'] = __FUNCTION__;
+
+	}
+
+	// Search pages
+	private function search() {
+
+		$this->load->helper('text');
+		$this->data['can_edit'] = false;
+		$this->data['sq'] =@ $_GET['sq'];;
+		$this->data['terms'] = search_split_terms($this->data['sq']);
+		$this->data['result'] = $this->pages->search($this->data['book']->book_id, $this->data['terms']);
+		usort($this->data['result'], "sortSearchResults");
 		$this->data['view'] = __FUNCTION__;
 
 	}
@@ -223,39 +259,6 @@ class Book extends MY_Controller {
 		$this->template->write_view('content', 'melons/'.$this->data['melon'].'/external', $this->data);
 		$this->template->render();
 		$this->template_has_rendered = true;
-
-	}
-
-	// Resources (list of all pages|media)
-	private function resources() {
-
-		if ('vis'==$this->data['view']) return;
-		$this->data['book_content'] = $this->pages->get_all($this->data['book']->book_id, null, null, true);
-		for ($j = 0; $j < count($this->data['book_content']); $j++) {
-			$this->data['book_content'][$j]->versions = $this->versions->get_all($this->data['book_content'][$j]->content_id, null, 1);
-		}
-		$this->data['view'] = __FUNCTION__;
-
-	}
-
-	// Table of contents (designed by each books' authors)
-	private function toc() {
-
-		$this->data['book_versions'] = $this->books->get_book_versions($this->data['book']->book_id, true);
-		$this->data['view'] = __FUNCTION__;
-
-	}
-
-	// Search pages
-	private function search() {
-
-		$this->load->helper('text');
-		$this->data['can_edit'] = false;
-		$this->data['sq'] =@ $_GET['sq'];;
-		$this->data['terms'] = search_split_terms($this->data['sq']);
-		$this->data['result'] = $this->pages->search($this->data['book']->book_id, $this->data['terms']);
-		usort($this->data['result'], "sortSearchResults");
-		$this->data['view'] = __FUNCTION__;
 
 	}
 
