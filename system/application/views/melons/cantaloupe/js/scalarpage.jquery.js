@@ -736,7 +736,6 @@
 
 			addIncomingComments: function() {
 				var currentPageNode = scalarapi.model.getCurrentPageNode();
-				if (null == currentPageNode.current.isVersionOf) return;  // Make sure page+version has been created .. Added by Craig 6 December 2015
 				var comments = currentPageNode.getRelatedNodes('comment', 'incoming');
 				//$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
 				$('#footer').before('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>'+((comments.length > 0) ? comments.length : '&nbsp;')+'</strong></div></div>');
@@ -1032,7 +1031,7 @@
 					viewType = 'plain',
 					extension = scalarapi.getFileExtension( window.location.href );
 
-				if ('undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
+				if (null != currentNode.current && 'undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value
 				}
 				
@@ -1604,7 +1603,7 @@
 		var extension = scalarapi.getFileExtension( window.location.href );
 		var version = scalarapi.getVersionExtension( window.location.href );
 
-		if ( currentNode != null ) {
+		if ( currentNode != null && currentNode.current != null) {
 
 			if (( extension == '' ) || ( version != '' )) {
 				viewType = 'plain';

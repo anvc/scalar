@@ -2521,7 +2521,11 @@ ScalarModel.prototype.parseNodes = function(json) {
 			}
 			
 			// If there is no version, create an empty one .. this ensures that node.current exists .. Added by Craig 6 December 2015
-			if (!versionData.length && json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value!='http://scalar.usc.edu/2012/01/scalar-ns#Book') {
+			if (!versionData.length && 
+					'undefined'!=typeof(json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) && 
+					json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value!='http://scalar.usc.edu/2012/01/scalar-ns#Book' && 
+					json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value!='http://xmlns.com/foaf/0.1/Person'
+				) {
 				versionUrl = property+'.0';
 				versionData.push({
 					url:versionUrl,
