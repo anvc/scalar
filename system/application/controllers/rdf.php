@@ -187,6 +187,8 @@ class Rdf extends MY_Controller {
 
 	public function instancesof($class='') {
 
+		if ('system'==$class) return self::system();  // Built-in pages
+
 		try {
 			$class = no_ext($class);
 			$type = $category = null;
@@ -247,6 +249,23 @@ class Rdf extends MY_Controller {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 			exit;
 		}
+
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
+		$this->template->render();
+
+	}
+
+	private function system() {
+
+		$content = $this->pages->built_in($this->data['book']->book_id, (($this->data['hidden'])?false:true));
+		$settings = array(
+			'book'         => $this->data['book'],
+			'content'      => $content,
+			'base_uri'     => $this->data['base_uri']
+		);
+		$this->data['content'] = $this->rdf_object->model_to_rdf($settings);
+		$this->data['content'] = $this->rdf_object->serialize($this->data['content'], $this->data['format']);
 
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);

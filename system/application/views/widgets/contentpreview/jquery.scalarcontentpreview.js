@@ -108,6 +108,10 @@
 			var url = $.fn.scalarcontentpreview('meta_url', $link);
 			var width = $box.find(':first-child').innerWidth();
 			var is_note = (($link.hasClass('note')) ? true : false);
+			if (jQuery.isEmptyObject(data)) {
+				$.fn.scalarcontentpreview('remove', $link);
+				return;
+			}
 			for (uri in data) break;
 			var node = data[uri];
 			if (!$.fn.scalarcontentpreview('is_external_link', url)) {

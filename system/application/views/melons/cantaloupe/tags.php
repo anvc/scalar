@@ -9,6 +9,10 @@ if (!empty($content)) {
 }
 
 if (empty($book_tags)):
+	$title = (isset($page->version_index)) ? $page->versions[0]->title : null;
+	if (empty($title)) {
+		echo '<h1 class="tags_title heading_font heading_weight clearboth">Tag Cloud</h1>'."\n";
+	}
 ?>
 <p>
   There are no tags.

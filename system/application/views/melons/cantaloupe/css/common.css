@@ -345,6 +345,7 @@ a:hover { text-decoration: underline; }
 .resources-page p {padding-left:7.2rem; padding-right:7.2rem;}
 .resources-page.body_copy p {padding-left:0; padding-right:0;}
 .resources-page .resources .desc {padding-left:14px;}
+.tags-page h1.tags_title {margin-top:1px; padding-top:0px; margin-bottom:2.4rem;}
 .tags-page #tags {margin-top:-20px;}  /* width and height set in JS */  
 .tags-page #tags a:hover {text-decoration:underline;}
 .tags-page p {padding-left:7.2rem; padding-right:7.2rem;}

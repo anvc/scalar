@@ -120,6 +120,26 @@ class RDF_Object {
 
 	}
 
+    public function model_to_rdf($settings) {
+
+		$CI =& get_instance();
+		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
+		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
+		$return = array();
+
+		foreach ($settings['content'] as $row) {
+			$row->has_version = $row->version = $settings['base_uri'].$row->slug.'.'.$row->versions[key($row->versions)]->version_num;
+	    	$return[$settings['base_uri'].$row->slug] = $CI->pages->rdf($row, $settings['base_uri']);
+			foreach ($row->versions as $version) {
+				$version->version_of = $settings['base_uri'].$row->slug;
+				$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
+			}
+		}
+
+		return $return;
+
+    }
+
     public function system(&$arg0=null, $arg1=null) {
 
 		$numargs = func_num_args();
