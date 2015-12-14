@@ -362,6 +362,7 @@ a:hover { text-decoration: underline; }
 
 #block_head { margin-top: 1.5rem; margin-bottom: 1.5rem; }
 .content_block { margin-bottom: 1.5rem; min-height: 10rem; }
+.content_block_media { margin-bottom: 1.5rem; }
 
 .media_placeholder { display: inline-block; margin-right: 0.7rem; text-align: center; background-color: #eee; vertical-align: top; }
 .media_placeholder img { position: relative; top: 50%; margin-top: -15px; }

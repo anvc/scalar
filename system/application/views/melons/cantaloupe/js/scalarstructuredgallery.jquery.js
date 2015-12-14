@@ -49,6 +49,27 @@
 			relationships = ['path', 'tag'],
 			childLoadIndex = -1,
 			contentBlocks = [];
+						
+		if (window['Spinner']) {
+			var spinnerElement = $('<div class="spinner_wrapper"></div>');
+			var spinnerOpts = {
+			  lines: 13, // The number of lines to draw
+			  length: 4, // The length of each line
+			  width: 2, // The line thickness
+			  radius: 5, // The radius of the inner circle
+			  rotate: 0, // The rotation offset
+			  color: '#000', // #rgb or #rrggbb
+			  speed: 1, // Rounds per second
+			  trail: 60, // Afterglow percentage
+			  shadow: false, // Whether to render a shadow
+			  hwaccel: false, // Whether to use hardware acceleration
+			  className: 'spinner', // The CSS class to assign to the spinner
+			  zIndex: 2e9, // The z-index (defaults to 2000000000)
+			  top: 'auto', // Top position relative to parent in px
+			  right: 'auto' // Left position relative to parent in px
+			};
+			var spinner = new Spinner(spinnerOpts).spin(spinnerElement[0]);
+		}
 			
 		var gallery = {
 			options: $.extend({
@@ -146,9 +167,16 @@
 				
 				for ( i = 0; i < n; i++ ) {
 					node = children[ i ];
-					
+
 					// create a block where the node's children can be displayed
-					block = $( '<div id="block_' + node.slug.replace( "/", "-" ) + '" class="content_block"></div>' ).appendTo( mediaContainer );
+					if ( node.baseType != "http://scalar.usc.edu/2012/01/scalar-ns#Media" ) {
+						// paths and tags, which require an additional ajax call, are distributed down the page
+						block = $( '<div id="block_' + node.slug.replace( "/", "-" ) + '" class="content_block"></div>' ).appendTo( mediaContainer );
+					} else {
+						// media goes at the top so they can be added without delay
+						block = $( '<div id="block_' + node.slug.replace( "/", "-" ) + '" class="content_block_media"></div>' ).prependTo( mediaContainer );
+					}
+
 					//console.log( "create block: " + node.slug.replace( "/", "-" ) );
 					block.data( 'node', node );
 					contentBlocks.push( block );
@@ -164,55 +192,42 @@
 			handleTimer: function() {
 			
 				var node, scrolledPosition, block,
+					scrollTop = $( document ).scrollTop();
 					n = contentBlocks.length;
 					
 				for ( var i = ( n - 1 ); i >= 0; i-- ) {
 				
 					block = contentBlocks[ i ];
 					node = block.data( 'node' );
-					scrolledPosition = block.offset().top - $( document ).scrollTop();
+					scrolledPosition = block.offset().top - scrollTop;
 					//console.log(node.slug+' '+block.position().top+' '+$( document ).scrollTop()+' '+scrolledPosition);
 					
 					if ( ( scrolledPosition > 0 ) && ( scrolledPosition < window.innerHeight ) ) {
 					
 						//console.log('load '+node.slug.replace( "/", "-" ));
-						
-						if (window['Spinner']) {
-							var spinnerElement = $('<div class="spinner_wrapper"></div>').appendTo(block);
-							var opts = {
-							  lines: 13, // The number of lines to draw
-							  length: 4, // The length of each line
-							  width: 2, // The line thickness
-							  radius: 5, // The radius of the inner circle
-							  rotate: 0, // The rotation offset
-							  color: '#000', // #rgb or #rrggbb
-							  speed: 1, // Rounds per second
-							  trail: 60, // Afterglow percentage
-							  shadow: false, // Whether to render a shadow
-							  hwaccel: false, // Whether to use hardware acceleration
-							  className: 'spinner', // The CSS class to assign to the spinner
-							  zIndex: 2e9, // The z-index (defaults to 2000000000)
-							  top: 'auto', // Top position relative to parent in px
-							  right: 'auto' // Left position relative to parent in px
-							};
-							var spinner = new Spinner(opts).spin(spinnerElement[0]);
-						}
-						
-						scalarapi.loadNode( node.slug, true, function( data ) {
-						
-							var node, index, children;
+
+						if ( node.baseType != "http://scalar.usc.edu/2012/01/scalar-ns#Media" ) {
+							console.log( "load" );
+							block.append( spinnerElement.clone() );
+							scalarapi.loadNode( node.slug, true, function( data ) {
 							
-							// get first property to find the node we loaded; technically we shouldn't
-							// rely on browsers to deliver the properties in a certain order, but...
-							for ( var prop in data ) {
-								break;
-							}
-							node = scalarapi.getNode( prop );
+								var node, index, children;
+								
+								// get first property to find the node we loaded; technically we shouldn't
+								// rely on browsers to deliver the properties in a certain order, but...
+								for ( var prop in data ) {
+									break;
+								}
+								node = scalarapi.getNode( prop );
+								gallery.addImagesForNode( node );
+								
+							}, function() {
+								console.log('an error occurred while retrieving structured gallery info.');
+							}, 1, true, 'path,tag' );
+
+						} else {
 							gallery.addImagesForNode( node );
-							
-						}, function() {
-							console.log('an error occurred while retrieving structured gallery info.');
-						}, 1, true, 'path,tag' );
+						}
 						
 						index = contentBlocks.indexOf( block );
 						contentBlocks.splice( index, 1 );
@@ -334,7 +349,7 @@
 			
 			addMedia: function() {
 				$( '#gallery_content' ).empty();
-				interval = setInterval(gallery.handleTimer, 1000);
+				interval = setInterval(gallery.handleTimer, 100);
 				children = gallery.getChildrenOfType( scalarapi.model.getCurrentPageNode(), relationships, 'all');
 				gallery.createContentBlocks();
 			}
