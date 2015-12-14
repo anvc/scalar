@@ -1357,8 +1357,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
             });
 
-            //First attempt at determining the uber-parents of this page.
-            base.getParents(base.currentNode,0);
+            // First attempt at determining the uber-parents of this page.
+            // Commenting this out for now because it causes slowdown on pages with lots of connections
+            //base.getParents(base.currentNode,0);
+            
             var tabIndex = 1;
             $('#scalarheader>div>div>ul>li>a, .title_wrapper a').each(function(){
                 $(this).attr('tabindex',tabIndex++);
