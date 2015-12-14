@@ -336,6 +336,21 @@ a:hover { text-decoration: underline; }
 .control_bar .right { float: right; padding: 1rem 0 1rem 0; }
 .control_bar img { margin-left: 1.2rem; }
 
+.toc-page h1.toc_title {margin-top:1px; padding-top:0px;}
+.toc-page .toc {margin-bottom:40px; padding-bottom:0px;}
+.resources-page h1.resources_title {margin-top:1px; padding-top:0px; margin-bottom:2.4rem;}
+.resources-page h2.resources_title {margin-top:1px; padding-top:0px;}
+.resources-page .resources {margin-bottom:40px; padding-bottom:0px; padding-left:7.2rem; padding-right:7.2rem;}
+.resources-page.body_copy .resources {padding-left:0; padding-right:0;}
+.resources-page p {padding-left:7.2rem; padding-right:7.2rem;}
+.resources-page.body_copy p {padding-left:0; padding-right:0;}
+.resources-page .resources .desc {margin-left:14px; display:inline-block;}
+.tags-page h1.tags_title {margin-top:1px; padding-top:0px; margin-bottom:2.4rem;}
+.tags-page #tags {margin-top:-20px;}  /* width and height set in JS */  
+.tags-page #tags a:hover {text-decoration:underline;}
+.tags-page p {padding-left:7.2rem; padding-right:7.2rem;}
+.tags-page.body_copy p {padding-left:0; padding-right:0;}
+
 #gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; }
 #gallery_content .thumb { margin-right: 0.7rem; margin-bottom: 0.7rem; cursor: pointer; }
 #gallery_content .thumb:hover { opacity:0.65; }

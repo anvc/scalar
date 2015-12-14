@@ -181,14 +181,14 @@ endif;
 		endforeach;
 		if ($publisher||$publisher_thumbnail):
 ?>
-		<span aria-hidden="true" resource="<?=$base_uri?>publisher" typeof="scalar:Resource">
+		<span aria-hidden="true" resource="<?=$base_uri?>publisher" typeof="scalar:Page">
 			<span class="metadata" property="dcterms:title"><?=$publisher?></span>
 <? if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
 		</span>
 <?		endif; ?>
 <?php if (isset($page) && !empty($page)): ?>
 		<!-- Page -->
-		<h1 property="dcterms:title"><?=$page->versions[$page->version_index]->title?></h1>
+		<h1 property="dcterms:title"><?=$title?></h1>
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
 			<a class="metadata" aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
 			<a class="metadata" aria-hidden="true" rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>

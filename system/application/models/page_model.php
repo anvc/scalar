@@ -163,6 +163,64 @@ class Page_model extends MY_Model {
 
     }
 
+    public function built_in($book_id=0, $is_live=false, $scope='Book') {
+
+		$built_in_slugs = array("Table of Contents"=>'toc', $scope.' Content'=>'resources', 'Tag Cloud'=>'tags');
+		$real_slugs = array();
+
+		$this->db->select($this->pages_table.'.*');
+		$this->db->select($this->versions_table.'.*');
+		$this->db->from($this->pages_table);
+    	$this->db->join($this->versions_table, $this->versions_table.'.content_id='.$this->pages_table.'.content_id');
+    	$this->db->where($this->pages_table.'.book_id',$book_id);
+		$this->db->where_in($this->pages_table.'.slug', $built_in_slugs);
+		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
+		$this->db->orderby($this->pages_table.'.slug', 'desc');
+    	$query = $this->db->get();
+    	//if (!$query->num_rows) return null;
+    	if (mysql_errno()!=0) die(mysql_error());
+    	$result = $query->result();
+
+    	$return = array();
+    	foreach ($result as $row) {
+    		$real_slugs[] = $row->slug;
+			if (!isset($return[$row->content_id])) {
+				$return[$row->content_id] = new stdClass;
+				$return[$row->content_id]->versions = array();
+				$return[$row->content_id]->urn = $this->urn($row->content_id);
+			}
+			$is_content = true;
+			foreach($row as $field => $value) {
+				if ('version_id' == $field) $is_content = false;
+				if ($is_content) {
+					$return[$row->content_id]->$field = $value;
+				} else {
+					if (!isset($return[$row->content_id]->versions[$row->version_id])) {
+						$return[$row->content_id]->versions[$row->version_id] = new stdClass;
+						$return[$row->content_id]->versions[$row->version_id]->urn = $this->version_urn($row->version_id);
+					}
+					$return[$row->content_id]->versions[$row->version_id]->$field = $value;
+				}
+			}
+    	}
+
+    	$real_slugs = array_unique($real_slugs);
+		$slugs_needed = array_diff($built_in_slugs, $real_slugs);
+		foreach ($slugs_needed as $title => $slug) {
+			$return[$slug] = new stdClass;
+			$return[$slug]->slug = $slug;
+			$return[$slug]->type = 'composite';
+			$return[$slug]->versions = array();
+			$return[$slug]->versions[0] = new stdClass;
+			$return[$slug]->versions[0]->title = $title;
+			$return[$slug]->versions[0]->type = "version";
+			$return[$slug]->versions[0]->version_num = 0;
+		}
+
+    	return $return;
+
+    }
+
     public function is_owner($user_id=0, $content_id=0) {
 
     	$user_id = (int) $user_id;
@@ -225,8 +283,7 @@ class Page_model extends MY_Model {
 		foreach ($result as $row) {
 			$version_id = (int) $row->version_id;
 			$ci->versions->delete($version_id);
-			// Physical file
-			$url_cache[] = $row->url;
+			$url_cache[] = $row->url;  // Physical file
 		}
 
 		// Delete physical file (if not used by another page)

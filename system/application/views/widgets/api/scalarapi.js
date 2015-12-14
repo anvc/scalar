@@ -2498,6 +2498,10 @@ ScalarModel.prototype.parseNodes = function(json) {
 			if (json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value == 'http://scalar.usc.edu/2012/01/scalar-ns#Version') {
 				isNode = false;
 			}
+		} else {
+			if (0 === parseInt(scalarapi.getVersionExtension(property))) {  // e.g., ".0" (placeholder version of a page that hasn't been created) .. Added by Craig 6 December 2015
+				isNode = false;
+			}
 		}
 		if (json[property]['http://www.openannotation.org/ns/hasBody'] || json[property]['http://purl.org/dc/terms/isVersionOf']) {
 			isNode = false;
@@ -2514,6 +2518,19 @@ ScalarModel.prototype.parseNodes = function(json) {
 					versionUrl = json[property]['http://purl.org/dc/terms/hasVersion'][i].value;
 					versionData.push({url:versionUrl, json:json[versionUrl]});
 				}
+			}
+			
+			// If there is no version, create an empty one .. this ensures that node.current exists .. Added by Craig 6 December 2015
+			if (!versionData.length && 
+					'undefined'!=typeof(json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) && 
+					json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value!='http://scalar.usc.edu/2012/01/scalar-ns#Book' && 
+					json[property]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value!='http://xmlns.com/foaf/0.1/Person'
+				) {
+				versionUrl = property+'.0';
+				versionData.push({
+					url:versionUrl,
+					json:( ('undefined'!=typeof(json[versionUrl])) ? json[versionUrl] : {} )
+				});
 			}
 			
 			// if this node has already been created, then update it

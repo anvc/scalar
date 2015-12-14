@@ -6,6 +6,9 @@
 			changeable:true,
 			multiple:false,
 			onthefly:false,
+			pagination:false,
+			start:0,
+			results_per_page:20,
 			rec:0,
 			sq:null,
 			desc_max_length: 100,
@@ -135,6 +138,10 @@
     		opts.type = type;
     		get_vars.rec = (opts.rec>0) ? opts.rec : 0;
     		if (opts.sq!=null) get_vars.sq = opts.sq;
+    		if (opts.pagination) {
+    			get_vars.start = opts.start;
+    			get_vars.results = opts.results_per_page;
+    		}
     		var url = opts.parent+'rdf/instancesof/'+type+'?format=json&'+obj_to_vars(get_vars);
     		return url;
     	};
@@ -215,7 +222,7 @@
     		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		// Options (search + content type)
     		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
-    			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="content"> All</label> <label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
+    			options_html += '<div class="col-xs-12 col-sm-8"><!--<label class="checkbox-inline"><input type="radio" name="type" value="system"> Built-in</label> --><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
     		$options.append('<div class="row">'+options_html+'</div>');
     		// Bootstrap positioning
     		if (bootstrap_enabled) {
@@ -370,11 +377,14 @@
     	};
     	// Propagate the interface
     	var propagate = function() {
-    		if (!opts.data.length) {
-    			$this.find('.content').html('<div class="loading" style="color:inherit;">'+opts.no_data_msg+'</div>');
-    			return;
+    		if (!opts.start) {
+    			$this.find('.content').addClass('table-responsive').html('<table class="table table-hover" cellspacing="0" cellpadding="0"><thead><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th class="hidden-xs">Description</th><th class="hidden-xs">URL</th><th></th></tr></thead><tbody></tbody></table>');
+        		if (!opts.data.length) {
+        			$this.find('.content').html('<div class="loading" style="color:inherit;">'+opts.no_data_msg+'</div>');
+        			return;
+        		}  		
     		}
-    		$this.find('.content').addClass('table-responsive').html('<table class="table table-hover" cellspacing="0" cellpadding="0"><thead><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th class="hidden-xs">Description</th><th class="hidden-xs">URL</th><th></th></tr></thead><tbody></tbody></table>');
+    		$this.find('.content, .content *').off();  // Remove any previously created events
     		var $tbody = $this.find('tbody:first');
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
@@ -401,11 +411,25 @@
     			$tr.append('<td valign="top"><a target="_blank" class="generic_button" href="'+((url)?url:opts.data[j].uri)+'">'+((url)?'Preview':'Visit')+'</a></td>');
     		}
     		modal_height();
+    		if (opts.pagination) {  // Endless scroll pagination
+    			$tbody.find('.loadmore').remove();
+    			if (!opts.data.length) return; 
+    			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
+    			$loadmore.appendTo($tbody);
+	    		$this.find('.content').scroll(function() {
+	    			if ($loadmore.find('td').hasClass('loading')) return;
+	    			var $this = $(this);
+	    			if ($this.innerHeight() + $this.scrollTop() < $this[0].scrollHeight) return;
+	    			$loadmore.find('td').addClass('loading');
+	    			opts.start = opts.start + opts.results_per_page;
+	    			go();
+	    		});
+    		};
     		$this.find('tr').find('a').click(function(event) {  // Preview|Visit button
     			event.stopPropagation();
     			return true;
     		});
-    		$this.find('tr').find('input[type="checkbox"]').click(function(event) {
+    		$this.find('tr').find('input[type="checkbox"]').click(function(event) {  // Clicking a <tr> checks the checkbox; this allows it to work properly if checkbox itself is checked
     			var $this = $(this);
     			var checked = $this.is(":checked");
     			$this.prop('checked', ((checked)?false:true));
@@ -468,7 +492,7 @@
     	};
     	var go = function() {
     		opts.data = [];
-    		$this.find('.content').html('<div class="loading">Loading ...</div>');
+    		if (!opts.start) $this.find('.content').html('<div class="loading">Loading ...</div>');
     		// TODO: spool requests
 	    	$.getJSON(url(), function(){}).always(function(_data) {
 	    		if ('undefined'!=typeof(_data.status)) {

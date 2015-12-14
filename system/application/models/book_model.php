@@ -493,6 +493,7 @@ class Book_model extends MY_Model {
 		$pages = $CI->pages->get_all($book_id);
 		foreach ($pages as $page) {
 			$CI->pages->delete($page->content_id);
+			usleep(500);  // .0005 seconds -- let MySQL locked tables catch up
 		}
 
 		$this->db->where('book_id', $book_id);

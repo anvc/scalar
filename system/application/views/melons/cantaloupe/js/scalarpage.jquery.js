@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -735,7 +735,8 @@
 			},
 
 			addIncomingComments: function() {
-				var comments = scalarapi.model.getCurrentPageNode().getRelatedNodes('comment', 'incoming');
+				var currentPageNode = scalarapi.model.getCurrentPageNode();
+				var comments = currentPageNode.getRelatedNodes('comment', 'incoming');
 				//$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
 				$('#footer').before('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>'+((comments.length > 0) ? comments.length : '&nbsp;')+'</strong></div></div>');
 				var commentDialogElement = $('<div></div>').appendTo('body');
@@ -751,18 +752,19 @@
 
 			addColophon: function() {
 				var currentNode = scalarapi.model.getCurrentPageNode();
-				$('#footer').append( '<div id="colophon" class="caption_font">' + 
-					'<p id="scalar-credit">' +
-						'<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date( currentNode.current.created ).toLocaleDateString() + ' | ' +
-						'<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ' +
-						'<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br>' +
-						'<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a>' +
-						' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | ' +
-						'<a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | ' +
-						'<a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | ' +
-						'<a href="http://scalar.usc.edu/contact/">Scalar Feedback</a>' +
-					'</p>' +
-				'</div>');
+				var $footer = $('#footer');
+				$footer.append( '<div id="colophon" class="caption_font"><p id="scalar-credit"></p></div>');
+				var $par = $footer.find('#scalar-credit');
+				if (null !== currentNode.current.number) {   // Make sure there is a version .. Added by Craig 6 December 2015
+					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date( currentNode.current.created ).toLocaleDateString() + ' | ');
+					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ');
+					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br>');
+				}
+				$par.append('<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a>');
+				$par.append(' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | ');
+				$par.append('<a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | ');
+				$par.append('<a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | ');
+				$par.append('<a href="http://scalar.usc.edu/contact/">Scalar Feedback</a>');
 			},
 
 			addVersionInfo: function() {
@@ -1029,7 +1031,7 @@
 					viewType = 'plain',
 					extension = scalarapi.getFileExtension( window.location.href );
 
-				if ('undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
+				if (null != currentNode.current && 'undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value
 				}
 				
@@ -1601,7 +1603,7 @@
 		var extension = scalarapi.getFileExtension( window.location.href );
 		var version = scalarapi.getVersionExtension( window.location.href );
 
-		if ( currentNode != null ) {
+		if ( currentNode != null && currentNode.current != null) {
 
 			if (( extension == '' ) || ( version != '' )) {
 				viewType = 'plain';
