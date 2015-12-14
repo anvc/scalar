@@ -6,7 +6,7 @@
 			changeable:true,
 			multiple:false,
 			onthefly:false,
-			pagination:false,
+			pagination:false,  /* Isn't working properly b/c backend sorts RDF noes by slug not title */
 			start:0,
 			results_per_page:20,
 			rec:0,
@@ -14,6 +14,7 @@
 			desc_max_length: 100,
 			filename_max_length: 20,
 			data:[],
+			queue:[],
 			msg:'',
 			no_data_msg:'No content of the selected type was found',
 			callback:null
@@ -113,17 +114,41 @@
     	};
     	var remove_version = function(uri) {
     		return uri.substr(0, uri.lastIndexOf('.'));
-    	}
+    	};
     	// Reset
-    	var reset = function() {  // TODO: for some reason 'defaults' fields are getting set when it should only be 'opts' that is touched
+    	var reset = function() {  // TODO: for some reason 'defaults' fields are getting set despite using jQuery.extend({}, ...)
     		defaults.type = null;
     		defaults.changeable = true;
     		defaults.multiple = false;
     		defaults.rec = 0;
     		defaults.sq = null;
     		defaults.data = [];
+    		defaults.queue = [];
     		defaults.msg = '';
-    	}
+    	};
+    	// Add node to queue for opts.multiple
+    	var queue = function(node, bool) {
+    		if (bool) {
+    			var exists = false;
+    			for (var j = 0; j < opts.queue.length; j++) {
+    				if (opts.queue[j].uri == node.uri) exists = true;
+    			};
+    			if (!exists) opts.queue.push(node);
+    		} else {
+    			for (var j = opts.queue.length-1; j >= 0; j--) {
+    				if (opts.queue[j].uri == node.uri) {
+    					opts.queue.splice(j,1);
+    				};
+    			};
+    		};
+    	};
+    	//; Determine if a node is in the queue
+    	var is_queued = function(node) {
+			for (var j = 0; j < opts.queue.length; j++) {
+				if (opts.queue[j].uri == node.uri) return true;
+			}
+			return false;   		
+    	};
     	// Create an API call
     	var url = function() {
     		var type = 'content';
@@ -184,7 +209,7 @@
 	    	var window_height = parseInt($(window).height());
 	    	var val = window_height - head - foot - (margin*2); 
     		$this.find('.content').height(val);
-    	}
+    	};
     	// Initialize the interface
     	var init = function() {
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
@@ -208,10 +233,13 @@
 				$('.bootbox-close-button').empty();
 				box.on("shown.bs.modal", function() {
 					modal_height();
-				});
+				});				
 				$(window).resize(function() {
 					modal_height();
 				});
+				box.on("hidden.bs.modal", function() {
+					reset();
+				});				
     		} else {
     			$('body').append($this);
     			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);   			
@@ -339,6 +367,7 @@
     				go();
     			});
     			$options.submit(function() {
+    				$options.find('input[name="type"]').prop('checked',false);
     				esearch($(this).find('input[type="text"]').val());
     				return false;
     			});
@@ -355,13 +384,7 @@
         		});    			
     			$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
     			$footer.find('a:last').click(function() {
-    				var nodes = [];
-    				$(this).closest('.content_selector').find('input[type="checkbox"]').each(function() {
-    					var $this = $(this);
-    					if (!$this.is(":checked")) return;
-    					nodes.push($this.closest('tr').data('node'));
-    				});
-    				if (!nodes.length) {
+    				if (!opts.queue.length) {
     					alert('Please select one or more items');
     					return;
     				}
@@ -370,7 +393,7 @@
     				} else {
     					$(this).closest('.content_selector').remove();
     				}
-    				opts.callback(nodes);
+    				opts.callback(opts.queue);
     				reset();
     			});
     		} 
@@ -409,7 +432,11 @@
     			$tr.append('<td valign="top" class="hidden-xs">'+((desc)?desc:'')+'</td>');
     			$tr.append('<td valign="top" class="hidden-xs">'+filename+'</td>');
     			$tr.append('<td valign="top"><a target="_blank" class="generic_button" href="'+((url)?url:opts.data[j].uri)+'">'+((url)?'Preview':'Visit')+'</a></td>');
-    		}
+    			if (is_queued(opts.data[j])) {
+    				$tr.addClass('active');
+    				$tr.find('[type="checkbox"]:first').prop('checked',true);
+    			};
+    		};
     		modal_height();
     		if (opts.pagination) {  // Endless scroll pagination
     			$tbody.find('.loadmore').remove();
@@ -453,8 +480,10 @@
     				var checked = $this.find('input[type="checkbox"]').is(":checked");
     				$(this).find('input[type="checkbox"]').prop('checked', ((checked)?false:true));
     				if (checked) {
+    					queue($this.data('node'), false);
     					$this.removeClass('active');
     				} else {
+    					queue($this.data('node'), true);
     					$this.addClass('active');
     				}
     			});
