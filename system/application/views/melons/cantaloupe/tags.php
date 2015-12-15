@@ -6,6 +6,12 @@ $content = (isset($page->version_index)) ? $page->versions[0]->content : null;
 if (!empty($content)) {
 	$content = nl2br($content);
 	echo '<p>'.$content.'</p>'."\n";;
+} else {
+?>
+	<script>
+	$('header h1[property="dcterms:title"]').hide();
+	</script>
+<?php
 }
 
 if (empty($book_tags)):
@@ -40,7 +46,7 @@ $('body').on( "pageLoadComplete", function() {
 		var $tags = $('#tags');
 		var words_pos = function() {
 			$tags.width('100%');
-			$tags.height( parseInt($(window).height())*0.8 );
+			$tags.height( parseInt($(window).height())*0.7 );
 		};
 		words_pos();
 		$( window ).resize(function() { words_pos(); });

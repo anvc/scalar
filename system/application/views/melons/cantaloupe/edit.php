@@ -77,7 +77,7 @@ $(document).ready(function() {
 	}
 	var path_of_continue_msg = $('.path_of_continue_msg');
 	path_of_continue_msg.find('a:first').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){
+		$('<div></div>').content_selector({changeable:true,multiple:false,builtin:false,msg:'Choose a page to continue to',callback:function(node){
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
 			var title = node.version["http://purl.org/dc/terms/title"][0].value;
@@ -93,7 +93,6 @@ $(document).ready(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
 			console.log(nodes);
 			for (var j = 0; j < nodes.length; j++) {
-				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
 				$('#path_of').append('<li><input type="hidden" name="container_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
@@ -109,7 +108,6 @@ $(document).ready(function() {
 	$('.reply_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be commented on',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
-				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
 				$('#reply_of').append('<li><input type="hidden" name="reply_of" value="'+slug+'" /><input type="hidden" name="reply_of_rel_created" value="">'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
@@ -124,7 +122,6 @@ $(document).ready(function() {
 	$('.annotation_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
-				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
 				var url = nodes[j].version["http://simile.mit.edu/2003/10/ontologies/artstor#url"][0].value;
@@ -174,13 +171,12 @@ $(document).ready(function() {
 	$('.tag_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be tagged',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
-				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
-				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				var slug = nodes[j].slug;
 				$('#tag_of').append('<li><input type="hidden" name="tag_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
-				$('.tag_of_msg:first').html('<p><b>This <span class="content_type">page</span> is a tag</b> of:</p>');
-				$('.tag_of_msg').show();
 			}
+			$('.tag_of_msg:first').html('<p><b>This <span class="content_type">page</span> is a tag</b> of:</p>');
+			$('.tag_of_msg').show();
 		}});
 	});
 	if ($('#has_tag').find('li').length) {
@@ -189,13 +185,12 @@ $(document).ready(function() {
 	$('.has_tag_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
-				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
-				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
+				var slug = nodes[j].slug;
 				$('#has_tag').append('<li><input type="hidden" name="has_tag" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
-				$('.has_tag_msg:first').html('<br><p><b>This <span class="content_type">page</span> is tagged by</b> the following:</p>');
-				$('.has_tag_msg').show();
 			}
+			$('.has_tag_msg:first').html('<br><p><b>This <span class="content_type">page</span> is tagged by</b> the following:</p>');
+			$('.has_tag_msg').show();
 		}});
 	});
 	// Check for <script> and <style> tags in custom code text boxes

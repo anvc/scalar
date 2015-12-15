@@ -6,7 +6,8 @@
 			changeable:true,
 			multiple:false,
 			onthefly:false,
-			pagination:false,  /* Isn't working properly b/c backend sorts RDF noes by slug not title */
+			pagination:false,  /* Isn't working properly b/c backend sorts RDF nodes by slug not title */
+			builtin:true,
 			start:0,
 			results_per_page:20,
 			rec:0,
@@ -233,13 +234,13 @@
 				$('.bootbox-close-button').empty();
 				box.on("shown.bs.modal", function() {
 					modal_height();
-				});				
+				});
 				$(window).resize(function() {
 					modal_height();
 				});
 				box.on("hidden.bs.modal", function() {
 					reset();
-				});				
+				});
     		} else {
     			$('body').append($this);
     			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);   			
@@ -250,8 +251,9 @@
     		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		// Options (search + content type)
     		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
-    			options_html += '<div class="col-xs-12 col-sm-8"><!--<label class="checkbox-inline"><input type="radio" name="type" value="system"> Built-in</label> --><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
+    			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="system"> Built-in</label> <label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
     		$options.append('<div class="row">'+options_html+'</div>');
+    		if (!opts.builtin) $options.find('label:first').hide();
     		// Bootstrap positioning
     		if (bootstrap_enabled) {
     			$footer.find('.cancel').hide();  // Remove cancel button
@@ -416,7 +418,7 @@
     			var desc = ('undefined'!=typeof(opts.data[j].version['http://purl.org/dc/terms/description'])) ? opts.data[j].version['http://purl.org/dc/terms/description'][0].value : null;
     			if (desc && desc.length > opts.desc_max_length) desc = desc.substr(0, opts.desc_max_length)+' ...';
     			var url = ('undefined'!=typeof(opts.data[j].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'])) ? opts.data[j].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value : null;
-    			var filename = (url) ? basename(url) : basename(opts.data[j].uri);
+    			var filename = (url) ? basename(url) : opts.data[j].uri.replace(opts.parent, '');
 	    		if (filename.length > opts.filename_max_length) filename = filename.substr(0, opts.filename_max_length)+'...';
     			var thumb = ('undefined'!=typeof(opts.data[j].content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'])) ? opts.data[j].content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value : null;
     			if (opts.multiple) {
