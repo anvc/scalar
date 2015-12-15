@@ -6,7 +6,7 @@ $content = (isset($page->version_index)) ? $page->versions[0]->content : null;
 if (!empty($content)) {
 	$content = nl2br($content);
 	echo '<p>'.$content.'</p>'."\n";;
-} else {
+} elseif (!empty($book_tags)) {
 ?>
 	<script>
 	$('header h1[property="dcterms:title"]').hide();
