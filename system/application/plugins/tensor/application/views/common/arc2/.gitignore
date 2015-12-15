@@ -1,4 +1,0 @@
-*.DS_Store
-plugins/*
-triggers/*
-tests/coverage/*
