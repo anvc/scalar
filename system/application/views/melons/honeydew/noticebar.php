@@ -1,6 +1,9 @@
 <?php
 if ($mode || !isset($page->user) || !isset($book->contributors) || !isset($page->version_index)) return;
 
+// List of categories to point out in a notice
+$categories_display_notice = array('review', 'commentary');
+
 // Check the page creator against the book's contributor
 $page_by_contributor = false;
 foreach ($book->contributors as $contrib) {
@@ -31,7 +34,7 @@ if (!empty($attribution)) {
 	echo '<div class="notice"><p>';
 	echo 'This '.$page_name.' was written by '.$attribution;
 	//echo ', who is not an author of this '.$book->scope.', ';
-	echo ' on <a href="'.$base_uri.$page->slug.'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[$page->version_index]->created)).'</a>.';
+	echo ' on <a href="'.$base_uri.$page->slug.'.versions">'.date('j M Y', strtotime($page->versions[$page->version_index]->created)).'</a>.';
 	echo '</p></div>';
 }
 
@@ -62,7 +65,7 @@ elseif (!$page_by_contributor) {
 }
 
 // Is a review or commentary (by the authors of the book)
-elseif (!empty($page->category)) {
+elseif (!empty($page->category) && in_array($page->category, $categories_display_notice)) {
 	$page_name = ($page->type=='composite')?'page':'content';
 	if (!empty($page->versions[$page->version_index]->path_of)) $page_name = 'path';
 	if (!empty($page->versions[$page->version_index]->annotation_of)) $page_name = 'annotation';

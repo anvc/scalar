@@ -1,6 +1,9 @@
 <?php
 if ($mode || empty($page) || !isset($page->user) || !isset($book->contributors) || !isset($page->version_index)) return;
 
+// List of categories to point out in a notice
+$categories_display_notice = array('review', 'commentary');
+
 // Check the page creator against the book's contributors
 $page_by_contributor = false;
 foreach ($book->contributors as $contrib) {
@@ -12,14 +15,13 @@ foreach ($book->contributors as $contrib) {
 
 // Check for attribution
 $attribution = null;
-// Can't designate an attribution if the page is by a contributor
-if(!$page_by_contributor){
+if(!$page_by_contributor){  // Don't designate an attribution if the page is by a contributor
 	if (isset($page->versions[$page->version_index]->attribution->fullname)) {
 		if (!empty($page->versions[$page->version_index]->attribution->fullname)) $attribution = trim($page->versions[$page->version_index]->attribution->fullname);
 	}
 }
 
-// Version has an attribution and should therefor state that it's by that other than the user
+// Version has an attribution and should therefore state that it's by that other author
 if (!empty($attribution)) {
 	// Figure out what to call the page
 	$page_name = ($page->type=='composite')?'page':'content';
@@ -32,7 +34,7 @@ if (!empty($attribution)) {
 	echo '		<div class="notice notice-custom-attribution"><p>';
 	echo 'This '.$page_name.' was written by '.$attribution;
 	//echo ', who is not an author of this '.$book->scope.', ';
-	echo ' on <a href="'.$base_uri.$page->slug.'.versions">'.date('j M Y, g:ia T', strtotime($page->versions[$page->version_index]->created)).'</a>.';
+	echo ' on <a href="'.$base_uri.$page->slug.'.versions">'.date('j M Y', strtotime($page->versions[$page->version_index]->created)).'</a>.';
 	echo '</p></div>'."\n";
 }
 
@@ -63,7 +65,7 @@ elseif (!$page_by_contributor) {
 }
 
 // Is a review or commentary (by the authors of the book)
-elseif (!empty($page->category)) {
+elseif (!empty($page->category) && in_array($page->category, $categories_display_notice)) {
 	$page_name = ($page->type=='composite')?'page':'content';
 	if (!empty($page->versions[$page->version_index]->path_of)) $page_name = 'path';
 	if (!empty($page->versions[$page->version_index]->annotation_of)) $page_name = 'annotation';
@@ -94,7 +96,7 @@ if (isset($page->paywall) && $page->paywall) {
 	echo '		<div class="notice notice-paywall" style="display:none;"><p>This page is behind a paywall, but is viewable due to your logged in credentials.</p></div>'."\n";
 }
 
-//RDF Attributes do not work in IE <= 9
+// RDF Attributes do not work in IE <= 9
 if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie ([1-9])[^0-9]/',$_SERVER['HTTP_USER_AGENT'],$matches)) {
 	echo '<div class="error notice-ie-9"><p>You are currently running Internet Explorer '.$matches[1].'.  Scalar requires IE 10 or greater to properly view Scalar Books.</p></div>'."\n";
 }
