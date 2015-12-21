@@ -14,6 +14,12 @@
 <? if (@$_REQUEST['msg']==2): ?>
 <div class="saved">Your password has been reset.  Please login below to continue.</div>
 <? endif ?>
+<? if (@$_REQUEST['msg']==3): ?>
+<div class="error">Please sign in to edit the requested page</div>
+<? endif ?>
+<? if (@$_REQUEST['msg']==4): ?>
+<div class="error">Please sign in to access pages that are restricted to book authors</div>
+<? endif ?>
 	<form action="<?=confirm_slash(base_url())?>system/login" method="post" class="panel">
 		<input type="hidden" name="action" value="do_login" />
 		<input type="hidden" name="redirect_url" value="<?=@htmlspecialchars($_REQUEST['redirect_url'])?>" />

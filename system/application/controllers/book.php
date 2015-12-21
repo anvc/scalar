@@ -265,7 +265,7 @@ class Book extends MY_Controller {
 	// Import from an external archive
 	private function import() {
 
-		if (!$this->login_is_book_admin('Commentator')) $this->kickout();
+		if (!$this->login_is_book_admin('Commentator')) $this->require_login(4);
 
 		// Set params
 		$archive = no_ext($this->uri->segment(3));
@@ -315,7 +315,7 @@ class Book extends MY_Controller {
 	}
 
 	// Upload a file
-	// This uploads a file only and returns its URL; all other operations to create a media page are through the save API
+	// This uploads a file only and returns its URL; all other operations to create a media page are through the Save API
 	private function upload() {
 
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
@@ -326,7 +326,7 @@ class Book extends MY_Controller {
 			if ($action == 'add') {
 				echo json_encode( array('error'=>'Not logged in or not an author') );
 			} else {
-				$this->kickout();
+				$this->require_login(4);
 			}
 			exit;
 		};
@@ -369,7 +369,7 @@ class Book extends MY_Controller {
 	}
 
 	// Save a comment (an anonymous new page) with ReCAPTCHA check (not logged in) or authentication check (logged in)
-	// This is a special case; we didn't want to corrupt the security of the save API and its native (session) vs non-native (api_key) authentication
+	// This is a special case; we didn't want to corrupt the security of the Save API and its native (session) vs non-native (api_key) authentication
 	private function save_anonymous_comment() {
 
 		header('Content-type: application/json');
@@ -401,7 +401,7 @@ class Book extends MY_Controller {
 				if (!$resp->is_valid) throw new Exception('Invalid CAPTCHA answer, please try again');
 
 			// Logged in
-			// Note that we're not saving the user as the creator of the page -- just using their info to get fullname
+			// Note that we're not saving the user as the creator of the page but rather fullname to the attribution field
 			} else {
  				$user = $this->users->get_by_user_id($user_id);
  				if (!$user) throw new Exception('Could not find user');
@@ -455,12 +455,11 @@ class Book extends MY_Controller {
 
 	private function versions_view() {
 
-		// TODO: move these actions to the save API
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 		if ($action == 'do_delete_versions') {
 			$this->load->model('version_model', 'versions');
 			// Check persmissions
-			if (!$this->data['login_is_super'] && !in_array($this->data['book']->book_id, $this->data['login_book_ids'])) die ('Invalid permissions');
+			if (!$this->data['login_is_super'] && !$this->login_is_book_admin('Reviewer')) $this->require_login(4);
 			// Delete versions
 			$versions = (array) $_POST['delete_version'];
 			if (empty($versions)) die('Could not find versions to delete');
@@ -471,7 +470,7 @@ class Book extends MY_Controller {
 			header('Location: '.$redirect_to);
 			exit;
 		} elseif ($action == 'do_reorder_versions') {
-			if (!$this->data['login_is_super'] && !in_array($this->data['book']->book_id, $this->data['login_book_ids'])) die ('Invalid permissions');
+			if (!$this->data['login_is_super'] && !$this->login_is_book_admin('Reviewer')) $this->require_login(4);
 			$content_id = (int) $this->data['page']->content_id;
 			if (empty($content_id)) die('Could not resolve content ID');
 			$this->versions->reorder_versions($content_id);
@@ -573,13 +572,13 @@ class Book extends MY_Controller {
 
 		// User
 		$user_id = @$this->data['login']->user_id;
-		if (empty($user_id)) show_error('Not logged in');
+		if (empty($user_id)) $this->require_login(3);
 
 		// Book
 		$book_id =@ (int) $this->data['book']->book_id;
 		$book_slug = $this->data['book']->slug;
-		if (empty($book_id)) show_error('No book found');
-		if (empty($book_slug)) show_error('Invalid book URI segment');
+		if (empty($book_id)) show_404();
+		if (empty($book_slug)) show_404();
 
 		// Content
 		$content_id =@ (int) $this->data['page']->content_id;
@@ -639,7 +638,7 @@ class Book extends MY_Controller {
 
 	private function annotation_editor_view() {
 
-		if (!$this->login_is_book_admin('Commentator')) $this->kickout();
+		if (!$this->login_is_book_admin('Commentator')) $this->require_login(4);
 
 	}
 
