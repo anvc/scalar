@@ -18,12 +18,18 @@
  * permissions and limitations under the License.
  */
 
-header ("content-type: text/xml");
-
 $uri =@ urldecode($_REQUEST['uri']);
 $xsl =@ urldecode($_REQUEST['xsl']);
 
-//John added this line to make SSL work
+// Validate URI against list of archive URLs
+$domain = parse_url($uri, PHP_URL_HOST);
+$archives_path = __DIR__.'/xsl/archives.rdf';
+$archives_rdf = file_get_contents($archives_path);
+$is_valid_domain = ($domain==$_SERVER['HTTP_HOST'] || false!==strstr($archives_rdf,$domain)) ? true : false;
+if (!$is_valid_domain) die ('Invalid domain');
+
+header("content-type: text/xml");
+
 if(substr($xsl, 0, 8)=='https://') $xsl = 'http://'.substr($xsl, 8);
 
 $format =@ ($_REQUEST['format']=='json') ? 'json' : 'xml';
