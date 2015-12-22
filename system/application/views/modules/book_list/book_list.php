@@ -29,7 +29,7 @@ function print_books($books, $is_large=false) {
 
 ?>
 
-<?if ('1'==@$_REQUEST['user_created']): ?>
+<?if (isset($_REQUEST['user_created']) && '1'==$_REQUEST['user_created']): ?>
 <div class="saved">
   Thank you for registering your <?=$cover_title?> account
   <a href="<?=$uri?>" style="float:right;">clear</a>

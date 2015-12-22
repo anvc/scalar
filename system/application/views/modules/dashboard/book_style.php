@@ -286,7 +286,7 @@ function make_taxonomy_pages(onomy) {
 		echo 'Please select a book to manage using the pulldown menu above';
 	}
 
-	if (@$_REQUEST['action']=='book_style_saved') {
+	if (isset($_REQUEST['action']) && $_REQUEST['action']=='book_style_saved') {
 		echo '<div class="saved">';
 		echo 'Book style has been saved ';
 		echo '<div style="float:right;">';

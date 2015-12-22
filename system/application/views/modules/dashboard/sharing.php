@@ -59,7 +59,7 @@ $(window).ready(function() {
 	if (empty($book)) {
 		echo 'Please select a book to manage using the pulldown menu above';
 	}
-	if (@$_REQUEST['action']=='book_sharing_saved') {
+	if (isset($_REQUEST['action']) && $_REQUEST['action']=='book_sharing_saved') {
 		echo '<div class="saved">';
 		echo 'Sharing options have been saved ';
 		echo '<div style="float:right;">';

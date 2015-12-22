@@ -79,7 +79,6 @@ abstract class MY_Model extends Model {
     	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$this->db->order_by($this->versions_table.'.version_num', 'desc');
     	$query = $this->db->get();
-		if (mysql_errno()!=0) echo 'MySQL Error: '.mysql_error()."\n";
 		$result = $query->result();
 
 		// Add URN
@@ -143,7 +142,6 @@ abstract class MY_Model extends Model {
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
 		$this->db->orderby($orderby, $orderdir);
 		$query = $this->db->get();
-		if (mysql_errno()!=0) echo 'MySQL Error: '.mysql_error()."\n";
 		$result = $query->result();
 		$remove = array();
     	for ($j = 0; $j < count($result); $j++) {
@@ -196,7 +194,6 @@ abstract class MY_Model extends Model {
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
 		$this->db->orderby($orderby, $orderdir);
 		$query = $this->db->get();
-		if (mysql_errno()!=0) echo 'MySQL Error: '.mysql_error()."\n";
 		$result = $query->result();
 		$remove = array();
     	for ($j = 0; $j < count($result); $j++) {
@@ -354,7 +351,6 @@ abstract class MY_Model extends Model {
     	$this->db->orderby('version_num','desc');
     	$this->db->limit(1);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo 'MySQL Error: '.mysql_error()."\n";
 		$result = $query->result();
 		if (!isset($result[0]) || !isset($result[0]->version_num)) return false;
 		return $result[0];
@@ -389,7 +385,6 @@ abstract class MY_Model extends Model {
     	$this->db->orderby('version_num','desc');
     	$this->db->limit(1);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo 'MySQL Error: '.mysql_error()."\n";
 		$result = $query->result();
 		if (!isset($result[0]) || !isset($result[0]->version_num)) return false;
 		$top_version_num = $result[0]->version_num;
@@ -429,7 +424,6 @@ abstract class MY_Model extends Model {
     	$this->db->where('book_id', $book_id);
     	$this->db->limit(1);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo 'MySQL: '.mysql_error();
     	if ($query->num_rows > 0) {
     		$result = $query->result();
     		return (int) $result[0]->content_id;

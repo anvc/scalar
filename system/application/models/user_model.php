@@ -81,7 +81,6 @@ class User_model extends My_Model {
             $query = $this->db->get();
         }
 
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	/*
     	for ($j = 0; $j < count($result); $j++) {
@@ -124,7 +123,6 @@ class User_model extends My_Model {
     	$this->db->from($this->users_table);
     	$this->db->where('user_id', $user_id);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo mysql_error();
     	if ($query->num_rows == 0) return false;
     	$result = $query->result();
     	return $result[0];
@@ -201,7 +199,6 @@ class User_model extends My_Model {
     	$this->db->from($this->users_table);
     	$this->db->where('email', $email);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo mysql_error();
     	if ($query->num_rows == 0) return false;
     	$result = $query->result();
     	if ($result[0]->user_id != $user_id) return true;
@@ -215,7 +212,6 @@ class User_model extends My_Model {
     	$this->db->from($this->users_table);
     	$this->db->where('email', $email);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo 'MySQL: '.mysql_error();
     	if ($query->num_rows == 0) return true;
     	$result = $query->result();
     	if (empty($result[0]->password)) return true;
@@ -275,7 +271,6 @@ class User_model extends My_Model {
     	$this->db->where($this->books_table.'.book_id', $book_id);
     	$this->db->order_by($this->user_history_table.'.history_id', 'asc');
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) die('MySQL Error: '.mysql_error());
     	$result = $query->result();
 
     	$return = array();
@@ -290,7 +285,6 @@ class User_model extends My_Model {
 			$this->db->orderby('version_num', 'desc');
 			$this->db->limit(1);
 			$query = $this->db->get();
-			if (mysql_errno()!=0) die('MySQL Error: '.mysql_error());
 			if ($query->num_rows==0) continue;
 			$result = $query->result();
 			$row->versions = array($result[0]);
@@ -377,7 +371,7 @@ class User_model extends My_Model {
 
 		$data = array('fullname' => $fullname, 'email' => $email);
 		$this->db->insert($this->users_table, $data);
-		$user_id = mysql_insert_id();
+		$user_id = $this->db->insert_id();
 
 		$this->save_password($user_id, $array['password']);  // Hashes the string
 
@@ -436,7 +430,7 @@ class User_model extends My_Model {
 		}
 
     	// Remove password from save array, for saving later
-		$password =@ $array['password'];
+		$password = (isset($array['password'])) ? $array['password'] : null;
 		unset($array['password']);
 
     	// Remove user_book fields
@@ -449,7 +443,6 @@ class User_model extends My_Model {
 		// Save row
 		$this->db->where('user_id', $user_id);
 		$this->db->update($this->users_table, $array);
-		if (mysql_errno()!=0) echo mysql_error();
 
 		// Clear reset string and save password, if applicable
 		if (!empty($password)) {

@@ -46,7 +46,6 @@ class Page_model extends MY_Model {
     	$this->db->limit(1); // There should only be one item
     	$query = $this->db->get($this->pages_table);
     	if (!$query->num_rows) return null;
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->content_id);
     	return $result[0];
@@ -64,7 +63,6 @@ class Page_model extends MY_Model {
      	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$this->db->order_by($this->pages_table.'.slug', 'asc');
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->urn = $this->urn($result[$j]->content_id);
@@ -131,7 +129,6 @@ class Page_model extends MY_Model {
     	$this->db->limit(1); // There should only be one item
     	$query = $this->db->get($this->pages_table);
     	if (!$query->num_rows) return null;
-    	if (mysql_errno()!=0) throw new Exception(mysql_error());
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->content_id);
     	return $result[0];
@@ -148,7 +145,6 @@ class Page_model extends MY_Model {
     	$this->db->orderby($this->versions_table.'.version_id', 'desc');
     	$query = $this->db->get();
     	if (!$query->num_rows) return null;
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
 
     	foreach ($result as $row) {
@@ -202,7 +198,6 @@ class Page_model extends MY_Model {
 		$this->db->orderby($this->pages_table.'.slug', 'desc');
     	$query = $this->db->get();
     	//if (!$query->num_rows) return null;
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
 
     	$return = array();
@@ -254,7 +249,6 @@ class Page_model extends MY_Model {
     	$this->db->where('content_id', $content_id);
     	$this->db->limit(1);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) die('MySQL: '.mysql_error());
     	$result = $query->result();
     	$single_result = $result[0];
     	if ($single_result->user != $user_id) return false;
@@ -267,7 +261,6 @@ class Page_model extends MY_Model {
     	$this->db->where('content_id',$content_id);
 		$this->db->set('is_live', $bool ? '1' : '0');
 		$this->db->update($this->pages_table);
-    	if (mysql_errno()!=0) die(mysql_error());
 
     }
 
@@ -285,7 +278,6 @@ class Page_model extends MY_Model {
     	$this->db->join($this->books_table, $this->books_table.'.book_id='.$this->pages_table.'.book_id');
     	$this->db->where($this->pages_table.'.content_id',$content_id);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) show_error(mysql_error());
     	$result = $query->result();
     	$book_id = (int) $result[0]->book_id;
     	$book_slug = $result[0]->slug;
@@ -294,7 +286,6 @@ class Page_model extends MY_Model {
 
 		$this->db->where('content_id', $content_id);
 		$this->db->delete($this->pages_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		// Get versions and delete from relationship tables and meta
 
@@ -331,7 +322,6 @@ class Page_model extends MY_Model {
 		// Delete versions
 		$this->db->where('content_id', $content_id);
 		$this->db->delete($this->versions_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		return true;
 
@@ -400,17 +390,14 @@ class Page_model extends MY_Model {
 						$old = confirm_slash(base_url()).confirm_slash($book_slug).$slug;
 						$new = confirm_slash(base_url()).confirm_slash($book_slug).$array['slug'];
 						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new') WHERE version_id IN (".implode(',',$book_version_ids).")");
-						if (mysql_errno()!=0) die('Could not update URLs in database.  Note that the slug was changed on the filesystem. ('.mysql_error().')');
 						// Update soft URLs in version contet - href
 						$old = 'href="'.$slug.'"';
 						$new = 'href="'.$array['slug'].'"';
 						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".addslashes($old)."', '".addslashes($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
-						if (mysql_errno()!=0) die('Could not update URLs in database.  Note that the slug was changed on the filesystem. ('.mysql_error().')');
 						// Update soft URLs in version contet - resource
 						$old = 'resource="'.$slug.'"';
 						$new = 'resource="'.$array['slug'].'"';
 						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".addslashes($old)."', '".addslashes($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
-						if (mysql_errno()!=0) die('Could not update URLs in database.  Note that the slug was changed on the filesystem. ('.mysql_error().')');
 					}
 				}
 			}
@@ -419,7 +406,6 @@ class Page_model extends MY_Model {
 		// Save row
 		$this->db->where('content_id', $content_id);
 		$this->db->update($this->pages_table, $array);
-		if (mysql_errno()!=0) echo mysql_error();
 		return $array;
 
     }
@@ -465,9 +451,8 @@ class Page_model extends MY_Model {
 		if (isset($array['audio']))  			$data['audio'] = (is_array($array['audio'])) ? $array['audio'][0] : $array['audio'];
 
     	$this->db->insert($this->pages_table, $data);
-    	if (mysql_errno() != 0) die(mysql_error());
 
-    	$id = mysql_insert_id();
+    	$id = $this->db->insert_id();
     	return $id;
 
     }
@@ -484,7 +469,6 @@ class Page_model extends MY_Model {
 		$this->db->where($this->pages_table.'.slug', $array['slug']);
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) throw new Exception(mysql_error());
 
     	if (!$query->num_rows()) {
 			$CI =& get_instance();

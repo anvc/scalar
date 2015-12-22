@@ -83,7 +83,6 @@ class Path_model extends MY_Model {
             );
 
 			$done = $this->db->insert($this->paths_table, $data);
-			if (mysql_errno()!=0) echo 'MySQL ERROR: '.mysql_error()."\n";
 
     		$temp_sort_number++;
     		$j++;
@@ -113,7 +112,6 @@ class Path_model extends MY_Model {
             );
 
 			$done = $this->db->insert($this->paths_table, $data);
-			if (mysql_errno()!=0) echo 'MySQL ERROR: '.mysql_error()."\n";
 
 			$count++;
 

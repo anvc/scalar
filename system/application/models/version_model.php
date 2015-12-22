@@ -48,7 +48,6 @@ class Version_model extends MY_Model {
     	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
     	$this->db->where($this->versions_table.'.version_id',$version_id);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	return $result[0]->slug.'.'.$result[0]->version_num;
 
@@ -92,7 +91,6 @@ class Version_model extends MY_Model {
 
 		$this->db->where('version_id', $version_id);
     	$query = $this->db->get($this->versions_table);
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
@@ -117,7 +115,6 @@ class Version_model extends MY_Model {
     	// Don't run $sq here because it might return an older version than the most recent
     	if (!empty($limit)) $this->db->limit($limit);
     	$query = $this->db->get($this->versions_table);
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
 
         if (!empty($sq)) {
@@ -144,7 +141,6 @@ class Version_model extends MY_Model {
     	$this->db->where('content_id', $content_id);
 		$this->db->where('version_num', $version_num);
     	$query = $this->db->get($this->versions_table);
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	return $result[0];
@@ -158,7 +154,6 @@ class Version_model extends MY_Model {
 
     	$this->db->where('url', $url);
     	$query = $this->db->get($this->versions_table);
-    	if (mysql_errno()!=0) die(mysql_error());
     	if (!$query->num_rows) return false;
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
@@ -177,7 +172,6 @@ class Version_model extends MY_Model {
 	    $this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
 	    $this->db->where($this->versions_table.'.version_id', $version_id);
 	    $query = $this->db->get();
-	    if (mysql_errno()!=0) die(mysql_error());
 	    $result = $query->result();
 	    if (!isset($result[0])) return false;
 	    return (int) $result[0]->book_id;
@@ -192,7 +186,6 @@ class Version_model extends MY_Model {
     	$this->db->select('*');
     	$this->db->where($this->books_table.'.book_id', $this->get_book($version_id));
     	$query = $this->db->get($this->books_table);
-    	if (mysql_errno()!=0) die(mysql_error());
     	$result = $query->result();
     	$book_slug = $result[0]->slug;
     	return confirm_slash(base_url().confirm_slash($book_slug).$this->slug($version_id));
@@ -208,7 +201,6 @@ class Version_model extends MY_Model {
     	$this->db->from($this->versions_table);
     	$this->db->where('version_id', $version_id);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) die(mysql_error());
     	if (!$query->num_rows) return null;
     	$result = $query->result();
     	if (!isset($result[0])) return null;
@@ -228,7 +220,6 @@ class Version_model extends MY_Model {
     	$this->db->where('version_id', $id);
     	$this->db->limit(1);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) die('MySQL: '.mysql_error());
     	$result = $query->result();
     	$single_result = $result[0];
     	if ($single_result->user != $user_id) return false;
@@ -250,51 +241,40 @@ class Version_model extends MY_Model {
 
 		$this->db->where('version_id', $version_id);
 		$this->db->delete($this->versions_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		// Parents
 
 		$this->db->where('parent_version_id', $version_id);
 		$this->db->delete($this->paths_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('parent_version_id', $version_id);
 		$this->db->delete($this->tags_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('parent_version_id', $version_id);
 		$this->db->delete($this->annotations_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('parent_version_id', $version_id);
 		$this->db->delete($this->replies_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('parent_version_id', $version_id);
 		$this->db->delete($this->references_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		// Children
 
 		$this->db->where('child_version_id', $version_id);
 		$this->db->delete($this->paths_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('child_version_id', $version_id);
 		$this->db->delete($this->tags_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('child_version_id', $version_id);
 		$this->db->delete($this->annotations_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('child_version_id', $version_id);
 		$this->db->delete($this->replies_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		$this->db->where('child_version_id', $version_id);
 		$this->db->delete($this->references_table);
-		if (mysql_errno()!=0) echo 'ERROR: '.mysql_error()."\n";
 
 		// RDF store
 		$this->rdf_store->delete_urn($this->urn($version_id));
@@ -346,8 +326,7 @@ class Version_model extends MY_Model {
      	}
 
  		$this->db->insert($this->versions_table, $data);
- 		if (mysql_errno()!=0) throw new Exception('Error trying to save to the relational tables: '.mysql_error());
- 		$version_id = mysql_insert_id();
+ 		$version_id = $this->db->insert_id();
 
  		// Save to the semantic tables, but first make sure that each predicate isn't a hard coded value in $this->rdf_fields
  		if (empty($version_id)) throw new Exception('Could not resolve version ID before saving to the semantic store.');
@@ -417,7 +396,6 @@ class Version_model extends MY_Model {
 		// Save row
 		$this->db->where('version_id', $version_id);
 		$this->db->update($this->versions_table, $array);
-		if (mysql_errno()!=0) echo mysql_error();
 		return $array;
 
     }
@@ -473,7 +451,6 @@ class Version_model extends MY_Model {
     	$this->db->where('content_id',$ver->content_id);
     	$this->db->set('is_live', $bool ? 1 : 0);
     	$this->db->update($this->pages_table);
-    	if (mysql_errno()!=0) die(mysql_error());
 
     }
 
@@ -500,7 +477,6 @@ class Version_model extends MY_Model {
     	$this->db->where('content_id',$content_id);
     	$this->db->set('recent_version_id', $version_id);
     	$this->db->update($this->pages_table);
-    	if (mysql_errno()!=0) die(mysql_error());
 
     	return true;
 

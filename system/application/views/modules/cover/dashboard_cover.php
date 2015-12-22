@@ -9,14 +9,14 @@
 <option value="0">Select a book to manage</option>
 <?
 foreach ($my_books as $row) {
-	echo '<option value="'.$row->book_id.'"'.((@$book->book_id==$row->book_id)?' SELECTED':'').'>';
+	echo '<option value="'.$row->book_id.'"'.((!empty($book)&&$book->book_id==$row->book_id)?' SELECTED':'').'>';
 	echo strip_tags($row->title);
 	echo '</option>';
 }
 ?>
 </select>
 <input type="hidden" name="zone" value="style" />
-</form> 
+</form>
 <?=$cover_title?>
 </h2>
 </div>

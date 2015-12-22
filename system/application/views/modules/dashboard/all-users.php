@@ -1,15 +1,15 @@
-<? if ('deleted'==@$_REQUEST['action']): ?>
+<? if (isset($_REQUEST['action']) && 'deleted'==$_REQUEST['action']): ?>
 <div class="saved">
 <a style="float:right;" href="?zone=all-users#tabs-all-users">clear</a>
 User has been deleted
 </div><br />
-<? endif ?>	
-<? if ('added'==@$_REQUEST['action']): ?>
+<? endif ?>
+<? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
 <div class="saved">
 <a style="float:right;" href="?zone=all-users#tabs-all-users">clear</a>
 User has been added
 </div><br />
-<? endif ?>	
+<? endif ?>
 		<style>
 		.admin-nav-wrap {
 			margin:7px 0;
@@ -45,9 +45,9 @@ User has been added
 
    			$(window).resize(function() { resizeList(); });
    			resizeList();
-   			
-		});	
-		
+
+		});
+
 		function resizeList() {
     		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 60))+'px'); // magic number to get list height right
 		}
@@ -57,19 +57,19 @@ User has been added
 			var password = $form.find("input[tabindex='3']");
 			if (password.val() == 'password') password.val('');
 			var book_title = $form.find("input[tabindex='4']");
-			if (book_title.val() == 'title of first book (optional)') book_title.val('');		
+			if (book_title.val() == 'title of first book (optional)') book_title.val('');
 		}
-		</script>		
-		
+		</script>
+
 		<form  action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-users" method="post" onsubmit="checkAddUserForm(this);">
 		<input type="hidden" name="zone" value="all-users" />
 		<input type="hidden" name="action" value="do_add_user" />
-		Add new user: <input tabindex="1" type="text" name="fullname" value="full name" style="width:180px;" onfocus="if (this.value=='full name') this.value='';" />&nbsp; 
-		<input tabindex="2" type="text" name="email" value="email" style="width:180px;" onfocus="if (this.value=='email') this.value='';" />&nbsp; 
-		<input tabindex="3" type="text" name="password" value="password" style="width:180px;" onfocus="if (this.value=='password') {this.value=''; this.type='password';}" />&nbsp; 		
-		<input tabindex="4" type="text" name="book_title" value="title of first book (optional)" style="width:180px;" onfocus="if (this.value=='title of first book (optional)') this.value='';" />&nbsp; 
+		Add new user: <input tabindex="1" type="text" name="fullname" value="full name" style="width:180px;" onfocus="if (this.value=='full name') this.value='';" />&nbsp;
+		<input tabindex="2" type="text" name="email" value="email" style="width:180px;" onfocus="if (this.value=='email') this.value='';" />&nbsp;
+		<input tabindex="3" type="text" name="password" value="password" style="width:180px;" onfocus="if (this.value=='password') {this.value=''; this.type='password';}" />&nbsp;
+		<input tabindex="4" type="text" name="book_title" value="title of first book (optional)" style="width:180px;" onfocus="if (this.value=='title of first book (optional)') this.value='';" />&nbsp;
 		<input type="submit" value="Go" class="generic_button" />
-		</form>				
+		</form>
 		<div class="admin-nav-wrap">
 		<? if (!empty($users)): ?>
 		<?
@@ -81,7 +81,7 @@ User has been added
 		<? if ($start !== 0 || (count($users)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
-		&nbsp; 
+		&nbsp;
 		<? endif ?>
 		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($users)-1 == $total): ?>
@@ -100,9 +100,9 @@ User has been added
 			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-users">clear</a>
 		 </form>
 		</div>
-		
+
 		<br clear="both" />
-		
+
 		<div class="table_wrapper">
 		<table cellspacing="0" cellpadding="0" class="tablesorter">
 			<thead>
@@ -156,7 +156,7 @@ User has been added
 		<? if ($start !== 0 || (count($users)-1) == $total): ?>
 		<? if($start !== 0): ?>
 		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
-		&nbsp; 
+		&nbsp;
 		<? endif ?>
 		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($users)-1 == $total): ?>
@@ -167,7 +167,7 @@ User has been added
 		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
 		 </form>
 		<? endif ?>
-		</div>		
+		</div>
 		<? endif ?>
 
-		<br />		
+		<br />

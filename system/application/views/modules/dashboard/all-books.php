@@ -1,11 +1,11 @@
 <?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
-<? if ('deleted'==@$_REQUEST['action']): ?>
+<? if (isset($_REQUEST['action']) && 'deleted'==$_REQUEST['action']): ?>
 <div class="saved">
 <a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
 Book has been deleted
 </div><br />
 <? endif ?>
-<? if ('added'==@$_REQUEST['action']): ?>
+<? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
 <div class="saved">
 <a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
 Book has been added

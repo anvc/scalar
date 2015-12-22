@@ -51,7 +51,6 @@ class User_book_model extends User_model {
 		$this->db->where($this->user_book_table.'.book_id',$book_id);
 		$this->db->where($this->user_book_table.'.user_id',$user_id);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) die(mysql_error());
     	if (!$query->num_rows()) return null;
 		$result = $query->result();
     	return $result[0];

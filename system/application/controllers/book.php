@@ -581,7 +581,7 @@ class Book extends MY_Controller {
 		if (empty($book_slug)) show_404();
 
 		// Content
-		$content_id =@ (int) $this->data['page']->content_id;
+		$content_id = (!empty($this->data['page'])) ? (int) $this->data['page']->content_id : null;
 		$is_new = (!empty($content_id)) ? false : true;
 
 		// Protect

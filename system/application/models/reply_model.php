@@ -98,7 +98,6 @@ class Reply_model extends MY_Model {
             );
 
 			$this->db->insert($this->replies_table, $data);
-			if (mysql_errno()!=0) echo 'MySQL ERROR: '.mysql_error()."\n";
 
     		$j++;
 

@@ -156,7 +156,6 @@ class Book_model extends MY_Model {
         	$query = $this->db->get();
         }
 
-    	if (mysql_errno()!=0) echo mysql_error();
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->users = $this->get_users($result[$j]->book_id, true, '');
@@ -175,7 +174,6 @@ class Book_model extends MY_Model {
     	$this->db->order_by($orderby, $orderdir);
 
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo mysql_error();
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->users = $this->get_users($result[$j]->book_id, true, '');
@@ -193,7 +191,6 @@ class Book_model extends MY_Model {
     	$this->db->order_by($orderby, $orderdir);
 
     	$query = $this->db->get();
-    	if (mysql_errno()!=0) echo mysql_error();
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->users = $this->get_users($result[$j]->book_id, true, '');
@@ -241,7 +238,6 @@ class Book_model extends MY_Model {
     		 "AND (B.url LIKE '%.gif' OR B.url LIKE '%.jpg' OR B.url LIKE '%.jpeg' OR B.url LIKE '%.png' OR B.url LIKE '%JPEG%') " .
     		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
-    	if (mysql_errno()!=0) echo 'Error: '.mysql_error()."\n";
     	$result = $query->result();
 		$return = array();
 		foreach ($result as $row) {
@@ -273,7 +269,6 @@ class Book_model extends MY_Model {
     		 "AND (B.url LIKE '%.wav' OR B.url LIKE '%.mp3' OR B.url LIKE '%soundcloud%' OR B.url LIKE '%.oga' OR B.url LIKE '%.wav' OR B.url LIKE '%WAVE%' OR B.url LIKE '%MP3%') " .
     		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
-    	if (mysql_errno()!=0) echo 'Error: '.mysql_error()."\n";
     	$result = $query->result();
     	$return = array();
 		foreach ($result as $row) {
@@ -306,7 +301,6 @@ class Book_model extends MY_Model {
     	$this->db->where($this->pages_table.'.book_id', $book_id);
     	if ($is_live) $this->db->where($this->pages_table.'.is_live', 1);
     	$query = $this->db->get();
-    	if (mysql_errno()!=0)throw new Exception(mysql_error());
     	$result = $query->result();
 
 		$return = array();
@@ -444,7 +438,7 @@ class Book_model extends MY_Model {
 		if (isset($array['publisher_thumbnail']) && !empty($array['publisher_thumbnail'])) $data['publisher_thumbnail'] = $array['publisher_thumbnail'];
 
 		$this->db->insert($this->books_table, $data);
-		$book_id = mysql_insert_id();
+		$book_id = $this->db->insert_id();
 
 		if (!empty($user_id)) $this->save_users($book_id, array($user_id), 'author');
 
@@ -514,7 +508,6 @@ class Book_model extends MY_Model {
  		$this->db->where('book_id', $book_id);
  		$this->db->where('user_id', $user_id);
 		$this->db->delete($this->user_book_table);
-		if (mysql_errno()!=0) throw new Exception(mysql_error());
 		return true;
 
     }
@@ -575,7 +568,6 @@ class Book_model extends MY_Model {
 				$old = confirm_slash(base_url()).confirm_slash($slug);
 				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
 				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new')");
-				if (mysql_errno()!=0) throw new Exception('Could not update URLs in database.  Note that the slug was changed on the filesystem. ('.mysql_error().')');
 			}
 
     	}
@@ -615,7 +607,6 @@ class Book_model extends MY_Model {
 		// Save row
 		$this->db->where('book_id', $book_id);
 		$this->db->update($this->books_table, $array);
-		if (mysql_errno()!=0) throw new Exception('MySQL error: '.mysql_error());
 		return $array;
 
     }

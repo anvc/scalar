@@ -85,14 +85,14 @@ $type = ($page->type == 'composite') ? 'page' : 'media page';
 			</div>
 			<div class="comments">
 				<h4 class="content_title">Discussion of "<?=str_replace('"',"'",$page->versions[$page->version_index]->title)?>"</h4>
-			<? if (@$_GET['action']=='comment_saved'): ?>
+			<? if (isset($_GET['action']) && $_GET['action']=='comment_saved'): ?>
 			<div class="saved" style="margin-bottom:14px;">Your comment has been saved<?=(@$_GET['moderated'])?' and is awaiting moderation.':' and is viewable below.'?></div>
 			<? endif ?>
 				<div class="discussion">
 
 <?
 				$num_comments = print_comments(@$page->versions[$page->version_index]->has_replies, $book, $base_uri, @$login->user_id);
-				if (!$num_comments && !@$_GET['action']=='comment_saved') echo '<p>No comments yet.</p>';
+				if (!$num_comments && isset($_GET['action']) && @$_GET['action']=='comment_saved') echo '<p>No comments yet.</p>';
 ?>
 				</div><!--discussion-->
 
