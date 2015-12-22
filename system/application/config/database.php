@@ -46,7 +46,7 @@ $db['default']['username'] = '';
 $db['default']['password'] = '';
 $db['default']['database'] = '';
 
-$db['default']['dbdriver'] = "mysql";
+$db['default']['dbdriver'] = "mysqli";
 
 $db['default']['dbprefix'] = 'scalar_db_';  // At the moment there are a couple places where this is hard-coded, so don't change for now
 $db['default']['pconnect'] = false;
