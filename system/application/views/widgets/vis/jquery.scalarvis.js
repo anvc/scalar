@@ -2064,7 +2064,9 @@ function handleViewTypeClick(radioBtn) {
 					o = relatedNodes.length;
 					for (j=0; j<o; j++) {
 						destNode = nodesByUrl[relatedNodes[j].url];
-						links.push({source:srcNode, target:destNode});
+						if ( destNode != null ) {
+							links.push({source:srcNode, target:destNode});
+						}
 					}
 				}
 			}
