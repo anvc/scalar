@@ -383,9 +383,6 @@
 								slotDOMElement.wrap('<div class="body_copy"></div>');
 							}
 
-							// prevent scroll bars
-							$(slotDOMElement).wrapInner('<div style="overflow:hidden"></div>');
-
 							// align the media appropriately
 							if ( align == 'right' ) {
 								slotMediaElement.model.element.css( 'float', 'right' );
