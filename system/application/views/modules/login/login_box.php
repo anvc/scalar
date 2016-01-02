@@ -5,19 +5,19 @@
 <? if (!empty($login_error)): ?>
 <div class="error"><?=$login_error?></div>
 <? endif ?>
-<? if (@$_REQUEST['action']=='created'): ?>
+<? if (isset($_REQUEST['action']) && $_REQUEST['action']=='created'): ?>
 <div class="saved">Your account has been created.<br />Sign in for the first time below.</div>
 <? endif ?>
-<? if (@$_REQUEST['msg']==1): ?>
+<? if (isset($_REQUEST['msg']) && $_REQUEST['msg']==1): ?>
 <div class="error">Please sign in to view the requested page</div>
 <? endif ?>
-<? if (@$_REQUEST['msg']==2): ?>
+<? if (isset($_REQUEST['msg']) && $_REQUEST['msg']==2): ?>
 <div class="saved">Your password has been reset.  Please login below to continue.</div>
 <? endif ?>
-<? if (@$_REQUEST['msg']==3): ?>
+<? if (isset($_REQUEST['msg']) && $_REQUEST['msg']==3): ?>
 <div class="error">Please sign in to edit the requested page</div>
 <? endif ?>
-<? if (@$_REQUEST['msg']==4): ?>
+<? if (isset($_REQUEST['msg']) && $_REQUEST['msg']==4): ?>
 <div class="error">Please sign in to access pages that are restricted to book authors</div>
 <? endif ?>
 	<form action="<?=confirm_slash(base_url())?>system/login" method="post" class="panel">

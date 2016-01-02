@@ -209,7 +209,7 @@ class System extends MY_Controller {
 		$reset_string =@ $_REQUEST['key'];
 		if (empty($reset_string)) header('Location: '.base_url());
 
-		$action =@ $_POST['action'];
+		$action = (isset($_POST['action']) && !empty($_POST['action'])) ? $_POST['action'] : null;
 		if ('do_create_password'==$action) {
 			$email =@ $_POST['email'];
 			$password_1 =@ $_POST['password_1'];
