@@ -1352,7 +1352,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         window.location.href=url;
                         return;
                     }, function(result) {
-                        alert('An error occurred attempting to hide this page: '+result+'. Please try again.');
+                    	alert('An error occurred attempting to hide this page: '+result);
+                    	var login = $('link#approot').attr('href').replace('application','login');
+                    	if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
+                    	var url = $('link#parent').attr('href');
+                    	window.location.href=login+'?redirect_url='+encodeURIComponent(url);
+                    	return;
                     });
                 }
             });

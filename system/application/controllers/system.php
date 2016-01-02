@@ -252,7 +252,7 @@ class System extends MY_Controller {
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 
 		// There is more specific validation in each call below, but here run a general check on calls on books and users
-		if (!$this->data['login']->is_logged_in) $this->kickout();
+		if (!$this->data['login']->is_logged_in) $this->require_login(4);
 		if (!empty($book_id)) {
 			$this->data['book'] = $this->books->get($book_id);
 			$this->set_user_book_perms();

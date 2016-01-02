@@ -179,12 +179,21 @@ abstract class MY_Controller extends Controller {
    	protected function redirect_url() {
 
    		// A specific redirect URL has been sent via GET/POST
-   		if (isset($_REQUEST{'redirect_url'}) && !empty($_REQUEST['redirect_url'])) return urldecode(trim($_REQUEST{'redirect_url'}));
+   		if (isset($_REQUEST{'redirect_url'}) && !empty($_REQUEST['redirect_url'])) {
+   			return urldecode(trim($_REQUEST{'redirect_url'}));
+   		}
     	// Book is present and might have a page slug
     	if (isset($this->data['book']) && isset($this->data['book']->slug) && !empty($this->data['book']->slug)) {
    			$segs = $this->uri->segment_array();
     		return confirm_slash(base_url()).implode('/',$segs);
     	}
+    	// Dashboard
+		$segs = $this->uri->segment_array();
+		if ('system'==$segs[1] && 'dashboard'==$segs[2]) {
+			$book_id = (isset($_GET['book_id']) && !empty($_GET['book_id'])) ? (int) $_GET['book_id'] : 0;
+			$zone = (isset($_GET['zone']) && !empty($_GET['zone'])) ? $_GET['zone'] : 'style';
+			return confirm_slash(base_url()).'system/dashboard'.urlencode('?book_id='.$book_id.'&zone='.$zone.'#tabs-'.$zone);
+		}
    		// Default to the install index
    		return base_url();
 

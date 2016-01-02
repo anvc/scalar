@@ -87,11 +87,11 @@ Class Api extends Controller {
  			$this->load->model('book_model', 'books');
  			$this->data['book'] = $this->books->get_by_slug(strtolower($this->uri->segment(1)));   // TODO: can be more than one segment
  			$this->user = $this->api_users->do_session_login($this->data['book']->book_id);
- 			if(!$this->user) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
+ 			if(!$this->user) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You are not logged in');
  			$this->_fill_user_session_data();
  		// API key login
  		} else if(!$this->user = $this->api_users->do_login($this->data['email'], $this->data['api_key'], $this->data['host'])){
- 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
+ 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Could not log in via API key');
  		}
 	}
 
