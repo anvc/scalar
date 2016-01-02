@@ -144,7 +144,7 @@ class System extends MY_Controller {
 		$this->data['norobots'] = true;
 
 		try {
-			$action =@ $_POST['action'];
+			$action = (isset($_POST['action']) && !empty($_POST['action'])) ? $_POST['action'] : null;
 			if ('do_register'==$action) {
 				// Validate register key
 				if (!empty($register_keys) && !empty($this->data['register_key']) && !in_array($_POST['registration_key'], $register_keys)) throw new Exception('Invalid registration key');
@@ -178,9 +178,8 @@ class System extends MY_Controller {
 		$this->data['norobots'] = true;
 
 		$this->load->library('SendMail', 'sendmail');
-		//require(dirname(__FILE__).'/../libraries/SendMail.php');
 		$this->data['forgot_login_error'] = '';
-		$action =@ $_POST['action'];
+		$action = (isset($_POST['action']) && !empty($_POST['action'])) ? $_POST['action'] : null;
 		if ('do_forgot_password'==$action) {
 			$email =@ trim($_POST['email']);
 			if (empty($email)) {

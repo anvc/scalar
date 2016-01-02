@@ -11,7 +11,7 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 <? endif ?>
 	<form action="<?=confirm_slash(base_url())?>system/register" method="post" class="panel">
 		<input type="hidden" name="action" value="do_register" />
-		<input type="hidden" name="redirect_url" value="<?=@htmlspecialchars($_REQUEST['redirect_url'])?>" />
+		<input type="hidden" name="redirect_url" value="<?=((isset($_REQUEST['redirect_url']))?htmlspecialchars($_REQUEST['redirect_url']):'')?>" />
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">

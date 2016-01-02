@@ -5,13 +5,13 @@
 <? if (!empty($forgot_login_error)): ?>
 <div class="error"><?=$forgot_login_error?></div>
 <? endif ?>
-<? if (@$_REQUEST['action']=='sent'): ?>
+<? if (isset($_REQUEST['action'] && $_REQUEST['action']=='sent'): ?>
 <div class="saved">An email has been sent to the address you provided, with instructions on how to continue.</div>
 <? endif ?>
 	<form action="<?=confirm_slash(base_url())?>system/forgot_password" method="post" class="panel">
 		<input type="hidden" name="action" value="do_forgot_password" />
-		<input type="hidden" name="redirect_url" value="<?=@htmlspecialchars($_REQUEST['redirect_url'])?>" />
-		<input type="hidden" name="msg" value="<? echo (int) @$_REQUEST['msg'] ?>" />
+		<input type="hidden" name="redirect_url" value="<?=((isset($_REQUEST['redirect_url']))?htmlspecialchars($_REQUEST['redirect_url']):'')?>" />
+		<input type="hidden" name="msg" value="<?=((isset($_REQUEST['msg']))?$_REQUEST['msg']:'')?>" />
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">
