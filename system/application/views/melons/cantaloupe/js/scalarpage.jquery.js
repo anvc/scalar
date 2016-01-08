@@ -905,15 +905,30 @@
 			},
 
 			makeRelativeLinksAbsolute: function() {
-				$( 'article > span[property="sioc:content"]' ).find( 'a' ).each( function() {
-					var href = $( this ).attr( "href" );
-					if ( href != null ) {
-						if ( href.indexOf( '://' ) == -1 ) { // relative url
-							var parent = $('link#parent').attr('href');
-							$( this ).attr( "href", parent + href );
-						}	
+				var absoluteURLRoot = $('link#parent').attr('href');
+				page.bodyContentLinks().each(function() {
+					if (page.isLinkRelative(this)) {
+						$(this).attr("href", absoluteURLRoot + $(this).attr("href"));
 					}	
 				});
+			},
+
+			bodyContent: function() {
+				return $('article > span[property="sioc:content"]');
+			},
+
+			bodyContentLinks: function() {
+				return page.bodyContent().find('a');
+			},
+
+			isLinkRelative: function(link) {
+				var href = $(link).attr("href");
+				if (href != null) {
+					if ((href.indexOf("://") == -1) && (href.indexOf("javascript:") != 0)) {
+						return true;
+					}	
+				}
+				return false;
 			},
 
 			getMediaLinks: function( element ) {
@@ -1044,7 +1059,7 @@
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
 
 						var link, 
-							content = $( 'article > span[property="sioc:content"]' ),
+							content = page.bodyContent(),
 							approot = $('link#approot').attr('href');
 
 						// has the annobuilder already been set up? if not, then do so
@@ -1067,7 +1082,7 @@
 
 					// not a media page
 					} else {
-						$('article > span[property="sioc:content"]').append('<div>This is not a media page.</div>');
+						page.bodyContent().append('<div class="body_copy"><p class="text-danger">The annotation editor could not be loaded because this is not a media page.</p></div>');
 					}
 					
 				} else if ( 'edit' == extension) {	
@@ -1077,7 +1092,7 @@
 					// if this is a media page, embed the media at native size
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
 						var currentNode = scalarapi.model.getCurrentPageNode();
-						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( 'article > span[property="sioc:content"]' );
+						var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( page.bodyContent() );
 
 						link.wrap( '<div></div>' );
 						page.addMediaElementForLink( link, link.parent() );
@@ -1094,7 +1109,7 @@
 							nodes = [];
 
 						// get all of the media links in the page content
-						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"]' ) );
+						var mediaLinks = page.getMediaLinks( page.bodyContent() );
 						$( mediaLinks ).each( function() {
 							node = scalarapi.getNode( $( this ).attr('resource') );
 							if ( node != null ) {
@@ -1200,7 +1215,7 @@
 						case "meta":
 						if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
 							var currentNode = scalarapi.model.getCurrentPageNode();
-							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( 'article > span[property="sioc:content"]' );
+							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).insertBefore( page.bodyContent() );
 
 							link.wrap( '<div></div>' );
 							page.addMediaElementForLink( link, link.parent() );
@@ -1288,7 +1303,7 @@
 
 						// if this is a media page, embed the media at native size
 						if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
-							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).appendTo( 'article > span[property="sioc:content"]' );
+							var link = $( '<a href="'+currentNode.current.sourceFile+'" resource="'+currentNode.slug+'" data-align="left" class="media-page-link" data-size="native"></a>' ).appendTo( page.bodyContent() );
 							link.wrap( '<div></div>' );
 							page.addMediaElementForLink( link, link.parent() );
 							link.css('display', 'none');
@@ -1458,7 +1473,7 @@
 					var well = collapsible.find( ".well" );
 					well.append( table );
 
-					$( 'article > span[property="sioc:content"]' ).append( metadata );
+					page.bodyContent().append( metadata );
 					metadata.wrap( '<div class="paragraph_wrapper"></div>' );
 
 				}
@@ -1466,7 +1481,7 @@
 			},
 
 			addExternalLinks: function() {
-				$( 'article > span[property="sioc:content"]' ).find( 'a' ).each( function() {
+				page.bodyContentLinks().each( function() {
 
 					var base_url = $('link#parent').attr('href');
 					var $link = $(this);
@@ -1698,7 +1713,7 @@
 				case 'structured_gallery':
 				page.setupScreenedBackground();
 				var galleryElement = $('<div></div>');
-				$( 'article > span[property="sioc:content"]' ).after( galleryElement );
+				page.bodyContent().after( galleryElement );
 				page.structuredGallery = $.scalarstructuredgallery( galleryElement );
 				page.addHeaderPathInfo();
 				page.addRelationshipNavigation( {
@@ -2029,7 +2044,7 @@
 				var anchorVars = scalarapi.getAnchorVars( window.location.href );
 				if ( anchorVars != null ) {
 					if ( anchorVars.type == "media" ) {
-						$( 'article > span[property="sioc:content"]' ).prepend( '<h2 class="heading_font" style="margin-top: 0;">Import Internet Media File</h2>' );
+						page.bodyContent().prepend( '<h2 class="heading_font" style="margin-top: 0;">Import Internet Media File</h2>' );
 					}
 				}
 			}
