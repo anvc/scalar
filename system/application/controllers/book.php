@@ -605,8 +605,10 @@ class Book extends MY_Controller {
 			}
 			if (!empty($this->data['page']->versions[$this->data['page']->version_index]->continue_to_content_id)) {
 				$this->data['continue_to'] = $this->pages->get($this->data['page']->versions[$this->data['page']->version_index]->continue_to_content_id);
-				$this->data['continue_to']->versions = $this->versions->get_all($this->data['continue_to']->content_id, null, 1);
-				$this->data['continue_to']->version_index = 0;
+				if (!empty($this->data['continue_to'])) {
+					$this->data['continue_to']->versions = $this->versions->get_all($this->data['continue_to']->content_id, null, 1);
+					$this->data['continue_to']->version_index = 0;
+				}
 			}
 		}
 
