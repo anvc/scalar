@@ -402,12 +402,16 @@ class RDF_Object {
 
 		// Versions attached to each node
     	// if (!is_int($settings['versions']) || empty($row->recent_version_id)) {
+		if (!isset($row->versions) || empty($row->versions)) {
 			$versions = $CI->versions->get_all(
 												$row->content_id,
 												((is_int($settings['versions']))?null:$settings['versions']),
 												((is_int($settings['versions']))?$settings['versions']:1),
 												$settings['sq']
 											   );
+		} else {
+			$versions = $row->versions;
+		}
 		/*
     	} else {
 			$versions = array();
@@ -422,6 +426,7 @@ class RDF_Object {
 		// Special fields including references and users (if applicable)
 		$row->version = $settings['base_uri'].$row->slug.'.'.$versions[0]->version_num;
 		foreach ($versions as $key => $version) {
+
 			$row->has_version[] = $settings['base_uri'].$row->slug.'.'.$version->version_num;
 			$row->has_version_id[] = $version->version_id;
 			$versions[$key]->version_of = $settings['base_uri'].$row->slug;

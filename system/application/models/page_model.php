@@ -228,10 +228,12 @@ class Page_model extends MY_Model {
 		foreach ($slugs_needed as $title => $slug) {
 			if ('Book Content'==$title) $title = ucwords($scope).' Content';
 			$return[$slug] = new stdClass;
+			$return[$slug]->content_id = 0;
 			$return[$slug]->slug = $slug;
 			$return[$slug]->type = 'composite';
 			$return[$slug]->versions = array();
 			$return[$slug]->versions[0] = new stdClass;
+			$return[$slug]->versions[0]->version_id = 0;
 			$return[$slug]->versions[0]->title = $title;
 			$return[$slug]->versions[0]->type = "version";
 			$return[$slug]->versions[0]->version_num = 0;
