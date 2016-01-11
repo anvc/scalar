@@ -1,35 +1,22 @@
 <?php
 
 function rdf_timestamp($value) {
-	
+
 	return date('c', strtotime($value));;
-	
+
 }
 
 function search_split_terms($terms){
 
 	if (empty($terms)) return $terms;
 
-	$terms =@ preg_replace("/\"(.*?)\"/e", "search_transform_term('\$1')", trim($terms));
-	$terms =@ preg_split("/\s+|,/", $terms);
-
 	$out = array();
-
-	foreach($terms as $term){
-
-		$term =@ preg_replace("/\{WHITESPACE-([0-9]+)\}/e", "chr(\$1)", $term);
-		$term =@ preg_replace("/\{COMMA\}/", ",", $term);
-
-		$out[] = $term;
+	preg_match_all('/"(?:\\\\.|[^\\\\"])*"|\S+/', $terms, $matches);
+	foreach ($matches[0] as $term) {
+		$out[] = trim($term, "\",'");
 	}
 
 	return $out;
-}
-
-function search_transform_term($term){
-	$term = preg_replace("/(\s)/e", "'{WHITESPACE-'.ord('\$1').'}'", $term);
-	$term = preg_replace("/,/", "{COMMA}", $term);
-	return $term;
 }
 
 // http://www.phpro.org/examples/Find-Position-Of-Nth-Occurrence-Of-String.html
@@ -39,7 +26,7 @@ function strposOffset($search, $string, $offset) {
         case $offset == 0:
         return false;
         break;
-    
+
         case $offset > max(array_keys($arr)):
         return false;
         break;
@@ -84,7 +71,7 @@ function cleanbr($str='') {
 }
 
 function first_paragraph($str='') {
-	
+
 	$orig_strlen = strlen($str);
 	$seek = array('</p','</br','<br /','<br/');
 	foreach ($seek as $tag) {
@@ -94,7 +81,7 @@ function first_paragraph($str='') {
 	}
 	if (strlen($str) < $orig_strlen) $str .= ' [...]';
 	return $str;
-	
+
 }
 
 function hl($text, $terms) {
