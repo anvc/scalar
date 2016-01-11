@@ -43,12 +43,6 @@
 			mobileWidth: 520, // this should be set to the same value as the mobile (tiny.css) breakpoint in responsive.css
 			adaptiveMedia: 'full',
 
- 			/**
-			  * Increments the data with the given name attached to the selection.
-			  *
-			  * @param {Object} selection		The selection whose data is to be incremented.
-			  * @param {String} data			The name of the data property to be incremented.
-			  */
 			incrementData: function(selection, data) {
 				var value = selection.data(data);
 				if (value != undefined) {
@@ -74,12 +68,6 @@
 				page.elementsWithIncrementedData = [];
 			},
 
-			/**
-			 * Called when a mediaelement instance has gathered metadata about the media.
-			 *
-			 * @param {Object} event			The event object.
-			 * @param {Object} link				The link which spawned the mediaelement, and which contains its data.
-			 */
 			handleMediaElementMetadata: function( event, link ) {
 
 				var mediaelement = link.data('mediaelement'),
@@ -622,7 +610,7 @@
 							section = $(this).parent();
 							section.addClass('relationships');
 							section.find('h1').text('This page is a tag of:');
-							section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+							section.find('ol').contents().unwrap().wrapAll('<ul class="tag_of"></ul>');
 							section.show();
 
 							// hide contents if requested
@@ -649,7 +637,7 @@
 							section = $(this).parent();
 							section.addClass('relationships');
 							section.find('h1').text('This ' + selfType + ' comments on:');
-							section.find('ol').contents().unwrap().wrapAll('<ul></ul>');
+							section.find('ol').contents().unwrap().wrapAll('<ul class="reply_of"></ul>');
 							section.show();
 						}
 					});
