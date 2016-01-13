@@ -385,6 +385,8 @@
 							slotDOMElement.addClass( 'left' );
 						}
 
+						slotDOMElement.parent().nextAll( ".paragraph_wrapper" ).eq( 0 ).css( "clear", "both" );
+
 					// if this is not an inline media element, and its size isn't set to 'full', then
 					} else if ( size != 'full' ) {
 
