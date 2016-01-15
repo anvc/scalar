@@ -3244,7 +3244,7 @@ ScalarNode.prototype.hasScalarType = function(typeName) {
  * @param	includeNonPages			If true, results will include non-page content.
  * @return	Array of matching nodes.
  */
-ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages) {
+ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages, sort) {
 
 	var i, n, relation,
 		relations = [],
@@ -3286,11 +3286,26 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 			}
 		}
 	}
+
+	switch (sort) {
 	
-	relations.sort(function(a,b) {
-		if (parseInt(a.index) < parseInt(b.index)) return -1;
-		if (parseInt(a.index) > parseInt(b.index)) return 1;
-	})
+		case 'index':
+		relations.sort(function(a,b) {
+			if (parseInt(a.index) < parseInt(b.index)) return -1;
+			if (parseInt(a.index) > parseInt(b.index)) return 1;
+			return 0;
+		})
+		break;
+		
+		case 'reverseindex':
+		relations.sort(function(a,b) {
+			if (parseInt(a.index) > parseInt(b.index)) return -1;
+			if (parseInt(a.index) < parseInt(b.index)) return 1;
+			return 0;
+		})
+		break;
+	
+	}
 	
 	n = relations.length;
 	for (i=0; i<n; i++) {
@@ -3302,7 +3317,21 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 			results.push(relations[i].target);
 		}
 	}
-	
+
+	if (sort == 'alphabetical') {
+		results.sort(function(a,b) {
+			if (( a != null ) && ( b != null )) {
+				var nameA = a.getSortTitle().toLowerCase();
+				var nameB = b.getSortTitle().toLowerCase();
+				if ('undefined'==typeof(nameA)) nameA = scalarapi.untitledNodeString;
+				if ('undefined'==typeof(nameB)) nameB = scalarapi.untitledNodeString;
+				if (nameA < nameB) return -1;
+				if (nameA > nameB) return 1;
+			}
+			return 0;
+		});
+	}	
+
 	return results;
 }
 
@@ -3346,7 +3375,6 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 		}
 	}
 	
-	n = results.length;
 	switch (sort) {
 	
 		case 'index':

@@ -91,7 +91,11 @@
 				var i,j,childNodes,childNode,relationship;
 				for (j in relationshipsToCheck) {
 					relationship = relationshipsToCheck[j];
-					childNodes = node.getRelatedNodes(relationship, 'outgoing');
+					if ( relationship == 'tag' ) {
+						childNodes = node.getRelatedNodes(relationship, 'outgoing', false, 'alphabetical');
+					} else {
+						childNodes = node.getRelatedNodes(relationship, 'outgoing');
+					}
 					for (i in childNodes) {
 						childNode = childNodes[i];
 						if ( type == 'all' ) {
