@@ -3251,6 +3251,10 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 		results = [];
 	
 	if (includeNonPages == null) includeNonPages = false;
+
+	if ( sort == null ) {
+		sort = "index";
+	}
 	
 	/*for (i=0; i<n; i++) {
 		relation = scalarapi.model.relations[i];
@@ -3304,7 +3308,7 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 			return 0;
 		})
 		break;
-	
+
 	}
 	
 	n = relations.length;
@@ -3330,7 +3334,7 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 			}
 			return 0;
 		});
-	}	
+	}
 
 	return results;
 }
