@@ -1546,7 +1546,8 @@
 			sortTags: function() {
 				$('.tag_of').each(function() {
 					var section = $(this).parent();
-					var tagList = section.find('ol');
+					page.alphabetizeRelationshipListItems( section.find('ol'), 'a[rel="oac:hasTarget"]' );
+					/*var tagList = section.find('ol');
 					var tagItems = tagList.children('li');
 					tagItems.sort(function(a,b) {
 						var versionUrl = $(a).find('a[rel="oac:hasTarget"]').attr('href');
@@ -1563,8 +1564,50 @@
 						}
 						return 0;
 					});
-					tagItems.detach().appendTo(tagList);
+					tagItems.detach().appendTo(tagList);*/
 				});
+				$('.has_tags').each(function() {
+					//var section = $(this).parent();
+					page.alphabetizeRelationshipListItems( $(this), 'a[rel="oac:hasBody"]' );
+					/*var tagList = $(this);
+					var tagItems = tagList.children('li');
+					tagItems.sort(function(a,b) {
+						var versionUrl = $(a).find('a[rel="oac:hasBody"]').attr('href');
+						var nodeA = scalarapi.getNode(scalarapi.stripVersion(versionUrl));
+						versionUrl = $(b).find('a[rel="oac:hasBody"]').attr('href');
+						var nodeB = scalarapi.getNode(scalarapi.stripVersion(versionUrl));
+						if (( nodeA != null ) && ( nodeB != null )) {
+							var nameA = nodeA.getSortTitle().toLowerCase();
+							var nameB = nodeB.getSortTitle().toLowerCase();
+							if ('undefined'==typeof(nameA)) nameA = scalarapi.untitledNodeString;
+							if ('undefined'==typeof(nameB)) nameB = scalarapi.untitledNodeString;
+							if (nameA < nameB) return -1;
+							if (nameA > nameB) return 1;
+						}
+						return 0;
+					});
+					tagItems.detach().appendTo(tagList);*/
+				});
+			},
+
+			alphabetizeRelationshipListItems: function( list, scalarVersionUrlSelector ) {
+				var listItems = list.children('li');
+				listItems.sort(function(a,b) {
+					var versionUrl = $(a).find(scalarVersionUrlSelector).attr('href');
+					var nodeA = scalarapi.getNode(scalarapi.stripVersion(versionUrl));
+					versionUrl = $(b).find(scalarVersionUrlSelector).attr('href');
+					var nodeB = scalarapi.getNode(scalarapi.stripVersion(versionUrl));
+					if (( nodeA != null ) && ( nodeB != null )) {
+						var nameA = nodeA.getSortTitle().toLowerCase();
+						var nameB = nodeB.getSortTitle().toLowerCase();
+						if ('undefined'==typeof(nameA)) nameA = scalarapi.untitledNodeString;
+						if ('undefined'==typeof(nameB)) nameB = scalarapi.untitledNodeString;
+						if (nameA < nameB) return -1;
+						if (nameA > nameB) return 1;
+					}
+					return 0;
+				});
+				listItems.detach().appendTo(list);
 			}
 
 		};
