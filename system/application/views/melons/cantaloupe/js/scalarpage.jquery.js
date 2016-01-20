@@ -1689,7 +1689,8 @@
 				element.css('background-image', "url('"+banner+"')");
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
-				page.addRelationshipNavigation( {showChildNav:true, isCentered:true} );
+				page.addRelationshipNavigation( {showChildNav:true, showLateralNav:true, isCentered:true} );
+				console.log( $('.relationships') );
 				$('.relationships').appendTo('.title_card');
 
 				window.setTimeout(function(){
