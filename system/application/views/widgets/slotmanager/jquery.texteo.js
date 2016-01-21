@@ -136,7 +136,7 @@
 					}			 
 				// Link without resource=""	(external or internal)		
 				} else if ('undefined'!=typeof(href) && base_url) {
-					if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
+					if (href.indexOf('://') != -1 && href.indexOf(base_url) == -1) {  // External link
 						$link.data('texteo_external_link', true);
 						$link.click(function() {  // Open with previous header
 							if (target) {  // E.g., open in a new page
@@ -148,7 +148,18 @@
 								return false;
 							}
 						});
-					} else {  // Internal link
+					} else if (href.indexOf('://') != -1) {  // Internal link with absolute URL
+						$link.data('texteo_internal_link', true);
+						$link.click(function() {  // Open with previous header
+							if (target) {  // E.g., open in a new page
+								$link.click();
+								return false;
+							} else {
+								document.location.href=$(this).attr('href');
+								return false;
+							}
+						});
+					} else {  // Internal link with relative URL
 						$link.data('texteo_internal_link', true);
 						$link.click(function() {  // Open with previous header
 							if (target) {  // E.g., open in a new page
