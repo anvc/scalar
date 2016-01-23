@@ -156,68 +156,9 @@
 									'</select>';
 				base.controls.append( controls_html );
 
-				base.visElement.find( ".vis-content-control" ).change( function( evt ) {
-					var contentValue = $( this ).val();
-					var relationsValue = base.visElement.find( ".vis-relations-control" ).val();
-					base.options.content = contentValue;
-
-					// if content is set to current and relations are parent-child, then choose the relation
-					// type based on the dominant scalar type of the current content
-					if ( contentValue == "current" ) {
-						if (( relationsValue != "all" ) && ( relationsValue != "none" )) {
-							base.options.relations = base.currentNode.getDominantScalarType().id;
-						}
-
-					} else if ( contentValue == "toc" ) {
-						// nothing
-
-					// if content is set to a specific type, make the relation type match it
-					} else if ( contentValue != "all" ) {
-						if (( relationsValue != "all" ) && ( relationsValue != "none" )) {
-							base.options.relations = contentValue;
-						}
-					}
-					if ( base.options.relations == "media" ) {
-						base.options.relations = "referee";
-					}
-					base.visualize();
-				});
-
-				base.visElement.find( ".vis-relations-control" ).change( function( evt ) {
-					var contentValue = base.visElement.find( ".vis-content-control" ).val();
-					switch ( $( this ).val() ) {
-
-						case "all":
-						base.options.relations = "all";
-						break;
-
-						case "parents-children":
-						if ( contentValue == "current" ) {
-							base.options.relations = base.currentNode.type.id;
-						} else if ( contentValue == "all" ) {
-							base.options.relations = contentValue;
-						} else if ( contentValue == "toc" ) {
-							base.options.relations = "all";
-						} else {
-							base.options.relations = base.options.content;
-						}
-						if ( base.options.relations == "media" ) {
-							base.options.relations = "referee";
-						}
-						break;
-
-						case "none":
-						base.options.relations = "none";
-						break;
-
-					}
-					base.visualize();
-				});
-
-				base.visElement.find( ".vis-format-control" ).change( function( evt ) {
-					base.options.format = base.visElement.find( ".vis-format-control" ).val();
-					base.visualize();
-				});
+				base.visElement.find( ".vis-content-control" ).change( base.onContentSelect );
+				base.visElement.find( ".vis-relations-control" ).change( base.onRelationSelect );
+				base.visElement.find( ".vis-format-control" ).change( base.onFormatSelect );
 
 				base.updateControls();
 			}
@@ -268,6 +209,69 @@
 			} );
 
         };
+
+        base.onContentSelect = function() {
+			var contentValue = $( this ).val();
+			var relationsValue = base.visElement.find( ".vis-relations-control" ).val();
+			base.options.content = contentValue;
+
+			// if content is set to current and relations are parent-child, then choose the relation
+			// type based on the dominant scalar type of the current content
+			if ( contentValue == "current" ) {
+				if (( relationsValue != "all" ) && ( relationsValue != "none" )) {
+					base.options.relations = base.currentNode.getDominantScalarType().id;
+				}
+
+			} else if ( contentValue == "toc" ) {
+				// nothing
+
+			// if content is set to a specific type, make the relation type match it
+			} else if ( contentValue != "all" ) {
+				if (( relationsValue != "all" ) && ( relationsValue != "none" )) {
+					base.options.relations = contentValue;
+				}
+			}
+			if ( base.options.relations == "media" ) {
+				base.options.relations = "referee";
+			}
+			base.visualize();
+        }
+
+        base.onRelationSelect = function() {
+			var contentValue = base.visElement.find( ".vis-content-control" ).val();
+			switch ( $( this ).val() ) {
+
+				case "all":
+				base.options.relations = "all";
+				break;
+
+				case "parents-children":
+				if ( contentValue == "current" ) {
+					base.options.relations = base.currentNode.type.id;
+				} else if ( contentValue == "all" ) {
+					base.options.relations = contentValue;
+				} else if ( contentValue == "toc" ) {
+					base.options.relations = "all";
+				} else {
+					base.options.relations = base.options.content;
+				}
+				if ( base.options.relations == "media" ) {
+					base.options.relations = "referee";
+				}
+				break;
+
+				case "none":
+				base.options.relations = "none";
+				break;
+
+			}
+			base.visualize();
+        }
+
+        base.onFormatSelect = function() {
+			base.options.format = base.visElement.find( ".vis-format-control" ).val();
+			base.visualize();        	
+        }
 
         base.setOptions = function( options ) {
         	if ( options.content == "reply" ) {
@@ -526,13 +530,6 @@
 				base.visElement.addClass( 'page_margins' );
 			}
 
-			/*console.log( '----' );
-			for ( var prop in base ) {
-				if ( typeof(base[prop]) !== "function" ) {
-					console.log( prop + ': ' + base[prop] );
-				}
-			}*/
-
  			if ( !base.loadedAllContent ) {
  				base.buildLoadSequence();
        			base.loadNextData();
@@ -578,6 +575,7 @@
 				}
 				break;
 
+				case "page":
 				case "path":
 				case "tag":
 				case "media":
@@ -1732,12 +1730,10 @@
 				if ( !isMobile ) {
 					selection
 						.on("mouseover", function(d) { 
-							console.log( 'mouseover' );
 							base.rolloverNode = d;
 							updateGraph();
 						})
 						.on("mouseout", function(d) { 
-							console.log( 'mouseout' );
 							base.rolloverNode = null; 
 							updateGraph();
 						});
