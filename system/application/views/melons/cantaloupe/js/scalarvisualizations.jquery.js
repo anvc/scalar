@@ -218,10 +218,17 @@
         };
 
         base.enterFullScreen = function() {
-        	base.visualization[0].webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-			base.visualization[0].mozRequestFullScreen();
-			base.visualization[0].msRequestFullscreen();
-			base.visualization[0].requestFullscreen(); // standard
+        	if ('function'==typeof(base.visualization[0].webkitRequestFullscreen)) {
+        		base.visualization[0].webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        	} else if ('function'==typeof(base.visualization[0].mozRequestFullScreen)) {
+        		base.visualization[0].mozRequestFullScreen();
+        	} else if ('function'==typeof(base.visualization[0].msRequestFullscreen)) {
+        		base.visualization[0].msRequestFullscreen();
+        	} else if ('function'==typeof(base.visualization[0].requestFullscreen)) {
+        		base.visualization[0].requestFullscreen(); // standard
+        	} else {
+        		alert('Full screen is not supported in this version of your browser. Please update your browser and try again.');
+        	}
         }
 
         base.onContentSelect = function() {
