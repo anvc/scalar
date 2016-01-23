@@ -197,6 +197,13 @@
 			base.legendButton.attr( "data-content", legendMarkup );
 			base.legendButton.popover( { trigger: "hover click", html: true } );
 
+			if (!isMobile) {
+				visFooter.append('|');
+				base.fullScreenButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Full screen</button>' );
+				visFooter.append(base.fullScreenButton);
+				base.fullScreenButton.click(base.enterFullScreen);
+			}
+
 			// if we're not in a modal, then start immediately
 			if ( !base.options.modal ) {
 				base.visualize();
@@ -209,6 +216,13 @@
 			} );
 
         };
+
+        base.enterFullScreen = function() {
+        	base.visualization[0].webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+			base.visualization[0].mozRequestFullScreen();
+			base.visualization[0].msRequestFullscreen();
+			base.visualization[0].requestFullscreen(); // standard
+        }
 
         base.onContentSelect = function() {
 			var contentValue = $( this ).val();
@@ -1652,9 +1666,13 @@
 
 				base.visualization.removeClass( 'bounded' );
 
-				//var fullWidth = Math.max( base.visElement.width(), (( base.maxNodesPerType + 1 ) * colWidth ) );
-
-				var fullWidth = base.visElement.width();
+				var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+				var fullWidth;
+				if (!isFullScreen) {
+					fullWidth = base.visElement.width();
+				} else {
+					fullWidth = window.innerWidth;
+				}
 
 				base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
 
@@ -1984,15 +2002,21 @@
 			var i, j, k, n, o, columnWidth, fullHeight, fullWidth,
 				currentNode = scalarapi.model.getCurrentPageNode();
 
-			fullWidth = base.visElement.width();
-			if ( window.innerWidth > 768 ) {
-				if ( base.options.modal ) {
-					fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+			var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+			if (!isFullScreen) {
+				fullWidth = base.visElement.width();
+				if ( window.innerWidth > 768 ) {
+					if ( base.options.modal ) {
+						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+					} else {
+						fullHeight = 568;
+					}
 				} else {
-					fullHeight = 568;
+					fullHeight = 300;
 				}
 			} else {
-				fullHeight = 300;
+				fullWidth = window.innerWidth;
+				fullHeight = window.innerHeight;
 			}
 
 			// if we're drawing from scratch, do some setup
@@ -2225,16 +2249,23 @@
 
 			base.visualization.empty();
 				
-			fullWidth = base.visElement.width();
-			if ( window.innerWidth > 768 ) {
-				if ( base.options.modal ) {
-					fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+			var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+			if (!isFullScreen) {
+				fullWidth = base.visElement.width();
+				if ( window.innerWidth > 768 ) {
+					if ( base.options.modal ) {
+						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+					} else {
+						fullHeight = 568;
+					}
 				} else {
-					fullHeight = 568;
+					fullHeight = 300;
 				}
 			} else {
-				fullHeight = 300;
+				fullWidth = window.innerWidth;
+				fullHeight = window.innerHeight;
 			}
+
 			base.visualization.css( 'min-height', fullHeight + 'px' );
 
 			if ((( base.options.content == 'all' ) || ( base.options.content == 'current' )) && ( currentNode != null )) {
@@ -2925,15 +2956,21 @@
 
 				base.helpButton.attr( "data-content", helpContent );
 
-				fullWidth = base.visElement.width();
-				if ( window.innerWidth > 768 ) {
-					if ( base.options.modal ) {
-						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+				var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+				if (!isFullScreen) {
+					fullWidth = base.visElement.width();
+					if ( window.innerWidth > 768 ) {
+						if ( base.options.modal ) {
+							fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+						} else {
+							fullHeight = 568;
+						}
 					} else {
-						fullHeight = 568;
+						fullHeight = 300;
 					}
 				} else {
-					fullHeight = 300;
+					fullWidth = window.innerWidth;
+					fullHeight = window.innerHeight;
 				}
 
 				base.visualization.addClass( 'bounded' );

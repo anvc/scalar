@@ -36,6 +36,27 @@
 	border: 1px solid #ccc;
 }
 
+.scalarvis:-webkit-full-screen {
+	width: 100% !important;
+	height: 100% !important;
+	margin: 0;
+}
+.scalarvis:-moz-full-screen {
+	width: 100% !important;
+	height: 100% !important;
+	margin: 0;
+}
+.scalarvis:-ms-fullscreen {
+	width: 100% !important;
+	height: 100% !important;
+	margin: 0;
+}
+.scalarvis:fullscreen {
+	width: 100% !important;
+	height: 100% !important;
+	margin: 0;
+}
+
 .visualization form {
 	float:right;
 	margin-left: 10px;
