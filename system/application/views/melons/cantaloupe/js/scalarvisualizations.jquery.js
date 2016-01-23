@@ -338,6 +338,7 @@
 				break;
 				
 				case "media":
+				case "referee":
 				color = "#4daf4a";
 				break;
 				
@@ -367,6 +368,7 @@
 					case "comment":
 					case "annotation":
 					case "tag":
+					case "referee":
 					return color;
 					break;
 					
@@ -2222,71 +2224,62 @@
 				highlightedNode = null;
 
 			base.visualization.empty();
-
-			//if ( !base.hasBeenDrawn && ( base.visElement.width() > 0 )) {
 				
-				fullWidth = base.visElement.width();
-				if ( window.innerWidth > 768 ) {
-					if ( base.options.modal ) {
-						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
-					} else {
-						fullHeight = 568;
-					}
+			fullWidth = base.visElement.width();
+			if ( window.innerWidth > 768 ) {
+				if ( base.options.modal ) {
+					fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
 				} else {
-					fullHeight = 300;
+					fullHeight = 568;
 				}
-				base.visualization.css( 'min-height', fullHeight + 'px' );
+			} else {
+				fullHeight = 300;
+			}
+			base.visualization.css( 'min-height', fullHeight + 'px' );
 
-				if ((( base.options.content == 'all' ) || ( base.options.content == 'current' )) && ( currentNode != null )) {
-					helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
-				} else {
-					helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
-				}
+			if ((( base.options.content == 'all' ) || ( base.options.content == 'current' )) && ( currentNode != null )) {
+				helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
+			} else {
+				helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
+			}
 
-				helpContent += 	"<li>Each inner arc represents a connection, color-coded by type.</li>" +
-					"<li>Roll over the visualization to browse connections.</li>" +
-					"<li>Click to add more content to the current selection.</li>" + 
-					"<li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li>" + 
-					"<li>Click the name of any item to navigate to it.</li></ul>";
+			helpContent += 	"<li>Each inner arc represents a connection, color-coded by type.</li>" +
+				"<li>Roll over the visualization to browse connections.</li>" +
+				"<li>Click to add more content to the current selection.</li>" + 
+				"<li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li>" + 
+				"<li>Click the name of any item to navigate to it.</li></ul>";
 
-				base.helpButton.attr( "data-content", helpContent );
+			base.helpButton.attr( "data-content", helpContent );
 
-				base.visualization.removeClass( 'bounded' );
+			base.visualization.removeClass( 'bounded' );
 
-				// rollover label
-				rollover = $('<div class="rollover caption_font">Test</div>').appendTo( base.visualization );
-				base.visualization.mousemove(function(e) {
-					rollover.css('left', (e.pageX-$(this).offset().left+parseInt($(this).parent().parent().css('padding-left'))+10)+'px');
-					rollover.css('top', (e.pageY-$(this).parent().parent().offset().top)+15+'px');
-				})
-					
-				// create visualization base element
-				base.svg = d3.select( base.visualization[ 0 ] ).append('svg:svg')
-					.attr('width', fullWidth)
-					.attr('height', fullHeight);
-					
-				vis = base.svg.append("g")
-	     			.attr("transform", "translate(" + fullWidth / 2 + "," + fullHeight / 2 + ")")
-	     			.attr( "class", "radialvis" );
-					
-				// create canvas
-				var canvas = vis.append('svg:rect')
-					.attr('width', fullWidth)
-					.attr('height', fullHeight)
-					.attr('class', 'viscanvas');
-					
-				this.radialBaseLayer = base.svg.append('svg:g')
-					.attr('width', fullWidth)
-					.attr('height', fullHeight);
+			// rollover label
+			rollover = $('<div class="rollover caption_font">Test</div>').appendTo( base.visualization );
+			base.visualization.mousemove(function(e) {
+				rollover.css('left', (e.pageX-$(this).offset().left+parseInt($(this).parent().parent().css('padding-left'))+10)+'px');
+				rollover.css('top', (e.pageY-$(this).parent().parent().offset().top)+15+'px');
+			})
+				
+			// create visualization base element
+			base.svg = d3.select( base.visualization[ 0 ] ).append('svg:svg')
+				.attr('width', fullWidth)
+				.attr('height', fullHeight);
+				
+			vis = base.svg.append("g")
+     			.attr("transform", "translate(" + fullWidth / 2 + "," + fullHeight / 2 + ")")
+     			.attr( "class", "radialvis" );
+				
+			// create canvas
+			var canvas = vis.append('svg:rect')
+				.attr('width', fullWidth)
+				.attr('height', fullHeight)
+				.attr('class', 'viscanvas');
+				
+			this.radialBaseLayer = base.svg.append('svg:g')
+				.attr('width', fullWidth)
+				.attr('height', fullHeight);
 
-				base.hasBeenDrawn = true;
-
-			/*} else if ( base.svg != null ) {
-				vis = base.svg.selectAll( "g.radialvis" );
-				rollover = $( ".rollover" );
-				fullWidth = base.svg.attr( "width" );
-				fullHeight = base.svg.attr( "height" );
-			}*/
+			base.hasBeenDrawn = true;
 
 			if ( base.svg != null ) {
 							
@@ -2301,9 +2294,6 @@
 				}
 				var radiusMod = 1.55;
 				var textRadiusOffset = 10;
-					
-				//var numChildren = nodeForCurrentContent.descendantCount;
-				//var arcOffset = (( numChildren / nodes.length ) * ( Math.PI * 2 )) * -.5;
 				var arcOffset = 0;
 				
 				// arc generator
@@ -2350,13 +2340,8 @@
 					});
 				
 				// create the arcs
-				/*var path = vis.data([types]).selectAll('path')
-					.data(partition.nodes);*/
-
 				vis = vis.data( [ base.hierarchy ] );
-
 				var path = vis.selectAll( 'path' );
-
 				path = path.data( partition.nodes );
 					
 				path.enter().append('svg:path')
@@ -2672,7 +2657,7 @@
 									}
 									
 								// if the mouse is over the arc and it's not representing an individual item, then color it by noun
-								} else if (( d == highlightedNode ) /*&& ( d.children != null )*/) {
+								} else if ( d == highlightedNode ) {
 								
 									if ( d.children != null ) {
 										color = base.highlightColorScale( d.type, "noun" ); 
@@ -2698,7 +2683,7 @@
 					// darken the chords connected to the rolled-over node
 					vis.selectAll('path.chord')
 						.attr('opacity', function(d) {
-						
+
 							// chord is connected to a selected node
 							if (
 								(base.selectedNodes.indexOf(d.source.node) != -1) || 
@@ -2716,7 +2701,7 @@
 									base.hasHierarchyNodeAsAncestor(d.target, highlightedNode)
 								)
 							) {
-								return .25;
+								return .9;
 								
 							// chord isn't connected to anything selected or rolled over
 							} else {
@@ -2754,48 +2739,6 @@
 					{type:'comment', direction:'outgoing'},
 					{type:'path', direction:'outgoing'},
 				];
-					
-				// parse all of the links between nodes so they can be used to draw chords
-				/*n = nodes.length;
-				for (i=0; i<n; i++) {
-					srcNode = nodes[i];
-					
-					parent = srcNode.parent;
-					while ( !parent.isTopLevel ) {
-						parent = parent.parent;
-					};
-					
-					if ( parent.type == "current" ) {
-						p = linkSpecs.length;
-						for (k=0; k<p; k++) {
-							relatedNodes = srcNode.node.getRelatedNodes(linkSpecs[k].type, linkSpecs[k].direction);
-					
-							o = relatedNodes.length;
-							for (j=0; j<o; j++) {
-								destNode = nodesByUrl[relatedNodes[j].url];
-								links.push({
-									source: srcNode, 
-									target: destNode,
-									type: linkSpecs[k].type
-								});
-							}
-						}
-					} else {
-						relatedNodes = srcNode.node.getRelatedNodes( parent.type, "outgoing" );
-						
-						o = relatedNodes.length;
-						for (j=0; j<o; j++) {
-							destNode = nodesByUrl[relatedNodes[j].url];
-							links.push({
-								source: srcNode,
-								target: destNode,
-								type: parent.type
-							});
-							console.log( j + ' ' + srcNode + ' ' + destNode + ' ' + parent.type );
-						}
-					//}
-					
-				}*/
 
 				var link;
 				n = base.links.length;
