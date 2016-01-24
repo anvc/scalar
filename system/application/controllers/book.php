@@ -76,9 +76,7 @@ class Book extends MY_Controller {
 		if (!$this->melon_exists($this->data['melon'])) $this->data['melon'] = null;
 		if (isset($_GET['m']) && $this->melon_exists($_GET['m'])) {
 			$this->data['melon'] = $_GET['m'];
-		} elseif (isset($_GET['template']) && $this->melon_exists($_GET['template'])) {
-			$this->data['melon'] = $_GET['template'];
-		} elseif ($this->melon_exists($this->data['book']->template)) {  // TODO: rename DB field
+		} elseif ($this->melon_exists($this->data['book']->template)) {
 			$this->data['melon'] = $this->data['book']->template;
 		}
 		if (empty($this->data['melon'])) $this->data['melon'] = $this->fallback_melon;
@@ -154,10 +152,10 @@ class Book extends MY_Controller {
 				$this->data['view'] = $this->vis_views[0];  // There's only one viz page (Javascript handles the specific viz types)
 			}
 			// View-specific method
-			$method_name = $this->data['view'].'_view';
+			$method_name = $this->data['view'];
 			if (method_exists($this, $method_name)) $this->$method_name();
 			// URI segment method
-			if (method_exists($this, $slug_first_segment)) $this->$slug_first_segment();
+			if (method_exists($this, $slug_first_segment) && !array_key_exists($slug_first_segment, $this->data['views'])) $this->$slug_first_segment();
 
 		} catch (Exception $e) {
 			header($e->getMessage());
@@ -183,6 +181,87 @@ class Book extends MY_Controller {
 		} else {
 			die('{"is_logged_in":0}');
 		}
+
+	}
+
+	// Save a comment (an anonymous new page) with ReCAPTCHA check (not logged in) or authentication check (logged in)
+	// This is a special case; we didn't want to corrupt the security of the Save API and its native (session) vs non-native (api_key) authentication
+	private function save_anonymous_comment() {
+
+		header('Content-type: application/json');
+		$return = array('error'=>'');
+
+		// Validate
+		try {
+			require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
+			if (!isset($_POST['action'])||'add'!=strtolower($_POST['action'])) throw new Exception('Invalid action');
+
+			// Either logged in or not
+			$child_urn   =@ trim($_POST['scalar:child_urn']);
+			$title       =@ trim($_POST['dcterms:title']);
+			$description =@ trim($_POST['dcterms:description']);
+			$content     =@ trim($_POST['sioc:content']);
+			$user_id     =@ (int) trim($_POST['user']);
+
+			if (empty($child_urn)) throw new Exception('Could not determine child URN');
+			if (empty($title)) throw new Exception('Comment title is a required field');
+			if (empty($content)) throw new Exception('Content is a required field');
+
+			// Not logged in
+			if (empty($user_id)) {
+				$fullname  =@ trim($_POST['fullname']);
+				if (empty($fullname)) throw new Exception('Your name is a required field');
+				$privatekey = $this->config->item('recaptcha_private_key');
+				if (empty($privatekey)) throw new Exception('ReCAPTCHA has not been activated');
+  				$resp = recaptcha_check_answer($privatekey, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
+				if (!$resp->is_valid) throw new Exception('Invalid CAPTCHA answer, please try again');
+
+			// Logged in
+			// Note that we're not saving the user as the creator of the page but rather fullname to the attribution field
+			} else {
+ 				$user = $this->users->get_by_user_id($user_id);
+ 				if (!$user) throw new Exception('Could not find user');
+ 				if ($user->user_id != $this->data['login']->user_id) throw new Exception('Could not match your user ID with your login session.  You could be logged out.');
+ 				$fullname = $user->fullname;
+ 				if (empty($fullname)) throw new Exception('Logged in user does not have a name');
+			}
+
+			// Save page
+			$save = array();
+			$save['book_id'] = $this->data['book']->book_id;
+			$save['user_id'] = $user_id;
+			$save['title'] = $title;  // for creating slug
+			$save['type'] = 'composite';
+			$save['is_live'] = $this->books->is_auto_approve($this->data['book']);
+			$content_id = $this->pages->create($save);
+			if (empty($content_id)) throw new Exception('Could not save the new content');
+
+			// Save version
+			$save = array();
+			$save['user_id'] = $user_id;
+			$save['title'] = $title;
+			$save['description'] = '';
+			$save['content'] = $content;
+			$save['attribution'] = $this->versions->build_attribution($fullname, $this->input->server('REMOTE_ADDR'));
+			$version_id = $this->versions->create($content_id, $save);
+			if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
+
+			// Save relation
+			if (!$this->replies->save_children($version_id, array($child_urn), array(0))) throw new Exception('Could not save relation');  // TODO: delete prev made content and version
+			// I suppose we could get the newly created node and output as RDF-JSON to sync with the save API return, but since this is a special case anyways...
+
+			// Email authors
+			if ($this->books->is_email_authors($this->data['book'])) {
+				$this->sendmail->new_comment($this->data['book'], $save, $this->books->is_auto_approve($this->data['book']));
+			}
+
+		} catch (Exception $e) {
+			$return['error'] =  $e->getMessage();
+		}
+
+		$return['moderated'] = ($this->books->is_auto_approve($this->data['book'])) ? 0 : 1;
+		echo json_encode($return);
+		exit;
 
 	}
 
@@ -225,7 +304,7 @@ class Book extends MY_Controller {
 
 	}
 
-	// Search pages
+	// Search page
 	private function search() {
 
 		$this->load->helper('text');
@@ -368,92 +447,8 @@ class Book extends MY_Controller {
 
 	}
 
-	// Save a comment (an anonymous new page) with ReCAPTCHA check (not logged in) or authentication check (logged in)
-	// This is a special case; we didn't want to corrupt the security of the Save API and its native (session) vs non-native (api_key) authentication
-	private function save_anonymous_comment() {
-
-		header('Content-type: application/json');
-		$return = array('error'=>'');
-
-		// Validate
-		try {
-			require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
-			if (!isset($_POST['action'])||'add'!=strtolower($_POST['action'])) throw new Exception('Invalid action');
-
-			// Either logged in or not
-			$child_urn   =@ trim($_POST['scalar:child_urn']);
-			$title       =@ trim($_POST['dcterms:title']);
-			$description =@ trim($_POST['dcterms:description']);
-			$content     =@ trim($_POST['sioc:content']);
-			$user_id     =@ (int) trim($_POST['user']);
-
-			if (empty($child_urn)) throw new Exception('Could not determine child URN');
-			if (empty($title)) throw new Exception('Comment title is a required field');
-			if (empty($content)) throw new Exception('Content is a required field');
-
-			// Not logged in
-			if (empty($user_id)) {
-				$fullname  =@ trim($_POST['fullname']);
-				if (empty($fullname)) throw new Exception('Your name is a required field');
-				$privatekey = $this->config->item('recaptcha_private_key');
-				if (empty($privatekey)) throw new Exception('ReCAPTCHA has not been activated');
-  				$resp = recaptcha_check_answer($privatekey, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
-				if (!$resp->is_valid) throw new Exception('Invalid CAPTCHA answer, please try again');
-
-			// Logged in
-			// Note that we're not saving the user as the creator of the page but rather fullname to the attribution field
-			} else {
- 				$user = $this->users->get_by_user_id($user_id);
- 				if (!$user) throw new Exception('Could not find user');
- 				if ($user->user_id != $this->data['login']->user_id) throw new Exception('Could not match your user ID with your login session.  You could be logged out.');
- 				$fullname = $user->fullname;
- 				if (empty($fullname)) throw new Exception('Logged in user does not have a name');
-			}
-
-			// Save page
-			$save = array();
-			$save['book_id'] = $this->data['book']->book_id;
-			$save['user_id'] = $user_id;
-			$save['title'] = $title;  // for creating slug
-			$save['type'] = 'composite';
-			$save['is_live'] = $this->books->is_auto_approve($this->data['book']);
-			$content_id = $this->pages->create($save);
-			if (empty($content_id)) throw new Exception('Could not save the new content');
-
-			// Save version
-			$save = array();
-			$save['user_id'] = $user_id;
-			$save['title'] = $title;
-			$save['description'] = '';
-			$save['content'] = $content;
-			$save['attribution'] = $this->versions->build_attribution($fullname, $this->input->server('REMOTE_ADDR'));
-			$version_id = $this->versions->create($content_id, $save);
-			if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
-
-			// Save relation
-			if (!$this->replies->save_children($version_id, array($child_urn), array(0))) throw new Exception('Could not save relation');  // TODO: delete prev made content and version
-			// I suppose we could get the newly created node and output as RDF-JSON to sync with the save API return, but since this is a special case anyways...
-
-			// Email authors
-			if ($this->books->is_email_authors($this->data['book'])) {
-				$this->sendmail->new_comment($this->data['book'], $save, $this->books->is_auto_approve($this->data['book']));
-			}
-
-		} catch (Exception $e) {
-			$return['error'] =  $e->getMessage();
-		}
-
-		$return['moderated'] = ($this->books->is_auto_approve($this->data['book'])) ? 0 : 1;
-		echo json_encode($return);
-		exit;
-
-	}
-
-	/**
-	 * Methods based on the view being asked for
-	 */
-
-	private function versions_view() {
+	// List versions of the current page
+	private function versions() {
 
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 		if ($action == 'do_delete_versions') {
@@ -512,7 +507,8 @@ class Book extends MY_Controller {
 
 	}
 
-	private function history_view() {
+	// List versions of the current page in a digest format
+	private function history() {
 
 		// Overwrite previous page array (which only has the most recent version)
 		$this->data['page']->user = (int) $this->data['page']->user->user_id;
@@ -536,7 +532,8 @@ class Book extends MY_Controller {
 
 	}
 
-	private function meta_view() {
+	// List metadata in a human-readable way
+	private function meta() {
 
 		$all = (isset($_GET['versions']) && 1==$_GET['versions']) ? true : false;
 		if ($all || 'honeydew'==$this->data['melon']) {  // Overwrite previous page's versions array (which only has the most recent version)
@@ -568,7 +565,8 @@ class Book extends MY_Controller {
 
 	}
 
-	private function edit_view() {
+	// Edit page
+	private function edit() {
 
 		// User
 		$user_id = @$this->data['login']->user_id;
@@ -638,7 +636,8 @@ class Book extends MY_Controller {
 
 	}
 
-	private function annotation_editor_view() {
+	// Annotation editor page
+	private function annotation_editor() {
 
 		if (!$this->login_is_book_admin('Commentator')) $this->require_login(4);
 

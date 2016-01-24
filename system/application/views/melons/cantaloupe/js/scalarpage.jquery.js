@@ -2003,6 +2003,31 @@
 					});	
 					okToAddExtras = false;
 					break;
+					
+			  		case "tags":			  			
+				  	$('body').on( "pageLoadComplete", function() {
+				  		approot = $('link#approot').attr('href');
+				  		$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/jQCloud/jqcloud.min.css">');
+						$.getScript(approot+'views/widgets/jQCloud/jqcloud.min.js', function() {
+					  		var $tag_cloud = $('<div class="tag_cloud"></div>').appendTo('[property="sioc:content"]');
+					 		var words_pos = function() {
+					  			$tag_cloud.width('100%');
+					  			$tag_cloud.height( parseInt($(window).height())*0.5 );
+					  		};
+					  		words_pos();
+					  		$( window ).resize(function() { words_pos(); });
+					  		$tag_cloud.jQCloud(tags, { autoResize: true });							
+						}); 
+				  	});			  			
+				  	break;		
+				  	
+			  		case "resources":
+			  		// Nothing yet
+			  		break;
+			  		
+			  		case "toc":
+				  	// Nothing yet
+				  	break;			  		
 					         
 			  	}
 

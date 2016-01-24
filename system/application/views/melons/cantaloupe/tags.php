@@ -1,24 +1,11 @@
 <?php
-$this->template->add_js('system/application/views/widgets/jQCloud/jqcloud.min.js');
-$this->template->add_css('system/application/views/widgets/jQCloud/jqcloud.min.css');
-
 $content = (isset($page->version_index)) ? $page->versions[0]->content : null;
 if (!empty($content)) {
 	$content = nl2br($content);
-	echo '<p>'.$content.'</p>'."\n";;
-} elseif (!empty($book_tags)) {
-?>
-	<script>
-	$('header h1[property="dcterms:title"]').hide();
-	</script>
-<?php
+	echo "\n".'<p>'.$content.'</p>'."\n";;
 }
 
 if (empty($book_tags)):
-	$title = (isset($page->version_index)) ? $page->versions[0]->title : null;
-	if (empty($title)) {
-		echo '<h1 class="tags_title heading_font heading_weight clearboth">Tag Cloud</h1>'."\n";
-	}
 ?>
 <p>
   There are no tags.
@@ -38,20 +25,9 @@ foreach ($book_tags as $row):
     $words[] = '{text:"'.addslashes($row->versions[0]->title).'", weight:'.$count.', link:"'.$base_uri.$row->slug.'"}';
 endforeach;
 ?>
-<div id="tags"></div>
 <script>
-var words = [<?php echo implode(",\n",$words); ?>];
-$('body').on( "pageLoadComplete", function() {
-	if ('undefined'==typeof(no_tag_cloud) || !no_tag_cloud) {  // Set no_tag_cloud=true in Custom JS to not run this block
-		var $tags = $('#tags');
-		var words_pos = function() {
-			$tags.width('100%');
-			$tags.height( parseInt($(window).height())*0.7 );
-		};
-		words_pos();
-		$( window ).resize(function() { words_pos(); });
-		$('#tags').jQCloud(words, { autoResize: true });
-	}
-});
+var tags = [
+<?php echo implode(",\n",$words)."\n"; ?>
+];
 </script>
 <?php endif; ?>

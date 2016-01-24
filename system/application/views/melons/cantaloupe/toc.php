@@ -1,12 +1,8 @@
 <?php
-$title = (isset($page->version_index)) ? $page->versions[0]->title : null;
-if (empty($title)) {
-	echo '<h1 class="toc_title heading_font heading_weight clearboth">Table of Contents</h1>'."\n";
-}
 $content = (isset($page->version_index)) ? $page->versions[0]->content : null;
 if (!empty($content)) {
 	$content = nl2br($content);
-	echo '<p>'.$content.'</p>'."\n";;
+	echo "\n".'<p>'.$content.'</p>'."\n";;
 }
 ?>
 <?php if (count($book_versions)): ?>

@@ -77,7 +77,7 @@ $(document).ready(function() {
 	}
 	var path_of_continue_msg = $('.path_of_continue_msg');
 	path_of_continue_msg.find('a:first').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:false,builtin:false,msg:'Choose a page to continue to',callback:function(node){
+		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
 			var title = node.version["http://purl.org/dc/terms/title"][0].value;

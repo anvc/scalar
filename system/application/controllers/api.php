@@ -388,13 +388,6 @@ Class Api extends Controller {
 			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn does not exist');
 			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
 		} else {   // e.g., my-first-scalar-page
-			$title = $this->pages->is_built_in_slug($this->user->book_id, $this->data['scalar:child_urn']);
-			if (false !== $title) {
-				$this->pages->create_if_not_exists(array(
-					'book_id'=>$this->user->book_id, 'slug'=>$this->data['scalar:child_urn'],
-					'title'=>$title, 'user_id'=>$this->user->user_id
-				));
-			}
 			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:child_urn']);
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not exist');
 			$version = $this->versions->get_all($page->content_id, null, 1);

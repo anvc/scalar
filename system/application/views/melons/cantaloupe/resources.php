@@ -1,12 +1,8 @@
 <?
-$title = (isset($page->version_index)) ? $page->versions[0]->title : null;
-if (empty($title)) {
-	echo '<h1 class="resources_title heading_font heading_weight clearboth">'.ucwords($book->scope).' Content</h1>'."\n";
-}
 $content = (isset($page->version_index)) ? $page->versions[0]->content : null;
 if (!empty($content)) {
 	$content = nl2br($content);
-	echo '<p>'.$content.'</p>';
+	echo "\n".'<p>'.$content.'</p>';
 }
 ?>
 <?php if (empty($book_content)): ?>
@@ -20,7 +16,7 @@ if (!empty($content)) {
   <?php endif; ?>
 </p>
 <?php else: ?>
-<h2 class="resources_title heading_font heading_weight clearboth">Pages</h2>
+<h3 style="clear:both;">Pages</h3>
 <ul class="resources pages">
 	<?
 	foreach ($book_content as $row):
@@ -34,7 +30,7 @@ if (!empty($content)) {
 	</li>
 	<? endforeach ?>
 </ul>
-<h2 class="resources_title heading_font heading_weight clearboth">Media</h2>
+<h3 style="clear:both;">Media</h3>
 <ul class="resources media">
 	<?
 	foreach ($book_content as $row):

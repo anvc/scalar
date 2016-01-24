@@ -55,7 +55,7 @@ $(window).ready(function() {
 	}
 	var $path_of_continue_msg = $('.path_of_continue_msg');
 	$path_of_continue_msg.find('a:first').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:false,builtin:false,msg:'Choose a page to continue to',callback:function(node){	
+		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){	
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
 			var title = node.version["http://purl.org/dc/terms/title"][0].value;
@@ -68,7 +68,7 @@ $(window).ready(function() {
 		$path_of_continue_msg.find('.title').html('none');		
 	});
 	$('.path_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,builtin:false,msg:'Choose contents of the path',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -83,7 +83,7 @@ $(window).ready(function() {
 		$('.reply_of_msg').show();
 	}
 	$('.reply_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,builtin:false,msg:'Choose items to be commented on',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be commented on',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -97,7 +97,7 @@ $(window).ready(function() {
 		$('.annotation_of_msg').show();
 	}	
 	$('.annotation_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,builtin:false,msg:'Choose items to be annotated',callback:function(nodes){
+		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -146,7 +146,7 @@ $(window).ready(function() {
 		$('.tag_of_msg').show();
 	}
 	$('.tag_of_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,builtin:false,msg:'Choose items to be tagged',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be tagged',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -160,7 +160,7 @@ $(window).ready(function() {
 		$('.has_tag_msg').show();
 	}	
 	$('.has_tag_msg').find('a').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,builtin:false,msg:'Choose items that tag the current page',callback:function(nodes){
+		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -508,7 +508,7 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 		return false;
 	});
 	// Filters
-	var $filters = $('<div class="filters"><!--<span class="loading_complete page"><input type="radio" name="filter" value="system" id="system" /> <label for="system">Built-in</label>&nbsp; &nbsp; </span>--><span class="loading_complete page"><input type="radio" name="filter" value="page" id="pages" /> <label for="pages">Pages</label>&nbsp; &nbsp; </span><span class="loading_complete media"><input type="radio" name="filter" value="media" id="media" /> <label for="media">Media</label>&nbsp; &nbsp; </span><span class="loading_complete path"><input type="radio" name="filter" value="path" id="paths" /> <label for="paths">Paths</label>&nbsp; &nbsp; </span><span class="loading_complete tag"><input type="radio" name="filter" value="tag" id="tags" /> <label for="tags">Tags</label>&nbsp; &nbsp; </span><span class="loading_complete annotation"><input type="radio" name="filter" value="annotation" id="annotations" /> <label for="annotations">Annotations</label>&nbsp; &nbsp; </span><span class="loading_complete reply"><input type="radio" name="filter" value="reply" id="replies" /> <label for="replies">Comments</label></span>&nbsp; &nbsp; <span class="content_loading">Content loading</span></div>');
+	var $filters = $('<div class="filters"><span class="loading_complete page"><input type="radio" name="filter" value="page" id="pages" /> <label for="pages">Pages</label>&nbsp; &nbsp; </span><span class="loading_complete media"><input type="radio" name="filter" value="media" id="media" /> <label for="media">Media</label>&nbsp; &nbsp; </span><span class="loading_complete path"><input type="radio" name="filter" value="path" id="paths" /> <label for="paths">Paths</label>&nbsp; &nbsp; </span><span class="loading_complete tag"><input type="radio" name="filter" value="tag" id="tags" /> <label for="tags">Tags</label>&nbsp; &nbsp; </span><span class="loading_complete annotation"><input type="radio" name="filter" value="annotation" id="annotations" /> <label for="annotations">Annotations</label>&nbsp; &nbsp; </span><span class="loading_complete reply"><input type="radio" name="filter" value="reply" id="replies" /> <label for="replies">Comments</label></span>&nbsp; &nbsp; <span class="content_loading">Content loading</span></div>');
 	$filters.find('input').click(function() {
 		var content_type = $(this).val();
 		load_content(content_type, $div, $list, _insert_func, default_type, only_default_type, select_single);

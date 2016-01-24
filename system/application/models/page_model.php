@@ -26,8 +26,6 @@
 
 class Page_model extends MY_Model {
 
-	protected $built_in_pages = array("Table of Contents"=>'toc', 'Book Content'=>'resources', 'Tag Cloud'=>'tags');
-
     public function __construct() {
 
         parent::__construct();
@@ -156,88 +154,6 @@ class Page_model extends MY_Model {
 			}
 			$return[$row->content_id]->versions[] = $row;
     	}
-
-    	return $return;
-
-    }
-
-    public function is_built_in_slug($book_id=0, $slug='') {
-
-		if (in_array($slug, $this->built_in_pages)) return array_search($slug, $this->built_in_pages);
-		if ('users/'==substr($slug, 0, 6)) {
-			$user_id = (int) substr($slug, 6);
-			$CI =& get_instance();
-        	if ('object'!=@gettype($CI->user_books)) $CI->load->model('user_book_model','user_books');
-       		$user = $CI->user_books->get($book_id, $user_id);
-       		if (!$user) return false;
-			return $user->fullname;
-		}
-		return false;
-
-    }
-
-    public function built_in($book_id=0, $is_live=true, $scope='Book') {
-
-		$CI =& get_instance();
-        if ('object'!=gettype($CI->users)) $CI->load->model('user_model','users');
-        $users = $CI->users->get_book_users($book_id);
-		$built_in_slugs = $this->built_in_pages;
-		foreach ($users as $user) {
-			if ($is_live && !$user->list_in_index) continue;
-			$built_in_slugs[$user->fullname] = 'users/'.$user->user_id;
-		}
-		$real_slugs = array();
-
-		$this->db->select($this->pages_table.'.*');
-		$this->db->select($this->versions_table.'.*');
-		$this->db->from($this->pages_table);
-    	$this->db->join($this->versions_table, $this->versions_table.'.content_id='.$this->pages_table.'.content_id');
-    	$this->db->where($this->pages_table.'.book_id',$book_id);
-		$this->db->where_in($this->pages_table.'.slug', $built_in_slugs);
-		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
-		$this->db->orderby($this->pages_table.'.slug', 'desc');
-    	$query = $this->db->get();
-    	//if (!$query->num_rows) return null;
-    	$result = $query->result();
-
-    	$return = array();
-    	foreach ($result as $row) {
-    		$real_slugs[] = $row->slug;
-			if (!isset($return[$row->content_id])) {
-				$return[$row->content_id] = new stdClass;
-				$return[$row->content_id]->versions = array();
-				$return[$row->content_id]->urn = $this->urn($row->content_id);
-			}
-			$is_content = true;
-			foreach($row as $field => $value) {
-				if ('version_id' == $field) $is_content = false;
-				if ($is_content) {
-					$return[$row->content_id]->$field = $value;
-				} else {
-					if (!isset($return[$row->content_id]->versions[$row->version_id])) {
-						$return[$row->content_id]->versions[$row->version_id] = new stdClass;
-						$return[$row->content_id]->versions[$row->version_id]->urn = $this->version_urn($row->version_id);
-					}
-					$return[$row->content_id]->versions[$row->version_id]->$field = $value;
-				}
-			}
-    	}
-
-    	$real_slugs = array_unique($real_slugs);
-		$slugs_needed = array_diff($built_in_slugs, $real_slugs);
-		foreach ($slugs_needed as $title => $slug) {
-			if ('Book Content'==$title) $title = ucwords($scope).' Content';
-			$return[$slug] = new stdClass;
-			$return[$slug]->content_id = 0;
-			$return[$slug]->slug = $slug;
-			$return[$slug]->type = 'composite';
-			$return[$slug]->versions = array();
-			$return[$slug]->versions[0] = new stdClass;
-			$return[$slug]->versions[0]->version_id = 0;
-			$return[$slug]->versions[0]->title = $title;
-			$return[$slug]->versions[0]->type = "version";
-			$return[$slug]->versions[0]->version_num = 0;
-		}
 
     	return $return;
 
@@ -456,32 +372,6 @@ class Page_model extends MY_Model {
 
     	$id = $this->db->insert_id();
     	return $id;
-
-    }
-
-    public function create_if_not_exists($array=array(), $is_live=false) {
-
-    	if (!isset($array['slug']) || empty($array['slug'])) die('Could not find slug');
-    	if (!isset($array['book_id']) || empty($array['book_id'])) die('Could not find book ID');
-    	if (!isset($array['title']) || empty($array['book_id'])) die('Could not find title');
-
-		$this->db->select($this->pages_table.'.content_id');
-		$this->db->from($this->pages_table);
-    	$this->db->where($this->pages_table.'.book_id',$array['book_id']);
-		$this->db->where($this->pages_table.'.slug', $array['slug']);
-		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
-    	$query = $this->db->get();
-
-    	if (!$query->num_rows()) {
-			$CI =& get_instance();
-        	if ('object'!=gettype($CI->users)) $CI->load->model('version_model','versions');
-			$content_id = self::create($array);
-			$version_id = $CI->versions->create($content_id, $array);
-			return $content_id;
-    	} else {
-			$result = $query->result();
-			return $result->content_id;
-    	}
 
     }
 
