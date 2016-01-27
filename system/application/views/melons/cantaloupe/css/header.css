@@ -318,7 +318,7 @@ a.headerIcon{
 }
 .navbar li.mainMenu ul.dropdown-menu{
 	width: 38rem;
-	padding: 3rem 0;
+	padding: 0;
 	border-right: 2px solid #070707;
 }
 .navbar ul.dropdown-menu>li, .navbar ul.dropdown-menu .body>ol>li, .navbar ul.dropdown-menu li.static, .navbar ul.dropdown-menu .relationships li{
@@ -360,13 +360,13 @@ a.headerIcon{
 	font-size: 10pt;
 	font-weight: bold;
 }
-.navbar .mainMenuDropdown>li>ul>li>a,.navbar .mainMenuDropdown>li>ol>li>a{
+.navbar .mainMenuDropdown>#mainMenuInside>li>ul>li>a,.navbar .mainMenuDropdown>#mainMenuInside>li>ol>li>a{
 	margin-right: 3.5rem;
 }
 .navbar li.visited>a, .navbar ul.dropdown-menu li.visited>a, #mobileMainMenuSubmenus li.visited>a{
 	color: #808080
 }
-.navbar li.mainMenu>ul.dropdown-menu>li{
+.navbar .mainMenuDropdown>#mainMenuInside>li{
 	padding: 0;
 	margin: 0;
 }
@@ -378,18 +378,18 @@ a.headerIcon{
 }
 
 @media screen{
-	.navbar li.mainMenu>ul.dropdown-menu>li>ul{
+	.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ul{
 		list-style-type: none;
 	}
-	.navbar li.mainMenu>ul.dropdown-menu>li>ol, .tocMenu .expandedPage .relationships ol{
+	.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol, .tocMenu .expandedPage .relationships ol{
 		list-style-type: none;
 		counter-reset: mainMenu;
 	}
-	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li:before, .tocMenu .expandedPage .relationships ol>li:before{
+	.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li:before, .tocMenu .expandedPage .relationships ol>li:before{
 		content: "\00a0";
 	    line-height: 22px;
 	}
-	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol>li>a:first-child:before {
+	.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a:first-child:before, .tocMenu .expandedPage .relationships ol>li>a:first-child:before {
 	    content: counter(mainMenu);
 	    counter-increment: mainMenu;
 	    line-height: 22px;
@@ -416,18 +416,18 @@ a.headerIcon{
 	text-align: center;
 	width: 2.5rem;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li.visited>a:first-child:before, .tocMenu .expandedPage .relationships ol>li.visited>a:first-child:before {
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.visited>a:first-child:before, .tocMenu .expandedPage .relationships ol>li.visited>a:first-child:before {
     color: #808080;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a:first-child:hover:before, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a:first-child:hover:before, 
 .tocMenu .expandedPage .relationships ol>li>a:first-child:hover:before,
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a:first-child:focus:before, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a:first-child:focus:before, 
 .tocMenu .expandedPage .relationships ol>li>a:first-child:focus:before,
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li.active>a:first-child:before, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.active>a:first-child:before, 
 .tocMenu .expandedPage .relationships ol>li.active>a:first-child:before {
 	color: #fff;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li.header h2, .tocMenu .expandedPage h2.title{
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li.header h2, .tocMenu .expandedPage h2.title{
 	font-size: 1.6rem;
 	line-height: 1.8rem;
 	font-weight: normal;
@@ -443,7 +443,7 @@ a.headerIcon{
 	padding: 0;
 	color: #fff;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a, .tocMenu .expandedPage .relationships ol>li>a{
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a, .tocMenu .expandedPage .relationships ol>li>a{
 	position: absolute;
 	width: auto;
 	left: 0;
@@ -460,9 +460,9 @@ a.headerIcon{
 }
 .navbar ul.dropdown-menu li a:hover,
 .navbar ul.dropdown-menu li.active a, 
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li.is_parent.active>a.expand, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.is_parent.active>a.expand, 
 .tocMenu .expandedPage .relationships ol>li.is_parent.active>a.expand,
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li.active>a.expand, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.active>a.expand, 
 .tocMenu .expandedPage .relationships ol>li.active>a.expand,
 #mobileMainMenuSubmenus li a:hover,
 #mobileMainMenuSubmenus li.active a{
@@ -480,10 +480,10 @@ a.headerIcon{
 .navbar li.mainMenu ul.dropdown-menu>li:focus{
 	background-color: transparent;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li.static{
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li.static{
 	padding: 0 3rem;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li.top{
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li.top{
 	margin-bottom: 1rem;
 }
 .navbar li.mainMenu>ul.dropdown-menu>.static>a{
@@ -493,7 +493,7 @@ a.headerIcon{
 	padding-left: 0;
 	padding-right: 0;
 }
-.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
+.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand, .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
 	right: 0rem;
 	margin-left: 0;
 	margin-right: 3rem;
@@ -505,10 +505,10 @@ a.headerIcon{
 	background-color: #303030;
 }
 
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li.is_parent>a.expand, .tocMenu .expandedPage .relationships ol>li.is_parent>a.expand{
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.is_parent>a.expand, .tocMenu .expandedPage .relationships ol>li.is_parent>a.expand{
 	background-color: #4c4c4c;
 }
-.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand:hover, .tocMenu .expandedPage .relationships ol>li>a.expand:hover,
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand:hover, .tocMenu .expandedPage .relationships ol>li>a.expand:hover,
 .tocMenu .expandedPage .relationships ol>li>a.expand:focus{
 	background-color: #006793;
 }
@@ -679,6 +679,18 @@ i.loader{
 	#userMenu li:last-child, #ScalarHeaderImport li:last-child, #navMenu li:last-child{
 		margin-bottom: 0;
 	}
+	
+	.navbar .mainMenuDropdown>#mainMenuInside{
+		position: absolute;
+	    top: 0px;
+	    left: 0px;
+	    right: 0px;
+	    background-color: #353535;
+	    border-right: 2px solid #070707;
+	    padding: 3rem 0;
+	    width: 38rem;
+	    overflow-y: auto;
+	}
 }
 @media (max-width: 767px){
 
@@ -771,7 +783,7 @@ i.loader{
 	#mobileMainMenuSubmenus ul, #mobileMainMenuSubmenus ol, .navbar-nav li.mainMenu.open ul.mainMenuDropdown, #navMenu ul, .mainMenuDropdown .dropdown-menu, #ScalarHeaderMenuUserList{
 		width: auto;
 	}
-	#mobileMainMenuSubmenus li,.navbar-nav li.mainMenu.open ul.mainMenuDropdown>li li, #navMenu ul li, .mainMenuDropdown .dropdown-menu li, #ScalarHeaderMenuUserList li{
+	#mobileMainMenuSubmenus li,.navbar-nav li.mainMenu.open ul.mainMenuDropdown>#mainMenuInside>li li, #navMenu ul li, .mainMenuDropdown .dropdown-menu li, #ScalarHeaderMenuUserList li{
 		min-height: 3rem;
 		margin-bottom: .5rem;
 	}
@@ -789,12 +801,12 @@ i.loader{
 		margin-left: .5rem;
   		padding-left: 3rem;
 	}
-	.navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a{
+	.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a{
 		  right: 2rem;
 		  margin-left: 1rem;
 	}
 
-	.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
+	.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand, .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand{
 		min-height: 3rem;
 		width: 3rem;
 	}
@@ -969,7 +981,7 @@ i.loader{
 		color: #fff;
 		padding-left: 1rem
 	}
-	.mainMenuDropdown>li>ol>li>a.expand, .navbar li.mainMenu>ul.dropdown-menu>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand {
+	.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand, .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand, .tocMenu .expandedPage .relationships ol>li>a.expand {
 	  margin-right: 1rem;
 	}
 	.tocMenu .expandedPage h2.title {

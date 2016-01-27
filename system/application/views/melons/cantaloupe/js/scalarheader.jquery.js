@@ -106,18 +106,20 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<span class="visible-xs">Table of Contents</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu mainMenuDropdown" role="menu">'+
-                                                    '<div class="close"><span class="menuIcon closeIcon"></span></div>'+
-                                                    '<li class="header"><h2>Table of Contents</h2></li>'+
-                                                    '<li class="top hidden-xs home_link static">'+
-                                                        '<a href="'+base.get_param(home_url)+'"><span class="menuIcon" id="homeIcon"></span>Home</a>'+
-                                                    '</li>'+
-                                                    '<li class="body">'+
-                                                        '<ol>'+
-                                                        '</ol>'+
-                                                    '</li>'+
-                                                    '<li class="bottom index_link static dropdown" id="indexLink">'+
-                                                        '<a role="button"><span class="menuIcon" id="indexIcon"></span>Index</a>'+
-                                                    '</li>'+
+                                                    '<div id="mainMenuInside">'+
+                                                        '<div class="close"><span class="menuIcon closeIcon"></span></div>'+
+                                                        '<li class="header"><h2>Table of Contents</h2></li>'+
+                                                        '<li class="top hidden-xs home_link static">'+
+                                                            '<a href="'+base.get_param(home_url)+'"><span class="menuIcon" id="homeIcon"></span>Home</a>'+
+                                                        '</li>'+
+                                                        '<li class="body">'+
+                                                            '<ol>'+
+                                                            '</ol>'+
+                                                        '</li>'+
+                                                        '<li class="bottom index_link static dropdown" id="indexLink">'+
+                                                            '<a role="button"><span class="menuIcon" id="indexIcon"></span>Index</a>'+
+                                                        '</li>'+
+                                                    '</div>'+
                                                     '<div id="mainMenuSubmenus" class="tocMenu"></div>'+
                                                 '</ul>'+
                                             '</li>'+
@@ -281,6 +283,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         'height' : height
                     });
                 });
+                if(!base.usingMobileView){
+                    var containerHeight = $('#mainMenuInside').height() + 50;
+                    var max_height = $(window).height()-50;
+                    if(containerHeight >= max_height){
+                        $('#mainMenuInside').css('max-height',max_height+'px').addClass('tall');
+                    }
+                }
             }).children('.dropdown-menu').click(function(e){
                 e.stopPropagation();
             });
@@ -296,13 +305,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if(base.usingMobileView || $('#mainMenuSubmenus .expandedPage').length == 0){
                     $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
                     $(this).find('li.active').removeClass('active');
+                     $('#mainMenuInside').css('max-height','').removeClass('tall');
                     return true;
                 }else{
                     $(this).addClass('open');
                     return false;
                 }
             });
-            base.$el.find('.mainMenuDropdown>.close').click(function(e){
+            base.$el.find('.mainMenuDropdown>#mainMenuInside>.close').click(function(e){
                 $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
                 base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
                 e.preventDefault();
