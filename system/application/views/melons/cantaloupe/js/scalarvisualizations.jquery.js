@@ -181,21 +181,23 @@
 			base.helpButton.popover( { trigger: "hover click", html: true } );
 			
 			// legend popover
-			visFooter.append( '|' );
-			base.legendButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>' );
-			visFooter.append( base.legendButton );
-			var type, name,
-				legendMarkup = "";
-			n = base.canonicalTypeOrder.length;
-			for ( i = 0; i < n; i++ ) {
-				type = base.canonicalTypeOrder[ i ];
-				name = scalarapi.model.scalarTypes[ type ].plural;
-				name = name.charAt(0).toUpperCase() + name.slice(1)
-				legendMarkup += '<span style="color:' + base.highlightColorScale( type ) + ';">&#9632;</span> ' + name + '<br>';
+			if (base.options.format != "tagcloud") {
+				visFooter.append( '|' );
+				base.legendButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>' );
+				visFooter.append( base.legendButton );
+				var type, name,
+					legendMarkup = "";
+				n = base.canonicalTypeOrder.length;
+				for ( i = 0; i < n; i++ ) {
+					type = base.canonicalTypeOrder[ i ];
+					name = scalarapi.model.scalarTypes[ type ].plural;
+					name = name.charAt(0).toUpperCase() + name.slice(1)
+					legendMarkup += '<span style="color:' + base.highlightColorScale( type ) + ';">&#9632;</span> ' + name + '<br>';
+				}
+				legendMarkup += '<br><div style="max-width: 175px;">Since content can have more than one type, a given item may change colors depending on context.</div>';
+				base.legendButton.attr( "data-content", legendMarkup );
+				base.legendButton.popover( { trigger: "hover click", html: true } );
 			}
-			legendMarkup += '<br><div style="max-width: 175px;">Since content can have more than one type, a given item may change colors depending on context.</div>';
-			base.legendButton.attr( "data-content", legendMarkup );
-			base.legendButton.popover( { trigger: "hover click", html: true } );
 
 			if (!isMobile) {
 				visFooter.append('|');
@@ -210,7 +212,7 @@
 			}
 
 			$( 'body' ).bind( 'delayedResize', function() { 
-				if (( base.options.modal && base.modalIsOpen ) || !base.options.modal ) {
+				if ((( base.options.modal && base.modalIsOpen ) || !base.options.modal ) && (base.options.format != "tagcloud")) {
 					base.visualize(); 
 				}
 			} );
@@ -555,7 +557,12 @@
 
  			if ( !base.loadedAllContent ) {
  				base.buildLoadSequence();
-       			base.loadNextData();
+ 				if (base.loadSequence.length > 0) {
+       				base.loadNextData();
+ 				} else {
+ 					base.loadingDone = true;
+ 					base.draw();
+ 				}
  			} else {
  				base.loadingDone = true;
  				base.filter();
@@ -1636,6 +1643,10 @@
 
         		case "force-directed":
         		base.drawForceDirected();
+        		break;
+
+        		case "tagcloud":
+        		base.drawTagCloud();
         		break;
 
         	}
@@ -3160,7 +3171,30 @@
 			}
        	
         }
-        
+ 
+        /***************************
+         * TAG CLOUD VISUALIZATION *
+         ***************************/
+        base.drawTagCloud = function( updateOnly ) {
+
+ 	   		helpContent = 	"This visualization shows the relative <b>prevalence of tags</b> in this work." +
+	   			"<ul><li>Each tag&rsquo;s title is sized and colored according to how many items it tags.</li>" +
+				"<li>Click any tag&rsquo;s title to navigate to it.</li></ul>";
+
+			base.helpButton.attr( "data-content", helpContent );
+
+	  		approot = $('link#approot').attr('href');
+	  		$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/jQCloud/jqcloud.min.css">');
+			$.getScript(approot+'views/widgets/jQCloud/jqcloud.min.js', function() {
+				base.visualization.addClass("tag_cloud caption_font");
+		  		base.visualization.jQCloud(tags, { 
+		  			autoResize: true, 
+		  			colors: ['#a50f15','#cb181d','#ef3b2c','#fb6a4a']
+		  		});							
+			}); 
+			base.hasBeenDrawn = true;					
+        }
+       
         // Run initializer
         base.init();
 

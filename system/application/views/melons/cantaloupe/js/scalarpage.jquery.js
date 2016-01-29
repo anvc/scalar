@@ -1910,6 +1910,7 @@
                     case "vispath":
                     case "vismedia":
                     case "vistag":
+                    case "tags":
 
                     switch ( viewType ) {
 
@@ -1959,9 +1960,18 @@
 	                    }
 	                    break;
 
+	                    case "tags":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'external',
+	                    	relations: 'none',
+	                    	format: 'tagcloud'
+	                    }
+	                    break;
+
                     }
  					visualization = $(  '<div class="visualization"></div>' );
-					$( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
+					$( 'article > header > h1' ).addClass("visualization");
 					$( 'article > header' ).after( visualization );
 					visualization.scalarvis( visOptions );
                     break;
@@ -2003,23 +2013,6 @@
 					});	
 					okToAddExtras = false;
 					break;
-					
-			  		case "tags":			  			
-				  	$('body').on( "pageLoadComplete", function() {
-				  		approot = $('link#approot').attr('href');
-				  		$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/jQCloud/jqcloud.min.css">');
-						$.getScript(approot+'views/widgets/jQCloud/jqcloud.min.js', function() {
-					  		var $tag_cloud = $('<div class="tag_cloud"></div>').appendTo('[property="sioc:content"]');
-					 		var words_pos = function() {
-					  			$tag_cloud.width('100%');
-					  			$tag_cloud.height( parseInt($(window).height())*0.5 );
-					  		};
-					  		words_pos();
-					  		$( window ).resize(function() { words_pos(); });
-					  		$tag_cloud.jQCloud(tags, { autoResize: true });							
-						}); 
-				  	});			  			
-				  	break;		
 				  	
 			  		case "resources":
 			  		// Nothing yet
