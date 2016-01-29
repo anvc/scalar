@@ -336,7 +336,6 @@ a:hover { text-decoration: underline; }
 .control_bar .right { float: right; padding: 1rem 0 1rem 0; }
 .control_bar img { margin-left: 1.2rem; }
 
-.resources-page .resources .desc {font-size:smaller;}
 .tags-page {max-width:none;}
 .tag_cloud a:hover {text-decoration:underline;}
 
@@ -577,7 +576,7 @@ a:hover { text-decoration: underline; }
 	height: auto;
 }
 
-.mediainfo div, .attribution, .additional_metadata {
+.mediainfo div, .attribution, .additional_metadata, ul.resources p.desc {
 	font-size: 1.2rem;
 	line-height: 1.7rem;
 	color: #666;
@@ -989,3 +988,6 @@ button, .btn, input, optgroup, select, textarea {
 	margin-right: 5px;
 	margin-left: 2px;
 }
+
+ul.resources { list-style: none; }
+ul.resources > li { margin-bottom: 1rem; }

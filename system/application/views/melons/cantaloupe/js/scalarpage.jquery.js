@@ -2015,11 +2015,11 @@
 					break;
 				  	
 			  		case "resources":
-			  		// Nothing yet
+			  		$("ul.resources span.desc").contents().unwrap().wrap('<p class="desc caption_font">');
 			  		break;
 			  		
 			  		case "toc":
-				  	// Nothing yet
+			  		$("ol.toc").before('<h3 class="heading_font heading_weight">Table of Contents</h3>');
 				  	break;			  		
 					         
 			  	}
