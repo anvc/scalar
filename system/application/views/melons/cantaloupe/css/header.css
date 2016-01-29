@@ -685,11 +685,14 @@ i.loader{
 	    top: 0px;
 	    left: 0px;
 	    right: 0px;
-	    background-color: #353535;
+	    background-color: inherit;
 	    border-right: 2px solid #070707;
 	    padding: 3rem 0;
 	    width: 38rem;
 	    overflow-y: auto;
+	}
+	.navbar .mainMenuDropdown>#mainMenuInside.tall #indexLink{
+		margin-bottom: 3rem;
 	}
 }
 @media (max-width: 767px){
