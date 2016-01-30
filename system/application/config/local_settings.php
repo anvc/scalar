@@ -3,8 +3,8 @@
  * @projectDescription	Application config for Scalar installations
 */
 
-// Default melon (Scalar skin), must have a corresponding folder in system/application/views/mellons/ 
-$config['active_melon'] = 'honeydew';
+// Default melon (Scalar skin), must have a corresponding folder in system/application/views/melons/ 
+$config['active_melon'] = 'cantaloupe';
 
 // Default book index module (note that the index can be rerouted completely in /.htaccess)
 $config['active_book_list'] = 'book_list';
