@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `is_featured` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `thumbnail` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `background` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `template` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'honeydew',
+  `template` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'cantaloupe',
   `stylesheet` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `custom_style` text COLLATE utf8_unicode_ci NOT NULL,
   `custom_js` text COLLATE utf8_unicode_ci,
