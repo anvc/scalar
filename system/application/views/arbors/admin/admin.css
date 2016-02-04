@@ -160,6 +160,7 @@ label {cursor:pointer;}
 
 .ui-widget { font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif !important; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif !important; }
+textarea[name=custom_style], textarea[name=custom_js] { font-family: Courier, monospace !important; }
 
 .tableone {
 	background: #697210;

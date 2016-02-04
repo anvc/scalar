@@ -419,7 +419,7 @@ function make_taxonomy_pages(onomy) {
 			echo '<br /><small>Example:<br /><span style="color:#333333;">body {font-family:Helvetica;}<br />No &lt;style&gt; or &lt;/style&gt; tags</span></small>';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" colspan="2">';
-			echo '<textarea name="custom_style" style="width:100%;height:80px;">';
+			echo '<textarea name="custom_style" style="width:100%;height:120px;">';
 			echo (!empty($row->custom_style)) ? trim($row->custom_style) : '';
 			echo '</textarea></td>'."\n";
 			echo "</tr>\n";
@@ -429,7 +429,7 @@ function make_taxonomy_pages(onomy) {
 			echo '<br /><small>E.g., Google Analytics code<br />No &lt;script&gt; or &lt;/script&gt; tags</small>';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" class="row_div" colspan="2">';
-			echo '<textarea name="custom_js" style="width:100%;height:80px;">';
+			echo '<textarea name="custom_js" style="width:100%;height:120px;">';
 			echo (!empty($row->custom_js)) ? trim($row->custom_js) : '';
 			echo '</textarea></td>'."\n";
 			echo "</tr>\n";
