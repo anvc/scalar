@@ -1749,7 +1749,22 @@
 					.style('cursor', 'pointer')
 					.attr('stroke-opacity', '.2')
 					.attr('fill-opacity', function(d) {
-						return .1 + ((((d.outgoingRelations ? d.outgoingRelations.length : 0) + (d.incomingRelations ? d.incomingRelations.length : 0) + 1) / base.maxConnections) * .75);
+						var val = 0;
+						if (base.maxConnections > 0) {
+							if (d.outgoingRelations) {
+								val = d.outgoingRelations.length;
+							}
+							if (d.incomingRelations) {
+								val += d.incomingRelations.length;
+							}
+							val += 1;
+							val /= base.maxConnections;
+							val *= .75;
+						} else {
+							val = .1;
+						}
+						val += .1;
+						return val;
 					})
 					.attr('fill', function(d) {
 						return base.highlightColorScale(d.type.singular);
