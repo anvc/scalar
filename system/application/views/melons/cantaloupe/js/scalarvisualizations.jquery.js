@@ -1577,7 +1577,7 @@
 				if ( index != -1 ) {
 					newActiveNodes.splice( index, 1 );
 				} else {
-					base.activeNodes.splice( index, 1 );
+					base.activeNodes.splice( i, 1 );
 				}
 			}
 			n = newActiveNodes.length;
