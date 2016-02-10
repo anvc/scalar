@@ -402,12 +402,13 @@ class RDF_Object {
 				$versions = $CI->versions->get_all($row->content_id, null, null, $settings['sq']);
 			} else {
 				$versions = array();
-				$versions[0] = $CI->versions->get_single(
-												  $row->content_id,
-												  ((is_int($settings['versions']))?null:$settings['versions']),
-												  $row->recent_version_id,
-												  $settings['sq']
-													    );
+				$version = $CI->versions->get_single(
+												     $row->content_id,
+												     ((is_int($settings['versions']))?null:$settings['versions']),
+												     $row->recent_version_id,
+												     $settings['sq']
+													);
+				if (!empty($version)) $versions[0] = $version;
 			}
 		} else {
 			$versions = $row->versions;

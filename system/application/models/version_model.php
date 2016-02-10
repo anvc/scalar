@@ -531,13 +531,26 @@ class Version_model extends MY_Model {
 
     	$result = (array) $result;
     	$results = array();
-        foreach ($sq as $term) {
+        foreach ($sq as $term) {  // Version fields
     		foreach($result as $key => $value) {
 				if (!is_string($value)) continue;
+				$value = strip_tags($value);
         		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term;
     		}
         }
         if (count($results)==count($sq)) return true;
+        if (isset($result['rdf']) && !empty($result['rdf'])) {
+	        foreach ($sq as $term) {  // RDF fields
+	    		foreach($result['rdf'] as $key => $values) {
+	    			$type = $values[0]['type'];
+	    			if ('literal'!=$type) continue;
+					$value = $values[0]['value'];
+					$value = strip_tags($value);
+	        		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term;
+	    		}
+	        }       
+	        if (count($results)==count($sq)) return true;
+        }
         return false;
 
     }
