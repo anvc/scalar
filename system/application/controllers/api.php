@@ -374,10 +374,10 @@ Class Api extends Controller {
 			$book_id = $this->versions->get_book($this->data['version_id']);
 			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn does not exist');
 			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
-		} else {
+		} else {  // e.g., my-first-scalar-page
 			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:urn']);
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not exist');
-			$version = $this->versions->get_all($page->content_id, null, 1);
+			$version = $this->versions->get_single($page->content_id, null, $page->recent_version_id);
 			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not have a version');
 			$this->data['version_id'] = $version[0]->version_id;
 		}
@@ -387,10 +387,10 @@ Class Api extends Controller {
 			$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:child_urn'])));
 			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn does not exist');
 			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
-		} else {   // e.g., my-first-scalar-page
+		} else {  // e.g., my-first-scalar-page
 			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:child_urn']);
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not exist');
-			$version = $this->versions->get_all($page->content_id, null, 1);
+			$version = $this->versions->get_single($page->content_id, null, $page->recent_version_id);
 			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not have a version');
 			$this->data['scalar:child_urn'] = $this->versions->urn($version[0]->version_id);
 		}

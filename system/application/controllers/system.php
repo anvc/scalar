@@ -624,7 +624,7 @@ class System extends MY_Controller {
 				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
 				$this->data['content'] = $this->pages->get_all($book_id);
 		        foreach ($this->data['content'] as $key => $row) {
-					$versions = $this->versions->get_all($row->content_id, null, 1);
+		        	$versions = $this->versions->get_single($row->content_id, null, $row->recent_version_id);
 					if (empty($versions)) continue;
 					$this->data['content'][$key]->versions = $versions;
 		        }
@@ -647,7 +647,7 @@ class System extends MY_Controller {
 				foreach ($relationships as $key => $row) {
 					$this->data['content'][$key] = $this->pages->get($row->child_content_id);
 					$this->data['content'][$key]->sort_number = $row->sort_number;
-					$versions = $this->versions->get_all($row->child_content_id, null, 1);
+					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
 					$this->data['content'][$key]->versions = $versions;
 				}
@@ -665,7 +665,7 @@ class System extends MY_Controller {
 				$this->data['content'] = array();
 				foreach ($relationships as $key => $row) {
 					$this->data['content'][$key] = $this->pages->get($row->child_content_id);
-					$versions = $this->versions->get_all($row->child_content_id, null, 1);
+					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
 					$this->data['content'][$key]->versions = $versions;
 				}
@@ -688,7 +688,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->points = $row->points;
 					$this->data['content'][$key]->start_line_num = $row->start_line_num;
 					$this->data['content'][$key]->end_line_num = $row->end_line_num;
-					$versions = $this->versions->get_all($row->child_content_id, null, 1);
+					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
 					$this->data['content'][$key]->versions = $versions;
 				}
@@ -707,7 +707,7 @@ class System extends MY_Controller {
 				foreach ($relationships as $key => $row) {
 					$this->data['content'][$key] = $this->pages->get($row->child_content_id);
 					$this->data['content'][$key]->rel_created = $row->datetime;
-					$versions = $this->versions->get_all($row->child_content_id, null, 1);
+					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
 					$this->data['content'][$key]->versions = $versions;
 				}

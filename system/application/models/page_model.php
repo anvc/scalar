@@ -41,7 +41,6 @@ class Page_model extends MY_Model {
     public function get($content_id=0) {
 
      	$this->db->where('content_id',$content_id);
-    	$this->db->limit(1); // There should only be one item
     	$query = $this->db->get($this->pages_table);
     	if (!$query->num_rows) return null;
     	$result = $query->result();

@@ -21,7 +21,7 @@
 /**
  * @projectDescription		Book controller for outputting the HTML for Scalar's front-end
  * @author					Craig Dietrich
- * @version					2.4
+ * @version					2.5
  */
 
 function sortSearchResults($a, $b) {
@@ -36,9 +36,9 @@ class Book extends MY_Controller {
 	private $models = array('annotations', 'paths', 'tags', 'replies', 'references');
 	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
 	private $vis_views = array('vis', 'visindex', 'vispath', 'vismedia', 'vistag');
-	private $fallback_melon = 'honeydew';
-	private $fallback_page = 'index';
-	private $max_recursions = 2;
+	private $fallback_melon = 'honeydew';  // This is independant of the default melon set in the config, which is used for new book creation
+	private $fallback_page = 'index';  // The default home page for a book (/index)
+	private $max_recursions = 2;  // Get relationships of the current page, and the relationships of those relationships (e.g., get this pages tags, and the pages those tags tag)
 
 	/**
 	 * Load the current book
@@ -69,7 +69,7 @@ class Book extends MY_Controller {
 		$this->set_user_book_perms();
 		if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) $this->require_login(1); // Protect book
 		$this->data['book']->contributors = $this->books->get_users($this->data['book']->book_id);
-		$this->data['book']->versions = $this->books->get_book_versions($this->data['book']->book_id, true);
+		$this->data['book']->versions = $this->books->get_book_versions($this->data['book']->book_id, true); // TOC
 		$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
 		// Melon (skin)
 		$this->data['melon'] = $this->config->item('active_melon');
@@ -86,14 +86,13 @@ class Book extends MY_Controller {
 		$this->data['media_views'] = $this->config->item('media_views');
 		$this->data['view'] = key($this->data['views']);
 		$this->data['models'] = $this->models;
-		$this->data['mode'] = null;
+		$this->data['mode'] = null; // e.g., "editing"
 		$this->data['can_edit'] = $this->login_is_book_admin('reviewer');
 
 	}
 
 	/**
 	 * Load the current page
-	 * @return null
 	 */
 
 	public function _remap() {
@@ -143,7 +142,7 @@ class Book extends MY_Controller {
 				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
 			} else {
-				$this->data['slug'] = $slug;
+				$this->data['slug'] = $slug; // Can visit a page even if it hasn't been created yet
 			}
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
 			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
@@ -272,7 +271,8 @@ class Book extends MY_Controller {
 		if ($this->data['mode'] == 'editing') return;
 		$this->data['book_tags'] = $this->tags->get_all($this->data['book']->book_id, null, null, true);
 		for ($j = 0; $j < count($this->data['book_tags']); $j++) {
-			$this->data['book_tags'][$j]->versions = $this->versions->get_all($this->data['book_tags'][$j]->content_id, null, 1);
+			$this->data['book_tags'][$j]->versions = array();
+			$this->data['book_tags'][$j]->versions[0] = $this->versions->get_single($this->data['book_tags'][$j]->content_id, null, $this->data['book_tags'][$j]->recent_version_id);
 			$this->data['book_tags'][$j]->versions[0]->tag_of = $this->tags->get_children($this->data['book_tags'][$j]->versions[0]->version_id);
 		}
 		$this->data['login_is_author'] = $this->login_is_book_admin();
@@ -287,7 +287,8 @@ class Book extends MY_Controller {
 		if ($this->data['mode'] == 'editing') return;
 		$this->data['book_content'] = $this->pages->get_all($this->data['book']->book_id, null, null, true);
 		for ($j = 0; $j < count($this->data['book_content']); $j++) {
-			$this->data['book_content'][$j]->versions = $this->versions->get_all($this->data['book_content'][$j]->content_id, null, 1);
+			$this->data['book_content'][$j]->versions = array();
+			$this->data['book_content'][$j]->versions[0] = $this->versions->get_single($this->data['book_content'][$j]->content_id, null, $this->data['book_content'][$j]->recent_version_id);
 		}
 		$this->data['login_is_author'] = $this->login_is_book_admin();
 		$this->data['view'] = __FUNCTION__;
@@ -437,12 +438,11 @@ class Book extends MY_Controller {
 		}
 
 		// List of media pages
-		// TODO: replace versioning with the set_recent_version_id method used elsewhere
 		$this->data['book_media'] = $this->pages->get_all($this->data['book']->book_id, 'media', null, false);
 		$to_remove = array();
 		for ($j = 0; $j < count($this->data['book_media']); $j++) {
-			$this->data['book_media'][$j]->versions = $this->versions->get_all($this->data['book_media'][$j]->content_id, null, 1);
-			//if (!$this->versions->url_is_public($this->data['book_media'][$j]->versions[0]->url)) $to_remove[] = $j;
+			$this->data['book_media'][$j]->versions = array();
+			$this->data['book_media'][$j]->versions[0] = $this->versions->get_single($this->data['book_media'][$j]->content_id, null, $this->data['book_media'][$j]->recent_version_id);
 		}
 
 	}
@@ -501,8 +501,8 @@ class Book extends MY_Controller {
 				}
 			}
 		}
-
 		$this->data['page']->version_index = $key;
+
 		$this->data['hide_edit_bar'] = true;
 
 	}
@@ -604,7 +604,8 @@ class Book extends MY_Controller {
 			if (!empty($this->data['page']->versions[$this->data['page']->version_index]->continue_to_content_id)) {
 				$this->data['continue_to'] = $this->pages->get($this->data['page']->versions[$this->data['page']->version_index]->continue_to_content_id);
 				if (!empty($this->data['continue_to'])) {
-					$this->data['continue_to']->versions = $this->versions->get_all($this->data['continue_to']->content_id, null, 1);
+					$this->data['continue_to']->versions = array();
+					$this->data['continue_to']->versions[0] = $this->versions->get_single($this->data['continue_to']->content_id, null, $this->data['continue_to']->recent_version_id);
 					$this->data['continue_to']->version_index = 0;
 				}
 			}

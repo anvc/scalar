@@ -91,6 +91,8 @@ class Version_model extends MY_Model {
 
 		$this->db->where('version_id', $version_id);
     	$query = $this->db->get($this->versions_table);
+    	if (!$query->num_rows()) return null;
+
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
@@ -99,6 +101,43 @@ class Version_model extends MY_Model {
         if (!empty($sq) && !self::filter_result_i($result[0], $sq)) return array();
 
     	return $result[0];
+
+    }
+
+    /**
+     * Return the most recent version which can be cut off by a datetime
+     * If 3rd argument is passed, it'll either be the specific version ID or a request to save the result to content's recent_version_id
+     */
+    public function get_single($content_id=0, $version_datetime=null, $version_id=null, $sq='') {
+
+		if (empty($version_datetime) && !empty($version_id)) {  // A version ID has been passed representing content's recent_version_id
+			$result = self::get($version_id, $sq);
+			if (null!==$result) {
+				//echo 'USING self::get() result'."\n";
+				return $result;
+			}
+		}
+
+    	$ci =& get_instance();  // for use with the rdf_store
+
+     	$this->db->where('content_id',$content_id);
+    	$this->db->order_by('version_num', 'desc');
+    	if (!empty($version_datetime)) $this->db->where('created <=', $version_datetime);
+    	// Don't run $sq here because it might return an older version than the most recent
+    	$this->db->limit(1);
+    	$query = $this->db->get($this->versions_table);
+    	$result = $query->result();
+    	$result[0]->urn = $this->urn($result[0]->version_id);
+    	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
+    	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+
+        if (!empty($sq) && !self::filter_result_i($result[0], $sq)) return array();
+
+		if (null===$version_datetime && null!==$version_id) {  // 0 is passed to version ID, requesting that the result be saved to content's recent_version_id
+			self::set_recent_version_id($content_id, $result[0]->version_id);
+		}
+
+		return $result[0];
 
     }
 
@@ -138,7 +177,7 @@ class Version_model extends MY_Model {
 	 */
     public function get_by_version_num($content_id=0, $version_num=0) {
 
-    	$this->db->where('content_id', $content_id);
+    	$this->db->where('content_id', $content_id);  // KEY 'content_id' is very selective
 		$this->db->where('version_num', $version_num);
     	$query = $this->db->get($this->versions_table);
     	$result = $query->result();
@@ -188,6 +227,7 @@ class Version_model extends MY_Model {
     	$query = $this->db->get($this->books_table);
     	$result = $query->result();
     	$book_slug = $result[0]->slug;
+    	// TODO: this puts a trailing slasho on the URI
     	return confirm_slash(base_url().confirm_slash($book_slug).$this->slug($version_id));
 
     }
@@ -280,7 +320,8 @@ class Version_model extends MY_Model {
 		$this->rdf_store->delete_urn($this->urn($version_id));
 
 		// Reset recent version
-		// $this->set_recent_version_id($content_id);
+		$recent_version_id = self::get_single($content_id);
+		self::set_recent_version_id($content_id, $recent_version_id);
 
 		return true;
 
@@ -328,6 +369,8 @@ class Version_model extends MY_Model {
  		$this->db->insert($this->versions_table, $data);
  		$version_id = $this->db->insert_id();
 
+ 		self::set_recent_version_id($content_id, $version_id);
+
  		// Save to the semantic tables, but first make sure that each predicate isn't a hard coded value in $this->rdf_fields
  		if (empty($version_id)) throw new Exception('Could not resolve version ID before saving to the semantic store.');
  		$additional_metadata = array();
@@ -364,14 +407,12 @@ class Version_model extends MY_Model {
  			if (!empty($additional_metadata)) $this->rdf_store->save_by_urn($this->urn($version_id), $additional_metadata);
  		}
 
- 		// $this->set_recent_version_id($content_id, $version_id);
-
  		return $version_id;
 
     }
 
 	/**
-	 * Save to an existin version row
+	 * Save to an existing version row
 	 * Note: at the moment save() doesn't accept semantic web fields (pnodes), just fields that save to the relational table
 	 */
     public function save($array=array()) {
@@ -429,14 +470,14 @@ class Version_model extends MY_Model {
     	$versions = $this->get_all($content_id, null);
     	$count = count($versions);
     	foreach ($versions as $version) {
-    		$versoin_id = $version->version_id;
+    		$version_id = $version->version_id;
 			$data = array( 'version_num' => $count );
-			$this->db->where('version_id', $versoin_id);
+			$this->db->where('version_id', $version_id);
 			$this->db->update($this->versions_table, $data);
     		$count--;
     	}
 
-    	// $this->set_recent_version_id($content_id);
+    	self::set_recent_version_id($content_id, $versions[0]->version_id);
 
     	return true;
 
@@ -460,20 +501,10 @@ class Version_model extends MY_Model {
 	 */
     public function set_recent_version_id($content_id=0, $version_id=0) {
 
-    	if (empty($content_id)) {
-    		if (empty($version_id)) throw new Exception('Invalid version ID attempting to retrieve content ID');
-    		$content_id = (int) $this->get_content_id($version_id);
-    	}
-    	if (empty($version_id)) {
-    		if (empty($content_id)) throw new Exception('Invalid content ID attempting to retrieve version ID');
-    		$version = $this->get_all($content_id, null, 1);
-    		if (empty($version)) return true;  // No more versions (e.g., a page is being deleted)
-    		$version_id = (int) $version[0]->version_id;
-    	}
+    	if (empty($content_id)) return false;
+    	if (empty($version_id)) return false;
 
-    	if (empty($content_id)) throw new Exception('Invalid content ID attempting to save recent');
-    	if (empty($version_id)) throw new Exception('Invalid version ID attempting to save recent');
-
+    	//echo 'SETTING recent_version_id'."\n";
     	$this->db->where('content_id',$content_id);
     	$this->db->set('recent_version_id', $version_id);
     	$this->db->update($this->pages_table);
