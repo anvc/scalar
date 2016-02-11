@@ -379,7 +379,7 @@ Class Api extends Controller {
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not exist');
 			$version = $this->versions->get_single($page->content_id, null, $page->recent_version_id);
 			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not have a version');
-			$this->data['version_id'] = $version[0]->version_id;
+			$this->data['version_id'] = $version->version_id;
 		}
 
 		// Validate scalar:child_urn + possibly glean URN from slug if that's what is sent
@@ -392,7 +392,7 @@ Class Api extends Controller {
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not exist');
 			$version = $this->versions->get_single($page->content_id, null, $page->recent_version_id);
 			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not have a version');
-			$this->data['scalar:child_urn'] = $this->versions->urn($version[0]->version_id);
+			$this->data['scalar:child_urn'] = $this->versions->urn($version->version_id);
 		}
 
 	}
