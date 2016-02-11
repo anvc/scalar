@@ -626,7 +626,7 @@ class System extends MY_Controller {
 		        foreach ($this->data['content'] as $key => $row) {
 		        	$versions = $this->versions->get_single($row->content_id, null, $row->recent_version_id);
 					if (empty($versions)) continue;
-					$this->data['content'][$key]->versions = $versions;
+					$this->data['content'][$key]->versions = array($versions);
 		        }
 				break;
 			case 'get_user_books':
@@ -649,7 +649,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->sort_number = $row->sort_number;
 					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
-					$this->data['content'][$key]->versions = $versions;
+					$this->data['content'][$key]->versions = array($versions);
 				}
 				break;
 			case 'get_tag_of':
@@ -667,7 +667,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key] = $this->pages->get($row->child_content_id);
 					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
-					$this->data['content'][$key]->versions = $versions;
+					$this->data['content'][$key]->versions = array($versions);
 				}
 				break;
 			case 'get_annotation_of':
@@ -690,7 +690,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->end_line_num = $row->end_line_num;
 					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
-					$this->data['content'][$key]->versions = $versions;
+					$this->data['content'][$key]->versions = array($versions);
 				}
 				break;
 			case 'get_reply_of':
@@ -709,7 +709,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->rel_created = $row->datetime;
 					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, null, $this->data['content'][$key]->recent_version_id);
 					if (empty($versions)) continue;
-					$this->data['content'][$key]->versions = $versions;
+					$this->data['content'][$key]->versions = array($versions);
 				}
 				break;
 			case 'get_system_users':
