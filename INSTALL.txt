@@ -30,7 +30,7 @@ Scalar supports servers running SSL (https) out of the box.  If needed we have a
 file to force all requests through https.
 ***
 
-1) 
+1)
 
 Run the SQL script on a fresh MySQL database (e.g., "scalar_store"):
 
@@ -40,24 +40,49 @@ Note that five additional tables will be added after Scalar's first use.
 
 Update database fields (hostname, database, username and password) at:
 
-system/application/config/database.php
+system/application/config/database.php OR you can set the following environment variables:
+
+    SCALAR_DB_HOSTNAME
+    SCALAR_DB_USERNAME
+    SCALAR_DB_PASSWORD
+    SCALAR_DB_DATABASE
+
 
 2)
 
 Add a new SALT string, reCAPTCHA key (for your domain, http://www.google.com/recaptcha/whyrecaptcha), 
 registration key, SoundCloud key, and a few other keys:
 
-system/application/config/local_settings.php
+system/application/config/local_settings.php OR you can set the following environment variables:
+
+    SCALAR_SHASALT
+    SCALAR_RECAPTCHA_PUBLIC_KEY
+    SCALAR_RECAPTCHA_PRIVATE_KEY
+    SCALAR_SOUNDCLOUD_ID
+    SCALAR_DPLA_KEY
+    SCALAR_FLOWPLAYER_KEY
+    SCALAR_GOOGLE_MAPS_KEY
+    SCALAR_EMAIL_REPLYTO_ADDRESS
+    SCALAR_EMAIL_REPLYTO_NAME
+    SCALAR_SMTP_HOST
+    SCALAR_SMTP_USERNAME
+    SCALAR_SMTP_PASSWORD
 
 Add session encryption key ($config['encryption_key']) and cookie/session variable ($config['cookie_prefix']) at:
 
-system/application/config/config.php
+system/application/config/config.php OR you can set the following environment variables:
+
+    SCALAR_ENCRYPTION_KEY
+    SCALAR_COOKIE_PREFIX
+    SCALAR_COOKIE_DOMAIN
 
 3) 
 
 By default, the home page (book index) will display "Scalar" as the page title; this can be updated at:
 
-system/application/language/en/content_lang.php
+system/application/language/en/content_lang.php OR you can set the following environment variables:
+
+    SCALAR_INSTALL_NAME
 
 4) 
 

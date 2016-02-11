@@ -228,7 +228,7 @@ $config['cache_path'] = '';
 | enabled you MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = "";
+$config['encryption_key'] = (getenv('SCALAR_ENCRYPTION_KEY') ? getenv('SCALAR_ENCRYPTION_KEY') : '');
 
 /*
 |--------------------------------------------------------------------------
@@ -261,8 +261,8 @@ $config['sess_time_to_update'] 	= 400;
 | 'cookie_path'   =  Typically will be a forward slash
 |
 */
-$config['cookie_prefix']	= "";
-$config['cookie_domain']	= "";
+$config['cookie_prefix'] = (getenv('SCALAR_COOKIE_PREFIX') ? getenv('SCALAR_COOKIE_PREFIX') : '');
+$config['cookie_domain'] = (getenv('SCALAR_COOKIE_DOMAIN') ? getenv('SCALAR_COOKIE_DOMAIN') : '');
 $config['cookie_path']		= "/";
 
 /*
