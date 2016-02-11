@@ -41,10 +41,10 @@
 $active_group = "default";
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';
-$db['default']['username'] = '';
-$db['default']['password'] = '';
-$db['default']['database'] = '';
+$db['default']['hostname'] = (getenv('SCALAR_DB_HOSTNAME') ? getenv('SCALAR_DB_HOSTNAME') : 'localhost');
+$db['default']['username'] = (getenv('SCALAR_DB_USERNAME') ? getenv('SCALAR_DB_USERNAME') : '');
+$db['default']['password'] = (getenv('SCALAR_DB_PASSWORD') ? getenv('SCALAR_DB_PASSWORD') : '');
+$db['default']['database'] = (getenv('SCALAR_DB_DATABASE') ? getenv('SCALAR_DB_DATABASE') : '');
 
 $db['default']['dbdriver'] = "mysqli";
 

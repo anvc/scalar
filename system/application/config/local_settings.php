@@ -13,29 +13,29 @@ $config['active_book_list'] = 'book_list';
 $config['active_cover'] = 'cover';
 
 // SALT, any string you want as long as it is complicated
-$config['shasalt'] = '';
+$config['shasalt'] = (getenv('SCALAR_SHASALT') ? getenv('SCALAR_SHASALT') : '');
 
 // chmod permissions when the system creates directories or places uploaded files (e.g., 0775)
 $config['chmod_mode'] = 0775;
 
 // ReCAPTCHA key (leave blank for no ReCAPTCHA)
-$config['recaptcha_public_key'] = '';
-$config['recaptcha_private_key'] = '';
+$config['recaptcha_public_key'] = (getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') ? getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') : '');
+$config['recaptcha_private_key'] = (getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') ? getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') : '');
 
 // Register key (leave blank if no register key required, e.g., array())
 $config['register_key'] = array();
 
 // Soundcloud key
-$config['soundcloud_id'] = '';
+$config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : '');
 
 // Digital Public Library of America key
-$config['dpla_key'] = '';
+$config['dpla_key'] = (getenv('SCALAR_DPLA_KEY') ? getenv('SCALAR_DPLA_KEY') : '');
 
 // Flowplayer key
-$config['flowplayer_key'] = '';
+$config['flowplayer_key'] = (getenv('SCALAR_FLOWPLAYER_KEY') ? getenv('SCALAR_FLOWPLAYER_KEY') : '');
 
 // Google Maps key
-$config['google_maps_key'] = '';
+$config['google_maps_key'] = (getenv('SCALAR_GOOGLE_MAPS_KEY') ? getenv('SCALAR_GOOGLE_MAPS_KEY') : '');
 
 // Custom message for the book index page (leave blank for no message)				   
 $config['index_msg'] = '';
@@ -45,13 +45,13 @@ $config['book_msg'] = '';
 $config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
 
 // Emails
-$config['email_replyto_address'] = ''; 
-$config['email_replyto_name'] = '';
+$config['email_replyto_address'] = (getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') ? getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') : ''); 
+$config['email_replyto_name'] = (getenv('SCALAR_EMAIL_REPLYTO_NAME') ? getenv('SCALAR_EMAIL_REPLYTO_NAME') : '');
 // SMTP (leave smtp_host field empty to use phpmailer instead). If using Gmail, you may need to enable access in security settings.
-$config['smtp_host'] = ''; 
+$config['smtp_host'] = (getenv('SCALAR_SMTP_HOST') ? getenv('SCALAR_SMTP_HOST') : ''); 
 $config['smtp_auth'] = true; 
-$config['smtp_username'] = '';    
-$config['smtp_password'] = '';     
+$config['smtp_username'] = (getenv('SCALAR_SMTP_USERNAME') ? getenv('SCALAR_SMTP_USERNAME') : '');    
+$config['smtp_password'] = (getenv('SCALAR_SMTP_PASSWORD') ? getenv('SCALAR_SMTP_PASSWORD') : '');     
 $config['smtp_secure'] = 'ssl';   // 'ssl' or 'tls'       
 $config['smtp_port'] = 465; 
 
