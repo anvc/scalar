@@ -3,7 +3,7 @@
 
 $lang['scalar']       = 'Scalar';
 
-$lang['install_name'] = 'Scalar';  // Will be displayed on the top of the book index page, e.g., could be changed to "Scalar for the Maker Lab"
+$lang['install_name'] = (getenv('SCALAR_INSTALL_NAME') ? getenv('SCALAR_INSTALL_NAME') : 'Scalar');  // Will be displayed on the top of the book index page, e.g., could be changed to "Scalar for the Maker Lab"
 
 $lang['book']     = 'book';
 $lang['or']       = 'or';
