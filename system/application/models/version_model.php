@@ -126,6 +126,7 @@ class Version_model extends MY_Model {
     	// Don't run $sq here because it might return an older version than the most recent
     	$this->db->limit(1);
     	$query = $this->db->get($this->versions_table);
+    	if (!$query->num_rows()) return array();
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
@@ -320,8 +321,11 @@ class Version_model extends MY_Model {
 		$this->rdf_store->delete_urn($this->urn($version_id));
 
 		// Reset recent version
-		$recent_version_id = self::get_single($content_id);
-		self::set_recent_version_id($content_id, $recent_version_id);
+		$recent_version = self::get_single($content_id);
+		if (!empty($recent_version)) {
+			$recent_version_id = (int) $recent_version->version_id;
+			self::set_recent_version_id($content_id, $recent_version_id);
+		}
 
 		return true;
 
@@ -548,7 +552,7 @@ class Version_model extends MY_Model {
 					$value = strip_tags($value);
 	        		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term;
 	    		}
-	        }       
+	        }
 	        if (count($results)==count($sq)) return true;
         }
         return false;

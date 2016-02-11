@@ -236,10 +236,6 @@ class Page_model extends MY_Model {
 			}
 		}
 
-		// Delete versions
-		$this->db->where('content_id', $content_id);
-		$this->db->delete($this->versions_table);
-
 		return true;
 
     }
