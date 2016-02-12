@@ -23,6 +23,7 @@ $config['recaptcha_public_key'] = (getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') ? geten
 $config['recaptcha_private_key'] = (getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') ? getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') : '');
 
 // Register key (leave blank if no register key required, e.g., array())
+// One of the strings placed in this array will be required in order for new users to register
 $config['register_key'] = array();
 
 // Soundcloud key
