@@ -567,7 +567,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     }else{
                         $('#ScalarHeaderMenuSearch').addClass('search_open');
                         base.handleResize(190);
-                        var startTime = new Date().getTime();
                         $('#ScalarHeaderMenuSearchForm').animate({
                             "width" : "190px"
                         },{
@@ -580,7 +579,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             }
                         });
                         $('#ScalarHeaderMenuSearchForm input').first().val('').focus().blur(function(e){
-                            $('#ScalarHeaderMenuSearch a').click();
+                            if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
+                                $('#ScalarHeaderMenuSearch a').click();
+                            }
                             $(this).off('blur');
                         });
                         
@@ -597,7 +598,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var searchElement = $('<div></div>').appendTo('body');
             base.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
-            var submitForm = function(e) {
+            
+            $('#ScalarHeaderMenuSearchForm form').submit(function(e) {
                 if($('#ScalarHeaderMenuSearchForm form input').val() != ''){
                     var base = $('#scalarheader.navbar').data('scalarheader');
                     base.search.data('plugin_scalarsearch').doSearch($('#ScalarHeaderMenuSearchForm form input').first().val());
@@ -614,13 +616,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 e.stopPropagation();
                 e.preventDefault();
                 return false;
-            };
-            $('#ScalarHeaderMenuSearchForm form').submit(submitForm).bind('keydown keypress keyup',function(e){
-                if(e.which == 13){
-                    e.stopPropagation();
-                    e.preventDefault();
-                    submitForm(e);
-                }
             });
 
             //Check if the current page should be logged in the "recent" menu - if so, do that and then render the menu. Otherwise, just get renderin'
