@@ -53,11 +53,11 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 
 .modal-content { border-radius: 0; }
 
-.saved {background:#deeedc; border:solid 1px #cccccc; padding:8px 10px 8px 10px; margin-bottom:6px;}
+.saved {background:#deeedc; border:solid 1px #cccccc; padding:8px 10px 8px 10px; margin-bottom:30px;}
 .saved > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
-.error {background:#efcdcd; border:solid 1px #cccccc; padding:8px 0px 8px 0px; margin-bottom:6px;}
+.error {background:#efcdcd; border:solid 1px #cccccc; padding:8px 0px 8px 0px; margin-bottom:30px;}
 .error > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
-.notice { background:#eeeeee; padding:8px 0px 8px 0px; margin-bottom:6px; color: black; }
+.notice { background:#eeeeee; padding:8px 0px 8px 0px; margin-bottom:30px; color: black; }
 .notice > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
 
 .notice-page-creator-not-contributor { display: none; }
