@@ -563,6 +563,13 @@ a:hover { text-decoration: underline; }
 	-webkit-backface-visibility: hidden;
 }
 
+.mediaObject iframe[src$=".txt"] {
+	border: 1px solid #cbcbcb;
+    border-radius: 4px;
+    background: #f5f2f0;
+    display: none;
+}
+
 .body_copy.mediainfo {
 	margin-bottom:2.4rem;
 }

@@ -1627,6 +1627,18 @@
 		$('body').on('mediaElementMediaLoaded',function() {
 			page.initialMediaLoad = true;
 			page.sizeOnMediaLoad = { x: $(window).width(), y: $(window).height() };
+
+			//If we have a text file (that isn't displayed yet), change its iframe's CSS to look more like other text (source) files
+			$('.mediaObject iframe[src$=".txt"]:not(:visible)').show().load(function(){
+				$(this).contents().find('body ol').css({
+					'color': 'black',
+				    'text-shadow': '0 1px white',
+				    'font-size': '13px',
+				    'padding':'13px 0px',
+				    'font-family': "Consolas, Monaco, 'Andale Mono', monospace"
+				}).find('li').css('padding','0 13px 0 49.4px');
+
+			});
 		});
 		
 		var i, node, nodes, link, visOptions, visualization,
