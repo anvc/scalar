@@ -26,7 +26,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         // To avoid scope issues, use 'base' instead of 'this'
         // to reference this class from internal events and functions.
         var base = this;
-        
+
         // Access to jQuery and DOM versions of element
         base.$el = $(el);
         base.el = el;
@@ -35,12 +35,18 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.checkedParents = [];
         base.visitedPages = [];
         base.oldScrollTop = 0;
+        base.dataType = 'normal';
         base.usingHypothesis = $('link#hypothesis').attr('href') === 'true';
         base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
 
         base.init = function(){
+            base.dataType = window.location.href.split('.').pop();
+            if(['edit','versions','history','meta','annotation_editor'].indexOf(base.dataType)===-1){
+              base.dataType = 'normal';
+            }
+            console.log(base.dataType);
             //Replace undefined options with defaults...
             base.options = $.extend({},$.scalarheader.defaultOptions, options);
             //Are we logged in? Check the RDF metadata.
@@ -274,7 +280,28 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }).mouseover(function(e){
                 $(this).removeClass('short');
             });
-            base.$el.append(navbar_html).find('.title_wrapper').prepend(title_link.clone());
+
+            //Convert our navbar html into a jquery element
+            var navbar = $(navbar_html);
+
+            //We don't always want all of the edit buttons for alternate data
+            //type requests (ex: meta or versions) - remove these as necessary
+
+            var remove_edit_icons = [];
+            if(['edit','versions','history','meta','annotation_editor'].indexOf(base.dataType)!==-1){
+              remove_edit_icons.push('#ScalarHeaderAnnotate');
+            }
+            if(['edit','versions','history','annotation_editor'].indexOf(base.dataType)!==-1){
+              remove_edit_icons.push('#ScalarHeaderEdit');
+            }
+            if(['versions','history','annotation_editor'].indexOf(base.dataType)!==-1){
+              remove_edit_icons.push('#ScalarHeaderDelete');
+            }
+
+            //Join the IDs of the edit icons to be removed and strip them from the navbar
+            navbar.find(remove_edit_icons.join(', ')).remove();
+
+            base.$el.append(navbar).find('.title_wrapper').prepend(title_link.clone());
 
             base.$el.find('.mainMenu').on('show.bs.dropdown',function(e){
                 $(this).find('.body>ol>li').each(function(){
@@ -512,7 +539,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             if ( n == 0 ) {
                 $( '.author_text' ).empty();
             }
-            
+
 
             base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
@@ -584,7 +611,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             }
                             $(this).off('blur');
                         });
-                        
+
                     }
                 }
                 e.preventDefault();
@@ -598,7 +625,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var searchElement = $('<div></div>').appendTo('body');
             base.search = searchElement.scalarsearch( { root_url: modules_uri+'/cantaloupe'} );
-            
+
             $('#ScalarHeaderMenuSearchForm form').submit(function(e) {
                 if($('#ScalarHeaderMenuSearchForm form input').val() != ''){
                     var base = $('#scalarheader.navbar').data('scalarheader');
@@ -682,7 +709,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }
 
             var currentMenuWidth = $('.mainMenuDropdown').width();
-          
+
 
             var offset = 0;
             if(!base.usingMobileView){
@@ -730,7 +757,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             var description = node.current.description;
 
             var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="'+base.get_param(node.url)+'" title="Visit page, \''+node.current.title+'\'"tabindex="-1">Visit page</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
-            
+
             if(!base.usingMobileView){
                 container.prepend('<div class="close" role="link" tabindex="-1" title="Close expanded panel"><span class="menuIcon closeIcon"></span></div>');
             }
@@ -835,7 +862,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if(!base.usingMobileView && expanded_menu.find('.tall').length == 0){
                     $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
                 }
-                
+
                 return false;
             });
             if(description == null){
@@ -859,30 +886,30 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                       });
                         container.find('.description_more_link').text('more');
                     }
-                    
+
                 });
             }else{
-                container.find('.description_more_link_container').remove();              
+                container.find('.description_more_link_container').remove();
             }
 
             if(!base.usingMobileView){
                 base.focusExpandedPage(container);
             }
-            
+
             var handleRequest = function(){ //this function is scoped instantaneously to this anonymous function, so we can pass it to loadPage while preserving the container reference
                     var relationships = $(this).find('.relationships');
-                    
+
                     var splitList = $('<ul></ul>');
 
                     var node = scalarapi.getNode($(this).data('slug'));
-                    
+
                     var path_of = node.getRelatedNodes('path', 'outgoing');
-                
+
                     var features = node.getRelatedNodes('referee', 'outgoing');
                     var tag_of = node.getRelatedNodes('tag', 'incoming');
                     var annotates = node.getRelatedNodes('annotation', 'outgoing');
                     var comments_on = node.getRelatedNodes('comment', 'outgoing');
-                    
+
                     var base = $('#scalarheader.navbar').data('scalarheader');
 
                     if(path_of.length > 0){
@@ -896,7 +923,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 })
                                                 .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)) )?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                            
+
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
                             newList.append(nodeItem);
@@ -914,7 +941,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 })
                                                 .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                            
+
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
                             newList.append(nodeItem);
@@ -933,7 +960,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 })
                                                 .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                            
+
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
                             newList.append(nodeItem);
@@ -952,7 +979,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 })
                                                 .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                            
+
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
                             newList.append(nodeItem);
@@ -971,7 +998,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 })
                                                 .addClass(((base.parentNodes.indexOf(relNode.slug) < 0  && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug)))?'':'is_parent')
                                                 .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url))?'':'visited');
-                            
+
                             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
 
                             newList.append(nodeItem);
@@ -998,7 +1025,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             var max_height = $(window).height()-50;
                             if(containerHeight >= max_height){
                                 $(this).css('max-height',max_height+'px').addClass('tall');
-                                
+
                                 var offset = $('body').scrollTop();
                                 $('body').addClass('in_menu'); //.css('margin-top','-'+offset+'px').data('scrollTop',offset);
                             }
@@ -1101,7 +1128,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 title_width -= 120;
             }else{
                 title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 52; // 30 for the margin on the title, 2px for the border on the user menu items, then 20 for scrollbar
-                
+
 
                 if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
                     title_width -= 190;
@@ -1114,7 +1141,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
 
             }
-            
+
             $('#scalarheader .title_wrapper').css('max-width',title_width+'px');
             base.$el.removeClass('mobile_view desktop_view').addClass(base.usingMobileView?'mobile_view':'desktop_view');
         };
@@ -1133,7 +1160,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             } else {
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url, 'cantaloupe')) + '">Sign in</a></li>');
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url, 'cantaloupe')) + '">Register</a></li>');
-            }       
+            }
         }
 
         base.initSubmenus = function(el){
@@ -1157,7 +1184,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if(e.which == 9 || e.which == 37){
                     if(e.which == 9){
                         li.removeClass('open');
-                        li.parents('.dropdown').removeClass('open');   
+                        li.parents('.dropdown').removeClass('open');
                     }else if(e.which == 37){
                         a.focus();
                         li.removeClass('open');
@@ -1207,7 +1234,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
                 var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
                 */
-                
+
                 var this_parent_nodes = [];
                 var rel = '';
                 for(n in in_path){
@@ -1239,7 +1266,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         base.parentNodes.push(rel.slug);
                     }
                 }
-                
+
                 for(n in annotated_by){
                     rel = annotated_by[n];
                     if(this_parent_nodes.indexOf(rel.slug)<0){
@@ -1249,7 +1276,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         base.parentNodes.push(rel.slug);
                     }
                 }
-                
+
                 for(n in commented_by){
                     rel = commented_by[n];
                     if(this_parent_nodes.indexOf(rel.slug)<0){
@@ -1264,7 +1291,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var slug = this_parent_nodes[n];
                     if(slug != base.currentNode.slug){
                         (function(slug,depth){
-                            // if this is a comment relation, get the provenance data as well so we can 
+                            // if this is a comment relation, get the provenance data as well so we can
                             // attribute comments by name
                             var prov = ( commented_by.indexOf( scalarapi.getNode( slug ) ) != -1 );
                             scalarapi.loadPage( slug, true, function(){
@@ -1321,7 +1348,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                     })
                                     .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug))?'':'is_parent')
                                     .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url))?'':'visited');
-                        
+
                         $('<a class="expand" title="Explore '+tocNode.getDisplayTitle()+'"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).click(function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             var target_toc_item = $(this).parent().data('node');
@@ -1370,7 +1397,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             // First attempt at determining the uber-parents of this page.
             // Commenting this out for now because it causes slowdown on pages with lots of connections
             //base.getParents(base.currentNode,0);
-            
+
             var tabIndex = 1;
             $('#scalarheader>div>div>ul>li>a, .title_wrapper a').each(function(){
                 $(this).attr('tabindex',tabIndex++);
@@ -1382,19 +1409,19 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
             });
         }
-        
+
         // Run initializer
         base.init();
     };
-    
+
     $.scalarheader.defaultOptions = {
         root_url: ''
     };
-    
+
     $.fn.scalarheader = function(options){
         return this.each(function(){
             (new $.scalarheader(this, options));
         });
     };
-    
+
 })(jQuery);
