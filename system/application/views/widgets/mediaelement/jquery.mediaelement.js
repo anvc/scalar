@@ -519,7 +519,7 @@ function YouTubeGetID(url){
  			if ( this.model.isChromeless ) {
  				this.gutterSize = 0;
  			}
- 			
+
 			this.populateHeader();
    			this.populateFooter();
 
@@ -1179,7 +1179,7 @@ function YouTubeGetID(url){
  					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
  				} else if (this.model.isChromeless) {
  					if ( this.model.mediaSource.contentType != 'image' ) {
- 						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height()); 
+ 						this.containerDim.y = window.innerHeight - 350 - parseInt(this.header.height()) - parseInt(this.footer.height());
 					} else {
  						this.containerDim.y = 1040 - parseInt(this.header.height()) - parseInt(this.footer.height());
  					}
@@ -1212,7 +1212,7 @@ function YouTubeGetID(url){
 			// if this is liquid media, always make it the maximum size
 			if (this.mediaObjectView.isLiquid) {
 				this.intrinsicDim.x = this.containerDim.x;
-				if ( this.intrinsicDim.x < 650 ) {	
+				if ( this.intrinsicDim.x < 650 ) {
 					// don't let the height of liquid items exceed 75% of the width (this prevents pillarboxing in full width cantaloupe sizes)
 					this.intrinsicDim.y = Math.min( this.containerDim.y, this.containerDim.x * .75 );
 				} else {
@@ -1251,7 +1251,7 @@ function YouTubeGetID(url){
 			var containerAR = this.containerDim.x / this.containerDim.y;
 
 			//console.log( 'media: ' + this.intrinsicDim.x+' '+this.intrinsicDim.y+' '+mediaAR+' '+containerAR);
-	
+
 			var native_size = this.model.options.size == 'native';
 			var tempDims = {
 				x: this.containerDim.x,
@@ -1421,7 +1421,7 @@ function YouTubeGetID(url){
 				}
 				if (this.model.containerLayout == "horizontal") {
 					this.annotationSidebar.css('display','block');
-					this.mediaContainer.css('float', 'right'); 
+					this.mediaContainer.css('float', 'right');
 					if (this.mediaContainer.closest('.slot').length == 0) {
 						if (this.controllerOnly || (this.model.options.header != 'nav_bar')) {
 							this.containerDim.y = parseInt(this.model.options.height) - parseInt(this.header.height()) + 1;
@@ -1735,7 +1735,7 @@ function YouTubeGetID(url){
 		this.showSpatialAnnotation = function(annotation) {
 			anno.highlightAnnotation( annotation.data );
 			if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
-				$('body').trigger('show_annotation', [annotation, me]); 
+				$('body').trigger('show_annotation', [annotation, me]);
 			}
 		}
 
@@ -2070,7 +2070,7 @@ function YouTubeGetID(url){
 			if ( queryVars.t != null ) {
 				url += '?t=' + new Date().getTime();
 			}
-			
+
 			// special case some URL elements
 			if (-1!=url.indexOf('http://cubantheater.org')) url = url.replace('http://cubantheater.org','http://ctda.library.miami.edu');
 
@@ -2267,7 +2267,7 @@ function YouTubeGetID(url){
 			if (this.model.mediaSource.contentType == 'audio') {
 				this.parentView.controllerOffset = 23;
 			} else {
-				this.parentView.controllerOffset = 15;				
+				this.parentView.controllerOffset = 15;
 			}
 
 			this.metadataFunc = function() {
@@ -3227,8 +3227,8 @@ function YouTubeGetID(url){
 			    onStart: function() {
 			    },
 
-			    onBufferFull: function() { 
-			    	me.parentView.startTimer(); 
+			    onBufferFull: function() {
+			    	me.parentView.startTimer();
 			    	if (!me.playStopped && !me.model.options.autoplay) {
 			    		this.pause();
 			    		me.playStopped = true;
@@ -3395,8 +3395,8 @@ function YouTubeGetID(url){
 			        ]
 			    },
 
-			    onBufferFull: function() { 
-			    	me.parentView.startTimer(); 
+			    onBufferFull: function() {
+			    	me.parentView.startTimer();
 			    	if ( !me.model.options.autoplay && !me.initialPauseDone ) {
 			    		me.pause();
 			    	}
@@ -3763,7 +3763,7 @@ function YouTubeGetID(url){
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
 
 			var obj = $('<div class="mediaObject" style="overflow: hidden"><div><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
-			
+
 			// these styles enable momentum scrolling of iframes for mobile devices;
 			// if added for desktop browsers they cause double scrollbars
 			if (( scalarapi.scalarBrowser == 'MobileSafari' ) || ( scalarapi.scalarBrowser == 'Android' )) {
@@ -3824,6 +3824,14 @@ function YouTubeGetID(url){
 			});
 
 			$('#'+this.frameId)[0].contentWindow.document.body.innerHTML = code.html();
+
+			//Added styling to make text media feel a bit more like code media (sizing, padding, etc.)
+			$('#'+this.frameId).contents().find('body ol').css({
+				'color': 'black',
+					'text-shadow': '0 1px white',
+					'font-size': '13px',
+					'padding':'13px 0px'
+			}).find('li').css('padding','0 13px 0 49.4px');
 
 			var approot = $('link#approot').attr('href');
 			var cssLink = document.createElement("link")
@@ -4277,7 +4285,7 @@ function YouTubeGetID(url){
 			this.frameId = 'html'+this.model.filename+'_'+this.model.id;
 
 			var obj = $('<div class="mediaObject" style="overflow: hidden"><div><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
-			
+
 			// these styles enable momentum scrolling of iframes for mobile devices;
 			// if added for desktop browsers they cause double scrollbars
 			if (( scalarapi.scalarBrowser == 'MobileSafari' ) || ( scalarapi.scalarBrowser == 'Android' )) {
@@ -4535,7 +4543,7 @@ function YouTubeGetID(url){
 						if(me.initialPauseDone) {
 							me.parentView.endTimer();
 							me.isAudioPlaying = false;
-						} 
+						}
 					});
 					me.widget.bind(SC.Widget.Events.FINISH, function() {
 						me.parentView.endTimer();

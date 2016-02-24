@@ -85,12 +85,12 @@
 				var minTabWidth = parseInt( temp.width() );
 				temp.remove();
 
-				mediaelement.model.element.find( "video" ).bind( "webkitbeginfullscreen", function( e ) { 
+				mediaelement.model.element.find( "video" ).bind( "webkitbeginfullscreen", function( e ) {
 					page.isFullScreen = true;
 					page.lastOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
 				});
 
-				mediaelement.model.element.find( "video" ).bind( "webkitendfullscreen", function( e ) { 
+				mediaelement.model.element.find( "video" ).bind( "webkitendfullscreen", function( e ) {
 					page.isFullScreen = false;
 					// if orientation changed while we were full screen, then check to see if media needs to be reformatted
 					var currentOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
@@ -106,17 +106,17 @@
 					if ( mediaWidth >= page.pageWidth ) {
 						mediaelement.model.element.parent().removeClass( 'left right' );
 						isFullWidth = true;
-					
+
 					// if the media is smaller than than the width of the page, but larger than the width of the
-					// page minus its margins, then center it and add pillarboxing to separate it from the 
+					// page minus its margins, then center it and add pillarboxing to separate it from the
 					// rest of the page
 					} else if ( size == 'full' || mediaWidth > page.bodyCopyWidth ) {
-						mediaelement.model.element.css( { 
+						mediaelement.model.element.css( {
 							'margin-right': 'auto',
 							'margin-left': 'auto',
 							'float':'none'
 						});
-						mediaelement.model.element.find('.mediaObject').css( { 
+						mediaelement.model.element.find('.mediaObject').css( {
 							'margin-right': 'auto',
 							'margin-left': 'auto',
 						});
@@ -156,9 +156,9 @@
 								link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
 							}
 
-							
+
 						}
-					}		
+					}
 				}
 
 				// the "solo" option is used when showing media items that don't get media details tabs beneath
@@ -177,10 +177,10 @@
 						mediaelement.view.footer.hide();
 
 						// add the tabs
-						$.scalarmedia( mediaelement, infoElement, { 
-							'shy': false, 
-							'details': page.mediaDetails, 
-							'caption': link.attr( 'data-caption' ) 
+						$.scalarmedia( mediaelement, infoElement, {
+							'shy': false,
+							'details': page.mediaDetails,
+							'caption': link.attr( 'data-caption' )
 						});
 
 					} else {
@@ -192,9 +192,9 @@
 						// }
 
 						// add the tabs
-						$.scalarmedia( mediaelement, mediaelement.view.footer, { 
-							'shy': ( !isMobile && !link.hasClass( 'media-page-link' ) ), 
-							'details': page.mediaDetails, 
+						$.scalarmedia( mediaelement, mediaelement.view.footer, {
+							'shy': ( !isMobile && !link.hasClass( 'media-page-link' ) ),
+							'details': page.mediaDetails,
 							'caption': link.attr( 'data-caption' )
 						});
 					}
@@ -202,7 +202,7 @@
 					if (isFullWidth) {
 						// modify default media element design
 						mediaelement.model.element.css( 'marginBottom', '0' );
-						mediaelement.view.footer.hide();					
+						mediaelement.view.footer.hide();
 					}
 				}
 
@@ -320,8 +320,8 @@
 					}
 				}
 
-				var options = { 
-					url_attributes: [ 'href', 'src' ], 
+				var options = {
+					url_attributes: [ 'href', 'src' ],
 					autoplay: link.attr( 'data-autoplay' ) == 'true',
 					solo: link.attr( 'data-caption' ) == 'none',
 					typeLimits: typeLimits
@@ -362,7 +362,7 @@
 						if (( node != null ) && ( node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ] != null )) {
 							specifiesDimensions = node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ].specifiesDimensions;
 						}
-		
+
 						if ( size != 'full' ) {
 
 							// wrap the media in a body copy element so its alignment happens inside the
@@ -399,7 +399,7 @@
 						if ( count == 1 ) {
 							slotDOMElement.addClass('top');
 						}
-		
+
 					// if this is not an inline media element, and its size is set to 'full', then put the media after its linking text
 					} else {
 						parent.after( slotDOMElement );
@@ -489,7 +489,7 @@
 							pathContents.find( '[property="dcterms:title"] > a' ).each( function() {
 								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
 								$( this ).attr( 'href', href );
-							});	
+							});
 
 						} else {
 							pathContents.find('h1').hide();
@@ -582,7 +582,7 @@
 					$( '[rel="scalar:continue_to"]' ).each( function() {
 						var href = $( this ).attr( 'href' );
 						$( 'span[resource="' + href + '"]' ).hide();
-					});					
+					});
 				}
 
 				// if relationship nav isn't centered, add bootstrap column formatting to help
@@ -685,9 +685,9 @@
 					var hasTags = $( ".has_tags" );
 					hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
 					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
-					hasTags.parent().addClass('relationships').show();		
+					hasTags.parent().addClass('relationships').show();
 				}
-				
+
 				// move path contents list to be the bottom-most of all relationships items
 				// (or second from bottom if we have path lateral nav)
 				if ( pathContents != null ) {
@@ -899,7 +899,7 @@
 				page.bodyContentLinks().each(function() {
 					if (page.isLinkRelative(this)) {
 						$(this).attr("href", absoluteURLRoot + $(this).attr("href"));
-					}	
+					}
 				});
 			},
 
@@ -916,7 +916,7 @@
 				if (href != null) {
 					if ((href.indexOf("://") == -1) && (href.indexOf("javascript:") != 0)) {
 						return true;
-					}	
+					}
 				}
 				return false;
 			},
@@ -929,7 +929,7 @@
 
 					if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 						( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media 
+						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
 						&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
 						$(this).addClass('media_link');
@@ -955,7 +955,7 @@
 						// the media if it isn't already playing
 						var annotationURL = $( this ).data( 'targetAnnotation' );
 						if ( annotationURL != null ) {
-							
+
 							mediaelement.seek( mediaelement.model.initialSeekAnnotation );
 							if (( mediaelement.model.mediaSource.contentType != 'document' ) && ( mediaelement.model.mediaSource.contentType != 'image' )) {
 	              				setTimeout(function() {
@@ -1036,19 +1036,19 @@
 				if (null != currentNode.current && 'undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value
 				}
-				
+
 				page.calculatePageDimensions();
 
 				// Using defaultView rather than <link id="view" /> means that a view can not be chosen via URL extension,
 				// but rather only by setting it as the default view for the page.  Since 'annotation_editor' and 'edit' views
 				// can only be called by extension, then they need to be special cased here ~Craig
-				
+
 				if ( 'annotation_editor' == extension ) {
-					
+
 					// is this a media page?
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
 
-						var link, 
+						var link,
 							content = page.bodyContent(),
 							approot = $('link#approot').attr('href');
 
@@ -1062,9 +1062,9 @@
 							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
 							$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
 								content.prepend('<br clear="both" />');
-								link = page.embedMediaToAnnotate( content );	
-								$('.annobuilder:first').annobuilder( {link:link} ); 
-							});							
+								link = page.embedMediaToAnnotate( content );
+								$('.annobuilder:first').annobuilder( {link:link} );
+							});
 						// if the annobuilder has been set up, then just re-embed the media
 						} else {
 							page.embedMediaToAnnotate( content );
@@ -1074,10 +1074,10 @@
 					} else {
 						page.bodyContent().append('<div class="body_copy"><p class="text-danger">The annotation editor could not be loaded because this is not a media page.</p></div>');
 					}
-					
-				} else if ( 'edit' == extension) {	
+
+				} else if ( 'edit' == extension) {
 					// Nothing needed here
-					
+
 				} else if ( 'meta' == extension) {
 					// if this is a media page, embed the media at native size
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
@@ -1123,7 +1123,7 @@
 
 						n = nodes.length;
 						for ( var i = 0; i < n; i++ ) {
-							
+
 							node = nodes[i];
 							item = $( '<div class="item" style="height: ' + galleryHeight + 'px;"></div>' ).appendTo( wrapper );
 							if ( i == 0 ) {
@@ -1149,18 +1149,18 @@
 								link = mediaContainer.find( 'a' );
 								link.css('display', 'none');
 							}
-							
+
 							if ( node.current.description != null ) {
 								description = node.current.description;
 								if ( node.current.source != null ) {
 									description += ' (Source: ' + node.current.source + ')';
 								}
 								description = description.replace( new RegExp("\"", "g"), '&quot;' );
-								item.append( '<div class="carousel-caption caption_font"><span>' + 
+								item.append( '<div class="carousel-caption caption_font"><span>' +
 									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
 									'</span></div>' );
 							} else {
-								item.append( '<div class="carousel-caption caption_font"><span>' + 
+								item.append( '<div class="carousel-caption caption_font"><span>' +
 									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
 									'</span></div>' );
 							}
@@ -1169,7 +1169,7 @@
 
 						}
 						if ( page.adaptiveMedia != "mobile" ) {
-							wrapper.find( '[data-toggle="popover"]' ).popover( { 
+							wrapper.find( '[data-toggle="popover"]' ).popover( {
 								container: '#gallery',
 								template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title heading_font heading_weight"></h3><div class="popover-content caption_font"></div></div>'
 							} );
@@ -1180,7 +1180,7 @@
 							'<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>' +
 							'<span class="sr-only">Previous</span>' +
 							'</a>' +
-							'<a class="right carousel-control" href="#gallery" role="button" data-slide="next">' + 
+							'<a class="right carousel-control" href="#gallery" role="button" data-slide="next">' +
 							'<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>' +
 							'<span class="sr-only">Next</span>' +
 							'</a>' );
@@ -1223,7 +1223,7 @@
 
 							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-								(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media 
+								(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
 								&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
 								var slot, slotDOMElement, slotMediaElement, count, parent;
@@ -1267,7 +1267,7 @@
 										}
 									}
 									$( this ).addClass( "resource-added" );
-									
+
 								// standard media link
 								} else {
 									parent = $(this).closest('.body_copy');
@@ -1275,7 +1275,7 @@
 									// if the link is not a descendant of a body_copy region, then we'll put the media either
 									// before or after the link itself
 									if ( parent.length == 0 ) {
-										parent = $( this ); 
+										parent = $( this );
 									}
 								}
 
@@ -1317,7 +1317,7 @@
 						break;
 
 					}
-					
+
 				} //if(extension)
 
 			},
@@ -1361,7 +1361,7 @@
 					// Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
 					'image':$(window).height()*1.3 ,
 					// The default for media should be to limit their size to fit within the bounds of the window
-					'default':$(window).height()*0.75, 
+					'default':$(window).height()*0.75,
 				};
 			},
 
@@ -1385,7 +1385,7 @@
 					}
 					if ( reload ) {
 						$('#google-maps').css('max-height',0.8*page.sizeOnMediaLoad.y);
-						page.handleMediaResize();	
+						page.handleMediaResize();
 					}
 				}
 			},
@@ -1406,7 +1406,7 @@
 				$( '.media-page-link' ).remove();
 
 				page.clearIncrementedData();
-				
+
 				$('a.media_link').each(function() {
 					$( this ).removeData( "mediaelement" );
 					$( this ).off();
@@ -1429,7 +1429,7 @@
 
 			addAdditionalMetadata: function() {
 
-				var prop, value, 
+				var prop, value,
 					count = 0,
 					table = $( '<table></table>' ),
 					currentNode = scalarapi.model.getCurrentPageNode();
@@ -1480,8 +1480,8 @@
 					var target = ('undefined'!=typeof($link.attr('target'))) ? $link.attr('target') : null;
 					var url = $( this ).attr( "href" );
 
-					// Link without resource=""	(external or internal)	
-					if ( resource == null ) {    
+					// Link without resource=""	(external or internal)
+					if ( resource == null ) {
 						if ('undefined'!=typeof(href) && base_url) {
 							if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
 								$link.click(function() {  // Open with previous header
@@ -1494,7 +1494,7 @@
 										return false;
 									}
 								});
-							} 
+							}
 						}
 					}
 				});
@@ -1581,7 +1581,7 @@
 		$('body').bind('setState', page.handleSetState);
 		$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
-		$(document).bind( "mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function( e ) { 
+		$(document).bind( "mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function( e ) {
 
 			var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
 			page.isFullScreen = ( fullscreenElement != null );
@@ -1597,14 +1597,14 @@
 				}
 			}
 		});
-		
+
 		element.addClass('page');
 
 		$( 'header' ).show();
 		$( '#book-id' ).hide();
 		$( '[property="scalar:fullname"]' ).hide();
 		$( '[property="dcterms:description"]' ).hide();
-	
+
         //Are we logged in? Check the RDF metadata.
         page.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
         if(page.logged_in){
@@ -1617,30 +1617,18 @@
 		$('section').hide(); // TODO: Make this more targeted
 
 		$( 'article' ).append( '<div id="footer" class="caption_font"></div>' );
-	
+
 		$( 'body' ).bind( 'delayedResize', page.handleDelayedResize );
-		
+
 		if($('body').width() <= page.mobileWidth) {
 			page.adaptiveMedia = 'mobile';
 		}
-		
+
 		$('body').on('mediaElementMediaLoaded',function() {
 			page.initialMediaLoad = true;
 			page.sizeOnMediaLoad = { x: $(window).width(), y: $(window).height() };
-
-			//If we have a text file (that isn't displayed yet), change its iframe's CSS to look more like other text (source) files
-			$('.mediaObject iframe[src$=".txt"]:not(:visible)').show().load(function(){
-				$(this).contents().find('body ol').css({
-					'color': 'black',
-				    'text-shadow': '0 1px white',
-				    'font-size': '13px',
-				    'padding':'13px 0px',
-				    'font-family': "Consolas, Monaco, 'Andale Mono', monospace"
-				}).find('li').css('padding','0 13px 0 49.4px');
-
-			});
 		});
-		
+
 		var i, node, nodes, link, visOptions, visualization,
 			currentNode = scalarapi.model.getCurrentPageNode();
 
@@ -1664,7 +1652,7 @@
 				if (( extension.indexOf( "versions" ) != -1 ) && ( extension != "versions" )) {
 					viewType = "versions";
 				} else {
-					viewType = extension;					
+					viewType = extension;
 				}
 			}
 
@@ -1678,7 +1666,7 @@
 		  	if ( viewType != 'edit' ) {
 		  		page.makeRelativeLinksAbsolute();
 		  	}
-			
+
 			page.getContainingPathInfo();
 			switch (viewType) {
 
@@ -1695,7 +1683,7 @@
 				}
 
 				var banner = currentNode.banner;
-				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;				
+				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;
 				$('[property="art:url"]').hide();
 				// element.css('backgroundImage', $('body').css('backgroundImage'));
 				element.css('background-image', "url('"+banner+"')");
@@ -1734,7 +1722,7 @@
 				break;
 
 				case 'visualization':
-				var visOptions = { 
+				var visOptions = {
 					modal: false,
                     content: 'all',
                     relations: 'all',
@@ -1771,12 +1759,12 @@
 				$( '[rel="scalar:continue_to"]' ).each( function() {
 					var href = $( this ).attr( 'href' );
 					$( 'span[resource="' + href + '"]' ).hide();
-				});	
+				});
 				break;
 
 				case 'image_header':
 				var banner = currentNode.banner;
-				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;	
+				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;
 				$( '.page' ).css( 'padding-top', '5rem' );
 				$( 'article > header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
 				// $( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
@@ -1845,7 +1833,7 @@
 
 							n = currentNode.current.properties[ property ].length;
 							for ( i = 0; i < n; i++ ) {
-								marker = page.getMarkerFromLatLonStrForMap( 
+								marker = page.getMarkerFromLatLonStrForMap(
 									currentNode.current.properties[ property ][ i ].value,
 									currentNode.getDisplayTitle(),
 									currentNode.current.description,
@@ -1876,10 +1864,10 @@
 							node = contents[ i ];
 
 							if ( node.current.properties[ property ] != null ) {
-	
+
 								o = node.current.properties[ property ].length;
 								for ( j = 0; j < o; j++ ) {
-									marker = page.getMarkerFromLatLonStrForMap( 
+									marker = page.getMarkerFromLatLonStrForMap(
 										node.current.properties[ property ][ j ].value,
 										node.getDisplayTitle(),
 										node.current.description,
@@ -2022,18 +2010,18 @@
 					$( '[rel="scalar:continue_to"]' ).each( function() {
 						var href = $( this ).attr( 'href' );
 						$( 'span[resource="' + href + '"]' ).hide();
-					});	
+					});
 					okToAddExtras = false;
 					break;
-				  	
+
 			  		case "resources":
 			  		$("ul.resources span.desc").contents().unwrap().wrap('<p class="desc caption_font">');
 			  		break;
-			  		
+
 			  		case "toc":
 			  		$("ol.toc").before('<h3 class="heading_font heading_weight">Table of Contents</h3>');
-				  	break;			  		
-					         
+				  	break;
+
 			  	}
 
 				page.setupScreenedBackground();
