@@ -316,7 +316,8 @@ if ('undefined'==typeof(escape_html)) {
 			// Enter the query, page number, and api_key into the URI
 			to_send.uri = to_send.uri.replace('$1', to_send.sq);
 			to_send.uri = to_send.uri.replace($.fn.scalarimport('get_next_page_uri_component', to_send.uri),$.fn.scalarimport('get_next_page_value', to_send.uri, to_send.pagenum));
-			if ('undefined'!=typeof(to_send.archive_api_key)) to_send.uri = to_send.uri.replace('$api_key', to_send.archive_api_key);			
+			if (-1!=to_send.uri.indexOf('$api_key')&&'undefined'==typeof(to_send.archive_api_key)) alert('Missing the API key for this archive.  Please contact an administrator to add a key to the local settings.');
+			if ('undefined'!=typeof(to_send.archive_api_key)) to_send.uri = to_send.uri.replace('$api_key', to_send.archive_api_key);
 
 			// Run request
 			var the_request = to_send.proxy+'?xsl='+encodeURIComponent(to_send.xsl)+'&uri='+encodeURIComponent(to_send.uri)+'&format='+to_send.format;
