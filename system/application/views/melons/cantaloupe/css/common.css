@@ -62,7 +62,18 @@ hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
 
 .notice-page-creator-not-contributor { display: none; }
 
-#centered-message { position: absolute; left: 50%; margin-left: -30rem; width: 60rem; top: 45%; text-align: center; color: #888; }
+#centered-message {
+	position: absolute;
+  left: 0;
+	right: 0;
+  width: 100%;
+  top: 45%;
+  text-align: center;
+  color: #888;
+}
+#centered-message>span{
+	white-space: nowrap;
+}
 
 /* --- NOTICES --- */
 .scalarnotice {font-size:13px; color:#000000; top:60px !important;}

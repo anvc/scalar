@@ -40,7 +40,7 @@ $('script[src]').each(function() {  // Certain hotel wifi are injecting spam <sc
   if ($this.attr('src').indexOf('jquery-1.7.min.js') != -1) {
     script_uri = $this.attr('src');
     return false;
-  } 
+  }
 });
 var scheme = (script_uri.indexOf('https://') != -1) ? 'https://' : 'http://';
 var base_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-2).join('/');
@@ -217,8 +217,8 @@ function wrapOrphanParagraphs(selection) {
 	  		// if this isn't a new paragraph, then
 	  		if ( !newParagraph ) {
 
-	  			// if this element is either not a br, or is a single br, 
-	  			// AND if this element is either not an nbsp, or an nbsp that doesn't immediately follow a br, 
+	  			// if this element is either not a br, or is a single br,
+	  			// AND if this element is either not an nbsp, or an nbsp that doesn't immediately follow a br,
 	  			// then add it
 	  			if (( !is_br || ( is_br && ( brCount == 0 ))) && ( !is_nbsp || ( is_nbsp && ( brCount != 1 ) ))) {
 
@@ -264,7 +264,7 @@ function wrapOrphanParagraphs(selection) {
 		        	pullOutElement($(this));
 	      		} else {
 	      			$(this).remove();
-	      		}      		
+	      		}
       		}
       	})*/
 
@@ -291,7 +291,7 @@ function wrapOrphanParagraphs(selection) {
 
 /**
  * Create a slot and attach to a tag (ported from honeydew slot manager)
- * 
+ *
  * @param obj options, required 'url_attributes'
  */
 $.fn.slotmanager_create_slot = function(width, height, options) {
@@ -335,7 +335,7 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	// Create media element object
 
 	var opts = {};
-	
+
 	if ( width != null ) {
 		opts.width = width;
 	}
@@ -467,16 +467,16 @@ $(window).ready(function() {
 
 		  {load: [widgets_uri+'/spinner/spin.min.js',
 		          widgets_uri+'/d3/d3.min.js'], complete:function() {
-			  
+
 		        var currentNode = scalarapi.model.getCurrentPageNode();
 		        var extension = scalarapi.getFileExtension( window.location.href );
 
 		   		if ( currentNode == null || currentNode.current == null) {
 		   			if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
-		   				$( 'body' ).append( '<div id="centered-message">This page contains no content. Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</div>' );
+		   				$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
 		   			}
 		   		}
-		   		
+
 			  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
 			  	$('article').before($('#book-title').parent().parent());
 
@@ -493,7 +493,7 @@ $(window).ready(function() {
 					clearTimeout( timeout );
 					timeout = setTimeout( handleDelayedResize, 300 );
 				});
-				
+
 				$('body').trigger( "pageLoadComplete" );
 
 		  }},
@@ -510,9 +510,9 @@ $(window).ready(function() {
 				widgets_uri+'/mediaelement/mediaelement.css',
 				widgets_uri+'/mediaelement/jquery.mediaelement.js',
 				widgets_uri+'/mediaelement/jquery.jplayer.min.js'], complete:function() {
-			
+
 		        var currentNode = scalarapi.model.getCurrentPageNode();
-		        
+
 				if ( currentNode != null ) {
 					page.addMediaElements();
 				}
@@ -541,4 +541,3 @@ $(window).ready(function() {
 	]);  // !yepnope
 
 });
-
