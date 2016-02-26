@@ -287,7 +287,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             //type requests (ex: meta or versions) - remove these as necessary
 
             var remove_edit_icons = [];
-            if(['edit','versions','history','meta','annotation_editor'].indexOf(base.dataType)!==-1){
+            if(['edit','versions','history','annotation_editor'].indexOf(base.dataType)!==-1){
               remove_edit_icons.push('#ScalarHeaderAnnotate');
             }
             if(['edit','versions','history','annotation_editor'].indexOf(base.dataType)!==-1){
