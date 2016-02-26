@@ -46,7 +46,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             if(['edit','versions','history','meta','annotation_editor'].indexOf(base.dataType)===-1){
               base.dataType = 'normal';
             }
-            console.log(base.dataType);
             //Replace undefined options with defaults...
             base.options = $.extend({},$.scalarheader.defaultOptions, options);
             //Are we logged in? Check the RDF metadata.
