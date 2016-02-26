@@ -38,7 +38,10 @@ $config['flowplayer_key'] = (getenv('SCALAR_FLOWPLAYER_KEY') ? getenv('SCALAR_FL
 // Google Maps key
 $config['google_maps_key'] = (getenv('SCALAR_GOOGLE_MAPS_KEY') ? getenv('SCALAR_GOOGLE_MAPS_KEY') : '');
 
-// Custom message for the book index page (leave blank for no message)				   
+// New York Public Library key
+$config['nypl_key'] = (getenv('SCALAR_NYPL_KEY') ? getenv('SCALAR_NYPL_KEY') : '');
+
+// Custom message for the book index page (leave blank for no message)		   
 $config['index_msg'] = '';
 
 // Custom message displayed inside a book. Will remain hidden after user closes the popup for the first time.

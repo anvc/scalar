@@ -385,7 +385,7 @@ class Book extends MY_Controller {
 				// API key from config if applicable
 				$id = $this->data['external']->getPropValue('http://purl.org/dc/terms/identifier');
 				if (empty($id)) $id = $this->data['external']->getPropValue('http://purl.org/dc/elements/1.1/title');
-				$id = strtolower($id);
+				$id = str_replace(' ', '_', strtolower($id));
 				$archive_api_key = $this->config->item($id.'_key');
 				if (empty($archive_api_key)) $archive_api_key = $this->config->item($id.'_id');
 				$this->data['archive_api_key'] = (!empty($archive_api_key)) ? trim($archive_api_key) : null;

@@ -57,7 +57,7 @@ if ('undefined'==typeof(escape_html)) {
     		multi_custom_meta_complete: 'multi_custom_meta_complete',
     		pagenum: 1,
     		proxy_required_fields: ['proxy','uri','xsl','native','id','action','api_key','child_urn','child_type','child_rel'],
-    		proxy_optional_fields: ['remove','match','format','archive_api_key','keep_hash_var','remove_hash_vars'],
+    		proxy_optional_fields: ['remove','match','format','archive_api_key','header','keep_hash_var','remove_hash_vars'],
     		url_not_supported_msg: 'This media format is not supported',
     		url_not_supported_class: 'media_not_supported',
     		no_results_msg: 'No items were found for the search "%1"',
@@ -207,13 +207,14 @@ if ('undefined'==typeof(escape_html)) {
 			if ('undefined'==typeof(rdfxml.childNodes[0])) return post;
 
 			var results = rdfxml.getElementsByTagNameNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'Description');
-	
+
 			for (var j = 0; j < results.length; j++) {
 				
 				var s = results[j].getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'about');
 				post[s] = {};
 				for (var k = 0; k < results[j].childNodes.length; k++) {
 					var p = results[j].childNodes[k].nodeName;
+					if (p == '#text') continue;
 					if (p == 'art:filename') p = 'scalar:url';  // TODO
 					if (p == 'art:thumbnail') p = 'scalar:thumbnail';  // TODO
 					var value = results[j].childNodes[k].textContent;
@@ -310,6 +311,7 @@ if ('undefined'==typeof(escape_html)) {
 	
 			to_send = $.fn.scalarimport('flatten_object', to_send);
 			if ('undefined'==typeof(to_send.format)) to_send.format = 'xml';
+			if ('undefined'==typeof(to_send.header)) to_send.header = '';
 			// Pull out part of a query (e.g., the get vars of a URL string) based on the 'match' field
 			if (to_send.remove && to_send.remove.length) to_send.sq = to_send.sq.replace(new RegExp(to_send.remove, "i"), "");
 			if (to_send.match && to_send.match.length) to_send.sq = to_send.sq.replace(new RegExp(to_send.match, "i"), "$1");
@@ -317,10 +319,12 @@ if ('undefined'==typeof(escape_html)) {
 			to_send.uri = to_send.uri.replace('$1', to_send.sq);
 			to_send.uri = to_send.uri.replace($.fn.scalarimport('get_next_page_uri_component', to_send.uri),$.fn.scalarimport('get_next_page_value', to_send.uri, to_send.pagenum));
 			if (-1!=to_send.uri.indexOf('$api_key')&&'undefined'==typeof(to_send.archive_api_key)) alert('Missing the API key for this archive.  Please contact an administrator to add a key to the local settings.');
+			if (-1!=to_send.header.indexOf('$api_key')&&'undefined'==typeof(to_send.archive_api_key)) alert('Missing the API key for this archive.  Please contact an administrator to add a key to the local settings.');
+			to_send.header = to_send.header.replace('$api_key', to_send.archive_api_key);
 			if ('undefined'!=typeof(to_send.archive_api_key)) to_send.uri = to_send.uri.replace('$api_key', to_send.archive_api_key);
 
 			// Run request
-			var the_request = to_send.proxy+'?xsl='+encodeURIComponent(to_send.xsl)+'&uri='+encodeURIComponent(to_send.uri)+'&format='+to_send.format;
+			var the_request = to_send.proxy+'?xsl='+encodeURIComponent(to_send.xsl)+'&uri='+encodeURIComponent(to_send.uri)+'&format='+to_send.format+'&header='+to_send.header;
 			$.ajax({
 				  url: the_request,
 				  type: 'GET',

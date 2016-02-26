@@ -148,4 +148,13 @@
 		<scalar:getStr><![CDATA[ft=$1&pg=$2]]></scalar:getStr>
 	</rdf:Description>	
 	
+	<rdf:Description rdf:about="http://api.repo.nypl.org/api/v1/items/search.xml">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>NYPL</dc:title>
+		<dcterms:description><![CDATA[For more than a century, The New York Public Library has amassed an extraordinary trove of rare and unique material covering the full spectrum of recorded knowledge. Now, for the first time, significant portions of the Library's digitized collections are available as machine-readable data: over one million objects and records for you to search, crawl and compute. (http://nypl.org)]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/nypl.xsl" />
+		<scalar:getStr><![CDATA[q=$1&publicDomainOnly=true&per_page=50&page=$2]]></scalar:getStr>
+		<scalar:header>Authorization: Token token=$api_key</scalar:header>
+	</rdf:Description>	
+	
 </rdf:RDF>	

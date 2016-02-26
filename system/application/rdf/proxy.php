@@ -20,6 +20,7 @@
 
 $uri =@ urldecode($_REQUEST['uri']);
 $xsl =@ urldecode($_REQUEST['xsl']);
+$header =@ urldecode($_REQUEST['header']);
 
 // Validate URI against list of archive URLs
 $domain = parse_url($uri, PHP_URL_HOST);
@@ -118,7 +119,17 @@ if ('json'==$format) {
    $xml = jsonToXML($json);
    $xml = stripInvalidXml($xml);
 } else {
-	$xml = file_get_contents($uri);
+	if (!empty($header)) {
+		$opts = array(
+		  'http'=>array(
+		    'header'=>$header
+		  )
+		);
+		$context = stream_context_create($opts);
+		$xml = file_get_contents($uri, false, $context);
+	} else {
+		$xml = file_get_contents($uri);
+	}
 }
 if (false===$xml) {
 	echo '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"></rdf:RDF>';
