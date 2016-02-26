@@ -56,6 +56,7 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 		<input type="hidden" name="match" value="<?=$external->getPropValue('scalar:match')?>" />
 		<input type="hidden" name="format" value="<?=$external->getPropValue('dcterms:hasFormat')?>" />
 		<input type="hidden" name="archive_api_key" value="<?=$archive_api_key?>" />
+		<input type="hidden" name="header" value="<?=$external->getPropValue('scalar:header')?>" />
 <? foreach ($external->getPropValues('scalar:keep_hash_var') as $value): ?>
 		<input type="hidden" name="keep_hash_var" value="<?=$value?>" />
 <? endforeach ?>
@@ -71,11 +72,11 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 		<input type="hidden" name="child_rel" value="page" />
 	</form>
 
-	<p id="loading"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; Searching the archive (may take a moment)</p>
+	<p id="loading"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif" height="16" align="absmiddle" />&nbsp; Searching the archive (may take a moment)</p>
 
 	<div id="results"></div>
 
-	<div class="search_results_footer"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif"" height="16" align="absmiddle" />&nbsp; <a class="generic_button large default" href="javascript:;">Import selected media</a></div>
+	<div class="search_results_footer"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif" height="16" align="absmiddle" />&nbsp; <a class="generic_button large default" href="javascript:;">Import selected media</a></div>
 
 	<br clear="both" />
 
