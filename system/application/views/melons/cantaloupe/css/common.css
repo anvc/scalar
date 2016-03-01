@@ -1011,4 +1011,11 @@ button, .btn, input, optgroup, select, textarea {
 }
 
 ul.resources { list-style: none; }
-ul.resources > li { margin-bottom: 1rem; }
+ul.resources > li { margin-bottom: 1rem; }   
+
+/* widget pages */
+
+.thumbnail, .media-body h4 { margin: 1.2rem 0; }
+/*div[data-widget=card] .thumbnail { height: 30rem; }*/
+div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
+.description-sm { font-size: 1.2rem; line-height: 1.7rem; color: #666; }     
