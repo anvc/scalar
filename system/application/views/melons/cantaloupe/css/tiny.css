@@ -15,6 +15,7 @@ h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
 .title_card { padding-left: 2.4rem; padding-right: 2.4rem; padding-bottom: 2.4rem; }
 .image_header .title_card { min-height: 30rem; padding-top: 1.8rem; }
 .title_card .description { padding-left: 2rem; }
+.splash { background-size: contain; background-repeat: no-repeat; }
 .splash h1 { line-height: 100%; font-size: 4rem; margin-bottom: 2rem; }
 .splash h2 { line-height: 110%; font-size: 2.0rem; }
 .help, .help .dialog_header { width: inherit; }
