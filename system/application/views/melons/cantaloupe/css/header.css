@@ -36,7 +36,6 @@ a.headerIcon{
 	background-repeat: no-repeat;
 	display: inline-block;
 	vertical-align: middle;
-	float: left;
 	margin-right: .5rem;
 }
 .expand .menuIcon{
@@ -520,6 +519,9 @@ a.headerIcon{
 }
 .navbar ul.dropdown-menu li{
   	max-width: 38rem;
+}
+.navbar ul.dropdown-menu li.vis_link{
+		max-width: inherit;
 }
 .navbar .dropdown-menu li:hover, .navbar .dropdown-menu li:active{
 	background-color: #353535;

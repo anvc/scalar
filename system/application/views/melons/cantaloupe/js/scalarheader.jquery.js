@@ -1114,7 +1114,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 //While we're here, handle sub-dropdowns
                 base.$el.find('ul.dropdown-menu>li.dropdown.open').each(function(){
                     if($(this).hasClass('right')){
-                        var max_width = $(window).width() - ($(this).offset().left + $(this).width());
+                        var max_width = $(window).width() - ($(this).offset().left + $(this).outerWidth());
                     }else{
                         var max_width = $(this).offset().left;
                     }
@@ -1168,7 +1168,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             var dropdown = li.find('ul.dropdown-menu');
             li.addClass('open').removeClass('left right').addClass(a.offset().left>($(window).width()/2)?'left':'right').siblings('li').removeClass('open left right');
             if(li.hasClass('right')){
-                max_width = $(window).width() - (a.offset().left + a.width());
+                max_width = $(window).width() - (a.offset().left + a.outerWidth() );
             }else{
                 max_width = a.offset().left;
             }
