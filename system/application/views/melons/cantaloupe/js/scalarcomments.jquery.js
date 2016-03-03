@@ -114,7 +114,8 @@
 			} else {
 				authorNode = scalarapi.getNode(relation.body.author);
 			}
-			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+relation.body.current.content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+authorNode.getDisplayTitle()+'</div>');
+			var content = relation.body.current.content.replace(/(?:\r\n|\r|\n)/g, '<br />');
+			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+authorNode.getDisplayTitle()+'</div>');
 		}
 
 		if (relations.length > 0) {
