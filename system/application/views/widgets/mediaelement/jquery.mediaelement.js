@@ -2170,7 +2170,7 @@ function YouTubeGetID(url){
 
 					annotation.data = {
 						src: this.image.src + '-' + this.model.id,
-						text: "<b>" + annotation.body.getDisplayTitle() + "</b> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
+						text: '<a href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
 						editable: editable,
 						shapes: [{
 							type: "rect",
@@ -2182,6 +2182,11 @@ function YouTubeGetID(url){
 					anno.addAnnotation( annotation.data );
 
 	 			}
+
+	 			$(".annotorious-popup").click(function(e) {
+					e.stopPropagation();
+					return true;
+				});
 
 	 			$(this.wrapper).find( ".annotorious-popup-text" ).addClass( "caption_font" );
 
