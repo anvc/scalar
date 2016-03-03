@@ -912,7 +912,12 @@
 				var absoluteURLRoot = $('link#parent').attr('href');
 				page.bodyContentLinks().each(function() {
 					if (page.isLinkRelative(this)) {
-						$(this).attr("href", absoluteURLRoot + $(this).attr("href"));
+						var href = $(this).attr("href");
+						if (href[0] == "#") {
+							$(this).attr("href", window.location.href + href);
+						} else {
+							$(this).attr("href", absoluteURLRoot + href);
+						}
 					}
 				});
 			},
