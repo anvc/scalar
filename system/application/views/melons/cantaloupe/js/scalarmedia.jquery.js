@@ -162,8 +162,11 @@
 
 				var content, tag, tags, tagBar, tagItem, labelClass, i, n;
 
+
 				// add the title
-				container.append('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
+				var header = $('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
+				container.append(header);
+
 
 				content = $( '<div id="anno-' + annotation.slug +'"></div>' ).appendTo( container );
 
@@ -202,6 +205,29 @@
 				}
 				if ( n > 0 ) {
 					content.append( '<p class="anno-tag-content"></p>' );
+				}
+
+				if(annotation.hasScalarType( 'media' ) && content.find('.annotation_media_'+annotation.slug).length == 0){
+					var parent = $('<div class="annotation_media_'+annotation.slug+'"></div>').appendTo(content);
+					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' ).appendTo(parent);
+					var options = {
+						url_attributes: [ 'href' ],
+						autoplay: false,
+						solo: true,
+						getRelated: false
+					};
+					var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 50;
+					var slot = link.slotmanager_create_slot( width, null, options );
+					if ( slot ) {
+						// hide the media element until we get it fully set up (after its metadata has loaded)
+						slotDOMElement = slot.data('slot');
+						slotMediaElement = slot.data('mediaelement');
+						slotMediaElement.model.element.css( 'visibility', 'hidden' );
+						slotMediaElement.model.element.css( 'float', 'left' );
+						slotDOMElement.addClass( 'full' );
+						slotDOMElement.appendTo(parent);
+						link.hide();
+					}
 				}
 
 			},

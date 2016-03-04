@@ -237,6 +237,14 @@ li.divider-above { border-top: 1px dotted #888; }
 	display: none;
 }
 
+.note_viewer .mediaelement{
+	margin: 0px;
+}
+.note_viewer .mediaelement .annotorious-popup{
+	top: 0;
+	left: 0;
+}
+
 
 /* --- PAGE --- */
 

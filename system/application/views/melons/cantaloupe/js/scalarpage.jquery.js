@@ -834,7 +834,33 @@
 					if ( node.current.content != null ) {
 						noteViewer.append( node.current.content );
 					}
-					noteViewer.append( '<br/><br/><a href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
+					noteViewer.append( '<a href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
+
+					if(node.hasScalarType( 'media' )){
+
+						var width = parseInt(noteViewer.css('max-width'))-parseInt(noteViewer.css('padding'))-50;
+						var parent = $('<div class="node_media_'+node.slug+'" style="width: '+width+'px;"></div>').appendTo(noteViewer).hide();
+						var link = $( '<a href="'+node.current.sourceFile+'" data-align="center" resource="'+node.slug+'"></a>' ).appendTo(parent);
+						var options = {
+							url_attributes: [ 'href' ],
+							autoplay: false,
+							solo: true,
+							getRelated: false
+						};
+						var slot = link.slotmanager_create_slot( width, null, options );
+						if ( slot ) {
+							// hide the media element until we get it fully set up (after its metadata has loaded)
+							slotDOMElement = slot.data('slot');
+							slotMediaElement = slot.data('mediaelement');
+							slotDOMElement.find('.mediaelement').css("margin","0");
+							slotMediaElement.model.element.css( 'visibility', 'hidden' );
+							slotDOMElement.appendTo(parent);
+							link.hide();
+							parent.fadeIn('fast');
+						}
+					}else{
+						noteViewer.prepend('<br/><br/>');
+					}
 				}
 			},
 
