@@ -96,5 +96,10 @@ $config['predefined_css'] = array(
 		'title'=>'Show path contents in sidebar',
 		'description'=>'By default, the contents of the current path are displayed at the bottom of the page. This CSS (which is only recommended for pages that don\'t include media) places the path contents in a second column to the right of the page content.',
 		'insert'=>"@media screen and (min-width: 768px) {\n.primary_role_path span[property=\"sioc:content\"] {width:50%; float:left; clear:none;}\n.primary_role_path span[property=\"sioc:content\"] .body_copy {padding-right:0px;}\n.primary_role_path article .relationships {width:50%; float:right; clear:none !important; padding-top:0px !important;}\n.primary_role_path article .relationships a.nav_btn {display:none;} /* Hides path navigation buttons */ }\n"
+	),
+	array(
+		'title'=>'Don’t crop splash images on phones',
+		'description'=>'By default, splash images are resized to cover the entire window, which can result in extreme cropping on small devices. This CSS ensures that the entire splash image is always visible on small devices (possibly introducing black bars at the top and bottom or sides to achieve this).',
+		'insert'=>"@media screen and (max-width: 768px) { .splash { background-size: contain; background-repeat: no-repeat; } }\n"
 	)
 );
