@@ -3832,8 +3832,8 @@ function YouTubeGetID(url){
 
 			//Added styling to make text media feel a bit more like code media (sizing, padding, etc.)
 			$('#'+this.frameId).contents().find('body ol').css({
-				'color': 'black',
-					'text-shadow': '0 1px white',
+					'color': 'black',
+					'text-shadow': '0',
 					'font-size': '13px',
 					'padding':'13px 0px'
 			}).find('li').css('padding','0 13px 0 49.4px');
