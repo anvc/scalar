@@ -171,8 +171,10 @@
 				content = $( '<div id="anno-' + annotation.slug +'"></div>' ).appendTo( container );
 
 				// add the annotation description
-				nodeContent = $( '<p>' + annotation.getDescription() + '</p>' ).appendTo( content );
-
+				var description = annotation.getDescription();
+				if(description.length > 0){
+					nodeContent = $( '<p>' + description + '</p>' ).appendTo( content );
+				}
 				// get incoming tags and display them as buttons
 				tags = annotation.getRelatedNodes( "tag", "incoming" );
 				n = tags.length;
@@ -208,8 +210,7 @@
 				}
 
 				if(annotation.hasScalarType( 'media' ) && content.find('.annotation_media_'+annotation.slug).length == 0){
-					var parent = $('<div class="annotation_media_'+annotation.slug+'"></div>').appendTo(content);
-					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' ).appendTo(parent);
+					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' );
 					var options = {
 						url_attributes: [ 'href' ],
 						autoplay: false,
@@ -217,15 +218,19 @@
 						getRelated: false
 					};
 					var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 50;
-					var slot = link.slotmanager_create_slot( width, null, options );
+					var height = parseInt(container.parents('.media_annotations').css('max-height')) - container.parents('.media_annotations').innerHeight() - 10;
+					var slot = link.slotmanager_create_slot( width, height, options );
 					if ( slot ) {
 						// hide the media element until we get it fully set up (after its metadata has loaded)
 						slotDOMElement = slot.data('slot');
+						slotDOMElement.hide();
 						slotMediaElement = slot.data('mediaelement');
-						slotMediaElement.model.element.css( 'visibility', 'hidden' );
-						slotMediaElement.model.element.css( 'float', 'left' );
-						slotDOMElement.addClass( 'full' );
-						slotDOMElement.appendTo(parent);
+						slotMediaElement.model.element.css({
+							'visibility' : 'hidden',
+							'margin-bottom' : 10,
+							'float' : 'left'
+						});
+						slotDOMElement.appendTo(content).fadeIn('fast');
 						link.hide();
 					}
 				}

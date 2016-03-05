@@ -232,6 +232,7 @@ li.divider-above { border-top: 1px dotted #888; }
 	max-width: 400px;
 	max-height: 300px;
 	overflow-y: auto;
+	overflow-x: hidden;
 	line-height: 130%;
 	-webkit-overflow-scrolling: touch;
 	display: none;
@@ -240,7 +241,7 @@ li.divider-above { border-top: 1px dotted #888; }
 .note_viewer .mediaelement{
 	margin: 0px;
 }
-.note_viewer .mediaelement .annotorious-popup{
+.mediaelement .annotorious-popup{
 	top: 0;
 	left: 0;
 }
