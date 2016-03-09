@@ -94,7 +94,7 @@
 
 				// when the modal is shown, redraw the visualization
 				base.$el.on( 'shown.bs.modal', function() {
-					base.draw();
+					base.draw(true);
 					base.modalIsOpen = true;
 				});
 
@@ -561,12 +561,12 @@
        				base.loadNextData();
  				} else {
  					base.loadingDone = true;
- 					base.draw();
+ 					base.draw(true);
  				}
  			} else {
  				base.loadingDone = true;
  				base.filter();
- 				setTimeout( function() { base.draw(); }, 0 );
+ 				setTimeout( function() { base.draw(true); }, 0 );
  			}
 
         };
@@ -581,6 +581,7 @@
 			switch ( base.options.content ) {
 
 				case "all":
+				case "toc":
 				base.loadSequence.push( { id: 'book', desc: "book", relations: 'none' } );
 				base.loadSequence.push( { id: 'current', desc: "current page", relations: 'none' } );
 				base.loadSequence.push( { id: 'current', desc: "current page's connections", relations: 'all' } );
@@ -594,15 +595,6 @@
 
 				case "current":
 				base.loadSequence.push( { id: 'current', desc: "current page", relations: base.options.relations } );
-				break;
-
-				case "toc":
-				var nodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'referee', 'outgoing', true );
-				n = nodes.length;
-				for ( i = 0; i < n; i++ ) {
-					node = nodes[i];
-					base.loadSequence.push( { id: 'toc', desc: "table of contents", node: node, relations: base.options.relations } );
-				}
 				break;
 
 				case "page":
@@ -776,6 +768,7 @@
 			} else {
 				base.hideLoadingMsg();
 				base.loadingDone = true;
+				base.draw(true);
 				if ( base.options.content == 'all' ) {
 					base.loadedAllContent = true;
 					$( 'body' ).trigger( 'visLoadedAllContent' );
@@ -788,6 +781,10 @@
 		
 			if ( jQuery.isEmptyObject( json ) || ( json == null ) ) {
 				base.reachedLastPage = true;
+			}
+
+			if ((base.options.format == "force-directed") && (base.force != null)) {
+				base.force.stop();
 			}
 
 			var loadInstruction = base.loadSequence[ base.loadIndex ];
@@ -837,6 +834,10 @@
 
 			}
 
+			if ((base.options.format == "force-directed") && (base.force != null)) {
+				base.force.start();
+			}
+
         };
 		
 		base.showLoadingMsg = function() {
@@ -863,7 +864,7 @@
 		}
 		
 		base.hideLoadingMsg = function() {
-			base.loadingMsg.slideUp( 400, function() { base.draw(); } );
+			base.loadingMsg.slideUp( 400, function() { base.draw(true); } );
 		}
 		
 		/**
@@ -1615,9 +1616,9 @@
         	}
         }
 
-        base.draw = function() {
+        base.draw = function(isRequired) {
 
-        	// select the current node by default
+         	// select the current node by default
 			if ( base.options.content == 'current' ) {
 				if (( base.selectedNodes.length == 0 ) && !base.loadingDone ) {
 					var node = scalarapi.model.getCurrentPageNode();
@@ -1642,15 +1643,17 @@
         		break;
 
         		case "force-directed":
-        		base.drawForceDirected();
+        		if (isRequired) {
+        			base.drawForceDirected();
+        		}
         		break;
 
         		case "tagcloud":
         		base.drawTagCloud();
         		break;
 
-        	}
-
+        	}   
+ 
         };
 
         /**********************
@@ -3100,7 +3103,7 @@
 						} else {
 							base.selectedNodes.splice(index, 1);
 							base.filter();
-							base.draw();
+							base.draw(true);
 						}
 						updateGraph();
 					})

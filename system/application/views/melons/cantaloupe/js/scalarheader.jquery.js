@@ -142,6 +142,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<li id="vis_menu" class="dropdown">'+
                                                         '<a role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
+                                                            '<li class="vis_link" data-vistype="vistoc"><a role="button"><span class="menuIcon" id="tocIcon"></span> Contents</a></li>'+
+                                                            '<li class="vis_link" data-vistype="visconnections"><a role="button"><span class="menuIcon" id="connectionsIcon"></span> Connections</a></li>'+
                                                             '<li class="vis_link" data-vistype="visindex"><a role="button"><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
                                                             '<li class="vis_link" data-vistype="visradial"><a role="button"><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
                                                             '<li class="vis_link" data-vistype="vispath"><a role="button"><span class="menuIcon" id="pathIcon"></span> Path</a></li>'+
@@ -463,6 +465,18 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
 
                 switch ( $( this ).attr( 'data-vistype' ) ) {
+
+                    case "visconnections":
+                    options.content = 'all';
+                    options.relations = 'all';
+                    options.format = 'force-directed';
+                    break;
+
+                    case "vistoc":
+                    options.content = 'toc';
+                    options.relations = 'all';
+                    options.format = 'tree';
+                    break;
 
                     case "vis":
                     case "visindex":

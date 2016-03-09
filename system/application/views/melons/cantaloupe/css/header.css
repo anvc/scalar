@@ -174,6 +174,20 @@ a.headerIcon{
 	background-image: url(../images/menu_path_icon_selected.png);
 }
 
+.navbar li>a>#connectionsIcon{
+	background-image: url(../images/menu_connections_icon.png);
+}
+.navbar li:hover>a>#connectionsIcon{
+	background-image: url(../images/menu_connections_icon_selected.png);
+}
+
+.navbar li>a>#tocIcon{
+	background-image: url(../images/menu_toc_icon.png);
+}
+.navbar li:hover>a>#tocIcon{
+	background-image: url(../images/menu_toc_icon_selected.png);
+}
+
 .navbar li>a>#pageIcon{
 	background-image: url(../images/menu_page_icon.png);
 }
