@@ -826,39 +826,44 @@
 				$( '.note_viewer' ).hide();
 			},
 
+			addNoteMedia: function(link, parent, maxWidth, maxHeight){
+				var options = {
+					url_attributes: [ 'href' ],
+					autoplay: false,
+					solo: true,
+					getRelated: false
+				};
+				var slot = link.slotmanager_create_slot( maxWidth, maxHeight, options );
+				if ( slot ) {
+					// hide the media element until we get it fully set up (after its metadata has loaded)
+					slotDOMElement = slot.data('slot');
+					slotMediaElement = slot.data('mediaelement');
+					slotDOMElement.appendTo(parent);
+					link.hide();
+					parent.fadeIn('fast');
+				}
+			},
+
 			handleNoteData: function() {
 				var noteViewer = $( '.note_viewer' );
+				var width = parseInt(noteViewer.css('max-width'))-parseInt(noteViewer.css('padding'))-50;
+				var height = parseInt(noteViewer.css('max-height'))-parseInt(noteViewer.css('padding'))-noteViewer.innerHeight();
 				var node = scalarapi.getNode( noteViewer.data( 'slug' ) );
 				if ( node != null ) {
 					noteViewer.empty();
 					if ( node.current.content != null ) {
 						noteViewer.append( node.current.content );
-					}
-					noteViewer.append( '<a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
-
-					if(node.hasScalarType( 'media' )){
-						var width = parseInt(noteViewer.css('max-width'))-parseInt(noteViewer.css('padding'))-50;
-						var height = parseInt(noteViewer.css('max-height'))-parseInt(noteViewer.css('padding'))-noteViewer.innerHeight();
+						noteViewer.find('a[name="scalar-inline-media"]').each(function(){
+							$(this).wrap( '<div></div>' );
+							$(this).data('align','');
+							page.addNoteMedia($(this),$(this).parent(),width,null);
+						});
+					}else if(node.hasScalarType( 'media' )){
 						var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(noteViewer).hide();
 						var link = $( '<a href="'+node.current.sourceFile+'" data-align="center" resource="'+node.slug+'"></a>' ).appendTo(parent);
-						var options = {
-							url_attributes: [ 'href' ],
-							autoplay: false,
-							solo: true,
-							getRelated: false
-						};
-						var slot = link.slotmanager_create_slot( width, height, options );
-						if ( slot ) {
-							// hide the media element until we get it fully set up (after its metadata has loaded)
-							slotDOMElement = slot.data('slot');
-							slotMediaElement = slot.data('mediaelement');
-							slotDOMElement.appendTo(parent);
-							link.hide();
-							parent.fadeIn('fast');
-						}
-					}else{
-						noteViewer.prepend('<br/><br/>');
+						page.addNoteMedia(link,parent,width,null);
 					}
+					noteViewer.append( '<br/><br/> <a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
 				}
 			},
 
@@ -1409,7 +1414,7 @@
 			},
 
 			handleDelayedResize: function() {
-				if (( page.initialMediaLoad === true ) && !page.isFullScreen && ( document.location.href.indexOf('.annotation_editor') == -1 )) {
+				if (( page.initialMediaLoad === true ) && !page.isFullScreen && ( document.location.href.indexOf('.node_editor') == -1 )) {
 					var reload = false;
 					page.orientation = window.orientation;
 					if($('body').width() <= page.mobileWidth) {
@@ -1699,7 +1704,7 @@
 				}
 			}
 
-			if (( viewType != 'edit' ) && ( viewType != 'blank' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
+			if (( viewType != 'edit' ) && ( viewType != 'blank' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'node_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 				$('[property="sioc:content"]').children('p,div').not( '[data-size="full"]' ).addClass('body_copy');
 				$('[property="sioc:content"]').children('p,div').wrap('<div class="paragraph_wrapper"></div>');
@@ -2041,13 +2046,13 @@
 					okToAddExtras = false;
 					break;
 
-					case "annotation_editor":
-					var headerString = '<h2 style="margin-bottom: 0rem;">Annotation editor</h2>';
+					case "node_editor":
+					var headerString = '<h2 style="margin-bottom: 0rem;">node editor</h2>';
 					if ( currentNode.current.mediaSource.contentType == 'image' ) {
-						headerString += '<p class="body_copy">To create an image annotation, click and drag on the image, or use the plus button below.</p>';
+						headerString += '<p class="body_copy">To create an image node, click and drag on the image, or use the plus button below.</p>';
 					}
 					$( 'h1[property="dcterms:title"]' ).after( headerString );
-					$( '.annotation_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					$( '.node_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
 					$( '.annobuilder' ).addClass( 'caption_font' );
 					// hide continue_to metadata
 					$( '[rel="scalar:continue_to"]' ).each( function() {

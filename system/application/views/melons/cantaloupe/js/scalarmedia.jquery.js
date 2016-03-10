@@ -73,13 +73,13 @@
 
 							// otherwise, update the list of all annotations
 							} else {
-								
+
 								$(annotationTable).find('tr').removeClass('current');
 								$(annotationTable).find('tr').each(function() {
 
 									var rowRelation = $(this).data('relation');
 									var col = $(this).find('td').eq(1);
-									
+
 
 									if ( rowRelation != null ) {
 
@@ -106,7 +106,7 @@
 											col.find( 'h4 > a' ).contents().unwrap();
 											col.find( 'h4' ).removeClass( 'heading_weight' );
 											col.find( 'div' ).eq( 0 ).slideUp();
-										}	
+										}
 									}
 								});
 							}
@@ -167,13 +167,23 @@
 				var header = $('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
 				container.append(header);
 
-
 				content = $( '<div id="anno-' + annotation.slug +'"></div>' ).appendTo( container );
+
+				var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 50;
+				var height = parseInt(container.parents('.media_annotations').css('max-height')) - container.parents('.media_annotations').innerHeight() - 10;
 
 				// add the annotation description
 				var description = annotation.getDescription();
 				if(description.length > 0){
 					nodeContent = $( '<p>' + description + '</p>' ).appendTo( content );
+					nodeContent.find('a[name="scalar-inline-media"]').each(function(){
+						$(this).attr({
+							'data-align':'',
+							'data-size':'',
+							'class':''
+						}).wrap('<div></div>');
+						page.addNoteMedia($(this),$(this).parent(),width,null);
+					});
 				}
 				// get incoming tags and display them as buttons
 				tags = annotation.getRelatedNodes( "tag", "incoming" );
@@ -210,29 +220,9 @@
 				}
 
 				if(annotation.hasScalarType( 'media' ) && content.find('.annotation_media_'+annotation.slug).length == 0){
-					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' );
-					var options = {
-						url_attributes: [ 'href' ],
-						autoplay: false,
-						solo: true,
-						getRelated: false
-					};
-					var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 50;
-					var height = parseInt(container.parents('.media_annotations').css('max-height')) - container.parents('.media_annotations').innerHeight() - 10;
-					var slot = link.slotmanager_create_slot( width, height, options );
-					if ( slot ) {
-						// hide the media element until we get it fully set up (after its metadata has loaded)
-						slotDOMElement = slot.data('slot');
-						slotDOMElement.hide();
-						slotMediaElement = slot.data('mediaelement');
-						slotMediaElement.model.element.css({
-							'visibility' : 'hidden',
-							'margin-bottom' : 10,
-							'float' : 'left'
-						});
-						slotDOMElement.appendTo(content).fadeIn('fast');
-						link.hide();
-					}
+					var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(content);
+					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' ).appendTo(parent);
+					page.addNoteMedia(link,parent,width,null);
 				}
 
 			},
