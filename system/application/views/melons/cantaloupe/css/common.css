@@ -909,7 +909,10 @@ a.nav_btn:hover {
 .results_list table { width: 100%; }
 .results_list td { height: 3rem; overflow: hidden; padding: .5rem; }
 .results_list td:first-child { min-width:30%; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
-.results_list td:last-child { color: #b2b3b6; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; }
+/* .results_list td:last-child { color: #b2b3b6; max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space:nowrap; } */
+.results_list td.matched { color: #999999; font-size:smaller; }
+.results_list td.matched span { white-space:nowrap; }
+.results_list td.matched span.h { color:#666666; }
 .results_list tr:hover { background: #eee; cursor: pointer; }
 .results_list td.thumb { width:76px; max-width:76px; }
 .results_list td.thumb img {width:100%;}

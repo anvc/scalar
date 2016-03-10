@@ -97,8 +97,13 @@ class Version_model extends MY_Model {
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
     	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+    	$result[0]->citation = '';
 
-        if (!empty($sq) && !self::filter_result_i($result[0], $sq)) return array();
+        if (!empty($sq)) {
+        	$matched = self::filter_result_i($result[0], $sq);
+        	if (false===$matched) return array();
+        	$result[0]->citation = 'sq_matched='.implode(',',$matched);
+        }
 
     	return $result[0];
 
@@ -131,8 +136,13 @@ class Version_model extends MY_Model {
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
     	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+    	$result[0]->citation = '';
 
-        if (!empty($sq) && !self::filter_result_i($result[0], $sq)) return array();
+        if (!empty($sq)) {
+        	$matched = self::filter_result_i($result[0], $sq);
+        	if (false===$matched) return array();
+        	$result[0]->citation = 'sq_matched='.implode(',',$matched);
+        }
 
 		if (null===$version_datetime && null!==$version_id) {  // 0 is passed to version ID, requesting that the result be saved to content's recent_version_id
 			self::set_recent_version_id($content_id, $result[0]->version_id);
@@ -159,7 +169,9 @@ class Version_model extends MY_Model {
 
         if (!empty($sq)) {
     		for ($j = (count($result)-1); $j >= 0; $j--) {
-    			if (!self::filter_result_i($result[$j], $sq)) unset($result[$j]);
+    			$matched = self::filter_result_i($result[$j], $sq);
+    			if (false===$matched) unset($result[$j]);
+    			$result[$j]->citation = 'sq_matched='.implode(',',$matched);
     		}
     	}
 
@@ -535,14 +547,18 @@ class Version_model extends MY_Model {
 
     	$result = (array) $result;
     	$results = array();
+    	$matched = array();
+    	$ns = $this->config->item('namespaces');
         foreach ($sq as $term) {  // Version fields
     		foreach($result as $key => $value) {
 				if (!is_string($value)) continue;
 				$value = strip_tags($value);
-        		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term;
+				if (!stristr($value,$term)) continue;
+        		if (!in_array($term,$results)) $results[] = $term;
+        		$matched[] = toNS($key, $ns);
     		}
         }
-        if (count($results)==count($sq)) return true;
+        //if (count($results)==count($sq)) return $matched;
         if (isset($result['rdf']) && !empty($result['rdf'])) {
 	        foreach ($sq as $term) {  // RDF fields
 	    		foreach($result['rdf'] as $key => $values) {
@@ -550,11 +566,13 @@ class Version_model extends MY_Model {
 	    			if ('literal'!=$type) continue;
 					$value = $values[0]['value'];
 					$value = strip_tags($value);
-	        		if (stristr($value,$term) && !in_array($term,$results)) $results[] = $term;
+					if (!stristr($value,$term)) continue;
+	        		if (!in_array($term,$results)) $results[] = $term;
+	        		$matched[] = toNS($key, $ns);
 	    		}
 	        }
-	        if (count($results)==count($sq)) return true;
         }
+        if (count($results)==count($sq)) return $matched;
         return false;
 
     }
