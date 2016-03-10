@@ -176,7 +176,7 @@
 				var description = annotation.getDescription();
 				if(description.length > 0){
 					nodeContent = $( '<p>' + description + '</p>' ).appendTo( content );
-					nodeContent.find('a[name="scalar-inline-media"]').each(function(){
+					nodeContent.find('a[name="scalar-inline-media"],a[resource!=""][resource]').each(function(){
 						$(this).attr({
 							'data-align':'',
 							'data-size':'',

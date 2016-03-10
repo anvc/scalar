@@ -853,7 +853,7 @@
 					noteViewer.empty();
 					if ( node.current.content != null ) {
 						noteViewer.append( node.current.content );
-						noteViewer.find('a[name="scalar-inline-media"]').each(function(){
+						noteViewer.find('a[name="scalar-inline-media"],a[resource!=""][resource]').each(function(){
 							$(this).wrap( '<div></div>' );
 							$(this).data('align','');
 							page.addNoteMedia($(this),$(this).parent(),width,null);
