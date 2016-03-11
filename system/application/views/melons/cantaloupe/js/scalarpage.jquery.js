@@ -839,8 +839,6 @@
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
 					slotDOMElement.appendTo(parent);
-					link.hide();
-					parent.fadeIn('fast');
 				}
 			},
 
@@ -853,14 +851,23 @@
 					noteViewer.empty();
 					if ( node.current.content != null ) {
 						noteViewer.append( node.current.content );
-						noteViewer.find('a[name="scalar-inline-media"],a[resource!=""][resource]').each(function(){
-							$(this).wrap( '<div></div>' );
-							$(this).data('align','');
-							page.addNoteMedia($(this),$(this).parent(),width,null);
+						$(page.getMediaLinks(noteViewer)).each(function(){
+							if($(this).hasClass('inline')){
+								$(this).wrap('<div></div>').hide();
+							}
+							var parent = $(this).parent();
+							if(parent.hasClass('note_viewer')){
+								//Check to make sure there isn't a better implied location for this media.
+								var next = $(this).next();
+								if(next.length > 0){
+									parent = $('<div></div>').insertBefore(next);
+								}
+							}
+							page.addNoteMedia($(this),parent,width,null);
 						});
 					}else if(node.hasScalarType( 'media' )){
-						var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(noteViewer).hide();
-						var link = $( '<a href="'+node.current.sourceFile+'" data-align="center" resource="'+node.slug+'"></a>' ).appendTo(parent);
+						var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(noteViewer);
+						var link = $( '<a href="'+node.current.sourceFile+'" data-align="center" resource="'+node.slug+'" class="inline"></a>' ).hide().appendTo(parent);
 						page.addNoteMedia(link,parent,width,null);
 					}
 					noteViewer.append( '<br/><br/> <a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );

@@ -176,13 +176,24 @@
 				var description = annotation.getDescription();
 				if(description.length > 0){
 					nodeContent = $( '<p>' + description + '</p>' ).appendTo( content );
-					nodeContent.find('a[name="scalar-inline-media"],a[resource!=""][resource]').each(function(){
+					$(page.getMediaLinks(nodeContent)).each(function(){
+						if($(this).hasClass('inline')){
+							$(this).wrap('<div></div>').hide();
+						}
 						$(this).attr({
 							'data-align':'',
 							'data-size':'',
 							'class':''
-						}).wrap('<div></div>');
-						page.addNoteMedia($(this),$(this).parent(),width,null);
+						});
+						var parent = $(this).parent();
+						if(parent.hasClass('note_viewer')){
+							//Check to make sure there isn't a better implied location for this media.
+							var next = $(this).next();
+							if(next.length > 0){
+								parent = $('<div></div>').insertBefore(next);
+							}
+						}
+						page.addNoteMedia($(this),parent,width,null);
 					});
 				}
 				// get incoming tags and display them as buttons
@@ -221,7 +232,7 @@
 
 				if(annotation.hasScalarType( 'media' ) && content.find('.annotation_media_'+annotation.slug).length == 0){
 					var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(content);
-					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' ).appendTo(parent);
+					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' ).hide().appendTo(parent);
 					page.addNoteMedia(link,parent,width,null);
 				}
 
