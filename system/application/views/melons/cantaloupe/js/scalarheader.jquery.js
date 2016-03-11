@@ -134,13 +134,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li id="recent_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon" id="recentIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Recent</a>'+
+                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="recentIcon"></span>Recent</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><i class="loader"></i></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                     '<li id="vis_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon" id="visIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Visualizations</a>'+
+                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="visIcon"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li class="vis_link" data-vistype="vistoc"><a role="button"><span class="menuIcon" id="tocIcon"></span> Contents</a></li>'+
                                                             '<li class="vis_link" data-vistype="visconnections"><a role="button"><span class="menuIcon" id="connectionsIcon"></span> Connections</a></li>'+
@@ -152,7 +152,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</ul>'+
                                                     '</li>'+
                                                     '<li id="scalar_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon" id="scalarIcon"></span><span class="menuIcon rightArrowIcon pull-right"></span>Scalar</a>'+
+                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="scalarIcon"></span>Scalar</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><a href="http://scalar.usc.edu/">About Scalar</a></li>'+
                                                             '<li><a href="http://scalar.usc.edu/works/guide2" target="_scalar">User\'s Guide</a></li>'+
@@ -1362,7 +1362,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                     .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug))?'':'is_parent')
                                     .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url))?'':'visited');
 
-                        $('<a class="expand" title="Explore '+tocNode.getDisplayTitle()+'"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).click(function(e){
+                        $('<a class="expand" title="Explore '+tocNode.getDisplayTitle()+'"></a>').appendTo(listItem).click(function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             var target_toc_item = $(this).parent().data('node');
                             base.expandMenu(target_toc_item,0);
