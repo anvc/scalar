@@ -769,7 +769,8 @@
 				base.hideLoadingMsg();
 				base.loadingDone = true;
 				base.draw(true);
-				if ( base.options.content == 'all' ) {
+				// when content is set to 'toc', we still load everything so users can drill down as far as they want
+				if (( base.options.content == 'all' ) || ( base.options.content == 'toc' )) {
 					base.loadedAllContent = true;
 					$( 'body' ).trigger( 'visLoadedAllContent' );
 				}
@@ -1138,6 +1139,9 @@
 				node.sortTitle = node.getSortTitle();
 			}
 			node.type = node.getDominantScalarType( base.options.content );
+			if (node.parentsOfMaximizedInstances == null) {
+				node.parentsOfMaximizedInstances = [];
+			}
 		}
 
 		/**
@@ -1218,7 +1222,8 @@
 							showsTitle: true, 
 							node: node, 
 							type: node.type.id,
-							children: null
+							children: null,
+							parent: tocRoot
 						};
 						tocRoot.children.push( hierarchyNode );
 						if ( includeRelations ) {
@@ -1447,7 +1452,7 @@
 				if ( relation.direction == "outgoing" ) {
 					nodes = sourceData.node.getRelatedNodes( relation.type, relation.direction );
 					if (nodes.length > 0) {
-						if ( sourceData.children == null ) {
+						if (sourceData.children == null) {
 							sourceData.children = [];
 						}
 						o = nodes.length;
@@ -1483,6 +1488,28 @@
 				self = self.parent;
 			}
 			return ((self.parent == candidate) && (candidate != null));
+		}
+
+		base.parentIdForHierarchyNode = function(d) {
+			var parentId;
+			if (d.parent.node == null) {
+				parentId = d.parent.title;
+			} else {
+				parentId = d.parent.node.slug;
+			}
+			return parentId;
+		}
+
+		base.isHierarchyNodeMaximized = function(d) {
+			var isMaximized = (d.children != null);
+			if (d.node != null) {
+				if (d.node.parentsOfMaximizedInstances.indexOf(base.parentIdForHierarchyNode(d)) != -1) {
+					isMaximized = true;
+				} else {
+					isMaximized = false;
+				}
+			}
+			return isMaximized;
 		}
 
 		base.updateLinks = function() {
@@ -2112,37 +2139,58 @@
 
 				var container = base.svg.selectAll( 'g.container' );
 
-				// Toggle children.
+				// toggle children
 				function branchToggle(d) {
-					if (d.children) {
+					var parentId = base.parentIdForHierarchyNode(d);
+					if (base.isHierarchyNodeMaximized(d)) {
 						d._children = d.children;
 						d.children = null;
+						var index = d.node.parentsOfMaximizedInstances.indexOf(parentId);
+						if (index != -1) {
+							d.node.parentsOfMaximizedInstances.splice(index, 1);
+						}
 					} else {
 						d.children = d._children;
 						d._children = null;
+						if (d.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
+							d.node.parentsOfMaximizedInstances.push(parentId);
+						}
 					}
-				}  
+				}
 
-				function branchToggleAll(d) {
-				    if (d.children) {
-				      	d.children.forEach(branchToggleAll);
-				      	branchToggle(d);
+				// makes sure node's data matches its state
+				function branchConform(d) {			
+					if (!base.isHierarchyNodeMaximized(d)) {
+						if (d.children != null) {
+							d._children = d.children;
+							d.children = null;
+						}
+					} else {
+						if (d.children == null) {
+							d.children = d._children;
+							d._children = null;
+						}
+					}	
+				}
+
+				function branchConformAll(d) {
+				    if (d.children != null) {
+				    	d.children.forEach(branchConformAll);
 				    }
+				    branchConform(d);
 				}
 
 				// collapse all nodes except the root's children
 				if ( base.options.content != "all" ) {
 					if ( base.hierarchy.children ) {
 						base.hierarchy.children.forEach( function( d ) {
-							if ( d.children != null ) {
-								d.children.forEach( branchToggleAll );
-							}
+							d.children.forEach( branchConformAll );
 						});
 					}
 
 				// collapse all nodes except the root
 				} else {
-					base.hierarchy.children.forEach( branchToggleAll );
+					base.hierarchy.children.forEach( branchConformAll );
 				}
 
 				function pathUpdate( source, instantaneous ) {
