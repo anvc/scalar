@@ -169,7 +169,7 @@
 
 				content = $( '<div id="anno-' + annotation.slug +'"></div>' ).appendTo( container );
 
-				var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 50;
+				var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 60;
 				var height = parseInt(container.parents('.media_annotations').css('max-height')) - container.parents('.media_annotations').innerHeight() - 10;
 
 				// add the annotation description
@@ -193,7 +193,7 @@
 								parent = $('<div></div>').insertBefore(next);
 							}
 						}
-						page.addNoteMedia($(this),parent,width,null);
+						page.addNoteOrAnnotationMedia($(this),parent,width,height);
 					});
 				}
 				// get incoming tags and display them as buttons
@@ -233,7 +233,7 @@
 				if(annotation.hasScalarType( 'media' ) && content.find('.annotation_media_'+annotation.slug).length == 0){
 					var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(content);
 					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' ).hide().appendTo(parent);
-					page.addNoteMedia(link,parent,width,null);
+					page.addNoteOrAnnotationMedia(link,parent,width,height);
 				}
 
 			},

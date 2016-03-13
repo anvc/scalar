@@ -826,7 +826,7 @@
 				$( '.note_viewer' ).hide();
 			},
 
-			addNoteMedia: function(link, parent, maxWidth, maxHeight){
+			addNoteOrAnnotationMedia: function(link, parent, maxWidth, maxHeight){
 				var options = {
 					url_attributes: [ 'href' ],
 					autoplay: false,
@@ -844,31 +844,35 @@
 
 			handleNoteData: function() {
 				var noteViewer = $( '.note_viewer' );
-				var width = parseInt(noteViewer.css('max-width'))-parseInt(noteViewer.css('padding'))-50;
-				var height = parseInt(noteViewer.css('max-height'))-parseInt(noteViewer.css('padding'))-noteViewer.innerHeight();
+				noteViewer.append( '<br/><br/><span class="text-muted">Loading...</span>' );
 				var node = scalarapi.getNode( noteViewer.data( 'slug' ) );
+				var height = parseInt(noteViewer.css('max-height'))-noteViewer.innerHeight()-50;
+				noteViewer.empty();
+				var width = parseInt(noteViewer.css('max-width'))-noteViewer.innerWidth()-50;
+				console.log(width, height);
 				if ( node != null ) {
-					noteViewer.empty();
 					if ( node.current.content != null ) {
-						noteViewer.append( node.current.content );
+						var content = $('<div></div>').append(node.current.content);
+						wrapOrphanParagraphs(content);
+						noteViewer.append( content );
+
+						var height = parseInt(noteViewer.css('max-height'))-noteViewer.innerHeight()-50;
+
+						if(height < 0){
+							height = null;
+						}
 						$(page.getMediaLinks(noteViewer)).each(function(){
 							if($(this).hasClass('inline')){
 								$(this).wrap('<div></div>').hide();
 							}
 							var parent = $(this).parent();
-							if(parent.hasClass('note_viewer')){
-								//Check to make sure there isn't a better implied location for this media.
-								var next = $(this).next();
-								if(next.length > 0){
-									parent = $('<div></div>').insertBefore(next);
-								}
-							}
-							page.addNoteMedia($(this),parent,width,null);
+
+							page.addNoteOrAnnotationMedia($(this),parent,width,height);
 						});
 					}else if(node.hasScalarType( 'media' )){
 						var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(noteViewer);
 						var link = $( '<a href="'+node.current.sourceFile+'" data-align="center" resource="'+node.slug+'" class="inline"></a>' ).hide().appendTo(parent);
-						page.addNoteMedia(link,parent,width,null);
+						page.addNoteOrAnnotationMedia(link,parent,width,height);
 					}
 					noteViewer.append( '<br/><br/> <a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
 				}
