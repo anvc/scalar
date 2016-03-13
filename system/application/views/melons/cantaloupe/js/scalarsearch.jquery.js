@@ -188,7 +188,7 @@
 				matched = '<span class="h">Matched:</span> ';
 				matched += '<span class="b">'+citation[0].value.substr(citation[0].value.indexOf('=')+1).split(',').join('</span>, <span class="b">')+'</span>';
 			}
-			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td><td class="matched">'+matched+'</td></tr>' ).appendTo( this.resultsTable );
+			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td><td class="matched hidden-xs hidden-sm">'+matched+'</td></tr>' ).appendTo( this.resultsTable );
 
 			row.data( 'node', node );
 			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
