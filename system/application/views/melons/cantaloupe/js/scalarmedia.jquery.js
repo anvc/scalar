@@ -176,23 +176,19 @@
 				var description = annotation.getDescription();
 				if(description.length > 0){
 					nodeContent = $( '<p>' + description + '</p>' ).appendTo( content );
+					wrapOrphanParagraphs(nodeContent);
 					$(page.getMediaLinks(nodeContent)).each(function(){
 						if($(this).hasClass('inline')){
 							$(this).wrap('<div></div>').hide();
 						}
+
 						$(this).attr({
 							'data-align':'',
 							'data-size':'',
+							'data-annotations':'[]',
 							'class':''
 						});
 						var parent = $(this).parent();
-						if(parent.hasClass('note_viewer')){
-							//Check to make sure there isn't a better implied location for this media.
-							var next = $(this).next();
-							if(next.length > 0){
-								parent = $('<div></div>').insertBefore(next);
-							}
-						}
 						page.addNoteOrAnnotationMedia($(this),parent,width,height);
 					});
 				}
@@ -232,7 +228,7 @@
 
 				if(annotation.hasScalarType( 'media' ) && content.find('.annotation_media_'+annotation.slug).length == 0){
 					var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(content);
-					var link = $( '<a href="'+annotation.current.sourceFile+'" data-align="center" resource="'+annotation.slug+'"></a>' ).hide().appendTo(parent);
+					var link = $( '<a href="'+annotation.current.sourceFile+'" data-annotations="[]" data-align="center" resource="'+annotation.slug+'"></a>' ).hide().appendTo(parent);
 					page.addNoteOrAnnotationMedia(link,parent,width,height);
 				}
 
