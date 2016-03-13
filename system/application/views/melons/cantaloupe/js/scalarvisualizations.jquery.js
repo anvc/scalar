@@ -982,8 +982,10 @@
 						node.connectionCount = subRels.length;
 						base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
 					}
-					node.connectionCount = base.relations.length;
-					base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
+					if (n > 0) {
+						node.connectionCount = base.relations.length;
+						base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
+					}
 				}
 				break;
 
@@ -1492,10 +1494,12 @@
 
 		base.parentIdForHierarchyNode = function(d) {
 			var parentId;
-			if (d.parent.node == null) {
-				parentId = d.parent.title;
-			} else {
-				parentId = d.parent.node.slug;
+			if (d.parent != null) {
+				if (d.parent.node == null) {
+					parentId = d.parent.title;
+				} else {
+					parentId = d.parent.node.slug;
+				}
 			}
 			return parentId;
 		}
@@ -2145,15 +2149,19 @@
 					if (base.isHierarchyNodeMaximized(d)) {
 						d._children = d.children;
 						d.children = null;
-						var index = d.node.parentsOfMaximizedInstances.indexOf(parentId);
-						if (index != -1) {
-							d.node.parentsOfMaximizedInstances.splice(index, 1);
+						if (d.node != null) {
+							var index = d.node.parentsOfMaximizedInstances.indexOf(parentId);
+							if (index != -1) {
+								d.node.parentsOfMaximizedInstances.splice(index, 1);
+							}
 						}
 					} else {
 						d.children = d._children;
 						d._children = null;
-						if (d.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
-							d.node.parentsOfMaximizedInstances.push(parentId);
+						if (d.node != null) {
+							if (d.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
+								d.node.parentsOfMaximizedInstances.push(parentId);
+							}
 						}
 					}
 				}
@@ -2184,7 +2192,9 @@
 				if ( base.options.content != "all" ) {
 					if ( base.hierarchy.children ) {
 						base.hierarchy.children.forEach( function( d ) {
-							d.children.forEach( branchConformAll );
+							if (d.children != null) {
+								d.children.forEach( branchConformAll );
+							}
 						});
 					}
 
