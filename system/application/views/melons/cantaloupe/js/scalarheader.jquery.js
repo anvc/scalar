@@ -1362,7 +1362,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                     .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug))?'':'is_parent')
                                     .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url))?'':'visited');
 
-                        $('<a class="expand" title="Explore '+tocNode.getDisplayTitle()+'"></a>').appendTo(listItem).click(function(e){
+                        $('<a class="expand" title="Explore '+tocNode.getDisplayTitle()+'"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).click(function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             var target_toc_item = $(this).parent().data('node');
                             base.expandMenu(target_toc_item,0);
