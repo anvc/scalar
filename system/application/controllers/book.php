@@ -414,8 +414,15 @@ class Book extends MY_Controller {
 
 		$this->data['view'] = __FUNCTION__;
 
-		if ($action == 'add' || $action == 'replace') {
-			$return = array('error'=>'');
+		if (empty($_FILES) && empty($_POST) && isset($_SERVER['REQUEST_METHOD']) && 'post'==strtolower($_SERVER['REQUEST_METHOD'])) {
+
+			echo json_encode( array('error'=>'The file is larger than the server\'s max upload size') );
+			exit;
+
+		} elseif ($action == 'add' || $action == 'replace') {
+
+			$return = array();
+
 			try {
 	            $slug = confirm_slash($this->data['book']->slug);
 				$url = $this->file_upload->uploadMedia($slug, $chmod_mode, $this->versions);
@@ -427,16 +434,20 @@ class Book extends MY_Controller {
 				exit;
 			}
 
-			$this->load->library('Image_Metadata', 'image_metadata');
-			$return = array();
-			$return[$url] = $this->image_metadata->get($path, Image_Metadata::FORMAT_NS);
+			try {
+				$this->load->library('Image_Metadata', 'image_metadata');
+				$return[$url] = $this->image_metadata->get($path, Image_Metadata::FORMAT_NS);
+			} catch (Exception $e) {
+				// Don't throw exception since this isn't critical
+			}
+
 			if (false!==$thumbUrl) {
 				$return[$url]['scalar:thumbnail'] = confirm_slash(base_url()).$slug.$thumbUrl;
 			}
 			echo json_encode($return);
 			exit;
 
-		}
+		} // if
 
 		// List of media pages
 		$this->data['book_media'] = $this->pages->get_all($this->data['book']->book_id, 'media', null, false);

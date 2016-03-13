@@ -8,6 +8,9 @@ class Image_Metadata {
 	private $iptc_ns = 'iptc';
 	private $iptc_uri = '';
 	private $iptc = array();
+	private $exif_ns = 'exif';
+	private $exif_uri = '';
+	private $exif = array();
 
 	public function __construct() {
 
@@ -25,7 +28,7 @@ class Image_Metadata {
 		$return = array();
 
 		$iptc_arr = (!empty($this->iptc_ns)) ? $this->get_iptc($path) : array();
-		//$exif_arr = $this->get_exif($path);
+		$exif_arr = (!empty($this->exif_ns)) ? $this->get_exif($path) : array();
 		foreach ($iptc_arr as $field => $value) {
 			switch ($format) {
 				case Image_Metadata::FORMAT_NS:
@@ -43,7 +46,9 @@ class Image_Metadata {
 
 	private function get_exif($path='') {
 
-		$exif = exif_read_data($path);
+		// $exif = exif_read_data($path);
+		// TODO
+		return array();
 
 	}
 
