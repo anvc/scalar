@@ -1816,6 +1816,24 @@ function YouTubeGetID(url){
 			var coordinate;
 
 			this.annotations = this.model.node.getRelations('annotation', 'incoming');
+
+			var annotationWhiteList = $(this.link).data('annotations');
+			if($(this.link).is('[data-annotations]') || annotationWhiteList){
+				if(!annotationWhiteList){
+					annotationWhiteList = [];
+				}else if(typeof annotationWhiteList === "string"){
+					annotationWhiteList = [annotationWhiteList];
+				}
+				var temp_annotations = [];
+				for(var i = 0; i < this.annotations.length; i++){
+					if(annotationWhiteList.indexOf(this.annotations[i].body.slug)!=-1){
+						temp_annotations.push(this.annotations[i]);
+					}
+				}
+				this.annotations = temp_annotations;
+			}
+
+
 			/*if ( this.annotationSidebar ) {
 				if (this.model.options.header != 'nav_bar') {
 					this.annotationSidebar.empty();

@@ -849,7 +849,6 @@
 				var height = parseInt(noteViewer.css('max-height'))-noteViewer.innerHeight()-50;
 				noteViewer.empty();
 				var width = parseInt(noteViewer.css('max-width'))-noteViewer.innerWidth()-50;
-				console.log(width, height);
 				if ( node != null ) {
 					if ( node.current.content != null ) {
 						var content = $('<div></div>').append(node.current.content);
@@ -865,13 +864,21 @@
 							if($(this).hasClass('inline')){
 								$(this).wrap('<div></div>').hide();
 							}
+
+							$(this).attr({
+								'data-align':'',
+								'data-size':'',
+								'data-annotations':'[]',
+								'class':''
+							});
+
 							var parent = $(this).parent();
 
 							page.addNoteOrAnnotationMedia($(this),parent,width,height);
 						});
 					}else if(node.hasScalarType( 'media' )){
 						var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(noteViewer);
-						var link = $( '<a href="'+node.current.sourceFile+'" data-align="center" resource="'+node.slug+'" class="inline"></a>' ).hide().appendTo(parent);
+						var link = $( '<a href="'+node.current.sourceFile+'" data-annotations="[]" data-align="center" resource="'+node.slug+'" class="inline"></a>' ).hide().appendTo(parent);
 						page.addNoteOrAnnotationMedia(link,parent,width,height);
 					}
 					noteViewer.append( '<br/><br/> <a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
@@ -1749,7 +1756,7 @@
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
 				page.addRelationshipNavigation( {showChildNav:true, showLateralNav:true, isCentered:true} );
-				console.log( $('.relationships') );
+				//console.log( $('.relationships') );
 				$('.relationships').appendTo('.title_card');
 
 				window.setTimeout(function(){
