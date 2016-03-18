@@ -1432,7 +1432,7 @@
 			},
 
 			handleDelayedResize: function() {
-				if (( page.initialMediaLoad === true ) && !page.isFullScreen && ( document.location.href.indexOf('.node_editor') == -1 )) {
+				if (( page.initialMediaLoad === true ) && !page.isFullScreen && ( document.location.href.indexOf('.annotation_editor') == -1 )) {
 					var reload = false;
 					page.orientation = window.orientation;
 					if($('body').width() <= page.mobileWidth) {
@@ -1722,7 +1722,7 @@
 				}
 			}
 
-			if (( viewType != 'edit' ) && ( viewType != 'blank' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'node_editor' )) {
+			if (( viewType != 'edit' ) && ( viewType != 'blank' ) && ( viewType != 'meta' ) && ( viewType != 'versions' ) && ( viewType != 'annotation_editor' )) {
 				wrapOrphanParagraphs($('[property="sioc:content"]'));
 				$('[property="sioc:content"]').children('p,div').not( '[data-size="full"]' ).addClass('body_copy');
 				$('[property="sioc:content"]').children('p,div').wrap('<div class="paragraph_wrapper"></div>');
@@ -2064,13 +2064,13 @@
 					okToAddExtras = false;
 					break;
 
-					case "node_editor":
-					var headerString = '<h2 style="margin-bottom: 0rem;">node editor</h2>';
+					case "annotation_editor":
+					var headerString = '<h2 style="margin-bottom: 0rem;">Annotation editor</h2>';
 					if ( currentNode.current.mediaSource.contentType == 'image' ) {
-						headerString += '<p class="body_copy">To create an image node, click and drag on the image, or use the plus button below.</p>';
+						headerString += '<p class="body_copy">To create an image annotation, click and drag on the image, or use the plus button below.</p>';
 					}
 					$( 'h1[property="dcterms:title"]' ).after( headerString );
-					$( '.node_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
+					$( '.annotation_editor-page' ).removeClass( 'body_copy' ).addClass( 'page_margins' );
 					$( '.annobuilder' ).addClass( 'caption_font' );
 					// hide continue_to metadata
 					$( '[rel="scalar:continue_to"]' ).each( function() {
