@@ -832,14 +832,13 @@
 					autoplay: false,
 					solo: true,
 					getRelated: false,
-					auto_width: true,
 					size: 'full'
 				};
 				var slot = link.slotmanager_create_slot( maxWidth, maxHeight, options );
 				if ( slot ) {
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
-					slotDOMElement.addClass('full').appendTo(parent);
+					slotDOMElement.addClass('full').appendTo(parent).css('background-image','none');
 				}
 			},
 

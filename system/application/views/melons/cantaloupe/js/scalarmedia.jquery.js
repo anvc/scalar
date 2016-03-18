@@ -170,7 +170,9 @@
 
 				var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 60;
 				var height = parseInt(container.parents('.media_annotations').css('max-height')) - container.parents('.media_annotations').innerHeight() - 10;
-
+				if(content.parents('.right,.left').length > 0){
+					height = null;
+				}
 				// add the annotation description
 				var description = annotation.getDescription();
 				if(description.length > 0){
