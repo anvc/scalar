@@ -372,6 +372,7 @@ a.headerIcon{
 	line-height: 22px;
 	font-size: 10pt;
 	font-weight: bold;
+  display: inline-block;
 }
 .navbar .mainMenuDropdown>#mainMenuInside>li>ul>li>a,.navbar .mainMenuDropdown>#mainMenuInside>li>ol>li>a{
 	margin-right: 3.5rem;
