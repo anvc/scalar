@@ -831,14 +831,15 @@
 					url_attributes: [ 'href' ],
 					autoplay: false,
 					solo: true,
-					getRelated: false
+					getRelated: false,
+					auto_width: true,
+					size: 'full'
 				};
 				var slot = link.slotmanager_create_slot( maxWidth, maxHeight, options );
 				if ( slot ) {
-					// hide the media element until we get it fully set up (after its metadata has loaded)
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
-					slotDOMElement.appendTo(parent);
+					slotDOMElement.addClass('full').appendTo(parent);
 				}
 			},
 
@@ -851,19 +852,24 @@
 				var width = parseInt(noteViewer.css('max-width'))-noteViewer.innerWidth()-50;
 				if ( node != null ) {
 					if ( node.current.content != null ) {
-						var content = $('<div></div>').append(node.current.content);
-						wrapOrphanParagraphs(content);
-						noteViewer.append( content );
 
 						var height = parseInt(noteViewer.css('max-height'))-noteViewer.innerHeight()-50;
 
-						if(height < 0){
-							height = null;
-						}
-						$(page.getMediaLinks(noteViewer)).each(function(){
+						var temp = $('<div>'+node.current.content+'</div>').appendTo(noteViewer);
+
+						$(page.getMediaLinks(temp)).each(function(){
 							if($(this).hasClass('inline')){
-								$(this).wrap('<div></div>').hide();
+								$(this).wrap('<div></div>').hide().removeClass('inline');
 							}
+						});
+
+						wrapOrphanParagraphs(temp);
+
+						temp.children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+
+						var width = temp.width()-50;
+						
+						$(page.getMediaLinks(noteViewer)).each(function(){
 
 							$(this).attr({
 								'data-align':'',
@@ -875,6 +881,7 @@
 							var parent = $(this).parent();
 
 							page.addNoteOrAnnotationMedia($(this),parent,width,height);
+
 						});
 					}else if(node.hasScalarType( 'media' )){
 						var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(noteViewer);
@@ -1389,7 +1396,6 @@
 			},
 
 			addMediaElementsForElement: function( element ) {
-
 				page.calculatePageDimensions();
 
 				element.find('a').each(function() {

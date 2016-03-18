@@ -92,7 +92,6 @@
 											if ( $( '.media_annotations #anno-' + rowRelation.body.slug ).length == 0 ) {
 												col.empty();
 												media.addContentForAnnotationToContainer( rowRelation.body, col );
-												page.addMediaElementsForElement( col );
 
 											} else {
 												col.find( 'h4' ).contents().wrap( '<a href="' + rowRelation.body.url + '"></a>' );
@@ -175,16 +174,24 @@
 				// add the annotation description
 				var description = annotation.getDescription();
 				if(description.length > 0){
-					nodeContent = $( '<p>' + description + '</p>' ).appendTo( content );
-					wrapOrphanParagraphs(nodeContent);
-					$(page.getMediaLinks(nodeContent)).each(function(){
+					var temp = $('<div>'+description+'</div>').appendTo(content);
+
+					$(page.getMediaLinks(temp)).each(function(){
 						if($(this).hasClass('inline')){
-							$(this).wrap('<div></div>').hide();
+							$(this).wrap('<div></div>').hide().removeClass('inline');
 						}
+					});
+					
+					wrapOrphanParagraphs(temp);
+
+					$(temp).children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+
+					var width = temp.width()-50;
+					$(page.getMediaLinks(content)).each(function(){
 
 						$(this).attr({
 							'data-align':'',
-							'data-size':'',
+							'data-size':'full',
 							'data-annotations':'[]',
 							'class':''
 						});
