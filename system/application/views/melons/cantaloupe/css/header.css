@@ -35,7 +35,7 @@ a.headerIcon{
 	background-size: 22px;
 	background-repeat: no-repeat;
 	display: inline-block;
-	vertical-align: middle;
+	vertical-align: bottom;
 	margin-right: .5rem;
 }
 .expand .menuIcon{
