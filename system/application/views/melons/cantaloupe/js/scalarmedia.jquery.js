@@ -181,19 +181,19 @@
 							$(this).wrap('<div></div>').hide().removeClass('inline');
 						}
 					});
-					
+
 					wrapOrphanParagraphs(temp);
 
-					$(temp).children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+					temp.children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
 
 					var width = temp.width()-50;
-					$(page.getMediaLinks(content)).each(function(){
 
+					$(page.getMediaLinks(content)).each(function(){
 						$(this).attr({
 							'data-align':'',
 							'data-size':'full',
 							'data-annotations':'[]',
-							'class':''
+							'class':'media_link'
 						});
 						var parent = $(this).parent();
 						page.addNoteOrAnnotationMedia($(this),parent,width,height);

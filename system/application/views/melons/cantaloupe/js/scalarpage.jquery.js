@@ -868,14 +868,14 @@
 						temp.children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
 
 						var width = temp.width()-50;
-						
+
 						$(page.getMediaLinks(noteViewer)).each(function(){
 
 							$(this).attr({
 								'data-align':'',
 								'data-size':'',
 								'data-annotations':'[]',
-								'class':''
+								'class':'media_link'
 							});
 
 							var parent = $(this).parent();

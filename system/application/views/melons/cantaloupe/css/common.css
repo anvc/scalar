@@ -245,6 +245,9 @@ li.divider-above { border-top: 1px dotted #888; }
 	top: 0;
 	left: 0;
 }
+.media_annotations .current .media_link{
+	background-color: #e2eaef;
+}
 
 
 /* --- PAGE --- */
