@@ -1822,7 +1822,7 @@ function YouTubeGetID(url){
 				if(!annotationWhiteList){
 					annotationWhiteList = [];
 				}else if(typeof annotationWhiteList === "string"){
-					annotationWhiteList = [annotationWhiteList];
+					annotationWhiteList = annotationWhiteList.split(",");
 				}
 				var temp_annotations = [];
 				for(var i = 0; i < this.annotations.length; i++){
