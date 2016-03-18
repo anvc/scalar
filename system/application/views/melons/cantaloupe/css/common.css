@@ -249,6 +249,9 @@ li.divider-above { border-top: 1px dotted #888; }
 	background-color: #e2eaef;
 }
 
+.media_annotations .full, .note_viewer .full {margin-top:2rem;}
+.media_annotations .paragraph_wrapper, .note_viewer .paragraph_wrapper {margin-bottom:1.2rem;}
+
 
 /* --- PAGE --- */
 
@@ -1026,7 +1029,7 @@ button, .btn, input, optgroup, select, textarea {
 }
 
 ul.resources { list-style: none; }
-ul.resources > li { margin-bottom: 1rem; }   
+ul.resources > li { margin-bottom: 1rem; }
 
 .cke_dialog_contents_body { padding: 17px 30px 5px !important; }
 a.cke_dialog_ui_button { padding: 6px 0 !important; }
@@ -1034,8 +1037,8 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .cke_dialog .cke_resizer { margin-top: 32px !important; }
 .cke_dialog_ui_vbox_child { padding: 10px 0 !important; }
 .cke_dialog_title, .cke_dialog strong { font: normal normal normal 14px 'Lato', Arial, sans-serif !important; font-weight: 900 !important; }
-.cke_dialog_ui_labeled_label, .cke_dialog_body label, select.cke_dialog_ui_input_select, .cke_dialog_ui_button, .cke_dialog_ui_html, .cke_dialog_ui_input_text { 
-	font: normal normal normal 14px 'Lato', Arial, sans-serif !important; 
+.cke_dialog_ui_labeled_label, .cke_dialog_body label, select.cke_dialog_ui_input_select, .cke_dialog_ui_button, .cke_dialog_ui_html, .cke_dialog_ui_input_text {
+	font: normal normal normal 14px 'Lato', Arial, sans-serif !important;
 }
 
 /* widget pages */
@@ -1043,4 +1046,4 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .thumbnail, .media-body h4 { margin: 1.2rem 0; }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
-.description-sm { font-size: 1.2rem; line-height: 1.7rem; color: #666; }     
+.description-sm { font-size: 1.2rem; line-height: 1.7rem; color: #666; }
