@@ -58,13 +58,17 @@ class Version_model extends MY_Model {
 	 */
   	public function rdf($row, $prefix='') {
 
+  		// rdf:type
   		$row->type = (isset($row->type)) ? $row->type : 'version';
+  		// art:url
   		if (isset($row->url)) {
   			if (!is_array($row->url)) $row->url = array($row->url);
   			foreach ($row->url as $key => $value) {
   				if (!isURL($value)) $row->url[$key] = abs_url($value, $prefix);
+  				//$row->url[$key] = linkencode($row->url[$key], true);
   			}
   		}
+  		
   		$rdf = parent::rdf($row, $prefix);
 
   		// Blend with RDF from the semantic store

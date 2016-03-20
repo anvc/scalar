@@ -349,6 +349,7 @@ function YouTubeGetID(url){
 			// path to the media file
 			this.path = (this.link.data('path')) ? this.link.data('path') : '';
 			this.path = (this.path.indexOf('://')==-1) ? scalarapi.model.urlPrefix + this.path : this.path;
+			this.path = this.path.replace(/ /g, "%20").replace(/#/g, "%23");  // Simple urlencode for annotorious
 
 			// Scalar url for the media
 			this.meta = this.link.data('meta');
