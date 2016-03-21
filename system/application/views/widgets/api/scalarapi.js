@@ -3528,7 +3528,7 @@ ScalarVersion.prototype.parseData = function(data, node) {
 
 	if (node.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media') {
 
-		this.sourceFile = this.sourceFile.replace(/ /g, "%20").replace(/#/g, "%23");  // Simple urlencode for annotorious
+		if (this.sourceFile) this.sourceFile = this.sourceFile.replace(/ /g, "%20").replace(/#/g, "%23");  // Simple urlencode for annotorious
 
 		this.mediaSource = scalarapi.parseMediaSource(this.sourceFile);
 		
