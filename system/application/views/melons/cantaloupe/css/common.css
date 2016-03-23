@@ -16,15 +16,19 @@ body { visibility: hidden; background-repeat: no-repeat; background-position: -9
 
 /* Base elements */
 
-h1, h2, h3, h4, h5, h6 { padding-left: 7.2rem; padding-right: 7.2rem; }
+article h1, article h2, article h3, article h4, article h5, article h6 { padding-left: 7.2rem; padding-right: 7.2rem; }
 .body_copy h1,.body_copy h2,.body_copy h3,.body_copy h4,.body_copy h5,.body_copy h6 { padding-left: 0; padding-right: 0; margin-top: 3.2rem; margin-bottom: 2.4rem; }
-.page_margins h1,.page_margins h2,.page_margins h3,.page_margins h4,.page_margins h5,.page_margins h6 { padding-left: 0; padding-right: 0; }
-h1 { font-size: 4.9rem; line-height: 6rem; margin-top: 0rem; margin-bottom: 4.8rem; }
-h2 { font-size: 2.8rem; line-height: 4.8rem; margin-top: 4.8rem; margin-bottom: 2.4rem; }
-h3 { font-size: 2.1rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
-h4 { font-size: 1.8rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
-h5 { font-size: 1.6rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
-h6 { font-size: 1.4rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
+.page_margins h1,.page_margins h2,.page_margins h3,.page_margins h4,.page_margins h5,.page_margins h6 { padding-left: 0; padding-right: 0; margin-top: 20px; margin-bottom: 10px; }
+.mediaelement h1,.mediaelement h2,.mediaelement h3,.mediaelement h4,.mediaelement h5,.mediaelement h6 { padding-left: 0; padding-right: 0; margin-top: 20px; margin-bottom: 10px; }
+article h1 { font-size: 4.9rem; line-height: 6rem; margin-top: 0rem; margin-bottom: 4.8rem; }
+article h2 { font-size: 2.8rem; line-height: 4.8rem; margin-top: 4.8rem; margin-bottom: 2.4rem; }
+article h3 { font-size: 2.1rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
+article h4 { font-size: 1.8rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
+article h5 { font-size: 1.6rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
+article h6 { font-size: 1.4rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
+
+ul > li, ol > li { margin-left: 1.2rem; }
+.dropdown-menu ul > li, .dropdown-menu ol > li { margin-left: 0; }
 
 .page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
 .left_margin { min-width: 7.2rem; float: left; }
@@ -41,7 +45,7 @@ sup {
 	vertical-align: super;
 	font-size: smaller;
 }
-hr { clear:both; border: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
+hr { clear:both; border: 0; border-bottom: 1px solid #ccc; }
 
 .spinner_wrapper {
 	width: 20px;
@@ -270,7 +274,7 @@ li.divider-above { border-top: 1px dotted #888; }
 	-webkit-backface-visibility: hidden;
 }
 section { clear:both; }
-section ol,ul { margin-top: 1rem; margin-bottom: 1rem; }
+section ol, section ul { margin-top: 1rem; margin-bottom: 1rem; }
 section.relationships {
     padding-top: 2.4rem;
 	max-width: 85.4rem;
@@ -459,7 +463,7 @@ a:hover { text-decoration: underline; }
 	text-align: center;
 	position: absolute;
 	top: 0;
-	padding: 14rem 3.6rem 0 3.6rem;
+	padding: 15rem 3.6rem 0 3.6rem;
 	height: 100%;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;

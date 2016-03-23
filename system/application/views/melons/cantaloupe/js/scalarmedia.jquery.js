@@ -50,7 +50,7 @@
 								currentAnnotationTable.empty();
 
 								var row = $('<tr><td>'+relation.startString+'</td><td></td></tr>').appendTo(currentAnnotationTable);
-								media.addContentForAnnotationToContainer( relation.body, row.find( 'td' ).eq( 1 ) );
+								media.addContentForAnnotationToContainer( "single-anno-", relation.body, row.find( 'td' ).eq( 1 ) );
 
 								row.data('relation', relation);
 								row.click(function( event ) {
@@ -91,7 +91,7 @@
 											// only rebuild the annotation content if it isn't already showing
 											if ( $( '.media_annotations #anno-' + rowRelation.body.slug ).length == 0 ) {
 												col.empty();
-												media.addContentForAnnotationToContainer( rowRelation.body, col );
+												media.addContentForAnnotationToContainer( "anno-", rowRelation.body, col );
 
 											} else {
 												col.find( 'h4' ).contents().wrap( '<a href="' + rowRelation.body.url + '"></a>' );
@@ -157,7 +157,7 @@
 				}
 			},
 
-			addContentForAnnotationToContainer: function( annotation, container ) {
+			addContentForAnnotationToContainer: function( idPrefix, annotation, container ) {
 
 				var content, tag, tags, tagBar, tagItem, labelClass, i, n;
 
@@ -166,7 +166,7 @@
 				var header = $('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
 				container.append(header);
 
-				content = $( '<div id="anno-' + annotation.slug +'"></div>' ).appendTo( container );
+				content = $( '<div id="' + idPrefix + annotation.slug +'"></div>' ).appendTo( container );
 
 				var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 60;
 				var height = parseInt(container.parents('.media_annotations').css('max-height')) - container.parents('.media_annotations').innerHeight() - 10;
