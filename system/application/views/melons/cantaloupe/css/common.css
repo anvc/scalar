@@ -20,6 +20,7 @@ article h1, article h2, article h3, article h4, article h5, article h6 { padding
 .body_copy h1,.body_copy h2,.body_copy h3,.body_copy h4,.body_copy h5,.body_copy h6 { padding-left: 0; padding-right: 0; margin-top: 3.2rem; margin-bottom: 2.4rem; }
 .page_margins h1,.page_margins h2,.page_margins h3,.page_margins h4,.page_margins h5,.page_margins h6 { padding-left: 0; padding-right: 0; margin-top: 20px; margin-bottom: 10px; }
 .mediaelement h1,.mediaelement h2,.mediaelement h3,.mediaelement h4,.mediaelement h5,.mediaelement h6 { padding-left: 0; padding-right: 0; margin-top: 20px; margin-bottom: 10px; }
+.ci-template-html h1,.ci-template-html h2,.ci-template-html h3,.ci-template-html h4,.ci-template-html h5,.ci-template-html h6 { padding-left: 0; padding-right: 0; margin-top: 20px; margin-bottom: 10px; }
 article h1 { font-size: 4.9rem; line-height: 6rem; margin-top: 0rem; margin-bottom: 4.8rem; }
 article h2 { font-size: 2.8rem; line-height: 4.8rem; margin-top: 4.8rem; margin-bottom: 2.4rem; }
 article h3 { font-size: 2.1rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
