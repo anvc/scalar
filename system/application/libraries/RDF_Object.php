@@ -419,7 +419,6 @@ class RDF_Object {
 		// Special fields including references and users (if applicable)
 		$row->version = $settings['base_uri'].$row->slug.'.'.$versions[0]->version_num;
 		foreach ($versions as $key => $version) {
-
 			$row->has_version[] = $settings['base_uri'].$row->slug.'.'.$version->version_num;
 			$row->has_version_id[] = $version->version_id;
 			$versions[$key]->version_of = $settings['base_uri'].$row->slug;
@@ -448,6 +447,11 @@ class RDF_Object {
 			}
 			// Categories (commentaries, reviews) (comments on the book itself)
 			if (!empty($row->category)) $versions[$key]->category = $row->category;
+			// Paywall
+			if (isset($row->paywall) && 1 == $row->paywall && false===$settings['paywall_msg']) {
+				unset($versions[$key]->content);
+				unset($versions[$key]->url);
+			}
 		}
 
 		// Place into object for use later in relationship building

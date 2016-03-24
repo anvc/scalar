@@ -757,9 +757,10 @@
 				$footer.append( '<div id="colophon" class="caption_font"><p id="scalar-credit"></p></div>');
 				var $par = $footer.find('#scalar-credit');
 				if (null !== currentNode.current.number) {   // Make sure there is a version .. Added by Craig 6 December 2015
-					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date( currentNode.current.created ).toLocaleDateString() + ' | ');
-					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ');
-					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br>');
+					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date( currentNode.current.created ).toLocaleDateString()+' ');
+					if ('undefined'!=currentNode.paywall && 1==parseInt(currentNode.paywall)) $par.append('&nbsp;<span class="glyphicon glyphicon-lock" aria-hidden="true" title="This page is protected by the paywall"></span> ');
+					$par.append('| <a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ');
+					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br />');
 				}
 				$par.append('<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a>');
 				$par.append(' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | ');
