@@ -1027,12 +1027,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             e.preventDefault();
                             return false;
                         });
-                        relationships.find('li>ol>li, li>ul>li').each(function(){
-                            var height = $(this).find('a').first().height()+'px';
-                            $(this).add($(this).find('.expand')).css({
-                                'height' : height
-                            });
-                        });
                         if(!base.usingMobileView){
                             var containerHeight = $(this).height() + 50;
                             var max_height = $(window).height()-50;
@@ -1052,6 +1046,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         if(e.which == 13 || e.which == 32){
                             $(this).click();
                         }
+                    });
+                    relationships.find('li>ol>li, li>ul>li').each(function(){
+                      $(this).add($(this).find('.expand')).height($(this).find('a').first().height());
                     });
             }
             scalarapi.loadPage( container.data('slug'), true, $.proxy(handleRequest,container), null, 1, false, null, 0, 20 );

@@ -167,7 +167,8 @@ class Rdf extends MY_Controller {
 									     'ref'          => (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
 									     'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 				                         'pagination'   => $this->data['pagination'],
-				                         'max_recurses' => $this->data['recursion']
+				                         'max_recurses' => $this->data['recursion'],
+									   	 'paywall_msg'	=> $this->can_bypass_paywall()
 									   )
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
@@ -241,7 +242,8 @@ class Rdf extends MY_Controller {
 			                         	 'ref'			=> (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
 			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 			                         	 'pagination'   => $this->data['pagination'],
-			                         	 'max_recurses' => $this->data['recursion']
+			                         	 'max_recurses' => $this->data['recursion'],
+			                             'paywall_msg'	=> $this->can_bypass_paywall()
 			                           )
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);

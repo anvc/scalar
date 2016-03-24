@@ -256,11 +256,10 @@ abstract class MY_Controller extends Controller {
    	/**
    	 * Determine if paywall page should be presented rather than the protected page content
    	 */
-
-   	protected function paywall() {
-
-   		try {
-   			// Validate
+   	
+   	protected function can_bypass_paywall() {
+   		
+   	   	try {
    			if ($this->login_is_book_admin('Reader')) throw new Exception('Reader logged in');
    			$book_slug = $this->data['book']->slug;
    			if (empty($book_slug)) throw new Exception('Invalid book slug');
@@ -268,8 +267,20 @@ abstract class MY_Controller extends Controller {
    			if (!file_exists($tinypass_config_path)) throw new Exception('Could not find Tinypass config');
    			require_once($tinypass_config_path);
    			if (empty($tinypass) || !is_array($tinypass)) throw new Exception('No $tinypass in tinypass.php');
+   			$this->load->library('Tinypass_Helper', $tinypass);
+   			return false;
+		} catch (Exception $e) {
+			return $e->getMessage();
+		}
+		
+   	}
+
+   	protected function paywall() {
+
+   		try {
+   			$msg = $this->can_bypass_paywall();
+			if (false!==$msg) throw new Exception($msg);
    			// Load Tinypass
-			$this->load->library('Tinypass_Helper', $tinypass);
 			if (!$this->tinypass_helper->accessGranted()) {
 				$this->data['buttonHTML'] = $this->tinypass_helper->getHTML();
 				$this->template->set_template('external');
