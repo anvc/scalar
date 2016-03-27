@@ -105,7 +105,8 @@
 		private function getMaximumFileUploadSize()  {  // http://stackoverflow.com/questions/13076480/php-get-actual-maximum-upload-size
     		$size = min($this->convertPHPSizeToBytes(ini_get('post_max_size')), $this->convertPHPSizeToBytes(ini_get('upload_max_filesize')));
     		$base = log($size) / log(1024);
-			$suffix = array("", "k", "M", "G", "T")[floor($base)];
+			$suffixes = array("", "k", "M", "G", "T");
+			$suffix = $suffixes[floor($base)];
 			return pow(1024, $base - floor($base)) . $suffix;
 		}
 
