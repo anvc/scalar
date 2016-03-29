@@ -188,7 +188,9 @@
 
 					temp.children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
 
-					var width = temp.width()-50;
+					if(content.parents('.slot.right,.slot.left').length > 0){
+						height = null;
+					}
 
 					$(page.getMediaLinks(content)).each(function(){
 						$(this).attr({
