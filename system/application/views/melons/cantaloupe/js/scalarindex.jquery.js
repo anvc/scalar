@@ -66,8 +66,6 @@
 	ScalarIndex.prototype.controlBar = null;			// Index controls
 	ScalarIndex.prototype.firstRun = null;				// First time the plug-in has run?
 	ScalarIndex.prototype.maxPages = null;				// Maximum number of pages with known results in the current tab
-	ScalarIndex.prototype.tabLastPage = {};	 	// last page viewed per tabs visited
-	ScalarIndex.prototype.tabPageCount = {}; // # of pages for each tab for pagination
 
 	ScalarIndex.prototype.init = function () {
 		var me = this;
@@ -149,11 +147,11 @@
 
 		if ( me.currentMode != mode ) {
 			this.currentMode = mode;
-			this.currentPage = this.tabLastPage[mode] || 1;
-			this.maxPages = 1;
+			this.maxPages = 0;
 			mode = mode.toLowerCase();
 			this.controlBar.find('li').removeClass('active');
 			$('#'+mode+'Btn').addClass('active');
+			me.pagination.empty();
 			me.getResults();
 		}
 
@@ -190,6 +188,13 @@
 		for ( i in data ) {
 			node = scalarapi.getNode( i );
 			if ( node !== undefined ) {
+				if(me.maxPages == 0){
+					//We have not yet calculated the number of pages - use the citation property to determine maxPages
+					var citationProp = node.properties['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
+					var p = new RegExp('.*?(methodNumNodes=)(\\d+)',["i"]);
+					var m = p.exec(citationProp);
+					me.maxPages = Math.ceil(parseInt(m[2])/me.resultsPerPage);
+				}
 				nodes.push( node );
 			}
 		}
@@ -225,36 +230,45 @@
 		if ( nodes.length == 0 ) {
 			row = $( '<tr><td style="width:30%">No results found.</td><td></td></tr>' ).appendTo( this.resultsTable );
 		}
-
-		this.pagination.empty();
-		if (( nodes.length == this.resultsPerPage ) || ( this.currentPage > 1 )) {
-			if ( this.currentPage > 1 ) {
-				tabindex++;
-				prev = $('<li><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-				prev.find('a').click( function() { me.previousPage(); } );
-			} else {
-				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-			}
-			var maxPages = this.tabPageCount[this.currentMode] || 1;
-			for ( i = 1; i <= maxPages; i++ ) {
-				tabindex++;
-				var pageBtn = $( '<li><a data-page="'+i+'" title="Go to results page ' + i + '" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
-				pageBtn.data( 'page', i );
-				if ( i == this.currentPage ) {
-					pageBtn.addClass( 'active' );
-				}
-				pageBtn.click( function() {
-					me.goToPage( $( this ).data( 'page' ) );
-				} );
-			}
-			if ( nodes.length == this.resultsPerPage ) {
-				tabindex++;
-				next = $( '<li><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-				next.find('a').click( function() { me.nextPage(); } );
-			} else {
-				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-			}
+		if ( this.currentPage > 1 ) {
+			this.pagination.find('.prevPage').removeClass('disabled');
+		}else{
+			this.pagination.find('.prevPage').addClass('disabled');
 		}
+
+		if(this.currentPage < me.maxPages){
+			this.pagination.find('.nextPage').removeClass('disabled');
+		}else{
+			this.pagination.find('.nextPage').addClass('disabled');
+		}
+
+		if(data.length > 0){
+		}
+		if(me.maxPages > 1 && this.pagination.html() == ""){
+				tabindex++;
+				if(me.maxPages > 1){
+					prev = $('<li class="disabled prevPage"><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
+					prev.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.previousPage();} } );
+				}
+				//var maxPages = this.tabPageCount[this.currentMode] || 1;
+				for ( i = 1; i <= me.maxPages; i++ ) {
+					tabindex++;
+					var pageBtn = $( '<li><a data-page="'+i+'" title="Go to results page ' + i + '" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
+					pageBtn.data( 'page', i );
+					if ( i == this.currentPage ) {
+						pageBtn.addClass( 'active' );
+					}
+					pageBtn.click( function() {
+						me.goToPage( $( this ).data( 'page' ) );
+						$(this).addClass( 'active' ).siblings('.active').removeClass('active');
+					} );
+				}
+				if(me.maxPages > 1){
+					tabindex++;
+					next = $( '<li class="nextPage"><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
+					next.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.nextPage();} } );
+				}
+			}
 
 		// dynamically update tab index of close button
 		tabindex++;
@@ -265,7 +279,7 @@
 	ScalarIndex.prototype.previousPage = function() {
 		if ( this.currentPage > 1) {
 			this.currentPage--;
-			this.tabLastPage[this.currentMode]--;
+			this.pagination.find('li.active').removeClass('active').prev('li').addClass('active');
 			this.getResults(function(){
 
 			});
@@ -274,16 +288,13 @@
 
 	ScalarIndex.prototype.nextPage = function() {
 		this.currentPage++;
-		this.tabLastPage[this.currentMode] = this.currentPage;
-		this.maxPages = Math.max( this.maxPages, this.currentPage );
-		this.tabPageCount[this.currentMode] = this.maxPages;
+		this.pagination.find('li.active').removeClass('active').next('li').addClass('active');
 		var self = this;
 		this.getResults(function() { self.focusOnCurrentPage() });
 	}
 
 	ScalarIndex.prototype.goToPage = function( pageNum ) {
 		this.currentPage = pageNum;
-		this.tabLastPage[this.currentMode] = pageNum;
 		var self = this;
 		this.getResults(function() { self.focusOnCurrentPage() });
 	}
