@@ -135,7 +135,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	    		}
         		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',callback:function(node){
 							var options = reference_options['insertAnnotation'];
-							options.node = node;
+							//options.node = node;
 							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
 	        			var sel = editor.getSelection();
 	            		element = editor.document.createElement('a');
@@ -158,7 +158,7 @@ CKEDITOR.plugins.add( 'scalar', {
         		var sel = editor.getSelection();
         		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',callback:function(node){
 							var options = reference_options['insertInlineAnnotation'];
-							options.node = node;
+							//options.node = node;
 							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
 	        			element = editor.document.createElement('a');
 	            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
