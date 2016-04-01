@@ -402,7 +402,11 @@
 
 					// if this is not an inline media element, and its size is set to 'full', then put the media after its linking text
 					} else {
-						parent.after( slotDOMElement );
+						var embedLocation = parent.nextAll('.slot.full, .body_copy.mediainfo').last();
+						if(embedLocation.length == 0){
+							embedLocation = parent;
+						}
+						embedLocation.after( slotDOMElement );
 						slotDOMElement.addClass( 'full' );
 					}
 
@@ -1303,6 +1307,7 @@
 							page.structuredGallery.addMedia();
 						}
 						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"],.relationships > .annotation_of' ) );
+
 						$( mediaLinks ).each(function() {
 
 							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
