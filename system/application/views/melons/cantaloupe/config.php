@@ -77,12 +77,14 @@ $config['reference_options'] = array(
 	'insertAnnotation' 		=> array(
 								'size' => array('small', 'medium', 'large', 'native', 'full'),
 								'align' => array('right', 'left'),
-								'caption' => array('description', 'title', 'title-and-description', 'none')
+								'caption' => array('description', 'title', 'title-and-description', 'none'),
+								'annotations' => array('none','all','list')
 						  		),
 	'insertInlineAnnotation'=> array(
 								'size' => array('small', 'medium', 'large', 'native',  'full'),
 								'align' => array('left', 'center', 'right'),
-								'caption' => array('description', 'title', 'title-and-description', 'none')
+								'caption' => array('description', 'title', 'title-and-description', 'none'),
+								'annotations' => array('none','all','list')
 							    ),
 	'insertNote' 			=> array(),
 	'createInternalLink' 	=> array()
