@@ -1266,6 +1266,17 @@
 							} );
 							$( this ).click( page.handleMediaLinkClick );
 						} );
+
+						if(isMobile){
+							$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
+								page.mediaCarousel.swiperight(function() {
+	    		  			$(this).carousel('prev');
+		    				}).swipeleft(function() {
+			      			$(this).carousel('next');
+								});
+							});
+						}
+
 						break;
 
 						case "splash":
