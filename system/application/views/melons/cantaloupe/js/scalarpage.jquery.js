@@ -1893,6 +1893,8 @@
 					}
 					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 
+					$( '#google-maps' ).data('map',map);
+
 					// create info window
 					var infoWindow = new google.maps.InfoWindow({
 						content: contentString,
@@ -1979,11 +1981,15 @@
 
 					// adjust map bounds to marker bounds
 					var bounds = new google.maps.LatLngBounds();
+					$( '#google-maps' ).data('bounds',bounds);
 					$.each( markers, function ( index, marker ) {
 						bounds.extend( marker.position );
 					});
 					if ( markers.length > 1 ) {
 						map.fitBounds( bounds );
+						$(window).on('resize',function(){
+							$( '#google-maps' ).data('map').fitBounds($( '#google-maps' ).data('bounds'));
+						});
 					}
 					break;
 
