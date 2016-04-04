@@ -372,7 +372,7 @@ class Version_model extends MY_Model {
     	$data['content'] = (isset($array['content'])) ? trim($array['content']) : '';
     	$data['url'] = $url;
     	$data['user'] = $user_id;
-    	$data['created'] = date('c');
+    	$data['created'] = date('Y-m-d H:i:s');
     	$data['continue_to_content_id'] = (isset($array['continue_to_content_id'])) ? (int) $array['continue_to_content_id'] : 0;
     	$data['version_num'] = ($this->get_version_num($content_id) + 1);
     	$data['sort_number'] = (isset($array['sort_number'])) ? (int) $array['sort_number'] : 0;
