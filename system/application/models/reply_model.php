@@ -88,7 +88,7 @@ class Reply_model extends MY_Model {
 
     		$paragraph_num =@ (int) $paragraph_num_array[$j];
     		$datetime =@ $datetime_array[$j];
-    		if (empty($datetime)) $datetime = date('c');
+    		if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
 
 			$data = array(
  				'parent_version_id' => $parent_version_id,
@@ -120,7 +120,7 @@ class Reply_model extends MY_Model {
     		$paragraph_num = (int) $paragraph_num_array[$j];
     		$created = $created_array[$j];
 
-    		if (empty($created)) $created = date('c');
+    		if (empty($created)) $created = date('Y-m-d H:i:s');
 
 			$data = array(
                'parent_version_id' => $parent_version_id,
