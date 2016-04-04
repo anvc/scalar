@@ -29,7 +29,7 @@ article h5 { font-size: 1.6rem; line-height: 2.4rem; margin-top: 2.4rem; margin-
 article h6 { font-size: 1.4rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
 
 ul > li, ol > li { margin-left: 1.2rem; }
-.dropdown-menu ul > li, .dropdown-menu ol > li, #scalarheader ul > li, #scalarheader ol > li { margin-left: 0; }
+.dropdown-menu ul > li, .dropdown-menu ol > li, #scalarheader ul > li, #scalarheader ol > li, .relationships ul > li, .relationships ol > li { margin-left: 0; }
 
 .page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
 .left_margin { min-width: 7.2rem; float: left; }
