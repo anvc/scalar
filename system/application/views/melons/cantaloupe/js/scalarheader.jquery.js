@@ -3,6 +3,7 @@
 a[e]==a[f]&&a[c]==a[d]?[a[e],a[d]]:a[c]==a[d]?[a[e],a[d],a[f]]:[a[e],a[d],a[f],a[c]]).join(" ")}function k(a){var b=a.currentStyle,c=g(a,b,"fontSize",null);for(property in b)/width|height|margin.|padding.|border.+W/.test(property)&&"auto"!==this[property]?this[property]=g(a,b,property,c)+"px":"styleFloat"===property?this["float"]=b[property]:this[property]=b[property];h(this,"margin");h(this,"padding");h(this,"border");this.fontSize=c+"px";return this}k.prototype={constructor:k,getPropertyPriority:function(){},
 getPropertyValue:function(a){return this[a]||""},item:function(){},removeProperty:function(){},setProperty:function(){},getPropertyCSSValue:function(){}};return function(a){return new k(a)}}(this));
 
+
 /**
  * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
@@ -162,7 +163,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</ul>'+
                                             '</li>'+
                                         '</ul>'+
-                                        '<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs"><span class="hidden-xs author_text"> By <span id="header_authors"></span></span></span>'+
+                                        '<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper"><span class="hidden-xs author_text"> By <span id="header_authors" data-placement="bottom"></span></span></span>'+
                                         '<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight">'+
                                             '<li class="" id="ScalarHeaderMenuSearch">'+
                                                 '<a class="headerIcon" id="searchIcon" title="Search button. Click to open search field.">'+
@@ -546,8 +547,15 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
                 author_text.append( author );
             }
-            author_text.parent('.author_text').fadeIn('fast');
+            author_text.attr('title',author_text.text()).data('title',author_text.text()).parent('.author_text').fadeIn('fast');
 
+            author_text.on('inserted.bs.tooltip',function(){
+              $('#scalarheader').find('.tooltip.bottom').hide();
+            });
+            author_text.on('shown.bs.tooltip',function(){
+              var left = parseInt($('#desktopTitleWrapper').css('max-width'))+10;
+              $('#scalarheader').find('.tooltip').css('left',left+'px').fadeIn('fast');
+            });
             // remove the 'by' if there are no authors to list
             if ( n == 0 ) {
                 $( '.author_text' ).empty();
@@ -1150,6 +1158,17 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     title_width -= 60;
                 }
 
+                //Check if author text is overflowed - if so, add a bootstrap tooltip.
+                var headerTextWidth = 0;
+                $('#header_authors').parent().parent().children().each(function(){
+                  headerTextWidth += $(this).width();
+                });
+                if (headerTextWidth > title_width) {
+                  $('#header_authors').attr('title',$('#header_authors').data('title'));
+                  $('#header_authors').tooltip({'container':'#scalarheader'});
+                }else{
+                  $('#header_authors').attr('title','').tooltip('destroy');
+                }
             }
 
             $('#scalarheader .title_wrapper').css('max-width',title_width+'px');
