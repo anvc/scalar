@@ -146,6 +146,7 @@
 		var me = this;
 
 		if ( me.currentMode != mode ) {
+			this.currentPage = 1;
 			this.currentMode = mode;
 			this.maxPages = 0;
 			mode = mode.toLowerCase();
