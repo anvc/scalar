@@ -1588,7 +1588,7 @@
 				});
 			},
 
-			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow ) {
+			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow, icon ) {
 
 				var marker, contentString,
 					temp = latlngstr.split( ',' );
@@ -1619,7 +1619,8 @@
 					    position: latlng,
 					    map: map,
 					    html: contentString,
-					    title: title
+					    title: title,
+					    icon: icon
 					});
 					google.maps.event.addListener( marker, 'click', function() {
 						infoWindow.setContent( this.html );
@@ -1929,7 +1930,8 @@
 									currentNode.current.description,
 									null,
 									map,
-									infoWindow
+									infoWindow,
+									currentNode.thumbnail
 								);
 
 								if ( marker != null ) {
@@ -1963,7 +1965,8 @@
 										node.current.description,
 										node.url,
 										map,
-										infoWindow
+										infoWindow,
+										node.thumbnail
 									);
 
 									if ( marker != null ) {
