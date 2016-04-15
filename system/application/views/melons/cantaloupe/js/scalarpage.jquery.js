@@ -1588,7 +1588,7 @@
 				});
 			},
 
-			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow, icon ) {
+			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail ) {
 
 				var marker, contentString,
 					temp = latlngstr.split( ',' );
@@ -1609,18 +1609,22 @@
 						titleMarkup = '<h2 class="heading_font heading_weight">' + title + '</h2>';
 					}
 
+					var thumbnailMarkup = "";
+					if (thumbnail != null) {
+						thumbnailMarkup = '<img style="float:left; margin: 0 1rem 1rem 0;" src="' + thumbnail +'" alt="Thumbnail image" width="120"/>';
+					}
+
 					// add marker and info window for current page
 					if ( desc != null ) {
-						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '</h2>' + desc + '</div>';
+						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + desc + '</div>';
 					} else {
-						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '</h2></div>';
+						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + '</div>';
 					}
 					marker = new google.maps.Marker({
 					    position: latlng,
 					    map: map,
 					    html: contentString,
-					    title: title,
-					    icon: icon
+					    title: title
 					});
 					google.maps.event.addListener( marker, 'click', function() {
 						infoWindow.setContent( this.html );
