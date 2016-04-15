@@ -564,7 +564,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
                 }
             }).on('pageLoadComplete',function(){
-              console.log('hmm');
               $('#desktopTitleWrapper').trigger("update");
             });
 
@@ -719,7 +718,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                   wrap: 'letter',
                   height: 50,
                   callback: function(isTruncated, fullText){
-                    console.log(isTruncated, fullText.text());
                     //Check if author text is overflowed - if so, add a bootstrap tooltip.
                     var base = $('#scalarheader.navbar').data('scalarheader');
                     var desktopTitle = base.$el.find('#desktopTitleWrapper');
