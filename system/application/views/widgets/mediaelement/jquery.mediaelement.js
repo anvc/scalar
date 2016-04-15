@@ -2205,7 +2205,7 @@ function YouTubeGetID(url){
 	 			$(".annotorious-popup").click(function(e) {
 					e.stopPropagation();
 					return true;
-				});
+				}).css('z-index',999);
 
 	 			$(this.wrapper).find( ".annotorious-popup-text" ).addClass( "caption_font" );
 
