@@ -298,20 +298,23 @@ a.headerIcon{
 	font-size: 13px;
 	margin-left: 15px;
 	text-transform: uppercase;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 	display: block;
 	margin-top: 0;
 	margin-bottom: 0;
 	line-height: 5rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#desktopTitleWrapper{
+	height: 5rem;
+	width: 100%;
+	text-overflow: clip;
 }
 .navbar .title_wrapper>a{
 	color: #fff;
 }
 .navbar .title_wrapper .author_text{
 	margin-left: 4px;
-	display: none;
 }
 .navbar #ScalarHeaderMenuLeft{
 	margin-left: -15px;

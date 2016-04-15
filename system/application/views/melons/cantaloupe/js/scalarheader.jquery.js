@@ -286,6 +286,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             //Convert our navbar html into a jquery element
             var navbar = $(navbar_html);
 
+
             //We don't always want all of the edit buttons for alternate data
             //type requests (ex: meta or versions) - remove these as necessary
 
@@ -529,7 +530,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var author,
                 n = authors.length,
-                author_text = $( '#header_authors' );
+                author_text = navbar.find( '#header_authors' );
 
             // Build string for author credit
             for ( var i = 0; i < n; i++ ) {
@@ -547,22 +548,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
                 author_text.append( author );
             }
-            author_text.attr('title',author_text.text()).data('title',author_text.text()).parent('.author_text').fadeIn('fast');
-
-            author_text.on('inserted.bs.tooltip',function(){
-              $('#scalarheader').find('.tooltip.bottom').hide();
-            });
-            author_text.on('shown.bs.tooltip',function(){
-              var left = parseInt($('#desktopTitleWrapper').css('max-width'))+10;
-              $('#scalarheader').find('.tooltip').css('left',left+'px').fadeIn('fast');
-            });
             // remove the 'by' if there are no authors to list
             if ( n == 0 ) {
                 $( '.author_text' ).empty();
             }
 
-
-            base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
             var helpElement = $('<div></div>').appendTo('body');
             base.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );
@@ -573,6 +563,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
                     base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
                 }
+            }).on('pageLoadComplete',function(){
+              console.log('hmm');
+              $('#desktopTitleWrapper').trigger("update");
             });
 
             $( '#ScalarHeaderHelp>a' ).click(function(e) {
@@ -635,6 +628,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
                     }
                 }
+
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
@@ -712,8 +706,35 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     base.oldScrollTop = scrollTop;
                 }
             });
-            base.handleResize();
 
+            base.handleResize();
+            base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
+
+            base.titleTextIntervalTime = 0;
+            base.titleTextInterval = window.setInterval(function () {
+              var base = $('#scalarheader.navbar').data('scalarheader');
+              if((base.$el.find('#desktopTitleWrapper #header_authors').is(':visible') && base.$el.find('#desktopTitleWrapper #header_authors').html()!='' ) || titleTextIntervalTime > 5000){
+                base.$el.find('#desktopTitleWrapper').dotdotdot({
+                  ellipsis: '…',
+                  wrap: 'letter',
+                  height: 50,
+                  callback: function(isTruncated, fullText){
+                    console.log(isTruncated, fullText.text());
+                    //Check if author text is overflowed - if so, add a bootstrap tooltip.
+                    var base = $('#scalarheader.navbar').data('scalarheader');
+                    var desktopTitle = base.$el.find('#desktopTitleWrapper');
+                    if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
+                      desktopTitle.tooltip({'title':fullText.text(),'container':'body','placement':'bottom'}).addClass('withTooltip');
+                    }else if(!isTruncated){
+                      desktopTitle.tooltip('destroy').removeClass('withTooltip');
+                    }
+                  }
+                }).addClass('overflowCalculated');
+                clearInterval(base.titleTextInterval);
+                return;
+              }
+              base.titleTextIntervalTime+=200;
+            },200);
         };
         base.buildSubItem = function($container){
             var slug = $container.data('slug');
@@ -1157,21 +1178,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if(base.usingHypothesis){
                     title_width -= 60;
                 }
-
-                //Check if author text is overflowed - if so, add a bootstrap tooltip.
-                var headerTextWidth = 0;
-                $('#header_authors').parent().parent().children().each(function(){
-                  headerTextWidth += $(this).width();
-                });
-                if (headerTextWidth > title_width) {
-                  $('#header_authors').attr('title',$('#header_authors').data('title'));
-                  $('#header_authors').tooltip({'container':'#scalarheader'});
-                }else{
-                  $('#header_authors').attr('title','').tooltip('destroy');
-                }
             }
 
             $('#scalarheader .title_wrapper').css('max-width',title_width+'px');
+            var desktopTitle = base.$el.find('#desktopTitleWrapper');
+            if(desktopTitle.hasClass('overflowCalculated')){
+              desktopTitle.trigger("update");
+            }
             base.$el.removeClass('mobile_view desktop_view').addClass(base.usingMobileView?'mobile_view':'desktop_view');
         };
 
@@ -1437,6 +1450,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     }
                 }
             });
+
+            base.$el.find('#desktopTitleWrapper').trigger("update");
         }
 
         // Run initializer
