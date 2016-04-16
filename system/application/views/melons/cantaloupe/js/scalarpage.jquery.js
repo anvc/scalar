@@ -1588,7 +1588,7 @@
 				});
 			},
 
-			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail ) {
+			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail, label ) {
 
 				var marker, contentString,
 					temp = latlngstr.split( ',' );
@@ -1624,7 +1624,8 @@
 					    position: latlng,
 					    map: map,
 					    html: contentString,
-					    title: title
+					    title: title,
+					    label: label
 					});
 					google.maps.event.addListener( marker, 'click', function() {
 						infoWindow.setContent( this.html );
@@ -1892,6 +1893,7 @@
 
 			  		// look for related geographic metadata and use it to build a Google Map
 			  		case "google_maps":
+			  		case "google_maps_path":
 
 			  		$( '.page' ).css( 'padding-top', '5.0rem' );
 			  		$( 'header > h1' ).before( '<div id="google-maps" class="maximized-embed"></div>' );
@@ -1911,13 +1913,44 @@
 						maxWidth: 400
 					});
 
-					var marker, property, contents, node, contentString,
+					var marker, property, contents, node, contentString, label, pathIndex,
 						properties = [
 							'http://purl.org/dc/terms/coverage',
 							'http://purl.org/dc/terms/spatial'
 						]
 						markers = [],
 						foundError = true;
+
+					var pathContents = currentNode.getRelatedNodes( 'path', 'outgoing' );
+					var tagContents = currentNode.getRelatedNodes( 'tag', 'outgoing' );
+					var contents = pathContents.concat(tagContents);
+
+					/* create a polyline for path contents
+					if (viewType == "google_maps_path") {
+						n = pathContents.length;
+						var temp, coords = [];
+						for (i=0; i<n; i++) {
+							node = pathContents[ i ];
+							for (p in properties) {
+								property = properties[p];
+								if (node.current.properties[ property ] != null) {
+									o = node.current.properties[ property ].length;
+									for (j=0; j<o; j++) {
+										temp = node.current.properties[ property ][ j ].value.split( ',' );
+										coords.push({lat:parseFloat(temp[0]), lng:parseFloat(temp[1])});
+									}
+								}
+							}
+						}
+						var polyline = new google.maps.Polyline({
+							path: coords,
+							geodesic: true,
+							strokeColor: "#d14236",
+							strokeOpacity: 1.0,
+							strokeWeight: 2
+						});
+						polyline.setMap(map);
+					}*/
 
 					for ( p in properties ) {
 
@@ -1947,11 +1980,6 @@
 
 						}
 
-						// get path and tag contents of this page
-						contents = [];
-						contents = contents.concat( currentNode.getRelatedNodes( 'path', 'outgoing' ) );
-						contents = contents.concat( currentNode.getRelatedNodes( 'tag', 'outgoing' ) );
-
 						n = contents.length;
 
 						// add markers for each content element that has the spatial property
@@ -1963,6 +1991,13 @@
 
 								o = node.current.properties[ property ].length;
 								for ( j = 0; j < o; j++ ) {
+
+									label = null;
+									pathIndex = pathContents.indexOf(node);
+									if (pathIndex != -1) {
+										label = (pathIndex+1).toString();
+									}
+
 									marker = page.getMarkerFromLatLonStrForMap(
 										node.current.properties[ property ][ j ].value,
 										node.getDisplayTitle(),
@@ -1970,7 +2005,8 @@
 										node.url,
 										map,
 										infoWindow,
-										node.thumbnail
+										node.thumbnail,
+										label
 									);
 
 									if ( marker != null ) {
