@@ -2125,12 +2125,23 @@
 				base.svg.call( zoom );
 				base.svg.style( "cursor", "move" );
 			
-				base.tree = d3.layout.tree().nodeSize([ 30, fullHeight ])
-				    /*.size([fullHeight, fullWidth])*/;
+				base.tree = d3.layout.cluster().nodeSize([ 30, fullHeight ]);
 
 				base.diagonal = d3.svg.diagonal()
 				    .projection(function(d) { return [d.y, d.x]; });
 
+			}
+
+			function logChildren(hierarchyNode) {
+				console.log(hierarchyNode);
+				if (hierarchyNode.children != null) {
+					console.log(hierarchyNode.title + " has " + hierarchyNode.children.length + " children.");
+					for (var child in hierarchyNode.children) {
+						logChildren(hierarchyNode.children[child]);
+					}
+				} else {
+					console.log(hierarchyNode.title + " has no children.");
+				}
 			}
 
 			if (( base.svg != null ) && ( base.hierarchy != null )) {
@@ -2178,7 +2189,7 @@
 							d.children = d._children;
 							d._children = null;
 						}
-					}	
+					}
 				}
 
 				function branchConformAll(d) {
@@ -2248,7 +2259,7 @@
 						.attr("x", function(d) { return d.children || d._children ? -14 : 14; })
 						.attr("dy", ".35em")
 						.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-						.text(function(d) { return d.shortTitle; })
+						.text(function(d) { return d.title; })
 						.style("fill-opacity", 1e-6)
 					.on('touchstart', function(d) { d3.event.stopPropagation(); })
 					.on('mousedown', function(d) { d3.event.stopPropagation(); })
@@ -2296,7 +2307,7 @@
 					treevis_link.enter().insert("svg:path", "g")
 						.attr("class", "clusterlink")
 						.attr("d", function(d) {
-						var o = {x: source.x0, y: source.y0};
+							var o = {x: source.x0, y: source.y0};
 							return base.diagonal({source: o, target: o});
 						})
 					.transition()
