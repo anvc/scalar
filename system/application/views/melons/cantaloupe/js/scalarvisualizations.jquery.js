@@ -613,9 +613,12 @@
 
         };
 
-		base.loadNode = function( slug, ref ) {
+		base.loadNode = function( slug, ref, depth ) {
 			//console.log( 'load node' );
-			scalarapi.loadNode( slug, true, base.parseNode, null, 1, ref );
+			if (depth == null) {
+				depth = 1;
+			}
+			scalarapi.loadNode( slug, true, base.parseNode, null, depth, ref, 0, 100 );
 		}
 		
 		base.parseNode = function( data ) {
@@ -695,7 +698,7 @@
 						relations = null;
 					} else {
 						forceReload = true;
-						depth = 1;
+						depth = 2;
 						references = ( loadInstruction.relations == 'referee' );
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
@@ -2067,7 +2070,8 @@
         base.drawTree = function( updateOnly ) {
 			
 			var i, j, k, n, o, columnWidth, fullHeight, fullWidth,
-				currentNode = scalarapi.model.getCurrentPageNode();
+				currentNode = scalarapi.model.getCurrentPageNode()
+				firstRun = false;
 
 			var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
 			if (!isFullScreen) {
@@ -2090,6 +2094,7 @@
 			if ( !base.hasBeenDrawn && ( base.visElement.width() > 0 )) {
 
 				base.hasBeenDrawn = true;
+				firstRun = true;
 
 				if ( base.options.content != 'current' ) {
 					helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
@@ -2203,11 +2208,15 @@
 				if ( base.options.content != "all" ) {
 					if ( base.hierarchy.children ) {
 						base.hierarchy.children.forEach( function( d ) {
-							if (d.children != null) {
-								d.children.forEach( branchConformAll );
+							if ((d.children != null) || (d._children != null)) {
+								branchConformAll(d);
 							}
 						});
 					}
+					branchConform(base.hierarchy);
+				    if (firstRun) {
+				    	branchToggle(base.hierarchy);
+				    }
 
 				// collapse all nodes except the root
 				} else {
@@ -2253,6 +2262,11 @@
 						if (d3.event.defaultPrevented) return; // ignore drag
 						branchToggle(d); 
 						pathUpdate(d); 
+						if (base.isHierarchyNodeMaximized(d)) {
+							if ( base.options.content == "current" ) {
+								setTimeout( function() { base.loadNode( d.node.slug, false, 2 ); }, 500 );
+							}
+						}
 					});
 
 					nodeEnter.append("svg:text")
