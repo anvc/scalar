@@ -130,7 +130,7 @@
 			$head.append('<th>Live?&nbsp; </th>');
 			if (-1==options.hide_columns.indexOf('category')) $head.append('<th>Category</th>');
 			if (-1==options.hide_columns.indexOf('thumbnail')) $head.append('<th>Thumb</th>');
-			$head.append('<th>URI</th>');
+			$head.append('<th>URL</th>');
 			$head.append('<th>Title</th>');
 			if (-1==options.hide_columns.indexOf('description')) $head.append('<th>Description</th>');
 			if (-1==options.hide_columns.indexOf('content')) $head.append('<th>Content</th>');
@@ -180,7 +180,7 @@
 				if (nodes[j].thumbnail && nodes[j].thumbnail.length) thumb_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'"><img src="'+nodes[j].thumbnail+'" /></a>';
 				thumb_str += '</td>';
 				if (-1==options.hide_columns.indexOf('thumbnail')) $tr.append(thumb_str);
-				$tr.append('<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'+options.book_uri+nodes[j].slug+'">'+nodes[j].slug+'</a></td>');
+				$tr.append('<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'+options.book_uri+nodes[j].slug+'">'+nodes[j].slug+(('index'==nodes[j].slug)?'<span class="home_page"> (home page)</span>':'')+'</a></td>');
 				$tr.append('<td property="title">'+nodes[j].getDisplayTitle(true)+'</td>');
 				if (-1==options.hide_columns.indexOf('description')) $tr.append('<td property="description">'+$.fn.scalardashboardtable('cut_string',nodes[j].current.description,Math.max(options.cut_long_text_to,nodes[j].getDisplayTitle(true).length*0.9))+'</td>');
 				if (-1==options.hide_columns.indexOf('content')) $tr.append('<td property="content">'+$.fn.scalardashboardtable('cut_string',nodes[j].current.content,options.cut_long_content_to)+'</td>');
