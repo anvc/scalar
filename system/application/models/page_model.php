@@ -41,7 +41,6 @@ class Page_model extends MY_Model {
     public function get($content_id=0) {
 
      	$this->db->where('content_id',$content_id);
-    	$this->db->limit(1); // There should only be one item
     	$query = $this->db->get($this->pages_table);
     	if (!$query->num_rows) return null;
     	$result = $query->result();
@@ -237,10 +236,6 @@ class Page_model extends MY_Model {
 			}
 		}
 
-		// Delete versions
-		$this->db->where('content_id', $content_id);
-		$this->db->delete($this->versions_table);
-
 		return true;
 
     }
@@ -359,7 +354,7 @@ class Page_model extends MY_Model {
 		$data['is_live']    = (isset($array['is_live'])) ? $array['is_live'] : 1;
 		$data['color']      = (isset($array['color']) && $array['color'] != '#ffffff') ? $array['color'] : '';
 		$data['user']       = (int) $array['user_id'];
-		$data['created']    = date('c');
+		$data['created']    = date('Y-m-d H:i:s');
 		if (isset($array['category']) && !empty($array['category'])) $data['category'] = $array['category'];
 		if (isset($array['thumbnail']))  		$data['thumbnail'] = (is_array($array['thumbnail'])) ? $array['thumbnail'][0] : $array['thumbnail'];
 		if (isset($array['background']))  		$data['background'] = (is_array($array['background'])) ? $array['background'][0] : $array['background'];

@@ -33,10 +33,10 @@ $config['views'] = array(
 	'vispath' => array('name'=>'Path','description'=>'<b>Visualizes the current path.</b> The Path layout embeds a visualization at the top of the page that shows the path contents of the current page in a tree diagram. The reader can expand sub-paths of the tree to explore its contents. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_path.gif'),
 	'vismedia' => array('name'=>'Media','description'=>'<b>Visualizes this page\'s media.</b> The Media layout embeds a force-directed visualization at the top of the page that shows the media it references or annotates. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_tag.gif'),
 	'vistag' => array('name'=>'Tag','description'=>'<b>Visualizes content tagged by this page.</b> The Tag layout embeds a force-directed visualization at the top of the page that shows the content it tags. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_tag.gif'),
+	'tags' => array('name'=>'Tag Cloud','description'=>'<b>Visualizes the prevalence of tags.</b> This layout embeds a tag cloud at the top of the page that shows the relative prevalence of tags in the work.','image'=>'views/melons/cantaloupe/images/view_tags.gif'),
+	'toc' => array('name'=>'Table of Contents','description'=>'<b>Displays the Table of Contents.</b> This layout includes the work’s Table of Contents, as defined in the Dashboard, below the page content.','image'=>'views/melons/cantaloupe/images/view_toc.gif'),
+	'resources' => array('name'=>'Resources','description'=>'<b>Lists all pages and media.</b> The Resources layout lists all pages, followed by all media, in alphabetized lists below the page content.','image'=>'views/melons/cantaloupe/images/view_resources.gif'),
 	'meta' => array('name'=>'Metadata','description'=>'<b>Displays all metadata for the page.</b> The Metadata layout displays a table containing all of the metadata for the page, including all of its prior versions.','image'=>'views/melons/cantaloupe/images/view_metadata.gif'),
-	'tags' => array('name'=>'Tag Cloud','description'=>'<b>Add a tag cloud to this page.</b> This layout will render a Tag Cloud below the page content.','image'=>'views/melons/cantaloupe/images/view_tags.gif'),
-	'resources' => array('name'=>'Resources','description'=>'<b>List all pages and media.</b> All pages and media will be listed in alphabetical order below the page content.','image'=>'views/melons/cantaloupe/images/view_resources.gif'),
-	'toc' => array('name'=>'Table of Contents','description'=>'<b>Displays the table of contents.</b> The pages of the Table of Contents (set in the Dashboard) will be displayed below the page content.','image'=>'views/melons/cantaloupe/images/view_toc.gif'),
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
@@ -96,5 +96,10 @@ $config['predefined_css'] = array(
 		'title'=>'Show path contents in sidebar',
 		'description'=>'By default, the contents of the current path are displayed at the bottom of the page. This CSS (which is only recommended for pages that don\'t include media) places the path contents in a second column to the right of the page content.',
 		'insert'=>"@media screen and (min-width: 768px) {\n.primary_role_path span[property=\"sioc:content\"] {width:50%; float:left; clear:none;}\n.primary_role_path span[property=\"sioc:content\"] .body_copy {padding-right:0px;}\n.primary_role_path article .relationships {width:50%; float:right; clear:none !important; padding-top:0px !important;}\n.primary_role_path article .relationships a.nav_btn {display:none;} /* Hides path navigation buttons */ }\n"
+	),
+	array(
+		'title'=>'Don’t crop splash images on phones',
+		'description'=>'By default, splash images are resized to cover the entire window, which can result in extreme cropping on small devices. This CSS ensures that the entire splash image is always visible on small devices (possibly introducing black bars at the top and bottom or sides to achieve this).',
+		'insert'=>"@media screen and (max-width: 768px) { .splash { background-size: contain; background-repeat: no-repeat; } }\n"
 	)
 );

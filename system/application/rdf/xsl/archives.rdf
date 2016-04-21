@@ -107,7 +107,7 @@
 		<dc:title>SoundCloud</dc:title>
 		<dcterms:description><![CDATA[SoundCloud is the "the world's largest community of sound creators." (SoundCloud.com)]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/soundcloud_2.xsl" />
-		<scalar:getStr><![CDATA[q=$1&limit=50&offset=$2&consumer_key=55070ba50cb72b8e26f220916c4d54a3]]></scalar:getStr>
+		<scalar:getStr><![CDATA[q=$1&limit=50&offset=$2&consumer_key=$api_key]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>		
 	
@@ -146,6 +146,15 @@
 		<dcterms:description><![CDATA[Find information about electronically catalogued artworks in The Metropolitan Museum of Art's permanent collection. (http://metmuseum.org)]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/metropolitan_museum_of_art.xsl" />
 		<scalar:getStr><![CDATA[ft=$1&pg=$2]]></scalar:getStr>
+	</rdf:Description>	
+	
+	<rdf:Description rdf:about="http://api.repo.nypl.org/api/v1/items/search.xml">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>NYPL</dc:title>
+		<dcterms:description><![CDATA[For more than a century, The New York Public Library has amassed an extraordinary trove of rare and unique material covering the full spectrum of recorded knowledge. Now, for the first time, significant portions of the Library's digitized collections are available as machine-readable data: over one million objects and records for you to search, crawl and compute. (http://nypl.org)]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/nypl.xsl" />
+		<scalar:getStr><![CDATA[q=$1&publicDomainOnly=true&per_page=50&page=$2]]></scalar:getStr>
+		<scalar:header>Authorization: Token token=$api_key</scalar:header>
 	</rdf:Description>	
 	
 </rdf:RDF>	

@@ -172,6 +172,7 @@
 			node = nodes[i];
 			if (node.current != null) {
 				description = node.current.description;
+				citation = node.current.properties["http://scalar.usc.edu/2012/01/scalar-ns#citation"];
 			}
 			if (description == null) {
 				description = '(No description)';
@@ -182,7 +183,12 @@
 			if (node.thumbnail) {
 				thumb = '<img src="'+node.thumbnail+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
 			}
-			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
+			var matched = '';
+			if ('undefined'!=typeof(citation)) {
+				matched = '<span class="h">Matched:</span> ';
+				matched += '<span class="b">'+citation[0].value.substr(citation[0].value.indexOf('=')+1).split(',').join('</span>, <span class="b">')+'</span>';
+			}
+			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td><td class="matched hidden-xs hidden-sm">'+matched+'</td></tr>' ).appendTo( this.resultsTable );
 
 			row.data( 'node', node );
 			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );

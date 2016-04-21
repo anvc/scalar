@@ -348,25 +348,21 @@ class RDF_Object {
 
 		// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
-			//if (!is_int($settings['versions']) || empty($row->recent_version_id)) {
-				//echo 'get_all: '.$settings['versions']."\n";
-				$row->versions = $CI->versions->get_all(
-														$row->content_id,
-														((is_int($settings['versions']))?null:$settings['versions']),
-														((is_int($settings['versions']))?$settings['versions']:1),
-														$settings['sq']
-													   );
-			/*
+			if (self::VERSIONS_ALL === $settings['versions']) {
+				$row->versions = $CI->versions->get_all($row->content_id, null, null, $settings['sq']);
 			} else {
-				//echo 'get: '.$row->recent_version_id."\n";
-				$row->versions[0] = $CI->versions->get($row->recent_version_id, $settings['sq']);
+				$row->versions = array();
+				$row->versions[0] = $CI->versions->get_single(
+													   $row->content_id,
+													   ((is_int($settings['versions']))?null:$settings['versions']),
+													   $row->recent_version_id,
+													   $settings['sq']
+													      );
 			}
-			*/
 		}
 
 		if (!count($row->versions)) return null;
 		$row->version_index = 0;
-		//if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $row->versions[$row->version_index]->version_id);
 		$row = $this->_provenance($row, $settings);
 		if (!isset($settings['max_recurses'])) return $row;
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
@@ -400,33 +396,29 @@ class RDF_Object {
 			if (empty($row->user)) $row->user = $CI->users->prov_wasAttributedTo($settings['anon_name'],$settings['base_uri']);
 		}
 
-		// Versions attached to each node
-    	// if (!is_int($settings['versions']) || empty($row->recent_version_id)) {
+    	// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
-			$versions = $CI->versions->get_all(
-												$row->content_id,
-												((is_int($settings['versions']))?null:$settings['versions']),
-												((is_int($settings['versions']))?$settings['versions']:1),
-												$settings['sq']
-											   );
+			if (self::VERSIONS_ALL === $settings['versions']) {
+				$versions = $CI->versions->get_all($row->content_id, null, null, $settings['sq']);
+			} else {
+				$versions = array();
+				$version = $CI->versions->get_single(
+												     $row->content_id,
+												     ((is_int($settings['versions']))?null:$settings['versions']),
+												     $row->recent_version_id,
+												     $settings['sq']
+													);
+				if (!empty($version)) $versions[0] = $version;
+			}
 		} else {
 			$versions = $row->versions;
 		}
-		/*
-    	} else {
-			$versions = array();
-			$version = $CI->versions->get($row->recent_version_id, $settings['sq']);
-			if (!empty($version)) $versions[0] = $version;
-			unset($version);
-		}
-		*/
+
 		if (!count($versions)) return;
-		// if (empty($row->recent_version_id)) $CI->versions->set_recent_version_id($row->content_id, $versions[0]->version_id);
 
 		// Special fields including references and users (if applicable)
 		$row->version = $settings['base_uri'].$row->slug.'.'.$versions[0]->version_num;
 		foreach ($versions as $key => $version) {
-
 			$row->has_version[] = $settings['base_uri'].$row->slug.'.'.$version->version_num;
 			$row->has_version_id[] = $version->version_id;
 			$versions[$key]->version_of = $settings['base_uri'].$row->slug;
@@ -455,6 +447,11 @@ class RDF_Object {
 			}
 			// Categories (commentaries, reviews) (comments on the book itself)
 			if (!empty($row->category)) $versions[$key]->category = $row->category;
+			// Paywall
+			if (isset($row->paywall) && 1 == $row->paywall && false===$settings['paywall_msg']) {
+				unset($versions[$key]->content);
+				unset($versions[$key]->url);
+			}
 		}
 
 		// Place into object for use later in relationship building

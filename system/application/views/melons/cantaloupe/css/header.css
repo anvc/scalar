@@ -4,15 +4,15 @@ body{
 }
 body.in_menu{
 	overflow: hidden !important;
-	/*position: fixed; 
+	/*position: fixed;
     overflow-y: scroll;
     width: 100%;*/
 }
 
 .navbar .hidden_submit{
 	visibility:hidden;
-	width: 1px; 
-	height: 1px; 
+	width: 1px;
+	height: 1px;
 	position: absolute;
 }
 
@@ -35,8 +35,7 @@ a.headerIcon{
 	background-size: 22px;
 	background-repeat: no-repeat;
 	display: inline-block;
-	vertical-align: middle;
-	float: left;
+	vertical-align: bottom;
 	margin-right: .5rem;
 }
 .expand .menuIcon{
@@ -175,6 +174,20 @@ a.headerIcon{
 	background-image: url(../images/menu_path_icon_selected.png);
 }
 
+.navbar li>a>#connectionsIcon{
+	background-image: url(../images/menu_connections_icon.png);
+}
+.navbar li:hover>a>#connectionsIcon{
+	background-image: url(../images/menu_connections_icon_selected.png);
+}
+
+.navbar li>a>#tocIcon{
+	background-image: url(../images/menu_toc_icon.png);
+}
+.navbar li:hover>a>#tocIcon{
+	background-image: url(../images/menu_toc_icon_selected.png);
+}
+
 .navbar li>a>#pageIcon{
 	background-image: url(../images/menu_page_icon.png);
 }
@@ -285,20 +298,23 @@ a.headerIcon{
 	font-size: 13px;
 	margin-left: 15px;
 	text-transform: uppercase;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 	display: block;
 	margin-top: 0;
 	margin-bottom: 0;
 	line-height: 5rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#desktopTitleWrapper{
+	height: 5rem;
+	width: 100%;
+	text-overflow: clip;
 }
 .navbar .title_wrapper>a{
 	color: #fff;
 }
 .navbar .title_wrapper .author_text{
 	margin-left: 4px;
-	display: none;
 }
 .navbar #ScalarHeaderMenuLeft{
 	margin-left: -15px;
@@ -359,6 +375,7 @@ a.headerIcon{
 	line-height: 22px;
 	font-size: 10pt;
 	font-weight: bold;
+  display: inline-block;
 }
 .navbar .mainMenuDropdown>#mainMenuInside>li>ul>li>a,.navbar .mainMenuDropdown>#mainMenuInside>li>ol>li>a{
 	margin-right: 3.5rem;
@@ -400,8 +417,8 @@ a.headerIcon{
 		text-align: center;
 		width: 2.5rem;
 	}
-	
-	.tocMenu .expandedPage .relationships ul, 
+
+	.tocMenu .expandedPage .relationships ul,
 	.tocMenu .expandedPage .relationships li{
 		list-style-type: none;
 	}
@@ -419,11 +436,11 @@ a.headerIcon{
 .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.visited>a:first-child:before, .tocMenu .expandedPage .relationships ol>li.visited>a:first-child:before {
     color: #808080;
 }
-.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a:first-child:hover:before, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a:first-child:hover:before,
 .tocMenu .expandedPage .relationships ol>li>a:first-child:hover:before,
-.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a:first-child:focus:before, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a:first-child:focus:before,
 .tocMenu .expandedPage .relationships ol>li>a:first-child:focus:before,
-.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.active>a:first-child:before, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.active>a:first-child:before,
 .tocMenu .expandedPage .relationships ol>li.active>a:first-child:before {
 	color: #fff;
 }
@@ -459,10 +476,10 @@ a.headerIcon{
 	color: #b3b3b3;
 }
 .navbar ul.dropdown-menu li a:hover,
-.navbar ul.dropdown-menu li.active a, 
-.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.is_parent.active>a.expand, 
+.navbar ul.dropdown-menu li.active a,
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.is_parent.active>a.expand,
 .tocMenu .expandedPage .relationships ol>li.is_parent.active>a.expand,
-.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.active>a.expand, 
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.active>a.expand,
 .tocMenu .expandedPage .relationships ol>li.active>a.expand,
 #mobileMainMenuSubmenus li a:hover,
 #mobileMainMenuSubmenus li.active a{
@@ -520,6 +537,9 @@ a.headerIcon{
 }
 .navbar ul.dropdown-menu li{
   	max-width: 38rem;
+}
+.navbar ul.dropdown-menu li.vis_link{
+		max-width: inherit;
 }
 .navbar .dropdown-menu li:hover, .navbar .dropdown-menu li:active{
 	background-color: #353535;
@@ -584,6 +604,11 @@ nav.navbar .open>a, nav.navbar .open>a:hover, nav.navbar .open>a, nav.navbar .op
 	min-height: 100%;
 	display: none;
 }
+/*Fix for submenus detaching when zooming in past 100%*/
+#mainMenuSubmenus.tocMenu{
+	margin-left: 3.5px;
+}
+
 .tocMenu .expandedPage{
 	width: 38rem;
 	position: absolute;
@@ -679,7 +704,7 @@ i.loader{
 	#userMenu li:last-child, #ScalarHeaderImport li:last-child, #navMenu li:last-child{
 		margin-bottom: 0;
 	}
-	
+
 	.navbar .mainMenuDropdown>#mainMenuInside{
 		position: absolute;
 	    top: 0px;
@@ -765,7 +790,7 @@ i.loader{
 	}
 	.navbar ul.dropdown-menu ul.dropdown-menu ul.dropdown-menu{
 		background-color: #111;
-	}	
+	}
 	nav.navbar .navbar-collapse{
 		max-height: none;
 		background-color: #444;

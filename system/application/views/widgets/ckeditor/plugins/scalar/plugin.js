@@ -16,7 +16,7 @@ CKEDITOR._scalar = {
 					label : 'External Link',
 					elements : [{
 						type : 'html',
-						html : 'Add a hyperlink to an external site. Scalar will maintain a header bar that allows easy navigation back to your book (unless disallowed by the external site).'		
+						html : 'Add a hyperlink to an external site. Scalar will maintain a header bar that allows easy navigation back to your book (unless disallowed by the external site).'
 					},{
 						type : 'text',
 						id : 'href',
@@ -29,7 +29,7 @@ CKEDITOR._scalar = {
 						},
 						commit : function(data) {
 							data.href = this.getValue();
-						}						
+						}
 					},{
 						type : 'checkbox',
 						id : 'target_blank',
@@ -37,10 +37,10 @@ CKEDITOR._scalar = {
 						'default' : false,
 						setup : function(element) {
 							if ('_blank'==element.getAttribute('target')) this.setValue('checked');
-						},						
+						},
 						commit : function(data) {
 							data.target = (this.getValue()) ? '_blank' : false;
-						}						
+						}
 					}]
 				}],
 				onShow : function() {
@@ -52,7 +52,7 @@ CKEDITOR._scalar = {
 						return;
 					}
 					this.element = editor.document.createElement('a');
-					this.element.setHtml(sel.getSelectedText());				
+					this.element.setHtml(sel.getSelectedText());
 					if (element) element = element.getAscendant('a', true);
 					// Browsers won't allow href attribute to be re-written, so doing this round-about by always creating a new <a> but propogating it with the existing element's values if it exists
 					if (!element || element.getName() != 'a' || element.data('cke-realelement' )) {
@@ -60,16 +60,16 @@ CKEDITOR._scalar = {
 					} else {
 						this.setupContent(element);
 					}
-				},				
+				},
 				onOk : function() {
 					var dialog = this, data = {};
 					this.commitContent(data);
 					if (data.href.length) this.element.setAttribute('href', data.href);
 					if (data.target) this.element.setAttribute('target', data.target);
-					editor.insertElement(this.element);	
+					editor.insertElement(this.element);
 				}
 			};
-		});		
+		});
 		var _command = new CKEDITOR.dialogCommand('external_link');
 		editor.addCommand('_external_link_dialog', _command);
 		editor.execCommand("_external_link_dialog");
@@ -81,25 +81,25 @@ CKEDITOR.plugins.add( 'scalar', {
     requires: 'dialog',
     init: function( editor ) {
 	    var pluginDirectory = this.path;
-	    editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );	
+	    editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );
         editor.addCommand( 'insertScalar1', {
             exec: function( editor ) {
 	    		var sel = editor.getSelection();
 	    		if (sel.getRanges()[0].collapsed) {
 	    			alert('Please select text to transform into a media link');
 	    			return;
-	    		}	        	
+	    		}
         		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',callback:function(node){
         			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaLink'],callback:function(options) {
-            			var sel = editor.getSelection();			
+            			var sel = editor.getSelection();
                 		element = editor.document.createElement('a');
-                		element.setHtml(sel.getSelectedText());	
+                		element.setHtml(sel.getSelectedText());
             			element.setAttribute('href', node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value);
             			element.setAttribute('resource', node.slug);
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
             			}
-            			editor.insertElement(element);       				
+            			editor.insertElement(element);
         			}});
         		}});
             }
@@ -107,7 +107,7 @@ CKEDITOR.plugins.add( 'scalar', {
         editor.addCommand( 'insertScalar2', {
             exec: function( editor ) {
         		var sel = editor.getSelection();
-        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',callback:function(node){				
+        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',callback:function(node){
         			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaelement'],callback:function(options) {
 	        			element = editor.document.createElement('a');
 	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
@@ -116,9 +116,9 @@ CKEDITOR.plugins.add( 'scalar', {
 	        			element.setAttribute('resource', node.slug);
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
-            			}	        			
-	        			editor.insertElement(element);	
-        			}});	
+            			}
+	        			editor.insertElement(element);
+        			}});
         		}});
             }
         });
@@ -128,10 +128,10 @@ CKEDITOR.plugins.add( 'scalar', {
 	    		if (sel.getRanges()[0].collapsed) {
 	    			alert('Please select text to transform into a media link');
 	    			return;
-	    		}	        	
+	    		}
         		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',callback:function(node){
         			CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],callback:function(options) {
-	        			var sel = editor.getSelection();			
+	        			var sel = editor.getSelection();
 	            		element = editor.document.createElement('a');
 	            		element.setHtml(sel.getSelectedText());
 	            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
@@ -141,15 +141,15 @@ CKEDITOR.plugins.add( 'scalar', {
 	        			element.setAttribute('resource', resource);
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
-            			}	        			
+            			}
 	        			editor.insertElement(element);
         			}});
         		}});
             }
-        });     
+        });
         editor.addCommand( 'insertScalar4', {
             exec: function( editor ) {
-        		var sel = editor.getSelection();	
+        		var sel = editor.getSelection();
         		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',callback:function(node){
         			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineAnnotation'],callback:function(options) {
 	        			element = editor.document.createElement('a');
@@ -162,22 +162,22 @@ CKEDITOR.plugins.add( 'scalar', {
 	        			element.setAttribute('resource', resource);
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
-            			}	        			
-	        			editor.insertElement(element); 	
+            			}
+	        			editor.insertElement(element);
         			}});
         		}});
             }
-        });   
+        });
         editor.addCommand( 'insertScalar5', {
             exec: function( editor ) {
 	    		var sel = editor.getSelection();
 	    		if (sel.getRanges()[0].collapsed) {
 	    			alert('Please select text to transform into a note link');
 	    			return;
-	    		}	       	
+	    		}
         		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,onthefly:true,msg:'Insert Scalar Note',callback:function(node){
         			CKEDITOR._scalar.contentoptions({data:reference_options['insertNote'],callback:function(options) {
-	        			var sel = editor.getSelection();			
+	        			var sel = editor.getSelection();
 	            		element = editor.document.createElement('span');
 	            		element.setHtml(sel.getSelectedText());
 	            		element.setAttribute('class', 'note');
@@ -185,38 +185,38 @@ CKEDITOR.plugins.add( 'scalar', {
 	        			element.setAttribute('resource', node.slug);
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
-            			}	        			
-	        			editor.insertElement(element); 	       
-        			}});	
+            			}
+	        			editor.insertElement(element);
+        			}});
         		}});
             }
-        });   
+        });
         editor.addCommand( 'insertScalar6', {
             exec: function( editor ) {
 	    		var sel = editor.getSelection();
 	    		if (sel.getRanges()[0].collapsed) {
 	    			alert('Please select text to transform into a link');
 	    			return;
-	    		}	        	
+	    		}
         		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,onthefly:true,msg:'Insert link to Scalar content',callback:function(node){
         			CKEDITOR._scalar.contentoptions({data:reference_options['createInternalLink'],callback:function(options) {
-	        			var sel = editor.getSelection();			
+	        			var sel = editor.getSelection();
 	            		element = editor.document.createElement('a');
 	            		element.setHtml(sel.getSelectedText());
 	        			element.setAttribute('href', node.slug);
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
-            			}	        			
-	        			editor.insertElement(element); 
+            			}
+	        			editor.insertElement(element);
         			}});
         		}});
             }
-        });     
+        });
         editor.addCommand( 'insertScalar7', {  // External link
             exec: function( editor ) {
         		CKEDITOR._scalar.external_link(editor, {});
             }
-        });         
+        });
         editor.ui.addButton( 'Scalar1', {
             label: 'Insert Scalar Media Link',
             command: 'insertScalar1',
@@ -226,12 +226,12 @@ CKEDITOR.plugins.add( 'scalar', {
             label: 'Insert Inline Scalar Media Link',
             command: 'insertScalar2',
             toolbar: 'links'
-        });   
+        });
         editor.ui.addButton( 'Scalar3', {
             label: 'Insert Scalar Annotation',
             command: 'insertScalar3',
             toolbar: 'links'
-        });   
+        });
         editor.ui.addButton( 'Scalar4', {
             label: 'Insert Inline Scalar Annotation',
             command: 'insertScalar4',
@@ -241,17 +241,16 @@ CKEDITOR.plugins.add( 'scalar', {
             label: 'Insert Scalar Note',
             command: 'insertScalar5',
             toolbar: 'links'
-        });   
+        });
         editor.ui.addButton( 'Scalar6', {
             label: 'Insert Link to another Scalar Page',
             command: 'insertScalar6',
             toolbar: 'links'
-        });    
+        });
         editor.ui.addButton( 'Scalar7', {
             label: 'Insert External Link',
             command: 'insertScalar7',
             toolbar: 'links'
-        });           
+        });
     }
 });
-

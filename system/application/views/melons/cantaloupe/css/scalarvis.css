@@ -1,6 +1,6 @@
-.visualization {
-	text-align: left;
-}
+
+div.visualization { text-align: left; }
+h1.visualization { margin-bottom: 1.2rem; }
 
 .vis_footer.bounded, .loadingMsg.bounded {
 	padding-left: 0;
@@ -216,3 +216,6 @@ text.visit-button {
 	background-repeat: no-repeat;
 	height: 7px;
 }
+
+.tag_cloud { font-weight: 700; }
+div.jqcloud a:hover { color: inherit !important; }

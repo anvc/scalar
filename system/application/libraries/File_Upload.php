@@ -4,13 +4,7 @@
 
     	const THUMB_WIDTH = 120;
 
-        public function __construct() {
-
-        }
-        private function upload($tempFile,$targetFile,$chmodMode) {
-            if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file could be too large.');
-            @chmod($targetFile, $chmodMode);
-        }
+        public function __construct() {}
 
         public function uploadMedia($slug,$chmodMode,$versions=null) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
@@ -76,9 +70,45 @@
             return 'media/'.$targetName;
         }
 
+        private function upload($tempFile,$targetFile,$chmodMode) {
+            if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file is likely larger than the system\'s max upload size ('.$this->getMaximumFileUploadSize().').');
+            @chmod($targetFile, $chmodMode);
+        }
+
         private function resize($targetFile,$width) {
             require confirm_slash(APPPATH).'libraries/wideimage/WideImage.php';
             WideImage::load($targetFile)->resize($width)->saveToFile($targetFile);
         }
+
+		private function convertPHPSizeToBytes($sSize)  {  // http://stackoverflow.com/questions/13076480/php-get-actual-maximum-upload-size
+		    if ( is_numeric( $sSize) ) {
+		   		return $sSize;
+		    }
+		    $sSuffix = substr($sSize, -1);
+		    $iValue = substr($sSize, 0, -1);
+		    switch(strtoupper($sSuffix)){
+			    case 'P':
+			        $iValue *= 1024;
+			    case 'T':
+			        $iValue *= 1024;
+			    case 'G':
+			        $iValue *= 1024;
+			    case 'M':
+			        $iValue *= 1024;
+			    case 'K':
+			        $iValue *= 1024;
+			        break;
+		    }
+		    return $iValue;
+		}
+
+		private function getMaximumFileUploadSize()  {  // http://stackoverflow.com/questions/13076480/php-get-actual-maximum-upload-size
+    		$size = min($this->convertPHPSizeToBytes(ini_get('post_max_size')), $this->convertPHPSizeToBytes(ini_get('upload_max_filesize')));
+    		$base = log($size) / log(1024);
+			$suffixes = array("", "k", "M", "G", "T");
+			$suffix = $suffixes[floor($base)];
+			return pow(1024, $base - floor($base)) . $suffix;
+		}
+
     }
 ?>

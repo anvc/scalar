@@ -50,7 +50,7 @@
 								currentAnnotationTable.empty();
 
 								var row = $('<tr><td>'+relation.startString+'</td><td></td></tr>').appendTo(currentAnnotationTable);
-								media.addContentForAnnotationToContainer( relation.body, row.find( 'td' ).eq( 1 ) );
+								media.addContentForAnnotationToContainer( "single-anno-", relation.body, row.find( 'td' ).eq( 1 ) );
 
 								row.data('relation', relation);
 								row.click(function( event ) {
@@ -73,13 +73,13 @@
 
 							// otherwise, update the list of all annotations
 							} else {
-								
+
 								$(annotationTable).find('tr').removeClass('current');
 								$(annotationTable).find('tr').each(function() {
 
 									var rowRelation = $(this).data('relation');
 									var col = $(this).find('td').eq(1);
-									
+
 
 									if ( rowRelation != null ) {
 
@@ -91,8 +91,7 @@
 											// only rebuild the annotation content if it isn't already showing
 											if ( $( '.media_annotations #anno-' + rowRelation.body.slug ).length == 0 ) {
 												col.empty();
-												media.addContentForAnnotationToContainer( rowRelation.body, col );
-												page.addMediaElementsForElement( col );
+												media.addContentForAnnotationToContainer( "anno-", rowRelation.body, col );
 
 											} else {
 												col.find( 'h4' ).contents().wrap( '<a href="' + rowRelation.body.url + '"></a>' );
@@ -106,7 +105,7 @@
 											col.find( 'h4 > a' ).contents().unwrap();
 											col.find( 'h4' ).removeClass( 'heading_weight' );
 											col.find( 'div' ).eq( 0 ).slideUp();
-										}	
+										}
 									}
 								});
 							}
@@ -158,18 +157,52 @@
 				}
 			},
 
-			addContentForAnnotationToContainer: function( annotation, container ) {
+			addContentForAnnotationToContainer: function( idPrefix, annotation, container ) {
 
 				var content, tag, tags, tagBar, tagItem, labelClass, i, n;
 
+
 				// add the title
-				container.append('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
+				var header = $('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
+				container.append(header);
 
-				content = $( '<div id="anno-' + annotation.slug +'"></div>' ).appendTo( container );
+				content = $( '<div id="' + idPrefix + annotation.slug +'"></div>' ).appendTo( container );
 
+				var width = container.parents('.mediainfo').width() - container.parents('tr').children('td').first().width() - 60;
+				var height = parseInt(container.parents('.media_annotations').css('max-height')) - container.parents('.media_annotations').innerHeight() - 10;
+				if(content.parents('.right,.left').length > 0){
+					height = null;
+				}
 				// add the annotation description
-				nodeContent = $( '<p>' + annotation.getDescription() + '</p>' ).appendTo( content );
+				var description = annotation.getDescription();
+				if(description.length > 0){
+					var temp = $('<div>'+description+'</div>').appendTo(content);
 
+					$(page.getMediaLinks(temp)).each(function(){
+						if($(this).hasClass('inline')){
+							$(this).wrap('<div></div>').hide().removeClass('inline');
+						}
+					});
+
+					wrapOrphanParagraphs(temp);
+
+					temp.children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+
+					if(content.parents('.slot.right,.slot.left').length > 0){
+						height = null;
+					}
+
+					$(page.getMediaLinks(content)).each(function(){
+						$(this).attr({
+							'data-align':'',
+							'data-size':'full',
+							'data-annotations':'[]',
+							'class':'media_link'
+						});
+						var parent = $(this).parent();
+						page.addNoteOrAnnotationMedia($(this),parent,width,height);
+					});
+				}
 				// get incoming tags and display them as buttons
 				tags = annotation.getRelatedNodes( "tag", "incoming" );
 				n = tags.length;
@@ -202,6 +235,12 @@
 				}
 				if ( n > 0 ) {
 					content.append( '<p class="anno-tag-content"></p>' );
+				}
+
+				if(annotation.hasScalarType( 'media' ) && content.find('.annotation_media_'+annotation.slug).length == 0){
+					var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(content);
+					var link = $( '<a href="'+annotation.current.sourceFile+'" data-annotations="[]" data-align="center" resource="'+annotation.slug+'"></a>' ).hide().appendTo(parent);
+					page.addNoteOrAnnotationMedia(link,parent,width,height);
 				}
 
 			},

@@ -85,12 +85,12 @@
 				var minTabWidth = parseInt( temp.width() );
 				temp.remove();
 
-				mediaelement.model.element.find( "video" ).bind( "webkitbeginfullscreen", function( e ) { 
+				mediaelement.model.element.find( "video" ).bind( "webkitbeginfullscreen", function( e ) {
 					page.isFullScreen = true;
 					page.lastOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
 				});
 
-				mediaelement.model.element.find( "video" ).bind( "webkitendfullscreen", function( e ) { 
+				mediaelement.model.element.find( "video" ).bind( "webkitendfullscreen", function( e ) {
 					page.isFullScreen = false;
 					// if orientation changed while we were full screen, then check to see if media needs to be reformatted
 					var currentOrientation = (( Math.abs( window.orientation ) === 90 ) ? "landscape" : "portrait" );
@@ -106,17 +106,17 @@
 					if ( mediaWidth >= page.pageWidth ) {
 						mediaelement.model.element.parent().removeClass( 'left right' );
 						isFullWidth = true;
-					
+
 					// if the media is smaller than than the width of the page, but larger than the width of the
-					// page minus its margins, then center it and add pillarboxing to separate it from the 
+					// page minus its margins, then center it and add pillarboxing to separate it from the
 					// rest of the page
 					} else if ( size == 'full' || mediaWidth > page.bodyCopyWidth ) {
-						mediaelement.model.element.css( { 
+						mediaelement.model.element.css( {
 							'margin-right': 'auto',
 							'margin-left': 'auto',
 							'float':'none'
 						});
-						mediaelement.model.element.find('.mediaObject').css( { 
+						mediaelement.model.element.find('.mediaObject').css( {
 							'margin-right': 'auto',
 							'margin-left': 'auto',
 						});
@@ -156,9 +156,9 @@
 								link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
 							}
 
-							
+
 						}
-					}		
+					}
 				}
 
 				// the "solo" option is used when showing media items that don't get media details tabs beneath
@@ -177,10 +177,10 @@
 						mediaelement.view.footer.hide();
 
 						// add the tabs
-						$.scalarmedia( mediaelement, infoElement, { 
-							'shy': false, 
-							'details': page.mediaDetails, 
-							'caption': link.attr( 'data-caption' ) 
+						$.scalarmedia( mediaelement, infoElement, {
+							'shy': false,
+							'details': page.mediaDetails,
+							'caption': link.attr( 'data-caption' )
 						});
 
 					} else {
@@ -192,9 +192,9 @@
 						// }
 
 						// add the tabs
-						$.scalarmedia( mediaelement, mediaelement.view.footer, { 
-							'shy': ( !isMobile && !link.hasClass( 'media-page-link' ) ), 
-							'details': page.mediaDetails, 
+						$.scalarmedia( mediaelement, mediaelement.view.footer, {
+							'shy': ( !isMobile && !link.hasClass( 'media-page-link' ) ),
+							'details': page.mediaDetails,
 							'caption': link.attr( 'data-caption' )
 						});
 					}
@@ -202,7 +202,7 @@
 					if (isFullWidth) {
 						// modify default media element design
 						mediaelement.model.element.css( 'marginBottom', '0' );
-						mediaelement.view.footer.hide();					
+						mediaelement.view.footer.hide();
 					}
 				}
 
@@ -320,8 +320,8 @@
 					}
 				}
 
-				var options = { 
-					url_attributes: [ 'href', 'src' ], 
+				var options = {
+					url_attributes: [ 'href', 'src' ],
 					autoplay: link.attr( 'data-autoplay' ) == 'true',
 					solo: link.attr( 'data-caption' ) == 'none',
 					typeLimits: typeLimits
@@ -362,7 +362,7 @@
 						if (( node != null ) && ( node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ] != null )) {
 							specifiesDimensions = node.current.mediaSource.browserSupport[ scalarapi.scalarBrowser ].specifiesDimensions;
 						}
-		
+
 						if ( size != 'full' ) {
 
 							// wrap the media in a body copy element so its alignment happens inside the
@@ -399,10 +399,14 @@
 						if ( count == 1 ) {
 							slotDOMElement.addClass('top');
 						}
-		
+
 					// if this is not an inline media element, and its size is set to 'full', then put the media after its linking text
 					} else {
-						parent.after( slotDOMElement );
+						var embedLocation = parent.nextAll('.slot.full, .body_copy.mediainfo').last();
+						if(embedLocation.length == 0){
+							embedLocation = parent;
+						}
+						embedLocation.after( slotDOMElement );
 						slotDOMElement.addClass( 'full' );
 					}
 
@@ -489,7 +493,7 @@
 							pathContents.find( '[property="dcterms:title"] > a' ).each( function() {
 								var href = $( this ).attr( 'href' ) + '?path=' + currentNode.slug;
 								$( this ).attr( 'href', href );
-							});	
+							});
 
 						} else {
 							pathContents.find('h1').hide();
@@ -582,7 +586,7 @@
 					$( '[rel="scalar:continue_to"]' ).each( function() {
 						var href = $( this ).attr( 'href' );
 						$( 'span[resource="' + href + '"]' ).hide();
-					});					
+					});
 				}
 
 				// if relationship nav isn't centered, add bootstrap column formatting to help
@@ -603,6 +607,20 @@
 							back_btn.css('vertical-align','top');
 						}
 					}
+					//Fix back button height on resize
+					$(window).resize(function(){
+						var back_btn = $('#back-btn');
+						if(back_btn.length > 0){
+							var cont_btn = back_btn.parent().parent().find('.nav_btn.primary');
+							if(cont_btn.length > 0){
+								back_btn.css('padding-top',0);
+								back_btn.css('padding-bottom',0);
+								var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
+								back_btn.css('padding-top',temp);
+								back_btn.css('padding-bottom',temp);
+							}
+						}
+					});
 				}
 
 				// tag contents
@@ -685,9 +703,9 @@
 					var hasTags = $( ".has_tags" );
 					hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
 					$( ".relationships" ).eq( 0 ).before( hasTags.parent() );
-					hasTags.parent().addClass('relationships').show();		
+					hasTags.parent().addClass('relationships').show();
 				}
-				
+
 				// move path contents list to be the bottom-most of all relationships items
 				// (or second from bottom if we have path lateral nav)
 				if ( pathContents != null ) {
@@ -743,9 +761,10 @@
 				$footer.append( '<div id="colophon" class="caption_font"><p id="scalar-credit"></p></div>');
 				var $par = $footer.find('#scalar-credit');
 				if (null !== currentNode.current.number) {   // Make sure there is a version .. Added by Craig 6 December 2015
-					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date( currentNode.current.created ).toLocaleDateString() + ' | ');
-					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ');
-					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br>');
+					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date( currentNode.current.created ).toLocaleDateString()+' ');
+					if ('undefined'!=currentNode.paywall && 1==parseInt(currentNode.paywall)) $par.append('&nbsp;<span class="glyphicon glyphicon-lock" aria-hidden="true" title="This page is protected by the paywall"></span> ');
+					$par.append('| <a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ');
+					$par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br />');
 				}
 				$par.append('<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a>');
 				$par.append(' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> | ');
@@ -812,15 +831,68 @@
 				$( '.note_viewer' ).hide();
 			},
 
+			addNoteOrAnnotationMedia: function(link, parent, maxWidth, maxHeight){
+				var options = {
+					url_attributes: [ 'href' ],
+					autoplay: false,
+					solo: true,
+					getRelated: false,
+					size: 'full'
+				};
+				var slot = link.slotmanager_create_slot( maxWidth, maxHeight, options );
+				if ( slot ) {
+					slotDOMElement = slot.data('slot');
+					slotMediaElement = slot.data('mediaelement');
+					slotDOMElement.addClass('full').appendTo(parent).css('background-image','none');
+				}
+			},
+
 			handleNoteData: function() {
 				var noteViewer = $( '.note_viewer' );
+				noteViewer.append( '<br/><br/><span class="text-muted">Loading...</span>' );
 				var node = scalarapi.getNode( noteViewer.data( 'slug' ) );
+				var height = parseInt(noteViewer.css('max-height'))-noteViewer.innerHeight()-50;
+				noteViewer.empty();
+				var width = parseInt(noteViewer.css('max-width'))-noteViewer.innerWidth()-50;
 				if ( node != null ) {
-					noteViewer.empty();
 					if ( node.current.content != null ) {
-						noteViewer.append( node.current.content );
+
+						var height = parseInt(noteViewer.css('max-height'))-noteViewer.innerHeight()-50;
+
+						var temp = $('<div>'+node.current.content+'</div>').appendTo(noteViewer);
+
+						$(page.getMediaLinks(temp)).each(function(){
+							if($(this).hasClass('inline')){
+								$(this).wrap('<div></div>').hide().removeClass('inline');
+							}
+						});
+
+						wrapOrphanParagraphs(temp);
+
+						temp.children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+
+						var width = temp.width()-50;
+
+						$(page.getMediaLinks(noteViewer)).each(function(){
+
+							$(this).attr({
+								'data-align':'',
+								'data-size':'',
+								'data-annotations':'[]',
+								'class':'media_link'
+							});
+
+							var parent = $(this).parent();
+
+							page.addNoteOrAnnotationMedia($(this),parent,width,height);
+
+						});
+					}else if(node.hasScalarType( 'media' )){
+						var parent = $('<div class="node_media_'+node.slug+'"></div>').appendTo(noteViewer);
+						var link = $( '<a href="'+node.current.sourceFile+'" data-annotations="[]" data-align="center" resource="'+node.slug+'" class="inline"></a>' ).hide().appendTo(parent);
+						page.addNoteOrAnnotationMedia(link,parent,width,height);
 					}
-					noteViewer.append( '<br/><br/><a href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
+					noteViewer.append( '<br/><br/> <a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>' );
 				}
 			},
 
@@ -898,8 +970,13 @@
 				var absoluteURLRoot = $('link#parent').attr('href');
 				page.bodyContentLinks().each(function() {
 					if (page.isLinkRelative(this)) {
-						$(this).attr("href", absoluteURLRoot + $(this).attr("href"));
-					}	
+						var href = $(this).attr("href");
+						if (href[0] == "#") {
+							$(this).attr("href", window.location.href + href);
+						} else {
+							$(this).attr("href", absoluteURLRoot + href);
+						}
+					}
 				});
 			},
 
@@ -916,7 +993,7 @@
 				if (href != null) {
 					if ((href.indexOf("://") == -1) && (href.indexOf("javascript:") != 0)) {
 						return true;
-					}	
+					}
 				}
 				return false;
 			},
@@ -929,7 +1006,7 @@
 
 					if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 						( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media 
+						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
 						&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
 						$(this).addClass('media_link');
@@ -955,7 +1032,7 @@
 						// the media if it isn't already playing
 						var annotationURL = $( this ).data( 'targetAnnotation' );
 						if ( annotationURL != null ) {
-							
+
 							mediaelement.seek( mediaelement.model.initialSeekAnnotation );
 							if (( mediaelement.model.mediaSource.contentType != 'document' ) && ( mediaelement.model.mediaSource.contentType != 'image' )) {
 	              				setTimeout(function() {
@@ -1036,19 +1113,19 @@
 				if (null != currentNode.current && 'undefined'!=typeof(currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'])) {
 					viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value
 				}
-				
+
 				page.calculatePageDimensions();
 
 				// Using defaultView rather than <link id="view" /> means that a view can not be chosen via URL extension,
 				// but rather only by setting it as the default view for the page.  Since 'annotation_editor' and 'edit' views
 				// can only be called by extension, then they need to be special cased here ~Craig
-				
+
 				if ( 'annotation_editor' == extension ) {
-					
+
 					// is this a media page?
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
 
-						var link, 
+						var link,
 							content = page.bodyContent(),
 							approot = $('link#approot').attr('href');
 
@@ -1062,9 +1139,9 @@
 							$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/annobuilder/annobuilder.css">');
 							$.getScript(approot+'views/widgets/annobuilder/jquery.annobuilder.js', function() {
 								content.prepend('<br clear="both" />');
-								link = page.embedMediaToAnnotate( content );	
-								$('.annobuilder:first').annobuilder( {link:link} ); 
-							});							
+								link = page.embedMediaToAnnotate( content );
+								$('.annobuilder:first').annobuilder( {link:link} );
+							});
 						// if the annobuilder has been set up, then just re-embed the media
 						} else {
 							page.embedMediaToAnnotate( content );
@@ -1074,10 +1151,10 @@
 					} else {
 						page.bodyContent().append('<div class="body_copy"><p class="text-danger">The annotation editor could not be loaded because this is not a media page.</p></div>');
 					}
-					
-				} else if ( 'edit' == extension) {	
+
+				} else if ( 'edit' == extension) {
 					// Nothing needed here
-					
+
 				} else if ( 'meta' == extension) {
 					// if this is a media page, embed the media at native size
 					if ( $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0 ) {
@@ -1123,7 +1200,7 @@
 
 						n = nodes.length;
 						for ( var i = 0; i < n; i++ ) {
-							
+
 							node = nodes[i];
 							item = $( '<div class="item" style="height: ' + galleryHeight + 'px;"></div>' ).appendTo( wrapper );
 							if ( i == 0 ) {
@@ -1149,18 +1226,18 @@
 								link = mediaContainer.find( 'a' );
 								link.css('display', 'none');
 							}
-							
+
 							if ( node.current.description != null ) {
 								description = node.current.description;
 								if ( node.current.source != null ) {
 									description += ' (Source: ' + node.current.source + ')';
 								}
 								description = description.replace( new RegExp("\"", "g"), '&quot;' );
-								item.append( '<div class="carousel-caption caption_font"><span>' + 
+								item.append( '<div class="carousel-caption caption_font"><span>' +
 									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
 									'</span></div>' );
 							} else {
-								item.append( '<div class="carousel-caption caption_font"><span>' + 
+								item.append( '<div class="carousel-caption caption_font"><span>' +
 									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
 									'</span></div>' );
 							}
@@ -1169,7 +1246,7 @@
 
 						}
 						if ( page.adaptiveMedia != "mobile" ) {
-							wrapper.find( '[data-toggle="popover"]' ).popover( { 
+							wrapper.find( '[data-toggle="popover"]' ).popover( {
 								container: '#gallery',
 								template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title heading_font heading_weight"></h3><div class="popover-content caption_font"></div></div>'
 							} );
@@ -1180,7 +1257,7 @@
 							'<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>' +
 							'<span class="sr-only">Previous</span>' +
 							'</a>' +
-							'<a class="right carousel-control" href="#gallery" role="button" data-slide="next">' + 
+							'<a class="right carousel-control" href="#gallery" role="button" data-slide="next">' +
 							'<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>' +
 							'<span class="sr-only">Next</span>' +
 							'</a>' );
@@ -1193,6 +1270,17 @@
 							} );
 							$( this ).click( page.handleMediaLinkClick );
 						} );
+
+						if(isMobile){
+							$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
+								page.mediaCarousel.swiperight(function() {
+	    		  			$(this).carousel('prev');
+		    				}).swipeleft(function() {
+			      			$(this).carousel('next');
+								});
+							});
+						}
+
 						break;
 
 						case "splash":
@@ -1219,11 +1307,12 @@
 							page.structuredGallery.addMedia();
 						}
 						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"],.relationships > .annotation_of' ) );
+
 						$( mediaLinks ).each(function() {
 
 							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-								(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media 
+								(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
 								&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
 								var slot, slotDOMElement, slotMediaElement, count, parent;
@@ -1267,7 +1356,7 @@
 										}
 									}
 									$( this ).addClass( "resource-added" );
-									
+
 								// standard media link
 								} else {
 									parent = $(this).closest('.body_copy');
@@ -1275,7 +1364,7 @@
 									// if the link is not a descendant of a body_copy region, then we'll put the media either
 									// before or after the link itself
 									if ( parent.length == 0 ) {
-										parent = $( this ); 
+										parent = $( this );
 									}
 								}
 
@@ -1317,13 +1406,12 @@
 						break;
 
 					}
-					
+
 				} //if(extension)
 
 			},
 
 			addMediaElementsForElement: function( element ) {
-
 				page.calculatePageDimensions();
 
 				element.find('a').each(function() {
@@ -1361,7 +1449,7 @@
 					// Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
 					'image':$(window).height()*1.3 ,
 					// The default for media should be to limit their size to fit within the bounds of the window
-					'default':$(window).height()*0.75, 
+					'default':$(window).height()*0.75,
 				};
 			},
 
@@ -1384,8 +1472,8 @@
 						reload = true;
 					}
 					if ( reload ) {
-						$('#google-maps').css('max-height',0.8*page.sizeOnMediaLoad.y);
-						page.handleMediaResize();	
+						$('#google-maps').css('max-height',0.6*page.sizeOnMediaLoad.y);
+						page.handleMediaResize();
 					}
 				}
 			},
@@ -1406,7 +1494,7 @@
 				$( '.media-page-link' ).remove();
 
 				page.clearIncrementedData();
-				
+
 				$('a.media_link').each(function() {
 					$( this ).removeData( "mediaelement" );
 					$( this ).off();
@@ -1429,7 +1517,7 @@
 
 			addAdditionalMetadata: function() {
 
-				var prop, value, 
+				var prop, value,
 					count = 0,
 					table = $( '<table></table>' ),
 					currentNode = scalarapi.model.getCurrentPageNode();
@@ -1480,8 +1568,8 @@
 					var target = ('undefined'!=typeof($link.attr('target'))) ? $link.attr('target') : null;
 					var url = $( this ).attr( "href" );
 
-					// Link without resource=""	(external or internal)	
-					if ( resource == null ) {    
+					// Link without resource=""	(external or internal)
+					if ( resource == null ) {
 						if ('undefined'!=typeof(href) && base_url) {
 							if (href.substr(0,4)=='http' && href.indexOf(base_url) == -1) {  // External link
 								$link.click(function() {  // Open with previous header
@@ -1494,13 +1582,13 @@
 										return false;
 									}
 								});
-							} 
+							}
 						}
 					}
 				});
 			},
 
-			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow ) {
+			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail, label ) {
 
 				var marker, contentString,
 					temp = latlngstr.split( ',' );
@@ -1521,17 +1609,23 @@
 						titleMarkup = '<h2 class="heading_font heading_weight">' + title + '</h2>';
 					}
 
+					var thumbnailMarkup = "";
+					if (thumbnail != null) {
+						thumbnailMarkup = '<img style="float:left; margin: 0 1rem 1rem 0;" src="' + thumbnail +'" alt="Thumbnail image" width="120"/>';
+					}
+
 					// add marker and info window for current page
 					if ( desc != null ) {
-						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '</h2>' + desc + '</div>';
+						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + desc + '</div>';
 					} else {
-						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '</h2></div>';
+						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + '</div>';
 					}
 					marker = new google.maps.Marker({
 					    position: latlng,
 					    map: map,
 					    html: contentString,
-					    title: title
+					    title: title,
+					    label: label
 					});
 					google.maps.event.addListener( marker, 'click', function() {
 						infoWindow.setContent( this.html );
@@ -1581,7 +1675,7 @@
 		$('body').bind('setState', page.handleSetState);
 		$('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
-		$(document).bind( "mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function( e ) { 
+		$(document).bind( "mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function( e ) {
 
 			var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
 			page.isFullScreen = ( fullscreenElement != null );
@@ -1597,14 +1691,14 @@
 				}
 			}
 		});
-		
+
 		element.addClass('page');
 
 		$( 'header' ).show();
 		$( '#book-id' ).hide();
 		$( '[property="scalar:fullname"]' ).hide();
 		$( '[property="dcterms:description"]' ).hide();
-	
+
         //Are we logged in? Check the RDF metadata.
         page.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!='';
         if(page.logged_in){
@@ -1617,18 +1711,18 @@
 		$('section').hide(); // TODO: Make this more targeted
 
 		$( 'article' ).append( '<div id="footer" class="caption_font"></div>' );
-	
+
 		$( 'body' ).bind( 'delayedResize', page.handleDelayedResize );
-		
+
 		if($('body').width() <= page.mobileWidth) {
 			page.adaptiveMedia = 'mobile';
 		}
-		
+
 		$('body').on('mediaElementMediaLoaded',function() {
 			page.initialMediaLoad = true;
 			page.sizeOnMediaLoad = { x: $(window).width(), y: $(window).height() };
 		});
-		
+
 		var i, node, nodes, link, visOptions, visualization,
 			currentNode = scalarapi.model.getCurrentPageNode();
 
@@ -1652,7 +1746,7 @@
 				if (( extension.indexOf( "versions" ) != -1 ) && ( extension != "versions" )) {
 					viewType = "versions";
 				} else {
-					viewType = extension;					
+					viewType = extension;
 				}
 			}
 
@@ -1666,7 +1760,7 @@
 		  	if ( viewType != 'edit' ) {
 		  		page.makeRelativeLinksAbsolute();
 		  	}
-			
+
 			page.getContainingPathInfo();
 			switch (viewType) {
 
@@ -1683,14 +1777,14 @@
 				}
 
 				var banner = currentNode.banner;
-				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;				
+				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;
 				$('[property="art:url"]').hide();
 				// element.css('backgroundImage', $('body').css('backgroundImage'));
 				element.css('background-image', "url('"+banner+"')");
 				$('body').css('backgroundImage', 'none');
 				$('.paragraph_wrapper').remove();
 				page.addRelationshipNavigation( {showChildNav:true, showLateralNav:true, isCentered:true} );
-				console.log( $('.relationships') );
+				//console.log( $('.relationships') );
 				$('.relationships').appendTo('.title_card');
 
 				window.setTimeout(function(){
@@ -1722,7 +1816,7 @@
 				break;
 
 				case 'visualization':
-				var visOptions = { 
+				var visOptions = {
 					modal: false,
                     content: 'all',
                     relations: 'all',
@@ -1759,12 +1853,12 @@
 				$( '[rel="scalar:continue_to"]' ).each( function() {
 					var href = $( this ).attr( 'href' );
 					$( 'span[resource="' + href + '"]' ).hide();
-				});	
+				});
 				break;
 
 				case 'image_header':
 				var banner = currentNode.banner;
-				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;	
+				if ('undefined'!=typeof(banner) && banner.length && -1==banner.indexOf('//')) banner = $('link#parent').attr('href')+banner;
 				$( '.page' ).css( 'padding-top', '5rem' );
 				$( 'article > header' ).before( '<div class="image_header"><div class="title_card"></div></div>' );
 				// $( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
@@ -1799,6 +1893,7 @@
 
 			  		// look for related geographic metadata and use it to build a Google Map
 			  		case "google_maps":
+			  		case "google_maps_path":
 
 			  		$( '.page' ).css( 'padding-top', '5.0rem' );
 			  		$( 'header > h1' ).before( '<div id="google-maps" class="maximized-embed"></div>' );
@@ -1810,19 +1905,52 @@
 					}
 					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 
+					$( '#google-maps' ).data('map',map).css('height',0.6*$(window).height());
+
 					// create info window
 					var infoWindow = new google.maps.InfoWindow({
 						content: contentString,
 						maxWidth: 400
 					});
 
-					var marker, property, contents, node, contentString,
+					var marker, property, contents, node, contentString, label, pathIndex,
 						properties = [
 							'http://purl.org/dc/terms/coverage',
 							'http://purl.org/dc/terms/spatial'
 						]
 						markers = [],
 						foundError = true;
+
+					var pathContents = currentNode.getRelatedNodes( 'path', 'outgoing' );
+					var tagContents = currentNode.getRelatedNodes( 'tag', 'outgoing' );
+					var contents = pathContents.concat(tagContents);
+
+					/* create a polyline for path contents
+					if (viewType == "google_maps_path") {
+						n = pathContents.length;
+						var temp, coords = [];
+						for (i=0; i<n; i++) {
+							node = pathContents[ i ];
+							for (p in properties) {
+								property = properties[p];
+								if (node.current.properties[ property ] != null) {
+									o = node.current.properties[ property ].length;
+									for (j=0; j<o; j++) {
+										temp = node.current.properties[ property ][ j ].value.split( ',' );
+										coords.push({lat:parseFloat(temp[0]), lng:parseFloat(temp[1])});
+									}
+								}
+							}
+						}
+						var polyline = new google.maps.Polyline({
+							path: coords,
+							geodesic: true,
+							strokeColor: "#d14236",
+							strokeOpacity: 1.0,
+							strokeWeight: 2
+						});
+						polyline.setMap(map);
+					}*/
 
 					for ( p in properties ) {
 
@@ -1833,13 +1961,14 @@
 
 							n = currentNode.current.properties[ property ].length;
 							for ( i = 0; i < n; i++ ) {
-								marker = page.getMarkerFromLatLonStrForMap( 
+								marker = page.getMarkerFromLatLonStrForMap(
 									currentNode.current.properties[ property ][ i ].value,
 									currentNode.getDisplayTitle(),
 									currentNode.current.description,
 									null,
 									map,
-									infoWindow
+									infoWindow,
+									currentNode.thumbnail
 								);
 
 								if ( marker != null ) {
@@ -1851,11 +1980,6 @@
 
 						}
 
-						// get path and tag contents of this page
-						contents = [];
-						contents = contents.concat( currentNode.getRelatedNodes( 'path', 'outgoing' ) );
-						contents = contents.concat( currentNode.getRelatedNodes( 'tag', 'outgoing' ) );
-
 						n = contents.length;
 
 						// add markers for each content element that has the spatial property
@@ -1864,16 +1988,25 @@
 							node = contents[ i ];
 
 							if ( node.current.properties[ property ] != null ) {
-	
+
 								o = node.current.properties[ property ].length;
 								for ( j = 0; j < o; j++ ) {
-									marker = page.getMarkerFromLatLonStrForMap( 
+
+									label = null;
+									pathIndex = pathContents.indexOf(node);
+									if (pathIndex != -1) {
+										label = (pathIndex+1).toString();
+									}
+
+									marker = page.getMarkerFromLatLonStrForMap(
 										node.current.properties[ property ][ j ].value,
 										node.getDisplayTitle(),
 										node.current.description,
 										node.url,
 										map,
-										infoWindow
+										infoWindow,
+										node.thumbnail,
+										label
 									);
 
 									if ( marker != null ) {
@@ -1892,15 +2025,19 @@
 					// no coords of any kind found
 					} else if ( markers.length == 0 ) {
 						$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
-					}
-
-					// adjust map bounds to marker bounds
-					var bounds = new google.maps.LatLngBounds();
-					$.each( markers, function ( index, marker ) {
-						bounds.extend( marker.position );
-					});
-					if ( markers.length > 1 ) {
-						map.fitBounds( bounds );
+					}else{
+						// adjust map bounds to marker bounds
+						var bounds = new google.maps.LatLngBounds();
+						$( '#google-maps' ).data('bounds',bounds);
+						$.each( markers, function ( index, marker ) {
+							bounds.extend( marker.position );
+						});
+						if ( markers.length > 1 ) {
+							map.fitBounds( bounds );
+							$(window).on('resize',function(){
+								$( '#google-maps' ).data('map').fitBounds($( '#google-maps' ).data('bounds'));
+							});
+						}
 					}
 					break;
 
@@ -1910,6 +2047,7 @@
                     case "vispath":
                     case "vismedia":
                     case "vistag":
+                    case "tags":
 
                     switch ( viewType ) {
 
@@ -1959,9 +2097,18 @@
 	                    }
 	                    break;
 
+	                    case "tags":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'external',
+	                    	relations: 'none',
+	                    	format: 'tagcloud'
+	                    }
+	                    break;
+
                     }
  					visualization = $(  '<div class="visualization"></div>' );
-					$( 'article > header > h1' ).css( 'margin-bottom', '1.2rem' );
+					$( 'article > header > h1' ).addClass("visualization");
 					$( 'article > header' ).after( visualization );
 					visualization.scalarvis( visOptions );
                     break;
@@ -2000,35 +2147,18 @@
 					$( '[rel="scalar:continue_to"]' ).each( function() {
 						var href = $( this ).attr( 'href' );
 						$( 'span[resource="' + href + '"]' ).hide();
-					});	
+					});
 					okToAddExtras = false;
 					break;
-					
-			  		case "tags":			  			
-				  	$('body').on( "pageLoadComplete", function() {
-				  		approot = $('link#approot').attr('href');
-				  		$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/jQCloud/jqcloud.min.css">');
-						$.getScript(approot+'views/widgets/jQCloud/jqcloud.min.js', function() {
-					  		var $tag_cloud = $('<div class="tag_cloud"></div>').appendTo('[property="sioc:content"]');
-					 		var words_pos = function() {
-					  			$tag_cloud.width('100%');
-					  			$tag_cloud.height( parseInt($(window).height())*0.5 );
-					  		};
-					  		words_pos();
-					  		$( window ).resize(function() { words_pos(); });
-					  		$tag_cloud.jQCloud(tags, { autoResize: true });							
-						}); 
-				  	});			  			
-				  	break;		
-				  	
+
 			  		case "resources":
-			  		// Nothing yet
+			  		$("ul.resources span.desc").contents().unwrap().wrap('<p class="desc caption_font">');
 			  		break;
-			  		
+
 			  		case "toc":
-				  	// Nothing yet
-				  	break;			  		
-					         
+			  		$("ol.toc").before('<h3 class="heading_font heading_weight">Table of Contents</h3>');
+				  	break;
+
 			  	}
 
 				page.setupScreenedBackground();

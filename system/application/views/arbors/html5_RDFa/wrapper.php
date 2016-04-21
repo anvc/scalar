@@ -35,7 +35,7 @@ if (isset($mode) && !empty($mode)) $background = null;
 $rdf_fields = $this->config->item('rdf_fields');
 if (!isset($rdf_fields['content'])) $rdf_fields['content'] = 'sioc:content';
 function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array(), $aria=false) {
-	$hide = array_merge($hide, array('rdf:type','dcterms:title','sioc:content'));
+	$hide = array_merge($hide, array('rdf:type','dcterms:title','sioc:content','scalar:customStyle','scalar:customScript'));
 	foreach ($rdf as $p => $values) {
 		if (in_array($p, $hide)) continue;
 		foreach ($values as $value) {

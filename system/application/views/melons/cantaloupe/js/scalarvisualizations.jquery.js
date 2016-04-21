@@ -94,7 +94,7 @@
 
 				// when the modal is shown, redraw the visualization
 				base.$el.on( 'shown.bs.modal', function() {
-					base.draw();
+					base.draw(true);
 					base.modalIsOpen = true;
 				});
 
@@ -181,25 +181,27 @@
 			base.helpButton.popover( { trigger: "hover click", html: true } );
 			
 			// legend popover
-			visFooter.append( '|' );
-			base.legendButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>' );
-			visFooter.append( base.legendButton );
-			var type, name,
-				legendMarkup = "";
-			n = base.canonicalTypeOrder.length;
-			for ( i = 0; i < n; i++ ) {
-				type = base.canonicalTypeOrder[ i ];
-				name = scalarapi.model.scalarTypes[ type ].plural;
-				name = name.charAt(0).toUpperCase() + name.slice(1)
-				legendMarkup += '<span style="color:' + base.highlightColorScale( type ) + ';">&#9632;</span> ' + name + '<br>';
+			if (base.options.format != "tagcloud") {
+				visFooter.append( '|' );
+				base.legendButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>' );
+				visFooter.append( base.legendButton );
+				var type, name,
+					legendMarkup = "";
+				n = base.canonicalTypeOrder.length;
+				for ( i = 0; i < n; i++ ) {
+					type = base.canonicalTypeOrder[ i ];
+					name = scalarapi.model.scalarTypes[ type ].plural;
+					name = name.charAt(0).toUpperCase() + name.slice(1)
+					legendMarkup += '<span style="color:' + base.highlightColorScale( type ) + ';">&#9632;</span> ' + name + '<br>';
+				}
+				legendMarkup += '<br><div style="max-width: 175px;">Since content can have more than one type, a given item may change colors depending on context.</div>';
+				base.legendButton.attr( "data-content", legendMarkup );
+				base.legendButton.popover( { trigger: "hover click", html: true } );
 			}
-			legendMarkup += '<br><div style="max-width: 175px;">Since content can have more than one type, a given item may change colors depending on context.</div>';
-			base.legendButton.attr( "data-content", legendMarkup );
-			base.legendButton.popover( { trigger: "hover click", html: true } );
 
 			if (!isMobile) {
 				visFooter.append('|');
-				base.fullScreenButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Full screen</button>' );
+				base.fullScreenButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" ><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12"/> Full screen</button>' );
 				visFooter.append(base.fullScreenButton);
 				base.fullScreenButton.click(base.enterFullScreen);
 			}
@@ -210,7 +212,7 @@
 			}
 
 			$( 'body' ).bind( 'delayedResize', function() { 
-				if (( base.options.modal && base.modalIsOpen ) || !base.options.modal ) {
+				if ((( base.options.modal && base.modalIsOpen ) || !base.options.modal ) && (base.options.format != "tagcloud")) {
 					base.visualize(); 
 				}
 			} );
@@ -555,11 +557,16 @@
 
  			if ( !base.loadedAllContent ) {
  				base.buildLoadSequence();
-       			base.loadNextData();
+ 				if (base.loadSequence.length > 0) {
+       				base.loadNextData();
+ 				} else {
+ 					base.loadingDone = true;
+ 					base.draw(true);
+ 				}
  			} else {
  				base.loadingDone = true;
  				base.filter();
- 				setTimeout( function() { base.draw(); }, 0 );
+ 				setTimeout( function() { base.draw(true); }, 0 );
  			}
 
         };
@@ -574,6 +581,7 @@
 			switch ( base.options.content ) {
 
 				case "all":
+				case "toc":
 				base.loadSequence.push( { id: 'book', desc: "book", relations: 'none' } );
 				base.loadSequence.push( { id: 'current', desc: "current page", relations: 'none' } );
 				base.loadSequence.push( { id: 'current', desc: "current page's connections", relations: 'all' } );
@@ -587,15 +595,6 @@
 
 				case "current":
 				base.loadSequence.push( { id: 'current', desc: "current page", relations: base.options.relations } );
-				break;
-
-				case "toc":
-				var nodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'referee', 'outgoing', true );
-				n = nodes.length;
-				for ( i = 0; i < n; i++ ) {
-					node = nodes[i];
-					base.loadSequence.push( { id: 'toc', desc: "table of contents", node: node, relations: base.options.relations } );
-				}
 				break;
 
 				case "page":
@@ -614,9 +613,12 @@
 
         };
 
-		base.loadNode = function( slug, ref ) {
+		base.loadNode = function( slug, ref, depth ) {
 			//console.log( 'load node' );
-			scalarapi.loadNode( slug, true, base.parseNode, null, 1, ref );
+			if (depth == null) {
+				depth = 1;
+			}
+			scalarapi.loadNode( slug, true, base.parseNode, null, depth, ref, 0, 100 );
 		}
 		
 		base.parseNode = function( data ) {
@@ -696,7 +698,7 @@
 						relations = null;
 					} else {
 						forceReload = true;
-						depth = 1;
+						depth = 2;
 						references = ( loadInstruction.relations == 'referee' );
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
@@ -769,7 +771,9 @@
 			} else {
 				base.hideLoadingMsg();
 				base.loadingDone = true;
-				if ( base.options.content == 'all' ) {
+				base.draw(true);
+				// when content is set to 'toc', we still load everything so users can drill down as far as they want
+				if (( base.options.content == 'all' ) || ( base.options.content == 'toc' )) {
 					base.loadedAllContent = true;
 					$( 'body' ).trigger( 'visLoadedAllContent' );
 				}
@@ -781,6 +785,10 @@
 		
 			if ( jQuery.isEmptyObject( json ) || ( json == null ) ) {
 				base.reachedLastPage = true;
+			}
+
+			if ((base.options.format == "force-directed") && (base.force != null)) {
+				base.force.stop();
 			}
 
 			var loadInstruction = base.loadSequence[ base.loadIndex ];
@@ -830,6 +838,10 @@
 
 			}
 
+			if ((base.options.format == "force-directed") && (base.force != null)) {
+				base.force.start();
+			}
+
         };
 		
 		base.showLoadingMsg = function() {
@@ -856,7 +868,7 @@
 		}
 		
 		base.hideLoadingMsg = function() {
-			base.loadingMsg.slideUp( 400, function() { base.draw(); } );
+			base.loadingMsg.slideUp( 400, function() { base.draw(true); } );
 		}
 		
 		/**
@@ -973,8 +985,10 @@
 						node.connectionCount = subRels.length;
 						base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
 					}
-					node.connectionCount = base.relations.length;
-					base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
+					if (n > 0) {
+						node.connectionCount = base.relations.length;
+						base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
+					}
 				}
 				break;
 
@@ -1130,6 +1144,9 @@
 				node.sortTitle = node.getSortTitle();
 			}
 			node.type = node.getDominantScalarType( base.options.content );
+			if (node.parentsOfMaximizedInstances == null) {
+				node.parentsOfMaximizedInstances = [];
+			}
 		}
 
 		/**
@@ -1210,7 +1227,8 @@
 							showsTitle: true, 
 							node: node, 
 							type: node.type.id,
-							children: null
+							children: null,
+							parent: tocRoot
 						};
 						tocRoot.children.push( hierarchyNode );
 						if ( includeRelations ) {
@@ -1439,7 +1457,7 @@
 				if ( relation.direction == "outgoing" ) {
 					nodes = sourceData.node.getRelatedNodes( relation.type, relation.direction );
 					if (nodes.length > 0) {
-						if ( sourceData.children == null ) {
+						if (sourceData.children == null) {
 							sourceData.children = [];
 						}
 						o = nodes.length;
@@ -1475,6 +1493,30 @@
 				self = self.parent;
 			}
 			return ((self.parent == candidate) && (candidate != null));
+		}
+
+		base.parentIdForHierarchyNode = function(d) {
+			var parentId;
+			if (d.parent != null) {
+				if (d.parent.node == null) {
+					parentId = d.parent.title;
+				} else {
+					parentId = d.parent.node.slug;
+				}
+			}
+			return parentId;
+		}
+
+		base.isHierarchyNodeMaximized = function(d) {
+			var isMaximized = (d.children != null);
+			if (d.node != null) {
+				if (d.node.parentsOfMaximizedInstances.indexOf(base.parentIdForHierarchyNode(d)) != -1) {
+					isMaximized = true;
+				} else {
+					isMaximized = false;
+				}
+			}
+			return isMaximized;
 		}
 
 		base.updateLinks = function() {
@@ -1570,7 +1612,7 @@
 				if ( index != -1 ) {
 					newActiveNodes.splice( index, 1 );
 				} else {
-					base.activeNodes.splice( index, 1 );
+					base.activeNodes.splice( i, 1 );
 				}
 			}
 			n = newActiveNodes.length;
@@ -1608,9 +1650,9 @@
         	}
         }
 
-        base.draw = function() {
+        base.draw = function(isRequired) {
 
-        	// select the current node by default
+         	// select the current node by default
 			if ( base.options.content == 'current' ) {
 				if (( base.selectedNodes.length == 0 ) && !base.loadingDone ) {
 					var node = scalarapi.model.getCurrentPageNode();
@@ -1635,11 +1677,17 @@
         		break;
 
         		case "force-directed":
-        		base.drawForceDirected();
+        		if (isRequired) {
+        			base.drawForceDirected();
+        		}
         		break;
 
-        	}
+        		case "tagcloud":
+        		base.drawTagCloud();
+        		break;
 
+        	}   
+ 
         };
 
         /**********************
@@ -1738,7 +1786,22 @@
 					.style('cursor', 'pointer')
 					.attr('stroke-opacity', '.2')
 					.attr('fill-opacity', function(d) {
-						return .1 + ((((d.outgoingRelations ? d.outgoingRelations.length : 0) + (d.incomingRelations ? d.incomingRelations.length : 0) + 1) / base.maxConnections) * .75);
+						var val = 0;
+						if (base.maxConnections > 0) {
+							if (d.outgoingRelations) {
+								val = d.outgoingRelations.length;
+							}
+							if (d.incomingRelations) {
+								val += d.incomingRelations.length;
+							}
+							val += 1;
+							val /= base.maxConnections;
+							val *= .75;
+						} else {
+							val = .1;
+						}
+						val += .1;
+						return val;
 					})
 					.attr('fill', function(d) {
 						return base.highlightColorScale(d.type.singular);
@@ -2007,7 +2070,8 @@
         base.drawTree = function( updateOnly ) {
 			
 			var i, j, k, n, o, columnWidth, fullHeight, fullWidth,
-				currentNode = scalarapi.model.getCurrentPageNode();
+				currentNode = scalarapi.model.getCurrentPageNode()
+				firstRun = false;
 
 			var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
 			if (!isFullScreen) {
@@ -2030,6 +2094,7 @@
 			if ( !base.hasBeenDrawn && ( base.visElement.width() > 0 )) {
 
 				base.hasBeenDrawn = true;
+				firstRun = true;
 
 				if ( base.options.content != 'current' ) {
 					helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
@@ -2065,12 +2130,23 @@
 				base.svg.call( zoom );
 				base.svg.style( "cursor", "move" );
 			
-				base.tree = d3.layout.tree().nodeSize([ 30, fullHeight ])
-				    /*.size([fullHeight, fullWidth])*/;
+				base.tree = d3.layout.cluster().nodeSize([ 30, fullHeight ]);
 
 				base.diagonal = d3.svg.diagonal()
 				    .projection(function(d) { return [d.y, d.x]; });
 
+			}
+
+			function logChildren(hierarchyNode) {
+				console.log(hierarchyNode);
+				if (hierarchyNode.children != null) {
+					console.log(hierarchyNode.title + " has " + hierarchyNode.children.length + " children.");
+					for (var child in hierarchyNode.children) {
+						logChildren(hierarchyNode.children[child]);
+					}
+				} else {
+					console.log(hierarchyNode.title + " has no children.");
+				}
 			}
 
 			if (( base.svg != null ) && ( base.hierarchy != null )) {
@@ -2083,37 +2159,68 @@
 
 				var container = base.svg.selectAll( 'g.container' );
 
-				// Toggle children.
+				// toggle children
 				function branchToggle(d) {
-					if (d.children) {
+					var parentId = base.parentIdForHierarchyNode(d);
+					if (base.isHierarchyNodeMaximized(d)) {
 						d._children = d.children;
 						d.children = null;
+						if (d.node != null) {
+							var index = d.node.parentsOfMaximizedInstances.indexOf(parentId);
+							if (index != -1) {
+								d.node.parentsOfMaximizedInstances.splice(index, 1);
+							}
+						}
 					} else {
 						d.children = d._children;
 						d._children = null;
+						if (d.node != null) {
+							if (d.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
+								d.node.parentsOfMaximizedInstances.push(parentId);
+							}
+						}
 					}
-				}  
+				}
 
-				function branchToggleAll(d) {
-				    if (d.children) {
-				      	d.children.forEach(branchToggleAll);
-				      	branchToggle(d);
+				// makes sure node's data matches its state
+				function branchConform(d) {			
+					if (!base.isHierarchyNodeMaximized(d)) {
+						if (d.children != null) {
+							d._children = d.children;
+							d.children = null;
+						}
+					} else {
+						if (d.children == null) {
+							d.children = d._children;
+							d._children = null;
+						}
+					}
+				}
+
+				function branchConformAll(d) {
+				    if (d.children != null) {
+				    	d.children.forEach(branchConformAll);
 				    }
+				    branchConform(d);
 				}
 
 				// collapse all nodes except the root's children
 				if ( base.options.content != "all" ) {
 					if ( base.hierarchy.children ) {
 						base.hierarchy.children.forEach( function( d ) {
-							if ( d.children != null ) {
-								d.children.forEach( branchToggleAll );
+							if ((d.children != null) || (d._children != null)) {
+								branchConformAll(d);
 							}
 						});
 					}
+					branchConform(base.hierarchy);
+				    if (firstRun) {
+				    	branchToggle(base.hierarchy);
+				    }
 
 				// collapse all nodes except the root
 				} else {
-					base.hierarchy.children.forEach( branchToggleAll );
+					base.hierarchy.children.forEach( branchConformAll );
 				}
 
 				function pathUpdate( source, instantaneous ) {
@@ -2155,13 +2262,18 @@
 						if (d3.event.defaultPrevented) return; // ignore drag
 						branchToggle(d); 
 						pathUpdate(d); 
+						if (base.isHierarchyNodeMaximized(d)) {
+							if ( base.options.content == "current" ) {
+								setTimeout( function() { base.loadNode( d.node.slug, false, 2 ); }, 500 );
+							}
+						}
 					});
 
 					nodeEnter.append("svg:text")
 						.attr("x", function(d) { return d.children || d._children ? -14 : 14; })
 						.attr("dy", ".35em")
 						.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-						.text(function(d) { return d.shortTitle; })
+						.text(function(d) { return d.title; })
 						.style("fill-opacity", 1e-6)
 					.on('touchstart', function(d) { d3.event.stopPropagation(); })
 					.on('mousedown', function(d) { d3.event.stopPropagation(); })
@@ -2209,7 +2321,7 @@
 					treevis_link.enter().insert("svg:path", "g")
 						.attr("class", "clusterlink")
 						.attr("d", function(d) {
-						var o = {x: source.x0, y: source.y0};
+							var o = {x: source.x0, y: source.y0};
 							return base.diagonal({source: o, target: o});
 						})
 					.transition()
@@ -3074,7 +3186,7 @@
 						} else {
 							base.selectedNodes.splice(index, 1);
 							base.filter();
-							base.draw();
+							base.draw(true);
 						}
 						updateGraph();
 					})
@@ -3160,7 +3272,30 @@
 			}
        	
         }
-        
+ 
+        /***************************
+         * TAG CLOUD VISUALIZATION *
+         ***************************/
+        base.drawTagCloud = function( updateOnly ) {
+
+ 	   		helpContent = 	"This visualization shows the relative <b>prevalence of tags</b> in this work." +
+	   			"<ul><li>Each tag&rsquo;s title is sized and colored according to how many items it tags.</li>" +
+				"<li>Click any tag&rsquo;s title to navigate to it.</li></ul>";
+
+			base.helpButton.attr( "data-content", helpContent );
+
+	  		approot = $('link#approot').attr('href');
+	  		$('head').append('<link rel="stylesheet" type="text/css" href="'+approot+'views/widgets/jQCloud/jqcloud.min.css">');
+			$.getScript(approot+'views/widgets/jQCloud/jqcloud.min.js', function() {
+				base.visualization.addClass("tag_cloud caption_font");
+		  		base.visualization.jQCloud(tags, { 
+		  			autoResize: true, 
+		  			colors: ['#a50f15','#cb181d','#ef3b2c','#fb6a4a']
+		  		});							
+			}); 
+			base.hasBeenDrawn = true;					
+        }
+       
         // Run initializer
         base.init();
 
