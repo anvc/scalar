@@ -18,7 +18,7 @@
 			msg:'',
 			no_data_msg:'No content of the selected type was found',
 			callback:null
-	};
+	};  	
 	$.fn.content_options = function(opts) {  // Layout options box
     	// Options
     	var self = this;
@@ -38,9 +38,9 @@
     	};
     	var dash_to_space = function(str) {
     		return str.replace(/-/g, ' ');
-    	}
+    	}    	
 		// Create the modal
-		if (bootstrap_enabled) {
+		if (bootstrap_enabled) {	
 			bootbox.dialog({
 				message: '<div id="bootbox-media-options-content" class="heading_font"></div>',
 				title: 'Media formatting options',
@@ -60,82 +60,30 @@
 			var $form = $('<div class="form-horizontal heading_font"></div>' );
 			$(this).append($form);
 		}
-
 		// Add options
-			var hasAnnotationOption = opts.data.annotations!=null && typeof opts.data.annotations!=='undefined';
-
+	    for (var option_name in opts.data) {
+			var $option = $('<div class="form-group"><label class="col-sm-2 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-4"><select class="form-control" name="'+option_name+'"></select></div></div>');
+			for (var j = 0; j < opts.data[option_name].length; j++) {
+				$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
+			}
+			$form.append($option);
+		}
+	    $this.append('<p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default" value="Continue" /></p>');
+	    $this.find('input:first').click(function() {
+	    	$this.remove();
+		});
+	    $this.find('input:last').click(function() {
+			var data_fields = {};
 			for (var option_name in opts.data) {
-				if(option_name!='annotations' && option_name!='node'){
-					var $option = $('<div class="form-group"><label class="col-sm-2 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-10"><select class="form-control" name="'+option_name+'"></select></div></div>');
-					for (var j = 0; j < opts.data[option_name].length; j++) {
-						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
-					}
-					$form.append($option);
-				}
+				data_fields[option_name] = $this.find('select[name="'+option_name+'"] option:selected"').val();
 			}
-
-			if(hasAnnotationOption){
-				var $annotationSelection = $('<div class="form-group"><label class="col-sm-2 control-label">Annotations: </label><div class="col-sm-10">&nbsp;&nbsp;<label class="radio-inline"><input type="radio" name="editorAnnotationRadio" id="editorAllAnnotations" value="all" checked="true"> All</label> <label class="radio-inline"><input type="radio" name="editorAnnotationRadio" id="editorNoAnnotations" value="none"> None</label> <label class="radio-inline"><input type="radio" name="editorAnnotationRadio" id="editorSelectedAnnotations" value="selected"> Selected Only</label></div><div><select multiple class="form-control" id="editorAnnotationList" disabled></select></div></div>');
-				$annotationSelection.find('#editorAnnotationList').hide();
-				$annotationSelection.find('#editorAllAnnotations, #editorNoAnnotations').change(function(){
-					if($(this).is(':checked')){
-						$(this).parent().parent().parent().find('#editorAnnotationList').prop('disabled',true).fadeOut('fast');
-					}
-				});
-				$annotationSelection.find('#editorSelectedAnnotations').change(function(){
-					if($(this).is(':checked')){
-						$(this).parent().parent().parent().find('#editorAnnotationList').attr('disabled',false).fadeIn('fast');
-					}
-				});
-				if(opts.data.node!=null && typeof opts.data.node !== 'undefined'){
-					(function(slug,list){
-							scalarapi.loadPage( slug, true, function(){
-									var node = scalarapi.getNode(slug);
-									var annotated_by = node.getRelatedNodes('annotation', 'incoming');
-									for(n in annotated_by){
-	                    rel = annotated_by[n];
-	                    list.append('<option value="'+rel.slug+'">'+rel.getDisplayTitle()+'</option>');
-	                }
-							}, null, 1 );
-					})(opts.data.node.slug,$annotationSelection.find('#editorAnnotationList'));
-				}else{
-					$annotationSelection.find('#editorSelectedAnnotations, #editorAnnotationList').hide();
-				}
-				$form.append($annotationSelection);
+			if ($form.closest('.media_options_bootbox').length) {
+				$form.closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+			} else {
+				$this.remove();
 			}
-
-	    $this.append('<div class="clearfix visible-xs-block"></div><p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default continueButton" value="Continue" /></p>');
-	    $this.find('.close').click(function() {
-		    	$this.remove();
-			});
-	    $this.find('.continueButton').click(function() {
-				var data_fields = {};
-				for (var option_name in opts.data) {
-					if(option_name!='annotations' && option_name!='node'){
-						data_fields[option_name] = $this.find('select[name="'+option_name+'"] option:selected"').val();
-					}
-				}
-				if($this.find('#editorAllAnnotations').length > 0){
-					//We have an annotation selector
-					var annotationVal = $this.find('input[name=editorAnnotationRadio]:checked').val();
-					if(annotationVal == "none"){
-						data_fields['annotations'] = "[]";
-					}else if(annotationVal == "selected"){
-						var $selectedAnnotations = $this.find('#editorAnnotationList option:selected');
-						var annotations = [];
-						for(var i = 0; i < $selectedAnnotations.length; i++){
-							annotations.push($selectedAnnotations.eq(i).val());
-						}
-						data_fields['annotations'] = annotations.join(',');
-					}
-				}
-				if ($form.closest('.media_options_bootbox').length) {
-					$form.closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
-				} else {
-					$this.remove();
-				}
-					opts.callback(data_fields);
-			});
+				opts.callback(data_fields);
+		});
 	};
     $.fn.content_selector = function(options) {  // Content selector box
     	// Options
@@ -199,7 +147,7 @@
 			for (var j = 0; j < opts.queue.length; j++) {
 				if (opts.queue[j].uri == node.uri) return true;
 			}
-			return false;
+			return false;   		
     	};
     	// Create an API call
     	var url = function() {
@@ -211,7 +159,7 @@
     			type = 'media';
     		} else if (opts.type) {
     			type = opts.type;
-    		}
+    		} 
     		opts.type = type;
     		get_vars.rec = (opts.rec>0) ? opts.rec : 0;
     		if (opts.sq!=null) get_vars.sq = opts.sq;
@@ -259,7 +207,7 @@
 	    		var foot = parseInt( foot_el.height() );
 	    	}
 	    	var window_height = parseInt($(window).height());
-	    	var val = window_height - head - foot - (margin*2);
+	    	var val = window_height - head - foot - (margin*2); 
     		$this.find('.content').height(val);
     	};
     	// Initialize the interface
@@ -269,7 +217,7 @@
     		$this.addClass( ((bootstrap_enabled)?'bootstrap':'no-bootstrap') );
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		// Create the modal
-    		if (bootstrap_enabled) {
+    		if (bootstrap_enabled) {  
     			//$(document).scrollTop(0);  // iOS
 				var box = bootbox.dialog({
 					message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
@@ -280,7 +228,7 @@
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
 				$this.appendTo($('#bootbox-content-selector-content'));
 				var $content_selector_bootbox = $('.content_selector_bootbox');
-				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
+				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px'); 		
 				var $options = $content_selector_bootbox.find('.options:first');
 				$('.bootbox-close-button').empty();
 				box.on("shown.bs.modal", function() {
@@ -294,7 +242,7 @@
 				});
     		} else {
     			$('body').append($this);
-    			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);
+    			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);   			
     		}
     		// Default content
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
@@ -310,7 +258,7 @@
     			modal_height();  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
     		}
     		// Behaviors
-    		$footer.hide();  // Default
+    		$footer.hide();  // Default 
     		$footer.find('a:first').click(function() {  // On-the-fly
     			$footer.hide();
     			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
@@ -324,11 +272,11 @@
     			}
     			var $form = $onthefly.find('form');
     			var id = $('input[name="id"]').val();  // Assuming this exists; technically not needed for session auth
-    			var book_urn = $('input[name="urn:scalar:book"]').val();
+    			var book_urn = $('input[name="urn:scalar:book"]').val(); 
     			if ('undefined'==typeof(book_urn) && $('link#book_id').length) book_urn = "urn:scalar:book:"+$('link#book_id').attr('href');
     			$form.append('<input type="hidden" name="action" value="add" />');
     			$form.append('<input type="hidden" name="native" value="1" />');
-    			$form.append('<input type="hidden" name="scalar:urn" value="" />');
+    			$form.append('<input type="hidden" name="scalar:urn" value="" />'); 
     			$form.append('<input type="hidden" name="id" value="'+id+'" />');
     			$form.append('<input type="hidden" name="api_key" value="" />');
     			$form.append('<input type="hidden" name="scalar:child_urn" value="'+book_urn+'" />');
@@ -348,7 +296,7 @@
         				$options.show();
         			}
     				$footer.show();
-    			};
+    			}; 			
     			if ('undefined'==typeof(book_urn)) {
     				alert('Could not determine book URN and therefore can not create pages on-the-fly');
     				onthefly_reset();
@@ -374,7 +322,7 @@
     					var uri = version_uri.substr(0, version_uri.lastIndexOf('.'));
     					var version = version[version_uri];
     					if (version_uri.substr(version_uri.length-1,1)=='/') version_uri = version_uri.substr(0, version_uri.length-1);
-    					if (version_slug.substr(version_slug.length-1,1)=='/') version_slug = version_slug.substr(0, version_slug.length-1);
+    					if (version_slug.substr(version_slug.length-1,1)=='/') version_slug = version_slug.substr(0, version_slug.length-1); 					
     					var node = {
     						content:{},slug:slug,targets:[],uri:uri,
     						version:version,version_slug:version_slug,version_uri:version_uri
@@ -382,7 +330,7 @@
     					if (opts.multiple) node = [node];
     					if ('undefined'!=typeof(window['send_form_hide_loading'])) send_form_hide_loading();
     					if ($form.closest('.content_selector_bootbox').length) {
-    						$form.closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
+    						$form.closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
     					} else {
     						$form.closest('.content_selector').remove();
     					}
@@ -393,7 +341,7 @@
     				$buttons.find('.onthefly_loading').show();
     				send_form($form, {}, success);
     			});
-    		});  // /On-the-fly
+    		});  // /On-the-fly    		
     		if (opts.onthefly) {  // Display on-the-fly
     			$footer.show();
     		} else {
@@ -409,7 +357,7 @@
     			$options.submit(function() {
     				isearch($(this).find('input[type="text"]').val());
     				return false;
-    			});
+    			});    			
     		} else {  // User can select a type
     			$options.addClass('changeable');
     			$options.find('input[name="type"]').change(function() {
@@ -433,7 +381,7 @@
         			reset();
         			$(this).closest('.content_selector').remove();
         			$('.tt').remove();
-        		});
+        		});    			
     			$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
     			$footer.find('a:last').click(function() {
     				if (!opts.queue.length) {
@@ -441,14 +389,14 @@
     					return;
     				}
     				if ($(this).closest('.content_selector_bootbox').length) {
-    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
+    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
     				} else {
     					$(this).closest('.content_selector').remove();
     				}
     				opts.callback(opts.queue);
     				reset();
     			});
-    		}
+    		} 
     	};
     	// Propagate the interface
     	var propagate = function() {
@@ -457,7 +405,7 @@
         		if (!opts.data.length) {
         			$this.find('.content').html('<div class="loading" style="color:inherit;">'+opts.no_data_msg+'</div>');
         			return;
-        		}
+        		}  		
     		}
     		$this.find('.content, .content *').off();  // Remove any previously created events
     		var $tbody = $this.find('tbody:first');
@@ -492,7 +440,7 @@
     		modal_height();
     		if (opts.pagination) {  // Endless scroll pagination
     			$tbody.find('.loadmore').remove();
-    			if (!opts.data.length) return;
+    			if (!opts.data.length) return; 
     			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
     			$loadmore.appendTo($tbody);
 	    		$this.find('.content').scroll(function() {
@@ -568,7 +516,7 @@
     			$div.appendTo('body');
     			$this.parent().mouseout(function() {
     				$div.remove();
-    			});
+    			});   			
     		});
     	};
     	var go = function() {
@@ -641,9 +589,9 @@
 		    			}
 	    			}
 	    		}
-	    		opts.data.sort(function(a,b){
-	    		    var x = a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1;
-	    		    return x;
+	    		opts.data.sort(function(a,b){ 
+	    		    var x = a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; 
+	    		    return x; 
 	    		});
 	    		propagate();
 	    	});

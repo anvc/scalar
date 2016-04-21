@@ -317,24 +317,6 @@
 
 			var i, annotation, row, prop, value;
 			var annotations = node.getRelations('annotation', 'incoming', 'index');
-
-			//filter out unwanted Annotations
-			var annotationWhiteList = $(m.link).data('annotations');
-			if($(m.link).is('[data-annotations]') || annotationWhiteList){
-				if(!annotationWhiteList){
-					annotationWhiteList = [];
-				}else if(typeof annotationWhiteList === "string"){
-					annotationWhiteList = annotationWhiteList.split(",");
-				}
-				var temp_annotations = [];
-				for(var i = 0; i < annotations.length; i++){
-					if(annotationWhiteList.indexOf(annotations[i].body.slug)!=-1){
-						temp_annotations.push(annotations[i]);
-					}
-				}
-				annotations = temp_annotations;
-			}
-
 			if (annotations.length > 0) {
 				var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
 				annotationTab.click(function() {

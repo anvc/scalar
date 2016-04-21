@@ -90,9 +90,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	    			return;
 	    		}
         		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',callback:function(node){
-							var options = reference_options['insertMediaLink'];
-							options.node = node;
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaLink'],callback:function(options) {
             			var sel = editor.getSelection();
                 		element = editor.document.createElement('a');
                 		element.setHtml(sel.getSelectedText());
@@ -110,9 +108,7 @@ CKEDITOR.plugins.add( 'scalar', {
             exec: function( editor ) {
         		var sel = editor.getSelection();
         		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',callback:function(node){
-							var options = reference_options['insertMediaelement'];
-							options.node = node;
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaelement'],callback:function(options) {
 	        			element = editor.document.createElement('a');
 	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
 	            		element.setAttribute('class', 'inline');
@@ -134,9 +130,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	    			return;
 	    		}
         		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',callback:function(node){
-							var options = reference_options['insertAnnotation'];
-							//options.node = node;
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],callback:function(options) {
 	        			var sel = editor.getSelection();
 	            		element = editor.document.createElement('a');
 	            		element.setHtml(sel.getSelectedText());
@@ -157,9 +151,7 @@ CKEDITOR.plugins.add( 'scalar', {
             exec: function( editor ) {
         		var sel = editor.getSelection();
         		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',callback:function(node){
-							var options = reference_options['insertInlineAnnotation'];
-							//options.node = node;
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineAnnotation'],callback:function(options) {
 	        			element = editor.document.createElement('a');
 	            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 	            		url += '#'+node.slug;

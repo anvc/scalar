@@ -65,14 +65,12 @@ $config['reference_options'] = array(
 	'insertMediaLink' 		=> array(
 								'size' => array('small', 'medium', 'large', 'native', 'full'),
 								'align' => array('right', 'left'),
-								'caption' => array('description', 'title', 'title-and-description', 'none'),
-								'annotations' => array('none','all','list')
+								'caption' => array('description', 'title', 'title-and-description', 'none')
 						 		),
 	'insertMediaelement' 	=> array(
 								'size' => array('small', 'medium', 'large', 'native', 'full'),
 								'align' => array('left', 'center', 'right'),
-								'caption' => array('description', 'title', 'title-and-description', 'none'),
-								'annotations' => array('none','all','list')
+								'caption' => array('description', 'title', 'title-and-description', 'none')
 						    	),
 	'insertAnnotation' 		=> array(
 								'size' => array('small', 'medium', 'large', 'native', 'full'),
