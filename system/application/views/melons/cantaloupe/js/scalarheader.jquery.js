@@ -706,6 +706,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
             });
 
+
             base.handleResize();
             base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
@@ -722,7 +723,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var base = $('#scalarheader.navbar').data('scalarheader');
                     var desktopTitle = base.$el.find('#desktopTitleWrapper');
                     if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
-                      desktopTitle.tooltip({'title':fullText.text(),'container':'body','placement':'bottom'}).addClass('withTooltip');
+                      var titleHtml = fullText.text().split(' By ');
+                      titleHtml = '<strong>'+titleHtml[0]+'</strong> By '+(titleHtml.slice(1).join(' By '));
+
+                      desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
                     }else if(!isTruncated){
                       desktopTitle.tooltip('destroy').removeClass('withTooltip');
                     }

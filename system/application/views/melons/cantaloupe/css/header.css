@@ -9,6 +9,13 @@ body.in_menu{
     width: 100%;*/
 }
 
+.navbar .tooltip{
+	margin-top: -.5px;
+}
+.navbar .tooltip .tooltip-inner{
+	max-width: 100%;
+}
+
 .navbar .hidden_submit{
 	visibility:hidden;
 	width: 1px;

@@ -413,7 +413,9 @@ a:hover { text-decoration: underline; }
 .fixed_header { position: fixed; }*/
 
 .tooltip-inner { -webkit-font-smoothing: subpixel-antialiased; }
-
+.tooltip-inner.text-left{
+	text-align: left;
+}
 
 .mediaContainer iframe { border: none; }
 
