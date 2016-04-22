@@ -1472,7 +1472,6 @@
 						reload = true;
 					}
 					if ( reload ) {
-						$('#google-maps').css('max-height',0.6*page.sizeOnMediaLoad.y);
 						page.handleMediaResize();
 					}
 				}
@@ -1905,7 +1904,8 @@
 					}
 					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 
-					$( '#google-maps' ).data('map',map).css('height',0.6*$(window).height());
+					//Global scope google map variable
+					$gmaps = $( '#google-maps' );
 
 					// create info window
 					var infoWindow = new google.maps.InfoWindow({
@@ -2020,24 +2020,31 @@
 
 					// no valid coords found on page or its children
 					if ( foundError ) {
-						$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
+						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
 
 					// no coords of any kind found
 					} else if ( markers.length == 0 ) {
-						$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
+						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
 					}else{
 						// adjust map bounds to marker bounds
 						var bounds = new google.maps.LatLngBounds();
-						$( '#google-maps' ).data('bounds',bounds);
+						$gmaps.data({'map':map,'bounds':bounds,'markers':markers});
 						$.each( markers, function ( index, marker ) {
 							bounds.extend( marker.position );
 						});
 						if ( markers.length > 1 ) {
 							map.fitBounds( bounds );
-							$(window).on('resize',function(){
-								$( '#google-maps' ).data('map').fitBounds($( '#google-maps' ).data('bounds'));
-							});
 						}
+
+						$gmaps.css('max-height',0.6*$(window).height());
+						
+						$(window).on('resize',function(){
+							var markers = $gmaps.data('markers')
+							if(markers.length > 1){
+								$gmaps.data('map').fitBounds($( '#google-maps' ).data('bounds'));
+							}
+							$gmaps.css('max-height',0.6*$(window).height());
+						});
 					}
 					break;
 
