@@ -163,7 +163,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</ul>'+
                                             '</li>'+
                                         '</ul>'+
-                                        '<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper"><span class="hidden-xs author_text"> By <span id="header_authors" data-placement="bottom"></span></span></span>'+
+                                        '<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper"><span class="hidden-xs author_text"> by <span id="header_authors" data-placement="bottom"></span></span></span>'+
                                         '<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight">'+
                                             '<li class="" id="ScalarHeaderMenuSearch">'+
                                                 '<a class="headerIcon" id="searchIcon" title="Search button. Click to open search field.">'+
@@ -723,8 +723,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var base = $('#scalarheader.navbar').data('scalarheader');
                     var desktopTitle = base.$el.find('#desktopTitleWrapper');
                     if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
-                      var titleHtml = fullText.text().split(' By ');
-                      titleHtml = '<strong>'+titleHtml[0]+'</strong> By '+(titleHtml.slice(1).join(' By '));
+                      var titleHtml = fullText.text().split(' by ');
+                      titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
 
                       desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
                     }else if(!isTruncated){
