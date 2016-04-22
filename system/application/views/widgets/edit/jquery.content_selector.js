@@ -86,21 +86,13 @@
 					var $annotationRows = $(this).parents('table').find('tbody tr');
 					if($(this).parents('table').find('tbody>tr:not(.info)').length > 0){
 						$(this).removeClass('text-muted');
-						$annotationRows.each(function(){
-							var $featuredAnnotation = $(this).parents('.annotationSelection').find('.featuredAnnotation');
-
-							if($featuredAnnotation.find('option[data-slug='+$(this).data('slug')+']').length == 0){
-								$featuredAnnotation.find('select').append('<option data-slug="'+$(this).data('slug')+'">'+$(this).find('.annotationTitle').text()+'</option>');
-								if($featuredAnnotation.not(':visible')){
-									$featuredAnnotation.slideDown('fast');
-								}
-							}
-
-						}).addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
+						$annotationRows.addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
+						$featuredAnnotation.find('option').show().removeProp('disabled');
+						$featuredAnnotation.slideDown('fast');
 					}else{
 						$(this).addClass('text-muted');
 						$annotationRows.removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
-						$featuredAnnotation.slideUp('fast',function(){$(this).find('option').remove();});
+						$featuredAnnotation.slideUp('fast',function(){$(this).find('option').hide().prop('disabled','disabled');});
 					}
 				});
 
@@ -114,24 +106,35 @@
 										return;
 									}
 									var $body = $annotationSelection.find('tbody');
+									var $featuredAnnotation = $annotationSelection.find('.featuredAnnotation select');
+
 									for(n in annotated_by){
                     var rel = annotated_by[n];
-                    $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+rel.getDisplayTitle()+'</td></tr>').appendTo($body).click(function(){
+										var title = rel.getDisplayTitle();
+										$featuredAnnotation.append('<option style="display: none;" disabled value="'+rel.slug+'">'+title+'</option>');
+                    $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).click(function(){
 											var $featuredAnnotation = $(this).parents('.annotationSelection').find('.featuredAnnotation');
 											if($(this).hasClass('info')){
 												$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
 												$(this).parents('table').find('.annotationSelectionShowAll').addClass('text-muted');
-												$featuredAnnotation.find('option[data-slug='+$(this).data('slug')+']').remove();
-												if($featuredAnnotation.find('option').length == 0){
+												$thisOption = $featuredAnnotation.find('option[value='+$(this).data('slug')+']');
+												if($featuredAnnotation.find('option:not([disabled])').length == 1){
 													$featuredAnnotation.slideUp('fast');
+												}else{
+													var newVal = $featuredAnnotation.find('option:not([disabled])').not($thisOption).first().prop('selected','selected').val();
+													$featuredAnnotation.val(newVal).change();
 												}
+												$thisOption.hide().prop('disabled','disabled');
 											}else{
 												$(this).addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
 												if($(this).siblings('tr:not(.info)').length == 0){
 													$(this).parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
 												}
-												$featuredAnnotation.find('select').append('<option data-slug="'+$(this).data('slug')+'">'+$(this).find('.annotationTitle').text()+'</option>');
-												if($featuredAnnotation.not(':visible')){
+												$thisOption = $featuredAnnotation.find('option[value='+$(this).data('slug')+']');
+												$thisOption.show().removeProp('disabled');
+												if($featuredAnnotation.find('option:not([disabled])').length == 1){
+													$thisOption.prop('selected','selected');
+													$featuredAnnotation.val($(this).data('slug'));
 													$featuredAnnotation.slideDown('fast');
 												}
 											}
