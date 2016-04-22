@@ -66,7 +66,7 @@
 
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
-					var $option = $('<div class="form-group"><label class="col-sm-2 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-10"><select class="form-control" name="'+option_name+'"></select></div></div>');
+					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
 					for (var j = 0; j < opts.data[option_name].length; j++) {
 						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
 					}
@@ -75,33 +75,73 @@
 			}
 
 			if(hasAnnotationOption){
-				var $annotationSelection = $('<div class="form-group"><label class="col-sm-2 control-label">Annotations: </label><div class="col-sm-10">&nbsp;&nbsp;<label class="radio-inline"><input type="radio" name="editorAnnotationRadio" id="editorAllAnnotations" value="all" checked="true"> All</label> <label class="radio-inline"><input type="radio" name="editorAnnotationRadio" id="editorNoAnnotations" value="none"> None</label> <label class="radio-inline"><input type="radio" name="editorAnnotationRadio" id="editorSelectedAnnotations" value="selected"> Selected Only</label></div><div><select multiple class="form-control" id="editorAnnotationList" disabled></select></div></div>');
-				$annotationSelection.find('#editorAnnotationList').hide();
-				$annotationSelection.find('#editorAllAnnotations, #editorNoAnnotations').change(function(){
-					if($(this).is(':checked')){
-						$(this).parent().parent().parent().find('#editorAnnotationList').prop('disabled',true).fadeOut('fast');
+				var $annotationSelection = $('<div class="form-group">'+
+																		 		'<label class="col-sm-3 control-label">Annotations: </label>'+
+																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Name</th></tr></thead><tbody></tbody></table></div><div class="form-group featuredAnnotation"><label class="col-sm-3 control-label">Featured Annotation:<br /><small>(Optional)</small></label><div class="col-sm-9"><select></select></div></div></div>');
+
+        $annotationSelection.find('.annotationSelectionShowAll').click(function(e){
+					e.preventDefault();
+					e.stopPropagation();
+					var $featuredAnnotation = $(this).parents('.annotationSelection').find('.featuredAnnotation');
+					var $annotationRows = $(this).parents('table').find('tbody tr');
+					if($(this).parents('table').find('tbody>tr:not(.info)').length > 0){
+						$(this).removeClass('text-muted');
+						$annotationRows.each(function(){
+							var $featuredAnnotation = $(this).parents('.annotationSelection').find('.featuredAnnotation');
+
+							if($featuredAnnotation.find('option[data-slug='+$(this).data('slug')+']').length == 0){
+								$featuredAnnotation.find('select').append('<option data-slug="'+$(this).data('slug')+'">'+$(this).find('.annotationTitle').text()+'</option>');
+								if($featuredAnnotation.not(':visible')){
+									$featuredAnnotation.slideDown('fast');
+								}
+							}
+
+						}).addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
+					}else{
+						$(this).addClass('text-muted');
+						$annotationRows.removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
+						$featuredAnnotation.slideUp('fast',function(){$(this).find('option').remove();});
 					}
 				});
-				$annotationSelection.find('#editorSelectedAnnotations').change(function(){
-					if($(this).is(':checked')){
-						$(this).parent().parent().parent().find('#editorAnnotationList').attr('disabled',false).fadeIn('fast');
-					}
-				});
+
 				if(opts.data.node!=null && typeof opts.data.node !== 'undefined'){
-					(function(slug,list){
+					(function(slug,$annotationSelection){
 							scalarapi.loadPage( slug, true, function(){
 									var node = scalarapi.getNode(slug);
 									var annotated_by = node.getRelatedNodes('annotation', 'incoming');
+									if(annotated_by.length == 0){
+										$annotationSelection.hide();
+										return;
+									}
+									var $body = $annotationSelection.find('tbody');
 									for(n in annotated_by){
-	                    rel = annotated_by[n];
-	                    list.append('<option value="'+rel.slug+'">'+rel.getDisplayTitle()+'</option>');
-	                }
+                    var rel = annotated_by[n];
+                    $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+rel.getDisplayTitle()+'</td></tr>').appendTo($body).click(function(){
+											var $featuredAnnotation = $(this).parents('.annotationSelection').find('.featuredAnnotation');
+											if($(this).hasClass('info')){
+												$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
+												$(this).parents('table').find('.annotationSelectionShowAll').addClass('text-muted');
+												$featuredAnnotation.find('option[data-slug='+$(this).data('slug')+']').remove();
+												if($featuredAnnotation.find('option').length == 0){
+													$featuredAnnotation.slideUp('fast');
+												}
+											}else{
+												$(this).addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
+												if($(this).siblings('tr:not(.info)').length == 0){
+													$(this).parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
+												}
+												$featuredAnnotation.find('select').append('<option data-slug="'+$(this).data('slug')+'">'+$(this).find('.annotationTitle').text()+'</option>');
+												if($featuredAnnotation.not(':visible')){
+													$featuredAnnotation.slideDown('fast');
+												}
+											}
+										});
+									}
 							}, null, 1 );
-					})(opts.data.node.slug,$annotationSelection.find('#editorAnnotationList'));
-				}else{
-					$annotationSelection.find('#editorSelectedAnnotations, #editorAnnotationList').hide();
+					})(opts.data.node.slug,$annotationSelection);
+
+					$form.append($annotationSelection);
 				}
-				$form.append($annotationSelection);
 			}
 
 	    $this.append('<div class="clearfix visible-xs-block"></div><p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default continueButton" value="Continue" /></p>');

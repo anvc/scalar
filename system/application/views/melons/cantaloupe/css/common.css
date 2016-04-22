@@ -1049,6 +1049,48 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .cke_dialog_ui_labeled_label, .cke_dialog_body label, select.cke_dialog_ui_input_select, .cke_dialog_ui_button, .cke_dialog_ui_html, .cke_dialog_ui_input_text {
 	font: normal normal normal 14px 'Lato', Arial, sans-serif !important;
 }
+.media_options_bootbox .table-fixed thead {
+  width: 96%;
+}
+.media_options_bootbox .annotationTableWrapper{
+		border: 1px solid #ccc;
+	  border-radius: 4px;
+}
+.media_options_bootbox .table-fixed tbody {
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+	border-top: 1px solid #ccc;
+}
+.media_options_bootbox .table-fixed thead, .media_options_bootbox .table-fixed tbody, .media_options_bootbox .table-fixed tr, .media_options_bootbox .table-fixed td, .media_options_bootbox .table-fixed th {
+  display: block;
+}
+.media_options_bootbox .table-fixed tbody td, .media_options_bootbox .table-fixed thead > tr> th {
+  float: left;
+}
+.media_options_bootbox .table-fixed>tbody>tr:first-child>td{
+	border-top: 0px;
+}
+
+.media_options_bootbox .table-fixed th{
+	font-weight: bold;
+	background-color: #fff;
+	border-bottom: 0;
+}
+
+.media_options_bootbox .annotationSelection .table-fixed>tbody>tr{
+	cursor: pointer;
+}
+.media_options_bootbox .featuredAnnotation{
+	display: none;
+}
+.media_options_bootbox .featuredAnnotation select{
+	width: 100%;
+	line-height: 3rem;
+	height: 3rem;
+	font-size: 1.75rem;
+	margin-top: 1.5rem;
+}
 
 /* widget pages */
 
