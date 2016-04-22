@@ -1610,7 +1610,7 @@
 
 					var thumbnailMarkup = "";
 					if (thumbnail != null) {
-						thumbnailMarkup = '<img style="float:left; margin: 0 1rem 1rem 0;" src="' + thumbnail +'" alt="Thumbnail image" width="120"/>';
+						thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail +'" alt="Thumbnail image" width="120"/>';
 					}
 
 					// add marker and info window for current page
