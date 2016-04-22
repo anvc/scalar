@@ -77,7 +77,8 @@ CKEDITOR._scalar = {
 };
 
 CKEDITOR.plugins.add( 'scalar', {
-    icons: 'scalar1,scalar2,scalar3,scalar4,scalar5,scalar6,scalar7',
+    //icons: 'scalar1,scalar2,scalar3,scalar4,scalar5,scalar6,scalar7',
+		icons: 'scalar1,scalar2,scalar5,scalar6,scalar7',
     requires: 'dialog',
     init: function( editor ) {
 	    var pluginDirectory = this.path;
@@ -126,6 +127,7 @@ CKEDITOR.plugins.add( 'scalar', {
         		}});
             }
         });
+				/*
         editor.addCommand( 'insertScalar3', {
             exec: function( editor ) {
 	    		var sel = editor.getSelection();
@@ -176,6 +178,7 @@ CKEDITOR.plugins.add( 'scalar', {
         		}});
             }
         });
+				*/
         editor.addCommand( 'insertScalar5', {
             exec: function( editor ) {
 	    		var sel = editor.getSelection();
@@ -235,6 +238,7 @@ CKEDITOR.plugins.add( 'scalar', {
             command: 'insertScalar2',
             toolbar: 'links'
         });
+				/*
         editor.ui.addButton( 'Scalar3', {
             label: 'Insert Scalar Annotation',
             command: 'insertScalar3',
@@ -245,6 +249,7 @@ CKEDITOR.plugins.add( 'scalar', {
             command: 'insertScalar4',
             toolbar: 'links'
         });
+				*/
         editor.ui.addButton( 'Scalar5', {
             label: 'Insert Scalar Note',
             command: 'insertScalar5',
