@@ -1,5 +1,34 @@
 <?php
 
+function first_image_from_html_string($str='') {
+	
+	$urls = hrefs_from_html_string($str);
+	foreach ($urls as $url) {
+		if (strtolower(substr($url, -4, 4)) == '.jpg' || strtolower(substr($url, -4, 4)) == '.png' || strtolower(substr($url, -4, 4)) == 'jpeg') {
+			return $url;	
+		}
+	}
+	return false;
+	
+}
+
+function hrefs_from_html_string($str='') {
+	
+	$return = array();
+	if (empty($str)) return $return;
+	
+	preg_match_all('/<a[^>]+href=([\'"])(.+?)\1[^>]*>/i', $str, $result);
+	if (!empty($result) && !empty($result[2])) {
+		foreach ($result[2] as $url) {
+			if (!$url || !strlen($url)) continue;
+			$return[] = $url;
+		}
+	} 	
+	
+	return $return;
+	
+}
+
 function template_link_tag_relative($rel='', $path='') {
 	
     $rel = url_from_file($rel);
