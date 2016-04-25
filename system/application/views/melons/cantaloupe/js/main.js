@@ -518,10 +518,13 @@ $(window).ready(function() {
 					page.addMediaElements();
 				}
 
-				$audio = $('section.audio');
-				if($audio.length) {
-					$audio.show();
-					page.addMediaElementsForElement($audio);
+				var extension = scalarapi.getFileExtension( window.location.href );
+				if (extension == "") {
+					$audio = $('section.audio');
+					if($audio.length) {
+						$audio.show();
+						page.addMediaElementsForElement($audio);
+					}
 				}
 
 				var savedState = $.cookie('viewstate');
