@@ -1466,7 +1466,7 @@ function YouTubeGetID(url){
 		 * Removes the loading message.
 		 */
 		jQuery.MediaElementView.prototype.removeLoadingMessage = function() {
-			this.mediaContainer.css('background-image', 'url()');
+			this.mediaContainer.parent().parent().css('background-image', 'none');
 			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
 		}
 
@@ -2093,35 +2093,34 @@ function YouTubeGetID(url){
 			// special case some URL elements
 			if (-1!=url.indexOf('http://cubantheater.org')) url = url.replace('http://cubantheater.org','http://ctda.library.miami.edu');
 
-			// setup actions to be taken on image load
-			$(this.image).load(function() {
-
-				var $this = $(this);
-
-				me.hasLoaded = true;
-
-				me.parentView.intrinsicDim.x = this.width;
-				me.parentView.intrinsicDim.y = this.height;
-
-				me.parentView.layoutMediaObject();
-				me.parentView.removeLoadingMessage();
-
-				// Make visible
-				if ($.browser.msie) {
-					$this.css('display','inline');
-				} else {
-					$this.fadeIn();
-				}
-
-				if (me.annotations != null) {
-					me.setupAnnotations(me.annotations);
-				}
-
-			}).attr({
+			$(this.image).attr({
 				'src': url,
 				'data-original': url + '-' + this.model.id // needed to support annotorious if the same image appears on the page more than once
 			});
 
+			$(this.image).load(function() {
+				me.doImageSetup(this);
+			});
+
+    	}
+
+    	jQuery.ImageObjectView.prototype.doImageSetup = function(image) {
+ 			this.hasLoaded = true;
+			this.parentView.intrinsicDim.x = image.width;
+			this.parentView.intrinsicDim.y = image.height;
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+			// Make visible
+			if ($.browser.msie) {
+				$(image).css('display','inline');
+			} else {
+				$(image).fadeIn();
+			}
+
+			if (this.annotations != null) {
+				this.setupAnnotations(me.annotations);
+			}
     	}
 
 		/**
