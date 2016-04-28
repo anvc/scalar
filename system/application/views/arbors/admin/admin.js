@@ -40,6 +40,7 @@ function edit_row($row) {
 					value = $this.find('a:first').attr('href');
 				}
 			}
+		    value = value.replace('<span class="home_page"> (home page)</span>','');
 			if ($this.hasClass('excerpt')) value = $this.find("span[class='full']").html();
 			var input_type = 'text';
 			if ($this.hasClass('textarea')) input_type = 'textarea';
@@ -206,6 +207,7 @@ function push_row(row,post) {
 				value = data[property];
 			}
 			if ($this.hasClass('uri_link') && 'undefined'!=typeof(window['book_uri'])) {
+				if ('index'==value) value = value+'<span class="home_page"> (home page)</span>';
 				value = '<a href="'+window['book_uri']+data['slug']+'">'+value+'</a>';
 			} else if ($this.hasClass('has_link')) {
 				if (value.indexOf('://')!=-1) {
