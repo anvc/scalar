@@ -1813,7 +1813,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			'dcterms:description': '',
 			'sioc:content': '',
 			'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
-			'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
+			'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* In Honeydew this is comming from the comment form because there isn't an annotation form in its HTML */
 			'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media', 
 			'scalar:child_rel': 'annotated',
 			'scalar:start_seconds': '',

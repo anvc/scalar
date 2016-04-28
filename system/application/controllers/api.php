@@ -530,8 +530,18 @@ Class Api extends Controller {
 				unset($this->data['scalar:'.$idx]);
 			}
 		}
+		
+		$rel_predicates = array();
+		foreach($this->rel_types as $type) {
+			$rel_type = 'rel_'.$type;
+			if (!isset($this->$rel_type)) continue;
+			foreach($this->$rel_type as $idx) {
+				$rel_predicates[] = 'scalar:'.$idx;
+			}
+		}
 
 		foreach ($this->data as $key => $value) {
+			if (in_array($key, $rel_predicates)) continue;
 			$key_is_allowable = false;
 			foreach ($this->allowable_metadata_prefixes as $prefix) {
 				if (substr($key, 0, strlen($prefix))==$prefix) $key_is_allowable = true;
@@ -563,6 +573,7 @@ Class Api extends Controller {
 			foreach($this->$rel_meta as $idx) {
 				if (isset($this->data['scalar:metadata:'.$idx])) {
 					$save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
+					unset($this->data['scalar:metadata:'.$idx]);
 				} elseif (isset($this->data['scalar:'.$idx])) {
 					$save[$idx] = $this->data['scalar:'.$idx];
 					unset($this->data['scalar:'.$idx]);
