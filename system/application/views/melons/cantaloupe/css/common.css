@@ -249,6 +249,7 @@ li.divider-above { border-top: 1px dotted #888; }
 .mediaelement .annotorious-popup{
 	top: 0;
 	left: 0;
+	width: 320px;
 }
 .media_annotations .current .media_link{
 	background-color: #e2eaef;
