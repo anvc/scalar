@@ -3,6 +3,26 @@
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
+/** 
+ * Convert \n to <br /> when pasting into the 'source' mode
+ * @author 	Craig Dietrich
+ * @version	1.0
+ */
+$(document).on('paste', 'textarea', function (e) {  // Text is cut-and-paste into 'source' mode
+	if ('undefined'!=typeof(codemirror_cke_1)) {
+		var myFunc = function(obj1, obj2) {
+			codemirror_cke_1.off('change', myFunc);
+			var val = codemirror_cke_1.getValue();
+			val = val.replace(/^\s+|\s+$/g, '');  // Trim line breaks from beginning and end
+			val = val.replace(new RegExp('\r?\n','g'), "<br />\n");  // Convert line breaks to <br />
+			setTimeout(function() {
+				codemirror_cke_1.setValue(val);		
+			},10);
+		};
+		codemirror_cke_1.on('change', myFunc);
+	} 
+});
+
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
 	
