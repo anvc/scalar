@@ -1,13 +1,22 @@
 <?php
 
-function first_image_from_html_string($str='') {
+function first_og_image_from_html_string($str='') {
 	
 	$urls = hrefs_from_html_string($str);
 	foreach ($urls as $url) {
-		if (strtolower(substr($url, -4, 4)) == '.jpg' || strtolower(substr($url, -4, 4)) == '.png' || strtolower(substr($url, -4, 4)) == 'jpeg') {
-			return $url;	
+		if (is_opengraphable_image($url)) {
+			return $url;
 		}
 	}
+	return false;
+	
+}
+
+function is_opengraphable_image($url) {
+	
+	if (strtolower(substr($url, -4, 4)) == '.jpg' || strtolower(substr($url, -4, 4)) == '.png' || strtolower(substr($url, -4, 4)) == 'jpeg') {
+		return true;	
+	}	
 	return false;
 	
 }
