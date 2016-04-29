@@ -77,7 +77,7 @@
 			if(hasAnnotationOption){
 				var $annotationSelection = $('<div class="form-group">'+
 																		 		'<label class="col-sm-3 control-label">Annotations: </label>'+
-																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Name</th></tr></thead><tbody></tbody></table></div><div class="form-group featuredAnnotation"><label class="col-sm-3 control-label">Featured Annotation:<br /><small>(Optional)</small></label><div class="col-sm-9"><select></select></div></div></div>');
+																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Name</th></tr></thead><tbody></tbody></table></div><div class="form-group featuredAnnotation"><label class="col-sm-3 control-label">Featured Annotation:<br /><small>(Optional)</small></label><div class="col-sm-9"><select><option value="none" class="none">No Featured Annotation</option></select></div></div></div>');
 
         $annotationSelection.find('.annotationSelectionShowAll').click(function(e){
 					e.preventDefault();
@@ -117,11 +117,11 @@
 											if($(this).hasClass('info')){
 												$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
 												$(this).parents('table').find('.annotationSelectionShowAll').addClass('text-muted');
-												$thisOption = $featuredAnnotation.find('option[value='+$(this).data('slug')+']');
-												if($featuredAnnotation.find('option:not([disabled])').length == 1){
+												$thisOption = $featuredAnnotation.find('option[value="'+$(this).data('slug')+'"]');
+												if($featuredAnnotation.find('option:not([disabled]):not(".none")').length == 1){
 													$featuredAnnotation.slideUp('fast');
 												}else{
-													var newVal = $featuredAnnotation.find('option:not([disabled])').not($thisOption).first().prop('selected','selected').val();
+													var newVal = $featuredAnnotation.find('option:not([disabled]):not(".none")').not($thisOption).first().prop('selected','selected').val();
 													$featuredAnnotation.val(newVal).change();
 												}
 												$thisOption.hide().prop('disabled','disabled');
@@ -130,9 +130,9 @@
 												if($(this).siblings('tr:not(.info)').length == 0){
 													$(this).parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
 												}
-												$thisOption = $featuredAnnotation.find('option[value='+$(this).data('slug')+']');
+												$thisOption = $featuredAnnotation.find('option[value="'+$(this).data('slug')+'"]');
 												$thisOption.show().removeProp('disabled');
-												if($featuredAnnotation.find('option:not([disabled])').length == 1){
+												if($featuredAnnotation.find('option:not([disabled]):not(".none")').length == 1){
 													$thisOption.prop('selected','selected');
 													$featuredAnnotation.val($(this).data('slug'));
 													$featuredAnnotation.slideDown('fast');
@@ -158,18 +158,17 @@
 						data_fields[option_name] = $this.find('select[name="'+option_name+'"] option:selected"').val();
 					}
 				}
-				if($this.find('#editorAllAnnotations').length > 0){
+				if($('#bootbox-media-options-content').find('.annotationSelection').length > 0){
 					//We have an annotation selector
-					var annotationVal = $this.find('input[name=editorAnnotationRadio]:checked').val();
-					if(annotationVal == "none"){
-						data_fields['annotations'] = "[]";
-					}else if(annotationVal == "selected"){
-						var $selectedAnnotations = $this.find('#editorAnnotationList option:selected');
-						var annotations = [];
-						for(var i = 0; i < $selectedAnnotations.length; i++){
-							annotations.push($selectedAnnotations.eq(i).val());
-						}
-						data_fields['annotations'] = annotations.join(',');
+
+					var $selectedAnnotations = $('#bootbox-media-options-content').find('.annotationSelection tbody .glyphicon-eye-open').parents('tr');
+					var annotations = [];
+					for(var i = 0; i < $selectedAnnotations.length; i++){
+						annotations.push($selectedAnnotations.eq(i).data('slug'));
+					}
+					data_fields['annotations'] = annotations.length>0?annotations.join(','):'[]';
+					if($('#bootbox-media-options-content').find('.featuredAnnotation select').val()!='none' && $('#bootbox-media-options-content').find('.featuredAnnotation select').is(':visible')){
+						data_fields['featured_annotation'] = $('#bootbox-media-options-content').find('.featuredAnnotation select').val();
 					}
 				}
 				if ($form.closest('.media_options_bootbox').length) {

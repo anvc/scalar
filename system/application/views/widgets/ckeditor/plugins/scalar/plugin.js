@@ -100,7 +100,11 @@ CKEDITOR.plugins.add( 'scalar', {
             			element.setAttribute('href', node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value);
             			element.setAttribute('resource', node.slug);
             			for (var key in options) {
-            				element.setAttribute('data-'+key, options[key]);
+										if(key == "featured_annotation"){
+											element.setAttribute('href',element.getAttribute('href')+'#'+options[key]);
+										}else{
+            					element.setAttribute('data-'+key, options[key]);
+										}
             			}
             			editor.insertElement(element);
         			}});
