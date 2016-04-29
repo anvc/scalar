@@ -80,9 +80,12 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <meta property="og:image" content="<?php
 $default_img = $app_root.'views/arbors/html5_RDFa/scalar_logo_300x300.png';
 if (isset($page->version_index)) {
-	$img = first_image_from_html_string($page->versions[$page->version_index]->content);
+	$img = first_og_image_from_html_string($page->versions[$page->version_index]->content);
+	$url = $page->versions[$page->version_index]->url;
 	if (!empty($img)) {
 		echo abs_url(str_replace(' ','%20',$img),base_url().$book->slug);
+	} elseif (!empty($url) && is_opengraphable_image($url)) {
+		echo abs_url(str_replace(' ','%20',$url),base_url().$book->slug);
 	} elseif (!empty($banner)) {
 		echo abs_url(str_replace(' ','%20',$banner),base_url().$book->slug);
 	} elseif (!empty($background)) {
