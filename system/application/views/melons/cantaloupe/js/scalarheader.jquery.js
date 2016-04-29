@@ -710,33 +710,55 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.handleResize();
             base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
-            base.titleTextIntervalTime = 0;
-            base.titleTextInterval = window.setInterval(function () {
-              var base = $('#scalarheader.navbar').data('scalarheader');
-              if((base.$el.find('#desktopTitleWrapper #header_authors').is(':visible') && base.$el.find('#desktopTitleWrapper #header_authors').html()!='' ) || titleTextIntervalTime > 5000){
-                base.$el.find('#desktopTitleWrapper').dotdotdot({
-                  ellipsis: '…',
-                  wrap: 'letter',
-                  height: 50,
-                  callback: function(isTruncated, fullText){
-                    //Check if author text is overflowed - if so, add a bootstrap tooltip.
-                    var base = $('#scalarheader.navbar').data('scalarheader');
-                    var desktopTitle = base.$el.find('#desktopTitleWrapper');
-                    if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
-                      var titleHtml = fullText.text().split(' by ');
-                      titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
 
-                      desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
-                    }else if(!isTruncated){
-                      desktopTitle.tooltip('destroy').removeClass('withTooltip');
-                    }
-                  }
-                }).addClass('overflowCalculated');
-                clearInterval(base.titleTextInterval);
-                return;
+            base.$el.find('.title_wrapper.visible-xs .book-title').dotdotdot({
+                      ellipsis: '…',
+                      wrap: 'letter',
+                      height: 50,
+                      callback: function(isTruncated, fullText){
+                        var mobileTitle = base.$el.find('.title_wrapper.visible-xs');
+                        if (isTruncated && !mobileTitle.hasClass('withTooltip')) {
+                          var titleHtml = $('#desktopTitleWrapper').text().split(' by ');
+                          titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
+
+                          mobileTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'})
+                                     .addClass('withTooltip')
+                                     .on('hide.bs.tooltip',function(){
+                                       $(this).find('a').removeClass('tooltipVisible');
+                                     });
+                          mobileTitle.find('a').click(function(e){
+                            if(!$(this).hasClass('tooltipVisible')){
+                              $(this).addClass('tooltipVisible');
+                              e.preventDefault();
+                              return false;
+                            }else{
+                              return true;
+                            }
+                          });
+                        }else{
+                          mobileTitle.tooltip('destroy').removeClass('withTooltip').find('a').off('click');
+                        }
+                      }
+                    });
+
+            base.$el.find('#desktopTitleWrapper').dotdotdot({
+              ellipsis: '…',
+              wrap: 'letter',
+              height: 50,
+              callback: function(isTruncated, fullText){
+                //Check if author text is overflowed - if so, add a bootstrap tooltip.
+                var base = $('#scalarheader.navbar').data('scalarheader');
+                var desktopTitle = base.$el.find('#desktopTitleWrapper');
+                if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
+                  var titleHtml = fullText.text().split(' by ');
+                  titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
+
+                  desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
+                }else if(!isTruncated){
+                  desktopTitle.tooltip('destroy').removeClass('withTooltip');
+                }
               }
-              base.titleTextIntervalTime+=200;
-            },200);
+            }).addClass('overflowCalculated');
         };
         base.buildSubItem = function($container){
             var slug = $container.data('slug');
@@ -1095,10 +1117,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             var screen_width = $(window).width();
             var menu_button_visible = base.$el.find('.navbar-toggle').is(':visible');
             var max_width = (base.$el.width() - ($('#ScalarHeaderMenuLeft').outerWidth() + $('#ScalarHeaderMenuRight').outerWidth()))-30;
+
+            base.$el.find('#desktopTitleWrapper,.title_wrapper.visible-xs .book-title').trigger("update");
+
             if(base.isMobile || menu_button_visible){
+
                 max_width -= base.$el.find('.navbar-toggle').outerWidth()+15;
                 if(!base.usingMobileView){
-                    base.$el.removeClass('short')
+                    base.$el.removeClass('short');
                     $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
                     base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
                     //reset search form if switching to mobile view
