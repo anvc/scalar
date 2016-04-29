@@ -317,6 +317,13 @@ a.headerIcon{
 	width: 100%;
 	text-overflow: clip;
 }
+span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
+	max-width: 384px;
+	word-wrap: break-word;
+	height: 5rem;
+	width: 100%;
+	text-overflow: clip;
+}
 .navbar .title_wrapper>a{
 	color: #fff;
 }
