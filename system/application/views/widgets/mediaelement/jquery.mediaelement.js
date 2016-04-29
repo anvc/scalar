@@ -3671,9 +3671,18 @@ function YouTubeGetID(url){
 
 			var readyFunc = function() {
 				$(this).jPlayer('setMedia', options);
+				if (me.model.options.autoplay) {
+					$(this).jPlayer("play");
+				}
 			};
 
-			this.audio = $('#jplayer'+this.model.filename+'_'+this.model.id).jPlayer({ready:readyFunc, backgroundColor:null, swfPath: url_to_swf, supplied:this.model.extension, cssSelectorAncestor:'#jp_interface_'+this.model.id});
+			this.audio = $('#jplayer'+this.model.filename+'_'+this.model.id).jPlayer({
+				ready:readyFunc, 
+				backgroundColor:null, 
+				swfPath: url_to_swf, 
+				supplied:this.model.extension, 
+				cssSelectorAncestor:'#jp_interface_'+this.model.id
+			});
 
 			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.pause, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.endTimer(); });
 			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.play, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.startTimer(); $(this).jPlayer("pauseOthers"); });
