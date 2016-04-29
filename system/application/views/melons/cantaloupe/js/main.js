@@ -193,8 +193,8 @@ function wrapOrphanParagraphs(selection) {
 	  		var is_br =  $( this ).is( 'br' );
 	  		var is_nbsp = $( this ).text() == '\xA0';
 
-	  		// trigger a new paragrph for p and div elements
-	  		if ( $( this ).is('p,div,h1,h2,h3') ) {
+	  		// trigger a new paragraph for these elements
+	  		if ( $( this ).is('p,div,h1,h2,h3,ul,ol') ) {
 	  			newParagraph = true;
 
 	  		// trigger a new paragraph for blockquotes, but wrap them in another div first
@@ -211,8 +211,6 @@ function wrapOrphanParagraphs(selection) {
 	  		} else if ( is_nbsp && ( brCount == 1 ) ) {
 	  			newParagraph = true;
 	  		}
-
-	  		// console.log( "new paragraph? " + newParagraph + " nsbp? " + is_nbsp + " br? " + is_br + " br count? " + brCount );
 
 	  		// if this isn't a new paragraph, then
 	  		if ( !newParagraph ) {
@@ -240,6 +238,12 @@ function wrapOrphanParagraphs(selection) {
 	  		  	if( buffer !== null ) {
             		buffer.insertBefore( me );
 	  		    	buffer = null;
+	  		  	}
+	  		  	// even if this element contains no free-floating text, we still need to make a paragraph out of it
+	  		  	if ($(me).clone().children().remove().end().text() == '') {
+            		buffer = $( me );
+            		buffer.wrap( "<div></div>" );
+            		buffer = buffer.parent();
 	  		  	}
 	  		}
 
