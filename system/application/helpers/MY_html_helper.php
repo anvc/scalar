@@ -2,6 +2,7 @@
 
 function first_og_image_from_html_string($str='') {
 	
+	if (empty($str)) return false;
 	$urls = hrefs_from_html_string($str);
 	foreach ($urls as $url) {
 		if (is_opengraphable_image($url)) {
@@ -14,6 +15,7 @@ function first_og_image_from_html_string($str='') {
 
 function is_opengraphable_image($url) {
 	
+	if (empty($url)) return false;
 	if (strtolower(substr($url, -4, 4)) == '.jpg' || strtolower(substr($url, -4, 4)) == '.png' || strtolower(substr($url, -4, 4)) == 'jpeg') {
 		return true;	
 	}	
