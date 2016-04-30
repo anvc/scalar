@@ -240,7 +240,7 @@ function wrapOrphanParagraphs(selection) {
 	  		    	buffer = null;
 	  		  	}
 	  		  	// even if this element contains no free-floating text, we still need to make a paragraph out of it
-	  		  	if ($(me).clone().children().remove().end().text() == '') {
+	  		  	if (!is_br && ($(me).clone().children().remove().end().text() == '')) {
             		buffer = $( me );
             		buffer.wrap( "<div></div>" );
             		buffer = buffer.parent();
