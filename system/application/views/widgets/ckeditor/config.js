@@ -8,8 +8,10 @@
  * @author 	Craig Dietrich
  * @version	1.0
  */
-$(document).on('paste', 'textarea', function (e) {  // Text is cut-and-paste into 'source' mode
+$(document).on('paste', 'textarea', function (e, c) {  // Text is cut-and-paste into 'source' mode
 	if ('undefined'!=typeof(codemirror_cke_1)) {
+		var orig = codemirror_cke_1.getValue();
+		if (orig != '' && orig.length > 0) return;  // If there is existing text don't run this since it will add line breaks to text that has already been processed
 		var myFunc = function(obj1, obj2) {
 			codemirror_cke_1.off('change', myFunc);
 			var val = codemirror_cke_1.getValue();
