@@ -348,6 +348,9 @@
 					// hide the media element until we get it fully set up (after its metadata has loaded)
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
+
+					console.log(slotMediaElement);
+
 					slotMediaElement.model.element.css( 'visibility', 'hidden' );
 
 					// if this is an inline media element, then
@@ -1168,6 +1171,40 @@
 					};
 
 				} else if ( '' == extension ) {
+
+					anno.addHandler('onPopupShown', function(annotation) {
+							var height = null;
+							$('.annotorious-popup').each(function(){
+								var width = $(this).width();
+								if(annotation.isMedia){
+									var parent = $(this).find('.annotorious-popup-text');
+									var node = scalarapi.getNode(parent.find('a').first().attr('href'));
+									var link = $( '<a href="'+node.current.sourceFile+'" data-annotations="[]" data-align="center" resource="'+node.slug+'" class="inline"></a>' ).hide().appendTo(parent);
+									page.addNoteOrAnnotationMedia(link,parent,width,height);
+								}else{
+										$(page.getMediaLinks($(this))).each(function(){
+											if($(this).hasClass('inline')){
+												$(this).wrap('<div></div>').hide().removeClass('inline');
+											}
+										});
+
+										wrapOrphanParagraphs($(this));
+
+										$(this).children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+
+										$(page.getMediaLinks($(this))).each(function(){
+											$(this).attr({
+												'data-align':'',
+												'data-size':'',
+												'data-annotations':'[]',
+												'class':'media_link'
+											});
+											var parent = $(this).parent();
+											page.addNoteOrAnnotationMedia($(this),parent,width,height);
+										});
+								}
+							});
+					});
 
 					switch (viewType) {
 
@@ -2037,7 +2074,7 @@
 						}
 
 						$gmaps.css('max-height',0.6*$(window).height());
-						
+
 						$(window).on('resize',function(){
 							var markers = $gmaps.data('markers')
 							if(markers.length > 1){

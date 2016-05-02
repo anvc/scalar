@@ -2186,6 +2186,11 @@ function YouTubeGetID(url){
 						height = parseFloat(annotation.properties.height) * this.parentView.mediaScale;
 					}
 
+					var annotationIsMediaType = false;
+					if(typeof annotation.body != undefined){
+						annotationIsMediaType = typeof annotation.body.scalarTypes.media !== 'undefined';
+					};
+
 					annotation.data = {
 						src: this.image.src + '-' + this.model.id,
 						text: '<a href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
@@ -2194,7 +2199,8 @@ function YouTubeGetID(url){
 							type: "rect",
 							units: "pixel",
 							geometry: { x: x, y: y, width: width, height: height }
-						}]
+						}],
+						isMedia : annotationIsMediaType
 					}
 
 					anno.addAnnotation( annotation.data );
@@ -3677,10 +3683,10 @@ function YouTubeGetID(url){
 			};
 
 			this.audio = $('#jplayer'+this.model.filename+'_'+this.model.id).jPlayer({
-				ready:readyFunc, 
-				backgroundColor:null, 
-				swfPath: url_to_swf, 
-				supplied:this.model.extension, 
+				ready:readyFunc,
+				backgroundColor:null,
+				swfPath: url_to_swf,
+				supplied:this.model.extension,
 				cssSelectorAncestor:'#jp_interface_'+this.model.id
 			});
 
