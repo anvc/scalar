@@ -256,8 +256,9 @@ li.divider-above { border-top: 1px dotted #888; }
 	background-color: #e2eaef;
 }
 
-.media_annotations .full, .note_viewer .full {margin-top:2rem;}
-.media_annotations .paragraph_wrapper, .note_viewer .paragraph_wrapper {margin-bottom:1.2rem;}
+.media_annotations .full, .note_viewer .full, .annotorious-popup-text .full, .current_annotation .full { margin-top: 2rem; }
+.media_annotations .paragraph_wrapper, .note_viewer .paragraph_wrapper { margin-bottom: 1.2rem; }
+
 
 
 /* --- PAGE --- */

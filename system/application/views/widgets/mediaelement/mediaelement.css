@@ -6,6 +6,7 @@
 	position:relative; top:0px; left:0px;
 	z-index:7;
 }
+.annotorious-popup-text .mediaelement, .current_annotation .mediaelement { z-index: auto; }
 
 .mediaContainer {
 	background-color: #e5e5e5;
@@ -35,9 +36,8 @@
 	bottom:0px;
 }
 
-.mediaObject {
-	z-index:7;
-}
+.mediaObject { z-index:7; }
+.annotorious-popup-text .mediaObject, .current_annotation .mediaObject { z-index: auto; }
 
 .mediaelement pre { border: 1px solid #cbcbcb; }
 .mediaelement pre, .mediaelement code { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; font-size: 100%; line-height: 100%; } 
