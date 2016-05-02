@@ -45,8 +45,9 @@
 						// if the annotation isn't already highlighted or we're showing it no matter what, then
 						if ((currentRelation != relation) || forceShow) {
 
-							// if the annotation tab is hidden, then show the single annotation display
-							if (annotationPane.css('display') == 'none') {
+							// if the annotation tab is hidden and this is not a spatial annotation, then show the single annotation display
+							// (spatial annotations will be displayed directly over the image, so we don't need to show them here)
+							if ((annotationPane.css('display') == 'none') && ( relation.target.current.mediaSource.contentType != 'image' )) {
 								currentAnnotationTable.empty();
 
 								var row = $('<tr><td>'+relation.startString+'</td><td></td></tr>').appendTo(currentAnnotationTable);
