@@ -3108,7 +3108,7 @@ function YouTubeGetID(url){
 			if ( this.model.options.autoplay ) {
 				url += '&autoplay=1';
 			}
-			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="'+url+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
+			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="'+url+'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>').appendTo(this.parentView.mediaContainer);
 
 			var ready = function(player_id) {
 				me.froogaloop = $froogaloop(player_id);
