@@ -1120,6 +1120,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             base.$el.find('#desktopTitleWrapper,.title_wrapper.visible-xs .book-title').trigger("update");
 
+            base.$el.find('.mainMenuDropdown .relationships').find('li>ol>li, li>ul>li').each(function(){
+              $(this).add($(this).find('.expand')).height($(this).find('a').first().height());
+            });
+
             if(base.isMobile || menu_button_visible){
 
                 max_width -= base.$el.find('.navbar-toggle').outerWidth()+15;
