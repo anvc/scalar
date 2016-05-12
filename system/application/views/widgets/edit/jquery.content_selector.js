@@ -377,7 +377,11 @@
     			$footer.find('label').show();  // Check all
         		$footer.find('input[type="checkbox"]').click(function() {
         			var active = $(this).data('active');
-        			$wrapper.find('input[type="checkbox"]').prop('checked',((active)?false:true));
+        			$wrapper.find('input[type="checkbox"]').each(function() {
+        				var $this = $(this);
+        				if (active && $this.is(':checked')) $this.closest('tr').click();
+        				if (!active && !$this.is(':checked')) $this.closest('tr').click();
+        			});
         			$(this).data('active', ((active)?false:true));
         		});
         		$footer.find('a').eq(1).click(function() {  // Cancel button
