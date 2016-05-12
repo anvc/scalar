@@ -2939,7 +2939,10 @@ function YouTubeGetID(url){
 				playerVars: playerVars,
 				events: {
 					'onStateChange': 'onYouTubeStateChange' + this.model.id
-				}
+				},
+        playerVars: {
+            wmode: "opaque"
+        }
 			}
 
 			if ( this.model.initialSeekAnnotation != null ) {
@@ -3236,7 +3239,7 @@ function YouTubeGetID(url){
 
  			var theElement = $('<div class="mediaObject" id="'+this.model.filename+'_mediaObject'+this.model.id+'"/>"').appendTo(this.parentView.mediaContainer);
 
- 			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.commercial-3.2.18.swf", {
+ 			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, {src: this.model.mediaelement_dir+"flowplayer.commercial-3.2.18.swf", wmode: "opaque"}, {
 
  				key: $('#flowplayer_key').attr('href'),
 

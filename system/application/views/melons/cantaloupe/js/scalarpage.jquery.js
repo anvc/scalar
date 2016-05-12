@@ -349,8 +349,6 @@
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
 
-					console.log(slotMediaElement);
-
 					slotMediaElement.model.element.css( 'visibility', 'hidden' );
 
 					// if this is an inline media element, then
