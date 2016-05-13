@@ -529,16 +529,16 @@
 
 								// continue button
 								links = $( '<p></p>' );
-								links.append( '<a class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
+								var continue_button = $( '<a class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
 									'?path=' + page.containingPath.slug + '">Continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
-									'&rdquo;</a>' );
+									'&rdquo;</a>' ).appendTo(links);
 								if ( pathOptionCount == 0 ) {
-									links.find( 'a' ).addClass( 'primary' );
+									continue_button.addClass( 'primary' );
 								}
 
 								// back button
 								if ( page.containingPathIndex > 0 ) {
-									links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
+									var back_button = $( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' ).prependTo(links);
 								}
 
 								section.append( links );
@@ -567,17 +567,28 @@
 							section = $('<section class="relationships"></section');
 							$( "#footer" ).before( section );
 							links = $( '<p></p>' );
-							links.append( '<a class="nav_btn" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' );
+							var end_button = $( '<a class="nav_btn" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' ).appendTo(links);
 							if ( pathOptionCount == 0 ) {
-								links.find( 'a' ).addClass( 'primary' );
+								end_button.addClass( 'primary' );
 							}
 
 							// back button
+							var back_button = null;
+
 							if ( page.containingPathIndex > 0 ) {
 								$( '#back-btn' ).parents( 'section' ).remove(); // remove the intra-path back button and its enclosing section
-								links.prepend( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' );
+								back_button = $( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' ).prependTo(links);
 							}
 							section.append( links );
+
+							if(back_button!=null){
+								back_button.height(end_button.innerHeight()).css({'line-height':end_button.height()+'px',float:'left','margin-right':'1px'});
+								$(window).resize(function(){
+									var end_button = $('#back-btn').siblings('.nav_btn').first();
+									$('#back-btn').height(end_button.innerHeight()).css({'line-height':end_button.height()+'px'});
+								});
+							}
+
 							pathOptionCount++;
 							containingPathOptionCount++;
 						}
