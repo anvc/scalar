@@ -534,6 +534,7 @@
     	var go = function() {
     		opts.data = [];
     		if (!opts.start) $this.find('.content').html('<div class="loading">Loading ...</div>');
+    		$this.find('.footer').find('input[type="checkbox"]').data('active',false).prop('checked',false);
     		// TODO: spool requests
 	    	$.getJSON(url(), function(){}).always(function(_data) {
 	    		if ('undefined'!=typeof(_data.status)) {
