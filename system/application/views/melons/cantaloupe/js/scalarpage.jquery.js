@@ -505,7 +505,7 @@
 						if (( pathOptionCount == 0 ) && options.showChildNav ) {
 							nodes = currentNode.getRelatedNodes('path', 'outgoing');
 							if (nodes.length > 0) {
-								button = $( '<p><a class="nav_btn" href="' + nodes[ 0 ].url + '?path=' +
+								button = $( '<p><a class="path_begin nav_btn" href="' + nodes[ 0 ].url + '?path=' +
 									currentNode.slug + '">Begin with &ldquo;' + nodes[0].getDisplayTitle() +
 									'&rdquo;</a></p>' ).appendTo( pathContents );
 								//if (( page.containingPaths.length == 0 ) || !showLists ) {
@@ -529,7 +529,7 @@
 
 								// continue button
 								links = $( '<p></p>' );
-								var continue_button = $( '<a class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
+								var continue_button = $( '<a class="continue_btn nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
 									'?path=' + page.containingPath.slug + '">Continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
 									'&rdquo;</a>' ).appendTo(links);
 								if ( pathOptionCount == 0 ) {
@@ -2281,8 +2281,32 @@
 			page.setupScreenedBackground();
 		}
 
+		// Stopgap Branching Narrative Controls
+		console.log(currentNode.current.auxProperties);
+		if(typeof currentNode.current.auxProperties['dcterms:format'] !== 'undefined'){
+			switch(currentNode.current.auxProperties['dcterms:format'][0]){
+				case "branching_parent_page":
+					$('.path_begin, .relationships>h1').remove();
+					var branchButtons = $('<div></div>').after($('ol.path_of'));
+					$('ol.path_of li').each(function(){
+						$('<div style="margin-bottom: 1rem;"></div>').html($(this).html()).appendTo(branchButtons).find('span[property="dcterms:title"] a').addClass('nav_btn primary').prepend("Continue to '").append("'").css('width','45%');
+						$(this).remove();
+					});
+					break;
+				case 'non_branching_parent_page':
+					var continueParent = $('.continue_btn').parents('section.relationships');
+					$('.continue_btn').remove();
+					if(continueParent.find('a').length == 0){
+						continueParent.hide();
+					}
+					$('.path_begin').css('width','45%');
+					break;
+			}
+		}
+
 		return page;
 
 	}
+
 
 })(jQuery);
