@@ -75,9 +75,11 @@
 			}
 
 			if(hasAnnotationOption){
-				var $annotationSelection = $('<div class="form-group">'+
+				var $annotationSelection = $('<div class="bg-info" style="padding:1rem;margin-bottom:1rem">This media has annotations. Select which annotations (if any) you want to be displayed.</div><div class="form-group">'+
 																		 		'<label class="col-sm-3 control-label">Annotations: </label>'+
-																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Name</th></tr></thead><tbody></tbody></table></div><div class="form-group featuredAnnotation"><label class="col-sm-3 control-label">Featured Annotation:<br /><small>(Optional)</small></label><div class="col-sm-9"><select><option value="none" class="none">No Featured Annotation</option></select></div></div></div>');
+																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Name</th></tr></thead><tbody></tbody></table></div>'+
+																				'<br /><div class="form-group featuredAnnotation"><div class="bg-info" style="padding:1rem">Choose an annotation to be highlighted when the page loads, or select \'None\'.</div>'+
+																				'<label class="col-sm-3 control-label">Featured Annotation:</label><div class="col-sm-9"><select><option value="none" class="none">None</option></select></div></div></div>');
 
         $annotationSelection.find('.annotationSelectionShowAll').click(function(e){
 					e.preventDefault();
