@@ -93,6 +93,7 @@ CKEDITOR.plugins.add( 'scalar', {
         		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',callback:function(node){
 							var options = reference_options['insertMediaLink'];
 							options.node = node;
+							options.type = "Linked";
 							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
             			var sel = editor.getSelection();
                 		element = editor.document.createElement('a');
@@ -119,6 +120,7 @@ CKEDITOR.plugins.add( 'scalar', {
         		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',callback:function(node){
 							var options = reference_options['insertMediaelement'];
 							options.node = node;
+							options.type = "Inline";
 							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
 	        			element = editor.document.createElement('a');
 	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through

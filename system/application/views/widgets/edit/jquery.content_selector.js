@@ -24,6 +24,11 @@
     	var self = this;
     	var $this = $(this);
     	var options = {};
+			var mediaType = '';
+			if(typeof opts.data['type'] !== 'undefined'){
+				mediaType = opts.data['type'];
+				delete opts.data['type'];
+			}
     	var bootstrap_enabled = (typeof $().modal == 'function');
     	if ('undefined'==typeof(opts.data) || $.isEmptyObject(opts.data)) {
     		console.log('content options: no data');
@@ -43,7 +48,7 @@
 		if (bootstrap_enabled) {
 			bootbox.dialog({
 				message: '<div id="bootbox-media-options-content" class="heading_font"></div>',
-				title: 'Media formatting options',
+				title: mediaType==''?'Media formatting options':mediaType+' media formatting options',
 				className: 'media_options_bootbox',
 				animate: ( (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) ? false : true )// Panel is unclickable if true for iOS
 			});
@@ -75,16 +80,16 @@
 			}
 
 			if(hasAnnotationOption){
-				var $annotationSelection = $('<div class="bg-info" style="padding:1rem;margin-bottom:1rem">This media has annotations. Select which annotations (if any) you want to be displayed.</div><div class="form-group">'+
+				var $annotationSelection = $('<div class="annotationContainer"><div class="bg-info" style="padding:1rem;margin-bottom:1rem">This media has annotations. Select which annotations (if any) you want to be displayed.</div><div class="form-group">'+
 																		 		'<label class="col-sm-3 control-label">Annotations: </label>'+
-																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Name</th></tr></thead><tbody></tbody></table></div>'+
-																				'<br /><div class="form-group featuredAnnotation"><div class="bg-info" style="padding:1rem">Choose an annotation to be highlighted when the page loads, or select \'None\'.</div>'+
-																				'<label class="col-sm-3 control-label">Featured Annotation:</label><div class="col-sm-9"><select><option value="none" class="none">None</option></select></div></div></div>');
+																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Title</th></tr></thead><tbody></tbody></table></div>'+
+																				'</div></div><div class="featuredAnnotation"><div class="form-group"><div class="col-xs-12">Choose an annotation to be highlighted when the page loads, or select \'None\'.</div>'+
+																				'<label class="col-sm-3 control-label">Featured Annotation:</label><div class="col-sm-9"><select><option value="none" class="none">None</option></select></div></div>');
 
         $annotationSelection.find('.annotationSelectionShowAll').click(function(e){
 					e.preventDefault();
 					e.stopPropagation();
-					var $featuredAnnotation = $(this).parents('.annotationSelection').find('.featuredAnnotation');
+					var $featuredAnnotation = $(this).parents('.annotationContainer').find('.featuredAnnotation');
 					var $annotationRows = $(this).parents('table').find('tbody tr');
 					if($(this).parents('table').find('tbody>tr:not(.info)').length > 0){
 						$(this).removeClass('text-muted');
@@ -115,7 +120,7 @@
 										var title = rel.getDisplayTitle();
 										$featuredAnnotation.append('<option style="display: none;" disabled value="'+rel.slug+'">'+title+'</option>');
                     $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).click(function(){
-											var $featuredAnnotation = $(this).parents('.annotationSelection').find('.featuredAnnotation');
+											var $featuredAnnotation = $(this).parents('.annotationContainer').find('.featuredAnnotation');
 											if($(this).hasClass('info')){
 												$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
 												$(this).parents('table').find('.annotationSelectionShowAll').addClass('text-muted');
