@@ -2281,36 +2281,6 @@
 			page.setupScreenedBackground();
 		}
 
-		// Stopgap Branching Narrative Controls
-		console.log(currentNode.current.auxProperties);
-		if(typeof currentNode.current.auxProperties['dcterms:format'] !== 'undefined'){
-			switch(currentNode.current.auxProperties['dcterms:format'][0]){
-				case "branching_parent_page":
-					$('.path_begin, .relationships>h1').remove();
-					var branchButtons = $('<div></div>').after($('ol.path_of'));
-					$('ol.path_of li').each(function(){
-						$('<div style="margin-bottom: 1rem;"></div>').html($(this).html()).appendTo(branchButtons).find('span[property="dcterms:title"] a').addClass('nav_btn primary').prepend("Continue to &lsquo;").append("&rsquo;").css('width','45%');
-						$(this).remove();
-					});
-					break;
-				case "primary_branching_parent_page":
-					$('.path_begin, .relationships>h1').remove();
-					var branchButtons = $('<div></div>').after($('ol.path_of'));
-					$('ol.path_of li').each(function(){
-						$('<div style="margin-bottom: 1rem;"></div>').html($(this).html()).appendTo(branchButtons).find('span[property="dcterms:title"] a').addClass('nav_btn primary').prepend("Begin with &lsquo;").append("&rsquo;").css('width','45%');
-						$(this).remove();
-					});
-					break;
-				case 'non_branching_parent_page':
-					var continueParent = $('.continue_btn').parents('section.relationships');
-					$('.continue_btn').remove();
-					if(continueParent.find('a').length == 0){
-						continueParent.hide();
-					}
-					$('.path_begin').css('width','45%');
-					break;
-			}
-		}
 
 		return page;
 
