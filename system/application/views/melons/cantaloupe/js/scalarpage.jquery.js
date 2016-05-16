@@ -2289,7 +2289,15 @@
 					$('.path_begin, .relationships>h1').remove();
 					var branchButtons = $('<div></div>').after($('ol.path_of'));
 					$('ol.path_of li').each(function(){
-						$('<div style="margin-bottom: 1rem;"></div>').html($(this).html()).appendTo(branchButtons).find('span[property="dcterms:title"] a').addClass('nav_btn primary').prepend("Continue to '").append("'").css('width','45%');
+						$('<div style="margin-bottom: 1rem;"></div>').html($(this).html()).appendTo(branchButtons).find('span[property="dcterms:title"] a').addClass('nav_btn primary').prepend("Continue to &lsquo;").append("&rsquo;").css('width','45%');
+						$(this).remove();
+					});
+					break;
+				case "primary_branching_parent_page":
+					$('.path_begin, .relationships>h1').remove();
+					var branchButtons = $('<div></div>').after($('ol.path_of'));
+					$('ol.path_of li').each(function(){
+						$('<div style="margin-bottom: 1rem;"></div>').html($(this).html()).appendTo(branchButtons).find('span[property="dcterms:title"] a').addClass('nav_btn primary').prepend("Begin with &lsquo;").append("&rsquo;").css('width','45%');
 						$(this).remove();
 					});
 					break;
