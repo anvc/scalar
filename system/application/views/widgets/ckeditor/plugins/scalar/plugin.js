@@ -97,15 +97,17 @@ CKEDITOR.plugins.add( 'scalar', {
             			var sel = editor.getSelection();
                 		element = editor.document.createElement('a');
                 		element.setHtml(sel.getSelectedText());
-            			element.setAttribute('href', node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value);
+										var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+
             			element.setAttribute('resource', node.slug);
             			for (var key in options) {
 										if(key == "featured_annotation"){
-											element.setAttribute('href',element.getAttribute('href')+'#'+options[key]);
+											href+='#'+options[key];
 										}else{
             					element.setAttribute('data-'+key, options[key]);
 										}
             			}
+									element.setAttribute('href', href);
             			editor.insertElement(element);
         			}});
         		}});
@@ -121,11 +123,17 @@ CKEDITOR.plugins.add( 'scalar', {
 	        			element = editor.document.createElement('a');
 	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
 	            		element.setAttribute('class', 'inline');
-	        			element.setAttribute('href', node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value);
-	        			element.setAttribute('resource', node.slug);
-            			for (var key in options) {
-            				element.setAttribute('data-'+key, options[key]);
-            			}
+									var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+
+								element.setAttribute('resource', node.slug);
+								for (var key in options) {
+									if(key == "featured_annotation"){
+										href+='#'+options[key];
+									}else{
+										element.setAttribute('data-'+key, options[key]);
+									}
+								}
+								element.setAttribute('href', href);
 	        			editor.insertElement(element);
         			}});
         		}});
