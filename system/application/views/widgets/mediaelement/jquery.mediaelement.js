@@ -568,6 +568,21 @@ function YouTubeGetID(url){
 
 						promise = $.Deferred();
 						pendingDeferredMedia.Flowplayer.push(promise);
+				}else if(typeof SC === 'undefined' && this.model.mediaSource.contentType ==  'audio' && this.model.mediaSource.name == 'SoundCloud'){
+					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
+						pendingDeferredMedia.SoundCloud = [];
+						$.when(
+							$.getScript(widgets_uri+'/mediaelement/soundcloudapi.js'),
+							$.getScript(widgets_uri+'/mediaelement/soundcloudsdk.js')
+						).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.SoundCloud.length; i++){
+									pendingDeferredMedia.SoundCloud[i].resolve();
+							}
+						});
+					}
+
+					promise = $.Deferred();
+					pendingDeferredMedia.SoundCloud.push(promise);
 				}
 			}
 			if(promise == null){
@@ -657,28 +672,14 @@ function YouTubeGetID(url){
 					// initialize the SoundCloud API if we haven't already
 					} else if (this.model.mediaSource.name == 'SoundCloud') {
 
-						//Make an anonymous function which runs the appropriate functions to layout SoundCloud
-						var layoutSoundCloud = function(){
-							if(!soundCloudInitialized){
-								SC.initialize({client_id: $('#soundcloud_id').attr('href')});
-								soundCloudInitialized = true;
-							}
-							var mediaObjectHTML = this.mediaObjectView.createObject();
-							if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
-							$('body').trigger('mediaElementReady', [$(this)]);
-							this.layoutMediaObject();
-						};
-
-						//If we haven't loaded soundCloud yet, then first ensure that the libraries are loaded
-						//This is done here rather than in beginSetup, because it appears that this method (sometimes?) runs before that
-						if (!soundCloudInitialized && typeof SC == 'undefined') {
-							$.when(
-								$.getScript(widgets_uri+'/mediaelement/soundcloudapi.js'),
-								$.getScript(widgets_uri+'/mediaelement/soundcloudsdk.js')
-							).then($.proxy(layoutSoundCloud,this));
-						}else{
-							layoutSoundCloud();
+						if(!soundCloudInitialized){
+							SC.initialize({client_id: $('#soundcloud_id').attr('href')});
+							soundCloudInitialized = true;
 						}
+						var mediaObjectHTML = this.mediaObjectView.createObject();
+						if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
+						$('body').trigger('mediaElementReady', [$(this)]);
+						this.layoutMediaObject();
 
 					// otherwise, create the media object now
 					} else {
