@@ -140,12 +140,13 @@
 		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>							
 	
-	<rdf:Description rdf:about="http://www.metmuseum.org/collection/the-collection-online/search">
+	<rdf:Description rdf:about="http://www.metmuseum.org/api/collection/collectionlisting">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>The Metropolitan Museum of Art</dc:title>
 		<dcterms:description><![CDATA[Find information about electronically catalogued artworks in The Metropolitan Museum of Art's permanent collection. (http://metmuseum.org)]]></dcterms:description>
-		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/metropolitan_museum_of_art.xsl" />
-		<scalar:getStr><![CDATA[ft=$1&pg=$2]]></scalar:getStr>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/metropolitan_museum_of_art_2.xsl" />
+		<scalar:getStr><![CDATA[q=$1&artist=&department=&era=&geolocation=&material=&page=$2&showOnly=&sortBy=Relevance&sortOrder=asc]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>	
 	
 	<rdf:Description rdf:about="http://api.repo.nypl.org/api/v1/items/search.xml">
