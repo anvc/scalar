@@ -512,6 +512,20 @@ function ScalarAPI() {
 				'Explorer': {extensions:['mp4'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true},
 				'Other': {extensions:['mp4'], format:'QuickTime', player:'QuickTime', specifiesDimensions:true}
 			}},
+		'StereoLithography': {
+			name:'StereoLithography', 
+			extensions:['stl'],
+			isProprietary:false,
+			contentType:'3D',
+			browserSupport: {
+				'Mozilla': {extensions:['stl'], format:'STL', player:'Threejs', specifiesDimensions:true},
+				'Explorer': {extensions:['stl'], format:'STL', player:'Threejs', specifiesDimensions:true},
+				'MobileSafari': {extensions:['stl'], format:'STL', player:'Threejs', specifiesDimensions:true},
+				'Safari': {extensions:['stl'], format:'STL', player:'Threejs', specifiesDimensions:true},
+				'Chrome': {extensions:['stl'], format:'STL', player:'Threejs', specifiesDimensions:true},
+				'Android': {extensions:['stl'], format:'STL', player:'Threejs', specifiesDimensions:true},
+				'Other': {extensions:['stl'], format:'STL', player:'Threejs', specifiesDimensions:true}
+			}},
 		'TIFF': {
 			name:'TIFF', 
 			extensions:['tif','tiff'],

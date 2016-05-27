@@ -585,6 +585,22 @@ function YouTubeGetID(url){
 
 					promise = $.Deferred();
 					pendingDeferredMedia.SoundCloud.push(promise);
+				}else if(typeof THREE === 'undefined' && player == 'Threejs'){
+					if(typeof pendingDeferredMedia.Threejs == 'undefined'){
+						pendingDeferredMedia.Threejs = [];
+						$.when(
+							$.getScript(widgets_uri+'/mediaelement/three.min.js'),
+							$.getScript(widgets_uri+'/mediaelement/TrackballControls.js'),
+							$.getScript(widgets_uri+'/mediaelement/STLLoader.js')
+						).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.Threejs.length; i++){
+									pendingDeferredMedia.Threejs[i].resolve();
+							}
+						});
+					}
+
+					promise = $.Deferred();
+					pendingDeferredMedia.Threejs.push(promise);
 				}
 			}
 
@@ -1027,6 +1043,12 @@ function YouTubeGetID(url){
 
 
 				switch (this.model.mediaSource.contentType) {
+
+					case '3D':
+					if (player == 'Threejs') {
+						this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
+					}
+					break;
 
 					case 'image':
 					if (player == 'QuickTime') {
@@ -4869,6 +4891,97 @@ function YouTubeGetID(url){
 		jQuery.DeepZoomImageObjectView.prototype.resize = function(width, height) {
 			$('#openseadragon'+me.model.id).width(Math.round(width));
 			$('#openseadragon'+me.model.id).height(Math.round(height));
+		}
+
+	}
+
+	/**
+	 * View for Threejs content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.ThreejsObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.isLiquid = true;					// media will expand to fill available space
+
+		/**
+		 * Creates the media object.
+		 */
+		jQuery.ThreejsObjectView.prototype.createObject = function() {
+
+			this.mediaObject = $( '<div class="mediaObject" id="threejs'+me.model.id+'"></div>' ).appendTo( this.parentView.mediaContainer );
+
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+			this.camera = new THREE.PerspectiveCamera(60, this.mediaObject.width() / this.mediaObject.height(), 1, 1000);
+			this.camera.position.z = 10;
+
+			this.controls = new THREE.TrackballControls(this.camera, this.mediaObject[0]);
+			this.controls.addEventListener('change', function() {
+				me.renderer.render(me.scene, me.camera);
+			});
+
+			this.scene = new THREE.Scene();
+
+			var loader = new THREE.STLLoader();
+			loader.load(this.model.path, function(geometry) {
+				var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading});
+				var mesh = new THREE.Mesh(geometry, material);
+				me.scene.add(mesh);
+				me.renderer.render(me.scene, me.camera);
+			});
+
+			var light = new THREE.DirectionalLight(0xffffff);
+			light.position.set(1, 1, 1);
+			this.scene.add(light);
+
+			light = new THREE.DirectionalLight(0x2069a8);
+			light.position.set(-1, -1, -1);
+			this.scene.add(light);
+
+			light = new THREE.AmbientLight(0x222222);
+			this.scene.add(light);
+
+			this.renderer = new THREE.WebGLRenderer({antialias: false});
+			this.renderer.setClearColor(0x444444, 1);
+			this.renderer.setSize(this.mediaObject.width(), this.mediaObject.height());
+
+			this.mediaObject.append(this.renderer.domElement);
+
+			this.animate = function animate() {
+				requestAnimationFrame( me.animate );
+				me.controls.update();
+			}
+
+			this.renderer.render(this.scene, this.camera);
+			this.animate();
+
+			return;
+		}
+
+		// These functions are basically irrelevant for this type of media
+		jQuery.ThreejsObjectView.prototype.play = function() { }
+		jQuery.ThreejsObjectView.prototype.pause = function() { }
+		jQuery.ThreejsObjectView.prototype.seek = function(time) { }
+		jQuery.ThreejsObjectView.prototype.getCurrentTime = function() { }
+		jQuery.ThreejsObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.ThreejsObjectView.prototype.resize = function(width, height) {
+			$('#threejs'+me.model.id).width(Math.round(width));
+			$('#threejs'+me.model.id).height(Math.round(height));
 		}
 
 	}
