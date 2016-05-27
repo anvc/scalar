@@ -516,8 +516,10 @@ function YouTubeGetID(url){
 			 *  sure that the appropriate library is loaded, we can batch them together rather than possibly expend extra bandwidth.
 			 */
 
-			//Declare a null promise - we will set it to a simple self-resolving deferred object later if this stays null
-			var promise = null;
+			//Declare a self-resolving promise. This will be replaced if we need to wait to load a library
+			var promise = $.Deferred(function( deferred ){
+					$( deferred.resolve );
+			});
 
 			//We can only really detect libraries needed if the browser can support this type - otherwise, it will become an invalid media type later on
 			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] !== null ) {
@@ -584,11 +586,6 @@ function YouTubeGetID(url){
 					promise = $.Deferred();
 					pendingDeferredMedia.SoundCloud.push(promise);
 				}
-			}
-			if(promise == null){
-				promise = $.Deferred(function( deferred ){
-		        $( deferred.resolve );
-		    });
 			}
 
 			$.when(promise).then($.proxy(function(){

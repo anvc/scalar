@@ -1010,7 +1010,7 @@
 				return false;
 			},
 
-			getMediaLinks: function( element ) {
+			getMediaLinks: function( element, includeWidgets=false) {
 
 				var mediaLinks = [];
 
@@ -1020,8 +1020,15 @@
 						( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
 						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
 						&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
-
-						$(this).addClass('media_link');
+						if($(this).is('a[resource^="widget/"]')){
+							if(includeWidgets !== true){
+								return;
+							}else{
+								$(this).addClass('widget_link');
+							}
+						}else{
+							$(this).addClass('media_link');
+						}
 						mediaLinks.push( $( this ) );
 					}
 				});
@@ -1352,77 +1359,83 @@
 						if ( viewType == 'structured_gallery' ) {
 							page.structuredGallery.addMedia();
 						}
-						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"],.relationships > .annotation_of' ) );
+						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"],.relationships > .annotation_of' ), true );
 
 						$( mediaLinks ).each(function() {
+							if($(this).hasClass('widget_link')){
+								if($(this).data('slot')!==undefined){
+									$(this).data('slot').remove();
+								}
+								widgets.handleWidget($(this));
+							}else{
+								if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
+									( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
+									(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
+									&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
 
-							if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
-								( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-								(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
-								&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
+									var slot, slotDOMElement, slotMediaElement, count, parent;
 
-								var slot, slotDOMElement, slotMediaElement, count, parent;
+									if ($(this).attr('resource') == undefined) {
 
-								if ($(this).attr('resource') == undefined) {
+										// inline media (first time)
+										if ( $(this).attr('href') == undefined ) {
+											$(this).attr('href', currentNode.current.sourceFile);
+											$(this).attr('resource', currentNode.slug);
+											$(this).attr('data-size', 'full');
+											parent = $(this);
 
-									// inline media (first time)
-									if ( $(this).attr('href') == undefined ) {
-										$(this).attr('href', currentNode.current.sourceFile);
-										$(this).attr('resource', currentNode.slug);
-										$(this).attr('data-size', 'full');
-										parent = $(this);
+										// inline media (subsequent, after page resize)
+										} else if ( $(this).attr('href') == currentNode.current.sourceFile ) {
+											parent = $(this);
 
-									// inline media (subsequent, after page resize)
-									} else if ( $(this).attr('href') == currentNode.current.sourceFile ) {
-										parent = $(this);
+										// annotated media link (as appears on an annotation page)
+										} else {
+											var annotatedMedia = currentNode.getRelatedNodes( "annotation", "outgoing" );
+											var i, node, annotationURL,
+												n = annotatedMedia.length;
+											for ( i = 0; i < n; i++ ) {
+												node = annotatedMedia[ i ];
+												annotationURL = node.current.sourceFile + "#" + currentNode.slug;
 
-									// annotated media link (as appears on an annotation page)
-									} else {
-										var annotatedMedia = currentNode.getRelatedNodes( "annotation", "outgoing" );
-										var i, node, annotationURL,
-											n = annotatedMedia.length;
-										for ( i = 0; i < n; i++ ) {
-											node = annotatedMedia[ i ];
-											annotationURL = node.current.sourceFile + "#" + currentNode.slug;
+												// process the link for the first time
+												if ( node.url == $(this).attr('href') ) {
+													$(this).attr('href', node.current.sourceFile + "#" + currentNode.slug );
+													$(this).attr('resource', node.slug);
+													$(this).attr('data-size', 'full');
+													parent = $(this).closest('section');
+													break;
 
-											// process the link for the first time
-											if ( node.url == $(this).attr('href') ) {
-												$(this).attr('href', node.current.sourceFile + "#" + currentNode.slug );
-												$(this).attr('resource', node.slug);
-												$(this).attr('data-size', 'full');
-												parent = $(this).closest('section');
-												break;
-
-											// if the link has already been processed, then we just need its parent
-											// (for example if the user just resized the page)
-											} else if ( $(this).attr('href') == annotationURL ) {
-												parent = $(this).closest('section');
-												break;
+												// if the link has already been processed, then we just need its parent
+												// (for example if the user just resized the page)
+												} else if ( $(this).attr('href') == annotationURL ) {
+													parent = $(this).closest('section');
+													break;
+												}
 											}
 										}
+										$( this ).addClass( "resource-added" );
+
+									// standard media link
+									} else {
+										parent = $(this).closest('.body_copy');
+
+										// if the link is not a descendant of a body_copy region, then we'll put the media either
+										// before or after the link itself
+										if ( parent.length == 0 ) {
+											parent = $( this );
+										}
 									}
-									$( this ).addClass( "resource-added" );
 
-								// standard media link
-								} else {
-									parent = $(this).closest('.body_copy');
-
-									// if the link is not a descendant of a body_copy region, then we'll put the media either
-									// before or after the link itself
-									if ( parent.length == 0 ) {
-										parent = $( this );
+									// cause any paragraph with a media link to clear both (unless it contains a .clearnone)
+									if ( $( this ).parents( '.paragraph_wrapper' ).find( '.clearnone' ).length == 0 ) {
+										$( this ).parents( '.paragraph_wrapper' ).addClass( 'clearboth' );
 									}
+
+									page.addMediaElementForLink($(this), parent);
+
+									$( this ).click( page.handleMediaLinkClick );
+
 								}
-
-								// cause any paragraph with a media link to clear both (unless it contains a .clearnone)
-								if ( $( this ).parents( '.paragraph_wrapper' ).find( '.clearnone' ).length == 0 ) {
-									$( this ).parents( '.paragraph_wrapper' ).addClass( 'clearboth' );
-								}
-
-								page.addMediaElementForLink($(this), parent);
-
-								$( this ).click( page.handleMediaLinkClick );
-
 							}
 						});
 
@@ -1763,7 +1776,7 @@
 			page.adaptiveMedia = 'mobile';
 		}
 
-		$('body').on('mediaElementMediaLoaded',function() {
+		$('body').on('mediaElementMediaLoaded widgetElementLoaded',function() {
 			page.initialMediaLoad = true;
 			page.sizeOnMediaLoad = { x: $(window).width(), y: $(window).height() };
 		});
@@ -1943,156 +1956,156 @@
 			  		$( '.page' ).css( 'padding-top', '5.0rem' );
 			  		$( 'header > h1' ).before( '<div id="google-maps" class="maximized-embed"></div>' );
 
-					// create map
-					var mapOptions = {
-						zoom: 8,
-						mapTypeId: google.maps.MapTypeId.ROADMAP
-					}
-					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
+							// create map
+							var mapOptions = {
+								zoom: 8,
+								mapTypeId: google.maps.MapTypeId.ROADMAP
+							}
+							var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 
-					//Global scope google map variable
-					$gmaps = $( '#google-maps' );
+							//Global scope google map variable
+							$gmaps = $( '#google-maps' );
 
-					// create info window
-					var infoWindow = new google.maps.InfoWindow({
-						content: contentString,
-						maxWidth: 400
-					});
+							// create info window
+							var infoWindow = new google.maps.InfoWindow({
+								content: contentString,
+								maxWidth: 400
+							});
 
-					var marker, property, contents, node, contentString, label, pathIndex,
-						properties = [
-							'http://purl.org/dc/terms/coverage',
-							'http://purl.org/dc/terms/spatial'
-						]
-						markers = [],
-						foundError = true;
+							var marker, property, contents, node, contentString, label, pathIndex,
+								properties = [
+									'http://purl.org/dc/terms/coverage',
+									'http://purl.org/dc/terms/spatial'
+								]
+								markers = [],
+								foundError = true;
 
-					var pathContents = currentNode.getRelatedNodes( 'path', 'outgoing' );
-					var tagContents = currentNode.getRelatedNodes( 'tag', 'outgoing' );
-					var contents = pathContents.concat(tagContents);
+							var pathContents = currentNode.getRelatedNodes( 'path', 'outgoing' );
+							var tagContents = currentNode.getRelatedNodes( 'tag', 'outgoing' );
+							var contents = pathContents.concat(tagContents);
 
-					/* create a polyline for path contents
-					if (viewType == "google_maps_path") {
-						n = pathContents.length;
-						var temp, coords = [];
-						for (i=0; i<n; i++) {
-							node = pathContents[ i ];
-							for (p in properties) {
-								property = properties[p];
-								if (node.current.properties[ property ] != null) {
-									o = node.current.properties[ property ].length;
-									for (j=0; j<o; j++) {
-										temp = node.current.properties[ property ][ j ].value.split( ',' );
-										coords.push({lat:parseFloat(temp[0]), lng:parseFloat(temp[1])});
+							/* create a polyline for path contents
+							if (viewType == "google_maps_path") {
+								n = pathContents.length;
+								var temp, coords = [];
+								for (i=0; i<n; i++) {
+									node = pathContents[ i ];
+									for (p in properties) {
+										property = properties[p];
+										if (node.current.properties[ property ] != null) {
+											o = node.current.properties[ property ].length;
+											for (j=0; j<o; j++) {
+												temp = node.current.properties[ property ][ j ].value.split( ',' );
+												coords.push({lat:parseFloat(temp[0]), lng:parseFloat(temp[1])});
+											}
+										}
+									}
+								}
+								var polyline = new google.maps.Polyline({
+									path: coords,
+									geodesic: true,
+									strokeColor: "#d14236",
+									strokeOpacity: 1.0,
+									strokeWeight: 2
+								});
+								polyline.setMap(map);
+							}*/
+
+							for ( p in properties ) {
+
+								property = properties[ p ];
+
+								// if the current page has the spatial property, then
+								if ( currentNode.current.properties[ property ] != null ) {
+
+									n = currentNode.current.properties[ property ].length;
+									for ( i = 0; i < n; i++ ) {
+										marker = page.getMarkerFromLatLonStrForMap(
+											currentNode.current.properties[ property ][ i ].value,
+											currentNode.getDisplayTitle(),
+											currentNode.current.description,
+											null,
+											map,
+											infoWindow,
+											currentNode.thumbnail
+										);
+
+										if ( marker != null ) {
+											markers.push( marker );
+											foundError = false;
+										}
+
+									}
+
+								}
+
+								n = contents.length;
+
+								// add markers for each content element that has the spatial property
+								for ( i = 0; i < n; i++ ) {
+
+									node = contents[ i ];
+
+									if ( node.current.properties[ property ] != null ) {
+
+										o = node.current.properties[ property ].length;
+										for ( j = 0; j < o; j++ ) {
+
+											label = null;
+											pathIndex = pathContents.indexOf(node);
+											if (pathIndex != -1) {
+												label = (pathIndex+1).toString();
+											}
+
+											marker = page.getMarkerFromLatLonStrForMap(
+												node.current.properties[ property ][ j ].value,
+												node.getDisplayTitle(),
+												node.current.description,
+												node.url,
+												map,
+												infoWindow,
+												node.thumbnail,
+												label
+											);
+
+											if ( marker != null ) {
+												markers.push( marker );
+												foundError = false;
+											}
+										}
 									}
 								}
 							}
-						}
-						var polyline = new google.maps.Polyline({
-							path: coords,
-							geodesic: true,
-							strokeColor: "#d14236",
-							strokeOpacity: 1.0,
-							strokeWeight: 2
-						});
-						polyline.setMap(map);
-					}*/
 
-					for ( p in properties ) {
+							// no valid coords found on page or its children
+							if ( foundError ) {
+								$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
 
-						property = properties[ p ];
-
-						// if the current page has the spatial property, then
-						if ( currentNode.current.properties[ property ] != null ) {
-
-							n = currentNode.current.properties[ property ].length;
-							for ( i = 0; i < n; i++ ) {
-								marker = page.getMarkerFromLatLonStrForMap(
-									currentNode.current.properties[ property ][ i ].value,
-									currentNode.getDisplayTitle(),
-									currentNode.current.description,
-									null,
-									map,
-									infoWindow,
-									currentNode.thumbnail
-								);
-
-								if ( marker != null ) {
-									markers.push( marker );
-									foundError = false;
+							// no coords of any kind found
+							} else if ( markers.length == 0 ) {
+								$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
+							}else{
+								// adjust map bounds to marker bounds
+								var bounds = new google.maps.LatLngBounds();
+								$gmaps.data({'map':map,'bounds':bounds,'markers':markers});
+								$.each( markers, function ( index, marker ) {
+									bounds.extend( marker.position );
+								});
+								if ( markers.length > 1 ) {
+									map.fitBounds( bounds );
 								}
 
-							}
+								$gmaps.css('max-height',0.6*$(window).height());
 
-						}
-
-						n = contents.length;
-
-						// add markers for each content element that has the spatial property
-						for ( i = 0; i < n; i++ ) {
-
-							node = contents[ i ];
-
-							if ( node.current.properties[ property ] != null ) {
-
-								o = node.current.properties[ property ].length;
-								for ( j = 0; j < o; j++ ) {
-
-									label = null;
-									pathIndex = pathContents.indexOf(node);
-									if (pathIndex != -1) {
-										label = (pathIndex+1).toString();
+								$(window).on('resize',function(){
+									var markers = $gmaps.data('markers')
+									if(markers.length > 1){
+										$gmaps.data('map').fitBounds($( '#google-maps' ).data('bounds'));
 									}
-
-									marker = page.getMarkerFromLatLonStrForMap(
-										node.current.properties[ property ][ j ].value,
-										node.getDisplayTitle(),
-										node.current.description,
-										node.url,
-										map,
-										infoWindow,
-										node.thumbnail,
-										label
-									);
-
-									if ( marker != null ) {
-										markers.push( marker );
-										foundError = false;
-									}
-								}
+									$gmaps.css('max-height',0.6*$(window).height());
+								});
 							}
-						}
-					}
-
-					// no valid coords found on page or its children
-					if ( foundError ) {
-						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
-
-					// no coords of any kind found
-					} else if ( markers.length == 0 ) {
-						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
-					}else{
-						// adjust map bounds to marker bounds
-						var bounds = new google.maps.LatLngBounds();
-						$gmaps.data({'map':map,'bounds':bounds,'markers':markers});
-						$.each( markers, function ( index, marker ) {
-							bounds.extend( marker.position );
-						});
-						if ( markers.length > 1 ) {
-							map.fitBounds( bounds );
-						}
-
-						$gmaps.css('max-height',0.6*$(window).height());
-
-						$(window).on('resize',function(){
-							var markers = $gmaps.data('markers')
-							if(markers.length > 1){
-								$gmaps.data('map').fitBounds($( '#google-maps' ).data('bounds'));
-							}
-							$gmaps.css('max-height',0.6*$(window).height());
-						});
-					}
-					break;
+							break;
 
                     case "vis":
                     case "visindex":

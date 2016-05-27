@@ -551,7 +551,9 @@
 				base.visElement.find( '.loadingMsg' ).addClass( 'bounded' );
 				base.visElement.find( '.vis_footer' ).addClass( 'bounded' );
 
-			} else {
+			} else if(base.options.widget){
+        base.visElement.addClass( 'vis_widget' );
+      } else {
 				base.visElement.addClass( 'page_margins' );
 			}
 
@@ -3305,7 +3307,8 @@
     	content: 'all',
     	relations: 'all',
     	format: 'grid', 
-        modal: false
+        modal: false,
+        widget: false
     };
     
     $.fn.scalarvis = function( options ){

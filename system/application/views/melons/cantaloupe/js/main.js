@@ -487,7 +487,9 @@ $(window).ready(function() {
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
-				widgets = $.scalarwidgets();
+
+				widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
+
 
 				$( '[property="art:url"]' ).css( 'display', 'none' );
 
