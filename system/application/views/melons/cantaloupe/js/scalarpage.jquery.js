@@ -1010,7 +1010,11 @@
 				return false;
 			},
 
-			getMediaLinks: function( element, includeWidgets=false) {
+			getMediaLinks: function( element, includeWidgets) {
+
+				if(typeof includeWidgets === 'undefined' || includeWidgets == null){
+					includeWidgets = false;
+				}
 
 				var mediaLinks = [];
 
