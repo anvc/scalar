@@ -588,14 +588,18 @@ function YouTubeGetID(url){
 				}else if(typeof THREE === 'undefined' && player == 'Threejs'){
 					if(typeof pendingDeferredMedia.Threejs == 'undefined'){
 						pendingDeferredMedia.Threejs = [];
-						$.when(
-							$.getScript(widgets_uri+'/mediaelement/three.min.js'),
-							$.getScript(widgets_uri+'/mediaelement/TrackballControls.js'),
-							$.getScript(widgets_uri+'/mediaelement/STLLoader.js')
-						).then(function(){
-							for(var i = 0; i < pendingDeferredMedia.Threejs.length; i++){
-									pendingDeferredMedia.Threejs[i].resolve();
-							}
+						//Because TrackballControls and STLLoader immediately require THREE to be set,
+						//we will first load three.min.js to make sure it is defined, then
+						//asynchronously load the other two files.
+						$.getScript(widgets_uri+'/mediaelement/three.min.js',function(){
+							$.when(
+								$.getScript(widgets_uri+'/mediaelement/TrackballControls.js'),
+								$.getScript(widgets_uri+'/mediaelement/STLLoader.js')
+							).then(function(){
+								for(var i = 0; i < pendingDeferredMedia.Threejs.length; i++){
+										pendingDeferredMedia.Threejs[i].resolve();
+								}
+							});
 						});
 					}
 
