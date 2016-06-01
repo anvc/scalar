@@ -171,6 +171,8 @@ CKEDITOR.plugins.add( 'scalar', {
             			}
 									if(!isEdit){
 		        				editor.insertElement(element);
+									}else{
+										editor.updateElement(element);
 									}
         			}});
         		}});
@@ -220,6 +222,8 @@ CKEDITOR.plugins.add( 'scalar', {
             			}
 									if(!isEdit){
 		        				editor.insertElement(element);
+									}else{
+										editor.updateElement(element);
 									}
 	        			}});
 	        		}});
@@ -263,6 +267,8 @@ CKEDITOR.plugins.add( 'scalar', {
 	            			}
 										if(!isEdit){
 			        				editor.insertElement(element);
+										}else{
+											editor.updateElement(element);
 										}
 	        			}});
 	        		}});

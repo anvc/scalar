@@ -70,7 +70,6 @@
 			$form.append($option);
 
 			if(typeof opts.element !== 'undefined' && opts.element != null && opts.element.data(option_name) !== null){
-					console.log("setting value to "+opts.element.data(option_name));
 					$option.find('select').first().val(opts.element.data(option_name));
 			}
 		}
@@ -440,7 +439,6 @@
 						currentSlug = opts.element.getAttribute('resource');
 					}
 				}
-				console.log(currentSlug);
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
 					if(opts.data[j].slug == currentSlug){
