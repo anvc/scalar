@@ -69,6 +69,10 @@
 		// Add options
 			var hasAnnotationOption = opts.data.annotations!=null && typeof opts.data.annotations!=='undefined';
 
+			if(typeof opts.element === 'undefined'){
+				opts.element = null;
+			}
+
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
 					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
@@ -76,6 +80,9 @@
 						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
 					}
 					$form.append($option);
+					if(opts.element != null && opts.element.data(option_name) !== null){
+							$option.find('select').first().val(opts.element.data(option_name));
+					}
 				}
 			}
 
@@ -104,7 +111,7 @@
 				});
 
 				if(opts.data.node!=null && typeof opts.data.node !== 'undefined'){
-					(function(slug,$annotationSelection){
+					(function(slug,$annotationSelection,element){
 							scalarapi.loadPage( slug, true, function(){
 									var node = scalarapi.getNode(slug);
 									var annotated_by = node.getRelatedNodes('annotation', 'incoming');
@@ -114,12 +121,12 @@
 									}
 									var $body = $annotationSelection.find('tbody');
 									var $featuredAnnotation = $annotationSelection.find('.featuredAnnotation select');
-
+									var $annotations = [];
 									for(n in annotated_by){
                     var rel = annotated_by[n];
 										var title = rel.getDisplayTitle();
 										$featuredAnnotation.append('<option style="display: none;" disabled value="'+rel.slug+'">'+title+'</option>');
-                    $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).click(function(){
+                    $annotations[rel.slug] = $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).click(function(){
 											var $featuredAnnotation = $(this).parents('.annotationContainer').find('.featuredAnnotation');
 											if($(this).hasClass('info')){
 												$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
@@ -147,8 +154,33 @@
 											}
 										});
 									}
+									if(element!=null){
+										var previous_annotations = element.data('annotations').split(',');
+										if(previous_annotations.length > 0){
+											for(var i in previous_annotations){
+												var annotation = previous_annotations[i];
+												if(typeof $annotations[annotation] !== 'undefined'){
+													$annotations[annotation].addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
+													if($annotations[annotation].siblings('tr:not(.info)').length == 0){
+														$annotations[annotation].parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
+													}
+													$thisOption = $featuredAnnotation.find('option[value="'+annotation+'"]');
+													$thisOption.show().removeProp('disabled');
+												}
+											}
+											if(element.getAttribute('href').indexOf('#')>=0){
+												//no annotation
+												var temp_anchor = document.createElement('a');
+												temp_anchor.href = opts.element.getAttribute('href');
+												var featuredAnnotation = temp_anchor.hash.replace('#','');
+												$featuredAnnotation.find('option[value="'+featuredAnnotation+'"]').prop('selected','selected');
+												$featuredAnnotation.val(featuredAnnotation);
+											}
+											$featuredAnnotation.show();
+										}
+									}
 							}, null, 1 );
-					})(opts.data.node.slug,$annotationSelection);
+					})(opts.data.node.slug,$annotationSelection,opts.element);
 
 					$form.append($annotationSelection);
 				}
@@ -522,8 +554,16 @@
     		}
     		$this.find('.content, .content *').off();  // Remove any previously created events
     		var $tbody = $this.find('tbody:first');
+				//Check to see if we have an element, and if so, get the currently selected slug
+				var currentSlug = null;
+				if(typeof opts.element !== 'undefined' && opts.element != null){
+					currentSlug = opts.element.getAttribute('resource');
+				}
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
+					if(opts.data[j].slug == currentSlug){
+						$tr.addClass('bg-info');
+					}
     			$tr.data('node', opts.data[j]);
     			var title = opts.data[j].version['http://purl.org/dc/terms/title'][0].value;
     			var desc = ('undefined'!=typeof(opts.data[j].version['http://purl.org/dc/terms/description'])) ? opts.data[j].version['http://purl.org/dc/terms/description'][0].value : null;

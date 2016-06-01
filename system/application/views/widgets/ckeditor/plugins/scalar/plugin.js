@@ -85,58 +85,113 @@ CKEDITOR.plugins.add( 'scalar', {
 	    editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );
         editor.addCommand( 'insertScalar1', {
             exec: function( editor ) {
-	    		var sel = editor.getSelection();
-	    		if (sel.getRanges()[0].collapsed) {
-	    			alert('Please select text to transform into a media link');
-	    			return;
-	    		}
-        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',callback:function(node){
-							var options = reference_options['insertMediaLink'];
-							options.node = node;
-							options.type = "Linked";
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
-            			var sel = editor.getSelection();
-                		element = editor.document.createElement('a');
-                		element.setHtml(sel.getSelectedText());
+							var sel = editor.getSelection();
+							var isEdit = false;
+							var element = sel.getStartElement();
+
+							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
+							if ( element.getAscendant( 'a', true ) ) {
+								element = element.getAscendant( 'a', true );
+								if(element.getAttribute('resource')!=null && !element.hasClass('inline')){
+									//Not inline
+									isEdit = true;
+								}
+							}
+							if(!isEdit){
+				    		if (sel.getRanges()[0].collapsed) {
+									alert('Please select text to transform into a media link');
+				    			return;
+								}else{
+									element = null;
+								}
+							}
+	        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:function(node){
+								var options = reference_options['insertMediaLink'];
+								options.node = node;
+								options.type = "Linked";
+								CKEDITOR._scalar.contentoptions({data:options,element:element,callback:function(options) {
+										if(!isEdit){
+											var sel = editor.getSelection();
+											element = editor.document.createElement('a');
+											element.setHtml(sel.getSelectedText());
+										}else{
+											element = element.getAscendant( 'a', true );
+										}
+
 										var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 
-            			element.setAttribute('resource', node.slug);
-            			for (var key in options) {
-										if(key == "featured_annotation"){
-											href+='#'+options[key];
-										}else{
-            					element.setAttribute('data-'+key, options[key]);
+	            			element.setAttribute('resource', node.slug);
+
+	            			for (var key in options) {
+											if(key == "featured_annotation"){
+												href+='#'+options[key];
+											}else{
+	            					element.setAttribute('data-'+key, options[key]);
+											}
+	            			}
+										element.setAttribute('href', href);
+										//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
+										if(isEdit){
+											element.data('cke-saved-href',href);
 										}
-            			}
-									element.setAttribute('href', href);
-            			editor.insertElement(element);
-        			}});
-        		}});
+
+										if(!isEdit){
+											editor.insertElement(element);
+										}else{
+											editor.updateElement(element);
+										}
+	        			}});
+	        		}});
             }
         });
         editor.addCommand( 'insertScalar2', {
             exec: function( editor ) {
         		var sel = editor.getSelection();
-        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',callback:function(node){
+						var element = sel.getStartElement();
+						var isEdit = false;
+						//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
+						if ( element.getAscendant( 'a', true ) ) {
+							element = element.getAscendant( 'a', true );
+							if(element.getAttribute('resource')!=null && element.hasClass('inline')){
+								//Is inline
+								isEdit = true;
+							}
+						}
+						if(!isEdit){
+							element = null;
+						}
+        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:function(node){
 							var options = reference_options['insertMediaelement'];
 							options.node = node;
 							options.type = "Inline";
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
-	        			element = editor.document.createElement('a');
+							CKEDITOR._scalar.contentoptions({data:options,element:element,callback:function(options) {
+									if(!isEdit){
+										element = editor.document.createElement('a');
+									}else{
+										element = element.getAscendant( 'a', true );
+									}
 	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
 	            		element.setAttribute('class', 'inline');
 									var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 
-								element.setAttribute('resource', node.slug);
-								for (var key in options) {
-									if(key == "featured_annotation"){
-										href+='#'+options[key];
-									}else{
-										element.setAttribute('data-'+key, options[key]);
+									element.setAttribute('resource', node.slug);
+									for (var key in options) {
+										if(key == "featured_annotation"){
+											href+='#'+options[key];
+										}else{
+											element.setAttribute('data-'+key, options[key]);
+										}
 									}
-								}
-								element.setAttribute('href', href);
-	        			editor.insertElement(element);
+									element.setAttribute('href', href);
+									//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
+									if(isEdit){
+										element.data('cke-saved-href',href);
+									}
+									if(!isEdit){
+		        				editor.insertElement(element);
+									}else{
+										editor.updateElement(element);
+									}
         			}});
         		}});
             }
