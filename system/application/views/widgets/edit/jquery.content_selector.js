@@ -348,7 +348,7 @@
     		// Default content
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
     		// Footer buttons
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		// Options (search + content type)
     		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
     			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
@@ -475,6 +475,16 @@
     		}
     		if (opts.multiple) {  // Can choose multiple rows
     			$footer.show();
+					$footer.find('label').show();  // Check all
+					$footer.find('input[type="checkbox"]').click(function() {
+						var active = $(this).data('active');
+						$wrapper.find('input[type="checkbox"]').each(function() {
+     					var $this = $(this);
+     					if (active && $this.is(':checked')) $this.closest('tr').click();
+     					if (!active && !$this.is(':checked')) $this.closest('tr').click();
+     				});
+						$(this).data('active', ((active)?false:true));
+					});
         		$footer.find('a').eq(1).click(function() {  // Cancel button
         			if ($(this).closest('.content_selector_bootbox').length) {
         				$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
@@ -497,7 +507,9 @@
     				opts.callback(opts.queue);
     				reset();
     			});
-    		}
+    		} else {
+    			$footer.find('label').hide();
+     		}
     	};
     	// Propagate the interface
     	var propagate = function() {
@@ -623,6 +635,7 @@
     	var go = function() {
     		opts.data = [];
     		if (!opts.start) $this.find('.content').html('<div class="loading">Loading ...</div>');
+				$this.find('.footer').find('input[type="checkbox"]').data('active',false).prop('checked',false);
     		// TODO: spool requests
 	    	$.getJSON(url(), function(){}).always(function(_data) {
 	    		if ('undefined'!=typeof(_data.status)) {

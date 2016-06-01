@@ -487,7 +487,9 @@ $(window).ready(function() {
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
-				widgets = $.scalarwidgets();
+
+				widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
+
 
 				$( '[property="art:url"]' ).css( 'display', 'none' );
 
@@ -504,12 +506,8 @@ $(window).ready(function() {
 		  }},
 
 		  // Mediaelement
-		  {load: [widgets_uri+'/mediaelement/AC_QuickTime.js',
-				widgets_uri+'/mediaelement/flowplayer-3.2.13.min.js',
+		  {load: [
 				widgets_uri+'/mediaelement/froogaloop.min.js',
-				widgets_uri+'/mediaelement/soundcloudapi.js',
-				widgets_uri+'/mediaelement/soundcloudsdk.js',
-				widgets_uri+'/mediaelement/openseadragon/openseadragon.min.js',
 				widgets_uri+'/mediaelement/annotorious.debug.js',
 				widgets_uri+'/mediaelement/css/annotorious.css',
 				widgets_uri+'/mediaelement/mediaelement.css',

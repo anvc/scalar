@@ -15,7 +15,7 @@
 #results > .result_content table .thumb {width:100px;}
 #results > .result_content table .thumb img {width:100px; border: 1px solid #444; }
 #results > .result_content table .title {font-weight:bold; margin:0px 0px 4px 0px; padding:0; background:0; font-size:13px; padding:0; height:inherit;}
-#results > .result_content table .desc {font-weight:normal; margin:0px 0px 4px 0px; padding:0;}
+#results > .result_content table .desc {font-weight:normal; margin:0px 0px 4px 0px; padding:0; min-height:16px;}
 #results > .result_content table .contributor {font-weight:normal; font-size:smaller; margin:0px 0px 4px 0px; padding:0;}
 #results > .result_content table .creator {font-weight:normal; margin:0px 0px 4px 0px; font-size:smaller; padding:0;}
 #results > .result_content table .url {font-weight:normal; padding:0; margin-bottom: 1px;}

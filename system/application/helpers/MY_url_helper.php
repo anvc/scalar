@@ -25,6 +25,7 @@
 
 	function abs_url($url, $prefix='') {
 		
+		if (is_array($url)) $url = $url[0];
 		if (empty($url)) return null;
 		if (strstr($url, '://')) return $url;
 		return confirm_slash($prefix).$url;

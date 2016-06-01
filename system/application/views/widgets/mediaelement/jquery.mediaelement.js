@@ -28,6 +28,7 @@ var mediaElementUniqueID = 0;
 var jPlayerUniqueID = 1;
 var youTubeMediaElementViews = [];
 var soundCloudInitialized = false;
+var pendingDeferredMedia = {};
 
 // Removes whitespace from the ends of a string. Source: http://www.somacon.com/p355.php
 String.prototype.trim = function() {
@@ -507,105 +508,206 @@ function YouTubeGetID(url){
 		 */
 		jQuery.MediaElementView.prototype.beginSetup = function() {
 
-			this.parseMediaType();
+			/**
+			 *  Create a promise for any additional media libraries that must be loaded
+			 *  This is done to ensure that any additional library is loaded only once, as if we simply pass getScripts as promises,
+			 *  the way that the media elements are created will cause the library to load more than once upon media element
+			 *  of the same type that immediately follows - by deferring all media element functions on those elements until we are
+			 *  sure that the appropriate library is loaded, we can batch them together rather than possibly expend extra bandwidth.
+			 */
 
-			this.header = $('<div class="mediaElementHeader"></div>').appendTo(this.model.element);
-  			this.annotationSidebar = $('<div class="mediaElementAnnotationSidebar"></div>').appendTo(this.model.element);
-  			this.mediaContainer = $('<div class="mediaContainer"></div>').appendTo(this.model.element);
-  			if (this.model.mediaSource.name == "image") this.spatialAnnotation = $('<div class="spatialAnnotation"><div></div></div>').appendTo(this.mediaContainer);
-  			this.footer = $('<div class="mediaElementFooter"></div>').appendTo(this.model.element);
+			//Declare a self-resolving promise. This will be replaced if we need to wait to load a library
+			var promise = $.Deferred(function( deferred ){
+					$( deferred.resolve );
+			});
 
- 			this.initialContainerWidth = parseInt(this.mediaContainer.width());
+			//We can only really detect libraries needed if the browser can support this type - otherwise, it will become an invalid media type later on
+			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] !== null ) {
+				var player;
+				if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+					player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
+				}
 
- 			if ( this.model.isChromeless ) {
- 				this.gutterSize = 0;
- 			}
-
-			this.populateHeader();
-   			this.populateFooter();
-
-  			this.calculateContainerSize();
-
-  			this.populateSidebar();
-			this.populateContainer();
-
-			if ('undefined'!=typeof(this.mediaObjectView)) {
-
-				// Native YouTube player requires that we download API code first
-				if (this.model.mediaSource.name == "YouTube") {
-
-					// check to see if another mediaelement instance has already downloaded the API
-					me.foundYouTubeAPI = false;
-					$('script').each(
-						function() {
-							if (this.src.indexOf('www.youtube.com') != -1) {
-								me.foundYouTubeAPI = true;
+				//QuickTime media elements need to load the quicktime library
+				if(typeof QT_GenerateOBJECTText_XHTML === 'undefined' && player == 'QuickTime'){
+					//If this is the first quicktime media element, then we need to initialize a list of promises and then start loading the library
+					if(typeof pendingDeferredMedia.QuickTime == 'undefined'){
+						pendingDeferredMedia.QuickTime = [];
+						$.getScript(widgets_uri+'/mediaelement/AC_QuickTime.js',function(){
+							//We have Quicktime loaded, so iterate through each deferred object and resolve it.
+							for(var i = 0; i < pendingDeferredMedia.QuickTime.length; i++){
+									pendingDeferredMedia.QuickTime[i].resolve();
 							}
-						}
-					);
+						});
+					}
 
-					// if not, then do so, delay creation of the media object, and create function which
-					// will create all the YouTube instances once the API is ready
-					if (!me.foundYouTubeAPI) {
-						youTubeMediaElementViews.push(this);
+					//Here we make our promise and add it to the list of Quicktime deferred objects
+					promise = $.Deferred();
+					pendingDeferredMedia.QuickTime.push(promise);
 
-						// load the API
-						var tag = document.createElement('script');
-						tag.src = "//www.youtube.com/player_api";
-						//tag.src = "https://www.youtube.com/iframe_api"; // needed only if testing locally
-						var firstScriptTag = document.getElementsByTagName('script')[0];
-						firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-						// set up function to handle API arrival
-						window['onYouTubePlayerAPIReady'] = function() {
-							var i;
-							var n = youTubeMediaElementViews.length;
-							// loop through all the waiting instances and create each one
-							for (i=0; i<n; i++) {
-								var mediaObjectHTML = youTubeMediaElementViews[i].mediaObjectView.createObject();
-								if (mediaObjectHTML != null) youTubeMediaElementViews[i].mediaContainer.html(mediaObjectHTML);
-								youTubeMediaElementViews[i].layoutMediaObject();
-								$('body').trigger('mediaElementReady', [$(youTubeMediaElementViews[i])]);
+				//Below we have the same structure for OpenSeadragon and FlowPlayer. Additional media libraries may be added here.
+				}else if(typeof OpenSeadragon === 'undefined' && this.model.mediaSource.contentType == 'tiledImage'){
+					if(typeof pendingDeferredMedia.OpenSeadragon == 'undefined'){
+						pendingDeferredMedia.OpenSeadragon = [];
+						$.getScript(widgets_uri+'/mediaelement/openseadragon/openseadragon.min.js',function(){
+							for(var i = 0; i < pendingDeferredMedia.OpenSeadragon.length; i++){
+									pendingDeferredMedia.OpenSeadragon[i].resolve();
 							}
-							youTubeMediaElementViews = [];
+						});
+					}
+
+					promise = $.Deferred();
+					pendingDeferredMedia.OpenSeadragon.push(promise);
+				}else if(typeof $f === 'undefined' && this.model.mediaSource.contentType == 'video' && player == 'Flash'){
+						if(typeof pendingDeferredMedia.Flowplayer == 'undefined'){
+							pendingDeferredMedia.Flowplayer = [];
+							$.getScript(widgets_uri+'/mediaelement/flowplayer-3.2.13.min.js',function(){
+								for(var i = 0; i < pendingDeferredMedia.Flowplayer.length; i++){
+										pendingDeferredMedia.Flowplayer[i].resolve();
+								}
+							});
 						}
 
-					// if this is a maximized instance or the array of waiting YouTube views has been emptied,
-					// assume the API has been loaded and create the player immediately
-					} else if ((this.model.options.header == 'nav_bar') || (youTubeMediaElementViews.length == 0)) {
-			  			var mediaObjectHTML = this.mediaObjectView.createObject();
+						promise = $.Deferred();
+						pendingDeferredMedia.Flowplayer.push(promise);
+				}else if(typeof SC === 'undefined' && this.model.mediaSource.contentType ==  'audio' && this.model.mediaSource.name == 'SoundCloud'){
+					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
+						pendingDeferredMedia.SoundCloud = [];
+						$.when(
+							$.getScript(widgets_uri+'/mediaelement/soundcloudapi.js'),
+							$.getScript(widgets_uri+'/mediaelement/soundcloudsdk.js')
+						).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.SoundCloud.length; i++){
+									pendingDeferredMedia.SoundCloud[i].resolve();
+							}
+						});
+					}
+
+					promise = $.Deferred();
+					pendingDeferredMedia.SoundCloud.push(promise);
+				}else if(typeof THREE === 'undefined' && player == 'Threejs'){
+					if(typeof pendingDeferredMedia.Threejs == 'undefined'){
+						pendingDeferredMedia.Threejs = [];
+						//Because TrackballControls and STLLoader immediately require THREE to be set,
+						//we will first load three.min.js to make sure it is defined, then
+						//asynchronously load the other two files.
+						$.getScript(widgets_uri+'/mediaelement/three.min.js',function(){
+							$.when(
+								$.getScript(widgets_uri+'/mediaelement/TrackballControls.js'),
+								$.getScript(widgets_uri+'/mediaelement/STLLoader.js')
+							).then(function(){
+								for(var i = 0; i < pendingDeferredMedia.Threejs.length; i++){
+										pendingDeferredMedia.Threejs[i].resolve();
+								}
+							});
+						});
+					}
+
+					promise = $.Deferred();
+					pendingDeferredMedia.Threejs.push(promise);
+				}
+			}
+
+			$.when(promise).then($.proxy(function(){
+
+				this.parseMediaType();
+
+				this.header = $('<div class="mediaElementHeader"></div>').appendTo(this.model.element);
+	  			this.annotationSidebar = $('<div class="mediaElementAnnotationSidebar"></div>').appendTo(this.model.element);
+	  			this.mediaContainer = $('<div class="mediaContainer"></div>').appendTo(this.model.element);
+	  			if (this.model.mediaSource.name == "image") this.spatialAnnotation = $('<div class="spatialAnnotation"><div></div></div>').appendTo(this.mediaContainer);
+	  			this.footer = $('<div class="mediaElementFooter"></div>').appendTo(this.model.element);
+
+	 			this.initialContainerWidth = parseInt(this.mediaContainer.width());
+
+	 			if ( this.model.isChromeless ) {
+	 				this.gutterSize = 0;
+	 			}
+
+				this.populateHeader();
+	   			this.populateFooter();
+
+	  			this.calculateContainerSize();
+
+	  			this.populateSidebar();
+				this.populateContainer();
+
+				if ('undefined'!=typeof(this.mediaObjectView)) {
+
+					// Native YouTube player requires that we download API code first
+					if (this.model.mediaSource.name == "YouTube") {
+
+						// check to see if another mediaelement instance has already downloaded the API
+						me.foundYouTubeAPI = false;
+						$('script').each(
+							function() {
+								if (this.src.indexOf('www.youtube.com') != -1) {
+									me.foundYouTubeAPI = true;
+								}
+							}
+						);
+
+						// if not, then do so, delay creation of the media object, and create function which
+						// will create all the YouTube instances once the API is ready
+						if (!me.foundYouTubeAPI) {
+							youTubeMediaElementViews.push(this);
+
+							// load the API
+							var tag = document.createElement('script');
+							tag.src = "//www.youtube.com/player_api";
+							//tag.src = "https://www.youtube.com/iframe_api"; // needed only if testing locally
+							var firstScriptTag = document.getElementsByTagName('script')[0];
+							firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+							// set up function to handle API arrival
+							window['onYouTubePlayerAPIReady'] = function() {
+								var i;
+								var n = youTubeMediaElementViews.length;
+								// loop through all the waiting instances and create each one
+								for (i=0; i<n; i++) {
+									var mediaObjectHTML = youTubeMediaElementViews[i].mediaObjectView.createObject();
+									if (mediaObjectHTML != null) youTubeMediaElementViews[i].mediaContainer.html(mediaObjectHTML);
+									youTubeMediaElementViews[i].layoutMediaObject();
+									$('body').trigger('mediaElementReady', [$(youTubeMediaElementViews[i])]);
+								}
+								youTubeMediaElementViews = [];
+							}
+
+						// if this is a maximized instance or the array of waiting YouTube views has been emptied,
+						// assume the API has been loaded and create the player immediately
+						} else if ((this.model.options.header == 'nav_bar') || (youTubeMediaElementViews.length == 0)) {
+				  			var mediaObjectHTML = this.mediaObjectView.createObject();
+							if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
+							$('body').trigger('mediaElementReady', [$(this)]);
+							this.layoutMediaObject();
+
+						// otherwise, delay creation of the player until the API loads
+						} else {
+							youTubeMediaElementViews.push(this);
+						}
+
+					// initialize the SoundCloud API if we haven't already
+					} else if (this.model.mediaSource.name == 'SoundCloud') {
+
+						if(!soundCloudInitialized){
+							SC.initialize({client_id: $('#soundcloud_id').attr('href')});
+							soundCloudInitialized = true;
+						}
+						var mediaObjectHTML = this.mediaObjectView.createObject();
 						if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
 						$('body').trigger('mediaElementReady', [$(this)]);
 						this.layoutMediaObject();
 
-					// otherwise, delay creation of the player until the API loads
+					// otherwise, create the media object now
 					} else {
-						youTubeMediaElementViews.push(this);
+			  			var mediaObjectHTML = this.mediaObjectView.createObject();
+						if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
+						$('body').trigger('mediaElementReady', [$(this)]);
+						this.layoutMediaObject();
 					}
 
-				// initialize the SoundCloud API if we haven't already
-				} else if (this.model.mediaSource.name == 'SoundCloud') {
-
-					if (!soundCloudInitialized) {
-						SC.initialize({client_id: $('#soundcloud_id').attr('href')});
-						soundCloudInitialized = true;
-					}
-
-		  			var mediaObjectHTML = this.mediaObjectView.createObject();
-					if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
-					$('body').trigger('mediaElementReady', [$(this)]);
-					this.layoutMediaObject();
-
-				// otherwise, create the media object now
-				} else {
-		  			var mediaObjectHTML = this.mediaObjectView.createObject();
-					if (mediaObjectHTML != null) this.mediaContainer.html(mediaObjectHTML);
-					$('body').trigger('mediaElementReady', [$(this)]);
-					this.layoutMediaObject();
 				}
-
-			}
-
+			},this));
 		}
 
 		/**
@@ -943,7 +1045,14 @@ function YouTubeGetID(url){
 					player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
 				}
 
+
 				switch (this.model.mediaSource.contentType) {
+
+					case '3D':
+					if (player == 'Threejs') {
+						this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
+					}
+					break;
 
 					case 'image':
 					if (player == 'QuickTime') {
@@ -954,7 +1063,7 @@ function YouTubeGetID(url){
 					break;
 
 					case 'tiledImage':
-					this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
+						this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
 					break;
 
 					case 'audio':
@@ -973,15 +1082,15 @@ function YouTubeGetID(url){
 					switch (player) {
 
 						case 'QuickTime':
-						if (this.model.mediaSource.name == 'QuickTimeStreaming') {
-							this.mediaObjectView = new $.StreamingQuickTimeObjectView(this.model, this);
-						} else {
-							this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
-						}
+							if (this.model.mediaSource.name == 'QuickTimeStreaming') {
+								this.mediaObjectView = new $.StreamingQuickTimeObjectView(this.model, this);
+							} else {
+								this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
+							}
 						break;
 
 						case 'Flash':
-						this.mediaObjectView = new $.FlowplayerVideoObjectView(this.model, this);
+							this.mediaObjectView = new $.FlowplayerVideoObjectView(this.model, this);
 						break;
 
 						case 'native':
@@ -1209,7 +1318,6 @@ function YouTubeGetID(url){
 		 * Calculates the optimum display size for the media.
 		 */
 		jQuery.MediaElementView.prototype.calculateMediaSize = function() {
-
 			// if this is liquid media, always make it the maximum size
 			if (this.mediaObjectView.isLiquid) {
 				this.intrinsicDim.x = this.containerDim.x;
@@ -2939,7 +3047,10 @@ function YouTubeGetID(url){
 				playerVars: playerVars,
 				events: {
 					'onStateChange': 'onYouTubeStateChange' + this.model.id
-				}
+				},
+        playerVars: {
+            wmode: "opaque"
+        }
 			}
 
 			if ( this.model.initialSeekAnnotation != null ) {
@@ -3236,7 +3347,7 @@ function YouTubeGetID(url){
 
  			var theElement = $('<div class="mediaObject" id="'+this.model.filename+'_mediaObject'+this.model.id+'"/>"').appendTo(this.parentView.mediaContainer);
 
- 			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.commercial-3.2.18.swf", {
+ 			var thePlayer = $f(this.model.filename+'_mediaObject'+this.model.id, {src: this.model.mediaelement_dir+"flowplayer.commercial-3.2.18.swf", wmode: "opaque"}, {
 
  				key: $('#flowplayer_key').attr('href'),
 
@@ -4784,6 +4895,97 @@ function YouTubeGetID(url){
 		jQuery.DeepZoomImageObjectView.prototype.resize = function(width, height) {
 			$('#openseadragon'+me.model.id).width(Math.round(width));
 			$('#openseadragon'+me.model.id).height(Math.round(height));
+		}
+
+	}
+
+	/**
+	 * View for Threejs content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.ThreejsObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.isLiquid = true;					// media will expand to fill available space
+
+		/**
+		 * Creates the media object.
+		 */
+		jQuery.ThreejsObjectView.prototype.createObject = function() {
+
+			this.mediaObject = $( '<div class="mediaObject" id="threejs'+me.model.id+'"></div>' ).appendTo( this.parentView.mediaContainer );
+
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+			this.camera = new THREE.PerspectiveCamera(60, this.mediaObject.width() / this.mediaObject.height(), 1, 1000);
+			this.camera.position.z = 10;
+
+			this.controls = new THREE.TrackballControls(this.camera, this.mediaObject[0]);
+			this.controls.addEventListener('change', function() {
+				me.renderer.render(me.scene, me.camera);
+			});
+
+			this.scene = new THREE.Scene();
+
+			var loader = new THREE.STLLoader();
+			loader.load(this.model.path, function(geometry) {
+				var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading});
+				var mesh = new THREE.Mesh(geometry, material);
+				me.scene.add(mesh);
+				me.renderer.render(me.scene, me.camera);
+			});
+
+			var light = new THREE.DirectionalLight(0xffffff);
+			light.position.set(1, 1, 1);
+			this.scene.add(light);
+
+			light = new THREE.DirectionalLight(0x2069a8);
+			light.position.set(-1, -1, -1);
+			this.scene.add(light);
+
+			light = new THREE.AmbientLight(0x222222);
+			this.scene.add(light);
+
+			this.renderer = new THREE.WebGLRenderer({antialias: false});
+			this.renderer.setClearColor(0x444444, 1);
+			this.renderer.setSize(this.mediaObject.width(), this.mediaObject.height());
+
+			this.mediaObject.append(this.renderer.domElement);
+
+			this.animate = function animate() {
+				requestAnimationFrame( me.animate );
+				me.controls.update();
+			}
+
+			this.renderer.render(this.scene, this.camera);
+			this.animate();
+
+			return;
+		}
+
+		// These functions are basically irrelevant for this type of media
+		jQuery.ThreejsObjectView.prototype.play = function() { }
+		jQuery.ThreejsObjectView.prototype.pause = function() { }
+		jQuery.ThreejsObjectView.prototype.seek = function(time) { }
+		jQuery.ThreejsObjectView.prototype.getCurrentTime = function() { }
+		jQuery.ThreejsObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.ThreejsObjectView.prototype.resize = function(width, height) {
+			$('#threejs'+me.model.id).width(Math.round(width));
+			$('#threejs'+me.model.id).height(Math.round(height));
 		}
 
 	}
