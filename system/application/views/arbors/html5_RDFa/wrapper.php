@@ -1,7 +1,7 @@
 <?
 // Define page style based on precedence (book -> current path -> page)
 $title = $description = $color = $primary_role = $default_view = '';
-$background = $style = $js = $hypothesis = null;
+$background = $banner = $style = $js = $hypothesis = null;
 $publisher = $publisher_thumbnail = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {
@@ -27,6 +27,7 @@ if (isset($page->version_index)) {
 	$color = $page->color;
 	$primary_role = $page->primary_role;
 	if (!empty($page->background)) $background = trim($page->background);
+	if (!empty($page->banner)) $banner = trim($page->banner);
 	if (!empty($page->custom_style)) $style .= $page->custom_style."\n";
 	if (!empty($page->custom_scripts)) $js .= $page->custom_scripts."\n";
 	$is_new = false;
@@ -76,7 +77,26 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <meta property="og:site_name" content="<? if (isset($book)) { echo htmlspecialchars(trim(strip_tags($book->title))).((!empty($book->subtitle))?': '.htmlspecialchars(trim(strip_tags($book->subtitle))):''); } ?>" />
 <meta property="og:url" content="<? echo confirm_slash($base_uri).((isset($page->version_index))?$page->slug:''); ?>" />
 <meta property="og:description" content="<? if (isset($page->version_index)) {echo htmlspecialchars(create_excerpt($page->versions[$page->version_index]->content, 34));} else {echo htmlspecialchars(trim(strip_tags($description)));} ?>" />
-<meta property="og:image" content="<?=$app_root?>views/arbors/html5_RDFa/scalar_logo_300x300.png" />
+<meta property="og:image" content="<?php
+$default_img = $app_root.'views/arbors/html5_RDFa/scalar_logo_300x300.png';
+if (isset($page->version_index)) {
+	$img = first_og_image_from_html_string($page->versions[$page->version_index]->content);
+	$url = $page->versions[$page->version_index]->url;
+	if (!empty($img)) {
+		echo abs_url(str_replace(' ','%20',$img),base_url().$book->slug);
+	} elseif (!empty($url) && is_opengraphable_image($url)) {
+		echo abs_url(str_replace(' ','%20',$url),base_url().$book->slug);
+	} elseif (!empty($banner)) {
+		echo abs_url(str_replace(' ','%20',$banner),base_url().$book->slug);
+	} elseif (!empty($background)) {
+		echo abs_url(str_replace(' ','%20',$background),base_url().$book->slug);
+	} else {
+		echo $default_img;
+	}
+} else {
+	echo $default_img = $app_root.'views/arbors/html5_RDFa/scalar_logo_300x300.png';
+}
+?>" />
 <meta property="og:type" content="article" />
 <? if (isset($page) && !empty($page)): ?>
 <link rel="canonical" href="<?=confirm_slash($base_uri).$page->slug?>" />

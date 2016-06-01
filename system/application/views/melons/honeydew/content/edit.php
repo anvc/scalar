@@ -436,7 +436,7 @@ endif;
   		</tr>
   		<tr class="styling_sub">
    			<td style="position:relative;">
-   				Custom Javascript
+   				Custom JavaScript
    				<div style="width:150px;white-space:normal;"><small>Javascript or jQuery source</small></div>
    			</td>
   			<td colspan="2"><textarea name="scalar:custom_scripts" style="width:100%;height:50px;"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea></td>

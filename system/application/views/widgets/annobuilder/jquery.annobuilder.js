@@ -222,7 +222,10 @@ jQuery.AnnoBuilderController = function() {
 			scalarapi.model.removeNodes();
 			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
 		}
-	}
+		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
+ 			anno.removeAll( $.annobuilder.model.mediaElement.view.mediaObjectView.image.src + '-0' );
+		}
+}
 
 	/**
 	 * Handles loaded annotation data.
@@ -264,10 +267,15 @@ jQuery.AnnoBuilderController = function() {
 		}
 
 		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
-			$( $.annobuilder.model.mediaElement.view.mediaObjectView.image ).load( function() {
+			if ($.annobuilder.model.mediaElement.view.mediaObjectView.image.complete) {
 				anno.makeAnnotatable( $.annobuilder.model.mediaElement.view.mediaObjectView.image );
 				anno.setProperties( { hi_stroke: "#3acad9" } );
-			});
+			} else {
+				$( $.annobuilder.model.mediaElement.view.mediaObjectView.image ).load( function() {
+					anno.makeAnnotatable( $.annobuilder.model.mediaElement.view.mediaObjectView.image );
+					anno.setProperties( { hi_stroke: "#3acad9" } );
+				});		
+			}
 		}
 		
 	}
@@ -423,7 +431,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		buttonBar.find('a').eq(1).click(this.handleDelete);
 		buttonBar.find('a').eq(0).click(this.handleAdd);
 
-		this.annotationFormMessage = $('<div class="annotationFormMessage">To proceed, select an existing annotation from the list to the left, or create a new one using the plus button.</div>').appendTo(this.container);
+		this.annotationFormMessage = $('<div class="annotationFormMessage">Create a new annotation using the plus button, or select an existing annotation from the list to the left.</div>').appendTo(this.container);
 		
 		this.annotationForm = $('<div class="annotationForm"><table class="form_fields form-inline"><tbody></tbody></table></div>').appendTo(this.container);
 		this.annotationForm.find('tbody').append('<tr><td class="field">Title</td><td class="value"><input id="annotationTitle" class="form-control" type="text" size="45" onchange="$.annobuilder.view.builder.handleEditTitle()" onkeyup="$.annobuilder.view.builder.handleEditTitle()"/></td></tr>');
@@ -436,6 +444,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			break;
 			
 			case 'image':
+			this.annotationFormMessage.text("Click and drag on the image to create a new annotation, or select an existing annotation from the list to the left.");
 			// cantaloupe-only instructions
 			var instructions = '';
 			if ( $( 'article' ).length ) {
@@ -484,7 +493,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				$( "#height" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, forcestepdivisibility: 'none' });
 				$( "#height" ).parent().append( $( 'select[name="heightDimType"]' ) );
 			}
-		break;
+			break;
 			
 			case 'document':
 			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Starting line: <input id="startLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()">&nbsp;&nbsp; Ending line: <input id="endLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()"></td></tr>');
@@ -948,15 +957,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				intrinsicDim = $.annobuilder.model.mediaElement.view.intrinsicDim,
 				image = $.annobuilder.model.mediaElement.view.mediaObjectView.image;
 
- 			// first time setup (the '-0' is because the mediaelement's id is always 0 in the annotation editor)
- 			if ( anno.getAnnotations( image.src + '-0' ).length == 0 ) {
-				anno.makeAnnotatable( image );
-				anno.setProperties( { hi_stroke: "#3acad9" } );
-
-			// reload
- 			} else {
- 				anno.removeAll( image.src + '-0' );
- 			}
+ 			anno.removeAll( image.src + '-0' );
 
 			if (dimensions.xType == 'percent') {
 				x = (dimensions.x * .01) * mediaScale;
@@ -1812,7 +1813,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			'dcterms:description': '',
 			'sioc:content': '',
 			'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
-			'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
+			'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* In Honeydew this is comming from the comment form because there isn't an annotation form in its HTML */
 			'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media', 
 			'scalar:child_rel': 'annotated',
 			'scalar:start_seconds': '',

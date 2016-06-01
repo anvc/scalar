@@ -425,7 +425,7 @@ function make_taxonomy_pages(onomy) {
 			echo "</tr>\n";
 			// Custom javascript
 			echo '<tr typeof="books">';
-			echo '<td style="width:190px;">Custom Javascript';
+			echo '<td style="width:190px;">Custom JavaScript';
 			echo '<br /><small>E.g., Google Analytics code<br />No &lt;script&gt; or &lt;/script&gt; tags</small>';
 			echo '</td>'."\n";
 			echo '<td style="vertical-align:middle;" class="row_div" colspan="2">';

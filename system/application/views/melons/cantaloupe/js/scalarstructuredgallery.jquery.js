@@ -310,14 +310,14 @@
 				}
 				
 				if (node.current.description != undefined) {
-					alttext = node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+					alttext = node.current.description.replace(/"/g, '&#34;');
+					alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
 				} else {
 					alttext = '';
 				}		
 
 				var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
 				tooltipText = tooltipText.replace(/"/g,'&quot;');
-	
 	
 				// custom thumbnail
 				if ( node.thumbnail != undefined ) {

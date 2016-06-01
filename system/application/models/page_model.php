@@ -249,6 +249,7 @@ class Page_model extends MY_Model {
     	unset($array['section']);
     	unset($array['ci_session']);
     	if (isset($array['color']) && $array['color']=='#ffffff') $array['color'] = '';
+    	if (isset($array['category']) && $array['category']==='') $array['category'] = null;
 
     	// If the slug has changed...
     	if (isset($array['slug'])) {

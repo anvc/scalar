@@ -348,6 +348,9 @@
 					// hide the media element until we get it fully set up (after its metadata has loaded)
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
+
+					console.log(slotMediaElement);
+
 					slotMediaElement.model.element.css( 'visibility', 'hidden' );
 
 					// if this is an inline media element, then
@@ -1169,6 +1172,40 @@
 
 				} else if ( '' == extension ) {
 
+					anno.addHandler('onPopupShown', function(annotation) {
+							var height = null;
+							$('.annotorious-popup').each(function(){
+								var width = $(this).width();
+								if(annotation.isMedia){
+									var parent = $(this).find('.annotorious-popup-text');
+									var node = scalarapi.getNode(parent.find('a').first().attr('href'));
+									var link = $( '<a href="'+node.current.sourceFile+'" data-annotations="[]" data-align="center" resource="'+node.slug+'" class="inline"></a>' ).hide().appendTo(parent);
+									page.addNoteOrAnnotationMedia(link,parent,width,height);
+								}else{
+										$(page.getMediaLinks($(this))).each(function(){
+											if($(this).hasClass('inline')){
+												$(this).wrap('<div></div>').hide().removeClass('inline');
+											}
+										});
+
+										wrapOrphanParagraphs($(this));
+
+										$(this).children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+
+										$(page.getMediaLinks($(this))).each(function(){
+											$(this).attr({
+												'data-align':'',
+												'data-size':'',
+												'data-annotations':'[]',
+												'class':'media_link'
+											});
+											var parent = $(this).parent();
+											page.addNoteOrAnnotationMedia($(this),parent,width,height);
+										});
+								}
+							});
+					});
+
 					switch (viewType) {
 
 						case 'gallery':
@@ -1472,7 +1509,6 @@
 						reload = true;
 					}
 					if ( reload ) {
-						$('#google-maps').css('max-height',0.6*page.sizeOnMediaLoad.y);
 						page.handleMediaResize();
 					}
 				}
@@ -1611,7 +1647,7 @@
 
 					var thumbnailMarkup = "";
 					if (thumbnail != null) {
-						thumbnailMarkup = '<img style="float:left; margin: 0 1rem 1rem 0;" src="' + thumbnail +'" alt="Thumbnail image" width="120"/>';
+						thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail +'" alt="Thumbnail image" width="120"/>';
 					}
 
 					// add marker and info window for current page
@@ -1905,7 +1941,8 @@
 					}
 					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 
-					$( '#google-maps' ).data('map',map).css('height',0.6*$(window).height());
+					//Global scope google map variable
+					$gmaps = $( '#google-maps' );
 
 					// create info window
 					var infoWindow = new google.maps.InfoWindow({
@@ -2020,24 +2057,31 @@
 
 					// no valid coords found on page or its children
 					if ( foundError ) {
-						$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
+						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
 
 					// no coords of any kind found
 					} else if ( markers.length == 0 ) {
-						$( '#google-maps' ).append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
+						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
 					}else{
 						// adjust map bounds to marker bounds
 						var bounds = new google.maps.LatLngBounds();
-						$( '#google-maps' ).data('bounds',bounds);
+						$gmaps.data({'map':map,'bounds':bounds,'markers':markers});
 						$.each( markers, function ( index, marker ) {
 							bounds.extend( marker.position );
 						});
 						if ( markers.length > 1 ) {
 							map.fitBounds( bounds );
-							$(window).on('resize',function(){
-								$( '#google-maps' ).data('map').fitBounds($( '#google-maps' ).data('bounds'));
-							});
 						}
+
+						$gmaps.css('max-height',0.6*$(window).height());
+
+						$(window).on('resize',function(){
+							var markers = $gmaps.data('markers')
+							if(markers.length > 1){
+								$gmaps.data('map').fitBounds($( '#google-maps' ).data('bounds'));
+							}
+							$gmaps.css('max-height',0.6*$(window).height());
+						});
 					}
 					break;
 

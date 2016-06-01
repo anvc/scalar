@@ -1466,7 +1466,7 @@ function YouTubeGetID(url){
 		 * Removes the loading message.
 		 */
 		jQuery.MediaElementView.prototype.removeLoadingMessage = function() {
-			this.mediaContainer.css('background-image', 'url()');
+			this.mediaContainer.parent().parent().css('background-image', 'none');
 			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
 		}
 
@@ -2093,35 +2093,34 @@ function YouTubeGetID(url){
 			// special case some URL elements
 			if (-1!=url.indexOf('http://cubantheater.org')) url = url.replace('http://cubantheater.org','http://ctda.library.miami.edu');
 
-			// setup actions to be taken on image load
-			$(this.image).load(function() {
-
-				var $this = $(this);
-
-				me.hasLoaded = true;
-
-				me.parentView.intrinsicDim.x = this.width;
-				me.parentView.intrinsicDim.y = this.height;
-
-				me.parentView.layoutMediaObject();
-				me.parentView.removeLoadingMessage();
-
-				// Make visible
-				if ($.browser.msie) {
-					$this.css('display','inline');
-				} else {
-					$this.fadeIn();
-				}
-
-				if (me.annotations != null) {
-					me.setupAnnotations(me.annotations);
-				}
-
-			}).attr({
+			$(this.image).attr({
 				'src': url,
 				'data-original': url + '-' + this.model.id // needed to support annotorious if the same image appears on the page more than once
 			});
 
+			$(this.image).load(function() {
+				me.doImageSetup(this);
+			});
+
+    	}
+
+    	jQuery.ImageObjectView.prototype.doImageSetup = function(image) {
+ 			this.hasLoaded = true;
+			this.parentView.intrinsicDim.x = image.width;
+			this.parentView.intrinsicDim.y = image.height;
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+			// Make visible
+			if ($.browser.msie) {
+				$(image).css('display','inline');
+			} else {
+				$(image).fadeIn();
+			}
+
+			if (this.annotations != null) {
+				this.setupAnnotations(me.annotations);
+			}
     	}
 
 		/**
@@ -2187,6 +2186,11 @@ function YouTubeGetID(url){
 						height = parseFloat(annotation.properties.height) * this.parentView.mediaScale;
 					}
 
+					var annotationIsMediaType = false;
+					if(typeof annotation.body != undefined){
+						annotationIsMediaType = typeof annotation.body.scalarTypes.media !== 'undefined';
+					};
+
 					annotation.data = {
 						src: this.image.src + '-' + this.model.id,
 						text: '<a href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
@@ -2195,7 +2199,8 @@ function YouTubeGetID(url){
 							type: "rect",
 							units: "pixel",
 							geometry: { x: x, y: y, width: width, height: height }
-						}]
+						}],
+						isMedia : annotationIsMediaType
 					}
 
 					anno.addAnnotation( annotation.data );
@@ -3103,7 +3108,7 @@ function YouTubeGetID(url){
 			if ( this.model.options.autoplay ) {
 				url += '&autoplay=1';
 			}
-			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="'+url+'" frameborder="0"></iframe></div>').appendTo(this.parentView.mediaContainer);
+			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="'+url+'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>').appendTo(this.parentView.mediaContainer);
 
 			var ready = function(player_id) {
 				me.froogaloop = $froogaloop(player_id);
@@ -3672,9 +3677,18 @@ function YouTubeGetID(url){
 
 			var readyFunc = function() {
 				$(this).jPlayer('setMedia', options);
+				if (me.model.options.autoplay) {
+					$(this).jPlayer("play");
+				}
 			};
 
-			this.audio = $('#jplayer'+this.model.filename+'_'+this.model.id).jPlayer({ready:readyFunc, backgroundColor:null, swfPath: url_to_swf, supplied:this.model.extension, cssSelectorAncestor:'#jp_interface_'+this.model.id});
+			this.audio = $('#jplayer'+this.model.filename+'_'+this.model.id).jPlayer({
+				ready:readyFunc,
+				backgroundColor:null,
+				swfPath: url_to_swf,
+				supplied:this.model.extension,
+				cssSelectorAncestor:'#jp_interface_'+this.model.id
+			});
 
 			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.pause, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.endTimer(); });
 			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.play, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.startTimer(); $(this).jPlayer("pauseOthers"); });

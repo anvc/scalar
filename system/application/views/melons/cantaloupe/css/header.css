@@ -9,6 +9,13 @@ body.in_menu{
     width: 100%;*/
 }
 
+.navbar .tooltip{
+	margin-top: -.5px;
+}
+.navbar .tooltip .tooltip-inner{
+	max-width: 100%;
+}
+
 .navbar .hidden_submit{
 	visibility:hidden;
 	width: 1px;
@@ -306,6 +313,13 @@ a.headerIcon{
 	text-overflow: ellipsis;
 }
 #desktopTitleWrapper{
+	height: 5rem;
+	width: 100%;
+	text-overflow: clip;
+}
+span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
+	max-width: 384px;
+	word-wrap: break-word;
 	height: 5rem;
 	width: 100%;
 	text-overflow: clip;
