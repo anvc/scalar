@@ -153,7 +153,7 @@
 											}
 										});
 									}
-									if(element!=null){
+									if(element!=null && element.getAttribute('resource') == slug){
 										var previous_annotations = element.data('annotations').split(',');
 										if(previous_annotations.length > 0){
 											for(var i in previous_annotations){
@@ -183,7 +183,7 @@
 
 					$form.append($annotationSelection);
 
-					if(opts.element !== null){
+					if(opts.element !== null && opts.element.getAttribute('resource')==opts.data.node.slug){
 						var previous_annotations = opts.element.data('annotations').split(',');
 						if(previous_annotations.length > 0){
 							$form.find('.featuredAnnotation').show();
