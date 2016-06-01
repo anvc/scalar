@@ -31,7 +31,6 @@
 			}
     	var bootstrap_enabled = (typeof $().modal == 'function');
     	if ('undefined'==typeof(opts.data) || $.isEmptyObject(opts.data)) {
-    		console.log('content options: no data');
     		opts.callback(options);
     		return;
     	}
@@ -156,7 +155,6 @@
 									}
 									if(element!=null){
 										var previous_annotations = element.data('annotations').split(',');
-										console.log(previous_annotations);
 										if(previous_annotations.length > 0){
 											for(var i in previous_annotations){
 												var annotation = previous_annotations[i];
@@ -170,14 +168,11 @@
 												}
 											}
 
-											$featuredAnnotation.show();
-
 											if(element.getAttribute('href').indexOf('#')>=0){
 												//no annotation
 												var temp_anchor = document.createElement('a');
 												temp_anchor.href = opts.element.getAttribute('href');
 												var featuredAnnotation = temp_anchor.hash.replace('#','');
-												console.log(featuredAnnotation);
 												$featuredAnnotation.find('option[value="'+featuredAnnotation+'"]').prop('selected','selected');
 												$featuredAnnotation.val(featuredAnnotation);
 											}
@@ -187,6 +182,13 @@
 					})(opts.data.node.slug,$annotationSelection,opts.element);
 
 					$form.append($annotationSelection);
+
+					if(opts.element !== null){
+						var previous_annotations = opts.element.data('annotations').split(',');
+						if(previous_annotations.length > 0){
+							$form.find('.featuredAnnotation').show();
+						}
+					}
 				}
 			}
 
