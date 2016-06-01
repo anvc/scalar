@@ -156,6 +156,7 @@
 									}
 									if(element!=null){
 										var previous_annotations = element.data('annotations').split(',');
+										console.log(previous_annotations);
 										if(previous_annotations.length > 0){
 											for(var i in previous_annotations){
 												var annotation = previous_annotations[i];
@@ -168,15 +169,18 @@
 													$thisOption.show().removeProp('disabled');
 												}
 											}
+
+											$featuredAnnotation.show();
+
 											if(element.getAttribute('href').indexOf('#')>=0){
 												//no annotation
 												var temp_anchor = document.createElement('a');
 												temp_anchor.href = opts.element.getAttribute('href');
 												var featuredAnnotation = temp_anchor.hash.replace('#','');
+												console.log(featuredAnnotation);
 												$featuredAnnotation.find('option[value="'+featuredAnnotation+'"]').prop('selected','selected');
 												$featuredAnnotation.val(featuredAnnotation);
 											}
-											$featuredAnnotation.show();
 										}
 									}
 							}, null, 1 );
