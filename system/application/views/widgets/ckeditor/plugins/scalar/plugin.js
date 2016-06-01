@@ -91,7 +91,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
 							if ( element.getAscendant( 'a', true ) ) {
 								element = element.getAscendant( 'a', true );
-								if(!element.hasClass('inline') && element.getAttribute('href').indexOf('#')<0){
+								if(element.getAttribute('resource')!=null && !element.hasClass('inline') && element.getAttribute('href').indexOf('#')<0){
 									//Not inline, no annotation
 									isEdit = true;
 								}
@@ -142,7 +142,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
 						if ( element.getAscendant( 'a', true ) ) {
 							element = element.getAscendant( 'a', true );
-							if(element.hasClass('inline') && element.getAttribute('href').indexOf('#')<0){
+							if(element.getAttribute('resource')!=null && element.hasClass('inline') && element.getAttribute('href').indexOf('#')<0){
 								//Is inline, no annotation
 								isEdit = true;
 							}
@@ -185,7 +185,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
 							if ( element.getAscendant( 'a', true ) ) {
 								element = element.getAscendant( 'a', true );
-								if(!element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
+								if(element.getAttribute('resource')!=null && !element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
 									//Not inline, with annotation
 									isEdit = true;
 								}
@@ -233,7 +233,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
 							if ( element.getAscendant( 'a', true ) ) {
 								element = element.getAscendant( 'a', true );
-								if(element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
+								if(element.getAttribute('resource')!=null && element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
 									//Is inline, with annotation
 									isEdit = true;
 								}
