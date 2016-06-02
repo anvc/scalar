@@ -71,7 +71,7 @@
 			if(typeof opts.element === 'undefined'){
 				opts.element = null;
 			}
-
+			
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
 					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
@@ -351,6 +351,33 @@
     	};
     	// Initialize the interface
     	var init = function() {
+
+				//If we already have an element, don't open the modal
+				//Instead, grab the current node and pass it to the callback instead
+				if(typeof opts.element !== 'undefined' && opts.element != null){
+
+					//Get the slug of the currently selected node
+					if(opts.element.getAttribute('href').indexOf('#')>=0){
+						//with annotation, get the slug in the hash of the url
+						var temp_anchor = document.createElement('a');
+						temp_anchor.href = opts.element.getAttribute('href');
+						currentSlug = temp_anchor.hash.replace('#','');
+						$(temp_anchor).remove();
+					}else{
+						//no annotation - use the resource value instead
+						currentSlug = opts.element.getAttribute('resource');
+					}
+
+					//Now that we have the slug, load the page via the api, then run the callback
+					(function(slug,callback){
+						scalarapi.loadPage( slug, true, function(){
+								callback(scalarapi.getNode(slug));
+						}, null, 1, false, null, 0, 1 );
+					})(currentSlug,opts.callback);
+
+					return;
+				}
+
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
     		$this.addClass('content_selector');
     		$this.addClass( ((bootstrap_enabled)?'bootstrap':'no-bootstrap') );

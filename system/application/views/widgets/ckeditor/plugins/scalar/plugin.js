@@ -199,18 +199,35 @@ CKEDITOR.plugins.add( 'scalar', {
 				/*
         editor.addCommand( 'insertScalar3', {
             exec: function( editor ) {
-	    		var sel = editor.getSelection();
-	    		if (sel.getRanges()[0].collapsed) {
-	    			alert('Please select text to transform into a media link');
-	    			return;
-	    		}
-        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',callback:function(node){
-							var options = reference_options['insertAnnotation'];
-							//options.node = node;
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
-	        			var sel = editor.getSelection();
-	            		element = editor.document.createElement('a');
-	            		element.setHtml(sel.getSelectedText());
+			    		var sel = editor.getSelection();
+							var isEdit = false;
+							var element = sel.getStartElement();
+
+							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
+							if ( element.getAscendant( 'a', true ) ) {
+								element = element.getAscendant( 'a', true );
+								if(element.getAttribute('resource')!=null && !element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
+									//Not inline, with annotation
+									isEdit = true;
+								}
+							}
+							if(!isEdit){
+								if (sel.getRanges()[0].collapsed) {
+									alert('Please select text to transform into a media link');
+									return;
+								}else{
+									element = null;
+								}
+							}
+	        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',element:element,callback:function(node){
+	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],element:element,callback:function(options) {
+									if(!isEdit){
+										var sel = editor.getSelection();
+												element = editor.document.createElement('a');
+												element.setHtml(sel.getSelectedText());
+									}else{
+										element = element.getAscendant( 'a', true );
+									}
 	            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 	            		url += '#'+node.slug;
 	            		var resource = node.targets[0].slug;
@@ -219,32 +236,58 @@ CKEDITOR.plugins.add( 'scalar', {
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
             			}
-	        			editor.insertElement(element);
-        			}});
-        		}});
+									if(!isEdit){
+		        				editor.insertElement(element);
+									}else{
+										editor.updateElement(element);
+									}
+	        			}});
+	        		}});
             }
         });
         editor.addCommand( 'insertScalar4', {
             exec: function( editor ) {
-        		var sel = editor.getSelection();
-        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',callback:function(node){
-							var options = reference_options['insertInlineAnnotation'];
-							//options.node = node;
-							CKEDITOR._scalar.contentoptions({data:options,callback:function(options) {
-	        			element = editor.document.createElement('a');
-	            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
-	            		url += '#'+node.slug;
-	            		var resource = node.targets[0].slug;
-	            		element.setAttribute('name','scalar-inline-annotation');  // Required to let empty <a> through
-	            		element.setAttribute('class', 'inline');
-	        			element.setAttribute('href', url);
-	        			element.setAttribute('resource', resource);
-            			for (var key in options) {
-            				element.setAttribute('data-'+key, options[key]);
-            			}
-	        			editor.insertElement(element);
-        			}});
-        		}});
+							var sel = editor.getSelection();
+							var element = sel.getStartElement();
+							var isEdit = false;
+							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
+							if ( element.getAscendant( 'a', true ) ) {
+								element = element.getAscendant( 'a', true );
+								if(element.getAttribute('resource')!=null && element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
+									//Is inline, with annotation
+									isEdit = true;
+								}
+							}
+							if(!isEdit){
+								element = null;
+							}
+	        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',element:element,callback:function(node){
+	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineAnnotation'],element:element,callback:function(options) {
+										if(!isEdit){
+											element = editor.document.createElement('a');
+										}else{
+											element = element.getAscendant( 'a', true );
+										}
+		            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+		            		url += '#'+node.slug;
+		            		var resource = node.targets[0].slug;
+		            		element.setAttribute('name','scalar-inline-annotation');  // Required to let empty <a> through
+		            		element.setAttribute('class', 'inline');
+			        			element.setAttribute('href', url);
+										if(isEdit){
+											element.data('cke-saved-href',url);
+										}
+			        			element.setAttribute('resource', resource);
+	            			for (var key in options) {
+	            				element.setAttribute('data-'+key, options[key]);
+	            			}
+										if(!isEdit){
+			        				editor.insertElement(element);
+										}else{
+											editor.updateElement(element);
+										}
+	        			}});
+	        		}});
             }
         });
 				*/
