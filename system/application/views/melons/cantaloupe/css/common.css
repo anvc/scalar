@@ -49,6 +49,8 @@ sup {
 }
 hr { clear:both; border: 0; border-bottom: 1px solid #ccc; }
 
+video { background-color: black; }
+
 .spinner_wrapper {
 	width: 20px;
 	height: 20px;
