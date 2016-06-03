@@ -82,7 +82,6 @@ CKEDITOR.plugins.add( 'scalar', {
     init: function( editor ) {
 			addCKInlineMediaPreview = function(slug){
 				var ckeFrame = $('.cke_contents>iframe').contents();
-				console.log(slug);
 				var node = scalarapi.getNode(slug);
 				var slug = slug;
 				cke_loadedScalarInline.push(slug);
@@ -98,14 +97,15 @@ CKEDITOR.plugins.add( 'scalar', {
 				var slug = slug;
 				$(element).off('mouseout mouseover').hover(function(){
 					var position = $(this).position();
-					var framePosition = $('.cke_contents>iframe').position();
+					var framePosition = $('.cke_contents>iframe').offset();
+					console.log(position);
 					var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
 					var pageScroll = $(window).scrollTop();
 					var thumbnail = node.thumbnail;
 					if(thumbnail == null){
 						thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 					}
-					$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)+10, top: framePosition.top+position.top-frameScroll-pageScroll+30, 'background-image':'url('+thumbnail+')'}).show();
+					$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: framePosition.top+position.top-frameScroll-pageScroll+30, 'background-image':'url('+thumbnail+')'}).show();
 				},function(){
 					$('#scalarLinkTooltip').hide();
 				});
