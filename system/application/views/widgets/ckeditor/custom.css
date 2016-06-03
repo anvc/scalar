@@ -29,3 +29,25 @@
 .cke_button__scalar7:hover {
 	background-color:#6f6f6f !important;
 }
+
+#scalarLinkTooltip{
+	width: 100px;
+	height: 100px;
+	border: 2px solid #bbbbbb;
+	position: fixed;
+	background-color: #cccccc;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+#scalarLinkTooltip:after{
+	content: '';
+	position: absolute;
+	top: -12px;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 0 10px 10px 10px;
+	border-color: transparent transparent #bbbbbb transparent;
+	left: 36px;
+}

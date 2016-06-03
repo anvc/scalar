@@ -18,9 +18,10 @@
 			msg:'',
 			no_data_msg:'No content of the selected type was found',
 			callback:null
-	};  	
+	};
 	$.fn.content_options = function(opts) {  // Layout options box
     	// Options
+
     	var self = this;
     	var $this = $(this);
     	var options = {};
@@ -38,9 +39,9 @@
     	};
     	var dash_to_space = function(str) {
     		return str.replace(/-/g, ' ');
-    	}    	
+    	}
 		// Create the modal
-		if (bootstrap_enabled) {	
+		if (bootstrap_enabled) {
 			bootbox.dialog({
 				message: '<div id="bootbox-media-options-content" class="heading_font"></div>',
 				title: 'Media formatting options',
@@ -67,6 +68,10 @@
 				$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
 			}
 			$form.append($option);
+
+			if(typeof opts.element !== 'undefined' && opts.element != null && opts.element.data(option_name) !== null){
+					$option.find('select').first().val(opts.element.data(option_name));
+			}
 		}
 	    $this.append('<p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default" value="Continue" /></p>');
 	    $this.find('input:first').click(function() {
@@ -78,11 +83,12 @@
 				data_fields[option_name] = $this.find('select[name="'+option_name+'"] option:selected"').val();
 			}
 			if ($form.closest('.media_options_bootbox').length) {
-				$form.closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+				$form.closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
 			} else {
 				$this.remove();
 			}
-				opts.callback(data_fields);
+			data_fields.node = opts.node
+			opts.callback(data_fields);
 		});
 	};
     $.fn.content_selector = function(options) {  // Content selector box
@@ -147,7 +153,7 @@
 			for (var j = 0; j < opts.queue.length; j++) {
 				if (opts.queue[j].uri == node.uri) return true;
 			}
-			return false;   		
+			return false;
     	};
     	// Create an API call
     	var url = function() {
@@ -159,7 +165,7 @@
     			type = 'media';
     		} else if (opts.type) {
     			type = opts.type;
-    		} 
+    		}
     		opts.type = type;
     		get_vars.rec = (opts.rec>0) ? opts.rec : 0;
     		if (opts.sq!=null) get_vars.sq = opts.sq;
@@ -207,17 +213,47 @@
 	    		var foot = parseInt( foot_el.height() );
 	    	}
 	    	var window_height = parseInt($(window).height());
-	    	var val = window_height - head - foot - (margin*2); 
+	    	var val = window_height - head - foot - (margin*2);
     		$this.find('.content').height(val);
     	};
     	// Initialize the interface
     	var init = function() {
+
+				//If we already have an element, don't open the modal
+				//Instead, grab the current node and pass it to the callback instead
+				if(typeof opts.element !== 'undefined' && opts.element != null){
+					var parent = null;
+					//Get the slug of the currently selected node
+					if(opts.element.getAttribute('href').indexOf('#')>=0){
+						//with annotation, get the slug in the hash of the url
+						var temp_anchor = document.createElement('a');
+						temp_anchor.href = opts.element.getAttribute('href');
+						currentSlug = temp_anchor.hash.replace('#','');
+						parent = {slug: opts.element.getAttribute('resource'), url: opts.element.getAttribute('href').replace('#'+currentSlug,'')};
+						$(temp_anchor).remove();
+					}else{
+						//no annotation - use the resource value instead
+						currentSlug = opts.element.getAttribute('resource');
+					}
+
+					//Now that we have the slug, load the page via the api, then run the callback
+					(function(slug,parent,callback){
+						scalarapi.loadPage( slug, true, function(){
+								var node = scalarapi.getNode(slug);
+								node.parent = parent;
+								callback(node);
+						}, null, 1, false, null, 0, 1 );
+					})(currentSlug,parent,opts.callback);
+
+					return;
+				}
+
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
     		$this.addClass('content_selector');
     		$this.addClass( ((bootstrap_enabled)?'bootstrap':'no-bootstrap') );
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		// Create the modal
-    		if (bootstrap_enabled) {  
+    		if (bootstrap_enabled) {
     			//$(document).scrollTop(0);  // iOS
 				var box = bootbox.dialog({
 					message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
@@ -228,7 +264,7 @@
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
 				$this.appendTo($('#bootbox-content-selector-content'));
 				var $content_selector_bootbox = $('.content_selector_bootbox');
-				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px'); 		
+				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
 				var $options = $content_selector_bootbox.find('.options:first');
 				$('.bootbox-close-button').empty();
 				box.on("shown.bs.modal", function() {
@@ -242,7 +278,7 @@
 				});
     		} else {
     			$('body').append($this);
-    			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);   			
+    			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);
     		}
     		// Default content
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
@@ -258,7 +294,7 @@
     			modal_height();  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
     		}
     		// Behaviors
-    		$footer.hide();  // Default 
+    		$footer.hide();  // Default
     		$footer.find('a:first').click(function() {  // On-the-fly
     			$footer.hide();
     			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
@@ -272,11 +308,11 @@
     			}
     			var $form = $onthefly.find('form');
     			var id = $('input[name="id"]').val();  // Assuming this exists; technically not needed for session auth
-    			var book_urn = $('input[name="urn:scalar:book"]').val(); 
+    			var book_urn = $('input[name="urn:scalar:book"]').val();
     			if ('undefined'==typeof(book_urn) && $('link#book_id').length) book_urn = "urn:scalar:book:"+$('link#book_id').attr('href');
     			$form.append('<input type="hidden" name="action" value="add" />');
     			$form.append('<input type="hidden" name="native" value="1" />');
-    			$form.append('<input type="hidden" name="scalar:urn" value="" />'); 
+    			$form.append('<input type="hidden" name="scalar:urn" value="" />');
     			$form.append('<input type="hidden" name="id" value="'+id+'" />');
     			$form.append('<input type="hidden" name="api_key" value="" />');
     			$form.append('<input type="hidden" name="scalar:child_urn" value="'+book_urn+'" />');
@@ -296,7 +332,7 @@
         				$options.show();
         			}
     				$footer.show();
-    			}; 			
+    			};
     			if ('undefined'==typeof(book_urn)) {
     				alert('Could not determine book URN and therefore can not create pages on-the-fly');
     				onthefly_reset();
@@ -322,7 +358,7 @@
     					var uri = version_uri.substr(0, version_uri.lastIndexOf('.'));
     					var version = version[version_uri];
     					if (version_uri.substr(version_uri.length-1,1)=='/') version_uri = version_uri.substr(0, version_uri.length-1);
-    					if (version_slug.substr(version_slug.length-1,1)=='/') version_slug = version_slug.substr(0, version_slug.length-1); 					
+    					if (version_slug.substr(version_slug.length-1,1)=='/') version_slug = version_slug.substr(0, version_slug.length-1);
     					var node = {
     						content:{},slug:slug,targets:[],uri:uri,
     						version:version,version_slug:version_slug,version_uri:version_uri
@@ -330,7 +366,7 @@
     					if (opts.multiple) node = [node];
     					if ('undefined'!=typeof(window['send_form_hide_loading'])) send_form_hide_loading();
     					if ($form.closest('.content_selector_bootbox').length) {
-    						$form.closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+    						$form.closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
     					} else {
     						$form.closest('.content_selector').remove();
     					}
@@ -341,7 +377,7 @@
     				$buttons.find('.onthefly_loading').show();
     				send_form($form, {}, success);
     			});
-    		});  // /On-the-fly    		
+    		});  // /On-the-fly
     		if (opts.onthefly) {  // Display on-the-fly
     			$footer.show();
     		} else {
@@ -357,7 +393,7 @@
     			$options.submit(function() {
     				isearch($(this).find('input[type="text"]').val());
     				return false;
-    			});    			
+    			});
     		} else {  // User can select a type
     			$options.addClass('changeable');
     			$options.find('input[name="type"]').change(function() {
@@ -391,7 +427,7 @@
         			reset();
         			$(this).closest('.content_selector').remove();
         			$('.tt').remove();
-        		});    			
+        		});
     			$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
     			$footer.find('a:last').click(function() {
     				if (!opts.queue.length) {
@@ -399,7 +435,7 @@
     					return;
     				}
     				if ($(this).closest('.content_selector_bootbox').length) {
-    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );  
+    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
     				} else {
     					$(this).closest('.content_selector').remove();
     				}
@@ -417,12 +453,29 @@
         		if (!opts.data.length) {
         			$this.find('.content').html('<div class="loading" style="color:inherit;">'+opts.no_data_msg+'</div>');
         			return;
-        		}  		
+        		}
     		}
     		$this.find('.content, .content *').off();  // Remove any previously created events
     		var $tbody = $this.find('tbody:first');
+				//Check to see if we have an element, and if so, get the currently selected slug
+				var currentSlug = null;
+				if(typeof opts.element !== 'undefined' && opts.element != null){
+					if(opts.element.getAttribute('href').indexOf('#')>=0){
+						//with annotation
+						var temp_anchor = document.createElement('a');
+						temp_anchor.href = opts.element.getAttribute('href');
+						currentSlug = temp_anchor.hash.replace('#','');
+						$(temp_anchor).remove();
+					}else{
+						//no annotation
+						currentSlug = opts.element.getAttribute('resource');
+					}
+				}
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
+					if(opts.data[j].slug == currentSlug){
+						$tr.addClass('bg-info');
+					}
     			$tr.data('node', opts.data[j]);
     			var title = opts.data[j].version['http://purl.org/dc/terms/title'][0].value;
     			var desc = ('undefined'!=typeof(opts.data[j].version['http://purl.org/dc/terms/description'])) ? opts.data[j].version['http://purl.org/dc/terms/description'][0].value : null;
@@ -452,7 +505,7 @@
     		modal_height();
     		if (opts.pagination) {  // Endless scroll pagination
     			$tbody.find('.loadmore').remove();
-    			if (!opts.data.length) return; 
+    			if (!opts.data.length) return;
     			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
     			$loadmore.appendTo($tbody);
 	    		$this.find('.content').scroll(function() {
@@ -528,7 +581,7 @@
     			$div.appendTo('body');
     			$this.parent().mouseout(function() {
     				$div.remove();
-    			});   			
+    			});
     		});
     	};
     	var go = function() {
@@ -602,9 +655,9 @@
 		    			}
 	    			}
 	    		}
-	    		opts.data.sort(function(a,b){ 
-	    		    var x = a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; 
-	    		    return x; 
+	    		opts.data.sort(function(a,b){
+	    		    var x = a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1;
+	    		    return x;
 	    		});
 	    		propagate();
 	    	});
