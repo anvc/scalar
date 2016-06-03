@@ -37,6 +37,7 @@
 	position: fixed;
 	background-color: #cccccc;
 	background-position: center;
+	background-repeat: no-repeat;
 	background-size: contain;
 }
 #scalarLinkTooltip:after{
