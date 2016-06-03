@@ -87,7 +87,8 @@
 			} else {
 				$this.remove();
 			}
-				opts.callback(data_fields);
+			data_fields.node = opts.node
+			opts.callback(data_fields);
 		});
 	};
     $.fn.content_selector = function(options) {  // Content selector box
@@ -221,13 +222,14 @@
 				//If we already have an element, don't open the modal
 				//Instead, grab the current node and pass it to the callback instead
 				if(typeof opts.element !== 'undefined' && opts.element != null){
-
+					var parent = null;
 					//Get the slug of the currently selected node
 					if(opts.element.getAttribute('href').indexOf('#')>=0){
 						//with annotation, get the slug in the hash of the url
 						var temp_anchor = document.createElement('a');
 						temp_anchor.href = opts.element.getAttribute('href');
 						currentSlug = temp_anchor.hash.replace('#','');
+						parent = {slug: opts.element.getAttribute('resource'), url: opts.element.getAttribute('href').replace('#'+currentSlug,'')};
 						$(temp_anchor).remove();
 					}else{
 						//no annotation - use the resource value instead
@@ -235,11 +237,13 @@
 					}
 
 					//Now that we have the slug, load the page via the api, then run the callback
-					(function(slug,callback){
+					(function(slug,parent,callback){
 						scalarapi.loadPage( slug, true, function(){
-								callback(scalarapi.getNode(slug));
+								var node = scalarapi.getNode(slug);
+								node.parent = parent;
+								callback(node);
 						}, null, 1, false, null, 0, 1 );
-					})(currentSlug,opts.callback);
+					})(currentSlug,parent,opts.callback);
 
 					return;
 				}

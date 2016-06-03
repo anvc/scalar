@@ -80,8 +80,48 @@ CKEDITOR.plugins.add( 'scalar', {
     icons: 'scalar1,scalar2,scalar3,scalar4,scalar5,scalar6,scalar7',
     requires: 'dialog',
     init: function( editor ) {
+			cke_loadedScalarInline = [];
+			editor.on('instanceReady',function(e){
+				var editor = e.editor;
+				var ckeFrame = $('.cke_contents>iframe').contents();
+
+				$('body').append('<div id="scalarLinkTooltip"></div>')
+
+				ckeFrame.find('body.cke_editable a[resource]').each(function(){
+						var resource = $(this).attr('resource');
+
+						var node = scalarapi.getNode(resource);
+
+						if(cke_loadedScalarInline.indexOf(resource)==-1){
+							cke_loadedScalarInline.push(resource);
+							if(node.thumbnail != null){
+								var cssElement = '<style>'+
+																		'a[resource="'+resource+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+node.thumbnail+');}'+
+																 '</style>';
+								$('.cke_contents>iframe').contents().find('head').append(cssElement);
+							}
+						}
+
+						if(!$(this).hasClass('inline')){
+							$(this).hover($.proxy(function(node,slug){
+								var position = $(this).position();
+								var framePosition = $('.cke_contents>iframe').position();
+								var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
+								var pageScroll = $(window).scrollTop();
+								var thumbnail = node.thumbnail;
+								if(thumbnail == null){
+									thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+								}
+								$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)+10, top: framePosition.top+position.top-frameScroll-pageScroll+30, 'background-image':'url('+thumbnail+')'}).show();
+							},$(this),node,slug),function(){
+								$('#scalarLinkTooltip').hide();
+							});
+						}
+				});
+			});
 	    var pluginDirectory = this.path;
-	    editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );
+
+	    	editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );
         editor.addCommand( 'insertScalar1', {
             exec: function( editor ) {
 			    		var sel = editor.getSelection();
@@ -105,7 +145,7 @@ CKEDITOR.plugins.add( 'scalar', {
 								}
 							}
 		        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:function(node){
-		        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaLink'],element:element,callback:function(options) {
+		        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaLink'],node:node,element:element,callback:function(options) {
 												if(!isEdit){
 													var sel = editor.getSelection();
 													element = editor.document.createElement('a');
@@ -113,7 +153,16 @@ CKEDITOR.plugins.add( 'scalar', {
 												}else{
 													element = element.getAscendant( 'a', true );
 												}
-												var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+
+												var node = options.node;
+												delete(options.node);
+
+												if(typeof node.version !== 'undefined'){
+													var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+												}else{
+													var href = node.current.url;
+												}
+
 			            			element.setAttribute('href', href);
 
 												//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
@@ -130,6 +179,28 @@ CKEDITOR.plugins.add( 'scalar', {
 												}else{
 													editor.updateElement(element);
 												}
+
+												var ckeFrame = $('.cke_contents>iframe').contents();
+												var slug = node.slug;
+
+												(function(element,thisSlug){
+													scalarapi.loadPage( thisSlug, false, function(){
+														var node = scalarapi.getNode(thisSlug);
+														$(element).off('mouseout mouseover').hover(function(){
+															var position = $(this).position();
+															var framePosition = $('.cke_contents>iframe').position();
+															var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
+															var pageScroll = $(window).scrollTop();
+															var thumbnail = node.thumbnail;
+															if(thumbnail == null){
+																thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+															}
+															$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)+10, top: framePosition.top+position.top-frameScroll-pageScroll+30, 'background-image':'url('+thumbnail+')'}).show();
+														},function(){
+															$('#scalarLinkTooltip').hide();
+														});
+													});
+												})(element.$,slug);
 		        			}});
 		        		}});
             }
@@ -151,15 +222,25 @@ CKEDITOR.plugins.add( 'scalar', {
 							element = null;
 						}
         		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:function(node){
-        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaelement'],element:element,callback:function(options) {
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaelement'],node:node,element:element,callback:function(options) {
 									if(!isEdit){
 				        		element = editor.document.createElement('a');
 									}else{
 										element = element.getAscendant( 'a', true );
 									}
+
+									var node = options.node;
+									delete(options.node);
+
 	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
 	            		element.setAttribute('class', 'inline');
-									var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+
+									if(typeof node.version !== 'undefined'){
+										var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+									}else{
+										var href = node.current.url;
+									}
+
 		        			element.setAttribute('href', href);
 									//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
 									if(isEdit){
@@ -173,6 +254,25 @@ CKEDITOR.plugins.add( 'scalar', {
 		        				editor.insertElement(element);
 									}else{
 										editor.updateElement(element);
+									}
+
+
+									if(cke_loadedScalarInline.indexOf(node.slug)==-1){
+										(function(thisSlug){
+											scalarapi.loadPage( thisSlug, false, function(){
+												var ckeFrame = $('.cke_contents>iframe').contents();
+												var node = scalarapi.getNode(thisSlug);
+												var slug = node.slug;
+												cke_loadedScalarInline.push(slug);
+																									console.log(slug);
+												if(node.thumbnail != null){
+													var cssElement = '<style>'+
+																							'a[resource="'+slug+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+node.thumbnail+');}'+
+																					 '</style>';
+													$('.cke_contents>iframe').contents().find('head').append(cssElement);
+												}
+											});
+										})(node.slug)
 									}
         			}});
         		}});
@@ -201,7 +301,7 @@ CKEDITOR.plugins.add( 'scalar', {
 								}
 							}
 	        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',element:element,callback:function(node){
-	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],element:element,callback:function(options) {
+	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],node:node,element:element,callback:function(options) {
 									if(!isEdit){
 										var sel = editor.getSelection();
 												element = editor.document.createElement('a');
@@ -209,12 +309,21 @@ CKEDITOR.plugins.add( 'scalar', {
 									}else{
 										element = element.getAscendant( 'a', true );
 									}
-	            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
-	            		url += '#'+node.slug;
-	            		var resource = node.targets[0].slug;
-		        			element.setAttribute('href', url);
+
+									var node = options.node;
+									delete(options.node);
+
+									if(typeof node.version !== 'undefined'){
+										var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
+										var resource = node.targets[0].slug;
+									}else{
+										var href = node.parent.url+'#'+node.slug;
+										var resource = node.parent.slug;
+									}
+
+		        			element.setAttribute('href', href);
 									if(isEdit){
-										element.data('cke-saved-href',url);
+										element.data('cke-saved-href',href);
 									}
 		        			element.setAttribute('resource', resource);
             			for (var key in options) {
@@ -225,6 +334,26 @@ CKEDITOR.plugins.add( 'scalar', {
 									}else{
 										editor.updateElement(element);
 									}
+									var ckeFrame = $('.cke_contents>iframe').contents();
+
+									(function(element,thisSlug){
+										scalarapi.loadPage( thisSlug, false, function(){
+											var node = scalarapi.getNode(thisSlug);
+											$(element).off('mouseout mouseover').hover(function(){
+												var position = $(this).position();
+												var framePosition = $('.cke_contents>iframe').position();
+												var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
+												var pageScroll = $(window).scrollTop();
+												var thumbnail = node.thumbnail;
+												if(thumbnail == null){
+													thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+												}
+												$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)+10, top: framePosition.top+position.top-frameScroll-pageScroll+30, 'background-image':'url('+thumbnail+')'}).show();
+											},function(){
+												$('#scalarLinkTooltip').hide();
+											});
+										});
+									})(element.$,resource);
 	        			}});
 	        		}});
             }
@@ -245,21 +374,31 @@ CKEDITOR.plugins.add( 'scalar', {
 							if(!isEdit){
 								element = null;
 							}
+							var node = null;
 	        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',element:element,callback:function(node){
-	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineAnnotation'],element:element,callback:function(options) {
+	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineAnnotation'],node:node,element:element,callback:function(options) {
 										if(!isEdit){
 											element = editor.document.createElement('a');
 										}else{
 											element = element.getAscendant( 'a', true );
 										}
-		            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
-		            		url += '#'+node.slug;
-		            		var resource = node.targets[0].slug;
+
+										var node = options.node;
+										delete(options.node);
+
+										if(typeof node.version !== 'undefined'){
+											var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
+											var resource = node.targets[0].slug;
+										}else{
+											var href = node.parent.url+'#'+node.slug;
+											var resource = node.parent.slug;
+										}
+
 		            		element.setAttribute('name','scalar-inline-annotation');  // Required to let empty <a> through
 		            		element.setAttribute('class', 'inline');
-			        			element.setAttribute('href', url);
+			        			element.setAttribute('href', href);
 										if(isEdit){
-											element.data('cke-saved-href',url);
+											element.data('cke-saved-href',href);
 										}
 			        			element.setAttribute('resource', resource);
 	            			for (var key in options) {
@@ -269,6 +408,23 @@ CKEDITOR.plugins.add( 'scalar', {
 			        				editor.insertElement(element);
 										}else{
 											editor.updateElement(element);
+										}
+
+										if(cke_loadedScalarInline.indexOf(node.slug)==-1){
+											(function(thisSlug){
+												scalarapi.loadPage( thisSlug, false, function(){
+													var ckeFrame = $('.cke_contents>iframe').contents();
+													var node = scalarapi.getNode(thisSlug);
+													var slug = node.slug;
+													cke_loadedScalarInline.push(slug);
+													if(node.thumbnail != null){
+														var cssElement = '<style>'+
+																								'a[resource="'+slug+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+node.thumbnail+');}'+
+																						 '</style>';
+														$('.cke_contents>iframe').contents().find('head').append(cssElement);
+													}
+												});
+											})(resource)
 										}
 	        			}});
 	        		}});
@@ -309,7 +465,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	        			var sel = editor.getSelection();
 	            		element = editor.document.createElement('a');
 	            		element.setHtml(sel.getSelectedText());
-	        			element.setAttribute('href', node.slug);
+	        				element.setAttribute('href', node.slug);
             			for (var key in options) {
             				element.setAttribute('data-'+key, options[key]);
             			}
