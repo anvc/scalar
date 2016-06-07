@@ -4924,8 +4924,20 @@ function YouTubeGetID(url){
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
 
+			var params = JSON.parse(unescape(this.model.node.current.auxProperties["dcterms:spatial"][0]));
+
 			this.camera = new THREE.PerspectiveCamera(60, this.mediaObject.width() / this.mediaObject.height(), 1, 1000);
 			this.camera.position.z = 10;
+
+			/*if (params.camera != null) {
+				if (params.camera.fov != null) this.camera.setFocalLength(params.camera.fov);
+				if (params.camera.position != null) {
+					this.camera.position.fromArray(params.camera.position);
+				}
+				if (params.camera.rotation != null) {
+					this.camera.rotation.fromArray(this.degreesArrayToRadians(params.camera.rotation));
+				}
+			}*/
 
 			this.controls = new THREE.TrackballControls(this.camera, this.mediaObject[0]);
 			this.controls.addEventListener('change', function() {
@@ -4939,6 +4951,17 @@ function YouTubeGetID(url){
 				var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading});
 				var mesh = new THREE.Mesh(geometry, material);
 				me.scene.add(mesh);
+				if (params.model != null) {
+					if (params.model.position != null) {
+						mesh.position.fromArray(params.model.position);
+					}
+					if (params.model.rotation != null) {
+						mesh.rotation.fromArray(me.degreesArrayToRadians(params.model.rotation));
+					}
+					if (params.model.scale != null) {
+						mesh.scale.fromArray(params.model.scale);
+					}
+				}
 				me.renderer.render(me.scene, me.camera);
 			});
 
@@ -4960,7 +4983,7 @@ function YouTubeGetID(url){
 			this.mediaObject.append(this.renderer.domElement);
 
 			this.animate = function animate() {
-				requestAnimationFrame( me.animate );
+				requestAnimationFrame(me.animate);
 				me.controls.update();
 			}
 
@@ -4986,6 +5009,14 @@ function YouTubeGetID(url){
 		jQuery.ThreejsObjectView.prototype.resize = function(width, height) {
 			$('#threejs'+me.model.id).width(Math.round(width));
 			$('#threejs'+me.model.id).height(Math.round(height));
+		}
+
+		jQuery.ThreejsObjectView.prototype.degreesArrayToRadians = function(degArray) { 
+			return [this.degreesToRadians(degArray[0]),this.degreesToRadians(degArray[1]),this.degreesToRadians(degArray[2])]
+		}
+
+		jQuery.ThreejsObjectView.prototype.degreesToRadians = function(degrees) { 
+			return (degrees / 360.0) * (Math.PI * 2);
 		}
 
 	}
