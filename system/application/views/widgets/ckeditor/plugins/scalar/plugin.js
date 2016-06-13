@@ -98,7 +98,6 @@ CKEDITOR.plugins.add( 'scalar', {
 				$(element).off('mouseout mouseover').hover(function(){
 					var position = $(this).position();
 					var framePosition = $('.cke_contents>iframe').offset();
-					console.log(position);
 					var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
 					var pageScroll = $(window).scrollTop();
 					var thumbnail = node.thumbnail;
@@ -111,8 +110,15 @@ CKEDITOR.plugins.add( 'scalar', {
 				});
 			};
 			cke_loadedScalarInline = [];
-			editor.on('instanceReady',function(e){
+
+			editor.on('mode',function(e){
 				var editor = e.editor;
+
+				if(editor.mode == 'source'){
+					cke_loadedScalarInline = [];
+					return;
+				}
+
 				var ckeFrame = $('.cke_contents>iframe').contents();
 
 				$('body').append('<div id="scalarLinkTooltip"></div>')
