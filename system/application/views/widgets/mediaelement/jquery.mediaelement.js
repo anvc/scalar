@@ -4924,7 +4924,10 @@ function YouTubeGetID(url){
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
 
-			var params = JSON.parse(unescape(this.model.node.current.auxProperties["dcterms:spatial"][0]));
+			var params = {};
+			if (this.model.node.current.auxProperties["dcterms:spatial"] != null) {
+				params = JSON.parse(unescape(this.model.node.current.auxProperties["dcterms:spatial"][0]));
+			}
 
 			this.camera = new THREE.PerspectiveCamera(60, this.mediaObject.width() / this.mediaObject.height(), 1, 1000);
 			this.camera.position.z = 10;
