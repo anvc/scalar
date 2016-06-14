@@ -3,26 +3,26 @@
 .cke_dialog_ui_html {white-space: normal !important;}
 .cke_dialog_ui_checkbox label {cursor:pointer !important;}
 
-.cke_button__scalar1, 
+.cke_button__scalar1,
 .cke_button__scalar2,
-.cke_button__scalar3, 
+.cke_button__scalar3,
 .cke_button__scalar4,
-.cke_button__scalar5, 
+.cke_button__scalar5,
 .cke_button__scalar6 {
 	background-color:#2894b8 !important;
 	margin-left:1px !important;
 	margin-right:1px !important;
 }
 .cke_button__scalar7 {
-	background-color:#9b9b9b !important;	
+	background-color:#9b9b9b !important;
 	margin-left:1px !important;
-	margin-right:1px !important;	
+	margin-right:1px !important;
 }
-.cke_button__scalar1:hover, 
+.cke_button__scalar1:hover,
 .cke_button__scalar2:hover,
-.cke_button__scalar3:hover, 
+.cke_button__scalar3:hover,
 .cke_button__scalar4:hover,
-.cke_button__scalar5:hover, 
+.cke_button__scalar5:hover,
 .cke_button__scalar6:hover {
 	background-color:#1d6e88 !important;
 }
@@ -31,14 +31,18 @@
 }
 
 #scalarLinkTooltip{
-	width: 100px;
-	height: 100px;
 	border: 2px solid #bbbbbb;
 	position: fixed;
 	background-color: #cccccc;
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: contain;
+}
+#scalarLinkTooltip .thumbnail{
+	margin: 0px;
+}
+#scalarLinkTooltip .thumbnail img{
+	max-width: 200px;
 }
 #scalarLinkTooltip:after{
 	content: '';
@@ -50,4 +54,25 @@
 	border-width: 0 10px 10px 10px;
 	border-color: transparent transparent #bbbbbb transparent;
 	left: 36px;
+}
+
+
+.gearIcon{
+	width: 26px;
+	height: 25px;
+	background-image: url(plugins/scalar/styles/gearIcon.png); background-position: center center; background-repeat: no-repeat;
+	opacity: .5;
+	cursor: pointer;
+}
+.gearIcon:hover{
+	opacity: .75;
+}
+
+#scalarLinkTooltip .gearIcon{
+	position: absolute;
+  right: 10px;
+  top: 10px;
+}
+#scalarInlineGearIcon{
+	position: absolute;
 }

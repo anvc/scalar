@@ -80,7 +80,172 @@ CKEDITOR.plugins.add( 'scalar', {
     icons: 'scalar1,scalar2,scalar3,scalar4,scalar5,scalar6,scalar7',
     requires: 'dialog',
     init: function( editor ) {
-			addCKInlineMediaPreview = function(slug){
+			//Callback functions for content options selection
+				annotationLinkCallback = function(node,element){
+					var isEdit = typeof element.$.href != 'undefined' && element.$.href != '';
+					CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],node:node,element:element,callback:function(options) {
+						var node = options.node;
+						delete(options.node);
+
+						if(typeof node.version !== 'undefined'){
+							var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
+							var resource = node.targets[0].slug;
+						}else{
+							var href = node.parent.url+'#'+node.slug;
+							var resource = node.parent.slug;
+						}
+
+						element.setAttribute('href', href);
+						if(isEdit){
+							element.data('cke-saved-href',href);
+						}
+						element.setAttribute('resource', resource);
+						for (var key in options) {
+							element.setAttribute('data-'+key, options[key]);
+						}
+						if(!isEdit){
+							editor.insertElement(element);
+						}else{
+							editor.updateElement(element);
+						}
+
+						(function(thisSlug,e){
+							if(scalarapi.loadPage( thisSlug, false, function(){
+								addCKLinkedMediaPreview(thisSlug,e);
+							}) == "loaded"){
+								addCKLinkedMediaPreview(thisSlug,e);
+							}
+						})(node.slug,element);
+
+					}});
+				};
+				inlineAnnotationCallback = function(node,element){
+					var isEdit = typeof element.$.href != 'undefined' && element.$.href != '';
+					CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineAnnotation'],node:node,element:element,callback:function(options) {
+							var node = options.node;
+							delete(options.node);
+
+							if(typeof node.version !== 'undefined'){
+								var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
+								var resource = node.targets[0].slug;
+							}else{
+								var href = node.parent.url+'#'+node.slug;
+								var resource = node.parent.slug;
+							}
+
+							element.setAttribute('name','scalar-inline-annotation');  // Required to let empty <a> through
+							element.setAttribute('class', 'inline');
+							element.setAttribute('href', href);
+							if(isEdit){
+								element.data('cke-saved-href',href);
+							}
+							element.setAttribute('resource', resource);
+							for (var key in options) {
+								element.setAttribute('data-'+key, options[key]);
+							}
+							if(!isEdit){
+								editor.insertElement(element);
+							}else{
+								editor.updateElement(element);
+							}
+
+							if(cke_loadedScalarInline.indexOf(resource)==-1){
+								(function(thisSlug){
+									if(scalarapi.loadPage( thisSlug, false, function(){
+											addCKInlineMediaPreview(thisSlug,element);
+									}) == "loaded"){
+
+											addCKInlineMediaPreview(thisSlug,element);
+									}
+								})(node.slug,element);
+							}
+					}});
+				};
+				mediaLinkCallback = function(node,element){
+					var isEdit = typeof element.$.href != 'undefined' && element.$.href != '';
+					CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaLink'],node:node,element:element,callback:function(options) {
+								var node = options.node;
+								delete(options.node);
+
+								if(typeof node.version !== 'undefined'){
+									var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+								}else{
+									var href = node.current.url;
+								}
+
+								element.setAttribute('href', href);
+
+								//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
+								if(isEdit){
+									element.data('cke-saved-href',href);
+								}
+
+								element.setAttribute('resource', node.slug);
+								for (var key in options) {
+									element.setAttribute('data-'+key, options[key]);
+								}
+								if(!isEdit){
+									editor.insertElement(element);
+								}else{
+									editor.updateElement(element);
+								}
+
+								var ckeFrame = $('.cke_contents>iframe').contents();
+								var slug = node.slug;
+
+								(function(thisSlug,e){
+									if(scalarapi.loadPage( thisSlug, false, function(){
+										addCKLinkedMediaPreview(thisSlug,e);
+									}) == "loaded"){
+										addCKLinkedMediaPreview(thisSlug,e);
+									}
+								})(slug,element);
+					}});
+				};
+				inlineMediaCallback = function(node,element){
+					var isEdit = typeof element.$.href != 'undefined' && element.$.href != '';
+					CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaelement'],node:node,element:element,callback:function(options) {
+							var node = options.node;
+							delete(options.node);
+
+							element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
+							element.setAttribute('class', 'inline');
+
+							if(typeof node.version !== 'undefined'){
+								var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+							}else{
+								var href = node.current.url;
+							}
+
+							element.setAttribute('href', href);
+							//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
+							if(isEdit){
+								element.data('cke-saved-href',href);
+							}
+							element.setAttribute('resource', node.slug);
+							for (var key in options) {
+								element.setAttribute('data-'+key, options[key]);
+							}
+							if(!isEdit){
+								editor.insertElement(element);
+							}else{
+								editor.updateElement(element);
+							}
+
+
+							if(cke_loadedScalarInline.indexOf(node.slug)==-1){
+								(function(thisSlug,element){
+									if(scalarapi.loadPage( thisSlug, false, function(){
+											addCKInlineMediaPreview(thisSlug,element);
+									}) == "loaded"){
+											addCKInlineMediaPreview(thisSlug,element);
+									}
+								})(node.slug,element)
+							}
+					}});
+				};
+			addCKInlineMediaPreview = function(slug,element){
+				var $element = element.$;
 				var ckeFrame = $('.cke_contents>iframe').contents();
 				var node = scalarapi.getNode(slug);
 				var slug = slug;
@@ -91,11 +256,34 @@ CKEDITOR.plugins.add( 'scalar', {
 													 '</style>';
 					$('.cke_contents>iframe').contents().find('head').append(cssElement);
 				}
+				$($element).data({
+					element: element,
+					type: element.getAttribute('href').indexOf('#')<0?'media':'annotation'
+				}).off('mouseout mouseover').hover(function(){
+						var position = $(this).position();
+						var framePosition = $('.cke_contents>iframe').offset();
+						var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
+						var pageScroll = $(window).scrollTop();
+						$('#scalarInlineGearIcon').data({
+							element: $(this).data('element'),
+							type: $(this).data('type')
+						}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-35, top: framePosition.top+position.top-frameScroll-pageScroll+10}).show().off('click').click(function(){
+							$('#scalarInlineGearIcon').hide();
+							var element = $(this).data('element');
+							isEdit = true;
+							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+						});
+
+						window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
+				},function(){
+					$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon').hide(); },200));
+				});
 			};
 			addCKLinkedMediaPreview = function(slug,element){
+				$element = element.$;
 				var node = scalarapi.getNode(slug);
 				var slug = slug;
-				$(element).off('mouseout mouseover').hover(function(){
+				$($element).off('mouseout mouseover').hover(function(){
 					var position = $(this).position();
 					var framePosition = $('.cke_contents>iframe').offset();
 					var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
@@ -104,9 +292,21 @@ CKEDITOR.plugins.add( 'scalar', {
 					if(thumbnail == null){
 						thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 					}
-					$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: framePosition.top+position.top-frameScroll-pageScroll+30, 'background-image':'url('+thumbnail+')'}).show();
+					var data = {
+						element : element,
+						type : element.getAttribute('href').indexOf('#')<0?'media':'annotation'
+					};
+					$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: framePosition.top+position.top-frameScroll-pageScroll+30}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
+					$('#scalarLinkTooltip .gearIcon').off('click').click(function(){
+						var $tooltip = $('#scalarLinkTooltip');
+						$tooltip.hide();
+						var element = $tooltip.data('element');
+						isEdit = true;
+						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+					});
+					window.clearTimeout($('#scalarLinkTooltip').data('timeout'));
 				},function(){
-					$('#scalarLinkTooltip').hide();
+					$('#scalarLinkTooltip').data('timeout',window.setTimeout(function(){	$('#scalarLinkTooltip').hide(); },200));
 				});
 			};
 			cke_loadedScalarInline = [];
@@ -120,35 +320,79 @@ CKEDITOR.plugins.add( 'scalar', {
 				}
 
 				var ckeFrame = $('.cke_contents>iframe').contents();
-
-				$('body').append('<div id="scalarLinkTooltip"></div>')
-
-				ckeFrame.find('body.cke_editable a[resource]').each(function(){
-						var href = $(this).attr('href');
-
-						var currentSlug = $(this).attr('resource');
-						if(href.indexOf('#')>=0){
-							currentSlug = $(this)[0].hash.replace('#','');
-						}
-
-						if(!$(this).hasClass('inline')){
-							(function(e,thisSlug){
-								if(scalarapi.loadPage( thisSlug, false, function(){
-									addCKLinkedMediaPreview(thisSlug,e);
-								}) == "loaded"){
-									addCKLinkedMediaPreview(thisSlug,e);
-								}
-							})(this,currentSlug);
-						}else if(cke_loadedScalarInline.indexOf(currentSlug)==-1){
-							(function(thisSlug){
-								if(scalarapi.loadPage( thisSlug, false, function(){
-										addCKInlineMediaPreview(thisSlug);
-								}) == "loaded"){
-										addCKInlineMediaPreview(thisSlug);
-								}
-							})(currentSlug);
-						}
+				var tooltip = $('<div id="scalarLinkTooltip"><div class="gearIcon"></div><div class="thumbnail"></div></div>');
+				tooltip.hover(function(){
+					window.clearTimeout($('#scalarLinkTooltip').data('timeout'));
+				},function(){
+					$('#scalarLinkTooltip').data('timeout',window.setTimeout(function(){	$('#scalarLinkTooltip').hide(); },200));
 				});
+				tooltip.appendTo('body');
+				var inlineGearIcon = $('<div id="scalarInlineGearIcon" class="gearIcon"></div>');
+				inlineGearIcon.hover(function(){
+					window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
+				},function(){
+					$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon').hide(); },200));
+				});
+				inlineGearIcon.appendTo('body');
+				var anchors = editor.document.find('a[resource]');
+				var num_anchors = anchors.count();
+				for(var i = 0; i < num_anchors; i++){
+						var element = anchors.getItem(i);
+						var href = element.getAttribute('href');
+
+						var currentSlug = element.getAttribute('resource');
+						var isAnnotation = false;
+						if(href.indexOf('#')>=0){
+							isAnnotation = true;
+							currentSlug = element.$.hash.replace('#','');
+						}
+
+						if(!element.hasClass('inline')){
+							if(!isAnnotation){
+								$(element.$).data({
+									element : element,
+									contentOptionsCallback : mediaLinkCallback
+								});
+								$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+							}else{
+								$(element.$).data({
+									element : element,
+									contentOptionsCallback : annotationLinkCallback
+								});
+
+								$(element.$).data('selectOptions',{type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',element:element,callback:$(element.$).data('contentOptionsCallback')});
+							}
+							(function(thisSlug, e){
+								if(scalarapi.loadPage( thisSlug, false, function(){
+									addCKLinkedMediaPreview(thisSlug,e);
+								}) == "loaded"){
+									addCKLinkedMediaPreview(thisSlug,e);
+								}
+							})(currentSlug,element);
+						}else if(cke_loadedScalarInline.indexOf(currentSlug)==-1){
+							if(!isAnnotation){
+								$(element.$).data({
+									element : element,
+									contentOptionsCallback : inlineMediaCallback
+								});
+								$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+							}else{
+								$(element.$).data({
+									element : element,
+									contentOptionsCallback : inlineAnnotationCallback
+								});
+
+								$(element.$).data('selectOptions',{type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',element:element,callback:$(element.$).data('contentOptionsCallback')});
+							}
+							(function(thisSlug,element){
+								if(scalarapi.loadPage( thisSlug, false, function(){
+										addCKInlineMediaPreview(thisSlug,element);
+								}) == "loaded"){
+										addCKInlineMediaPreview(thisSlug,element);
+								}
+							})(currentSlug,element);
+						}
+				};
 			});
 	    var pluginDirectory = this.path;
 
@@ -172,57 +416,17 @@ CKEDITOR.plugins.add( 'scalar', {
 									alert('Please select text to transform into a media link');
 				    			return;
 								}else{
-									element = null;
+									var sel = editor.getSelection();
+									element = editor.document.createElement('a');
+									element.setHtml(sel.getSelectedText());
+									$(element.$).data({
+										element : element,
+										contentOptionsCallback : mediaLinkCallback
+									});
+									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 								}
 							}
-		        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:function(node){
-		        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaLink'],node:node,element:element,callback:function(options) {
-												if(!isEdit){
-													var sel = editor.getSelection();
-													element = editor.document.createElement('a');
-													element.setHtml(sel.getSelectedText());
-												}else{
-													element = element.getAscendant( 'a', true );
-												}
-
-												var node = options.node;
-												delete(options.node);
-
-												if(typeof node.version !== 'undefined'){
-													var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
-												}else{
-													var href = node.current.url;
-												}
-
-			            			element.setAttribute('href', href);
-
-												//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
-												if(isEdit){
-													element.data('cke-saved-href',href);
-												}
-
-			            			element.setAttribute('resource', node.slug);
-			            			for (var key in options) {
-			            				element.setAttribute('data-'+key, options[key]);
-			            			}
-												if(!isEdit){
-			            				editor.insertElement(element);
-												}else{
-													editor.updateElement(element);
-												}
-
-												var ckeFrame = $('.cke_contents>iframe').contents();
-												var slug = node.slug;
-
-												(function(e,thisSlug){
-													if(scalarapi.loadPage( thisSlug, false, function(){
-														addCKLinkedMediaPreview(thisSlug,e);
-													}) == "loaded"){
-														addCKLinkedMediaPreview(thisSlug,e);
-													}
-												})(element.$,slug);
-		        			}});
-		        		}});
+							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
             }
         });
         editor.addCommand( 'insertScalar2', {
@@ -238,57 +442,18 @@ CKEDITOR.plugins.add( 'scalar', {
 								isEdit = true;
 							}
 						}
+
 						if(!isEdit){
-							element = null;
+							element = editor.document.createElement('a')
+							$(element.$).data({
+								element : element,
+								contentOptionsCallback : inlineMediaCallback
+							});
+							$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 						}
-        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:function(node){
-        			CKEDITOR._scalar.contentoptions({data:reference_options['insertMediaelement'],node:node,element:element,callback:function(options) {
-									if(!isEdit){
-				        		element = editor.document.createElement('a');
-									}else{
-										element = element.getAscendant( 'a', true );
-									}
 
-									var node = options.node;
-									delete(options.node);
-
-	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
-	            		element.setAttribute('class', 'inline');
-
-									if(typeof node.version !== 'undefined'){
-										var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
-									}else{
-										var href = node.current.url;
-									}
-
-		        			element.setAttribute('href', href);
-									//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
-									if(isEdit){
-										element.data('cke-saved-href',href);
-									}
-		        			element.setAttribute('resource', node.slug);
-            			for (var key in options) {
-            				element.setAttribute('data-'+key, options[key]);
-            			}
-									if(!isEdit){
-		        				editor.insertElement(element);
-									}else{
-										editor.updateElement(element);
-									}
-
-
-									if(cke_loadedScalarInline.indexOf(node.slug)==-1){
-										(function(thisSlug){
-											if(scalarapi.loadPage( thisSlug, false, function(){
-													addCKInlineMediaPreview(thisSlug);
-											}) == "loaded"){
-													addCKInlineMediaPreview(thisSlug);
-											}
-										})(node.slug)
-									}
-        			}});
-        		}});
-            }
+        		CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+					}
         });
         editor.addCommand( 'insertScalar3', {
             exec: function( editor ) {
@@ -309,54 +474,19 @@ CKEDITOR.plugins.add( 'scalar', {
 									alert('Please select text to transform into a media link');
 									return;
 								}else{
-									element = null;
+									var sel = editor.getSelection();
+											element = editor.document.createElement('a');
+											element.setHtml(sel.getSelectedText());
+									$(element.$).data({
+										element : element,
+										contentOptionsCallback : annotationLinkCallback
+									});
+
+									$(element.$).data('selectOptions',{type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',element:element,callback:$(element.$).data('contentOptionsCallback')});
 								}
 							}
-	        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',element:element,callback:function(node){
-	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],node:node,element:element,callback:function(options) {
-									if(!isEdit){
-										var sel = editor.getSelection();
-												element = editor.document.createElement('a');
-												element.setHtml(sel.getSelectedText());
-									}else{
-										element = element.getAscendant( 'a', true );
-									}
 
-									var node = options.node;
-									delete(options.node);
-
-									if(typeof node.version !== 'undefined'){
-										var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
-										var resource = node.targets[0].slug;
-									}else{
-										var href = node.parent.url+'#'+node.slug;
-										var resource = node.parent.slug;
-									}
-
-		        			element.setAttribute('href', href);
-									if(isEdit){
-										element.data('cke-saved-href',href);
-									}
-		        			element.setAttribute('resource', resource);
-            			for (var key in options) {
-            				element.setAttribute('data-'+key, options[key]);
-            			}
-									if(!isEdit){
-		        				editor.insertElement(element);
-									}else{
-										editor.updateElement(element);
-									}
-
-									(function(e,thisSlug){
-										if(scalarapi.loadPage( thisSlug, false, function(){
-											addCKLinkedMediaPreview(thisSlug,e);
-										}) == "loaded"){
-											addCKLinkedMediaPreview(thisSlug,e);
-										}
-									})(element.$,node.slug);
-
-	        			}});
-	        		}});
+							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
             }
         });
         editor.addCommand( 'insertScalar4', {
@@ -373,56 +503,16 @@ CKEDITOR.plugins.add( 'scalar', {
 								}
 							}
 							if(!isEdit){
-								element = null;
+								element = editor.document.createElement('a');
+								$(element.$).data({
+									element : element,
+									contentOptionsCallback : inlineAnnotationCallback
+								});
+
+								$(element.$).data('selectOptions',{type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',element:element,callback:$(element.$).data('contentOptionsCallback')});
 							}
-							var node = null;
-	        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Inline Scalar Annotation',element:element,callback:function(node){
-	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineAnnotation'],node:node,element:element,callback:function(options) {
-										if(!isEdit){
-											element = editor.document.createElement('a');
-										}else{
-											element = element.getAscendant( 'a', true );
-										}
 
-										var node = options.node;
-										delete(options.node);
-
-										if(typeof node.version !== 'undefined'){
-											var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
-											var resource = node.targets[0].slug;
-										}else{
-											var href = node.parent.url+'#'+node.slug;
-											var resource = node.parent.slug;
-										}
-
-		            		element.setAttribute('name','scalar-inline-annotation');  // Required to let empty <a> through
-		            		element.setAttribute('class', 'inline');
-			        			element.setAttribute('href', href);
-										if(isEdit){
-											element.data('cke-saved-href',href);
-										}
-			        			element.setAttribute('resource', resource);
-	            			for (var key in options) {
-	            				element.setAttribute('data-'+key, options[key]);
-	            			}
-										if(!isEdit){
-			        				editor.insertElement(element);
-										}else{
-											editor.updateElement(element);
-										}
-
-										if(cke_loadedScalarInline.indexOf(resource)==-1){
-											(function(thisSlug){
-												if(scalarapi.loadPage( thisSlug, false, function(){
-														addCKInlineMediaPreview(thisSlug);
-												}) == "loaded"){
-
-														addCKInlineMediaPreview(thisSlug);
-												}
-											})(node.slug);
-										}
-	        			}});
-	        		}});
+							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
             }
         });
         editor.addCommand( 'insertScalar5', {

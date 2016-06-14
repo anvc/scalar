@@ -16,6 +16,7 @@
 			data:[],
 			queue:[],
 			msg:'',
+			forceSelect:false,
 			no_data_msg:'No content of the selected type was found',
 			callback:null
 	};
@@ -61,6 +62,36 @@
 			var $form = $('<div class="form-horizontal heading_font"></div>' );
 			$(this).append($form);
 		}
+
+		//Media selection back link
+		var $media_preview = $('<div class="row"><div class="col-xs-12 col-sm-4 col-md-3 left"></div><div class="col-xs-12 col-sm-8 col-md-9 right"><h2>'+opts.node.current.title+'</h2><br /><p class="description"></p><br /><br /></div></div><hr />');
+		var thumbnail = opts.node.thumbnail != null ? opts.node.thumbnail : widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+
+		if(typeof opts.node.current.content != 'undefined' && opts.node.current.content != null){
+			var $tmp = $('<div></div>');
+	   	$tmp.html(opts.node.current.content);
+	   	$media_preview.find('.description').text($tmp.text());
+		}else{
+			$media_preview.find('.description').remove();
+		}
+		$media_preview.find('.left').append('<img class="img-responsive center-block" src="'+thumbnail+'">');
+		$media_preview.find('.right').append('<a href="#">Change Selected '+(opts.node.parent==null?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			$(this).closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
+			var element = $(this).data('element');
+			if ($(this).closest('.media_options_bootbox').length) {
+				$(this).parent().closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
+			} else {
+				$this.parent();
+			}
+			var data = $(element.$).data('selectOptions');
+			data.forceSelect = true;
+			CKEDITOR._scalar.selectcontent(data);
+		});
+
+		$form.append($media_preview);
+
 		// Add options
 	    for (var option_name in opts.data) {
 			var $option = $('<div class="form-group"><label class="col-sm-2 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-4"><select class="form-control" name="'+option_name+'"></select></div></div>');
@@ -218,10 +249,9 @@
     	};
     	// Initialize the interface
     	var init = function() {
-
 				//If we already have an element, don't open the modal
 				//Instead, grab the current node and pass it to the callback instead
-				if(typeof opts.element !== 'undefined' && opts.element != null){
+				if(typeof opts.element.getAttribute('href') != undefined && opts.element.getAttribute('href')!=null && opts.forceSelect == false){
 					var parent = null;
 					//Get the slug of the currently selected node
 					if(opts.element.getAttribute('href').indexOf('#')>=0){
@@ -237,15 +267,18 @@
 					}
 
 					//Now that we have the slug, load the page via the api, then run the callback
-					(function(slug,parent,callback){
+					(function(slug,parent,element,callback){
 						scalarapi.loadPage( slug, true, function(){
 								var node = scalarapi.getNode(slug);
 								node.parent = parent;
-								callback(node);
+								callback(node,element);
 						}, null, 1, false, null, 0, 1 );
-					})(currentSlug,parent,opts.callback);
+					})(currentSlug,parent,opts.element, opts.callback);
 
 					return;
+				}else{
+					var selectOptions = $(opts.element.$).data('selectOptions');
+					selectOptions.forceSelect = false;
 				}
 
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
@@ -371,7 +404,7 @@
     						$form.closest('.content_selector').remove();
     					}
     					$('.tt').remove();
-    					opts.callback(node);
+    					opts.callback(node,opts.element);
     					reset();
     				};
     				$buttons.find('.onthefly_loading').show();
@@ -459,7 +492,7 @@
     		var $tbody = $this.find('tbody:first');
 				//Check to see if we have an element, and if so, get the currently selected slug
 				var currentSlug = null;
-				if(typeof opts.element !== 'undefined' && opts.element != null){
+				if(typeof opts.element.getAttribute('href') != undefined && opts.element.getAttribute('href')!=null){
 					if(opts.element.getAttribute('href').indexOf('#')>=0){
 						//with annotation
 						var temp_anchor = document.createElement('a');
@@ -535,7 +568,7 @@
     				} else {
     					$(this).closest('.content_selector').remove();
     				}
-    				opts.callback(node);
+    				opts.callback(node,opts.element);
     				reset();
     				$('.tt').remove();
     			});
