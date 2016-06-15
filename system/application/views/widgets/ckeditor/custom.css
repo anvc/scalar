@@ -76,3 +76,7 @@
 #scalarInlineGearIcon{
 	position: absolute;
 }
+.selectedItemPreview .description{
+	width: 100%;
+	overflow-x: hidden;
+}

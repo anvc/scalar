@@ -62,20 +62,32 @@
 			var $form = $('<div class="form-horizontal heading_font"></div>' );
 			$(this).append($form);
 		}
-
 		//Media selection back link
-		var $media_preview = $('<div class="row"><div class="col-xs-12 col-sm-4 col-md-3 left"></div><div class="col-xs-12 col-sm-8 col-md-9 right"><h2>'+opts.node.current.title+'</h2><br /><p class="description"></p><br /><br /></div></div><hr />');
-		var thumbnail = opts.node.thumbnail != null ? opts.node.thumbnail : widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
-
-		if(typeof opts.node.current.content != 'undefined' && opts.node.current.content != null){
+		var node = typeof opts.node.current != 'undefined'?opts.node.current:opts.node;
+		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-12 col-sm-4 col-md-3 left"></div><div class="col-xs-12 col-sm-8 col-md-9 right"><h2>'+node.title+'</h2><br /><p class="description"></p><br /><br /></div></div><hr />');
+		var thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+		if(typeof opts.node.thumbnail != 'undefined' && opts.node.thumbnail != null){
+			thumbnail = opts.node.thumbnail;
+		}else if(typeof opts.node.content != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != null){
+			thumbnail = opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value;
+		}
+		var description = '';
+		if(typeof node.description == 'string' && node.description != ''){
+			description = node.description;
+		}else if(typeof node.content == 'string' && node.content != ''){
+			description = node.content;
+		}else if(typeof node.content == 'object' && typeof node.version != 'undefined' && typeof node.version['http://purl.org/dc/terms/description'] != 'undefined'){
+			description = node.version['http://purl.org/dc/terms/description'][0].value;
+		}
+		if(description!=''){
 			var $tmp = $('<div></div>');
-	   	$tmp.html(opts.node.current.content);
+	   	$tmp.html(description);
 	   	$media_preview.find('.description').text($tmp.text());
 		}else{
 			$media_preview.find('.description').remove();
 		}
 		$media_preview.find('.left').append('<img class="img-responsive center-block" src="'+thumbnail+'">');
-		$media_preview.find('.right').append('<a href="#">Change Selected '+(opts.node.parent==null?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
+		$('<a href="#">Change Selected '+((typeof opts.targets != 'undefined' || opts.node.parent==null)?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
 			e.preventDefault();
 			e.stopPropagation();
 			$(this).closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
@@ -88,7 +100,7 @@
 			var data = $(element.$).data('selectOptions');
 			data.forceSelect = true;
 			CKEDITOR._scalar.selectcontent(data);
-		});
+		}).appendTo($media_preview.find('.right'));
 
 		$form.append($media_preview);
 
