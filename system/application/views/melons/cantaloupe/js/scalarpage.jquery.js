@@ -2112,6 +2112,8 @@
 							break;
 
                     case "vis":
+                    case "vistoc":
+                    case "visconnections":
                     case "visindex":
                    	case "visradial":
                     case "vispath":
@@ -2128,6 +2130,24 @@
 	                    	content: 'all',
 	                    	relations: 'all',
 	                    	format: 'grid'
+	                    }
+	                    break;
+
+	                    case "vistoc":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'toc',
+	                    	relations: 'all',
+	                    	format: 'tree'
+	                    }
+	                    break;
+
+	                    case "visconnections":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'all',
+	                    	relations: 'all',
+	                    	format: 'force-directed'
 	                    }
 	                    break;
 

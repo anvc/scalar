@@ -2105,7 +2105,7 @@
 				}
 
 				helpContent += 	"<li>Each circle represents a piece of content, color-coded by type.</li>" +
-					"<li>Scroll or pinch to zoom, or click and hold to drag.</li>" +
+					"<li>Click and hold to drag.</li>" +
 					"<li>Click any filled circle to reveal its connections; click again to hide them.</li>" + 
 					"<li>Click the name of any item to navigate to it.</li></ul>";
 
