@@ -1506,7 +1506,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					'dcterms:title': annotation.body.current.title,
 					'dcterms:description': annotation.body.current.description,
 					'sioc:content': annotation.body.current.content,
-					'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+					'rdf:type': annotation.body.baseType,
 					'scalar:is_live': 0
 				};
 				
@@ -1666,7 +1666,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						'dcterms:title': edits.title,
 						'dcterms:description': edits.description,
 						'sioc:content': edits.content,
-						'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite'
+						'rdf:type': annotation.body.baseType
 					};
 					relationData = {};
 					switch ($.annobuilder.model.node.current.mediaSource.contentType) {
