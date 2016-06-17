@@ -879,6 +879,10 @@ a.nav_btn:hover {
 	border: 1px solid #026697;*/
 }
 
+.title_card .continue_btn { background: none; color: #ccc; font-size: smaller; }
+.title_card .continue_btn:hover { background: none; color: white; text-decoration: underline; }
+.title_card p { margin-bottom: 0; }
+
 /* Index */
 
 /*.modal-dialog ul { margin-left: 3.6rem; margin-bottom: 2rem; }*/

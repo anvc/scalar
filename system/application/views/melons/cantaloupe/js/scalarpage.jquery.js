@@ -530,7 +530,7 @@
 								// continue button
 								links = $( '<p></p>' );
 								var continue_button = $( '<a class="continue_btn nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
-									'?path=' + page.containingPath.slug + '">Continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
+									'?path=' + page.containingPath.slug + '">Or, continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
 									'&rdquo;</a>' ).appendTo(links);
 								if ( pathOptionCount == 0 ) {
 									continue_button.addClass( 'primary' );
