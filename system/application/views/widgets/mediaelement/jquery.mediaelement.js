@@ -2227,7 +2227,7 @@ function YouTubeGetID(url){
 			}
 
 			if (this.annotations != null) {
-				this.setupAnnotations(me.annotations);
+				this.setupAnnotations(this.annotations);
 			}
     	}
 
@@ -5014,11 +5014,11 @@ function YouTubeGetID(url){
 			$('#threejs'+me.model.id).height(Math.round(height));
 		}
 
-		jQuery.ThreejsObjectView.prototype.degreesArrayToRadians = function(degArray) { 
+		jQuery.ThreejsObjectView.prototype.degreesArrayToRadians = function(degArray) {
 			return [this.degreesToRadians(degArray[0]),this.degreesToRadians(degArray[1]),this.degreesToRadians(degArray[2])]
 		}
 
-		jQuery.ThreejsObjectView.prototype.degreesToRadians = function(degrees) { 
+		jQuery.ThreejsObjectView.prototype.degreesToRadians = function(degrees) {
 			return (degrees / 360.0) * (Math.PI * 2);
 		}
 
