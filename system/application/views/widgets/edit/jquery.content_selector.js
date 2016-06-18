@@ -263,34 +263,36 @@
     	var init = function() {
 				//If we already have an element, don't open the modal
 				//Instead, grab the current node and pass it to the callback instead
-				if(typeof opts.element.getAttribute('href') != undefined && opts.element.getAttribute('href')!=null && opts.forceSelect == false){
-					var parent = null;
-					//Get the slug of the currently selected node
-					if(opts.element.getAttribute('href').indexOf('#')>=0){
-						//with annotation, get the slug in the hash of the url
-						var temp_anchor = document.createElement('a');
-						temp_anchor.href = opts.element.getAttribute('href');
-						currentSlug = temp_anchor.hash.replace('#','');
-						parent = {slug: opts.element.getAttribute('resource'), url: opts.element.getAttribute('href').replace('#'+currentSlug,'')};
-						$(temp_anchor).remove();
+				if(typeof opts.element != 'undefined'){
+					if(typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null && opts.forceSelect == false){
+						var parent = null;
+						//Get the slug of the currently selected node
+						if(opts.element.getAttribute('href').indexOf('#')>=0){
+							//with annotation, get the slug in the hash of the url
+							var temp_anchor = document.createElement('a');
+							temp_anchor.href = opts.element.getAttribute('href');
+							currentSlug = temp_anchor.hash.replace('#','');
+							parent = {slug: opts.element.getAttribute('resource'), url: opts.element.getAttribute('href').replace('#'+currentSlug,'')};
+							$(temp_anchor).remove();
+						}else{
+							//no annotation - use the resource value instead
+							currentSlug = opts.element.getAttribute('resource');
+						}
+
+						//Now that we have the slug, load the page via the api, then run the callback
+						(function(slug,parent,element,callback){
+							scalarapi.loadPage( slug, true, function(){
+									var node = scalarapi.getNode(slug);
+									node.parent = parent;
+									callback(node,element);
+							}, null, 1, false, null, 0, 1 );
+						})(currentSlug,parent,opts.element, opts.callback);
+
+						return;
 					}else{
-						//no annotation - use the resource value instead
-						currentSlug = opts.element.getAttribute('resource');
+						var selectOptions = $(opts.element.$).data('selectOptions');
+						selectOptions.forceSelect = false;
 					}
-
-					//Now that we have the slug, load the page via the api, then run the callback
-					(function(slug,parent,element,callback){
-						scalarapi.loadPage( slug, true, function(){
-								var node = scalarapi.getNode(slug);
-								node.parent = parent;
-								callback(node,element);
-						}, null, 1, false, null, 0, 1 );
-					})(currentSlug,parent,opts.element, opts.callback);
-
-					return;
-				}else{
-					var selectOptions = $(opts.element.$).data('selectOptions');
-					selectOptions.forceSelect = false;
 				}
 
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
@@ -504,7 +506,7 @@
     		var $tbody = $this.find('tbody:first');
 				//Check to see if we have an element, and if so, get the currently selected slug
 				var currentSlug = null;
-				if(typeof opts.element.getAttribute('href') != undefined && opts.element.getAttribute('href')!=null){
+				if(typeof opts.element != 'undefined' && typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null){
 					if(opts.element.getAttribute('href').indexOf('#')>=0){
 						//with annotation
 						var temp_anchor = document.createElement('a');
@@ -516,6 +518,7 @@
 						currentSlug = opts.element.getAttribute('resource');
 					}
 				}
+				
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
 					if(opts.data[j].slug == currentSlug){
