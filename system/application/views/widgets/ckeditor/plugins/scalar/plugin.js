@@ -338,11 +338,16 @@ CKEDITOR.plugins.add( 'scalar', {
 				var num_anchors = anchors.count();
 				for(var i = 0; i < num_anchors; i++){
 						var element = anchors.getItem(i);
+
 						var href = element.getAttribute('href');
 
 						var currentSlug = element.getAttribute('resource');
+						if(currentSlug == null || element.data('widget') != null){
+							continue;
+						}
+
 						var isAnnotation = false;
-						if(href.indexOf('#')>=0){
+						if(href != null && href.indexOf('#')>=0){
 							isAnnotation = true;
 							currentSlug = element.$.hash.replace('#','');
 						}
@@ -404,7 +409,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							var element = sel.getStartElement();
 
 							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
-							if ( element.getAscendant( 'a', true ) ) {
+							if ( element.data('widget') == null && element.getAscendant( 'a', true ) ) {
 								element = element.getAscendant( 'a', true );
 								if(element.getAttribute('resource')!=null && !element.hasClass('inline') && element.getAttribute('href').indexOf('#')<0){
 									//Not inline, no annotation
@@ -435,7 +440,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						var element = sel.getStartElement();
 						var isEdit = false;
 						//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
-						if ( element.getAscendant( 'a', true ) ) {
+						if ( element.data('widget') == null && element.getAscendant( 'a', true ) ) {
 							element = element.getAscendant( 'a', true );
 							if(element.getAttribute('resource')!=null && element.hasClass('inline') && element.getAttribute('href').indexOf('#')<0){
 								//Is inline, no annotation
@@ -462,7 +467,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							var element = sel.getStartElement();
 
 							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
-							if ( element.getAscendant( 'a', true ) ) {
+							if ( element.data('widget') == null && element.getAscendant( 'a', true ) ) {
 								element = element.getAscendant( 'a', true );
 								if(element.getAttribute('resource')!=null && !element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
 									//Not inline, with annotation
@@ -495,7 +500,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							var element = sel.getStartElement();
 							var isEdit = false;
 							//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
-							if ( element.getAscendant( 'a', true ) ) {
+							if ( element.data('widget') == null && element.getAscendant( 'a', true ) ) {
 								element = element.getAscendant( 'a', true );
 								if(element.getAttribute('resource')!=null && element.hasClass('inline') && element.getAttribute('href').indexOf('#')>=0){
 									//Is inline, with annotation
