@@ -53,7 +53,7 @@ Class Api extends Controller {
 	//Defaults
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
-	private $allowable_metadata_prefixes = array('dc', 'dcterms', 'art', 'shoah', 'scalar', 'exif', 'iptc');
+	private $allowable_metadata_prefixes = array('dc', 'dcterms', 'art', 'shoah', 'scalar', 'exif', 'iptc', 'bibo');
 	private $disallowable_metadata_prefixes = array('scalar:metadata');
 	protected $data;
 
