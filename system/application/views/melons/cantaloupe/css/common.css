@@ -1106,3 +1106,74 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .description-sm { font-size: 1.2rem; line-height: 1.7rem; color: #666; }
+.cardContainer{
+  padding: 0 1rem;
+}
+
+.widget_summary .widgetContainer{
+	background-color: #fff;
+	box-shadow: none;
+	padding: 1rem;
+}
+.widget_summary .widgetContainer .widgetElement{
+	border: 1px solid #ddd;
+}
+.summaryContainer .media-object{
+	height: 100px;
+}
+.summaryContainer .media{
+  padding: 1rem 2rem;
+	border-bottom: 1px solid #eee;
+}
+.summaryContainer .media:last-child{
+	border-bottom: 0;
+}
+
+.media {
+  margin-top: 15px;
+}
+.media:first-child {
+  margin-top: 0;
+}
+.media,
+.media-body {
+  zoom: 1;
+  overflow: hidden;
+}
+.media-body {
+  width: 10000px;
+}
+.media-object {
+  display: block;
+}
+.media-object.img-thumbnail {
+  max-width: none;
+}
+.media-right,
+.media > .pull-right {
+  padding-left: 10px;
+}
+.media-left,
+.media > .pull-left {
+  padding-right: 10px;
+}
+.media-left,
+.media-right,
+.media-body {
+  display: table-cell;
+  vertical-align: top;
+}
+.media-middle {
+  vertical-align: middle;
+}
+.media-bottom {
+  vertical-align: bottom;
+}
+.media-heading {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+.media-list {
+  padding-left: 0;
+  list-style: none;
+}

@@ -1022,9 +1022,10 @@
 
 					if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 						( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
+						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 )) || // annotated media
+						(includeWidgets && $(this).data('widget') != undefined)) //self-referential widget
 						&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
-						if($(this).is('a[resource^="widget/"]')){
+						if($(this).data('widget') != undefined){
 							if(includeWidgets !== true){
 								return;
 							}else{
@@ -1329,13 +1330,22 @@
 						} );
 
 						if(isMobile){
-							$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
+							if(touchLoaded){
 								page.mediaCarousel.swiperight(function() {
-	    		  			$(this).carousel('prev');
-		    				}).swipeleft(function() {
-			      			$(this).carousel('next');
+									$(this).carousel('prev');
+								}).swipeleft(function() {
+									$(this).carousel('next');
 								});
-							});
+							}else{
+								$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
+									touchLoaded = true;
+									page.mediaCarousel.swiperight(function() {
+										$(this).carousel('prev');
+									}).swipeleft(function() {
+										$(this).carousel('next');
+									});
+								});
+							}
 						}
 
 						break;
