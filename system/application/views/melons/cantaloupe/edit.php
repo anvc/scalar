@@ -856,7 +856,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 
 		<div id="custom-css-pane" role="tabpanel" class="tab-pane">
 			<div class="row p">
-				<div class="col-md-8">
+				<div class="col-md-12">
 					<p>Enter custom CSS to be applied to this page and its path or tag children:</p>
 					<small>e.g., .navbar {background-color:red;}, no &lt;style&gt; tags required</small>
 					<textarea class="form-control monospace_font" rows="10" name="scalar:custom_style"><?=!empty($page->custom_style) ? $page->custom_style : ''?></textarea>
@@ -866,7 +866,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 
 		<div id="custom-javascript-pane" role="tabpanel" class="tab-pane">
 			<div class="row p">
-				<div class="col-md-8">
+				<div class="col-md-12">
 					<p>Enter custom JavaScript to be applied to this page and its path or tag children:</p>
 	   				<small>Javascript or jQuery source, no &lt;script&gt; tags required</small>
 	   				<textarea class="form-control monospace_font" rows="10" name="scalar:custom_scripts"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea>
