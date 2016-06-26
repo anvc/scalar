@@ -3,13 +3,6 @@
  * @projectDescription	Application config for Scalar installations
 */
 
-// Optional LDAP authentication settings
-$config['use_ldap'] = 0; // LDAP authentication is off by default
-$config['ldap_server'] = "ldap.server.name";
-$config['ldap_port'] = 389;
-$config['ldap_basedn'] = "dc=organization,dc=tld";
-$config['ldap_uname_field'] = "uid";
-
 // Default melon (Scalar skin), must have a corresponding folder in system/application/views/melons/ 
 $config['active_melon'] = 'cantaloupe';
 
@@ -54,6 +47,13 @@ $config['index_msg'] = '';
 // Custom message displayed inside a book. Will remain hidden after user closes the popup for the first time.
 $config['book_msg'] = '';
 $config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
+
+// LDAP authentication settings
+$config['use_ldap'] = (getenv('SCALAR_USE_LDAP') ? getenv('SCALAR_USE_LDAP') : false);  // Default: off
+$config['ldap_server'] = (getenv('SCALAR_LDAP_SERVER') ? getenv('SCALAR_LDAP_SERVER') : "ldap.server.name");
+$config['ldap_port'] = (getenv('SCALAR_LDAP_PORT') ? getenv('SCALAR_LDAP_PORT') : 389);
+$config['ldap_basedn'] = (getenv('SCALAR_LDAP_BASEDN') ? getenv('SCALAR_LDAP_BASEDN') : "dc=organization,dc=tld");
+$config['ldap_uname_field'] = (getenv('SCALAR_LDAP_UNAME_FIELD') ? getenv('SCALAR_LDAP_UNAME_FIELD') : "uid");
 
 // Emails
 $config['email_replyto_address'] = (getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') ? getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') : ''); 
