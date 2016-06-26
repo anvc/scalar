@@ -45,6 +45,10 @@
          };
 
          base.handleWidget = function($widget){
+           if($widget.attr('resource') != undefined){
+               $widget.attr('href',base.book_url+$widget.attr('resource'));
+           }
+
 					 var type = $widget.data('widget');
 
            var $element = $('<div class="widgetElement"></div>');
@@ -523,7 +527,7 @@
                         //Cool, got time stuff out of the way!
                         //Let's do the other components Timeline.js expects
                         entry.text = {
-                          headline : relNode.title
+                          headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
                         };
 
                         if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
@@ -536,13 +540,13 @@
                             url : relNode.sourceFile,
                             thumbnail : nodeSet[n].thumbnail
                           };
-                        }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != '') {
+                        }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
                           entry.media = {
                             url : base.book_url+nodeSet[n].thumbnail,
                             thumbnail : base.book_url+nodeSet[n].thumbnail
                           };
                         }
-                        console.log(entry);tempdata.events.push(entry);
+                        tempdata.events.push(entry);
                     }
                   }
                 }
@@ -1020,6 +1024,7 @@
               $('html, body').scrollTop($(this).data('slot').offset().top);
               $(this).data('container').addClass('highlighted');
               window.setTimeout($.proxy(function(){$(this).removeClass('highlighted')},$(this).data('container')),500);
+              return false;
             });
 
 

@@ -1183,3 +1183,9 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 		moz-box-sizing: content-box;
 	  box-sizing: content-box;
 }
+.tl-headline-date, .tl-headline{
+	padding: 0px;
+}
+.tl-slide-media-only .tl-slide-content-container .tl-slide-content .tl-text{
+	text-align: left !important;
+}
