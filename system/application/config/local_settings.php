@@ -3,6 +3,13 @@
  * @projectDescription	Application config for Scalar installations
 */
 
+// Optional LDAP authentication settings
+$config['use_ldap'] = 0; // LDAP authentication is off by default
+$config['ldap_server'] = "ldap.server.name";
+$config['ldap_port'] = 389;
+$config['ldap_basedn'] = "dc=organization,dc=tld";
+$config['ldap_uname_field'] = "uid";
+
 // Default melon (Scalar skin), must have a corresponding folder in system/application/views/melons/ 
 $config['active_melon'] = 'cantaloupe';
 

@@ -154,6 +154,77 @@ class User_model extends My_Model {
 
     }
 
+    // Function to authenticate using an LDAP server.  
+    // The configuration for the LDAP server is done in
+    // application/config/local_settings.php.
+    // The use_ldap variable must be set to 1 for this to be used.
+    public function get_from_ldap_by_email_and_password($email='', $password='') {
+        // Users still use their e-mail address as their Scalar username when
+        // using this authentication method.
+        // The LDAP username is assumed to be whatever comes before the '@' sign
+        // in the e-mail address.
+        $atpos = strpos($email, '@');
+        $uname = substr($email, 0, $atpos);
+        
+        $ldap_host = $this->config->item('ldap_server');
+        $ldap_port = $this->config->item('ldap_port');
+        $basedn = $this->config->item('ldap_basedn');
+        $uname_field = $this->config->item('ldap_uname_field');
+
+        $ldapCon = ldap_connect( $ldap_host, $ldap_port );
+        if ( !$ldapCon) {
+            throw new Exception("Unable to connect to LDAP server");
+        }
+
+        ldap_set_option($ldapCon, LDAP_OPT_PROTOCOL_VERSION, 3);
+        
+        if ( !ldap_start_tls($ldapCon) ) {
+            throw new Exception('Unable to start TLS on LDAP connection');
+        }
+        
+        $ldapFilter = $uname_field . "=" . $uname;
+        $ldapSearch = ldap_search($ldapCon, $basedn, $ldapFilter);
+        
+        // Found the user, now check the password by trying to bind as that user
+        $info = ldap_get_entries($ldapCon, $ldapSearch);
+        if ( $info['count'] ) {
+            $ldapBind = ldap_bind($ldapCon, $info[0]['dn'], $password);
+            
+            if ( $ldapBind ) {
+                // Success, now that we've bound as that user we can look up the user's data
+                $attributes = array("displayName", "cn", "description", "cn", "givenname", "sn", "mail");
+                $ldapSearch = ldap_search( $ldapCon, $basedn, $ldapFilter, $attributes);
+                $data = ldap_get_entries($ldapCon, $ldapSearch);
+                $fullname = $data[0]['givenname'][0] . " " . $data[0]['sn'][0];
+            } else {
+                return false;
+            }
+            
+        } else {
+            return false;
+        }
+
+        // We were able to successfully bind -- great, but we need
+        // to return a user object.  First we check if the user
+        // is already in the database
+        $user = $this->get_by_email($email);
+        if (!$user) {
+            // We didn't find them.
+            // Create a new user in the database using LDAP information, but a random password,
+            // since it shouldn't be using that password for an LDAP user.
+            // I use the handy pwgen program for this, but there are plenty of other ways.
+            $tmp_password = `pwgen -1`;
+            $array = array('email' => $email, 'fullname' => $fullname, 'password' => $tmp_password);
+            $this->add($array);
+            // Now that they're added, this should work:
+            $user = $this->get_by_email($email);              
+            if (!$user) {
+                throw new Exception("Unable to fetch newly created LDAP user, apparently.  User creation must have failed.");
+            }
+        }
+        return $user;
+    }
+
     public function get_by_email_and_api($email='', $api=''){
 
     	$this->db->select('*');
