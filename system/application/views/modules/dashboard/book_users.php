@@ -96,10 +96,17 @@
 		function user_get_contributions(user_id, the_link) {
 			var $the_link = $(the_link);
 			var book_id = $('select[name="book_id"] :selected').val();
+			if ('undefined'==typeof(book_id)||0==book_id) {  // This is for super admins, who may not have this book selected
+				if (document.location.search.indexOf('book_id=')!=-1) {
+					var book_id = document.location.search.substr( document.location.search.indexOf('book_id=')+8 );
+					if (book_id.indexOf('&')!=0) book_id = book_id.substr(0, book_id.indexOf('&'));
+					book_id = parseInt(book_id);
+				}
+			};
 			if ('undefined'==typeof(book_id)||0==book_id) {
 				alert('Could not determine book ID');
 				return false;
-			}
+			};
 			// Get contributions
 			if (!$the_link.data('is_open')) {
 				$the_link.blur();
