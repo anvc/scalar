@@ -75,18 +75,19 @@ class Login_model extends User_model {
 
 			$email = trim($_POST['email']);
 			$password = trim($_POST['password']);
-            
-            $result = 0;
+            $result = false;
+
+            // If LDAP is turned on ...
             if ( $this->config->item('use_ldap') ) {
                 $result = $this->get_from_ldap_by_email_and_password($email, $password);
             }
-            
+
             // If they're not in LDAP, or use_ldap is off, then check the database
             if (!$result) {
                 if ($this->has_empty_password($email)) {
                     $result = $this->get_by_email($email);
                 } else {
-                    $result = $this->get_by_email_and_password($email, $password);              
+                    $result = $this->get_by_email_and_password($email, $password);
                 }
             }
 
