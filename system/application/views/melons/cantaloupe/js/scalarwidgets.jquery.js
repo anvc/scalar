@@ -35,6 +35,7 @@
 
          base.init = function(){
              base.options = $.extend({},$.scalarwidgets.defaultOptions, options);
+             base.book_url = $('link#parent').attr('href');
              base.currentNode = scalarapi.model.getCurrentPageNode();
              //60% of (page height minus header and H1 height)
              maxWidgetHeight = Math.floor((window.innerHeight-179)*.6);
@@ -417,7 +418,7 @@
                   height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                 }
                 $timeline.height(height);
-                var timeline = new TL.Timeline($timeline[0],$(this).data('timelinedata'));
+                var timeline = new TL.Timeline($timeline[0],$(this).data('timelinedata'),{width:$timeline.width()+200});
              });
 
              //Because we asynchronously load the Timeline javascript,
@@ -483,7 +484,7 @@
                   events : []
                 };
 
-                //Get the main timeline media, if there is any
+                //Get the main timeline items, if there are any
                 for(var i in relatedNodes){
                   var nodeSet = relatedNodes[i];
                   for(var n in nodeSet){
@@ -522,10 +523,26 @@
                         //Cool, got time stuff out of the way!
                         //Let's do the other components Timeline.js expects
                         entry.text = {
-                          headline : relNode.title,
-                          text : relNode.content
+                          headline : relNode.title
                         };
-                        tempdata.events.push(entry);
+
+                        if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
+                          entry.text.text = relNode.content;
+                        }
+
+                        //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
+                        if(typeof nodeSet[n].scalarTypes.media !== 'undefined'){
+                          entry.media = {
+                            url : relNode.sourceFile,
+                            thumbnail : nodeSet[n].thumbnail
+                          };
+                        }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != '') {
+                          entry.media = {
+                            url : base.book_url+nodeSet[n].thumbnail,
+                            thumbnail : base.book_url+nodeSet[n].thumbnail
+                          };
+                        }
+                        console.log(entry);tempdata.events.push(entry);
                     }
                   }
                 }

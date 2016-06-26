@@ -1177,3 +1177,9 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
   padding-left: 0;
   list-style: none;
 }
+
+.tl-timeline, .tl-timeline div{
+		webkit-box-sizing: content-box;
+		moz-box-sizing: content-box;
+	  box-sizing: content-box;
+}
