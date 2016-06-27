@@ -2342,12 +2342,12 @@
 
 								$( '.page' ).css( 'padding-top', '5.0rem' );
 
-								$timeline = $('<div class="caption_font timeline_embed maximized-embed"></div>').insertBefore( $('header > h1').hide() ).css('max-height',0.6*$(window).height());
+								$timeline = $('<div class="caption_font timeline_embed maximized-embed"></div>').insertBefore( $('header > h1').hide() ).css('height',0.6*$(window).height());
 								$('.body_copy').hide();
 								timeline = new TL.Timeline($timeline[0],tempdata);
 
 								$(window).on('resize',function(){
-									$timeline.css('max-height',0.6*$(window).height());
+									$timeline.css('height',0.6*$(window).height());
 								});
 						});
 						break;

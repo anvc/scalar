@@ -4,11 +4,11 @@
 @import url(//fonts.googleapis.com/css?family=Lato:900,400);
 
 /* Fonts */
-.heading_font { font-family: 'Lato', Arial, sans-serif !important; }
+.heading_font, .tl-timeline h2.tl-headline { font-family: 'Lato', Arial, sans-serif !important; }
 .heading_font b, .heading_font strong { font-weight: 900; }
 .heading_weight { font-weight: 900; }
-.body_font { font-family: Georgia, Times, serif !important; }
-.caption_font { font-family: 'Lato', Arial, sans-serif !important; }
+.body_font, .tl-timeline div.tl-text-content { font-family: Georgia, Times, serif !important; }
+.caption_font, .tl-timeline { font-family: 'Lato', Arial, sans-serif !important; }
 .caption_font b, .caption_font strong { font-weight: 900; }
 .monospace_font { font-family: Courier, monospace; }
 
