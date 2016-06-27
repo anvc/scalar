@@ -1,0 +1,6 @@
+[submodule "system/application/plugins/transfer"]
+	path = system/application/plugins/transfer
+	url = https://github.com/Michael628/scalar-book-transfer-tool
+[submodule "scalar-book-transfer-tool"]
+	path = scalar-book-transfer-tool
+	url = https://github.com/Michael628/scalar-book-transfer-tool.git
