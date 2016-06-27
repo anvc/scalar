@@ -2212,7 +2212,145 @@
 					$( 'article > header' ).after( visualization );
 					visualization.scalarvis( visOptions );
                     break;
+					case "timeline":
+						var parseDate = function(date,d_string){
+							var d = {
+									year : date.getFullYear()
+							};
+							var month = date.getMonth()+1; //Timeline expects 1-12; JS spits out 0-11
+							if(month > 1 || d_string.length > 4 || (d_string.length > 2 && (d_string.match(/\//g).length > 0 || d_string.match(/,/g).length > 0))){
+								d.month = month;
+								var day = date.getDate();
+								if(day > 1 || d_string.length > 6){
+									d.day = day;
+									var hour = date.getHours();
+									if(hour > 0){
+										d.hour = hour;
+										var minute = date.getMinutes();
+										if(minute > 0){
+											d.minute = minute;
+											var second = date.getSeconds();
+											if(second > 0){
+												d.second = second;
+												var millisecond = date.getMilliseconds();
+												if(millisecond > 0){
+													d.millisecond = millisecond;
+												}
+											}
+										}
+									}
+								}
+							}
+							return d;
+						}
+						var timelinePromise = $.Deferred(function( deferred ){
+								$( deferred.resolve );
+						});
+						if(typeof loadedTimeline == 'undefined' || !loadedTimeline){
+								var timelinePromise = $.Deferred();
+								$.getScript(modules_uri+'/cantaloupe/js/date-utils.min.js',function(){
+									$.getScript(modules_uri+'/cantaloupe/js/timeline.min.js',function(){
+										$('head').append('<link rel="stylesheet" type="text/css" href="'+modules_uri+'/cantaloupe/css/timeline.min.css" />')
+										loadedTimeline = true;
+										timelinePromise.resolve();
+									});
+								});
+						}
+						timelinePromise.then(function(){
+								var node = scalarapi.model.getCurrentPageNode();
 
+                var relatedNodes = [];
+
+                relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
+                relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
+                relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
+
+                var tempdata = {
+                  title : {
+                      text : {
+                          headline : node.current.title,
+                          text : node.current.content
+                      }
+                  },
+                  events : []
+                };
+
+                //Get the main timeline items, if there are any
+                for(var i in relatedNodes){
+                  var nodeSet = relatedNodes[i];
+                  for(var n in nodeSet){
+                    var relNode = nodeSet[n].current;
+                    if(typeof relNode.auxProperties != 'undefined' && typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0){
+                        var entry = {};
+
+                        var temporal_data = relNode.auxProperties['dcterms:temporal'][0];
+                        var dashCount = (temporal_data.match(/-/g) || []).length;
+                        if(dashCount != 1){
+                          //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
+                          var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
+
+                          var d = new Date(d_string);  //parse as a date
+                          if(d instanceof Date){
+                            entry.start_date = parseDate(d,d_string);
+                          }
+                        }else{
+                          var dateParts = temporal_data.replace('-',' - ').split(' - ');
+
+                          //We should now have two dates - a start and and end
+                          if(dateParts.length == 2){
+                            dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
+                            dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
+
+                            var sdate = new Date(dateParts[0]);  //parse as a date
+                            var edate = new Date(dateParts[1]);  //parse as a date
+
+                            if(sdate instanceof Date && edate instanceof Date){
+                              entry.start_date = parseDate(sdate,dateParts[0]);
+                              entry.end_date = parseDate(edate,dateParts[1]);
+                            }
+
+                          }
+                        }
+                        //Cool, got time stuff out of the way!
+                        //Let's do the other components Timeline.js expects
+                        entry.text = {
+                          headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
+                        };
+
+                        if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
+                          entry.text.text = relNode.content;
+                        }
+
+                        //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
+                        if(typeof nodeSet[n].scalarTypes.media !== 'undefined'){
+                          entry.media = {
+                            url : relNode.sourceFile,
+                            thumbnail : nodeSet[n].thumbnail
+                          };
+                        }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
+						              var book_url = $('link#parent').attr('href');
+                          entry.media = {
+                            url : book_url+nodeSet[n].thumbnail,
+                            thumbnail : book_url+nodeSet[n].thumbnail
+                          };
+                        }
+                        tempdata.events.push(entry);
+                    }
+                  }
+                }
+
+								$( '.page' ).css( 'padding-top', '5.0rem' );
+
+								$timeline = $('<div class="caption_font timeline_embed maximized-embed"></div>').insertBefore( $('header > h1').hide() ).css('max-height',0.6*$(window).height());
+								$('.body_copy').hide();
+								timeline = new TL.Timeline($timeline[0],tempdata);
+
+								$(window).on('resize',function(){
+									$timeline.css('max-height',0.6*$(window).height());
+								});
+						});
+						break;
 					case "versions":
 					if ( page.is_author || page.is_commentator || page.is_reviewer ) {
 						$( 'h1[property="dcterms:title"]' ).after( '<h2>Version editor</h2>' );

@@ -23,7 +23,6 @@
          // to reference this class from internal events and functions.
          var base = this;
 
-				 base.loadedTimeline = false;
 				 base.pendingWidgets = {};
 
          // Access to jQuery and DOM versions of element
@@ -34,6 +33,9 @@
          base.$el.data("scalarwidgets", base);
 
          base.init = function(){
+             if(typeof loadedTimeline == 'undefined'){
+               loadedTimeline = false;
+             }
              base.options = $.extend({},$.scalarwidgets.defaultOptions, options);
              base.book_url = $('link#parent').attr('href');
              base.currentNode = scalarapi.model.getCurrentPageNode();
@@ -68,17 +70,18 @@
 						 switch(type){
                //Timeline.js
 							 case 'timeline':
-                if(!base.loadedTimeline){
+                if(!loadedTimeline){
 									if(typeof base.pendingWidgets.timeline === 'undefined'){
 										base.pendingWidgets.timeline = [];
 										$.getScript(modules_uri+'/cantaloupe/js/date-utils.min.js',function(){
 											$.getScript(modules_uri+'/cantaloupe/js/timeline.min.js',function(){
 
   											$('head').append('<link rel="stylesheet" type="text/css" href="'+modules_uri+'/cantaloupe/css/timeline.min.css" />');
-												base.loadedTimeline = true;
+												loadedTimeline = true;
 												for(var i = 0; i < base.pendingWidgets.timeline.length; i++){
 														base.pendingWidgets.timeline[i].resolve();
 												}
+
 											});
 										});
 									}
@@ -422,7 +425,7 @@
                   height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                 }
                 $timeline.height(height);
-                var timeline = new TL.Timeline($timeline[0],$(this).data('timelinedata'),{width:$timeline.width()+200});
+                var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
              });
 
              //Because we asynchronously load the Timeline javascript,
@@ -550,10 +553,10 @@
                     }
                   }
                 }
-                $widget.data('timelinedata',tempdata);
+                $widget.data('timeline',tempdata);
                 promise.resolve();
               }
-              if($widget.data('timelinedata') != undefined){
+              if($widget.data('timeline') != undefined){
                 promise.resolve();
               }else{
                 if($widget.attr('resource') == undefined){
