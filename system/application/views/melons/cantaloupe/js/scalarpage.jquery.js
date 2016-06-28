@@ -582,7 +582,7 @@
 							section.append( links );
 
 							if(back_button!=null){
-								back_button.height(end_button.innerHeight()).css({'line-height':end_button.height()+'px',float:'left','margin-right':'1px'});
+								back_button.height(end_button.innerHeight()).css({'line-height':end_button.height()+'px',float:'left'});
 								$(window).resize(function(){
 									var end_button = $('#back-btn').siblings('.nav_btn').first();
 									$('#back-btn').height(end_button.innerHeight()).css({'line-height':end_button.height()+'px'});
@@ -610,7 +610,7 @@
 					if(cont_btn.length !== 0) {
 						if(back_btn.length !== 0) {
 							cont_btn.parent().addClass('container');
-							back_btn.wrap('<div style="padding:0;padding-right:1px;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
+							back_btn.wrap('<div style="padding:0;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
 							cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
 
 							var temp = (back_btn.parent().parent().height()-back_btn.height())/2;

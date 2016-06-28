@@ -879,7 +879,10 @@ a.nav_btn:hover {
 	border: 1px solid #026697;*/
 }
 
-.title_card .continue_btn, .title_card #back-btn.nav_btn { background: none; color: #ccc; font-size: smaller; }
+#back-btn { margin-right: 1px; }
+
+.title_card .continue_btn, .title_card #back-btn.nav_btn { background: none; color: #ccc; font-size: smaller; padding: .5rem 1rem; }
+.title_card #back-btn.nav_btn { border-right: 1px solid #ccc; }
 .title_card .continue_btn:hover, .title_card #back-btn.nav_btn:hover { background: none; color: white; text-decoration: underline; }
 .title_card p { margin-bottom: 0; }
 
