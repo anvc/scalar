@@ -1189,3 +1189,13 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .tl-slide-media-only .tl-slide-content-container .tl-slide-content .tl-text{
 	text-align: left !important;
 }
+.tl-slidenav-previous .tl-slidenav-content-container{
+	padding-left: 1rem;
+}
+.tl-slidenav-next .tl-slidenav-content-container{
+	margin-left: -1rem;
+}
+.timeline_embed.maximized-embed{
+	border-top: 1rem solid #f5f5f5;
+	border-bottom: .5rem solid #f5f5f5;
+}
