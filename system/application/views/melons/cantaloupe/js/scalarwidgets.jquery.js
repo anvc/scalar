@@ -424,7 +424,7 @@
                 if(height == 0){
                   height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                 }
-                $timeline.height(height);
+                $timeline.height(height - 10);
                 var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
              });
 
@@ -549,6 +549,12 @@
                             thumbnail : base.book_url+nodeSet[n].thumbnail
                           };
                         }
+
+
+												if(typeof nodeSet[n].background !== 'undefined'){
+													entry.background = {url:base.book_url+nodeSet[n].background}
+												}
+
                         tempdata.events.push(entry);
                     }
                   }

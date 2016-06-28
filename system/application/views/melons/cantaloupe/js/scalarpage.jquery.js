@@ -2267,12 +2267,6 @@
                 relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
 
                 var tempdata = {
-                  title : {
-                      text : {
-                          headline : node.current.title,
-                          text : node.current.content
-                      }
-                  },
                   events : []
                 };
 
@@ -2335,19 +2329,33 @@
                             thumbnail : book_url+nodeSet[n].thumbnail
                           };
                         }
+												if(typeof nodeSet[n].background !== 'undefined'){
+													entry.background = {url:book_url+nodeSet[n].background}
+												}
+
+												console.log(entry);
                         tempdata.events.push(entry);
                     }
                   }
                 }
 
-								$( '.page' ).css( 'padding-top', '5.0rem' );
+								//$( '.page' ).css( 'padding-top', '5.0rem' );
 
-								$timeline = $('<div class="caption_font timeline_embed maximized-embed"></div>').insertBefore( $('header > h1').hide() ).css('height',0.6*$(window).height());
-								$('.body_copy').hide();
-								timeline = new TL.Timeline($timeline[0],tempdata);
+								$timeline = $('<div class="caption_font timeline_embed maximized-embed"><div></div></div>').insertAfter('header > h1');
+								$('.body_copy').before('<br />');
+								$timeline_container = $timeline.find('div');
+
+								var height = 0.6*$(window).height();
+								$timeline_container.height(height);
+								$timeline.height(height+15);
+
+								timeline = new TL.Timeline($timeline_container.get(0),tempdata);
+
 
 								$(window).on('resize',function(){
-									$timeline.css('height',0.6*$(window).height());
+									var height = 0.6*$(window).height();
+									$timeline_container.height(height);
+									$timeline.height(height+20);
 								});
 						});
 						break;
