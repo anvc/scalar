@@ -246,23 +246,6 @@ li.divider-above { border-top: 1px dotted #888; }
 	display: none;
 }
 
-.note_viewer .mediaelement{
-	margin: 0px;
-}
-.mediaelement .annotorious-popup{
-	top: 0;
-	left: 0;
-	width: 320px;
-}
-.annotorious-popup { text-align: left; }
-.media_annotations .current .media_link{
-	background-color: #e2eaef;
-}
-
-.media_annotations .full, .note_viewer .full, .annotorious-popup-text .full, .current_annotation .full { margin-top: 2rem; }
-.media_annotations .paragraph_wrapper, .note_viewer .paragraph_wrapper { margin-bottom: 1.2rem; }
-
-
 
 /* --- PAGE --- */
 
