@@ -88,7 +88,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						var node = options.node;
 						delete(options.node);
 
-						if(typeof node.version !== 'undefined'){
+						if(typeof node.targets !== 'undefined' && node.targets.length > 0){
 							var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
 							var resource = node.targets[0].slug;
 						}else{
@@ -126,7 +126,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							var node = options.node;
 							delete(options.node);
 
-							if(typeof node.version !== 'undefined'){
+							if(typeof node.targets !== 'undefined' && node.targets.length > 0){
 								var href = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value+'#'+node.slug;
 								var resource = node.targets[0].slug;
 							}else{
@@ -171,7 +171,7 @@ CKEDITOR.plugins.add( 'scalar', {
 								if(typeof node.version !== 'undefined'){
 									var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 								}else{
-									var href = node.current.url;
+									var href = node.current.sourceFile;
 								}
 
 								element.setAttribute('href', href);
@@ -215,7 +215,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							if(typeof node.version !== 'undefined'){
 								var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 							}else{
-								var href = node.current.url;
+								var href = node.current.sourceFile;
 							}
 
 							element.setAttribute('href', href);
