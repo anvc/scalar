@@ -41,7 +41,7 @@
 */
 
 $route['default_controller'] = "system";
-$route['scaffolding_trigger'] = "";
+$route['404_override'] = '';
 
 /* Routes added by Craig */      
 

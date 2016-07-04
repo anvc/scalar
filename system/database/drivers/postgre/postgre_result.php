@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -21,7 +22,7 @@
  * This class extends the parent result class: CI_DB_result
  *
  * @category	Database
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/database/
  */
 class CI_DB_postgre_result extends CI_DB_result {
@@ -36,7 +37,7 @@ class CI_DB_postgre_result extends CI_DB_result {
 	{
 		return @pg_num_rows($this->result_id);
 	}
-	
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -67,7 +68,7 @@ class CI_DB_postgre_result extends CI_DB_result {
 		{
 			$field_names[] = pg_field_name($this->result_id, $i);
 		}
-		
+
 		return $field_names;
 	}
 
@@ -86,16 +87,16 @@ class CI_DB_postgre_result extends CI_DB_result {
 		$retval = array();
 		for ($i = 0; $i < $this->num_fields(); $i++)
 		{
-			$F 				= new stdClass();
-			$F->name 		= pg_field_name($this->result_id, $i);
-			$F->type 		= pg_field_type($this->result_id, $i);
+			$F				= new stdClass();
+			$F->name		= pg_field_name($this->result_id, $i);
+			$F->type		= pg_field_type($this->result_id, $i);
 			$F->max_length	= pg_field_size($this->result_id, $i);
 			$F->primary_key = 0;
 			$F->default		= '';
 
 			$retval[] = $F;
 		}
-		
+
 		return $retval;
 	}
 
@@ -105,7 +106,7 @@ class CI_DB_postgre_result extends CI_DB_result {
 	 * Free the result
 	 *
 	 * @return	null
-	 */		
+	 */
 	function free_result()
 	{
 		if (is_resource($this->result_id))
@@ -146,7 +147,7 @@ class CI_DB_postgre_result extends CI_DB_result {
 	{
 		return pg_fetch_assoc($this->result_id);
 	}
-	
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -161,7 +162,7 @@ class CI_DB_postgre_result extends CI_DB_result {
 	{
 		return pg_fetch_object($this->result_id);
 	}
-	
+
 }
 
 

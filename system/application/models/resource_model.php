@@ -24,7 +24,7 @@
  * @version					1.0
  */
 
-class Resource_model extends Model {
+class Resource_model extends CI_Model {
 
 	var $resource_table = 'resources';
 

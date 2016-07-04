@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -21,7 +22,7 @@
  * @package		CodeIgniter
  * @subpackage	Libraries
  * @category	Libraries
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/libraries/ftp.html
  */
 class CI_FTP {
@@ -40,7 +41,7 @@ class CI_FTP {
 	 *
 	 * The constructor can be passed an array of config values
 	 */
-	function CI_FTP($config = array())
+	public function __construct($config = array())
 	{
 		if (count($config) > 0)
 		{
@@ -281,6 +282,48 @@ class CI_FTP {
 	// --------------------------------------------------------------------
 
 	/**
+	 * Download a file from a remote server to the local server
+	 *
+	 * @access	public
+	 * @param	string
+	 * @param	string
+	 * @param	string
+	 * @return	bool
+	 */
+	function download($rempath, $locpath, $mode = 'auto')
+	{
+		if ( ! $this->_is_conn())
+		{
+			return FALSE;
+		}
+
+		// Set the mode if not specified
+		if ($mode == 'auto')
+		{
+			// Get the file extension so we can set the upload type
+			$ext = $this->_getext($rempath);
+			$mode = $this->_settype($ext);
+		}
+
+		$mode = ($mode == 'ascii') ? FTP_ASCII : FTP_BINARY;
+
+		$result = @ftp_get($this->conn_id, $locpath, $rempath, $mode);
+
+		if ($result === FALSE)
+		{
+			if ($this->debug == TRUE)
+			{
+				$this->_error('ftp_unable_to_download');
+			}
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
 	 * Rename (or move) a file
 	 *
 	 * @access	public
@@ -412,7 +455,7 @@ class CI_FTP {
 	 * Set file permissions
 	 *
 	 * @access	public
-	 * @param	string 	the file path
+	 * @param	string	the file path
 	 * @param	string	the permissions
 	 * @return	bool
 	 */
@@ -423,7 +466,6 @@ class CI_FTP {
 			return FALSE;
 		}
 
-		// Permissions can only be set when running PHP 5
 		if ( ! function_exists('ftp_chmod'))
 		{
 			if ($this->debug == TRUE)

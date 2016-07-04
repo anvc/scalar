@@ -28,7 +28,7 @@ class System extends MY_Controller {
 
 	private $base_url;
 
-	public function System() {
+	public function __construct() {
 
 		parent::__construct();
 

@@ -26,7 +26,7 @@
 * @version				1.2
 */
 
-Class Api extends Controller {
+Class Api extends CI_Controller {
 
 	private $actions = array('ADD', 'DELETE', 'UNDELETE', 'UPDATE', 'RELATE');	//valid actions, redundant with URI but kept for clarity's sake
 

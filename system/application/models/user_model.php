@@ -24,7 +24,7 @@
  * @version				2.2
  */
 
-class User_model extends My_Model {
+class User_model extends MY_Model {
 
 	private $user_levels = array('author', 'commentator', 'reviewer', 'reader');  // In order of level (top level first)
 

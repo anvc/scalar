@@ -49,12 +49,13 @@ $lang['UP9']	= '(UTC +9:00) Japan Standard Time, Korea Standard Time, Yakutsk Ti
 $lang['UP95']	= '(UTC +9:30) Australian Central Standard Time';
 $lang['UP10']	= '(UTC +10:00) Australian Eastern Standard Time, Vladivostok Time';
 $lang['UP105']	= '(UTC +10:30) Lord Howe Island';
-$lang['UP11']	= '(UTC +11:00) Magadan Time, Solomon Islands, Vanuatu';
+$lang['UP11']	= '(UTC +11:00) Srednekolymsk Time, Solomon Islands, Vanuatu';
 $lang['UP115']	= '(UTC +11:30) Norfolk Island';
 $lang['UP12']	= '(UTC +12:00) Fiji, Gilbert Islands, Kamchatka Time, New Zealand Standard Time';
 $lang['UP1275']	= '(UTC +12:45) Chatham Islands Standard Time';
 $lang['UP13']	= '(UTC +13:00) Phoenix Islands Time, Tonga';
 $lang['UP14']	= '(UTC +14:00) Line Islands';
+
 
 /* End of file date_lang.php */
 /* Location: ./system/language/english/date_lang.php */
