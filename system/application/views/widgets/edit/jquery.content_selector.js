@@ -92,8 +92,8 @@
 			$media_preview.find('.left').remove();
 			$media_preview.find('.right').removeClass('col-sm-8 col-md-9');
 		}
-		if(typeof opts.node.targets != 'undefined' || opts.node.parent!=null){
-			if(typeof opts.node.targets != 'undefined'){
+		if((typeof opts.node.targets != 'undefined' && opts.node.targets.length > 0) || opts.node.parent!=null){
+			if(typeof opts.node.targets != 'undefined' && opts.node.targets.length > 0){
 				var parent_slug = opts.node.targets[0].slug;
 			}else{
 				var parent_slug = opts.node.parent.slug;
@@ -116,7 +116,7 @@
 				}
 			})($media_preview,parent_slug);
 		}
-		$('<a href="#">Change Selected '+((typeof opts.node.targets == 'undefined' && opts.node.parent==null)?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
+		$('<a href="#">Change Selected '+(((typeof opts.node.targets == 'undefined' || opts.node.targets.length == 0) && opts.node.parent==null)?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
 			e.preventDefault();
 			e.stopPropagation();
 			$(this).closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
