@@ -2312,10 +2312,13 @@
                           headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
                         };
 
-                        if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
+												if(typeof relNode.description != 'undefined' && relNode.description != ''){
+                          entry.text.text = relNode.description
+                        }else if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
                           entry.text.text = relNode.content;
                         }
 
+						            var book_url = $('link#parent').attr('href');
                         //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
                         if(typeof nodeSet[n].scalarTypes.media !== 'undefined'){
                           entry.media = {
@@ -2323,17 +2326,20 @@
                             thumbnail : nodeSet[n].thumbnail
                           };
                         }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
-						              var book_url = $('link#parent').attr('href');
                           entry.media = {
                             url : book_url+nodeSet[n].thumbnail,
                             thumbnail : book_url+nodeSet[n].thumbnail
                           };
                         }
+
 												if(typeof nodeSet[n].background !== 'undefined'){
 													entry.background = {url:book_url+nodeSet[n].background}
 												}
 
-												console.log(entry);
+												if(typeof relNode.description != 'undefined' && relNode.description != ''){
+                          entry.text.text = relNode.description
+                        }
+
                         tempdata.events.push(entry);
                     }
                   }
