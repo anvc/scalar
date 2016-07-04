@@ -273,7 +273,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							$('#scalarInlineGearIcon').data({
 								element: $(this).data('element'),
 								type: $(this).data('type')
-							}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-35, top: topPos}).show().off('click').click(function(){
+							}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show().off('click').click(function(){
 								$('#scalarInlineGearIcon').hide();
 								var element = $(this).data('element');
 								isEdit = true;
