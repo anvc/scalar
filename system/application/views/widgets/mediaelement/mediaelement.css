@@ -39,6 +39,22 @@
 .mediaObject { z-index:7; }
 .annotorious-popup-text .mediaObject, .current_annotation .mediaObject { z-index: auto; }
 
+.note_viewer .mediaelement{
+	margin: 0px;
+}
+.mediaelement .annotorious-popup{
+	top: 0;
+	left: 0;
+	width: 320px;
+}
+.annotorious-popup { text-align: left; }
+.media_annotations .current .media_link{
+	background-color: #e2eaef;
+}
+
+.media_annotations .full, .note_viewer .full, .annotorious-popup-text .full, .current_annotation .full { margin-top: 2rem; }
+.media_annotations .paragraph_wrapper, .note_viewer .paragraph_wrapper { margin-bottom: 1.2rem; }
+
 .mediaelement pre { border: 1px solid #cbcbcb; }
 .mediaelement pre, .mediaelement code { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; font-size: 100%; line-height: 100%; } 
 
