@@ -80,6 +80,7 @@ CKEDITOR.plugins.add( 'scalar', {
     icons: 'scalar1,scalar2,scalar3,scalar4,scalar5,scalar6,scalar7',
     requires: 'dialog',
     init: function( editor ) {
+
 			//Callback functions for content options selection
 				annotationLinkCallback = function(node,element){
 					var isEdit = typeof element.$.href != 'undefined' && element.$.href != '';
@@ -115,7 +116,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							}) == "loaded"){
 								addCKLinkedMediaPreview(thisSlug,e);
 							}
-						})(node.slug,element);
+						})(resource,element);
 
 					}});
 				};
@@ -157,7 +158,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
 											addCKInlineMediaPreview(thisSlug,element);
 									}
-								})(node.slug,element);
+								})(resource,element);
 							}
 					}});
 				};
@@ -264,17 +265,23 @@ CKEDITOR.plugins.add( 'scalar', {
 						var framePosition = $('.cke_contents>iframe').offset();
 						var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
 						var pageScroll = $(window).scrollTop();
-						$('#scalarInlineGearIcon').data({
-							element: $(this).data('element'),
-							type: $(this).data('type')
-						}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-35, top: framePosition.top+position.top-frameScroll-pageScroll+10}).show().off('click').click(function(){
-							$('#scalarInlineGearIcon').hide();
-							var element = $(this).data('element');
-							isEdit = true;
-							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
-						});
+						var topPos = framePosition.top+position.top-frameScroll+10;
+						if(frameScroll > position.top){
+							topPos = framePosition.top+10;
+						}
+						if(frameScroll-position.top < 30){
+							$('#scalarInlineGearIcon').data({
+								element: $(this).data('element'),
+								type: $(this).data('type')
+							}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-35, top: topPos}).show().off('click').click(function(){
+								$('#scalarInlineGearIcon').hide();
+								var element = $(this).data('element');
+								isEdit = true;
+								CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+							});
 
-						window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
+							window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
+						}
 				},function(){
 					$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon').hide(); },200));
 				});
@@ -289,6 +296,8 @@ CKEDITOR.plugins.add( 'scalar', {
 					var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
 					var pageScroll = $(window).scrollTop();
 					var thumbnail = node.thumbnail;
+					var topPos = framePosition.top+position.top-frameScroll-pageScroll+30;
+
 					if(thumbnail == null){
 						thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 					}
@@ -296,7 +305,8 @@ CKEDITOR.plugins.add( 'scalar', {
 						element : element,
 						type : element.getAttribute('href').indexOf('#')<0?'media':'annotation'
 					};
-					$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: framePosition.top+position.top-frameScroll-pageScroll+30}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
+
+					$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: topPos}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
 					$('#scalarLinkTooltip .gearIcon').off('click').click(function(){
 						var $tooltip = $('#scalarLinkTooltip');
 						$tooltip.hide();

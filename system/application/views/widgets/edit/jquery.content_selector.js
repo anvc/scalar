@@ -64,8 +64,8 @@
 		}
 		//Media selection back link
 		var node = typeof opts.node.current != 'undefined'?opts.node.current:opts.node;
-		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-12 col-sm-4 col-md-3 left"></div><div class="col-xs-12 col-sm-8 col-md-9 right"><h2>'+node.title+'</h2><br /><p class="description"></p><br /><br /></div></div><hr />');
-		var thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-12 col-sm-4 col-md-3 left"></div><div class="col-xs-12 col-sm-8 col-md-9 right"><h2>'+node.title+'</h2><p class="description"></p><div class="link"></div></div></div><hr />');
+		var thumbnail = undefined;
 		if(typeof opts.node.thumbnail != 'undefined' && opts.node.thumbnail != null){
 			thumbnail = opts.node.thumbnail;
 		}else if(typeof opts.node.content != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != null){
@@ -86,8 +86,37 @@
 		}else{
 			$media_preview.find('.description').remove();
 		}
-		$media_preview.find('.left').append('<img class="img-responsive center-block" src="'+thumbnail+'">');
-		$('<a href="#">Change Selected '+((typeof opts.targets != 'undefined' || opts.node.parent==null)?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
+		if(thumbnail!=undefined){
+			$media_preview.find('.left').append('<img class="img-responsive center-block" src="'+thumbnail+'">');
+		}else{
+			$media_preview.find('.left').remove();
+			$media_preview.find('.right').removeClass('col-sm-8 col-md-9');
+		}
+		if(typeof opts.node.targets != 'undefined' || opts.node.parent!=null){
+			if(typeof opts.node.targets != 'undefined'){
+				var parent_slug = opts.node.targets[0].slug;
+			}else{
+				var parent_slug = opts.node.parent.slug;
+			}
+			$('<img src="" class="parentThumb pull-left"><small class="text-muted">Annotation of <span class="parentTitle"></span></small><br />').appendTo($media_preview.find('.right .link'));
+			(function($media_preview,parent_slug){
+				var updateParentInfo = function(){
+					var node = scalarapi.getNode(parent_slug);
+					$media_preview.find('.parentTitle').text(node.getDisplayTitle());
+					if(typeof node.thumbnail != 'undefined' && node.thumbnail != null){
+						$media_preview.find('.parentThumb').attr('src',node.thumbnail);
+					}else{
+						$media_preview.find('.parentThumb').hide();
+					}
+				}
+				if(scalarapi.loadPage( parent_slug, false, function(){
+					updateParentInfo();
+				}) == "loaded"){
+					updateParentInfo();
+				}
+			})($media_preview,parent_slug);
+		}
+		$('<a href="#">Change Selected '+((typeof opts.node.targets == 'undefined' && opts.node.parent==null)?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
 			e.preventDefault();
 			e.stopPropagation();
 			$(this).closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
@@ -100,7 +129,7 @@
 			var data = $(element.$).data('selectOptions');
 			data.forceSelect = true;
 			CKEDITOR._scalar.selectcontent(data);
-		}).appendTo($media_preview.find('.right'));
+		}).appendTo($media_preview.find('.right .link'));
 
 		$form.append($media_preview);
 
@@ -301,28 +330,29 @@
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		// Create the modal
     		if (bootstrap_enabled) {
-    			//$(document).scrollTop(0);  // iOS
-				var box = bootbox.dialog({
-					message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
-					title: '<div class="options container-fluid"></div>',
-					className: 'content_selector_bootbox',
-					animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
-				});
-				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
-				$this.appendTo($('#bootbox-content-selector-content'));
-				var $content_selector_bootbox = $('.content_selector_bootbox');
-				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
-				var $options = $content_selector_bootbox.find('.options:first');
-				$('.bootbox-close-button').empty();
-				box.on("shown.bs.modal", function() {
-					modal_height();
-				});
-				$(window).resize(function() {
-					modal_height();
-				});
-				box.on("hidden.bs.modal", function() {
-					reset();
-				});
+	    			//$(document).scrollTop(0);  // iOS
+					bootbox.hideAll()
+					var box = bootbox.dialog({
+						message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
+						title: '<div class="options container-fluid"></div>',
+						className: 'content_selector_bootbox',
+						animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
+					});
+					$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
+					$this.appendTo($('#bootbox-content-selector-content'));
+					var $content_selector_bootbox = $('.content_selector_bootbox');
+					$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
+					var $options = $content_selector_bootbox.find('.options:first');
+					$('.bootbox-close-button').empty();
+					box.on("shown.bs.modal", function() {
+						modal_height();
+					});
+					$(window).resize(function() {
+						modal_height();
+					});
+					box.on("hidden.bs.modal", function() {
+						reset();
+					});
     		} else {
     			$('body').append($this);
     			var $options = $('<div class="options container-fluid"></div>').prependTo($wrapper);
@@ -518,7 +548,7 @@
 						currentSlug = opts.element.getAttribute('resource');
 					}
 				}
-				
+
     		for (var j in opts.data) {
     			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
 					if(opts.data[j].slug == currentSlug){
