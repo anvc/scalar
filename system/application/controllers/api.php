@@ -180,7 +180,7 @@ Class Api extends CI_Controller {
 	public function update(){
 		$this->load->model('page_model', 'pages');
 		$this->load->model('version_model', 'versions');
-;
+
 		//parse data
 		$this->_load_update_data();
 
