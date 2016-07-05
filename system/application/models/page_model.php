@@ -139,7 +139,7 @@ class Page_model extends MY_Model {
     	$this->db->select($this->versions_table.'.*');
     	$this->db->from($this->versions_table);
     	$this->db->where($this->versions_table.'.url', $url);
-    	$this->db->orderby($this->versions_table.'.version_id', 'desc');
+    	$this->db->order_by($this->versions_table.'.version_id', 'desc');
     	$query = $this->db->get();
     	if (!$query->num_rows) return null;
     	$result = $query->result();

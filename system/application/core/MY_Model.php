@@ -64,8 +64,18 @@ class MY_Model extends CI_Model {
 	 * @return $result
 	 */
 
-    public function get_all($table='', $book_id=null, $type=null, $category=null, $is_live=true, $sq, $version_datetime=null) {
+    public function get_all() {
 
+    	// Define arguments here to avoid E_STRICT warnings for mismatched arguments in functions of the same name in child classes
+    	list($table, $book_id, $type, $category, $is_live, $sq, $version_datetime) = array_pad(func_get_args(), 7, null);
+    	if (empty($table)) $table = '';
+    	if (empty($book_id)) $book_id = 0;
+    	if (empty($type)) $type = null;
+    	if (empty($category)) $category = null;
+    	if (false!==$is_live) $table = true;
+    	if (empty($sq)) $sq = null;
+    	if (empty($version_datetime)) $version_datetime = null;
+    	
     	// Get annotations that connect to the current book
     	$this->db->distinct();
     	$this->db->select($this->pages_table.'.*');
@@ -121,12 +131,15 @@ class MY_Model extends CI_Model {
 	 * @return $result
 	 */
 
-	public function get_parents($table='', $child_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+	public function get_parents() {
 
-		if (empty($orderby)) {
-			$orderby = $this->versions_table.'.version_num';
-			$orderdir = 'desc';
-		}
+		list($table, $child_version_id, $orderby, $orderdir, $version_datetime, $is_live) = array_pad(func_get_args(), 6, null);
+		if (empty($table)) $table = '';
+		if (empty($child_version_id)) $child_version_id = 0;
+		if (empty($orderby)) $orderby = $this->versions_table.'.version_num';
+		if (empty($orderdir)) $orderdir = 'desc';
+		if (empty($version_datetime)) $version_datetime = null;
+		if (true!==$is_live) $is_live = false;
 
 		$this->db->select($this->versions_table.'.version_num AS parent_version_num');
 		$this->db->select($this->versions_table.'.content_id AS parent_content_id');
@@ -140,7 +153,7 @@ class MY_Model extends CI_Model {
 		$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
 		$this->db->where($table.'.child_version_id', $child_version_id);
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
-		$this->db->orderby($orderby, $orderdir);
+		$this->db->order_by($orderby, $orderdir);
 		$query = $this->db->get();
 		$result = $query->result();
 		$remove = array();
@@ -172,12 +185,15 @@ class MY_Model extends CI_Model {
 	 * @return $result
 	 */
 
-	public function get_children($table='', $parent_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+	public function get_children() {
 
-		if (empty($orderby)) {
-			$orderby = $this->versions_table.'.version_num';
-			$orderdir = 'desc';
-		}
+		list($table, $parent_version_id, $orderby, $orderdir, $version_datetime, $is_live) = array_pad(func_get_args(), 6, null);
+		if (empty($table)) $table = '';
+		if (empty($parent_version_id)) $parent_version_id = 0;
+		if (empty($orderby)) $orderby = $this->versions_table.'.version_num';
+		if (empty($orderdir)) $orderdir = 'desc';
+		if (empty($version_datetime)) $version_datetime = null;
+		if (true!==$is_live) $is_live = false;		
 
 		$this->db->distinct();
 		$this->db->select($this->versions_table.'.version_num AS child_version_num');
@@ -192,7 +208,7 @@ class MY_Model extends CI_Model {
 		$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
 		$this->db->where($table.'.parent_version_id', $parent_version_id);
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
-		$this->db->orderby($orderby, $orderdir);
+		$this->db->order_by($orderby, $orderdir);
 		$query = $this->db->get();
 		$result = $query->result();
 		$remove = array();
@@ -348,7 +364,7 @@ class MY_Model extends CI_Model {
     	$this->db->select('*');
     	$this->db->from($this->versions_table);
     	$this->db->where('content_id', $content_id);
-    	$this->db->orderby('version_num','desc');
+    	$this->db->order_by('version_num','desc');
     	$this->db->limit(1);
     	$query = $this->db->get();
 		$result = $query->result();
@@ -382,7 +398,7 @@ class MY_Model extends CI_Model {
     	$this->db->select('version_num');
     	$this->db->from($this->versions_table);
     	$this->db->where('content_id', $content_id);
-    	$this->db->orderby('version_num','desc');
+    	$this->db->order_by('version_num','desc');
     	$this->db->limit(1);
     	$query = $this->db->get();
 		$result = $query->result();
@@ -401,7 +417,7 @@ class MY_Model extends CI_Model {
 		$this->db->select('version_num');
     	$this->db->from($this->versions_table);
     	$this->db->where('content_id', $content_id);
-    	$this->db->orderby('version_num', 'desc');
+    	$this->db->order_by('version_num', 'desc');
     	$this->db->limit(1);
     	$query = $this->db->get();
     	if ($query->num_rows==0) return 0;
@@ -415,7 +431,12 @@ class MY_Model extends CI_Model {
 	 * Deterine whether a slug exists in the database
 	 */
 
-    protected function slug_exists($slug='', $book_id=0, $content_id=0) {
+    protected function slug_exists() {
+    	
+    	list($slug, $book_id, $content_id) = array_pad(func_get_args(), 3, null);
+    	if (empty($slug)) $slug = '';
+    	if (empty($book_id)) $book_id = 0;
+    	if (empty($content_id)) $content_id = 0;
 
      	$this->db->select('*');
     	$this->db->from($this->pages_table);

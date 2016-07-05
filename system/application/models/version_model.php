@@ -291,6 +291,8 @@ class Version_model extends MY_Model {
     public function delete($version_id=0) {
 
     	if (empty($version_id)) return false;
+    	
+    	$ci =& get_instance();  // for use with the rdf_store
 
     	$content_id = $this->get_content_id($version_id);
 
@@ -334,7 +336,7 @@ class Version_model extends MY_Model {
 		$this->db->delete($this->references_table);
 
 		// RDF store
-		$this->rdf_store->delete_urn($this->urn($version_id));
+		$ci->rdf_store->delete_urn($this->urn($version_id));
 
 		// Reset recent version
 		$recent_version = self::get_single($content_id);
@@ -355,6 +357,7 @@ class Version_model extends MY_Model {
 
     	if ('array'!=gettype($array)) $array = (array) $array;
     	if (empty($content_id)) throw new Exception('Invalid content ID');
+    	$ci =& get_instance();  // for use with the rdf_store
 
 		// Validate
 
@@ -394,11 +397,11 @@ class Version_model extends MY_Model {
  		// Save to the semantic tables, but first make sure that each predicate isn't a hard coded value in $this->rdf_fields
  		if (empty($version_id)) throw new Exception('Could not resolve version ID before saving to the semantic store.');
  		$additional_metadata = array();
- 		if (isset($this->rdf_store)) {
+ 		if (isset($ci->rdf_store)) {
  			foreach ($array as $key => $value) {
  				if (!strstr($key, ':')) continue;
  				$in_rdf_fields = false;
- 				foreach ($this->rdf_store->ns as $ns_pname => $ns_uri) {
+ 				foreach ($ci->rdf_store->ns as $ns_pname => $ns_uri) {
  					if ($this->rdf_field_exists(str_replace($ns_pname.':', $ns_uri, $key))) $in_rdf_fields = true;
  				}
  				if (!$in_rdf_fields) {
@@ -424,7 +427,7 @@ class Version_model extends MY_Model {
  					if (empty($additional_metadata[$key])) unset($additional_metadata[$key]);
  				}
  			}
- 			if (!empty($additional_metadata)) $this->rdf_store->save_by_urn($this->urn($version_id), $additional_metadata);
+ 			if (!empty($additional_metadata)) $ci->rdf_store->save_by_urn($this->urn($version_id), $additional_metadata);
  		}
 
  		return $version_id;
