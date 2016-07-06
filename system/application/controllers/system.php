@@ -792,8 +792,11 @@ class System extends MY_Controller {
 				$this->load->model('version_model', 'versions');
 				$this->load->model('user_model', 'users');
 				if (!$this->data['login']->is_logged_in) $this->kickout();
-				$book_id =@ (int) $_REQUEST['book_id'];
 				$user_id =@ (int) $_REQUEST['user_id'];
+				$book_id =@ (int) $_REQUEST['book_id'];
+				$this->data['book'] = $this->books->get($book_id);
+				$this->set_user_book_perms();
+				if (!$this->users->is_a($this->data['user_level'], 'reader')) die ('{"error":"Invalid permissions"}');
 				$this->data['content'] = $this->users->get_pages_contributed_to($book_id, $user_id);
 				break;
 

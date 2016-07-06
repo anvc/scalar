@@ -63,7 +63,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 	xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#"
 	xmlns:prov="http://www.w3.org/ns/prov#"
 	xmlns:exif="http://ns.adobe.com/exif/1.0/"
-	xmlns:iptc="http://ns.exiftool.ca/IPTC/IPTC/1.0/">
+	xmlns:iptc="http://ns.exiftool.ca/IPTC/IPTC/1.0/"
+	xmlns:bibo="http://purl.org/ontology/bibo/">
 <head>
 <title><?=strip_tags($title)?></title>
 <base href="<?=$base_uri.((isset($page)&&!empty($page))?$page->slug.'.'.$page->versions[$page->version_index]->version_num:$slug.'.0')?>" />

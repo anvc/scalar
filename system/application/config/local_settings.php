@@ -48,6 +48,13 @@ $config['index_msg'] = '';
 $config['book_msg'] = '';
 $config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
 
+// LDAP authentication settings
+$config['use_ldap'] = (getenv('SCALAR_USE_LDAP') ? getenv('SCALAR_USE_LDAP') : false);  // Default: off
+$config['ldap_server'] = (getenv('SCALAR_LDAP_SERVER') ? getenv('SCALAR_LDAP_SERVER') : "ldap.server.name");
+$config['ldap_port'] = (getenv('SCALAR_LDAP_PORT') ? getenv('SCALAR_LDAP_PORT') : 389);
+$config['ldap_basedn'] = (getenv('SCALAR_LDAP_BASEDN') ? getenv('SCALAR_LDAP_BASEDN') : "dc=organization,dc=tld");
+$config['ldap_uname_field'] = (getenv('SCALAR_LDAP_UNAME_FIELD') ? getenv('SCALAR_LDAP_UNAME_FIELD') : "uid");
+
 // Emails
 $config['email_replyto_address'] = (getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') ? getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') : ''); 
 $config['email_replyto_name'] = (getenv('SCALAR_EMAIL_REPLYTO_NAME') ? getenv('SCALAR_EMAIL_REPLYTO_NAME') : '');

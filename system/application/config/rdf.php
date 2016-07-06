@@ -22,7 +22,8 @@ $config['namespaces'] = array(
   						'shoah'		=> 'http://tempuri.org/',
 						'prov'		=> 'http://www.w3.org/ns/prov#',
 						'exif'		=> 'http://ns.adobe.com/exif/1.0/',
-						'iptc'		=> 'http://ns.exiftool.ca/IPTC/IPTC/1.0/'
+						'iptc'		=> 'http://ns.exiftool.ca/IPTC/IPTC/1.0/',
+						'bibo'		=> 'http://purl.org/ontology/bibo/'
 					   );
 
 // Internet Archive allowable filetypes when importing
@@ -238,6 +239,77 @@ $config['ontologies']['iptc'] = array(
     '2#231' => 'DocumentHistory',
     '2#232' => 'ExifCameraInfo',
     '2#255' => 'CatalogSets'
+);
+// See https://github.com/structureddynamics/Bibliographic-Ontology-BIBO/blob/master/bibo.owl
+$config['ontologies']['bibo'] = array(
+	// Datatype properties
+	'abstract',
+	'argued',
+	'asin',
+	'chapter',
+	'coden',
+	'doi',
+	'eanucc13',
+	'edition',
+	'eissn',
+	'gtin14',
+	'handle',
+	'identifier',
+	'isbn',
+	'isbn10',
+	'isbn13',
+	'issn',
+	'issue',
+	'lccn',
+	'locator',
+	'numPages',
+	'numVolumes',
+	'number',
+	'oclcnum',
+	'pageEnd',
+	'pageStart',
+	'pages',
+	'pmid',
+	'prefixName',
+	'section',
+	'shortDescription',
+	'shortTitle',
+	'sici',
+	'suffixName',
+	'upc',
+	'uri',
+	'volume',
+	// Object properties
+	'affirmedBy',
+	'annotates',
+	'authorList',
+	'citedBy',
+	'cites',
+	'contributorList',
+	'court',
+	'degree',
+	'director',
+	'distributor',
+	'editor',
+	'editorList',
+	'interviewee',
+	'interviewer',
+	'issuer',
+	'organizer',
+	'owner',
+	'performer',
+	'presentedAt',
+	'presents',
+	'producer',
+	'recipient',
+	'reproducedIn',
+	'reversedBy',
+	'reviewOf',
+	'status',
+	'subsequentLegalDecision',
+	'transcriptOf',
+	'translationOf',
+	'translator'
 );
 
 //EOF

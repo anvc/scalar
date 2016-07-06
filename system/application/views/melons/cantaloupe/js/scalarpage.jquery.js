@@ -530,7 +530,7 @@
 								// continue button
 								links = $( '<p></p>' );
 								var continue_button = $( '<a class="continue_btn nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
-									'?path=' + page.containingPath.slug + '">Continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
+									'?path=' + page.containingPath.slug + '">Or, continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
 									'&rdquo;</a>' ).appendTo(links);
 								if ( pathOptionCount == 0 ) {
 									continue_button.addClass( 'primary' );
@@ -582,7 +582,7 @@
 							section.append( links );
 
 							if(back_button!=null){
-								back_button.height(end_button.innerHeight()).css({'line-height':end_button.height()+'px',float:'left','margin-right':'1px'});
+								back_button.height(end_button.innerHeight()).css({'line-height':end_button.height()+'px',float:'left'});
 								$(window).resize(function(){
 									var end_button = $('#back-btn').siblings('.nav_btn').first();
 									$('#back-btn').height(end_button.innerHeight()).css({'line-height':end_button.height()+'px'});
@@ -610,7 +610,7 @@
 					if(cont_btn.length !== 0) {
 						if(back_btn.length !== 0) {
 							cont_btn.parent().addClass('container');
-							back_btn.wrap('<div style="padding:0;padding-right:1px;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
+							back_btn.wrap('<div style="padding:0;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
 							cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
 
 							var temp = (back_btn.parent().parent().height()-back_btn.height())/2;
@@ -1022,9 +1022,10 @@
 
 					if (( ( $( this ).attr( 'resource' ) != null ) || // linked media
 						( $( this ).find( '[property="art:url"]' ).length > 0 ) || // inline media
-						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 ))) // annotated media
+						(( $( this ).parents( '.annotation_of' ).length > 0 ) && ( $( this ).parent( 'span[property="dcterms:title"]' ).length > 0 )) || // annotated media
+						(includeWidgets && $(this).data('widget') != undefined)) //self-referential widget
 						&& ( $( this ).attr( 'rev' ) != 'scalar:has_note' ) && ( $( this ).attr( 'data-relation' ) == null )) {
-						if($(this).is('a[resource^="widget/"]')){
+						if($(this).data('widget') != undefined){
 							if(includeWidgets !== true){
 								return;
 							}else{
@@ -1329,13 +1330,22 @@
 						} );
 
 						if(isMobile){
-							$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
+							if(touchLoaded){
 								page.mediaCarousel.swiperight(function() {
-	    		  			$(this).carousel('prev');
-		    				}).swipeleft(function() {
-			      			$(this).carousel('next');
+									$(this).carousel('prev');
+								}).swipeleft(function() {
+									$(this).carousel('next');
 								});
-							});
+							}else{
+								$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
+									touchLoaded = true;
+									page.mediaCarousel.swiperight(function() {
+										$(this).carousel('prev');
+									}).swipeleft(function() {
+										$(this).carousel('next');
+									});
+								});
+							}
 						}
 
 						break;
@@ -2112,6 +2122,8 @@
 							break;
 
                     case "vis":
+                    case "vistoc":
+                    case "visconnections":
                     case "visindex":
                    	case "visradial":
                     case "vispath":
@@ -2128,6 +2140,24 @@
 	                    	content: 'all',
 	                    	relations: 'all',
 	                    	format: 'grid'
+	                    }
+	                    break;
+
+	                    case "vistoc":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'toc',
+	                    	relations: 'all',
+	                    	format: 'tree'
+	                    }
+	                    break;
+
+	                    case "visconnections":
+	                    visOptions = {
+	                    	modal: false,
+	                    	content: 'all',
+	                    	relations: 'all',
+	                    	format: 'force-directed'
 	                    }
 	                    break;
 
@@ -2182,7 +2212,159 @@
 					$( 'article > header' ).after( visualization );
 					visualization.scalarvis( visOptions );
                     break;
+					case "timeline":
+						var parseDate = function(date,d_string){
+							var d = {
+									year : date.getFullYear()
+							};
+							var month = date.getMonth()+1; //Timeline expects 1-12; JS spits out 0-11
+							if(month > 1 || d_string.length > 4 || (d_string.length > 2 && (d_string.match(/\//g).length > 0 || d_string.match(/,/g).length > 0))){
+								d.month = month;
+								var day = date.getDate();
+								if(day > 1 || d_string.length > 6){
+									d.day = day;
+									var hour = date.getHours();
+									if(hour > 0){
+										d.hour = hour;
+										var minute = date.getMinutes();
+										if(minute > 0){
+											d.minute = minute;
+											var second = date.getSeconds();
+											if(second > 0){
+												d.second = second;
+												var millisecond = date.getMilliseconds();
+												if(millisecond > 0){
+													d.millisecond = millisecond;
+												}
+											}
+										}
+									}
+								}
+							}
+							return d;
+						}
+						var timelinePromise = $.Deferred(function( deferred ){
+								$( deferred.resolve );
+						});
+						if(typeof loadedTimeline == 'undefined' || !loadedTimeline){
+								var timelinePromise = $.Deferred();
+								$.getScript(modules_uri+'/cantaloupe/js/date-utils.min.js',function(){
+									$.getScript(modules_uri+'/cantaloupe/js/timeline.min.js',function(){
+										$('head').append('<link rel="stylesheet" type="text/css" href="'+modules_uri+'/cantaloupe/css/timeline.min.css" />')
+										loadedTimeline = true;
+										timelinePromise.resolve();
+									});
+								});
+						}
+						timelinePromise.then(function(){
+								var node = scalarapi.model.getCurrentPageNode();
 
+                var relatedNodes = [];
+
+                relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
+                relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
+                relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
+
+                var tempdata = {
+                  events : []
+                };
+
+                //Get the main timeline items, if there are any
+                for(var i in relatedNodes){
+                  var nodeSet = relatedNodes[i];
+                  for(var n in nodeSet){
+                    var relNode = nodeSet[n].current;
+                    if(typeof relNode.auxProperties != 'undefined' && typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0){
+                        var entry = {};
+
+                        var temporal_data = relNode.auxProperties['dcterms:temporal'][0];
+                        var dashCount = (temporal_data.match(/-/g) || []).length;
+                        if(dashCount != 1){
+                          //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
+                          var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
+
+                          var d = new Date(d_string);  //parse as a date
+                          if(d instanceof Date){
+                            entry.start_date = parseDate(d,d_string);
+                          }
+                        }else{
+                          var dateParts = temporal_data.replace('-',' - ').split(' - ');
+
+                          //We should now have two dates - a start and and end
+                          if(dateParts.length == 2){
+                            dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
+                            dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
+
+                            var sdate = new Date(dateParts[0]);  //parse as a date
+                            var edate = new Date(dateParts[1]);  //parse as a date
+
+                            if(sdate instanceof Date && edate instanceof Date){
+                              entry.start_date = parseDate(sdate,dateParts[0]);
+                              entry.end_date = parseDate(edate,dateParts[1]);
+                            }
+
+                          }
+                        }
+                        //Cool, got time stuff out of the way!
+                        //Let's do the other components Timeline.js expects
+                        entry.text = {
+                          headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
+                        };
+
+												if(typeof relNode.description != 'undefined' && relNode.description != ''){
+                          entry.text.text = relNode.description
+                        }else if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
+                          entry.text.text = relNode.content;
+                        }
+
+						            var book_url = $('link#parent').attr('href');
+                        //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
+                        if(typeof nodeSet[n].scalarTypes.media !== 'undefined'){
+                          entry.media = {
+                            url : relNode.sourceFile,
+                            thumbnail : nodeSet[n].thumbnail
+                          };
+                        }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
+                          entry.media = {
+                            url : book_url+nodeSet[n].thumbnail,
+                            thumbnail : book_url+nodeSet[n].thumbnail
+                          };
+                        }
+
+												if(typeof nodeSet[n].background !== 'undefined'){
+													entry.background = {url:book_url+nodeSet[n].background}
+												}
+
+												if(typeof relNode.description != 'undefined' && relNode.description != ''){
+                          entry.text.text = relNode.description
+                        }
+
+                        tempdata.events.push(entry);
+                    }
+                  }
+                }
+
+								//$( '.page' ).css( 'padding-top', '5.0rem' );
+
+								$timeline = $('<div class="caption_font timeline_embed maximized-embed"><div></div></div>').insertAfter('header > h1');
+								$('.body_copy').before('<br />');
+								$timeline_container = $timeline.find('div');
+
+								var height = 0.6*$(window).height();
+								$timeline_container.height(height);
+								$timeline.height(height+15);
+
+								timeline = new TL.Timeline($timeline_container.get(0),tempdata);
+
+
+								$(window).on('resize',function(){
+									var height = 0.6*$(window).height();
+									$timeline_container.height(height);
+									$timeline.height(height+20);
+								});
+						});
+						break;
 					case "versions":
 					if ( page.is_author || page.is_commentator || page.is_reviewer ) {
 						$( 'h1[property="dcterms:title"]' ).after( '<h2>Version editor</h2>' );

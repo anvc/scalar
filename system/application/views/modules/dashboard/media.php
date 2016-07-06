@@ -18,6 +18,7 @@
 		var book_uri = '<?=addslashes(confirm_slash(base_url()).confirm_slash($book->slug))?>';
 		var start = <?=(isset($_GET['start'])?$_GET['start']:0)?>;
 		var results = 20;
+		var max_results = 100;
 		var paywall = <?=(($book->has_paywall)?'true':'false')?>;
 
 		$(document).ready(function() {
@@ -56,17 +57,31 @@
 				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
    			});
 
-   			var $jump_to = $('select[name="jump_to"]');
-   			var total = parseInt($('.total:first').html());
-			for (j = 1; j <= total; j+=results) {
-				$jump_to.append('<option value="'+j+'">'+j+'</option>');
+   			var handle_jump_to = function(invoke) {
+   	   			if ('undefined'==typeof(invoke)) invoke = false;
+	   			var $jump_to = $('select[name="jump_to"]');
+	   			$jump_to.empty();
+	   			var total = parseInt($('.total:first').html());
+				for (j = 1; j <= total; j+=results) {
+					$jump_to.append('<option value="'+j+'">'+j+'</option>');
+				}
+				$jump_to.change(function() {
+					start = parseInt($(this).find('option:selected').val() - 1);
+					if (-1==start) start = 0;
+					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
+	   			});
+	   			if (invoke) $jump_to.change();
+   			}
+   			handle_jump_to();
+
+   			var $num_results = $('select[name="num_results"]');
+			for (j = results; j <= max_results; j+=results) {
+				$num_results.append('<option value="'+j+'"'+((j==results)?' selected':'')+'>'+j+'</option>');
 			}
-			$jump_to.change(function() {
-				start = parseInt($(this).find('option:selected').val() - 1);
-				if (-1==start) start = 0;
-				console.log('start: '+start);
-				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
-   			});
+			$num_results.change({handle_jump_to:handle_jump_to}, function(e) {
+				results = parseInt($num_results.val());
+				e.data.handle_jump_to(true);
+			});
 
 		});
 
@@ -312,5 +327,7 @@
 		<span class="prev"></span>&nbsp; <span class="pagination"></span> <b class="total"><?=count($current_book_files)?></b> media &nbsp;<span class="next"></span>
 		&nbsp; &nbsp; &nbsp;
 		Jump to: <select name="jump_to"><option value=""></option></select> of  <b><?=count($current_book_files)?></b> media
+		&nbsp; &nbsp;
+		<span style="white-space:nowrap;">Show: <select name="num_results"></select> at a time</span>
 		</form>
 <? endif ?>

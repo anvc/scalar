@@ -65,6 +65,8 @@
 			var $form = $('<div class="form-horizontal heading_font"></div>' );
 			$(this).append($form);
 		}
+<<<<<<< HEAD
+=======
 		//Media selection back link
 		var node = typeof opts.node.current != 'undefined'?opts.node.current:opts.node;
 		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-12 col-sm-4 col-md-3 left"></div><div class="col-xs-12 col-sm-8 col-md-9 right"><h2>'+node.title+'</h2><p class="description"></p><div class="link"></div></div></div><hr />');
@@ -135,6 +137,7 @@
 		}).appendTo($media_preview.find('.right .link'));
 
 		$form.append($media_preview);
+>>>>>>> refs/remotes/anvc/master
 
 		// Add options
 			var hasAnnotationOption = opts.data.annotations!=null && typeof opts.data.annotations!=='undefined';
@@ -262,6 +265,7 @@
 					}
 				}
 			}
+<<<<<<< HEAD
 
 	    $this.append('<div class="clearfix visible-xs-block"></div><p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default continueButton" value="Continue" /></p>');
 	    $this.find('.close').click(function() {
@@ -269,7 +273,6 @@
 			});
 	    $this.find('.continueButton').click(function() {
 				var data_fields = {};
-				data_fields.node = opts.node
 				for (var option_name in opts.data) {
 					if(option_name!='annotations' && option_name!='node'){
 						data_fields[option_name] = $this.find('select[name="'+option_name+'"] option:selected"').val();
@@ -295,6 +298,11 @@
 				}
 					opts.callback(data_fields);
 			});
+=======
+			data_fields.node = opts.node
+			opts.callback(data_fields);
+		});
+>>>>>>> refs/remotes/anvc/master
 	};
     $.fn.content_selector = function(options) {  // Content selector box
     	// Options
@@ -441,6 +449,16 @@
 							currentSlug = opts.element.getAttribute('resource');
 						}
 
+<<<<<<< HEAD
+					//Load the previously selected node via the api, then run the callback
+					(function(slug,callback){
+						scalarapi.loadPage( slug, true, function(){
+								callback(scalarapi.getNode(slug));
+						}, null, 1, false, null, 0, 1 );
+					})(opts.element.getAttribute('resource'),opts.callback);
+
+					return;
+=======
 						//Now that we have the slug, load the page via the api, then run the callback
 						(function(slug,parent,element,callback){
 							scalarapi.loadPage( slug, true, function(){
@@ -455,6 +473,7 @@
 						var selectOptions = $(opts.element.$).data('selectOptions');
 						selectOptions.forceSelect = false;
 					}
+>>>>>>> refs/remotes/anvc/master
 				}
 
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
@@ -669,6 +688,10 @@
     		var $tbody = $this.find('tbody:first');
 				//Check to see if we have an element, and if so, get the currently selected slug
 				var currentSlug = null;
+<<<<<<< HEAD
+				if(typeof opts.element !== 'undefined' && opts.element != null){
+					currentSlug = opts.element.getAttribute('resource');
+=======
 				if(typeof opts.element != 'undefined' && typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null){
 					if(opts.element.getAttribute('href').indexOf('#')>=0){
 						//with annotation
@@ -680,6 +703,7 @@
 						//no annotation
 						currentSlug = opts.element.getAttribute('resource');
 					}
+>>>>>>> refs/remotes/anvc/master
 				}
 
     		for (var j in opts.data) {

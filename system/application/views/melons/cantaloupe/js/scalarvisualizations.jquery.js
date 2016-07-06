@@ -1473,7 +1473,8 @@
 								type: destNode.type.id,
 								showsTitle: true,
 								parent: sourceData,
-								children: null 
+								children: null,
+								localIndex: sourceData.children.length
 							};
 							sourceData.children.push( destData );
 							if ( base.processedNodesForHierarchy.indexOf( destNode ) == -1 ) {
@@ -2105,7 +2106,7 @@
 				}
 
 				helpContent += 	"<li>Each circle represents a piece of content, color-coded by type.</li>" +
-					"<li>Scroll or pinch to zoom, or click and hold to drag.</li>" +
+					"<li>Click and hold to drag.</li>" +
 					"<li>Click any filled circle to reveal its connections; click again to hide them.</li>" + 
 					"<li>Click the name of any item to navigate to it.</li></ul>";
 
@@ -2236,18 +2237,22 @@
 					//base.hierarchy.y0 = 0;
 
 					// Normalize for fixed-depth.
-					nodes.forEach( function(d) { 
+					nodes.forEach( function(d) {
 						d.x += ( fullHeight * .5 );
 						d.y = ( d.depth + 1 ) * columnWidth; 
 					} );
 
 					// Update the nodes…
 					var treevis_node = container.selectAll("g.node")
-						.data(nodes, function(d) { 
+						.data(nodes, function(d, i) { 
 							var self = ( d.node == null ) ? d.title : d.node.slug;
 							var parent = ( d.parent == null ) ? 'none' : ( d.parent.node == null ) ? d.parent.title : d.parent.node.title;
-							return self + '-' + parent + '-' + d.depth; 
-						});
+							var id = self + '-' + parent + '-' + d.depth;
+							if (d.localIndex != null) {
+								id += '-' + d.localIndex;
+							}
+							return id;
+	 					});
 
 					// Enter any new nodes at the parent's previous position.
 					var nodeEnter = treevis_node.enter().append("svg:g")
@@ -2313,10 +2318,10 @@
 
 					// Update the links…
 					var treevis_link = container.selectAll("path.clusterlink")
-						.data(base.tree.links(nodes), function(d) { 
+						.data(base.tree.links(nodes), function(d, i) { 
 							var source = ( d.source.node == null ) ? d.source.title : d.source.node.slug;
 							var target = ( d.target.node == null ) ? d.target.title : d.target.node.slug;
-							return source + '-' + target + '-' + d.source.depth; 
+							return source + '-' + target + '-' + d.source.depth + '-' + d.target.localIndex;
 						});
 
 					// Enter any new links at the parent's previous position.

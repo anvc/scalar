@@ -442,7 +442,47 @@ CKEDITOR.plugins.add( 'scalar', {
 									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 								}
 							}
+<<<<<<< HEAD
+	        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:function(node){
+								var options = reference_options['insertMediaLink'];
+								options.node = node;
+								options.type = "Linked";
+								CKEDITOR._scalar.contentoptions({data:options,element:element,callback:function(options) {
+										if(!isEdit){
+											var sel = editor.getSelection();
+											element = editor.document.createElement('a');
+											element.setHtml(sel.getSelectedText());
+										}else{
+											element = element.getAscendant( 'a', true );
+										}
+
+										var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+
+	            			element.setAttribute('resource', node.slug);
+
+	            			for (var key in options) {
+											if(key == "featured_annotation"){
+												href+='#'+options[key];
+											}else{
+	            					element.setAttribute('data-'+key, options[key]);
+											}
+	            			}
+										element.setAttribute('href', href);
+										//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
+										if(isEdit){
+											element.data('cke-saved-href',href);
+										}
+
+										if(!isEdit){
+											editor.insertElement(element);
+										}else{
+											editor.updateElement(element);
+										}
+	        			}});
+	        		}});
+=======
 							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+>>>>>>> refs/remotes/anvc/master
             }
         });
         editor.addCommand( 'insertScalar2', {
@@ -467,9 +507,47 @@ CKEDITOR.plugins.add( 'scalar', {
 							});
 							$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 						}
+<<<<<<< HEAD
+        		CKEDITOR._scalar.selectcontent({type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:function(node){
+							var options = reference_options['insertMediaelement'];
+							options.node = node;
+							options.type = "Inline";
+							CKEDITOR._scalar.contentoptions({data:options,element:element,callback:function(options) {
+									if(!isEdit){
+										element = editor.document.createElement('a');
+									}else{
+										element = element.getAscendant( 'a', true );
+									}
+	            		element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
+	            		element.setAttribute('class', 'inline');
+									var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+
+									element.setAttribute('resource', node.slug);
+									for (var key in options) {
+										if(key == "featured_annotation"){
+											href+='#'+options[key];
+										}else{
+											element.setAttribute('data-'+key, options[key]);
+										}
+									}
+									element.setAttribute('href', href);
+									//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
+									if(isEdit){
+										element.data('cke-saved-href',href);
+									}
+									if(!isEdit){
+		        				editor.insertElement(element);
+									}else{
+										editor.updateElement(element);
+									}
+        			}});
+        		}});
+            }
+=======
 
         		CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
 					}
+>>>>>>> refs/remotes/anvc/master
         });
 				/*
         editor.addCommand( 'insertScalar3', {
@@ -502,8 +580,35 @@ CKEDITOR.plugins.add( 'scalar', {
 									$(element.$).data('selectOptions',{type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',element:element,callback:$(element.$).data('contentOptionsCallback')});
 								}
 							}
+<<<<<<< HEAD
+	        		CKEDITOR._scalar.selectcontent({type:'annotation',changeable:false,multiple:false,rec:1,msg:'Insert Scalar Annotation',element:element,callback:function(node){
+	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertAnnotation'],element:element,callback:function(options) {
+									if(!isEdit){
+										var sel = editor.getSelection();
+												element = editor.document.createElement('a');
+												element.setHtml(sel.getSelectedText());
+									}else{
+										element = element.getAscendant( 'a', true );
+									}
+	            		var url = node.targets[0].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+	            		url += '#'+node.slug;
+	            		var resource = node.targets[0].slug;
+	        			element.setAttribute('href', url);
+	        			element.setAttribute('resource', resource);
+            			for (var key in options) {
+            				element.setAttribute('data-'+key, options[key]);
+            			}
+									if(!isEdit){
+		        				editor.insertElement(element);
+									}else{
+										editor.updateElement(element);
+									}
+	        			}});
+	        		}});
+=======
 
 							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+>>>>>>> refs/remotes/anvc/master
             }
         });
         editor.addCommand( 'insertScalar4', {

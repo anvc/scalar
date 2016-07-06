@@ -3659,6 +3659,7 @@ function ScalarRelation(json, body, target, type) {
 						this.separator = ' - ';
 						this.subType = 'temporal';
 						this.index = this.properties.start;
+						this.id += prop + this.index;
 						break;
 						
 						case 'line':
@@ -3676,6 +3677,7 @@ function ScalarRelation(json, body, target, type) {
 						}
 						this.subType = 'textual';
 						this.index = this.properties.start;
+						this.id += prop + this.index;
 						break;
 						
 						case 'xywh':
@@ -3708,6 +3710,7 @@ function ScalarRelation(json, body, target, type) {
 						this.separator = ' ';
 						this.subType = 'spatial';
 						this.index = parseFloat(this.properties.x) * parseFloat(this.properties.y);
+						this.id += prop + this.index;
 						break;
 						
 						case 'index':
@@ -3717,6 +3720,7 @@ function ScalarRelation(json, body, target, type) {
 						this.endString = '';
 						this.separator = '';
 						this.index = this.properties.index;
+						this.id += prop + this.index;
 						break;
 						
 						case 'datetime':
@@ -3727,6 +3731,7 @@ function ScalarRelation(json, body, target, type) {
 						this.endString = '';
 						this.separator = '';
 						this.index = date.getTime();
+						this.id += prop + this.index;
 						break;
 						
 						// explicitly specified title -- store
