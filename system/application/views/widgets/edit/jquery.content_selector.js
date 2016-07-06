@@ -95,31 +95,7 @@
 			$media_preview.find('.left').remove();
 			$media_preview.find('.right').removeClass('col-sm-8 col-md-9');
 		}
-		if((typeof opts.node.targets != 'undefined' && opts.node.targets.length > 0) || opts.node.parent!=null){
-			if(typeof opts.node.targets != 'undefined' && opts.node.targets.length > 0){
-				var parent_slug = opts.node.targets[0].slug;
-			}else{
-				var parent_slug = opts.node.parent.slug;
-			}
-			$('<img src="" class="parentThumb pull-left"><small class="text-muted">Annotation of <span class="parentTitle"></span></small><br />').appendTo($media_preview.find('.right .link'));
-			(function($media_preview,parent_slug){
-				var updateParentInfo = function(){
-					var node = scalarapi.getNode(parent_slug);
-					$media_preview.find('.parentTitle').text(node.getDisplayTitle());
-					if(typeof node.thumbnail != 'undefined' && node.thumbnail != null){
-						$media_preview.find('.parentThumb').attr('src',node.thumbnail);
-					}else{
-						$media_preview.find('.parentThumb').hide();
-					}
-				}
-				if(scalarapi.loadPage( parent_slug, false, function(){
-					updateParentInfo();
-				}) == "loaded"){
-					updateParentInfo();
-				}
-			})($media_preview,parent_slug);
-		}
-		$('<a href="#">Change Selected '+(((typeof opts.node.targets == 'undefined' || opts.node.targets.length == 0) && opts.node.parent==null)?'Media':'Annotation')+'</a>').data('element',opts.element).click(function(e){
+		$('<a href="#">Change Selected Media</a>').data('element',opts.element).click(function(e){
 			e.preventDefault();
 			e.stopPropagation();
 			$(this).closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
@@ -155,7 +131,6 @@
 					}
 				}
 			}
-
 			if(hasAnnotationOption){
 				var $annotationSelection = $('<div class="annotationContainer"><div class="bg-info" style="padding:1rem;margin-bottom:1rem">This media has annotations. Select which annotations (if any) you want to be displayed.</div><div class="form-group">'+
 																		 		'<label class="col-sm-3 control-label">Annotations: </label>'+
@@ -180,86 +155,98 @@
 					}
 				});
 
-				if(opts.data.node!=null && typeof opts.data.node !== 'undefined'){
+				if(opts.node!=null && typeof opts.node !== 'undefined'){
 					(function(slug,$annotationSelection,element){
-							scalarapi.loadPage( slug, true, function(){
-									var node = scalarapi.getNode(slug);
-									var annotated_by = node.getRelatedNodes('annotation', 'incoming');
-									if(annotated_by.length == 0){
-										$annotationSelection.hide();
-										return;
-									}
-									var $body = $annotationSelection.find('tbody');
-									var $featuredAnnotation = $annotationSelection.find('.featuredAnnotation select');
-									var $annotations = [];
-									for(n in annotated_by){
-                    var rel = annotated_by[n];
-										var title = rel.getDisplayTitle();
-										$featuredAnnotation.append('<option style="display: none;" disabled value="'+rel.slug+'">'+title+'</option>');
-                    $annotations[rel.slug] = $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).click(function(){
-											var $featuredAnnotation = $(this).parents('.annotationContainer').find('.featuredAnnotation');
-											if($(this).hasClass('info')){
-												$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
-												$(this).parents('table').find('.annotationSelectionShowAll').addClass('text-muted');
-												$thisOption = $featuredAnnotation.find('option[value="'+$(this).data('slug')+'"]');
-												if($featuredAnnotation.find('option:not([disabled]):not(".none")').length == 1){
-													$featuredAnnotation.slideUp('fast');
-												}else{
-													var newVal = $featuredAnnotation.find('option:not([disabled]):not(".none")').not($thisOption).first().prop('selected','selected').val();
-													$featuredAnnotation.val(newVal).change();
-												}
-												$thisOption.hide().prop('disabled','disabled');
+							var handleAnnotations = function(){
+								var node = scalarapi.getNode(slug);
+								var annotated_by = node.getRelatedNodes('annotation', 'incoming');
+								if(annotated_by.length == 0){
+									$annotationSelection.hide();
+									return;
+								}
+								var $body = $annotationSelection.find('tbody');
+								var $featuredAnnotation = $annotationSelection.find('.featuredAnnotation select');
+								var $annotations = [];
+								for(n in annotated_by){
+									var rel = annotated_by[n];
+									var title = rel.getDisplayTitle();
+									$featuredAnnotation.append('<option style="display: none;" disabled value="'+rel.slug+'">'+title+'</option>');
+									$annotations[rel.slug] = $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).click(function(){
+										var $featuredAnnotation = $(this).parents('.annotationContainer').find('.featuredAnnotation');
+										if($(this).hasClass('info')){
+											$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
+											$(this).parents('table').find('.annotationSelectionShowAll').addClass('text-muted');
+											$thisOption = $featuredAnnotation.find('option[value="'+$(this).data('slug')+'"]');
+											if($featuredAnnotation.find('option:not([disabled]):not(".none")').length == 1){
+												$featuredAnnotation.slideUp('fast');
 											}else{
-												$(this).addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
-												if($(this).siblings('tr:not(.info)').length == 0){
-													$(this).parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
-												}
-												$thisOption = $featuredAnnotation.find('option[value="'+$(this).data('slug')+'"]');
-												$thisOption.show().removeProp('disabled');
-												if($featuredAnnotation.find('option:not([disabled]):not(".none")').length == 1){
-													$thisOption.prop('selected','selected');
-													$featuredAnnotation.val($(this).data('slug'));
-													$featuredAnnotation.slideDown('fast');
-												}
+												var newVal = $featuredAnnotation.find('option:not([disabled]):not(".none")').not($thisOption).first().prop('selected','selected').val();
+												$featuredAnnotation.val(newVal).change();
+											}
+											$thisOption.hide().prop('disabled','disabled');
+										}else{
+											$(this).addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
+											if($(this).siblings('tr:not(.info)').length == 0){
+												$(this).parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
+											}
+											$thisOption = $featuredAnnotation.find('option[value="'+$(this).data('slug')+'"]');
+											$thisOption.show().removeProp('disabled');
+											if($featuredAnnotation.find('option:not([disabled]):not(".none")').length == 1){
+												$thisOption.prop('selected','selected');
+												$featuredAnnotation.val($(this).data('slug'));
+												$featuredAnnotation.slideDown('fast');
+											}
+										}
+									});
+								}
+								if(element!=null && element.getAttribute('resource') == slug){
+									if(element.data('annotations') != undefined){
+										var previous_annotations = element.data('annotations').split(',');
+									}else{
+										previous_annotations = [];
+										$featuredAnnotation.find('option').each(function(){
+											if($(this).val() != 'none'){
+												previous_annotations.push($(this).val());
 											}
 										});
 									}
-									if(element!=null && element.getAttribute('resource') == slug){
-										var previous_annotations = element.data('annotations').split(',');
-										if(previous_annotations.length > 0){
-											for(var i in previous_annotations){
-												var annotation = previous_annotations[i];
-												if(typeof $annotations[annotation] !== 'undefined'){
-													$annotations[annotation].addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
-													if($annotations[annotation].siblings('tr:not(.info)').length == 0){
-														$annotations[annotation].parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
-													}
-													$thisOption = $featuredAnnotation.find('option[value="'+annotation+'"]');
-													$thisOption.show().removeProp('disabled');
-												}
-											}
-
-											if(element.getAttribute('href').indexOf('#')>=0){
-												//no annotation
-												var temp_anchor = document.createElement('a');
-												temp_anchor.href = opts.element.getAttribute('href');
-												var featuredAnnotation = temp_anchor.hash.replace('#','');
-												$featuredAnnotation.find('option[value="'+featuredAnnotation+'"]').prop('selected','selected');
-												$featuredAnnotation.val(featuredAnnotation);
-											}
+									var featuredAnnotation = undefined;
+									if(element.getAttribute('href').indexOf('#')>=0){
+										var temp_anchor = document.createElement('a');
+										temp_anchor.href = opts.element.getAttribute('href');
+										featuredAnnotation = temp_anchor.hash.replace('#','');
+										if(previous_annotations.indexOf(featuredAnnotation) == -1){
+											previous_annotations.push(featuredAnnotation);
 										}
 									}
-							}, null, 1 );
-					})(opts.data.node.slug,$annotationSelection,opts.element);
+
+									if(previous_annotations.length > 0){
+										for(var i in previous_annotations){
+											var annotation = previous_annotations[i];
+											if(typeof $annotations[annotation] !== 'undefined'){
+												$annotations[annotation].addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
+												if($annotations[annotation].siblings('tr:not(.info)').length == 0){
+													$annotations[annotation].parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
+												}
+												$thisOption = $featuredAnnotation.find('option[value="'+annotation+'"]');
+												$thisOption.show().removeProp('disabled');
+											}
+										}
+										$form.find('.featuredAnnotation').add($featuredAnnotation).show();
+
+										if(featuredAnnotation!=undefined){
+											$featuredAnnotation.find('option[value="'+featuredAnnotation+'"]').prop('selected','selected');
+											$featuredAnnotation.val(featuredAnnotation);
+										}
+									}
+								}
+							}
+							scalarapi.loadPage( slug, true, function(){
+								handleAnnotations();
+							}, null, 1);
+					})(opts.node.slug,$annotationSelection,opts.element);
 
 					$form.append($annotationSelection);
-
-					if(opts.element !== null && opts.element.getAttribute('resource')==opts.data.node.slug){
-						var previous_annotations = opts.element.data('annotations')==null?[]:opts.element.data('annotations').split(',');
-						if(previous_annotations.length > 0){
-							$form.find('.featuredAnnotation').show();
-						}
-					}
 				}
 			}
 
@@ -283,7 +270,7 @@
 					for(var i = 0; i < $selectedAnnotations.length; i++){
 						annotations.push($selectedAnnotations.eq(i).data('slug'));
 					}
-					data_fields['annotations'] = annotations.length>0?annotations.join(','):'[]';
+					data_fields['annotations'] = annotations.length>0?annotations.join(','):'';
 					if($('#bootbox-media-options-content').find('.featuredAnnotation select').val()!='none' && $('#bootbox-media-options-content').find('.featuredAnnotation select').is(':visible')){
 						data_fields['featured_annotation'] = $('#bootbox-media-options-content').find('.featuredAnnotation select').val();
 					}
@@ -428,18 +415,9 @@
 				if(typeof opts.element != 'undefined'){
 					if(typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null && opts.forceSelect == false){
 						var parent = null;
+
 						//Get the slug of the currently selected node
-						if(opts.element.getAttribute('href').indexOf('#')>=0){
-							//with annotation, get the slug in the hash of the url
-							var temp_anchor = document.createElement('a');
-							temp_anchor.href = opts.element.getAttribute('href');
-							currentSlug = temp_anchor.hash.replace('#','');
-							parent = {slug: opts.element.getAttribute('resource'), url: opts.element.getAttribute('href').replace('#'+currentSlug,'')};
-							$(temp_anchor).remove();
-						}else{
-							//no annotation - use the resource value instead
-							currentSlug = opts.element.getAttribute('resource');
-						}
+						currentSlug = opts.element.getAttribute('resource');
 
 						//Now that we have the slug, load the page via the api, then run the callback
 						(function(slug,parent,element,callback){
@@ -670,16 +648,7 @@
 				//Check to see if we have an element, and if so, get the currently selected slug
 				var currentSlug = null;
 				if(typeof opts.element != 'undefined' && typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null){
-					if(opts.element.getAttribute('href').indexOf('#')>=0){
-						//with annotation
-						var temp_anchor = document.createElement('a');
-						temp_anchor.href = opts.element.getAttribute('href');
-						currentSlug = temp_anchor.hash.replace('#','');
-						$(temp_anchor).remove();
-					}else{
-						//no annotation
-						currentSlug = opts.element.getAttribute('resource');
-					}
+					currentSlug = opts.element.getAttribute('resource');
 				}
 
     		for (var j in opts.data) {
