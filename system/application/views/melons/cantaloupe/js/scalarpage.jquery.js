@@ -527,10 +527,17 @@
 							// This option is on the current path or we don't know what path we're on
 							if (( foundQueryPath && ( page.containingPath.slug == queryVars.path )) || !foundQueryPath ) {
 
+								var continueVerbage;
+								if (pathOptionCount == 0) {
+									continueVerbage = "Continue to ";
+								} else {
+									continueVerbage = "Or, continue to "
+								}
+
 								// continue button
 								links = $( '<p></p>' );
 								var continue_button = $( '<a class="continue_btn nav_btn" href="' + page.containingPathNodes[page.containingPathIndex+1].url +
-									'?path=' + page.containingPath.slug + '">Or, continue to &ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
+									'?path=' + page.containingPath.slug + '">' + continueVerbage + '&ldquo;' + page.containingPathNodes[page.containingPathIndex+1].getDisplayTitle() +
 									'&rdquo;</a>' ).appendTo(links);
 								if ( pathOptionCount == 0 ) {
 									continue_button.addClass( 'primary' );
@@ -538,7 +545,7 @@
 
 								// back button
 								if ( page.containingPathIndex > 0 ) {
-									var back_button = $( '<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' ).prependTo(links);
+									var back_button = $( '<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[ page.containingPathIndex - 1 ].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ' ).prependTo(links);
 								}
 
 								section.append( links );
