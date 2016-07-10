@@ -26,7 +26,7 @@
 
 class Annotation_model extends MY_Model {
 
-	private $urn_template = 'urn:scalar:anno:$1:$2';
+	private $urn_template = 'urn:scalar:anno:$1:$2:$3';
 
     public function __construct() {
 
@@ -41,10 +41,20 @@ class Annotation_model extends MY_Model {
 
   	}
 
-	public function urn($pk_1=0, $pk_2=0) {
+	public function urn($pk_1=0, $pk_2=0, $fields=null) {
 
+		$cardinal = '';
+		if (is_object($fields)) {
+			if (isset($fields->start_seconds) && !empty($fields->start_seconds)) $cardinal .= $fields->start_seconds.'-';
+			if (isset($fields->end_seconds) && !empty($fields->end_seconds)) $cardinal .= $fields->end_seconds;
+			if (isset($fields->start_line_num) && !empty($fields->start_line_num)) $cardinal .= $fields->start_line_num.'-';
+			if (isset($fields->end_line_num) && !empty($fields->end_line_num)) $cardinal .= $fields->end_line_num;
+			if (isset($fields->points) && !empty($fields->points)) $cardinal .= preg_replace("/[^a-zA-Z0-9]+/", "", $fields->points);
+		}
+		
 		$return = str_replace('$1', $pk_1, $this->urn_template);
 		$return = str_replace('$2', $pk_2, $return);
+		$return = str_replace('$3', $cardinal, $return);
 		return $return;
 
 	}

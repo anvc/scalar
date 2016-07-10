@@ -705,7 +705,7 @@
 								for ( i = 0; i < n; i++ ) {
 									relation = node.incomingRelations[ i ];
 									if ( relation.body == currentNode ) {
-										$( this ).parent().append( "(" + relation.startString + relation.separator + relation.endString + ")" );
+										$( this ).parent().append( "(" + relation.startString + relation.separator + relation.endString + ") " );
 									}
 								}
 								//age.annotatedMedia.push( node );

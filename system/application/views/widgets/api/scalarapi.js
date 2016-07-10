@@ -1114,7 +1114,8 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 			'scalar:urn':data['scalar:urn'], 
 			'scalar:child_urn':$(this).val(), 
 			'scalar:child_rel':'replied', 
-			'scalar:paragraph_num':$(data['reply_of_paragraph_num'][indexInArray]).val()
+			'scalar:paragraph_num':$(data['reply_of_paragraph_num'][indexInArray]).val(),
+			'scalar:datetime':$(data['reply_of_datetime'][indexInArray]).val()
 		});
 	});	
 	// Queue annotation_of 

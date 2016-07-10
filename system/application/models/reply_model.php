@@ -26,7 +26,7 @@
 
 class Reply_model extends MY_Model {
 
-	private $urn_template = 'urn:scalar:reply:$1:$2';
+	private $urn_template = 'urn:scalar:reply:$1:$2:$3';
 
     public function __construct() {
 
@@ -34,10 +34,14 @@ class Reply_model extends MY_Model {
 
     }
 
-	public function urn($pk_1=0, $pk_2=0) {
+	public function urn($pk_1=0, $pk_2=0, $fields=null) {
 
+		$cardinal = 0;
+		if (is_object($fields) && isset($fields->datetime)) $cardinal = preg_replace("/[^a-zA-Z0-9]+/", "", $fields->datetime);	
+		
 		$return = str_replace('$1', $pk_1, $this->urn_template);
 		$return = str_replace('$2', $pk_2, $return);
+		$return = str_replace('$3', $cardinal, $return);
 		return $return;
 
 	}

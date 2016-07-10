@@ -184,6 +184,7 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 	// Reply of
 	values['reply_of'] = $('input[name="reply_of"]');
 	values['reply_of_paragraph_num'] = $('input[name="reply_of_paragraph_num"]');
+	values['reply_of_datetime'] = $('input[name="reply_of_datetime"]');
 	// Annotation of
 	values['annotation_of'] = $('input[name="annotation_of"]');
 	values['annotation_of_start_seconds'] = $('input[name="annotation_of_start_seconds"]');

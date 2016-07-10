@@ -110,7 +110,7 @@ $(document).ready(function() {
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
-				$('#reply_of').append('<li><input type="hidden" name="reply_of" value="'+slug+'" /><input type="hidden" name="reply_of_rel_created" value="">'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
+				$('#reply_of').append('<li><input type="hidden" name="reply_of" value="'+slug+'" /><input type="hidden" name="reply_of_paragraph_num" value=""><input type="hidden" name="reply_of_datetime" value="">'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 				$('.reply_of_msg:first').html('<b>This <span class="content_type">page</span> is a comment</b> on:');
 				$('.reply_of_msg').show();
 			}
@@ -148,7 +148,7 @@ $(document).ready(function() {
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "image":
-						var str = '<div class="form-inline"><div class="form-group"><label>Left (x), Top (y), Width, Height&nbsp; <input style="form-control" type="text" style="width:125px;" name="annotation_of_points" value="0,0,0,0" /></label></div></div>';
+						var str = '<div class="form-inline"><div class="form-group"><label>Left (x), Top (y), Width, Height&nbsp; <input class="form-control" type="text" name="annotation_of_points" value="0,0,0,0" /></label></div></div>';
 						str += '<small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
@@ -679,7 +679,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
 							} elseif (!empty($node->versions[0]->points)) {
-								echo '<div class="form-inline"><div class="form-group"><label>Left (x), Top (y), Width, Height&nbsp; <input type="text" class="form-control" style="width:125px;" name="annotation_of_points" value="'.$node->versions[0]->points.'" /></label></div></div>';
+								echo '<div class="form-inline"><div class="form-group"><label>Left (x), Top (y), Width, Height&nbsp; <input type="text" class="form-control" name="annotation_of_points" value="'.$node->versions[0]->points.'" /></label></div></div>';
 								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';

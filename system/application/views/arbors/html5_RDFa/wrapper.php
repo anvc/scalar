@@ -275,10 +275,10 @@ foreach ($models as $rel):
 		foreach ($inward_array as $inward_item):
 			$page->versions[$page->version_index]->sort_number =@ (int) $inward_item->versions[$inward_item->version_index]->page_index;
 			if ('paths'==$rel) $inward_item->versions[0]->sort_number =@ $inward_item->versions[0]->page_num;
-			if ('replies'==$rel) $inward_item->versions[0]->datetime =@ $inward_item->versions[$inward_item->version_index]->created;
+			//if ('replies'==$rel) $inward_item->versions[0]->datetime =@ $inward_item->versions[$inward_item->version_index]->created;
 ?>
 			<!-- Inward item -->
-			<li resource="urn:scalar:<?=singular($rel)?>:<?=$inward_item->versions[$inward_item->version_index]->version_id?>:<?=$page->versions[$page->version_index]->version_id?>" typeof="oac:Annotation">
+			<li resource="<?=$this->$rel->urn($inward_item->versions[$inward_item->version_index]->version_id,$page->versions[$page->version_index]->version_id,$inward_item->versions[$inward_item->version_index])?>" typeof="oac:Annotation">
 				<a aria-hidden="true" rel="oac:hasBody" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
 				<span resource="<?=$base_uri.$inward_item->slug?>" typeof="scalar:<?=('media'==$inward_item->type)?'Media':'Composite'?>">
 					<a aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
@@ -315,12 +315,12 @@ foreach ($models as $rel):
 							$outward_item->versions[0]->sort_number = null;
 						}
 						if ('replies'==$rel) {
-							$outward_item->versions[0]->datetime =@ $outward_item->versions[$outward_item->version_index]->created;
+							//$outward_item->versions[0]->datetime =@ $outward_item->versions[$outward_item->version_index]->created;
 						} else {
 							$outward_item->versions[0]->datetime = null;
 						}
 ?>
-						<li class="<?=$family_rel?>" resource="urn:scalar:<?=singular($rel)?>:<?=$inward_item->versions[$inward_item->version_index]->version_id?>:<?=$outward_item->versions[$outward_item->version_index]->version_id?>" typeof="oac:Annotation">
+						<li class="<?=$family_rel?>" resource="<?=$this->$rel->urn($inward_item->versions[$inward_item->version_index]->version_id,$outward_item->versions[$outward_item->version_index]->version_id,$outward_item->versions[$outward_item->version_index])?>" typeof="oac:Annotation">
 							<a rel="oac:hasBody" href="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>"></a>
 							<span aria-hidden="true" resource="<?=$base_uri.$outward_item->slug?>" typeof="scalar:<?=('media'==$outward_item->type)?'Media':'Composite'?>">
 								<a rel="dcterms:hasVersion" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?>"></a>
@@ -358,7 +358,7 @@ foreach ($models as $rel):
 			if ('replies'==$rel) $outward_item->versions[$outward_item->version_index]->datetime =@ $outward_item->versions[$outward_item->version_index]->created;
 ?>
 			<!-- Outward item -->
-			<li resource="urn:scalar:<?=singular($rel)?>:<?=$page->versions[$page->version_index]->version_id?>:<?=$outward_item->versions[$outward_item->version_index]->version_id?>" typeof="oac:Annotation">
+			<li resource="<?=$this->$rel->urn($page->versions[$page->version_index]->version_id,$outward_item->versions[$outward_item->version_index]->version_id,$outward_item->versions[$outward_item->version_index])?>" typeof="oac:Annotation">
 				<a aria-hidden="true" rel="oac:hasBody" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
 				<a aria-hidden="true" rel="oac:hasTarget" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?><?=annotation_append($outward_item->versions[$outward_item->version_index])?>"></a>
 				<span resource="<?=$base_uri.$outward_item->slug?>" typeof="scalar:<?=('media'==$outward_item->type)?'Media':'Composite'?>">
