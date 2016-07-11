@@ -370,46 +370,7 @@ function badges() {
 		total = total + j;
 	});
 	$('a[role="tab"] .badge').html(((total>0)?total:''));
-}
-// Validate form data before sending to Scalar's save API
-function validate_form(form, no_action) {
-	no_action = ('undefined'==typeof(no_action) || !no_action) ? false : true;
-	var commit = function() {
-		// Commit editor content
-		var textarea = CKEDITOR.instances['sioc:content'].getData();
-		form.find('textarea[name="sioc:content"]').val(textarea);
-		// Make sure title is present
-		var title = $('#title').val();
-		if (title.length==0) {
-			alert('Title is a required field.  Please enter a title at the top of the form.');
-			return false;
-		}
-		// Make sure slug is present if the page has already been created (otherwise the API will create)
-		var action = $('input[name="action"]').val().toLowerCase();
-		if ('add'!=action) {
-			var slug = $('#slug').val();
-			if (slug.length==0) {
-				alert('Page URL is a required field.  Please enter a URL segment in the Metadata tab at the bottom of the page.');
-				return false;
-			}
-		}
-		if (no_action) {
-			send_form_no_action(form);
-		} else {
-			send_form(form);
-		}
-	}
-
-	// If in source mode, switch to WYSIWYG to invoke formatting
-	if ('source'==CKEDITOR.instances['sioc:content'].mode) {
-		CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
-			commit();
-		});
-	} else {
-		commit();
-	}
-}
-
+};
 END;
 $this->template->add_js($js, 'embed');
 $page = (isset($page->version_index)) ? $page : null;
@@ -449,7 +410,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
     </div>
   </div>
 </div>
-<form id="edit_form" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="validate_form($(this));return false;">
+<form id="edit_form" target="hidden_upload" action="<?=base_url().$book->slug.'/'?>upload_thumb" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="return validate_edit_form($(this));">
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
@@ -805,6 +766,11 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			  			?></select>
 					</div>
 					<div class="form-group">
+			  			<label>Or upload a new thumbnail: &nbsp; <small>(JPG, PNG, or GIF format; will be resized to 120px)</small> &nbsp; <small><a href="javascript:void(null);" onclick="$('input[name=\'source_file\']').val('');return false;">clear selected file</a></small></label>
+			  			<input type="file" name="source_file" />
+			  			<div style="margin:0;padding:0;height:0;border:0;overflow:hidden;"><iframe id="hidden_upload" name="hidden_upload" src=""></iframe></div>
+					</div>					
+					<div class="form-group">
 			  			<label for="enter_thumbnail_url">Or enter any image URL:</label>
 			  			<input id="enter_thumbnail_url" class="form-control" type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
 					</div>
@@ -1013,7 +979,6 @@ if (isset($page->version_index)):
 	echo '<input type="hidden" name="scalar:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />';
 endif;
 ?>
-
 </form>
 
 

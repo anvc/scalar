@@ -46,6 +46,18 @@
             return $path;
         }
 
+        public function uploadPageThumb($slug,$chmodMode) {
+            if (empty($_FILES)) throw new Exception('Could not find uploaded file');
+            $tempFile = $_FILES['source_file']['tmp_name'];
+            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
+           	$name = $_FILES['source_file']['name'];
+            $targetName = substr_replace($name, "_thumb", strrpos($name, "."),0);
+            $targetFile = $targetPath.'/'.$targetName;
+            $this->upload($tempFile,$targetFile,$chmodMode);
+            $this->resize($targetFile,self::THUMB_WIDTH);
+            return 'media/'.$targetName;
+        }        
+        
         public function uploadThumb($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
             $tempFile = $_FILES['upload_thumb']['tmp_name'];

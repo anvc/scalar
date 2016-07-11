@@ -57,7 +57,6 @@ class Book extends MY_Controller {
 		$this->load->model('reference_model', 'references');
 		$this->load->library('SendMail', 'sendmail');
 		$this->load->library('RDF_Object', 'rdf_object');
-		$this->load->library('File_Upload', 'file_upload');
 		$this->load->library('statusCodes');
 		$this->load->helper('inflector');
 
@@ -395,10 +394,12 @@ class Book extends MY_Controller {
 
 	}
 
-	// Upload a file
+	// Upload a file and create its thumbnail
 	// This uploads a file only and returns its URL; all other operations to create a media page are through the Save API
 	private function upload() {
 
+		$this->load->library('File_Upload', 'file_upload');
+		
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
 		$chmod_mode = $this->config->item('chmod_mode');
 		if (empty($chmod_mode)) $chmod_mode = 0777;
@@ -459,6 +460,49 @@ class Book extends MY_Controller {
 
 	}
 
+	// Upload a thumbnail
+	// This uploads a file only and returns its URL; all other operations to create a media page are through the Save API	
+	private function upload_thumb() {
+		
+		$browser_redirect_to = base_url().$this->data['book']->slug.'/upload';
+		$this->load->library('File_Upload', 'file_upload');
+		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
+		$chmod_mode = $this->config->item('chmod_mode');
+		if (empty($chmod_mode)) $chmod_mode = 0777;
+
+		if (!$this->login_is_book_admin()) {
+			header('Location: '.$browser_redirect_to);
+			exit;
+		}
+
+		if (empty($_FILES) && empty($_POST) && isset($_SERVER['REQUEST_METHOD']) && 'post'==strtolower($_SERVER['REQUEST_METHOD'])) {
+
+			echo json_encode( array('error'=>'The file is larger than the server\'s max upload size') );
+			exit;
+
+		} elseif ($action == 'add' || $action == 'update') {
+
+			$return = array();
+			try {
+	            $slug = confirm_slash($this->data['book']->slug);
+				$thumbUrl = $this->file_upload->uploadPageThumb($slug, $chmod_mode);
+				if (false===$thumbUrl) throw new Exception ('Something went wrong creating a thumbnail from the file upload');
+				$return['scalar:thumbnail'] = confirm_slash(base_url()).$slug.$thumbUrl;
+			} catch (Exception $e) {
+				$return['error'] =  $e->getMessage();
+				echo json_encode($return);
+				exit;
+			}
+			echo json_encode($return);
+			exit;
+
+		} // if
+		
+		header('Location: '.$browser_redirect_to);
+		exit;
+		
+	}
+	
 	// List versions of the current page
 	private function versions() {
 

@@ -46,7 +46,7 @@ function validate_upload_form_file($form) {
 
 function validate_upload_form_file_return($form) {
 
-	var iframe = $form.find('iframe:first')[0];
+	var iframe = $form.find('#hidden_upload')[0];
 	var content = iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
 	try {
 		var obj = jQuery.parseJSON(content);
@@ -115,6 +115,101 @@ function validate_upload_form($form, obj) {
 	return send_form($form, values);
 
 }
+
+function validate_edit_form(form, no_action) {
+	
+	no_action = ('undefined'==typeof(no_action) || !no_action) ? false : true; // Don't load the saved page after saving
+	
+	var check_fields = function() {
+		// Make sure title is present
+		var title = $('#title').val();
+		if (title.length==0) {
+			alert('Title is a required field.  Please enter a title at the top of the form.');
+			return false;
+		}
+		// Make sure slug is present if the page has already been created (otherwise the API will create)
+		var action = $('input[name="action"]').val().toLowerCase();
+		if ('add'!=action) {
+			var slug = $('#slug').val();
+			if (slug.length==0) {
+				alert('Page URL is a required field.  Please enter a URL segment in the Metadata tab at the bottom of the page.');
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	var form_file_return = function() {
+		var iframe = form.find('#hidden_upload')[0];
+		var content = iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
+		try {
+			var obj = jQuery.parseJSON(content);
+		} catch(err) {
+			$(iframe).unbind();
+			$(iframe).attr('src', '');
+			send_form_hide_loading();
+			alert('There was an error saving the file: '+err);
+			return false;
+		}
+		if ('undefined'!=typeof(obj) && 'undefined'!=typeof(obj.error) && obj.error.length) {
+			$(iframe).unbind();
+			$(iframe).attr('src', '');
+			send_form_hide_loading();
+			alert('There was an error saving the file: '+obj.error);
+			return false;
+		}
+		if ('undefined'!=typeof(obj) && 'undefined'!=typeof(obj['scalar:thumbnail']) && obj['scalar:thumbnail'].length) {
+			form.find('input[name="scalar:thumbnail"]').val(obj['scalar:thumbnail']);
+		}
+		finish();		
+	};
+	
+	var form_file = function() {
+		if (!check_fields()) return false;
+		// Make sure file is present
+		var the_file = form.find('input[name="source_file"]').val();
+		if (the_file.length==0) {
+			alert('Please choose a file to upload.');
+			return false;
+		}			
+		send_form_show_loading();
+		// Save using standard POST to the system, then route to the save API for creating the page
+		form.find('#hidden_upload').load(function() {
+			form_file_return();
+		});
+	};
+	
+	var finish = function() {
+		var textarea = CKEDITOR.instances['sioc:content'].getData();
+		form.find('textarea[name="sioc:content"]').val(textarea);
+		if (no_action) {
+			send_form_no_action(form);
+		} else {
+			send_form(form);
+		};
+	};
+	
+	var commit = function() {
+		if (!check_fields()) return false;
+		var file_el = form.find('input[name="source_file"]');
+		if (file_el.length && file_el.val().length) {
+			form_file();
+		} else {
+			finish();
+		};
+	};
+
+	if ('source'==CKEDITOR.instances['sioc:content'].mode) {  // If in source mode, switch to WYSIWYG to invoke formatting
+		CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
+			commit();
+		});
+	} else {
+		commit();
+	};
+	
+	return true;
+	
+};
 
 /**
  * Functions to send form information through Scalar's save API
