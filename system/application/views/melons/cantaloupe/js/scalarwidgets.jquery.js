@@ -484,7 +484,7 @@
                 var tempdata = {
                   title : {
                       text : {
-                          headline : node.current.title,
+                          headline : node.getDisplayTitle(),
                           text : node.current.content
                       }
                   },
@@ -533,7 +533,9 @@
                           headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
                         };
 
-                        if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
+                        if(typeof relNode.description != 'undefined' && relNode.description != ''){
+                          entry.text.text = relNode.description
+                        }else if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
                           entry.text.text = relNode.content;
                         }
 
@@ -554,6 +556,8 @@
 												if(typeof nodeSet[n].background !== 'undefined'){
 													entry.background = {url:base.book_url+nodeSet[n].background}
 												}
+
+
 
                         tempdata.events.push(entry);
                     }
