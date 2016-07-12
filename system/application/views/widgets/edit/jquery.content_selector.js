@@ -151,7 +151,7 @@
 					}else{
 						$(this).addClass('text-muted');
 						$annotationRows.removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
-						$featuredAnnotation.slideUp('fast',function(){$(this).find('option').hide().prop('disabled','disabled');});
+						$featuredAnnotation.slideUp('fast',function(){$(this).find('option:not(.none)').hide().prop('disabled','disabled');});
 					}
 				});
 
@@ -161,7 +161,8 @@
 								var node = scalarapi.getNode(slug);
 								var annotated_by = node.getRelatedNodes('annotation', 'incoming');
 								if(annotated_by.length == 0){
-									$annotationSelection.hide();
+									$annotationSelection.find('div.bg-info, .featuredAnnotation').remove();
+									$annotationSelection.find('.annotationSelection').html('<p class="text-muted">This media does not contain any annotations.</p>');
 									return;
 								}
 								var $body = $annotationSelection.find('tbody');

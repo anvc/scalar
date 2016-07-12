@@ -86,12 +86,29 @@
 }
 .selectedItemPreview .description{
 	width: 100%;
-	overflow-x: hidden;
-	text-overflow: ellipsis;
+	overflow-y: auto;
+	max-height: 16rem;
 }
 .parentThumb{
 	max-width: 75px;
 	max-height: 75px;
 	margin: 1rem 1rem 0 0;
+}
 
+#wysiwygNewFeatures{
+	display: none;
+	font-size: 1.4rem;
+	padding: 1rem;
+}
+#wysiwygNewFeatures>button{
+	background-image: none;
+	font-size: 2.4rem;
+  line-height: 2.4rem;
+  height: 2.4rem;
+  padding: 0px;
+	opacity: .5;
+}
+#wysiwygNewFeatures>button:hover{
+	opacity: .75;
+	outline: none;
 }

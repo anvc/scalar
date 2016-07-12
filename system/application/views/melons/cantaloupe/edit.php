@@ -455,6 +455,10 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <table>
 <tr id="edit_content" class="p type_composite">
 	<td colspan="2">
+		<div id="wysiwygNewFeatures" class="alert alert-warning alert-dismissible caption_font" role="alert" style="">
+		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
+		  <strong>Notice!</strong> Description of Changes <a href="#" class="alert-link">Link to Post</a>
+		</div>
 		<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
 		if (isset($page->version_index)):
 			$content = $page->versions[$page->version_index]->content;
@@ -769,7 +773,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			  			<label>Or upload a new thumbnail: &nbsp; <small>(JPG, PNG, or GIF format; will be resized to 120px)</small> &nbsp; <small><a href="javascript:void(null);" onclick="$('input[name=\'source_file\']').val('');return false;">clear selected file</a></small></label>
 			  			<input type="file" name="source_file" />
 			  			<div style="margin:0;padding:0;height:0;border:0;overflow:hidden;"><iframe id="hidden_upload" name="hidden_upload" src=""></iframe></div>
-					</div>					
+					</div>
 					<div class="form-group">
 			  			<label for="enter_thumbnail_url">Or enter any image URL:</label>
 			  			<input id="enter_thumbnail_url" class="form-control" type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
@@ -980,7 +984,3 @@ if (isset($page->version_index)):
 endif;
 ?>
 </form>
-
-
-
-
