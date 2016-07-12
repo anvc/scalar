@@ -95,6 +95,14 @@ CKEDITOR.plugins.add( 'scalar', {
 									var href = node.current.sourceFile;
 								}
 
+								for (var key in options) {
+									if(key == "featured_annotation"){
+										href+='#'+options[key];
+									}else{
+										element.setAttribute('data-'+key, options[key]);
+									}
+								}
+
 								element.setAttribute('href', href);
 
 								//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
@@ -104,13 +112,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
 								element.setAttribute('resource', node.slug);
 
-								for (var key in options) {
-									if(key == "featured_annotation"){
-										href+='#'+options[key];
-									}else{
-										element.setAttribute('data-'+key, options[key]);
-									}
-								}
+
 
 								if(!isEdit){
 									editor.insertElement(element);
@@ -145,13 +147,6 @@ CKEDITOR.plugins.add( 'scalar', {
 								var href = node.current.sourceFile;
 							}
 
-							element.setAttribute('href', href);
-							//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
-							if(isEdit){
-								element.data('cke-saved-href',href);
-							}
-							element.setAttribute('resource', node.slug);
-
 							for (var key in options) {
 								if(key == "featured_annotation"){
 									href+='#'+options[key];
@@ -159,6 +154,14 @@ CKEDITOR.plugins.add( 'scalar', {
 									element.setAttribute('data-'+key, options[key]);
 								}
 							}
+
+							element.setAttribute('href', href);
+							//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
+							if(isEdit){
+								element.data('cke-saved-href',href);
+							}
+							element.setAttribute('resource', node.slug);
+
 
 							if(!isEdit){
 								editor.insertElement(element);
