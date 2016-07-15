@@ -455,7 +455,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <table>
 <tr id="edit_content" class="p type_composite">
 	<td colspan="2">
-		<div id="wysiwygNewFeatures" class="alert alert-warning alert-dismissible caption_font" role="alert" style="">
+		<div id="wysiwygNewFeatures" style="display:none;" class="alert alert-warning alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
 		  <strong>Notice!</strong> Description of Changes <a href="#" class="alert-link">Link to Post</a>
 		</div>
@@ -964,7 +964,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<span id="saved_text" class="text-success" style="float:left;display:none;"></span>
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
-		<input type="button" class="btn btn-default" value="Save" onclick="validate_form($('#edit_form'),true);" />&nbsp; &nbsp;
+		<input type="button" class="btn btn-default" value="Save" onclick="validate_edit_form($('#edit_form'),true);" />&nbsp; &nbsp;
 		<input type="submit" class="btn btn-primary" value="Save and view" />
 	</div>
 </div>
