@@ -2128,9 +2128,9 @@ function YouTubeGetID(url){
 	 				this.annotationDisplay.fadeIn();
  				}
   				if ( ( this.model.mediaSource.contentType != 'image' ) && ( this.model.mediaSource.contentType != 'document' ) ) {
- 					setTimeout( this.doAutoSeek, 6000 );
+ 					setTimeout( $.proxy(function(me){this.doAutoSeek(this);},this), 6000 );
 				} else {
- 					setTimeout( this.doAutoSeek, 3000 );
+ 					setTimeout( $.proxy(function(me){this.doAutoSeek(this);},this), 3000 );
 				}
 			}
 
@@ -2145,7 +2145,7 @@ function YouTubeGetID(url){
 		/**
 		 * Seeks to the annotation that was passed into the mediaelement instance.
 		 */
-		this.doAutoSeek = function() {
+		this.doAutoSeek = function(me) {
 			me.seek(me.model.seekAnnotation);
 			// YouTube videos will play immediately on seeking unless we do this
 			if ( me.model.mediaSource.name == 'YouTube' ) {
@@ -3930,7 +3930,7 @@ function YouTubeGetID(url){
 			   	me.highlightAnnotatedLines();
 				me.pause();
 				if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
-					me.parentView.doAutoSeek();
+					me.parentView.doAutoSeek(this);
 				}
 			});
 
@@ -4252,7 +4252,7 @@ function YouTubeGetID(url){
 			   	me.highlightAnnotatedLines();
 				me.pause();
 				if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
-					me.parentView.doAutoSeek();
+					me.parentView.doAutoSeek(this);
 				}
 			} ).fail( function( jqxhr, settings, exception ) {
 				console.log( 'error loading prism.js: ' + exception );
