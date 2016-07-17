@@ -72,10 +72,10 @@ class MY_Model extends CI_Model {
     	if (empty($book_id)) $book_id = 0;
     	if (empty($type)) $type = null;
     	if (empty($category)) $category = null;
-    	if (false!==$is_live) $table = true;
+    	if (false!==$is_live) $is_live = true;
     	if (empty($sq)) $sq = null;
     	if (empty($version_datetime)) $version_datetime = null;
-    	
+
     	// Get annotations that connect to the current book
     	$this->db->distinct();
     	$this->db->select($this->pages_table.'.*');
