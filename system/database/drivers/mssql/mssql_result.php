@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -21,11 +22,11 @@
  * This class extends the parent result class: CI_DB_result
  *
  * @category	Database
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/database/
  */
 class CI_DB_mssql_result extends CI_DB_result {
-	
+
 	/**
 	 * Number of rows in the result set
 	 *
@@ -36,7 +37,7 @@ class CI_DB_mssql_result extends CI_DB_result {
 	{
 		return @mssql_num_rows($this->result_id);
 	}
-	
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -67,7 +68,7 @@ class CI_DB_mssql_result extends CI_DB_result {
 		{
 			$field_names[] = $field->name;
 		}
-		
+
 		return $field_names;
 	}
 
@@ -85,17 +86,17 @@ class CI_DB_mssql_result extends CI_DB_result {
 	{
 		$retval = array();
 		while ($field = mssql_fetch_field($this->result_id))
-		{	
-			$F 				= new stdClass();
-			$F->name 		= $field->name;
-			$F->type 		= $field->type;
+		{
+			$F				= new stdClass();
+			$F->name		= $field->name;
+			$F->type		= $field->type;
 			$F->max_length	= $field->max_length;
 			$F->primary_key = 0;
 			$F->default		= '';
-			
+
 			$retval[] = $F;
 		}
-		
+
 		return $retval;
 	}
 
@@ -105,7 +106,7 @@ class CI_DB_mssql_result extends CI_DB_result {
 	 * Free the result
 	 *
 	 * @return	null
-	 */		
+	 */
 	function free_result()
 	{
 		if (is_resource($this->result_id))
@@ -131,7 +132,7 @@ class CI_DB_mssql_result extends CI_DB_result {
 	{
 		return mssql_data_seek($this->result_id, $n);
 	}
-	
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -146,7 +147,7 @@ class CI_DB_mssql_result extends CI_DB_result {
 	{
 		return mssql_fetch_assoc($this->result_id);
 	}
-	
+
 	// --------------------------------------------------------------------
 
 	/**

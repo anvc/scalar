@@ -125,6 +125,7 @@ CodeIgniter:
 ARC2 (updated 2014-10-29 from https://github.com/semsol/arc2):
 1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
 2) ARC2_StoreDeleteQueryHandler.php->cleanValueTables(): add "$this->store->releaseLock();" (https://github.com/semsol/arc2/issues/33)
+TODO: #2 has been updated on their github repo as of July 2016
 
 Froogaloop:
 1) Changed $f=g to froogaloop=g

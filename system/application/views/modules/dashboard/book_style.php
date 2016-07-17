@@ -317,7 +317,6 @@ function make_taxonomy_pages(onomy) {
 <?
 		$row = $book;
 		if (!empty($row)):
-			if (!empty($book_id) && $row->book_id != $book_id) continue;
 			// Title
 			echo '<tr typeof="books" class="styling_sub">';
 			echo '<td><h4 class="content_title">Basics</h4></td><td></td></tr>';

@@ -24,7 +24,7 @@
  * @version				2.2
  */
 
-class User_model extends My_Model {
+class User_model extends MY_Model {
 
 	private $user_levels = array('author', 'commentator', 'reviewer', 'reader');  // In order of level (top level first)
 
@@ -349,7 +349,7 @@ class User_model extends My_Model {
 			$this->db->select('*');
 			$this->db->from($this->version_table);
 			$this->db->where('content_id', $content_id);
-			$this->db->orderby('version_num', 'desc');
+			$this->db->order_by('version_num', 'desc');
 			$this->db->limit(1);
 			$query = $this->db->get();
 			if ($query->num_rows==0) continue;

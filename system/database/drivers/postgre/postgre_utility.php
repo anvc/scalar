@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -19,7 +20,7 @@
  * Postgre Utility Class
  *
  * @category	Database
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/database/
  */
 class CI_DB_postgre_utility extends CI_DB_utility {
@@ -81,42 +82,6 @@ class CI_DB_postgre_utility extends CI_DB_utility {
 		// Currently unsupported
 		return $this->db->display_error('db_unsuported_feature');
 	}
-
-	/**
-	 *
-	 * The functions below have been deprecated as of 1.6, and are only here for backwards
-	 * compatibility.  They now reside in dbforge().  The use of dbutils for database manipulation
-	 * is STRONGLY discouraged in favour if using dbforge.
-	 *
-	 */
-
-	/**
-	 * Create database
-	 *
-	 * @access	private
-	 * @param	string	the database name
-	 * @return	bool
-	 */
-	function _create_database($name)
-	{
-		return "CREATE DATABASE ".$name;
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Drop database
-	 *
-	 * @access	private
-	 * @param	string	the database name
-	 * @return	bool
-	 */
-	function _drop_database($name)
-	{
-		return "DROP DATABASE ".$name;
-	}
-
-
 }
 
 

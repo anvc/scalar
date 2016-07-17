@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -21,11 +22,11 @@
  * This class extends the parent result class: CI_DB_result
  *
  * @category	Database
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/database/
  */
 class CI_DB_sqlite_result extends CI_DB_result {
-	
+
 	/**
 	 * Number of rows in the result set
 	 *
@@ -36,7 +37,7 @@ class CI_DB_sqlite_result extends CI_DB_result {
 	{
 		return @sqlite_num_rows($this->result_id);
 	}
-	
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -67,7 +68,7 @@ class CI_DB_sqlite_result extends CI_DB_result {
 		{
 			$field_names[] = sqlite_field_name($this->result_id, $i);
 		}
-		
+
 		return $field_names;
 	}
 
@@ -86,16 +87,16 @@ class CI_DB_sqlite_result extends CI_DB_result {
 		$retval = array();
 		for ($i = 0; $i < $this->num_fields(); $i++)
 		{
-			$F 				= new stdClass();
-			$F->name 		= sqlite_field_name($this->result_id, $i);
-			$F->type 		= 'varchar';
+			$F				= new stdClass();
+			$F->name		= sqlite_field_name($this->result_id, $i);
+			$F->type		= 'varchar';
 			$F->max_length	= 0;
 			$F->primary_key = 0;
 			$F->default		= '';
 
 			$retval[] = $F;
 		}
-		
+
 		return $retval;
 	}
 
@@ -105,7 +106,7 @@ class CI_DB_sqlite_result extends CI_DB_result {
 	 * Free the result
 	 *
 	 * @return	null
-	 */		
+	 */
 	function free_result()
 	{
 		// Not implemented in SQLite
@@ -142,7 +143,7 @@ class CI_DB_sqlite_result extends CI_DB_result {
 	{
 		return sqlite_fetch_array($this->result_id);
 	}
-	
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -168,7 +169,7 @@ class CI_DB_sqlite_result extends CI_DB_result {
 				return $obj;
 			} else {
 				return NULL;
-			} 
+			}
 		}
 	}
 

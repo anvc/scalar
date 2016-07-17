@@ -26,7 +26,7 @@
 * @version				1.2
 */
 
-Class Api extends Controller {
+Class Api extends CI_Controller {
 
 	private $actions = array('ADD', 'DELETE', 'UNDELETE', 'UPDATE', 'RELATE');	//valid actions, redundant with URI but kept for clarity's sake
 
@@ -215,7 +215,8 @@ Class Api extends Controller {
 		$this->_load_delete_data();
 
 		//validate and update content entry
-		$this->data['version_id'] = array_pop(explode(':',$this->data['scalar:urn']));
+		$arr = explode(':',$this->data['scalar:urn']);  // Avoid E_STRICT pass by reference warning
+		$this->data['version_id'] = array_pop($arr);
 		if (!$this->users->is_a($this->user->relationship,'reviewer')&&!$this->pages->is_owner($this->user->user_id,$this->data['content_id'])) {
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
 		}
@@ -329,12 +330,14 @@ Class Api extends Controller {
 
 		//branch for pages
 		if($this->data['scalar:child_type'] == $this->versions->rdf_type('book')){
-			$the_book = $this->books->get(array_pop(explode(':', $this->data['scalar:child_urn'])));
+			$arr = explode(':', $this->data['scalar:child_urn']);  // Avoid E_STRICT pass by reference warning
+			$the_book = $this->books->get(array_pop($arr));
 			if(@$the_book->book_id != @$this->user->book_id){
 				$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 			}
 		} else {
-			if($this->versions->get_book(array_pop(explode(':', $this->data['scalar:child_urn']))) != $this->user->book_id){
+			$arr = explode(':', $this->data['scalar:child_urn']);  // Avoid E_STRICT pass by reference warning
+			if($this->versions->get_book(array_pop($arr)) != $this->user->book_id){
 				$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 			}
 		}
@@ -370,7 +373,8 @@ Class Api extends Controller {
 
 		// Validate scalar:urn (parent) and set its version ID + possibly glean URN from slug if that's what is sent
 		if (strpos($this->data['scalar:urn'], ':')) {   // e.g., urn:scalar:version:12345
-			$this->data['version_id'] = array_pop(explode(':', $this->data['scalar:urn']));
+			$arr = explode(':', $this->data['scalar:urn']);  // Avoid E_STRICT pass by reference warning
+			$this->data['version_id'] = array_pop($arr);
 			$book_id = $this->versions->get_book($this->data['version_id']);
 			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn does not exist');
 			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
@@ -384,7 +388,8 @@ Class Api extends Controller {
 
 		// Validate scalar:child_urn + possibly glean URN from slug if that's what is sent
 		if (strpos($this->data['scalar:child_urn'], ':')) {   // e.g., urn:scalar:version:12345
-			$book_id = $this->versions->get_book(array_pop(explode(':', $this->data['scalar:child_urn'])));
+			$arr = explode(':', $this->data['scalar:child_urn']);  // Avoid E_STRICT pass by reference warning
+			$book_id = $this->versions->get_book(array_pop($arr));
 			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn does not exist');
 			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
 		} else {  // e.g., my-first-scalar-page
@@ -429,7 +434,8 @@ Class Api extends Controller {
 			}
 		}
 
-		$this->data['version_id'] = array_pop(explode(':', $this->data['scalar:urn']));
+		$arr = explode(':', $this->data['scalar:urn']);  // Avoid E_STRICT pass by reference warning
+		$this->data['version_id'] = array_pop($arr);
 
 		if($this->versions->get_book($this->data['version_id']) != $this->user->book_id){
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
@@ -440,7 +446,8 @@ Class Api extends Controller {
 	private function _load_delete_data(){
 		foreach($this->delete_fields as $idx) $this->data[$idx] = $this->input->post($idx);
 		if(!$this->data[$idx]) $this->output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field.');
-		if($this->versions->get_book(array_pop(explode(':', $this->data['scalar:urn']))) != $this->user->book_id){
+		$arr = explode(':', $this->data['scalar:urn']); // Avoid E_STRICT pass by reference warning
+		if($this->versions->get_book(array_pop($arr)) != $this->user->book_id){
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
 		}
 	}
@@ -467,7 +474,8 @@ Class Api extends Controller {
 		$save['user_id'] = $this->user->user_id;
 		$save['title'] = $this->data['dcterms:title'];
 		$save['slug'] =@ $this->data['scalar:slug'];
-		$save['type'] = strtolower(array_pop(explode('#', $this->data['rdf:type'])));
+		$arr = explode('#', $this->data['rdf:type']);  // Avoid E_STRICT pass by reference warning
+		$save['type'] = strtolower(array_pop($arr));
 
 		foreach($this->content_metadata as $idx){
 			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
@@ -491,7 +499,8 @@ Class Api extends Controller {
 		$ver = $this->versions->get($this->data['version_id']);
 		$this->data['content_id'] = $ver->content_id;
 		$save['id'] = $ver->content_id;
-		$save['type'] =@ strtolower(array_pop(explode('#', $this->data['rdf:type'])));
+		$arr = explode('#', $this->data['rdf:type']);  // Avoid E_STRICT pass by reference warning
+		$save['type'] =@ strtolower(array_pop($arr));
 
 		foreach($this->content_metadata as $idx){
 			 if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration

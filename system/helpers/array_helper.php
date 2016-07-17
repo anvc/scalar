@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -21,7 +22,7 @@
  * @package		CodeIgniter
  * @subpackage	Helpers
  * @category	Helpers
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/helpers/array_helper.html
  */
 
@@ -38,7 +39,7 @@
  * @param	array
  * @param	mixed
  * @return	mixed	depends on what the array contains
- */	
+ */
 if ( ! function_exists('element'))
 {
 	function element($item, $array, $default = FALSE)
@@ -49,7 +50,7 @@ if ( ! function_exists('element'))
 		}
 
 		return $array[$item];
-	}	
+	}
 }
 
 // ------------------------------------------------------------------------
@@ -60,7 +61,7 @@ if ( ! function_exists('element'))
  * @access	public
  * @param	array
  * @return	mixed	depends on what the array contains
- */	
+ */
 if ( ! function_exists('random_element'))
 {
 	function random_element($array)
@@ -69,10 +70,51 @@ if ( ! function_exists('random_element'))
 		{
 			return $array;
 		}
+
 		return $array[array_rand($array)];
-	}	
+	}
 }
 
+// --------------------------------------------------------------------
+
+/**
+ * Elements
+ *
+ * Returns only the array items specified.  Will return a default value if
+ * it is not set.
+ *
+ * @access	public
+ * @param	array
+ * @param	array
+ * @param	mixed
+ * @return	mixed	depends on what the array contains
+ */
+if ( ! function_exists('elements'))
+{
+	function elements($items, $array, $default = FALSE)
+	{
+		$return = array();
+		
+		if ( ! is_array($items))
+		{
+			$items = array($items);
+		}
+		
+		foreach ($items as $item)
+		{
+			if (isset($array[$item]))
+			{
+				$return[$item] = $array[$item];
+			}
+			else
+			{
+				$return[$item] = $default;
+			}
+		}
+
+		return $return;
+	}
+}
 
 /* End of file array_helper.php */
 /* Location: ./system/helpers/array_helper.php */

@@ -28,7 +28,7 @@ class System extends MY_Controller {
 
 	private $base_url;
 
-	public function System() {
+	public function __construct() {
 
 		parent::__construct();
 
@@ -577,9 +577,10 @@ class System extends MY_Controller {
 		}
 
 		// Load Dashboard plugins
+		$this->data['plugins'] = array();
+		/*
 		$this->config->load('plugins');
 		$plugins = $this->config->item('plugins');
-		$this->data['plugins'] = array();
 		if (isset($plugins['dashboard'])) {
 			foreach ($plugins['dashboard'] as $value) {
 				$this->load->plugin($value);
@@ -587,6 +588,7 @@ class System extends MY_Controller {
 				$this->data['plugins'][$value] = new $cvalue($this->data);
 			}
 		}
+		*/
 
 		// Load dashboard
 		$this->template->set_template('admin');

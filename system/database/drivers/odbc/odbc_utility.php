@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -19,7 +20,7 @@
  * ODBC Utility Class
  *
  * @category	Database
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/database/
  */
 class CI_DB_odbc_utility extends CI_DB_utility {
@@ -32,7 +33,7 @@ class CI_DB_odbc_utility extends CI_DB_utility {
 	 */
 	function _list_databases()
 	{
-		// Not sure if ODBC lets you list all databases...	
+		// Not sure if ODBC lets you list all databases...
 		if ($this->db->db_debug)
 		{
 			return $this->db->display_error('db_unsuported_feature');
@@ -53,7 +54,7 @@ class CI_DB_odbc_utility extends CI_DB_utility {
 	 */
 	function _optimize_table($table)
 	{
-		// Not a supported ODBC feature	
+		// Not a supported ODBC feature
 		if ($this->db->db_debug)
 		{
 			return $this->db->display_error('db_unsuported_feature');
@@ -74,7 +75,7 @@ class CI_DB_odbc_utility extends CI_DB_utility {
 	 */
 	function _repair_table($table)
 	{
-		// Not a supported ODBC feature	
+		// Not a supported ODBC feature
 		if ($this->db->db_debug)
 		{
 			return $this->db->display_error('db_unsuported_feature');
@@ -96,52 +97,7 @@ class CI_DB_odbc_utility extends CI_DB_utility {
 		// Currently unsupported
 		return $this->db->display_error('db_unsuported_feature');
 	}
-	
-	/**
-	 *
-	 * The functions below have been deprecated as of 1.6, and are only here for backwards
-	 * compatibility.  They now reside in dbforge().  The use of dbutils for database manipulation
-	 * is STRONGLY discouraged in favour if using dbforge.
-	 *
-	 */
 
-	/**
-	 * Create database
-	 *
-	 * @access	private
-	 * @param	string	the database name
-	 * @return	bool
-	 */
-	function _create_database()
-	{
-		// ODBC has no "create database" command since it's
-		// designed to connect to an existing database
-		if ($this->db->db_debug)
-		{
-			return $this->db->display_error('db_unsuported_feature');
-		}
-		return FALSE;
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Drop database
-	 *
-	 * @access	private
-	 * @param	string	the database name
-	 * @return	bool
-	 */
-	function _drop_database($name)
-	{
-		// ODBC has no "drop database" command since it's
-		// designed to connect to an existing database		
-		if ($this->db->db_debug)
-		{
-			return $this->db->display_error('db_unsuported_feature');
-		}
-		return FALSE;
-	}
 }
 
 /* End of file odbc_utility.php */

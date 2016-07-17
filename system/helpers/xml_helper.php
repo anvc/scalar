@@ -2,11 +2,12 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP 4.3.2 or newer
+ * An open source application development framework for PHP 5.1.6 or newer
  *
  * @package		CodeIgniter
- * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2008 - 2009, EllisLab, Inc.
+ * @author		EllisLab Dev Team
+ * @copyright		Copyright (c) 2008 - 2014, EllisLab, Inc.
+ * @copyright		Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://codeigniter.com
  * @since		Version 1.0
@@ -21,7 +22,7 @@
  * @package		CodeIgniter
  * @subpackage	Helpers
  * @category	Helpers
- * @author		ExpressionEngine Dev Team
+ * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/helpers/xml_helper.html
  */
 
@@ -33,30 +34,39 @@
  * @access	public
  * @param	string
  * @return	string
- */	
+ */
 if ( ! function_exists('xml_convert'))
 {
-	function xml_convert($str)
+	function xml_convert($str, $protect_all = FALSE)
 	{
 		$temp = '__TEMP_AMPERSANDS__';
 
-		// Replace entities to temporary markers so that 
+		// Replace entities to temporary markers so that
 		// ampersands won't get messed up
 		$str = preg_replace("/&#(\d+);/", "$temp\\1;", $str);
-		$str = preg_replace("/&(\w+);/",  "$temp\\1;", $str);
-	
-		$str = str_replace(array("&","<",">","\"", "'", "-"),
-						   array("&amp;", "&lt;", "&gt;", "&quot;", "&#39;", "&#45;"),
-						   $str);
 
-		// Decode the temp markers back to entities		
+		if ($protect_all === TRUE)
+		{
+			$str = preg_replace("/&(\w+);/",  "$temp\\1;", $str);
+		}
+
+		$str = str_replace(array("&","<",">","\"", "'", "-"),
+							array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;", "&#45;"),
+							$str);
+
+		// Decode the temp markers back to entities
 		$str = preg_replace("/$temp(\d+);/","&#\\1;",$str);
-		$str = preg_replace("/$temp(\w+);/","&\\1;", $str);
-		
+
+		if ($protect_all === TRUE)
+		{
+			$str = preg_replace("/$temp(\w+);/","&\\1;", $str);
+		}
+
 		return $str;
 	}
 }
 
+// ------------------------------------------------------------------------
 
 /* End of file xml_helper.php */
 /* Location: ./system/helpers/xml_helper.php */
