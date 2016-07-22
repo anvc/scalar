@@ -2434,6 +2434,7 @@ function ScalarModel(options) {
 		'book':{id:'book', singular:'book', plural:'books'},
 		'page':{id:'page', singular:'page', plural:'pages'},
 		'defaultPage':{id:'page', singular:'page', plural:'pages'},
+		'toc':{id:'toc', singular:'table of contents', plural:'tables of contents'},
 		'video':{id:'video', singular:'video', plural:'videos'},
 		'audio':{id:'audio', singular:'audio', plural:'audio files'},
 		'image':{id:'image', singular:'image', plural:'images'},
@@ -2990,6 +2991,10 @@ ScalarNode.prototype.parseData = function(json, versionData) {
 		this.title = this.name;
 		break;
 	
+	}
+
+	if (this.slug == "toc") {
+		this.scalarTypes.toc = scalarapi.model.scalarTypes.toc;
 	}
 					
 }
