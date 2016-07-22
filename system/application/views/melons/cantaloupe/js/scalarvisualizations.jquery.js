@@ -2162,26 +2162,39 @@
 
 				var container = base.svg.selectAll( 'g.container' );
 
-				// toggle children
-				function branchToggle(d) {
+				function branchCollapse(d) {
 					var parentId = base.parentIdForHierarchyNode(d);
-					if (base.isHierarchyNodeMaximized(d)) {
+					if (d.children != null) {
 						d._children = d.children;
 						d.children = null;
-						if (d.node != null) {
-							var index = d.node.parentsOfMaximizedInstances.indexOf(parentId);
-							if (index != -1) {
-								d.node.parentsOfMaximizedInstances.splice(index, 1);
-							}
+					}
+					if (d.node != null) {
+						var index = d.node.parentsOfMaximizedInstances.indexOf(parentId);
+						if (index != -1) {
+							d.node.parentsOfMaximizedInstances.splice(index, 1);
 						}
-					} else {
+					}
+				}
+
+				function branchExpand(d) {
+					var parentId = base.parentIdForHierarchyNode(d);
+					if (d._children != null) {
 						d.children = d._children;
 						d._children = null;
-						if (d.node != null) {
-							if (d.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
-								d.node.parentsOfMaximizedInstances.push(parentId);
-							}
+					}
+					if (d.node != null) {
+						if (d.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
+							d.node.parentsOfMaximizedInstances.push(parentId);
 						}
+					}
+				}
+
+				// toggle children
+				function branchToggle(d) {
+					if (base.isHierarchyNodeMaximized(d)) {
+						branchCollapse(d);
+					} else {
+						branchExpand(d);
 					}
 				}
 
@@ -2207,24 +2220,25 @@
 				    branchConform(d);
 				}
 
-				// collapse all nodes except the root's children
-				if ( base.options.content != "all" ) {
-					if ( base.hierarchy.children ) {
-						base.hierarchy.children.forEach( function( d ) {
-							if ((d.children != null) || (d._children != null)) {
-								branchConformAll(d);
-							}
-						});
-					}
-					branchConform(base.hierarchy);
-				    if (firstRun) {
-				    	branchToggle(base.hierarchy);
+				function branchCollapseAll(d) {
+					if (d.children != null) {
+						d._children = d.children;
+						d.children = null;	
 				    }
-
-				// collapse all nodes except the root
-				} else {
-					base.hierarchy.children.forEach( branchConformAll );
+				    if (d._children != null) {
+				  	  d._children.forEach(branchCollapseAll);
+				    }
 				}
+
+				// collapse all nodes except the root and its children
+				branchExpand(base.hierarchy);
+				base.hierarchy.children.forEach( function( d ) {
+					branchExpand(d);
+					if (d.children != null) {
+						d.children.forEach(branchCollapseAll);
+					}
+				});
+				branchConformAll(base.hierarchy);
 
 				function pathUpdate( source, instantaneous ) {
 
