@@ -42,6 +42,8 @@
 			lastOrientation: null,
 			mobileWidth: 520, // this should be set to the same value as the mobile (tiny.css) breakpoint in responsive.css
 			adaptiveMedia: 'full',
+			generateIconCache: {},
+			mapMarkers: [],
 
 			incrementData: function(selection, data) {
 				var value = selection.data(data);
@@ -1667,14 +1669,15 @@
 				});
 			},
 
-			getMarkerFromLatLonStrForMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail, label ) {
+			addMarkerFromLatLonStrToMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail, label ) {
 
 				var marker, contentString,
 					temp = latlngstr.split( ',' );
 
 				// error checking
 				if (( temp.length != 2 ) || (( isNaN( parseFloat( temp[ 0 ] )) || isNaN( parseFloat( temp[ 1 ] ))))) {
-					return null;
+					$gmaps.find('.alert').remove();
+					$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
 
 				} else {
 					var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
@@ -1699,21 +1702,122 @@
 					} else {
 						contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + '</div>';
 					}
-					marker = new google.maps.Marker({
-					    position: latlng,
-					    map: map,
-					    html: contentString,
-					    title: title,
-					    label: label
-					});
-					google.maps.event.addListener( marker, 'click', function() {
-						infoWindow.setContent( this.html );
-						infoWindow.open( map, this );
-					});
+					page.generateIcon(label, function(src) {
+						marker = new google.maps.Marker({
+						    position: latlng,
+						    map: map,
+						    html: contentString,
+						    title: title,
+						    icon: src
+						});
+						google.maps.event.addListener( marker, 'click', function() {
+							infoWindow.setContent( this.html );
+							infoWindow.open( map, this );
+						});
+						page.mapMarkers.push(marker);
+						var bounds = new google.maps.LatLngBounds();
+						$gmaps.data({'map':map,'bounds':bounds,'markers':page.mapMarkers});
+						$(page.mapMarkers).each(function() {
+							bounds.extend( this.position );
+						});
+						if (page.mapMarkers.length > 1) {
+							map.fitBounds( bounds );
+						}
+					})
+				}
+			},
+
+			// dynamically generate map marker that increases in size to accomodate multi-digit numbers
+			// adapted from: http://stackoverflow.com/questions/2436484/how-can-i-create-numbered-map-markers-in-google-maps-v3
+			generateIcon: function(number, callback) {
+
+				if (page.generateIconCache[number] !== undefined) {
+					callback(generateIconCache[number]);
 				}
 
-				return marker;
+				var fontSize = 16,
+					imageWidth = imageHeight = 45;
 
+				if (number >= 1000) {
+					fontSize = 11;
+					imageWidth = imageHeight = 60;
+				} else if (number > 100) {
+					fontSize = 14;
+					imageWidth = imageHeight = 50;
+				}
+
+				var svg = d3.select(document.createElement('div')).append('svg')
+					.attr('viewBox', '0 0 60 60');
+
+				var gradient = svg.append("defs")
+					.append("linearGradient")
+					.attr("id", "grad")
+					.attr("x1", "0%")
+					.attr("y1", "0%")
+					.attr("x2", "0%")
+					.attr("y2", "100%");
+
+				gradient.append("stop")
+					.attr("offset", "0%")
+					.attr("stop-color", "rgb(248,113,100)")
+					.attr("stop-opacity", 1);
+
+				gradient.append("stop")
+					.attr("offset", "100%")
+					.attr("stop-color", "rgb(240,72,60)")
+					.attr("stop-opacity", 1);
+
+				var g = svg.append('g')
+
+				var path = g.append('path')
+					.attr('transform', 'matrix(0.03,0,0,0.03,5,6)')
+					.attr('d', 'M730.94,1839.63C692.174,1649.33 623.824,1490.96 541.037,1344.19C479.63,1235.32 408.493,1134.83 342.673,1029.25C320.701,994.007 301.739,956.774 280.626,920.197C238.41,847.06 204.182,762.262 206.357,652.265C208.482,544.792 239.565,458.581 284.387,388.093C358.106,272.158 481.588,177.104 647.271,152.124C782.737,131.7 909.746,166.206 999.814,218.872C1073.41,261.91 1130.41,319.399 1173.73,387.152C1218.95,457.868 1250.09,541.412 1252.7,650.384C1254.04,706.214 1244.9,757.916 1232.02,800.802C1218.99,844.211 1198.03,880.497 1179.38,919.256C1142.97,994.915 1097.33,1064.24 1051.52,1133.6C915.083,1340.21 787.024,1550.91 730.94,1839.63L730.94,1839.63Z')
+					.attr('fill', 'url(#grad)')
+					.attr('stroke-width', 40)
+					.attr('stroke', 'rgb(182,58,49)');
+
+				if (number != null) {
+					var text = g.append('text')
+						.attr('dx', 27)
+						.attr('dy', 32)
+						.attr('text-anchor', 'middle')
+						.attr('style', 'font-size:' + fontSize + 'px; fill: #000; font-family: Lato, Arial, sans-serif; font-weight: bold')
+						.text(number);				
+				} else {
+					var circles = svg.append('circle')
+						.attr('cx', '27.2')
+						.attr('cy', '27.2')
+						.attr('r', '5')
+						.style('fill', 'rgb(90,20,16)');
+				}
+
+				var svgNode = g.node().parentNode.cloneNode(true),
+					image = new Image();
+
+				d3.select(svgNode).select('clippath').remove();
+
+				var xmlSource = (new XMLSerializer()).serializeToString(svgNode);
+
+				image.onload = (function(imageWidth, imageHeight) {
+					var canvas = document.createElement('canvas'),
+					context = canvas.getContext('2d'),
+					dataURL;
+
+					d3.select(canvas)
+					.attr('width', imageWidth)
+					.attr('height', imageHeight);
+
+					context.drawImage(image, 0, 0, imageWidth, imageHeight);
+
+					dataURL = canvas.toDataURL();
+					page.generateIconCache[number] = dataURL;
+
+					callback(dataURL);
+			  	}).bind(this, imageWidth, imageHeight);
+
+			  	image.src = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(xmlSource).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+			    	return String.fromCharCode('0x' + p1);
+			  	}));
 			},
 
 			sortTags: function() {
@@ -1977,156 +2081,108 @@
 			  		$( '.page' ).css( 'padding-top', '5.0rem' );
 			  		$( 'header > h1' ).before( '<div id="google-maps" class="maximized-embed"></div>' );
 
-							// create map
-							var mapOptions = {
-								zoom: 8,
-								mapTypeId: google.maps.MapTypeId.ROADMAP
-							}
-							var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
+					// create map
+					var mapOptions = {
+						zoom: 8,
+						mapTypeId: google.maps.MapTypeId.ROADMAP
+					}
+					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
+					var markerCount = 0;
 
-							//Global scope google map variable
-							$gmaps = $( '#google-maps' );
+					//Global scope google map variable
+					$gmaps = $( '#google-maps' );
 
-							// create info window
-							var infoWindow = new google.maps.InfoWindow({
-								content: contentString,
-								maxWidth: 400
-							});
+					// create info window
+					var infoWindow = new google.maps.InfoWindow({
+						content: contentString,
+						maxWidth: 400
+					});
 
-							var marker, property, contents, node, contentString, label, pathIndex,
-								properties = [
-									'http://purl.org/dc/terms/coverage',
-									'http://purl.org/dc/terms/spatial'
-								]
-								markers = [],
-								foundError = true;
+					var marker, property, contents, node, contentString, label, pathIndex,
+						properties = [
+							'http://purl.org/dc/terms/coverage',
+							'http://purl.org/dc/terms/spatial'
+						]
+						markers = [],
+						foundError = true;
 
-							var pathContents = currentNode.getRelatedNodes( 'path', 'outgoing' );
-							var tagContents = currentNode.getRelatedNodes( 'tag', 'outgoing' );
-							var contents = pathContents.concat(tagContents);
+					var pathContents = currentNode.getRelatedNodes( 'path', 'outgoing' );
+					var tagContents = currentNode.getRelatedNodes( 'tag', 'outgoing' );
+					var contents = pathContents.concat(tagContents);
 
-							/* create a polyline for path contents
-							if (viewType == "google_maps_path") {
-								n = pathContents.length;
-								var temp, coords = [];
-								for (i=0; i<n; i++) {
-									node = pathContents[ i ];
-									for (p in properties) {
-										property = properties[p];
-										if (node.current.properties[ property ] != null) {
-											o = node.current.properties[ property ].length;
-											for (j=0; j<o; j++) {
-												temp = node.current.properties[ property ][ j ].value.split( ',' );
-												coords.push({lat:parseFloat(temp[0]), lng:parseFloat(temp[1])});
-											}
-										}
-									}
-								}
-								var polyline = new google.maps.Polyline({
-									path: coords,
-									geodesic: true,
-									strokeColor: "#d14236",
-									strokeOpacity: 1.0,
-									strokeWeight: 2
-								});
-								polyline.setMap(map);
-							}*/
+					for ( p in properties ) {
 
-							for ( p in properties ) {
+						property = properties[ p ];
 
-								property = properties[ p ];
+						// if the current page has the spatial property, then
+						if ( currentNode.current.properties[ property ] != null ) {
 
-								// if the current page has the spatial property, then
-								if ( currentNode.current.properties[ property ] != null ) {
-
-									n = currentNode.current.properties[ property ].length;
-									for ( i = 0; i < n; i++ ) {
-										marker = page.getMarkerFromLatLonStrForMap(
-											currentNode.current.properties[ property ][ i ].value,
-											currentNode.getDisplayTitle(),
-											currentNode.current.description,
-											null,
-											map,
-											infoWindow,
-											currentNode.thumbnail
-										);
-
-										if ( marker != null ) {
-											markers.push( marker );
-											foundError = false;
-										}
-
-									}
-
-								}
-
-								n = contents.length;
-
-								// add markers for each content element that has the spatial property
-								for ( i = 0; i < n; i++ ) {
-
-									node = contents[ i ];
-
-									if ( node.current.properties[ property ] != null ) {
-
-										o = node.current.properties[ property ].length;
-										for ( j = 0; j < o; j++ ) {
-
-											label = null;
-											pathIndex = pathContents.indexOf(node);
-											if (pathIndex != -1) {
-												label = (pathIndex+1).toString();
-											}
-
-											marker = page.getMarkerFromLatLonStrForMap(
-												node.current.properties[ property ][ j ].value,
-												node.getDisplayTitle(),
-												node.current.description,
-												node.url,
-												map,
-												infoWindow,
-												node.thumbnail,
-												label
-											);
-
-											if ( marker != null ) {
-												markers.push( marker );
-												foundError = false;
-											}
-										}
-									}
-								}
+							n = currentNode.current.properties[ property ].length;
+							for ( i = 0; i < n; i++ ) {
+								page.addMarkerFromLatLonStrToMap(
+									currentNode.current.properties[ property ][ i ].value,
+									currentNode.getDisplayTitle(),
+									currentNode.current.description,
+									null,
+									map,
+									infoWindow,
+									currentNode.thumbnail
+								);
+								markerCount++;
 							}
 
-							// no valid coords found on page or its children
-							if ( foundError ) {
-								$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
+						}
 
-							// no coords of any kind found
-							} else if ( markers.length == 0 ) {
-								$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
-							}else{
-								// adjust map bounds to marker bounds
-								var bounds = new google.maps.LatLngBounds();
-								$gmaps.data({'map':map,'bounds':bounds,'markers':markers});
-								$.each( markers, function ( index, marker ) {
-									bounds.extend( marker.position );
-								});
-								if ( markers.length > 1 ) {
-									map.fitBounds( bounds );
-								}
+						n = contents.length;
 
-								$gmaps.css('max-height',0.6*$(window).height());
+						// add markers for each content element that has the spatial property
+						for ( i = 0; i < n; i++ ) {
 
-								$(window).on('resize',function(){
-									var markers = $gmaps.data('markers')
-									if(markers.length > 1){
-										$gmaps.data('map').fitBounds($( '#google-maps' ).data('bounds'));
+							node = contents[ i ];
+
+							if ( node.current.properties[ property ] != null ) {
+
+								o = node.current.properties[ property ].length;
+								for ( j = 0; j < o; j++ ) {
+
+									label = null;
+									pathIndex = pathContents.indexOf(node);
+									if (pathIndex != -1) {
+										label = (pathIndex+1).toString();
 									}
-									$gmaps.css('max-height',0.6*$(window).height());
-								});
+
+									page.addMarkerFromLatLonStrToMap(
+										node.current.properties[ property ][ j ].value,
+										node.getDisplayTitle(),
+										node.current.description,
+										node.url,
+										map,
+										infoWindow,
+										node.thumbnail,
+										label
+									);
+									markerCount++;
+								}
 							}
-							break;
+						}
+					}
+
+					$gmaps.css('max-height',0.6*$(window).height());
+
+					$(window).on('resize',function(){
+						var markers = $gmaps.data('markers')
+						if(markers.length > 1){
+							$gmaps.data('map').fitBounds($( '#google-maps' ).data('bounds'));
+						}
+						$gmaps.css('max-height',0.6*$(window).height());
+					});
+
+					// no coords of any kind found
+					if ( markerCount == 0 ) {
+						$gmaps.find('.alert').remove();
+						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
+					}
+					break;
 
                     case "vis":
                     case "vistoc":
