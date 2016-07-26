@@ -54,16 +54,16 @@
 								media.addContentForAnnotationToContainer( "single-anno-", relation.body, row.find( 'td' ).eq( 1 ) );
 
 								row.data('relation', relation);
+								row.data('media',mediaelement);
 								row.click(function( event ) {
-
 									// only clicks on the background should cue up the annotation
 									if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
 										var relation = $(this).data('relation');
-										mediaelement.seek(relation);
+										$(this).data('media').seek(relation);
 										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
 						       				setTimeout(function() {
-						           				if(!mediaelement.is_playing()) {
-													mediaelement.play();
+						           				if(!$(this).data('media').is_playing()) {
+													$(this).data('media').play();
 						           				}
 						       				},250);
 										}
@@ -355,16 +355,16 @@
 					annotation = annotations[i];
 					row = $('<tr><td>'+annotation.startString+'</td><td><p>'+annotation.body.getDisplayTitle()+'</p></td></tr>').appendTo(table);
 					row.data('relation', annotation);
+					row.data('media',mediaelement);
 					row.click(function( event ) {
-
 						// only clicks on the background should cue up the annotation
 						if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
 							var relation = $(this).data('relation');
-							mediaelement.seek(relation);
+							$(this).data('media').seek(relation);
 							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
 	              				setTimeout(function() {
-	                				if(!mediaelement.is_playing()) {
-	      								mediaelement.play();
+	                				if(!$(this).data('media').is_playing()) {
+	      								$(this).data('media').play();
 	                				}
 	              				},250);
 							}
