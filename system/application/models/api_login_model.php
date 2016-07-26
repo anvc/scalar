@@ -67,6 +67,11 @@ class Api_login_model extends User_model {
 		return false;
 	}	
 	
+	public function is_super() {
+		$session = $this->session->userdata(confirm_slash(base_url()));
+		return (isset($session['is_super']) && $session['is_super']) ? true : false;
+	}
+	
 	public function check_whitelist($book_id, $host){
 		$this->db->select('*');
 		$this->db->from($this->whitelist_table);
