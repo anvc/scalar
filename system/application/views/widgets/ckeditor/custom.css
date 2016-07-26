@@ -87,7 +87,13 @@
 .selectedItemPreview .description{
 	width: 100%;
 	overflow-y: auto;
-	max-height: 16rem;
+	max-height: 8rem;
+  border: 0;
+  border-bottom: 1px solid #e5e5e5;
+	padding-bottom: 1rem;
+}
+#bootbox-media-options-form hr{
+	border-bottom: 1px solid #e5e5e5;
 }
 .parentThumb{
 	max-width: 75px;
