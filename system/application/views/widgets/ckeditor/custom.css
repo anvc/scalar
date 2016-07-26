@@ -83,6 +83,7 @@
 }
 #scalarInlineGearIcon{
 	position: absolute;
+	display: none;
 }
 .selectedItemPreview .description{
 	width: 100%;
