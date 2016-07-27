@@ -1676,8 +1676,7 @@
 
 				// error checking
 				if (( temp.length != 2 ) || (( isNaN( parseFloat( temp[ 0 ] )) || isNaN( parseFloat( temp[ 1 ] ))))) {
-					$gmaps.find('.alert').remove();
-					$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
+					return false;
 
 				} else {
 					var latlng = new google.maps.LatLng( parseFloat( temp[ 0 ] ), parseFloat( temp[ 1 ] ) );
@@ -1725,6 +1724,8 @@
 						}
 					})
 				}
+
+				return true;
 			},
 
 			// dynamically generate map marker that increases in size to accomodate multi-digit numbers
@@ -1747,6 +1748,8 @@
 				}
 
 				var svg = d3.select(document.createElement('div')).append('svg')
+					.attr('width', '60')
+					.attr('height', '60')
 					.attr('viewBox', '0 0 60 60');
 
 				var gradient = svg.append("defs")
@@ -2088,6 +2091,8 @@
 					}
 					var map = new google.maps.Map( document.getElementById( 'google-maps' ), mapOptions );
 					var markerCount = 0;
+					var validCoordCount = 0;
+					var coordsAreValid;
 
 					//Global scope google map variable
 					$gmaps = $( '#google-maps' );
@@ -2119,7 +2124,7 @@
 
 							n = currentNode.current.properties[ property ].length;
 							for ( i = 0; i < n; i++ ) {
-								page.addMarkerFromLatLonStrToMap(
+								coordsAreValid = page.addMarkerFromLatLonStrToMap(
 									currentNode.current.properties[ property ][ i ].value,
 									currentNode.getDisplayTitle(),
 									currentNode.current.description,
@@ -2129,6 +2134,9 @@
 									currentNode.thumbnail
 								);
 								markerCount++;
+								if (coordsAreValid) {
+									validCoordCount++;
+								}
 							}
 
 						}
@@ -2151,7 +2159,7 @@
 										label = (pathIndex+1).toString();
 									}
 
-									page.addMarkerFromLatLonStrToMap(
+									coordsAreValid = page.addMarkerFromLatLonStrToMap(
 										node.current.properties[ property ][ j ].value,
 										node.getDisplayTitle(),
 										node.current.description,
@@ -2162,6 +2170,9 @@
 										label
 									);
 									markerCount++;
+									if (coordsAreValid) {
+										validCoordCount++;
+									}
 								}
 							}
 						}
@@ -2177,8 +2188,10 @@
 						$gmaps.css('max-height',0.6*$(window).height());
 					});
 
-					// no coords of any kind found
-					if ( markerCount == 0 ) {
+					if (validCoordCount == 0) {
+						$gmaps.find('.alert').remove();
+						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
+					} else if (markerCount == 0) {
 						$gmaps.find('.alert').remove();
 						$gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
 					}
