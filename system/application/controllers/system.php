@@ -578,17 +578,18 @@ class System extends MY_Controller {
 
 		// Load Dashboard plugins
 		$this->data['plugins'] = array();
-		/*
 		$this->config->load('plugins');
 		$plugins = $this->config->item('plugins');
 		if (isset($plugins['dashboard'])) {
 			foreach ($plugins['dashboard'] as $value) {
-				$this->load->plugin($value);
+				$path = APPPATH.'plugins/'.$value.'_pi.php';
+				if (!file_exists($path)) continue;
+				require_once($path);
 				$cvalue = ucwords($value);
+				if (!class_exists($cvalue)) continue;
 				$this->data['plugins'][$value] = new $cvalue($this->data);
 			}
 		}
-		*/
 
 		// Load dashboard
 		$this->template->set_template('admin');
