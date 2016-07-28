@@ -593,7 +593,6 @@ class System extends MY_Controller {
 
 		// Load dashboard
 		$this->template->set_template('admin');
-		$this->template->write_view('cover', 'modules/cover/dashboard_cover', $this->data);
 		$this->template->write_view('content', 'modules/dashboard/tabs', $this->data);
 		$this->template->render();
 

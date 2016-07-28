@@ -1,6 +1,12 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_css('system/application/views/arbors/admin/admin.css')?>
+<?$this->template->add_css('system/application/views/modules/cover/title.css')?>
+<?$this->template->add_css('system/application/views/modules/cover/login.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'book_list.css')?>
-
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-1.7.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
+<div class="system_wrapper">
+	<div class="content">
 <?
 function print_books($books, $is_large=false) {
 	echo '<ul class="book_icons">';
@@ -86,3 +92,5 @@ if ($login->is_logged_in) {
 }
 ?>
 <br clear="both" />
+</div>
+</div>

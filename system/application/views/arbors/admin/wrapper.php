@@ -10,23 +10,14 @@
 <link id="approot" href="<?=confirm_slash(base_url())?>system/application/" />
 <link id="sysroot" href="<?=confirm_slash(base_url())?>" />
 <? if (!empty($_meta)) echo $_meta."\n"?>
-<?=template_link_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.css')."\n"?>
-<?=template_link_tag_relative(__FILE__, 'admin.css')."\n"?>
 <? if (!empty($_styles)) echo $_styles?>
-<?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'jquery-ui-1.8.12.custom.min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'admin.js')."\n"?>
 <? if (!empty($_scripts)) echo $_scripts?>
 </head>
 <body>
 
-<?=((!empty($cover))?$cover:'')?>
+<?=((isset($cover)&&!empty($cover))?$cover:'')?>
 
-<div class="system_wrapper">
-	<div class="content">
-	<?=$content?>
-	</div>
-</div>
+<?=$content?>
 
 </body>
 </html>

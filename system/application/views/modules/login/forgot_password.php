@@ -1,6 +1,10 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_meta('viewport','width=device-width');?>
-
+<?$this->template->add_css('system/application/views/arbors/admin/admin.css')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-1.7.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
+<div class="system_wrapper">
+<div class="content">
 <div class="login_wrapper">
 <? if (!empty($forgot_login_error)): ?>
 <div class="error"><?=$forgot_login_error?></div>
@@ -33,3 +37,5 @@
 	<small><a href="<?=base_url()?>">Return to index</a> | <a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a></small>
 </div>
 <br clear="both" />
+</div>
+</div>

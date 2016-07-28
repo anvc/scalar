@@ -1,6 +1,37 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
-<?$this->template->add_css(path_from_file(__FILE__).'tabs.css')?>
-<?$this->template->add_js(path_from_file(__FILE__).'tabs.js')?>
+<?$this->template->add_css('system/application/views/arbors/admin/jquery-ui-1.8.12.custom.css')?>
+<?$this->template->add_css('system/application/views/arbors/admin/admin.css')?>
+<?$this->template->add_css('system/application/views/modules/cover/title.css')?>
+<?$this->template->add_css('system/application/views/modules/cover/login.css')?>
+<?$this->template->add_css('system/application/views/modules/dashboard/tabs.css')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-1.7.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-ui-1.8.12.custom.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
+<?$this->template->add_js('system/application/views/modules/dashboard/tabs.js')?>
+<div class="system_wrapper system_cover">
+<div class="cover">
+<? $this->load->view('modules/cover/login') ?>
+<h2 class="title dashboard_title">
+<form action="<?=confirm_slash(base_url())?>system/dashboard" method="get" class="book_form">
+<select name="book_id" onchange="$(this).parent().submit();" style="margin:0;max-width:300px;">
+<option value="0">Select a book to manage</option>
+<?
+foreach ($my_books as $row) {
+	echo '<option value="'.$row->book_id.'"'.((!empty($book)&&$book->book_id==$row->book_id)?' SELECTED':'').'>';
+	echo strip_tags($row->title);
+	echo '</option>';
+}
+?>
+</select>
+<input type="hidden" name="zone" value="style" />
+</form>
+<?=$cover_title?>
+</h2>
+</div>
+</div>
+
+<div class="system_wrapper">
+<div class="content">
 
 <div class="select_box" id="value_selector">
 <h4 class="dialog_title">Edit users</h4>
@@ -71,6 +102,9 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 	<div id="tabs-all-books"><? if ('all-books'==$zone) { $this->load->view('modules/dashboard/all-books'); } else {echo 'Loading...';} ?></div>
 	<div id="tabs-tools"><? if ('tools'==$zone) { $this->load->view('modules/dashboard/tools'); } else {echo 'Loading...';} ?></div>
 	<? endif ?>
+
+</div>
+</div>
 
 </div>
 </div>

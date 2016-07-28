@@ -1,6 +1,10 @@
 
 .system_wrapper { min-width: 950px; max-width: 1050px; }
 
+.login {
+	font-size:15px;	
+}
+
 #user_books {
 	background-color: white;
 	padding: 5px 20px 0 20px;
