@@ -592,8 +592,10 @@ class System extends MY_Controller {
 		}
 
 		// Load dashboard
+		$dashboard = $this->config->item('active_dashboard');
+		if (empty($dashboard) || !file_exists(APPPATH.'views/modules/'.$dashboard)) $dashboard = 'dashboard';
 		$this->template->set_template('admin');
-		$this->template->write_view('content', 'modules/dashboard/tabs', $this->data);
+		$this->template->write_view('content', 'modules/'.$dashboard.'/content', $this->data);
 		$this->template->render();
 
 	}
