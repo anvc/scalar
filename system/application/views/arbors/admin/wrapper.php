@@ -15,9 +15,12 @@
 </head>
 <body>
 
-<?=((isset($cover)&&!empty($cover))?$cover:'')?>
+<?php
+echo ((isset($cover)&&!empty($cover))?$cover."\n\n":'');
 
-<?=$content?>
+echo $content;
+?>
+
 
 </body>
 </html>

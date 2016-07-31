@@ -1,1 +1,13 @@
-body {background-color:#cccccc;}
+body {background-color:#ffffff;}
+
+header nav {text-align:left; padding-top:0px;}
+header nav h5 {font-weight:normal;}
+@media (min-width:768px) {
+	header nav {text-align:right; padding-top:6px;} 
+}
+ 
+.avatar.small {width:25px; margin-bottom:0.5rem; margin-right:0.5rem;}
+.scalar_logo.small {width:18px; margin-bottom:0.5rem; margin-left:0.5rem;}
+
+.dropdown > a {color:inherit;}
+.dropdown-menu > li > a.active {font-weight:bold;}
