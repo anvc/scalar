@@ -32,6 +32,8 @@ ul > li, ol > li { margin-left: 2.0rem; }
 ol, ul { list-style-position: outside; }
 .dropdown-menu ul > li, .dropdown-menu ol > li, #scalarheader ul > li, #scalarheader ol > li { margin-left: 0; }
 
+.alert .alert-link { font-weight: 900; }
+
 .page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
 .left_margin { min-width: 7.2rem; float: left; }
 
