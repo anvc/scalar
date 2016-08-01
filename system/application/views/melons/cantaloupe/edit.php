@@ -457,7 +457,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 	<td colspan="2">
 		<div id="wysiwygNewFeatures" class="alert alert-warning alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
-		  <strong>Want to show an annotation?</strong> We recently moved that feature into our media formatting options. <hr /> First, select a piece of media using one of the blue media buttons below, and then pick one or more of its annotations from the formatting dialog that follows. For step-by-step instructions, see our <a href="http://scalar.usc.edu/works/guide2/" class="alert-link">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" class="alert-link">contact</a> us</a> or post to our <a href="http://scalar.usc.edu/scalar/forums/" class="alert-link">forum</a> if you have any questions.
+		  <strong>Want to show an annotation?</strong> We recently moved that feature into our media formatting options. <hr /> First, select a piece of media using one of the blue media buttons below, and then pick one or more of its annotations from the formatting options that follow. For step-by-step instructions, see our <a href="http://scalar.usc.edu/works/guide2/" class="alert-link">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" class="alert-link">contact</a> us</a> or post to our <a href="http://scalar.usc.edu/scalar/forums/" class="alert-link">forum</a> if you have any questions.
 		</div>
 		<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
 		if (isset($page->version_index)):
