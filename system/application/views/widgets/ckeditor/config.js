@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
-/** 
+/**
  * Convert \n to <br /> when pasting into the 'source' mode
  * @author 	Craig Dietrich
  * @version	1.0
@@ -18,16 +18,16 @@ $(document).on('paste', 'textarea', function (e, c) {  // Text is cut-and-paste 
 			val = val.replace(/^\s+|\s+$/g, '');  // Trim line breaks from beginning and end
 			val = val.replace(new RegExp('\r?\n','g'), "<br />\n");  // Convert line breaks to <br />
 			setTimeout(function() {
-				codemirror_cke_1.setValue(val);		
+				codemirror_cke_1.setValue(val);
 			},10);
 		};
 		codemirror_cke_1.on('change', myFunc);
-	} 
+	}
 });
 
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
-	
+
 	// %REMOVE_START%
 	// The configuration options below are needed when running CKEditor from source files.
 	config.plugins = 'dialogui,dialog,a11yhelp,basicstyles,blockquote,clipboard,panel,floatpanel,panelbutton,listblock,richcombo,format,menu,button,toolbar,elementspath,enterkey,entities,wysiwygarea,indent,indentlist,list,maximize,pastetext,pastefromword,removeformat,sourcearea,specialchar,menubutton,undo,colorbutton,colordialog,codeTag,fakeobjects,iframe,codemirror,scalar';
@@ -37,12 +37,12 @@ CKEDITOR.editorConfig = function( config ) {
 	config.disableNativeSpellChecker = false;
 	config.height = 350;
 	config.font_defaultLabel = 'Lucida Grande';
-	config.fontSize_defaultLabel = '12px';	
+	config.fontSize_defaultLabel = '12px';
 	config.enterMode = CKEDITOR.ENTER_BR;
 	// %REMOVE_END%
 
 	config.toolbar = 'Scalar';
-	 
+
 	config.toolbar_Scalar =
 	[
 		{ name: 'document', items : [ 'Source' ] },
@@ -50,10 +50,10 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
 		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
-		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar3', 'Scalar4', 'Scalar5', 'Scalar6', 'Scalar7' ] },
+		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar8', 'Scalar9', 'Scalar5', 'Scalar6', 'Scalar7' ] },
 		{ name: 'clear', items : [ 'RemoveFormat' ] }
 	];
-	 
+
 
 	// Remove some buttons provided by the standard plugins, which are
 	// not needed in the Standard(s) toolbar.
@@ -64,7 +64,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
-	
+
 	config.codemirror = {
 		    // Set this to the theme you wish to use (codemirror themes)
 		    theme: 'default',
@@ -108,7 +108,6 @@ CKEDITOR.editorConfig = function( config ) {
 		    showAutoCompleteButton: false,
 		    // Whether or not to highlight the currently active line
 		    styleActiveLine: true
-		};	
-	
-};
+		};
 
+};

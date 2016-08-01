@@ -984,3 +984,11 @@ if (isset($page->version_index)):
 endif;
 ?>
 </form>
+
+<?php
+if(isset($_GET['allow_widgets'])){
+?>
+	<script>var allow_widgets = true;</script>
+<?php
+}
+?>

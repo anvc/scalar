@@ -8,7 +8,9 @@
 .cke_button__scalar3,
 .cke_button__scalar4,
 .cke_button__scalar5,
-.cke_button__scalar6 {
+.cke_button__scalar6,
+.cke_button__scalar8,
+.cke_button__scalar9 {
 	background-color:#2894b8 !important;
 	margin-left:1px !important;
 	margin-right:1px !important;
@@ -23,7 +25,9 @@
 .cke_button__scalar3:hover,
 .cke_button__scalar4:hover,
 .cke_button__scalar5:hover,
-.cke_button__scalar6:hover {
+.cke_button__scalar6:hover,
+.cke_button__scalar8:hover,
+.cke_button__scalar9:hover {
 	background-color:#1d6e88 !important;
 }
 .cke_button__scalar7:hover {
@@ -129,4 +133,7 @@
 #wysiwygNewFeatures>button:hover{
 	opacity: .75;
 	outline: none;
+}
+#insertInlineWidgetIconButton,#insertLinkedWidgetIconButton{
+	display: none;
 }
