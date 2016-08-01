@@ -110,9 +110,13 @@
 }
 
 #wysiwygNewFeatures{
-	display: none;
 	font-size: 1.4rem;
 	padding: 1rem;
+}
+#wysiwygNewFeatures hr{
+	border-bottom: 0;
+	border-top: 1px solid #f7e1b5;
+	margin: 1rem 0;
 }
 #wysiwygNewFeatures>button{
 	background-image: none;
