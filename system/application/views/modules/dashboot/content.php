@@ -9,7 +9,7 @@
       <h4>
         <a href="javascript:void(null);" class="<?=(('user'==$zone)?'active':'')?>">
           <img class="avatar small" src="<?=$app_root.'views/modules/dashboot/images/generic-avatar.png'?>" alt="User avatar" />
-          Steve Anderson 
+          <?=$login->fullname?> 
         </a>
 <?php if ('user'!=$zone): ?>
         <span class="s">/</span> 

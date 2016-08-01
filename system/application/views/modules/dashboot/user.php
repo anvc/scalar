@@ -6,7 +6,7 @@
 <div class="alert alert-success">Book has been duplicated, you now have a new book present in the list of books at the bottom of the page<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
-<div class="alert alert-success">Book has been created (now present in the list of books at the bottom of the page)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-success">Book has been created (and is now present in the list to the right)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'email_exists'==$_REQUEST['error']): ?>
 <div class="alert alert-danger">The email address entered already exists in the system. Please try again with a different email.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
@@ -86,6 +86,100 @@
     </section>
     <section class="col-xs-12 col-sm-6">
       <div class="page-header"><h4>Books</h4></div>
+      <div class="form-inline">
+      	<button class="btn btn-default" data-toggle="modal" data-target="#createBookModal">Create new book</button> &nbsp; 
+      	<button class="btn btn-default" data-toggle="modal" data-target="#duplicateBookModal">Duplicate existing book</button>
+      </div>
+      <div class="page-v-spacer"></div>
+      <div class="table-responsive">
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Role</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody><?php 
+	    	  foreach ($my_books as $my_book) {
+	    	  	$role = '(No role)';
+	    	  	foreach ($my_book->users as $my_user) {
+	    	  		if ($my_user->user_id == $login->user_id) $role = ucwords($my_user->relationship);
+	    	  	}
+	    		echo '<tr class="'.(($my_book->book_id==$book_id)?'info':'').'">';
+	    		echo '<td>';
+	    		echo '<a href="'.base_url().$my_book->slug.'">';
+	    		echo strip_tags($my_book->title);
+	    		echo '</a>';
+	    		echo '</td>';
+	    		echo '<td>';
+	    		echo $role;
+	    		echo '</td>';
+	    		echo '<td class="">';
+	    		echo '<a href="?book_id='.$my_book->book_id.'" class="btn btn-default btn-xs pull-right">Dashboard</a>';
+	    		echo '</td>';
+	    		echo '</tr>';
+	    	  }
+          ?></tbody>
+        </table>
+      </div>
     </section>    
+  </div>
+</div>
+
+<div class="modal fade" id="createBookModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
+      <input type="hidden" name="action" value="do_add_book" />
+      <input type="hidden" name="user_id" value="<?=$login->user_id?>" />    
+      <div class="modal-body">
+        <div class="page-header"><h4>Create new book</h4></div>
+        <div class="form-group">
+          <label for="title" class="col-sm-2 control-label">Title</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="title" name="title" placeholder="New book title">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="subtitle" class="col-sm-2 control-label">Subtitle</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="subtitle" name="subtitle" placeholder="New book subtitle">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="scope" class="col-sm-2 control-label">Genre</label>
+          <div class="col-sm-4">
+            <select class="form-control" id="scope" name="scope">
+              <option value="book">Book</option>
+              <option value="article">Article</option>
+              <option value="project">Project</option>
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <small>For cosmentic purposes only&mdash;will be displayed throughout the interface</small>
+          </div>
+        </div>        	  
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="duplicateBookModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p>Duplicate book</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Duplicate</button>
+      </div>
+    </div>
   </div>
 </div>
