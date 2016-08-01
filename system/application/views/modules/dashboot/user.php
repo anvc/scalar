@@ -1,9 +1,32 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<script>
+$(document).ready(function() {
+	var $duplicateBookModal = $('#duplicateBookModal');
+	var $submit_btn = $duplicateBookModal.find('button[type="submit"]');
+	if ($duplicateBookModal.find('.alert').length) {
+		$submit_btn.hide();
+	} else {
+		$submit_btn.show();
+	}	
+	$duplicateBookModal.on('shown.bs.modal', function () {
+		$duplicateBookModal.find('tbody tr').each(function() {
+			var $this = $(this);
+			$this.removeClass('active').removeClass('info').unbind('click');
+			$this.click(function() {
+				var $row = $(this);
+				var book_id = parseInt($row.data('id'));
+				$row.addClass('active').addClass('info').siblings().removeClass('active').removeClass('info');
+				$this.closest('form').find('input[name="book_to_duplicate"]').val(book_id);
+			});
+		});
+	});
+});
+</script>
 <? if (isset($_REQUEST['action']) && 'user_saved'==$_REQUEST['action']): ?>
 <div class="alert alert-success">User profile has been saved<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['action']) && 'duplicated'==$_REQUEST['action']): ?>
-<div class="alert alert-success">Book has been duplicated, you now have a new book present in the list of books at the bottom of the page<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-success">Book has been duplicated (and the new book is now present in the list to the right)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
 <div class="alert alert-success">Book has been created (and is now present in the list to the right)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
@@ -173,13 +196,45 @@
 <div class="modal fade" id="duplicateBookModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
+	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (0==this.book_to_duplicate.value) {alert('Please select a book to duplicate');return false;} else if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a title for the new book');return false;}">
+	  <input type="hidden" name="action" value="do_duplicate_book" />
+	  <input type="hidden" name="user_id" value="<?=$login->user_id?>" />
+	  <input type="hidden" name="book_to_duplicate" value="0" />
       <div class="modal-body">
-        <p>Duplicate book</p>
+        <div class="page-header"><h4>Duplicate a book</h4></div>
+<?php if (empty($duplicatable_books) || !count($duplicatable_books)): ?>
+		<div class="alert alert-danger">There are no books presently set to be duplicatable in this Scalar install.</div>
+<?php else: ?>
+        <div class="table-responsive">
+          <table class="table table-condensed table-hover">
+            <thead>
+              <tr><th>Book to duplicate</th></tr>
+            </thead>
+            <tbody><?php
+	            foreach ($duplicatable_books as $duplicatable_book) {
+	 	    		echo '<tr data-id="'.$duplicatable_book->book_id.'">';
+		    		echo '<td>';
+		    		echo strip_tags($duplicatable_book->title);
+		    		echo '</td>';
+		    		echo '</tr>';           		
+	            }
+            ?></tbody>
+          </table>
+        </div>
+        <div class="page-v-spacer"></div>
+        <div class="form-group">
+          <label for="title" class="col-sm-1 control-label">Title</label>
+          <div class="col-sm-11">
+            <input type="text" class="form-control" id="title" name="title" placeholder="New book title">
+          </div>
+        </div>          
+<?php endif; ?>      
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="submit" class="btn btn-primary">Duplicate</button>
       </div>
+      </form>
     </div>
   </div>
 </div>

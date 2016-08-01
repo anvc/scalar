@@ -9,6 +9,7 @@ body {background-color:#ffffff;}
 .modal-footer {border-top:none;}
 .modal small {color:#777777; float:left;}
 .alert {margin-left:15px; margin-right:15px;}
+.table-hover tbody tr {cursor:pointer;}
 
 header .dropdown {display:inline-block;}
 header nav {text-align:left; padding-top:0px;}
