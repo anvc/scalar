@@ -209,17 +209,15 @@ CKEDITOR.plugins.add( 'scalar', {
 							$('#scalarInlineGearIcon').data({
 								element: $(this).data('element'),
 								type: $(this).data('type')
-							}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show().off('click').click(function(){
-								$('#scalarInlineGearIcon').hide();
-								var element = $(this).data('element');
-								isEdit = true;
-								CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
-							});
+							}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show();
+							$('#scalarInlineRedXIcon').data({
+								element: $(this).data('element')
+							}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show();
 
 							window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
 						}
 				},function(){
-					$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon').hide(); },200));
+					$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon, #scalarInlineRedXIcon').hide(); },200));
 				});
 			};
 			addCKLinkedMediaPreview = function(slug,element){
@@ -243,13 +241,7 @@ CKEDITOR.plugins.add( 'scalar', {
 					};
 
 					$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: topPos}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
-					$('#scalarLinkTooltip .gearIcon').off('click').click(function(){
-						var $tooltip = $('#scalarLinkTooltip');
-						$tooltip.hide();
-						var element = $tooltip.data('element');
-						isEdit = true;
-						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
-					});
+
 					window.clearTimeout($('#scalarLinkTooltip').data('timeout'));
 				},function(){
 					$('#scalarLinkTooltip').data('timeout',window.setTimeout(function(){	$('#scalarLinkTooltip').hide(); },200));
@@ -267,20 +259,52 @@ CKEDITOR.plugins.add( 'scalar', {
 					}
 
 					var ckeFrame = $('.cke_contents>iframe').contents();
-					var tooltip = $('<div id="scalarLinkTooltip"><div class="gearIcon"></div><div class="thumbnail"></div></div>');
-					tooltip.hover(function(){
+					var tooltip = $('<div id="scalarLinkTooltip"><div class="gearIcon"></div><div class="redxIcon"></div><div class="thumbnail"></div></div>').hover(function(){
 						window.clearTimeout($('#scalarLinkTooltip').data('timeout'));
 					},function(){
 						$('#scalarLinkTooltip').data('timeout',window.setTimeout(function(){	$('#scalarLinkTooltip').hide(); },200));
+					}).appendTo('body');
+
+					tooltip.find('.gearIcon').click(function(){
+						var $tooltip = $('#scalarLinkTooltip');
+						$tooltip.hide();
+						var element = $tooltip.data('element');
+						isEdit = true;
+						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
 					});
-					tooltip.appendTo('body');
-					var inlineGearIcon = $('<div id="scalarInlineGearIcon" class="gearIcon"></div>');
-					inlineGearIcon.hover(function(){
+
+					tooltip.find('.redxIcon').click(function(){
+						var $tooltip = $('#scalarLinkTooltip');
+						var element = $tooltip.data('element');
+						if(confirm("Are you sure you would like to remove this linked media from the current page?")){
+							element.remove(true);
+							$tooltip.hide();
+						}
+					});
+
+
+					var inlineGearIcon = $('<div id="scalarInlineGearIcon" class="gearIcon"></div>').click(function(){
+						$('#scalarInlineRedXIcon,#scalarInlineGearIcon').hide();
+						var element = $(this).data('element');
+						isEdit = true;
+						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+					}).hover(function(){
 						window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
 					},function(){
-						$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon').hide(); },200));
-					});
-					inlineGearIcon.appendTo('body');
+						$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon, #scalarInlineRedXIcon').hide(); },200));
+					}).appendTo('body');
+
+					var inlineRedXIcon = $('<div id="scalarInlineRedXIcon" class="redxIcon"></div>').click(function(){
+						if(confirm("Are you sure you would like to remove this inline media from the current page?")){
+							$('#scalarInlineRedXIcon,#scalarInlineGearIcon').hide();
+							$(this).data('element').remove(true);
+						}
+					}).hover(function(){
+						window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
+					},function(){
+						$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon, #scalarInlineRedXIcon').hide(); },200));
+					}).appendTo('body');
+
 					var anchors = editor.document.find('a[resource]');
 					var num_anchors = anchors.count();
 					for(var i = 0; i < num_anchors; i++){
