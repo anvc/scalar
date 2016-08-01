@@ -1,13 +1,23 @@
 body {background-color:#ffffff;}
 
+header .dropdown {display:inline-block;}
 header nav {text-align:left; padding-top:0px;}
 header nav h5 {font-weight:normal;}
+header h4 {margin-bottom:0px;}
+header h5 {margin-bottom:14px;}
 @media (min-width:768px) {
 	header nav {text-align:right; padding-top:6px;} 
+	header h4, header h5 {margin-bottom:10px;}
 }
+.dropdown > a, a.active {color:inherit; text-decoration:none;}
+.dropdown-menu > li > a.active {font-weight:bold;}
+
+.user label, .user small {color:#777777;}
+.user .form-control {/*box-shadow:none;*/}
+.user .label-text {text-align:left; font-weight:normal;}
  
 .avatar.small {width:25px; margin-bottom:0.5rem; margin-right:0.5rem;}
 .scalar_logo.small {width:18px; margin-bottom:0.5rem; margin-left:0.5rem;}
-
-.dropdown > a {color:inherit;}
-.dropdown-menu > li > a.active {font-weight:bold;}
+.s {color:#777777; font-weight:normal;}
+.page-header {margin-top:0px;}
+.page-header h4 {margin-bottom:0px;}
