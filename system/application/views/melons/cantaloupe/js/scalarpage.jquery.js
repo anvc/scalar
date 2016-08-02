@@ -576,7 +576,14 @@
 							section = $('<section class="relationships"></section');
 							$( "#footer" ).before( section );
 							links = $( '<p></p>' );
-							var end_button = $( '<a class="nav_btn" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> Continue to &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' ).appendTo(links);
+
+							var continuePhrase = "Continue to";
+							// if the "continue to" node is also the path we're on, then say "return" instead of "continue'"
+							if (foundQueryPath && ( page.containingPath.slug == queryVars.path ) && (page.containingPath == node)) {
+								continuePhrase = "Return to";
+							}
+
+							var end_button = $( '<a class="nav_btn" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> ' + continuePhrase + ' &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>' ).appendTo(links);
 							if ( pathOptionCount == 0 ) {
 								end_button.addClass( 'primary' );
 							}

@@ -2,9 +2,9 @@
 @import url(//fonts.googleapis.com/css?family=Lato:400,900,400italic,900italic);
 
 body {
-	font-family: 'Lato', Arial, sans-serif;
+	font-family: 'Lato', Arial, sans-serif !important;
 	background-color: #f8f8f8;
-	font-size: 100%;
+	font-size: 100% !important;
 	background-image: none;
 }
 
