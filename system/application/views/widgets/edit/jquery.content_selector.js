@@ -846,4 +846,195 @@
     	init();
     	if (opts.type) go();
     };
+		$.fn.widget_selector = function(options){
+			var self = this;
+    	var $this = $(this);
+
+			var loaded_nodeLists = {};
+
+			var parent_url = $('link#parent').attr('href');
+
+			var load_node_list = function(type,promise){
+				if(typeof loaded_nodeLists[type]!=="undefined"){
+					promise.resolve();
+				}else{
+					var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec=0&ref=0';
+					console.log(url);
+					$.getJSON(url, function(){}).always(function(_data) {
+		    		if ('undefined'!=typeof(_data.status)) {
+		    			alert('There was a problem trying to get a list of content: '+_data.status+' '+_data.statusText+'. Please try again.');
+		    			return;
+		    		}
+		    		loaded_nodeLists[type] = [];
+		    		for (var uri in _data) {
+		    			if ('undefined'!=typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
+
+								var item = {};
+		    				item.uri = uri;
+		    				item.slug = uri.replace(parent_url, '');
+		    				item.version_uri = _data[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
+		    				item.version_slug = item.version_uri.replace(parent_url, '');
+		    				item.content = _data[uri];
+		    				item.version = _data[ item.version_uri ];
+		    				item.title = ('undefined'!=typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
+		    				item.targets = [];
+
+		    				loaded_nodeLists[type].push(item);
+		    			}
+		    		}
+						promise.resolve();
+		    	});
+				}
+			}
+
+			var mini_node_selector = function(target){
+				var $wrapper = $('<div class="node_selector_body"><div class="pull-right">Filter by type: <select class="node_selection_type_filter"><option value="composite">Pages</option><option value="media">Media</option><option value="path">Paths</option> <option value="tag">Tags</option><option value="annotation">Annotations</option> <option value="reply">Comments</option><option value="term">Terms</option></select></div></div>');
+				var $selector = $('<table class="widget_target_node_selector table table-fixed table-striped table-hover"></table>').appendTo($wrapper);
+				var $thead = $('<thead><tr><th>&nbsp;&nbsp;&nbsp;</th><th>Title</th><th>Description</th><th>URL</th><th></th></tr></thead>').appendTo($selector);
+				var $tbody = $('<tbody></tbody>').appendTo($selector);
+
+				$wrapper.find('.node_selection_type_filter').change(function(){
+					var promise = jQuery.Deferred();
+
+					jQuery.when(promise).then(function(){
+						var data = loaded_nodeLists[$wrapper.find('.node_selection_type_filter').val()];
+						$tbody.html('');
+						for(var i = 0; i < data.length; i++){
+							var item = data[i];
+							var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : null;
+							$tbody.append('<tr><td class="text-center"><i class="icon"></i></td><td>'+item.title+'</td><td>'+desc+'</td><td>.../'+item.slug+'</td><td><a href="'+item.uri+'" target="_blank">Preview</a></td></tr>')
+							console.table(item);
+						}
+					});
+
+					load_node_list($(this).val(),promise);
+				});
+				$wrapper.find('.node_selection_type_filter').change();
+				target.append($wrapper);
+			}
+			var select_widget_options = function(widget_type){
+				$('#bootbox-content-selector-content').find('.widgetList').fadeOut('fast',function(){
+					$('.bootbox').find( '.modal-title' ).text('Select '+widget_type+' Widget Options');
+					var $content = $('<div></div>').appendTo('#bootbox-content-selector-content');
+					var type = widget_type.toLowerCase();
+					switch(type){
+							//Timeline.js
+						case 'timeline':
+
+							 mini_node_selector($('<div class="node_selection"></div>').appendTo($content));
+
+							 break;
+						 case 'visualization':
+
+							 break;
+						 case 'map':
+
+							 break;
+						 case 'carousel':
+
+							 break;
+						 case 'card':
+
+							 break;
+						 case 'summary':
+
+							 break;
+					}
+				});
+			}
+
+			var modal_height = function(init) {
+    		var $content_selector_bootbox = $('.content_selector_bootbox');
+    		if (!$content_selector_bootbox.length) return;
+    		var margin = parseInt($content_selector_bootbox.find('.modal-dialog').css('marginTop'));
+    		var head = parseInt( $content_selector_bootbox.find('.modal-header').outerHeight() );
+    		if (head < 60) head = 60;  // Magic number
+	    	var foot_el = $content_selector_bootbox.find('.footer');
+	    	if (foot_el.is(':hidden')) {
+	    		var foot = 52;  // Magic number; it seems iOS ignores this while it also ensures that on desktop there's no "jump"
+	    	} else if (!foot_el.length) {
+	    		var foot = 52;  // Magic number
+	    	} else {
+	    		var foot = parseInt( foot_el.height() );
+	    	}
+	    	var window_height = parseInt($(window).height());
+	    	var val = window_height - head - foot - (margin*2);
+    		$this.find('.content').height(val);
+    	};
+
+			bootbox.hideAll()
+			var box = bootbox.dialog({
+				message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
+				title: 'Select Widget Type',
+				className: 'widget_selector_bootbox',
+				animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
+			});
+			$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
+
+			$this.appendTo($('#bootbox-content-selector-content'));
+			var $widget_selector_bootbox = $('.widget_selector_bootbox');
+			$widget_selector_bootbox.find('.modal-dialog').width('60%').css('margin-left','20%').css('margin-right','20%');
+			var $options = $widget_selector_bootbox.find('.options:first');
+			$('.bootbox-close-button').empty();
+			box.on("shown.bs.modal", function() {
+				modal_height();
+			});
+			$(window).resize(function() {
+				modal_height();
+			});
+			box.on("hidden.bs.modal", function() {
+				reset();
+			});
+
+			var $widgets = $('<div class="widgetList"></div>');
+
+			var widget_types = [
+				{
+					name : "Timeline",
+					description : "Timeline.js view that displays chronological information from metadata or a remote document"
+				},
+				{
+					name : "Visualization",
+					description : "Scalar visualization showing pages and their relationships"
+				},
+				{
+					name : "Map",
+					description : "Google Maps view showing pages with geolocational metadata as pins"
+				},
+				{
+					name : "Carousel",
+					description : "Responsive gallery that allows users to flip through a path's media"
+				},
+				{
+					name : "Card",
+					description : "One or more media pages displayed as an informational card containing thumbnail, title, and description."
+				},
+				{
+					name : "Summary",
+					description : "One or more media pages displayed as a list of thumbnails, titles, and descriptions."
+				}
+			];
+
+			for(var i = 0; i < widget_types.length; i++){
+				var widget = widget_types[i];
+				var $widget = $('<div class="widget_type"><strong><a>'+widget.name+'</a></strong><br />'+widget.description+'</div>').data('type',widget.name);
+				$widget.click(function(e){
+					select_widget_options($(this).data('type'));
+					e.preventDefault();
+					e.stopPropagation();
+					return false;
+				});
+
+				$widget.appendTo($widgets);
+
+				if(i < widget_types.length-1){
+					$widgets.append('<hr />');
+				}else{
+					$widgets.append('<br />');
+				}
+			}
+
+
+			$this.append($widgets);
+		}
 }( jQuery ));
