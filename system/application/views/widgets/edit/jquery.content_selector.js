@@ -203,6 +203,9 @@
 								if(element!=null && element.getAttribute('resource') == slug){
 									if(element.data('annotations') != undefined){
 										var previous_annotations = element.data('annotations').split(',');
+										if(previous_annotations.length == 1 && previous_annotations[0] == ""){
+											previous_annotations = [];
+										}
 									}else{
 										previous_annotations = [];
 										$featuredAnnotation.find('option').each(function(){
