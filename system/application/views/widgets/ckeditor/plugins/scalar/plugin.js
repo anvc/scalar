@@ -215,7 +215,7 @@ CKEDITOR._scalar = {
 					}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show();
 					$('#scalarInlineRedXIcon').data({
 						element: $(this).data('element')
-					}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show();
+					}).css({left: framePosition.left+position.left+parseInt($(this).css('margin-left'))+10, top: topPos}).show();
 
 					window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
 				}
@@ -280,7 +280,7 @@ CKEDITOR.plugins.add( 'scalar', {
 					}
 
 					var ckeFrame = $('.cke_contents>iframe').contents();
-					var tooltip = $('<div id="scalarLinkTooltip"><div class="gearIcon"></div><div class="redxIcon"></div><div class="thumbnail"></div></div>').hover(function(){
+					var tooltip = $('<div id="scalarLinkTooltip"><div class="redxIcon"></div><div class="gearIcon"></div><div class="thumbnail"></div></div>').hover(function(){
 						window.clearTimeout($('#scalarLinkTooltip').data('timeout'));
 					},function(){
 						$('#scalarLinkTooltip').data('timeout',window.setTimeout(function(){	$('#scalarLinkTooltip').hide(); },200));

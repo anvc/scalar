@@ -323,7 +323,7 @@ $(document).ready(function() {
 
 	//Added to prevent accidental navigation away from edit/add page - matches all anchor tags
 	//with an href attribute that doesn't start with # or javascript:
-	$(document).on('click', 'a[href]:not([href=""], [href^="#"], [href^="javascript"])', function(e){
+	$(document).on('click', 'a[href]:not([href=""], [href^="#"], [href^="javascript"], [target="_blank"])', function(e){
 		if(!window.confirm('You are now leaving the page. If you have made any changes to this page, they will be lost. Continue?')){
 			e.preventDefault();
 			return false;
@@ -458,7 +458,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<?php if(!isset($_COOKIE['hide_new_feature_alert'])){ ?>
 		<div id="wysiwygNewFeatures" class="alert alert-warning alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
-		  <strong>Want to show an annotation?</strong> We recently moved that feature into our media formatting options. <hr /> First, select a piece of media using one of the blue media buttons below, and then pick one or more of its annotations from the formatting options that follow. For step-by-step instructions, see our <a href="http://scalar.usc.edu/works/guide2/" class="alert-link">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" class="alert-link">contact</a> us</a> or post to our <a href="http://scalar.usc.edu/scalar/forums/" class="alert-link">forum</a> if you have any questions.
+		  <strong>Want to show an annotation?</strong> We recently moved that feature into our media formatting options. <hr /> First, select a piece of media using one of the blue media buttons below, and then pick one or more of its annotations from the formatting options that follow. For step-by-step instructions, see our <a href="http://scalar.usc.edu/works/guide2/adding-media-and-annotations" class="alert-link" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" class="alert-link" target="_blank">contact</a> us</a> or post to our <a href="http://scalar.usc.edu/scalar/forums/" class="alert-link" target="_blank">forum</a> if you have any questions.
 		</div>
 		<?php } ?>
 		<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?

@@ -78,7 +78,6 @@
 }
 .redxIcon{
 	background-image: url(plugins/scalar/styles/redxIcon.png);
-	margin-top: 36px;
 }
 .gearIcon:hover,.redxIcon:hover{
 	opacity: 1;
@@ -89,8 +88,13 @@
 
 #scalarLinkTooltip .gearIcon, #scalarLinkTooltip .redxIcon{
 	position: absolute;
-  right: 10px;
   top: 10px;
+}
+#scalarLinkTooltip .gearIcon{
+	right: 10px;
+}
+#scalarLinkTooltip .redxIcon{
+	left: 10px;
 }
 #scalarInlineGearIcon, #scalarInlineRedXIcon{
 	position: absolute;
