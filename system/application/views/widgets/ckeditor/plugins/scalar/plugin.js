@@ -86,7 +86,7 @@ CKEDITOR.plugins.add( 'scalar', {
 				var d = new Date();
 				d.setTime(d.getTime() + (cookie_days*86400000));
 				var cookie_expiration = "; expires="+ d.toUTCString();
-				document.cookie = "hide_new_feature_alert=true"// + cookie_expiration; //Uncomment to add expiration to cookie				
+				document.cookie = "hide_new_feature_alert=true" + cookie_expiration;		
 			});
 			//Callback functions for content options selection
 				mediaLinkCallback = function(node,element){
