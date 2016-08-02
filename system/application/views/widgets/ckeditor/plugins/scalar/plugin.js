@@ -81,7 +81,13 @@ CKEDITOR.plugins.add( 'scalar', {
 		icons: 'scalar1,scalar2,scalar5,scalar6,scalar7,scalar8,scalar9',
     requires: 'dialog',
     init: function( editor ) {
-
+			$('#wysiwygNewFeatures .close').click(function(){
+				var cookie_days = 7;
+				var d = new Date();
+		    d.setTime(d.getTime() + (cookie_days*86400000));
+		    var cookie_expiration = "; expires="+ d.toUTCString();
+		    document.cookie = "hide_new_feature_alert=true"// + cookie_expiration; //Uncomment to add expiration to cookie				
+			});
 			//Callback functions for content options selection
 				mediaLinkCallback = function(node,element){
 					var isEdit = typeof element.$.href != 'undefined' && element.$.href != '';
