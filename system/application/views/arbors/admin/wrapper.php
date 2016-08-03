@@ -21,6 +21,5 @@ echo ((isset($cover)&&!empty($cover))?$cover."\n\n":'');
 echo $content;
 ?>
 
-
 </body>
 </html>

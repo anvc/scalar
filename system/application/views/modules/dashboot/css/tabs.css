@@ -28,3 +28,5 @@ header h5 {margin-bottom:14px;}
 .user .label-text {text-align:left; font-weight:normal;}
 .user table th:first-of-type, .user table td:first-of-type {padding-left:15px;}
 .user table th:last-of-type, .user table td:last-of-type {padding-right:15px;}
+
+.tab-pane .loading {text-align:center; color:#777777; margin-top:20px;}

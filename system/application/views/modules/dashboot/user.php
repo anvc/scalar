@@ -139,7 +139,7 @@ $(document).ready(function() {
 	    		echo $role;
 	    		echo '</td>';
 	    		echo '<td class="">';
-	    		echo '<a href="?book_id='.$my_book->book_id.'" class="btn btn-default btn-xs pull-right">Dashboard</a>';
+	    		echo '<a href="?book_id='.$my_book->book_id.'&zone=style#tabs-style" class="btn btn-default btn-xs pull-right">Dashboard</a>';
 	    		echo '</td>';
 	    		echo '</tr>';
 	    	  }

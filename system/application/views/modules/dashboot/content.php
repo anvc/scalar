@@ -3,11 +3,22 @@
 <?$this->template->add_css('system/application/views/modules/dashboot/css/tabs.css')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-3.1.0.min.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap.min.js')?>
+<script>
+var book_id = <?=@$book->book_id?>;
+$(document).ready(function() {
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    var $shown = $(e.target);
+    var zone = $shown.attr('href').substr($shown.attr('href').lastIndexOf('-')+1);
+    document.location.href = '?book_id='+book_id+'&zone='+zone+'#tabs-'+zone;
+  });
+});
+</script>
+
 <header class="container-fluid">
   <div class="row">
     <div class="col-xs-12 col-sm-6">
       <h4>
-        <a href="javascript:void(null);" class="<?=(('user'==$zone)?'active':'')?>">
+        <a href="?book_id=<?=$book->book_id?>&zone=user#tabs-user" class="<?=(('user'==$zone)?'active':'')?>">
           <img class="avatar small" src="<?=$app_root.'views/modules/dashboot/images/generic-avatar.png'?>" alt="User avatar" />
           <?=$login->fullname?> 
         </a>
@@ -45,18 +56,23 @@ if ('user'==$zone):
   $this->load->view('modules/dashboot/user');
 
 else: ?>
-
 <nav class="container-fluid">
   <div class="row">
     <div class="col-xs-12">
 	  <ul class="nav nav-tabs" role="tablist">
-	    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
-	    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
-	    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
-	    <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
-	  </ul>
+	    <li role="presentation"<?=(('style'==$zone)?' class="active"':'')?>><a href="#tabs-style" data-toggle="tab">Properties</a></li>
+	    <li role="presentation"<?=(('pages'==$zone)?' class="active"':'')?>><a href="#tabs-pages" data-toggle="tab">Content</a></li>
+	    <li role="presentation"<?=(('users'==$zone)?' class="active"':'')?>><a href="#tabs-users" data-toggle="tab">Users</a></li>
+	    <li role="presentation"<?=(('utils'==$zone)?' class="active"':'')?>><a href="#tabs-utils" data-toggle="tab">Utilities</a></li>
+	  </ul>  
 	</div>
   </div>
-<nav>
+</nav>
 
+<section class="tab-content">
+  <div role="tabpanel" class="tab-pane<?=(('style'==$zone)?' active':'')?>" id="tabs-style"><? if ('style'==$zone) { $this->load->view('modules/dashboot/props'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+  <div role="tabpanel" class="tab-pane<?=(('pages'==$zone)?' active':'')?>" id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboot/pages'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+  <div role="tabpanel" class="tab-pane<?=(('users'==$zone)?' active':'')?>" id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboot/users'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+  <div role="tabpanel" class="tab-pane<?=(('utils'==$zone)?' active':'')?>" id="tabs-utils"><? if ('utils'==$zone) { $this->load->view('modules/dashboot/utils'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+</section>	
 <?php endif; ?>
