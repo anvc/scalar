@@ -286,7 +286,10 @@ CKEDITOR.plugins.add( 'scalar', {
 						$('#scalarLinkTooltip').data('timeout',window.setTimeout(function(){	$('#scalarLinkTooltip').hide(); },200));
 					}).appendTo('body');
 
-					tooltip.find('.gearIcon').click(function(){
+					tooltip.find('.gearIcon').click(function(e){
+						e.preventDefault();
+						e.stopPropagation();
+
 						var $tooltip = $('#scalarLinkTooltip');
 						$tooltip.hide();
 						var element = $tooltip.data('element');
@@ -294,7 +297,10 @@ CKEDITOR.plugins.add( 'scalar', {
 						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
 					});
 
-					tooltip.find('.redxIcon').click(function(){
+					tooltip.find('.redxIcon').click(function(e){
+						e.preventDefault();
+						e.stopPropagation();
+
 						var $tooltip = $('#scalarLinkTooltip');
 						var element = $tooltip.data('element');
 						if(confirm("Are you sure you would like to remove this linked media from the current page?")){
@@ -304,7 +310,10 @@ CKEDITOR.plugins.add( 'scalar', {
 					});
 
 
-					var inlineGearIcon = $('<div id="scalarInlineGearIcon" class="gearIcon"></div>').click(function(){
+					var inlineGearIcon = $('<div id="scalarInlineGearIcon" class="gearIcon"></div>').click(function(e){
+						e.preventDefault();
+						e.stopPropagation();
+
 						$('#scalarInlineRedXIcon,#scalarInlineGearIcon').hide();
 						var element = $(this).data('element');
 						isEdit = true;
@@ -315,7 +324,10 @@ CKEDITOR.plugins.add( 'scalar', {
 						$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon, #scalarInlineRedXIcon').hide(); },200));
 					}).appendTo('body');
 
-					var inlineRedXIcon = $('<div id="scalarInlineRedXIcon" class="redxIcon"></div>').click(function(){
+					var inlineRedXIcon = $('<div id="scalarInlineRedXIcon" class="redxIcon"></div>').click(function(e){
+						e.preventDefault();
+						e.stopPropagation();
+
 						if(confirm("Are you sure you would like to remove this inline media from the current page?")){
 							$('#scalarInlineRedXIcon,#scalarInlineGearIcon').hide();
 							$(this).data('element').remove(true);
