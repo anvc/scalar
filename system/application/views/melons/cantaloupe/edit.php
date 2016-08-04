@@ -4,6 +4,7 @@
 <?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/ckeditor/ckeditor.js')?>
+<? $this->template->add_js('if ( window.CKEDITOR && ( !CKEDITOR.env.ie || CKEDITOR.env.version > 7 ) ){CKEDITOR.env.isCompatible = true;}','embed'); ?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery-ui-custom/jquery-ui.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.ui.touch-punch.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
