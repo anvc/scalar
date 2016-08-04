@@ -291,7 +291,6 @@ CKEDITOR.plugins.add( 'scalar', {
 						e.stopPropagation();
 
 						var $tooltip = $('#scalarLinkTooltip');
-						$tooltip.hide();
 						var element = $tooltip.data('element');
 						isEdit = true;
 						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
