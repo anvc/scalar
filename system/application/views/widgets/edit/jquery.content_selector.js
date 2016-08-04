@@ -98,13 +98,7 @@
 		$('<a href="#">Change Selected Media</a>').data('element',opts.element).click(function(e){
 			e.preventDefault();
 			e.stopPropagation();
-			$(this).closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
 			var element = $(this).data('element');
-			if ($(this).closest('.media_options_bootbox').length) {
-				$(this).parent().closest('.media_options_bootbox').modal( 'hide' ).data( 'bs.modal', null );
-			} else {
-				$this.parent();
-			}
 			var data = $(element.$).data('selectOptions');
 			data.forceSelect = true;
 			CKEDITOR._scalar.selectcontent(data);
