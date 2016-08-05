@@ -70,53 +70,6 @@ class SendMail {
 
     }
 
-	public function acls_join_book($user, $book, $request_author = 0, $message) {
-
-		$author_emails = array();
-		foreach($book->users as $author){
-			if($author->relationship == 'author'){
-				$author_emails[] = $author->email;
-			}
-		}
-
-		$this->CI->load->helper('url');
-
-		$data = array(
-			'book_title' => strip_tags($book->title),
-			'book_id' => $book->book_id,
-			'author_request_message'=>wordwrap($message, 70),
-			'user_name' => $user->fullname,
-			'site_url' => base_url(),
-			'email_type' => 'join_only'
-		);
-
-		if($request_author){
-			$subject = sprintf($this->CI->lang->line('acls_email.request_author_role_subject'),$data['book_title']);
-			if(!empty($message)){
-				$data['email_type'] = 'author_with_message';
-			}else{
-				$data['email_type'] = 'author_no_message';
-			}
-		}else{
-			$subject = sprintf($this->CI->lang->line('acls_email.user_joined_subject'),$data['book_title']);
-		}
-		$msg  = $this->CI->load->view('modules/aclsworkbench_book_list/email',$data,TRUE);
-
-    	$arr = array();
-    	$arr['from'] = 'no-reply@'.$this->domain_name();
-    	$arr['fromName'] = $this->install_name();
-    	$arr['to'] = $author_emails;
-    	$arr['replyTo'] = $this->replyto_address();
-    	$arr['replyToName'] = $this->replyto_name();
-    	$arr['subject'] = $subject;
-		$arr['msg'] = $msg;
-
-		$this->send($arr);
-
-		return true;
-
-	}
-
     private function send($arr=array()) {
 
 		$mail = new PHPMailer;

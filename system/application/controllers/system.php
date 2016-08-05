@@ -421,67 +421,6 @@ class System extends MY_Controller {
 					}
 					unset($books);
 					break;
-				case 'acls_join_book': // @Lucas - added function to add a user as a "reader" to a book, as well as email the author
-
-					if (!$this->data['login']->is_logged_in) $this->kickout();
-
-					$this->load->model('book_model', 'books');
-					$this->load->library('SendMail', 'sendmail');
-
-					$book_id = @ (int) $_REQUEST['book_to_join'];
-
-					$this->data['book'] = $this->books->get($book_id);
-
-					$list_in_index = 0;
-					$this->data['content'] = $this->users->save_books($this->data['login']->user_id, array($this->data['book']->book_id), 'reader', $list_in_index);
-
-					//Send email to current authors. If the current user opted to request to become an author, send that email instead.
-					$this->sendmail->acls_join_book($this->data['login'], $this->data['book'], (int)$_REQUEST['request_author'], @$_REQUEST['author_reason']);
-
-					if(isset($_POST['redirect']) && filter_var($_POST['redirect'],FILTER_VALIDATE_URL)){
-						$url_has_query = parse_url($_POST['redirect'],PHP_URL_QUERY);
-
-						$redirect_url = $_POST['redirect'];
-
-						if(!isset($url_has_query)){
-							if(substr($redirect_url, -1)!='?'){
-								$redirect_url .= '?';
-							}
-						}else{
-							$redirect_url .= '&';
-						}
-						$redirect_url .= 'joined=1';
-
-						header('Location: '.$redirect_url);
-					}else{
-						header('Location: '.base_url().'?joined=1');
-					}
-
-					break;
-				case 'acls_elevate_user':
-					if (!$this->data['login']->is_logged_in) $this->kickout();
-
-					$this->load->model('book_model', 'books');
-					$this->load->library('SendMail', 'sendmail');
-
-					$this->data['book'] = $this->books->get($book_id);
-					$user_is_reader = false;
-					$selected_user = null;
-					foreach($this->data['book']->users as $user){
-						if($user->user_id == $user_id){
-							$selected_user = $user;
-							$user_is_reader = true;
-							break;
-						}
-					}
-					if($user_is_reader){
-						$this->data['content'] = $this->users->save(array('id'=>$user_id, 'book_id'=>$book_id, 'relationship'=>'author', 'list_in_index'=>1));
-						$this->sendmail->acls_elevate_user($selected_user, $this->data['book']);
-						header('Location: '.base_url().'?action=elevate&user_id='.$user_id.'&book_id='.$book_id.'&elevated=true');
-					}else{
-						header('Location: '.base_url().'?action=elevate&user_id='.$user_id.'&book_id='.$book_id.'&elevated=error&error=invalid_user');
-					}
-					break;
 		 	}
 	 	} catch (Exception $e) {
 			show_error($e->getMessage());
