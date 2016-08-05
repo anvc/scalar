@@ -4,8 +4,15 @@
 <?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-3.1.0.min.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap.min.js')?>
 <script>
-var book_id = <?=@$book->book_id?>;
+var book_id = <?=$book->book_id?>;
+var book_url = '<?=base_url().$book->slug.'/'?>';
+$('html').css('position','fixed').css('overflow-y','scroll');  // Keep the page from jumping to the anchor
 $(document).ready(function() {
+  // Keep the page from jumping to the anchor
+  setTimeout(function() {
+    $('html').css('position','static').css('overflow-y','auto');
+  }, 100);
+  // Reload page when a new tab is selected
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var $shown = $(e.target);
     var zone = $shown.attr('href').substr($shown.attr('href').lastIndexOf('-')+1);
@@ -30,7 +37,7 @@ $(document).ready(function() {
           <ul class="dropdown-menu"><?php 
 	    	  foreach ($my_books as $my_book) {
 	    		echo '<li>';
-	    		echo '<a href="?book_id='.$my_book->book_id.'" class="'.(($my_book->book_id==$book_id)?'active':'').'">';
+	    		echo '<a href="?book_id='.$my_book->book_id.'&zone=style#tabs-style" class="'.(($my_book->book_id==$book_id)?'active':'').'">';
 	    		echo strip_tags($my_book->title);
 	    		echo '</a>';
 	    		echo '</li>';
@@ -51,7 +58,7 @@ $(document).ready(function() {
 </header>
 
 <?php 
-if ('user'==$zone): 
+if ('user'==$zone || empty($book) || !isset($book->book_id)): 
 
   $this->load->view('modules/dashboot/user');
 
@@ -61,6 +68,7 @@ else: ?>
     <div class="col-xs-12">
 	  <ul class="nav nav-tabs" role="tablist">
 	    <li role="presentation"<?=(('style'==$zone)?' class="active"':'')?>><a href="#tabs-style" data-toggle="tab">Properties</a></li>
+	    <li role="presentation"<?=(('styling'==$zone)?' class="active"':'')?>><a href="#tabs-styling" data-toggle="tab">Styling</a></li>
 	    <li role="presentation"<?=(('pages'==$zone)?' class="active"':'')?>><a href="#tabs-pages" data-toggle="tab">Content</a></li>
 	    <li role="presentation"<?=(('users'==$zone)?' class="active"':'')?>><a href="#tabs-users" data-toggle="tab">Users</a></li>
 	    <li role="presentation"<?=(('utils'==$zone)?' class="active"':'')?>><a href="#tabs-utils" data-toggle="tab">Utilities</a></li>
@@ -71,6 +79,7 @@ else: ?>
 
 <section class="tab-content">
   <div role="tabpanel" class="tab-pane<?=(('style'==$zone)?' active':'')?>" id="tabs-style"><? if ('style'==$zone) { $this->load->view('modules/dashboot/props'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+  <div role="tabpanel" class="tab-pane<?=(('styling'==$zone)?' active':'')?>" id="tabs-style"><? if ('styling'==$zone) { $this->load->view('modules/dashboot/styling'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('pages'==$zone)?' active':'')?>" id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboot/pages'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('users'==$zone)?' active':'')?>" id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboot/users'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('utils'==$zone)?' active':'')?>" id="tabs-utils"><? if ('utils'==$zone) { $this->load->view('modules/dashboot/utils'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>

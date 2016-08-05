@@ -1,6 +1,17 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <script>
 $(document).ready(function() {
+    // Table row mousovers
+	$('.table-hover-custom').find('tbody tr').mouseover(function() {
+		var $row = $(this);
+		$row.css('cursor','pointer').addClass('info');
+		$row.find('.showme').css('visibility','visible');
+	}).mouseout(function() {
+		var $row = $(this);
+		$row.removeClass('info');
+		$row.find('.showme').css('visibility','hidden');
+	});
+	// Duplicate modal
 	var $duplicateBookModal = $('#duplicateBookModal');
 	var $submit_btn = $duplicateBookModal.find('button[type="submit"]');
 	if ($duplicateBookModal.find('.alert').length) {
@@ -115,7 +126,7 @@ $(document).ready(function() {
       </div>
       <div class="page-v-spacer"></div>
       <div class="table-responsive">
-        <table class="table table-condensed">
+        <table class="table table-condensed table-hover-custom">
           <thead>
             <tr>
               <th>Title</th>
@@ -129,7 +140,7 @@ $(document).ready(function() {
 	    	  	foreach ($my_book->users as $my_user) {
 	    	  		if ($my_user->user_id == $login->user_id) $role = ucwords($my_user->relationship);
 	    	  	}
-	    		echo '<tr class="'.(($my_book->book_id==$book_id)?'info':'').'">';
+	    		echo '<tr class="'.(($my_book->book_id==$book_id)?'current-book':'').'">';
 	    		echo '<td>';
 	    		echo '<a href="'.base_url().$my_book->slug.'">';
 	    		echo strip_tags($my_book->title);
@@ -138,8 +149,8 @@ $(document).ready(function() {
 	    		echo '<td>';
 	    		echo $role;
 	    		echo '</td>';
-	    		echo '<td class="">';
-	    		echo '<a href="?book_id='.$my_book->book_id.'&zone=style#tabs-style" class="btn btn-default btn-xs pull-right">Dashboard</a>';
+	    		echo '<td>';
+	    		echo '<a href="?book_id='.$my_book->book_id.'&zone=style#tabs-style" class="btn btn-default btn-xs pull-right showme">Dashboard</a>';
 	    		echo '</td>';
 	    		echo '</tr>';
 	    	  }
