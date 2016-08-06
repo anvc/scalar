@@ -42,6 +42,12 @@ header h5 {margin-bottom:14px;}
 .tab-pane .loading {text-align:center; color:#777777; margin-top:20px;}
 .tab-pane.active .alert {margin-top:-12px;}
 
+#custom_style {margin-bottom:6px;}
+.predefined_wrapper .select select, .predefined_wrapper .button input  {margin-bottom:3px;}
+.predefined_wrapper .desc {color:#777777; margin:0px 12px 0px 0px;}
+
+#selectInterfaceModal .container-fluid {padding-left:0px; padding-right:0px;}
+
 #toc-wrapper .list-group {margin-bottom:7px;}
 #toc-wrapper .list-group-item {padding-top:7px; padding-bottom:7px;}
 #toc-wrapper .list-group .glyphicon {color:#777777; padding-top:3px; cursor:pointer;}

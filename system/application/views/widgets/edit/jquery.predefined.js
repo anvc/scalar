@@ -43,7 +43,7 @@
     	}
     	
     	$div = $('<div class="predefined_wrapper form-inline"><span class="interface"></span></div>').insertAfter($this);
-    	$div.append('<span class="msg">'+opts.msg+'</span>');
+    	$div.append('<label class="control-label label-text msg">'+opts.msg+'</label>');
     	$div.append('<span class="select">&nbsp; <select class="form-control"><option value=""></option></select> </span>');
     	$div.append('<span class="button"><input type="button" class="btn btn-default" value="Insert" /></span>');
     	$div.append('<div class="desc"></div>');

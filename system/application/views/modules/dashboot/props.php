@@ -9,8 +9,7 @@
 
 <script id="book_versions" type="application/json"><?=json_encode($current_book_versions)?></script>
 <script>
-// https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
-$(document).on('change', ':file', function() {
+$(document).on('change', ':file', function() {  // https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
     var input = $(this),
     numFiles = input.get(0).files ? input.get(0).files.length : 1,
     label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
@@ -103,10 +102,15 @@ $(document).ready(function() {
 });
 // Main menu items
 function set_version_numbers() {
+	var $wrapper = $('#toc-wrapper');
 	var num = 1;
-	$('#toc-wrapper').find('li').each(function() {
+	$wrapper.find('li').each(function() {
 		$(this).find('.num').text(num);
 		num++;
+	});
+	book_versions = [];
+	$wrapper.find('li').each(function() {
+		book_versions.push($(this).data('node'));
 	});
 }
 function set_versions(nodes) {
@@ -125,6 +129,7 @@ function set_versions(nodes) {
 		var $menu = $('<span class="glyphicon glyphicon-menu-hamburger pull-left"></span>').prependTo($item);
 		var $input = $('<input type="hidden" name="book_version_'+nodes[j].versions[0].version_id+'" value="1" />').appendTo($item);
 		$item.data('version_id', nodes[j].versions[0].version_id);
+		$item.data('node', nodes[j]);
 		$close.click(function() {
 			$(this).closest('li').remove();
 			set_version_numbers();

@@ -450,6 +450,7 @@ class System extends MY_Controller {
 				$this->data['duplicatable_books'] = $this->books->get_duplicatable();
 				break;
 			case 'style':
+			case 'styling':
 				$this->data['current_book_images'] = ($book_id) ? $this->books->get_images($book_id) : array();
 				$this->data['current_book_versions'] = $this->books->get_book_versions($book_id);
 				$this->data['predefined_css'] = false;

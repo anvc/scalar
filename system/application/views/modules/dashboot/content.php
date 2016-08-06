@@ -4,8 +4,8 @@
 <?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-3.1.0.min.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap.min.js')?>
 <script>
-var book_id = <?=$book->book_id?>;
-var book_url = '<?=base_url().$book->slug.'/'?>';
+var book_id = <?=((!empty($book)&&isset($book->book_id))?$book->book_id:0)?>;
+var book_url = '<?=((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':'')?>';
 $('html').css('position','fixed').css('overflow-y','scroll');  // Keep the page from jumping to the anchor
 $(document).ready(function() {
   // Keep the page from jumping to the anchor
