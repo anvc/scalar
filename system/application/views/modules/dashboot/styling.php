@@ -211,11 +211,10 @@ function select_interface(melon) {
         <div class="col-sm-12">
           <div class="pull-right">
             <button type="submit" class="btn btn-default">Save</button> &nbsp; 
-            <button type="button" class="btn btn-primary">Save and return to book</button>
+            <button type="submit" class="btn btn-primary" name="back_to_book" value="1">Save and return to book</button>
           </div>
         </div>
-      </div>
-      <div class="page-v-spacer">&nbsp;</div>     
+      </div>     
       </form>
     </section>
   </div>

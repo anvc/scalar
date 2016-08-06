@@ -282,11 +282,17 @@ class System extends MY_Controller {
 		 	switch ($action) {
 		 		case 'do_save_style': // Book Properties (method requires book_id)
 		 			$array = $_POST;
+		 			$back_to_book = (isset($array['back_to_book'])) ? true : false ;
+		 			unset($array['back_to_book']);
 		 			unset($array['action']);
 		 			unset($array['zone']);
 		 			$this->books->save($array);
 		 			$this->books->save_versions($array);
-					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_style_saved');
+		 			if ($back_to_book) {
+		 				header('Location: '.base_url().$this->data['book']->slug);
+		 			} else {
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_style_saved');
+		 			}
 					exit;
 		 		case 'do_save_user':  // My Account (method requires user_id & book_id)
 		 			$array = $_POST;
