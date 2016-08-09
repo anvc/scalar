@@ -120,6 +120,7 @@
 #wysiwygNewFeatures{
 	font-size: 1.4rem;
 	padding: 1rem;
+	margin-right:-8px;
 }
 #wysiwygNewFeatures hr{
 	border-bottom: 0;
