@@ -3150,11 +3150,13 @@
 								.attr('x1', function(d) { return d.source.x; })
 								.attr('y1', function(d) { return d.source.y; })
 								.attr('x2', function(d) { return d.target.x; })
-								.attr('y2', function(d) { return d.target.y; });
+								.attr('y2', function(d) { return d.target.y; })
+								.attr('visibility', function(d) { return (d.source.slug == 'toc' || d.target.slug == 'toc') ? 'hidden' : 'visible'; });
 								
 							base.svg.selectAll('circle.node')
-								.attr('cx', function(d) { /*if ( isNaN(d.x) ) console.log( 'bad: ' + d.title );*/ return d.x; })
-								.attr('cy', function(d) { return d.y; });
+								.attr('cx', function(d) { return d.x; })
+								.attr('cy', function(d) { return d.y; })
+								.attr('visibility', function(d) { return d.slug == 'toc' ? 'hidden' : 'visible'; });
 								
 							base.svg.selectAll('text.label')
 								.attr('x', function(d) { return d.x; })
