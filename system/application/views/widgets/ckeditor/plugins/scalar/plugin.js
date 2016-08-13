@@ -179,7 +179,16 @@ CKEDITOR._scalar = {
 		}});
 	},
 	widgetLinkCallback : function(widget, element){
-
+		var isEdit = element.getCustomData('widget') != null;
+		console.log(element,isEdit);
+		for (var a in widget.attrs) {
+			element.setAttribute(a, widget.attrs[a]);
+		}
+		if(!isEdit){
+			CKEDITOR._scalar.editor.insertElement(element);
+		}else{
+			CKEDITOR._scalar.editor.updateElement(element);
+		}
 	},
 	widgetInlineCallback : function(widget, element){
 
@@ -520,7 +529,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						}
 						if(!isEdit){
 							if (sel.getRanges()[0].collapsed) {
-								alert('Please select text to transform into a media link');
+								alert('Please select text to transform into a widget link');
 								return;
 							}else{
 								var sel = editor.getSelection();
@@ -530,7 +539,7 @@ CKEDITOR.plugins.add( 'scalar', {
 									element : element,
 									contentOptionsCallback : CKEDITOR._scalar.widgetLinkCallback
 								});
-								$(element.$).data('selectOptions',{type:'widget',msg:'Insert Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+								$(element.$).data('selectOptions',{isEdit:isEdit,type:'widget',msg:'Insert Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 							}
 						}
 						CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));

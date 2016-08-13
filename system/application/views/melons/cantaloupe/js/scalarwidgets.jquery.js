@@ -119,7 +119,7 @@
              $widget.data('node',base.currentNode);
              promise.resolve();
            }else{
-             //We have a target node - use its related chronological nodes
+             //We have a target node
              var slug = $widget.attr('resource');
              if(slug.indexOf(',') > -1){
                var slugs = [];

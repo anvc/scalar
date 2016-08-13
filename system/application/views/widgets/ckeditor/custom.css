@@ -149,3 +149,27 @@
 .widget_type:hover{
 	background-color: #d9edf7;
 }
+.widget_type img{
+	height: 4rem;
+  margin-right: 1rem;
+  margin-top: .25rem;
+}
+.node_selector_body,.node_selector_body tbody, .timeline_external_url_selector{
+	border: 1px solid rgb(229, 229, 229);
+	padding: 1rem;
+}
+.node_selector_body tbody{
+	border-top: 0px
+}
+.node_selector_body tbody tr{
+	cursor: pointer;
+}
+.node_selector_body tbody tr.empty{
+	cursor: default;
+}
+.node_selector_body tbody tr .glyphicon{
+	opacity: .25;
+}
+.node_selector_body tbody tr:hover .glyphicon,.node_selector_body tbody tr .glyphicon-check{
+	opacity: .75;
+}

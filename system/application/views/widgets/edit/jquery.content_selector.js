@@ -846,17 +846,27 @@
 		$.fn.widget_selector = function(options){
 			var self = this;
     	var $this = $(this);
-
+			var opts = options;
 			var loaded_nodeLists = {};
 
 			var parent_url = $('link#parent').attr('href');
+
+			var reset = function() {  // TODO: for some reason 'defaults' fields are getting set despite using jQuery.extend({}, ...)
+    		defaults.type = null;
+    		defaults.changeable = true;
+    		defaults.multiple = false;
+    		defaults.rec = 0;
+    		defaults.sq = null;
+    		defaults.data = [];
+    		defaults.queue = [];
+    		defaults.msg = '';
+    	};
 
 			var load_node_list = function(type,promise){
 				if(typeof loaded_nodeLists[type]!=="undefined"){
 					promise.resolve();
 				}else{
 					var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec=0&ref=0';
-					console.log(url);
 					$.getJSON(url, function(){}).always(function(_data) {
 		    		if ('undefined'!=typeof(_data.status)) {
 		    			alert('There was a problem trying to get a list of content: '+_data.status+' '+_data.statusText+'. Please try again.');
@@ -884,10 +894,32 @@
 				}
 			}
 
-			var mini_node_selector = function(target){
-				var $wrapper = $('<div class="node_selector_body"><div class="pull-right">Filter by type: <select class="node_selection_type_filter"><option value="composite">Pages</option><option value="media">Media</option><option value="path">Paths</option> <option value="tag">Tags</option><option value="annotation">Annotations</option> <option value="reply">Comments</option><option value="term">Terms</option></select></div></div>');
-				var $selector = $('<table class="widget_target_node_selector table table-fixed table-striped table-hover"></table>').appendTo($wrapper);
-				var $thead = $('<thead><tr><th>&nbsp;&nbsp;&nbsp;</th><th>Title</th><th>Description</th><th>URL</th><th></th></tr></thead>').appendTo($selector);
+			var mini_node_selector = function(target, types, allowMultiple){
+				if(typeof types == 'undefined'){
+					types = ['composite','media','path','tag','annotation','comment','term'];
+				}
+
+				var content_selector_html = '<div class="node_selector_body"><div class="pull-right">Filter by type: <select class="node_selection_type_filter">';
+
+				for(var t in types){
+
+					if(types[t] == 'composite'){
+						var type_display_name = 'Pages';
+					}else{
+						var type_display_name = types[t].charAt(0).toUpperCase() + types[t].slice(1);
+						if(type_display_name!='Media'){
+							type_display_name+='s';
+						}
+					}
+
+					content_selector_html += '<option value="'+types[t]+'">'+type_display_name+'</option>';
+				}
+
+				content_selector_html+='</select></div></div>';
+
+				var $wrapper = $(content_selector_html);
+				var $selector = $('<table class="widget_target_node_selector table table-fixed "></table>').appendTo($wrapper);
+				var $thead = $('<thead><tr><th>Title</th><th>Description</th><th>URL</th><th colspan="2"></th></tr></thead>').appendTo($selector);
 				var $tbody = $('<tbody></tbody>').appendTo($selector);
 
 				$wrapper.find('.node_selection_type_filter').change(function(){
@@ -895,12 +927,18 @@
 
 					jQuery.when(promise).then(function(){
 						var data = loaded_nodeLists[$wrapper.find('.node_selection_type_filter').val()];
-						$tbody.html('');
-						for(var i = 0; i < data.length; i++){
-							var item = data[i];
-							var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : null;
-							$tbody.append('<tr><td class="text-center"><i class="icon"></i></td><td>'+item.title+'</td><td>'+desc+'</td><td>.../'+item.slug+'</td><td><a href="'+item.uri+'" target="_blank">Preview</a></td></tr>')
-							console.table(item);
+						if(data.length == 0){
+							$tbody.html('<tr><td colspan="5" class="text-center empty">There are no pages of the selected type.</td></tr>');
+						}else{
+							$tbody.html('');
+							for(var i = 0; i < data.length; i++){
+								var item = data[i];
+								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
+								$('<tr><td><strong>'+item.title+'</strong></td><td>'+desc+'</td><td>.../'+item.slug+'</td><td><a href="'+item.uri+'" target="_blank">Preview</a></td><td><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(){
+									$(this).parents('tbody').find('.bg-info').removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+									$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+								}).data('slug',item.slug);
+							}
 						}
 					});
 
@@ -911,15 +949,56 @@
 			}
 			var select_widget_options = function(widget_type){
 				$('#bootbox-content-selector-content').find('.widgetList').fadeOut('fast',function(){
-					$('.bootbox').find( '.modal-title' ).text('Select '+widget_type+' Widget Options');
-					var $content = $('<div></div>').appendTo('#bootbox-content-selector-content');
+					var $content = $('<div class="widgetOptions"></div>').appendTo('#bootbox-content-selector-content');
 					var type = widget_type.toLowerCase();
+					var submitAction = function(e){
+						e.preventDefault();
+						e.stopPropagation();
+					};
 					switch(type){
 							//Timeline.js
 						case 'timeline':
-
-							 mini_node_selector($('<div class="node_selection"></div>').appendTo($content));
-
+							timeline_data_type = "node";
+							 $('<div class="widget_type bg-info"><strong><a>Scalar Page</a></strong><br />Either a Path, Tag, Annotation, or Term that contains pages with chronological metadata</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation()
+								 timeline_data_type = "node";
+								 $('#bootbox-content-selector-content .node_selection').slideDown('fast');
+								 $('#bootbox-content-selector-content .timeline_external_url_selector').slideUp('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 mini_node_selector($('<div class="node_selection">').appendTo($content),['path','tag','annotation','term']);
+							 $content.append('<hr />');
+							 $('<div class="widget_type"><strong><a>External URL</a></strong><br />An external URL for either a JSON file or a Google Drive document formatted for Timeline.js</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation();
+								 timeline_data_type = "url";
+								 $('#bootbox-content-selector-content .node_selection').slideUp('fast');
+								 $('#bootbox-content-selector-content .timeline_external_url_selector').slideDown('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 $('<div class="timeline_external_url_selector form-group"><label for="timeline_external_url">External URL</label><input type="text" class="form-control" id="timeline_external_url"></div>').appendTo($content).hide();
+							 $content.append('<hr />');
+							 submitAction = function(e){
+								 var data = {type:"timeline",attrs : {}};
+								 data.attrs["data-widget"] = data.type;
+								 if(timeline_data_type == 'node'){
+									 data.attrs.resource = $('#bootbox-content-selector-content .node_selection tbody tr.bg-info').data('slug');
+									 if(data.attrs.resource == undefined){
+										 alert("Please select a path, tag, annotation or term that contains your timeline's chronological data!");
+										 return false;
+									 }
+								 }else{
+									 data.attrs['data-timeline'] = $('#bootbox-content-selector-content .timeline_external_url_selector input').val();
+									 if(data.attrs['data-timeline'] == undefined || data.attrs['data-timeline'] == ''){
+										 alert("Please enter an external URL for either a JSON file or a Google Drive document formatted for Timeline.js!");
+										 return false;
+									 }
+								 }
+								 select_widget_formatting(data)
+								 e.preventDefault();
+								 e.stopPropagation();
+							 }
 							 break;
 						 case 'visualization':
 
@@ -937,9 +1016,68 @@
 
 							 break;
 					}
+					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+(widget_type.charAt(0).toUpperCase() + widget_type.slice(1))+' Widget Content').fadeIn('fast');});
+					$('<a class="btn btn-default">Return to Widget Type Selection<a>').appendTo($content).click(function(){
+					 $('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
+						 $(this).remove();
+						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select a Widget Type').fadeIn('fast');});
+						 $('#bootbox-content-selector-content').find('.widgetList').fadeIn('fast');
+					 });
+					})
+					$('<a class="btn btn-primary pull-right">Select '+(widget_type.charAt(0).toUpperCase() + widget_type.slice(1))+' Widget Formatting Options</a>').appendTo($content).click(submitAction);
+					$content.append('<div class="clearfix"></div>');
 				});
 			}
+			var select_widget_formatting = function(options){
+				$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
+					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select Widget Formatting Options').fadeIn('fast');});
+					var submitAction = function(e){
+						e.preventDefault();
+						e.stopPropagation();
+						var widget = {attrs:$('#bootbox-content-selector-content').find('.widgetFormatting').data('options').attrs,isEdit:opts.isEdit};
+						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){
+							widget.attrs['data-'+$(this).attr('name')] = $(this).val();
+						});
+						opts.callback(widget,opts.element);
+						bootbox.hideAll();
+					};
 
+					var formattingOptions = {
+						Size : ['small','medium','large','full'],
+						Align : ['right','left']
+					};
+
+					//Need to limit formatting options per widget type here
+					switch(options.type){
+						case 'timeline':
+							formattingOptions.Size = ['medium','large','full'];
+					}
+
+					var formattingSelection = '<div class="form-horizontal heading_font">';
+					for(var o in formattingOptions){
+						var values = '<select class="form-control" name="'+o.toLowerCase()+'">';
+						for(var v in formattingOptions[o]){
+							values += '<option value="'+formattingOptions[o][v]+'">'+formattingOptions[o][v].charAt(0).toUpperCase()+formattingOptions[o][v].slice(1)+'</option>';
+						}
+						values += '</select>';
+						formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-2 control-label">'+o+':</label><div class="col-sm-6">'+values+'</div></div>';
+					}
+					formattingSelection += '</div>';
+
+					var $content = $('<div class="widgetFormatting"></div>').appendTo('#bootbox-content-selector-content').data('options',options);
+					$content.append(formattingSelection);
+
+					$('<a class="btn btn-default">Return to '+(options.type.charAt(0).toUpperCase() + options.type.slice(1))+' Options<a>').appendTo($content).click(function(){
+					 $('#bootbox-content-selector-content').find('.widgetFormatting').fadeOut('fast',function(){
+						 $(this).remove();
+						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+(options.type.charAt(0).toUpperCase() + options.type.slice(1))+' Widget Content').fadeIn('fast');});
+						 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
+					 });
+					})
+					$('<a class="btn btn-primary pull-right">Insert '+(options.type.charAt(0).toUpperCase() + options.type.slice(1))+' Widget</a>').appendTo($content).click(submitAction);
+					$content.append('<div class="clearfix"></div>');
+				});
+			};
 			var modal_height = function(init) {
     		var $content_selector_bootbox = $('.content_selector_bootbox');
     		if (!$content_selector_bootbox.length) return;
@@ -962,7 +1100,7 @@
 			bootbox.hideAll()
 			var box = bootbox.dialog({
 				message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
-				title: 'Select Widget Type',
+				title: 'Select a Widget Type',
 				className: 'widget_selector_bootbox',
 				animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
 			});
@@ -985,36 +1123,44 @@
 
 			var $widgets = $('<div class="widgetList"></div>');
 
+			var icon_base_url = $('link#approot').attr('href')+'views/melons/cantaloupe/images/';
+
 			var widget_types = [
 				{
 					name : "Timeline",
-					description : "Timeline.js view that displays chronological information from metadata or a remote document"
+					description : "Timeline.js view that displays chronological information from metadata or a remote document",
+					icon : "widget_image_timeline.png"
 				},
 				{
 					name : "Visualization",
-					description : "Scalar visualization showing pages and their relationships"
+					description : "Scalar visualization showing pages and their relationships",
+					icon : "widget_image_visualization.png"
 				},
 				{
 					name : "Map",
-					description : "Google Maps view showing pages with geolocational metadata as pins"
+					description : "Google Maps view showing pages with geolocational metadata as pins",
+					icon : "widget_image_map.png"
 				},
 				{
 					name : "Carousel",
-					description : "Responsive gallery that allows users to flip through a path's media"
+					description : "Responsive gallery that allows users to flip through a path's media",
+					icon : "widget_image_timeline.png"
 				},
 				{
 					name : "Card",
-					description : "One or more media pages displayed as an informational card containing thumbnail, title, and description."
+					description : "One or more media pages displayed as an informational card containing thumbnail, title, and description.",
+					icon : "widget_image_timeline.png"
 				},
 				{
 					name : "Summary",
-					description : "One or more media pages displayed as a list of thumbnails, titles, and descriptions."
+					description : "One or more media pages displayed as a list of thumbnails, titles, and descriptions.",
+					icon : "widget_image_timeline.png"
 				}
 			];
 
 			for(var i = 0; i < widget_types.length; i++){
 				var widget = widget_types[i];
-				var $widget = $('<div class="widget_type"><strong><a>'+widget.name+'</a></strong><br />'+widget.description+'</div>').data('type',widget.name);
+				var $widget = $('<div class="widget_type"><img class="pull-left" src="'+icon_base_url+widget.icon+'"<strong><a>'+widget.name+'</a></strong><br />'+widget.description+'</div>').data('type',widget.name);
 				$widget.click(function(e){
 					select_widget_options($(this).data('type'));
 					e.preventDefault();
