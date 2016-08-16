@@ -195,63 +195,13 @@
            //Visualization rendering content
 
            var visElement = $( '<div></div>' ).appendTo($element);
+
            var options = {
                modal: false,
-               widget: true
-           }
-
-           switch ( $widget.data( 'vistype' ) ) {
-
-               case "visconnections":
-               $widget.addClass("connections");
-               options.content = 'all';
-               options.relations = 'all';
-               options.format = 'force-directed';
-               break;
-
-               case "vistoc":
-               $widget.addClass("contents");
-               options.content = 'toc';
-               options.relations = 'all';
-               options.format = 'tree';
-               break;
-
-               case "vis":
-               case "visindex":
-               $widget.addClass("grid");
-               options.content = 'all';
-               options.relations = 'all';
-               options.format = 'grid';
-               break;
-
-               case "visradial":
-               $widget.addClass("radial");
-               options.content = 'all';
-               options.relations = 'all';
-               options.format = 'radial';
-               break;
-
-               case "vispath":
-               $widget.addClass("path");
-               options.content = 'path';
-               options.relations = 'path';
-               options.format = 'tree';
-               break;
-
-               case "vismedia":
-               $widget.addClass("media");
-               options.content = 'media';
-               options.relations = 'referee';
-               options.format = 'force-directed';
-               break;
-
-               case "vistag":
-               $widget.addClass("tag");
-               options.content = 'tag';
-               options.relations = 'tag';
-               options.format = 'force-directed';
-               break;
-
+               widget: true,
+               content : $widget.data( 'viscontent' ) || "all",
+               relations : $widget.data( 'visrelations' ) || "all",
+               format : $widget.data( 'visformat' ) || "force-directed"
            }
 
            visElement.scalarvis( options );
@@ -314,7 +264,7 @@
 
                      n = node.current.properties[ property ].length;
                      for ( i = 0; i < n; i++ ) {
-                       marker = page.getMarkerFromLatLonStrForMap(
+                       marker = page.addMarkerFromLatLonStrToMap(
                          node.current.properties[ property ][ i ].value,
                          node.getDisplayTitle(),
                          node.current.description,
@@ -332,7 +282,6 @@
                      }
 
                    }
-
                    n = contents.length;
 
                    // add markers for each content element that has the spatial property
@@ -351,7 +300,7 @@
                            label = (pathIndex+1).toString();
                          }
 
-                         marker = page.getMarkerFromLatLonStrForMap(
+                         marker = page.addMarkerFromLatLonStrToMap(
                            node.current.properties[ property ][ j ].value,
                            node.getDisplayTitle(),
                            node.current.description,
@@ -1028,13 +977,12 @@
                 parent: $widget.parent()
             });
 
-
             //$(window).on('resize',$.proxy(function(){widgets.calculateSize($(this));},$widget));
 
             base.calculateSize($widget);
 
             $widget.click(function(){
-              $('html, body').scrollTop($(this).data('slot').offset().top);
+              $('html, body').scrollTop($(this).data('slot').offset().top - 60);
               $(this).data('container').addClass('highlighted');
               window.setTimeout($.proxy(function(){$(this).removeClass('highlighted')},$(this).data('container')),500);
               return false;

@@ -956,10 +956,10 @@
 						e.stopPropagation();
 					};
 					switch(type){
-							//Timeline.js
-						case 'timeline':
+
+						case 'timeline': //Timeline.js
 							timeline_data_type = "node";
-							 $('<div class="widget_type bg-info"><strong><a>Scalar Page</a></strong><br />Either a Path, Tag, Annotation, or Term that contains pages with chronological metadata</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type bg-info"><strong><a>Scalar Page</a></strong><br />Either a Path, Tag, Annotation, or Term that contains pages with temporal metadata</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation()
 								 timeline_data_type = "node";
@@ -978,14 +978,14 @@
 								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
 							 });
 							 $('<div class="timeline_external_url_selector form-group"><label for="timeline_external_url">External URL</label><input type="text" class="form-control" id="timeline_external_url"></div>').appendTo($content).hide();
-							 $content.append('<hr />');
+
 							 submitAction = function(e){
 								 var data = {type:"timeline",attrs : {}};
 								 data.attrs["data-widget"] = data.type;
 								 if(timeline_data_type == 'node'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .node_selection tbody tr.bg-info').data('slug');
 									 if(data.attrs.resource == undefined){
-										 alert("Please select a path, tag, annotation or term that contains your timeline's chronological data!");
+										 alert("Please select a path, tag, annotation or term that contains your timeline's temporal data!");
 										 return false;
 									 }
 								 }else{
@@ -1001,10 +1001,46 @@
 							 }
 							 break;
 						 case 'visualization':
+							 var select = '<select class="form-control" name="viscontent"><option value="all">All content</option><option value="toc">Table of contents</option><option value="page">All pages</option><option value="path">All paths</option><option value="tag">All tags</option><option value="annotation">All annotations</option><option value="media">All media</option><option value="comment">All comments</option><option value="current">This Page</option></select>';
+							 $('<div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label"><strong>Visualization Content</strong><br />What Scalar content would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
+							 select = '<select class="form-control" name="visrelations"><option value="all">All relationships</option><option value="parents-children">Parents and children</option><option value="none">No relationships</option></select>';
+						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label"><strong>Visualization Relationships</strong><br />What Scalar relationships would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+
+							 select = '<select class="form-control" name="visformat"><option value="grid">Grid format</option><option value="tree">Tree format</option><option value="radial">Radial format</option><option value="force-directed">Force-directed format</option></select>';
+						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label"><strong>Visualization Format</strong><br />How would you like this visualization to be formatted?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+
+
+							 submitAction = function(e){
+								 var data = {type:"visualization",attrs : {}};
+								 var $content = $('#bootbox-content-selector-content div.widgetOptions');
+								 data.attrs = {
+									 "data-widget" : data.type,
+									 "data-viscontent" : $content.find('select[name="viscontent"]').val(),
+									 "data-visrelations" : $content.find('select[name="visrelations"]').val(),
+									 "data-visformat" : $content.find('select[name="visformat"]').val(),
+								 };
+								 select_widget_formatting(data)
+								 e.preventDefault();
+								 e.stopPropagation();
+							 }
 							 break;
 						 case 'map':
+							 $('<div><strong>Map Container Page</strong><br />Please select a Path, Tag, Annotation, or Term that contains pages with spatial or coverage metadata</div>').appendTo($content);
+							 mini_node_selector($('<div class="node_selection">').appendTo($content),['path','tag','annotation','term']);
 
+ 							 submitAction = function(e){
+ 								 var data = {type:"map",attrs : {}};
+ 								 data.attrs["data-widget"] = data.type;
+ 								 data.attrs.resource = $('#bootbox-content-selector-content .node_selection tbody tr.bg-info').data('slug');
+								 if(data.attrs.resource == undefined){
+									 alert("Please select a path, tag, annotation or term that contains your map's spatial or coverage data!");
+									 return false;
+								 }
+ 								 select_widget_formatting(data)
+ 								 e.preventDefault();
+ 								 e.stopPropagation();
+ 							 }
 							 break;
 						 case 'carousel':
 
@@ -1017,6 +1053,8 @@
 							 break;
 					}
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+(widget_type.charAt(0).toUpperCase() + widget_type.slice(1))+' Widget Content').fadeIn('fast');});
+
+					$content.append('<hr />');
 					$('<a class="btn btn-default">Return to Widget Type Selection<a>').appendTo($content).click(function(){
 					 $('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
 						 $(this).remove();
@@ -1050,6 +1088,7 @@
 					//Need to limit formatting options per widget type here
 					switch(options.type){
 						case 'timeline':
+						case 'visualization':
 							formattingOptions.Size = ['medium','large','full'];
 					}
 
@@ -1128,7 +1167,7 @@
 			var widget_types = [
 				{
 					name : "Timeline",
-					description : "Timeline.js view that displays chronological information from metadata or a remote document",
+					description : "Timeline.js view that displays temporal information from metadata or a remote document",
 					icon : "widget_image_timeline.png"
 				},
 				{
@@ -1138,10 +1177,10 @@
 				},
 				{
 					name : "Map",
-					description : "Google Maps view showing pages with geolocational metadata as pins",
+					description : "Google Maps view showing pages with geolocational (spatial or coverage) metadata as pins",
 					icon : "widget_image_map.png"
 				},
-				{
+				/*{
 					name : "Carousel",
 					description : "Responsive gallery that allows users to flip through a path's media",
 					icon : "widget_image_timeline.png"
@@ -1155,7 +1194,7 @@
 					name : "Summary",
 					description : "One or more media pages displayed as a list of thumbnails, titles, and descriptions.",
 					icon : "widget_image_timeline.png"
-				}
+				}*/ //Commented out for now! Will be added again once I have multiple-selection implemented for page selector
 			];
 
 			for(var i = 0; i < widget_types.length; i++){
