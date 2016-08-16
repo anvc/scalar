@@ -113,7 +113,10 @@
 
 				 };
 
-         base.getTargetNode = function($widget, promise){
+         base.getTargetNode = function($widget, promise, fullReload){
+           if(typeof fullReload == "undefined" || fullReload!==true){
+             fullReload = false;
+           }
            if($widget.attr('resource') == undefined){
              //Use the current node, if it has related chronological nodes
              $widget.data('node',base.currentNode);
@@ -138,7 +141,7 @@
                }
                for(var i in slugs){
                  (function(slug,promise,slugs){
-                   if(scalarapi.loadPage( slug.id, false, function(){
+                   if(scalarapi.loadPage( slug.id, fullReload, function(){
 
                      var nodeList = [];
 
@@ -176,7 +179,7 @@
                  })(slugs[i],promise);
                }
              }else{
-               if(scalarapi.loadPage( slug, false, function(){
+               if(scalarapi.loadPage( slug, fullReload, function(){
                    $widget.data('node',scalarapi.getNode(slug));
                    promise.resolve();
                }, null, 1, false, null, 0, 20) == "loaded"){
@@ -433,12 +436,15 @@
                 var tempdata = {
                   title : {
                       text : {
-                          headline : node.getDisplayTitle(),
-                          text : node.current.content
+                          headline : node.getDisplayTitle()
                       }
                   },
                   events : []
                 };
+
+                if(typeof node.content !== 'undefined' && node.content != null && node.content != ''){
+                  tempdata.title.text.text = node.content;
+                }
 
                 //Get the main timeline items, if there are any
                 for(var i in relatedNodes){
@@ -482,7 +488,7 @@
                           headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
                         };
 
-                        if(typeof relNode.description != 'undefined' && relNode.description != ''){
+                        if(typeof relNode.description != 'undefined' && relNode.description != '' && relNode.description != null){
                           entry.text.text = relNode.description
                         }else if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
                           entry.text.text = relNode.content;
@@ -501,12 +507,9 @@
                           };
                         }
 
-
 												if(typeof nodeSet[n].background !== 'undefined'){
 													entry.background = {url:base.book_url+nodeSet[n].background}
 												}
-
-
 
                         tempdata.events.push(entry);
                     }
@@ -524,7 +527,7 @@
                 }else{
                   //We have a target node - use its related chronological nodes
                   var slug = $widget.attr('resource');
-                  if(scalarapi.loadPage( slug, false, function(){
+                  if(scalarapi.loadPage( slug, true, function(){
     								parseNodeForChronologicalData(scalarapi.getNode(slug));
     							}, null, 1, false, null, 0, 20) == "loaded"){
     								parseNodeForChronologicalData(scalarapi.getNode(slug));
@@ -683,7 +686,7 @@
            },$widget));
 
 
-           base.getTargetNode($widget, carouselPromise);
+           base.getTargetNode($widget, carouselPromise, true);
 				 };
 
 				 //Handle card inserted into this page ( http://getbootstrap.com/components/#thumbnails-custom-content )
@@ -741,7 +744,7 @@
              }
           },$widget));
 
-          base.getTargetNode($widget, cardPromise);
+          base.getTargetNode($widget, cardPromise, true);
 				 };
 
 				 //Handle summary inserted into this page ( http://getbootstrap.com/components/#media-default )
@@ -800,7 +803,7 @@
              }
           },$widget));
 
-          base.getTargetNode($widget, summaryPromise);
+          base.getTargetNode($widget, summaryPromise, true);
 				 };
 
          base.createCardFromNode = function(node,$target){
