@@ -35,7 +35,7 @@
 				
 				if ($.fn.scalarnotice('check_hide_cookie', $node)) return;
 				
-				var $close = $('<span class="close_link"><a alt="Close" href="javascript:void(null);">&nbsp;</a></span>').appendTo($node);
+				var $close = $('<span class="close_link"><a alt="Close" href="javascript:void(null);">&nbsp;</a></span>').prependTo($node);
 				$close.find('a').click(function() {
 					$.fn.scalarnotice('set_hide_cookie', $node);
 					$(this).parent().parent().remove();
