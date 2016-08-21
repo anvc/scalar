@@ -4,8 +4,12 @@
 body {
 	font-family: 'Lato', Arial, sans-serif !important;
 	background-color: #f8f8f8;
-	font-size: 100% !important;
+	/* font-size: 100% !important; */
 	background-image: none;
+}
+
+.system_wrapper {
+  font-size: 1.25em;
 }
 
 .cover .title {
