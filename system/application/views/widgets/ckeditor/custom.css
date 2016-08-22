@@ -173,3 +173,9 @@
 .node_selector_body tbody tr:hover .glyphicon,.node_selector_body tbody tr .glyphicon-check{
 	opacity: .75;
 }
+
+@media (max-width: 767px){
+	.selectedItemPreview .mediaDescription{
+			display: none;
+	}
+}

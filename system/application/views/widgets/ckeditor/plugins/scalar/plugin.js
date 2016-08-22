@@ -180,7 +180,6 @@ CKEDITOR._scalar = {
 	},
 	widgetLinkCallback : function(widget, element){
 		var isEdit = element.getCustomData('widget') != null;
-		console.log(element,isEdit);
 		for (var a in widget.attrs) {
 			element.setAttribute(a, widget.attrs[a]);
 		}
@@ -279,7 +278,26 @@ CKEDITOR.plugins.add( 'scalar', {
 
 			cke_loadedScalarInline = [];
 
+			cke_addedScalarScrollEvent = false;
 			editor.on('mode',function(e){
+				if(!cke_addedScalarScrollEvent){
+					$(window).add($('.cke_wysiwyg_frame').contents()).on('scroll',function(e){
+						if($('#scalarLinkTooltip').is(':visible')){
+							var $element = $($('#scalarLinkTooltip').data('element').$);
+							var position = $element.position();
+							var framePosition = $('.cke_contents>iframe').offset();
+							var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
+							var pageScroll = $(window).scrollTop();
+							var topPos = framePosition.top+position.top-frameScroll-pageScroll+30;
+
+							$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($element.width()/2)-50, top: topPos});
+							if(topPos < (framePosition.top-pageScroll+30)){
+								$('#scalarLinkTooltip').hide();
+							}
+						}
+					});
+					cke_addedScalarScrollEvent = true;
+				}
 				var addThumbnails = function(){
 					var editor = e.editor;
 

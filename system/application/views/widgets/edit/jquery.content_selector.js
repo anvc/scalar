@@ -67,7 +67,7 @@
 		}
 		//Media selection back link
 		var node = typeof opts.node.current != 'undefined'?opts.node.current:opts.node;
-		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-12 col-sm-4 col-md-3 left"></div><div class="col-xs-12 col-sm-8 col-md-9 right"><h2>'+node.title+'</h2><p class="description"></p><div class="link"></div></div></div><hr />');
+		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-3 col-sm-4 col-md-3 left mediaThumbnail"></div><div class="col-xs-9 col-sm-8 col-md-9 right"><strong class="mediaTitle">'+node.title+'</strong><p class="mediaDescription"></p><div class="link"></div></div></div><hr />');
 		var thumbnail = undefined;
 		if(typeof opts.node.thumbnail != 'undefined' && opts.node.thumbnail != null){
 			thumbnail = opts.node.thumbnail;
@@ -85,14 +85,14 @@
 		if(description!=''){
 			var $tmp = $('<div></div>');
 	   	$tmp.html(description);
-	   	$media_preview.find('.description').text($tmp.text());
+	   	$media_preview.find('.mediaDescription').text($tmp.text());
 		}else{
-			$media_preview.find('.description').remove();
+			$media_preview.find('.mediaDescription').remove();
 		}
 		if(thumbnail!=undefined){
-			$media_preview.find('.left').append('<img class="img-responsive center-block" src="'+thumbnail+'">');
+			$media_preview.find('.mediaThumbnail').append('<img class="img-responsive center-block" src="'+thumbnail+'">');
 		}else{
-			$media_preview.find('.left').remove();
+			$media_preview.find('.mediaThumbnail').remove();
 			$media_preview.find('.right').removeClass('col-sm-8 col-md-9');
 		}
 		$('<a href="#">Change Selected Media</a>').data('element',opts.element).click(function(e){
