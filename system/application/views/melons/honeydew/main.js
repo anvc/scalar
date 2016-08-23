@@ -73,6 +73,19 @@ $(window).load(function() {
  */   
 $(window).ready(function() {
 
+	// Proxy <iframe src=""> if the proxy is on and the src points to non-SSL content
+	var use_proxy = ($('link#use_proxy').length && 'true'==$('link#use_proxy').attr('href')) ? true : false;
+	if (use_proxy && 'edit' != $('link#view').attr('href')) {
+		var proxy_url = $('link#proxy_url').attr('href');
+		$('#content_wrapper').find('iframe').each(function() {
+			var $this = $(this);
+			var src = $this.prop('src');
+			if ('http' != src.substr(0,4)) return;  // not a URL?
+			if ('https' == src.substr(0,5)) return;  // already SSL
+			$this.prop('src', proxy_url+'?'+src);
+		});
+	}			
+	
 	if ($('.scalarnotice').length) {
       yepnope([
         {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/notice/jquery.scalarnotice.js'], complete:function() {

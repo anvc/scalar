@@ -87,6 +87,7 @@ class Book extends MY_Controller {
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null; // e.g., "editing"
 		$this->data['can_edit'] = $this->login_is_book_admin('reviewer');
+		$this->data['use_proxy'] = $this->config->item('is_https') ? true : false;
 
 	}
 
@@ -181,6 +182,18 @@ class Book extends MY_Controller {
 		}
 
 	}
+	
+	// Proxy (e.g., for non-SSL content on SSL servers
+	private function proxy() {
+
+		if (!$this->data['use_proxy']) die('{"error":"Proxy is disabled"}');
+		$path = APPPATH.'libraries/miniproxy/miniproxy.php';
+		if (!file_exists($path)) die('{"error":"Could not find proxy library"}');
+		if (empty($_GET)) die('{"error":"Invalid proxy input"}');
+		require($path);
+		exit;
+
+	}	
 
 	// Save a comment (an anonymous new page) with ReCAPTCHA check (not logged in) or authentication check (logged in)
 	// This is a special case; we didn't want to corrupt the security of the Save API and its native (session) vs non-native (api_key) authentication
@@ -331,6 +344,13 @@ class Book extends MY_Controller {
 			if (stristr($this->data['link'], $forbidden)) {
 				header('Location: '.$this->data['link']);
 				exit;
+			}
+		}
+		
+		// Proxy non-SSL content if the proxy is enabled and the URL is non-SSL
+		if ($this->data['use_proxy']) {
+			if ('http'==substr($this->data['link'],0,4) && 'https'!=substr($this->data['link'],0,5)) {
+				$this->data['link'] = base_url().$this->data['book']->slug.'/proxy?'.$this->data['link'];
 			}
 		}
 

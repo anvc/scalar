@@ -62,6 +62,10 @@ echo doctype('html5')."\n"
 <? if (!empty($primary_role)): ?>
 <link id="primary_role" href="<?=$primary_role?>" />
 <? endif ?>
+<? if (isset($use_proxy) && $use_proxy): ?>
+<link id="use_proxy" href="true" />
+<link id="proxy_url" href="<?=base_url().$book->slug.'/proxy'?>" />
+<? endif ?>
 <link id="book_id" href="<?=$book->book_id?>" />
 <link id="parent" href="<?=$base_uri?>" />
 <link id="approot" href="<?=confirm_slash(base_url())?>system/application/" />
