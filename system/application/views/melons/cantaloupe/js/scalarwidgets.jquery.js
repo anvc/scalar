@@ -128,7 +128,6 @@
              }else{
                var slug = $widget.attr('resource');
              }
-             console.log(slug);
              if(slug.indexOf(',') > -1){
                var slugs = [];
                var slug_list = slug.split(',');
@@ -825,7 +824,6 @@
                 col_size = 3;
                 break;
             }
-            console.log(node);
             var markup = '<div class="col-md-'+col_size+'"><div class="thumbnail">';
             if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
               markup += '<img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block">';
