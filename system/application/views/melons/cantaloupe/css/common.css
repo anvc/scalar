@@ -1136,8 +1136,14 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .description-sm { font-size: 1.2rem; line-height: 1.7rem; color: #666; }
+
 .cardContainer{
   padding: 0 1rem;
+}
+
+.cardContainer .caption h4{
+	margin: .5rem;
+	padding: 0;
 }
 
 .widget_summary .widgetContainer{

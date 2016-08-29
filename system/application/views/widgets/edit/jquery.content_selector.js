@@ -917,10 +917,21 @@
 
 				content_selector_html+='</select></div></div>';
 
+				if(types.length == 1){
+					content_selector_html.hide();
+				}
+
 				var $wrapper = $(content_selector_html);
-				var $selector = $('<table class="widget_target_node_selector table table-fixed "></table>').appendTo($wrapper);
-				var $thead = $('<thead><tr><th>Title</th><th>Description</th><th>URL</th><th colspan="2"></th></tr></thead>').appendTo($selector);
+				var $header = $('<table class="widget_target_node_selector table table-fixed"></table>').appendTo($wrapper);
+				var $thead = $('<thead><tr><th class="col-xs-3">Title</th><th class="col-xs-4">Description</th><th class="col-xs-2">URL</th><th class="col-xs-2"></th><th class="col-xs-1"></th></tr></thead>').appendTo($header);
+				var $scrollContainer = $('<div class="content_selector_scroll"></div>').appendTo($wrapper);
+				var $selector = $('<table class="widget_target_node_selector table table-fixed"></table>').appendTo($scrollContainer);
 				var $tbody = $('<tbody></tbody>').appendTo($selector);
+
+				if(allowMultiple){
+					var selectedNodes = [];
+					$wrapper.data('selectedNodes',selectedNodes).prepend('<div><small class="multipleNodesText text-danger"><strong>Please select at least one node for this widget.</strong></small></div>')
+				}
 
 				$wrapper.find('.node_selection_type_filter').change(function(){
 					var promise = jQuery.Deferred();
@@ -934,10 +945,47 @@
 							for(var i = 0; i < data.length; i++){
 								var item = data[i];
 								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
-								$('<tr><td><strong>'+item.title+'</strong></td><td>'+desc+'</td><td>.../'+item.slug+'</td><td><a href="'+item.uri+'" target="_blank">Preview</a></td><td><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(){
-									$(this).parents('tbody').find('.bg-info').removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-									$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+								var $item = $('<tr><td class="col-xs-3"><strong>'+item.title+'</strong></td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(e){
+									if(!allowMultiple || !e.ctrlKey){
+											if($(this).hasClass('bg-info') && (!allowMultiple || selectedNodes.length == 1)){
+											  $(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+												if(allowMultiple){
+													selectedNodes = [];
+												}
+											}else{
+												$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+												if(allowMultiple){
+													selectedNodes = [$(this).data('slug')];
+												}
+											}
+											$(this).siblings('.bg-info').removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+
+									}else{
+										var index = selectedNodes.indexOf($(this).data('slug'));
+										if(index == -1){
+											selectedNodes.push($(this).data('slug'));
+											$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+										}else{
+											selectedNodes.splice(index, 1);
+											$(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+										}
+									}
+
+									if(allowMultiple){
+										var $wrapper = $(this).parents('.node_selector_body');
+										$wrapper.data('selectedNodes',selectedNodes);
+										if(selectedNodes.length > 0){
+											$wrapper.find('.multipleNodesText').html('You currently have <strong>'+selectedNodes.length+'</strong> node'+(selectedNodes.length>1?'s':'')+' selected.').removeClass('text-danger');
+										}else{
+											$wrapper.find('.multipleNodesText').html('<strong>Please select at least one node for this widget.</strong>').addClass('text-danger');
+										}
+									}
+
 								}).data('slug',item.slug);
+
+								if(allowMultiple && selectedNodes.indexOf(item.slug) != -1){
+									$item.addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+								}
 							}
 						}
 					});
@@ -1043,13 +1091,138 @@
  							 }
 							 break;
 						 case 'carousel':
+							 card_data_type = "single";
+							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains media for your carousel widget</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation()
+								 carousel_data_type = "single";
+								 $('#bootbox-content-selector-content .carousel_single_selection').slideDown('fast');
+								 $('#bootbox-content-selector-content .carousel_multi_selection').slideUp('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 mini_node_selector($('<div class="carousel_single_selection">').appendTo($content),['path','tag','annotation','term']);
 
-							 break;
+							 $content.append('<hr />');
+
+							 $('<div class="widget_type"><strong><a>Multiple Scalar Nodes</a></strong><br />Select one or multiple media nodes to be displayed within your carousel widget</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation();
+								 carousel_data_type = "multi";
+								 $('#bootbox-content-selector-content .carousel_multi_selection').slideDown('fast');
+								 $('#bootbox-content-selector-content .carousel_single_selection').slideUp('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down CTRL and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['media'], true);
+
+							 submitAction = function(e){
+								 var data = {type:"carousel",attrs : {}};
+								 data.attrs["data-widget"] = data.type;
+								 if(carousel_data_type == 'single'){
+									 data.attrs.resource = $('#bootbox-content-selector-content .carousel_single_selection tbody tr.bg-info').data('slug');
+									 if(data.attrs.resource == undefined){
+										 alert("Please select a path, tag, annotation or term that contains your carousel widget's media!");
+										 return false;
+									 }
+								 }else{
+									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection .node_selector_body').data('selectedNodes').join();
+									 if(data.attrs["data-nodes"] == ''){
+										 alert("Please select at least one media node for your carousel widget!");
+										 return false;
+									 }
+								 }
+								 select_widget_formatting(data);
+								 e.preventDefault();
+								 e.stopPropagation();
+							 }
 						 case 'card':
+							 card_data_type = "single";
+							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains nodes for your card widget</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation()
+								 card_data_type = "single";
+								 $('#bootbox-content-selector-content .card_single_selection').slideDown('fast');
+								 $('#bootbox-content-selector-content .card_multi_selection').slideUp('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 mini_node_selector($('<div class="card_single_selection">').appendTo($content),['path','tag','annotation','term']);
 
+							 $content.append('<hr />');
+
+							 $('<div class="widget_type"><strong><a>Multiple Scalar Nodes</a></strong><br />Select one or multiple nodes to be displayed within your card widget</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation();
+								 card_data_type = "multi";
+								 $('#bootbox-content-selector-content .card_multi_selection').slideDown('fast');
+								 $('#bootbox-content-selector-content .card_single_selection').slideUp('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down CTRL and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+
+							 submitAction = function(e){
+								 var data = {type:"card",attrs : {}};
+								 data.attrs["data-widget"] = data.type;
+								 if(card_data_type == 'single'){
+									 data.attrs.resource = $('#bootbox-content-selector-content .card_single_selection tbody tr.bg-info').data('slug');
+									 if(data.attrs.resource == undefined){
+										 alert("Please select a path, tag, annotation or term that contains your card widget's nodes!");
+										 return false;
+									 }
+								 }else{
+									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection .node_selector_body').data('selectedNodes').join();
+									 if(data.attrs["data-nodes"] == ''){
+										 alert("Please select at least one node for your card widget!");
+										 return false;
+									 }
+								 }
+								 select_widget_formatting(data);
+								 e.preventDefault();
+								 e.stopPropagation();
+							 }
 							 break;
 						 case 'summary':
+							 summary_data_type = "single";
+							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains nodes for your summary widget</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation()
+								 summary_data_type = "single";
+								 $('#bootbox-content-selector-content .summary_single_selection').slideDown('fast');
+								 $('#bootbox-content-selector-content .summary_multi_selection').slideUp('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 mini_node_selector($('<div class="summary_single_selection">').appendTo($content),['path','tag','annotation','term']);
 
+							 $content.append('<hr />');
+
+							 $('<div class="widget_type"><strong><a>Multiple Scalar Nodes</a></strong><br />Select one or multiple nodes to be displayed within your summary widget</div>').appendTo($content).click(function(e){
+								 e.preventDefault();
+								 e.stopPropagation();
+								 summary_data_type = "multi";
+								 $('#bootbox-content-selector-content .summary_multi_selection').slideDown('fast');
+								 $('#bootbox-content-selector-content .summary_single_selection').slideUp('fast');
+								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 });
+							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down CTRL and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+
+							 submitAction = function(e){
+								 var data = {type:"summary",attrs : {}};
+								 data.attrs["data-widget"] = data.type;
+								 if(summary_data_type == 'single'){
+									 data.attrs.resource = $('#bootbox-content-selector-content .summary_single_selection tbody tr.bg-info').data('slug');
+									 if(data.attrs.resource == undefined){
+										 alert("Please select a path, tag, annotation or term that contains your summary widget's nodes!");
+										 return false;
+									 }
+								 }else{
+									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection .node_selector_body').data('selectedNodes').join();
+									 if(data.attrs["data-nodes"] == ''){
+										 alert("Please select at least one node for your summary widget!");
+										 return false;
+									 }
+								 }
+								 select_widget_formatting(data);
+								 e.preventDefault();
+								 e.stopPropagation();
+							 }
 							 break;
 					}
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+(widget_type.charAt(0).toUpperCase() + widget_type.slice(1))+' Widget Content').fadeIn('fast');});
@@ -1089,6 +1262,7 @@
 					switch(options.type){
 						case 'timeline':
 						case 'visualization':
+						case 'carousel':
 							formattingOptions.Size = ['medium','large','full'];
 					}
 
@@ -1180,7 +1354,7 @@
 					description : "Google Maps view showing pages with geolocational (spatial or coverage) metadata as pins",
 					icon : "widget_image_map.png"
 				},
-				/*{
+				{
 					name : "Carousel",
 					description : "Responsive gallery that allows users to flip through a path's media",
 					icon : "widget_image_timeline.png"
@@ -1194,7 +1368,7 @@
 					name : "Summary",
 					description : "One or more media pages displayed as a list of thumbnails, titles, and descriptions.",
 					icon : "widget_image_timeline.png"
-				}*/ //Commented out for now! Will be added again once I have multiple-selection implemented for page selector
+				}
 			];
 
 			for(var i = 0; i < widget_types.length; i++){

@@ -53,7 +53,7 @@
 
 					 var type = $widget.data('widget');
 
-           var $element = $('<div class="widgetElement"></div>');
+           var $element = $('<div class="widgetElement"></div>').data('widget',$widget);
            $widget.data('element',$element);
 
            //Set some common values stored within the anchor tag as data values
@@ -117,13 +117,18 @@
            if(typeof fullReload == "undefined" || fullReload!==true){
              fullReload = false;
            }
-           if($widget.attr('resource') == undefined){
+           if($widget.attr('resource') == undefined && $widget.data('nodes') == undefined){
              //Use the current node, if it has related chronological nodes
              $widget.data('node',base.currentNode);
              promise.resolve();
            }else{
              //We have a target node
-             var slug = $widget.attr('resource');
+             if($widget.data('nodes') != undefined){
+               var slug = $widget.data('nodes');
+             }else{
+               var slug = $widget.attr('resource');
+             }
+             console.log(slug);
              if(slug.indexOf(',') > -1){
                var slugs = [];
                var slug_list = slug.split(',');
@@ -139,20 +144,25 @@
                }else{
                  slugs.push({id : slug, loaded : false});
                }
+               $widget.removeData('node');
                for(var i in slugs){
                  (function(slug,promise,slugs){
                    if(scalarapi.loadPage( slug.id, fullReload, function(){
 
+                     if($widget.data('node')!=undefined){
+                       return;
+                     }
+
                      var nodeList = [];
 
                      slug.loaded = true;
-
                      for(var i in slugs){
                        if(!slugs[i].loaded){
                          return;
-                       }else{
-                         nodeList.push(scalarapi.getNode(slug.id));
                        }
+                     }
+                     for(var i in slugs){
+                       nodeList.push(scalarapi.getNode(slugs[i].id));
                      }
 
                      $widget.data('node',nodeList);
@@ -160,6 +170,10 @@
                      promise.resolve();
                    }, null, 1, false, null, 0, 20) == "loaded"){
 
+                      if($widget.data('node')!=undefined){
+                        return;
+                      }
+
                      var nodeList = [];
 
                      slug.loaded = true;
@@ -167,16 +181,19 @@
                      for(var i in slugs){
                        if(!slugs[i].loaded){
                          return;
-                       }else{
-                         nodeList.push(scalarapi.getNode(slug.id));
                        }
                      }
+
+                     for(var i in slugs){
+                       nodeList.push(scalarapi.getNode(slugs[i].id));
+                     }
+
 
                      $widget.data('node',nodeList);
 
                      promise.resolve();
                    }
-                 })(slugs[i],promise);
+                 })(slugs[i],promise,slugs);
                }
              }else{
                if(scalarapi.loadPage( slug, fullReload, function(){
@@ -549,17 +566,19 @@
 
              $widget.on('slotCreated',function(){
                //Carousel rendering content
-               var node = $widget.data('node');
+               //Get the media nodes...
                var nodes = [];
-    					 var mediaLinks = page.getMediaLinks( node.current.content );
-               $( mediaLinks ).each( function() {
-                 node = scalarapi.getNode( $( this ).attr('resource') );
-                 if ( node != null ) {
-                   nodes.push( node );
+               if($widget.data('node') instanceof Array){
+                 for(var n in $widget.data('node')){
+                   if(typeof $widget.data('node')[n].scalarTypes.media != 'undefined'){
+                     nodes.push($widget.data('node')[n]);
+                   }
                  }
-               });
-
-               nodes = nodes.concat( getChildrenOfType(node, 'media') );
+               }else{
+                 if(typeof $widget.data('node').scalarTypes.media != 'undefined'){
+                   nodes.push($widget.data('node'));
+                 }
+               }
                var n = nodes.length;
 
                var $carousel = $('<div class="carousel slide"></div>').appendTo($element);
@@ -583,24 +602,9 @@
                  }
 
                  // if this is a media link that's already part of the content of the page, then use it
-                 if ( i < mediaLinks.length ) {
-                   var $mediaContainer = $('<span></span>').appendTo( item );
-                   $link = mediaLinks[ i ];
-                   if ( $link.hasClass( 'inline' ) ) {
-                     $link.removeClass( 'inline' );
-                     $link.css('display', 'none');
-                   }
-                   $link.attr({
-                     'data-size': 'full',
-                     'data-caption': 'none'
-                   });
-
-                 // otherwise, create a new link from scratch
-                 } else {
-                   $mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
-                   $link = $mediaContainer.find( 'a' );
-                   $link.css('display', 'none');
-                 }
+                 $mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
+                 $link = $mediaContainer.find( 'a' );
+                 $link.css('display', 'none');
 
                  if ( node.current.description != null ) {
                    description = node.current.description;
@@ -685,8 +689,28 @@
 
            },$widget));
 
-
-           base.getTargetNode($widget, carouselPromise, true);
+           if($widget.attr('resource')!=undefined){
+               (function($widget,carouselPromise){
+                 scalarapi.loadPage( $widget.attr('resource'), true, function(){
+                     var node = scalarapi.getNode($widget.attr('resource'));
+                     var relatedNodes = [];
+                     var relatedNodeSlugs = [];
+                     relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
+                     relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
+                     relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                     relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
+                     for(var list in relatedNodes){
+                       for(var node in relatedNodes[list]){
+                         relatedNodeSlugs.push(relatedNodes[list][node].slug);
+                       }
+                     }
+                     $widget.data('nodes',relatedNodeSlugs.join());
+                     base.getTargetNode($widget, carouselPromise, true);
+                 }, null, 1, false, null, 0, 20);
+             })($widget,carouselPromise);
+           }else{
+             base.getTargetNode($widget, carouselPromise, true);
+           }
 				 };
 
 				 //Handle card inserted into this page ( http://getbootstrap.com/components/#thumbnails-custom-content )
@@ -699,43 +723,14 @@
            $.when(cardPromise).then($.proxy(function(){
              var $widget = this;
 
-             //For a card, we need an extant as well as a target. If the target is the current node, our extant will be a path.
              var node = $widget.data('node');
-             var extant = $widget.data('extant');
-
-             if(node == undefined){
-               return;
-             }else if(node instanceof Array){
-               extant = 'list';
-             }else if(node.slug == base.currentNode.slug){
-               extant = 'path';
-             }else if(extant == undefined){
-               extant = 'self';
-             }
-
-             //Update the extant, so we can use that info inside of the slotCreated event
-             $widget.data('extant',extant);
 
              $widget.on('slotCreated',function(){
-               //Depending on the extant, we need to either add the selected node or the node's path.
                $(this).data('element').html('');
                var $cardContainer = $('<div class="row cardContainer"></div>').appendTo($(this).data('element'));
-               switch($(this).data('extant')){
-                 case 'path':
-                     var nodes = node.getRelatedNodes("path", "outgoing");
-                     var n = nodes.length;
-                     for (var i=(n-1); i>=0; i--) {
-                        widgets.createCardFromNode(nodes[i], $cardContainer);
-                     }
-                     break;
-                 case 'list':
-                     var n = node.length;
-                     for (var i=(n-1); i>=0; i--) {
-                        widgets.createCardFromNode(node[i], $cardContainer);
-                     }
-                     break;
-                 default:
-                     widgets.createCardFromNode($(this).data('node'),$cardContainer);
+               var n = node.length;
+               for (var i=(n-1); i>=0; i--) {
+                  widgets.createCardFromNode(node[i], $cardContainer);
                }
              });
 
@@ -744,7 +739,29 @@
              }
           },$widget));
 
-          base.getTargetNode($widget, cardPromise, true);
+          if($widget.attr('resource')!=undefined){
+              (function($widget,cardPromise){
+                scalarapi.loadPage( $widget.attr('resource'), true, function(){
+                    var node = scalarapi.getNode($widget.attr('resource'));
+                    var relatedNodes = [];
+                    var relatedNodeSlugs = [];
+                    relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
+                    relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
+                    relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                    relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
+                    for(var list in relatedNodes){
+                      for(var node in relatedNodes[list]){
+                        relatedNodeSlugs.push(relatedNodes[list][node].slug);
+                      }
+                    }
+                    $widget.data('nodes',relatedNodeSlugs.join());
+                    base.getTargetNode($widget, cardPromise, true);
+                }, null, 1, false, null, 0, 20);
+            })($widget,cardPromise);
+
+          }else{
+            base.getTargetNode($widget, cardPromise, true);
+          }
 				 };
 
 				 //Handle summary inserted into this page ( http://getbootstrap.com/components/#media-default )
@@ -757,44 +774,14 @@
            $.when(summaryPromise).then($.proxy(function(){
              var $widget = this;
 
-             //For a summary, we need an extant as well as a target. If the target is the current node, our extant will be a path.
-             //If we have a list of node slugs, we will use that as the list and ignore paths
              var node = $widget.data('node');
-             var extant = $widget.data('extant');
-
-             if(node == undefined){
-               return;
-             }else if(node instanceof Array){
-               extant = 'list';
-             }else if(node.slug == base.currentNode.slug){
-               extant = 'path';
-             }else if(extant == undefined){
-               extant = 'self';
-             }
-
-             //Update the extant, so we can use that info inside of the slotCreated event
-             $widget.data('extant',extant);
 
              $widget.on('slotCreated',function(){
-               //Depending on the extant, we need to either add the selected node or the node's path.
                $(this).data('element').html('');
                var $summaryContainer = $('<div class="summaryContainer"><div class="items"></div><div class="clearfix visible-xs-block"></div>').appendTo($(this).data('element'));
-               switch($(this).data('extant')){
-                 case 'path':
-                     var nodes = node.getRelatedNodes("path", "outgoing");
-                     var n = nodes.length;
-                     for (var i=(n-1); i>=0; i--) {
-                        widgets.createSummaryFromNode(nodes[i], $summaryContainer.find('.items'));
-                     }
-                     break;
-                 case 'list':
-                     var n = node.length;
-                     for (var i=(n-1); i>=0; i--) {
-                        widgets.createSummaryFromNode(node[i], $summaryContainer.find('.items'));
-                     }
-                     break;
-                 default:
-                     widgets.createSummaryFromNode($(this).data('node'),$summaryContainer.find('.items'));
+               var n = node.length;
+               for (var i=(n-1); i>=0; i--) {
+                  widgets.createSummaryFromNode(node[i], $summaryContainer.find('.items'));
                }
              });
 
@@ -803,12 +790,46 @@
              }
           },$widget));
 
-          base.getTargetNode($widget, summaryPromise, true);
+          if($widget.attr('resource')!=undefined){
+              (function($widget,summaryPromise){
+                scalarapi.loadPage( $widget.attr('resource'), true, function(){
+                    var node = scalarapi.getNode($widget.attr('resource'));
+                    var relatedNodes = [];
+                    var relatedNodeSlugs = [];
+                    relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
+                    relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
+                    relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                    relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
+                    for(var list in relatedNodes){
+                      for(var node in relatedNodes[list]){
+                        relatedNodeSlugs.push(relatedNodes[list][node].slug);
+                      }
+                    }
+                    $widget.data('nodes',relatedNodeSlugs.join());
+                    base.getTargetNode($widget, summaryPromise, true);
+                }, null, 1, false, null, 0, 20);
+            })($widget,summaryPromise);
+          }else{
+            base.getTargetNode($widget, summaryPromise, true);
+          }
 				 };
 
          base.createCardFromNode = function(node,$target){
-            var markup = '<div class="col-md-4"><div class="thumbnail">';
-            if (node.thumbnail != null) {
+            var widget_size = $target.parents('.widgetElement').data('widget').data('size');
+            var col_size = 12;
+            switch(widget_size){
+              case 'large':
+                col_size = 6;
+                break;
+              case 'full':
+                col_size = 3;
+                break;
+            }
+            console.log(node);
+            var markup = '<div class="col-md-'+col_size+'"><div class="thumbnail">';
+            if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
+              markup += '<img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block">';
+            }else if (node.thumbnail != null) {
             	markup += '<img src="' + node.thumbnail + '" alt="" class="img-responsive center-block">';
             }
             markup += '<div class="caption"><h4 class="heading_font heading_weight">' + node.getDisplayTitle() + '</h4>';

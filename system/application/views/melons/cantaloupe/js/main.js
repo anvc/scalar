@@ -375,7 +375,7 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
  * Boot the interface
  */
 $(window).ready(function() {
-	
+
 	// Proxy <iframe src=""> if the proxy is on and the src points to non-SSL content
 	var use_proxy = ($('link#use_proxy').length && 'true'==$('link#use_proxy').attr('href')) ? true : false;
 	if (use_proxy && 'edit' != $('link#view').attr('href')) {
@@ -387,8 +387,8 @@ $(window).ready(function() {
 			if ('https' == src.substr(0,5)) return;  // already SSL
 			$this.prop('src', proxy_url+'?'+src);
 		});
-	}		
-	
+	}
+
 	// Trash button
   	$('.hide_page_link').click(function() {
   		var uri = document.location.href;

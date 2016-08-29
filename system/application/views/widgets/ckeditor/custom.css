@@ -173,7 +173,14 @@
 .node_selector_body tbody tr:hover .glyphicon,.node_selector_body tbody tr .glyphicon-check{
 	opacity: .75;
 }
-
+.carousel_multi_selection .alert{
+	padding: .5rem;
+	margin: .5rem 0;
+}
+.content_selector_scroll{
+	max-height: 300px;
+	overflow-y: auto;
+}
 @media (max-width: 767px){
 	.selectedItemPreview .mediaDescription{
 			display: none;
