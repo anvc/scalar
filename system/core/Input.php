@@ -845,7 +845,10 @@ class CI_Input {
 	 */
 	public function is_ajax_request()
 	{
-		return ($this->server('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest');
+		if ( !isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest' ) {
+			return false;
+		}
+		return true;
 	}
 
 	// --------------------------------------------------------------------

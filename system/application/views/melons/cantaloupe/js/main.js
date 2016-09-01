@@ -411,7 +411,7 @@ $(window).ready(function() {
 		  // Scalar API
 		  {load: [base_uri+'/js/jquery.rdfquery.rules-1.0.js',
 		          base_uri+'/js/jquery.RDFa.js',
-		          base_uri+'/js/form-validation.js',
+		          base_uri+'/js/form-validation.js?v=2',
 		          widgets_uri+'/nav/jquery.scalarrecent.js',
 		          widgets_uri+'/cookie/jquery.cookie.js',
 		          widgets_uri+'/api/scalarapi.js'], complete:function() {

@@ -211,6 +211,7 @@ $(document).ready(function() {
 		$(this).parents('#style-confirm,#script-confirm').data('confirmed',true).modal('hide');
 	})
 	// Taxonomies for title typeahead
+	/*
 	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
 	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
 	book_slug = book_slug.replace(/\//g,'');
@@ -240,6 +241,7 @@ $(document).ready(function() {
 		})
 		$('#title').autocomplete({source:suggestions});
 	});
+	*/
 	// Color Picker (in editor)
 	if ($.isFunction($.fn.farbtastic)) {
 		$('#colorpicker').farbtastic('#color_select');
@@ -411,7 +413,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
     </div>
   </div>
 </div>
-<form id="edit_form" target="hidden_upload" action="<?=base_url().$book->slug.'/'?>upload_thumb" class="caption_font" method="post" enctype="multipart/form-data" onsubmit="return validate_edit_form($(this));">
+<form id="edit_form" class="caption_font" method="post" action="<?=base_url().$book->slug.'/'?>" onsubmit="validate_edit_form($(this));return false;">
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
@@ -772,11 +774,13 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			  				}
 			  			?></select>
 					</div>
+					<!--  
 					<div class="form-group">
 			  			<label>Or upload a new thumbnail: &nbsp; <small>(JPG, PNG, or GIF format; will be resized to 120px)</small> &nbsp; <small><a href="javascript:void(null);" onclick="$('input[name=\'source_file\']').val('');return false;">clear selected file</a></small></label>
 			  			<input type="file" name="source_file" />
 			  			<div style="margin:0;padding:0;height:0;border:0;overflow:hidden;"><iframe id="hidden_upload" name="hidden_upload" src=""></iframe></div>
 					</div>
+					-->
 					<div class="form-group">
 			  			<label for="enter_thumbnail_url">Or enter any image URL:</label>
 			  			<input id="enter_thumbnail_url" class="form-control" type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />

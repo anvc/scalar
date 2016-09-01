@@ -191,12 +191,16 @@ function validate_edit_form(form, no_action) {
 	
 	var commit = function() {
 		if (!check_fields()) return false;
+		finish();  
+		// Don't use thumbnail upload, it seems to be the cause of the random logouts since it runs in an iframe
+		/*
 		var file_el = form.find('input[name="source_file"]');
 		if (file_el.length && file_el.val().length) {
 			form_file();
 		} else {
 			finish();
 		};
+		*/
 	};
 
 	if ('source'==CKEDITOR.instances['sioc:content'].mode) {  // If in source mode, switch to WYSIWYG to invoke formatting

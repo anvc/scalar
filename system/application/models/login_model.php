@@ -40,6 +40,7 @@ class Login_model extends User_model {
 			$result = $this->get_by_user_id($user_id);
 			$result->is_logged_in = true;
 			$result->error = null;
+			$result->uri = $_SERVER['REQUEST_URI'];
 			$this->session->set_userdata(array($this->login_basename => (array) $result));
 			return (object) $data;
 		}
@@ -49,6 +50,7 @@ class Login_model extends User_model {
 		$data = new stdClass;
 		$data->is_logged_in = false;
 		$data->error = null;
+		$data->uri = $_SERVER['REQUEST_URI'];
 		$this->session->set_userdata(array($this->login_basename => (array) $data));
 		return (object) $data;
 
