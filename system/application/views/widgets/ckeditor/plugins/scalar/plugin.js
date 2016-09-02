@@ -269,9 +269,10 @@ CKEDITOR.plugins.add( 'scalar', {
 			CKEDITOR._scalar.editor = editor;
 
 			$('#wysiwygNewFeatures .close').click(function(){
-				var cookie_days = 7;
+				var cookie_days = 0;
+				var cookie_months = 1;
 				var d = new Date();
-				d.setTime(d.getTime() + (cookie_days*86400000));
+				d.setTime(d.setMonth(d.getMonth() + cookie_months) + (cookie_days*86400000));
 				var cookie_expiration = "; expires="+ d.toUTCString();
 				document.cookie = "hide_new_feature_alert=true" + cookie_expiration;
 			});
@@ -282,7 +283,7 @@ CKEDITOR.plugins.add( 'scalar', {
 			editor.on('mode',function(e){
 				if(!cke_addedScalarScrollEvent){
 					$(window).add($('.cke_wysiwyg_frame').contents()).on('scroll',function(e){
-						if($('#scalarLinkTooltip').is(':visible')){
+						if($('#scalarLinkTooltip').length > 0 && $('#scalarLinkTooltip').is(':visible')){
 							var $element = $($('#scalarLinkTooltip').data('element').$);
 							var position = $element.position();
 							var framePosition = $('.cke_contents>iframe').offset();
