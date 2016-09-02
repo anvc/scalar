@@ -899,7 +899,7 @@
 					types = ['composite','media','path','tag','annotation','comment','term'];
 				}
 
-				var content_selector_html = '<div class="node_selector_body"><div class="pull-right">Filter by type: <select class="node_selection_type_filter">';
+				var content_selector_html = '<div class="node_selector_body"><div class="type_selector pull-right">Filter by type: <select class="node_selection_type_filter">';
 
 				for(var t in types){
 
@@ -917,11 +917,13 @@
 
 				content_selector_html+='</select></div></div>';
 
-				if(types.length == 1){
-					content_selector_html.hide();
-				}
 
 				var $wrapper = $(content_selector_html);
+
+				if(types.length == 1){
+					$wrapper.find('.type_selector').hide();
+				}
+
 				var $header = $('<table class="widget_target_node_selector table table-fixed"></table>').appendTo($wrapper);
 				var $thead = $('<thead><tr><th class="col-xs-3">Title</th><th class="col-xs-4">Description</th><th class="col-xs-2">URL</th><th class="col-xs-2"></th><th class="col-xs-1"></th></tr></thead>').appendTo($header);
 				var $scrollContainer = $('<div class="content_selector_scroll"></div>').appendTo($wrapper);
@@ -1091,7 +1093,7 @@
  							 }
 							 break;
 						 case 'carousel':
-							 card_data_type = "single";
+							 carousel_data_type = "single";
 							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains media for your carousel widget</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation()
@@ -1134,6 +1136,7 @@
 								 e.preventDefault();
 								 e.stopPropagation();
 							 }
+							 break;
 						 case 'card':
 							 card_data_type = "single";
 							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains nodes for your card widget</div>').appendTo($content).click(function(e){
