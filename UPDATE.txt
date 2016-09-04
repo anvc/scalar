@@ -34,10 +34,27 @@ install for the update to work properly.  Each update is marked by the date it w
 date that the codebase assumes that the update exists).
 
 ***
-ANY UPDATE TO SCALAR 2.1 FROM ANY PREVIOUS VERSION INVOLVES A NEW SET OF INSTRUCTIONS!
-***
-
-INSTRUCTIONS FOR UPDATING TO SCALAR 2.1 FROM ANY PREVIOUS SCALAR VERSION:
+ANY UPDATE TO SCALAR 2.1.x FROM ANY PREVIOUS VERSION INVOLVES A NEW SET OF INSTRUCTIONS!
+***  
+  
+INSTRUCTIONS FOR UPDATING TO SCALAR 2.1.1 FROM SCALAR 2.1  
+  
+1) Overwrite all folders in system/ **except** for the "applications" folder  
+2) In system/application/, update these folders:  
+controllers
+core
+errors
+helpers
+hooks
+(don't copy language)
+libraries
+(don't copy logs)
+models
+(don't copy plugins)
+rdf
+views
+  
+INSTRUCTIONS FOR UPDATING TO SCALAR 2.1 OR SCALAR 2.1.1 FROM ANY PREVIOUS SCALAR VERSION:  
 
 1) Extract the release ZIP file into a NEW folder; make sure that .htaccess is visible or transferable in the root folder so it doesn’t get left out
 3) Optional: open ‘codeigniter.php’ in the NEW root folder and change ‘production’ to ‘development’, to display PHP errors during development
