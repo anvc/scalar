@@ -180,17 +180,46 @@ CKEDITOR._scalar = {
 	},
 	widgetLinkCallback : function(widget, element){
 		var isEdit = element.getCustomData('widget') != null;
+		var href = null;
+
 		for (var a in widget.attrs) {
 			element.setAttribute(a, widget.attrs[a]);
+			if(a == "href"){
+				href = widget.attrs[a];
+			}
 		}
+
 		if(!isEdit){
 			CKEDITOR._scalar.editor.insertElement(element);
 		}else{
+			if(href!=null){
+				element.data('cke-saved-href',href);
+			}
 			CKEDITOR._scalar.editor.updateElement(element);
 		}
 	},
 	widgetInlineCallback : function(widget, element){
+		var isEdit = element.getCustomData('widget') != null;
+		var href = null;
 
+		element.setAttribute('name','scalar-inline-widget');  // Required to let empty <a> through
+		element.setAttribute('class', 'inlineWidget inline');
+
+		for (var a in widget.attrs) {
+			element.setAttribute(a, widget.attrs[a]);
+			if(a == "href"){
+				href = widget.attrs[a];
+			}
+		}
+
+		if(!isEdit){
+			if(href!=null){
+				element.data('cke-saved-href',href);
+			}
+			CKEDITOR._scalar.editor.insertElement(element);
+		}else{
+			CKEDITOR._scalar.editor.updateElement(element);
+		}
 	},
 	addCKInlineMediaPreview : function(slug,element){
 		var $element = element.$;
@@ -538,7 +567,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						var isEdit = false;
 						var element = sel.getStartElement();
 
-						//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
+						//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline widget link
 						if ( element.data('widget') != null && element.getAscendant( 'a', true ) ) {
 							element = element.getAscendant( 'a', true );
 							if(element.getAttribute('resource')!=null && !element.hasClass('inline')){
@@ -568,6 +597,28 @@ CKEDITOR.plugins.add( 'scalar', {
 				editor.addCommand('insertScalar9',{ //Widget Inline Link
 					exec: function(editor){
 
+						var sel = editor.getSelection();
+						var element = sel.getStartElement();
+						var isEdit = false;
+						//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
+						if ( element.data('widget') != null && element.getAscendant( 'a', true ) ) {
+							element = element.getAscendant( 'a', true );
+							if(element.getAttribute('resource')!=null && element.hasClass('inline')){
+								//Is inline
+								isEdit = true;
+							}
+						}
+
+						if(!isEdit){
+							element = editor.document.createElement('a')
+							$(element.$).data({
+								element : element,
+								contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback
+							});
+							$(element.$).data('selectOptions',{isEdit:isEdit,type:'widget',msg:'Insert Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+						}
+
+						CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
 					}
 				});
 
