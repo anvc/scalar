@@ -1,3 +1,4 @@
+isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 (function( $ ) {
 	var defaults = {
 			parent:$('link#parent').attr('href'),
@@ -948,7 +949,8 @@
 								var item = data[i];
 								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
 								var $item = $('<tr><td class="col-xs-3"><strong>'+item.title+'</strong></td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(e){
-									if(!allowMultiple || !e.ctrlKey){
+									var holdingModifier = isMac?e.metaKey:e.ctrlKey;
+									if(!allowMultiple || !holdingModifier){
 											if($(this).hasClass('bg-info') && (!allowMultiple || selectedNodes.length == 1)){
 											  $(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
 												if(allowMultiple){
@@ -1114,7 +1116,7 @@
 								 $('#bootbox-content-selector-content .carousel_single_selection').slideUp('fast');
 								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
 							 });
-							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down CTRL and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['media'], true);
+							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down '+(isMac?'CMD':'CTRL')+' and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['media'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"carousel",attrs : {}};
@@ -1159,7 +1161,7 @@
 								 $('#bootbox-content-selector-content .card_single_selection').slideUp('fast');
 								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
 							 });
-							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down CTRL and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down '+(isMac?'CMD':'CTRL')+' and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"card",attrs : {}};
@@ -1204,7 +1206,7 @@
 								 $('#bootbox-content-selector-content .summary_single_selection').slideUp('fast');
 								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
 							 });
-							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down CTRL and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down '+(isMac?'CMD':'CTRL')+' and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"summary",attrs : {}};
