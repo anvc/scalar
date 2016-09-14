@@ -64,14 +64,21 @@ function commentFormDisplayForm() {
 			$('#commenter_anonymous').fadeIn('fast');
 			$('#comment_your_name').show();
 			$('#comment_captcha').show();
+			var recaptcha2_site_key = $('input[name="recaptcha2_site_key"]:first').val();
 			var recaptcha_public_key = $('input[name="recaptcha_public_key"]:first').val();
-			if ('undefined'==typeof(Recaptcha)) {
+			if ('undefined'==typeof(grecaptcha) && 'undefined'==typeof(Recaptcha)) {
 				alert('There was a problem contacting ReCAPTCHA to create CAPTCHA test.  Please reload the page and try again.')
-			} else if (!recaptcha_public_key.length) {
-				alert('No ReCAPTCHA key is provided, therefor anonymous commenting is disabled.');
+			} else if (!recaptcha2_site_key.length && !recaptcha_public_key.length) {
+				alert('No ReCAPTCHA key is provided, therefore anonymous commenting is disabled.');
 			} else {
-				Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", {theme: "white"});		
-			}	
+				if (recaptcha2_site_key.length) {
+			        grecaptcha.render("comment_captcha_wrapper", {
+			            'sitekey' : recaptcha2_site_key
+			          });						
+				} else if (recaptcha_public_key.length) {
+					Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", { theme: "white" });
+				}
+			}
 		}
 		$('#comment_form_wrapper').fadeIn('fast');
 	});

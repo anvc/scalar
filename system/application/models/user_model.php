@@ -434,7 +434,8 @@ class User_model extends MY_Model {
 
 		$fullname = trim($array['fullname']);
 		$email = trim($array['email']);
-    	if (empty($fullname)) throw new Exception('Could not resolve fullname');  // E.g., a fullname of all spaces
+    	if (empty($fullname)) throw new Exception('Could not resolve fullname');  // E.g., a string of all spaces
+    	if (empty($email)) throw new Exception('Could not resolve email');  // E.g., a string of all spaces
 
 		$data = array('fullname' => $fullname, 'email' => $email);
 		$this->db->insert($this->users_table, $data);
@@ -448,17 +449,46 @@ class User_model extends MY_Model {
 
     public function register($array=array()) {
 
-    	require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
+		// ReCAPTCHA version 1
+		$recaptcha_public_key = $this->config->item('recaptcha_public_key');
+		$recaptcha_private_key = $this->config->item('recaptcha_private_key');
+		if (empty($recaptcha_public_key)||empty($recaptcha_private_key)) $recaptcha_public_key = $recaptcha_private_key = null;
+		// ReCAPTCHA version 2
+		$recaptcha2_site_key = $this->config->item('recaptcha2_site_key');
+		$recaptcha2_secret_key = $this->config->item('recaptcha2_secret_key');
+		if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;	    	
+    	// Choose one or the other
+    	if (!empty($recaptcha2_site_key)) {
+    		require_once(APPPATH.'libraries/recaptcha2/autoload.php');
+    	} elseif (!empty($recaptcha_public_key)) {
+    		require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
+    	}
 
     	if (empty($array['tos'])) throw new Exception('Please indicate that you have accepted the Terms of Service');
 		if (empty($array['password'])) throw new Exception('Password is a required field');
 		if (empty($array['password_2'])) throw new Exception('Confirm password is a required field');
 		if ($array['password'] != $array['password_2']) throw new Exception('Password and confirm password do not match');
-		$recaptcha_private_key = $this->config->item('recaptcha_private_key');
-		if (!empty($recaptcha_private_key)) {
+		
+		if (!empty($recaptcha2_site_key)) {
+			if (!isset($_POST['g-recaptcha-response'])) throw new Exception('Invalid ReCAPTCHA form field');
+			$recaptcha = new \ReCaptcha\ReCaptcha($recaptcha2_secret_key);
+			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+			if ($resp->isSuccess()):
+				// Success
+			else:
+				/*
+				$errors = array();
+		        foreach ($resp->getErrorCodes() as $code) {
+                	$errors[] = $code;
+            	}
+            	*/
+            	throw new Exception('CAPTCHA did not validate');
+			endif;
+    	} elseif (!empty($recaptcha_private_key)) {
 			$resp = recaptcha_check_answer($recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $array["recaptcha_challenge_field"], $array["recaptcha_response_field"]);
 			if (!$resp->is_valid) throw new Exception ('Incorrect CAPTCHA value');
 		}
+		
 		return $this->add($array);
 
     }

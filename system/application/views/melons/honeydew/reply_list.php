@@ -107,6 +107,7 @@ $type = ($page->type == 'composite') ? 'page' : 'media page';
 			<input type="hidden" name="scalar:child_urn" value="<?=$page->versions[$page->version_index]->urn?>" />
 			<input type="hidden" name="dcterms:description" value="" />
 			<input type="hidden" name="user" value="0" id="comment_user_id" />
+			<input type="hidden" name="recaptcha2_site_key" value="<?=$recaptcha2_site_key?>" />
 			<input type="hidden" name="recaptcha_public_key" value="<?=$recaptcha_public_key?>" />
 			<table class="form_fields comment_form_table"><tbody>
 			<tr id="comment_your_name"><td class="field">Your name</td><td class="value"><input type="text" name="fullname" value="" class="input_text"></td></tr>

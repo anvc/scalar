@@ -47,6 +47,7 @@ class MY_Controller extends CI_Controller {
 		$this->load->helper( 'directory' );
 		$this->config->load( 'rdf' );
 		$this->config->load( 'local_settings' );
+		$this->data['recaptcha2_site_key'] = ($this->config->item('recaptcha2_site_key')) ? $this->config->item('recaptcha2_site_key') : '';
 		$this->data['recaptcha_public_key'] = ($this->config->item('recaptcha_public_key')) ? $this->config->item('recaptcha_public_key') : '';
 
 		// Models

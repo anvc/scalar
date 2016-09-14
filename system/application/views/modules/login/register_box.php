@@ -47,7 +47,17 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 			<tr>
 				<td class="field">Title of<br />first book<br /><small>(optional)</small></td><td class="value"><input type="text" name="book_title" value="<?=(isset($_POST['book_title']))?trim(htmlspecialchars($_POST['book_title'])):''?>" class="input_text" /></td>
 			</tr>
-			<? if (!empty($recaptcha_public_key)): ?>
+			<? if (!empty($recaptcha2_site_key)): ?>
+			<tr>
+				<td>CAPTCHA <span style="color:red;">*</span></td>
+				<td>
+		            <div class="g-recaptcha" data-sitekey="<?php echo $recaptcha2_site_key; ?>"></div>
+		            <script type="text/javascript"
+		                    src="https://www.google.com/recaptcha/api.js?hl=<?php echo 'en'; ?>">
+		            </script>	
+	            </td>		
+	        </tr>	
+			<? elseif (!empty($recaptcha_public_key)): ?>
 			<tr>
 				<td>CAPTCHA <span style="color:red;">*</span></td>
 				<td>

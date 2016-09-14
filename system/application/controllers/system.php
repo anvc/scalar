@@ -134,10 +134,7 @@ class System extends MY_Controller {
 	public function register() {
 
 		require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
-		$this->login->do_logout(true);
-		$this->data['recaptcha_public_key'] = $this->config->item('recaptcha_public_key');
-		$this->data['recaptcha_private_key'] = $this->config->item('recaptcha_private_key');
-		if (empty($this->data['recaptcha_public_key'])||empty($this->data['recaptcha_private_key'])) $this->data['recaptcha_public_key'] = $this->data['recaptcha_private_key'] = null;
+		$this->login->do_logout(true);	
 		$this->data['title'] = $this->lang->line('install_name').': Register';
 		$register_keys = $this->config->item('register_key');
 		$this->data['register_key'] = (!empty($register_keys)) ? true : false;

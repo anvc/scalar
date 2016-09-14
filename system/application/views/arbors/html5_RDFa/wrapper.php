@@ -132,6 +132,7 @@ if (isset($page->version_index)) {
 <? endif ?>
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
+<link id="recaptcha2_site_key" href="<?=$recaptcha2_site_key?>" />
 <link id="recaptcha_public_key" href="<?=$recaptcha_public_key?>" />
 <? if ($hypothesis): ?>
 <link id="hypothesis" href="true" />
@@ -143,6 +144,7 @@ if (isset($page->version_index)) {
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
 <?="<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=".$this->config->item('google_maps_key')."\"></script>"."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/html5shiv/dist/html5shiv.js')."\n" // Keep thus UNDER jQuery, etc., otherwise things go haywire?>
+<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
 <? if (!empty($_scripts)) echo $_scripts?>
 <?
 if (!$mode && !empty($style)):
@@ -277,6 +279,7 @@ foreach ($models as $rel):
 		<ol class="has_<?=$rel?>">
 <?
 		foreach ($inward_array as $inward_item):
+			if (!$inward_item->is_live) continue;
 			$page->versions[$page->version_index]->sort_number =@ (int) $inward_item->versions[$inward_item->version_index]->page_index;
 			if ('paths'==$rel) $inward_item->versions[0]->sort_number =@ $inward_item->versions[0]->page_num;
 			//if ('replies'==$rel) $inward_item->versions[0]->datetime =@ $inward_item->versions[$inward_item->version_index]->created;
@@ -357,6 +360,7 @@ foreach ($models as $rel):
 		<ol class="<?=singular($rel)?>_of">
 <?
 		foreach ($outward_array as $outward_item):
+			if (!$outward_item->is_live) continue;
 			$outward_item->versions[$outward_item->version_index]->sort_number =@ (int) $outward_item->page_index;
 			if ('paths'==$rel) $outward_item->versions[0]->sort_number =@ $outward_item->versions[0]->page_num;
 			if ('replies'==$rel) $outward_item->versions[$outward_item->version_index]->datetime =@ $outward_item->versions[$outward_item->version_index]->created;

@@ -204,7 +204,7 @@ class Book extends MY_Controller {
 
 		// Validate
 		try {
-			require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
+
 			if (!isset($_POST['action'])||'add'!=strtolower($_POST['action'])) throw new Exception('Invalid action');
 
 			// Either logged in or not
@@ -219,13 +219,37 @@ class Book extends MY_Controller {
 			if (empty($content)) throw new Exception('Content is a required field');
 
 			// Not logged in
-			if (empty($user_id)) {
+			if (empty($user_id)) {				
 				$fullname  =@ trim($_POST['fullname']);
 				if (empty($fullname)) throw new Exception('Your name is a required field');
-				$privatekey = $this->config->item('recaptcha_private_key');
-				if (empty($privatekey)) throw new Exception('ReCAPTCHA has not been activated');
-  				$resp = recaptcha_check_answer($privatekey, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
-				if (!$resp->is_valid) throw new Exception('Invalid CAPTCHA answer, please try again');
+				// ReCAPTCHA version 1
+				$recaptcha_public_key = $this->config->item('recaptcha_public_key');
+				$recaptcha_private_key = $this->config->item('recaptcha_private_key');
+				if (empty($recaptcha_public_key)||empty($recaptcha_private_key)) $recaptcha_public_key = $recaptcha_private_key = null;
+				// ReCAPTCHA version 2
+				$recaptcha2_site_key = $this->config->item('recaptcha2_site_key');
+				$recaptcha2_secret_key = $this->config->item('recaptcha2_secret_key');
+				if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;	    	
+		    	// Choose one or the other
+		    	if (!empty($recaptcha2_site_key)) {
+		    		require_once(APPPATH.'libraries/recaptcha2/autoload.php');
+		    	} elseif (!empty($recaptcha_public_key)) {
+		    		require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
+		    	}
+				// Check CAPTCHA
+				if (!empty($recaptcha2_site_key)) {
+					if (!isset($_POST['g-recaptcha-response'])) throw new Exception('Invalid ReCAPTCHA form field');
+					$recaptcha = new \ReCaptcha\ReCaptcha($recaptcha2_secret_key);
+					$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+					if ($resp->isSuccess()):
+						// Success
+					else:
+		            	throw new Exception('CAPTCHA did not validate');
+					endif;
+		    	} elseif (!empty($recaptcha_private_key)) {
+					$resp = recaptcha_check_answer($recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
+					if (!$resp->is_valid) throw new Exception ('Incorrect CAPTCHA value');
+				}		    	
 
 			// Logged in
 			// Note that we're not saving the user as the creator of the page but rather fullname to the attribution field
