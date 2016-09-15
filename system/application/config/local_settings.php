@@ -22,6 +22,10 @@ $config['chmod_mode'] = 0775;
 $config['recaptcha_public_key'] = (getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') ? getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') : '');
 $config['recaptcha_private_key'] = (getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') ? getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') : '');
 
+// ReCAPTCHA version 2 key (leave blank for no ReCAPTCHA version 2)
+$config['recaptcha2_site_key'] = (getenv('SCALAR_RECAPTCHA2_SITE_KEY') ? getenv('SCALAR_RECAPTCHA2_SITE_KEY') : '');
+$config['recaptcha2_secret_key'] = (getenv('SCALAR_RECAPTCHA2_SECRET_KEY') ? getenv('SCALAR_RECAPTCHA2_SECRET_KEY') : '');
+
 // Register key (leave blank if no register key required, e.g., array())
 // One of the strings placed in this array will be required in order for new users to register
 $config['register_key'] = array();
