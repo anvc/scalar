@@ -75,7 +75,7 @@ class Page_model extends MY_Model {
  		if (empty($terms)) return $content;
  		$count = 1;
  		foreach ($terms as $term) {
- 			$escaped_term = addslashes($term);
+ 			$escaped_term = mysqli_real_escape_string($term);
  			$this->db->select($this->versions_table.'.*');
  			$this->db->select($this->pages_table.'.slug');
  			$this->db->select($this->pages_table.'.book_id');
@@ -307,11 +307,11 @@ class Page_model extends MY_Model {
 						// Update soft URLs in version contet - href
 						$old = 'href="'.$slug.'"';
 						$new = 'href="'.$array['slug'].'"';
-						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".addslashes($old)."', '".addslashes($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
+						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".mysqli_real_escape_string($old)."', '".mysqli_real_escape_string($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
 						// Update soft URLs in version contet - resource
 						$old = 'resource="'.$slug.'"';
 						$new = 'resource="'.$array['slug'].'"';
-						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".addslashes($old)."', '".addslashes($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
+						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".mysqli_real_escape_string($old)."', '".mysqli_real_escape_string($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
 					}
 				}
 			}

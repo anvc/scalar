@@ -27,7 +27,7 @@
 	<form action="<?=confirm_slash(base_url())?>system/login" method="post" class="panel">
 		<input type="hidden" name="action" value="do_login" />
 		<input type="hidden" name="redirect_url" value="<?=((isset($_REQUEST['redirect_url']))?htmlspecialchars($_REQUEST['redirect_url']):'')?>" />
-		<input type="hidden" name="msg" value="<?=((isset($_REQUEST['msg']))?$_REQUEST['msg']:'')?>" />
+		<input type="hidden" name="msg" value="<?=((isset($_REQUEST['msg']))?filter_var($_REQUEST['msg'],FILTER_SANITIZE_STRING):'')?>" />
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">

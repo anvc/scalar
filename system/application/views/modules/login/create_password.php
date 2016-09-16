@@ -14,7 +14,7 @@
 	<form action="<?=confirm_slash(base_url())?>system/create_password" method="post" class="panel">
 		<input type="hidden" name="action" value="do_create_password" />
 		<input type="hidden" name="redirect_url" value="<?=((isset($_REQUEST['redirect_url']))?htmlspecialchars($_REQUEST['redirect_url']):'')?>" />
-		<input type="hidden" name="msg" value="<?=((isset($_REQUEST['msg']))?$_REQUEST['msg']:'')?>" />
+		<input type="hidden" name="msg" value="<?=((isset($_REQUEST['msg']))?filter_var($_REQUEST['msg'],FILTER_SANITIZE_STRING):'')?>" />
 		<input type="hidden" name="key" value="<? if (isset($_REQUEST['key'])) echo htmlspecialchars($_REQUEST['key']) ?>" />
 		<table class="form_fields">
 			<tr>
