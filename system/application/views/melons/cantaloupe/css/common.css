@@ -1133,6 +1133,13 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 /* widget pages */
 
 .thumbnail, .media-body h4 { margin: 1.2rem 0; }
+.media-body h4{ padding: 0}
+.widget_summary .media-list{
+    padding-right: 10px;
+}
+.widget_summary .media-list li:first-child{
+	margin-top: 10px;
+}
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .description-sm { font-size: 1.2rem; line-height: 1.7rem; color: #666; }
@@ -1234,4 +1241,8 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .timeline_embed.maximized-embed{
 	border-top: 1rem solid #f5f5f5;
 	border-bottom: .5rem solid #f5f5f5;
+}
+
+.widgetElement .carousel-control{
+	cursor: pointer;
 }

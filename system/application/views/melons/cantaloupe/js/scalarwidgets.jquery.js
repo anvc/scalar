@@ -134,15 +134,6 @@
                for(var i in slug_list){
                   slugs.push({id : slug_list[i], loaded : false});
                }
-
-               if(slug.indexOf(',') > -1){
-                 var slug_list = slug.split(',');
-                 for(var i in slug_list){
-                    slugs.push({id : slug_list[i], loaded : false});
-                 }
-               }else{
-                 slugs.push({id : slug, loaded : false});
-               }
                $widget.removeData('node');
                for(var i in slugs){
                  (function(slug,promise,slugs){
@@ -724,6 +715,7 @@
 
              var node = $widget.data('node');
 
+             console.log(node);
              $widget.on('slotCreated',function(){
                $(this).data('element').html('');
                var $cardContainer = $('<div class="row cardContainer"></div>').appendTo($(this).data('element'));
@@ -777,10 +769,10 @@
 
              $widget.on('slotCreated',function(){
                $(this).data('element').html('');
-               var $summaryContainer = $('<div class="summaryContainer"><div class="items"></div><div class="clearfix visible-xs-block"></div>').appendTo($(this).data('element'));
+               var $summaryContainer = $('<ul class="media-list"></ul>').appendTo($(this).data('element'));
                var n = node.length;
                for (var i=(n-1); i>=0; i--) {
-                  widgets.createSummaryFromNode(node[i], $summaryContainer.find('.items'));
+                  widgets.createSummaryFromNode(node[i], $summaryContainer);
                }
              });
 
@@ -842,7 +834,7 @@
 
          base.createSummaryFromNode = function(node,$target){
 
-              var markup = '<div class="media"><div class="media-left">';
+              var markup = '<li class="media"><div class="media-left">';
               if (node.thumbnail != null) {
                markup += '<a href="' + node.url + '"><img src="' + node.thumbnail + '" alt="" class="media-object center-block"></a>';
               }
@@ -852,7 +844,7 @@
               }
               markup += '<a href="' + node.url + '" class="btn btn-primary pull-right" role="button">Go there</a></div>' +
                  '</div>' +
-               '</div>';
+               '</li>';
             $target.prepend(markup);
          };
 
