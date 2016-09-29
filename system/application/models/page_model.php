@@ -75,7 +75,6 @@ class Page_model extends MY_Model {
  		if (empty($terms)) return $content;
  		$count = 1;
  		foreach ($terms as $term) {
- 			$escaped_term = mysqli_real_escape_string($term);
  			$this->db->select($this->versions_table.'.*');
  			$this->db->select($this->pages_table.'.slug');
  			$this->db->select($this->pages_table.'.book_id');
@@ -84,7 +83,7 @@ class Page_model extends MY_Model {
  			$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
  			$this->db->where($this->pages_table.'.book_id', $book_id);
  			if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
-			$this->db->where("(`".$this->db->dbprefix.$this->versions_table."`.title LIKE '%".$escaped_term."%' OR `".$this->db->dbprefix.$this->versions_table."`.description LIKE '%".$escaped_term."%' OR `".$this->db->dbprefix.$this->versions_table."`.content LIKE '%".$escaped_term."%')", NULL);
+			$this->db->where("(`".$this->db->dbprefix.$this->versions_table."`.title LIKE '%".$this->db->escape_like_str($term)."%' ESCAPE '!' OR `".$this->db->dbprefix.$this->versions_table."`.description LIKE '%".$this->db->escape_like_str($term)."%' ESCAPE '!' OR `".$this->db->dbprefix.$this->versions_table."`.content LIKE '%".$this->db->escape_like_str($term)."%' ESCAPE '!')", NULL);
  			$this->db->order_by($this->versions_table.'.version_num', 'desc');
  			$query = $this->db->get();
  			if (!$query->num_rows) continue;
