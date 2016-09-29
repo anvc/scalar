@@ -501,16 +501,22 @@
                           entry.text.text = relNode.content;
                         }
 
+                        //Parse thumbnail url
+                        var thumbnail_url = nodeSet[n].thumbnail;
+                        if(thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
+                          thumbnail_url = base.book_url+thumbnail_url;
+                        }
+
                         //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
                         if(typeof nodeSet[n].scalarTypes.media !== 'undefined'){
                           entry.media = {
                             url : relNode.sourceFile,
-                            thumbnail : nodeSet[n].thumbnail
+                            thumbnail : thumbnail_url
                           };
                         }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
                           entry.media = {
-                            url : base.book_url+nodeSet[n].thumbnail,
-                            thumbnail : base.book_url+nodeSet[n].thumbnail
+                            url : thumbnail_url,
+                            thumbnail : thumbnail_url
                           };
                         }
 
