@@ -45,8 +45,8 @@ $config['views'] = array(
 	'versions' => '',
 	'history' => ''
 );
-if(!$_GET['allow_timeline']){
-	unset($config['views']['timeline']);
+if (!isset($_GET['allow_timeline']) || !$_GET['allow_timeline']) {
+  unset($config['views']['timeline']);
 }
 // Optional media views array; if not empty, will overwrite the views array when page type is scalar:Media
 // It's important to keep some functional views present, such as 'plain', 'edit', and 'versions', otherwise these will become unavailable
