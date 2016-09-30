@@ -822,7 +822,7 @@
             if (node.current.description != null) {
             	markup += '<p class="description-sm caption_font">' + node.current.description + '</p>';
             }
-            markup += '<a href="' + node.url + '" class="btn btn-primary" role="button">Go there</a></div>' +
+            markup += '<a href="' + node.url + '" class="btn btn-primary pull-right" role="button">Go there</a></div><span class="clearfix"></span>' +
             		'</div>' +
             	'</div></div>';
             $target.prepend(markup);
