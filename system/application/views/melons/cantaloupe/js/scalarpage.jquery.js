@@ -713,7 +713,7 @@
 									n = node.incomingRelations.length;
 								for ( i = 0; i < n; i++ ) {
 									relation = node.incomingRelations[ i ];
-									if ( relation.body == currentNode ) {
+									if (( relation.body == currentNode ) && (relation.startString != null)) {
 										$( this ).parent().append( "(" + relation.startString + relation.separator + relation.endString + ") " );
 									}
 								}
