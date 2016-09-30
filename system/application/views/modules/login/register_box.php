@@ -44,9 +44,9 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 			<tr>
 				<td class="field">Terms of Service <span style="color:red;">*</span></td><td class="value"><input type="checkbox" name="tos" value="1" id="tos" /><label for="tos"> I have found, read and accepted the <a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a></label></td>
 			</tr>
-			<tr>
+			<!-- <tr>
 				<td class="field">Title of<br />first book<br /><small>(optional)</small></td><td class="value"><input type="text" name="book_title" value="<?=(isset($_POST['book_title']))?trim(htmlspecialchars($_POST['book_title'])):''?>" class="input_text" /></td>
-			</tr>
+			</tr> -->
 			<? if (!empty($recaptcha2_site_key)): ?>
 			<tr>
 				<td>CAPTCHA <span style="color:red;">*</span></td>
@@ -54,9 +54,9 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 		            <div class="g-recaptcha" data-sitekey="<?php echo $recaptcha2_site_key; ?>"></div>
 		            <script type="text/javascript"
 		                    src="https://www.google.com/recaptcha/api.js?hl=<?php echo 'en'; ?>">
-		            </script>	
-	            </td>		
-	        </tr>	
+		            </script>
+	            </td>
+	        </tr>
 			<? elseif (!empty($recaptcha_public_key)): ?>
 			<tr>
 				<td>CAPTCHA <span style="color:red;">*</span></td>

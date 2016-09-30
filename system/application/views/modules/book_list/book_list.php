@@ -86,7 +86,7 @@ if ($login->is_logged_in) {
 		echo '<ul class="book_icons">';
 		print_books($user_books, true);
 	} else {
-		echo '<p>You haven\'t created any books yet.</p>';
+		echo '<p>You haven\'t created any books yet. You can in the Dashboard\'s My Account tab.</p>';
 	}
 	echo '</div>';
 }

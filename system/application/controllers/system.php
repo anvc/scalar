@@ -134,7 +134,7 @@ class System extends MY_Controller {
 	public function register() {
 
 		require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
-		$this->login->do_logout(true);	
+		$this->login->do_logout(true);
 		$this->data['title'] = $this->lang->line('install_name').': Register';
 		$register_keys = $this->config->item('register_key');
 		$this->data['register_key'] = (!empty($register_keys)) ? true : false;
@@ -149,9 +149,12 @@ class System extends MY_Controller {
 				$this->load->model('book_model', 'books');
 				$user_id = $this->users->register($_POST);
 				// Create new book
+				// Turning this feature off to avoid spammers who seem to be getting by the CAPTCHA
+				/*
 				if (isset($_POST['book_title']) && !empty($_POST['book_title'])) {
 					$book_id = $this->books->add(array('title'=>trim($_POST['book_title']), 'user_id'=>$user_id));
 				}
+				*/
 				// Login with the newly created user
 				$this->login->do_login(true);
 				// Head back to the previous page
