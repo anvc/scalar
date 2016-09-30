@@ -7,3 +7,29 @@ a.inline {
 a.inline.inlineWidget {
 	background-image:url(widget.png);
 }
+
+a.inline.inlineWidget[data-widget="visualization"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_visualization.png);
+}
+a.inline.inlineWidget[data-widget="timeline"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_timeline.png);
+}
+a.inline.inlineWidget[data-widget="map"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_map.png);
+}
+a.inline.inlineWidget[data-widget="carousel"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_carousel.png);
+}
+a.inline.inlineWidget[data-widget="card"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_card.png);
+}
+
+a.inline.inlineWidget[data-widget="summary"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_summary.png);
+}

@@ -1002,12 +1002,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var select_widget_options = function(widget_type){
 				$('#bootbox-content-selector-content').find('.widgetList').fadeOut('fast',function(){
 					var $content = $('<div class="widgetOptions"></div>').appendTo('#bootbox-content-selector-content');
-					var type = widget_type.toLowerCase();
 					var submitAction = function(e){
 						e.preventDefault();
 						e.stopPropagation();
 					};
-					switch(type){
+					switch(widget_type){
 
 						case 'timeline': //Timeline.js
 							timeline_data_type = "node";
@@ -1245,6 +1244,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				});
 			}
 			var select_widget_formatting = function(options){
+				var isEdit = options.isEdit;
 				$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select Widget Formatting Options').fadeIn('fast');});
 					var submitAction = function(e){
@@ -1342,7 +1342,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var $widgets = $('<div class="widgetList"></div>');
 
 			var icon_base_url = $('link#approot').attr('href')+'views/melons/cantaloupe/images/';
-
 			var widget_types = [
 				{
 					name : "Timeline",
@@ -1367,7 +1366,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				{
 					name : "Card",
 					description : "One or more media pages displayed as an informational card containing thumbnail, title, and description.",
-					icon : "widget_image_cards.png"
+					icon : "widget_image_card.png"
 				},
 				{
 					name : "Summary",
@@ -1378,9 +1377,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			for(var i = 0; i < widget_types.length; i++){
 				var widget = widget_types[i];
-				var $widget = $('<div class="widget_type"><img class="pull-left" src="'+icon_base_url+widget.icon+'"<strong><a>'+widget.name+'</a></strong><br />'+widget.description+'</div>').data('type',widget.name);
+				var $widget = $('<div class="widget_type"><img class="pull-left" src="'+icon_base_url+widget.icon+'"<strong><a class="uppercase">'+widget.name+'</a></strong><br />'+widget.description+'</div>').data('type',widget.name);
 				$widget.click(function(e){
-					select_widget_options($(this).data('type'));
+					select_widget_options($(this).data('type').toLowerCase());
 					e.preventDefault();
 					e.stopPropagation();
 					return false;
@@ -1394,8 +1393,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$widgets.append('<br />');
 				}
 			}
-
-
 			$this.append($widgets);
+			if(isEdit){
+				console.log($(options.element.$).data('widget'));
+				select_widget_options($(options.element.$).data('widget'));
+				$('#bootbox-content-selector-content').find('.widgetList').hide();
+			}
 		}
 }( jQuery ));

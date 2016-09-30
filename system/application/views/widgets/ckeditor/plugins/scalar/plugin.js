@@ -167,7 +167,7 @@ CKEDITOR._scalar = {
 				}
 
 
-				if(cke_loadedScalarInline.indexOf(node.slug)==-1){
+				if(cke_loadedScalarInline.indexOf(element)==-1){
 					(function(thisSlug,element){
 						if(scalarapi.loadPage( thisSlug, false, function(){
 								CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
@@ -196,6 +196,10 @@ CKEDITOR._scalar = {
 				element.data('cke-saved-href',href);
 			}
 			CKEDITOR._scalar.editor.updateElement(element);
+		}
+
+		if(cke_loadedScalarInlineWidget.indexOf(element)==-1){
+			CKEDITOR._scalar.addCKInlineWidgetPreview(element);
 		}
 	},
 	widgetInlineCallback : function(widget, element){
@@ -226,7 +230,7 @@ CKEDITOR._scalar = {
 		var ckeFrame = $('.cke_contents>iframe').contents();
 		var node = scalarapi.getNode(slug);
 		var slug = slug;
-		cke_loadedScalarInline.push(slug);
+		cke_loadedScalarInline.push(element);
 		if(node.thumbnail != null){
 			var cssElement = '<style>'+
 													'a[resource="'+slug+'"].inline,a[href$="#'+slug+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+node.thumbnail+');}'+
@@ -236,6 +240,37 @@ CKEDITOR._scalar = {
 		$($element).data({
 			element: element,
 			type: 'media'
+		}).off('mouseout mouseover').hover(function(){
+				var position = $(this).position();
+				var framePosition = $('.cke_contents>iframe').offset();
+				var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
+				var pageScroll = $(window).scrollTop();
+				var topPos = framePosition.top+position.top-frameScroll+10;
+				if(frameScroll > position.top){
+					topPos = framePosition.top+10;
+				}
+				if(frameScroll-position.top < 30){
+					$('#scalarInlineGearIcon').data({
+						element: $(this).data('element'),
+						type: $(this).data('type')
+					}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show();
+					$('#scalarInlineRedXIcon').data({
+						element: $(this).data('element')
+					}).css({left: framePosition.left+position.left+parseInt($(this).css('margin-left'))+10, top: topPos}).show();
+
+					window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
+				}
+		},function(){
+			$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon, #scalarInlineRedXIcon').hide(); },200));
+		});
+	},
+	addCKInlineWidgetPreview : function(element){
+		var $element = element.$;
+		var ckeFrame = $('.cke_contents>iframe').contents();
+		cke_loadedScalarInlineWidget.push(element);
+		$($element).data({
+			element: element,
+			type: 'widget'
 		}).off('mouseout mouseover').hover(function(){
 				var position = $(this).position();
 				var framePosition = $('.cke_contents>iframe').offset();
@@ -307,12 +342,13 @@ CKEDITOR.plugins.add( 'scalar', {
 			});
 
 			cke_loadedScalarInline = [];
+			cke_loadedScalarInlineWidget = [];
 
 			cke_addedScalarScrollEvent = false;
 			editor.on('mode',function(e){
 				if(!cke_addedScalarScrollEvent){
 					$(window).add($('.cke_wysiwyg_frame').contents()).on('scroll',function(e){
-						if($('#scalarLinkTooltip').length > 0 && $('#scalarLinkTooltip').is(':visible')){
+						if($('#scalarLinkTooltip').length > 0 && $('#scalarLinkTooltip').is(':visible') && $('#scalarLinkTooltip').data('element')!=undefined){
 							var $element = $($('#scalarLinkTooltip').data('element').$);
 							var position = $element.position();
 							var framePosition = $('.cke_contents>iframe').offset();
@@ -333,6 +369,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
 					if(editor.mode == 'source'){
 						cke_loadedScalarInline = [];
+						cke_loadedScalarInlineWidget = [];
 						return;
 					}
 
@@ -373,7 +410,11 @@ CKEDITOR.plugins.add( 'scalar', {
 						$('#scalarInlineRedXIcon,#scalarInlineGearIcon').hide();
 						var element = $(this).data('element');
 						isEdit = true;
-						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+						if($(this).data('type')!=null&&$(this).data('type')=="widget"){
+							CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
+						}else{
+							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+						}
 					}).hover(function(){
 						window.clearTimeout($('#scalarInlineGearIcon').data('timeout'));
 					},function(){
@@ -384,7 +425,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						e.preventDefault();
 						e.stopPropagation();
 
-						if(confirm("Are you sure you would like to remove this inline media from the current page?")){
+						if(confirm("Are you sure you would like to remove this inline "+($($(this).data('element').$).data('type')=="widget"?"widget":"media")+" from the current page?")){
 							$('#scalarInlineRedXIcon,#scalarInlineGearIcon').hide();
 							$(this).data('element').remove(true);
 						}
@@ -402,41 +443,50 @@ CKEDITOR.plugins.add( 'scalar', {
 							var href = element.getAttribute('href');
 
 							var currentSlug = element.getAttribute('resource');
-
-							if(currentSlug == null || element.data('widget') != null){
+							if(currentSlug == null){
 								continue;
-							}
+							}else if(element.data('widget') != null){
+								if(element.hasClass('inline')){
+									$(element.$).data({
+										element : element,
+										contentOptionsCallback : CKEDITOR._scalar.mediaLinkCallback
+									});
+									$(element.$).data('selectOptions',{isEdit:true,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+									CKEDITOR._scalar.addCKInlineWidgetPreview(element);
+								}
+								continue;
+							}else{
+								if(!element.hasClass('inline')){
 
-							if(!element.hasClass('inline')){
+									$(element.$).data({
+										element : element,
+										contentOptionsCallback : CKEDITOR._scalar.mediaLinkCallback
+									});
+									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 
-								$(element.$).data({
-									element : element,
-									contentOptionsCallback : CKEDITOR._scalar.mediaLinkCallback
-								});
-								$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+									(function(thisSlug, e){
+										if(scalarapi.loadPage( thisSlug, false, function(){
+											CKEDITOR._scalar.addCKLinkedMediaPreview(thisSlug,e);
+										}) == "loaded"){
+											CKEDITOR._scalar.addCKLinkedMediaPreview(thisSlug,e);
+										}
+									})(currentSlug,element);
+								}else if(cke_loadedScalarInline.indexOf(element)==-1){
 
-								(function(thisSlug, e){
-									if(scalarapi.loadPage( thisSlug, false, function(){
-										CKEDITOR._scalar.addCKLinkedMediaPreview(thisSlug,e);
-									}) == "loaded"){
-										CKEDITOR._scalar.addCKLinkedMediaPreview(thisSlug,e);
-									}
-								})(currentSlug,element);
-							}else if(cke_loadedScalarInline.indexOf(currentSlug)==-1){
+									$(element.$).data({
+										element : element,
+										contentOptionsCallback : CKEDITOR._scalar.inlineMediaCallback
+									});
+									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 
-								$(element.$).data({
-									element : element,
-									contentOptionsCallback : CKEDITOR._scalar.inlineMediaCallback
-								});
-								$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
-
-								(function(thisSlug,element){
-									if(scalarapi.loadPage( thisSlug, false, function(){
-											CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
-									}) == "loaded"){
-											CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
-									}
-								})(currentSlug,element);
+									(function(thisSlug,element){
+										if(scalarapi.loadPage( thisSlug, false, function(){
+												CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
+										}) == "loaded"){
+												CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
+										}
+									})(currentSlug,element);
+								}
 							}
 					};
 				}
@@ -615,7 +665,7 @@ CKEDITOR.plugins.add( 'scalar', {
 								element : element,
 								contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback
 							});
-							$(element.$).data('selectOptions',{isEdit:isEdit,type:'widget',msg:'Insert Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+							$(element.$).data('selectOptions',{isEdit:isEdit,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 						}
 
 						CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
