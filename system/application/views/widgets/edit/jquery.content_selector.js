@@ -1362,17 +1362,17 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				{
 					name : "Carousel",
 					description : "Responsive gallery that allows users to flip through a path's media",
-					icon : "widget_image_timeline.png"
+					icon : "widget_image_carousel.png"
 				},
 				{
 					name : "Card",
 					description : "One or more media pages displayed as an informational card containing thumbnail, title, and description.",
-					icon : "widget_image_timeline.png"
+					icon : "widget_image_cards.png"
 				},
 				{
 					name : "Summary",
 					description : "One or more media pages displayed as a list of thumbnails, titles, and descriptions.",
-					icon : "widget_image_timeline.png"
+					icon : "widget_image_summary.png"
 				}
 			];
 

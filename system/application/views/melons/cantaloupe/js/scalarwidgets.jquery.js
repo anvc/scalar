@@ -503,7 +503,7 @@
 
                         //Parse thumbnail url
                         var thumbnail_url = nodeSet[n].thumbnail;
-                        if(thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
+                        if(thumbnail_url != null && thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
                           thumbnail_url = base.book_url+thumbnail_url;
                         }
 
@@ -649,15 +649,6 @@
                   return false;
                 });
 
-     						$carousel.carousel( { interval: false } );
-     						$( mediaLinks ).each( function( i ) {
-     							$( this ).data( 'index', i );
-     							$( this ).click( function( e ) {
-     								e.preventDefault();
-     								$carousel.carousel( $( this ).data( 'index' ) );
-     							} );
-     							$( this ).click( page.handleMediaLinkClick );
-     						} );
 
      						if(isMobile){
                   if(touchLoaded){
@@ -721,7 +712,6 @@
 
              var node = $widget.data('node');
 
-             console.log(node);
              $widget.on('slotCreated',function(){
                $(this).data('element').html('');
                var $cardContainer = $('<div class="row cardContainer"></div>').appendTo($(this).data('element'));
