@@ -1281,3 +1281,10 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 	-moz-box-shadow: none;
 	box-shadow: none;
 }
+
+body.timeline article.page{
+	padding-top: 5rem;
+}
+body.timeline header>h1{
+	display: none;
+}

@@ -38,12 +38,16 @@ $config['views'] = array(
 	'tags' => array('name'=>'Tag Cloud','description'=>'<b>Visualizes the prevalence of tags.</b> This layout embeds a tag cloud at the top of the page that shows the relative prevalence of tags in the work.','image'=>'views/melons/cantaloupe/images/view_tags.gif'),
 	'toc' => array('name'=>'Table of Contents','description'=>'<b>Displays the Table of Contents.</b> This layout includes the work’s Table of Contents, as defined in the Dashboard, below the page content.','image'=>'views/melons/cantaloupe/images/view_toc.gif'),
 	'resources' => array('name'=>'Resources','description'=>'<b>Lists all pages and media.</b> The Resources layout lists all pages, followed by all media, in alphabetized lists below the page content.','image'=>'views/melons/cantaloupe/images/view_resources.gif'),
-	'meta' => array('name'=>'Metadata','description'=>'<b>Displays all metadata for the page.</b> The Metadata layout displays a table containing all of the metadata for the page, including all of its prior versions.','image'=>'views/melons/cantaloupe/images/view_metadata.gif'),
+	'meta' => array('name'=>'Metadata','description'=>'<b>Lists all pages and media.</b> The Resources layout lists all pages, followed by all media, in alphabetized lists below the page content.','image'=>'views/melons/cantaloupe/images/view_resources.gif'),
+	'timeline' => array('name'=>'Timeline','description'=>'<b>Displays chronological pages and media</b> The timeline layout uses Timeline.js to displays temporal information found in this page\'s path, tag, or annotation relations.','image'=>'views/melons/cantaloupe/images/view_timeline.gif'),
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
 	'history' => ''
 );
+if(!$_GET['allow_timeline']){
+	unset($config['views']['timeline']);
+}
 // Optional media views array; if not empty, will overwrite the views array when page type is scalar:Media
 // It's important to keep some functional views present, such as 'plain', 'edit', and 'versions', otherwise these will become unavailable
 $config['media_views'] = array(

@@ -1792,7 +1792,7 @@
 						.attr('dy', 32)
 						.attr('text-anchor', 'middle')
 						.attr('style', 'font-size:' + fontSize + 'px; fill: #000; font-family: Lato, Arial, sans-serif; font-weight: bold')
-						.text(number);				
+						.text(number);
 				} else {
 					var circles = svg.append('circle')
 						.attr('cx', '27.2')
@@ -2325,7 +2325,7 @@
 								}
 							}
 							return d;
-						}
+						};
 						var timelinePromise = $.Deferred(function( deferred ){
 								$( deferred.resolve );
 						});
@@ -2349,9 +2349,18 @@
                 relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
                 relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
 
-                var tempdata = {
+								var tempdata = {
+                  title : {
+                      text : {
+                          headline : node.getDisplayTitle()
+                      }
+                  },
                   events : []
                 };
+
+                if(typeof node.content !== 'undefined' && node.content != null && node.content != ''){
+                  tempdata.title.text.text = node.content;
+                }
 
                 //Get the main timeline items, if there are any
                 for(var i in relatedNodes){
@@ -2395,33 +2404,34 @@
                           headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
                         };
 
-												if(typeof relNode.description != 'undefined' && relNode.description != ''){
+                        if(typeof relNode.description != 'undefined' && relNode.description != '' && relNode.description != null){
                           entry.text.text = relNode.description
                         }else if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
                           entry.text.text = relNode.content;
                         }
 
-						            var book_url = $('link#parent').attr('href');
+                        //Parse thumbnail url
+                        var thumbnail_url = nodeSet[n].thumbnail;
+                        if(thumbnail_url != null && thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
+                          thumbnail_url = base.book_url+thumbnail_url;
+                        }
+
                         //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
                         if(typeof nodeSet[n].scalarTypes.media !== 'undefined'){
                           entry.media = {
                             url : relNode.sourceFile,
-                            thumbnail : nodeSet[n].thumbnail
+                            thumbnail : thumbnail_url
                           };
                         }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
                           entry.media = {
-                            url : book_url+nodeSet[n].thumbnail,
-                            thumbnail : book_url+nodeSet[n].thumbnail
+                            url : thumbnail_url,
+                            thumbnail : thumbnail_url
                           };
                         }
 
 												if(typeof nodeSet[n].background !== 'undefined'){
-													entry.background = {url:book_url+nodeSet[n].background}
+													entry.background = {url:base.book_url+nodeSet[n].background}
 												}
-
-												if(typeof relNode.description != 'undefined' && relNode.description != ''){
-                          entry.text.text = relNode.description
-                        }
 
                         tempdata.events.push(entry);
                     }
@@ -2440,7 +2450,7 @@
 
 								timeline = new TL.Timeline($timeline_container.get(0),tempdata);
 
-
+								$('body').addClass('timeline');
 								$(window).on('resize',function(){
 									var height = 0.6*$(window).height();
 									$timeline_container.height(height);
