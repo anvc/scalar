@@ -895,12 +895,26 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 			}
 
+			var get_config_description_for_widget_type = function(widget_type) {
+				result = "content";
+				switch (widget_type) {
+					case "timeline":
+					case "map":
+					result = "data source";
+					break;
+					case "visualization":
+					result = "options";
+					break;
+				}
+				return result;
+			}
+
 			var mini_node_selector = function(target, types, allowMultiple){
 				if(typeof types == 'undefined'){
 					types = ['composite','media','path','tag','annotation','comment','term'];
 				}
 
-				var content_selector_html = '<div class="node_selector_body"><div class="type_selector pull-right">Filter by type: <select class="node_selection_type_filter">';
+				var content_selector_html = '<div class="node_selector_body"><div class="type_selector pull-right">Filter by type: &nbsp;<select class="node_selection_type_filter">';
 
 				for(var t in types){
 
@@ -933,7 +947,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 				if(allowMultiple){
 					var selectedNodes = [];
-					$wrapper.data('selectedNodes',selectedNodes).prepend('<div><small class="multipleNodesText text-danger"><strong>Please select at least one node for this widget.</strong></small></div>')
+					$wrapper.data('selectedNodes',selectedNodes).prepend('<div><small class="multipleNodesText text-danger"><strong>Please select at least one item for this widget.</strong></small></div>')
 				}
 
 				$wrapper.find('.node_selection_type_filter').change(function(){
@@ -942,7 +956,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					jQuery.when(promise).then(function(){
 						var data = loaded_nodeLists[$wrapper.find('.node_selection_type_filter').val()];
 						if(data.length == 0){
-							$tbody.html('<tr><td colspan="5" class="text-center empty">There are no pages of the selected type.</td></tr>');
+							$tbody.html('<tr><td colspan="5" class="text-center empty">There are no items of the selected type.</td></tr>');
 						}else{
 							$tbody.html('');
 							for(var i = 0; i < data.length; i++){
@@ -981,7 +995,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										if(selectedNodes.length > 0){
 											$wrapper.find('.multipleNodesText').html('You currently have <strong>'+selectedNodes.length+'</strong> node'+(selectedNodes.length>1?'s':'')+' selected.').removeClass('text-danger');
 										}else{
-											$wrapper.find('.multipleNodesText').html('<strong>Please select at least one node for this widget.</strong>').addClass('text-danger');
+											$wrapper.find('.multipleNodesText').html('<strong>Please select at least one item for this widget.</strong>').addClass('text-danger');
 										}
 									}
 
@@ -1010,7 +1024,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 						case 'timeline': //Timeline.js
 							timeline_data_type = "node";
-							 $('<div class="widget_type bg-info"><strong><a>Scalar Page</a></strong><br />Either a Path, Tag, Annotation, or Term that contains pages with temporal metadata</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type bg-info"><strong><a>Scalar content</a></strong><br />Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation()
 								 timeline_data_type = "node";
@@ -1020,7 +1034,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 });
 							 mini_node_selector($('<div class="node_selection">').appendTo($content),['path','tag','annotation','term']);
 							 $content.append('<hr />');
-							 $('<div class="widget_type"><strong><a>External URL</a></strong><br />An external URL for either a JSON file or a Google Drive document formatted for Timeline.js</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type"><strong><a>External URL</a></strong><br />Enter the URL of a JSON file or Google Drive document formatted for <a target="_blank" href="https://timeline.knightlab.com">Timeline.js</a>.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation();
 								 timeline_data_type = "url";
@@ -1036,13 +1050,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 if(timeline_data_type == 'node'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .node_selection tbody tr.bg-info').data('slug');
 									 if(data.attrs.resource == undefined){
-										 alert("Please select a path, tag, annotation or term that contains your timeline's temporal data!");
+										 alert("Please select Scalar content that contains your timeline's temporal data.");
 										 return false;
 									 }
 								 }else{
 									 data.attrs['data-timeline'] = $('#bootbox-content-selector-content .timeline_external_url_selector input').val();
 									 if(data.attrs['data-timeline'] == undefined || data.attrs['data-timeline'] == ''){
-										 alert("Please enter an external URL for either a JSON file or a Google Drive document formatted for Timeline.js!");
+										 alert("Please enter the URL of a JSON file or Google Drive document formatted for Timeline.js.");
 										 return false;
 									 }
 								 }
@@ -1052,14 +1066,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'visualization':
-							 var select = '<select class="form-control" name="viscontent"><option value="all">All content</option><option value="toc">Table of contents</option><option value="page">All pages</option><option value="path">All paths</option><option value="tag">All tags</option><option value="annotation">All annotations</option><option value="media">All media</option><option value="comment">All comments</option><option value="current">This Page</option></select>';
-							 $('<div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label"><strong>Visualization Content</strong><br />What Scalar content would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+							 var select = '<select class="form-control" name="viscontent"><option value="all">All content</option><option value="toc">Table of contents</option><option value="page">All pages</option><option value="path">All paths</option><option value="tag">All tags</option><option value="annotation">All annotations</option><option value="media">All media</option><option value="comment">All comments</option><option value="current">This page</option></select>';
+							 $('<div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label">What content would you like to include?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
 							 select = '<select class="form-control" name="visrelations"><option value="all">All relationships</option><option value="parents-children">Parents and children</option><option value="none">No relationships</option></select>';
-						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label"><strong>Visualization Relationships</strong><br />What Scalar relationships would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label">What relationships would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
-							 select = '<select class="form-control" name="visformat"><option value="grid">Grid format</option><option value="tree">Tree format</option><option value="radial">Radial format</option><option value="force-directed">Force-directed format</option></select>';
-						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label"><strong>Visualization Format</strong><br />How would you like this visualization to be formatted?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+							 select = '<select class="form-control" name="visformat"><option value="grid">Grid</option><option value="tree">Tree</option><option value="radial">Radial</option><option value="force-directed">Force-directed</option></select>';
+						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label">What type of visualization would you like to use?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
 
 							 submitAction = function(e){
@@ -1077,7 +1091,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'map':
-							 $('<div><strong>Map Container Page</strong><br />Please select a Path, Tag, Annotation, or Term that contains pages with spatial or coverage metadata</div>').appendTo($content);
+							 $('<div>Choose any <a target="_blank" href="#">geotagged</a> Scalar item (including paths or tags with geotagged contents).</div>').appendTo($content);
 							 mini_node_selector($('<div class="node_selection">').appendTo($content),['path','tag','annotation','term']);
 
  							 submitAction = function(e){
@@ -1085,7 +1099,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
  								 data.attrs["data-widget"] = data.type;
  								 data.attrs.resource = $('#bootbox-content-selector-content .node_selection tbody tr.bg-info').data('slug');
 								 if(data.attrs.resource == undefined){
-									 alert("Please select a path, tag, annotation or term that contains your map's spatial or coverage data!");
+									 alert("Please select a geotagged Scalar item.");
 									 return false;
 								 }
  								 select_widget_formatting(data)
@@ -1095,7 +1109,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 break;
 						 case 'carousel':
 							 carousel_data_type = "single";
-							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains media for your carousel widget</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type bg-info"><strong><a>Media container</a></strong><br />Choose any path or tag that contains media.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation()
 								 carousel_data_type = "single";
@@ -1107,7 +1121,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							 $content.append('<hr />');
 
-							 $('<div class="widget_type"><strong><a>Multiple Scalar Nodes</a></strong><br />Select one or multiple media nodes to be displayed within your carousel widget</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type"><strong><a>Individual media items</a></strong><br />Select one or more pieces of media.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation();
 								 carousel_data_type = "multi";
@@ -1115,7 +1129,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 $('#bootbox-content-selector-content .carousel_single_selection').slideUp('fast');
 								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
 							 });
-							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down '+(isMac?'CMD':'CTRL')+' and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['media'], true);
+							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($content).hide(),['media'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"carousel",attrs : {}};
@@ -1123,13 +1137,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 if(carousel_data_type == 'single'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .carousel_single_selection tbody tr.bg-info').data('slug');
 									 if(data.attrs.resource == undefined){
-										 alert("Please select a path, tag, annotation or term that contains your carousel widget's media!");
+										 alert("Please select a path or tag that contains media.");
 										 return false;
 									 }
 								 }else{
 									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection .node_selector_body').data('selectedNodes').join();
 									 if(data.attrs["data-nodes"] == ''){
-										 alert("Please select at least one media node for your carousel widget!");
+										 alert("Please select at least one media item for your carousel widget.");
 										 return false;
 									 }
 								 }
@@ -1140,7 +1154,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 break;
 						 case 'card':
 							 card_data_type = "single";
-							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains nodes for your card widget</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type bg-info"><strong><a>Container</a></strong><br />Choose any path or tag to show its contents as cards.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation()
 								 card_data_type = "single";
@@ -1152,7 +1166,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							 $content.append('<hr />');
 
-							 $('<div class="widget_type"><strong><a>Multiple Scalar Nodes</a></strong><br />Select one or multiple nodes to be displayed within your card widget</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type"><strong><a>Individual items</a></strong><br />Select one or more items to be shown as cards.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation();
 								 card_data_type = "multi";
@@ -1160,7 +1174,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 $('#bootbox-content-selector-content .card_single_selection').slideUp('fast');
 								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
 							 });
-							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down '+(isMac?'CMD':'CTRL')+' and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"card",attrs : {}};
@@ -1168,13 +1182,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 if(card_data_type == 'single'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .card_single_selection tbody tr.bg-info').data('slug');
 									 if(data.attrs.resource == undefined){
-										 alert("Please select a path, tag, annotation or term that contains your card widget's nodes!");
+										 alert("Please select a path or tag.");
 										 return false;
 									 }
 								 }else{
 									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection .node_selector_body').data('selectedNodes').join();
 									 if(data.attrs["data-nodes"] == ''){
-										 alert("Please select at least one node for your card widget!");
+										 alert("Please select at least one item for your card widget.");
 										 return false;
 									 }
 								 }
@@ -1185,7 +1199,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 break;
 						 case 'summary':
 							 summary_data_type = "single";
-							 $('<div class="widget_type bg-info"><strong><a>Scalar Path, Tag, Annotation or Term</a></strong><br />Either a Path, Tag, Annotation, or Term that contains nodes for your summary widget</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type bg-info"><strong><a>Container</a></strong><br />Choose any path or tag to show its contents in the summary.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation()
 								 summary_data_type = "single";
@@ -1197,7 +1211,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							 $content.append('<hr />');
 
-							 $('<div class="widget_type"><strong><a>Multiple Scalar Nodes</a></strong><br />Select one or multiple nodes to be displayed within your summary widget</div>').appendTo($content).click(function(e){
+							 $('<div class="widget_type"><strong><a>Individual items</a></strong><br />Select one or more items to be shown in the summary.</div>').appendTo($content).click(function(e){
 								 e.preventDefault();
 								 e.stopPropagation();
 								 summary_data_type = "multi";
@@ -1205,7 +1219,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 $('#bootbox-content-selector-content .summary_single_selection').slideUp('fast');
 								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
 							 });
-							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple nodes, hold down '+(isMac?'CMD':'CTRL')+' and click on each node you would like for this widget.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"summary",attrs : {}};
@@ -1213,13 +1227,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 if(summary_data_type == 'single'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .summary_single_selection tbody tr.bg-info').data('slug');
 									 if(data.attrs.resource == undefined){
-										 alert("Please select a path, tag, annotation or term that contains your summary widget's nodes!");
+										 alert("Please select a path or tag.");
 										 return false;
 									 }
 								 }else{
 									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection .node_selector_body').data('selectedNodes').join();
 									 if(data.attrs["data-nodes"] == ''){
-										 alert("Please select at least one node for your summary widget!");
+										 alert("Please select at least one item for your summary widget.");
 										 return false;
 									 }
 								 }
@@ -1229,24 +1243,24 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 					}
-					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+(widget_type.charAt(0).toUpperCase() + widget_type.slice(1))+' Widget Content').fadeIn('fast');});
+					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+widget_type+' '+get_config_description_for_widget_type(widget_type)).fadeIn('fast');});
 
 					$content.append('<hr />');
-					$('<a class="btn btn-default">Return to Widget Type Selection<a>').appendTo($content).click(function(){
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
 					 $('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
 						 $(this).remove();
-						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select a Widget Type').fadeIn('fast');});
+						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select a widget').fadeIn('fast');});
 						 $('#bootbox-content-selector-content').find('.widgetList').fadeIn('fast');
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Select '+(widget_type.charAt(0).toUpperCase() + widget_type.slice(1))+' Widget Formatting Options</a>').appendTo($content).click(submitAction);
+					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($content).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
 				});
 			}
 			var select_widget_formatting = function(options){
 				var isEdit = options.isEdit;
 				$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
-					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select Widget Formatting Options').fadeIn('fast');});
+					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Choose formatting').fadeIn('fast');});
 					var submitAction = function(e){
 						e.preventDefault();
 						e.stopPropagation();
@@ -1285,14 +1299,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var $content = $('<div class="widgetFormatting"></div>').appendTo('#bootbox-content-selector-content').data('options',options);
 					$content.append(formattingSelection);
 
-					$('<a class="btn btn-default">Return to '+(options.type.charAt(0).toUpperCase() + options.type.slice(1))+' Options<a>').appendTo($content).click(function(){
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
 					 $('#bootbox-content-selector-content').find('.widgetFormatting').fadeOut('fast',function(){
 						 $(this).remove();
-						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+(options.type.charAt(0).toUpperCase() + options.type.slice(1))+' Widget Content').fadeIn('fast');});
+						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
 						 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Insert '+(options.type.charAt(0).toUpperCase() + options.type.slice(1))+' Widget</a>').appendTo($content).click(submitAction);
+					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($content).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
 				});
 			};
@@ -1318,7 +1332,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			bootbox.hideAll()
 			var box = bootbox.dialog({
 				message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
-				title: 'Select a Widget Type',
+				title: 'Select a widget',
 				className: 'widget_selector_bootbox',
 				animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
 			});
@@ -1345,32 +1359,32 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var widget_types = [
 				{
 					name : "Timeline",
-					description : "Timeline.js view that displays temporal information from metadata or a remote document",
+					description : "Temporal view built with metadata from a Scalar path or a remote document (uses Timeline.js).",
 					icon : "widget_image_timeline.png"
 				},
 				{
 					name : "Visualization",
-					description : "Scalar visualization showing pages and their relationships",
+					description : "Various visualizations of Scalar pages, media, and their relationships.",
 					icon : "widget_image_visualization.png"
 				},
 				{
 					name : "Map",
-					description : "Google Maps view showing pages with geolocational (spatial or coverage) metadata as pins",
+					description : "Geographic view that plots geotagged Scalar content on a map (uses Google Maps).",
 					icon : "widget_image_map.png"
 				},
 				{
 					name : "Carousel",
-					description : "Responsive gallery that allows users to flip through a path's media",
+					description : "Responsive gallery that allows users to flip through a path's media.",
 					icon : "widget_image_carousel.png"
 				},
 				{
 					name : "Card",
-					description : "One or more media pages displayed as an informational card containing thumbnail, title, and description.",
+					description : "Informational cards showing thumbnails, titles, and descriptions for one or more pieces of Scalar content.",
 					icon : "widget_image_card.png"
 				},
 				{
 					name : "Summary",
-					description : "One or more media pages displayed as a list of thumbnails, titles, and descriptions.",
+					description : "Rows of thumbnails, titles, and descriptions for one or more pieces of Scalar content.",
 					icon : "widget_image_summary.png"
 				}
 			];
