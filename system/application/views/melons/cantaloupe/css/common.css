@@ -1141,7 +1141,7 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 
 /* widget pages */
 
-.thumbnail, .media-body h4 { margin: 1.2rem 0; }
+.thumbnail, .media-body h4 { margin: 0 0 1.2rem 0; }
 .media-body h4{ padding: 0}
 .widget_summary .media-list{
     padding-right: 10px;
@@ -1151,16 +1151,17 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
-.description-sm { font-size: 1.2rem; line-height: 1.7rem; color: #666; }
+.description-sm { font-size: 1.4rem; line-height: 1.7rem; }
 
 .cardContainer{
   padding: 0 1rem;
 }
 
 .cardContainer .caption h4{
-	margin: .5rem;
+	margin: 0 0 8px 0;
 	padding: 0;
 }
+.thumbnail .caption { padding: 13px; }
 
 .widget_summary .widgetContainer{
 	background-color: #fff;
@@ -1253,16 +1254,17 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 
 .cardContainer{
 	box-shadow: 0;
+	padding: 0;
 }
+.cardContainer.row { margin: 0; }
+.cardContainer > div { padding: 0; }
 .widgetElement .carousel-control{
 	cursor: pointer;
 }
 .widgetElement .cardContainer .thumbnail{
-	border-radius: 0px;
-	border: 0px;
-	-webkit-box-shadow: .25rem .25rem 1rem rgba(0,0,0,.125);
-	-moz-box-shadow: .25rem .25rem 1rem rgba(0,0,0,.125);
-	box-shadow: .25rem .25rem 1rem rgba(0,0,0,.125);
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	padding: 0;
 }
 .widget_card>.well{
 		background-color: transparent;
