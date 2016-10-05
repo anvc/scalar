@@ -1141,17 +1141,24 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 
 /* widget pages */
 
-.thumbnail, .media-body h4 { margin: 0 0 1.2rem 0; }
+.thumbnail, .media-body h4 { margin: 0 0 3px 0; }
 .media-body h4{ padding: 0}
 .widget_summary .media-list{
-    padding-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 16px 9px;
 }
-.widget_summary .media-list li:first-child{
-	margin-top: 10px;
+.full.widget_summary .media-list {
+	border-radius: 0px;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: 0;
+	border-right: 0;
+	background-color: #f4f4f4;
 }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
-.description-sm { font-size: 1.4rem; line-height: 1.7rem; }
+.description-sm { font-size: 1.4rem; line-height: 1.7rem; margin-bottom: 0; max-width: 70rem; }
 
 .cardContainer{
   padding: 0 1rem;
@@ -1167,10 +1174,6 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 	background-color: #fff;
 	padding: 0;
 }
-.widget_summary .media{
-  padding: 1rem 2rem;
-	border-bottom: 1px solid #fafafa;
-}
 .widget_summary .media:last-child{
 	border-bottom: 0;
 }
@@ -1185,6 +1188,7 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .media-body {
   zoom: 1;
   overflow: hidden;
+  margin-left: 0;
 }
 .media-body {
   width: 10000px;
@@ -1225,9 +1229,9 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 }
 
 .tl-timeline, .tl-timeline div{
-		webkit-box-sizing: content-box;
-		moz-box-sizing: content-box;
-	  box-sizing: content-box;
+	webkit-box-sizing: content-box;
+	moz-box-sizing: content-box;
+	box-sizing: content-box;
 }
 .tl-headline-date, .tl-headline{
 	padding: 0px;
@@ -1247,9 +1251,7 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 }
 
 .widgetContainer{
-	-webkit-box-shadow: .25rem .25rem 1rem rgba(0,0,0,.125);
-	-moz-box-shadow: .25rem .25rem 1rem rgba(0,0,0,.125);
-	box-shadow: .25rem .25rem 1rem rgba(0,0,0,.125);
+	border: 1px solid #ccc;
 }
 
 .cardContainer{
@@ -1266,6 +1268,15 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 	border: 1px solid #ccc;
 	padding: 0;
 }
+.full .widgetElement .cardContainer .thumbnail{
+	border-radius: 0px;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: 0;
+	border-right: 0;
+	background-color: #f4f4f4;
+	padding: 0;
+}
 .widget_card>.well{
 		background-color: transparent;
     border-color: transparent;
@@ -1273,10 +1284,10 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 }
 .media-list .media-left .media-object{
 	max-width: 64px;
-	max-height: 64px;
+	max-height: 128px;
 }
 .media-body h4{
-	margin-top: 0;
+	margin-top: -4px;
 }
 .widget_slot .tl-layout-portrait .tl-storyslider{
 	-webkit-box-shadow: none;

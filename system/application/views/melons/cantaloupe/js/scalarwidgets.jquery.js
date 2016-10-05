@@ -834,11 +834,11 @@
               if (node.thumbnail != null) {
                markup += '<a href="' + node.url + '"><img src="' + node.thumbnail + '" alt="" class="media-object center-block"></a>';
               }
-              markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4>';
+              markup += '</div><div class="media-body"><a href="' + node.url + '"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4></a>';
               if (node.current.description != null) {
-               markup += '<p class="description-sm caption_font">' + node.current.description + '</p>';
+               markup += '<p class="description-sm">' + node.current.description + '</p>';
               }
-              markup += '<a href="' + node.url + '" class="btn btn-primary pull-right" role="button">Go there</a></div>' +
+              markup += '</div>' +
                  '</div>' +
                '</li>';
             $target.prepend(markup);
