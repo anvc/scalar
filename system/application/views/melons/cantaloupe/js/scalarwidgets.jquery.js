@@ -577,7 +577,7 @@
                }
                var n = nodes.length;
 
-               var $carousel = $('<div class="carousel slide"></div>').appendTo($element);
+               var $carousel = $('<div class="carousel slide" data-interval="false"></div>').appendTo($element);
                var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
 
@@ -609,11 +609,11 @@
                    }
                    description = description.replace( new RegExp("\"", "g"), '&quot;' );
                    item.append( '<div class="carousel-caption caption_font"><span>' +
-                     '<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+                     '<h3><a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a></h3> (' + ( i + 1 ) + '/' + n + ')' +
                      '</span></div>' );
                  } else {
                    item.append( '<div class="carousel-caption caption_font"><span>' +
-                     '<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+                     '<h3><a href="' + node.url + '" >' + node.getDisplayTitle() + '</a></h3> (' + ( i + 1 ) + '/' + n + ')' +
                      '</span></div>' );
                  }
 
