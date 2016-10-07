@@ -179,8 +179,10 @@ CKEDITOR._scalar = {
 		}});
 	},
 	widgetLinkCallback : function(widget, element){
-		var isEdit = element.getCustomData('widget') != null;
+		var isEdit = $(element.$).data(widget) != undefined;
 		var href = null;
+
+		$(element.$).removeAttr('resource').removeData();
 
 		for (var a in widget.attrs) {
 			element.setAttribute(a, widget.attrs[a]);
@@ -203,8 +205,10 @@ CKEDITOR._scalar = {
 		}
 	},
 	widgetInlineCallback : function(widget, element){
-		var isEdit = element.getCustomData('widget') != null;
+		var isEdit = $(element.$).data(widget) != undefined;
 		var href = null;
+
+		$(element.$).removeAttr('resource').removeData();
 
 		element.setAttribute('name','scalar-inline-widget');  // Required to let empty <a> through
 		element.setAttribute('class', 'inlineWidget inline');
@@ -449,7 +453,7 @@ CKEDITOR.plugins.add( 'scalar', {
 								if(element.hasClass('inline')){
 									$(element.$).data({
 										element : element,
-										contentOptionsCallback : CKEDITOR._scalar.mediaLinkCallback
+										contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback
 									});
 									$(element.$).data('selectOptions',{isEdit:true,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 									CKEDITOR._scalar.addCKInlineWidgetPreview(element);

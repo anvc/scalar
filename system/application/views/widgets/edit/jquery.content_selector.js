@@ -909,10 +909,19 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				return result;
 			}
 
-			var mini_node_selector = function(target, types, allowMultiple){
+			var mini_node_selector = function(target, types, allowMultiple, isEdit, element){
 				if(typeof types == 'undefined'){
 					types = ['composite','media','path','tag','annotation','comment','term'];
 				}
+
+				if(typeof allowMultiple == "undefined" || allowMultiple == null){
+					allowMultiple = false;
+				}
+
+				if(typeof isEdit == "undefined" || isEdit == null){
+					isEdit = false;
+				}
+
 
 				var content_selector_html = '<div class="node_selector_body"><div class="type_selector pull-right">Filter by type: &nbsp;<select class="node_selection_type_filter">';
 
@@ -945,15 +954,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var $selector = $('<table class="widget_target_node_selector table table-fixed"></table>').appendTo($scrollContainer);
 				var $tbody = $('<tbody></tbody>').appendTo($selector);
 
+				var selectedNodes = [];
+
 				if(allowMultiple){
-					var selectedNodes = [];
-					$wrapper.data('selectedNodes',selectedNodes).prepend('<div><small class="multipleNodesText text-danger"><strong>Please select at least one item for this widget.</strong></small></div>')
+					$wrapper.prepend('<div><small class="multipleNodesText text-danger"><strong>Please select at least one item for this widget.</strong></small></div>');
 				}
 
 				$wrapper.find('.node_selection_type_filter').change(function(){
 					var promise = jQuery.Deferred();
-
 					jQuery.when(promise).then(function(){
+						if(typeof selectedNodes == "undefined" || selectedNodes == null){
+							selectedNodes = [];
+						}
 						var data = loaded_nodeLists[$wrapper.find('.node_selection_type_filter').val()];
 						if(data.length == 0){
 							$tbody.html('<tr><td colspan="5" class="text-center empty">There are no items of the selected type.</td></tr>');
@@ -989,9 +1001,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										}
 									}
 
+									var $wrapper = $(this).parents('.node_selector_body');
+									$wrapper.data('selectedNodes',selectedNodes);
+
 									if(allowMultiple){
-										var $wrapper = $(this).parents('.node_selector_body');
-										$wrapper.data('selectedNodes',selectedNodes);
 										if(selectedNodes.length > 0){
 											$wrapper.find('.multipleNodesText').html('You currently have <strong>'+selectedNodes.length+'</strong> node'+(selectedNodes.length>1?'s':'')+' selected.').removeClass('text-danger');
 										}else{
@@ -1001,7 +1014,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 								}).data('slug',item.slug);
 
-								if(allowMultiple && selectedNodes.indexOf(item.slug) != -1){
+								if(selectedNodes.indexOf(item.slug) != -1){
 									$item.addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
 								}
 							}
@@ -1010,10 +1023,41 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					load_node_list($(this).val(),promise);
 				});
-				$wrapper.find('.node_selection_type_filter').change();
+
+				//Prepopulate if is an edit.
+				if(isEdit){
+					$el = $(element.$);
+					if($el.attr("resource")!=undefined){
+						selectedNodes = [$el.attr("resource")];
+					}else if($el.data("nodes")!=undefined){
+						selectedNodes = $el.data("nodes").split(",");
+					}
+					if(typeof selectedNodes != "undefined" && selectedNodes != null && selectedNodes.length > 0){
+						if(allowMultiple){
+							$wrapper.find('.multipleNodesText').html('You currently have <strong>'+selectedNodes.length+'</strong> node'+(selectedNodes.length>1?'s':'')+' selected.').removeClass('text-danger');
+						}
+						$tbody.find('tr').each(function(){
+
+							var index = selectedNodes.indexOf($(this).data('slug'));
+							if(index == -1){
+								$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+							}else{
+								$(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+							}
+						});
+					}
+				}
+
+				$wrapper.data('selectedNodes',selectedNodes).find('.node_selection_type_filter').change();
 				target.append($wrapper);
 			}
-			var select_widget_options = function(widget_type){
+			var select_widget_options = function(widget_type,isEdit){
+				if(typeof isEdit == "undefined" || isEdit == null){
+					isEdit = false;
+					element = null;
+				}else{
+					element = opts.element;
+				}
 				$('#bootbox-content-selector-content').find('.widgetList').fadeOut('fast',function(){
 					var $content = $('<div class="widgetOptions"></div>').appendTo('#bootbox-content-selector-content');
 					var submitAction = function(e){
@@ -1023,35 +1067,63 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					switch(widget_type){
 
 						case 'timeline': //Timeline.js
-							timeline_data_type = "node";
-							 $('<div class="widget_type bg-info"><strong><a>Scalar content</a></strong><br />Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation()
+
+							 if(isEdit){
+								 timeline_data_type = $(element.$).data("timeline")==undefined?"node":"url";
+							 }else{
 								 timeline_data_type = "node";
-								 $('#bootbox-content-selector-content .node_selection').slideDown('fast');
-								 $('#bootbox-content-selector-content .timeline_external_url_selector').slideUp('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 }
+
+							 var $modeSelector = $('<select><option value="node">Scalar Content</option><option value="url">External URL</option></select').appendTo($content).change(function(e){
+								 if($(this).val() == "node"){
+									 timeline_data_type = "node";
+									 $nodeTimeline.show();
+									 $urlTimeline.hide();
+								 }else{
+									 timeline_data_type = "url";
+									 $urlTimeline.show();
+									 $nodeTimeline.hide();
+								 }
 							 });
-							 mini_node_selector($('<div class="node_selection">').appendTo($content),['path','tag','annotation','term']);
-							 $content.append('<hr />');
-							 $('<div class="widget_type"><strong><a>External URL</a></strong><br />Enter the URL of a JSON file or Google Drive document formatted for <a target="_blank" href="https://timeline.knightlab.com">Timeline.js</a>.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation();
-								 timeline_data_type = "url";
-								 $('#bootbox-content-selector-content .node_selection').slideUp('fast');
-								 $('#bootbox-content-selector-content .timeline_external_url_selector').slideDown('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
-							 });
-							 $('<div class="timeline_external_url_selector form-group"><label for="timeline_external_url">External URL</label><input type="text" class="form-control" id="timeline_external_url"></div>').appendTo($content).hide();
+
+							 $content.append('<br />');
+
+ 							 $nodeTimeline = $('<div id="timeline_data_node"></div>').appendTo($content);
+							 $urlTimeline = $('<div id="timeline_data_url"></div>').appendTo($content);
+
+							 $modeSelector.find('option[value="'+timeline_data_type+'"]').attr('selected','true').val(timeline_data_type);
+
+							 if(timeline_data_type == "node"){
+								 $nodeTimeline.show();
+								 $urlTimeline.hide();
+							 }else{
+								 $urlTimeline.show();
+								 $nodeTimeline.hide();
+							 }
+
+							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div><br />').appendTo($nodeTimeline);
+							 mini_node_selector($('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline),['path','tag','annotation','term'],false,isEdit,element);
+
+							 $('<div class="widget_data_type">Enter the URL of a JSON file or Google Drive document formatted for <a target="_blank" href="https://timeline.knightlab.com">Timeline.js</a>.</div><br />').appendTo($urlTimeline);
+							 $('<div class="timeline_external_url_selector form-group"><label for="timeline_external_url">External URL</label><input type="text" class="form-control" id="timeline_external_url"></div>').appendTo($urlTimeline);
+
+							 if(isEdit){
+								 if($(element.$).data("timeline")!=undefined){
+									 $urlTimeline.find('.timeline_external_url_selector .form-control').val($(element.$).data("timeline"));
+								 }
+							 }
 
 							 submitAction = function(e){
 								 var data = {type:"timeline",attrs : {}};
+								 data.isEdit = $(this).data('isEdit');
 								 data.attrs["data-widget"] = data.type;
 								 if(timeline_data_type == 'node'){
-									 data.attrs.resource = $('#bootbox-content-selector-content .node_selection tbody tr.bg-info').data('slug');
+									 data.attrs.resource = $('#bootbox-content-selector-content .timeline_node_selection .node_selector_body').data('selectedNodes');
 									 if(data.attrs.resource == undefined){
 										 alert("Please select Scalar content that contains your timeline's temporal data.");
 										 return false;
+									 }else{
+										 data.attrs.resource = data.attrs.resource[0];
 									 }
 								 }else{
 									 data.attrs['data-timeline'] = $('#bootbox-content-selector-content .timeline_external_url_selector input').val();
@@ -1078,6 +1150,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							 submitAction = function(e){
 								 var data = {type:"visualization",attrs : {}};
+								 data.isEdit = $(this).data('isEdit');
 								 var $content = $('#bootbox-content-selector-content div.widgetOptions');
 								 data.attrs = {
 									 "data-widget" : data.type,
@@ -1092,54 +1165,80 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 break;
 						 case 'map':
 							 $('<div>Choose any <a target="_blank" href="#">geotagged</a> Scalar item (including paths or tags with geotagged contents).</div>').appendTo($content);
-							 mini_node_selector($('<div class="node_selection">').appendTo($content),['path','tag','annotation','term']);
+							 mini_node_selector($('<div class="map_node_selection">').appendTo($content),['path','tag','annotation','term'],false,isEdit,element);
 
  							 submitAction = function(e){
  								 var data = {type:"map",attrs : {}};
  								 data.attrs["data-widget"] = data.type;
- 								 data.attrs.resource = $('#bootbox-content-selector-content .node_selection tbody tr.bg-info').data('slug');
+								 data.isEdit = $(this).data('isEdit');
+
+								 data.attrs.resource = $('#bootbox-content-selector-content .map_node_selection .node_selector_body').data('selectedNodes');
 								 if(data.attrs.resource == undefined){
 									 alert("Please select a geotagged Scalar item.");
 									 return false;
+								 }else{
+									 data.attrs.resource = data.attrs.resource[0];
 								 }
+
  								 select_widget_formatting(data)
  								 e.preventDefault();
  								 e.stopPropagation();
  							 }
 							 break;
 						 case 'carousel':
-							 carousel_data_type = "single";
-							 $('<div class="widget_type bg-info"><strong><a>Media container</a></strong><br />Choose any path or tag that contains media.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation()
+							 if(isEdit){
+								 carousel_data_type = $(element.$).data("nodes")==undefined?"single":"multi";
+							 }else{
 								 carousel_data_type = "single";
-								 $('#bootbox-content-selector-content .carousel_single_selection').slideDown('fast');
-								 $('#bootbox-content-selector-content .carousel_multi_selection').slideUp('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
-							 });
-							 mini_node_selector($('<div class="carousel_single_selection">').appendTo($content),['path','tag','annotation','term']);
+							 }
 
-							 $content.append('<hr />');
-
-							 $('<div class="widget_type"><strong><a>Individual media items</a></strong><br />Select one or more pieces of media.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation();
-								 carousel_data_type = "multi";
-								 $('#bootbox-content-selector-content .carousel_multi_selection').slideDown('fast');
-								 $('#bootbox-content-selector-content .carousel_single_selection').slideUp('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 var $modeSelector = $('<select><option value="single">Media container</option><option value="multi">Individual media items</option></select').appendTo($content).change(function(e){
+								 if($(this).val() == "single"){
+									 carousel_data_type = "single";
+									 $singleCarousel.show();
+									 $multiCarousel.hide();
+								 }else{
+									 carousel_data_type = "multi";
+									 $multiCarousel.show();
+									 $singleCarousel.hide();
+								 }
 							 });
-							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($content).hide(),['media'], true);
+
+							 $content.append('<br />');
+
+							 $singleCarousel = $('<div id="carousel_data_single"></div>').appendTo($content);
+							 $multiCarousel = $('<div id="carousel_data_multi"></div>').appendTo($content);
+
+							 $modeSelector.find('option[value="'+carousel_data_type+'"]').attr('selected','true').val(carousel_data_type);
+
+							 if(carousel_data_type == "single"){
+								 $singleCarousel.show();
+								 $multiCarousel.hide();
+							 }else{
+								 $multiCarousel.show();
+								 $singleCarousel.hide();
+							 }
+
+							 $('<div class="widget_data_type">Choose any path or tag that contains media.</div>').appendTo($singleCarousel);
+							 mini_node_selector($('<div class="carousel_single_selection">').appendTo($singleCarousel),['path','tag','annotation','term'],false,isEdit,element);
+
+							 $('<div class="widget_data_type">Select one or more pieces of media.</div>').appendTo($multiCarousel);
+							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($multiCarousel),['media'], true,isEdit,element);
 
 							 submitAction = function(e){
 								 var data = {type:"carousel",attrs : {}};
 								 data.attrs["data-widget"] = data.type;
+								 data.isEdit = $(this).data('isEdit');
 								 if(carousel_data_type == 'single'){
-									 data.attrs.resource = $('#bootbox-content-selector-content .carousel_single_selection tbody tr.bg-info').data('slug');
+
+									 data.attrs.resource = $('#bootbox-content-selector-content .carousel_single_selection .node_selector_body').data('selectedNodes');
 									 if(data.attrs.resource == undefined){
 										 alert("Please select a path or tag that contains media.");
 										 return false;
+									 }else{
+										 data.attrs.resource = data.attrs.resource[0];
 									 }
+
 								 }else{
 									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection .node_selector_body').data('selectedNodes').join();
 									 if(data.attrs["data-nodes"] == ''){
@@ -1153,38 +1252,60 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'card':
-							 card_data_type = "single";
-							 $('<div class="widget_type bg-info"><strong><a>Container</a></strong><br />Choose any path or tag to show its contents as cards.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation()
+							 if(isEdit){
+								 card_data_type = $(element.$).data("nodes")==undefined?"single":"multi";
+							 }else{
 								 card_data_type = "single";
-								 $('#bootbox-content-selector-content .card_single_selection').slideDown('fast');
-								 $('#bootbox-content-selector-content .card_multi_selection').slideUp('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
-							 });
-							 mini_node_selector($('<div class="card_single_selection">').appendTo($content),['path','tag','annotation','term']);
+							 }
 
-							 $content.append('<hr />');
-
-							 $('<div class="widget_type"><strong><a>Individual items</a></strong><br />Select one or more items to be shown as cards.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation();
-								 card_data_type = "multi";
-								 $('#bootbox-content-selector-content .card_multi_selection').slideDown('fast');
-								 $('#bootbox-content-selector-content .card_single_selection').slideUp('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 var $modeSelector = $('<select><option value="single">Container</option><option value="multi">Individual media items</option></select').appendTo($content).change(function(e){
+								 if($(this).val() == "single"){
+									 card_data_type = "single";
+									 $singleCard.show();
+									 $multiCard.hide();
+								 }else{
+									 card_data_type = "multi";
+									 $multiCard.show();
+									 $singleCard.hide();
+								 }
 							 });
-							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+
+							 $content.append('<br />');
+
+							 $singleCard = $('<div id="card_data_single"></div>').appendTo($content);
+							 $multiCard = $('<div id="card_data_multi"></div>').appendTo($content);
+
+							 $modeSelector.find('option[value="'+card_data_type+'"]').attr('selected','true').val(card_data_type);
+
+							 if(card_data_type == "single"){
+								 $singleCard.show();
+								 $multiCard.hide();
+							 }else{
+								 $multiCard.show();
+								 $singleCard.hide();
+							 }
+
+							 $('<div class="widget_data_type">Choose any path or tag to show its contents as cards.</div>').appendTo($singleCard);
+							 mini_node_selector($('<div class="card_single_selection">').appendTo($singleCard),['path','tag','annotation','term']);
+
+
+							 $('<div class="widget_data_type">Select one or more items to be shown as cards.</div>').appendTo($multiCard);
+							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($multiCard),['composite','media','path','tag','annotation','comment','term'], true,isEdit,element);
 
 							 submitAction = function(e){
 								 var data = {type:"card",attrs : {}};
 								 data.attrs["data-widget"] = data.type;
+								 data.isEdit = $(this).data('isEdit');
 								 if(card_data_type == 'single'){
-									 data.attrs.resource = $('#bootbox-content-selector-content .card_single_selection tbody tr.bg-info').data('slug');
+
+									 data.attrs.resource = $('#bootbox-content-selector-content .card_single_selection .node_selector_body').data('selectedNodes');
 									 if(data.attrs.resource == undefined){
 										 alert("Please select a path or tag.");
 										 return false;
+									 }else{
+										 data.attrs.resource = data.attrs.resource[0];
 									 }
+
 								 }else{
 									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection .node_selector_body').data('selectedNodes').join();
 									 if(data.attrs["data-nodes"] == ''){
@@ -1198,31 +1319,48 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'summary':
-							 summary_data_type = "single";
-							 $('<div class="widget_type bg-info"><strong><a>Container</a></strong><br />Choose any path or tag to show its contents in the summary.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation()
+							 if(isEdit){
+								 summary_data_type = $(element.$).data("nodes")==undefined?"single":"multi";
+							 }else{
 								 summary_data_type = "single";
-								 $('#bootbox-content-selector-content .summary_single_selection').slideDown('fast');
-								 $('#bootbox-content-selector-content .summary_multi_selection').slideUp('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
-							 });
-							 mini_node_selector($('<div class="summary_single_selection">').appendTo($content),['path','tag','annotation','term']);
+							 }
 
-							 $content.append('<hr />');
-
-							 $('<div class="widget_type"><strong><a>Individual items</a></strong><br />Select one or more items to be shown in the summary.</div>').appendTo($content).click(function(e){
-								 e.preventDefault();
-								 e.stopPropagation();
-								 summary_data_type = "multi";
-								 $('#bootbox-content-selector-content .summary_multi_selection').slideDown('fast');
-								 $('#bootbox-content-selector-content .summary_single_selection').slideUp('fast');
-								 $(this).addClass('bg-info').siblings('.bg-info').removeClass('bg-info');
+							 var $modeSelector = $('<select><option value="single">Container</option><option value="multi">Individual media items</option></select').appendTo($content).change(function(e){
+								 if($(this).val() == "single"){
+									 summary_data_type = "single";
+									 $singleSummary.show();
+									 $multiSummary.hide();
+								 }else{
+									 summary_data_type = "multi";
+									 $multiSummary.show();
+									 $singleSummary.hide();
+								 }
 							 });
-							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($content).hide(),['composite','media','path','tag','annotation','comment','term'], true);
+
+							 $content.append('<br />');
+
+							 $singleSummary = $('<div id="summary_data_single"></div>').appendTo($content);
+							 $multiSummary = $('<div id="summary_data_multi"></div>').appendTo($content);
+
+							 $modeSelector.find('option[value="'+summary_data_type+'"]').attr('selected','true').val(summary_data_type);
+
+							 if(summary_data_type == "single"){
+								 $singleSummary.show();
+								 $multiSummary.hide();
+							 }else{
+								 $multiSummary.show();
+								 $singlesummary.hide();
+							 }
+
+							 $('<div class="widget_data_type"><strong><a>Container</a></strong><br />Choose any path or tag to show its contents in the summary.</div>').appendTo($singleSummary);
+							 mini_node_selector($('<div class="summary_single_selection">').appendTo($singleSummary),['path','tag','term']);
+
+							 $('<div class="widget_data_type"><strong><a>Individual items</a></strong><br />Select one or more items to be shown in the summary.</div>').appendTo($multiSummary);
+							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($multiSummary),['composite','media','path','tag','comment','term'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"summary",attrs : {}};
+								 data.isEdit = $(this).data('isEdit');
 								 data.attrs["data-widget"] = data.type;
 								 if(summary_data_type == 'single'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .summary_single_selection tbody tr.bg-info').data('slug');
@@ -1253,7 +1391,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						 $('#bootbox-content-selector-content').find('.widgetList').fadeIn('fast');
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($content).click(submitAction);
+					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($content).click(submitAction).data("isEdit",isEdit);
 					$content.append('<div class="clearfix"></div>');
 				});
 			}
@@ -1308,6 +1446,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					})
 					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($content).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
+					if(isEdit){
+						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){
+							var data = $(opts.element.$).data($(this).attr('name'));
+							if(data!=undefined){
+								$(this).val(data);
+							}
+						});
+					}
 				});
 			};
 			var modal_height = function(init) {
@@ -1393,7 +1539,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var widget = widget_types[i];
 				var $widget = $('<div class="widget_type"><img class="pull-left" src="'+icon_base_url+widget.icon+'"<strong><a class="uppercase">'+widget.name+'</a></strong><br />'+widget.description+'</div>').data('type',widget.name);
 				$widget.click(function(e){
-					select_widget_options($(this).data('type').toLowerCase());
+					select_widget_options($(this).data('type').toLowerCase(),false);
 					e.preventDefault();
 					e.stopPropagation();
 					return false;
@@ -1409,8 +1555,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 			$this.append($widgets);
 			if(isEdit){
-				console.log($(options.element.$).data('widget'));
-				select_widget_options($(options.element.$).data('widget'));
+				select_widget_options($(options.element.$).data('widget'),true);
 				$('#bootbox-content-selector-content').find('.widgetList').hide();
 			}
 		}
