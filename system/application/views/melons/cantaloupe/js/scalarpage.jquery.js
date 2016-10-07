@@ -2361,7 +2361,7 @@
                 if(typeof node.content !== 'undefined' && node.content != null && node.content != ''){
                   tempdata.title.text.text = node.content;
                 }
-
+								var base_url = $('link#parent').attr('href');
                 //Get the main timeline items, if there are any
                 for(var i in relatedNodes){
                   var nodeSet = relatedNodes[i];
@@ -2413,7 +2413,7 @@
                         //Parse thumbnail url
                         var thumbnail_url = nodeSet[n].thumbnail;
                         if(thumbnail_url != null && thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
-                          thumbnail_url = base.book_url+thumbnail_url;
+                          thumbnail_url = base_url+thumbnail_url;
                         }
 
                         //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
@@ -2430,7 +2430,7 @@
                         }
 
 												if(typeof nodeSet[n].background !== 'undefined'){
-													entry.background = {url:base.book_url+nodeSet[n].background}
+													entry.background = {url:base_url+nodeSet[n].background}
 												}
 
                         tempdata.events.push(entry);
