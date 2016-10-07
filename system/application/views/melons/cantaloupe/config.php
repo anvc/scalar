@@ -27,6 +27,7 @@ $config['views'] = array(
 	'gallery' => array('name'=>'Media Gallery','description'=>'<b>Embeds all the related media.</b> In the Media Gallery layout, media referenced, contained, or tagged by the page are compiled into a full width gallery just below the page\'s title.','image'=>'views/melons/cantaloupe/images/view_gallery.gif'),
 	'structured_gallery' => array('name'=>'Structured Media Gallery','description'=>'<b>Shows thumbnail galleries for all the media related to this page and its children.</b> In the Structured Media Gallery layout, media contained, tagged, or linked up to two levels deep are grouped into titled galleries of thumbnails which reveal the media in a larger view when clicked. The description for each path and tag is included just above its gallery.','image'=>'views/melons/cantaloupe/images/view_structured_gallery.gif'),
 	'google_maps' => array('name'=>'Google Map','description'=>'<b>Adds a map at the top.</b> The Google Map layout plots the current page plus any content it contains or tags on a Google Map embedded at the top of the page. Every piece of content to be plotted must include <i>dcterms:coverage</i> or <i>dcterms:spatial</i> (either will work) metadata in the format <i>decimal latitude,decimal longitude</i> (which can be added using the \'Metadata\' tab above). Each pin shown on the map will reveal the title, description, and link for its content when clicked. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_google_map.gif'),
+	'timeline' => array('name'=>'Timeline','description'=>'<b>Displays chronological pages and media</b> The timeline layout uses Timeline.js to displays temporal information found in this page\'s path, tag, or annotation relations.','image'=>'views/melons/cantaloupe/images/view_timeline.gif'),
 	'blank' => array('name'=>'Blank slate','description'=>'<b>Provides a blank canvas for experimental uses.</b> This layout removes the page\'s title, footer, margins, linked media, and navigation to make room for your content. Ideal for full screen embedded media or alternative interfaces.','image'=>'views/melons/cantaloupe/images/view_blank.gif'),
 	'vistoc' => array('name'=>'Contents','description'=>'<b>Visualizes the Table of Contents.</b> The Contents layout embeds a visualization at the top of the page that shows the Table of Contents as a tree diagram. The reader can expand sub-paths of the tree to explore its contents. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_path.gif'),
 	'visconnections' => array('name'=>'Connections','description'=>'<b>Visualizes connections between all content.</b> The Connections layout embeds a force-directed visualization at the top of the page that shows connections between all of the content in the work. The rest of the page follows the Basic layout, with text and media interspersed.','image'=>'views/melons/cantaloupe/images/view_tag.gif'),
@@ -39,15 +40,11 @@ $config['views'] = array(
 	'toc' => array('name'=>'Table of Contents','description'=>'<b>Displays the Table of Contents.</b> This layout includes the work’s Table of Contents, as defined in the Dashboard, below the page content.','image'=>'views/melons/cantaloupe/images/view_toc.gif'),
 	'resources' => array('name'=>'Resources','description'=>'<b>Lists all pages and media.</b> The Resources layout lists all pages, followed by all media, in alphabetized lists below the page content.','image'=>'views/melons/cantaloupe/images/view_resources.gif'),
 	'meta' => array('name'=>'Metadata','description'=>'<b>Lists all pages and media.</b> The Resources layout lists all pages, followed by all media, in alphabetized lists below the page content.','image'=>'views/melons/cantaloupe/images/view_resources.gif'),
-	'timeline' => array('name'=>'Timeline','description'=>'<b>Displays chronological pages and media</b> The timeline layout uses Timeline.js to displays temporal information found in this page\'s path, tag, or annotation relations.','image'=>'views/melons/cantaloupe/images/view_timeline.gif'),
 	'edit' => '',
 	'annotation_editor' => '',
 	'versions' => '',
 	'history' => ''
 );
-if (!isset($_GET['allow_timeline']) || !$_GET['allow_timeline']) {
-  unset($config['views']['timeline']);
-}
 // Optional media views array; if not empty, will overwrite the views array when page type is scalar:Media
 // It's important to keep some functional views present, such as 'plain', 'edit', and 'versions', otherwise these will become unavailable
 $config['media_views'] = array(
