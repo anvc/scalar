@@ -29,7 +29,6 @@ article h5 { font-size: 1.6rem; line-height: 2.4rem; margin-top: 2.4rem; margin-
 article h6 { font-size: 1.4rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
 
 ul > li, ol > li { margin-left: 2.0rem; }
-ol, ul { list-style-position: outside; }
 .dropdown-menu ul > li, .dropdown-menu ol > li, #scalarheader ul > li, #scalarheader ol > li { margin-left: 0; }
 
 .alert .alert-link { font-weight: 900; }
@@ -272,7 +271,14 @@ section.relationships {
 	max-width: 85.4rem;
 	clear:both;
 }
-.relationships ol,.relationships ul,.relationships p {
+.body_copy > ol,.body_copy > ul {
+	margin-left: -2rem;
+}
+.relationships ol,.relationships ul {
+	padding-left: 5.2rem;
+	padding-right: 7.2rem;
+}
+.relationships p {
 	padding-left: 7.2rem;
 	padding-right: 7.2rem;
 }
