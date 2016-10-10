@@ -2692,7 +2692,7 @@ ScalarModel.prototype.addNode = function(node) {
 		this.nodesByURL[node.url] = node;
 		this.nodesByURN[node.urn] = node;
 		
-		if (node.url == this.urlPrefix+scalarapi.basepath(document.location.href)) {
+		if (node.url == this.urlPrefix+scalarapi.basepath(scalarapi.stripVersion(scalarapi.stripAllExtensions(document.location.href)))) {
 			this.currentPageNode = node;
 		}
 		
