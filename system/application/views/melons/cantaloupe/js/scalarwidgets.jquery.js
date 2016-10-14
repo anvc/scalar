@@ -24,7 +24,7 @@
          var base = this;
 
 				 base.pendingWidgets = {};
-
+         base.pendingNodeLoads = {};
          // Access to jQuery and DOM versions of element
          base.$el = $(el);
          base.el = el;
@@ -136,6 +136,7 @@
                }
                $widget.removeData('node');
                for(var i in slugs){
+
                  (function(slug,promise,slugs){
                    if(scalarapi.loadPage( slug.id, fullReload, function(){
 
@@ -186,12 +187,22 @@
                  })(slugs[i],promise,slugs);
                }
              }else{
+               if(typeof base.pendingNodeLoads[slug] == "undefined"){
+                 base.pendingNodeLoads[slug] = [];
+               }
+               base.pendingNodeLoads[slug].push({widget:$widget,promise:promise});
                if(scalarapi.loadPage( slug, fullReload, function(){
-                   $widget.data('node',scalarapi.getNode(slug));
-                   promise.resolve();
+                   for(var i in base.pendingNodeLoads[slug]){
+                     base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                     base.pendingNodeLoads[slug][i].promise.resolve();
+                   }
+                   base.pendingNodeLoads[slug] = [];
                }, null, 1, false, null, 0, 20) == "loaded"){
-                 $widget.data('node',scalarapi.getNode(slug));
-                 promise.resolve();
+                 for(var i in base.pendingNodeLoads[slug]){
+                   base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                   base.pendingNodeLoads[slug][i].promise.resolve();
+                 }
+                 base.pendingNodeLoads[slug] = [];
                }
              }
            }
@@ -226,7 +237,6 @@
             $.when(gmapPromise).then($.proxy(function(){
               var $widget = this;
               $widget.on('slotCreated',function(){
-
                  $(this).data('element').html('');
                  var $gmaps = $('<div class="googleMapWidget"></div>').appendTo($(this).data('element'));
                  $gmaps.width($(this).data('element').width());
@@ -248,18 +258,16 @@
                    maxWidth: 400
                  });
 
-                 var marker, property, contents, node, contentString, label, pathIndex,
+                 var property, contents, node, contentString, label, pathIndex,
                    properties = [
                      'http://purl.org/dc/terms/coverage',
                      'http://purl.org/dc/terms/spatial'
                    ]
-                   markers = [],
-                   foundError = true;
+                   markers = null;
 
                    if(typeof $(this).data('node') == undefined){
                      return;
                    }
-
                  var node = $widget.data('node');
                  var pathContents = node.getRelatedNodes( 'path', 'outgoing' );
                  var tagContents = node.getRelatedNodes( 'tag', 'outgoing' );
@@ -274,21 +282,18 @@
 
                      n = node.current.properties[ property ].length;
                      for ( i = 0; i < n; i++ ) {
-                       marker = page.addMarkerFromLatLonStrToMap(
+                        markers = page.addMarkerFromLatLonStrToMap(
                          node.current.properties[ property ][ i ].value,
                          node.getDisplayTitle(),
                          node.current.description,
                          null,
                          map,
                          infoWindow,
-                         node.thumbnail
+                         node.thumbnail,
+                         null,
+                         $gmaps,
+                         markers
                        );
-
-                       if ( marker != null ) {
-                         markers.push( marker );
-                         foundError = false;
-                       }
-
                      }
 
                    }
@@ -310,7 +315,7 @@
                            label = (pathIndex+1).toString();
                          }
 
-                         marker = page.addMarkerFromLatLonStrToMap(
+                         markers = page.addMarkerFromLatLonStrToMap(
                            node.current.properties[ property ][ j ].value,
                            node.getDisplayTitle(),
                            node.current.description,
@@ -318,25 +323,17 @@
                            map,
                            infoWindow,
                            node.thumbnail,
-                           label
+                           label,
+                           $gmaps,
+                           markers
                          );
-
-                         if ( marker != null ) {
-                           markers.push( marker );
-                           foundError = false;
-                         }
                        }
                      }
                    }
 
                  }
-
                  // no valid coords found on page or its children
-                 if ( foundError ) {
-                   $gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>' );
-
-                 // no coords of any kind found
-                 } else if ( markers.length == 0 ) {
+                 if ( markers == null ) {
                    $gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
                  }else{
                    // adjust map bounds to marker bounds
@@ -345,16 +342,18 @@
                    $.each( markers, function ( index, marker ) {
                      bounds.extend( marker.position );
                    });
-                   if ( markers.length > 1 ) {
-                     map.fitBounds( bounds );
+                   if ( markers != null ) {
+                     map.fitBounds(bounds);
                    }
 
-                   $(window).on('resize',$.proxy(function(){
+                   var doResize = $.proxy(function(){
                      var markers = $(this).data('markers');
                      if(markers.length > 1){
                        $(this).data('map').fitBounds($(this).data('bounds'));
                      }
-                   },$gmaps));
+                   },$gmaps);
+
+                   $(window).on('resize',doResize);
                  }
 
               });

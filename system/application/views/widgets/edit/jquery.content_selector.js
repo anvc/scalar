@@ -850,6 +850,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var opts = options;
 			var loaded_nodeLists = {};
 
+			var isEdit = opts.isEdit;
+
+			if(typeof isEdit == "undefined" || isEdit == null || !isEdit){
+				isEdit = false;
+			}
+
 			var parent_url = $('link#parent').attr('href');
 
 			var reset = function() {  // TODO: for some reason 'defaults' fields are getting set despite using jQuery.extend({}, ...)
@@ -918,10 +924,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					allowMultiple = false;
 				}
 
-				if(typeof isEdit == "undefined" || isEdit == null){
+				if(typeof isEdit == "undefined" || isEdit == null || !isEdit){
 					isEdit = false;
 				}
-
 
 				var content_selector_html = '<div class="node_selector_body"><div class="type_selector pull-right">Filter by type: &nbsp;<select class="node_selection_type_filter">';
 
@@ -984,9 +989,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 												}
 											}else{
 												$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-												if(allowMultiple){
-													selectedNodes = [$(this).data('slug')];
-												}
+												selectedNodes = [$(this).data('slug')];
 											}
 											$(this).siblings('.bg-info').removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
 
@@ -1000,7 +1003,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 											$(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
 										}
 									}
-
 									var $wrapper = $(this).parents('.node_selector_body');
 									$wrapper.data('selectedNodes',selectedNodes);
 
@@ -1173,10 +1175,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 data.isEdit = $(this).data('isEdit');
 
 								 data.attrs.resource = $('#bootbox-content-selector-content .map_node_selection .node_selector_body').data('selectedNodes');
-								 if(data.attrs.resource == undefined){
+								 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
 									 alert("Please select a geotagged Scalar item.");
 									 return false;
 								 }else{
+									 console.log(data.attrs.resource);
 									 data.attrs.resource = data.attrs.resource[0];
 								 }
 
@@ -1397,6 +1400,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 			var select_widget_formatting = function(options){
 				var isEdit = options.isEdit;
+
+				if(typeof isEdit == "undefined" || isEdit == null || !isEdit){
+					isEdit = false;
+				}
+
 				$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Choose formatting').fadeIn('fast');});
 					var submitAction = function(e){

@@ -179,7 +179,7 @@ CKEDITOR._scalar = {
 		}});
 	},
 	widgetLinkCallback : function(widget, element){
-		var isEdit = $(element.$).data(widget) != undefined;
+		var isEdit = $(element.$).data('widget') != undefined;
 		var href = null;
 
 		$(element.$).removeAttr('resource').removeData();
@@ -190,7 +190,6 @@ CKEDITOR._scalar = {
 				href = widget.attrs[a];
 			}
 		}
-
 		if(!isEdit){
 			CKEDITOR._scalar.editor.insertElement(element);
 		}else{
@@ -200,12 +199,14 @@ CKEDITOR._scalar = {
 			CKEDITOR._scalar.editor.updateElement(element);
 		}
 
+		console.log(element);
+
 		if(cke_loadedScalarInlineWidget.indexOf(element)==-1){
 			CKEDITOR._scalar.addCKInlineWidgetPreview(element);
 		}
 	},
 	widgetInlineCallback : function(widget, element){
-		var isEdit = $(element.$).data(widget) != undefined;
+		var isEdit = $(element.$).data('widget') != undefined;
 		var href = null;
 
 		$(element.$).removeAttr('resource').removeData();

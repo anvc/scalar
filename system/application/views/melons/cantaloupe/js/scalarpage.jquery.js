@@ -1676,7 +1676,13 @@
 				});
 			},
 
-			addMarkerFromLatLonStrToMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail, label ) {
+			addMarkerFromLatLonStrToMap: function( latlngstr, title, desc, link, map, infoWindow, thumbnail, label, mapElement, markers ) {
+				if((typeof mapElement == "undefined" || mapElement == null || !mapElement) && typeof $gmaps != "undefined"){
+					mapElement = $gmaps;
+				}
+				if((typeof markers == "undefined" || markers == null || !markers) && typeof page.mapMarkers != "undefined"){
+					markers = page.mapMarkers;
+				}
 
 				var marker, contentString,
 					temp = latlngstr.split( ',' );
@@ -1720,19 +1726,19 @@
 							infoWindow.setContent( this.html );
 							infoWindow.open( map, this );
 						});
-						page.mapMarkers.push(marker);
+						markers.push(marker);
 						var bounds = new google.maps.LatLngBounds();
-						$gmaps.data({'map':map,'bounds':bounds,'markers':page.mapMarkers});
-						$(page.mapMarkers).each(function() {
+						mapElement.data({'map':map,'bounds':bounds,'markers':markers});
+						$(markers).each(function() {
 							bounds.extend( this.position );
 						});
-						if (page.mapMarkers.length > 1) {
+						if (markers.length > 1) {
 							map.fitBounds( bounds );
 						}
+
 					})
 				}
-
-				return true;
+				return markers;
 			},
 
 			// dynamically generate map marker that increases in size to accomodate multi-digit numbers
