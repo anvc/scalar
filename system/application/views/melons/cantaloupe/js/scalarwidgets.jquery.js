@@ -920,7 +920,7 @@
            var widgetType = $widget.data('widget');
            $slot.addClass('widget_'+widgetType);
 
-           if(widgetType != 'card' && widgetType != 'summary'){
+           if(widgetType != 'card' && widgetType != 'visualization' && widgetType != 'summary'){
              $container.css('max-height',maxWidgetHeight);
              if(containerLayout == 'vertical'){
                $container.height(height);
