@@ -457,12 +457,19 @@
                   var nodeSet = relatedNodes[i];
                   for(var n in nodeSet){
                     var relNode = nodeSet[n].current;
-                    if(typeof relNode.auxProperties != 'undefined' && typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0){
+                    if(typeof relNode.auxProperties != 'undefined' && ((typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0) || (typeof relNode.auxProperties['dcterms:date'] != 'undefined' && relNode.auxProperties['dcterms:date'].length > 0))){
                         var entry = {};
 
-                        var temporal_data = relNode.auxProperties['dcterms:temporal'][0];
+                        if(typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0){
+                        	var temporal_data = relNode.auxProperties['dcterms:temporal'][0];
+												}else{
+													var temporal_data = relNode.auxProperties['dcterms:date'][0];
+												}
+
                         var dashCount = (temporal_data.match(/-/g) || []).length;
-                        if(dashCount != 1){
+
+                        var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
+                        if(dashCount != 1 && !contains_seperator){
                           //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
                           var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
 
@@ -471,7 +478,17 @@
                             entry.start_date = parseDate(d,d_string);
                           }
                         }else{
-                          var dateParts = temporal_data.replace('-',' - ').split(' - ');
+													if(contains_seperator){
+
+														temporal_data = temporal_data.replace('from ','');
+														if(temporal_data.indexOf(" until ") >= 0){
+															var dateParts = temporal_data.split(" until ");
+														}else{
+															var dateParts = temporal_data.split(" to ");
+														}
+													}else{
+                          	var dateParts = temporal_data.replace('-',' - ').split(' - ');
+													}
 
                           //We should now have two dates - a start and and end
                           if(dateParts.length == 2){
