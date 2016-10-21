@@ -1121,7 +1121,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 data.attrs["data-widget"] = data.type;
 								 if(timeline_data_type == 'node'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .timeline_node_selection .node_selector_body').data('selectedNodes');
-									 if(data.attrs.resource == undefined){
+									 console.log(data.attrs.resource);
+									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
 										 alert("Please select Scalar content that contains your timeline's temporal data.");
 										 return false;
 									 }else{
@@ -1149,6 +1150,17 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 select = '<select class="form-control" name="visformat"><option value="grid">Grid</option><option value="tree">Tree</option><option value="radial">Radial</option><option value="force-directed">Force-directed</option></select>';
 						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label">What type of visualization would you like to use?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
+ 							 if(isEdit){
+								 if($(element.$).data("viscontent")!=undefined){
+									 $content.find('select[name="viscontent"]').val($(element.$).data("viscontent"));
+ 								 }
+								 if($(element.$).data("visrelations")!=undefined){
+									 $content.find('select[name="visrelations"]').val($(element.$).data("visrelations"));
+ 								 }
+								 if($(element.$).data("visformat")!=undefined){
+									 $content.find('select[name="visformat"]').val($(element.$).data("visformat"));
+ 								 }
+ 							 }
 
 							 submitAction = function(e){
 								 var data = {type:"visualization",attrs : {}};
@@ -1235,7 +1247,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 if(carousel_data_type == 'single'){
 
 									 data.attrs.resource = $('#bootbox-content-selector-content .carousel_single_selection .node_selector_body').data('selectedNodes');
-									 if(data.attrs.resource == undefined){
+									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
 										 alert("Please select a path or tag that contains media.");
 										 return false;
 									 }else{
@@ -1302,7 +1314,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 if(card_data_type == 'single'){
 
 									 data.attrs.resource = $('#bootbox-content-selector-content .card_single_selection .node_selector_body').data('selectedNodes');
-									 if(data.attrs.resource == undefined){
+									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
 										 alert("Please select a path or tag.");
 										 return false;
 									 }else{
@@ -1355,10 +1367,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 $singlesummary.hide();
 							 }
 
-							 $('<div class="widget_data_type"><strong><a>Container</a></strong><br />Choose any path or tag to show its contents in the summary.</div>').appendTo($singleSummary);
+							 $('<div class="widget_data_type">Choose any path or tag to show its contents in the summary.</div>').appendTo($singleSummary);
 							 mini_node_selector($('<div class="summary_single_selection">').appendTo($singleSummary),['path','tag','term']);
 
-							 $('<div class="widget_data_type"><strong><a>Individual items</a></strong><br />Select one or more items to be shown in the summary.</div>').appendTo($multiSummary);
+							 $('<div class="widget_data_type">Select one or more items to be shown in the summary.</div>').appendTo($multiSummary);
 							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($multiSummary),['composite','media','path','tag','comment','term'], true);
 
 							 submitAction = function(e){
@@ -1367,7 +1379,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 data.attrs["data-widget"] = data.type;
 								 if(summary_data_type == 'single'){
 									 data.attrs.resource = $('#bootbox-content-selector-content .summary_single_selection tbody tr.bg-info').data('slug');
-									 if(data.attrs.resource == undefined){
+									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
 										 alert("Please select a path or tag.");
 										 return false;
 									 }

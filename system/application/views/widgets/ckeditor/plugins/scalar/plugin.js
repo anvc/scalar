@@ -166,7 +166,6 @@ CKEDITOR._scalar = {
 					CKEDITOR._scalar.editor.updateElement(element);
 				}
 
-
 				if(cke_loadedScalarInline.indexOf(element)==-1){
 					(function(thisSlug,element){
 						if(scalarapi.loadPage( thisSlug, false, function(){
@@ -181,6 +180,11 @@ CKEDITOR._scalar = {
 	widgetLinkCallback : function(widget, element){
 		var isEdit = $(element.$).data('widget') != undefined;
 		var href = null;
+		var $element = $(element.$);
+		var contentOptionsCallback = $element.data('contentOptionsCallback');
+		var element = $element.data('element');
+		var selectOptions = $element.data('selectOptions');
+		selectOptions.isEdit = true;
 
 		$(element.$).removeAttr('resource').removeData();
 
@@ -190,6 +194,13 @@ CKEDITOR._scalar = {
 				href = widget.attrs[a];
 			}
 		}
+
+		$element.data({
+			contentOptionsCallback: contentOptionsCallback,
+			element: element,
+			selectOptions: selectOptions
+		});
+
 		if(!isEdit){
 			CKEDITOR._scalar.editor.insertElement(element);
 		}else{
@@ -199,17 +210,20 @@ CKEDITOR._scalar = {
 			CKEDITOR._scalar.editor.updateElement(element);
 		}
 
-		console.log(element);
-
-		if(cke_loadedScalarInlineWidget.indexOf(element)==-1){
-			CKEDITOR._scalar.addCKInlineWidgetPreview(element);
+		if(cke_loadedScalarLinkedWidget.indexOf(element)==-1){
+			CKEDITOR._scalar.addCKLinkedWidgetPreview(element);
 		}
 	},
 	widgetInlineCallback : function(widget, element){
 		var isEdit = $(element.$).data('widget') != undefined;
 		var href = null;
+		var $element = $(element.$);
+		var contentOptionsCallback = $element.data('contentOptionsCallback');
+		var element = $element.data('element');
+		var selectOptions = $element.data('selectOptions');
+		selectOptions.isEdit = true;
 
-		$(element.$).removeAttr('resource').removeData();
+		$element.removeAttr('resource').removeData();
 
 		element.setAttribute('name','scalar-inline-widget');  // Required to let empty <a> through
 		element.setAttribute('class', 'inlineWidget inline');
@@ -221,6 +235,12 @@ CKEDITOR._scalar = {
 			}
 		}
 
+		$element.data({
+			contentOptionsCallback: contentOptionsCallback,
+			element: element,
+			selectOptions: selectOptions
+		});
+
 		if(!isEdit){
 			if(href!=null){
 				element.data('cke-saved-href',href);
@@ -229,12 +249,17 @@ CKEDITOR._scalar = {
 		}else{
 			CKEDITOR._scalar.editor.updateElement(element);
 		}
+		if(cke_loadedScalarInlineWidget.indexOf(element)==-1){
+			CKEDITOR._scalar.addCKInlineWidgetPreview(element);
+		}
 	},
 	addCKInlineMediaPreview : function(slug,element){
-		var $element = element.$;
 		var ckeFrame = $('.cke_contents>iframe').contents();
 		var node = scalarapi.getNode(slug);
 		var slug = slug;
+
+		var $element = $(element.$);
+
 		cke_loadedScalarInline.push(element);
 		if(node.thumbnail != null){
 			var cssElement = '<style>'+
@@ -242,7 +267,7 @@ CKEDITOR._scalar = {
 											 '</style>';
 			$('.cke_contents>iframe').contents().find('head').append(cssElement);
 		}
-		$($element).data({
+		$element.data({
 			element: element,
 			type: 'media'
 		}).off('mouseout mouseover').hover(function(){
@@ -270,10 +295,9 @@ CKEDITOR._scalar = {
 		});
 	},
 	addCKInlineWidgetPreview : function(element){
-		var $element = element.$;
 		var ckeFrame = $('.cke_contents>iframe').contents();
 		cke_loadedScalarInlineWidget.push(element);
-		$($element).data({
+		var $element = $(element.$).data({
 			element: element,
 			type: 'widget'
 		}).off('mouseout mouseover').hover(function(){
@@ -290,6 +314,7 @@ CKEDITOR._scalar = {
 						element: $(this).data('element'),
 						type: $(this).data('type')
 					}).css({left: framePosition.left+position.left+$(this).outerWidth()+parseInt($(this).css('margin-left'))-40, top: topPos}).show();
+
 					$('#scalarInlineRedXIcon').data({
 						element: $(this).data('element')
 					}).css({left: framePosition.left+position.left+parseInt($(this).css('margin-left'))+10, top: topPos}).show();
@@ -298,6 +323,30 @@ CKEDITOR._scalar = {
 				}
 		},function(){
 			$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon, #scalarInlineRedXIcon').hide(); },200));
+		});
+	},
+	addCKLinkedWidgetPreview : function(element){
+		$element = $(element.$);
+		cke_loadedScalarLinkedWidget.push(element);
+		$($element).off('mouseout mouseover').hover(function(){
+
+			var position = $(this).position();
+			var framePosition = $('.cke_contents>iframe').offset();
+			var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
+			var pageScroll = $(window).scrollTop();
+
+			var thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$element.data('widget')+'.png';
+			var topPos = framePosition.top+position.top-frameScroll-pageScroll+30;
+			var data = {
+				element : element,
+				type : 'widget'
+			};
+
+			$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: topPos}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
+
+			window.clearTimeout($('#scalarLinkTooltip').data('timeout'));
+		},function(){
+			$('#scalarLinkTooltip').data('timeout',window.setTimeout(function(){	$('#scalarLinkTooltip').hide(); },200));
 		});
 	},
 	addCKLinkedMediaPreview : function(slug,element){
@@ -348,6 +397,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
 			cke_loadedScalarInline = [];
 			cke_loadedScalarInlineWidget = [];
+			cke_loadedScalarLinkedWidget = [];
 
 			cke_addedScalarScrollEvent = false;
 			editor.on('mode',function(e){
@@ -375,6 +425,8 @@ CKEDITOR.plugins.add( 'scalar', {
 					if(editor.mode == 'source'){
 						cke_loadedScalarInline = [];
 						cke_loadedScalarInlineWidget = [];
+						cke_loadedScalarLinkedWidget = [];
+
 						return;
 					}
 
@@ -392,7 +444,11 @@ CKEDITOR.plugins.add( 'scalar', {
 						var $tooltip = $('#scalarLinkTooltip');
 						var element = $tooltip.data('element');
 						isEdit = true;
-						CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+						if($tooltip.data('type')!=null&&$tooltip.data('type')=="widget"){
+							CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
+						}else{
+							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+						}
 					});
 
 					tooltip.find('.redxIcon').click(function(e){
@@ -440,7 +496,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						$('#scalarInlineGearIcon').data('timeout',window.setTimeout(function(){	$('#scalarInlineGearIcon, #scalarInlineRedXIcon').hide(); },200));
 					}).appendTo('body');
 
-					var anchors = editor.document.find('a[resource]');
+					var anchors = editor.document.find('a[resource], a[data-widget]');
 					var num_anchors = anchors.count();
 					for(var i = 0; i < num_anchors; i++){
 							var element = anchors.getItem(i);
@@ -448,18 +504,24 @@ CKEDITOR.plugins.add( 'scalar', {
 							var href = element.getAttribute('href');
 
 							var currentSlug = element.getAttribute('resource');
-							if(currentSlug == null){
+							if(element.data('widget')==null && currentSlug == null){
 								continue;
 							}else if(element.data('widget') != null){
 								if(element.hasClass('inline')){
 									$(element.$).data({
 										element : element,
-										contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback
+										contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
+									  selectOptions : {isEdit:true,type:'widget',msg:'Edit Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback}
 									});
-									$(element.$).data('selectOptions',{isEdit:true,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 									CKEDITOR._scalar.addCKInlineWidgetPreview(element);
+								}else{
+									$(element.$).data({
+										element : element,
+										contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
+									  selectOptions : {isEdit:true,type:'widget',msg:'Edit Linked Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetLinkCallback}
+									});
+									CKEDITOR._scalar.addCKLinkedWidgetPreview(element);
 								}
-								continue;
 							}else{
 								if(!element.hasClass('inline')){
 
@@ -467,7 +529,7 @@ CKEDITOR.plugins.add( 'scalar', {
 										element : element,
 										contentOptionsCallback : CKEDITOR._scalar.mediaLinkCallback
 									});
-									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Edit Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 
 									(function(thisSlug, e){
 										if(scalarapi.loadPage( thisSlug, false, function(){
@@ -482,7 +544,7 @@ CKEDITOR.plugins.add( 'scalar', {
 										element : element,
 										contentOptionsCallback : CKEDITOR._scalar.inlineMediaCallback
 									});
-									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Edit Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 
 									(function(thisSlug,element){
 										if(scalarapi.loadPage( thisSlug, false, function(){
@@ -528,9 +590,9 @@ CKEDITOR.plugins.add( 'scalar', {
 									element.setHtml(sel.getSelectedText());
 									$(element.$).data({
 										element : element,
-										contentOptionsCallback : CKEDITOR._scalar.mediaLinkCallback
+										contentOptionsCallback : CKEDITOR._scalar.mediaLinkCallback,
+										selectOptions : {type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:CKEDITOR._scalar.mediaLinkCallback}
 									});
-									$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 								}
 							}
 							CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
@@ -554,9 +616,9 @@ CKEDITOR.plugins.add( 'scalar', {
 							element = editor.document.createElement('a')
 							$(element.$).data({
 								element : element,
-								contentOptionsCallback : CKEDITOR._scalar.inlineMediaCallback
+								contentOptionsCallback : CKEDITOR._scalar.inlineMediaCallback,
+								selectOptions : {type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:CKEDITOR._scalar.inlineMediaCallback}
 							});
-							$(element.$).data('selectOptions',{type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 						}
 
         		CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
@@ -640,9 +702,9 @@ CKEDITOR.plugins.add( 'scalar', {
 								element.setHtml(sel.getSelectedText());
 								$(element.$).data({
 									element : element,
-									contentOptionsCallback : CKEDITOR._scalar.widgetLinkCallback
+									contentOptionsCallback : CKEDITOR._scalar.widgetLinkCallback,
+								  selectOptions : {isEdit:false,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetLinkCallback}
 								});
-								$(element.$).data('selectOptions',{isEdit:isEdit,type:'widget',msg:'Insert Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
 							}
 						}
 						CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
@@ -668,9 +730,10 @@ CKEDITOR.plugins.add( 'scalar', {
 							element = editor.document.createElement('a')
 							$(element.$).data({
 								element : element,
-								contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback
+								contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
+							  selectOptions : {isEdit:false,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback}
 							});
-							$(element.$).data('selectOptions',{isEdit:isEdit,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:$(element.$).data('contentOptionsCallback')});
+							console.log($(element.$).data());
 						}
 
 						CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
