@@ -606,9 +606,17 @@ a:hover { text-decoration: underline; }
 .widget_slot .widgetContainer.highlighted, .widget_slot .widgetContainer.highlighted .tl-slider-container-mask{
 	background-color: rgba(197,220,235,.5);
 }
-.vis_widget{
-	padding: 1rem;
-  background-color: #fff;
+.vis_widget {
+  	background-color: #fff;
+  	padding: 1rem;
+}
+.full .vis_widget {
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+.vis_widget .scalarvis {
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 .mediaContainer {
