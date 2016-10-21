@@ -872,6 +872,7 @@
 					slotDOMElement = slot.data('slot');
 					slotMediaElement = slot.data('mediaelement');
 					slotDOMElement.addClass('full').appendTo(parent).css('background-image','none');
+					return slot;
 				}
 			},
 
@@ -1392,6 +1393,9 @@
 						var mediaLinks = page.getMediaLinks( $( 'article > span[property="sioc:content"],.relationships > .annotation_of' ), true );
 
 						$( mediaLinks ).each(function() {
+							if($(this).parents('widget_carousel').length > 0){
+								return;
+							}
 							if($(this).hasClass('widget_link')){
 								if($(this).data('slot')!==undefined){
 									$(this).data('slot').remove();

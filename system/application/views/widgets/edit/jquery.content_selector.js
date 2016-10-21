@@ -1443,6 +1443,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							formattingOptions.Size = ['medium','large','full'];
 					}
 
+					if(options.type == "visualization" && options.attrs['data-visformat']=='radial'){
+						formattingOptions.Size = ['full'];
+					}
+
 					var formattingSelection = '<div class="form-horizontal heading_font">';
 					for(var o in formattingOptions){
 						var values = '<select class="form-control" name="'+o.toLowerCase()+'">';

@@ -614,9 +614,6 @@
                  }
 
                  // if this is a media link that's already part of the content of the page, then use it
-                 $mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
-                 $link = $mediaContainer.find( 'a' );
-                 $link.css('display', 'none');
 
                  if ( node.current.description != null ) {
                    description = node.current.description;
@@ -632,9 +629,9 @@
                      '<h3><a href="' + node.url + '" >' + node.getDisplayTitle() + '</a></h3> (' + ( i + 1 ) + '/' + n + ')' +
                      '</span></div>' );
                  }
-
-                 page.addMediaElementForLink( $link, $mediaContainer, galleryHeight );
-
+                 var $link = $('<a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a>');
+                 var $container = $('<div></div>');
+                 item.prepend(page.addNoteOrAnnotationMedia( $link, $container, null, galleryHeight ).data('mediaelement').model.element[0]);
                 }
                if ( page.adaptiveMedia != "mobile" ) {
     							$wrapper.find( '[data-toggle="popover"]' ).popover( {
@@ -727,6 +724,9 @@
              var $widget = this;
 
              var node = $widget.data('node');
+             if(!$.isArray(node)){
+               node = [node];
+             }
 
              $widget.on('slotCreated',function(){
                $(this).data('element').html('');
@@ -778,6 +778,9 @@
              var $widget = this;
 
              var node = $widget.data('node');
+             if(!$.isArray(node)){
+               node = [node];
+             }
 
              $widget.on('slotCreated',function(){
                $(this).data('element').html('');
@@ -819,16 +822,7 @@
 
          base.createCardFromNode = function(node,$target){
             var widget_size = $target.parents('.widgetElement').data('widget').data('size');
-            var col_size = 12;
-            switch(widget_size){
-              case 'large':
-                col_size = 6;
-                break;
-              case 'full':
-                col_size = 3;
-                break;
-            }
-            var markup = '<div class="col-md-'+col_size+'"><div class="thumbnail">';
+            var markup = '<div><div class="thumbnail">';
             if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
               markup += '<img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block">';
             }else if (node.thumbnail != null) {
@@ -957,7 +951,6 @@
                }
 
              } else {
-               $slot.addClass( 'left' );
                $container.addClass('page_margins');
              }
 
