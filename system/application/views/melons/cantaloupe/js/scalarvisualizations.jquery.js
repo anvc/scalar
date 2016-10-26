@@ -220,8 +220,9 @@
         };
 
         base.enterFullScreen = function() {
-        	if ('function'==typeof(base.visualization[0].webkitRequestFullscreen)) {
-        		base.visualization[0].webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+      		page.isFullScreen = true; // a hack, but if we don't do this then Safari tries to reload the media before it recieves the full screen event that tells it not to reload the media
+         	if ('function'==typeof(base.visualization[0].webkitRequestFullscreen)) {
+         		base.visualization[0].webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         	} else if ('function'==typeof(base.visualization[0].mozRequestFullScreen)) {
         		base.visualization[0].mozRequestFullScreen();
         	} else if ('function'==typeof(base.visualization[0].msRequestFullscreen)) {
