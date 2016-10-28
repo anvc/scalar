@@ -1033,7 +1033,7 @@
 					includeWidgets = false;
 				}
 
-				var mediaLinks = [];
+				mediaLinks = [];
 
 				$( element ).find( 'a' ).each(function() {
 
@@ -1049,6 +1049,10 @@
 								$(this).addClass('widget_link');
 							}
 						}else{
+							if($(this).parents('.widget_slot').length > 0){
+								$(this).remove();
+								return;
+							}
 							$(this).addClass('media_link');
 						}
 						mediaLinks.push( $( this ) );

@@ -50,7 +50,6 @@
            if($widget.attr('resource') != undefined){
                $widget.attr('href',base.book_url+$widget.attr('resource'));
            }
-
 					 var type = $widget.data('widget');
 
            var $element = $('<div class="widgetElement"></div>').data('widget',$widget);
@@ -357,6 +356,7 @@
                    $(window).on('resize',doResize);
                  }
 
+                 $(this).off("slotCreated");
               });
               if($widget.data('slot')!==undefined){
                 $widget.trigger('slotCreated');
@@ -385,6 +385,8 @@
                 }
                 $timeline.height(height - 10);
                 var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
+
+                $(this).off("slotCreated");
              });
 
              //Because we asynchronously load the Timeline javascript,
@@ -592,11 +594,11 @@
                    nodes.push($widget.data('node'));
                  }
                }
+
                var n = nodes.length;
 
                var $carousel = $('<div class="carousel slide" data-interval="false"></div>').appendTo($element);
                var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
-
 
                if ( page.adaptiveMedia == "mobile" ) {
                  galleryHeight = 300;
@@ -615,24 +617,26 @@
                  }
 
                  // if this is a media link that's already part of the content of the page, then use it
+                 var mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
+ 								 var link = mediaContainer.find( 'a' );
+ 								 link.css('display', 'none');
 
                  if ( node.current.description != null ) {
-                   description = node.current.description;
-                   if ( node.current.source != null ) {
-                     description += ' (Source: ' + node.current.source + ')';
-                   }
-                   description = description.replace( new RegExp("\"", "g"), '&quot;' );
-                   item.append( '<div class="carousel-caption caption_font"><span>' +
-                     '<h3><a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a></h3> (' + ( i + 1 ) + '/' + n + ')' +
-                     '</span></div>' );
-                 } else {
-                   item.append( '<div class="carousel-caption caption_font"><span>' +
-                     '<h3><a href="' + node.url + '" >' + node.getDisplayTitle() + '</a></h3> (' + ( i + 1 ) + '/' + n + ')' +
-                     '</span></div>' );
-                 }
-                 var $link = $('<a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a>');
-                 var $container = $('<div></div>');
-                 item.prepend(page.addNoteOrAnnotationMedia( $link, $container, null, galleryHeight ).data('mediaelement').model.element[0]);
+   								description = node.current.description;
+   								if ( node.current.source != null ) {
+   									description += ' (Source: ' + node.current.source + ')';
+   								}
+   								description = description.replace( new RegExp("\"", "g"), '&quot;' );
+   								item.append( '<div class="carousel-caption caption_font"><span>' +
+   									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+   									'</span></div>' );
+   							} else {
+   								item.append( '<div class="carousel-caption caption_font"><span>' +
+   									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+   									'</span></div>' );
+   							}
+
+                 page.addMediaElementForLink( link, mediaContainer, galleryHeight );
                 }
                if ( page.adaptiveMedia != "mobile" ) {
     							$wrapper.find( '[data-toggle="popover"]' ).popover( {
@@ -651,6 +655,7 @@
      							'<span class="sr-only">Next</span>' +
      							'</a>' );
 
+                $carousel.carousel( { interval: false } );
                 $carousel.find('.carousel-control').click(function(e){
                   e.stopPropagation();
                   e.preventDefault();
@@ -682,6 +687,7 @@
        							});
                   }
      						}
+                $(this).off("slotCreated");
              });
 
              if($widget.data('slot')!==undefined){
@@ -736,6 +742,7 @@
                for (var i=(n-1); i>=0; i--) {
                   widgets.createCardFromNode(node[i], $cardContainer);
                }
+               $(this).off("slotCreated");
              });
 
              if($widget.data('slot')!==undefined){
@@ -790,6 +797,7 @@
                for (var i=(n-1); i>=0; i--) {
                   widgets.createSummaryFromNode(node[i], $summaryContainer);
                }
+               $(this).off("slotCreated");
              });
 
              if($widget.data('slot')!==undefined){
