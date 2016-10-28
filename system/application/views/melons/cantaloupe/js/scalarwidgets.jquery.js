@@ -211,6 +211,7 @@
 				 //Handle visualizations inserted into this page
 				 base.renderVisualization = function($widget){
            //Grab the container for this widget
+           $widget.data('slot').addClass(($widget.data( 'visformat' ) || "force-directed")+"_visualization");
            var $element = $widget.data('element');
 
            //Visualization rendering content

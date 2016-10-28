@@ -1312,6 +1312,10 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 	box-shadow: none;
 }
 
+.widget_slot.grid_visualization>.well, .widget_slot.radial_visualization>.well{
+	border: 1px solid #ddd;
+}
+
 body.timeline article.page{
 	padding-top: 5rem;
 }
