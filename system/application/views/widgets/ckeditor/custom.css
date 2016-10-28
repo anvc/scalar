@@ -152,14 +152,21 @@
 .widget_type:hover{
 	background-color: #d9edf7;
 }
+.widget_type a:hover{
+	text-decoration: none;
+}
 .widget_type img{
 	height: 4rem;
   margin-right: 1rem;
   margin-top: .25rem;
 }
 .node_selector_body,.node_selector_body tbody, .timeline_external_url_selector{
-	border: 1px solid rgb(229, 229, 229);
 	padding: 1rem;
+}
+.table-fixed th{
+	font-weight: bold;
+	color: #bcb0b0;
+	border-bottom: 2px solid #e3e3e3;
 }
 .node_selector_body tbody{
 	border-top: 0px
@@ -184,8 +191,18 @@
 	max-height: 300px;
 	overflow-y: auto;
 }
+.modal-dialog table{
+	font-size: 14px;
+}
 @media (max-width: 767px){
 	.selectedItemPreview .mediaDescription{
 			display: none;
 	}
+
+	.widget_selector_bootbox .modal-dialog{
+		width: 96% !important;
+		margin-left: 2% !important;
+    margin-right: 2% !important;
+	}
+
 }

@@ -339,7 +339,8 @@ CKEDITOR._scalar = {
 			var topPos = framePosition.top+position.top-frameScroll-pageScroll+30;
 			var data = {
 				element : element,
-				type : 'widget'
+				type : 'widget',
+				inline : false
 			};
 
 			$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: topPos}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
@@ -366,7 +367,8 @@ CKEDITOR._scalar = {
 			}
 			var data = {
 				element : element,
-				type : 'media'
+				type : 'media',
+				inline : true
 			};
 
 			$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: topPos}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
@@ -511,14 +513,14 @@ CKEDITOR.plugins.add( 'scalar', {
 									$(element.$).data({
 										element : element,
 										contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
-									  selectOptions : {isEdit:true,type:'widget',msg:'Edit Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback}
+									  selectOptions : {isEdit:true,type:'widget',msg:'Edit Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback,inline:true}
 									});
 									CKEDITOR._scalar.addCKInlineWidgetPreview(element);
 								}else{
 									$(element.$).data({
 										element : element,
-										contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
-									  selectOptions : {isEdit:true,type:'widget',msg:'Edit Linked Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetLinkCallback}
+										contentOptionsCallback : CKEDITOR._scalar.widgetLinkCallback,
+									  selectOptions : {isEdit:true,type:'widget',msg:'Edit Linked Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetLinkCallback,inline:false}
 									});
 									CKEDITOR._scalar.addCKLinkedWidgetPreview(element);
 								}
@@ -703,7 +705,7 @@ CKEDITOR.plugins.add( 'scalar', {
 								$(element.$).data({
 									element : element,
 									contentOptionsCallback : CKEDITOR._scalar.widgetLinkCallback,
-								  selectOptions : {isEdit:false,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetLinkCallback}
+								  selectOptions : {isEdit:false,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetLinkCallback,inline:false}
 								});
 							}
 						}
@@ -731,7 +733,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							$(element.$).data({
 								element : element,
 								contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
-							  selectOptions : {isEdit:false,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback}
+							  selectOptions : {isEdit:false,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback,inline:true }
 							});
 							console.log($(element.$).data());
 						}

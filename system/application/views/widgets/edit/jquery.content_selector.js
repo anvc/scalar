@@ -979,9 +979,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							for(var i = 0; i < data.length; i++){
 								var item = data[i];
 								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
-								var $item = $('<tr><td class="col-xs-3"><strong>'+item.title+'</strong></td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(e){
-									var holdingModifier = isMac?e.metaKey:e.ctrlKey;
-									if(!allowMultiple || !holdingModifier){
+								var $item = $('<tr><td class="col-xs-3">'+item.title+'</td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(e){
+									if(!allowMultiple){
 											if($(this).hasClass('bg-info') && (!allowMultiple || selectedNodes.length == 1)){
 											  $(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
 												if(allowMultiple){
@@ -992,7 +991,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 												selectedNodes = [$(this).data('slug')];
 											}
 											$(this).siblings('.bg-info').removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-
 									}else{
 										var index = selectedNodes.indexOf($(this).data('slug'));
 										if(index == -1){
@@ -1104,7 +1102,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 
 							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div><br />').appendTo($nodeTimeline);
-							 mini_node_selector($('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline),['path','tag','annotation','term'],false,isEdit,element);
+							 mini_node_selector($('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline),['path','tag','term'],false,isEdit,element);
 
 							 $('<div class="widget_data_type">Enter the URL of a JSON file or Google Drive document formatted for <a target="_blank" href="https://timeline.knightlab.com">Timeline.js</a>.</div><br />').appendTo($urlTimeline);
 							 $('<div class="timeline_external_url_selector form-group"><label for="timeline_external_url">External URL</label><input type="text" class="form-control" id="timeline_external_url"></div>').appendTo($urlTimeline);
@@ -1179,7 +1177,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 break;
 						 case 'map':
 							 $('<div>Choose any <a target="_blank" href="#">geotagged</a> Scalar item (including paths or tags with geotagged contents).</div>').appendTo($content);
-							 mini_node_selector($('<div class="map_node_selection">').appendTo($content),['path','tag','annotation','term'],false,isEdit,element);
+							 mini_node_selector($('<div class="map_node_selection">').appendTo($content),['path','tag','term'],false,isEdit,element);
 
  							 submitAction = function(e){
  								 var data = {type:"map",attrs : {}};
@@ -1235,10 +1233,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 
 							 $('<div class="widget_data_type">Choose any path or tag that contains media.</div>').appendTo($singleCarousel);
-							 mini_node_selector($('<div class="carousel_single_selection">').appendTo($singleCarousel),['path','tag','annotation','term'],false,isEdit,element);
+							 mini_node_selector($('<div class="carousel_single_selection">').appendTo($singleCarousel),['path','tag','term'],false,isEdit,element);
 
 							 $('<div class="widget_data_type">Select one or more pieces of media.</div>').appendTo($multiCarousel);
-							 mini_node_selector($('<div class="carousel_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($multiCarousel),['media'], true,isEdit,element);
+							 mini_node_selector($('<div class="carousel_multi_selection"></div>').appendTo($multiCarousel),['media'], true,isEdit,element);
 
 							 submitAction = function(e){
 								 var data = {type:"carousel",attrs : {}};
@@ -1305,7 +1303,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 
 							 $('<div class="widget_data_type">Select one or more items to be shown as cards.</div>').appendTo($multiCard);
-							 mini_node_selector($('<div class="card_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note:</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($multiCard),['composite','media','path','tag','annotation','comment','term'], true,isEdit,element);
+							 mini_node_selector($('<div class="card_multi_selection"></div>').appendTo($multiCard),['composite','media','path','tag','comment','term'], true,isEdit,element);
 
 							 submitAction = function(e){
 								 var data = {type:"card",attrs : {}};
@@ -1371,7 +1369,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 mini_node_selector($('<div class="summary_single_selection">').appendTo($singleSummary),['path','tag','term']);
 
 							 $('<div class="widget_data_type">Select one or more items to be shown in the summary.</div>').appendTo($multiSummary);
-							 mini_node_selector($('<div class="summary_multi_selection"><div class="hidden-xs hidden-sm"><div class="alert alert-success" role="alert"><strong>Note</strong> To select multiple items, hold down '+(isMac?'CMD':'CTRL')+' and click on each.</div></div>').appendTo($multiSummary),['composite','media','path','tag','comment','term'], true);
+							 mini_node_selector($('<div class="summary_multi_selection"></div>').appendTo($multiSummary),['composite','media','path','tag','comment','term'], true);
 
 							 submitAction = function(e){
 								 var data = {type:"summary",attrs : {}};
@@ -1432,9 +1430,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					var formattingOptions = {
 						Size : ['small','medium','large','full'],
-						Align : ['right','left']
+						Align : (typeof opts.inline!='undefined' && opts.inline)?['left','center','right']:['left','right']
 					};
 
+					console.log(opts);
 					//Need to limit formatting options per widget type here
 					switch(options.type){
 						case 'timeline':
@@ -1561,7 +1560,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			for(var i = 0; i < widget_types.length; i++){
 				var widget = widget_types[i];
-				var $widget = $('<div class="widget_type"><img class="pull-left" src="'+icon_base_url+widget.icon+'"<strong><a class="uppercase">'+widget.name+'</a></strong><br />'+widget.description+'</div>').data('type',widget.name);
+				var $widget = $('<div class="widget_type"><img class="pull-left" src="'+icon_base_url+widget.icon+'"><a class="uppercase"><strong>'+widget.name+'</strong></a><br />'+widget.description+'</div>').data('type',widget.name);
 				$widget.click(function(e){
 					select_widget_options($(this).data('type').toLowerCase(),false);
 					e.preventDefault();
