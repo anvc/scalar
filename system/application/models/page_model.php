@@ -285,7 +285,7 @@ class Page_model extends MY_Model {
 			// Rewrite URLs in book text content
 			// This is most likely not to be completely trusted but if working properly provides a userful service to authors since linking is important in Scalar
 			if ($array['slug'] != $slug) {
-				// TODO: test for safety on the slug rename
+				// Get all of the versions attached to this book
 				$this->db->select($this->versions_table.'.version_id');
 				$this->db->from($this->versions_table);
 				$this->db->join($this->pages_table, $this->versions_table.'.content_id='.$this->pages_table.'.content_id');

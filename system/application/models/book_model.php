@@ -563,11 +563,36 @@ class Book_model extends MY_Model {
 					$count++;
 				}
 				// Rename folder on the filesystem
-				if (false === @rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) throw new Exception('Could not rename directory or the source directory doesn\'t exist.');
-				// Update hard URLs in version contet
+				if (false === @rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) throw new Exception('The destination folder already exists or the source folder doesn\'t exist.');
+				// Update hard URLs in version contet + thumbnail field
 				$old = confirm_slash(base_url()).confirm_slash($slug);
 				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new')");
+				// List of versions for this book
+				$this->db->select($this->versions_table.'.version_id');
+				$this->db->from($this->versions_table);
+				$this->db->join($this->pages_table, $this->versions_table.'.content_id='.$this->pages_table.'.content_id');
+				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
+				$this->db->where($this->books_table.'.book_id', $book_id);
+				$query = $this->db->get();
+				if ($query->num_rows()) {
+					$book_version_ids = array();
+					$result = $query->result();
+					foreach ($result as $row) $book_version_ids[] = $row->version_id;
+				}
+				// List of pages for this book
+				$this->db->select($this->pages_table.'.content_id');
+				$this->db->from($this->pages_table);
+				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
+				$this->db->where($this->books_table.'.book_id', $book_id);
+				$query = $this->db->get();
+				if ($query->num_rows()) {
+					$book_page_ids = array();
+					$result = $query->result();
+					foreach ($result as $row) $book_page_ids[] = $row->content_id;
+				}
+				// Run the rewrites
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new') WHERE version_id IN (".implode(',',$book_version_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, '$old', '$new') WHERE content_id IN (".implode(',',$book_page_ids).")");
 			}
 
     	}
@@ -577,8 +602,12 @@ class Book_model extends MY_Model {
 			try {
                 $chmod_mode = $this->config->item('chmod_mode');
                 if (empty($chmod_mode)) $chmod_mode = 0777;
-                $book = $this->get($book_id);
-                $slug = $book->slug;
+                if (isset($array['slug'])) {
+                	$slug = $array['slug'];
+                } else {
+               		$book = $this->get($book_id);
+                	$slug = $book->slug;
+                }
                 $array['thumbnail'] = $this->file_upload->uploadThumb($slug,$chmod_mode);
 			} catch (Exception $e) {
    				throw new Exception($e->getMessage());
@@ -590,8 +619,12 @@ class Book_model extends MY_Model {
 			try {
                 $chmod_mode = $this->config->item('chmod_mode');
                 if (empty($chmod_mode)) $chmod_mode = 0777;
-                $book = $this->get($book_id);
-                $slug = $book->slug;
+			    if (isset($array['slug'])) {
+                	$slug = $array['slug'];
+                } else {
+               		$book = $this->get($book_id);
+                	$slug = $book->slug;
+                }
                 $array['publisher_thumbnail'] = $this->file_upload->uploadPublisherThumb($slug,$chmod_mode);
 			} catch (Exception $e) {
    			 	throw new Exception($e->getMessage());
