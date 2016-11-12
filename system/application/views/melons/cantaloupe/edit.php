@@ -323,6 +323,27 @@ $(document).ready(function() {
 	// Badges
 	badges();
 	$('a[role="tab"] .badge').closest('a').click(function() { badges(); });
+	// Slug
+	var $slug = $('[name="scalar:slug"]');
+	if ($slug.val().length) {
+		$slug.data('orig',$slug.val()).keydown(function() {
+			var $this = $(this);
+			if ($this.data('confirmed')) return true;
+			bootbox.confirm({
+				closeButton:false,
+				backdrop:true,
+				size:'small',
+				message: 'Changing the URL segment of this page will change its location on the web, which might cause problems for sites that link to this page.<br /><br />Do you wish to continue?',
+				callback: function(result) {
+					if (result) {
+						$this.data('confirmed',true);
+					} else {
+						$this.val($this.data('orig'));
+					};
+				}
+			});
+		});
+	};
 
 	//Added to prevent accidental navigation away from edit/add page - matches all anchor tags
 	//with an href attribute that doesn't start with # or javascript:
@@ -774,7 +795,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			  				}
 			  			?></select>
 					</div>
-					<!--  
+					<!--
 					<div class="form-group">
 			  			<label>Or upload a new thumbnail: &nbsp; <small>(JPG, PNG, or GIF format; will be resized to 120px)</small> &nbsp; <small><a href="javascript:void(null);" onclick="$('input[name=\'source_file\']').val('');return false;">clear selected file</a></small></label>
 			  			<input type="file" name="source_file" />
