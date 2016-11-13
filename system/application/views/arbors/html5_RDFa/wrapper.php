@@ -33,6 +33,7 @@ if (isset($page->version_index)) {
 	$is_new = false;
 }
 if (isset($mode) && !empty($mode)) $background = null;
+$namespaces = $this->config->item('namespaces');
 $rdf_fields = $this->config->item('rdf_fields');
 if (!isset($rdf_fields['content'])) $rdf_fields['content'] = 'sioc:content';
 function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array(), $aria=false) {
@@ -54,17 +55,11 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 ?>
 <!DOCTYPE html>
 <html xml:lang="en" lang="en"
-	xmlns:dcterms="http://purl.org/dc/terms/"
-	xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#"
-	xmlns:sioc="http://rdfs.org/sioc/ns#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/"
-	xmlns:ov="http://open.vocab.org/terms/"
-	xmlns:oac="http://www.openannotation.org/ns/"
-	xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#"
-	xmlns:prov="http://www.w3.org/ns/prov#"
-	xmlns:exif="http://ns.adobe.com/exif/1.0/"
-	xmlns:iptc="http://ns.exiftool.ca/IPTC/IPTC/1.0/"
-	xmlns:bibo="http://purl.org/ontology/bibo/">
+<?php
+foreach ($namespaces as $ns_prefix => $ns_uri):
+	echo '	xmlns:'.$ns_prefix.'="'.$ns_uri.'"'."\n";
+endforeach;
+?>>
 <head>
 <title><?=strip_tags($title)?></title>
 <base href="<?=$base_uri.((isset($page)&&!empty($page))?$page->slug.'.'.$page->versions[$page->version_index]->version_num:$slug.'.0')?>" />

@@ -51,6 +51,10 @@
 	        	.prefix('sioc', 'http://rdfs.org/sioc/ns#')
 	        	.prefix('art', 'http://simile.mit.edu/2003/10/ontologies/artstor#')
 	        	.prefix('prov', 'http://www.w3.org/ns/prov#')
+	        	.prefix('exif', 'http://ns.adobe.com/exif/1.0/')
+	        	.prefix('iptc', 'http://ns.exiftool.ca/IPTC/IPTC/1.0/')
+	        	.prefix('bibo', 'http://purl.org/ontology/bibo/')
+	        	.prefix('id3', 'http://id3.org/id3v2.4.0#')
 	        	.where('?o oac:hasBody <'+this.options.subject+'>')
 	        	.where('?o oac:hasTarget ?s');
 	        	$q.each(function() {
@@ -64,6 +68,10 @@
 	        	.prefix('sioc', 'http://rdfs.org/sioc/ns#')
 	        	.prefix('art', 'http://simile.mit.edu/2003/10/ontologies/artstor#')
 	        	.prefix('prov', 'http://www.w3.org/ns/prov#')
+	        	.prefix('exif', 'http://ns.adobe.com/exif/1.0/')
+	        	.prefix('iptc', 'http://ns.exiftool.ca/IPTC/IPTC/1.0/')
+	        	.prefix('bibo', 'http://purl.org/ontology/bibo/')
+	        	.prefix('id3', 'http://id3.org/id3v2.4.0#')	        	
 	        	.where('?o a oac:Annotation')
 	        	.where('?o oac:hasBody ?b')
 	        	.where('?o oac:hasTarget ?s');

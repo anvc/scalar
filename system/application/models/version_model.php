@@ -68,7 +68,7 @@ class Version_model extends MY_Model {
   				//$row->url[$key] = linkencode($row->url[$key], true);
   			}
   		}
-  		
+
   		$rdf = parent::rdf($row, $prefix);
 
   		// Blend with RDF from the semantic store
@@ -291,7 +291,7 @@ class Version_model extends MY_Model {
     public function delete($version_id=0) {
 
     	if (empty($version_id)) return false;
-    	
+
     	$ci =& get_instance();  // for use with the rdf_store
 
     	$content_id = $this->get_content_id($version_id);

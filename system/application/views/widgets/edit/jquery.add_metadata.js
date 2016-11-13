@@ -135,7 +135,7 @@
         	for (var uri in data) break;
         	var metadata = data[uri];
         	if (jQuery.isEmptyObject(metadata)) {
-        		alert('No Exif data exists on the file '+opts.url);
+        		alert('No IPTC or ID3 metadata appears to exist in the file '+opts.url);
         		return;
         	};
         	for (var p in data[uri]) {

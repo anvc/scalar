@@ -23,7 +23,8 @@ $config['namespaces'] = array(
 						'prov'		=> 'http://www.w3.org/ns/prov#',
 						'exif'		=> 'http://ns.adobe.com/exif/1.0/',
 						'iptc'		=> 'http://ns.exiftool.ca/IPTC/IPTC/1.0/',
-						'bibo'		=> 'http://purl.org/ontology/bibo/'
+						'bibo'		=> 'http://purl.org/ontology/bibo/',
+						'id3'		=> 'http://id3.org/id3v2.4.0#'
 					   );
 
 // Internet Archive allowable filetypes when importing

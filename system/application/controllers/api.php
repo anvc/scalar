@@ -53,7 +53,7 @@ Class Api extends CI_Controller {
 	//Defaults
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
-	private $allowable_metadata_prefixes = array('dc', 'dcterms', 'art', 'shoah', 'scalar', 'exif', 'iptc', 'bibo');
+	private $allowable_metadata_prefixes = array('dc', 'dcterms', 'art', 'shoah', 'scalar', 'exif', 'iptc', 'bibo', 'id3');
 	private $disallowable_metadata_prefixes = array('scalar:metadata');
 	protected $data;
 
@@ -540,7 +540,7 @@ Class Api extends CI_Controller {
 				unset($this->data['scalar:'.$idx]);
 			}
 		}
-		
+
 		$rel_predicates = array();
 		foreach($this->rel_types as $type) {
 			$rel_type = 'rel_'.$type;

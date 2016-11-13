@@ -291,7 +291,7 @@ $(document).ready(function() {
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
 	});
 	$('.populate_exif_fields:first').click(function() {
-		if (!confirm('This feature will find any IPTC metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files by external applications. Do you wish to continue?')) return;
+		if (!confirm('This feature will find any IPTC or ID3 metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files, and ID3 in MP3 fles, by external applications. Do you wish to continue?')) return;
 		var url = $('input[name="scalar:url"]').val();
 		if (!url.length) {
 			alert('Media File URL is empty');
@@ -973,8 +973,8 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 					<div class="form-horizontal">
 						<div class="form-group">
 							<div class="col-sm-9 col-md-offset-3">
-								<a href="javascript:;" class="btn btn-default btn-sm add_additional_metadata" role="button">Add additional metadata</a>&nbsp;
-								<a href="javascript:;" class="btn btn-default btn-sm populate_exif_fields" role="button">Auto-populate IPTC fields</a>
+								<a href="javascript:;" class="btn btn-primary add_additional_metadata" role="button">Add additional metadata</a>&nbsp;
+								<a href="javascript:;" class="btn btn-default populate_exif_fields" role="button">Auto-populate fields from file</a>
 							</div>
 						</div>
 					</div>
