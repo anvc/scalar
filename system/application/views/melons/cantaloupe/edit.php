@@ -251,15 +251,15 @@ $(document).ready(function() {
 	var thumbnail = $('input[name="scalar:thumbnail"]');
 	var chosen_thumb = choose_thumb.find('option:selected').val();
 	if (chosen_thumb.length) thumbnail.val(chosen_thumb);
-	if (thumbnail.val().length) choose_thumb.parent().parent().append('<div class="well col-md-4"><img src="'+thumbnail.val()+'" class="thumb_preview" /></div>');
+	if (thumbnail.val().length) choose_thumb.parent().parent().append('<div class="well col-md-4"><img src="'+$('link[id="parent"]').attr('href')+thumbnail.val()+'" class="thumb_preview" /></div>');
 	choose_thumb.change(function() {
 		thumbnail.val($(this).find('option:selected').val());
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
-		$(this).parent().parent().append('<div class="well"><img src="'+thumbnail.val()+'" class="thumb_preview" /></div>');
+		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+thumbnail.val()+'" class="thumb_preview" /></div>');
 	});
 	thumbnail.change(function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
-		$(this).parent().parent().append('<div class="well"><img src="'+thumbnail.val()+'" class="thumb_preview" /></div>');
+		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+thumbnail.val()+'" class="thumb_preview" /></div>');
 	});
 	// Background
 	var choose_background = $('#choose_background');
@@ -267,7 +267,7 @@ $(document).ready(function() {
 	choose_background.change(function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		chosen_background = choose_background.find('option:selected').val();
-		$(this).parent().parent().append('<div class="well"><img src="'+chosen_background+'" class="thumb_preview" /></div>');
+		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+chosen_background+'" class="thumb_preview" /></div>');
 	});
 	// Banner
 	var choose_banner = $('#choose_banner');
@@ -275,7 +275,7 @@ $(document).ready(function() {
 	choose_banner.change(function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		chosen_banner = choose_banner.find('option:selected').val();
-		$(this).parent().parent().append('<div class="well"><img src="'+chosen_banner+'" class="thumb_preview" /></div>');
+		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+chosen_banner+'" class="thumb_preview" /></div>');
 	});
 	// Predefined CSS
 	if ('undefined'!=window['predefined_css'] && !$.isEmptyObject(window['predefined_css'])) {
@@ -344,7 +344,7 @@ $(document).ready(function() {
 			});
 		});
 	};
-
+	
 	//Added to prevent accidental navigation away from edit/add page - matches all anchor tags
 	//with an href attribute that doesn't start with # or javascript:
 	$(document).on('click', 'a[href]:not([href=""], [href^="#"], [href^="javascript"], [target="_blank"])', function(e){
@@ -795,7 +795,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			  				}
 			  			?></select>
 					</div>
-					<!--
+					<!--  
 					<div class="form-group">
 			  			<label>Or upload a new thumbnail: &nbsp; <small>(JPG, PNG, or GIF format; will be resized to 120px)</small> &nbsp; <small><a href="javascript:void(null);" onclick="$('input[name=\'source_file\']').val('');return false;">clear selected file</a></small></label>
 			  			<input type="file" name="source_file" />
