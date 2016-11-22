@@ -628,11 +628,11 @@
    								}
    								description = description.replace( new RegExp("\"", "g"), '&quot;' );
    								item.append( '<div class="carousel-caption caption_font"><span>' +
-   									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+   									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
    									'</span></div>' );
    							} else {
    								item.append( '<div class="carousel-caption caption_font"><span>' +
-   									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a> (' + ( i + 1 ) + '/' + n + ')' +
+   									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a>'+($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
    									'</span></div>' );
    							}
 

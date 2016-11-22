@@ -1422,7 +1422,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						e.stopPropagation();
 						var widget = {attrs:$('#bootbox-content-selector-content').find('.widgetFormatting').data('options').attrs,isEdit:opts.isEdit};
 						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){
-							widget.attrs['data-'+$(this).attr('name')] = $(this).val();
+							if($(this).attr('name')=="caption"){
+								widget.attrs['data-caption'] = $(this).val().toLowerCase().replace(/ /g,"_");
+								if($(this).val()=='Custom Text'){
+									widget.attrs['data-custom_caption'] = $('#bootbox-content-selector-content').find('#caption_text').val();
+								}
+							}else if($(this).attr('name')=="numbering"){
+								if($(this).val()=='Hide Slide Numbers'){
+									widget.attrs['data-hide_numbering'] = true;
+								}
+							}else{
+								widget.attrs['data-'+$(this).attr('name')] = $(this).val();
+							}
 						});
 						opts.callback(widget,opts.element);
 						bootbox.hideAll();
@@ -1430,16 +1441,24 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					var formattingOptions = {
 						Size : ['small','medium','large','full'],
-						Align : (typeof opts.inline!='undefined' && opts.inline)?['left','center','right']:['left','right']
+						Align : (typeof opts.inline!='undefined' && opts.inline)?['left','center','right']:['left','right'],
+						Caption : ['Description','Title','Title and Description','None','Custom Text']
 					};
 
-					console.log(opts);
+					if(typeof options.attrs.resource == 'undefined' || options.attrs.resource == null){
+							formattingOptions.Caption = ['None','Custom Text'];
+					}
+
 					//Need to limit formatting options per widget type here
 					switch(options.type){
 						case 'timeline':
 						case 'visualization':
 						case 'carousel':
 							formattingOptions.Size = ['medium','large','full'];
+					}
+
+					if(options.type == "carousel"){
+						formattingOptions.Numbering = ["Show Slide Numbers","Hide Slide Numbers"]
 					}
 
 					if(options.type == "visualization" && options.attrs['data-visformat']=='radial'){
@@ -1453,12 +1472,24 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							values += '<option value="'+formattingOptions[o][v]+'">'+formattingOptions[o][v].charAt(0).toUpperCase()+formattingOptions[o][v].slice(1)+'</option>';
 						}
 						values += '</select>';
+
 						formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-2 control-label">'+o+':</label><div class="col-sm-6">'+values+'</div></div>';
+						if(o=="Caption"){
+							formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-4 control-label">Custom Caption:</label><div class="col-sm-6"><input class="form-control" type="text" id="caption_text"></input></div></div>';
+						}
 					}
 					formattingSelection += '</div>';
 
 					var $content = $('<div class="widgetFormatting"></div>').appendTo('#bootbox-content-selector-content').data('options',options);
 					$content.append(formattingSelection);
+
+					$content.find('.form-control[name="caption"]').change(function(){
+						if($(this).val()=='Custom Text'){
+							$content.find('#caption_text_group').show();
+						}else{
+							$content.find('#caption_text_group').hide();
+						}
+					});
 
 					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
 					 $('#bootbox-content-selector-content').find('.widgetFormatting').fadeOut('fast',function(){

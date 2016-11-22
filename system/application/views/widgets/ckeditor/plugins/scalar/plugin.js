@@ -329,13 +329,11 @@ CKEDITOR._scalar = {
 		$element = $(element.$);
 		cke_loadedScalarLinkedWidget.push(element);
 		$($element).off('mouseout mouseover').hover(function(){
-
 			var position = $(this).position();
 			var framePosition = $('.cke_contents>iframe').offset();
 			var frameScroll = $('.cke_contents>iframe').contents().scrollTop();
 			var pageScroll = $(window).scrollTop();
-
-			var thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$element.data('widget')+'.png';
+			var thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$(this).data('widget')+'.png';
 			var topPos = framePosition.top+position.top-frameScroll-pageScroll+30;
 			var data = {
 				element : element,
