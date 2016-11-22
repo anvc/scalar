@@ -256,8 +256,27 @@
 						col.append('<p>'+rowRelation.body.getDisplayTitle()+'</p>');
 					});
 				}
-			}
+			},
 
+			addMetadataTableForNodeToElement: function(node, element) {
+				var table = $( '<table></table>' ).appendTo(element);
+				// basic Scalar properties
+				table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
+				table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
+				table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
+				if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+node.current.description+'</td></tr>');
+				if (null!=node.current.source) table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
+				if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td><a href="'+node.current.sourceLocation+'">'+node.current.sourceLocation+'</a></td></tr>');
+				// auxiliary properties
+				for ( prop in node.current.auxProperties ) {
+					for ( i in node.current.auxProperties[ prop ] ) {
+						value = node.current.auxProperties[ prop ][ i ];
+						table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
+					}
+				}
+				// API links
+				table.append('<tr><td>View as</td><td><a href="'+node.url+'.rdfxml">RDF-XML</a>, <a href="'+node.url+'.rdfjson">RDF-JSON</a>, or <a href="'+node.url+'.meta">HTML</a></td></tr>');				
+			}
 		}
 
 		var node = mediaelement.model.node;
@@ -288,6 +307,12 @@
 				}
 				break;
 
+				case 'metadata':
+				description = $('<div></div>');
+				media.addMetadataTableForNodeToElement(node, description);
+				description.unwrap();
+				break;
+
 				default:
 				description = node.current.description;
 				if ( node.current.description == null ) {
@@ -297,10 +322,15 @@
 
 			}
 			if ( media.options.caption != 'none' ) {
-				if ( node.current.source != null ) {
-					description += '<br><i>Source: ' + node.current.source + '</i>';
+				var descriptionPane = $('<div class="media_description pane"></div>').appendTo(element);
+				if (node.current.source != null) {
+					if (media.options.caption != 'metadata') {
+						description += '<br><i>Source: ' + node.current.source + '</i>';
+					} else {
+						descriptionPane.addClass('media_metadata');
+					}
 				}
-				var descriptionPane = $('<div class="media_description pane">'+description+'</div>').appendTo(element);
+				descriptionPane.append(description);
 				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
 				descriptionTab.click(function() {
 					$(this).parent().parent().find('.pane').hide();
@@ -379,39 +409,26 @@
 				}
 			}
 
-			var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
-			var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
-			metadataTab.click(function() {
-				$(this).parent().parent().find('.pane').hide();
-				media.minimizeAnnotationPane();
-				metadataPane.show();
-				$(this).parent().find('.media_tab').removeClass('select');
-				metadataTab.addClass('select');
-				if (currentRelation != null) {
-					media.showAnnotation(null, currentRelation, mediaelement, true);
+			// hide metadata tab if the media's description tab includes the metadata
+			if (media.options.caption != 'metadata') {
+				var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
+				var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
+				metadataTab.click(function() {
+					$(this).parent().parent().find('.pane').hide();
+					media.minimizeAnnotationPane();
+					metadataPane.show();
+					$(this).parent().find('.media_tab').removeClass('select');
+					metadataTab.addClass('select');
+					if (currentRelation != null) {
+						media.showAnnotation(null, currentRelation, mediaelement, true);
+					}
+				});
+				media.addMetadataTableForNodeToElement(node, metadataPane);
+				if (!foundAuxContent) {
+					element.find('.media_metadata').show();
+					metadataTab.addClass('select');
+					foundAuxContent = true;
 				}
-			});
-			var table = $( '<table></table>' ).appendTo( metadataPane );
-			// basic Scalar properties
-			table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
-			table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
-			table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
-			if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+node.current.description+'</td></tr>');
-			if (null!=node.current.source) table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
-			if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td><a href="'+node.current.sourceLocation+'">'+node.current.sourceLocation+'</a></td></tr>');
-			// auxiliary properties
-			for ( prop in node.current.auxProperties ) {
-				for ( i in node.current.auxProperties[ prop ] ) {
-					value = node.current.auxProperties[ prop ][ i ];
-					table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
-				}
-			}
-			// API links
-			table.append('<tr><td>View as</td><td><a href="'+node.url+'.rdfxml">RDF-XML</a>, <a href="'+node.url+'.rdfjson">RDF-JSON</a>, or <a href="'+node.url+'.meta">HTML</a></td></tr>');
-			if (!foundAuxContent) {
-				element.find('.media_metadata').show();
-				metadataTab.addClass('select');
-				foundAuxContent = true;
 			}
 
 			var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
