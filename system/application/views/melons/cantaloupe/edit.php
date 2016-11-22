@@ -9,7 +9,7 @@
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.ui.touch-punch.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
-<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.predefined.js')?>
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
 <?$this->template->add_js('system/application/views/widgets/farbtastic/farbtastic.js')?>
@@ -92,7 +92,6 @@ $(document).ready(function() {
 	});
 	$('.path_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
-			console.log(nodes);
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -347,7 +346,7 @@ $(document).ready(function() {
 			});
 		});
 	};
-	
+
 	//Added to prevent accidental navigation away from edit/add page - matches all anchor tags
 	//with an href attribute that doesn't start with # or javascript:
 	$(document).on('click', 'a[href]:not([href=""], [href^="#"], [href^="javascript"], [target="_blank"])', function(e){
@@ -798,7 +797,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			  				}
 			  			?></select>
 					</div>
-					<!--  
+					<!--
 					<div class="form-group">
 			  			<label>Or upload a new thumbnail: &nbsp; <small>(JPG, PNG, or GIF format; will be resized to 120px)</small> &nbsp; <small><a href="javascript:void(null);" onclick="$('input[name=\'source_file\']').val('');return false;">clear selected file</a></small></label>
 			  			<input type="file" name="source_file" />
