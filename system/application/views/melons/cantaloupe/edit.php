@@ -329,6 +329,8 @@ $(document).ready(function() {
 		$slug.data('orig',$slug.val()).keydown(function() {
 			var $this = $(this);
 			if ($this.data('confirmed')) return true;
+			if ($this.data('is_open')) return true;
+			$this.data('is_open',true);
 			bootbox.confirm({
 				closeButton:false,
 				backdrop:true,
@@ -340,6 +342,7 @@ $(document).ready(function() {
 					} else {
 						$this.val($this.data('orig'));
 					};
+					$this.data('is_open',false);
 				}
 			});
 		});
