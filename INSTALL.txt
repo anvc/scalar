@@ -27,7 +27,7 @@ live environments (e.g., scalar.usc.edu).  To update an existing Scalar install,
 
 ***
 Scalar supports servers running SSL (https) out of the box.  If needed we have a template in the root folder's .htaccess 
-file to force all requests through https.
+file to force all requests through https. Be aware, though, runnign Scalar under https might conflict with plugins or media players that are running under http, meaning, websites running https generally can't embed content running under http.
 ***
 
 1)
