@@ -227,7 +227,12 @@ class Rdf extends MY_Controller {
 					exit;
 			}
 
-			$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));
+			// This much-speedier version of search turned off until some UX considerations are made
+			//if (!empty($this->data['sq'])) {
+			//	$content = $this->$model->search_with_recent_version_id($this->data['book']->book_id, $this->data['sq'], (($this->data['hidden'])?false:true));	
+			//} else {
+				$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));
+			//}
 			$this->rdf_object->index(
 			                         $this->data['content'],
 			                           array(
@@ -237,7 +242,7 @@ class Rdf extends MY_Controller {
 			                           	 'method'		=> __FUNCTION__.'/'.$class,
 			                         	 'restrict'		=> $this->data['restrict'],
 			                         	 'rel'			=> $rel,
-			                         	 'sq'			=> $this->data['sq'],
+			                         	 'sq'			=> $this->data['sq'], 
 			                         	 'versions'		=> (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 			                         	 'ref'			=> (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
 			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),

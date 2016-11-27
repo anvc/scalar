@@ -68,6 +68,60 @@ class Page_model extends MY_Model {
 
     }
 
+    // Search assuming the recent_version_id field is set ... this should run fastly
+    public function search_with_recent_version_id($book_id, $terms, $is_live=true) {
+    	
+   		$content = array();
+    	if (empty($terms)) return $content;
+    	$terms = implode(' ', $terms);
+    	$this->db->select($this->versions_table.'.*');
+    	$this->db->select($this->pages_table.'.*');
+    	$this->db->from($this->versions_table);
+    	$this->db->join($this->pages_table, $this->pages_table.'.recent_version_id='.$this->versions_table.'.version_id');
+    	$this->db->where($this->pages_table.'.book_id', $book_id);
+    	$this->db->like($this->versions_table.'.title', $terms);
+    	$this->db->or_like($this->versions_table.'.description', $terms);
+ 		$query = $this->db->get();
+ 		if (!$query->num_rows) return $content;
+ 		$result = $query->result();  
+
+ 		// Get page columns
+ 		$pages_fields = array();
+ 		$query = $this->db->query("SHOW COLUMNS FROM ".$this->db->dbprefix($this->pages_table));
+		$_result = $query->result();
+		foreach ($_result as $row) {
+			$pages_fields[] = $row->Field;
+		}
+ 		
+ 		// Get version columns
+		$versions_fields = array();
+		$query = $this->db->query("SHOW COLUMNS FROM ".$this->db->dbprefix($this->versions_table));
+		$_result = $query->result();
+		foreach ($_result as $row) {
+			$versions_fields[] = $row->Field;
+		}
+ 		
+ 		$count = 0;
+ 		foreach ($result as $row) {
+ 			$content[$count] = new stdClass();
+ 			foreach ($row as $field => $value) {
+ 				if (in_array($field, $pages_fields)) $content[$count]->$field = $value;
+ 			}
+ 			$content[$count]->urn = $this->urn($content[$count]->content_id);
+ 			$content[$count]->versions = array();
+ 			$content[$count]->versions[0] = new stdClass();
+ 			foreach ($row as $field => $value) {
+ 				if (in_array($field, $versions_fields)) $content[$count]->versions[0]->$field = $value;
+ 			}
+ 			$content[$count]->versions[0]->urn = $this->version_urn($content[$count]->versions[0]->version_id);
+ 			$count++;
+ 		}
+ 		
+ 		return $content;
+    	
+    }
+    
+    // This is only used by Book->search() (the /search page)
     // TODO: do a better intersect between terms
     public function search($book_id=null, $terms=array(), $is_live=true) {
 
