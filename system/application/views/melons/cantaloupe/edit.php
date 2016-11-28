@@ -1,7 +1,7 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_css('system/application/views/widgets/ckeditor/custom.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/jquery-ui-custom/jquery-ui.min.css')?>
-<?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
+<?$this->template->add_css('system/application/views/widgets/spectrum/spectrum.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/ckeditor/ckeditor.js')?>
 <? $this->template->add_js('if ( window.CKEDITOR && ( !CKEDITOR.env.ie || CKEDITOR.env.version > 7 ) ){CKEDITOR.env.isCompatible = true;}','embed'); ?>
@@ -12,7 +12,7 @@
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.predefined.js')?>
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
-<?$this->template->add_js('system/application/views/widgets/farbtastic/farbtastic.js')?>
+<?$this->template->add_js('system/application/views/widgets/spectrum/spectrum.js')?>
 <?$this->template->add_js('system/application/views/widgets/spinner/spin.min.js')?>
 <?
 if ($this->config->item('reference_options')) {
@@ -241,10 +241,17 @@ $(document).ready(function() {
 		$('#title').autocomplete({source:suggestions});
 	});
 	*/
-	// Color Picker (in editor)
-	if ($.isFunction($.fn.farbtastic)) {
-		$('#colorpicker').farbtastic('#color_select');
-	}
+	// Color Picker
+	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+		if ('#color-pane'==$(e.target).attr('href') && $.isFunction($.fn.spectrum)) {
+			var $color_select = $('#color_select');
+			var color = $color_select.val();
+			$color_select.spectrum({
+		        color: color
+		    });
+		}
+	});
+
 	// Thumbnail
 	var choose_thumb = $('#choose_thumbnail');
 	var thumbnail = $('input[name="scalar:thumbnail"]');
@@ -895,13 +902,11 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		</div>
 
 		<div id="color-pane" role="tabpanel" class="tab-pane">
-			<div class="row p" style="display: none;">
+			<div class="row p">
 				<div class="col-md-8">
 					<h4>Color</h4>
-					<small>e.g., for path nav bar</small>
+					<small>e.g., for path nav bar</small><br />
 					<input class="form-control" type="text" id="color_select" name="scalar:color" value="<?=(!empty($page->color))?$page->color:'#ffffff'?>" />
-					<a href="javascript:;" class="btn btn-default btn-xs" role="button" onclick="$(this).next().toggle();">Choose</a>
-  					<div style="display:none;margin-top:6px;"><div id="colorpicker"></div></div>
 				</div>
 			</div>
 		</div>

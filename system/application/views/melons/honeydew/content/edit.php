@@ -2,7 +2,7 @@
 <?$this->template->add_css('system/application/views/melons/honeydew/content/edit.css')?>
 <?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
 <?$this->template->add_css('system/application/views/widgets/wysiwyg/jquery.wysiwyg.css')?>
-<?$this->template->add_css('system/application/views/widgets/farbtastic/farbtastic.css')?>
+<?$this->template->add_css('system/application/views/widgets/spectrum/spectrum.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/content/edit.js')?>
@@ -12,7 +12,7 @@
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
 <?$this->template->add_js('system/application/views/widgets/tablesorter/jquery.tablesorter.min.js')?>
-<?$this->template->add_js('system/application/views/widgets/farbtastic/farbtastic.js')?>
+<?$this->template->add_js('system/application/views/widgets/spectrum/spectrum.js')?>
 <?$this->template->add_js('system/application/views/widgets/spinner/spin.min.js')?>
 <?
 if ($this->config->item('reference_options')) {
@@ -407,10 +407,6 @@ endif;
   		<tr class="styling_sub"><!-- color -->
   			<td>Color<br /><small>e.g., for path nav bar</small></td>
   			<td><input style="width:100%;" type="text" id="color_select" name="scalar:color" value="<?=(!empty($page->color))?$page->color:'#ffffff'?>" /></td>
-  			<td class="styling_last">
-  				 <a href="javascript:;" class="generic_button" onclick="$(this).next().toggle();">Choose</a>
-  				<div style="display:none;margin-top:6px;"><div id="colorpicker"></div></div>
-  			</td>
   		</tr>
   		<tr class="styling_sub"><!-- background image -->
   			<td>Background image</td>

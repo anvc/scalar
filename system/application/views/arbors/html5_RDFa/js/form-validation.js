@@ -203,6 +203,12 @@ function validate_edit_form(form, no_action) {
 		*/
 	};
 
+	if ($.isFunction($.fn.spectrum) && $('.sp-replacer').length) {
+		var $color_select = form.find('#color_select');
+		var color = ($color_select.toString().length) ? '#'+$color_select.spectrum("get").toHex() : '#ffffff';
+		form.find('#color_select').val(color);
+	}	
+	
 	if ('source'==CKEDITOR.instances['sioc:content'].mode) {  // If in source mode, switch to WYSIWYG to invoke formatting
 		CKEDITOR.instances['sioc:content'].setMode('wysiwyg', function() {
 			commit();

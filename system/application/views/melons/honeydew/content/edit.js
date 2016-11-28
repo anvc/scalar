@@ -281,8 +281,12 @@ $(window).ready(function() {
 	});
 	
 	// Color Picker (in editor)
-	if ($.isFunction($.fn.farbtastic)) {
-		$('#colorpicker').farbtastic('#color_select');	
+	if ($.isFunction($.fn.spectrum)) {
+		var $color_select = $('#color_select');
+		var color = $color_select.val();
+		$color_select.spectrum({
+	        color: color
+	    });
 	}	
 	
 	// Protect links from moving away from the edit page
@@ -471,6 +475,13 @@ function validate_form($form, ignoreViewCheck) {
 			}	
 		}
 	}
+	// Commit color
+	if ($.isFunction($.fn.spectrum)) {
+		var $color_select = $form.find('#color_select');
+		var color = ($color_select.toString().length) ? '#'+$color_select.spectrum("get").toHex() : '#ffffff';
+		$form.find('#color_select').val(color);
+	}
+	// Commit
 	send_form($form);
 	return false;
 }
