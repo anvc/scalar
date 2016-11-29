@@ -284,8 +284,10 @@ class Page_model extends MY_Model {
 					}
 				}
 				// Go ahead and delete
+				$thumb_url = confirm_slash(FCPATH).confirm_slash($book_slug).substr_replace($url, "_thumb", strrpos($url, "."),0);
 				$url = confirm_slash(FCPATH).confirm_slash($book_slug).$url;
 				if (file_exists($url) && !unlink($url)) echo 'Warning: could not delete file.';
+				if (file_exists($thumb_url)) unlink($thumb_url);
 			}
 		}
 

@@ -87,7 +87,8 @@ class Book extends MY_Controller {
 		$this->data['models'] = $this->models;
 		$this->data['mode'] = null; // e.g., "editing"
 		$this->data['can_edit'] = $this->login_is_book_admin('reviewer');
-		$this->data['use_proxy'] = $this->config->item('is_https') ? true : false;
+		//$this->data['use_proxy'] = $this->config->item('is_https') ? true : false;
+		$this->data['use_proxy'] = false;  // The proxy is a work-in-progress solution for installs running SSL, which disrupts third-party plugins
 
 	}
 
