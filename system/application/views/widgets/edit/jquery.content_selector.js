@@ -7,9 +7,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			changeable:true,
 			multiple:false,
 			onthefly:false,
-			pagination:false,  /* Isn't working properly b/c backend sorts RDF nodes by slug not title */
+			pagination:true,  /* Sorts by slug, not title */
 			start:0,
-			results_per_page:20,
+			results_per_page:100,
 			rec:0,
 			sq:null,
 			desc_max_length: 100,
@@ -319,6 +319,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		defaults.multiple = false;
     		defaults.rec = 0;
     		defaults.sq = null;
+    		defaults.s_all = null;
     		defaults.data = [];
     		defaults.queue = [];
     		defaults.msg = '';
@@ -359,7 +360,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		}
     		opts.type = type;
     		get_vars.rec = (opts.rec>0) ? opts.rec : 0;
-    		if (opts.sq!=null) get_vars.sq = opts.sq;
+    		if (opts.sq!=null) {
+    			get_vars.sq = opts.sq;
+    			get_vars.s_all = (opts.s_all!=null && opts.s_all!=0) ? 1 : 0;
+    		}
     		if (opts.pagination) {
     			get_vars.start = opts.start;
     			get_vars.results = opts.results_per_page;
@@ -470,7 +474,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		// Default content
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
     		// Footer buttons
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Include metadata in search (slower)</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		// Options (search + content type)
     		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
     			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
@@ -598,7 +602,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		if (opts.multiple) {  // Can choose multiple rows
     			$footer.show();
 					$footer.find('label').show();  // Check all
-					$footer.find('input[type="checkbox"]').click(function() {
+					$footer.find('input[type="checkbox"]:first').click(function() {
 						var active = $(this).data('active');
 						$wrapper.find('input[type="checkbox"]').each(function() {
      					var $this = $(this);
@@ -632,6 +636,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		} else {
     			$footer.find('label').hide();
      		}
+			$footer.find('input[type="checkbox"]:last').click(function() {  // Search metadata (slow)
+				opts.s_all = ($(this).is(':checked')) ? 1 : 0;
+			});
     	};
     	// Propagate the interface
     	var propagate = function() {
@@ -687,8 +694,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			if (!opts.data.length) return;
     			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
     			$loadmore.appendTo($tbody);
+    			$loadmore.hide();
 	    		$this.find('.content').scroll(function() {
 	    			if ($loadmore.find('td').hasClass('loading')) return;
+	    			$loadmore.show();
 	    			var $this = $(this);
 	    			if ($this.innerHeight() + $this.scrollTop() < $this[0].scrollHeight) return;
 	    			$loadmore.find('td').addClass('loading');
@@ -762,11 +771,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$div.remove();
     			});
     		});
+    		$loadmore.hide();
     	};
     	var go = function() {
     		opts.data = [];
     		if (!opts.start) $this.find('.content').html('<div class="loading">Loading ...</div>');
-				$this.find('.footer').find('input[type="checkbox"]').data('active',false).prop('checked',false);
+				$this.find('.footer').find('input[type="checkbox"]:first').data('active',false).prop('checked',false);  // Check out
     		// TODO: spool requests
 	    	$.getJSON(url(), function(){}).always(function(_data) {
 	    		if ('undefined'!=typeof(_data.status)) {
@@ -834,10 +844,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		    			}
 	    			}
 	    		}
-	    		opts.data.sort(function(a,b){
-	    		    var x = a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1;
-	    		    return x;
-	    		});
 	    		propagate();
 	    	});
     	};

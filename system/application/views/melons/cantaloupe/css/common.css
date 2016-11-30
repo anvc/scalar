@@ -175,6 +175,8 @@ video { background-color: black; }
 .search_control form { display: inline; }
 .search_submit { display: none; }
 
+.s_all_label {float:right; cursor:pointer;}
+
 #new-item { border-left: 1px solid #999; max-height: 5rem; display: block; }
 
 /* --- CSS MENUS --- */
