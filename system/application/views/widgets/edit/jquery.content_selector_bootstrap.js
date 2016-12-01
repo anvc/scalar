@@ -4,6 +4,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			parent:$('link#parent').attr('href'),
 			anno_icon:$('link#approot').attr('href')+'views/melons/cantaloupe/images/annotate_icon.png',
 			type:null,
+			orig_type:null,
 			changeable:true,
 			multiple:false,
 			onthefly:false,
@@ -278,6 +279,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	var self = this;
     	var $this = $(this);
     	var opts = $.extend( {}, defaults, options );
+    	opts.orig_type = opts.type;
     	// Object to VAR str
     	var obj_to_vars = function(obj) {
     		var str = '';
@@ -305,6 +307,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	// Reset
     	var reset = function() {  // TODO: for some reason 'defaults' fields are getting set despite using jQuery.extend({}, ...)
     		defaults.type = null;
+    		defaults.orig_type = null;
     		defaults.changeable = true;
     		defaults.multiple = false;
     		defaults.rec = 0;
@@ -350,10 +353,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		}
     		opts.type = type;
     		get_vars.rec = (opts.rec>0) ? opts.rec : 0;
-    		if (opts.sq!=null) {
-    			get_vars.sq = opts.sq;
-    			get_vars.s_all = (opts.s_all!=null && opts.s_all!=0) ? 1 : 0;
-    		}
+    		if (opts.sq!=null) get_vars.sq = opts.sq;
     		if (opts.pagination) {
     			get_vars.start = opts.start;
     			get_vars.results = opts.results_per_page;
@@ -362,24 +362,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		return url;
     	};
     	// Search
-    	var isearch = function(val) {  // Search items already loaded
-    		var $rows = $this.find('tr:not(:first)');
-    		val = val.toLowerCase();
-    		if (!val.length) {
-    			$rows.show();
-    		}
-    		$rows.hide();
-    		$rows.each(function() {
-    			var $row = $(this);
-    			$row.find('td:nth-child(2),td:nth-child(3),td:nth-child(4)').each(function() {
-    				if ($(this).text().toLowerCase().indexOf(val)!=-1) $row.show();
-    			});
-    		});
-    	};
     	var esearch = function(val) {  // Search via the API
-    		opts.type = 'content';
+    		var okay_to_search = ['media','file','composite','page','content'];
+    		if (opts.orig_type && -1==okay_to_search.indexOf(opts.orig_type)) {
+    			alert('Search is not presently supported for the '+opts.orig_type+' type');
+    			return;
+    		} else if (!opts.orig_type) {
+    			opts.type = 'content';
+    		} else {
+    			opts.type = opts.orig_type;
+    		}
     		opts.sq = val;
+    		opts.start = 0;
     		$this.find('input[type="radio"]').prop('checked', false);
+    		$this.find('.content').unbind('scroll').scrollTop(0);
     		go();
     	};
     	// Set the height of the content area (only needed for Boostrap mode); TODO: very messy
@@ -458,7 +454,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		// Default content
     		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
     		// Footer buttons
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Include metadata in search (slower)</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		// Options (search + content type)
     		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
     			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
@@ -554,27 +550,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		if (!opts.changeable) {  // Selected type is locked
     			$options.addClass('unchangeable');
     			$options.find('input[type="radio"]').prop('disabled', true);
-    			$options.find('input[type="text"]').keyup(function() {
-    				isearch($(this).val());
-    			});
-    			$options.submit(function() {
-    				isearch($(this).find('input[type="text"]').val());
-    				return false;
-    			});
     		} else {  // User can select a type
     			$options.addClass('changeable');
     			$options.find('input[name="type"]').change(function() {
     				var val = $(this).filter(':checked').val();
     				opts.type = val;
     				opts.sq = null;
+    				opts.start = 0;
+    				$this.find('.content').unbind('scroll').scrollTop(0);
     				go();
     			});
-    			$options.submit(function() {
-    				$options.find('input[name="type"]').prop('checked',false);
-    				esearch($(this).find('input[type="text"]').val());
-    				return false;
-    			});
     		}
+			$options.submit(function() {
+				$options.find('input[name="type"]').prop('checked',false);
+				esearch($(this).find('input[type="text"]').val());
+				return false;
+			});
     		if (opts.multiple) {  // Can choose multiple rows
     			$footer.show();
 					$footer.find('label:first').show();  // Check all
@@ -612,9 +603,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		} else {
     			$footer.find('label').hide();
      		}
-			$footer.find('input[type="checkbox"]:last').click(function() {  // Search metadata (slow)
-				opts.s_all = ($(this).is(':checked')) ? 1 : 0;
-			});
     	};
     	// Propagate the interface
     	var propagate = function() {
@@ -671,7 +659,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
     			$loadmore.appendTo($tbody);
     			$loadmore.hide();
-	    		$this.find('.content').scroll(function() {
+	    		$this.find('.content').unbind('scroll').scroll(function() {
 	    			if ($loadmore.find('td').hasClass('loading')) return;
 	    			$loadmore.show();
 	    			var $this = $(this);
