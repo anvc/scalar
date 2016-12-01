@@ -42,11 +42,12 @@
    				start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
    	   			var sq = $(this).find('input[name="sq"]').val().toLowerCase();
+   	   			var s_all = ($(this).find('input[name="s_all"]').is(':checked')) ? 1 : null;
    	   			if (!sq.length || 'Search for a media file'.toLowerCase()==sq) {
 					alert('Please enter a search query');
 					return false;
    	   			}
-   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'media',sq:sq,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
+   	   			$('.table_wrapper:first').scalardashboardtable('search', {query_type:'media',sq:sq,s_all:s_all,start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
    	   			return false;
    			});
 
@@ -279,6 +280,7 @@
 		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;">clear</a>&nbsp;
 		<? if (count($current_book_files)): ?>
 		&nbsp; <span class="prev"></span>&nbsp; <span class="pagination"></span> <b class="total"><?=count($current_book_files)?></b> media &nbsp;<span class="next"></span>
+		&nbsp; &nbsp;<label class="search_metadata" style="display:none;"><input name="s_all" type="checkbox"> &nbsp;Include metadata in search (slower)</label>		
 		<? endif ?>
 		</form>
 
