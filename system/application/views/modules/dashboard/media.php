@@ -102,6 +102,7 @@
 
 		function pagination(callee, num_nodes) {
 			$('.prev, .next').html('');
+			$('label[class="search_metadata"]').hide();
 			if ('paginate'==callee) {
 				var total = parseInt($('.total:first').html());
 				var prev = (start > 0) ? start : 0;
@@ -125,6 +126,7 @@
 				$('.total').hide();
 				$('.pagination').html('<b>'+num_nodes+'</b> search result'+((num_nodes>1)?'s':'')+' of ');
 				$('select[name="jump_to"]').val('');
+				$('label[class="search_metadata"]').show();
 			}
 		}
 
