@@ -1635,7 +1635,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								body = body.substr(0, body.lastIndexOf('.'));
 								var target = _data[uri]['http://www.openannotation.org/ns/hasTarget'][0]['value'].split('#')[0];
 								target = target.substr(0, target.lastIndexOf('.'));
-								_data[body]['rel'] = _data[target];
+								if("undefined" === typeof _data[body].rel){
+										_data[body].rel = [];
+								}
+								_data[body].rel.push(_data[target]);
 								if("undefined" !== typeof _data[target]){
 									_data[target]['http://purl.org/dc/terms/hasVersion'] = undefined;
 								}
@@ -1651,8 +1654,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		    				item.version_slug = item.version_uri.replace(parent_url, '');
 		    				item.content = _data[uri];
 		    				item.version = _data[ item.version_uri ];
-		    				item.title = ('undefined'!=typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
-		    				item.targets = [];
+		    				item.title = ('undefined'!==typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
+		    				item.targets = 'undefined'!==typeof _data[uri].rel ? _data[uri].rel : [];
 								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 									item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
 								}else{
@@ -1683,13 +1686,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				include_children : 2
 			}
 			var opts = {
-				"fields" : ["thumbnail","title","description","url","preview"],
-				"allowMultiple" : false,
+				"fields" : ["thumbnail","title","description","url","preview","include_children"],
+				"allowMultiple" : true,
 				"rec" : 1,
 				"ref" : 0,
 				"defaultType" : 'content',
 				"types" : ['composite','media','path','tag','annotation','reply','term'],
-				"results_per_page" : 50
+				"results_per_page" : 50,
+				"allow_children" : true
 			};
 
 			$.extend(opts, options);
@@ -1733,7 +1737,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																	</div> \
 																	<div class="panel-footer"> \
 																		<div class="row"> \
-																			<div class="col-sm-5 col-sm-offset-7 col-md-4 col-md-offset-8 selected_node_count"></div> \
+																			<div class="col-sm-5 col-sm-offset-7 col-md-4 col-md-offset-8 selected_node_count text-right"></div> \
 																		</div> \
 																	</div> \
 																</div>';
@@ -1744,7 +1748,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
 					isLazyLoad = false;
 				}
-				var $dialogue_container = $(this).parents('.node_selector');
 				var opts = $(this).data('opts');
 				var $rows = $(this).find('.node_rows');
 				if(lastLoadType == "search"){
@@ -1766,12 +1769,27 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 					for(var i = start; i < data.length; i++){
 						var item = data[i];
+
+						if($(this).data('nodes') == undefined){
+							var index = -1;
+						}else{
+							var index = $(this).data('nodes').indexOf(item);
+						}
+
+						var selected = false;
+						if(index > -1){
+							selected = true;
+						}
+
 						var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
 						var rowHTML = '<tr>';
 
 						if(isset(opts.allowMultiple) && opts.allowMultiple){
-							rowHTML += '<td class="text-center" style="vertical-align: middle; width: 5rem"><i class="glyphicon glyphicon-unchecked"></td>';
+							rowHTML += '<td class="text-center select_row" style="vertical-align: middle; width: 5rem"><i class="glyphicon glyphicon-'+(selected?'check':'unchecked')+'"></td>';
 						}
+
+						var hasChildSelector = false;
+
 						for(var n in opts.fields){
 							var col = opts.fields[n];
 							switch(col){
@@ -1787,12 +1805,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								case 'url':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">&hellip;/'+item.slug+'</td>';
 									break;
-
 								case 'preview':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">Preview</a></td>';
 									break;
 								case 'include_children':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;">';
+									hasChildSelector = true;
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+' select_children" style="vertical-align: middle;">';
 									if(item.hasRelations){
 										rowHTML += '<i class="glyphicon glyphicon-unchecked">';
 									}
@@ -1801,20 +1819,155 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 						rowHTML+='</tr>';
 						//<td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>
-						var $item = $(rowHTML).appendTo($rows).click(function(e){
+						var $item = $(rowHTML).appendTo($rows).data({'slug':item.slug,'item':item});
 
-						}).data('slug',item.slug);
+						if(hasChildSelector){
+							$item.find('.select_children').click(function(){
+								var $dialogue_container = $(this).parents('.node_selector');
+								var item = $(this).parents('tr').data('item');
+								if($dialogue_container.data('nodes') == undefined){
+									var index = -1;
+								}else{
+									var index = $dialogue_container.data('nodes').indexOf(item);
+								}
+								if(index > -1 && 'undefined'!==$dialogue_container.data('nodes')[index].include_children && $dialogue_container.data('nodes')[index].include_children){
+									$(this).find('.glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+									$dialogue_container.data('nodes')[index].include_children = false;
+									updateSelectedCounter();
+								}else{
+									if(index > -1){
+										$(this).find('.glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+										$dialogue_container.data('nodes')[index].include_children = true;
+										updateSelectedCounter();
+									}else{
+										if($dialogue_container.data('opts').allowMultiple){
+											$(this).siblings('.select_row').click();
+										}else{
+											$(this).parents('tr').click();
+										}
+									}
+								}
+							});
+							if(selected){
+								if($dialogue_container.data('nodes') == undefined){
+									var index = -1;
+								}else{
+									var index = $dialogue_container.data('nodes').indexOf(item);
+								}
+								if(index > -1 && 'undefined'!==$dialogue_container.data('nodes')[index].include_children && $dialogue_container.data('nodes')[index].include_children){
+									$item.find('.select_children .glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+								}else{
+									$item.find('.select_children .glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+								}
+							}
+						}
+
+						if(selected){
+							$item.addClass('current');
+						}
+
+						if(opts.allowMultiple){
+							$item.find('.select_row').click(function(){
+								var $dialogue_container = $(this).parents('.node_selector');
+								var $row = $(this).parents('tr');
+								var item = $row.data('item');
+								var $icon = $(this).find('.glyphicon');
+
+								var $childSelector = $(this).siblings('.select_children');
+								var hasChildSelector = $childSelector.length > 0;
+
+								if($dialogue_container.data('nodes') == undefined){
+									var index = -1;
+								}else{
+									var index = $dialogue_container.data('nodes').indexOf(item);
+								}
+
+								if(index == -1){
+									if($dialogue_container.data('nodes') == undefined){
+										$dialogue_container.data('nodes',[item]);
+									}else{
+										$dialogue_container.data('nodes').push(item);
+									}
+									$icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+									$row.addClass('current');
+									if(hasChildSelector){
+										$childSelector.click();
+									}
+								}else{
+									$dialogue_container.find('.selectAll .glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+									$dialogue_container.data('nodes').splice(index, 1);
+									$icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+									$row.removeClass('current');
+									if(hasChildSelector){$childSelector.find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');}
+								}
+
+								updateSelectedCounter();
+							});
+						}else{
+							$item.click(function(){
+								var $dialogue_container = $(this).parents('.node_selector');
+								var $childSelector = $(this).find('.select_children');
+								var hasChildSelector = $childSelector.length > 0;
+								if($(this).hasClass('current')){
+									$(this).removeClass('current');
+									$dialogue_container.data('nodes',[]);
+									if(hasChildSelector){$childSelector.find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');}
+								}else{
+									$(this).addClass('current').siblings('.current').removeClass('current');
+									$dialogue_container.data('nodes',[$(this).data('slug')]);
+									if(hasChildSelector){
+										$childSelector.click();
+									}
+								}
+								updateSelectedCounter();
+							});
+						}
 					}
 				}
 			},$dialogue_container);
+			var updateSelectedCounter = $.proxy(function(){
+				var $count = $(this).find('.selected_node_count');
+				if($(this).data('nodes') == undefined){
+					$(this).data('nodes') = [];
+				}
 
+				var number_items = $(this).data('nodes').length;
+				if($(this).data('opts').allow_children){
+					//We are also including children if the user chooses, so we need to count them
+					for(var i in $(this).data('nodes')){
+						var item = $(this).data('nodes')[i];
+						if('undefined'===typeof item.targets || 'undefined'===item.include_children || !item.include_children){ continue; }
+						number_items += item.targets.length;
+					}
+				}
+				switch(number_items){
+					case 0:
+							$count.text('No items '+($(this).data('opts').allow_children?'shown':'selected'));
+							break;
+					case 1:
+							$count.text('One item '+($(this).data('opts').allow_children?'shown':'selected'));
+							break;
+					default:
+							$count.text(number_items+' items '+($(this).data('opts').allow_children?'shown':'selected'));
+							break;
+				}
+			},$dialogue_container);
 			var $filter = $dialogue_container.find('.node_filter');
 			var $search = $dialogue_container.find('.node_search');
 			var $count = $dialogue_container.find('.selected_node_count');
 			var $fields = $dialogue_container.find('.node_fields');
 
 			if(isset(opts.allowMultiple) && opts.allowMultiple){
-				$fields.append('<th data-field="selected" class="text-center" style="width: 5rem"><i class="glyphicon glyphicon-unchecked"></i></th>');
+				$fields.append($('<th data-field="selected" class="text-center selectAll" style="width: 5rem"><i class="glyphicon glyphicon-unchecked"></i></th>').click(function(){
+					var checked = $(this).find('.glyphicon').hasClass('glyphicon-check');
+					var $rows = $(this).parents('.node_selector').find('tbody tr .select_row:has('+(checked?'.glyphicon-check':'.glyphicon-unchecked')+')');
+					$rows.trigger('click');
+					if(checked){
+						$(this).find('.glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+					}else{
+						$(this).find('.glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+					}
+				}));
 			}
 
 			var $rows = $dialogue_container.find('.node_rows');

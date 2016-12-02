@@ -1137,6 +1137,17 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
 }
+.node_selector_table_body tbody>tr:hover,.node_selector_table_body tbody>tr.current{
+	background-color: #d9edf7;
+	cursor: pointer
+}
+.node_selector .selected_node_count{
+	font-weight: bold;
+	color: #32a71a
+}
+.node_selector_table_body.multiple tbody>tr:hover{
+	cursor: default;
+}
 
 .media_options_bootbox .table-fixed th{
 	font-weight: bold;
