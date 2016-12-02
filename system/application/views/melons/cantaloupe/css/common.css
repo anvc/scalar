@@ -1134,7 +1134,7 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .media_options_bootbox .table-fixed tbody td, .media_options_bootbox .table-fixed thead > tr> th {
   float: left;
 }
-.media_options_bootbox .table-fixed>tbody>tr:first-child>td{
+.media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
 }
 

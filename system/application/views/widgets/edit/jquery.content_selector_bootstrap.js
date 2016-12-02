@@ -1593,36 +1593,55 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var loaded_nodeLists = {};
 			var search_results = [];
-
+			var lastLoadType = "init";
+			var lastLoadCriteria = {};
+			var lastPage = false;
 			var isset = function(x){ return typeof x !== 'undefined' && x !== null; };
 			var toProperCase = function (x) { return x.replace(/\w\S*/g, function(x){return x.charAt(0).toUpperCase() + x.substr(1).toLowerCase();}); }
+
 			var load_node_list = function(options){
+				lastLoadCriteria = options;
+				var doSearch = false;
 				var type = options.type;
+				if("undefined" !== typeof options.search && options.search !== null){
+					doSearch = true;
+					var search = options.search;
+					if(options.page == 0){
+						search_results = [];
+					}
+				}
 				var ref = options.ref;
 				var rec = options.rec;
 				var promise = options.promise;
-				if(typeof loaded_nodeLists[type]!=="undefined"){
+				var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec='+rec+'&ref='+ref+'&start='+(options.page*opts.results_per_page)+"&results="+opts.results_per_page;
+				if(doSearch){
+					url += "&sq="+search;
+				}
+				if(!doSearch && typeof loaded_nodeLists[type]!=="undefined" && options.page == 0){
 					promise.resolve();
 				}else{
-					var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec='+rec+'&ref='+ref;
 					$.getJSON(url, function(){}).always(function(_data) {
 		    		if ('undefined'!=typeof(_data.status)) {
 		    			alert('There was a problem trying to get a list of content: '+_data.status+' '+_data.statusText+'. Please try again.');
 		    			return;
 		    		}
-		    		loaded_nodeLists[type] = [];
-						var short_type = type=="annotation"?"anno":type;
+						if(!doSearch && options.page == 0){
+		    			loaded_nodeLists[type] = [];
+						}
 						for (var uri in _data) {
 							//First just go through and pick out any of the URN entries
-							if(uri.indexOf('urn:scalar:'+short_type)>-1){
+							if(uri.indexOf('urn:scalar:')>-1){
 								var body = _data[uri]['http://www.openannotation.org/ns/hasBody'][0]['value'].split('#')[0];
 								body = body.substr(0, body.lastIndexOf('.'));
 								var target = _data[uri]['http://www.openannotation.org/ns/hasTarget'][0]['value'].split('#')[0];
 								target = target.substr(0, target.lastIndexOf('.'));
 								_data[body]['rel'] = _data[target];
-								_data[target]['http://purl.org/dc/terms/hasVersion'] = undefined;
+								if("undefined" !== typeof _data[target]){
+									_data[target]['http://purl.org/dc/terms/hasVersion'] = undefined;
+								}
 							}
 						}
+						var added_rows = 0;
 		    		for (var uri in _data) {
 		    			if ('undefined'!=typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
 								var item = {};
@@ -1636,27 +1655,45 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		    				item.targets = [];
 								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 									item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
+								}else{
+									item.thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 								}
 
 								item.hasRelations = 'undefined' !== typeof item.content.rel;
 
-		    				loaded_nodeLists[type].push(item);
+								if(doSearch){
+									search_results.push(item);
+								}else{
+		    					loaded_nodeLists[type].push(item);
+								}
+								added_rows++;
 		    			}
 		    		}
+						lastPage = added_rows == 0;
 						promise.resolve();
 		    	});
 				}
 			}
-
+			var fieldWidths = {
+				thumbnail : 1,
+				title : 2,
+				description : 'auto',
+				url : 2,
+				preview : 2,
+				include_children : 2
+			}
 			var opts = {
 				"fields" : ["thumbnail","title","description","url","preview"],
 				"allowMultiple" : false,
 				"rec" : 1,
-				"ref" : 0
+				"ref" : 0,
+				"defaultType" : 'content',
+				"types" : ['composite','media','path','tag','annotation','reply','term'],
+				"results_per_page" : 50
 			};
 
 			$.extend(opts, options);
-			console.log(opts);
+
 			var dialogue_container = '<div class="panel panel-default node_selector"> \
 																	<div class="panel-heading"> \
 																		<div class="row"> \
@@ -1682,56 +1719,89 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																		</div> \
 																	</div> \
 																	<div class="panel-body"> \
-																	  <table class="widget_target_node_selector table table-fixed">  \
+																	  <table class="table table-fixed" style="margin-bottom: 0;">  \
 																			<thead> \
 																				<tr class="node_fields"> \
-																					<th data-field="selected" class="text-center"> \
-																						'+(!isset(opts.allowMultiple) || !opts.allowMultiple?'':'<i class="glyphicon glyphicon-unchecked"></i>')+
-																				 '</th> \
 																				</tr> \
 																			</thead> \
-																			<tbody class="node_rows"></tbody> \
 																		</table> \
+																		<div class="node_selector_table_body" style="max-height: 200px; overflow: auto;"> \
+																			<table class="table table-fixed">  \
+																				<tbody class="node_rows"></tbody> \
+																			</table> \
+																		</div> \
 																	</div> \
 																	<div class="panel-footer"> \
 																		<div class="row"> \
-																			<div class="col-sm-5 col-md-4 node_pagination"> \
-																				<div class="input-group"> \
-																					<div class="input-group-btn"> \
-																						<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-fast-backward"></i></button> \
-													 									<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></button> \
-																					</div> \
-																					<span class="form-control text-center">Page 1 of 1</span> \
-																						<div class="input-group-btn"> \
-																							<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></button> \
-																							<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-fast-forward"></i></button> \
-																						</div> \
-																				</div> \
-																			</div> \
-																			<div class="col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-4 selected_node_count"></div> \
+																			<div class="col-sm-5 col-sm-offset-7 col-md-4 col-md-offset-8 selected_node_count"></div> \
 																		</div> \
 																	</div> \
 																</div>';
 
       var $dialogue_container = $(dialogue_container);
 
-			$dialogue_container.data('opts',opts);
-
-			var updateNodeList = $.proxy(function(context){
+			var updateNodeList = $.proxy(function(isLazyLoad){
+				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
+					isLazyLoad = false;
+				}
+				var $dialogue_container = $(this).parents('.node_selector');
+				var opts = $(this).data('opts');
 				var $rows = $(this).find('.node_rows');
-				if(context == "search"){
+				if(lastLoadType == "search"){
 					var data = search_results;
+				}else if(lastLoadType == "init"){
+					var data = loaded_nodeLists[opts.defaultType];
 				}else{
 					var data = loaded_nodeLists[$(this).find('.node_filter select').val()];
 				}
 				if(data.length == 0){
-					$rows.html('<tr><td colspan="5" class="text-center empty">There are no items of the selected type.</td></tr>');
+					$rows.html('<tr><td colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'" class="text-center empty">'+(lastLoadType == "search"?'There are no items that match your search':'There are no items of the selected type')+'</td></tr>');
 				}else{
-					$rows.html('');
-					for(var i = 0; i < data.length; i++){
+					var start = 0;
+					if(!isLazyLoad){
+						$rows.html('');
+					}else{
+						start = $rows.find('tr').length;
+						$rows.find('.loadingRow').remove();
+					}
+					for(var i = start; i < data.length; i++){
 						var item = data[i];
 						var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
-						var $item = $('<tr><td class="col-xs-3">'+item.title+'</td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($rows).click(function(e){
+						var rowHTML = '<tr>';
+
+						if(isset(opts.allowMultiple) && opts.allowMultiple){
+							rowHTML += '<td class="text-center" style="vertical-align: middle; width: 5rem"><i class="glyphicon glyphicon-unchecked"></td>';
+						}
+						for(var n in opts.fields){
+							var col = opts.fields[n];
+							switch(col){
+								case 'thumbnail':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
+									break;
+								case 'title':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">'+item.title+'</td>';
+									break;
+								case 'description':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">'+desc+'</td>';
+									break;
+								case 'url':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">&hellip;/'+item.slug+'</td>';
+									break;
+
+								case 'preview':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">Preview</a></td>';
+									break;
+								case 'include_children':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;">';
+									if(item.hasRelations){
+										rowHTML += '<i class="glyphicon glyphicon-unchecked">';
+									}
+									rowHTML += '</td>';
+							}
+						}
+						rowHTML+='</tr>';
+						//<td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>
+						var $item = $(rowHTML).appendTo($rows).click(function(e){
 
 						}).data('slug',item.slug);
 					}
@@ -1740,68 +1810,107 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var $filter = $dialogue_container.find('.node_filter');
 			var $search = $dialogue_container.find('.node_search');
-			var $pagination = $dialogue_container.find('.node_pagination');
 			var $count = $dialogue_container.find('.selected_node_count');
 			var $fields = $dialogue_container.find('.node_fields');
-			var $rows = $dialogue_container.find('.node_rows');
 
+			if(isset(opts.allowMultiple) && opts.allowMultiple){
+				$fields.append('<th data-field="selected" class="text-center" style="width: 5rem"><i class="glyphicon glyphicon-unchecked"></i></th>');
+			}
+
+			var $rows = $dialogue_container.find('.node_rows');
+			var $nodeSelectorTableBody = $dialogue_container.find('.node_selector_table_body');
 			var fields_to_display = [];
 
-			var available_types = isset(opts.types)?opts.types:['composite','media','path','tag','annotation','reply','term'];
-
 			var $type_selector = $filter.find('select');
+			var $type_filter_button = $filter.find('button');
 
-			for(var t in available_types){
+			for(var t in opts.types){
 
-				if(available_types[t] == 'composite'){
+				if(opts.types[t] == 'composite'){
 					var type_display_name = 'Pages';
-				}else if(available_types[t] == 'reply'){
+				}else if(opts.types[t] == 'reply'){
 					var type_display_name = 'Commentary';
 				}else{
-					var type_display_name = available_types[t].charAt(0).toUpperCase() + available_types[t].slice(1);
+					var type_display_name = opts.types[t].charAt(0).toUpperCase() + opts.types[t].slice(1);
 					if(type_display_name!='Media'){
 						type_display_name+='s';
 					}
 				}
 
-				$type_selector.append('<option value="'+available_types[t]+'">'+type_display_name+'</option>');
+				$type_selector.append('<option value="'+opts.types[t]+'">'+type_display_name+'</option>');
 			}
 
-			$type_selector.change(function(){
+			$type_filter_button.click(function(){
+				lastLoadType = "filter";
 				var $dialogue_container = $(this).parents('.node_selector');
+				var $type_selector = $dialogue_container.find('.node_filter select');
+				var type = $type_selector.val();
+				var typeReadable = $type_selector.find("option[value='"+type+"']").text();
 				var opts = $dialogue_container.data('opts');
-
 				if(opts == undefined){ opts = []; }
-
-				if(!isset(opts.rec)){
-					opts.rec = 0;
-				}
-				if(!isset(opts.ref)){
-					opts.ref = 0;
-				}
-
 
 				var promise = $.Deferred();
 				$.when(promise).then(updateNodeList);
 
 				var rec = opts.rec;
 				var ref = opts.ref;
-
 				load_node_list({
-					"type" : $(this).val(),
+					"type" : type,
 					"rec" : rec,
 					"ref" : ref,
-					"promise" : promise
+					"promise" : promise,
+					"page" : 0
 			  });
+			});
+
+			$nodeSelectorTableBody.on('scroll', function() {
+	       if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight && !lastPage) {
+					 var promise = $.Deferred();
+					 var $dialogue_container = $(this).parents('.node_selector');
+	 				 var opts = $dialogue_container.data('opts');
+					 if($dialogue_container.find('.node_rows .loadingRow').length == 0){
+	 				 		$dialogue_container.find('.node_rows').append('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading...</td></tr>');
+					 }
+					 $.when(promise).then(function(){updateNodeList(true)});
+					 var data = lastLoadCriteria;
+					 data.promise = promise;
+					 data.page++;
+	 				 load_node_list(data);
+	       }
+			});
+
+			$search.find('input').on("keyup change",function(){
+				if($(this).data('timeout')!=undefined){
+					window.clearTimeout($(this).data('timeout'));
+				}
+				$(this).data('timeout',setTimeout($.proxy(function(){
+						lastLoadType = "search";
+						var promise = $.Deferred();
+						$.when(promise).then(updateNodeList);
+						var $dialogue_container = $(this).parents('.node_selector');
+						var opts = $dialogue_container.data('opts');
+						var rec = opts.rec;
+						var ref = opts.ref;
+						var $dialogue_container = $(this).parents('.node_selector');
+						load_node_list({
+							"type" : opts.defaultType,
+							"search" : $dialogue_container.find('.node_search input').val(),
+							"rec" : rec,
+							"ref" : ref,
+							"promise" : promise,
+							"page" : 0
+						});
+					$(this).data('timeout',undefined);
+				},this),200));
 			});
 
 			if(isset(opts.fields)){
 				fields_to_display = opts.fields;
 				for(var f in fields_to_display){
-					if(["thumbnail","preview","include_children"].indexOf(fields_to_display[f])>-1){
-						$fields.append('<th data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'"></th>');
+					if(["thumbnail","preview"].indexOf(fields_to_display[f])>-1){
+						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'"></th>');
 					}else{
-						$fields.append('<th data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'">'+toProperCase(fields_to_display[f].replace(/_/g," "))+'</th>');
+						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'">'+toProperCase(fields_to_display[f].replace(/_/g," "))+'</th>');
 					}
 				}
 			}
@@ -1810,6 +1919,39 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$(this).empty();
 			}
 
-			return $(this).append($dialogue_container);
+			if(!isset(opts.rec)){
+				opts.rec = 0;
+			}
+			if(!isset(opts.ref)){
+				opts.ref = 0;
+			}
+
+			opts.searchableTypes = ['media','file','composite','page','content'];
+
+			var type = opts.defaultType;
+
+			if(!isset(opts.rec)){
+				opts.rec = 0;
+			}
+
+			if(!isset(opts.ref)){
+				opts.ref = 0;
+			}
+
+			var promise = $.Deferred();
+			$.when(promise).then(updateNodeList);
+
+			var rec = opts.rec;
+			var ref = opts.ref;
+
+			load_node_list({
+				"type" : type,
+				"rec" : rec,
+				"ref" : ref,
+				"promise" : promise,
+				"page" : 0
+			});
+
+			return $(this).append($dialogue_container.data('opts',opts));
 		};
 }( jQuery ));
