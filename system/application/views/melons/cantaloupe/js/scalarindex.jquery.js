@@ -182,7 +182,7 @@
 
 	ScalarIndex.prototype.handleResults = function( data ) {
 
-		var i, node, description, row, prev, next,
+		var i, node, description, row, prev, next, prevx10, nextx10,
 			nodes = [],
 			me = this;
 
@@ -232,44 +232,40 @@
 			row = $( '<tr><td style="width:30%">No results found.</td><td></td></tr>' ).appendTo( this.resultsTable );
 		}
 		if ( this.currentPage > 1 ) {
-			this.pagination.find('.prevPage').removeClass('disabled');
+			this.pagination.find('.prevPage,.prevPagex10').removeClass('disabled');
 		}else{
-			this.pagination.find('.prevPage').addClass('disabled');
+			this.pagination.find('.prevPage,.prevPagex10').addClass('disabled');
 		}
 
 		if(this.currentPage < me.maxPages){
-			this.pagination.find('.nextPage').removeClass('disabled');
+			this.pagination.find('.nextPage,.nextPagex10').removeClass('disabled');
 		}else{
-			this.pagination.find('.nextPage').addClass('disabled');
+			this.pagination.find('.nextPage,.nextPagex10').addClass('disabled');
 		}
 
-		if(data.length > 0){
-		}
 		if(me.maxPages > 1 && this.pagination.html() == ""){
+			if (me.maxPages > 15) {
 				tabindex++;
-				if(me.maxPages > 1){
-					prev = $('<li class="disabled prevPage"><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-					prev.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.previousPage();} } );
-				}
-				//var maxPages = this.tabPageCount[this.currentMode] || 1;
-				for ( i = 1; i <= me.maxPages; i++ ) {
-					tabindex++;
-					var pageBtn = $( '<li><a data-page="'+i+'" title="Go to results page ' + i + '" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
-					pageBtn.data( 'page', i );
-					if ( i == this.currentPage ) {
-						pageBtn.addClass( 'active' );
-					}
-					pageBtn.click( function() {
-						me.goToPage( $( this ).data( 'page' ) );
-						$(this).addClass( 'active' ).siblings('.active').removeClass('active');
-					} );
-				}
-				if(me.maxPages > 1){
-					tabindex++;
-					next = $( '<li class="nextPage"><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-					next.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.nextPage();} } );
-				}
+				prevx10 = $('<li class="disabled prevPagex10"><a tabindex="'+tabindex+'" title="Jump back 10 pages" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
+				prevx10.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.max(1,me.currentPage-10));} } );
 			}
+			if(me.maxPages > 1){
+				tabindex++;
+				prev = $('<li class="disabled prevPage"><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&lsaquo;</a></li>').appendTo( this.pagination );
+				prev.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.previousPage();} } );
+			}
+			this.pagination.append('<li class="disabled"><a href="#">Page <span class="current-page">' + this.currentPage + '</span> of ' + me.maxPages + '</a></li>');
+			if(me.maxPages > 1){
+				tabindex++;
+				next = $( '<li class="nextPage"><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&rsaquo;</a></li>' ).appendTo( this.pagination );
+				next.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.nextPage();} } );
+			}
+			if(me.maxPages > 15){
+				tabindex++;
+				nextx10 = $( '<li class="nextPagex10"><a tabindex="'+tabindex+'" title="Jump ahead 10 pages" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
+				nextx10.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.min(me.maxPages,me.currentPage+10));} } );
+			}
+		}
 
 		// dynamically update tab index of close button
 		tabindex++;
@@ -277,27 +273,29 @@
 
 	}
 
-	ScalarIndex.prototype.previousPage = function() {
-		if ( this.currentPage > 1) {
-			this.currentPage--;
-			this.pagination.find('li.active').removeClass('active').prev('li').addClass('active');
-			this.getResults(function(){
+	ScalarIndex.prototype.updateCurrentPageNumber = function() {
+		this.pagination.find('.current-page').text(this.currentPage);
+	}
 
-			});
-		}
+	ScalarIndex.prototype.previousPage = function() {
+		this.currentPage--;
+		this.updateCurrentPageNumber();
+		var self = this;
+		this.getResults(function(){ self.focusOnCurrentPage(); });
 	}
 
 	ScalarIndex.prototype.nextPage = function() {
 		this.currentPage++;
-		this.pagination.find('li.active').removeClass('active').next('li').addClass('active');
+		this.updateCurrentPageNumber();
 		var self = this;
-		this.getResults(function() { self.focusOnCurrentPage() });
+		this.getResults(function() { self.focusOnCurrentPage(); });
 	}
 
 	ScalarIndex.prototype.goToPage = function( pageNum ) {
 		this.currentPage = pageNum;
+		this.updateCurrentPageNumber();
 		var self = this;
-		this.getResults(function() { self.focusOnCurrentPage() });
+		this.getResults(function() { self.focusOnCurrentPage(); });
 	}
 
 	ScalarIndex.prototype.focusOnCurrentPage = function() {
