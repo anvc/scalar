@@ -3141,6 +3141,9 @@
 				base.svg.call(zoom);
 				base.svg.style("cursor","move");
 
+				// once we upgrade to D3 4.0, we should implement custom x and y accessors
+				// so multiple instances don't try to change each other's positions
+
 				base.force = d3.layout.force()
 					.nodes( base.sortedNodes )
 					.links( base.links )
