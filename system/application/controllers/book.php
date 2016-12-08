@@ -183,7 +183,7 @@ class Book extends MY_Controller {
 		}
 
 	}
-	
+
 	// Proxy (e.g., for non-SSL content on SSL servers
 	private function proxy() {
 
@@ -194,7 +194,7 @@ class Book extends MY_Controller {
 		require($path);
 		exit;
 
-	}	
+	}
 
 	// Save a comment (an anonymous new page) with ReCAPTCHA check (not logged in) or authentication check (logged in)
 	// This is a special case; we didn't want to corrupt the security of the Save API and its native (session) vs non-native (api_key) authentication
@@ -220,7 +220,7 @@ class Book extends MY_Controller {
 			if (empty($content)) throw new Exception('Content is a required field');
 
 			// Not logged in
-			if (empty($user_id)) {				
+			if (empty($user_id)) {
 				$fullname  =@ trim($_POST['fullname']);
 				if (empty($fullname)) throw new Exception('Your name is a required field');
 				// ReCAPTCHA version 1
@@ -230,7 +230,7 @@ class Book extends MY_Controller {
 				// ReCAPTCHA version 2
 				$recaptcha2_site_key = $this->config->item('recaptcha2_site_key');
 				$recaptcha2_secret_key = $this->config->item('recaptcha2_secret_key');
-				if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;	    	
+				if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;
 		    	// Choose one or the other
 		    	if (!empty($recaptcha2_site_key)) {
 		    		require_once(APPPATH.'libraries/recaptcha2/autoload.php');
@@ -250,7 +250,7 @@ class Book extends MY_Controller {
 		    	} elseif (!empty($recaptcha_private_key)) {
 					$resp = recaptcha_check_answer($recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
 					if (!$resp->is_valid) throw new Exception ('Incorrect CAPTCHA value');
-				}		    	
+				}
 
 			// Logged in
 			// Note that we're not saving the user as the creator of the page but rather fullname to the attribution field
@@ -371,7 +371,7 @@ class Book extends MY_Controller {
 				exit;
 			}
 		}
-		
+
 		// Proxy non-SSL content if the proxy is enabled and the URL is non-SSL
 		if ($this->data['use_proxy']) {
 			if ('http'==substr($this->data['link'],0,4) && 'https'!=substr($this->data['link'],0,5)) {
@@ -439,12 +439,31 @@ class Book extends MY_Controller {
 
 	}
 
+	// Special import + upload page just for Critical Commons
+	private function criticalcommons() {
+
+		if (!$this->login_is_book_admin('Commentator')) $this->require_login(4);
+
+		// Set params
+		$this->data['hide_edit_bar'] = true;
+		$this->data['view'] = 'criticalcommons';
+		$this->data['slug'] = substr($_SERVER['REQUEST_URI'], strrpos($_SERVER['REQUEST_URI'],'/')+1);
+		if (strpos($this->data['slug'],'?')) $this->data['slug'] = substr($this->data['slug'], 0, strpos($this->data['slug'],'?'));
+		if (empty($this->data['slug']) || 'criticalcommons'==$this->data['slug']) $this->data['slug'] = null;
+
+		if ('result'==$this->data['slug']) {
+			echo '<!DOCTYPE HTML><html lang="en"><head><meta charset="utf-8"><title>jQuery Iframe Transport Plugin Redirect Page</title></head><body><script>document.body.innerText=document.body.textContent=decodeURIComponent(window.location.search.slice(1));</script></body></html>';
+			$this->template_has_rendered = true;
+		}
+
+	}
+
 	// Upload a file and create its thumbnail
 	// This uploads a file only and returns its URL; all other operations to create a media page are through the Save API
 	private function upload() {
 
 		$this->load->library('File_Upload', 'file_upload');
-		
+
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
 		$chmod_mode = $this->config->item('chmod_mode');
 		if (empty($chmod_mode)) $chmod_mode = 0777;
@@ -506,9 +525,9 @@ class Book extends MY_Controller {
 	}
 
 	// Upload a thumbnail
-	// This uploads a file only and returns its URL; all other operations to create a media page are through the Save API	
+	// This uploads a file only and returns its URL; all other operations to create a media page are through the Save API
 	private function upload_thumb() {
-		
+
 		$browser_redirect_to = base_url().$this->data['book']->slug.'/upload';
 		$this->load->library('File_Upload', 'file_upload');
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
@@ -542,12 +561,12 @@ class Book extends MY_Controller {
 			exit;
 
 		} // if
-		
+
 		header('Location: '.$browser_redirect_to);
 		exit;
-		
+
 	}
-	
+
 	// List versions of the current page
 	private function versions() {
 
