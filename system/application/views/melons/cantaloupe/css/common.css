@@ -175,6 +175,8 @@ video { background-color: black; }
 .search_control form { display: inline; }
 .search_submit { display: none; }
 
+.s_all_label {float:right; cursor:pointer;}
+
 #new-item { border-left: 1px solid #999; max-height: 5rem; display: block; }
 
 /* --- CSS MENUS --- */
@@ -1132,8 +1134,19 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .media_options_bootbox .table-fixed tbody td, .media_options_bootbox .table-fixed thead > tr> th {
   float: left;
 }
-.media_options_bootbox .table-fixed>tbody>tr:first-child>td{
+.media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
+}
+.node_selector_table_body tbody>tr:hover,.node_selector_table_body tbody>tr.current{
+	background-color: #d9edf7;
+	cursor: pointer
+}
+.node_selector .selected_node_count{
+	font-weight: bold;
+	color: #32a71a
+}
+.node_selector_table_body.multiple tbody>tr:hover{
+	cursor: default;
 }
 
 .media_options_bootbox .table-fixed th{

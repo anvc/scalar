@@ -17,6 +17,8 @@
  * permissions and limitations under the License.       
  */  
 
+ window.scalarvis = { instanceCount: -1 };
+
 (function($){
 
     $.scalarvis = function( el, options ){
@@ -59,6 +61,7 @@
 		}
 		base.currentNode = scalarapi.model.getCurrentPageNode();
 		base.modalIsOpen = false;
+		base.instanceId = 'scalarvis-' + window.scalarvis.instanceCount++;
 
         // one-time setup
         base.init = function(){
@@ -164,7 +167,7 @@
 			}
 
 			// create visualization div
-			base.visualization = $( '<div class="scalarvis"></div>' ).appendTo( base.visElement );
+			base.visualization = $( '<div id="'+base.instanceId+'" class="scalarvis"></div>' ).appendTo( base.visElement );
 			if ( base.options.content != 'current' ) {
 				base.visualization.css('padding', '0');
 			}
@@ -1146,6 +1149,9 @@
 				node.shortTitle = this.getShortenedString(node.getDisplayTitle( true ), 15 );
 				node.sortTitle = node.getSortTitle();
 			}
+			if (node[base.instanceId] == null) {
+				node[base.instanceId] = {};
+			}
 			node.type = node.getDominantScalarType( base.options.content );
 			if (node.parentsOfMaximizedInstances == null) {
 				node.parentsOfMaximizedInstances = [];
@@ -1782,8 +1788,8 @@
 				var selection = box.enter().append('svg:rect')
 					.each( function(d) { d.svgTarget = this; } )
 					.attr('class', 'rowBox')
-					.attr('x', function(d,i) { d.x = colScale(i % itemsPerRow) + 0.5; return d.x; })
-					.attr('y', function(d,i) { d.y = rowScale(Math.floor(i / itemsPerRow)+1) - boxSize + 0.5; return d.y; })
+					.attr('x', function(d,i) { d[base.instanceId].x = colScale(i % itemsPerRow) + 0.5; return d[base.instanceId].x; })
+					.attr('y', function(d,i) { d[base.instanceId].y = rowScale(Math.floor(i / itemsPerRow)+1) - boxSize + 0.5; return d[base.instanceId].y; })
 					.attr('width', boxSize)
 					.attr('height', boxSize)
 					.attr('stroke', '#000')
@@ -1839,42 +1845,42 @@
 
 					box.sort( base.typeSort )
 						.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
-						.attr('x', function(d,i) { d.x = colScale(i % itemsPerRow) + 0.5; return d.x; })
-						.attr('y', function(d,i) { d.y = rowScale(Math.floor(i / itemsPerRow)+1) - boxSize + 0.5; return d.y; });
+						.attr('x', function(d,i) { d[base.instanceId].x = colScale(i % itemsPerRow) + 0.5; return d[base.instanceId].x; })
+						.attr('y', function(d,i) { d[base.instanceId].y = rowScale(Math.floor(i / itemsPerRow)+1) - boxSize + 0.5; return d[base.instanceId].y; });
 
 					base.gridPathLayer.selectAll( 'path' ).attr('d', line);
 					base.gridPathLayer.selectAll('circle.pathDot')
 						.attr('cx', function(d) {
-							return d.x + (boxSize * .5);
+							return d[base.instanceId].x + (boxSize * .5);
 						})
 						.attr('cy', function(d) {
-							return d.y + (boxSize * .5);
+							return d[base.instanceId].y + (boxSize * .5);
 						});
 					base.gridPathLayer.selectAll('text.pathDotText')
 						.attr('dx', function(d) {
-							return d.x + 3;
+							return d[base.instanceId].x + 3;
 						})
 						.attr('dy', function(d) {
-							return d.y + boxSize - 3;
+							return d[base.instanceId].y + boxSize - 3;
 						});
 
 					var visPos = base.visualization.position();
 
 					d3.select( base.visualization[ 0 ] ).selectAll('div.info_box')
-						.style('left', function(d) { return ( d.x + visPos.left + (boxSize * .5) ) + 'px'; })
-						.style('top', function(d) { return ( d.y + visPos.top + boxSize + 5 ) + 'px'; });
+						.style('left', function(d) { return ( d[base.instanceId].x + visPos.left + (boxSize * .5) ) + 'px'; })
+						.style('top', function(d) { return ( d[base.instanceId].y + visPos.top + boxSize + 5 ) + 'px'; });
 
 					base.gridLinkLayer.selectAll('line.connection')
-						.attr('x1', function(d) { return d.body.x + (boxSize * .5); })
-						.attr('y1', function(d) { return d.body.y + (boxSize * .5); })
-						.attr('x2', function(d) { return d.target.x + (boxSize * .5); })
-						.attr('y2', function(d) { return d.target.y + (boxSize * .5); });						
+						.attr('x1', function(d) { return d.body[base.instanceId].x + (boxSize * .5); })
+						.attr('y1', function(d) { return d.body[base.instanceId].y + (boxSize * .5); })
+						.attr('x2', function(d) { return d.target[base.instanceId].x + (boxSize * .5); })
+						.attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); });						
 					base.gridLinkLayer.selectAll('circle.connectionDot')
 						.attr('cx', function(d) {
-							return d.node.x + (boxSize * .5);
+							return d.node[base.instanceId].x + (boxSize * .5);
 						})
 						.attr('cy', function(d) {
-							return d.node.y + (boxSize * .5);
+							return d.node[base.instanceId].y + (boxSize * .5);
 						});
 				}
 				
@@ -1900,11 +1906,11 @@
 						
 					infoBox.enter().append('div')
 						.attr('class', 'info_box')
-						.style('left', function(d) { return ( d.x + visPos.left + (boxSize * .5) ) + 'px'; })
-						.style('top', function(d) { return ( d.y + visPos.top + boxSize + 5 ) + 'px'; });
+						.style('left', function(d) { return ( d[base.instanceId].x + visPos.left + (boxSize * .5) ) + 'px'; })
+						.style('top', function(d) { return ( d[base.instanceId].y + visPos.top + boxSize + 5 ) + 'px'; });
 						
-					infoBox.style('left', function(d) { return ( d.x + visPos.left + (boxSize * .5) ) + 'px'; })
-						.style('top', function(d) { return ( d.y + visPos.top + boxSize + 5 ) + 'px'; })
+					infoBox.style('left', function(d) { return ( d[base.instanceId].x + visPos.left + (boxSize * .5) ) + 'px'; })
+						.style('top', function(d) { return ( d[base.instanceId].y + visPos.top + boxSize + 5 ) + 'px'; })
 						.html(base.nodeInfoBox);
 						
 					infoBox.exit().remove();
@@ -1943,10 +1949,10 @@
 						})
 						.enter().append('line')
 						.attr('class', 'connection')
-						.attr('x1', function(d) { return d.body.x + (boxSize * .5); })
-						.attr('y1', function(d) { return d.body.y + (boxSize * .5); })
-						.attr('x2', function(d) { return d.target.x + (boxSize * .5); })
-						.attr('y2', function(d) { return d.target.y + (boxSize * .5); })
+						.attr('x1', function(d) { return d.body[base.instanceId].x + (boxSize * .5); })
+						.attr('y1', function(d) { return d.body[base.instanceId].y + (boxSize * .5); })
+						.attr('x2', function(d) { return d.target[base.instanceId].x + (boxSize * .5); })
+						.attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); })
 						.attr('stroke-width', 1)
 						.attr('stroke-dasharray', '1,2')
 						.attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id ); });
@@ -1974,10 +1980,10 @@
 						.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id); })
 						.attr('class', 'connectionDot')
 						.attr('cx', function(d) {
-							return d.node.x + (boxSize * .5);
+							return d.node[base.instanceId].x + (boxSize * .5);
 						})
 						.attr('cy', function(d) {
-							return d.node.y + (boxSize * .5);
+							return d.node[base.instanceId].y + (boxSize * .5);
 						})
 						.attr('r', function(d,i) { return (d.role == 'body') ? 5 : 3; });
 									
@@ -1988,10 +1994,10 @@
 					// path vis line function
 					var line = d3.svg.line()
 						.x(function(d) {
-							return d.x + (boxSize * .5);
+							return d[base.instanceId].x + (boxSize * .5);
 						})
 						.y(function(d) {
-							return d.y + (boxSize * .5);
+							return d[base.instanceId].y + (boxSize * .5);
 						})
 						.interpolate('cardinal');
 					
@@ -2038,10 +2044,10 @@
 						})
 						.attr('class', 'pathDot')
 						.attr('cx', function(d) {
-							return d.x + (boxSize * .5);
+							return d[base.instanceId].x + (boxSize * .5);
 						})
 						.attr('cy', function(d) {
-							return d.y + (boxSize * .5);
+							return d[base.instanceId].y + (boxSize * .5);
 						})
 						.attr('r', function(d,i) { return (i == 0) ? 5 : 3; });
 					
@@ -2054,10 +2060,10 @@
 						})
 						.attr('class', 'pathDotText')
 						.attr('dx', function(d) {
-							return d.x + 3;
+							return d[base.instanceId].x + 3;
 						})
 						.attr('dy', function(d) {
-							return d.y + boxSize - 3;
+							return d[base.instanceId].y + boxSize - 3;
 						})
 						.text(function(d,i) { return (i == 0) ? '' : i; });
 
@@ -3134,6 +3140,9 @@
 				
 				base.svg.call(zoom);
 				base.svg.style("cursor","move");
+
+				// once we upgrade to D3 4.0, we should implement custom x and y accessors
+				// so multiple instances don't try to change each other's positions
 
 				base.force = d3.layout.force()
 					.nodes( base.sortedNodes )

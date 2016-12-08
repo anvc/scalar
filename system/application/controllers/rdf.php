@@ -82,6 +82,7 @@ class Rdf extends MY_Controller {
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;
 		// Search terms
 		$this->data['sq'] = (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) ? search_split_terms($_REQUEST['sq']) : null;
+		$this->data['s_all'] = (isset($_REQUEST['s_all']) && 1==$_REQUEST['s_all']) ? true : false;
 		// Provenance
 		$this->data['provenance'] = (isset($_REQUEST['prov']) && !empty($_REQUEST['prov'])) ? 1 : null;
 		// Show hidden content
@@ -227,12 +228,18 @@ class Rdf extends MY_Controller {
 					exit;
 			}
 
-			// This much-speedier version of search turned off until some UX considerations are made
-			//if (!empty($this->data['sq'])) {
-			//	$content = $this->$model->search_with_recent_version_id($this->data['book']->book_id, $this->data['sq'], (($this->data['hidden'])?false:true));	
-			//} else {
+			// The much speadier search only on title and description based on the presence of recent_version_id
+			if (!empty($this->data['sq']) && 'pages'==$model && !$this->data['s_all']) {
+				$content = $this->$model->search_with_recent_version_id($this->data['book']->book_id, $this->data['sq'], $type, (($this->data['hidden'])?false:true));
+				if (!count($content) && !$this->$model->is_using_recent_version_id($this->data['book']->book_id)) {
+					$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));  // This is the same as the slow call below
+				} else {
+					$this->data['sq'] = null;  // Versions already exist in successful recent_version_id search
+				}
+			// The much slower search on all fields including metadata
+			} else {
 				$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));
-			//}
+			}
 			$this->rdf_object->index(
 			                         $this->data['content'],
 			                           array(

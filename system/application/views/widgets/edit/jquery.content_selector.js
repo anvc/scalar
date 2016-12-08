@@ -4,12 +4,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			parent:$('link#parent').attr('href'),
 			anno_icon:$('link#approot').attr('href')+'views/melons/cantaloupe/images/annotate_icon.png',
 			type:null,
+			orig_type:null,
 			changeable:true,
 			multiple:false,
 			onthefly:false,
-			pagination:false,  /* Isn't working properly b/c backend sorts RDF nodes by slug not title */
+			pagination:true,  /* Sorts by slug, not title */
 			start:0,
-			results_per_page:20,
+			results_per_page:100,
 			rec:0,
 			sq:null,
 			desc_max_length: 100,
@@ -287,6 +288,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	var self = this;
     	var $this = $(this);
     	var opts = $.extend( {}, defaults, options );
+    	opts.orig_type = opts.type;
     	var bootstrap_enabled = (typeof $().modal == 'function');
     	// Object to VAR str
     	var obj_to_vars = function(obj) {
@@ -315,10 +317,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	// Reset
     	var reset = function() {  // TODO: for some reason 'defaults' fields are getting set despite using jQuery.extend({}, ...)
     		defaults.type = null;
+    		defaults.orig_type = null;
     		defaults.changeable = true;
     		defaults.multiple = false;
     		defaults.rec = 0;
     		defaults.sq = null;
+    		defaults.s_all = null;
     		defaults.data = [];
     		defaults.queue = [];
     		defaults.msg = '';
@@ -368,24 +372,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		return url;
     	};
     	// Search
-    	var isearch = function(val) {  // Search items already loaded
-    		var $rows = $this.find('tr:not(:first)');
-    		val = val.toLowerCase();
-    		if (!val.length) {
-    			$rows.show();
-    		}
-    		$rows.hide();
-    		$rows.each(function() {
-    			var $row = $(this);
-    			$row.find('td:nth-child(2),td:nth-child(3),td:nth-child(4)').each(function() {
-    				if ($(this).text().toLowerCase().indexOf(val)!=-1) $row.show();
-    			});
-    		});
-    	};
     	var esearch = function(val) {  // Search via the API
-    		opts.type = 'content';
+    		var okay_to_search = ['media','file','composite','page','content'];
+    		if (opts.orig_type && -1==okay_to_search.indexOf(opts.orig_type)) {
+    			alert('Search is not presently supported for the '+opts.orig_type+' type');
+    			return;
+    		} else if (!opts.orig_type) {
+    			opts.type = 'content';
+    		} else {
+    			opts.type = opts.orig_type;
+    		}
     		opts.sq = val;
+    		opts.start = 0;
     		$this.find('input[type="radio"]').prop('checked', false);
+    		$this.find('.content').unbind('scroll').scrollTop(0);
     		go();
     	};
     	// Set the height of the content area (only needed for Boostrap mode); TODO: very messy
@@ -574,31 +574,26 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		if (!opts.changeable) {  // Selected type is locked
     			$options.addClass('unchangeable');
     			$options.find('input[type="radio"]').prop('disabled', true);
-    			$options.find('input[type="text"]').keyup(function() {
-    				isearch($(this).val());
-    			});
-    			$options.submit(function() {
-    				isearch($(this).find('input[type="text"]').val());
-    				return false;
-    			});
     		} else {  // User can select a type
     			$options.addClass('changeable');
     			$options.find('input[name="type"]').change(function() {
     				var val = $(this).filter(':checked').val();
     				opts.type = val;
     				opts.sq = null;
+    				opts.start = 0;
+    				$this.find('.content').unbind('scroll').scrollTop(0);
     				go();
     			});
-    			$options.submit(function() {
-    				$options.find('input[name="type"]').prop('checked',false);
-    				esearch($(this).find('input[type="text"]').val());
-    				return false;
-    			});
     		}
+			$options.submit(function() {  // Search
+				$options.find('input[name="type"]').prop('checked',false);
+				esearch($(this).find('input[type="text"]').val());
+				return false;
+			});
     		if (opts.multiple) {  // Can choose multiple rows
     			$footer.show();
 					$footer.find('label').show();  // Check all
-					$footer.find('input[type="checkbox"]').click(function() {
+					$footer.find('input[type="checkbox"]:first').click(function() {
 						var active = $(this).data('active');
 						$wrapper.find('input[type="checkbox"]').each(function() {
      					var $this = $(this);
@@ -687,8 +682,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			if (!opts.data.length) return;
     			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
     			$loadmore.appendTo($tbody);
+    			$loadmore.hide();
 	    		$this.find('.content').scroll(function() {
 	    			if ($loadmore.find('td').hasClass('loading')) return;
+	    			$loadmore.show();
 	    			var $this = $(this);
 	    			if ($this.innerHeight() + $this.scrollTop() < $this[0].scrollHeight) return;
 	    			$loadmore.find('td').addClass('loading');
@@ -762,12 +759,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$div.remove();
     			});
     		});
+    		$loadmore.hide();
     	};
     	var go = function() {
     		opts.data = [];
     		if (!opts.start) $this.find('.content').html('<div class="loading">Loading ...</div>');
-				$this.find('.footer').find('input[type="checkbox"]').data('active',false).prop('checked',false);
-    		// TODO: spool requests
+			$this.find('.footer').find('input[type="checkbox"]:first').data('active',false).prop('checked',false);  // Check all
 	    	$.getJSON(url(), function(){}).always(function(_data) {
 	    		if ('undefined'!=typeof(_data.status)) {
 	    			alert('There was a problem trying to get a list of content: '+_data.status+' '+_data.statusText+'. Please try again.');
@@ -834,10 +831,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		    			}
 	    			}
 	    		}
-	    		opts.data.sort(function(a,b){
-	    		    var x = a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1;
-	    		    return x;
-	    		});
 	    		propagate();
 	    	});
     	};

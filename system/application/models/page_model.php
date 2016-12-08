@@ -69,18 +69,20 @@ class Page_model extends MY_Model {
     }
 
     // Search assuming the recent_version_id field is set ... this should run fastly
-    public function search_with_recent_version_id($book_id, $terms, $is_live=true) {
+    public function search_with_recent_version_id($book_id, $terms, $type=null, $is_live=true) {
     	
    		$content = array();
     	if (empty($terms)) return $content;
     	$terms = implode(' ', $terms);
-    	$this->db->select($this->versions_table.'.*');
-    	$this->db->select($this->pages_table.'.*');
-    	$this->db->from($this->versions_table);
-    	$this->db->join($this->pages_table, $this->pages_table.'.recent_version_id='.$this->versions_table.'.version_id');
+    	$this->db->select($this->db->dbprefix($this->versions_table).'.*');
+    	$this->db->select($this->db->dbprefix($this->pages_table).'.*');
+    	$this->db->from($this->versions_table.','.$this->pages_table);
+    	$this->db->where($this->pages_table.'.recent_version_id = '.$this->db->dbprefix($this->versions_table).'.version_id');
     	$this->db->where($this->pages_table.'.book_id', $book_id);
-    	$this->db->like($this->versions_table.'.title', $terms);
-    	$this->db->or_like($this->versions_table.'.description', $terms);
+    	$this->db->where('('.$this->db->dbprefix($this->versions_table).'.title LIKE \'%'.$terms .'%\' OR '. $this->db->dbprefix($this->versions_table).'.description LIKE \'%'. $terms.'%\')');
+    	if (!empty($type)) $this->db->where($this->pages_table.'.type',$type);
+    	$this->db->order_by($this->pages_table.'.slug');
+    	// Adding URL and content slows the search down to the order of magnitude of the full search()
  		$query = $this->db->get();
  		if (!$query->num_rows) return $content;
  		$result = $query->result();  
@@ -118,6 +120,19 @@ class Page_model extends MY_Model {
  		}
  		
  		return $content;
+    	
+    }
+    
+    // Determine whether a book hasn't saved pages in a while (thus recent_version_id's are 0) or has (IDs filled in)
+    public function is_using_recent_version_id($book_id) {
+
+    	$this->db->select('content_id');
+    	$this->db->from($this->pages_table);
+    	$this->db->where('book_id', $book_id);
+		$this->db->where('recent_version_id', 0);
+    	$count = $this->db->count_all_results();
+    	if ($count) return false;   // One or more recent_version_id values is 0 ... is this the best approach?
+    	return true;
     	
     }
     

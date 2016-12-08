@@ -2266,7 +2266,7 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
  * @param	type				Only search in specific content types
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden, type) {
+ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden, type, searchMetadata) {
 
 	var queryString = 'sq='+encodeURIComponent(sq)+'&format=json';
 
@@ -2291,9 +2291,11 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 	if (hidden != null) {  // Added by Craig 21 July 2014
 		queryString += '&hidden='+hidden;
 	}
-	
 	if ( type == null ) {
 		type = 'content';
+	}
+	if (searchMetadata != null) {
+		queryString += '&s_all=1';
 	}
 	
 	$.ajax({

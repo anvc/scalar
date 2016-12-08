@@ -30,6 +30,7 @@
     		scalarapi: null,
     		query_type: null,
     		sq: null,
+    		s_all: null,
     		start: null,
     		results: null,
     		wrapper: null,
@@ -109,7 +110,7 @@
 					$.fn.scalardashboardtable('init', options);
 				};
 				var error = function() { };
-				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1);
+				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1, null, options.s_all);
 			});
 			
 		},			
