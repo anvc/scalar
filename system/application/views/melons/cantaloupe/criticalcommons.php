@@ -48,10 +48,11 @@ $(document).ready(function() {
 	        */
 	    },
 	});
+	var redirect_url = $('link#parent').attr('href')+'criticalcommons/upload/result?%s';
 	$('#fileupload').fileupload(
 	    'option',
 	    'redirect',
-	    'http://localhost/scalar/craig-dietrich/criticalcommons/upload/result?%s'
+	    redirect_url
 	);
 	$('#fileupload').bind('fileuploadprocessfail', function (e, data) {
 	    alert(data.files[data.index].error);
