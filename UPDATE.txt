@@ -33,14 +33,33 @@ Here we list any updates to Scalar config files or the database scheme that will
 install for the update to work properly.  Each update is marked by the date it was added (and therefore the 
 date that the codebase assumes that the update exists).
 
-***
-ANY UPDATE TO SCALAR 2.1.x FROM ANY PREVIOUS VERSION INVOLVES A NEW SET OF INSTRUCTIONS!
-***  
+INSTRUCTIONS FOR UPDATING TO SCALAR 2.1.x FROM SCALAR 2.1 OR SCALAR 2.1.1
+
+If you're updating from a version before 2.1, see further down below.
+
+1) Extract the release ZIP to your local computer
+2) Copy all folders in /system/application to the corresponding folder on your webserver EXCEPT:
+(These are folders that have install-specific config files, so we don't want to overwrite the ones you have on your webserver)
+system/application/cache
+system/application/config
+system/application/language
+system/application/logs
+system/application/plugins
+3) Update all folders in the /system folder EXCEPT:
+system/application
+(You just updated /system/application in step #, so don't update it here)
+4) Check to see if there are any changes to config files or the database scheme at "Changes to config files over time" (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time)
+
+All done!  To test, you can check certain elements of Scalar including the Dashboard, media elements (media 
+included in pages), and the page editor.
   
 INSTRUCTIONS FOR UPDATING TO SCALAR 2.1.1 FROM SCALAR 2.1  
   
-1) Overwrite all folders in system/ **except** for the "applications" folder  
-2) In system/application/, update these folders:  
+1) Overwrite all folders in /system **except** for the "applications" folder  
+2) In /system/application, update these folders:
+arc
+(don't copy cache)
+(don't copy config)
 controllers
 core
 errors
