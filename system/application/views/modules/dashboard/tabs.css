@@ -98,6 +98,10 @@ td.styling_last {text-align:right; padding-right:0px;}
 
 .ui-sortable li {cursor:pointer;}
 
+.add_book_form input[type="text"] {margin-bottom:5px;}
+.add_book_form input[type="submit"] {margin-top:5px;}
+.add_book_form select {margin-top:3px;}
+
 .select_box {
 	z-index:9;
 	padding:10px;

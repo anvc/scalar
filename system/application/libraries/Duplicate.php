@@ -59,7 +59,7 @@ class Duplicate {
     	
     	// Create book
     	$book 		= $this->_scrub_book_fields($duplicated_book, $user_id, $title);
-	 	$book_id 	= $this->CI->books->add($book);
+	 	$book_id 	= $this->CI->books->add($book, false);  // Don't test CAPTCHA
 	 	$book 		= $this->CI->books->get($book_id);
 
 	 	// Old and new paths and URLs

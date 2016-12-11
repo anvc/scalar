@@ -152,7 +152,7 @@ class System extends MY_Controller {
 				// Turning this feature off to avoid spammers who seem to be getting by the CAPTCHA
 				/*
 				if (isset($_POST['book_title']) && !empty($_POST['book_title'])) {
-					$book_id = $this->books->add(array('title'=>trim($_POST['book_title']), 'user_id'=>$user_id));
+					$book_id = $this->books->add(array('title'=>trim($_POST['book_title']), 'user_id'=>$user_id), false);
 				}
 				*/
 				// Login with the newly created user
@@ -334,32 +334,22 @@ class System extends MY_Controller {
 		 			$this->books->save($array);
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_sharing_saved#tabs-'.$this->data['zone']);
 		 			exit;
-				case 'do_duplicate_book':   // My Account  TODO
-					$user_id =@ (int)$_POST['user_id'];
-					$array = $_POST;
-					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout();
-					$book_id = (int) $this->books->duplicate($array);
-					// Option to redirect to page of choice
-					if (isset($array['redirect']) && filter_var($array['redirect'],FILTER_VALIDATE_URL)) {
-						$url_has_query = parse_url($array['redirect'],PHP_URL_QUERY);
-						$redirect_url = $array['redirect'];
-						if (!isset($url_has_query)) {
-							if (substr($redirect_url, -1)!='?') $redirect_url .= '?';
-						} else {
-							$redirect_url .= '&';
-						}
-						$redirect_url .= 'duplicated=1';  // TODO: Change to action=duplicated
-						header('Location: '.$redirect_url);
-					// Redirect to Dashboard > My Account
-					} else {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=duplicated');
-					}
-					exit;
 				case 'do_add_book':   // Admin: All Books (requires title) & My Account (user_id & title)
 					$user_id =@ (int) $_POST['user_id'];
 					$array = $_POST;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout();
-					$book_id = (int) $this->books->add($array);
+					$skip_captcha = (isset($array['zone']) && 'all-books'==$array['zone'] && $this->data['login_is_super']) ? true : false;
+					$duplicate = (is_numeric($array['book_to_duplicate']) && 0!=$array['book_to_duplicate']) ? true : false;
+					try {
+						if ($duplicate) {
+							$book_id = (int) $this->books->duplicate($array, (($skip_captcha)?false:true));
+						} else {
+							$book_id = (int) $this->books->add($array, (($skip_captcha)?false:true));
+						}
+					} catch (Exception $e) {
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error='.$e->getMessage());
+						exit;
+					}
 					// Option to redirect to page of choice
 					if (isset($array['redirect']) && filter_var($array['redirect'],FILTER_VALIDATE_URL)) {
 						$url_has_query = parse_url($array['redirect'],PHP_URL_QUERY);
@@ -369,11 +359,11 @@ class System extends MY_Controller {
 						} else {
 							$redirect_url .= '&';
 						}
-						$redirect_url .= 'created=1';
+						$redirect_url .= (($duplicate)?'duplicate':'create').'=1';
 						header('Location: '.$redirect_url);
 					// Redirect to Dashboard > My Account
 					} else {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action='.(($duplicate)?'duplicated':'added'));
 					}
 					exit;
 				case 'do_add_user':  // Admin: All Users
@@ -382,7 +372,7 @@ class System extends MY_Controller {
 					$book_title = (isset($array['book_title'])  && !empty($array['book_title']) && 'title of first book (optional)'!=$array['book_title']) ? trim($array['book_title']) : null;
 					$user_id = (int) $this->users->add($array);
 					if (!empty($user_id) && !empty($book_title)) {
-						$book_id = $this->books->add(array('title'=>$book_title));
+						$book_id = $this->books->add(array('title'=>$book_title), false);  // Don't test CAPTCHA
 						if (!empty($book_id)) $this->books->save_users($book_id, array($user_id), 'author');
 					}
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');

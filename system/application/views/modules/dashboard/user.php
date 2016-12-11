@@ -12,12 +12,6 @@ $(window).ready(function() {
 <? if (isset($_REQUEST['action']) && 'user_saved'==$_REQUEST['action']): ?>
 <div class="saved">User profile has been saved<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
-<? if (isset($_REQUEST['action']) && 'duplicated'==$_REQUEST['action']): ?>
-<div class="saved">Book has been duplicated, you now have a new book present in the list of books at the bottom of the page<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
-<? endif ?>
-<? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
-<div class="saved">Book has been created (now present in the list of books at the bottom of the page)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
-<? endif ?>
 <? if (isset($_REQUEST['error']) && 'email_exists'==$_REQUEST['error']): ?>
 <div class="error">The email address entered already exists in the system. Please try again with a different email.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
@@ -106,45 +100,59 @@ $(window).ready(function() {
 		</form>
 	</td>
 </tr>
+<? if (isset($_REQUEST['action']) && 'duplicated'==$_REQUEST['action']): ?>
+<tr><td colspan="2"><div class="saved">Book has been duplicated (now present in the list of books above)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
+<? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
+<tr><td colspan="2"><div class="saved">Book has been created (now present in the list of books above)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'invalid_captcha_1'==$_REQUEST['error']): ?>
+<tr><td colspan="2"><div class="error">Invalid CAPTCHA response<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'invalid_captcha_2'==$_REQUEST['error']): ?>
+<tr><td colspan="2"><div class="error">The CAPTCHA was not successful<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'no_dir_created'==$_REQUEST['error']): ?>
+<tr><td colspan="2"><div class="error">Could not create the directory for this new book on the filesystem<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'no_media_dir_created'==$_REQUEST['error']): ?>
+<tr><td colspan="2"><div class="error">Could not create the media folder inside this new book's folder on the filesystem; something may be wrong with the file permissions<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'not_duplicatable'==$_REQUEST['error']): ?>
+<tr><td colspan="2"><div class="error">The chosen book is not duplicatable<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'error_while_duplicating'==$_REQUEST['error']): ?>
+<tr><td colspan="2"><div class="error">There was an error attempting to duplicate the chosen book<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div></td></tr>
+<? endif ?>
 <tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Create new book</td>
 	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
+		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" class="add_book_form" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
 		<input type="hidden" name="action" value="do_add_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 		<input name="title" type="text" value="New book title" style="width:300px;" onclick="if (this.value=='New book title') this.value='';" />
-		<input type="submit" value="Create" class="generic_button" />
-		</form>
-	</td>
-</tr>
-<tr>
-	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Duplicate a book</td>
-	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
-		<input type="hidden" name="action" value="do_duplicate_book" />
-		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
-		<select name="book_to_duplicate" style="width:200px;">
+		<? if (!empty($recaptcha2_site_key)): ?>
+		            <div class="g-recaptcha" data-sitekey="<?php echo $recaptcha2_site_key; ?>"></div>
+		            <script type="text/javascript"
+		                    src="https://www.google.com/recaptcha/api.js?hl=<?php echo 'en'; ?>">
+		            </script>
+		<? elseif (!empty($recaptcha_public_key)): ?>
+				<?  print(recaptcha_get_html($recaptcha_public_key, '', $this->config->item('is_https'))); ?>
+		<? endif ?>
+		<select name="book_to_duplicate" style="width:302px;">
 <?
 		if (!isset($duplicatable_books) || empty($duplicatable_books)):
-			echo '<option value="0">There are no books with proper permissions</option>'."\n";
+			echo '<option value="0">Not a duplicate of another book</option>'."\n";
 		else:
-			echo '<option value="0">Please select a book</option>'."\n";
+			echo '<option value="0">Not a duplicate of another book</option>'."\n";
 			foreach ($duplicatable_books as $duplicatable_book) {
 				echo '<option value="'.$duplicatable_book->book_id.'">'.$duplicatable_book->title.'</option>'."\n";
 			}
 		endif;
 ?>
-		</select>
-		<input name="title" type="text" value="New book title" style="width:200px;" onclick="if (this.value=='New book title') this.value='';" />
-		<input type="submit" value="Duplicate" class="generic_button" /><br />
-		<small>Source book requires special permissions to be displayed in this list</small>
+		</select> &nbsp; <small>Books require permission set in the Sharing tab to be displayed in this list</small><br />
+		<input type="submit" value="Create" class="generic_button" />
 		</form>
 	</td>
 </tr>
-<!--
-<tr class="odd" typeof="books">
-	<td style="vertical-align:middle;white-space:nowrap;">Delete book</td>
-	<td style="vertical-align:middle;">Please contact a Scalar admin to delete books</td>
-</tr>
--->
 </table>

@@ -387,7 +387,7 @@ class Book_model extends MY_Model {
 
     }
 
-    public function add($array=array()) {
+    public function add($array=array(), $captcha=true) {
 
     	if ('array'!=gettype($array)) $array = (array) $array;
     	$CI =& get_instance();
@@ -404,6 +404,37 @@ class Book_model extends MY_Model {
     	$active_melon = $this->config->item('active_melon');
     	if (empty($template) && !empty($active_melon)) $template = trim($active_melon);  // Otherwise use MySQL default
     	if (empty($chmod_mode)) $chmod_mode = 0777;
+    	
+    	if ($captcha) {
+	    	// ReCAPTCHA version 1
+	    	$recaptcha_public_key = $this->config->item('recaptcha_public_key');
+	    	$recaptcha_private_key = $this->config->item('recaptcha_private_key');
+	    	if (empty($recaptcha_public_key)||empty($recaptcha_private_key)) $recaptcha_public_key = $recaptcha_private_key = null;
+	    	// ReCAPTCHA version 2
+	    	$recaptcha2_site_key = $this->config->item('recaptcha2_site_key');
+	    	$recaptcha2_secret_key = $this->config->item('recaptcha2_secret_key');
+	    	if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;
+	    	// Choose one or the other
+	    	if (!empty($recaptcha2_site_key)) {
+	    		require_once(APPPATH.'libraries/recaptcha2/autoload.php');
+	    	} elseif (!empty($recaptcha_public_key)) {
+	    		require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
+	    	}
+	    	// Validate ReCAPTCHA
+	    	if (!empty($recaptcha2_site_key)) {
+	    		if (!isset($_POST['g-recaptcha-response'])) throw new Exception('invalid_captcha_1');
+	    		$recaptcha = new \ReCaptcha\ReCaptcha($recaptcha2_secret_key);
+	    		$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+	    		if ($resp->isSuccess()):
+	    			// Success
+	    		else:
+	    			throw new Exception('invalid_captcha_1');
+	    		endif;
+	    	} elseif (!empty($recaptcha_private_key)) {
+	    		$resp = recaptcha_check_answer($recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $array["recaptcha_challenge_field"], $array["recaptcha_response_field"]);
+	    		if (!$resp->is_valid) throw new Exception ('invalid_captcha_2');
+	    	}
+    	}
 
     	$uri = $orig = safe_name($title, false);  // Don't allow forward slashes
     	$count = 1;
@@ -413,10 +444,10 @@ class Book_model extends MY_Model {
  		}
 
  		if (!mkdir($uri)) {
- 			throw new Exception('There was a problem creating the book\'s folder on the filesystem -- check permissions of the parent folder.');
+ 			throw new Exception('no_dir_created');
  		}
  		if (!mkdir(confirm_slash($uri).'media')) {
- 			throw new Exception('Could not create media folder in book folder -- check permissions on the parent folder.');
+ 			throw new Exception('no_media_dir_created');
  		}
 
     	@chmod($uri, $chmod_mode);
@@ -446,19 +477,50 @@ class Book_model extends MY_Model {
 
     }
 
-    public function duplicate($array=array()) {
+    public function duplicate($array=array(), $captcha=true) {
 
   		$book_id =@ $array['book_to_duplicate'];
  		if (empty($book_id)) throw new Exception('Invalid book ID');
-    	// Don't validate, as admin functions can create books not connected to any author
+    	// Don't validate author, as admin functions can create books not connected to any author
 		$book = $this->get($array['book_to_duplicate']);
-		if (!self::is_duplicatable($book)) throw new Exception('Book is not duplicatable');
-
+		if (!self::is_duplicatable($book)) throw new Exception('not_duplicatable');
+		
+		if ($captcha) {
+			// ReCAPTCHA version 1
+			$recaptcha_public_key = $this->config->item('recaptcha_public_key');
+			$recaptcha_private_key = $this->config->item('recaptcha_private_key');
+			if (empty($recaptcha_public_key)||empty($recaptcha_private_key)) $recaptcha_public_key = $recaptcha_private_key = null;
+			// ReCAPTCHA version 2
+			$recaptcha2_site_key = $this->config->item('recaptcha2_site_key');
+			$recaptcha2_secret_key = $this->config->item('recaptcha2_secret_key');
+			if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;
+			// Choose one or the other
+			if (!empty($recaptcha2_site_key)) {
+				require_once(APPPATH.'libraries/recaptcha2/autoload.php');
+			} elseif (!empty($recaptcha_public_key)) {
+				require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
+			}
+			// Validate ReCAPTCHA
+			if (!empty($recaptcha2_site_key)) {
+				if (!isset($_POST['g-recaptcha-response'])) throw new Exception('invalid_captcha_1');
+				$recaptcha = new \ReCaptcha\ReCaptcha($recaptcha2_secret_key);
+				$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+				if ($resp->isSuccess()):
+					// Success
+				else:
+					throw new Exception('invalid_captcha_1');
+				endif;
+			} elseif (!empty($recaptcha_private_key)) {
+				$resp = recaptcha_check_answer($recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $array["recaptcha_challenge_field"], $array["recaptcha_response_field"]);
+				if (!$resp->is_valid) throw new Exception ('invalid_captcha_2');
+			}
+		}
+		
     	$this->load->library('Duplicate', 'duplicate');
     	try {
 			$book_id = $this->duplicate->book($array);
 		} catch (Exception $e) {
-    		throw new Exception($e->getMessage());
+    		throw new Exception('error_while_duplicating');
 		}
 
     	return $book_id;

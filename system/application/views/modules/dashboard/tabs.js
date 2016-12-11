@@ -42,7 +42,7 @@ $(document).ready(function() {
 		$(this).closest('form').find('.save_changes').fadeIn();
 	});
 	$('select').live('change', function() {  
-		$('form').find('.save_changes').fadeIn();
+		$(this).closest('form').find('.save_changes').fadeIn();
 	});
 	$('form input:file').live('change', function() {
 		$(this).closest('form').find('.save_changes').fadeIn();
