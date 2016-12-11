@@ -125,6 +125,7 @@
         // Resize an already uploaded image
         private function resize($targetFile,$newwidth) {
         	list($width, $height, $type) = getimagesize($targetFile);
+        	if (!$width || !$height) return;  // Not an image
         	$r = $width / $height;
         	$newheight = $newwidth/$r;
         	switch ($type) {
