@@ -568,16 +568,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			});
     		if (opts.multiple) {  // Can choose multiple rows
     			$footer.show();
-					$footer.find('label:first').show();  // Check all
-					$footer.find('input[type="checkbox"]:first').click(function() {
-						var active = $(this).data('active');
-						$wrapper.find('input[type="checkbox"]').each(function() {
-     					var $this = $(this);
-     					if (active && $this.is(':checked')) $this.closest('tr').click();
+				$footer.find('label:first').show();  // Check all
+				$footer.find('input[type="checkbox"]:first').click(function() {
+					var active = $(this).data('active');
+					$wrapper.find('input[type="checkbox"]').each(function() {
+						var $this = $(this);
+						if (active && $this.is(':checked')) $this.closest('tr').click();
      					if (!active && !$this.is(':checked')) $this.closest('tr').click();
      				});
-						$(this).data('active', ((active)?false:true));
-					});
+					$(this).data('active', ((active)?false:true));
+				});
         		$footer.find('a').eq(1).click(function() {  // Cancel button
         			if ($(this).closest('.content_selector_bootbox').length) {
         				$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
@@ -655,32 +655,33 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		modal_height();
     		if (opts.pagination) {  // Endless scroll pagination
     			$tbody.find('.loadmore').remove();
-    			if (!opts.data.length) return;
-    			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
-    			$loadmore.appendTo($tbody);
-    			$loadmore.hide();
-	    		$this.find('.content').unbind('scroll').scroll(function() {
-	    			if ($loadmore.find('td').hasClass('loading')) return;
-	    			$loadmore.show();
-	    			var $this = $(this);
-	    			if ($this.innerHeight() + $this.scrollTop() < $this[0].scrollHeight) return;
-	    			$loadmore.find('td').addClass('loading');
-	    			opts.start = opts.start + opts.results_per_page;
-	    			go();
-	    		});
+    			if (opts.data.length) {
+	    			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
+	    			$loadmore.appendTo($tbody);
+	    			$loadmore.hide();
+		    		$this.find('.content').unbind('scroll').scroll(function() {
+		    			if ($loadmore.find('td').hasClass('loading')) return;
+		    			$loadmore.show();
+		    			var $this = $(this);
+		    			if ($this.innerHeight() + $this.scrollTop() < $this[0].scrollHeight) return;
+		    			$loadmore.find('td').addClass('loading');
+		    			opts.start = opts.start + opts.results_per_page;
+		    			go();
+		    		});
+    			};
     		};
-    		$this.find('tr').find('a').click(function(event) {  // Preview|Visit button
+    		$this.find('tr').find('a').unbind('click').click(function(event) {  // Preview|Visit button
     			event.stopPropagation();
     			return true;
     		});
-    		$this.find('tr').find('input[type="checkbox"]').click(function(event) {  // Clicking a <tr> checks the checkbox; this allows it to work properly if checkbox itself is checked
+    		$this.find('tr').find('input[type="checkbox"]').unbind('click').click(function(event) {  // Clicking a <tr> checks the checkbox; this allows it to work properly if checkbox itself is checked
     			var $this = $(this);
     			var checked = $this.is(":checked");
     			$this.prop('checked', ((checked)?false:true));
     			return true;
     		});
     		if (!opts.multiple) {  // Select a single row
-    			$this.find('tr').click(function() {
+    			$this.find('tr').unbind('click').click(function() {
     				var node = $(this).data('node');
     				if ($(this).closest('.content_selector_bootbox').length) {
     					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
@@ -692,7 +693,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$('.tt').remove();
     			});
     		} else {  // Select multiple rows
-    			$this.find('tr').click(function() {
+    			$this.find('tr').unbind('click').click(function() {
     				var $this = $(this);
     				var checked = $this.find('input[type="checkbox"]').is(":checked");
     				$(this).find('input[type="checkbox"]').prop('checked', ((checked)?false:true));
@@ -705,7 +706,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				}
     			});
     		}
-    		$('.thumb').parent().mouseover(function() {  // Expand thumbnail
+    		$('.thumb').parent().unbind('mouseover').mouseover(function() {  // Expand thumbnail
     			var $this = $(this).children('.thumb:first');
     			var offset = $this.offset();
     			var $div = $('<div class="tt"></div>');
@@ -717,7 +718,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$div.remove();
     			});
     		});
-    		$('.anno').parent().mouseover(function() {  // Show item that is annotated
+    		$('.anno').parent().unbind('mouseover').mouseover(function() {  // Show item that is annotated
     			var $this = $(this).children('.anno:first');
     			var str = '<i>Could not find target of this annotation</i>';
     			var targets = $this.closest('tr').data('node').targets;
@@ -735,7 +736,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$div.remove();
     			});
     		});
-    		$loadmore.hide();
+    		if ('undefined'!=typeof($loadmore)) $loadmore.hide();
     	};
     	var go = function() {
     		opts.data = [];
