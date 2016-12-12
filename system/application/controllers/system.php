@@ -444,6 +444,7 @@ class System extends MY_Controller {
 			case '':
 			case 'user':
 				$this->data['duplicatable_books'] = $this->books->get_duplicatable();
+				require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
 				break;
 			case 'style':
 			case 'styling':
