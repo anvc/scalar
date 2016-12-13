@@ -4662,7 +4662,7 @@ function YouTubeGetID(url){
 		jQuery.SoundCloudAudioObjectView.prototype.createObject = function() {
 
 			me.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
-			SC.oEmbed(this.model.path, {auto_play: true, download: true,show_comments:false,liking:false,buying:false}, function(oembed){
+			SC.oEmbed(this.model.path, {auto_play: true, download: true,show_comments:false,liking:false,buying:false,hide_related:true}, function(oembed){
  				if ( oembed != null ) {
 					oembed.height = me.parentView.resizedDim.y;
 					me.parentView.controllerHeight = oembed.height;
