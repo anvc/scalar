@@ -425,7 +425,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
-    		$this.addClass('content_selector bootstrap' );
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		// Create the modal
     		//$(document).scrollTop(0);  // iOS
@@ -437,10 +436,51 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
 				});
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
-				$this.appendTo($('#bootbox-content-selector-content'));
+    		// Default content
+    		var $content = $('<div class="content"></div>').appendTo($wrapper);
+				var $selector = $('<div class="selector"></div>').appendTo($content)
+				 var options = {};
+				 console.log(opts);
+				//  if(isEdit){
+				// 	 var $el = $(element.$);
+				// 	 if($el.attr("resource")!=undefined){
+ 			// 			opts.selected = [$el.attr("resource")];
+ 			// 		 }else if($el.data("nodes")!=undefined){
+ 			// 			opts.selected = $el.data("nodes").split(",");
+ 			// 		 }
+				//  }
+				 options.results_per_page = opts.results_per_page;
+				 options.allowMultiple = opts.multiple;
+				 options.allow_children = false;
+				 options.onChangeCallback = $.proxy(function(box,opts){
+					 if("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0){
+						 var slug = $(this).find('.node_selector').data('nodes')[0].slug;
+						 (function(box,opts,slug){
+							 if(scalarapi.loadPage( slug, true, function(){
+								 opts.callback(scalarapi.getNode(slug),opts.element);
+				 			   box.modal('hide');
+							 }, null, 1, false, null, 0, 20) == "loaded"){
+								 opts.callback(scalarapi.getNode(slug),opts.element);
+				 				 box.modal('hide');
+							 }
+						 })(box,opts,slug);
+					}
+				},$selector,box,opts);
+				 if("undefined" !== typeof opts.type && opts.type!=null){
+					 if($.isArray(opts.type)){
+						 options.types = opts.type;
+					 	 options.defaultType = opts.type[0];
+					 }else{
+						 options.types = [opts.type];
+					 	 options.defaultType = opts.type;
+					 }
+				 }
+
 				var $content_selector_bootbox = $('.content_selector_bootbox');
+				$this.appendTo($('#bootbox-content-selector-content'))
+
 				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
-				var $options = $content_selector_bootbox.find('.options:first');
+				$('.modal-dialog .modal-header').height(55);
 				$('.bootbox-close-button').empty();
 				box.on("shown.bs.modal", function() {
 					modal_height();
@@ -451,14 +491,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				box.on("hidden.bs.modal", function() {
 					reset();
 				});
-    		// Default content
-    		var $content = $('<div class="content"><div class="howto">'+((opts.msg.length)?''+opts.msg+'<br />':'')+'Select a content type or enter a search above'+((opts.multiple)?', choose items, then click Add Selected to finish':'')+'</div></div>').appendTo($wrapper);
+				$selector.node_selection_dialogue(options);
     		// Footer buttons
     		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
-    		// Options (search + content type)
-    		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
-    			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
-    		$options.append('<div class="row">'+options_html+'</div>');
+
     		// Bootstrap positioning
   			$footer.find('.cancel').hide();  // Remove cancel button
   			modal_height();  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
@@ -466,11 +502,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		$footer.hide();  // Default
     		$footer.find('a:first').click(function() {  // On-the-fly
     			$footer.hide();
+					$selector.hide();
     			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
     			var $onthefly = $('<div class="create_onthefly"><div>Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
     			var $buttons = $('<div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div>').appendTo($onthefly);
-    			$('<div class="heading_font title">Create new page</div>').insertBefore($options);
-    			$options.hide();
+    			//$('<div class="heading_font title">Create new page</div>').insertBefore($options);
+    			//$options.hide();
     			var $form = $onthefly.find('form');
     			var id = $('input[name="id"]').val();  // Assuming this exists; technically not needed for session auth
     			var book_urn = $('input[name="urn:scalar:book"]').val();
@@ -492,9 +529,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			var onthefly_reset = function() {
     				$wrapper.find('.create_screen').remove();
     				$wrapper.find('.create_onthefly').remove();
-    				$options.parent().find('.title').remove();
-    				$options.show();
+    				//$options.parent().find('.title').remove();
+    				//$options.show();
     				$footer.show();
+						$selector.show();
     			};
     			if ('undefined'==typeof(book_urn)) {
     				alert('Could not determine book URN and therefore can not create pages on-the-fly');
@@ -546,274 +584,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		} else {
     			$footer.find('a:first').hide();
     		}
-    		$options.find('input[value="'+opts.type+'"]').prop('checked',true);
-    		if (!opts.changeable) {  // Selected type is locked
-    			$options.addClass('unchangeable');
-    			$options.find('input[type="radio"]').prop('disabled', true);
-    		} else {  // User can select a type
-    			$options.addClass('changeable');
-    			$options.find('input[name="type"]').change(function() {
-    				var val = $(this).filter(':checked').val();
-    				opts.type = val;
-    				opts.sq = null;
-    				opts.start = 0;
-    				$this.find('.content').unbind('scroll').scrollTop(0);
-    				go();
-    			});
-    		}
-			$options.submit(function() {
-				$options.find('input[name="type"]').prop('checked',false);
-				esearch($(this).find('input[type="text"]').val());
-				return false;
-			});
-    		if (opts.multiple) {  // Can choose multiple rows
-    			$footer.show();
-				$footer.find('label:first').show();  // Check all
-				$footer.find('input[type="checkbox"]:first').click(function() {
-					var active = $(this).data('active');
-					$wrapper.find('input[type="checkbox"]').each(function() {
-						var $this = $(this);
-						if (active && $this.is(':checked')) $this.closest('tr').click();
-     					if (!active && !$this.is(':checked')) $this.closest('tr').click();
-     				});
-					$(this).data('active', ((active)?false:true));
-				});
-        		$footer.find('a').eq(1).click(function() {  // Cancel button
-        			if ($(this).closest('.content_selector_bootbox').length) {
-        				$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
-        			}
-        			reset();
-        			$(this).closest('.content_selector').remove();
-        			$('.tt').remove();
-        		});
-    			$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
-    			$footer.find('a:last').click(function() {
-    				if (!opts.queue.length) {
-    					alert('Please select one or more items');
-    					return;
-    				}
-    				if ($(this).closest('.content_selector_bootbox').length) {
-    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
-    				} else {
-    					$(this).closest('.content_selector').remove();
-    				}
-    				opts.callback(opts.queue);
-    				reset();
-    			});
-    		} else {
-    			$footer.find('label').hide();
-     		}
     	};
     	// Propagate the interface
-    	var propagate = function() {
-    		if (!opts.start) {
-    			$this.find('.content').addClass('table-responsive').html('<table class="table table-hover" cellspacing="0" cellpadding="0"><thead><tr>'+((opts.multiple)?'<th></th>':'')+'<th></th><th>Title</th><th class="hidden-xs">Description</th><th class="hidden-xs">URL</th><th></th></tr></thead><tbody></tbody></table>');
-        		if (!opts.data.length) {
-        			$this.find('.content').html('<div class="loading" style="color:inherit;">'+opts.no_data_msg+'</div>');
-        			return;
-        		}
-    		}
-    		$this.find('.content, .content *').off();  // Remove any previously created events
-    		var $tbody = $this.find('tbody:first');
-				//Check to see if we have an element, and if so, get the currently selected slug
-				var currentSlug = null;
-				if(typeof opts.element != 'undefined' && typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null){
-					currentSlug = opts.element.getAttribute('resource');
-				}
-
-    		for (var j in opts.data) {
-    			var $tr = $('<tr class="'+((j%2==0)?'even':'odd')+'"></tr>').appendTo($tbody);
-					if(opts.data[j].slug == currentSlug){
-						$tr.addClass('bg-info');
-					}
-    			$tr.data('node', opts.data[j]);
-    			var title = opts.data[j].version['http://purl.org/dc/terms/title'][0].value;
-    			var desc = ('undefined'!=typeof(opts.data[j].version['http://purl.org/dc/terms/description'])) ? opts.data[j].version['http://purl.org/dc/terms/description'][0].value : null;
-    			if (desc && desc.length > opts.desc_max_length) desc = desc.substr(0, opts.desc_max_length)+' ...';
-    			var url = ('undefined'!=typeof(opts.data[j].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'])) ? opts.data[j].version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value : null;
-    			var filename = (url) ? basename(url) : opts.data[j].uri.replace(opts.parent, '');
-	    		if (filename.length > opts.filename_max_length) filename = filename.substr(0, opts.filename_max_length)+'...';
-    			var thumb = ('undefined'!=typeof(opts.data[j].content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'])) ? opts.data[j].content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value : null;
-    			if (opts.multiple) {
-    				$('<td valign="top"><input type="checkbox" name="s_'+j+'" value="1" /></td>').appendTo($tr);
-    			}
-    			var $first = $('<td valign="top"></td>').appendTo($tr);
-    			if (thumb) {
-    				$first.html('<img class="thumb" src="'+thumb+'" />');
-    			} else if (opts.data[j].targets.length) {
-    				$first.html('<img class="anno" src="'+opts.anno_icon+'" />');
-    			}
-    			$tr.append('<td valign="top">'+title+'</td>');
-    			$tr.append('<td valign="top" class="hidden-xs">'+((desc)?desc:'')+'</td>');
-    			$tr.append('<td valign="top" class="hidden-xs">'+filename+'</td>');
-    			$tr.append('<td valign="top"><a target="_blank" class="generic_button" href="'+((url)?url:opts.data[j].uri)+'">'+((url)?'Preview':'Visit')+'</a></td>');
-    			if (is_queued(opts.data[j])) {
-    				$tr.addClass('active');
-    				$tr.find('[type="checkbox"]:first').prop('checked',true);
-    			};
-    		};
-    		modal_height();
-    		if (opts.pagination) {  // Endless scroll pagination
-    			$tbody.find('.loadmore').remove();
-    			if (opts.data.length) {
-	    			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
-	    			$loadmore.appendTo($tbody);
-	    			$loadmore.hide();
-		    		$this.find('.content').unbind('scroll').scroll(function() {
-		    			if ($loadmore.find('td').hasClass('loading')) return;
-		    			$loadmore.show();
-		    			var $this = $(this);
-		    			if ($this.innerHeight() + $this.scrollTop() < $this[0].scrollHeight) return;
-		    			$loadmore.find('td').addClass('loading');
-		    			opts.start = opts.start + opts.results_per_page;
-		    			go();
-		    		});
-    			};
-    		};
-    		$this.find('tr').find('a').unbind('click').click(function(event) {  // Preview|Visit button
-    			event.stopPropagation();
-    			return true;
-    		});
-    		$this.find('tr').find('input[type="checkbox"]').unbind('click').click(function(event) {  // Clicking a <tr> checks the checkbox; this allows it to work properly if checkbox itself is checked
-    			var $this = $(this);
-    			var checked = $this.is(":checked");
-    			$this.prop('checked', ((checked)?false:true));
-    			return true;
-    		});
-    		if (!opts.multiple) {  // Select a single row
-    			$this.find('tr').unbind('click').click(function() {
-    				var node = $(this).data('node');
-    				if ($(this).closest('.content_selector_bootbox').length) {
-    					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
-    				} else {
-    					$(this).closest('.content_selector').remove();
-    				}
-    				opts.callback(node,opts.element);
-    				reset();
-    				$('.tt').remove();
-    			});
-    		} else {  // Select multiple rows
-    			$this.find('tr').unbind('click').click(function() {
-    				var $this = $(this);
-    				var checked = $this.find('input[type="checkbox"]').is(":checked");
-    				$(this).find('input[type="checkbox"]').prop('checked', ((checked)?false:true));
-    				if (checked) {
-    					queue($this.data('node'), false);
-    					$this.removeClass('active');
-    				} else {
-    					queue($this.data('node'), true);
-    					$this.addClass('active');
-    				}
-    			});
-    		}
-    		$('.thumb').parent().unbind('mouseover').mouseover(function() {  // Expand thumbnail
-    			var $this = $(this).children('.thumb:first');
-    			var offset = $this.offset();
-    			var $div = $('<div class="tt"></div>');
-    			$div.css('left', parseInt(offset.left) + parseInt($this.outerWidth()) + 10);
-    			$div.css('top', offset.top);
-    			$('<img src="'+$this.attr('src')+'" />').appendTo($div);
-    			$div.appendTo('body');
-    			$this.parent().mouseout(function() {
-    				$div.remove();
-    			});
-    		});
-    		$('.anno').parent().unbind('mouseover').mouseover(function() {  // Show item that is annotated
-    			var $this = $(this).children('.anno:first');
-    			var str = '<i>Could not find target of this annotation</i>';
-    			var targets = $this.closest('tr').data('node').targets;
-    			if (targets.length) {
-    				var target = targets[0];
-    				str = '<b>Annotates</b><br />'+target.version['http://purl.org/dc/terms/title'][0].value;
-    			}
-    			var offset = $this.offset();
-    			var $div = $('<div class="tt"></div>');
-    			$div.css('left', parseInt(offset.left) + parseInt($this.outerWidth()) + 10);
-    			$div.css('top', offset.top);
-    			$div.html(str);
-    			$div.appendTo('body');
-    			$this.parent().mouseout(function() {
-    				$div.remove();
-    			});
-    		});
-    		if ('undefined'!=typeof($loadmore)) $loadmore.hide();
-    	};
-    	var go = function() {
-    		opts.data = [];
-    		if (!opts.start) $this.find('.content').html('<div class="loading">Loading ...</div>');
-				$this.find('.footer').find('input[type="checkbox"]:first').data('active',false).prop('checked',false);  // Check all
-    		// TODO: spool requests
-	    	$.getJSON(url(), function(){}).always(function(_data) {
-	    		if ('undefined'!=typeof(_data.status)) {
-	    			alert('There was a problem trying to get a list of content: '+_data.status+' '+_data.statusText+'. Please try again.');
-	    			return;
-	    		}
-	    		var relations = [];
-	    		for (var uri in _data) {  // Sort nodes, their versions, and relationships
-	    			if ('http://www.openannotation.org/ns/Annotation'==_data[uri]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value) {
-	    				var relation = {};
-	    				relation.body = _data[uri]['http://www.openannotation.org/ns/hasBody'][0].value;
-	    				var target = _data[uri]['http://www.openannotation.org/ns/hasTarget'][0].value;
-	    				var arr = target.split('#');
-	    				relation.target = arr[0];
-	    				relation.type = arr[1];
-	    				relations.push(relation);
-	    				continue;
-	    			}
-	    			if ('undefined'!=typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
-	    				var item = {};
-	    				item.uri = uri;
-	    				item.slug = uri.replace(opts.parent, '');
-	    				item.version_uri = _data[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
-	    				item.version_slug = item.version_uri.replace(opts.parent, '');
-	    				item.content = _data[uri];
-	    				item.version = _data[ item.version_uri ];
-	    				item.title = ('undefined'!=typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
-	    				item.targets = [];
-	    				opts.data.push(item);
-	    			}
-	    		}
-	    		if (relations.length) {  // If relations are present, place target nodes into a "target" array for each node
-	    			var num_relations = 0;
-	    			for (var j = 0; j < opts.data.length; j++) {
-	    				for (var k = 0; k < relations.length; k++) {
-	    					if (relations[k].body == opts.data[j].version_uri) {
-	    						var content = {};
-	    						var version = {};
-	    						var uri = remove_version(relations[k].target);
-	    						for (var m = 0; m < opts.data.length; m++) {  // Make sure target is a valid node (to protect against category annotation nodes)
-	    							if (uri == opts.data[m].uri) {
-	    								content = opts.data[m].content;
-	    								version = opts.data[m].version;
-	    							}
-	    						}
-	    						if (uri.length && !$.isEmptyObject(content)) {
-		    						opts.data[j].targets.push({
-		    							uri:uri,
-		    							slug:remove_version(relations[k].target).replace(opts.parent, ''),
-		    							version_uri:relations[k].target,
-		    							version_slug:relations[k].target.replace(opts.parent, ''),
-		    							content:content,
-		    							version:version
-		    						});
-		    						num_relations++;
-	    						}
-	    					}
-	    				}
-	    			}
-	    			if (num_relations) {
-		    			for (var j = opts.data.length-1; j >= 0; j--) {  // Assume that relationships being present means that nodes w/o relations should be removed
-		    				if (!opts.data[j].targets.length) {
-		    					opts.data.splice(j, 1);
-		    				}
-		    			}
-	    			}
-	    		}
-	    		propagate();
-	    	});
-    	};
-    	init();
-    	if (opts.type) go();
+			init();
     };
 		$.fn.widget_selector = function(options){
 			var self = this;
@@ -1626,23 +1399,25 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				preview : 2,
 				include_children : 2
 			}
+			var defaultCallback = function(){};
 			var opts = {
-				"fields" : ["thumbnail","title","description","url","preview","include_children"],
-				"allowMultiple" : true,
+				"fields" : ["thumbnail","title","description","url","preview"],
+				"allowMultiple" : false,
 				"rec" : 1,
 				"ref" : 0,
 				"defaultType" : 'content',
 				"types" : ['composite','media','path','tag','annotation','reply','term'],
 				"results_per_page" : 50,
-				"allow_children" : true,
-				"selected" : []
+				"allow_children" : false,
+				"selected" : [],
+				"onChangeCallback" : defaultCallback
 			};
 
 			$.extend(opts, options);
 
 			var init_promise = $.Deferred();
 
-			var dialogue_container = '<div class="panel panel-default node_selector"> \
+			var dialogue_container = '<div class="panel-default node_selector"> \
 																	<div class="panel-heading"> \
 																		<div class="row"> \
 																			<div class="col-sm-5 col-md-4 node_filter"> \
@@ -1685,7 +1460,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																</div>';
 
       var $dialogue_container = $(dialogue_container);
-
 			var updateNodeList = $.proxy(function(isLazyLoad){
 				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
 					isLazyLoad = false;
@@ -1911,6 +1685,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							$count.text(number_items+' items '+($(this).data('opts').allow_children?'shown':'selected'));
 							break;
 				}
+				$(this).data('opts').onChangeCallback();
 			},$dialogue_container);
 
 			var $filter = $dialogue_container.find('.node_filter');
