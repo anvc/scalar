@@ -1075,7 +1075,23 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 
 							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div><br />').appendTo($nodeTimeline);
-							 mini_node_selector($('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline),['path','tag','term'],false,isEdit,element);
+
+							 var opts = {};
+							 if(isEdit){
+								 var $el = $(element.$);
+								 if($el.attr("resource")!=undefined){
+			 						opts.selected = [$el.attr("resource")];
+			 					 }else if($el.data("nodes")!=undefined){
+			 						opts.selected = $el.data("nodes").split(",");
+			 					 }
+							 }
+							 opts.allowMultiple = false;
+							 opts.fields = ["title","description","url"],
+							 opts.allow_children = false;
+							 opts.types = ['path','tag','term'];
+							 opts.defaultType = 'path';
+
+							 $('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline).node_selection_dialogue(opts);
 
 							 $('<div class="widget_data_type">Enter the URL of a JSON file or Google Drive document formatted for <a target="_blank" href="https://timeline.knightlab.com">Timeline.js</a>.</div><br />').appendTo($urlTimeline);
 							 $('<div class="timeline_external_url_selector form-group"><label for="timeline_external_url">External URL</label><input type="text" class="form-control" id="timeline_external_url"></div>').appendTo($urlTimeline);
@@ -1091,12 +1107,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 data.isEdit = $(this).data('isEdit');
 								 data.attrs["data-widget"] = data.type;
 								 if(timeline_data_type == 'node'){
-									 data.attrs.resource = $('#bootbox-content-selector-content .timeline_node_selection .node_selector_body').data('selectedNodes');
+									 data.attrs.resource = $('#bootbox-content-selector-content .timeline_node_selection').data('serialize_nodes')();
 									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
 										 alert("Please select Scalar content that contains your timeline's temporal data.");
 										 return false;
-									 }else{
-										 data.attrs.resource = data.attrs.resource[0];
 									 }
 								 }else{
 									 data.attrs['data-timeline'] = $('#bootbox-content-selector-content .timeline_external_url_selector input').val();
@@ -1148,20 +1162,34 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'map':
-							 $('<div>Choose any <a target="_blank" href="#">geotagged</a> Scalar item (including paths or tags with geotagged contents).</div>').appendTo($content);
-							 mini_node_selector($('<div class="map_node_selection">').appendTo($content),['path','tag','term'],false,isEdit,element);
+							 $('<div>Choose any <a target="_blank" href="#">geotagged</a> Scalar items (including paths or tags with geotagged contents).</div>').appendTo($content);
+
+							 var opts = {};
+							 if(isEdit){
+								 var $el = $(element.$);
+								 if($el.attr("resource")!=undefined){
+			 						opts.selected = [$el.attr("resource")];
+			 					 }else if($el.data("nodes")!=undefined){
+			 						opts.selected = $el.data("nodes").split(",");
+			 					 }
+							 }
+							 opts.allowMultiple = true;
+							 opts.allow_children = false;
+							 opts.fields = ["title","description","url"],
+							 opts.types = ['composite','path','tag','term','media','path','tag','reply','term'];
+							 opts.defaultType = 'composite';
+
+							 $('<div class="node_selection map_node_selection">').appendTo($content).node_selection_dialogue(opts);
 
  							 submitAction = function(e){
  								 var data = {type:"map",attrs : {}};
  								 data.attrs["data-widget"] = data.type;
 								 data.isEdit = $(this).data('isEdit');
 
-								 data.attrs.resource = $('#bootbox-content-selector-content .map_node_selection .node_selector_body').data('selectedNodes');
-								 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
-									 alert("Please select a geotagged Scalar item.");
+								 data.attrs['data-nodes'] = $('#bootbox-content-selector-content .map_node_selection').data('serialize_nodes')();
+								 if(data.attrs['data-nodes'] == undefined || data.attrs['data-nodes'].length == 0){
+									 alert("Please select at least one geotagged Scalar item.");
 									 return false;
-								 }else{
-									 data.attrs.resource = data.attrs.resource[0];
 								 }
 
  								 select_widget_formatting(data)
@@ -1170,65 +1198,36 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
  							 }
 							 break;
 						 case 'carousel':
-							 if(isEdit){
-								 carousel_data_type = $(element.$).data("nodes")==undefined?"single":"multi";
-							 }else{
-								 carousel_data_type = "single";
-							 }
-
-							 var $modeSelector = $('<select><option value="single">Media container</option><option value="multi">Individual media items</option></select').appendTo($content).change(function(e){
-								 if($(this).val() == "single"){
-									 carousel_data_type = "single";
-									 $singleCarousel.show();
-									 $multiCarousel.hide();
-								 }else{
-									 carousel_data_type = "multi";
-									 $multiCarousel.show();
-									 $singleCarousel.hide();
-								 }
-							 });
-
 							 $content.append('<br />');
 
-							 $singleCarousel = $('<div id="carousel_data_single"></div>').appendTo($content);
 							 $multiCarousel = $('<div id="carousel_data_multi"></div>').appendTo($content);
 
-							 $modeSelector.find('option[value="'+carousel_data_type+'"]').attr('selected','true').val(carousel_data_type);
-
-							 if(carousel_data_type == "single"){
-								 $singleCarousel.show();
-								 $multiCarousel.hide();
-							 }else{
-								 $multiCarousel.show();
-								 $singleCarousel.hide();
+							 $('<div class="widget_data_type">Choose any paths or tags that contain media or individual pieces of media</div>').appendTo($multiCarousel);
+							 var opts = {};
+							 if(isEdit){
+								 var $el = $(element.$);
+								 if($el.attr("resource")!=undefined){
+			 						opts.selected = [$el.attr("resource")];
+			 					 }else if($el.data("nodes")!=undefined){
+			 						opts.selected = $el.data("nodes").split(",");
+			 					 }
 							 }
+							 opts.allowMultiple = true;
+							 opts.allow_children = true;
+							 opts.fields = ["thumbnail","title","description","url","include_children"],
+							 opts.types = ['path','tag','term','media'];
+							 opts.defaultType = 'path';
 
-							 $('<div class="widget_data_type">Choose any path or tag that contains media.</div>').appendTo($singleCarousel);
-							 mini_node_selector($('<div class="carousel_single_selection">').appendTo($singleCarousel),['path','tag','term'],false,isEdit,element);
-
-							 $('<div class="widget_data_type">Select one or more pieces of media.</div>').appendTo($multiCarousel);
-							 mini_node_selector($('<div class="carousel_multi_selection"></div>').appendTo($multiCarousel),['media'], true,isEdit,element);
+							 $('<div class="node_selection carousel_multi_selection">').appendTo($multiCarousel).node_selection_dialogue(opts);
 
 							 submitAction = function(e){
 								 var data = {type:"carousel",attrs : {}};
 								 data.attrs["data-widget"] = data.type;
 								 data.isEdit = $(this).data('isEdit');
-								 if(carousel_data_type == 'single'){
-
-									 data.attrs.resource = $('#bootbox-content-selector-content .carousel_single_selection .node_selector_body').data('selectedNodes');
-									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
-										 alert("Please select a path or tag that contains media.");
-										 return false;
-									 }else{
-										 data.attrs.resource = data.attrs.resource[0];
-									 }
-
-								 }else{
-									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection .node_selector_body').data('selectedNodes').join();
-									 if(data.attrs["data-nodes"] == ''){
-										 alert("Please select at least one media item for your carousel widget.");
-										 return false;
-									 }
+								 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection').data('serialize_nodes')();
+								 if(data.attrs["data-nodes"] == ''){
+									 alert("Please select at least one media item for your carousel widget.");
+									 return false;
 								 }
 								 select_widget_formatting(data);
 								 e.preventDefault();
@@ -1236,66 +1235,35 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'card':
+						 	 $multiCard = $('<div id="card_data_multi"></div>').appendTo($content);
+							 $('<div class="widget_data_type">Choose paths or tags to show their contents as cards or select individual pages to show.</div>').appendTo($multiCard);
+
+							 var opts = {};
 							 if(isEdit){
-								 card_data_type = $(element.$).data("nodes")==undefined?"single":"multi";
-							 }else{
-								 card_data_type = "single";
-							 }
-
-							 var $modeSelector = $('<select><option value="single">Container</option><option value="multi">Individual media items</option></select').appendTo($content).change(function(e){
-								 if($(this).val() == "single"){
-									 card_data_type = "single";
-									 $singleCard.show();
-									 $multiCard.hide();
-								 }else{
-									 card_data_type = "multi";
-									 $multiCard.show();
-									 $singleCard.hide();
+								 var $el = $(element.$);
+								 if($el.attr("resource")!=undefined){
+									opts.selected = [$el.attr("resource")];
+								 }else if($el.data("nodes")!=undefined){
+									opts.selected = $el.data("nodes").split(",");
 								 }
-							 });
-
-							 $content.append('<br />');
-
-							 $singleCard = $('<div id="card_data_single"></div>').appendTo($content);
-							 $multiCard = $('<div id="card_data_multi"></div>').appendTo($content);
-
-							 $modeSelector.find('option[value="'+card_data_type+'"]').attr('selected','true').val(card_data_type);
-
-							 if(card_data_type == "single"){
-								 $singleCard.show();
-								 $multiCard.hide();
-							 }else{
-								 $multiCard.show();
-								 $singleCard.hide();
 							 }
+							 opts.allowMultiple = true;
+							 opts.allow_children = true;
+							 opts.fields = ["thumbnail","title","description","url","include_children"],
+							 opts.types = ['composite','path','tag','term','media','path','tag','reply','term'];
+							 opts.defaultType = 'composite';
 
-							 $('<div class="widget_data_type">Choose any path or tag to show its contents as cards.</div>').appendTo($singleCard);
-							 mini_node_selector($('<div class="card_single_selection">').appendTo($singleCard),['path','tag','annotation','term']);
 
-
-							 $('<div class="widget_data_type">Select one or more items to be shown as cards.</div>').appendTo($multiCard);
-							 mini_node_selector($('<div class="card_multi_selection"></div>').appendTo($multiCard),['composite','media','path','tag','reply','term'], true,isEdit,element);
+							 $('<div class="node_selection card_multi_selection">').appendTo($multiCard).node_selection_dialogue(opts);
 
 							 submitAction = function(e){
 								 var data = {type:"card",attrs : {}};
 								 data.attrs["data-widget"] = data.type;
 								 data.isEdit = $(this).data('isEdit');
-								 if(card_data_type == 'single'){
-
-									 data.attrs.resource = $('#bootbox-content-selector-content .card_single_selection .node_selector_body').data('selectedNodes');
-									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
-										 alert("Please select a path or tag.");
-										 return false;
-									 }else{
-										 data.attrs.resource = data.attrs.resource[0];
-									 }
-
-								 }else{
-									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection .node_selector_body').data('selectedNodes').join();
-									 if(data.attrs["data-nodes"] == ''){
-										 alert("Please select at least one item for your card widget.");
-										 return false;
-									 }
+								 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection').data('serialize_nodes')();
+								 if(data.attrs["data-nodes"] == ''){
+									 alert("Please select at least one item for your card widget.");
+									 return false;
 								 }
 								 select_widget_formatting(data);
 								 e.preventDefault();
@@ -1303,61 +1271,33 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'summary':
-							 if(isEdit){
-								 summary_data_type = $(element.$).data("nodes")==undefined?"single":"multi";
-							 }else{
-								 summary_data_type = "single";
-							 }
-
-							 var $modeSelector = $('<select><option value="single">Container</option><option value="multi">Individual media items</option></select').appendTo($content).change(function(e){
-								 if($(this).val() == "single"){
-									 summary_data_type = "single";
-									 $singleSummary.show();
-									 $multiSummary.hide();
-								 }else{
-									 summary_data_type = "multi";
-									 $multiSummary.show();
-									 $singleSummary.hide();
-								 }
-							 });
-
-							 $content.append('<br />');
-
-							 $singleSummary = $('<div id="summary_data_single"></div>').appendTo($content);
 							 $multiSummary = $('<div id="summary_data_multi"></div>').appendTo($content);
-
-							 $modeSelector.find('option[value="'+summary_data_type+'"]').attr('selected','true').val(summary_data_type);
-
-							 if(summary_data_type == "single"){
-								 $singleSummary.show();
-								 $multiSummary.hide();
-							 }else{
-								 $multiSummary.show();
-								 $singlesummary.hide();
-							 }
-
-							 $('<div class="widget_data_type">Choose any path or tag to show its contents in the summary.</div>').appendTo($singleSummary);
-							 mini_node_selector($('<div class="summary_single_selection">').appendTo($singleSummary),['path','tag','term']);
-
 							 $('<div class="widget_data_type">Select one or more items to be shown in the summary.</div>').appendTo($multiSummary);
-							 mini_node_selector($('<div class="summary_multi_selection"></div>').appendTo($multiSummary),['composite','media','path','tag','reply','term'], true);
+							 var opts = {};
+							 if(isEdit){
+								 var $el = $(element.$);
+								 if($el.attr("resource")!=undefined){
+									opts.selected = [$el.attr("resource")];
+								 }else if($el.data("nodes")!=undefined){
+									opts.selected = $el.data("nodes").split(",");
+								 }
+							 }
+							 opts.allowMultiple = true;
+							 opts.allow_children = true;
+							 opts.fields = ["thumbnail","title","description","url","include_children"],
+							 opts.types = ['composite','path','tag','term','media','path','tag','reply','term'];
+							 opts.defaultType = 'composite';
+
+							 $('<div class="node_selection summary_multi_selection">').appendTo($multiSummary).node_selection_dialogue(opts);
 
 							 submitAction = function(e){
 								 var data = {type:"summary",attrs : {}};
 								 data.isEdit = $(this).data('isEdit');
 								 data.attrs["data-widget"] = data.type;
-								 if(summary_data_type == 'single'){
-									 data.attrs.resource = $('#bootbox-content-selector-content .summary_single_selection tbody tr.bg-info').data('slug');
-									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
-										 alert("Please select a path or tag.");
-										 return false;
-									 }
-								 }else{
-									 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection .node_selector_body').data('selectedNodes').join();
-									 if(data.attrs["data-nodes"] == ''){
-										 alert("Please select at least one item for your summary widget.");
-										 return false;
-									 }
+								 data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection').data('serialize_nodes')();
+								 if(data.attrs["data-nodes"] == ''){
+									 alert("Please select at least one item for your summary widget.");
+									 return false;
 								 }
 								 select_widget_formatting(data);
 								 e.preventDefault();
@@ -1694,10 +1634,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				"defaultType" : 'content',
 				"types" : ['composite','media','path','tag','annotation','reply','term'],
 				"results_per_page" : 50,
-				"allow_children" : true
+				"allow_children" : true,
+				"selected" : []
 			};
 
 			$.extend(opts, options);
+
+			var init_promise = $.Deferred();
 
 			var dialogue_container = '<div class="panel panel-default node_selector"> \
 																	<div class="panel-heading"> \
@@ -1769,7 +1712,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 					for(var i = start; i < data.length; i++){
 						var item = data[i];
-						var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
+						var index = -1;
+						if(undefined!==$dialogue_container.data('nodes')){
+							for(var n in $dialogue_container.data('nodes')){
+									var selected_node = $dialogue_container.data('nodes')[n];
+									if(selected_node.slug == item.slug){
+										index = n;
+										break;
+									}
+							}
+						}
 
 						var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
 						var rowHTML = '<tr>';
@@ -1815,12 +1767,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							$item.find('.select_children input[type="checkbox"]').change(function(){
 								var $dialogue_container = $(this).parents('.node_selector');
 								var item = $(this).parents('tr').data('item');
-								var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
+								var index = -1;
+								if(undefined!==$dialogue_container.data('nodes')){
+									for(var n in $dialogue_container.data('nodes')){
+											var selected_node = $dialogue_container.data('nodes')[n];
+											if(selected_node.slug == item.slug){
+												index = n;
+												break;
+											}
+									}
+								}
 								var checked = $(this).is(":checked");
-								if(!checked){
+								if(!checked && index > -1){
 									$dialogue_container.data('nodes')[index].include_children = false;
 									updateSelectedCounter();
-								}else{
+								}else if(checked){
 									if(index > -1){
 										$dialogue_container.data('nodes')[index].include_children = true;
 										updateSelectedCounter();
@@ -1833,7 +1794,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									}
 								}
 							});
-							if(index>-1){
+							if(index>-1 && $dialogue_container.data('nodes')[index].include_children){
 								$item.find('.select_children input[type="checkbox"]').attr('checked',true);
 							}
 						}
@@ -1853,9 +1814,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 								var $childSelector = $(this).parents('.select_row').siblings('.select_children');
 								var hasChildSelector = $childSelector.length > 0;
-
-								var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
-
+								var index = -1;
+								if(undefined!==$dialogue_container.data('nodes')){
+									for(var n in $dialogue_container.data('nodes')){
+											var selected_node = $dialogue_container.data('nodes')[n];
+											if(selected_node.slug == item.slug){
+												index = n;
+												break;
+											}
+									}
+								}
 								if(index == -1){
 									if($dialogue_container.data('nodes') == undefined){
 										$dialogue_container.data('nodes',[item]);
@@ -1864,7 +1832,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									}
 									$row.addClass('current');
 									if(hasChildSelector){
-										var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
+										var index = -1;
+										if(undefined!==$dialogue_container.data('nodes')){
+											for(var n in $dialogue_container.data('nodes')){
+													var selected_node = $dialogue_container.data('nodes')[n];
+													if(selected_node.slug == item.slug){
+														index = n;
+														break;
+													}
+											}
+										}
 										$childSelector.find('input[type="checkbox"]').attr('checked',true);
 										$dialogue_container.data('nodes')[index].include_children = true;
 									}
@@ -1872,13 +1849,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									$dialogue_container.find('.selectAll input[type="checkbox"]').attr("checked",false);
 									$dialogue_container.data('nodes').splice(index, 1);
 									$row.removeClass('current');
-									if(hasChildSelector){$childSelector.find('input[type="checkbox"]').click();}
+									if(hasChildSelector){
+										$childSelector.find('input[type="checkbox"]').attr('checked',false);
+									}
 								}
 
 								updateSelectedCounter();
 							});
 						}else{
 							$item.click(function(){
+								var item = $(this).data('item');
 								var $dialogue_container = $(this).parents('.node_selector');
 								var $childSelector = $(this).find('.select_children');
 								var hasChildSelector = $childSelector.length > 0;
@@ -1886,13 +1866,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									$(this).removeClass('current');
 									$dialogue_container.data('nodes',[]);
 									if(hasChildSelector){
-										var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
-										$childSelector.find('input[type="checkbox"]').attr('checked',true);
-										$dialogue_container.data('nodes')[index].include_children = true;
+										$childSelector.find('input[type="checkbox"]').attr('checked',false);
 									}
 								}else{
 									$(this).addClass('current').siblings('.current').removeClass('current');
-									$dialogue_container.data('nodes',[$(this).data('slug')]);
+									$dialogue_container.data('nodes',[item]);
 									if(hasChildSelector){
 										$childSelector.click();
 									}
@@ -1910,7 +1888,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var updateSelectedCounter = $.proxy(function(){
 				var $count = $(this).find('.selected_node_count');
 				if($(this).data('nodes') == undefined){
-					$(this).data('nodes') = [];
+					$(this).data('nodes',[]);
 				}
 
 				var number_items = $(this).data('nodes').length;
@@ -1934,6 +1912,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							break;
 				}
 			},$dialogue_container);
+
 			var $filter = $dialogue_container.find('.node_filter');
 			var $search = $dialogue_container.find('.node_search');
 			var $count = $dialogue_container.find('.selected_node_count');
@@ -2085,20 +2064,122 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				opts.ref = 0;
 			}
 
-			var promise = $.Deferred();
-			$.when(promise).then(updateNodeList);
+			var init_selector = $.proxy(function($dialogue_container,opts){
+				$dialogue_container.data('opts',opts);
+				updateSelectedCounter();
+				$dialogue_container.find('.node_filter button').click();
+				$(this).append($dialogue_container);
+			},this,$dialogue_container,opts);
 
-			var rec = opts.rec;
-			var ref = opts.ref;
+			jQuery.when(init_promise).then(init_selector);
 
-			load_node_list({
-				"type" : type,
-				"rec" : rec,
-				"ref" : ref,
-				"promise" : promise,
-				"page" : 0
-			});
+			if("undefined" !== typeof opts.selected && $.isArray(opts.selected) && opts.selected.length > 0){
+				//Go through selected array and add them to the selected list...
+				var slugs = [];
+				for(var i in opts.selected){
+					 var include_children = opts.selected[i].indexOf('*')>-1;
+					 var slug = opts.selected[i].replace(/\*/g, '%');
+					 slugs.push({id : slug, children : include_children, loaded : false});
+				}
 
-			return $(this).append($dialogue_container.data('opts',opts));
+				var parent_url = $('link#parent').attr('href');
+
+				for(var i in slugs){
+
+					(function(slug,promise,slugs,$dialogue_container){
+						if(scalarapi.loadPage( slug.id, true, function(){
+							var nodeList = [];
+
+							slug.loaded = true;
+							slug.data = scalarapi.getNode(slug.id);
+
+							for(var i in slugs){
+								if(!slugs[i].loaded){
+									return;
+								}
+							}
+							$dialogue_container.data('nodes',[]);
+							for(var i in slugs){
+								//Build node list for content selector
+								var slug_data = slugs[i].data;
+								var item = {};
+								item.uri = slug_data.url;
+								item.slug = slugs[i].id;
+								item.version_uri = slug_data.current.url;
+		    				item.version_slug = item.version_uri.replace(parent_url, '');
+		    				item.content = slug_data.current.content;
+		    				item.title = slug_data.current.title;
+								if("undefined" !== typeof slug_data.outgoingRelations && $.isArray(slug_data.outgoingRelations) && slug_data.outgoingRelations.length > 0){
+		    					item.targets = slug_data.outgoingRelations;
+								}
+								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
+									item.thumbnail = slug_data.thumbnail;
+								}else{
+									item.thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+								}
+								item.include_children = slug.children;
+								item.hasRelations = 'undefined' !== typeof item.content.rel;
+								$dialogue_container.data('nodes').push(item);
+							}
+							promise.resolve();
+						}, null, 1, false, null, 0, 20) == "loaded"){
+							var nodeList = [];
+
+							slug.loaded = true;
+							slug.data = scalarapi.getNode(slug.id);
+
+							for(var i in slugs){
+								if(!slugs[i].loaded){
+									return;
+								}
+							}
+
+							$dialogue_container.data('nodes',[]);
+							for(var i in slugs){
+								//Build node list for content selector
+								var slug_data = slugs[i].data;
+								var item = {};
+								item.uri = slug_data.url;
+								item.slug = slugs[i].id;
+								item.version_uri = slug_data.current.url;
+		    				item.version_slug = item.version_uri.replace(parent_url, '');
+		    				item.content = slug_data.current.content;
+		    				item.title = slug_data.current.title;
+								if("undefined" !== typeof slug_data.outgoingRelations && $.isArray(slug_data.outgoingRelations) && slug_data.outgoingRelations.length > 0){
+		    					item.targets = slug_data.outgoingRelations;
+								}
+								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
+									item.thumbnail = slug_data.thumbnail;
+								}else{
+									item.thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+								}
+								item.include_children = slug.children;
+								item.hasRelations = 'undefined' !== typeof item.content.rel;
+								$dialogue_container.data('nodes').push(item);
+							}
+							promise.resolve();
+						}
+					})(slugs[i],init_promise,slugs,$dialogue_container);
+				}
+			}else{
+				init_promise.resolve();
+			}
+			$(this).data('serialize_nodes',$.proxy(function(){
+				if($(this).data('nodes') == undefined){
+					return '';
+				}
+				for(var i in $(this).data('nodes')){
+					var item = $(this).data('nodes')[i];
+					if("undefined" === typeof slugs){
+						var slugs = [item.slug];
+					}else{
+						slugs.push(item.slug);
+					}
+					if(!$(this).data('opts').allow_children || 'undefined'===typeof item.targets || 'undefined'===item.include_children || !item.include_children){continue;}
+					slugs[slugs.length-1]+='*';
+				}
+				return slugs.join(',');
+			},$dialogue_container));
+			return $(this);
 		};
 }( jQuery ));

@@ -1148,6 +1148,13 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .node_selector table>thead>tr>th, .node_selector table>tbody>tr>td{
 	padding-left: 0px;
 }
+.node_selector table>thead>tr>th.spacer{
+	padding: 0px;
+}
+.node_selector table>thead>tr>th[data-field="include_children"]{
+	text-align: center;
+		padding-left: 8px;
+}
 #nodeSelectorDropdown{
     width: 100%;
     border-radius: 4px 0 0 4px;
