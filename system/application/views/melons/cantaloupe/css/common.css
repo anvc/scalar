@@ -1145,10 +1145,34 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 	font-weight: bold;
 	color: #32a71a
 }
+.node_selector table>thead>tr>th, .node_selector table>tbody>tr>td{
+	padding-left: 0px;
+}
+#nodeSelectorDropdown{
+    width: 100%;
+    border-radius: 4px 0 0 4px;
+		text-align: left;
+}
+#nodeSelectorDropdown .caret{
+    display: none;
+}
+.node_selector .dropdown-menu{
+	width: 100%;
+}
 .node_selector_table_body.multiple tbody>tr:hover{
 	cursor: default;
 }
-
+.node_selector .node_rows{
+	font-size: 12px;
+}
+.node_selector .node_search input[type="text"]{
+	border-right: 0;
+}
+.node_selector .node_search button:hover{
+	border-left: 0;
+  background-color: #fff;
+  border-color: #ccc;
+}
 .media_options_bootbox .table-fixed th{
 	font-weight: bold;
 	background-color: #fff;

@@ -1703,12 +1703,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																	<div class="panel-heading"> \
 																		<div class="row"> \
 																			<div class="col-sm-5 col-md-4 node_filter"> \
-																				<div class="input-group node_types"> \
-																					<select class="form-control"> \
+																				<div class="node_types form-inline"> \
+																					<select class="btn btn-default generic_button large form-control"> \
 																					</select> \
-																					<span class="input-group-btn"> \
-																	        	<button class="btn btn-default" type="button">Filter</button> \
-																	      	</span> \
+																	        <button class="btn btn-default" type="button">Filter</button> \
 																				</div> \
 																			</div> \
 																			<div class="col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-4"> \
@@ -1751,6 +1749,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 				var opts = $(this).data('opts');
 				var $rows = $(this).find('.node_rows');
+				var $fields = $(this).find('.node_fields');
 				if(lastLoadType == "search"){
 					var data = search_results;
 				}else if(lastLoadType == "init"){
@@ -1770,23 +1769,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 					for(var i = start; i < data.length; i++){
 						var item = data[i];
-
-						if($(this).data('nodes') == undefined){
-							var index = -1;
-						}else{
-							var index = $(this).data('nodes').indexOf(item);
-						}
-
-						var selected = false;
-						if(index > -1){
-							selected = true;
-						}
+						var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
 
 						var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
 						var rowHTML = '<tr>';
 
 						if(isset(opts.allowMultiple) && opts.allowMultiple){
-							rowHTML += '<td class="text-center select_row" style="vertical-align: middle; width: 5rem"><i class="glyphicon glyphicon-'+(selected?'check':'unchecked')+'"></td>';
+							rowHTML += '<td class="text-center select_row" style="vertical-align: middle; width: 5rem"><input type="checkbox" '+(index > -1?'checked':'')+'></td>';
 						}
 
 						var hasChildSelector = false;
@@ -1811,9 +1800,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									break;
 								case 'include_children':
 									hasChildSelector = true;
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+' select_children" style="vertical-align: middle;">';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+' select_children text-center" style="vertical-align: middle;">';
 									if(item.hasRelations){
-										rowHTML += '<i class="glyphicon glyphicon-unchecked">';
+										rowHTML += '<input type="checkbox" value="">';
 									}
 									rowHTML += '</td>';
 							}
@@ -1823,65 +1812,49 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var $item = $(rowHTML).appendTo($rows).data({'slug':item.slug,'item':item});
 
 						if(hasChildSelector){
-							$item.find('.select_children').click(function(){
+							$item.find('.select_children input[type="checkbox"]').change(function(){
 								var $dialogue_container = $(this).parents('.node_selector');
 								var item = $(this).parents('tr').data('item');
-								if($dialogue_container.data('nodes') == undefined){
-									var index = -1;
-								}else{
-									var index = $dialogue_container.data('nodes').indexOf(item);
-								}
-								if(index > -1 && 'undefined'!==$dialogue_container.data('nodes')[index].include_children && $dialogue_container.data('nodes')[index].include_children){
-									$(this).find('.glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+								var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
+								var checked = $(this).is(":checked");
+								if(!checked){
 									$dialogue_container.data('nodes')[index].include_children = false;
 									updateSelectedCounter();
 								}else{
 									if(index > -1){
-										$(this).find('.glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
 										$dialogue_container.data('nodes')[index].include_children = true;
 										updateSelectedCounter();
 									}else{
 										if($dialogue_container.data('opts').allowMultiple){
-											$(this).siblings('.select_row').click();
+											$(this).parents('.select_children').siblings('.select_row').find('input[type="checkbox"]').click();
 										}else{
 											$(this).parents('tr').click();
 										}
 									}
 								}
 							});
-							if(selected){
-								if($dialogue_container.data('nodes') == undefined){
-									var index = -1;
-								}else{
-									var index = $dialogue_container.data('nodes').indexOf(item);
-								}
-								if(index > -1 && 'undefined'!==$dialogue_container.data('nodes')[index].include_children && $dialogue_container.data('nodes')[index].include_children){
-									$item.find('.select_children .glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-								}else{
-									$item.find('.select_children .glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-								}
+							if(index>-1){
+								$item.find('.select_children input[type="checkbox"]').attr('checked',true);
 							}
 						}
 
-						if(selected){
+						if(index>-1){
 							$item.addClass('current');
+							$item.find('.select_row input[type="checkbox"]').attr('checked',true);
 						}
 
 						if(opts.allowMultiple){
-							$item.find('.select_row').click(function(){
+							$item.find('.select_row>input[type="checkbox"]').change(function(){
 								var $dialogue_container = $(this).parents('.node_selector');
 								var $row = $(this).parents('tr');
 								var item = $row.data('item');
 								var $icon = $(this).find('.glyphicon');
+								var checked = $(this).is(":checked");
 
-								var $childSelector = $(this).siblings('.select_children');
+								var $childSelector = $(this).parents('.select_row').siblings('.select_children');
 								var hasChildSelector = $childSelector.length > 0;
 
-								if($dialogue_container.data('nodes') == undefined){
-									var index = -1;
-								}else{
-									var index = $dialogue_container.data('nodes').indexOf(item);
-								}
+								var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
 
 								if(index == -1){
 									if($dialogue_container.data('nodes') == undefined){
@@ -1889,17 +1862,17 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									}else{
 										$dialogue_container.data('nodes').push(item);
 									}
-									$icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
 									$row.addClass('current');
 									if(hasChildSelector){
-										$childSelector.click();
+										var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
+										$childSelector.find('input[type="checkbox"]').attr('checked',true);
+										$dialogue_container.data('nodes')[index].include_children = true;
 									}
 								}else{
-									$dialogue_container.find('.selectAll .glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+									$dialogue_container.find('.selectAll input[type="checkbox"]').attr("checked",false);
 									$dialogue_container.data('nodes').splice(index, 1);
-									$icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
 									$row.removeClass('current');
-									if(hasChildSelector){$childSelector.find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');}
+									if(hasChildSelector){$childSelector.find('input[type="checkbox"]').click();}
 								}
 
 								updateSelectedCounter();
@@ -1912,7 +1885,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if($(this).hasClass('current')){
 									$(this).removeClass('current');
 									$dialogue_container.data('nodes',[]);
-									if(hasChildSelector){$childSelector.find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');}
+									if(hasChildSelector){
+										var index = $dialogue_container.data('nodes') == undefined?-1:$dialogue_container.data('nodes').indexOf(item);
+										$childSelector.find('input[type="checkbox"]').attr('checked',true);
+										$dialogue_container.data('nodes')[index].include_children = true;
+									}
 								}else{
 									$(this).addClass('current').siblings('.current').removeClass('current');
 									$dialogue_container.data('nodes',[$(this).data('slug')]);
@@ -1925,6 +1902,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 				}
+
+				$fields.find('.spacer').remove();
+				$fields.append('<th class="spacer" style="width:'+($fields.width()-$rows.width())+'px"></th>');
+
 			},$dialogue_container);
 			var updateSelectedCounter = $.proxy(function(){
 				var $count = $(this).find('.selected_node_count');
@@ -1959,16 +1940,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var $fields = $dialogue_container.find('.node_fields');
 
 			if(isset(opts.allowMultiple) && opts.allowMultiple){
-				$fields.append($('<th data-field="selected" class="text-center selectAll" style="width: 5rem"><i class="glyphicon glyphicon-unchecked"></i></th>').click(function(){
-					var checked = $(this).find('.glyphicon').hasClass('glyphicon-check');
-					var $rows = $(this).parents('.node_selector').find('tbody tr .select_row:has('+(checked?'.glyphicon-check':'.glyphicon-unchecked')+')');
-					$rows.trigger('click');
+				$('<input type="checkbox">').appendTo($('<th data-field="selected" class="text-center selectAll" style="width: 5rem"></th>').appendTo($fields)).change(function(){
+					var checked = $(this).is(":checked");
+					var $rows = $(this).parents('.node_selector').find('tbody tr .select_row input[type="checkbox"]');
 					if(checked){
-						$(this).find('.glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+						$rows = $rows.not(':checked');
 					}else{
-						$(this).find('.glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+						$rows = $rows.filter(':checked');
 					}
-				}));
+					$rows.trigger('click');
+				});
 			}
 
 			var $rows = $dialogue_container.find('.node_rows');
@@ -2032,8 +2013,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 	 				 load_node_list(data);
 	       }
 			});
-
+			$search.find('button').click(function(){
+				var $dialogue_container = $(this).parents('.node_selector');
+				var $type_filter_button = $dialogue_container.find('.node_filter button');
+				var $search = $dialogue_container.find('.node_search');
+				$search.find('input').val('');
+				$type_filter_button.click();
+			});
 			$search.find('input').on("keyup change",function(){
+				if($(this).val() == ""){
+					var $dialogue_container = $(this).parents('.node_selector');
+					var $type_filter_button = $dialogue_container.find('.node_filter button');
+					$type_filter_button.click();
+					return false;
+				}
 				if($(this).data('timeout')!=undefined){
 					window.clearTimeout($(this).data('timeout'));
 				}
