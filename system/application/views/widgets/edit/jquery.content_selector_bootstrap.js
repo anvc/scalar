@@ -393,8 +393,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 	    	} else {
 	    		var foot = parseInt( foot_el.height() );
 	    	}
+				var $body = $content_selector_bootbox.find('.modal-body');
+				var bodyPadding = $body.outerHeight()-$body.height();
 	    	var window_height = parseInt($(window).height());
-	    	var val = window_height - head - foot - (margin*2);
+	    	var val = window_height - head - foot - (margin*2) - bodyPadding;
     		$this.find('.content').height(val);
     	};
     	// Initialize the interface
@@ -431,16 +433,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				bootbox.hideAll()
 				var box = bootbox.dialog({
 					message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
-					title: '<div class="options container-fluid"></div>',
+					title: 'Select content',
 					className: 'content_selector_bootbox',
 					animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
 				});
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
     		// Default content
     		var $content = $('<div class="content"></div>').appendTo($wrapper);
-				var $selector = $('<div class="selector"></div>').appendTo($content)
+				var $selector = $('<div class="selector" style="height: 100%; width: 100%;"></div>').appendTo($content)
 				 var options = {};
-				 console.log(opts);
 				//  if(isEdit){
 				// 	 var $el = $(element.$);
 				// 	 if($el.attr("resource")!=undefined){
@@ -452,20 +453,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				 options.results_per_page = opts.results_per_page;
 				 options.allowMultiple = opts.multiple;
 				 options.allow_children = false;
-				 options.onChangeCallback = $.proxy(function(box,opts){
-					 if("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0){
-						 var slug = $(this).find('.node_selector').data('nodes')[0].slug;
-						 (function(box,opts,slug){
-							 if(scalarapi.loadPage( slug, true, function(){
-								 opts.callback(scalarapi.getNode(slug),opts.element);
-				 			   box.modal('hide');
-							 }, null, 1, false, null, 0, 20) == "loaded"){
-								 opts.callback(scalarapi.getNode(slug),opts.element);
-				 				 box.modal('hide');
-							 }
-						 })(box,opts,slug);
+					if(!opts.multiple){
+						options.onChangeCallback = $.proxy(function(box,opts){
+							if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
+								opts.callback($(this).find('.node_selector').data('nodes')[0],opts.element);
+								box.modal('hide');
+							}
+						},$selector,box,opts);
 					}
-				},$selector,box,opts);
 				 if("undefined" !== typeof opts.type && opts.type!=null){
 					 if($.isArray(opts.type)){
 						 options.types = opts.type;
@@ -497,7 +492,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
     		// Bootstrap positioning
   			$footer.find('.cancel').hide();  // Remove cancel button
-  			modal_height();  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
+  			$(window).trigger('resize');  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
     		// Behaviors
     		$footer.hide();  // Default
     		$footer.find('a:first').click(function() {  // On-the-fly
@@ -542,48 +537,26 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			$buttons.find('a:first').click(function() {
     				onthefly_reset();
     			});
-    			$buttons.find('a:last').click(function() {
-    				var $self = $(this);
-    				if ($self.data('clicked')) return false;
-    				$self.data('clicked', true);
-    				if (!$form.find('#onthefly-title').val().length) {
-    					alert('Title is a required field.');
-    					$self.data('clicked', false);
-    					return false;
-    				}
-    				var success = function(version) {
-    					for (var version_uri in version) break;
-    					var urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
-    					var version_slug = version_uri.replace($('link#parent').attr('href'),'');
-    					slug = version_slug.substr(0, version_slug.lastIndexOf('.'));
-    					var uri = version_uri.substr(0, version_uri.lastIndexOf('.'));
-    					var version = version[version_uri];
-    					if (version_uri.substr(version_uri.length-1,1)=='/') version_uri = version_uri.substr(0, version_uri.length-1);
-    					if (version_slug.substr(version_slug.length-1,1)=='/') version_slug = version_slug.substr(0, version_slug.length-1);
-    					var node = {
-    						content:{},slug:slug,targets:[],uri:uri,
-    						version:version,version_slug:version_slug,version_uri:version_uri
-    					};
-    					if (opts.multiple) node = [node];
-    					if ('undefined'!=typeof(window['send_form_hide_loading'])) send_form_hide_loading();
-    					if ($form.closest('.content_selector_bootbox').length) {
-    						$form.closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
-    					} else {
-    						$form.closest('.content_selector').remove();
-    					}
-    					$('.tt').remove();
-    					opts.callback(node,opts.element);
-    					reset();
-    				};
-    				$buttons.find('.onthefly_loading').show();
-    				send_form($form, {}, success);
-    			});
     		});  // /On-the-fly
     		if (opts.onthefly) {  // Display on-the-fly
     			$footer.show();
     		} else {
     			$footer.find('a:first').hide();
     		}
+				if (opts.multiple) {
+					$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
+					$footer.find('a:last').click($.proxy(function(box,opts){
+						if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
+							var nodes = [];
+							var selected_nodes = $(this).find('.node_selector').data('nodes');
+							for(node in selected_nodes){
+								nodes.push(selected_nodes[node]);
+							}
+    					opts.callback(nodes,opts.element);
+							box.modal('hide');
+					 }
+				 },$selector,box,opts));
+				}
     	};
     	// Propagate the interface
 			init();
@@ -659,144 +632,19 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				return result;
 			}
 
-			var mini_node_selector = function(target, types, allowMultiple, isEdit, element){
-				if(typeof types == 'undefined'){
-					types = ['composite','media','path','tag','annotation','reply','term'];
-				}
+			var modal_height = function() {
+    		var $widget_selector_bootbox = $('.widget_selector_bootbox');
+    		if (!$widget_selector_bootbox.length) return;
+    		var margin = parseInt($widget_selector_bootbox.find('.modal-dialog').css('marginTop'));
+    		var head = parseInt( $widget_selector_bootbox.find('.modal-header').outerHeight() );
+    		if (head < 60) head = 60;  // Magic number
+	    	var window_height = parseInt($(window).height());
+	    	var val = window_height - head - (margin*2);
+    		$widget_selector_bootbox.find('.node_selection').hide();
+				val -= $widget_selector_bootbox.find('.modal-body').outerHeight();
+				$widget_selector_bootbox.find('.node_selection').show().height(val);
+    	};
 
-				if(typeof allowMultiple == "undefined" || allowMultiple == null){
-					allowMultiple = false;
-				}
-
-				if(typeof isEdit == "undefined" || isEdit == null || !isEdit){
-					isEdit = false;
-				}
-
-				var content_selector_html = '<div class="node_selector_body"><div class="type_selector pull-right">Filter by type: &nbsp;<select class="node_selection_type_filter">';
-
-				for(var t in types){
-
-					if(types[t] == 'composite'){
-						var type_display_name = 'Pages';
-					}else if(types[t] == 'reply'){
-						var type_display_name = 'Commentary';
-					}else{
-						var type_display_name = types[t].charAt(0).toUpperCase() + types[t].slice(1);
-						if(type_display_name!='Media'){
-							type_display_name+='s';
-						}
-					}
-
-					content_selector_html += '<option value="'+types[t]+'">'+type_display_name+'</option>';
-				}
-
-				content_selector_html+='</select></div></div>';
-
-
-				var $wrapper = $(content_selector_html);
-
-				if(types.length == 1){
-					$wrapper.find('.type_selector').hide();
-				}
-
-				var $header = $('<table class="widget_target_node_selector table table-fixed"></table>').appendTo($wrapper);
-				var $thead = $('<thead><tr><th class="col-xs-3">Title</th><th class="col-xs-4">Description</th><th class="col-xs-2">URL</th><th class="col-xs-2"></th><th class="col-xs-1"></th></tr></thead>').appendTo($header);
-				var $scrollContainer = $('<div class="content_selector_scroll"></div>').appendTo($wrapper);
-				var $selector = $('<table class="widget_target_node_selector table table-fixed"></table>').appendTo($scrollContainer);
-				var $tbody = $('<tbody></tbody>').appendTo($selector);
-
-				var selectedNodes = [];
-
-				if(allowMultiple){
-					$wrapper.prepend('<div><small class="multipleNodesText text-danger"><strong>Please select at least one item for this widget.</strong></small></div>');
-				}
-
-				$wrapper.find('.node_selection_type_filter').change(function(){
-					var promise = jQuery.Deferred();
-					jQuery.when(promise).then(function(){
-						if(typeof selectedNodes == "undefined" || selectedNodes == null){
-							selectedNodes = [];
-						}
-						var data = loaded_nodeLists[$wrapper.find('.node_selection_type_filter').val()];
-						if(data.length == 0){
-							$tbody.html('<tr><td colspan="5" class="text-center empty">There are no items of the selected type.</td></tr>');
-						}else{
-							$tbody.html('');
-							for(var i = 0; i < data.length; i++){
-								var item = data[i];
-								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
-								var $item = $('<tr><td class="col-xs-3">'+item.title+'</td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(e){
-									if(!allowMultiple){
-											if($(this).hasClass('bg-info') && (!allowMultiple || selectedNodes.length == 1)){
-											  $(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-												if(allowMultiple){
-													selectedNodes = [];
-												}
-											}else{
-												$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-												selectedNodes = [$(this).data('slug')];
-											}
-											$(this).siblings('.bg-info').removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-									}else{
-										var index = selectedNodes.indexOf($(this).data('slug'));
-										if(index == -1){
-											selectedNodes.push($(this).data('slug'));
-											$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-										}else{
-											selectedNodes.splice(index, 1);
-											$(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-										}
-									}
-									var $wrapper = $(this).parents('.node_selector_body');
-									$wrapper.data('selectedNodes',selectedNodes);
-
-									if(allowMultiple){
-										if(selectedNodes.length > 0){
-											$wrapper.find('.multipleNodesText').html('You currently have <strong>'+selectedNodes.length+'</strong> node'+(selectedNodes.length>1?'s':'')+' selected.').removeClass('text-danger');
-										}else{
-											$wrapper.find('.multipleNodesText').html('<strong>Please select at least one item for this widget.</strong>').addClass('text-danger');
-										}
-									}
-
-								}).data('slug',item.slug);
-
-								if(selectedNodes.indexOf(item.slug) != -1){
-									$item.addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-								}
-							}
-						}
-					});
-
-					load_node_list($(this).val(),promise);
-				});
-
-				//Prepopulate if is an edit.
-				if(isEdit){
-					$el = $(element.$);
-					if($el.attr("resource")!=undefined){
-						selectedNodes = [$el.attr("resource")];
-					}else if($el.data("nodes")!=undefined){
-						selectedNodes = $el.data("nodes").split(",");
-					}
-					if(typeof selectedNodes != "undefined" && selectedNodes != null && selectedNodes.length > 0){
-						if(allowMultiple){
-							$wrapper.find('.multipleNodesText').html('You currently have <strong>'+selectedNodes.length+'</strong> node'+(selectedNodes.length>1?'s':'')+' selected.').removeClass('text-danger');
-						}
-						$tbody.find('tr').each(function(){
-
-							var index = selectedNodes.indexOf($(this).data('slug'));
-							if(index == -1){
-								$(this).addClass('bg-info').find('.glyphicon-unchecked').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-							}else{
-								$(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
-							}
-						});
-					}
-				}
-
-				$wrapper.data('selectedNodes',selectedNodes).find('.node_selection_type_filter').change();
-				target.append($wrapper);
-			}
 			var select_widget_options = function(widget_type,isEdit){
 				if(typeof isEdit == "undefined" || isEdit == null){
 					isEdit = false;
@@ -813,39 +661,34 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					switch(widget_type){
 
 						case 'timeline': //Timeline.js
-
-							 if(isEdit){
+								if(isEdit){
 								 timeline_data_type = $(element.$).data("timeline")==undefined?"node":"url";
 							 }else{
 								 timeline_data_type = "node";
 							 }
 
-							 var $modeSelector = $('<select><option value="node">Scalar Content</option><option value="url">External URL</option></select').appendTo($content).change(function(e){
-								 if($(this).val() == "node"){
-									 timeline_data_type = "node";
-									 $nodeTimeline.show();
-									 $urlTimeline.hide();
-								 }else{
-									 timeline_data_type = "url";
-									 $urlTimeline.show();
-									 $nodeTimeline.hide();
-								 }
-							 });
+							 var $timeline_content = $('<ul class="nav nav-tabs" role="tablist"> \
+							 														<li role="presentation" class="active"> \
+																						<a href="#scalarContent" aria-controls="home" role="tab" data-toggle="tab" data-type="node">Scalar Content</a> \
+																					</li> \
+																					<li role="presentation"> \
+																						<a href="#externalURL" aria-controls="profile" role="tab" data-toggle="tab" data-type="url">External URL</a> \
+																					</li> \
+																				</ul> \
+																				<div class="tab-content"> \
+																					<div role="tabpanel" class="tab-pane active" id="scalarContent"></div> \
+																					<div role="tabpanel" class="tab-pane" id="externalURL"></div> \
+	  																		</div>').appendTo($content);
 
-							 $content.append('<br />');
+ 							 $nodeTimeline = $timeline_content.find('#scalarContent');
+							 $urlTimeline = $timeline_content.find('#externalURL');
 
- 							 $nodeTimeline = $('<div id="timeline_data_node"></div>').appendTo($content);
-							 $urlTimeline = $('<div id="timeline_data_url"></div>').appendTo($content);
-
-							 $modeSelector.find('option[value="'+timeline_data_type+'"]').attr('selected','true').val(timeline_data_type);
-
-							 if(timeline_data_type == "node"){
-								 $nodeTimeline.show();
-								 $urlTimeline.hide();
-							 }else{
-								 $urlTimeline.show();
-								 $nodeTimeline.hide();
-							 }
+								$timeline_content.find('a').click(function (e) {
+								  e.preventDefault()
+									timeline_data_type = $(this).data('type');
+								  $(this).tab('show');
+								});
+								$timeline_content.find('a[data-type="'+timeline_data_type+'"]').click();
 
 							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div><br />').appendTo($nodeTimeline);
 
@@ -859,7 +702,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = false;
-							 opts.fields = ["title","description","url"],
+							 opts.fields = ["title","description","url","preview","include_children"],
 							 opts.allow_children = false;
 							 opts.types = ['path','tag','term'];
 							 opts.defaultType = 'path';
@@ -948,8 +791,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 opts.allowMultiple = true;
 							 opts.allow_children = false;
-							 opts.fields = ["title","description","url"],
-							 opts.types = ['composite','path','tag','term','media','path','tag','reply','term'];
+							 opts.fields = ["title","description","url","preview","include_children"];
+							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
 
 							 $('<div class="node_selection map_node_selection">').appendTo($content).node_selection_dialogue(opts);
@@ -987,7 +830,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 opts.allowMultiple = true;
 							 opts.allow_children = true;
-							 opts.fields = ["thumbnail","title","description","url","include_children"],
+							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['path','tag','term','media'];
 							 opts.defaultType = 'path';
 
@@ -1022,8 +865,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 opts.allowMultiple = true;
 							 opts.allow_children = true;
-							 opts.fields = ["thumbnail","title","description","url","include_children"],
-							 opts.types = ['composite','path','tag','term','media','path','tag','reply','term'];
+							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
+							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
 
 
@@ -1057,8 +900,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 opts.allowMultiple = true;
 							 opts.allow_children = true;
-							 opts.fields = ["thumbnail","title","description","url","include_children"],
-							 opts.types = ['composite','path','tag','term','media','path','tag','reply','term'];
+							 opts.fields = ["thumbnail","title","description","url","preview","preview","include_children"];
+							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
 
 							 $('<div class="node_selection summary_multi_selection">').appendTo($multiSummary).node_selection_dialogue(opts);
@@ -1079,17 +922,17 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 break;
 					}
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+widget_type+' '+get_config_description_for_widget_type(widget_type)).fadeIn('fast');});
-
-					$content.append('<hr />');
-					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
+					$footer = $('<div class="modal_footer"></div>').appendTo($content);
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($footer).click(function(){
 					 $('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
 						 $(this).remove();
 						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select a widget').fadeIn('fast');});
 						 $('#bootbox-content-selector-content').find('.widgetList').fadeIn('fast');
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($content).click(submitAction).data("isEdit",isEdit);
+					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($footer).click(submitAction).data("isEdit",isEdit);
 					$content.append('<div class="clearfix"></div>');
+					modal_height();
 				});
 			}
 			var select_widget_formatting = function(options){
@@ -1194,37 +1037,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 				});
 			};
-			var modal_height = function(init) {
-    		var $content_selector_bootbox = $('.content_selector_bootbox');
-    		if (!$content_selector_bootbox.length) return;
-    		var margin = parseInt($content_selector_bootbox.find('.modal-dialog').css('marginTop'));
-    		var head = parseInt( $content_selector_bootbox.find('.modal-header').outerHeight() );
-    		if (head < 60) head = 60;  // Magic number
-	    	var foot_el = $content_selector_bootbox.find('.footer');
-	    	if (foot_el.is(':hidden')) {
-	    		var foot = 52;  // Magic number; it seems iOS ignores this while it also ensures that on desktop there's no "jump"
-	    	} else if (!foot_el.length) {
-	    		var foot = 52;  // Magic number
-	    	} else {
-	    		var foot = parseInt( foot_el.height() );
-	    	}
-	    	var window_height = parseInt($(window).height());
-	    	var val = window_height - head - foot - (margin*2);
-    		$this.find('.content').height(val);
-    	};
 
 			bootbox.hideAll()
 			var box = bootbox.dialog({
 				message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
 				title: 'Select a widget',
 				className: 'widget_selector_bootbox',
+				size: 'large',
 				animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
 			});
+
+			$(box).find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
+
 			$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
 
 			$this.appendTo($('#bootbox-content-selector-content'));
 			var $widget_selector_bootbox = $('.widget_selector_bootbox');
-			$widget_selector_bootbox.find('.modal-dialog').width('60%').css('margin-left','20%').css('margin-right','20%');
 			var $options = $widget_selector_bootbox.find('.options:first');
 			$('.bootbox-close-button').empty();
 			box.on("shown.bs.modal", function() {
@@ -1415,6 +1243,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			$.extend(opts, options);
 
+
+			var current_type = opts.defaultType;
+
 			var init_promise = $.Deferred();
 
 			var dialogue_container = '<div class="panel-default node_selector"> \
@@ -1424,10 +1255,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																				<div class="node_types form-inline"> \
 																					<select class="btn btn-default generic_button large form-control"> \
 																					</select> \
-																	        <button class="btn btn-default" type="button">Filter</button> \
+																					<br class="visible-xs"> \
+																					<br class="visible-xs"> \
+																	        <button class="btn btn-default form-control type="button">Filter</button> \
+																					<hr class="visible-xs"> \
 																				</div> \
 																			</div> \
-																			<div class="col-sm-5 col-sm-offset-2 col-md-4 col-md-offset-4"> \
+																			<div class="col-sm-6 col-sm-offset-1 col-md-5 col-md-offset-3"> \
 																				<div class="input-group node_search"> \
 																					<input type="text" class="form-control" placeholder="Search by title or description"> \
 																					<span class="input-group-btn"> \
@@ -1437,6 +1271,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																					</span> \
 																				</div> \
 																			</div> \
+																			<br> \
 																		</div> \
 																	</div> \
 																	<div class="panel-body"> \
@@ -1446,7 +1281,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																				</tr> \
 																			</thead> \
 																		</table> \
-																		<div class="node_selector_table_body" style="max-height: 200px; overflow: auto;"> \
+																		<div class="node_selector_table_body" style="overflow: auto"> \
 																			<table class="table table-fixed">  \
 																				<tbody class="node_rows"></tbody> \
 																			</table> \
@@ -1460,6 +1295,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																</div>';
 
       var $dialogue_container = $(dialogue_container);
+
+			var resize = $.proxy(function($dialogue_container){
+				var height = $(this).height();
+				height -= $(this).find('.panel-heading').outerHeight();
+				height -= $(this).find('.panel-footer').outerHeight();
+				height -= 28;
+				$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
+				$dialogue_container.find('.panel-body').height(height)
+				height -= $(this).find('.panel-body>table').outerHeight();
+				$dialogue_container.find('.node_selector_table_body').height(height);
+			},this,$dialogue_container);
+
 			var updateNodeList = $.proxy(function(isLazyLoad){
 				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
 					isLazyLoad = false;
@@ -1513,7 +1360,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
 									break;
 								case 'title':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">'+item.title+'</td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">'+item.title+'</a></td>';
 									break;
 								case 'description':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">'+desc+'</td>';
@@ -1538,7 +1385,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var $item = $(rowHTML).appendTo($rows).data({'slug':item.slug,'item':item});
 
 						if(hasChildSelector){
-							$item.find('.select_children input[type="checkbox"]').change(function(){
+							$item.find('.select_children input[type="checkbox"]').click(function(e){
+								e.stopPropagation();
 								var $dialogue_container = $(this).parents('.node_selector');
 								var item = $(this).parents('tr').data('item');
 								var index = -1;
@@ -1573,13 +1421,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							}
 						}
 
+						$item.find('a').click(function(e){
+							e.stopPropagation();
+						});
+
 						if(index>-1){
 							$item.addClass('current');
 							$item.find('.select_row input[type="checkbox"]').attr('checked',true);
 						}
 
 						if(opts.allowMultiple){
-							$item.find('.select_row>input[type="checkbox"]').change(function(){
+							$item.click(function(e){
+								e.stopPropagation();
+								$(this).find('.select_row>input[type="checkbox"]').click();
+							});
+							$item.find('.select_row>input[type="checkbox"]').click(function(e){
+								e.stopPropagation();
 								var $dialogue_container = $(this).parents('.node_selector');
 								var $row = $(this).parents('tr');
 								var item = $row.data('item');
@@ -1631,7 +1488,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								updateSelectedCounter();
 							});
 						}else{
-							$item.click(function(){
+							$item.off('click').click(function(e){
 								var item = $(this).data('item');
 								var $dialogue_container = $(this).parents('.node_selector');
 								var $childSelector = $(this).find('.select_children');
@@ -1643,20 +1500,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										$childSelector.find('input[type="checkbox"]').attr('checked',false);
 									}
 								}else{
-									$(this).addClass('current').siblings('.current').removeClass('current');
+									$(this).addClass('current').siblings('.current').removeClass('current').find('input[type="checkbox"]').attr('checked',false);
 									$dialogue_container.data('nodes',[item]);
 									if(hasChildSelector){
-										$childSelector.click();
+										$childSelector.find('input[type="checkbox"]').attr('checked',true);
+										$dialogue_container.data('nodes')[0].include_children = true;
 									}
 								}
 								updateSelectedCounter();
+								e.preventDefault();
+								e.stopPropagation();
+								return false;
 							});
 						}
 					}
 				}
-
-				$fields.find('.spacer').remove();
-				$fields.append('<th class="spacer" style="width:'+($fields.width()-$rows.width())+'px"></th>');
+				resize();
 
 			},$dialogue_container);
 			var updateSelectedCounter = $.proxy(function(){
@@ -1729,12 +1588,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$type_selector.append('<option value="'+opts.types[t]+'">'+type_display_name+'</option>');
 			}
 
-			$type_filter_button.click(function(){
-				lastLoadType = "filter";
-				var $dialogue_container = $(this).parents('.node_selector');
-				var $type_selector = $dialogue_container.find('.node_filter select');
-				var type = $type_selector.val();
-				var typeReadable = $type_selector.find("option[value='"+type+"']").text();
+			var doTypeFilter = function(){
 				var opts = $dialogue_container.data('opts');
 				if(opts == undefined){ opts = []; }
 
@@ -1744,12 +1598,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var rec = opts.rec;
 				var ref = opts.ref;
 				load_node_list({
-					"type" : type,
+					"type" : current_type,
 					"rec" : rec,
 					"ref" : ref,
 					"promise" : promise,
 					"page" : 0
 			  });
+			}
+
+			$type_filter_button.click(function(){
+				lastLoadType = "filter";
+				var $dialogue_container = $(this).parents('.node_selector');
+				var $type_selector = $dialogue_container.find('.node_filter select');
+				var $search = $dialogue_container.find('.node_search');
+				$search.find('input').val('');
+				current_type = $type_selector.val();
+				doTypeFilter();
 			});
 
 			$nodeSelectorTableBody.on('scroll', function() {
@@ -1769,16 +1633,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			});
 			$search.find('button').click(function(){
 				var $dialogue_container = $(this).parents('.node_selector');
-				var $type_filter_button = $dialogue_container.find('.node_filter button');
 				var $search = $dialogue_container.find('.node_search');
 				$search.find('input').val('');
-				$type_filter_button.click();
+				doTypeFilter();
 			});
 			$search.find('input').on("keyup change",function(){
 				if($(this).val() == ""){
 					var $dialogue_container = $(this).parents('.node_selector');
 					var $type_filter_button = $dialogue_container.find('.node_filter button');
-					$type_filter_button.click();
+					doTypeFilter();
 					return false;
 				}
 				if($(this).data('timeout')!=undefined){
@@ -1789,12 +1652,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var promise = $.Deferred();
 						$.when(promise).then(updateNodeList);
 						var $dialogue_container = $(this).parents('.node_selector');
+						var $type_selector = $dialogue_container.find('.node_filter select');
 						var opts = $dialogue_container.data('opts');
 						var rec = opts.rec;
 						var ref = opts.ref;
 						var $dialogue_container = $(this).parents('.node_selector');
 						load_node_list({
-							"type" : opts.defaultType,
+							"type" : current_type,
 							"search" : $dialogue_container.find('.node_search input').val(),
 							"rec" : rec,
 							"ref" : ref,
@@ -1839,12 +1703,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				opts.ref = 0;
 			}
 
-			var init_selector = $.proxy(function($dialogue_container,opts){
+			var init_selector = $.proxy(function($dialogue_container,opts,resize){
 				$dialogue_container.data('opts',opts);
 				updateSelectedCounter();
 				$dialogue_container.find('.node_filter button').click();
 				$(this).append($dialogue_container);
-			},this,$dialogue_container,opts);
+				window.setTimeout(resize,200);
+			},this,$dialogue_container,opts,resize);
 
 			jQuery.when(init_promise).then(init_selector);
 
@@ -1943,18 +1808,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if($(this).data('nodes') == undefined){
 					return '';
 				}
+				var slugs = [];
 				for(var i in $(this).data('nodes')){
 					var item = $(this).data('nodes')[i];
-					if("undefined" === typeof slugs){
-						var slugs = [item.slug];
-					}else{
-						slugs.push(item.slug);
-					}
+					slugs.push(item.slug);
 					if(!$(this).data('opts').allow_children || 'undefined'===typeof item.targets || 'undefined'===item.include_children || !item.include_children){continue;}
 					slugs[slugs.length-1]+='*';
 				}
 				return slugs.join(',');
 			},$dialogue_container));
+
+			$(window).on('resize',resize);
+
 			return $(this);
 		};
 }( jQuery ));

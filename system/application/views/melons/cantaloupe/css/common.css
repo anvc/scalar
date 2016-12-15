@@ -1134,6 +1134,16 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .media_options_bootbox .table-fixed tbody td, .media_options_bootbox .table-fixed thead > tr> th {
   float: left;
 }
+.node_selector table>thead>tr>th{
+	border-bottom: 0;
+}
+.node_selector_table_body{
+	border-top: 2px solid #ddd;
+}
+.node_selector{
+	height: 100%;
+	width: 100%;
+}
 .media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
 }
@@ -1145,15 +1155,12 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 	font-weight: bold;
 	color: #32a71a
 }
-.node_selector table>thead>tr>th, .node_selector table>tbody>tr>td{
-	padding-left: 0px;
-}
-.node_selector table>thead>tr>th.spacer{
-	padding: 0px;
+.node_selector .panel-heading, .node_selector .panel-footer{
+	background-color: transparent;
+	padding: 8px 0;
 }
 .node_selector table>thead>tr>th[data-field="include_children"]{
 	text-align: center;
-		padding-left: 8px;
 }
 #nodeSelectorDropdown{
     width: 100%;
@@ -1170,15 +1177,23 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 	cursor: default;
 }
 .node_selector .node_rows{
-	font-size: 12px;
+	font-size: smaller;
+	cursor: pointer;
 }
 .node_selector .node_search input[type="text"]{
 	border-right: 0;
+}
+.modal-dialog .modal-body{
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 .node_selector .node_search button:hover{
 	border-left: 0;
   background-color: #fff;
   border-color: #ccc;
+}
+.node_selector .panel-body{
+	padding: 0;
 }
 .media_options_bootbox .table-fixed th{
 	font-weight: bold;
