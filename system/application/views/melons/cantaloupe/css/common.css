@@ -384,9 +384,9 @@ a:hover { text-decoration: underline; }
 #gallery .popover { color: black; font-size: 1.2rem; text-shadow: none; color: #666; line-height: 140%; }
 #gallery .item { background-color: #444; }
 
-.carousel a { color: white; }
-.carousel h3 { margin: 0; padding: 0; }
-.carousel-caption { padding: 0; }
+.widget_carousel .carousel a { color: white; }
+.widget_carousel .carousel h3 { margin: 0; padding: 0; }
+.widget_carousel .carousel-caption { padding: 0; }
 
 .carousel-inner>.item{
 	transition: .3s ease-in-out left;
