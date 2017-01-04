@@ -10,7 +10,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			onthefly:false,
 			pagination:true,  /* Sorts by slug, not title */
 			start:0,
-			results_per_page:100,
+			resultsPerPage:100,
 			rec:0,
 			sq:null,
 			desc_max_length: 100,
@@ -356,7 +356,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		if (opts.sq!=null) get_vars.sq = opts.sq;
     		if (opts.pagination) {
     			get_vars.start = opts.start;
-    			get_vars.results = opts.results_per_page;
+    			get_vars.results = opts.resultsPerPage;
     		}
     		var url = opts.parent+'rdf/instancesof/'+type+'?format=json&'+obj_to_vars(get_vars);
     		return url;
@@ -450,9 +450,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
  			// 			opts.selected = $el.data("nodes").split(",");
  			// 		 }
 				//  }
-				 options.results_per_page = opts.results_per_page;
+				 options.resultsPerPage = opts.resultsPerPage;
 				 options.allowMultiple = opts.multiple;
-				 options.allow_children = false;
+				 options.allowChildren = false;
 					if(!opts.multiple){
 						options.onChangeCallback = $.proxy(function(box,opts){
 							if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
@@ -488,7 +488,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				});
 				$selector.node_selection_dialogue(options);
     		// Footer buttons
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp;</div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
 
     		// Bootstrap positioning
   			$footer.find('.cancel').hide();  // Remove cancel button
@@ -497,10 +497,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		$footer.hide();  // Default
     		$footer.find('a:first').click(function() {  // On-the-fly
     			$footer.hide();
-					$selector.hide();
-    			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
+					$content.hide();
     			var $onthefly = $('<div class="create_onthefly"><div>Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
-    			var $buttons = $('<div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div>').appendTo($onthefly);
+					var $buttons = $('<div class="footer onthefly_buttons"><div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div></div>').appendTo($wrapper);
     			//$('<div class="heading_font title">Create new page</div>').insertBefore($options);
     			//$options.hide();
     			var $form = $onthefly.find('form');
@@ -520,14 +519,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			$form.append('<div class="form-group"><label for="onthefly-title" class="col-sm-2">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="onthefly-title" name="dcterms:title" value="" /></div></div>');
     			$form.append('<div class="form-group"><label for="onthefly-desc" class="col-sm-2">Description</label><div class="col-sm-10"><input type="text" class="form-control" id="onthefly-desc" name="dcterms:description" value="" /></div></div>');
     			$form.append('<div class="form-group"><label for="onthefly-content" class="col-sm-2">Content</label><div class="col-sm-10"><textarea id="onthefly-content" name="sioc:content" class="form-control" rows="5"></textarea></div></div>');
-    			$onthefly.css('max-height', $onthefly.closest('.modal-dialog').height());  // Mobile
     			var onthefly_reset = function() {
-    				$wrapper.find('.create_screen').remove();
     				$wrapper.find('.create_onthefly').remove();
+						$buttons.remove();
     				//$options.parent().find('.title').remove();
     				//$options.show();
     				$footer.show();
-						$selector.show();
+						$content.show();
     			};
     			if ('undefined'==typeof(book_urn)) {
     				alert('Could not determine book URN and therefore can not create pages on-the-fly');
@@ -690,7 +688,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								});
 								$timeline_content.find('a[data-type="'+timeline_data_type+'"]').click();
 
-							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div><br />').appendTo($nodeTimeline);
+							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div>').appendTo($nodeTimeline);
 
 							 var opts = {};
 							 if(isEdit){
@@ -703,13 +701,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 opts.allowMultiple = false;
 							 opts.fields = ["title","description","url","preview","include_children"],
-							 opts.allow_children = false;
+							 opts.allowChildren = false;
 							 opts.types = ['path','tag','term'];
 							 opts.defaultType = 'path';
 
 							 $('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline).node_selection_dialogue(opts);
 
-							 $('<div class="widget_data_type">Enter the URL of a JSON file or Google Drive document formatted for <a target="_blank" href="https://timeline.knightlab.com">Timeline.js</a>.</div><br />').appendTo($urlTimeline);
+							 $('<div class="widget_data_type">Enter the URL of a JSON file or Google Drive document formatted for <a target="_blank" href="https://timeline.knightlab.com">Timeline.js</a>.</div>').appendTo($urlTimeline);
 							 $('<div class="timeline_external_url_selector form-group"><label for="timeline_external_url">External URL</label><input type="text" class="form-control" id="timeline_external_url"></div>').appendTo($urlTimeline);
 
 							 if(isEdit){
@@ -778,7 +776,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'map':
-							 $('<div>Choose any <a target="_blank" href="#">geotagged</a> Scalar items (including paths or tags with geotagged contents).</div>').appendTo($content);
+							 $('<div class="widget_data_type">Choose any <a target="_blank" href="#">geotagged</a> Scalar items (including paths or tags with geotagged contents).</div>').appendTo($content);
 
 							 var opts = {};
 							 if(isEdit){
@@ -790,7 +788,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.allow_children = false;
+							 opts.allowChildren = false;
 							 opts.fields = ["title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
@@ -814,8 +812,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
  							 }
 							 break;
 						 case 'carousel':
-							 $content.append('<br />');
-
 							 $multiCarousel = $('<div id="carousel_data_multi"></div>').appendTo($content);
 
 							 $('<div class="widget_data_type">Choose any paths or tags that contain media or individual pieces of media</div>').appendTo($multiCarousel);
@@ -829,7 +825,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.allow_children = true;
+							 opts.allowChildren = true;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['path','tag','term','media'];
 							 opts.defaultType = 'path';
@@ -864,7 +860,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.allow_children = true;
+							 opts.allowChildren = true;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
@@ -899,7 +895,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.allow_children = true;
+							 opts.allowChildren = true;
 							 opts.fields = ["thumbnail","title","description","url","preview","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
@@ -1155,7 +1151,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var ref = options.ref;
 				var rec = options.rec;
 				var promise = options.promise;
-				var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec='+rec+'&ref='+ref+'&start='+(options.page*opts.results_per_page)+"&results="+opts.results_per_page;
+				var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec='+rec+'&ref='+ref+'&start='+(options.page*opts.resultsPerPage)+"&results="+opts.resultsPerPage;
 				if(doSearch){
 					url += "&sq="+search;
 				}
@@ -1235,8 +1231,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				"ref" : 0,
 				"defaultType" : 'content',
 				"types" : ['composite','media','path','tag','annotation','reply','term'],
-				"results_per_page" : 50,
-				"allow_children" : false,
+				"resultsPerPage" : 50,
+				"allowChildren" : false,
 				"selected" : [],
 				"onChangeCallback" : defaultCallback
 			};
@@ -1257,7 +1253,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																					</select> \
 																					<br class="visible-xs"> \
 																					<br class="visible-xs"> \
-																	        <button class="btn btn-default form-control type="button">Filter</button> \
+																	        <button class="btn btn-default form-control type="button">Filter results</button> \
 																					<hr class="visible-xs"> \
 																				</div> \
 																			</div> \
@@ -1283,7 +1279,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																		</table> \
 																		<div class="node_selector_table_body" style="overflow: auto"> \
 																			<table class="table table-fixed">  \
-																				<tbody class="node_rows"></tbody> \
+																				<tbody class="node_rows"><tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading&hellip;</td></tr></tbody> \
 																			</table> \
 																		</div> \
 																	</div> \
@@ -1519,13 +1515,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			},$dialogue_container);
 			var updateSelectedCounter = $.proxy(function(){
+
 				var $count = $(this).find('.selected_node_count');
 				if($(this).data('nodes') == undefined){
 					$(this).data('nodes',[]);
 				}
 
 				var number_items = $(this).data('nodes').length;
-				if($(this).data('opts').allow_children){
+				if($(this).data('opts').allowChildren){
 					//We are also including children if the user chooses, so we need to count them
 					for(var i in $(this).data('nodes')){
 						var item = $(this).data('nodes')[i];
@@ -1533,16 +1530,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						number_items += item.targets.length;
 					}
 				}
-				switch(number_items){
-					case 0:
-							$count.text('No items '+($(this).data('opts').allow_children?'shown':'selected'));
-							break;
-					case 1:
-							$count.text('One item '+($(this).data('opts').allow_children?'shown':'selected'));
-							break;
-					default:
-							$count.text(number_items+' items '+($(this).data('opts').allow_children?'shown':'selected'));
-							break;
+				if($(this).data('opts').allowMultiple){
+					switch(number_items){
+						case 0:
+								$count.text('No items '+($(this).data('opts').allowChildren?'shown':'selected'));
+								break;
+						case 1:
+								$count.text('One item '+($(this).data('opts').allowChildren?'shown':'selected'));
+								break;
+						default:
+								$count.text(number_items+' items '+($(this).data('opts').allowChildren?'shown':'selected'));
+								break;
+					}
 				}
 				$(this).data('opts').onChangeCallback();
 			},$dialogue_container);
@@ -1551,6 +1550,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var $search = $dialogue_container.find('.node_search');
 			var $count = $dialogue_container.find('.selected_node_count');
 			var $fields = $dialogue_container.find('.node_fields');
+
+			if(opts.types.length < 2){
+				$filter.find('.node_types').hide();
+			}
 
 			if(isset(opts.allowMultiple) && opts.allowMultiple){
 				$('<input type="checkbox">').appendTo($('<th data-field="selected" class="text-center selectAll" style="width: 5rem"></th>').appendTo($fields)).change(function(){
@@ -1622,7 +1625,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					 var $dialogue_container = $(this).parents('.node_selector');
 	 				 var opts = $dialogue_container.data('opts');
 					 if($dialogue_container.find('.node_rows .loadingRow').length == 0){
-	 				 		$dialogue_container.find('.node_rows').append('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading...</td></tr>');
+	 				 		$dialogue_container.find('.node_rows').append('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading more results&hellip;</td></tr>');
 					 }
 					 $.when(promise).then(function(){updateNodeList(true)});
 					 var data = lastLoadCriteria;
@@ -1812,7 +1815,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				for(var i in $(this).data('nodes')){
 					var item = $(this).data('nodes')[i];
 					slugs.push(item.slug);
-					if(!$(this).data('opts').allow_children || 'undefined'===typeof item.targets || 'undefined'===item.include_children || !item.include_children){continue;}
+					if(!$(this).data('opts').allowChildren || 'undefined'===typeof item.targets || 'undefined'===item.include_children || !item.include_children){continue;}
 					slugs[slugs.length-1]+='*';
 				}
 				return slugs.join(',');
