@@ -107,3 +107,69 @@
 .create_onthefly .buttons {text-align:right;}
 .create_onthefly input, .create_onthefly textarea {width:100%;}
 .onthefly_loading {color:red; font-size:smaller; padding-right:20px; display:none;}
+
+/*Node selector*/
+.node_selector table>thead>tr>th{
+	border-bottom: 0;
+}
+.node_selector_table_body{
+	border-top: 2px solid #ddd;
+}
+.node_selector{
+	height: 100%;
+	width: 100%;
+}
+.media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
+	border-top: 0px;
+}
+.node_selector_table_body tbody>tr:hover,.node_selector_table_body tbody>tr.current{
+	background-color: #d9edf7;
+	cursor: pointer
+}
+.node_selector .selected_node_count{
+	font-weight: bold;
+	color: #32a71a
+}
+.node_selector .panel-heading, .node_selector .panel-footer{
+	background-color: transparent;
+	padding: 8px 0;
+}
+.node_selector table>thead>tr>th[data-field="include_children"]{
+	text-align: center;
+}
+.node_selector .loadingRow{
+	color: #f00;
+}
+#nodeSelectorDropdown{
+    width: 100%;
+    border-radius: 4px 0 0 4px;
+		text-align: left;
+}
+#nodeSelectorDropdown .caret{
+    display: none;
+}
+.node_selector .dropdown-menu{
+	width: 100%;
+}
+.node_selector_table_body.multiple tbody>tr:hover{
+	cursor: default;
+}
+.node_selector .node_rows{
+	font-size: smaller;
+	cursor: pointer;
+}
+.node_selector .node_search input[type="text"]{
+	border-right: 0;
+}
+.modal-dialog .modal-body{
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+.node_selector .node_search button:hover{
+	border-left: 0;
+  background-color: #fff;
+  border-color: #ccc;
+}
+.node_selector .panel-body{
+	padding: 0;
+}

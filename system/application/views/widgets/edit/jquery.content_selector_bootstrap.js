@@ -1166,6 +1166,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						if(!doSearch && options.page == 0){
 		    			loaded_nodeLists[type] = [];
 						}
+						console.table(_data);
 						for (var uri in _data) {
 							//First just go through and pick out any of the URN entries
 							if(uri.indexOf('urn:scalar:')>-1){
@@ -1197,7 +1198,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 									item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
 								}else{
-									item.thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';;
 								}
 
 								item.hasRelations = 'undefined' !== typeof item.content.rel;
@@ -1758,7 +1759,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 									item.thumbnail = slug_data.thumbnail;
 								}else{
-									item.thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 								}
 								item.include_children = slug.children;
 								item.hasRelations = 'undefined' !== typeof item.content.rel;
@@ -1794,7 +1795,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 									item.thumbnail = slug_data.thumbnail;
 								}else{
-									item.thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 								}
 								item.include_children = slug.children;
 								item.hasRelations = 'undefined' !== typeof item.content.rel;
