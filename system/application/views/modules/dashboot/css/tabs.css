@@ -2,7 +2,7 @@
 
 html {width:100%;}
 body {background-color:#ffffff; margin:22px 70px 32px 70px; font-family: 'Lato', Arial, sans-serif;}
-body > *:not(.modal-backdrop) {max-width:1040px; margin-left:auto; margin-right:auto;}
+body > *:not(.modal-backdrop, .modal) {max-width:1040px; margin-left:auto; margin-right:auto;}
 
 .avatar.small {width:25px; margin-bottom:0.5rem; margin-right:0.5rem;}
 .scalar_logo.small {width:18px; margin-bottom:0.5rem; margin-left:0.5rem;}
@@ -10,13 +10,16 @@ body > *:not(.modal-backdrop) {max-width:1040px; margin-left:auto; margin-right:
 .page-header {margin-top:0px;}
 .page-header h4 {margin-bottom:0px;}
 .page-v-spacer {margin:0px 0px 20px 0px;}
+.modal-open .modal {overflow-y:hidden;}
+.modal-content {border-radius:0;}
 .modal-footer {border-top:none;}
 .modal small {color:#777777; float:left;}
 .alert {margin-left:15px; margin-right:15px;}
 .table-hover tbody tr {cursor:pointer;}
 label, small, th {color:#777777;}
 .form-horizontal .label-text {text-align:left; font-weight:normal; float:left; padding-top:7px;}
-.form-control[readonly] {background-color:#ffffff;}
+.form-group .input-group-btn > .btn {border-top-right-radius:0; border-bottom-right-radius:0; height:34px; border-right:0;}
+.form-group .form-control[readonly] {background-color:#ffffff;}
 .col-overrun-left .label-text {padding-top:0px;}
 @media (min-width:768px) {
 	.col-overrun-left {margin-left:-16px;}
@@ -57,11 +60,5 @@ header h5 {margin-bottom:14px;}
 #toc-wrapper .list-group .glyphicon:hover {color:#337ab7;}
 #toc-wrapper .list-group .glyphicon:first-of-type {padding-right:12px;}
 
-.bootbox button.close {background:url(../images/close_icon.png) no-repeat; width:30px; height:30px; margin-top:0; opacity:1;}
+.bootbox button.close {background:url(../images/close_icon.png) no-repeat; width:30px; height:30px; margin-top:-2px; opacity:1;}
 .bootbox button.close:hover {background-image:url(../images/close_icon_hover.png); opacity:1;}
-.bootbox form > .input-group {width:100%;}
-.content_selector_bootbox th, .content_selector_bootbox td {font-size:inherit !important;}
-.content_selector_bootbox .options label.checkbox-inline {padding-left:10px !important;}
-.bootbox .footer {position:relative; font-size:larger; font-weight:normal;}
-.bootbox .footer > div:first-of-type {top:12px !important;}
-.bootbox .footer label {font-weight:normal;}

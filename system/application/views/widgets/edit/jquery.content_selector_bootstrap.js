@@ -475,7 +475,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$this.appendTo($('#bootbox-content-selector-content'))
 
 				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
-				$('.modal-dialog .modal-header').height(55);
 				$('.bootbox-close-button').empty();
 				box.on("shown.bs.modal", function() {
 					modal_height();
@@ -541,27 +540,29 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		} else {
     			$footer.find('a:first').hide();
     		}
-				if (opts.multiple) {
-					$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
-					$footer.find('a:last').click($.proxy(function(box,opts){
-						if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
-							var nodes = [];
-							var selected_nodes = $(this).find('.node_selector').data('nodes');
-							for(node in selected_nodes){
-								nodes.push(selected_nodes[node]);
-							}
-    					opts.callback(nodes,opts.element);
-							box.modal('hide');
+			if (opts.multiple) {
+				$footer.show();
+				$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
+				$footer.find('a:last').click($.proxy(function(box,opts){
+					if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
+						var nodes = [];
+						var selected_nodes = $(this).find('.node_selector').data('nodes');
+						for(node in selected_nodes){
+							nodes.push(selected_nodes[node]);
+						}
+						opts.callback(nodes,opts.element);
+						box.modal('hide');
 					 }
 				 },$selector,box,opts));
-				}
+			}
     	};
     	// Propagate the interface
-			init();
+		init();
     };
+    
 		$.fn.widget_selector = function(options){
 			var self = this;
-    	var $this = $(this);
+			var $this = $(this);
 			var opts = options;
 			var loaded_nodeLists = {};
 
@@ -1164,9 +1165,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		    			return;
 		    		}
 						if(!doSearch && options.page == 0){
-		    			loaded_nodeLists[type] = [];
+							loaded_nodeLists[type] = [];
 						}
-						console.table(_data);
 						for (var uri in _data) {
 							//First just go through and pick out any of the URN entries
 							if(uri.indexOf('urn:scalar:')>-1){
@@ -1297,7 +1297,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var height = $(this).height();
 				height -= $(this).find('.panel-heading').outerHeight();
 				height -= $(this).find('.panel-footer').outerHeight();
-				height -= 28;
+				height -= 10;  // Update by Craig; orig value: 28
 				$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
 				$dialogue_container.find('.panel-body').height(height)
 				height -= $(this).find('.panel-body>table').outerHeight();

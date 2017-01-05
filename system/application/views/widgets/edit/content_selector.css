@@ -119,6 +119,9 @@
 	height: 100%;
 	width: 100%;
 }
+.node_selector select{
+	text-align:left;
+}
 .media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
 }

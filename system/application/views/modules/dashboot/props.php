@@ -4,7 +4,7 @@
 <?$this->template->add_js('system/application/views/modules/dashboot/js/custom.jquery-ui.min.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap-dialog.min.js')?>
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js')?>
-<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 
 
 <script id="book_versions" type="application/json"><?=json_encode($current_book_versions)?></script>

@@ -40,12 +40,14 @@ class CI_Template {
       '_scripts' => array(),
       '_styles' => array(),
    	  '_meta' => array(),
+   	  '_links' => array(),
       '_html' => array()
    );
    var $output;
    var $js = array();
    var $css = array();
    var $meta = array();
+   var $link = array();
    var $html = array();
    var $parser = 'parser';
    var $parser_method = 'parse';
@@ -208,6 +210,7 @@ class CI_Template {
             '_scripts' => array(),
             '_styles' => array(),
          	'_meta' => array(),
+         	'_links' => array(),
          	'_html' => array()
          );
          foreach ($regions as $key => $region)
@@ -568,6 +571,35 @@ class CI_Template {
 
       return $success;
    }
+   
+   /**
+    * Dynamically include <link> in the template
+    *
+    * Added by Craig Dietrich, 4 January 2017
+    *
+    * @access  public
+    * @param   string  value for the id="" attribute
+    * @param   string  value for the href="" attribute
+    * @return  TRUE on success, FALSE otherwise
+    */
+   
+   function add_link($id='', $href='')
+   {
+   	$success = TRUE;
+   	$link = NULL;
+   
+   	$this->CI->load->helper('url');
+   
+   	$link = '<link id="'.$id.'" href="'.$href.'">';
+   
+   	if ($link != NULL)
+   	{
+   		$this->link[] = $link;
+   		$this->write('_links', $link);
+   	}
+   
+   	return $success;
+   }
 
    /**
     * Dynamically include HTML
@@ -672,7 +704,7 @@ class CI_Template {
    // --------------------------------------------------------------------
 
    /**
-	 * Build a region from it's contents. Apply wrapper if provided
+	 * Build a region from its contents. Apply wrapper if provided
 	 *
 	 * @access	private
 	 * @param	string	region to build

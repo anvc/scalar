@@ -7,9 +7,10 @@
 <? if (isset($norobots)&&$norobots) echo '<meta name="robots" content="noindex, nofollow">'."\n"; ?>
 <link rel="shortcut icon" href="<?=confirm_slash($app_root)?>views/arbors/admin/favicon_16.gif" />
 <link rel="apple-touch-icon" href="<?=confirm_slash($app_root)?>views/arbors/admin/favicon_114.jpg" />
+<? if (!empty($_meta)) echo $_meta."\n"?>
 <link id="approot" href="<?=confirm_slash(base_url())?>system/application/" />
 <link id="sysroot" href="<?=confirm_slash(base_url())?>" />
-<? if (!empty($_meta)) echo $_meta."\n"?>
+<? if (!empty($_links)) echo $_links."\n"?>
 <? if (!empty($_styles)) echo $_styles?>
 <? if (!empty($_scripts)) echo $_scripts?>
 </head>
