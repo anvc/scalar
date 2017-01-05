@@ -2,9 +2,12 @@
 <?$this->template->add_css('system/application/views/modules/dashboot/css/bootstrap-dialog.min.css')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/custom.jquery-ui.min.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap-dialog.min.js')?>
+<?$this->template->add_js('system/application/views/modules/dashboot/js/iframeResizer.min.js')?>
 <?$this->template->add_css('
 .section {display:none;}
 #import {display:block;}
+.m {margin-top:14px; margin-bottom:16px;}
+.i {width:100%; border:0; margin:0; padding:0; margin-top:16px;}
 ', 'embed')?>
 
 <script>
@@ -14,7 +17,12 @@ $(document).ready(function() {
 		$this.closest('.nav').find('li').removeClass('active');
 		$this.addClass('active');
 		$this.closest('.row').find('.section').hide();
-		$this.closest('.row').find('#'+$this.text().toLowerCase().replace(' ','-')).show();
+		var $section = $this.closest('.row').find('#'+$this.text().toLowerCase().replace(' ','-'));
+		$section.show();
+		if ($section.find('.i').length) {
+			var $iframe = $section.find('.i:first');
+			$iframe.iFrameResize({log:true, heightCalculationMethod:'documentElementScroll'});
+		};
 	});
 });
 </script>
@@ -28,14 +36,42 @@ $(document).ready(function() {
 	  </ul> 
     </aside>
     <section class="col-xs-10">
-    	<div class="section" id="import" data-iframe-url="">
-    		Import
-    	</div>
-    	<div class="section" id="export" data-iframe-url="">
-    		Export
+    	<div class="section" id="import">
+    		<h4>Import</h4>
+	        <p class="m">Import content and relationships from public Scalar books or from raw Scalar JSON or RDF data.</p><?php 
+    		if (class_exists('Transfer')) {
+    			$plugin = new Transfer($this->data);
+    			$plugin->get();
+    		}
+    		?></div>
+    	<div class="section" id="export"><?php 
+    			$rdf_url_json = confirm_slash(base_url()).$book->slug.'/rdf/instancesof/content?format=json&rec=1&ref=1';
+    			$rdf_url_xml = confirm_slash(base_url()).$book->slug.'/rdf/instancesof/content?&rec=1&ref=1';
+    		?>
+    		<h4>Export</h4>
+	        <p class="m">
+	        	Use the buttons below to generate exports containing all pages and relationships in this work (media
+				files are not included). This data can be used for backup or for importing at a later date. The export
+				API Explorer process may take a minute or two depending on the amount of content in the project.
+			</p>
+			<p>
+	       		<a href="<?=$rdf_url_json?>" target="_blank"><?=$rdf_url_json?></a><br />
+	       		<small>Or, <a href="<?=$rdf_url_xml?>" target="_blank">download as RDF-XML</a>.</small>
+	     	</p>
     	</div>
     	<div class="section" id="api-explorer" data-iframe-url="">
-    		API Explorer
+    		<!-- 
+    		<h4>API Explorer</h4> 
+    		<p class="m">
+				You can use this utility to:
+				<ul>
+					<li>Generate API queries for this Scalar book</li>
+					<li>Grab an excerpt of this book to copy to another using the Import tool</li>
+					<li>Get word counts for specific pages, groups of pages, or the entire book</li>
+				</ul>  		
+    		</p>
+    		-->
+    		<iframe class="i" src="http://scalar.usc.edu/tools/apiexplorer/"></iframe>
     	</div>
     </section>
   </div>
