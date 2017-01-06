@@ -990,9 +990,9 @@ a.nav_btn:hover {
 .texteo_icon_note {background-image:url(images/note@2x.png); }
 .texteo_icon_map { background-image:url(images/map@2x.png); background-size: 8px 15px !important; padding-left: 13px !important; }
 .texteo_icon_timeline { background-image:url(images/timeline@2x.png); }
-.texteo_icon_carousel { background-image:url(images/carousel.png); }
-.texteo_icon_card { background-image:url(images/cards.png); }
-.texteo_icon_summary { background-image:url(images/summary.png); }
+.texteo_icon_carousel { background-image:url(images/carousel@2x.png); }
+.texteo_icon_card { background-image:url(images/cards@2x.png); }
+.texteo_icon_summary { background-image:url(images/summary@2x.png); }
 .texteo_icon_visualization { background-image:url(images/visualization@2x.png); }
 
 /* TODO */
