@@ -559,7 +559,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	// Propagate the interface
 		init();
     };
-    
+
 		$.fn.widget_selector = function(options){
 			var self = this;
 			var $this = $(this);
@@ -1354,7 +1354,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var col = opts.fields[n];
 							switch(col){
 								case 'thumbnail':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
+									rowHTML += '<td class="thumbnail '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
 									break;
 								case 'title':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">'+item.title+'</a></td>';
@@ -1512,6 +1512,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 				}
+
+				$rows.find('.thumbnail img').each(function(){
+					$(this).tooltip({
+						title : '<img src="'+$(this).attr('src')+'" class="nodeSelectorEnlargedThumbnail">',
+						html : true,
+						container: '.bootbox'
+					});
+				});
 				resize();
 
 			},$dialogue_container);
@@ -1594,6 +1602,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var doTypeFilter = function(){
 				var opts = $dialogue_container.data('opts');
+
 				if(opts == undefined){ opts = []; }
 
 				var promise = $.Deferred();
@@ -1601,6 +1610,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 				var rec = opts.rec;
 				var ref = opts.ref;
+
+				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading&hellip;</td></tr>');
+
 				load_node_list({
 					"type" : current_type,
 					"rec" : rec,
@@ -1660,7 +1672,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var opts = $dialogue_container.data('opts');
 						var rec = opts.rec;
 						var ref = opts.ref;
-						var $dialogue_container = $(this).parents('.node_selector');
+						$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading&hellip;</td></tr>');
 						load_node_list({
 							"type" : current_type,
 							"search" : $dialogue_container.find('.node_search input').val(),
