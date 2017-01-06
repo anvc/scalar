@@ -20,6 +20,14 @@ $(document).ready(function() {
     document.location.href = '?book_id='+book_id+'&zone='+zone+'#tabs-'+zone;
   });
 });
+// Prevent page from bumping down due to the anchor
+$(window).on('scroll',function() {
+  $(window).scrollTop(0);
+}).on('load',function() {
+  setTimeout(function() {
+    $(window).off('scroll');
+  }, 5);
+});
 </script>
 
 <header class="container-fluid">
