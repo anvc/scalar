@@ -1152,6 +1152,7 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 	border-left: 0;
 	border-right: 0;
 	background-color: #f4f4f4;
+	padding: 2.4rem 7.2rem;
 }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
@@ -1186,6 +1187,9 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
   zoom: 1;
   overflow: hidden;
   margin-left: 0;
+}
+.media-list .media { 
+  max-width: 71rem;
 }
 .media-body {
   width: 10000px;

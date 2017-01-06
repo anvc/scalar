@@ -40,6 +40,8 @@ article h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height:
 
 .full_dim, .native_dim { width: 100%; display: none; }
 
+.full.widget_summary .media-list { padding: 2.4rem 2rem; }
+
 /* 4in iphone 5 */
 @media only screen and (max-device-height : 1136px) {
   .results_list {height:200px;max-height:200px;}
