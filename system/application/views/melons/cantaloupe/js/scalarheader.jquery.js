@@ -192,7 +192,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'
                                                 :'')+
                                             ((base.is_author||base.is_commentator||base.is_reviewer)?
-                                                '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.stripAllExtensions(scalarapi.model.urlPrefix + base.current_slug) + '.edit" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
+                                                '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit') + '" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
                                                 :'')+
                                             ((base.is_author||base.is_commentator)?
                                                 ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
@@ -1288,10 +1288,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         };
          base.get_param = function(url){
             //@TODO: Add non-book related Get Params back to URLs Here
-            /*
             if (url.indexOf('?') < 0) { url += '?';}
             url += ((scalarapi.getQuerySegment(window.location.href).length)?scalarapi.getQuerySegment(window.location.href):'');
-            */
             return url;
         }
         base.getParents = function(node,depth){

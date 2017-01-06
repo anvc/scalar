@@ -1986,7 +1986,9 @@ function YouTubeGetID(url){
 				// build HTML for annotations in horizontal layout
 				case "horizontal":
 				if (this.annotations.length > 0) {
-					this.header.find('p.mediaElementAlignLeft').css('width', '79%'); // make room for the annotation link
+					if (this.header != null) {
+						this.header.find('p.mediaElementAlignLeft').css('width', '79%'); // make room for the annotation link
+					}
 					if (this.annotationSidebar) {
 						this.annotationSidebar.find('div.annotationChip:first').remove();
 					}

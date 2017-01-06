@@ -982,37 +982,18 @@ a.nav_btn:hover {
 .results_list td.thumb { width:76px; max-width:76px; }
 .results_list td.thumb img {width:100%;}
 
-/* Media icons */
-
-.texto_wrapper     {clear:both;}
-
-.texteo_icon       {background-repeat:no-repeat;}
-
-.texteo_icon_audio {background-image:url(images/audio.png); background-position:2px 5px; padding-left:20px;}
-.texteo_icon_video {background-image:url(images/video.png); background-position:2px 5px; padding-left:20px;}
-.texteo_icon_image {background-image:url(images/image.png); background-position:2px 4px; padding-left:20px;}
-.texteo_icon_generic_resource {background-image:url(images/generic-media.png); background-position:2px 5px; padding-left:20px;}
-.texteo_icon_note {background-image:url(images/note.png); background-position:2px 5px; padding-left:20px;}
-.texteo_icon_map {background-image:url(images/map.png); background-position:2px 5px; padding-left:20px;}
-.texteo_icon_document {background-image:url(images/page.png); background-position:2px 5px; padding-left:20px;}
-
-.texteo_icon_external {background-image:url(images/external.png); background-position:2px 5px; padding-left:21px;}
-.texteo_icon_internal {background-image:url(images/internal.png); background-position:2px 5px; padding-left:21px;}
-
-/* Widget Icons */
-.widget_link.texteo_icon {background-position:2px 5px; padding-left:20px;}
-.texteo_icon_timeline { background-image:url(images/timeline.png); }
+/* Media & widget icons */
+.texteo_icon       { background-repeat:no-repeat; background-size: 15px 15px; padding-left:20px; background-position:2px 2px; }
+.texteo_icon_audio { background-image:url(images/audio@2x.png); }
+.texteo_icon_video {background-image:url(images/video@2x.png); }
+.texteo_icon_image {background-image:url(images/image@2x.png); }
+.texteo_icon_note {background-image:url(images/note@2x.png); }
+.texteo_icon_map { background-image:url(images/map@2x.png); background-size: 8px 15px !important; padding-left: 13px !important; }
+.texteo_icon_timeline { background-image:url(images/timeline@2x.png); }
 .texteo_icon_carousel { background-image:url(images/carousel.png); }
 .texteo_icon_card { background-image:url(images/cards.png); }
 .texteo_icon_summary { background-image:url(images/summary.png); }
-
-.texteo_icon_visualization.contents { background-image:url(images/vis_contents.png); }
-.texteo_icon_visualization.connections { background-image:url(images/vis_connections.png); }
-.texteo_icon_visualization.grid { background-image:url(images/vis_grid.png); }
-.texteo_icon_visualization.radial { background-image:url(images/vis_radial.png); }
-.texteo_icon_visualization.path { background-image:url(images/vis_path.png); }
-.texteo_icon_visualization.media { background-image:url(images/vis_media.png); }
-.texteo_icon_visualization.tag { background-image:url(images/vis_tag.png); }
+.texteo_icon_visualization { background-image:url(images/visualization@2x.png); }
 
 /* TODO */
 .path_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_path_icon.png); display:inline-block; background-position:left top;}
@@ -1162,7 +1143,7 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .widget_summary .media-list{
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 16px 9px;
+    padding: 1.2rem;
 }
 .full.widget_summary .media-list {
 	border-radius: 0px;
@@ -1174,7 +1155,7 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
-.description-sm { font-size: 1.4rem; line-height: 1.7rem; margin-bottom: 0; max-width: 70rem; }
+.description-sm { font-size: 1.4rem; line-height: 1.7rem; margin-bottom: 1.8rem; max-width: 70rem; }
 
 .cardContainer{
   padding: 0 1rem;
@@ -1195,7 +1176,7 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 }
 
 .media {
-  margin-top: 15px;
+  margin-top: 2.4rem;
 }
 .media:first-child {
   margin-top: 0;
