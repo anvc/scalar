@@ -141,7 +141,8 @@
 	text-align: center;
 }
 .node_selector .loadingRow{
-	color: #f00;
+	padding: 5px;
+	font-size: 2.1rem;
 }
 #nodeSelectorDropdown{
     width: 100%;
