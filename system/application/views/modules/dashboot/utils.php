@@ -6,7 +6,7 @@
 <?$this->template->add_css('
 .section {display:none;}
 #import {display:block;}
-.m {margin-top:14px; margin-bottom:16px;}
+.m {margin-top:18px; margin-bottom:22px;}
 .i {width:100%; border:0; margin:0; padding:0; margin-top:16px;}
 ', 'embed')?>
 
@@ -38,11 +38,22 @@ $(document).ready(function() {
     <section class="col-xs-10">
     	<div class="section" id="import">
     		<h4>Import</h4>
-	        <p class="m">Import content and relationships from public Scalar books or from raw Scalar JSON or RDF data.</p><?php 
-    		if (class_exists('Transfer')) {
-    			$plugin = new Transfer($this->data);
-    			$plugin->get();
-    		}
+	        <p class="m">Import content and relationships from public Scalar books or from raw Scalar JSON or RDF data.</p><?php
+	        $path = 'system/application/plugins/transfer/index.html';
+	        $get_vars = '';
+	        if (!empty($book)) {
+	        	$dest_url = confirm_slash(base_url()).$book->slug;
+	        	$email = $login->email;
+	        	$source_url = (isset($_REQUEST['source_url']) && !empty($_REQUEST['source_url'])) ? $_REQUEST['source_url'] : '';
+	        	$get_vars = '?dest_url=' . $dest_url . '&dest_id=' . $email . ((!empty($source_url)) ? ('&source_url='.$source_url) : '');
+	        }
+	        echo '<div class="plugin transfer">';
+	        if (file_exists(FCPATH.$path)) {
+	        	echo '<iframe style="width:100%; min-height:700px; border:none;" src="'.confirm_slash(base_url()).$path.$get_vars.'"></iframe>'."\n";
+	        } else {
+	        	echo '<div style="padding:10px; border:solid 1px #cccccc; background-color:#eeeeee;">The <b>Transfer</b> plugin can\'t be found.  Please contact a system administrator to install the plugin in a folder named <b>transfer</b> at <b>/system/application/plugins/</b>.</div>';
+	        }
+	        echo '</div>';
     		?></div>
     	<div class="section" id="export"><?php 
     			$rdf_url_json = confirm_slash(base_url()).$book->slug.'/rdf/instancesof/content?format=json&rec=1&ref=1';
