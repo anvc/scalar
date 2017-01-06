@@ -559,7 +559,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	// Propagate the interface
 		init();
     };
-    
+
 		$.fn.widget_selector = function(options){
 			var self = this;
 			var $this = $(this);
@@ -865,7 +865,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
-
 
 							 $('<div class="node_selection card_multi_selection">').appendTo($multiCard).node_selection_dialogue(opts);
 
@@ -1354,7 +1353,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var col = opts.fields[n];
 							switch(col){
 								case 'thumbnail':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
+									rowHTML += '<td class="thumbnail '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
 									break;
 								case 'title':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">'+item.title+'</a></td>';
@@ -1459,7 +1458,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										$dialogue_container.data('nodes').push(item);
 									}
 									$row.addClass('current');
-									if(hasChildSelector){
+									if(item.hasRelations && hasChildSelector){
 										var index = -1;
 										if(undefined!==$dialogue_container.data('nodes')){
 											for(var n in $dialogue_container.data('nodes')){
@@ -1499,7 +1498,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								}else{
 									$(this).addClass('current').siblings('.current').removeClass('current').find('input[type="checkbox"]').attr('checked',false);
 									$dialogue_container.data('nodes',[item]);
-									if(hasChildSelector){
+									if(item.hasRelations && hasChildSelector){
 										$childSelector.find('input[type="checkbox"]').attr('checked',true);
 										$dialogue_container.data('nodes')[0].include_children = true;
 									}
@@ -1512,6 +1511,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 				}
+
+				$rows.find('.thumbnail img').each(function(){
+					$(this).tooltip({
+						title : '<img src="'+$(this).attr('src')+'" class="nodeSelectorEnlargedThumbnail">',
+						html : true,
+						container: '.bootbox'
+					});
+				});
 				resize();
 
 			},$dialogue_container);
@@ -1594,6 +1601,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var doTypeFilter = function(){
 				var opts = $dialogue_container.data('opts');
+
 				if(opts == undefined){ opts = []; }
 
 				var promise = $.Deferred();
@@ -1601,6 +1609,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 				var rec = opts.rec;
 				var ref = opts.ref;
+
+				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading&hellip;</td></tr>');
+
 				load_node_list({
 					"type" : current_type,
 					"rec" : rec,
@@ -1660,7 +1671,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var opts = $dialogue_container.data('opts');
 						var rec = opts.rec;
 						var ref = opts.ref;
-						var $dialogue_container = $(this).parents('.node_selector');
+						$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading&hellip;</td></tr>');
 						load_node_list({
 							"type" : current_type,
 							"search" : $dialogue_container.find('.node_search input').val(),
@@ -1722,7 +1733,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var slugs = [];
 				for(var i in opts.selected){
 					 var include_children = opts.selected[i].indexOf('*')>-1;
-					 var slug = opts.selected[i].replace(/\*/g, '%');
+					 var slug = opts.selected[i].replace(/\*/g, '');
 					 slugs.push({id : slug, children : include_children, loaded : false});
 				}
 
@@ -1736,7 +1747,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							slug.loaded = true;
 							slug.data = scalarapi.getNode(slug.id);
-
 							for(var i in slugs){
 								if(!slugs[i].loaded){
 									return;
