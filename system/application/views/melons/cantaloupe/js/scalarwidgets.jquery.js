@@ -131,12 +131,16 @@
                var slugs = [];
                var slug_list = slug.split(',');
                for(var i in slug_list){
-                  slugs.push({id : slug_list[i], loaded : false});
+                   var include_children = slug_list[i].indexOf('*')>-1;
+                   var slug = slug_list[i].replace(/\*/g, '');
+                  slugs.push({id : slug, children: include_children, loaded : false});
                }
                $widget.removeData('node');
                for(var i in slugs){
 
                  (function(slug,promise,slugs){
+
+
                    if(scalarapi.loadPage( slug.id, fullReload, function(){
 
                      if($widget.data('node')!=undefined){
@@ -152,7 +156,13 @@
                        }
                      }
                      for(var i in slugs){
-                       nodeList.push(scalarapi.getNode(slugs[i].id));
+                       var node = scalarapi.getNode(slugs[i].id);
+                       nodeList.push(node);
+                       if(slugs[i].children){
+                         for(var r in node.outgoingRelations){
+                           nodeList.push(node.outgoingRelations[r].target);
+                         }
+                       }
                      }
 
                      $widget.data('node',nodeList);
@@ -175,7 +185,13 @@
                      }
 
                      for(var i in slugs){
-                       nodeList.push(scalarapi.getNode(slugs[i].id));
+                       var node = scalarapi.getNode(slugs[i].id);
+                       nodeList.push(node);
+                       if(slugs[i].children){
+                         for(var r in node.outgoingRelations){
+                           nodeList.push(node.outgoingRelations[r].body);
+                         }
+                       }
                      }
 
 
@@ -186,19 +202,39 @@
                  })(slugs[i],promise,slugs);
                }
              }else{
+
+     					 var include_children = slug.indexOf('*')>-1;
+     					 var slug = slug.replace(/\*/g, '');
+
                if(typeof base.pendingNodeLoads[slug] == "undefined"){
                  base.pendingNodeLoads[slug] = [];
                }
-               base.pendingNodeLoads[slug].push({widget:$widget,promise:promise});
+               base.pendingNodeLoads[slug].push({widget:$widget,promise:promise,children:include_children});
                if(scalarapi.loadPage( slug, fullReload, function(){
                    for(var i in base.pendingNodeLoads[slug]){
-                     base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                     if(base.pendingNodeLoads[slug][i].children){
+                       var node = scalarapi.getNode(slug);
+                       base.pendingNodeLoads[slug][i].widget.data('node',[node]);
+                       for(var r in node.outgoingRelations){
+                         base.pendingNodeLoads[slug][i].widget.data('node').push(node.outgoingRelations[r].target);
+                       }
+                     }else{
+                       base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                     }
                      base.pendingNodeLoads[slug][i].promise.resolve();
                    }
                    base.pendingNodeLoads[slug] = [];
                }, null, 1, false, null, 0, 20) == "loaded"){
                  for(var i in base.pendingNodeLoads[slug]){
-                   base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                   if(base.pendingNodeLoads[slug][i].children){
+                     var node = scalarapi.getNode(slug);
+                     base.pendingNodeLoads[slug][i].widget.data('node',[node]);
+                     for(var r in node.outgoingRelations){
+                       base.pendingNodeLoads[slug][i].widget.data('node').push(node.outgoingRelations[r].target);
+                     }
+                   }else{
+                     base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                   }
                    base.pendingNodeLoads[slug][i].promise.resolve();
                  }
                  base.pendingNodeLoads[slug] = [];
@@ -373,38 +409,6 @@
 
             var timelinePromise = $.Deferred();
             $.when(timelinePromise).then($.proxy(function(){
-             //Timeline rendering content
-             var $widget = this;
-             $widget.on('slotCreated',function(){
-                $(this).data('element').html('');
-                var $timeline = $('<div class="caption_font timeline_embed"></div>').appendTo($(this).data('element'));
-                $timeline.width($(this).data('element').width());
-                var height = $(this).data('element').height();
-                if(height == 0){
-                  height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
-                }
-                $timeline.height(height - 10);
-                var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
-
-                $(this).off("slotCreated");
-             });
-
-             //Because we asynchronously load the Timeline javascript,
-             //it's possible that we've already triggered the slotCreated event
-             //before we got here, so check to see if we have a slot and if so,
-             //trigger it again.
-             if($widget.data('slot')!==undefined){
-               $widget.trigger('slotCreated');
-             }
-
-            },$widget));
-
-            //We don't know how long this might take, so we're going to
-            //wrap this part up in its own function to protect scope;
-
-            //We need to get the related chronological information for this
-            //timeline, but we may need to use the API to pull additional information
-            (function($widget, promise){
               var parseDate = function(date,d_string){
                 var d = {
                     year : date.getFullYear()
@@ -435,138 +439,129 @@
                 }
                 return d;
               }
-              var parseNodeForChronologicalData = function(node){
-                var relatedNodes = [];
-                relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
-                relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
-                relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
-                relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
-
+              if($(this).data('timeline') == undefined){
                 var tempdata = {
-                  title : {
-                      text : {
-                          headline : node.getDisplayTitle()
-                      }
-                  },
                   events : []
                 };
 
-                if(typeof node.content !== 'undefined' && node.content != null && node.content != ''){
-                  tempdata.title.text.text = node.content;
-                }
+                for(var n in $(this).data('node')){
+                  var node = $(this).data('node')[n].current;
+                  if(typeof node.auxProperties != 'undefined' && ((typeof node.auxProperties['dcterms:temporal'] != 'undefined' && node.auxProperties['dcterms:temporal'].length > 0) || (typeof node.auxProperties['dcterms:date'] != 'undefined' && node.auxProperties['dcterms:date'].length > 0))){
+                      var entry = {};
 
-                //Get the main timeline items, if there are any
-                for(var i in relatedNodes){
-                  var nodeSet = relatedNodes[i];
-                  for(var n in nodeSet){
-                    var relNode = nodeSet[n].current;
-                    if(typeof relNode.auxProperties != 'undefined' && ((typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0) || (typeof relNode.auxProperties['dcterms:date'] != 'undefined' && relNode.auxProperties['dcterms:date'].length > 0))){
-                        var entry = {};
+                      if(typeof node.auxProperties['dcterms:temporal'] != 'undefined' && node.auxProperties['dcterms:temporal'].length > 0){
+                        var temporal_data = node.auxProperties['dcterms:temporal'][0];
+                      }else{
+                        var temporal_data = node.auxProperties['dcterms:date'][0];
+                      }
 
-                        if(typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0){
-                        	var temporal_data = relNode.auxProperties['dcterms:temporal'][0];
-												}else{
-													var temporal_data = relNode.auxProperties['dcterms:date'][0];
-												}
+                      var dashCount = (temporal_data.match(/-/g) || []).length;
 
-                        var dashCount = (temporal_data.match(/-/g) || []).length;
+                      var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
+                      if(dashCount != 1 && !contains_seperator){
+                        //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
+                        var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
 
-                        var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
-                        if(dashCount != 1 && !contains_seperator){
-                          //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
-                          var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
+                        var d = new Date(d_string);  //parse as a date
+                        if(d instanceof Date){
+                          entry.start_date = parseDate(d,d_string);
+                        }
+                      }else{
+                        if(contains_seperator){
 
-                          var d = new Date(d_string);  //parse as a date
-                          if(d instanceof Date){
-                            entry.start_date = parseDate(d,d_string);
+                          temporal_data = temporal_data.replace('from ','');
+                          if(temporal_data.indexOf(" until ") >= 0){
+                            var dateParts = temporal_data.split(" until ");
+                          }else{
+                            var dateParts = temporal_data.split(" to ");
                           }
                         }else{
-													if(contains_seperator){
+                          var dateParts = temporal_data.replace('-',' - ').split(' - ');
+                        }
 
-														temporal_data = temporal_data.replace('from ','');
-														if(temporal_data.indexOf(" until ") >= 0){
-															var dateParts = temporal_data.split(" until ");
-														}else{
-															var dateParts = temporal_data.split(" to ");
-														}
-													}else{
-                          	var dateParts = temporal_data.replace('-',' - ').split(' - ');
-													}
+                        //We should now have two dates - a start and an end
+                        if(dateParts.length == 2){
+                          dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
+                          dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
 
-                          //We should now have two dates - a start and and end
-                          if(dateParts.length == 2){
-                            dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
-                            dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
+                          var sdate = new Date(dateParts[0]);  //parse as a date
+                          var edate = new Date(dateParts[1]);  //parse as a date
 
-                            var sdate = new Date(dateParts[0]);  //parse as a date
-                            var edate = new Date(dateParts[1]);  //parse as a date
-
-                            if(sdate instanceof Date && edate instanceof Date){
-                              entry.start_date = parseDate(sdate,dateParts[0]);
-                              entry.end_date = parseDate(edate,dateParts[1]);
-                            }
-
+                          if(sdate instanceof Date && edate instanceof Date){
+                            entry.start_date = parseDate(sdate,dateParts[0]);
+                            entry.end_date = parseDate(edate,dateParts[1]);
                           }
+
                         }
-                        //Cool, got time stuff out of the way!
-                        //Let's do the other components Timeline.js expects
-                        entry.text = {
-                          headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
+                      }
+                      //Cool, got time stuff out of the way!
+                      //Let's do the other components Timeline.js expects
+                      entry.text = {
+                        headline : '<a href="'+$(this).data('node')[n].url+'">'+$(this).data('node')[n].getDisplayTitle()+'</a>'
+                      };
+
+                      if(typeof node.description != 'undefined' && node.description != '' && node.description != null){
+                        entry.text.text = node.description
+                      }else if(typeof node.content !== 'undefined' && node.content != null && node.content != ''){
+                        entry.text.text = node.content;
+                      }
+
+                      //Parse thumbnail url
+                      var thumbnail_url = $(this).data('node')[n].thumbnail;
+                      if(thumbnail_url != null && thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
+                        thumbnail_url = base.book_url+thumbnail_url;
+                      }
+
+                      //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
+                      if(typeof $(this).data('node')[n].scalarTypes.media !== 'undefined'){
+                        entry.media = {
+                          url : node.sourceFile,
+                          thumbnail : thumbnail_url
                         };
+                      }else if(typeof $(this).data('node')[n].thumbnail !== 'undefined' && $(this).data('node')[n].thumbnail != null && $(this).data('node')[n].thumbnail != '') {
+                        entry.media = {
+                          url : thumbnail_url,
+                          thumbnail : thumbnail_url
+                        };
+                      }
 
-                        if(typeof relNode.description != 'undefined' && relNode.description != '' && relNode.description != null){
-                          entry.text.text = relNode.description
-                        }else if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
-                          entry.text.text = relNode.content;
-                        }
+                      if(typeof $(this).data('node')[n].background !== 'undefined'){
+                        entry.background = {url:base.book_url+$(this).data('node')[n].background}
+                      }
 
-                        //Parse thumbnail url
-                        var thumbnail_url = nodeSet[n].thumbnail;
-                        if(thumbnail_url != null && thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
-                          thumbnail_url = base.book_url+thumbnail_url;
-                        }
-
-                        //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
-                        if(typeof nodeSet[n].scalarTypes.media !== 'undefined'){
-                          entry.media = {
-                            url : relNode.sourceFile,
-                            thumbnail : thumbnail_url
-                          };
-                        }else if(typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
-                          entry.media = {
-                            url : thumbnail_url,
-                            thumbnail : thumbnail_url
-                          };
-                        }
-
-												if(typeof nodeSet[n].background !== 'undefined'){
-													entry.background = {url:base.book_url+nodeSet[n].background}
-												}
-
-                        tempdata.events.push(entry);
-                    }
+                      tempdata.events.push(entry);
                   }
                 }
-                $widget.data('timeline',tempdata);
-                promise.resolve();
+                $(this).data('timeline',tempdata);
               }
-              if($widget.data('timeline') != undefined){
-                promise.resolve();
-              }else{
-                if($widget.attr('resource') == undefined){
-                  //Use the current node, if it has related chronological nodes
-                  parseNodeForChronologicalData(base.currentNode);
-                }else{
-                  //We have a target node - use its related chronological nodes
-                  var slug = $widget.attr('resource');
-                  if(scalarapi.loadPage( slug, true, function(){
-    								parseNodeForChronologicalData(scalarapi.getNode(slug));
-    							}, null, 1, false, null, 0, 20) == "loaded"){
-    								parseNodeForChronologicalData(scalarapi.getNode(slug));
-    							}
+
+              //Timeline rendering content
+              var $widget = this;
+              $widget.on('slotCreated',function(){
+                $(this).data('element').html('');
+                var $timeline = $('<div class="caption_font timeline_embed"></div>').appendTo($(this).data('element'));
+                $timeline.width($(this).data('element').width());
+                var height = $(this).data('element').height();
+                if(height == 0){
+                  height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                 }
+                $timeline.height(height - 10);
+                var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
+
+                $(this).off("slotCreated");
+              });
+
+              //Because we asynchronously load the Timeline javascript,
+              //it's possible that we've already triggered the slotCreated event
+              //before we got here, so check to see if we have a slot and if so,
+              //trigger it again.
+              if($widget.data('slot')!==undefined){
+               $widget.trigger('slotCreated');
               }
-            })($widget, timelinePromise);
+
+            },$widget));
+
+            base.getTargetNode($widget, timelinePromise, true);
 				 };
 
 				 //Handle carousel inserted into this page
@@ -696,28 +691,7 @@
 
            },$widget));
 
-           if($widget.attr('resource')!=undefined){
-               (function($widget,carouselPromise){
-                 scalarapi.loadPage( $widget.attr('resource'), true, function(){
-                     var node = scalarapi.getNode($widget.attr('resource'));
-                     var relatedNodes = [];
-                     var relatedNodeSlugs = [];
-                     relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
-                     relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
-                     relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
-                     relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
-                     for(var list in relatedNodes){
-                       for(var node in relatedNodes[list]){
-                         relatedNodeSlugs.push(relatedNodes[list][node].slug);
-                       }
-                     }
-                     $widget.data('nodes',relatedNodeSlugs.join());
-                     base.getTargetNode($widget, carouselPromise, true);
-                 }, null, 1, false, null, 0, 20);
-             })($widget,carouselPromise);
-           }else{
-             base.getTargetNode($widget, carouselPromise, true);
-           }
+           base.getTargetNode($widget, carouselPromise, true);
 				 };
 
 				 //Handle card inserted into this page ( http://getbootstrap.com/components/#thumbnails-custom-content )
@@ -750,29 +724,7 @@
              }
           },$widget));
 
-          if($widget.attr('resource')!=undefined){
-              (function($widget,cardPromise){
-                scalarapi.loadPage( $widget.attr('resource'), true, function(){
-                    var node = scalarapi.getNode($widget.attr('resource'));
-                    var relatedNodes = [];
-                    var relatedNodeSlugs = [];
-                    relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
-                    relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
-                    relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
-                    relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
-                    for(var list in relatedNodes){
-                      for(var node in relatedNodes[list]){
-                        relatedNodeSlugs.push(relatedNodes[list][node].slug);
-                      }
-                    }
-                    $widget.data('nodes',relatedNodeSlugs.join());
-                    base.getTargetNode($widget, cardPromise, true);
-                }, null, 1, false, null, 0, 20);
-            })($widget,cardPromise);
-
-          }else{
-            base.getTargetNode($widget, cardPromise, true);
-          }
+          base.getTargetNode($widget, cardPromise, true);
 				 };
 
 				 //Handle summary inserted into this page ( http://getbootstrap.com/components/#media-default )
@@ -805,28 +757,7 @@
              }
           },$widget));
 
-          if($widget.attr('resource')!=undefined){
-              (function($widget,summaryPromise){
-                scalarapi.loadPage( $widget.attr('resource'), true, function(){
-                    var node = scalarapi.getNode($widget.attr('resource'));
-                    var relatedNodes = [];
-                    var relatedNodeSlugs = [];
-                    relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
-                    relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
-                    relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
-                    relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
-                    for(var list in relatedNodes){
-                      for(var node in relatedNodes[list]){
-                        relatedNodeSlugs.push(relatedNodes[list][node].slug);
-                      }
-                    }
-                    $widget.data('nodes',relatedNodeSlugs.join());
-                    base.getTargetNode($widget, summaryPromise, true);
-                }, null, 1, false, null, 0, 20);
-            })($widget,summaryPromise);
-          }else{
-            base.getTargetNode($widget, summaryPromise, true);
-          }
+          base.getTargetNode($widget, summaryPromise, true);
 				 };
 
          base.createCardFromNode = function(node,$target){

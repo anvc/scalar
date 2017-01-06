@@ -866,7 +866,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
 
-
 							 $('<div class="node_selection card_multi_selection">').appendTo($multiCard).node_selection_dialogue(opts);
 
 							 submitAction = function(e){
@@ -1459,7 +1458,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										$dialogue_container.data('nodes').push(item);
 									}
 									$row.addClass('current');
-									if(hasChildSelector){
+									if(item.hasRelations && hasChildSelector){
 										var index = -1;
 										if(undefined!==$dialogue_container.data('nodes')){
 											for(var n in $dialogue_container.data('nodes')){
@@ -1499,7 +1498,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								}else{
 									$(this).addClass('current').siblings('.current').removeClass('current').find('input[type="checkbox"]').attr('checked',false);
 									$dialogue_container.data('nodes',[item]);
-									if(hasChildSelector){
+									if(item.hasRelations && hasChildSelector){
 										$childSelector.find('input[type="checkbox"]').attr('checked',true);
 										$dialogue_container.data('nodes')[0].include_children = true;
 									}
@@ -1734,7 +1733,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var slugs = [];
 				for(var i in opts.selected){
 					 var include_children = opts.selected[i].indexOf('*')>-1;
-					 var slug = opts.selected[i].replace(/\*/g, '%');
+					 var slug = opts.selected[i].replace(/\*/g, '');
 					 slugs.push({id : slug, children : include_children, loaded : false});
 				}
 
@@ -1748,7 +1747,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							slug.loaded = true;
 							slug.data = scalarapi.getNode(slug.id);
-
 							for(var i in slugs){
 								if(!slugs[i].loaded){
 									return;
