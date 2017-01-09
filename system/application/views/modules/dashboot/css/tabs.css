@@ -2,7 +2,7 @@
 
 html {width:100%;}
 body {background-color:#ffffff; margin:22px 70px 32px 70px; font-family: 'Lato', Arial, sans-serif;}
-body > *:not(.modal-backdrop, .modal) {max-width:1040px; margin-left:auto; margin-right:auto;}
+body > *:not(.modal-backdrop):not(.modal) {max-width:1040px; margin-left:auto; margin-right:auto;}
 
 .avatar.small {width:25px; margin-bottom:0.5rem; margin-right:0.5rem;}
 .scalar_logo.small {width:18px; margin-bottom:0.5rem; margin-left:0.5rem;}

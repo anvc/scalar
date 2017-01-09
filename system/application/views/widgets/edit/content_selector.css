@@ -113,7 +113,7 @@
 	border-bottom: 0;
 }
 .node_selector_table_body{
-	border-top: 2px solid #ddd;
+	border-top: 1px solid #ddd;
 }
 .node_selector{
 	height: 100%;
@@ -125,13 +125,27 @@
 .media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
 }
-.node_selector_table_body tbody>tr:hover,.node_selector_table_body tbody>tr.current{
+.node_selector_table_body tbody>tr:hover{
 	background-color: #d9edf7;
 	cursor: pointer
+}
+.node_selector_table_body tbody>tr.current{
+	background-color: #c7e6f6;
+	cursor: pointer	
+}
+.node_selector_table_body tbody>tr.current:hover{
+	background-color: #d9edf7;
 }
 .node_selector .selected_node_count{
 	font-weight: bold;
 	color: #32a71a
+}
+.node_selector .botton_options_box{
+	float:left; 
+	white-space:nowrap;
+}
+.node_selector .botton_options_box button, .node_selector .botton_options_box > span{
+	margin-right:10px;
 }
 .node_selector .panel-heading, .node_selector .panel-footer{
 	background-color: transparent;
@@ -180,4 +194,8 @@
 .nodeSelectorEnlargedThumbnail{
 	max-width: 300px;
 	max-height: 300px;
+}
+.node_selector .thumbnail {
+	border-left:0;
+	border-right:0;	
 }

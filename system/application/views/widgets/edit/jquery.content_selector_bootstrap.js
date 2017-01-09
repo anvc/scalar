@@ -1234,11 +1234,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				"resultsPerPage" : 50,
 				"allowChildren" : false,
 				"selected" : [],
-				"onChangeCallback" : defaultCallback
+				"onChangeCallback" : defaultCallback,
+				"deleteOptions" : false,
+				"addOptions" : false,
+				"rowSelectMethod" : 'checkbox'  /* checkbox|highlight */
 			};
 
 			$.extend(opts, options);
-
 
 			var current_type = opts.defaultType;
 
@@ -1343,7 +1345,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
 						var rowHTML = '<tr>';
 
-						if(isset(opts.allowMultiple) && opts.allowMultiple){
+						if(isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox'==opts.rowSelectMethod){
 							rowHTML += '<td class="text-center select_row" style="vertical-align: middle; width: 5rem"><input type="checkbox" '+(index > -1?'checked':'')+'></td>';
 						}
 
@@ -1427,19 +1429,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 
 						if(opts.allowMultiple){
-							$item.click(function(e){
-								e.stopPropagation();
-								$(this).find('.select_row>input[type="checkbox"]').click();
-							});
-							$item.find('.select_row>input[type="checkbox"]').click(function(e){
+							$item.off('click').click(function(e){
+								// Craig decoupled the actions below from the checkbox, since it might not be present if rowSelectMethod==highlight
 								e.stopPropagation();
 								var $dialogue_container = $(this).parents('.node_selector');
-								var $row = $(this).parents('tr');
-								var item = $row.data('item');
-								var $icon = $(this).find('.glyphicon');
-								var checked = $(this).is(":checked");
-
-								var $childSelector = $(this).parents('.select_row').siblings('.select_children');
+								var item = $(this).data('item');
+								var $icon = $(this).find('.select_row>input[type="checkbox"]').find('.glyphicon:first');
+								var checked = $(this).hasClass('current');
+								var $childSelector = $(this).find('.select_row').siblings('.select_children');
 								var hasChildSelector = $childSelector.length > 0;
 								var index = -1;
 								if(undefined!==$dialogue_container.data('nodes')){
@@ -1457,7 +1454,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									}else{
 										$dialogue_container.data('nodes').push(item);
 									}
-									$row.addClass('current');
+									$(this).addClass('current');
 									if(item.hasRelations && hasChildSelector){
 										var index = -1;
 										if(undefined!==$dialogue_container.data('nodes')){
@@ -1475,12 +1472,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								}else{
 									$dialogue_container.find('.selectAll input[type="checkbox"]').attr("checked",false);
 									$dialogue_container.data('nodes').splice(index, 1);
-									$row.removeClass('current');
+									$(this).removeClass('current');
 									if(hasChildSelector){
 										$childSelector.find('input[type="checkbox"]').attr('checked',false);
 									}
 								}
-
+								$(this).find('.select_row>input[type="checkbox"]').attr('checked',((checked)?false:true));
 								updateSelectedCounter();
 							});
 						}else{
@@ -1522,6 +1519,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				resize();
 
 			},$dialogue_container);
+			
 			var updateSelectedCounter = $.proxy(function(){
 
 				var $count = $(this).find('.selected_node_count');
@@ -1544,7 +1542,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								$count.text('No items '+($(this).data('opts').allowChildren?'shown':'selected'));
 								break;
 						case 1:
-								$count.text('One item '+($(this).data('opts').allowChildren?'shown':'selected'));
+								$count.text('1 item '+($(this).data('opts').allowChildren?'shown':'selected'));
 								break;
 						default:
 								$count.text(number_items+' items '+($(this).data('opts').allowChildren?'shown':'selected'));
@@ -1563,16 +1561,52 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$filter.find('.node_types').hide();
 			}
 
-			if(isset(opts.allowMultiple) && opts.allowMultiple){
+			if(isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox'==opts.rowSelectMethod){
 				$('<input type="checkbox">').appendTo($('<th data-field="selected" class="text-center selectAll" style="width: 5rem"></th>').appendTo($fields)).change(function(){
 					var checked = $(this).is(":checked");
-					var $rows = $(this).parents('.node_selector').find('tbody tr .select_row input[type="checkbox"]');
+					var $rows = $(this).parents('.node_selector').find('tbody tr');
 					if(checked){
-						$rows = $rows.not(':checked');
+						$rows = $rows.not('.current');
 					}else{
-						$rows = $rows.filter(':checked');
+						$rows = $rows.filter('.current');
 					}
 					$rows.trigger('click');
+				});
+			}
+			
+			if (isset(opts.deleteOptions) && opts.deleteOptions) {
+				$dialogue_container.find('.selected_node_count').css('float','right').css('margin-left',0);
+				var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
+				if (isset(opts.allowMultiple) && opts.allowMultiple) {
+					var $selectall = $('<button type="button" class="btn btn-default btn-sm">Select all</button>').appendTo($deleteOpts);
+					$selectall.off('click').on('click', function() {
+						var checked = $(this).hasClass('active');
+						var $rows = $(this).closest('.node_selector').find('tbody tr');
+						if(checked){
+							$rows = $rows.filter('.current');
+							$(this).removeClass('active');
+						}else{
+							$rows = $rows.not('.current');		
+							$(this).addClass('active');
+						}
+						$rows.trigger('click');
+						$(this).blur();
+					});
+				}
+				$deleteOpts.append('<button type="button" class="btn btn-default btn-sm">Delete selected</button>');
+			}
+			
+			if (isset(opts.addOptions) && opts.addOptions) {
+				if ('undefined'==typeof($deleteOpts)) {
+					$dialogue_container.find('.selected_node_count').css('float','right').css('margin-left',0);
+					var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
+				} else {
+					$deleteOpts.append('<span> | </span>');
+				}
+				$deleteOpts.append('<button type="button" class="btn btn-default btn-sm">Add new page</button>');
+				$deleteOpts.append('<select class="btn btn-default btn-sm"><option value="">Import media</option></select>');
+				$deleteOpts.find('button:last').off('click').on('click', function() {
+					document.location.href = $('link#parent').attr('href')+'new.edit';
 				});
 			}
 
