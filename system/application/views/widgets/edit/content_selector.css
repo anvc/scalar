@@ -133,9 +133,6 @@
 	background-color: #c7e6f6;
 	cursor: pointer	
 }
-.node_selector_table_body tbody>tr.current:hover{
-	background-color: #d9edf7;
-}
 .node_selector .selected_node_count{
 	font-weight: bold;
 	color: #32a71a
@@ -198,4 +195,7 @@
 .node_selector .thumbnail {
 	border-left:0;
 	border-right:0;	
+}
+.node_selector .editLink {
+	display:none;
 }
