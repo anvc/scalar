@@ -88,7 +88,7 @@ system/application/config/database.php: $db['default']['hostname']
 system/application/config/database.php: $db['default']['username']
 system/application/config/database.php: $db['default']['password']
 system/application/config/database.php: $db['default']['database']
-system/application/config/content_lang.php: $land[‘install_name’]
+system/application/language/content_lang.php: $land[‘install_name’]
 5) Optional: edit .htaccess in the existing LIVE root folder, and remove the “#” comment characters that prepend the two lines under “# To route all requests to a maintenance page, uncomment these lines”, then save; this will temporarily make Scalar unavailable, routing all requests to maintainance.html.
 6) Delete the “system” folder from your existing LIVE root folder (or, to be safe, rename the system folder to “system.bak”)
 7) Copy the NEW “system” folder to the existing LIVE root folder
