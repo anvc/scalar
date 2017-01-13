@@ -2718,36 +2718,21 @@ function YouTubeGetID(url){
 				break;
 
 				case "CriticalCommons-LegacyVideo":
-				var path_segments = this.model.path.split('.');
-				if (path_segments.length > 1) {
-					path_segments[path_segments.length-1] = 'mp4';
-					this.model.path = path_segments.join('.');
+				var temp = this.model.path.split('//');
+				if (temp.length == 3) {
+					var temp2 = temp[2].split('-');
+					temp2.pop();
+					var chunk = temp2.join('-');
+					temp = chunk.split('/');
+					var slug = temp[temp.length - 1];
+					var url = 'http://videos.criticalcommons.org/transcoded/http/ccserver.usc.edu/8080/cc/Members/' + chunk + '.mp4/mp4-high/' + slug + '-mp4.mp4';
+					this.model.path = url;
 				}
-				mimeType = "video/mp4";
+				mimeType = this.updateCriticalCommonsURLForBrowser();
 				break;
 
 				case "CriticalCommons-Video":
-				var ext;
-
-				var format;
-				if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
-					format = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].format;
-				}
-
-				if (format == 'MPEG-4') {
-					ext = 'mp4';
-					mimeType = "video/mp4";
-				} else {
-					ext = 'webm';
-					mimeType = "video/webm";
-					this.model.path = this.model.path.replace('mp4-high','webm-high');
-					this.model.path = this.model.path.replace('mp4-low','webm-low');
-				}
-				var path_segments = this.model.path.split('.');
-				if (path_segments.length > 1) {
-					path_segments[path_segments.length-1] = ext;
-					this.model.path = path_segments.join('.');
-				}
+				mimeType = this.updateCriticalCommonsURLForBrowser();
 				break;
 
 				case "WebM":
@@ -2821,6 +2806,28 @@ function YouTubeGetID(url){
 			return;
 		}
 
+
+		jQuery.HTML5VideoObjectView.prototype.updateCriticalCommonsURLForBrowser = function() {
+			var ext, format, mimeType;
+			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+				format = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].format;
+			}
+			if (format == 'MPEG-4') {
+				ext = 'mp4';
+				mimeType = "video/mp4";
+			} else {
+				ext = 'webm';
+				mimeType = "video/webm";
+				this.model.path = this.model.path.replace('mp4-high','webm-high');
+				this.model.path = this.model.path.replace('mp4-low','webm-low');
+			}
+			var path_segments = this.model.path.split('.');
+			if (path_segments.length > 1) {
+				path_segments[path_segments.length-1] = ext;
+				this.model.path = path_segments.join('.');
+			}
+			return mimeType;
+		}
 
 		/**
 		 * Starts playback of the video.

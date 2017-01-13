@@ -245,7 +245,7 @@ function ScalarAPI() {
 				'Explorer': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'Flash', specifiesDimensions:true},
+				'Chrome': {extensions:['mp4'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true}
 			}},
 		'CriticalCommons-Video': {
