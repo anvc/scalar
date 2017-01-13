@@ -964,7 +964,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					var formattingOptions = {
 						Size : ['small','medium','large','full'],
-						Align : (typeof opts.inline!='undefined' && opts.inline)?['left','center','right']:['left','right'],
+						Align : (typeof opts.inline!='undefined' && opts.inline)?['right','center','left']:['right','left'],
 						Caption : ['Description','Title','Title and Description','None','Custom Text']
 					};
 
@@ -982,6 +982,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					if(options.type == "carousel"){
 						formattingOptions.Numbering = ["Show Slide Numbers","Hide Slide Numbers"]
+					}
+
+					if(options.type == "card"){
+						formattingOptions.Size = ['small','medium'];
+					}
+
+					if(options.type == "summary"){
+						formattingOptions.Size = ['medium','large','full'];
 					}
 
 					if(options.type == "visualization" && options.attrs['data-visformat']=='radial'){
@@ -1204,7 +1212,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 										item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
 									}else{
-										item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';;
+										item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 									}
 
 									item.hasRelations = 'undefined' !== typeof item.content.rel;
@@ -1849,13 +1857,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if("undefined" !== typeof slug_data.outgoingRelations && $.isArray(slug_data.outgoingRelations) && slug_data.outgoingRelations.length > 0){
 		    					item.targets = slug_data.outgoingRelations;
 								}
-								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
+								if('undefined' !== typeof slug_data.thumbnail){
 									item.thumbnail = slug_data.thumbnail;
 								}else{
 									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 								}
 								item.include_children = slug.children;
-								item.hasRelations = 'undefined' !== typeof item.content.rel;
+								item.hasRelations = 'undefined' !== typeof item.targets && item.targets.length > 0;
 								$dialogue_container.data('nodes').push(item);
 							}
 							promise.resolve();
@@ -1885,13 +1893,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if("undefined" !== typeof slug_data.outgoingRelations && $.isArray(slug_data.outgoingRelations) && slug_data.outgoingRelations.length > 0){
 		    					item.targets = slug_data.outgoingRelations;
 								}
-								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
+								if('undefined' !== typeof slug_data.thumbnail){
 									item.thumbnail = slug_data.thumbnail;
 								}else{
 									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 								}
 								item.include_children = slug.children;
-								item.hasRelations = 'undefined' !== typeof item.content.rel;
+								item.hasRelations = 'undefined' !== typeof item.targets && item.targets.length > 0;
 								$dialogue_container.data('nodes').push(item);
 							}
 							promise.resolve();
