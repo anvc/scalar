@@ -108,6 +108,9 @@
 .create_onthefly input, .create_onthefly textarea {width:100%;}
 .onthefly_loading {color:red; font-size:smaller; padding-right:20px; display:none;}
 
+.widgetFormatting select, .widgetOptions .form-group select{
+	width: auto !important;
+}
 /*Node selector*/
 .node_selector table>thead>tr>th{
 	border-bottom: 0;
@@ -131,14 +134,14 @@
 }
 .node_selector_table_body tbody>tr.current{
 	background-color: #c7e6f6;
-	cursor: pointer	
+	cursor: pointer
 }
 .node_selector .selected_node_count{
 	font-weight: bold;
 	color: #32a71a
 }
 .node_selector .botton_options_box{
-	float:left; 
+	float:left;
 	white-space:nowrap;
 }
 .node_selector .botton_options_box button, .node_selector .botton_options_box > span{
@@ -193,7 +196,7 @@
 	max-height: 300px;
 }
 .node_selector .thumbnail {
-	border: 0px	
+	border: 0px
 }
 .node_selector .editLink {
 	display:none;

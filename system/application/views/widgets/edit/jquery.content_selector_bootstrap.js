@@ -741,13 +741,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 break;
 						 case 'visualization':
 							 var select = '<select class="form-control" name="viscontent"><option value="all">All content</option><option value="toc">Table of contents</option><option value="page">All pages</option><option value="path">All paths</option><option value="tag">All tags</option><option value="annotation">All annotations</option><option value="media">All media</option><option value="comment">All comments</option><option value="current">This page</option></select>';
-							 $('<div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label">What content would you like to include?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+							 $('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What content would you like to include?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
 							 select = '<select class="form-control" name="visrelations"><option value="all">All relationships</option><option value="parents-children">Parents and children</option><option value="none">No relationships</option></select>';
-						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label">What relationships would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+						 	 $('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What relationships would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
 							 select = '<select class="form-control" name="visformat"><option value="grid">Grid</option><option value="tree">Tree</option><option value="radial">Radial</option><option value="force-directed">Force-directed</option></select>';
-						 	 $('<br /><br /><div class="form-group row"><label class="col-sm-4 col-sm-offset-1 control-label">What type of visualization would you like to use?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
+						 	 $('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What type of visualization would you like to use?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
  							 if(isEdit){
 								 if($(element.$).data("viscontent")!=undefined){
@@ -996,7 +996,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 						values += '</select>';
 
-						formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-2 control-label">'+o+':</label><div class="col-sm-6">'+values+'</div></div>';
+						formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">'+o+':</label><div class="col-sm-5">'+values+'</div></div>';
 						if(o=="Caption"){
 							formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-4 control-label">Custom Caption:</label><div class="col-sm-6"><input class="form-control" type="text" id="caption_text"></input></div></div>';
 						}
@@ -1206,9 +1206,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									}else{
 										item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';;
 									}
-	
+
 									item.hasRelations = 'undefined' !== typeof item.content.rel;
-	
+
 									if(doSearch){
 										search_results.push(item);
 									}else{
@@ -1316,11 +1316,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				height -= $(this).find('.panel-body>table').outerHeight();
 				$dialogue_container.find('.node_selector_table_body').height(height);
 			},this,$dialogue_container);
-			
+
 			var updateNodeList = $.proxy(function(isLazyLoad){
 				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
 					isLazyLoad = false;
-				}				
+				}
 				var opts = $(this).data('opts');
 				var $rows = $(this).find('.node_rows');
 				var $fields = $(this).find('.node_fields');
@@ -1462,7 +1462,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$item.find('a').click(function(e){
 							e.stopPropagation();
 						});
-						
+
 						$item.mouseover(function() {
 							$(this).find('.editLink').show();
 						}).mouseout(function() {
@@ -1565,7 +1565,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				resize();
 
 			},$dialogue_container);
-			
+
 			var updateSelectedCounter = $.proxy(function(){
 
 				var $count = $(this).find('.selected_node_count');
@@ -1585,13 +1585,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if($(this).data('opts').allowMultiple){
 					switch(number_items){
 						case 0:
-								$count.text('No items '+($(this).data('opts').allowChildren?'shown':'selected'));
+								$count.text('No items selected');
 								break;
 						case 1:
-								$count.text('1 item '+($(this).data('opts').allowChildren?'shown':'selected'));
+								$count.text('1 item selected');
 								break;
 						default:
-								$count.text(number_items+' items '+($(this).data('opts').allowChildren?'shown':'selected'));
+								$count.text(number_items+' items selected');
 								break;
 					}
 				}
@@ -1619,7 +1619,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$rows.trigger('click');
 				});
 			}
-			
+
 			if (isset(opts.deleteOptions) && opts.deleteOptions) {
 				$dialogue_container.find('.selected_node_count').css('float','right').css('margin-left',0);
 				var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
@@ -1632,7 +1632,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							$rows = $rows.filter('.current');
 							$(this).removeClass('active');
 						}else{
-							$rows = $rows.not('.current');		
+							$rows = $rows.not('.current');
 							$(this).addClass('active');
 						}
 						$rows.trigger('click');
@@ -1641,7 +1641,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 				$deleteOpts.append('<button type="button" class="btn btn-default btn-sm">Delete selected</button>');
 			}
-			
+
 			if (isset(opts.addOptions) && opts.addOptions) {
 				if ('undefined'==typeof($deleteOpts)) {
 					$dialogue_container.find('.selected_node_count').css('float','right').css('margin-left',0);
