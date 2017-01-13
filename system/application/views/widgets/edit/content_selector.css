@@ -193,8 +193,7 @@
 	max-height: 300px;
 }
 .node_selector .thumbnail {
-	border-left:0;
-	border-right:0;	
+	border: 0px	
 }
 .node_selector .editLink {
 	display:none;
