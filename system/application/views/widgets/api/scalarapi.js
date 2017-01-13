@@ -2401,6 +2401,7 @@ function ScalarModel(options) {
 		{property:'defaultView', uri:'http://scalar.usc.edu/2012/01/scalar-ns#defaultView', type:'string'},
 		{property:'baseType', uri:'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type:'string'},
 		{property:'sourceFile', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#url', type:'string'},
+		{property:'source', uri:'http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line', type:'string'},
 		{property:'source', uri:'http://purl.org/dc/terms/source', type:'string'},
 		{property:'thumbnail', uri:'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail', type:'string'},
 		{property:'thumbnail', uri:'artstor:thumbnail', type:'string'},
@@ -3509,7 +3510,7 @@ ScalarVersion.prototype.parseData = function(data, node) {
 	var propertyData;
 	for (i=0; i<n; i++) {
 		propertyData = scalarapi.model.versionPropertyMap[i];
-		if (data.json[propertyData.uri]) {
+		if (data.json[propertyData.uri] != null) {
 			if (propertyData.type == 'int') {
 				this[propertyData.property] = parseInt(data.json[propertyData.uri][0].value);
 			} else {
