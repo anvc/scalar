@@ -2364,17 +2364,8 @@
                 relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
 
 								var tempdata = {
-                  title : {
-                      text : {
-                          headline : node.getDisplayTitle()
-                      }
-                  },
                   events : []
                 };
-
-                if(typeof node.content !== 'undefined' && node.content != null && node.content != ''){
-                  tempdata.title.text.text = node.content;
-                }
 								var base_url = $('link#parent').attr('href');
                 //Get the main timeline items, if there are any
                 for(var i in relatedNodes){
@@ -2383,6 +2374,7 @@
                     var relNode = nodeSet[n].current;
                     if(typeof relNode.auxProperties != 'undefined' && ((typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0) || (typeof relNode.auxProperties['dcterms:date'] != 'undefined' && relNode.auxProperties['dcterms:date'].length > 0))){
                         var entry = {};
+												var useDateStringAsDateValue = false;
 												if(typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0){
                         	var temporal_data = relNode.auxProperties['dcterms:temporal'][0];
 												}else{
@@ -2390,19 +2382,21 @@
 												}
 
                         var dashCount = (temporal_data.match(/-/g) || []).length;
+												var slashCount = (temporal_data.match(/\//g) || []).length;
 
 												var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
                         if(dashCount != 1 && !contains_seperator){
                           //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
                           var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
-
                           var d = new Date(d_string);  //parse as a date
                           if(d instanceof Date){
                             entry.start_date = parseDate(d,d_string);
                           }
+													if(dashCount < 2 || slashCount < 2){
+														useDateStringAsDateValue = true;
+													}
                         }else{
 													if(contains_seperator){
-
 														temporal_data = temporal_data.replace('from ','');
 														if(temporal_data.indexOf(" until ") >= 0){
 															var dateParts = temporal_data.split(" until ");
@@ -2410,13 +2404,23 @@
 															var dateParts = temporal_data.split(" to ");
 														}
 													}else{
-                          	var dateParts = temporal_data.replace('-',' - ').split(' - ');
+                          	var dateParts = temporal_data.replace(' - ','-').split('-');
 													}
 
                           //We should now have two dates - a start and and end
                           if(dateParts.length == 2){
                             dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
                             dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
+
+														for(var x in dateParts){
+			                        var dashCount = (dateParts[x].match(/-/g) || []).length;
+															var slashCount = (dateParts[x].match(/\//g) || []).length;
+
+															if(dashCount < 2 || slashCount < 2){
+																useDateStringAsDateValue = true;
+																break;
+															}
+														}
 
                             var sdate = new Date(dateParts[0]);  //parse as a date
                             var edate = new Date(dateParts[1]);  //parse as a date
@@ -2434,10 +2438,15 @@
                           headline : '<a href="'+nodeSet[n].url+'">'+nodeSet[n].getDisplayTitle()+'</a>'
                         };
 
+												if(useDateStringAsDateValue){
+													entry.display_date =  temporal_data.replace(/~+$/,'');
+													if(nodeSet[n].getDisplayTitle() == entry.display_date){
+														entry.display_date = "&nbsp;";
+													}
+												}
+
                         if(typeof relNode.description != 'undefined' && relNode.description != '' && relNode.description != null){
                           entry.text.text = relNode.description
-                        }else if(typeof relNode.content !== 'undefined' && relNode.content != null && relNode.content != ''){
-                          entry.text.text = relNode.content;
                         }
 
                         //Parse thumbnail url
@@ -2470,8 +2479,7 @@
 
 								//$( '.page' ).css( 'padding-top', '5.0rem' );
 
-								$timeline = $('<div class="caption_font timeline_embed maximized-embed"><div></div></div>').insertAfter('header > h1');
-								$('.body_copy').before('<br />');
+								$timeline = $('<div class="caption_font timeline_embed maximized-embed"><div></div></div>').insertBefore('header > h1');
 								$timeline_container = $timeline.find('div');
 
 								var height = 0.6*$(window).height();

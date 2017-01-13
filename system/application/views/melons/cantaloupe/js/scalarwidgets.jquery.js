@@ -219,7 +219,7 @@
                          base.pendingNodeLoads[slug][i].widget.data('node').push(node.outgoingRelations[r].target);
                        }
                      }else{
-                       base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                       base.pendingNodeLoads[slug][i].widget.data('node',[scalarapi.getNode(slug)]);
                      }
                      base.pendingNodeLoads[slug][i].promise.resolve();
                    }
@@ -233,7 +233,7 @@
                        base.pendingNodeLoads[slug][i].widget.data('node').push(node.outgoingRelations[r].target);
                      }
                    }else{
-                     base.pendingNodeLoads[slug][i].widget.data('node',scalarapi.getNode(slug));
+                     base.pendingNodeLoads[slug][i].widget.data('node',[scalarapi.getNode(slug)]);
                    }
                    base.pendingNodeLoads[slug][i].promise.resolve();
                  }
@@ -448,7 +448,7 @@
                   var node = $(this).data('node')[n].current;
                   if(typeof node.auxProperties != 'undefined' && ((typeof node.auxProperties['dcterms:temporal'] != 'undefined' && node.auxProperties['dcterms:temporal'].length > 0) || (typeof node.auxProperties['dcterms:date'] != 'undefined' && node.auxProperties['dcterms:date'].length > 0))){
                       var entry = {};
-
+                      var useDateStringAsDateValue = false;
                       if(typeof node.auxProperties['dcterms:temporal'] != 'undefined' && node.auxProperties['dcterms:temporal'].length > 0){
                         var temporal_data = node.auxProperties['dcterms:temporal'][0];
                       }else{
@@ -456,19 +456,21 @@
                       }
 
                       var dashCount = (temporal_data.match(/-/g) || []).length;
+                      var slashCount = (temporal_data.match(/\//g) || []).length;
 
                       var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
                       if(dashCount != 1 && !contains_seperator){
                         //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
                         var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
-
                         var d = new Date(d_string);  //parse as a date
                         if(d instanceof Date){
                           entry.start_date = parseDate(d,d_string);
                         }
+                        if(dashCount < 2 || slashCount < 2){
+                          useDateStringAsDateValue = true;
+                        }
                       }else{
                         if(contains_seperator){
-
                           temporal_data = temporal_data.replace('from ','');
                           if(temporal_data.indexOf(" until ") >= 0){
                             var dateParts = temporal_data.split(" until ");
@@ -476,13 +478,23 @@
                             var dateParts = temporal_data.split(" to ");
                           }
                         }else{
-                          var dateParts = temporal_data.replace('-',' - ').split(' - ');
+                          var dateParts = temporal_data.replace(' - ','-').split('-');
                         }
 
-                        //We should now have two dates - a start and an end
+                        //We should now have two dates - a start and and end
                         if(dateParts.length == 2){
                           dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
                           dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
+
+                          for(var x in dateParts){
+                            var dashCount = (dateParts[x].match(/-/g) || []).length;
+                            var slashCount = (dateParts[x].match(/\//g) || []).length;
+
+                            if(dashCount < 2 || slashCount < 2){
+                              useDateStringAsDateValue = true;
+                              break;
+                            }
+                          }
 
                           var sdate = new Date(dateParts[0]);  //parse as a date
                           var edate = new Date(dateParts[1]);  //parse as a date
@@ -500,10 +512,15 @@
                         headline : '<a href="'+$(this).data('node')[n].url+'">'+$(this).data('node')[n].getDisplayTitle()+'</a>'
                       };
 
+                      if(useDateStringAsDateValue){
+                        entry.display_date =  temporal_data.replace(/~+$/,'');
+                        if($(this).data('node')[n].getDisplayTitle() == entry.display_date){
+                          entry.display_date = "&nbsp;";
+                        }
+                      }
+
                       if(typeof node.description != 'undefined' && node.description != '' && node.description != null){
                         entry.text.text = node.description
-                      }else if(typeof node.content !== 'undefined' && node.content != null && node.content != ''){
-                        entry.text.text = node.content;
                       }
 
                       //Parse thumbnail url

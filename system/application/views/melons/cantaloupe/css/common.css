@@ -1188,7 +1188,7 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
   overflow: hidden;
   margin-left: 0;
 }
-.media-list .media { 
+.media-list .media {
   max-width: 71rem;
 }
 .media-body {
@@ -1298,11 +1298,4 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 
 .widget_slot.grid_visualization>.well, .widget_slot.radial_visualization>.well{
 	border: 1px solid #ddd;
-}
-
-body.timeline article.page{
-	padding-top: 5rem;
-}
-body.timeline header>h1{
-	display: none;
 }
