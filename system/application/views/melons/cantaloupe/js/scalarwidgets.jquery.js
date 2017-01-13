@@ -766,6 +766,9 @@
                for (var i=(n-1); i>=0; i--) {
                   widgets.createSummaryFromNode(node[i], $summaryContainer);
                }
+               if($summaryContainer.find('img').length > 0){
+                 $summaryContainer.addClass('hasThumbnail');
+               }
                $(this).off("slotCreated");
              });
 

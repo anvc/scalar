@@ -1151,12 +1151,14 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 	border-bottom: 1px solid #ccc;
 	border-left: 0;
 	border-right: 0;
-	background-color: #f4f4f4;
-	padding: 2.4rem 7.2rem;
+	padding: 2.4rem 0;
+}
+.widget_summary .media-list li{
+	padding: 0 0 1.2rem 2.4rem
 }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
-.description-sm { font-size: 1.4rem; line-height: 1.7rem; margin-bottom: 1.8rem; max-width: 70rem; }
+.description-sm { font-size: 1.4rem; line-height: 1.7rem; max-width: 70rem; margin-bottom: 0px; }
 
 .cardContainer{
   padding: 0 1rem;
@@ -1177,7 +1179,7 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 }
 
 .media {
-  margin-top: 2.4rem;
+  margin-top: 1.2rem;
 }
 .media:first-child {
   margin-top: 0;
@@ -1188,8 +1190,9 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
   overflow: hidden;
   margin-left: 0;
 }
-.media-list .media {
-  max-width: 71rem;
+
+.widget_summary .media{
+	border-bottom: 1px solid #eee;
 }
 .media-body {
   width: 10000px;
@@ -1204,9 +1207,11 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .media > .pull-right {
   padding-left: 10px;
 }
-.media-left,
-.media > .pull-left {
-  padding-right: 10px;
+.media-left, .media > .pull-left {
+    padding-right: 10px;
+}
+.hasThumbnail .media-left{
+	min-width: 74px;
 }
 .media-left,
 .media-right,
