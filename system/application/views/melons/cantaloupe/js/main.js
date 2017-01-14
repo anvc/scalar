@@ -519,7 +519,6 @@ $(window).ready(function() {
 
 		  // Mediaelement
 		  {load: [
-				widgets_uri+'/mediaelement/froogaloop.min.js',
 				widgets_uri+'/mediaelement/annotorious.debug.js',
 				widgets_uri+'/mediaelement/css/annotorious.css',
 				widgets_uri+'/mediaelement/mediaelement.css',

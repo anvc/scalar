@@ -540,7 +540,6 @@ function YouTubeGetID(url){
 							}
 						});
 					}
-
 					//Here we make our promise and add it to the list of Quicktime deferred objects
 					promise = $.Deferred();
 					pendingDeferredMedia.QuickTime.push(promise);
@@ -555,22 +554,22 @@ function YouTubeGetID(url){
 							}
 						});
 					}
-
 					promise = $.Deferred();
 					pendingDeferredMedia.OpenSeadragon.push(promise);
-				}else if(typeof $f === 'undefined' && this.model.mediaSource.contentType == 'video' && player == 'Flash'){
-						if(typeof pendingDeferredMedia.Flowplayer == 'undefined'){
-							pendingDeferredMedia.Flowplayer = [];
-							$.getScript(widgets_uri+'/mediaelement/flowplayer-3.2.13.min.js',function(){
-								for(var i = 0; i < pendingDeferredMedia.Flowplayer.length; i++){
-										pendingDeferredMedia.Flowplayer[i].resolve();
-								}
-							});
-						}
 
-						promise = $.Deferred();
-						pendingDeferredMedia.Flowplayer.push(promise);
-				}else if(typeof SC === 'undefined' && this.model.mediaSource.contentType ==  'audio' && this.model.mediaSource.name == 'SoundCloud'){
+				}else if(typeof $f === 'undefined' && this.model.mediaSource.contentType == 'video' && player == 'Flash'){
+					if(typeof pendingDeferredMedia.Flowplayer == 'undefined'){
+						pendingDeferredMedia.Flowplayer = [];
+						$.getScript(widgets_uri+'/mediaelement/flowplayer-3.2.13.min.js',function(){
+							for(var i = 0; i < pendingDeferredMedia.Flowplayer.length; i++){
+									pendingDeferredMedia.Flowplayer[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.Flowplayer.push(promise);
+
+				}else if(typeof SC === 'undefined' && this.model.mediaSource.contentType == 'audio' && this.model.mediaSource.name == 'SoundCloud'){
 					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
 						pendingDeferredMedia.SoundCloud = [];
 						$.when(
@@ -582,9 +581,9 @@ function YouTubeGetID(url){
 							}
 						});
 					}
-
 					promise = $.Deferred();
 					pendingDeferredMedia.SoundCloud.push(promise);
+
 				}else if(typeof THREE === 'undefined' && player == 'Threejs'){
 					if(typeof pendingDeferredMedia.Threejs == 'undefined'){
 						pendingDeferredMedia.Threejs = [];
@@ -602,9 +601,22 @@ function YouTubeGetID(url){
 							});
 						});
 					}
-
 					promise = $.Deferred();
 					pendingDeferredMedia.Threejs.push(promise);
+
+				}else if(typeof Vimeo === 'undefined' && this.model.mediaSource.contentType == 'video' && this.model.mediaSource.name == 'Vimeo'){
+					if(typeof pendingDeferredMedia.Vimeo == 'undefined'){
+						pendingDeferredMedia.Vimeo = [];
+						$.when(
+							$.getScript(widgets_uri+'/mediaelement/player.js')
+						).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.Vimeo.length; i++){
+									pendingDeferredMedia.Vimeo[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.Vimeo.push(promise);
 				}
 			}
 
@@ -1211,10 +1223,6 @@ function YouTubeGetID(url){
 				} else {
 					switch (this.model.mediaSource.name) {
 
-						case "Vimeo":
-						fudgeAmount = 6;
-						break;
-
 						case "YouTube":
 						fudgeAmount = 2;
 						break;
@@ -1738,7 +1746,7 @@ function YouTubeGetID(url){
 						// don't show live annotations if we're in the annotation editor
 						if ((document.location.href.indexOf('.annotation_editor')==-1) && ('nav_bar' != me.model.options.header)) {
 							if ((me.model.mediaSource.name == 'Vimeo') || (me.model.mediaSource.name == 'SoundCloud')) {
-								// this prevents Vimeo videos generated from linked annotations from displaying
+								// this prevents media generated from linked annotations from displaying
 								// their live annotation when cueing up on page load
 								if ((me.mediaObjectView.initialPauseDone) && (me.intervalId != null)) {
 									$('body').trigger('show_annotation', [newCurrentAnnotation, me]); // show live annotation
@@ -1855,7 +1863,7 @@ function YouTubeGetID(url){
 		 */
 		 function checkSeekSuccessful() {
 
-		 	//console.log('check to see if seek successful: '+me.lastSeekTime);
+		 	//console.log('check to see if seek successful: '+me.lastSeekTime+' '+me.mediaObjectView.getCurrentTime());
 
 		 	var result = false;
 
@@ -3218,41 +3226,51 @@ function YouTubeGetID(url){
 		this.currentTime = 0;					// current position of the video
 		this.initialPauseDone = false;			// Vimeo videos need to be played briefly to enable seeking functionality; has it subsequently been paused?
 		this.percentLoaded = 0;					// amount of the video that has loaded
-		this.duration = 0;						// length of the video
 
 		/**
 		 * Creates the video media object.
 		 */
 		jQuery.VimeoVideoObjectView.prototype.createObject = function() {
 
-			var url = 'http://player.vimeo.com/video/'+this.model.filename+'?api=1&player_id=vimeo'+this.model.filename+'_'+this.model.id
-			if ( this.model.options.autoplay ) {
-				url += '&autoplay=1';
-			}
-			obj = $('<div class="mediaObject"><iframe id="vimeo'+this.model.filename+'_'+this.model.id+'" src="'+url+'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>').appendTo(this.parentView.mediaContainer);
+			var options = {
+				id: this.model.filename,
+				autoplay: this.model.options.autoplay,
+				title: false,
+				portrait: false,
+				byline: false
+			};
+			this.id = 'vimeo'+this.model.filename+'_'+this.model.id;
+			var obj = $('<div id="'+this.id+'" class="mediaObject"></div>').appendTo(this.parentView.mediaContainer);
+			obj.hide();
+			this.player = new Vimeo.Player('vimeo'+this.model.filename+'_'+this.model.id, options);
+			this.player.on('timeupdate', function(data) {
+				if ((me.model.seekAnnotation != null) && !me.initialPauseDone && !me.parentView.cachedPlayCommand) {
+					me.player.pause();
+				}
+				me.currentTime = data.seconds;
+				me.initialPauseDone = true;
+				me.isVideoPlaying = false; // need to set this manually because the pause event isn't firing here
+				me.currentTime = data.seconds;
+			});
+			this.player.on('progress', function(data) {
+				if (data.lengthComputable) {
+					me.percentLoaded = data.loaded / parseFloat(data.total);
+				}
+			});
+			this.player.on('play', function() { me.parentView.startTimer(); me.isVideoPlaying = true; });
+			this.player.on('pause', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
+			this.player.on('ended', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
 
-			var ready = function(player_id) {
-				me.froogaloop = $froogaloop(player_id);
-				$froogaloop(player_id).addEvent('playProgress', function(data) {
-					if ((me.model.seekAnnotation != null) && !me.initialPauseDone && !me.parentView.cachedPlayCommand) {
-						me.froogaloop.api('pause');
-					}
-					me.currentTime = data.seconds;
-					me.initialPauseDone = true;
-					me.isVideoPlaying = false; // need to set this manually because the pause event isn't firing here
-				});
-				$froogaloop(player_id).addEvent('loadProgress', function(data) {
-					me.percentLoaded = data.percent;
-					me.duration = data.duration;
-				});
-				$froogaloop(player_id).addEvent('play', function() { me.parentView.startTimer(); me.isVideoPlaying = true; });
-				$froogaloop(player_id).addEvent('pause', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
-				$froogaloop(player_id).addEvent('finish', function() { me.parentView.endTimer(); me.isVideoPlaying = false; });
-			}
+			this.parentView.layoutMediaObject();
 
-			var video = document.getElementById('vimeo'+this.model.filename+'_'+this.model.id);
-			$froogaloop(video).addEvent('ready', ready);
-			this.parentView.removeLoadingMessage();
+			Promise.all([this.player.getVideoWidth(), this.player.getVideoHeight()]).then(function(dimensions) {
+			    me.parentView.intrinsicDim.x = dimensions[0];
+			    me.parentView.intrinsicDim.y = dimensions[1];
+				me.parentView.controllerOffset = 0;
+				me.parentView.layoutMediaObject();
+				$('#'+me.id).show();
+				me.parentView.removeLoadingMessage();
+			});
 
 			return;
 		}
@@ -3262,9 +3280,9 @@ function YouTubeGetID(url){
 		 */
 		jQuery.VimeoVideoObjectView.prototype.play = function() {
 			if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
-				this.froogaloop.api('seekTo', this.model.seekAnnotation.properties.start);
+				this.player.setCurrentTime(this.model.seekAnnotation.properties.start);
 			}
-			this.froogaloop.api('play');
+			this.player.play();
 			this.isVideoPlaying = true;
 		}
 
@@ -3272,7 +3290,7 @@ function YouTubeGetID(url){
 		 * Pauses playback of the Vimeo video.
 		 */
 		jQuery.VimeoVideoObjectView.prototype.pause = function() {
-			this.froogaloop.api('pause');
+			this.player.pause();
 			this.isVideoPlaying = false;
 		}
 
@@ -3282,7 +3300,7 @@ function YouTubeGetID(url){
 		 * @param {Number} time			Seek location in seconds.
 		 */
 		jQuery.VimeoVideoObjectView.prototype.seek = function(time) {
-			this.froogaloop.api('seekTo', time);
+			this.player.setCurrentTime(time);
 		}
 
 		/**
@@ -3300,7 +3318,7 @@ function YouTubeGetID(url){
 		 * @param {Number} height		The new height of the video.
 		 */
 		jQuery.VimeoVideoObjectView.prototype.resize = function(width, height) {
-			video = document.getElementById('vimeo'+this.model.filename+'_'+this.model.id);
+			video = $('#'+this.id+',#'+this.id+'>iframe');
 			if (video) {
 				$(video).width(width);
 				$(video).height(height);
