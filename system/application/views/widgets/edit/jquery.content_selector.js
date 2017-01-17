@@ -473,7 +473,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp; <label style="font-size:smaller;"><input type="checkbox" /> &nbsp; Check all</label></div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
     		// Options (search + content type)
     		var options_html  = '<div class="col-xs-12 col-sm-4"><form class="form-inline search_form"><div class="input-group"><input class="form-control input-sm" type="text" name="sq" placeholder="Search" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="submit">Go</button></span></div></form></div>';
-    			options_html += '<div class="col-xs-12 col-sm-8"><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
+    			options_html += '<div class="col-xs-12 col-sm-7"><label class="checkbox-inline"><input type="radio" name="type" value="composite"> Pages</label> <label class="checkbox-inline"><input type="radio" name="type" value="media"> Media</label> <label class="checkbox-inline"><input type="radio" name="type" value="path"> Paths</label> <label class="checkbox-inline"><input type="radio" name="type" value="tag"> Tags</label> <label class="checkbox-inline"><input type="radio" name="type" value="annotation"> Annotations</label> <label class="checkbox-inline"><input type="radio" name="type" value="reply"> Comments</label> <label class="checkbox-inline"><input type="radio" name="type" value="term"> Terms</label></div>';
     		$options.append('<div class="row">'+options_html+'</div>');
     		// Bootstrap positioning
     		if (bootstrap_enabled) {
@@ -485,7 +485,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		$footer.find('a:first').click(function() {  // On-the-fly
     			$footer.hide();
     			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
-    			var $onthefly = $('<div class="create_onthefly"><div>Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
+    			var $onthefly = $('<div class="create_onthefly" style="position:absolute;"><div>Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
     			var $buttons = $('<div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div>').appendTo($onthefly);
     			if (bootstrap_enabled) {
     				$('<div class="heading_font title">Create new page</div>').insertBefore($options);
@@ -564,6 +564,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$buttons.find('.onthefly_loading').show();
     				send_form($form, {}, success);
     			});
+    			$screen.closest('.modal-body').scrollTop(500);
     		});  // /On-the-fly
     		if (opts.onthefly) {  // Display on-the-fly
     			$footer.show();

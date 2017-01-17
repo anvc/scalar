@@ -455,6 +455,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <input type="hidden" name="scalar:child_rel" value="page" />
 <? endif ?>
 <input type="hidden" name="urn:scalar:book" value="<?=$book->urn?>" />
+<input type="hidden" name="path" value="<?=(isset($_GET['path']))?trim($_GET['path']):''?>" />
 
 <div class="form-horizontal">
 	<div class="form-group">
