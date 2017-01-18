@@ -257,7 +257,7 @@ $(document).ready(function() {
 	var thumbnail = $('input[name="scalar:thumbnail"]');
 	var chosen_thumb = choose_thumb.find('option:selected').val();
 	if (chosen_thumb.length) thumbnail.val(chosen_thumb);
-	if (thumbnail.val().length) choose_thumb.parent().parent().append('<div class="well col-md-4"><img src="'+$('link[id="parent"]').attr('href')+thumbnail.val()+'" class="thumb_preview" /></div>');
+	if (thumbnail.val().length) choose_thumb.parent().parent().append('<div class="well"><img src="'+((-1==thumbnail.val().indexOf('://'))?$('link[id="parent"]').attr('href')+thumbnail.val():thumbnail.val())+'" class="thumb_preview" /></div>');
 	choose_thumb.change(function() {
 		thumbnail.val($(this).find('option:selected').val());
 		$(this).parent().parent().find('.thumb_preview').parent().remove();

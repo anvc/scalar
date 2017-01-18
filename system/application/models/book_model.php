@@ -626,7 +626,7 @@ class Book_model extends MY_Model {
 				}
 				// Rename folder on the filesystem
 				if (false === @rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) throw new Exception('The destination folder already exists or the source folder doesn\'t exist.');
-				// Update hard URLs in version contet + thumbnail field
+				// Update hard URLs in version contet + thumbnail and background fields
 				$old = confirm_slash(base_url()).confirm_slash($slug);
 				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
 				// List of versions for this book
@@ -655,6 +655,7 @@ class Book_model extends MY_Model {
 				// Run the rewrites
 				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new') WHERE version_id IN (".implode(',',$book_version_ids).")");
 				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, '$old', '$new') WHERE content_id IN (".implode(',',$book_page_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, '$old', '$new') WHERE content_id IN (".implode(',',$book_page_ids).")");
 			}
 
     	}
