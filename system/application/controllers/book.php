@@ -66,7 +66,13 @@ class Book extends MY_Controller {
 		$this->data['book'] = (!empty($this->scope)) ? $this->books->get_by_slug($this->scope) : null;
 		if (empty($this->data['book'])) show_404();	// Book couldn't be found
 		$this->set_user_book_perms();
-		if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) $this->require_login(1); // Protect book
+		if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) {  // Protect book
+			if ($this->data['login']->is_logged_in) {
+				$this->no_permissions();
+			} else {
+				$this->require_login(1);
+			}
+		}
 		$this->data['book']->contributors = $this->books->get_users($this->data['book']->book_id);
 		$this->data['book']->versions = $this->books->get_book_versions($this->data['book']->book_id, true); // TOC
 		$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);

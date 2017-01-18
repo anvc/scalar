@@ -130,6 +130,16 @@ class System extends MY_Controller {
 		exit;
 
 	}
+	
+	public function permissions() {
+	
+		$this->data['title'] = $this->lang->line('install_name').': Book Permissions';
+		
+		$this->template->set_template('admin');
+		$this->template->write_view('content', 'modules/login/permissions_box', $this->data);
+		$this->template->render();
+	
+	}
 
 	public function register() {
 

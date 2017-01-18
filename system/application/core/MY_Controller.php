@@ -171,6 +171,19 @@ class MY_Controller extends CI_Controller {
 		exit;
 
 	}
+	
+	/** 
+	 * Redirect the page to the no-permissions box
+	 * @return null
+	 */
+	
+	protected function no_permissions() {
+
+		$uri = (confirm_slash(base_url())).'system/permissions?redirect_url='.urlencode($this->redirect_url());
+		header('Location: '.$uri);
+		exit;
+		
+	}
 
 	/**
 	 * Return a redirect URL
