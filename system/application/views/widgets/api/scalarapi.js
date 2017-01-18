@@ -3457,6 +3457,23 @@ ScalarNode.prototype.isRelatedToNode = function( node, relations ) {
 
 	return false;
 }
+
+/**
+ * Returns an absolute URL to the node's thumbnail, if it has a thumbnail.
+ *
+ * @return 		The URL if a thumbnail is present, or null.
+ */
+ScalarNode.prototype.getAbsoluteThumbnailURL = function() {
+	if (this.thumbnail != null) {
+		var url = this.thumbnail;
+		if (url.indexOf('://') == -1) {
+			url = scalarapi.model.urlPrefix + url;
+		}
+		return url;
+	} else {
+		return null;
+	}
+}
 	
 /**
  * Creates a new ScalarVersion.
