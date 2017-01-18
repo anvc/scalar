@@ -617,6 +617,20 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.Vimeo.push(promise);
+
+				}else if(typeof $.jPlayer === 'undefined' && player == 'jPlayer'){
+					if(typeof pendingDeferredMedia.jPlayer == 'undefined'){
+						pendingDeferredMedia.jPlayer = [];
+						$.when(
+							$.getScript(widgets_uri+'/mediaelement/jquery.jplayer.min.js')
+						).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.jPlayer.length; i++){
+									pendingDeferredMedia.jPlayer[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.jPlayer.push(promise);
 				}
 			}
 
