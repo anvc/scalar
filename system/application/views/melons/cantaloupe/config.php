@@ -106,5 +106,10 @@ $config['predefined_css'] = array(
 		'title'=>'Don’t crop splash images on phones',
 		'description'=>'By default, splash images are resized to cover the entire window, which can result in extreme cropping on small devices. This CSS ensures that the entire splash image is always visible on small devices (possibly introducing black bars at the top and bottom or sides to achieve this).',
 		'insert'=>"@media screen and (max-width: 768px) { .splash { background-size: contain; background-repeat: no-repeat; } }\n"
+	),
+	array(
+		'title'=>'Hide path navigation arrow buttons',
+		'description'=>'By default, paths and their contents display arrow navigation buttons when viewed in large windows. This CSS hides those buttons.',
+		'insert'=>".path-nav { display: none; }"
 	)
 );
