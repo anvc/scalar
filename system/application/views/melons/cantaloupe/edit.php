@@ -261,11 +261,14 @@ $(document).ready(function() {
 	choose_thumb.change(function() {
 		thumbnail.val($(this).find('option:selected').val());
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
-		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+thumbnail.val()+'" class="thumb_preview" /></div>');
+		var url = thumbnail.val();
+		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
+		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
 	});
 	thumbnail.change(function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
-		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+thumbnail.val()+'" class="thumb_preview" /></div>');
+		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
+		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
 	});
 	// Background
 	var choose_background = $('#choose_background');
@@ -273,7 +276,8 @@ $(document).ready(function() {
 	choose_background.change(function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		chosen_background = choose_background.find('option:selected').val();
-		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+chosen_background+'" class="thumb_preview" /></div>');
+		if ((chosen_background.indexOf('://') == -1) && (chosen_background != '')) { chosen_background = $('link[id="parent"]').attr('href') + chosen_background; }
+		$(this).parent().parent().append('<div class="well"><img src="'+chosen_background+'" class="thumb_preview" /></div>');
 	});
 	// Banner
 	var choose_banner = $('#choose_banner');
@@ -281,7 +285,8 @@ $(document).ready(function() {
 	choose_banner.change(function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		chosen_banner = choose_banner.find('option:selected').val();
-		$(this).parent().parent().append('<div class="well"><img src="'+$('link[id="parent"]').attr('href')+chosen_banner+'" class="thumb_preview" /></div>');
+		if ((chosen_banner.indexOf('://') == -1) && (chosen_banner != '')) { chosen_banner = $('link[id="parent"]').attr('href') + chosen_banner; }
+		$(this).parent().parent().append('<div class="well"><img src="'+chosen_banner+'" class="thumb_preview" /></div>');
 	});
 	// Predefined CSS
 	if ('undefined'!=window['predefined_css'] && !$.isEmptyObject(window['predefined_css'])) {
