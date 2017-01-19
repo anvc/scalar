@@ -167,6 +167,14 @@ class Book extends MY_Controller {
 			header($e->getMessage());
 			exit;
 		}
+		
+		// Placeholder for plugins
+		$this->data['plugins'] = array();
+		$path = APPPATH.'plugins/thoughtmesh_pi.php';
+		if (file_exists($path)) {
+			require_once($path);
+			$this->data['plugins']['thoughtmesh'] = new ThoughtMesh($this->data);
+		}
 
 		if ($this->template_has_rendered) return;  // Template might be rendered in one of the methods below
 		$this->template->set_template($this->config->item('arbor'));
