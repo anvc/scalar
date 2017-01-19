@@ -18,7 +18,7 @@ class ThoughtMesh {
 
 	public function get() {
 
-		if (!$this->plugin_exists) throw new Exception($this->name.' plugin does not exist');
+		if (!$this->plugin_exists) return;
 		
 		$CI =& get_instance();
 		
