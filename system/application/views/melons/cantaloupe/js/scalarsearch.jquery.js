@@ -62,7 +62,7 @@
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 
-		$('<form role="form" class="form-inline"><div class="form-group" style="margin-right: 10px"><label class="sr-only" for="modal_keyword">Search</label><input type="text" autocomplete="off" class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword" placeholder="Enter search terms" /></div><button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button> &nbsp; &nbsp; <label class="s_all_label"><input tabindex="'+(++this.tabIndex)+'" type="checkbox" name="s_all" /> &nbsp;Include metadata in search (slower)</label></form><br>').appendTo(this.bodyContent);
+		$('<form role="form" class="form-inline"><div class="form-group" style="margin-right: 10px"><label class="sr-only" for="modal_keyword">Search</label><input type="text" autocomplete="off" class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword" placeholder="Enter search terms" /></div><button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button> &nbsp; &nbsp; <div class="s_all_label">Search: &nbsp; <label for="s_not_all"><input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_not_all" name="s_all" value="0" checked /> &nbsp;title &amp; description (fast)</label> &nbsp; <label for="s_all"><input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_all" name="s_all" value="1" /> &nbsp;all fields & metadata (slow)</label></div></form><br>').appendTo(this.bodyContent);
 
 		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive small"></table></div>' ).appendTo( this.bodyContent );
 		$( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
@@ -73,7 +73,7 @@
 		this.loading = this.modal.find('.loading');
 		this.pagination = this.modal.find('ul.pagination');
 		this.searchField = this.modal.find('input[name="keyword"]');
-		this.searchMetadata = this.modal.find('input[name="s_all"]');
+		this.searchMetadata = this.modal.find('input[name="s_all"][value="1"]');
 		this.searchForm = this.modal.find('form');
 
 		this.searchForm.submit(function(event) {

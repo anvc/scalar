@@ -42,7 +42,7 @@
    				start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
    	   			var sq = $(this).find('input[name="sq"]').val().toLowerCase();
-   	   			var s_all = ($(this).find('input[name="s_all"]').is(':checked')) ? 1 : null;
+   	   			var s_all = ($(this).find('input[name="s_all"][value="1"]').is(':checked')) ? 1 : null;
    	   			if (!sq.length || 'Search for a page'.toLowerCase()==sq) {
 					alert('Please enter a search query');
 					return false;
@@ -102,7 +102,7 @@
 
 		function pagination(callee, num_nodes) {
 			$('.prev, .next').html('');
-			$('label[class="search_metadata"]').hide();
+			$('div[class="search_metadata"]').hide();
 			if ('paginate'==callee) {
 				var total = parseInt($('.total:first').html());
 				var prev = (start > 0) ? start : 0;
@@ -126,7 +126,7 @@
 				$('.total').hide();
 				$('.pagination').html('<b>'+num_nodes+'</b> search result'+((num_nodes>1)?'s':'')+' of ');
 				$('select[name="jump_to"]').val('');
-				$('label[class="search_metadata"]').show();
+				$('div[class="search_metadata"]').show();
 			}
 		}
 
@@ -317,7 +317,7 @@
 		<input type="submit" value="Go" class="generic_button" />&nbsp; <a href="javascript:;">clear</a>&nbsp;
 		<? if (count($current_book_content)): ?>
 		&nbsp; <span class="prev"></span>&nbsp; <span class="pagination"></span> <b class="total"><?=count($current_book_content)?></b> result<?=($current_book_content>1)?'s':''?> &nbsp;<span class="next"></span>
-		&nbsp; &nbsp;<label class="search_metadata" style="display:none;"><input name="s_all" type="checkbox"> &nbsp;Include metadata in search (slower)</label>
+		&nbsp; &nbsp;<div class="search_metadata">Search: <label for="s_not_all"><input type="radio" id="s_not_all" name="s_all" value="0" checked /> title &amp; description (fast)</label> &nbsp;<label for="s_all"><input type="radio" id="s_all" name="s_all" value="1" /> all fields &amp; metadata (slow)</label></div>
 		<? endif ?>
 		</form>
 

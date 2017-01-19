@@ -44,6 +44,8 @@ hr {height:2px; overflow:hidden; border:0; background:#aaaaaa; color:#aaaaaa; ma
 	padding: 0;
 }
 
+.search_metadata {white-space:nowrap; padding:0px 0px 0px 0px; display:none; margin:8px 0px -16px 0px;}
+
 input { padding: 0; margin: 0; }
 
 td { vertical-align: top; }

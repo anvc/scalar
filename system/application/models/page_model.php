@@ -82,7 +82,7 @@ class Page_model extends MY_Model {
     	$this->db->where('('.$this->db->dbprefix($this->versions_table).'.title LIKE \'%'.$terms .'%\' OR '. $this->db->dbprefix($this->versions_table).'.description LIKE \'%'. $terms.'%\')');
     	if (!empty($type)) $this->db->where($this->pages_table.'.type',$type);
     	$this->db->order_by($this->pages_table.'.slug');
-    	// Adding URL and content slows the search down to the order of magnitude of the full search()
+    	// Adding URL and content slows the search down to the order of magnitude of the get_all() approach
  		$query = $this->db->get();
  		if (!$query->num_rows) return $content;
  		$result = $query->result();  

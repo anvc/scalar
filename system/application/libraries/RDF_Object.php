@@ -316,20 +316,38 @@ class RDF_Object {
 		$count = 0;
 		$skips = 0;
 		foreach ($settings['content'] as $row) {
-	    	$temp_return = array();
+	  
+			// The logic below is adaptable to results with or without versions already include; full search (get_all()) and quick search (search_with_recent_version_id())
+			
+			$temp_return = array();
+			
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
 
-			$this->_content_by_ref($temp_return, $row, $settings);
-			if (0==count($temp_return) || !isset($this->version_cache[$row->content_id])) {
-				$settings['total']--;
-				continue;
+			if (!empty($settings['sq']) && empty($row->versions)) {
+				$this->_content_by_ref($temp_return, $row, $settings);
+				if (0==count($temp_return) || !isset($this->version_cache[$row->content_id])) {
+					$settings['total']--;
+					continue;
+				}
 			}
+			
 			if (!empty($settings['pagination']) && $settings['pagination']['start']>$skips) {
 				$settings['total']--;
 				$skips++;
 				continue;
 			}
-			$return = array_merge((array)$return,(array)$temp_return);
+			
+			if (!empty($temp_return)) {
+				$return = array_merge((array)$return,(array)$temp_return);
+			} else {
+				$temp_return = array();
+				$this->_content_by_ref($temp_return, $row, $settings);
+				if (0==count($temp_return) || !isset($this->version_cache[$row->content_id])) {
+					$settings['total']--;
+					continue;
+				}
+				$return = array_merge((array)$return,(array)$temp_return);
+			}
 
 			$this->_provenance_by_ref($return, $row, $this->version_cache[$row->content_id], $settings);
 			$this->_relationships_by_ref($return, $this->version_cache[$row->content_id], $settings);
