@@ -201,3 +201,8 @@
 .node_selector .editLink {
 	display:none;
 }
+.node_selector .filter_spinner{
+	border: 0;
+	margin: 0 .5rem;
+	box-shadow: none;
+}

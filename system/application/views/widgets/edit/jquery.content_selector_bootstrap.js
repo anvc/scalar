@@ -1272,7 +1272,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																					</select> \
 																					<br class="visible-xs"> \
 																					<br class="visible-xs"> \
-																	        <button class="btn btn-default form-control type="button">Filter results</button> \
+																	        <button class="btn btn-default form-control" type="button">Filter results</button> \
+																					<div class="filter_spinner form-control" style="position: relative;"><div class="spinner_container" style="position: absolute; top: 50%; left: 50%;"></div></div> \
 																					<hr class="visible-xs"> \
 																				</div> \
 																			</div> \
@@ -1310,7 +1311,28 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																</div>';
 
       var $dialogue_container = $(dialogue_container);
-
+			if (window['Spinner']) {
+				var spinner_options = {
+				  lines: 13, // The number of lines to draw
+				  length: 5, // The length of each line
+				  width: 2, // The line thickness
+				  radius: 6, // The radius of the inner circle
+				  rotate: 0, // The rotation offset
+				  color: '#000', // #rgb or #rrggbb
+				  speed: 1, // Rounds per second
+				  trail: 60, // Afterglow percentage
+				  shadow: false, // Whether to render a shadow
+				  hwaccel: false, // Whether to use hardware acceleration
+				  className: 'spinner', // The CSS class to assign to the spinner
+				  zIndex: 2e9, // The z-index (defaults to 2000000000)
+				  top: 'auto', // Top position relative to parent in px
+				  right: 'auto' // Left position relative to parent in px
+				};
+				var spinner = new Spinner(spinner_options).spin();
+				$dialogue_container.find('.spinner_container').each(function(){
+					$(this).append(spinner.el).hide();
+				});
+			}
 			var resize = $.proxy(function($dialogue_container){
 				var height = $(this).height();
 				height -= $(this).find('.panel-heading').outerHeight();
@@ -1372,7 +1394,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var col = opts.fields[n];
 							switch(col){
 								case 'thumbnail':
-									rowHTML += '<td class="thumbnail '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
+									if(lastLoadType == "search" || current_type != "media"){
+										$(this).find('th[data-field="thumbnail"]').hide();
+										continue;
+									}
+									$(this).find('th[data-field="thumbnail"]').show();
+									rowHTML += '<td class="node_thumb '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
 									break;
 								case 'title':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'">'+item.title+'</a></td>';
@@ -1560,7 +1587,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 				}
 
-				$rows.find('.thumbnail img').each(function(){
+				$rows.find('.node_thumb img').each(function(){
 					$(this).tooltip({
 						title : '<img src="'+$(this).attr('src')+'" class="nodeSelectorEnlargedThumbnail">',
 						html : true,
