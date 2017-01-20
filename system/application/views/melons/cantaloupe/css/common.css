@@ -395,10 +395,6 @@ a:hover { text-decoration: underline; }
 #gallery .popover { color: black; font-size: 1.2rem; text-shadow: none; color: #666; line-height: 140%; }
 #gallery .item { background-color: #444; }
 
-.widget_carousel .carousel a { color: white; }
-.widget_carousel .carousel h3 { margin: 0; padding: 0; }
-.widget_carousel .carousel-caption { padding: 0; }
-
 .carousel-inner>.item{
 	transition: .3s ease-in-out left;
 }
@@ -579,9 +575,9 @@ a:hover { text-decoration: underline; }
 .pillarbox { background-color: #444; clear: both; }
 
 /* So the top-most media element aligns with the top of its paragraph */
-.slot.top, .widget_slot.top { margin-top: .5rem !important; clear: both; }
+.slot.top{ margin-top: .5rem !important; clear: both; }
 
-.slot.right, .widget_slot.right {
+.slot.right{
 	margin-top: 4.0rem;
 	margin-left: 4.8rem;
 	margin-right: 7.2rem;
@@ -589,46 +585,12 @@ a:hover { text-decoration: underline; }
 	clear: right;
 }
 
-.slot.left, .widget_slot.left {
+.slot.left{
 	margin-top: 4.0rem;
 	margin-right: 4.8rem;
 	margin-left: 7.2rem;
 	float: left;
 	clear: left;
-}
-
-.widget_slot .widgetContainer{
-	-webkit-transition: background-color .5s linear;
-	-moz-transition: background-color .5s linear;
-	-ms-transition: background-color .5s linear;
-	-o-transition: background-color .5s linear;
-	transition: background-color .5s linear;
-	border: none;
-	border-radius: 0;
-	padding: 0rem;
-	background-color: #fff;
-}
-.widget_slot .tl-slider-container-mask{
-		-webkit-transition: background-color .5s linear;
-		-moz-transition: background-color .5s linear;
-		-ms-transition: background-color .5s linear;
-		-o-transition: background-color .5s linear;
-		transition: background-color .5s linear;
-		background-color: transparent;
-}
-.widget_slot .widgetContainer.highlighted, .widget_slot .widgetContainer.highlighted .tl-slider-container-mask{
-	background-color: rgba(197,220,235,.5);
-}
-.vis_widget {
-  	background-color: #fff;
-  	padding: 1rem;
-}
-.full .vis_widget {
-	padding-left: 1rem;
-	padding-right: 1rem;
-}
-.vis_widget .scalarvis {
-	margin-top: 0;
 }
 
 .mediaContainer {
@@ -792,12 +754,6 @@ a.media_info {
 }
 
 .pane td > div, .pane td > p { margin-bottom: 1rem; padding: 0 .4rem 0 0; }
-
-.media_link, .widget_link { background-color: #eee; }
-.widget_link, .widget_link:hover{
-	color: #555;
-	cursor: pointer;
-}
 
 .audio {padding-top:20px;}
 
@@ -1145,173 +1101,4 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 	height: 3rem;
 	font-size: 1.75rem;
 	margin-top: 1.5rem;
-}
-
-/* widget pages */
-
-.thumbnail, .media-body h4 { margin: 0 0 3px 0; }
-.media-body h4{ padding: 0}
-.widget_summary .media-list{
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 1.2rem;
-}
-.full.widget_summary .media-list {
-	border-radius: 0px;
-	border-top: 1px solid #ccc;
-	border-bottom: 1px solid #ccc;
-	border-left: 0;
-	border-right: 0;
-	padding: 2.4rem 0;
-}
-.widget_summary .media-list li{
-	padding: 0 0 1.2rem 2.4rem
-}
-/*div[data-widget=card] .thumbnail { height: 30rem; }*/
-div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
-.description-sm { font-size: 1.4rem; line-height: 1.7rem; max-width: 70rem; margin-bottom: 0px; }
-
-.cardContainer{
-  padding: 0 1rem;
-}
-
-.cardContainer .caption h4{
-	margin: 0 0 8px 0;
-	padding: 0;
-}
-.thumbnail .caption { padding: 13px; }
-
-.widget_summary .widgetContainer{
-	background-color: #fff;
-	padding: 0;
-}
-.widget_summary .media:last-child{
-	border-bottom: 0;
-}
-
-.media {
-  margin-top: 1.2rem;
-}
-.media:first-child {
-  margin-top: 0;
-}
-.media,
-.media-body {
-  zoom: 1;
-  overflow: hidden;
-  margin-left: 0;
-}
-
-.widget_summary .media{
-	border-bottom: 1px solid #eee;
-}
-.media-body {
-  width: 10000px;
-}
-.media-object {
-  display: block;
-}
-.media-object.img-thumbnail {
-  max-width: none;
-}
-.media-right,
-.media > .pull-right {
-  padding-left: 10px;
-}
-.media-left, .media > .pull-left {
-    padding-right: 10px;
-}
-.hasThumbnail .media-left{
-	min-width: 74px;
-}
-.media-left,
-.media-right,
-.media-body {
-  display: table-cell;
-  vertical-align: top;
-}
-.media-middle {
-  vertical-align: middle;
-}
-.media-bottom {
-  vertical-align: bottom;
-}
-.media-heading {
-  margin-top: 0;
-  margin-bottom: 5px;
-}
-.media-list {
-  padding-left: 0;
-  list-style: none;
-}
-
-.tl-timeline, .tl-timeline div{
-	webkit-box-sizing: content-box;
-	moz-box-sizing: content-box;
-	box-sizing: content-box;
-}
-.tl-headline-date, .tl-headline{
-	padding: 0px;
-}
-.tl-slide-media-only .tl-slide-content-container .tl-slide-content .tl-text{
-	text-align: left !important;
-}
-.tl-slidenav-previous .tl-slidenav-content-container{
-	padding-left: 1rem;
-}
-.tl-slidenav-next .tl-slidenav-content-container{
-	margin-left: -1rem;
-}
-.timeline_embed.maximized-embed{
-	border-top: 1rem solid #f5f5f5;
-	border-bottom: .5rem solid #f5f5f5;
-}
-
-.widgetContainer{
-	border: 1px solid #ccc;
-}
-
-.cardContainer{
-	box-shadow: 0;
-	padding: 0;
-}
-.cardContainer.row { margin: 0; }
-.cardContainer > div { padding: 0; }
-.widgetElement .carousel-control{
-	cursor: pointer;
-}
-.widgetElement .cardContainer .thumbnail{
-	border-radius: 4px;
-	border: 1px solid #ccc;
-	padding: 0;
-}
-.full .widgetElement .cardContainer .thumbnail{
-	border-radius: 0px;
-	border-top: 1px solid #ccc;
-	border-bottom: 1px solid #ccc;
-	border-left: 0;
-	border-right: 0;
-	background-color: #f4f4f4;
-	padding: 0;
-}
-.widget_card>.well{
-		background-color: transparent;
-    border-color: transparent;
-    box-shadow: none;
-}
-.media-list .media-left .media-object{
-	max-width: 64px;
-	max-height: 128px;
-}
-.media-body h4{
-	margin-top: -4px;
-}
-.widget_slot .tl-layout-portrait .tl-storyslider{
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
-	box-shadow: none;
-}
-
-.widget_slot.grid_visualization>.well, .widget_slot.radial_visualization>.well{
-	border: 1px solid #ddd;
 }
