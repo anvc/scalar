@@ -1594,6 +1594,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						container: '.bootbox'
 					});
 				});
+
+				$(this).find('.spinner_container').hide();
+				$(this).find('.node_types .btn').removeProp('disabled').removeClass('disabled');
+
 				resize();
 
 			},$dialogue_container);
@@ -1712,6 +1716,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 
 			var doTypeFilter = function(){
+				$dialogue_container.find('.filter_spinner .spinner_container').show();
+				$dialogue_container.find('.node_types .btn').prop('disabled','disabled').addClass('disabled');
 				var opts = $dialogue_container.data('opts');
 
 				if(opts == undefined){ opts = []; }

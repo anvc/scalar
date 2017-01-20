@@ -733,7 +733,6 @@ CKEDITOR.plugins.add( 'scalar', {
 								contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
 							  selectOptions : {isEdit:false,type:'widget',msg:'Insert Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback,inline:true }
 							});
-							console.log($(element.$).data());
 						}
 
 						CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
