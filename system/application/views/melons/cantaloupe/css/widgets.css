@@ -167,11 +167,8 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .media > .pull-right {
   padding-left: 10px;
 }
-.media-left, .media > .pull-left {
+.media-left img, .media > .pull-left img{
     padding-right: 10px;
-}
-.hasThumbnail .media-left{
-	min-width: 74px;
 }
 .media-left,
 .media-right,
