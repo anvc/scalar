@@ -97,7 +97,16 @@
     		if ('string'==typeof(value)) value = {name:value};
     		// Add base select
     		if (value.name.length) $select.show();
-    		var $option = $('<option value="'+key+'"'+((-1!=opts.default_values.indexOf(key))?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>').appendTo($select);
+            var $option;
+            if (value.group != null) {
+                var $group = $select.find('optgroup[label="'+value.group+'"]');
+                if ($group.length == 0) {
+                    $group = $('<optgroup label="'+value.group+'"/>').appendTo($select);
+                }
+                $option = $('<option value="'+key+'"'+((-1!=opts.default_values.indexOf(key))?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>').appendTo($group);
+            } else {
+                $option = $('<option value="'+key+'"'+((-1!=opts.default_values.indexOf(key))?' SELECTED':'')+'>'+((value.name.length)?value.name:'(No name)')+'</option>').appendTo($select);
+            }
     		$option.data('desc', ('undefined'!=typeof(value.description))?value.description:'');
     		$option.data('img', ('undefined'!=typeof(value.image))?value.image:'');
     		// Component pulldowns
