@@ -457,7 +457,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
 						var $tooltip = $('#scalarLinkTooltip');
 						var element = $tooltip.data('element');
-						if(confirm("Are you sure you would like to remove this linked media from the current page?")){
+						if(confirm("Are you sure you would like to remove this linked "+($(element.$).data('widget')!=undefined?"widget":"media")+" from the current page?")){
 							element.remove(true);
 							$tooltip.hide();
 						}
