@@ -81,8 +81,13 @@
 	padding: 2.4rem 0;
 }
 .widget_summary .media-list li{
-	padding: 0 0 1.2rem 2.4rem
+	padding: 0 0 1.2rem 0;
 }
+
+.widget_summary.full .media-list li, .widget_card.full .card .thumbnail .caption{
+	padding: 1.2rem 2.4rem 1.2rem 2.4rem;
+}
+
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .description-sm { font-size: 1.4rem; line-height: 1.7rem; max-width: 70rem; margin-bottom: 1rem; }
@@ -113,14 +118,16 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .widget_summary .media:last-child{
 	border-bottom: 0;
 }
-
+.widget_slot .goThereLink{
+  float: right;
+}
+.summary .goThereLink{
+	margin-top: 1rem;
+}
 .small_widget .goThereLink{
   display: block;
   text-align: center;
-}
-.full_widget .goThereLink, .summary .goThereLink{
-  float: right;
-  margin: 0 1.5rem 1.5rem 0;
+	float: none;
 }
 .full_widget .goThereLink:after{
   visibility: hidden;

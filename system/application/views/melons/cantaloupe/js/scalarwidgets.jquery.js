@@ -805,7 +805,7 @@
             if (node.current.description != null) {
             	markup += '<p class="description-sm">' + node.current.description + '</p>';
             }
-            markup += '<a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a></div><span class="clearfix"></span>' +
+            markup += '<a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a><span class="clearfix"></span></div><span class="clearfix"></span>' +
             		'</div>' +
             	'</div></div>';
             $target.prepend(markup);
@@ -821,7 +821,7 @@
               if (node.current.description != null) {
                markup += '<p class="description-sm">' + node.current.description + '</p>';
               }
-              markup += '<a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a></div><span class="clearfix"></span>' +
+              markup += '</div><a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a><span class="clearfix"></span>' +
               		'</div>' +
               	'</div></li>';
             $target.prepend(markup);
