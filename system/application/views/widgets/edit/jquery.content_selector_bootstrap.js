@@ -1192,9 +1192,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										_data[body].rel = [];
 								}
 								_data[body].rel.push(_data[target]);
-								if("undefined" !== typeof _data[target]){
-									_data[target]['http://purl.org/dc/terms/hasVersion'] = undefined;
-								}
 							}
 						}
 						var added_rows = 0;
