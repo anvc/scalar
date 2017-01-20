@@ -70,7 +70,7 @@
 .widget_summary .media-list{
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 1.2rem;
+    padding: 1.2rem 1.2rem 0 1.2rem;
 }
 .full.widget_summary .media-list {
 	border-radius: 0px;
@@ -78,19 +78,22 @@
 	border-bottom: 1px solid #ccc;
 	border-left: 0;
 	border-right: 0;
-	padding: 2.4rem 0;
+	padding: 1.2rem 0 0 0;
+    background-color: #f4f4f4;
 }
 .widget_summary .media-list li{
-	padding: 0 0 1.2rem 0;
+	padding: 0 0 2.4rem 0;
 }
 
 .widget_summary.full .media-list li, .widget_card.full .card .thumbnail .caption{
-	padding: 1.2rem 2.4rem 1.2rem 2.4rem;
+	padding: .6rem 7.2rem 1.2rem 7.2rem;
+	max-width: 85.4rem;
 }
 
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
-.description-sm { font-size: 1.4rem; line-height: 1.7rem; max-width: 70rem; margin-bottom: 1rem; }
+.description-sm { font-size: 1.4rem; line-height: 1.7rem; max-width: 70rem; }
+.widget_summary .description-sm { margin-bottom: 0; }
 
 .cardContainer{
   padding: 0 1rem;
@@ -102,7 +105,7 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 }
 
 .card .thumbnail_container{
-  background-color: #eee;
+  background-color: #444;
   border-radius: 4px 4px 0 0;
 }
 .card hr{
@@ -118,9 +121,9 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .widget_summary .media:last-child{
 	border-bottom: 0;
 }
-.widget_slot .goThereLink{
+/*.widget_slot .goThereLink{
   float: right;
-}
+}*/
 .summary .goThereLink{
 	margin-top: 1rem;
 }
@@ -152,7 +155,10 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 }
 
 .widget_summary .media{
-	border-bottom: 1px solid #eee;
+	border-bottom: 1px solid #ddd;
+}
+.full.widget_summary .media{
+	border-bottom: none;
 }
 .media-body {
   width: 10000px;
@@ -222,7 +228,8 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 	padding: 0;
 }
 .cardContainer.row { margin: 0; }
-.cardContainer > div { padding: 0; }
+.cardContainer > div { padding: 0; margin-bottom: 1.2rem; overflow: hidden; }
+.full .cardContainer > div { margin-bottom: 3.6rem; }
 .widgetElement .carousel-control{
 	cursor: pointer;
 }

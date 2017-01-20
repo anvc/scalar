@@ -805,7 +805,7 @@
             if (node.current.description != null) {
             	markup += '<p class="description-sm">' + node.current.description + '</p>';
             }
-            markup += '<a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a><span class="clearfix"></span></div><span class="clearfix"></span>' +
+            markup += '<a href="' + node.url + '" class="goThereLink btn btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span></div><span class="clearfix"></span>' +
             		'</div>' +
             	'</div></div>';
             $target.prepend(markup);
@@ -817,12 +817,14 @@
               if (node.thumbnail != null) {
                markup += '<a href="' + node.url + '"><img src="' + node.thumbnail + '" alt="" class="media-object center-block"></a>';
               }
-              markup += '</div><div class="media-body"><a href="' + node.url + '"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4></a>';
+              markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4>';
               if (node.current.description != null) {
-               markup += '<p class="description-sm">' + node.current.description + '</p>';
+                markup += '<p class="description-sm">' + node.current.description + 
+                  '</p><a href="' + node.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span>' + '</div>';
+              } else {
+                markup += '</div><a href="' + node.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span>';
               }
-              markup += '</div><a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a><span class="clearfix"></span>' +
-              		'</div>' +
+              markup += '</div>' +
               	'</div></li>';
             $target.prepend(markup);
          };

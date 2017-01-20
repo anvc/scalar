@@ -477,7 +477,7 @@
             		break;
 
             		case "down":
-            		prefix = "Down to";
+            		prefix = "Begin with";
             		popooverPlacement = "top";
             		pathVar = "?path=" + pathNode.slug;
             		break;
