@@ -896,7 +896,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 opts.allowMultiple = true;
 							 opts.allowChildren = true;
-							 opts.fields = ["thumbnail","title","description","url","preview","preview","include_children"];
+							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
 
@@ -1343,7 +1343,26 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				height -= $(this).find('.panel-body>table').outerHeight();
 				$dialogue_container.find('.node_selector_table_body').height(height);
 			},this,$dialogue_container);
-
+			var shorten_description = function(description){
+				var max_chars = 200; //Magic number...
+				var words = description.split(" ");
+				var cur_length = 0;
+				var string = '';
+				for(var i = 0; i < words.length; i++){
+					var word = words[i];
+					if(string != ''){
+						word = ' '+word;
+					}
+					if(cur_length + word.length <= max_chars){
+						string += word;
+						cur_length+=word.length;
+					}else{
+						string += '&hellip;';
+						break;
+					}
+				}
+				return string;
+			}
 			var updateNodeList = $.proxy(function(isLazyLoad){
 				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
 					isLazyLoad = false;
@@ -1405,7 +1424,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'">'+item.title+'</a></td>';
 									break;
 								case 'description':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">'+desc+'</td>';
+									var short_desc = shorten_description(desc);
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]+' ':'')+(desc!==short_desc?'shortened_desc':'')+'">'+(desc!==short_desc?'<div class="full_desc">'+desc.replace(/"/g, '\\"')+'</div><div class="short_desc">'+short_desc+'</div>':desc)+'</td>';
 									break;
 								case 'url':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">/'+item.slug+'</td>';
@@ -1593,6 +1613,27 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						html : true,
 						container: '.bootbox'
 					});
+				});
+				$rows.find('.shortened_desc').each(function(){
+					if($(this).find('.moreless').length > 0){ return; }
+					$(this).parent().find('.full_desc').hide();
+					$linkContainer = $('<div class="text-right"></div>').appendTo(this);
+					$('<a href="#" class="moreless text-right visible-xs-block">more</a>').appendTo($linkContainer).toggle(
+						function(e){
+							e.preventDefault();
+							$(this).parents('.shortened_desc').find('.full_desc').show();
+							$(this).parents('.shortened_desc').find('.short_desc').hide();
+							$(this).text('less');
+							return false;
+						},
+						function(e){
+							e.preventDefault();
+							$(this).parents('.shortened_desc').find('.short_desc').show();
+							$(this).parents('.shortened_desc').find('.full_desc').hide();
+							$(this).text('more');
+							return false;
+						}
+					);
 				});
 
 				$(this).find('.spinner_container').hide();

@@ -206,3 +206,7 @@
 	margin: 0 .5rem;
 	box-shadow: none;
 }
+.widget_selector_bootbox .tooltip-inner{
+	max-width: 75%;
+	width: 75%;
+}
