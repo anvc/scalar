@@ -702,7 +702,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 opts.allowMultiple = false;
 							 opts.fields = ["title","description","url","preview","include_children"],
-							 opts.allowChildren = false;
+							 opts.allowChildren = true;
 							 opts.types = ['path','tag','term'];
 							 opts.defaultType = 'path';
 
@@ -722,8 +722,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 data.isEdit = $(this).data('isEdit');
 								 data.attrs["data-widget"] = data.type;
 								 if(timeline_data_type == 'node'){
-									 data.attrs.resource = $('#bootbox-content-selector-content .timeline_node_selection').data('serialize_nodes')();
-									 if(data.attrs.resource == undefined || data.attrs.resource.length == 0){
+									 var nodes = $('#bootbox-content-selector-content .timeline_node_selection').data('serialize_nodes')();
+									 console.log(nodes);
+									 data.attrs['data-nodes'] = nodes;
+									 if(data.attrs['data-nodes'] == undefined || data.attrs['data-nodes'].length == 0){
 										 alert("Please select Scalar content that contains your timeline's temporal data.");
 										 return false;
 									 }
@@ -789,7 +791,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.allowChildren = false;
+							 opts.allowChildren = true;
 							 opts.fields = ["title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
@@ -946,8 +948,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var widget = {attrs:$('#bootbox-content-selector-content').find('.widgetFormatting').data('options').attrs,isEdit:opts.isEdit};
 						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){
 							if($(this).attr('name')=="caption"){
-								widget.attrs['data-caption'] = $(this).val().toLowerCase().replace(/ /g,"_");
-								if($(this).val()=='Custom Text'){
+								widget.attrs['data-caption'] = $(this).val();
+								if($(this).val()=='custom_text'){
 									widget.attrs['data-custom_caption'] = $('#bootbox-content-selector-content').find('#caption_text').val();
 								}
 							}else if($(this).attr('name')=="numbering"){
@@ -963,12 +965,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					};
 
 					var formattingOptions = {
-						Size : ['small','medium','large','full'],
-						Align : (typeof opts.inline!='undefined' && opts.inline)?['right','center','left']:['right','left'],
+						Size : ['Small','Medium','Large','Full'],
+						Align : (typeof opts.inline!='undefined' && opts.inline)?['Right','Center','Left']:['Right','Left'],
 						Caption : ['Description','Title','Title and Description','None','Custom Text']
 					};
 
-					if(typeof options.attrs.resource == 'undefined' || options.attrs.resource == null){
+					if((typeof options.attrs.resource == 'undefined' || options.attrs.resource == null) && options.attrs['data-nodes'].indexOf(',')>=0){
 							formattingOptions.Caption = ['None','Custom Text'];
 					}
 
@@ -977,7 +979,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						case 'timeline':
 						case 'visualization':
 						case 'carousel':
-							formattingOptions.Size = ['medium','large','full'];
+							formattingOptions.Size = ['Medium','Large','Full'];
 					}
 
 					if(options.type == "carousel"){
@@ -985,22 +987,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 
 					if(options.type == "card"){
-						formattingOptions.Size = ['small','medium'];
+						formattingOptions.Size = ['Small','Medium'];
 					}
 
 					if(options.type == "summary"){
-						formattingOptions.Size = ['medium','large','full'];
+						formattingOptions.Size = ['Medium','Large','Full'];
 					}
 
 					if(options.type == "visualization" && options.attrs['data-visformat']=='radial'){
-						formattingOptions.Size = ['full'];
+						formattingOptions.Size = ['Full'];
 					}
 
 					var formattingSelection = '<div class="form-horizontal heading_font">';
 					for(var o in formattingOptions){
 						var values = '<select class="form-control" name="'+o.toLowerCase()+'">';
 						for(var v in formattingOptions[o]){
-							values += '<option value="'+formattingOptions[o][v]+'">'+formattingOptions[o][v].charAt(0).toUpperCase()+formattingOptions[o][v].slice(1)+'</option>';
+							values += '<option value="'+formattingOptions[o][v].toLowerCase().replace(/ /g,"_")+'">'+formattingOptions[o][v]+'</option>';
 						}
 						values += '</select>';
 
@@ -1015,7 +1017,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$content.append(formattingSelection);
 
 					$content.find('.form-control[name="caption"]').change(function(){
-						if($(this).val()=='Custom Text'){
+						if($(this).val()=='custom_text'){
 							$content.find('#caption_text_group').show();
 						}else{
 							$content.find('#caption_text_group').hide();
@@ -1036,6 +1038,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var data = $(opts.element.$).data($(this).attr('name'));
 							if(data!=undefined){
 								$(this).val(data);
+								if(data=='custom_text'){
+									$content.find('#caption_text_group').show().find('input').val($(opts.element.$).data('custom_caption'));
+								}
 							}
 						});
 					}
@@ -1988,6 +1993,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				for(var i in $(this).data('nodes')){
 					var item = $(this).data('nodes')[i];
 					slugs.push(item.slug);
+					console.log(item);
 					if(!$(this).data('opts').allowChildren || 'undefined'===typeof item.targets || 'undefined'===item.include_children || !item.include_children){continue;}
 					slugs[slugs.length-1]+='*';
 				}

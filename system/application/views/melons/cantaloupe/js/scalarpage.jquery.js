@@ -501,9 +501,9 @@
             		content = '<img class="thumbnail" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
             	}
                 var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + direction + ' arrow"/></a>').insertBefore($('nav'));
-            	arrow.popover({ 
-            		trigger: "hover click", 
-            		html: true, 
+            	arrow.popover({
+            		trigger: "hover click",
+            		html: true,
             		content: content,
             		template: '<div class="popover caption_font path-nav-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
             },
@@ -572,7 +572,7 @@
                 // path back/continue buttons
                 if ((page.containingPaths.length > 0) && options.showLateralNav) {
                     section = $('<section class="relationships"></section');
- 
+
                     page.addPathButton('up', page.containingPath, page.containingPath);
                     //var upArrow = $('<a class="path-nav up" data-toggle="popover" data-placement="bottom" data-content="Up to <b>“' + page.containingPath.getDisplayTitle() + '”</b>" href="' + page.containingPath.url + '"><img src="' + page.options.root_url + '/images/arrow_up@2x.png" alt="Up arrow"/></span></a>').insertBefore($('nav'));
                 	//upArrow.popover({ trigger: "hover click", html: true, template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
@@ -589,7 +589,7 @@
                                 } else {
                                     continueVerbage = "Or, continue to "
                                 }
- 
+
                                 // continue button
                                 links = $('<p></p>');
                                 var continue_button = $('<a class="continue_btn nav_btn" href="' + page.containingPathNodes[page.containingPathIndex + 1].url +
@@ -2379,6 +2379,7 @@
                             break;
 
                         case "timeline":
+                            $('.page').css('padding-top', '5rem');
                             var parseDate = function(date, d_string) {
                                 var d = {
                                     year: date.getFullYear()
@@ -2548,7 +2549,7 @@
 
                                 //$( '.page' ).css( 'padding-top', '5.0rem' );
 
-                                $timeline = $('<div class="caption_font timeline_embed maximized-embed"><div></div></div>').insertBefore('header > h1');
+                                $timeline = $('<div class="caption_font timeline_embed"><div></div></div>').insertBefore('header > h1');
                                 $timeline_container = $timeline.find('div');
 
                                 var height = 0.6 * $(window).height();

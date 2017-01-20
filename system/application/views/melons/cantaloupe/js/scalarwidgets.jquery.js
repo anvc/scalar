@@ -560,7 +560,10 @@
                 $timeline.width($(this).data('element').width());
                 var height = $(this).data('element').height();
                 if(height == 0){
-                  height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
+                  // We want timelines to be max-height of 70%, so remove 60% clamp, then add 70%;
+                  // could be written as a number (~1.16666667), but this seemed to be a little less magic-number-y
+                  var height_adjust = (1/.6)*.7;
+                  height = Math.min(base.options.maxWidgetHeight*height_adjust,maxWidgetHeight*height_adjust);
                 }
                 $timeline.height(height - 10);
                 var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
@@ -960,7 +963,52 @@
             var $slot = $('<div class="widget_slot"></div>');
             var $container = $('<div class="widgetContainer well"></div>').appendTo($slot);
             $container.append($widget.data('element'));
+            if($widget.data('caption')!=undefined || $widget.data('caption')=='none'){
+              var $widgetinfo = $('<div class="mediaElementFooter caption_font mediainfo"></div>').appendTo($container);
+              var $descriptionPane = $('<div class="media_description pane"></div>').appendTo($widgetinfo);
+              var caption_type = $widget.data('caption');
+              if(caption_type=='custom_text'){
+                $descriptionPane.html('<p>'+$widget.data('custom_caption')+'</p>').css('display','block');
+              }else{
+                (function($widget,$descriptionPane,caption_type){
+                  if($widget.data('nodes') != undefined){
+                    var slug = $widget.data('nodes').replace(/\*/g, '');
+                  }else{
+                    var slug = $widget.attr('resource').replace(/\*/g, '');
+                  }
+                  var load_caption = function(node){
+                    switch ( caption_type ) {
 
+              				case 'title':
+              				description = node.getDisplayTitle();
+              				break;
+
+              				case 'title_and_description':
+              				if ( node.current.description != null ) {
+              					description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+              				} else {
+              					description = node.getDisplayTitle();
+              				}
+              				break;
+
+              				default:
+              				description = node.current.description;
+              				if ( node.current.description == null ) {
+              					description = '<p><i>No description available.</i></p>';
+              				}
+              				break;
+
+              			}
+                    $descriptionPane.html(description).css('display','block');
+                  };
+                  if(scalarapi.loadPage( slug, true, function(){
+                    load_caption(scalarapi.getNode(slug));
+                  }, null, 1, false, null, 0, 20) == "loaded"){
+                    load_caption(scalarapi.getNode(slug));
+                  }
+                })($widget,$descriptionPane,caption_type);
+              }
+            }
             $widget.data({
                 container: $container,
                 slot: $slot,
