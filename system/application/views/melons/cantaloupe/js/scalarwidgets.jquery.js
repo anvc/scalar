@@ -769,6 +769,16 @@
                if($summaryContainer.find('img').length > 0){
                  $summaryContainer.addClass('hasThumbnail');
                }
+               $summaryContainer.find('.description-sm').each(function(){
+                 var num_lines = 4;
+                 var line_height = parseInt($(this).css('line-height'));
+                 $(this).dotdotdot({
+                		ellipsis	: '…',
+                    wrap		: 'word',
+                    fallbackToLetter: true,
+                    height		: num_lines*line_height
+                	});
+               });
                $(this).off("slotCreated");
              });
 
@@ -782,17 +792,17 @@
 
          base.createCardFromNode = function(node,$target){
             var widget_size = $target.parents('.widgetElement').data('widget').data('size');
-            var markup = '<div><div class="thumbnail">';
+            var markup = '<div class="card"><div class="thumbnail">';
             if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
-              markup += '<img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block">';
+              markup += '<div class="thumbnail_container"><img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block"></div><hr />';
             }else if (node.thumbnail != null) {
-            	markup += '<img src="' + node.thumbnail + '" alt="" class="img-responsive center-block">';
+            	markup += '<div class="thumbnail_container"><img src="' + node.thumbnail + '" alt="" class="img-responsive center-block"></div><hr />';
             }
             markup += '<div class="caption"><h4 class="heading_font heading_weight">' + node.getDisplayTitle() + '</h4>';
             if (node.current.description != null) {
             	markup += '<p class="description-sm">' + node.current.description + '</p>';
             }
-            markup += '<a href="' + node.url + '" class="btn btn-primary" role="button">Go there</a></div><span class="clearfix"></span>' +
+            markup += '<a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a></div><span class="clearfix"></span>' +
             		'</div>' +
             	'</div></div>';
             $target.prepend(markup);
@@ -800,7 +810,7 @@
 
          base.createSummaryFromNode = function(node,$target){
 
-              var markup = '<li class="media"><div class="media-left">';
+              var markup = '<li class="media summary"><div class="media-left">';
               if (node.thumbnail != null) {
                markup += '<a href="' + node.url + '"><img src="' + node.thumbnail + '" alt="" class="media-object center-block"></a>';
               }
@@ -808,9 +818,9 @@
               if (node.current.description != null) {
                markup += '<p class="description-sm">' + node.current.description + '</p>';
               }
-              markup += '</div>' +
-                 '</div>' +
-               '</li>';
+              markup += '<a href="' + node.url + '" class="goThereLink btn btn-primary" role="button">Go there &raquo;</a></div><span class="clearfix"></span>' +
+              		'</div>' +
+              	'</div></li>';
             $target.prepend(markup);
          };
 
@@ -837,6 +847,7 @@
            }else if ( size == undefined ) {
             size = 'medium';
            }
+           $slot.addClass(size+'_widget');
            var $temp = $( '<div class="' + size + '_dim">&nbsp;</div>');
            var width = Math.min( parseInt( $( '.page' ).width() ), parseInt( $temp.appendTo( '.page' ).width() ));
            $temp.remove();
@@ -961,7 +972,17 @@
             base.calculateSize($widget);
 
             $widget.click(function(){
-              $('html, body').scrollTop($(this).data('slot').offset().top - 60);
+
+              var scroll_buffer = 100;
+              var scroll_time = 750;
+              var $body = $('html,body');
+              var $slot = $(this).data('slot');
+              if (!(($slot.offset().top + $slot.height()) <= (-$body.offset().top + $body.height()) &&
+                      $slot.offset().top >= (-$body.offset().top))) {
+                  $body.animate({
+                      scrollTop: $slot.offset().top - scroll_buffer
+                  }, scroll_time);
+              }
               $(this).data('container').addClass('highlighted');
               window.setTimeout($.proxy(function(){$(this).removeClass('highlighted')},$(this).data('container')),500);
               return false;
