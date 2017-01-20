@@ -683,7 +683,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 $urlTimeline = $timeline_content.find('#externalURL');
 
 								$timeline_content.find('a').click(function (e) {
-								  e.preventDefault()
+								  e.preventDefault();
 									timeline_data_type = $(this).data('type');
 								  $(this).tab('show');
 								});
@@ -703,8 +703,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.allowMultiple = false;
 							 opts.fields = ["title","description","url","preview","include_children"],
 							 opts.allowChildren = true;
-							 opts.types = ['path','tag','term'];
-							 opts.defaultType = 'path';
+							 opts.types = ['composite','media','path','tag','term','reply'];
+							 opts.defaultType = 'composite';
 
 							 $('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline).node_selection_dialogue(opts);
 
@@ -1186,8 +1186,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						if(!doSearch && options.page == 0){
 							loaded_nodeLists[type] = [];
 						}
+						rel_filter_match = false;
 						for (var uri in _data) {
 							//First just go through and pick out any of the URN entries
+
+							if(uri.indexOf('urn:scalar:'+type)>-1){
+								var body = _data[uri]['http://www.openannotation.org/ns/hasBody'][0]['value'].split('#')[0];
+								body = body.substr(0, body.lastIndexOf('.'));
+								_data[body].matchesFilter = true;
+								rel_filter_match = true;
+							}
 							if(uri.indexOf('urn:scalar:')>-1){
 								var body = _data[uri]['http://www.openannotation.org/ns/hasBody'][0]['value'].split('#')[0];
 								body = body.substr(0, body.lastIndexOf('.'));
@@ -1197,8 +1205,19 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										_data[body].rel = [];
 								}
 								_data[body].rel.push(_data[target]);
+								have_relationships = true;
 							}
 						}
+
+						//From  previous content selector: if we have relationships, then assume we only want nodes w/ relationships
+						if(type != 'composite' && rel_filter_match){
+							for (var uri in _data) {
+								if ('undefined'!=typeof(_data[uri]['http://purl.org/dc/terms/hasVersion']) && "undefined" == typeof _data[uri].matchesFilter) {
+									_data[uri]['http://purl.org/dc/terms/hasVersion'] = undefined;
+								}
+							}
+						}
+
 						var added_rows = 0;
 			    		for (var uri in _data) {
 			    			if ('undefined'!=typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
