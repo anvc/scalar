@@ -985,7 +985,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 						?>
 						</div>
 						<div class="form-group">
-						 	<label class="col-sm-3 control-label"><?=(($counter)?'':'Metadata fields')?></label>
+						 	<label class="col-sm-3 control-label" id="metadata_fields_label"><?=((isset($counter) && $counter)?'':'Metadata fields')?></label>
 						 	<div class="col-sm-9">
 								<a href="javascript:;" class="btn btn-primary add_additional_metadata" role="button">Add additional metadata</a>&nbsp;
 								<a href="javascript:;" class="btn btn-default populate_exif_fields" role="button">Auto-populate fields from file</a>
