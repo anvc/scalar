@@ -265,7 +265,13 @@
 				table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
 				table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
 				if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+node.current.description+'</td></tr>');
-				if (null!=node.current.source) table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
+				if (null!=node.current.source) {
+					if (node.current.source == node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value) {
+						table.append('<tr><td>iptc:By-line</td><td>'+node.current.source+'</td></tr>');
+					} else if (node.current.source == node.current.properties['http://purl.org/dc/terms/source'][0].value) {
+						table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
+					}
+				}
 				if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td><a href="'+node.current.sourceLocation+'">'+node.current.sourceLocation+'</a></td></tr>');
 				// auxiliary properties
 				for ( prop in node.current.auxProperties ) {
