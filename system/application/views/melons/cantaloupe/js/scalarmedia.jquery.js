@@ -266,9 +266,9 @@
 				table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
 				if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+node.current.description+'</td></tr>');
 				if (null!=node.current.source) {
-					if (node.current.source == node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value) {
+					if ('undefined'!=typeof(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line']) && node.current.source == node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value) {
 						table.append('<tr><td>iptc:By-line</td><td>'+node.current.source+'</td></tr>');
-					} else if (node.current.source == node.current.properties['http://purl.org/dc/terms/source'][0].value) {
+					} else if ('undefined'!=typeof(node.current.properties['http://purl.org/dc/terms/source']) && node.current.source == node.current.properties['http://purl.org/dc/terms/source'][0].value) {
 						table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
 					}
 				}

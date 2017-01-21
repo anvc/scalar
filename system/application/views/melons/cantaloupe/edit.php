@@ -920,7 +920,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<div id="metadata-pane" role="tabpanel" class="tab-pane">
 			<div class="row p">
 				<div class="col-md-12">
-					<div id="metadata_rows" class="form-horizontal">
+					<div class="form-horizontal">
 						<div class="form-group">
 							<label for="slug" class="col-sm-3 control-label">Scalar URL</label>
 							<div class="col-sm-9">
@@ -941,27 +941,28 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								<select name="scalar:is_live" class="form-control"><option value="0" <?=((@!$page->is_live)?'selected':'')?>>Hidden</option><option value="1" <?=(!isset($page->version_index)||(@$page->is_live)?'selected':'')?>>Visible</option></select>
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="content_type" class="col-sm-3 control-label">Content type</label>
-							<div class="col-sm-2">
-							    <span style="display:none;"><!-- jQuery uses these fields to show/hide form fields related to page or media -->
-						   	 	<input type="radio" name="rdf:type" id="type_text" onchange="checkTypeSelect()" value="http://scalar.usc.edu/2012/01/scalar-ns#Composite"<?=((!isset($page->type)||$page->type=='composite')?' CHECKED':'')?>><label for="type_text">Page</label>
-						    	<input type="radio" name="rdf:type" id="type_media" onchange="checkTypeSelect()" value="http://scalar.usc.edu/2012/01/scalar-ns#Media"<?=((isset($page->type)&&$page->type!='composite')?' CHECKED':'')?>><label for="type_media">Media File</label>
-						    	&nbsp; &nbsp;
-							    </span>
-							    <select id="content_type" name="scalar:category" class="form-control"><?
-								$category =@ (!empty($page->category)) ? $page->category : null;
-								if (empty($category) && $is_new) {
-									if (strtolower($user_level)=='commentator') $category = 'commentary';
-									if (strtolower($user_level)=='reviewer') $category = 'review';
-								}
-							  	echo '<option value="" '.((empty($category))?'selected':'').'>'.@ucwords($book->scope).' content</option>';
-							  	foreach ($categories as $_category) {
-							  		echo '<option value="'.strtolower($_category).'" '.((strtolower($_category)==strtolower($category))?'selected':'').'>'.ucwords($_category).'</option>';
-							  	}
-								?></select>
+						<div id="metadata_rows">
+							<div class="form-group">
+								<label for="content_type" class="col-sm-3 control-label">Content type</label>
+								<div class="col-sm-2">
+								    <span style="display:none;"><!-- jQuery uses these fields to show/hide form fields related to page or media -->
+							   	 	<input type="radio" name="rdf:type" id="type_text" onchange="checkTypeSelect()" value="http://scalar.usc.edu/2012/01/scalar-ns#Composite"<?=((!isset($page->type)||$page->type=='composite')?' CHECKED':'')?>><label for="type_text">Page</label>
+							    	<input type="radio" name="rdf:type" id="type_media" onchange="checkTypeSelect()" value="http://scalar.usc.edu/2012/01/scalar-ns#Media"<?=((isset($page->type)&&$page->type!='composite')?' CHECKED':'')?>><label for="type_media">Media File</label>
+							    	&nbsp; &nbsp;
+								    </span>
+								    <select id="content_type" name="scalar:category" class="form-control"><?
+									$category =@ (!empty($page->category)) ? $page->category : null;
+									if (empty($category) && $is_new) {
+										if (strtolower($user_level)=='commentator') $category = 'commentary';
+										if (strtolower($user_level)=='reviewer') $category = 'review';
+									}
+								  	echo '<option value="" '.((empty($category))?'selected':'').'>'.@ucwords($book->scope).' content</option>';
+								  	foreach ($categories as $_category) {
+								  		echo '<option value="'.strtolower($_category).'" '.((strtolower($_category)==strtolower($category))?'selected':'').'>'.ucwords($_category).'</option>';
+								  	}
+									?></select>
+								</div>
 							</div>
-						</div>
 						<?
 						if (isset($page->version_index) && isset($page->versions[$page->version_index]->rdf) && !empty($page->versions[$page->version_index]->rdf)):
 							$counter = 0;
@@ -982,10 +983,10 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 							endforeach;
 						endif;
 						?>
-					</div>
-					<div class="form-horizontal">
+						</div>
 						<div class="form-group">
-							<div class="col-sm-9 col-md-offset-3">
+						 	<label class="col-sm-3 control-label"><?=(($counter)?'':'Metadata fields')?></label>
+						 	<div class="col-sm-9">
 								<a href="javascript:;" class="btn btn-primary add_additional_metadata" role="button">Add additional metadata</a>&nbsp;
 								<a href="javascript:;" class="btn btn-default populate_exif_fields" role="button">Auto-populate fields from file</a>
 							</div>
