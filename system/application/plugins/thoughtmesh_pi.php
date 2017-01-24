@@ -2,17 +2,15 @@
 class ThoughtMesh {
 
 	public $name = 'ThoughtMesh';
-	public $plugin_path = '';
 	public $plugin_dir = '';
-	public $plugin_url = '';
+	public $plugin_path = '';
 	public $plugin_exists = false;
 
 	public function __construct($data=array()) {
 
-		$this->plugin_path = strtolower(get_class($this)).'/jquery.thoughtmesh.js';
-		$this->plugin_dir = dirname(__FILE__).'/'.$this->plugin_path;
+		$this->plugin_dir = dirname(__FILE__).'/'.strtolower(get_class($this)).'/';
 		if (file_exists($this->plugin_dir)) $this->plugin_exists = true;
-		$this->plugin_url = 'system/application/plugins/'.$this->plugin_path;
+		$this->plugin_path = 'system/application/plugins/'.strtolower(get_class($this)).'/';
 
 	}
 
@@ -22,7 +20,8 @@ class ThoughtMesh {
 		
 		$CI =& get_instance();
 		
-		$CI->template->add_js($this->plugin_url);
+		$CI->template->add_css($this->plugin_path.'thoughtmesh.css');
+		$CI->template->add_js($this->plugin_path.'jquery.thoughtmesh.js');
 		$CI->template->add_js($this->js(),'embed');
 
 	}
