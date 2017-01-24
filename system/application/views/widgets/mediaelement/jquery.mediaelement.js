@@ -3255,7 +3255,6 @@ function YouTubeGetID(url){
 			};
 			this.id = 'vimeo'+this.model.filename+'_'+this.model.id;
 			var obj = $('<div id="'+this.id+'" class="mediaObject"></div>').appendTo(this.parentView.mediaContainer);
-			obj.hide();
 			this.player = new Vimeo.Player('vimeo'+this.model.filename+'_'+this.model.id, options);
 			this.player.on('timeupdate', function(data) {
 				if ((me.model.seekAnnotation != null) && !me.initialPauseDone && !me.parentView.cachedPlayCommand) {
@@ -3282,7 +3281,6 @@ function YouTubeGetID(url){
 			    me.parentView.intrinsicDim.y = dimensions[1];
 				me.parentView.controllerOffset = 0;
 				me.parentView.layoutMediaObject();
-				$('#'+me.id).show();
 				me.parentView.removeLoadingMessage();
 			});
 
