@@ -77,7 +77,6 @@
 				}				
 			});
 			$this.appendTo($('.add_metadata_bootbox #bootbox-content'));
-			//$('.add_metadata_bootbox .modal-dialog').width(opts.width);
 			$('.add_metadata_bootbox .modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
             $('.add_metadata_bootbox .bootbox-close-button').empty();
 			$('.add_metadata_bootbox .add_metadata_modal').height(opts.height).css('overflow', 'auto');
@@ -92,6 +91,18 @@
         	var $title_links = $('.add_metadata_bootbox .title-links');
         	var has_title_links = ($title_links.length) ? true : false;
         	var title_links = [];
+        	// Featured
+        	$('<h1 name="featured">Featured &nbsp; <small>Fields that have special uses in Scalar\'s interface</small></h1>').appendTo($div);
+        	title_links.push('<a href="javascript:void(null);">Featured</a>');
+        	var $content = $('<div></div>').appendTo($div);
+        	var featured = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
+    		for (var j = 0; j < featured.length; j+=3) {
+    			var $row = $('<div class="row"></div>').appendTo($content);
+    			if ('undefined'!=typeof(featured[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j]+'" value="1" /> '+featured[j]+'</label></div>').appendTo($row);
+    			if ('undefined'!=typeof(featured[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+1]+'" value="1" /> '+featured[j+1]+'</label></div>').appendTo($row);
+    			if ('undefined'!=typeof(featured[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+2]+'" value="1" /> '+featured[j+2]+'</label></div>').appendTo($row);
+    		}
+        	// Ontologies
         	for (var prefix in data) {
         		$('<h1 name="'+prefix+'">'+prefix+'</h1>').appendTo($div);
         		title_links.push('<a href="javascript:void(null);">'+prefix+'</a>');
