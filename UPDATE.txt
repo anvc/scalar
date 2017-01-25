@@ -18,14 +18,15 @@ Scalar authors can upload files to your server under Import > Local Media Files 
 directory corresponding to their book's URL segment).  We strongly suggest protecting your filesystem against 
 potentially malicious uploads, such as *.php files.  We have a template for this in place in the root folder's 
 .htaccess file.  Edit, uncomment the "malicious file uploads" rewrites, and set appropriate fields to let 
-through requests to system files.  Test by uploading a .php file -- when viewing the file you should see 
-Scalar's 404 in the media player.
+through requests to system files.
 ***
 
 ***
 A note on SSL (https):
 As of Release 2.0.2 SSL (https) is supported out of the box.  If needed we have a template in the root 
-folder's .htaccess to force all requests through https.
+folder's .htaccess to force all requests through https. Be aware, though, running Scalar under https might 
+cause conflicts with plugins or media players that are running under http, meaning, websites running https 
+generally can't embed content running under http.
 ***
  
 To begin take a look at the "Changes to config files over time" wiki page (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).  
@@ -46,8 +47,8 @@ system/application/language
 system/application/logs
 system/application/plugins
 3) Update all folders in the /system folder EXCEPT:
-system/application
 (You just updated /system/application in step #, so don't update it here)
+system/application
 4) Check to see if there are any changes to config files or the database scheme at "Changes to config files over time" (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time)
 
 All done!  To test, you can check certain elements of Scalar including the Dashboard, media elements (media 
@@ -75,10 +76,10 @@ views
   
 INSTRUCTIONS FOR UPDATING TO SCALAR 2.1 OR SCALAR 2.1.1 FROM ANY PREVIOUS SCALAR VERSION:  
 
-1) Extract the release ZIP file into a NEW folder; make sure that .htaccess is visible or transferable in the root folder so it doesn’t get left out
-3) Optional: open ‘codeigniter.php’ in the NEW root folder and change ‘production’ to ‘development’, to display PHP errors during development
-2) Copy ‘system/application/config/local_settings.php’ from the existing LIVE folder location to its corresponding NEW location
-4) Do not copy any other config files; rather, copy values kept in the files in the existing LIVE folder to the files in the NEW folder.  Unless you’ve made a lot of changes these are likely the only values you’ll need to migrate:
+1) Extract the release ZIP file into a NEW folder; make sure that .htaccess is visible or transferable in the root folder so it doesn't get left out
+3) Optional: open "codeigniter.php" in the NEW root folder and change "production" to "development", to display PHP errors during development
+2) Copy "system/application/config/local_settings.php" from the existing LIVE folder location to its corresponding NEW location
+4) Do not copy any other config files; rather, copy values kept in the files in the existing LIVE folder to the files in the NEW folder.  Unless you've made a lot of changes these are likely the only values you'll need to migrate:
 system/application/config/config.php: $config['uri_protocol']
 system/application/config/config.php: $config['log_threshold']
 system/application/config/config.php: $config['encryption_key']
@@ -88,18 +89,18 @@ system/application/config/database.php: $db['default']['hostname']
 system/application/config/database.php: $db['default']['username']
 system/application/config/database.php: $db['default']['password']
 system/application/config/database.php: $db['default']['database']
-system/application/language/content_lang.php: $land[‘install_name’]
-5) Optional: edit .htaccess in the existing LIVE root folder, and remove the “#” comment characters that prepend the two lines under “# To route all requests to a maintenance page, uncomment these lines”, then save; this will temporarily make Scalar unavailable, routing all requests to maintainance.html.
-6) Delete the “system” folder from your existing LIVE root folder (or, to be safe, rename the system folder to “system.bak”)
-7) Copy the NEW “system” folder to the existing LIVE root folder
-8) Overwrite the ‘codeigniter.php’ in the existing LIVE root folder with the ‘codeigniter.php’ in the NEW root folder
-9) In Scalar’s MySQL database, change the ‘ip_address’ field in ‘scalar_db_sessions’ to VARCHAR(45), or simply run this SQL statement:
+system/application/language/content_lang.php: $land[â€˜install_nameâ€™]
+5) Optional: edit .htaccess in the existing LIVE root folder, and remove the # comment characters that prepend the two lines under "# To route all requests to a maintenance page, uncomment these lines", then save; this will temporarily make Scalar unavailable, routing all requests to maintainance.html.
+6) Delete the "system" folder from your existing LIVE root folder (or, to be safe, rename the system folder to "system.bak")
+7) Copy the NEW "system" folder to the existing LIVE root folder
+8) Overwrite the "codeigniter.php" in the existing LIVE root folder with the "codeigniter.php" in the NEW root folder
+9) In Scalar's MySQL database, change the "ip_address" field in "scalar_db_sessions" to VARCHAR(45), or simply run this SQL statement:
 ALTER TABLE scalar_db_sessions CHANGE ip_address ip_address varchar(45) default '0' NOT NULL
-10) Optional: edit .htaccess in the LIVE location again; add the “#” comment characters back to the two lines under the maintenance comment; saving will bring Scalar back from being unavailable
+10) Optional: edit .htaccess in the LIVE location again; add the # comment characters back to the two lines under the maintenance comment; saving will bring Scalar back from being unavailable
 11) Check https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time to see if any other changes to the database or local_settings.php are needed
-12) Check to make sure Scalar is working properly.  If so, delete ‘system.bak’ (if applicable).  Enjoy!
+12) Check to make sure Scalar is working properly.  If so, delete "system.bak" (if applicable).  Enjoy!
 Note: you may need to change the permissions of system/application/logs so that CodeIgniter can write log files if you have them enabled in config.php.
-Note: you’ll need to reinstall the import/export transfer tool: download it from https://github.com/Michael628/scalar-book-transfer-tool and place in a new folder ‘transfer’ at system/application/plugins/transfer
+Note: you'll need to reinstall the import/export transfer tool: download it from https://github.com/Michael628/scalar-book-transfer-tool and place in a new folder "transfer" at system/application/plugins/transfer
 
 INSTRUCTIONS FOR UPDATING ANY SCALAR VERSION BEFORE 2.1 TO ANY OTHER SCALAR VERSION BEFORE 2.1:
 

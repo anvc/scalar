@@ -1,3 +1,9 @@
+---
+--- scalar_store.sql
+--- Import this file into your freshly minted MySQL database to create tables with standard UTF-8 character support
+--- For 4-byte UTF-8 support use scalar_store_utf8mb4.sql
+---
+
 CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `book_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,

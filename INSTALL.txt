@@ -26,17 +26,22 @@ live environments (e.g., scalar.usc.edu).  To update an existing Scalar install,
 ***
 
 ***
-Scalar supports servers running SSL (https) out of the box.  If needed we have a template in the root folder's .htaccess 
-file to force all requests through https. Be aware, though, runnign Scalar under https might conflict with plugins or media players that are running under http, meaning, websites running https generally can't embed content running under http.
+Scalar supports servers running SSL (https) out of the box.  If needed we have a template in the root folder's .htaccess file to force 
+all requests through https. Be aware, though, running Scalar under https might cause conflicts with plugins or media players that are 
+running under http, meaning, websites running https generally can't embed content running under http.
 ***
 
 1)
 
-Run the SQL script on a fresh MySQL database (e.g., "scalar_store"):
+Create a new MySQL database (e.g., "scalar_store"), and a user that has permission to create tables and create temporary tables. 
+Set the collation of the new database to "utf8_general_ci" unless you would like to support additional 4-byte UTF-8 characters (such 
+as emojis) in which case select "utf8mb4_general_ci".
 
-system/application/config/scalar_store.sql
+Import this SQL file into the new database:
 
-Note that five additional tables will be added after Scalar's first use.
+system/application/config/scalar_store.sql (standard MySQL 3-byte UTF-8)
+OR
+system/application/config/scalar_store_utf8mb4.sql (extended 4-byte UTF-8 support)
 
 Update database fields (hostname, database, username and password) at:
 
@@ -47,6 +52,10 @@ system/application/config/database.php OR you can set the following environment 
     SCALAR_DB_PASSWORD
     SCALAR_DB_DATABASE
 
+If using the extended 4-byte UTF-8 character set, in the same database.php file update these two fiels to:
+
+$db['default']['char_set'] = 'utf8mb4';
+$db['default']['dbcollat'] = 'utf8mb4_general_ci';
 
 2)
 
