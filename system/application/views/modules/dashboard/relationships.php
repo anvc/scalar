@@ -171,6 +171,7 @@
 				str += toWords(version_ids_to_delete.length) + 'versions';
 			}
 			str+='?';
+			str += ' This action cannot be undone—the page' + ((content_ids_to_delete.length>1)?'s’':'’s') + ' content will be removed permanently.';
 			if (!confirm(str)) {
 				return false;
 			}

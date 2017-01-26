@@ -156,12 +156,13 @@
 				return false;
 			}
 			str = 'Are you sure you wish to DELETE ';
-			if (content_ids_to_delete.length > 0) str += toWords(content_ids_to_delete.length) + 'content';
+			if (content_ids_to_delete.length > 0) str += toWords(content_ids_to_delete.length) + 'page'+((content_ids_to_delete.length>1)?'s':'');
 			if (version_ids_to_delete.length > 0) {
 				if (content_ids_to_delete.length > 0) str += ' and ';
 				str += toWords(version_ids_to_delete.length) + 'versions';
 			}
 			str+='?';
+			str += ' This action cannot be undone—the page' + ((content_ids_to_delete.length>1)?'s’':'’s') + ' content will be removed permanently.';
 			if (!confirm(str)) {
 				return false;
 			}
