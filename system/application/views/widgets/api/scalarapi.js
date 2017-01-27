@@ -2190,6 +2190,7 @@ ScalarAPI.prototype.parseBook = function(json) {
  * @param	relation			If true, will return only relations of the named type
  * @param	start				Result number to start with
  * @param	results				Number of results to return
+ * @param	hidden				Include results where live is set to 0
  * @return						A string indicating the state of the request.
  */
 ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results, hidden) {
@@ -3153,14 +3154,6 @@ ScalarNode.prototype.getDisplayTitle = function( removeMarkup ) {
 	if ( removeMarkup ) {
 		displayTitle = scalarapi.removeMarkup( displayTitle );
 	}
-	
-	// add parenthetical numbering if we suspect this media node is a duplicate
-	/*if (this.baseType == 'http://scalar.usc.edu/2012/01/scalar-ns#Media') {
-		var temp = this.slug.split('-');
-		if (!isNaN(temp[temp.length-1])) {
-			displayTitle += ' (' + temp[temp.length-1] +')';
-		}
-	}*/
 
 	return displayTitle;
 	
