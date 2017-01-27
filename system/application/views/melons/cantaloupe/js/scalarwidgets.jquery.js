@@ -280,6 +280,9 @@
                  if(height == 0){
                    height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                  }
+
+                 height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+
                  $gmaps.height(height);
 
                  var mapOptions = {
@@ -558,9 +561,10 @@
                 if(height == 0){
                   // We want timelines to be max-height of 70%, so remove 60% clamp, then add 70%;
                   // could be written as a number (~1.16666667), but this seemed to be a little less magic-number-y
-                  var height_adjust = (1/.6)*.7;
-                  height = Math.min(base.options.maxWidgetHeight*height_adjust,maxWidgetHeight*height_adjust);
+                  //var height_adjust = (1/.6)*.7;
+                  var height = (base.options.maxWidgetHeight,maxWidgetHeight);
                 }
+                height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
                 $timeline.height(height - 10);
                 var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
 
@@ -618,6 +622,7 @@
                  // keeping them synced up helps keep media vertically aligned in galleries
                  galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                }
+               galleryHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
 
                for ( var i = 0; i < n; i++ ) {
 
@@ -815,7 +820,7 @@
               }
               markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4>';
               if (node.current.description != null) {
-                markup += '<p class="description-sm">' + node.current.description + 
+                markup += '<p class="description-sm">' + node.current.description +
                   '</p><a href="' + node.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span>' + '</div>';
               } else {
                 markup += '</div><a href="' + node.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span>';
