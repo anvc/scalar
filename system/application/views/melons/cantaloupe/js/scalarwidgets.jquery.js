@@ -325,7 +325,7 @@
                          null,
                          map,
                          infoWindow,
-                         node.thumbnail,
+                         node.getAbsoluteThumbnailURL(),
                          null,
                          $gmaps,
                          markers
@@ -358,7 +358,7 @@
                            node.url,
                            map,
                            infoWindow,
-                           node.thumbnail,
+                           node.getAbsoluteThumbnailURL(),
                            label,
                            $gmaps,
                            markers
@@ -523,11 +523,7 @@
                         entry.text.text = node.description
                       }
 
-                      //Parse thumbnail url
-                      var thumbnail_url = $(this).data('node')[n].thumbnail;
-                      if(thumbnail_url != null && thumbnail_url.indexOf("http:")!=0&&thumbnail_url.indexOf("https:")!=0){
-                        thumbnail_url = base.book_url+thumbnail_url;
-                      }
+                      var thumbnail_url = $(this).data('node')[n].getAbsoluteThumbnailURL();
 
                       //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
                       if(typeof $(this).data('node')[n].scalarTypes.media !== 'undefined'){
@@ -799,7 +795,7 @@
             if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
               markup += '<div class="thumbnail_container"><img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block"></div><hr />';
             }else if (node.thumbnail != null) {
-            	markup += '<div class="thumbnail_container"><img src="' + node.thumbnail + '" alt="" class="img-responsive center-block"></div><hr />';
+            	markup += '<div class="thumbnail_container"><img src="' + node.getAbsoluteThumbnailURL() + '" alt="" class="img-responsive center-block"></div><hr />';
             }
             markup += '<div class="caption"><h4 class="heading_font heading_weight">' + node.getDisplayTitle() + '</h4>';
             if (node.current.description != null) {
@@ -815,7 +811,7 @@
 
               var markup = '<li class="media summary"><div class="media-left">';
               if (node.thumbnail != null) {
-               markup += '<a href="' + node.url + '"><img src="' + node.thumbnail + '" alt="" class="media-object center-block"></a>';
+               markup += '<a href="' + node.url + '"><img src="' + node.getAbsoluteThumbnailURL() + '" alt="" class="media-object center-block"></a>';
               }
               markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4>';
               if (node.current.description != null) {

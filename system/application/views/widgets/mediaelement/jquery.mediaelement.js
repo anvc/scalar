@@ -2771,7 +2771,7 @@ function YouTubeGetID(url){
 			// apply the poster image only if the thumbnail loads successfully
 			var thumbnailURL;
 			if (this.model.node.thumbnail) {
-				thumbnailURL = this.model.node.thumbnail;
+				thumbnailURL = this.model.node.getAbsoluteThumbnailURL();
 
 			// legacy thumbnails are sometimes stored with the version
 			} else if (this.model.node.current.thumbnail) {

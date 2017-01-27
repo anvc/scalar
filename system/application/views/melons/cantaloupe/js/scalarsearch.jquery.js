@@ -182,7 +182,7 @@
 			}
 			var thumb = '';
 			if (node.thumbnail) {
-				thumb = '<img src="'+node.thumbnail+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
+				thumb = '<img src="'+node.getAbsoluteThumbnailURL()+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
 			}
 			var matched = '';
 			if ('undefined'!=typeof(citation)) {

@@ -2220,7 +2220,7 @@
                                             null,
                                             map,
                                             infoWindow,
-                                            currentNode.thumbnail
+                                            currentNode.getAbsoluteThumbnailURL()
                                         );
                                         markerCount++;
                                         if (coordsAreValid) {
@@ -2255,7 +2255,7 @@
                                                 node.url,
                                                 map,
                                                 infoWindow,
-                                                node.thumbnail,
+                                                node.getAbsoluteThumbnailURL(),
                                                 label
                                             );
                                             markerCount++;
@@ -2520,10 +2520,7 @@
                                             }
 
                                             //Parse thumbnail url
-                                            var thumbnail_url = nodeSet[n].thumbnail;
-                                            if (thumbnail_url != null && thumbnail_url.indexOf("http:") != 0 && thumbnail_url.indexOf("https:") != 0) {
-                                                thumbnail_url = base_url + thumbnail_url;
-                                            }
+                                            var thumbnail_url = nodeSet[n].getAbsoluteThumbnailURL();
 
                                             //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
                                             if (typeof nodeSet[n].scalarTypes.media !== 'undefined') {
