@@ -580,7 +580,7 @@
 
                var n = nodes.length;
 
-               var $carousel = $('<div class="carousel slide" data-interval="false"></div>').appendTo($element);
+               var $carousel = $('<div class="carousel slide" data-interval="false" style="min-height: 200px;"></div>').appendTo($element);
                var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
                if ( page.adaptiveMedia == "mobile" ) {
@@ -859,11 +859,13 @@
            var widgetType = $widget.data('widget');
            $slot.addClass('widget_'+widgetType);
 
-           if(widgetType != 'card' && widgetType != 'visualization' && widgetType != 'summary'){
+           if(widgetType != 'card' && widgetType != 'visualization' && widgetType != 'summary' && widgetType != 'carousel' ){
              $container.css('max-height',maxWidgetHeight);
              if(containerLayout == 'vertical'){
                $container.height(height);
              }
+           }else if(widgetType == 'carousel'){
+             $container.css('min-height','200px');
            }
            var inline = $widget.data('inline');
            var align = $widget.data('align');
