@@ -1822,7 +1822,7 @@
             generateIcon: function(number, callback) {
 
                 if (page.generateIconCache[number] !== undefined) {
-                    callback(generateIconCache[number]);
+                    callback(page.generateIconCache[number]);
                 }
 
                 var fontSize = 16,

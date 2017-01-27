@@ -307,52 +307,23 @@
                    if(typeof $(this).data('node') == undefined){
                      return;
                    }
-                 var node = $widget.data('node');
-                 var pathContents = node.getRelatedNodes( 'path', 'outgoing' );
-                 var tagContents = node.getRelatedNodes( 'tag', 'outgoing' );
-                 var contents = pathContents.concat(tagContents);
+                 var nodes = $widget.data('node');
 
                  for ( p in properties ) {
 
                    property = properties[ p ];
-
-                   // if the current page has the spatial property, then
-                   if ( node.current.properties[ property ] != null ) {
-
-                     n = node.current.properties[ property ].length;
-                     for ( i = 0; i < n; i++ ) {
-                        markers = page.addMarkerFromLatLonStrToMap(
-                         node.current.properties[ property ][ i ].value,
-                         node.getDisplayTitle(),
-                         node.current.description,
-                         null,
-                         map,
-                         infoWindow,
-                         node.getAbsoluteThumbnailURL(),
-                         null,
-                         $gmaps,
-                         markers
-                       );
-                     }
-
-                   }
-                   n = contents.length;
+                   n = nodes.length;
 
                    // add markers for each content element that has the spatial property
                    for ( i = 0; i < n; i++ ) {
 
-                     node = contents[ i ];
+                     node = nodes[ i ];
 
                      if ( node.current.properties[ property ] != null ) {
 
                        o = node.current.properties[ property ].length;
                        for ( j = 0; j < o; j++ ) {
-
                          label = null;
-                         pathIndex = pathContents.indexOf(node);
-                         if (pathIndex != -1) {
-                           label = (pathIndex+1).toString();
-                         }
 
                          markers = page.addMarkerFromLatLonStrToMap(
                            node.current.properties[ property ][ j ].value,
@@ -381,13 +352,10 @@
                    $.each( markers, function ( index, marker ) {
                      bounds.extend( marker.position );
                    });
-                   if ( markers != null ) {
-                     map.fitBounds(bounds);
-                   }
 
                    var doResize = $.proxy(function(){
                      var markers = $(this).data('markers');
-                     if(markers.length > 1){
+                     if(markers.length > 0){
                        $(this).data('map').fitBounds($(this).data('bounds'));
                      }
                    },$gmaps);
@@ -627,7 +595,7 @@
                for ( var i = 0; i < n; i++ ) {
 
                  node = nodes[i];
-                 item = $( '<div class="item" style="height: ' + galleryHeight + 'px;"></div>' ).appendTo( $wrapper );
+                 item = $( '<div class="item" style="max-height : ' + galleryHeight + 'px;"></div>' ).appendTo( $wrapper );
                  if ( i == 0 ) {
                    item.addClass( "active" );
                  }
@@ -1038,7 +1006,6 @@
               window.setTimeout($.proxy(function(){$(this).removeClass('highlighted')},$(this).data('container')),500);
               return false;
             });
-
 
             $widget.trigger("slotCreated");
 				 }
