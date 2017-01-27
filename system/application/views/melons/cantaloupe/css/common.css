@@ -4,10 +4,10 @@
 @import url(//fonts.googleapis.com/css?family=Lato:900,400);
 
 /* Fonts */
-.heading_font, .tl-timeline h2.tl-headline { font-family: 'Lato', Arial, sans-serif !important; }
+.heading_font, .tl-timeline h2.tl-headline, article.page .tl-message-content { font-family: 'Lato', Arial, sans-serif !important; }
 .heading_font b, .heading_font strong { font-weight: 900; }
 .heading_weight { font-weight: 900; }
-.body_font, .tl-timeline div.tl-text-content { font-family: Georgia, Times, serif !important; }
+.body_font, .tl-timeline div.tl-text-content, article.page .tl-message-full .tl-message-container .tl-message-content { font-family: Georgia, Times, serif !important; }
 .caption_font, .tl-timeline { font-family: 'Lato', Arial, sans-serif !important; }
 .caption_font b, .caption_font strong { font-weight: 900; }
 .monospace_font { font-family: Courier, monospace; }
@@ -838,7 +838,7 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 	display: inline-block;
 }
 
-a.nav_btn {
+a.nav_btn,article.page .tl-message-full .tl-message-container .tl-message-content .tl-button {
 	padding: 1rem;
 	text-decoration: none;
 	background-color: #ddd;
@@ -847,6 +847,7 @@ a.nav_btn {
 	display: inline-block;
 	-webkit-font-smoothing: subpixel-antialiased;
 	cursor: pointer;
+	border-radius: 0;
 }
 a.nav_btn.primary {
 	background-color: #026697;
