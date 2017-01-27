@@ -970,7 +970,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						Caption : ['Description','Title','Title and Description','None','Custom Text']
 					};
 
-					if((typeof options.attrs.resource == 'undefined' || options.attrs.resource == null) && options.attrs['data-nodes'].indexOf(',')>=0){
+					if((typeof options.attrs.resource == 'undefined' || options.attrs.resource == null) && (typeof options.attrs['data-nodes'] == 'undefined' || options.attrs['data-nodes'].indexOf(',')>=0)){
 							formattingOptions.Caption = ['None','Custom Text'];
 					}
 
@@ -2012,7 +2012,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				for(var i in $(this).data('nodes')){
 					var item = $(this).data('nodes')[i];
 					slugs.push(item.slug);
-					console.log(item);
 					if(!$(this).data('opts').allowChildren || 'undefined'===typeof item.targets || 'undefined'===item.include_children || !item.include_children){continue;}
 					slugs[slugs.length-1]+='*';
 				}
