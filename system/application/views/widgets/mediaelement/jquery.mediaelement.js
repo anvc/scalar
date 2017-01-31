@@ -2171,9 +2171,9 @@ function YouTubeGetID(url){
 		 * Seeks to the annotation that was passed into the mediaelement instance.
 		 */
 		this.doAutoSeek = function(me) {
-			me.seek(me.model.seekAnnotation);
+			me.seek(this.model.seekAnnotation);
 			// YouTube videos will play immediately on seeking unless we do this
-			if ( me.model.mediaSource.name == 'YouTube' ) {
+			if ( this.model.mediaSource.name == 'YouTube' ) {
 				me.pause();
 			}
 		}
@@ -3970,7 +3970,7 @@ function YouTubeGetID(url){
 			   	me.highlightAnnotatedLines();
 				me.pause();
 				if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
-					me.parentView.doAutoSeek(this);
+					me.parentView.doAutoSeek(me.parentView);
 				}
 			});
 
@@ -4292,7 +4292,7 @@ function YouTubeGetID(url){
 			   	me.highlightAnnotatedLines();
 				me.pause();
 				if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
-					me.parentView.doAutoSeek(this);
+					me.parentView.doAutoSeek(me.parentView);
 				}
 			} ).fail( function( jqxhr, settings, exception ) {
 				console.log( 'error loading prism.js: ' + exception );
