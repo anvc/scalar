@@ -43,7 +43,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.$el.data("scalarheader", base);
 
         base.init = function(){
-            base.dataType = window.location.href.split('.').pop();
+            base.dataType = scalarapi.getFileExtension(window.location.href);
             if(['edit','versions','history','meta','annotation_editor'].indexOf(base.dataType)===-1){
               base.dataType = 'normal';
             }
