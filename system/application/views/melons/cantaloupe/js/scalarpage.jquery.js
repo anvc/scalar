@@ -450,6 +450,50 @@
 
             },
 
+            addContext: function() {
+                var contextBtn = $('<button class="header-controls-right btn btn-link btn-xs" data-toggle="popover" data-placement="bottom" >Context</button>');
+                $('article').prepend(contextBtn);
+                var contextMarkup = '';
+                var currentNode = scalarapi.model.getCurrentPageNode();
+                var i, relation, relations;
+                
+                contextMarkup += '<div class="citations">' + '<b>Citations of this media</b>';
+
+                relations = currentNode.getRelations('referee', 'incoming'); 
+                for (i in relations) {
+                    relation = relations[i];
+                    var is_inline = ($(relation.body.current.content).find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
+                    if (is_inline) {
+                        citingContent = '<i>Inline media</i>';
+                    } else {
+                        citingContent = '&ldquo;'+$(relation.body.current.content).find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+                    }
+                    contextMarkup += '<blockquote>' + citingContent + '</blockquote><p class="attribution">&mdash;from <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
+                }
+                
+                // show containing paths
+                relations = currentNode.getRelations('path', 'incoming', 'index');
+                for (i in relations) {
+                    relation = relations[i];
+                    contextMarkup += '<p><a href="' + currentNode.url + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
+                }
+                
+                // show tags
+                relations = currentNode.getRelations('tag', 'incoming');
+                for (i in relations) {
+                    relation = relations[i];
+                    contextMarkup += '<p>Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
+                }
+
+                contextMarkup += '</div>';
+                contextBtn.popover( { 
+                    trigger: "click", 
+                    template: '<div class="popover caption_font" role="tooltip"><h3 class="popover-title"></h3><div class="popover-content"></div>',
+                    content: contextMarkup,
+                    html: true 
+                } );
+            },
+
             addHeaderPathInfo: function() {
 
                 // show containing path in header
@@ -498,7 +542,7 @@
             	content = prefix + ' <b>“' + destinationNode.getDisplayTitle() + '”</b>';
             	var thumbnailURL = destinationNode.getAbsoluteThumbnailURL();
             	if (thumbnailURL != null) {
-            		content = '<img class="thumbnail" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
+            		content = '<img class="thumbnail" height="120" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
             	}
                 var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + direction + ' arrow"/></a>').insertBefore($('nav'));
             	arrow.popover({
@@ -555,14 +599,9 @@
                                 button = $('<p><a class="path_begin nav_btn" href="' + nodes[0].url + '?path=' +
                                     currentNode.slug + '">Begin with &ldquo;' + nodes[0].getDisplayTitle() +
                                     '&rdquo;</a></p>').appendTo(pathContents);
-                                //if (( page.containingPaths.length == 0 ) || !showLists ) {
                                 button.find('a').addClass('primary');
-                                //}
                                 pathOptionCount++;
                                 page.addPathButton('down', nodes[0], currentNode);
-	                            //var downArrow = $('<a class="path-nav down" data-toggle="popover" data-placement="top" data-content="Down to <b>“' + nodes[0].getDisplayTitle() + '”</b>" href="' + nodes[0].url + '?path=' +
-                                //    currentNode.slug + '"><img src="' + page.options.root_url + '/images/arrow_down@2x.png" alt="Down arrow"/></a>').insertBefore($('nav'));
-                            	//downArrow.popover({ trigger: "hover click", html: true, template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
                             }
                         }
 
@@ -574,9 +613,7 @@
                     section = $('<section class="relationships"></section');
 
                     page.addPathButton('up', page.containingPath, page.containingPath);
-                    //var upArrow = $('<a class="path-nav up" data-toggle="popover" data-placement="bottom" data-content="Up to <b>“' + page.containingPath.getDisplayTitle() + '”</b>" href="' + page.containingPath.url + '"><img src="' + page.options.root_url + '/images/arrow_up@2x.png" alt="Up arrow"/></span></a>').insertBefore($('nav'));
-                	//upArrow.popover({ trigger: "hover click", html: true, template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
-
+ 
 					if (page.containingPathNodes.length > 1) {
                         if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
 
@@ -600,9 +637,7 @@
                                 }
                           		var nextNodeOnPath = page.containingPathNodes[page.containingPathIndex + 1];
                           		page.addPathButton('right', nextNodeOnPath, page.containingPath);
-                              	//var rightArrow = $('<a class="path-nav right" data-toggle="popover" data-placement="left" data-content="Continue to <b>“' + nextNodeOnPath.getDisplayTitle() + '”</b>" href="' + nextNodeOnPath.url + '?path=' + page.containingPath.slug + '"><img src="' + page.options.root_url + '/images/arrow_right@2x.png" alt="Right arrow"/></a>').insertBefore($('nav'));
-                            	//rightArrow.popover({ trigger: "hover click", html: true, template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
-
+ 
                                 // back button
                                 if (page.containingPathIndex > 0) {
                                     var back_button = $('<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
@@ -619,8 +654,6 @@
                         if (page.containingPathIndex > 0) {
                         	var prevNodeOnPath = page.containingPathNodes[page.containingPathIndex - 1];
                         	page.addPathButton('left', prevNodeOnPath, page.containingPath);
-                            //var leftArrow = $('<a class="path-nav left" data-toggle="popover" data-placement="right" data-content="Back to <b>“' + prevNodeOnPath.getDisplayTitle() + '”</b>" href="' + prevNodeOnPath.url + '?path=' + page.containingPath.slug + '"><img src="' + page.options.root_url + '/images/arrow_left@2x.png" alt="Left arrow"/></a>').insertBefore($('nav'));
-                            //leftArrow.popover({ trigger: "hover click", html: true, template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
                         }
                     }
                     if (section.children().length > 0) {
@@ -2636,6 +2669,7 @@
                         page.addNotes();
                     }
                     page.addColophon();
+                    //page.addContext();
                     break;
 
             }
