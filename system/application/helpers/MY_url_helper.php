@@ -212,10 +212,11 @@
 
     }
 
-    function safe_name($filename='', $allow_forward_slash=true) {
+    function safe_name($filename='', $allow_forward_slash=true, $max_length=100) {
 
     	$filename = strip_tags($filename);
     	$filename = str_replace(" ","-",$filename);
+    	if (strlen($filename) > $max_length) $filename = substr($filename, 0, $max_length);
     	if ($allow_forward_slash) {  // TODO: presently book slugs are hard-wired to only be one URL segment
 			$filename =@ preg_replace('/[^A-Za-z0-9-_\/]/', '', $filename); 
     	} else {
