@@ -1093,7 +1093,7 @@ ScalarAPI.prototype.decimalSecondsToHMMSS = function(seconds, showMilliseconds) 
  * saveManyRelations, queueManyRelations, runManyRelations
  * A basic Ajax queue for saving relationships, as the save API presently saves one relationship at a time
  */
-ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
+ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCallback) {
 
 	var self = this;
 
@@ -1207,7 +1207,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 		});
 	});		
 
-	self.runManyRelations(completeCallback);
+	self.runManyRelations(completeCallback, stepCallback);
 
 }
 
@@ -1224,22 +1224,32 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback) {
 /**
  * @private
  */
-ScalarAPI.prototype.runManyRelations = function(completeCallback, errorCallback) {
+ScalarAPI.prototype.runManyRelations = function(completeCallback, stepCallback) {
 
 	if ('undefined'==typeof(this.relate_queue) || !this.relate_queue.length) {
 		completeCallback();
 		return;
+	}
+	
+	if ('undefined'==typeof(ScalarAPI.prototype.runManyRelations.count)) {
+		ScalarAPI.prototype.runManyRelations.count = 0;
+	}
+	ScalarAPI.prototype.runManyRelations.count++;
+	if ('undefined'==typeof(ScalarAPI.prototype.runManyRelations.total)) {
+		ScalarAPI.prototype.runManyRelations.total = this.relate_queue.length;
+	}	
+	if ('undefined'!=typeof(stepCallback)) {
+		stepCallback(ScalarAPI.prototype.runManyRelations.count, ScalarAPI.prototype.runManyRelations.total);
 	}
 
 	var self = this;
 
 	this.saveRelate(this.relate_queue[0], function() {
 		// Success running individual relate
-		self.runManyRelations(completeCallback);
+		self.runManyRelations(completeCallback, stepCallback);
 	}, function(jqXHR) {
-		// Error running individual relate
-		// TODO: At this point, fail gracefully
-		self.runManyRelations(completeCallback);
+		// Fail gracefully
+		self.runManyRelations(completeCallback, stepCallback);
 	});
 	this.relate_queue.shift();
 	

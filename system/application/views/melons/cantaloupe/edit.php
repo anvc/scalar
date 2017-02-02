@@ -1004,6 +1004,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <div class="row clearboth">
 	<div class="col-md-12" style="text-align:right;margin-top:10px;">
 		<span id="saved_text" class="text-success" style="float:left;display:none;"></span>
+		<div id="saving_text" class="text-warning" style="display:inline-block;visibility:hidden;padding-right:12px;"></div>
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
 		<input type="button" class="btn btn-default" value="Save" onclick="validate_edit_form($('#edit_form'),true);" />&nbsp; &nbsp;

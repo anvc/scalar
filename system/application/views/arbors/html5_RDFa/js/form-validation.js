@@ -268,6 +268,7 @@ function send_form($form, additional_values, success, redirect_url) {
 		send_form_hide_loading();
 	}
 
+	send_form_show_loading('Saving page...');
 	scalarapi.savePage(values, success, error);
 	return false;
 
@@ -340,8 +341,11 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 			document.location.href=redirect_url + '?' + get_str;
 		} 
 	}
+	var step = function(num, total) {
+		send_form_show_loading('Saving relation '+num+' of '+total);
+	}
 	
-	scalarapi.saveManyRelations(values, success);   	
+	scalarapi.saveManyRelations(values, success, step);   	
 
 }
 
@@ -377,8 +381,15 @@ function send_form_no_action($form, additional_values) {
 	
 }
 
-function send_form_show_loading() {
+function send_form_show_loading(saving_text) {
 
+	if ('undefined'==typeof(saving_text)) saving_text = null;
+	
+	if (saving_text) {
+		$('#saving_text').text(saving_text).css('visibility','visible');
+		return;
+	};
+	
 	$('input[value="Save"]').attr("disabled", "disabled");
     $('input[type="submit"]').attr("disabled", "disabled");
 
@@ -401,12 +412,14 @@ function send_form_show_loading() {
 		};
 		var target = document.getElementById('spinner_wrapper');
 		var spinner = new Spinner(opts).spin(target);
-	}
+	};
 
 }
 
 function send_form_hide_loading() {
 
+	$('#saving_text').text('').css('visibility','hidden');
+	
 	$('input[value="Save"]').removeAttr("disabled");
 	$('input[type="submit"]').removeAttr("disabled");
 	
