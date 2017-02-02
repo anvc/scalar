@@ -311,10 +311,10 @@ ol.has_tags li:last-child:after { content: ""; }
 .popover { width: 20rem; }
 .popover img.thumbnail { max-width: 17rem; margin-bottom: 1rem; display: inline; }
 .path-nav:hover { opacity: .9; }
-.path-nav.left { left: 2.4rem; }
-.path-nav.right { right: 2.4rem; }
-.path-nav.up { left: 2.4rem; top: 7rem; }
-.path-nav.down { right: 2.4rem; top: inherit; bottom: 2rem; }
+.path-nav.left { right: calc(((100% - 104rem) / 2) + 106.4rem); }
+.path-nav.right { left: calc(((100% - 104rem) / 2) + 106.4rem); }
+.path-nav.up { right: calc(((100% - 104rem) / 2) + 106.4rem); top: 7rem; }
+.path-nav.down { left: calc(((100% - 104rem) / 2) + 106.4rem); top: inherit; bottom: 2rem; }
 .path-nav-popover { font-size: 1.4rem; text-align: center; }
 
 .path-breadcrumb {
