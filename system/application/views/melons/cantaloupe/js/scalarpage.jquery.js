@@ -508,7 +508,7 @@
             },
 
             addPathButton: function(direction, destinationNode, pathNode) {
-            	var prefix;
+            	/*var prefix;
             	var popooverPlacement;
             	var pathVar;
             	var content;
@@ -549,7 +549,7 @@
             		trigger: "hover click",
             		html: true,
             		content: content,
-            		template: '<div class="popover caption_font path-nav-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
+            		template: '<div class="popover caption_font path-nav-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });*/
             },
 
             // Currently used options: showLists, showParentNav, showChildNav, showLateralNav, isCentered, showAnno, showComments, showTags
