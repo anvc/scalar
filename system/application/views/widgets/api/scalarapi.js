@@ -1207,6 +1207,9 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
 		});
 	});		
 
+	ScalarAPI.prototype.runManyRelations.count = 0;
+	ScalarAPI.prototype.runManyRelations.total = null;
+	
 	self.runManyRelations(completeCallback, stepCallback);
 
 }
@@ -1231,11 +1234,8 @@ ScalarAPI.prototype.runManyRelations = function(completeCallback, stepCallback) 
 		return;
 	}
 	
-	if ('undefined'==typeof(ScalarAPI.prototype.runManyRelations.count)) {
-		ScalarAPI.prototype.runManyRelations.count = 0;
-	}
 	ScalarAPI.prototype.runManyRelations.count++;
-	if ('undefined'==typeof(ScalarAPI.prototype.runManyRelations.total)) {
+	if (null==ScalarAPI.prototype.runManyRelations.total) {
 		ScalarAPI.prototype.runManyRelations.total = this.relate_queue.length;
 	}	
 	if ('undefined'!=typeof(stepCallback)) {
