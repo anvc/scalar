@@ -729,7 +729,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										 return false;
 									 }
 
-									 var nodeList = $('#bootbox-content-selector-content .timeline_node_selection').data('nodes');
+									 var nodeList = $('#bootbox-content-selector-content .timeline_node_selection .node_selector').data('nodes');
 									 if(nodeList.length > 1){
 										 order_nodes(data,nodeList);
 									 }else{
@@ -895,7 +895,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one item for your card widget.");
 									 return false;
 								 }
-								 var nodeList = $('#bootbox-content-selector-content .card_multi_selection').data('nodes');
+								 var nodeList = $('#bootbox-content-selector-content .card_multi_selection .node_selector').data('nodes');
 								 if(nodeList.length > 1){
 									 order_nodes(data,nodeList);
 								 }else{
@@ -934,7 +934,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one item for your summary widget.");
 									 return false;
 								 }
-								 var nodeList = $('#bootbox-content-selector-content .summary_multi_selection').data('nodes');
+								 var nodeList = $('#bootbox-content-selector-content .summary_multi_selection .node_selector').data('nodes');
 								 if(nodeList.length > 1){
 									 order_nodes(data,nodeList);
 								 }else{
