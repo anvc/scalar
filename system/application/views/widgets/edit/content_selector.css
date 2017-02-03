@@ -210,3 +210,8 @@
 	max-width: 75%;
 	width: 75%;
 }
+.selectedNodeChildrenList{
+	font-size: smaller;
+    margin-left: 4rem;
+    margin-bottom: 1rem;
+}

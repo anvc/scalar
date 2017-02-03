@@ -491,7 +491,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
     		// Bootstrap positioning
   			$footer.find('.cancel').hide();  // Remove cancel button
-  			$(window).trigger('resize');  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
+  			modal_height();  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
     		// Behaviors
     		$footer.hide();  // Default
     		$footer.find('a:first').click(function() {  // On-the-fly
@@ -723,11 +723,17 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 data.attrs["data-widget"] = data.type;
 								 if(timeline_data_type == 'node'){
 									 var nodes = $('#bootbox-content-selector-content .timeline_node_selection').data('serialize_nodes')();
-									 console.log(nodes);
 									 data.attrs['data-nodes'] = nodes;
 									 if(data.attrs['data-nodes'] == undefined || data.attrs['data-nodes'].length == 0){
 										 alert("Please select Scalar content that contains your timeline's temporal data.");
 										 return false;
+									 }
+
+									 var nodeList = $('#bootbox-content-selector-content .timeline_node_selection').data('nodes');
+									 if(nodeList.length > 1){
+										 order_nodes(data,nodeList);
+									 }else{
+	 								 	select_widget_formatting(data)
 									 }
 								 }else{
 									 data.attrs['data-timeline'] = $('#bootbox-content-selector-content .timeline_external_url_selector input').val();
@@ -735,8 +741,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										 alert("Please enter the URL of a JSON file or Google Drive document formatted for Timeline.js.");
 										 return false;
 									 }
+									 select_widget_formatting(data);
 								 }
-								 select_widget_formatting(data)
+
 								 e.preventDefault();
 								 e.stopPropagation();
 							 }
@@ -808,8 +815,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one geotagged Scalar item.");
 									 return false;
 								 }
-
- 								 select_widget_formatting(data)
+								 var nodeList = $('#bootbox-content-selector-content .map_node_selection').data('nodes');
+								 if(nodeList.length > 1){
+									 order_nodes(data,nodeList);
+								 }else{
+ 								 	select_widget_formatting(data)
+								 }
  								 e.preventDefault();
  								 e.stopPropagation();
  							 }
@@ -844,7 +855,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one media item for your carousel widget.");
 									 return false;
 								 }
-								 select_widget_formatting(data);
+								 var nodeList = $('#bootbox-content-selector-content .carousel_multi_selection .node_selector').data('nodes');
+								 if(nodeList.length > 1){
+									 order_nodes(data,nodeList);
+								 }else{
+									select_widget_formatting(data)
+								 }
 								 e.preventDefault();
 								 e.stopPropagation();
 							 }
@@ -879,7 +895,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one item for your card widget.");
 									 return false;
 								 }
-								 select_widget_formatting(data);
+								 var nodeList = $('#bootbox-content-selector-content .card_multi_selection').data('nodes');
+								 if(nodeList.length > 1){
+									 order_nodes(data,nodeList);
+								 }else{
+									select_widget_formatting(data)
+								 }
 								 e.preventDefault();
 								 e.stopPropagation();
 							 }
@@ -913,7 +934,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one item for your summary widget.");
 									 return false;
 								 }
-								 select_widget_formatting(data);
+								 var nodeList = $('#bootbox-content-selector-content .summary_multi_selection').data('nodes');
+								 if(nodeList.length > 1){
+									 order_nodes(data,nodeList);
+								 }else{
+									select_widget_formatting(data)
+								 }
 								 e.preventDefault();
 								 e.stopPropagation();
 							 }
@@ -928,9 +954,61 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						 $('#bootbox-content-selector-content').find('.widgetList').fadeIn('fast');
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($footer).click(submitAction).data("isEdit",isEdit);
+					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($footer).click(submitAction).data("isEdit",isEdit);
 					$content.append('<div class="clearfix"></div>');
 					modal_height();
+				});
+			}
+			var order_nodes = function(options,nodeList){
+				$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
+					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Reorder selected pages').fadeIn('fast');});
+					var submitAction = function(e){
+						e.preventDefault();
+						e.stopPropagation();
+						var nodeList = [];
+						$('.nodeOrdering ol.nodeList>li').each(function(){
+							var slug = $(this).data('slug')+($(this).find('.selectedNodeChildrenList').length>0?'*':'');
+							nodeList.push(slug);
+						});
+						options.attrs['data-nodes'] = nodeList.join(',');
+						select_widget_formatting(options);
+						return false;
+					};
+
+					var $nodes = $('<ol class="nodeList"></ol>');
+
+					for(var n in nodeList){
+						var node = nodeList[n];
+						var $node = $('<li><strong>'+node.title+'</strong></li>').data('slug',node.slug);
+						if(typeof node.include_children !== 'undefined' && node.include_children){
+							$node.append('<div class="selectedNodeChildrenList text-muted">Includes children:</div>');
+							$childList = $('<ul></ul>').appendTo($node.find('.selectedNodeChildrenList'));
+							for(var t in node.targets){
+								$childList.append('<li><small>'+node.targets[t].target.current.title+'</small></li>');
+							}
+						}
+						$nodes.append($node);
+					}
+
+					var $content = $('<div class="nodeOrdering"><div class="widget_data_type">If you would like to reorder the selected content for this widget, you may do so by clicking and dragging. When you are satisfied with the order, click "Continue" below.</div></div>').appendTo('#bootbox-content-selector-content').data('options',options);
+
+					$nodes.appendTo($content).sortable();
+					$nodes.sortable('enable');
+					$nodes.sortable({
+				  	scroll:false,
+				  	helper:'clone',
+						appendTo:'.widget_selector_bootbox'
+				  });
+
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
+					 $('#bootbox-content-selector-content').find('.nodeOrdering').fadeOut('fast',function(){
+						 $(this).remove();
+						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
+						 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
+					 });
+				  });
+					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($content).click(submitAction);
+					$content.append('<div class="clearfix"></div>');
 				});
 			}
 			var select_widget_formatting = function(options){
@@ -939,8 +1017,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if(typeof isEdit == "undefined" || isEdit == null || !isEdit){
 					isEdit = false;
 				}
-
-				$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
+				$previous_page = $('#bootbox-content-selector-content').find('.nodeOrdering').length > 0?$('#bootbox-content-selector-content').find('.nodeOrdering'):$('#bootbox-content-selector-content').find('.widgetOptions');
+				$previous_page.fadeOut('fast',function(){
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Choose formatting').fadeIn('fast');});
 					var submitAction = function(e){
 						e.preventDefault();
@@ -1027,8 +1105,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
 					 $('#bootbox-content-selector-content').find('.widgetFormatting').fadeOut('fast',function(){
 						 $(this).remove();
-						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
-						 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
+						 if($('#bootbox-content-selector-content').find('.nodeOrdering').length > 0){
+							 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Reorder selected pages').fadeIn('fast');});
+							 $('#bootbox-content-selector-content').find('.nodeOrdering').fadeIn('fast');
+						 }else{
+							 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
+							 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
+						 }
 					 });
 					})
 					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($content).click(submitAction);
@@ -1204,6 +1287,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if("undefined" === typeof _data[body].rel){
 										_data[body].rel = [];
 								}
+								var version = _data[ _data[target]['http://purl.org/dc/terms/hasVersion'][0].value ];
+								_data[target].target = {current:{title:('undefined'!==typeof(version["http://purl.org/dc/terms/title"])) ? version["http://purl.org/dc/terms/title"][0].value : ''}};
 								_data[body].rel.push(_data[target]);
 								have_relationships = true;
 							}
@@ -1335,6 +1420,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																</div>';
 
       var $dialogue_container = $(dialogue_container);
+
+			$dialogue_container.hide();
+
 			if (window['Spinner']) {
 				var spinner_options = {
 				  lines: 13, // The number of lines to draw
@@ -1358,6 +1446,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				});
 			}
 			var resize = $.proxy(function($dialogue_container){
+				$dialogue_container.show();
 				var height = $(this).height();
 				height -= $(this).find('.panel-heading').outerHeight();
 				height -= $(this).find('.panel-footer').outerHeight();
@@ -1663,8 +1752,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$(this).find('.spinner_container').hide();
 				$(this).find('.node_types .btn').removeProp('disabled').removeClass('disabled');
 
-				resize();
-
 			},$dialogue_container);
 
 			var updateSelectedCounter = $.proxy(function(){
@@ -1909,7 +1996,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				updateSelectedCounter();
 				$dialogue_container.find('.node_filter button').click();
 				$(this).append($dialogue_container);
-				window.setTimeout(resize,200);
+				window.setTimeout(resize,400);
 			},this,$dialogue_container,opts,resize);
 
 			jQuery.when(init_promise).then(init_selector);
