@@ -1231,8 +1231,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri + '/dashboard?'+(base.is_author?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign out</a></li>');
             } else {
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url, 'cantaloupe')) + '">Sign in</a></li>');
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url, 'cantaloupe')) + '">Register</a></li>');
+                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign in</a></li>');
+                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Register</a></li>');
             }
         }
 
