@@ -206,6 +206,9 @@ class CI_Template {
    {
       if (count($regions))
       {
+      	 // Commenting this out allows a hook to, e.g., add_js() and have it stick
+      	 // Edited by Craig, 4 February 2017
+      	 /*
          $this->regions = array(
             '_scripts' => array(),
             '_styles' => array(),
@@ -213,6 +216,7 @@ class CI_Template {
          	'_links' => array(),
          	'_html' => array()
          );
+         */
          foreach ($regions as $key => $region)
          {
             // Regions must be arrays, but we take the burden off the template
@@ -252,7 +256,9 @@ class CI_Template {
       }
       else
       {
-         show_error('The "'. $name .'" region has already been defined.');
+      	 // Commenting this out allows a hook to, e.g., add_js() and have it stick
+      	 // Edited by Craig, 4 February 2017
+         // show_error('The "'. $name .'" region has already been defined.');
       }
    }
 
