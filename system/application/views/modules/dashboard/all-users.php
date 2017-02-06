@@ -97,6 +97,7 @@ User has been added
 		<form class="user-search-form">
 		 	<input placeholder="Find User" type="text" class="user-search" size="20" />
 			<input style="vertical-align:bottom;" type="submit" value="Search" class="generic_button" />
+			<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing user ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
 			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-users">clear</a>
 		 </form>
 		</div>

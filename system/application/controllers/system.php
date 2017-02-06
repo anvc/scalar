@@ -387,7 +387,7 @@ class System extends MY_Controller {
 					}
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					exit;
-				case 'do_delete':    // Admin: All Users & All Books
+				case 'do_delete':  // Admin: All Users & All Books
 					if (!$this->data['login_is_super']) $this->kickout();
 					$zone = $this->data['zone'];
 					$delete = (int) $_REQUEST['delete'];
@@ -396,6 +396,27 @@ class System extends MY_Controller {
 					if (!$this->$type->delete($delete)) show_error('There was a problem deleting. Please try again');
 					header('Location: '.$this->base_url.'?action=deleted&zone='.$zone.'#tabs-'.$zone);
 					exit;
+				case 'do_delete_books':  // Admin: Tools > List recently created books 
+					if (!$this->data['login_is_super']) $this->kickout();
+					$zone = $this->data['zone'];
+					$book_ids = explode(',',$_REQUEST['book_ids']);
+					$delete_creators = (1==(int)$_REQUEST['delete_creators']) ? true : false;
+					foreach ($book_ids as $book_id) {
+						$book_id = (int) $book_id;
+						if (empty($book_id)) continue;
+						$book = $this->books->get($book_id, false);
+						if (empty($book)) continue;
+						if ($delete_creators) {
+							$creator_id = (int) $book->user;
+						    $this->users->delete($creator_id);
+						}
+						$this->books->delete($book_id);
+					}
+					// Don't break
+				case "get_recent_book_list":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$this->data['recent_book_list'] = $this->books->get_all_with_creator(0, false, $orderby='created',$orderdir='desc');
+					break;
 				case "get_email_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
 					$users = $this->users->get_all();
@@ -488,17 +509,18 @@ class System extends MY_Controller {
 			$this->data['total'] = (isset($_REQUEST['total']) && is_numeric($_REQUEST['total']) && $_REQUEST['total'] > 0) ? $_REQUEST['total'] : 20;
 	 		$this->data['start'] = (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $_REQUEST['start'] > 0) ? $_REQUEST['start'] : 0;
 	 		$query = isset($_REQUEST['sq'])?$_REQUEST['sq']:null;
+	 		$id = isset($_REQUEST['id'])?(int) $_REQUEST['id']:null;
 			switch ($this->data['zone']) {
 			 	case 'all-users':
 			 		if($this->data['login_is_super']) {
 			 			if(isset($query)) {
 			 				$this->data['users'] = $this->users->search($query);
-			 			}
-			 			else {
+			 			} elseif(isset($id)) {
+			 				$this->data['users'] = array($this->users->get_by_user_id($id));
+			 			} else {
 							$this->data['users'] = $this->users->get_all(0,false,'fullname','asc',$this->data['total'],$this->data['start']);
 			 			}
-			 		}
-			 		else {
+			 		} else {
 			 			$this->data['users'] = array();
 			 		}
 					for ($j = 0; $j < count($this->data['users']); $j++) {
@@ -509,12 +531,12 @@ class System extends MY_Controller {
 			 		if($this->data['login_is_super']) {
 			 			if(isset($query)) {
 			 				$this->data['books'] = $this->books->search($query);
-			 			}
-			 			else {
+			 			} elseif(isset($id)) {
+			 				$this->data['books'] = array($this->books->get($id));
+			 			} else {
 							$this->data['books'] = $this->books->get_all(0,false,'title','asc',$this->data['total'],$this->data['start']);
 						}
-			 		}
-			 		else {
+			 		} else {
 			 			$this->data['books'] = array();
 			 		}
 					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();

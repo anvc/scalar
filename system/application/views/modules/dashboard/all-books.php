@@ -163,6 +163,7 @@ Book has been added
 		<form class="book-search-form">
 		 	<input placeholder="Find Book" type="text" class="book-search" size="20" />
 			<input style="vertical-align:bottom;" type="submit" value="Search" class="generic_button" />
+			<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing book ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
 			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-books">clear</a>
 		 </form>
 		</div>

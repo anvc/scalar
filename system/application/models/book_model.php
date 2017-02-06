@@ -121,7 +121,7 @@ class Book_model extends MY_Model {
 
     }
 
-    public function get_all($user_id=0, $is_live=false, $orderby='title',$orderdir='asc',$total=null,&$start=null) {
+    public function get_all($user_id=0, $is_live=false, $orderby='title',$orderdir='asc', $total=null, &$start=null) {
 
     	$this->db->select('*');
     	$this->db->from($this->books_table);
@@ -163,6 +163,31 @@ class Book_model extends MY_Model {
 
     	return $result;
 
+    }
+    
+    public function get_all_with_creator($user_id=0, $is_live=false, $orderby='title',$orderdir='asc') {
+    
+    	$this->db->select('*');
+    	$this->db->from($this->books_table);
+    	if (!empty($user_id)) {
+    		$this->db->join($this->user_book_table, $this->books_table.'.book_id='.$this->user_book_table.'.book_id');
+    		$this->db->where($this->user_book_table.'.user_id',$user_id);
+    	}
+    	if (!empty($is_live)) {
+    		$this->db->where($this->books_table.'.url_is_public',1);
+    		$this->db->where($this->books_table.'.display_in_index',1);
+    	}
+    	$this->db->order_by($orderby, $orderdir);
+    
+    	$query = $this->db->get();
+    	$result = $query->result();
+    	$ci=&get_instance();
+    	for ($j = 0; $j < count($result); $j++) {
+    		$result[$j]->creator = $ci->users->get_by_user_id($result[$j]->user);
+    	}
+    
+    	return $result;
+    
     }
 
     public function get_duplicatable($orderby='title',$orderdir='asc') {
