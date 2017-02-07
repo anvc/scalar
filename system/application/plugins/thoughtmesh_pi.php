@@ -32,6 +32,7 @@ $js = <<<EOT
 
 $(document).ready(function() {
   $('body').on('pageLoadComplete', function() {
+	 if ($('[property="sioc:content"]').is(':empty')) return;
      var opts = {};
 	 $('#footer').thoughtmesh(opts);
   });
