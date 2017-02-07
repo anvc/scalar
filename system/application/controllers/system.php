@@ -415,7 +415,7 @@ class System extends MY_Controller {
 					// Don't break
 				case "get_recent_book_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
-					$this->data['recent_book_list'] = $this->books->get_all_with_creator(0, false, $orderby='created',$orderdir='desc');
+					$this->data['recent_book_list'] = $this->books->get_all_with_creator(0, false,'created','desc',500);
 					break;
 				case "get_email_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();

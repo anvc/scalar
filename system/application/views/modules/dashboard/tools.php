@@ -12,13 +12,21 @@ $(document).ready(function() {
 		$(this).find('[name="book_ids"]').val(book_ids.join(','));
 		return true;
 	});
+	$('.div_list').find('input[type="checkbox"]').change(function() {
+		var checked = $(this).is(':checked') ? true : false;
+		if (checked) {
+			$(this).closest('div').addClass('active');
+		} else {
+			$(this).closest('div').removeClass('active');
+		};
+	});
 });
 </script>
 <h4>Admin Tools</h4>
 <form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_recent_book_list" />
-List recently created books:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
+List books, most recent first:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Delete books and their creators from this list; links open All Books or All Users tab in new window</span>
 <div class="div_list"><?php 
 	if (!isset($recent_book_list)) {
@@ -28,12 +36,18 @@ List recently created books:&nbsp; <input type="submit" value="Generate" />&nbsp
 	} else {
 		foreach($recent_book_list as $book) {
 			echo '<div>';
-			echo '<input type="checkbox" name="book_id[]" value="'.$book->book_id.'" /> &nbsp; ';
-			echo '<a href="'.base_url().'system/dashboard?zone=all-books&id='.$book->book_id.'#tabs-all-books" target="_blank">'.((!empty($book->title))?trim($book->title):'(No title)').'</a> &nbsp; ';
+			echo '<label><input type="checkbox" name="book_id[]" value="'.$book->book_id.'" /> &nbsp; ';
+			echo date('Y-m-d', strtotime($book->created)).'</label> &nbsp; ';
+			echo '<a href="'.base_url().$book->slug.'" target="_blank">'.((!empty($book->title))?trim($book->title):'(No title)').'</a> &nbsp; ';
 			echo (!empty($book->subtitle)) ? $book->subtitle.' &nbsp; ' : '';
 			echo (!empty($book->description)) ? $book->subtitle.' &nbsp; ' : '';
-			echo date('Y-m-d H:i:s', strtotime($book->created)).' &nbsp; ';
-			echo 'created by <a href="'.base_url().'system/dashboard?zone=all-users&id='.$book->creator->user_id.'#tabs-all-users" target="_blank">'.$book->creator->fullname.'</a> id '.$book->user.' &nbsp; ';
+			if (!empty($book->creator)) {
+				echo 'created by <a href="'.base_url().'system/dashboard?zone=all-users&id='.$book->creator->user_id.'#tabs-all-users" target="_blank">';
+				echo $book->creator->fullname;
+				echo '</a> &nbsp; ';
+			} else {
+				echo 'created by user no longer exists &nbsp; ';
+			}
 			echo '</div>'."\n";
 		}
 	}

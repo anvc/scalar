@@ -165,7 +165,7 @@ class Book_model extends MY_Model {
 
     }
     
-    public function get_all_with_creator($user_id=0, $is_live=false, $orderby='title',$orderdir='asc') {
+    public function get_all_with_creator($user_id=0, $is_live=false, $orderby='title', $orderdir='asc', $total=null) {
     
     	$this->db->select('*');
     	$this->db->from($this->books_table);
@@ -176,6 +176,9 @@ class Book_model extends MY_Model {
     	if (!empty($is_live)) {
     		$this->db->where($this->books_table.'.url_is_public',1);
     		$this->db->where($this->books_table.'.display_in_index',1);
+    	}
+    	if (!empty($total)) {
+    		$this->db->limit($total);
     	}
     	$this->db->order_by($orderby, $orderdir);
     
