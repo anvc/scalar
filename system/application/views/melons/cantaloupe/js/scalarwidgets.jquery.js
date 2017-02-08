@@ -1012,7 +1012,7 @@
             }else{
               var slug = $widget.attr('resource').replace(/\*/g, '');
             }
-            if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')!='custom_text' && slug.indexOf(',')>-1)){
+            if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')!='custom_text' || slug.indexOf(',')==-1)){
               var $widgetinfo = $('<div class="mediaElementFooter caption_font mediainfo"></div>').appendTo($container);
               var $descriptionPane = $('<div class="media_description pane"></div>').appendTo($widgetinfo);
               var caption_type = $widget.data('caption');
