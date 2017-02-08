@@ -159,7 +159,7 @@
                        }
                      }
                      for(var i in slugs){
-                       var node = scalarapi.getNode(slugs[i].id);
+                       var node = jQuery.extend(true, {}, scalarapi.getNode(slugs[i].id));
                        if(slugs[i].children){
                          node.children = {};
                          for(var r in node.outgoingRelations){
@@ -194,7 +194,7 @@
                      }
 
                      for(var i in slugs){
-                       var node = scalarapi.getNode(slugs[i].id);
+                       var node = jQuery.extend(true, {}, scalarapi.getNode(slugs[i].id));
                        if(slugs[i].children){
                          node.children = {};
                          for(var r in node.outgoingRelations){
@@ -223,7 +223,7 @@
                (function(include_children,slug,fullReload,$widget){
                  if(scalarapi.loadPage( slug, fullReload, function(){
                    if(include_children){
-                     var node = scalarapi.getNode(slug);
+                     var node = jQuery.extend(true, {}, scalarapi.getNode(slug));
                      node.children = {};
                      for(var r in node.outgoingRelations){
                        var child = node.outgoingRelations[r];
@@ -240,7 +240,7 @@
                    promise.resolve();
                  }, null, 1, false, null, 0, 20) == "loaded"){
                    if(include_children){
-                     var node = scalarapi.getNode(slug);
+                     var node = jQuery.extend(true, {}, scalarapi.getNode(slug));
                      node.children = {};
                      for(var r in node.outgoingRelations){
                        var child = node.outgoingRelations[r];
@@ -323,8 +323,8 @@
                  if(typeof $(this).data('node') == undefined){
                    return;
                  }
-                 var nodes = $widget.data('node');
 
+                 var nodes = $widget.data('node');
                  var parseNodes = function(nodes,properties,this_markers){
                    var n = nodes.length;
                    var hasNodes = false;
@@ -332,7 +332,6 @@
                    for ( i = 0; i < n; i++ ) {
 
                      var node = nodes[ i ];
-
                      for ( p in properties ) {
                        var property = properties[ p ];
                        if ( node.current.properties[ property ] != null ) {
@@ -373,15 +372,6 @@
                    $.each( markers, function ( index, marker ) {
                      bounds.extend( marker.position );
                    });
-
-                   var doResize = $.proxy(function(){
-                     var markers = $(this).data('markers');
-                     if(markers.length > 0){
-                       $(this).data('map').fitBounds($(this).data('bounds'));
-                     }
-                   },$gmaps);
-
-                   $(window).on('resize',doResize);
                  }else{
                    $gmaps.append( '<div class="alert alert-danger">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
                  }
