@@ -630,15 +630,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var modal_height = function() {
     		var $widget_selector_bootbox = $('.widget_selector_bootbox');
-    		if (!$widget_selector_bootbox.length) return;
+    		if (!$widget_selector_bootbox.length||!$widget_selector_bootbox.find('.widgetOptions').is(':visible')) return;
     		var margin = parseInt($widget_selector_bootbox.find('.modal-dialog').css('marginTop'));
     		var head = parseInt( $widget_selector_bootbox.find('.modal-header').outerHeight() );
     		if (head < 60) head = 60;  // Magic number
 	    	var window_height = parseInt($(window).height());
 	    	var val = window_height - head - (margin*2);
-    		$widget_selector_bootbox.find('.node_selection').hide();
-				val -= $widget_selector_bootbox.find('.modal-body').outerHeight();
-				$widget_selector_bootbox.find('.node_selection').show().height(val);
+				val -= $widget_selector_bootbox.find('.modal-body').outerHeight()-$widget_selector_bootbox.find('.node_selection').outerHeight();
+				$widget_selector_bootbox.find('.node_selection').height(val).trigger('doResize');
     	};
 
 			var select_widget_options = function(widget_type,isEdit){
@@ -1001,7 +1000,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					 $('#bootbox-content-selector-content').find('.nodeOrdering').fadeOut('fast',function(){
 						 $(this).remove();
 						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
-						 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
+						 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast',function(){
+							 modal_height();
+						 });
 					 });
 				  });
 					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($content).click(submitAction);
@@ -1107,7 +1108,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 $('#bootbox-content-selector-content').find('.nodeOrdering').fadeIn('fast');
 						 }else{
 							 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
-							 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
+							 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast',function(){
+								 modal_height();
+							 });
 						 }
 					 });
 					})
@@ -1452,6 +1455,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				height -= 10;  // Update by Craig; orig value: 28
 				$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
 				height -= $(this).find('.panel-body>table').outerHeight();
+				var orig_height = height;
+				height = Math.max(height,50);
+				if(height > orig_height){
+					var diff = height - orig_height;
+					$(this).height($(this).height()+diff);
+				}
 				$dialogue_container.find('.node_selector_table_body').height(height);
 			},this,$dialogue_container);
 			var shorten_description = function(description){
@@ -2103,7 +2112,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				return slugs.join(',');
 			},$dialogue_container));
 
-			$(window).on('resize',resize);
+			$(this).on('doResize',resize);
 
 			return $(this);
 		};
