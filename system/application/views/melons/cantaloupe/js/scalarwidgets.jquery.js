@@ -33,6 +33,9 @@
          base.$el.data("scalarwidgets", base);
 
          base.init = function(){
+             if(page.bodyCopyWidth == null){
+               page.calculatePageDimensions();
+             }
              if(typeof loadedTimeline == 'undefined'){
                loadedTimeline = false;
              }
@@ -157,12 +160,18 @@
                      }
                      for(var i in slugs){
                        var node = scalarapi.getNode(slugs[i].id);
-                       nodeList.push(node);
                        if(slugs[i].children){
+                         node.children = {};
                          for(var r in node.outgoingRelations){
-                           nodeList.push(node.outgoingRelations[r].target);
+                           var child = node.outgoingRelations[r];
+                           var type = child.type.body;
+                           if(typeof node.children[type] == "undefined"){
+                             node.children[type] = [];
+                           }
+                           node.children[type].push(child.target);
                          }
                        }
+                       nodeList.push(node);
                      }
 
                      $widget.data('node',nodeList);
@@ -186,12 +195,18 @@
 
                      for(var i in slugs){
                        var node = scalarapi.getNode(slugs[i].id);
-                       nodeList.push(node);
                        if(slugs[i].children){
+                         node.children = {};
                          for(var r in node.outgoingRelations){
-                           nodeList.push(node.outgoingRelations[r].body);
+                           var child = node.outgoingRelations[r];
+                           var type = child.type.body;
+                           if(typeof node.children[type] == "undefined"){
+                             node.children[type] = [];
+                           }
+                           node.children[type].push(child.target);
                          }
                        }
+                       nodeList.push(node);
                      }
 
 
@@ -201,44 +216,47 @@
                    }
                  })(slugs[i],promise,slugs);
                }
-             }else{
-
+             }
+             else{
      					 var include_children = slug.indexOf('*')>-1;
      					 var slug = slug.replace(/\*/g, '');
-
-               if(typeof base.pendingNodeLoads[slug] == "undefined"){
-                 base.pendingNodeLoads[slug] = [];
-               }
-               base.pendingNodeLoads[slug].push({widget:$widget,promise:promise,children:include_children});
-               if(scalarapi.loadPage( slug, fullReload, function(){
-                   for(var i in base.pendingNodeLoads[slug]){
-                     if(base.pendingNodeLoads[slug][i].children){
-                       var node = scalarapi.getNode(slug);
-                       base.pendingNodeLoads[slug][i].widget.data('node',[node]);
-                       for(var r in node.outgoingRelations){
-                         base.pendingNodeLoads[slug][i].widget.data('node').push(node.outgoingRelations[r].target);
-                       }
-                     }else{
-                       base.pendingNodeLoads[slug][i].widget.data('node',[scalarapi.getNode(slug)]);
-                     }
-                     base.pendingNodeLoads[slug][i].promise.resolve();
-                   }
-                   base.pendingNodeLoads[slug] = [];
-               }, null, 1, false, null, 0, 20) == "loaded"){
-                 for(var i in base.pendingNodeLoads[slug]){
-                   if(base.pendingNodeLoads[slug][i].children){
+               (function(include_children,slug,fullReload,$widget){
+                 if(scalarapi.loadPage( slug, fullReload, function(){
+                   if(include_children){
                      var node = scalarapi.getNode(slug);
-                     base.pendingNodeLoads[slug][i].widget.data('node',[node]);
+                     node.children = {};
                      for(var r in node.outgoingRelations){
-                       base.pendingNodeLoads[slug][i].widget.data('node').push(node.outgoingRelations[r].target);
+                       var child = node.outgoingRelations[r];
+                       var type = child.type.body;
+                       if(typeof node.children[type] == "undefined"){
+                         node.children[type] = [];
+                       }
+                       node.children[type].push(child.target);
                      }
+                     $widget.data('node',[node]);
                    }else{
-                     base.pendingNodeLoads[slug][i].widget.data('node',[scalarapi.getNode(slug)]);
+                     $widget.data('node',[scalarapi.getNode(slug)]);
                    }
-                   base.pendingNodeLoads[slug][i].promise.resolve();
+                   promise.resolve();
+                 }, null, 1, false, null, 0, 20) == "loaded"){
+                   if(include_children){
+                     var node = scalarapi.getNode(slug);
+                     node.children = {};
+                     for(var r in node.outgoingRelations){
+                       var child = node.outgoingRelations[r];
+                       var type = child.type.body;
+                       if(typeof node.children[type] == "undefined"){
+                         node.children[type] = [];
+                       }
+                       node.children[type].push(child.target);
+                     }
+                     $widget.data('node',[node]);
+                   }else{
+                     $widget.data('node',[scalarapi.getNode(slug)]);
+                   }
+                   promise.resolve();
                  }
-                 base.pendingNodeLoads[slug] = [];
-               }
+              })(include_children,slug,fullReload,$widget);
              }
            }
          }
@@ -268,7 +286,6 @@
 				 base.renderMap = function($widget){
             //Grab the container for this widget
             var $element = $widget.data('element');
-
             var gmapPromise = $.Deferred();
             $.when(gmapPromise).then($.proxy(function(){
               var $widget = this;
@@ -293,59 +310,63 @@
                  var map = new google.maps.Map( $gmaps[0], mapOptions );
                  // create info window
                  var infoWindow = new google.maps.InfoWindow({
-                   content: contentString,
                    maxWidth: 400
                  });
 
-                 var property, contents, node, contentString, label, pathIndex,
-                   properties = [
+                 var properties = [
                      'http://purl.org/dc/terms/coverage',
                      'http://purl.org/dc/terms/spatial'
-                   ]
-                   markers = null;
+                   ];
 
-                   if(typeof $(this).data('node') == undefined){
-                     return;
-                   }
+                 var markers = [];
+
+                 if(typeof $(this).data('node') == undefined){
+                   return;
+                 }
                  var nodes = $widget.data('node');
 
-                 for ( p in properties ) {
-
-                   property = properties[ p ];
-                   n = nodes.length;
-
+                 var parseNodes = function(nodes,properties,this_markers){
+                   var n = nodes.length;
+                   var hasNodes = false;
                    // add markers for each content element that has the spatial property
                    for ( i = 0; i < n; i++ ) {
 
-                     node = nodes[ i ];
+                     var node = nodes[ i ];
 
-                     if ( node.current.properties[ property ] != null ) {
+                     for ( p in properties ) {
+                       var property = properties[ p ];
+                       if ( node.current.properties[ property ] != null ) {
+                         var o = node.current.properties[ property ].length;
+                         for ( j = 0; j < o; j++ ) {
+                           var label = null;
+                           if(page.addMarkerFromLatLonStrToMap(
+                             node.current.properties[ property ][ j ].value,
+                             node.getDisplayTitle(),
+                             node.current.description,
+                             node.url,
+                             map,
+                             infoWindow,
+                             node.getAbsoluteThumbnailURL(),
+                             label,
+                             $gmaps,
+                             this_markers
+                           )){
+                             hasNodes = true;
+                           }
+                         }
+                       }
+                     }
 
-                       o = node.current.properties[ property ].length;
-                       for ( j = 0; j < o; j++ ) {
-                         label = null;
-
-                         markers = page.addMarkerFromLatLonStrToMap(
-                           node.current.properties[ property ][ j ].value,
-                           node.getDisplayTitle(),
-                           node.current.description,
-                           node.url,
-                           map,
-                           infoWindow,
-                           node.getAbsoluteThumbnailURL(),
-                           label,
-                           $gmaps,
-                           markers
-                         );
+                     if(typeof node.children != "undefined"){
+                       for(var t in node.children){
+                         hasNodes = parseNodes(node.children[t],properties,this_markers) || hasNodes;
                        }
                      }
                    }
+                   return hasNodes;
+                 };
 
-                 }
-                 // no valid coords found on page or its children
-                 if ( markers == null ) {
-                   $gmaps.append( '<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
-                 }else{
+                 if(parseNodes(nodes,properties,markers)){
                    // adjust map bounds to marker bounds
                    var bounds = new google.maps.LatLngBounds();
                    $gmaps.data({'map':map,'bounds':bounds,'markers':markers});
@@ -361,6 +382,8 @@
                    },$gmaps);
 
                    $(window).on('resize',doResize);
+                 }else{
+                   $gmaps.append( '<div class="alert alert-danger">Scalar couldn’t find any geographic metadata associated with this page.</div>' );
                  }
 
                  $(this).off("slotCreated");
@@ -409,142 +432,160 @@
                   }
                 }
                 return d;
-              }
+              };
+              var prepareTimelineContainer = function($widget){
+                $widget.on('slotCreated',function(){
+                  $(this).data('element').html('');
+                  var $timeline = $('<div class="caption_font timeline_embed"></div>').appendTo($(this).data('element'));
+                  $timeline.width($(this).data('element').width());
+                  var height = $(this).data('element').height();
+                  if(height == 0){
+                    // We want timelines to be max-height of 70%, so remove 60% clamp, then add 70%;
+                    // could be written as a number (~1.16666667), but this seemed to be a little less magic-number-y
+                    //var height_adjust = (1/.6)*.7;
+                    var height = (base.options.maxWidgetHeight,maxWidgetHeight);
+                  }
+                  height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  $timeline.height(height - 10);
+                  var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
+
+                  $(this).off("slotCreated");
+                });
+
+                //Because we asynchronously load the Timeline javascript,
+                //it's possible that we've already triggered the slotCreated event
+                //before we got here, so check to see if we have a slot and if so,
+                //trigger it again.
+                if($widget.data('slot')!==undefined){
+                 $widget.trigger('slotCreated');
+                }
+              };
+
               if($(this).data('timeline') == undefined){
                 var tempdata = {
                   events : []
                 };
 
-                for(var n in $(this).data('node')){
-                  var node = $(this).data('node')[n].current;
-                  if(typeof node.auxProperties != 'undefined' && ((typeof node.auxProperties['dcterms:temporal'] != 'undefined' && node.auxProperties['dcterms:temporal'].length > 0) || (typeof node.auxProperties['dcterms:date'] != 'undefined' && node.auxProperties['dcterms:date'].length > 0))){
-                      var entry = {};
-                      var useDateStringAsDateValue = false;
-                      if(typeof node.auxProperties['dcterms:temporal'] != 'undefined' && node.auxProperties['dcterms:temporal'].length > 0){
-                        var temporal_data = node.auxProperties['dcterms:temporal'][0];
-                      }else{
-                        var temporal_data = node.auxProperties['dcterms:date'][0];
-                      }
+                var nodes = $(this).data('node');
 
-                      var dashCount = (temporal_data.match(/-/g) || []).length;
-                      var slashCount = (temporal_data.match(/\//g) || []).length;
+                var parseNodes = function(nodes,tempdata){
+                  var hasTimelineData = false;
+                  for(var n in nodes){
+                    var node = nodes[n];
+                    var currentNode = node.current;
+                    if(typeof currentNode.auxProperties != 'undefined' && ((typeof currentNode.auxProperties['dcterms:temporal'] != 'undefined' && currentNode.auxProperties['dcterms:temporal'].length > 0) || (typeof currentNode.auxProperties['dcterms:date'] != 'undefined' && currentNode.auxProperties['dcterms:date'].length > 0))){
+                        hasTimelineData = true;
+                        var entry = {};
+                        var useDateStringAsDateValue = false;
+                        if(typeof currentNode.auxProperties['dcterms:temporal'] != 'undefined' && currentNode.auxProperties['dcterms:temporal'].length > 0){
+                          var temporal_data = currentNode.auxProperties['dcterms:temporal'][0];
+                        }else{
+                          var temporal_data = currentNode.auxProperties['dcterms:date'][0];
+                        }
 
-                      var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
-                      if(dashCount != 1 && !contains_seperator){
-                        //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
-                        var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
-                        var d = new Date(d_string);  //parse as a date
-                        if(d instanceof Date){
-                          entry.start_date = parseDate(d,d_string);
-                        }
-                        if(dashCount < 2 || slashCount < 2){
-                          useDateStringAsDateValue = true;
-                        }
-                      }else{
-                        if(contains_seperator){
-                          temporal_data = temporal_data.replace('from ','');
-                          if(temporal_data.indexOf(" until ") >= 0){
-                            var dateParts = temporal_data.split(" until ");
-                          }else{
-                            var dateParts = temporal_data.split(" to ");
+                        var dashCount = (temporal_data.match(/-/g) || []).length;
+                        var slashCount = (temporal_data.match(/\//g) || []).length;
+
+                        var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
+                        if(dashCount != 1 && !contains_seperator){
+                          //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
+                          var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
+                          var d = new Date(d_string);  //parse as a date
+                          if(d instanceof Date){
+                            entry.start_date = parseDate(d,d_string);
+                          }
+                          if(dashCount < 2 || slashCount < 2){
+                            useDateStringAsDateValue = true;
                           }
                         }else{
-                          var dateParts = temporal_data.replace(' - ','-').split('-');
-                        }
-
-                        //We should now have two dates - a start and and end
-                        if(dateParts.length == 2){
-                          dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
-                          dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
-
-                          for(var x in dateParts){
-                            var dashCount = (dateParts[x].match(/-/g) || []).length;
-                            var slashCount = (dateParts[x].match(/\//g) || []).length;
-
-                            if(dashCount < 2 || slashCount < 2){
-                              useDateStringAsDateValue = true;
-                              break;
+                          if(contains_seperator){
+                            temporal_data = temporal_data.replace('from ','');
+                            if(temporal_data.indexOf(" until ") >= 0){
+                              var dateParts = temporal_data.split(" until ");
+                            }else{
+                              var dateParts = temporal_data.split(" to ");
                             }
+                          }else{
+                            var dateParts = temporal_data.replace(' - ','-').split('-');
                           }
 
-                          var sdate = new Date(dateParts[0]);  //parse as a date
-                          var edate = new Date(dateParts[1]);  //parse as a date
+                          //We should now have two dates - a start and and end
+                          if(dateParts.length == 2){
+                            dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
+                            dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
 
-                          if(sdate instanceof Date && edate instanceof Date){
-                            entry.start_date = parseDate(sdate,dateParts[0]);
-                            entry.end_date = parseDate(edate,dateParts[1]);
+                            for(var x in dateParts){
+                              var dashCount = (dateParts[x].match(/-/g) || []).length;
+                              var slashCount = (dateParts[x].match(/\//g) || []).length;
+
+                              if(dashCount < 2 || slashCount < 2){
+                                useDateStringAsDateValue = true;
+                                break;
+                              }
+                            }
+
+                            var sdate = new Date(dateParts[0]);  //parse as a date
+                            var edate = new Date(dateParts[1]);  //parse as a date
+
+                            if(sdate instanceof Date && edate instanceof Date){
+                              entry.start_date = parseDate(sdate,dateParts[0]);
+                              entry.end_date = parseDate(edate,dateParts[1]);
+                            }
+
                           }
-
                         }
-                      }
-                      //Cool, got time stuff out of the way!
-                      //Let's do the other components Timeline.js expects
-                      entry.text = {
-                        headline : '<a href="'+$(this).data('node')[n].url+'">'+$(this).data('node')[n].getDisplayTitle()+'</a>'
-                      };
+                        //Cool, got time stuff out of the way!
+                        //Let's do the other components Timeline.js expects
+                        entry.text = {
+                          headline : '<a href="'+node.url+'">'+node.getDisplayTitle()+'</a>'
+                        };
 
-                      if(useDateStringAsDateValue){
-                        entry.display_date =  temporal_data.replace(/~+$/,'');
-                        if($(this).data('node')[n].getDisplayTitle() == entry.display_date){
-                          entry.display_date = "&nbsp;";
+                        if(useDateStringAsDateValue){
+                          entry.display_date =  temporal_data.replace(/~+$/,'');
+                          if(node.getDisplayTitle() == entry.display_date){
+                            entry.display_date = "&nbsp;";
+                          }
                         }
+
+                        if(typeof currentNode.description != 'undefined' && currentNode.description != '' && currentNode.description != null){
+                          entry.text.text = currentNode.description
+                        }
+
+                        var thumbnail_url = node.getAbsoluteThumbnailURL();
+
+                        //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
+                        if(typeof node.scalarTypes.media !== 'undefined'){
+                          entry.media = {
+                            url : currentNode.sourceFile,
+                            thumbnail : thumbnail_url
+                          };
+                        }else if(typeof node.thumbnail !== 'undefined' && node.thumbnail != null && node.thumbnail != '') {
+                          entry.media = {
+                            url : thumbnail_url,
+                            thumbnail : thumbnail_url
+                          };
+                        }
+
+                        if(typeof node.background !== 'undefined'){
+                          entry.background = {url:base.book_url+node.background}
+                        }
+
+                        tempdata.events.push(entry);
+                    }
+                    if(typeof node.children != "undefined"){
+                      for(var t in node.children){
+                        hasTimelineData = parseNodes(node.children[t], tempdata) || hasTimelineData;
                       }
-
-                      if(typeof node.description != 'undefined' && node.description != '' && node.description != null){
-                        entry.text.text = node.description
-                      }
-
-                      var thumbnail_url = $(this).data('node')[n].getAbsoluteThumbnailURL();
-
-                      //Now just check to make sure this node is a media node or not - if so, add it to the timeline entry
-                      if(typeof $(this).data('node')[n].scalarTypes.media !== 'undefined'){
-                        entry.media = {
-                          url : node.sourceFile,
-                          thumbnail : thumbnail_url
-                        };
-                      }else if(typeof $(this).data('node')[n].thumbnail !== 'undefined' && $(this).data('node')[n].thumbnail != null && $(this).data('node')[n].thumbnail != '') {
-                        entry.media = {
-                          url : thumbnail_url,
-                          thumbnail : thumbnail_url
-                        };
-                      }
-
-                      if(typeof $(this).data('node')[n].background !== 'undefined'){
-                        entry.background = {url:base.book_url+$(this).data('node')[n].background}
-                      }
-
-                      tempdata.events.push(entry);
+                    }
                   }
+                  return hasTimelineData;
                 }
-                $(this).data('timeline',tempdata);
-              }
-
-              //Timeline rendering content
-              var $widget = this;
-              $widget.on('slotCreated',function(){
-                $(this).data('element').html('');
-                var $timeline = $('<div class="caption_font timeline_embed"></div>').appendTo($(this).data('element'));
-                $timeline.width($(this).data('element').width());
-                var height = $(this).data('element').height();
-                if(height == 0){
-                  // We want timelines to be max-height of 70%, so remove 60% clamp, then add 70%;
-                  // could be written as a number (~1.16666667), but this seemed to be a little less magic-number-y
-                  //var height_adjust = (1/.6)*.7;
-                  var height = (base.options.maxWidgetHeight,maxWidgetHeight);
+                if(parseNodes(nodes,tempdata)){
+                  $(this).data('timeline',tempdata);
+                  prepareTimelineContainer($(this));
                 }
-                height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
-                $timeline.height(height - 10);
-                var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
-
-                $(this).off("slotCreated");
-              });
-
-              //Because we asynchronously load the Timeline javascript,
-              //it's possible that we've already triggered the slotCreated event
-              //before we got here, so check to see if we have a slot and if so,
-              //trigger it again.
-              if($widget.data('slot')!==undefined){
-               $widget.trigger('slotCreated');
+              }else{
+                prepareTimelineContainer($(this));
               }
 
             },$widget));
@@ -564,113 +605,115 @@
 
              $widget.on('slotCreated',function(){
                //Carousel rendering content
-               //Get the media nodes...
-               var nodes = [];
-               if($widget.data('node') instanceof Array){
-                 for(var n in $widget.data('node')){
-                   if(typeof $widget.data('node')[n].scalarTypes.media != 'undefined'){
-                     nodes.push($widget.data('node')[n]);
-                   }
-                 }
-               }else{
-                 if(typeof $widget.data('node').scalarTypes.media != 'undefined'){
-                   nodes.push($widget.data('node'));
-                 }
-               }
 
-               var n = nodes.length;
-
-               var $carousel = $('<div class="carousel slide" data-interval="false" style="min-height: 200px;"></div>').appendTo($element);
+               var $carousel = $('<div class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
                var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
                if ( page.adaptiveMedia == "mobile" ) {
-                 galleryHeight = 300;
+                 var galleryHeight = 300;
                } else {
                  // this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
                  // keeping them synced up helps keep media vertically aligned in galleries
-                 galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
+                 var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                }
+               $carousel.css('min-height',galleryHeight+'px');
                galleryHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+               var parseNodes = function(nodes,galleryHeight){
+                   var n = nodes.length;
+                   var hasMedia = false;
+                   for ( var i = 0; i < n; i++ ) {
+                     var node = nodes[i];
+                     if(typeof node.scalarTypes.media != 'undefined'){
 
-               for ( var i = 0; i < n; i++ ) {
+                       var item = $( '<div class="item" style="max-height : ' + galleryHeight + 'px;"></div>' ).appendTo( $wrapper );
+                       if ( !hasMedia ) {
+                         item.addClass( "active" );
+                       }
 
-                 node = nodes[i];
-                 item = $( '<div class="item" style="max-height : ' + galleryHeight + 'px;"></div>' ).appendTo( $wrapper );
-                 if ( i == 0 ) {
-                   item.addClass( "active" );
-                 }
+                       var hasMedia = true;
 
-                 // if this is a media link that's already part of the content of the page, then use it
-                 var mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
- 								 var link = mediaContainer.find( 'a' );
- 								 link.css('display', 'none');
+                       // if this is a media link that's already part of the content of the page, then use it
+                       var mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
+       								 var link = mediaContainer.find( 'a' );
+       								 link.css('display', 'none');
 
-                 if ( node.current.description != null ) {
-   								description = node.current.description;
-   								if ( node.current.source != null ) {
-   									description += ' (Source: ' + node.current.source + ')';
-   								}
-   								description = description.replace( new RegExp("\"", "g"), '&quot;' );
-   								item.append( '<div class="carousel-caption caption_font"><span>' +
-   									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
-   									'</span></div>' );
-   							} else {
-   								item.append( '<div class="carousel-caption caption_font"><span>' +
-   									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a>'+($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
-   									'</span></div>' );
-   							}
+                       if ( node.current.description != null ) {
+         								var description = node.current.description;
+         								if ( node.current.source != null ) {
+         									description += ' (Source: ' + node.current.source + ')';
+         								}
+         								description = description.replace( new RegExp("\"", "g"), '&quot;' );
 
-                 page.addMediaElementForLink( link, mediaContainer, galleryHeight );
+         								item.append( '<div class="carousel-caption caption_font"><span>' +
+         									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
+         									'</span></div>' );
+         							} else {
+         								item.append( '<div class="carousel-caption caption_font"><span>' +
+         									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a>'+($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
+         									'</span></div>' );
+         							}
+                      page.addMediaElementForLink( link, mediaContainer, galleryHeight );
+                    }
+                    if(typeof node.children != "undefined"){
+                      for(var t in node.children){
+                        hasmedia = parseNodes(node.children[t],galleryHeight) || hasMedia;
+                      }
+                    }
+                  }
+                  return hasMedia;
+               };
+
+               if(parseNodes($widget.data('node'),galleryHeight)){
+                 if ( page.adaptiveMedia != "mobile" ) {
+      							$wrapper.find( '[data-toggle="popover"]' ).popover( {
+      								container: '#gallery',
+      								template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title heading_font heading_weight"></h3><div class="popover-content caption_font"></div></div>'
+      							} );
+       						}
+       						$carousel.find( '.mediaelement' ).css( 'z-index', 'inherit' );
+       						$carousel.find( '.slot' ).css( 'margin-top', '0' );
+       						$carousel.append( '<a class="left carousel-control" role="button" data-slide="prev">' +
+       							'<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>' +
+       							'<span class="sr-only">Previous</span>' +
+       							'</a>' +
+       							'<a class="right carousel-control" role="button" data-slide="next">' +
+       							'<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>' +
+       							'<span class="sr-only">Next</span>' +
+       							'</a>' );
+
+                  $carousel.carousel( { interval: false } );
+                  $carousel.find('.carousel-control').click(function(e){
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $carousel = $(this).parents('.carousel');
+                    if($(this).hasClass('left')){
+                      $carousel.carousel('prev');
+                    }else if($(this).hasClass('right')){
+                      $carousel.carousel('next');
+                    }
+                    return false;
+                  });
+
+
+       						if(isMobile){
+                    if(touchLoaded){
+                      $carousel.swiperight(function() {
+                        $(this).carousel('prev');
+                      }).swipeleft(function() {
+                        $(this).carousel('next');
+                      });
+                    }else{
+         							$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
+                        touchLoaded = true;
+         								$carousel.swiperight(function() {
+         	    		  			$(this).carousel('prev');
+         		    				}).swipeleft(function() {
+         			      			$(this).carousel('next');
+         								});
+         							});
+                    }
+       						}
                 }
-               if ( page.adaptiveMedia != "mobile" ) {
-    							$wrapper.find( '[data-toggle="popover"]' ).popover( {
-    								container: '#gallery',
-    								template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title heading_font heading_weight"></h3><div class="popover-content caption_font"></div></div>'
-    							} );
-     						}
-     						$carousel.find( '.mediaelement' ).css( 'z-index', 'inherit' );
-     						$carousel.find( '.slot' ).css( 'margin-top', '0' );
-     						$carousel.append( '<a class="left carousel-control" role="button" data-slide="prev">' +
-     							'<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>' +
-     							'<span class="sr-only">Previous</span>' +
-     							'</a>' +
-     							'<a class="right carousel-control" role="button" data-slide="next">' +
-     							'<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>' +
-     							'<span class="sr-only">Next</span>' +
-     							'</a>' );
-
-                $carousel.carousel( { interval: false } );
-                $carousel.find('.carousel-control').click(function(e){
-                  e.stopPropagation();
-                  e.preventDefault();
-                  $carousel = $(this).parents('.carousel');
-                  if($(this).hasClass('left')){
-                    $carousel.carousel('prev');
-                  }else if($(this).hasClass('right')){
-                    $carousel.carousel('next');
-                  }
-                  return false;
-                });
-
-
-     						if(isMobile){
-                  if(touchLoaded){
-                    $carousel.swiperight(function() {
-                      $(this).carousel('prev');
-                    }).swipeleft(function() {
-                      $(this).carousel('next');
-                    });
-                  }else{
-       							$.getScript(views_uri+'/melons/cantaloupe/js/jquery.mobile.touch.min.js',function(){
-                      touchLoaded = true;
-       								$carousel.swiperight(function() {
-       	    		  			$(this).carousel('prev');
-       		    				}).swipeleft(function() {
-       			      			$(this).carousel('next');
-       								});
-       							});
-                  }
-     						}
                 $(this).off("slotCreated");
              });
 
@@ -693,18 +736,25 @@
            $.when(cardPromise).then($.proxy(function(){
              var $widget = this;
 
-             var node = $widget.data('node');
-             if(!$.isArray(node)){
-               node = [node];
-             }
+             var nodes = $widget.data('node');
 
              $widget.on('slotCreated',function(){
                $(this).data('element').html('');
                var $cardContainer = $('<div class="row cardContainer"></div>').appendTo($(this).data('element'));
-               var n = node.length;
-               for (var i=(n-1); i>=0; i--) {
-                  widgets.createCardFromNode(node[i], $cardContainer);
+               var parseNodes = function(nodes,$cardContainer){
+                 var n = nodes.length;
+                 for (var i=(n-1); i>=0; i--) {
+                    var node = nodes[i];
+                    widgets.createCardFromNode(node, $cardContainer);
+                    if(typeof node.children != "undefined"){
+                      for(var t in node.children){
+                        parseNodes(node.children[t],$cardContainer);
+                      }
+                    }
+                 }
                }
+               parseNodes(nodes,$cardContainer);
+
                $(this).off("slotCreated");
              });
 
@@ -726,31 +776,40 @@
            $.when(summaryPromise).then($.proxy(function(){
              var $widget = this;
 
-             var node = $widget.data('node');
-             if(!$.isArray(node)){
-               node = [node];
-             }
+             var nodes = $widget.data('node');
 
              $widget.on('slotCreated',function(){
                $(this).data('element').html('');
                var $summaryContainer = $('<ul class="media-list"></ul>').appendTo($(this).data('element'));
-               var n = node.length;
-               for (var i=(n-1); i>=0; i--) {
-                  widgets.createSummaryFromNode(node[i], $summaryContainer);
+               var parseNodes = function(nodes,$summaryContainer){
+                 var n = nodes.length;
+                 for (var i=(n-1); i>=0; i--) {
+                    var node = nodes[i];
+                    var children = [];
+                    if(typeof node.children != "undefined"){
+                      for(var t in node.children){
+                        children = children.concat(node.children[t]);
+                      }
+                    }
+                    widgets.createSummaryFromNode(node, $summaryContainer,children);
+                 }
+                 return true;
                }
-               if($summaryContainer.find('img').length > 0){
-                 $summaryContainer.addClass('hasThumbnail');
+               if(parseNodes(nodes,$summaryContainer)){
+                 if($summaryContainer.find('img').length > 0){
+                   $summaryContainer.addClass('hasThumbnail');
+                 }
+                 $summaryContainer.find('.description-sm').each(function(){
+                   var num_lines = 4;
+                   var line_height = parseInt($(this).css('line-height'));
+                   $(this).dotdotdot({
+                  		ellipsis	: '…',
+                      wrap		: 'word',
+                      fallbackToLetter: true,
+                      height		: num_lines*line_height
+                  	});
+                 });
                }
-               $summaryContainer.find('.description-sm').each(function(){
-                 var num_lines = 4;
-                 var line_height = parseInt($(this).css('line-height'));
-                 $(this).dotdotdot({
-                		ellipsis	: '…',
-                    wrap		: 'word',
-                    fallbackToLetter: true,
-                    height		: num_lines*line_height
-                	});
-               });
                $(this).off("slotCreated");
              });
 
@@ -780,7 +839,10 @@
             $target.prepend(markup);
          };
 
-         base.createSummaryFromNode = function(node,$target){
+         base.createSummaryFromNode = function(node,$target,children){
+              if(typeof children == 'undefined'){
+                children = [];
+              }
 
               var markup = '<li class="media summary"><div class="media-left">';
               if (node.thumbnail != null) {
@@ -788,22 +850,33 @@
               }
               markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4>';
               if (node.current.description != null) {
-                markup += '<p class="description-sm">' + node.current.description +
-                  '</p><a href="' + node.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span>' + '</div>';
-              } else {
-                markup += '</div><a href="' + node.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span>';
+                markup += '<p class="description-sm">' + node.current.description +'</p>';
               }
-              markup += '</div>' +
-              	'</div></li>';
+              markup += '<a href="' + node.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span>';
+
+              if(children.length > 0){
+                markup += '<ul class="media-list">';
+                for(var i in children){
+                  var child = children[i];
+                  markup += '<li class="media summary"><div class="media-left">';
+                  if (child.thumbnail != null) {
+                   markup += '<a href="' + child.url + '"><img src="' + child.getAbsoluteThumbnailURL() + '" alt="" class="media-object center-block"></a>';
+                  }
+                  markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + child.getDisplayTitle() + '</h4>';
+                  if (child.current.description != null) {
+                    markup += '<p class="description-sm">' + child.current.description +'</p>';
+                  }
+                  markup += '<a href="' + child.url + '" class="goThereLink btn btn-xs btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span></div></li>';
+                }
+                markup += '</ul>';
+              }
+
+              markup += '</div></li>';
             $target.prepend(markup);
          };
 
          base.calculateSize = function($widget){
-           if(page.bodyCopyWidth == null){
-             page.calculatePageDimensions();
-           }
            var bodyWidth = page.bodyCopyWidth;
-
            var $slot = $widget.data('slot');
            var $container = $widget.data('container');
            var $parent = $widget.data('parent');
@@ -909,7 +982,6 @@
              // put the widget before its linking text, and align it appropriately
              $parent.before( $slot );
              $slot.addClass( align );
-
              // if this is the top-most linked widget, then align it with the top of its paragraph
              count = page.incrementData( $parent, align + '_count' );
              if ( count == 1 ) {
@@ -932,23 +1004,22 @@
 
 				 //Implementation of slot manager for widgets
 				 base.createWidgetSlot = function($widget){
-
             var $slot = $('<div class="widget_slot"></div>');
             var $container = $('<div class="widgetContainer well"></div>').appendTo($slot);
             $container.append($widget.data('element'));
-            if($widget.data('caption')!=undefined || $widget.data('caption')=='none'){
+            if($widget.data('nodes') != undefined){
+              var slug = $widget.data('nodes').replace(/\*/g, '');
+            }else{
+              var slug = $widget.attr('resource').replace(/\*/g, '');
+            }
+            if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')!='custom_text' && slug.indexOf(',')>-1)){
               var $widgetinfo = $('<div class="mediaElementFooter caption_font mediainfo"></div>').appendTo($container);
               var $descriptionPane = $('<div class="media_description pane"></div>').appendTo($widgetinfo);
               var caption_type = $widget.data('caption');
               if(caption_type=='custom_text'){
                 $descriptionPane.html('<p>'+$widget.data('custom_caption')+'</p>').css('display','block');
-              }else{
-                (function($widget,$descriptionPane,caption_type){
-                  if($widget.data('nodes') != undefined){
-                    var slug = $widget.data('nodes').replace(/\*/g, '');
-                  }else{
-                    var slug = $widget.attr('resource').replace(/\*/g, '');
-                  }
+              }else {
+                (function($widget,$descriptionPane,caption_type,slug){
                   var load_caption = function(node){
                     switch ( caption_type ) {
 
@@ -979,7 +1050,7 @@
                   }, null, 1, false, null, 0, 20) == "loaded"){
                     load_caption(scalarapi.getNode(slug));
                   }
-                })($widget,$descriptionPane,caption_type);
+                })($widget,$descriptionPane,caption_type,slug);
               }
             }
             $widget.data({
@@ -989,7 +1060,6 @@
             });
 
             //$(window).on('resize',$.proxy(function(){widgets.calculateSize($(this));},$widget));
-
             base.calculateSize($widget);
 
             $widget.click(function(){

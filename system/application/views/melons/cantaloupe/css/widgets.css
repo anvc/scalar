@@ -39,8 +39,14 @@
 .vis_widget .scalarvis {
 	margin-top: 0;
 }
-
-
+.googleMapWidget .alert{
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  right: 1rem;
+  text-align: center;
+  margin-top: -2.5rem;
+}
 .widget_slot.top { margin-top: .5rem !important; clear: both; }
 
 .widget_slot.right {
@@ -49,6 +55,26 @@
 	margin-right: 7.2rem;
 	float: right;
 	clear: right;
+}
+.widget_summary .media-list .media-list{
+	margin-top: 1rem;
+	border-color: rgba(0,0,0,.09);
+}
+.widget_summary .media-list .media-list li{
+	border-bottom: 1px solid rgba(0,0,0,.09);
+}
+.full.widget_summary .media-list .media-list{
+	border: 1px solid rgba(0,0,0,.09);
+	border-radius: 4px;
+	background-color: rgba(255,255,255,.25);
+	padding: 1.2rem 1.2rem 0 1.2rem;
+  width: 100%;
+}
+.full.widget_summary .media-list .media-list li{
+	padding: 1rem 6.7rem;
+}
+.full.widget_summary .media-list .media-list li:last-child{
+	border-bottom: 0;
 }
 
 .widget_slot.left {
@@ -87,7 +113,6 @@
 
 .widget_summary.full .media-list li, .widget_card.full .card .thumbnail .caption{
 	padding: .6rem 7.2rem 1.2rem 7.2rem;
-	max-width: 85.4rem;
 }
 
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
