@@ -111,6 +111,9 @@
 .widgetFormatting select, .widgetOptions .form-group select{
 	width: auto !important;
 }
+.widget_selector_bootbox .tab-pane{
+	min-height: 0px;
+}
 /*Node selector*/
 .node_selector table>thead>tr>th{
 	border-bottom: 0;

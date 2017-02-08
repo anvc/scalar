@@ -476,9 +476,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
 				$('.bootbox-close-button').empty();
-				box.on("shown.bs.modal", function() {
-					modal_height();
-				});
 				$(window).resize(function() {
 					modal_height();
 				});
@@ -1454,7 +1451,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				height -= $(this).find('.panel-footer').outerHeight();
 				height -= 10;  // Update by Craig; orig value: 28
 				$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
-				$dialogue_container.find('.panel-body').height(height)
 				height -= $(this).find('.panel-body>table').outerHeight();
 				$dialogue_container.find('.node_selector_table_body').height(height);
 			},this,$dialogue_container);
