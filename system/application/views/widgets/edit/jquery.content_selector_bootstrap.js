@@ -700,7 +700,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 						opts.selected = $el.data("nodes").split(",");
 			 					 }
 							 }
-							 opts.allowMultiple = false;
+							 opts.allowMultiple = true;
 							 opts.fields = ["title","description","url","preview","include_children"],
 							 opts.allowChildren = true;
 							 opts.types = ['composite','media','path','tag','term','reply'];
