@@ -996,7 +996,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						appendTo:'.widget_selector_bootbox'
 				  });
 
-					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
+					$footer = $('<div class="modal_footer"></div>').appendTo($content);
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($footer).click(function(){
 					 $('#bootbox-content-selector-content').find('.nodeOrdering').fadeOut('fast',function(){
 						 $(this).remove();
 						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
@@ -1005,7 +1006,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						 });
 					 });
 				  });
-					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($content).click(submitAction);
+					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($footer).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
 				});
 			}
@@ -1100,7 +1101,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					});
 
-					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
+					$footer = $('<div class="modal_footer"></div>').appendTo($content);
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($footer).click(function(){
 					 $('#bootbox-content-selector-content').find('.widgetFormatting').fadeOut('fast',function(){
 						 $(this).remove();
 						 if($('#bootbox-content-selector-content').find('.nodeOrdering').length > 0){
@@ -1114,7 +1116,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						 }
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($content).click(submitAction);
+					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($footer).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
 					if(isEdit){
 						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){

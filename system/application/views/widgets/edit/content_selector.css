@@ -213,6 +213,11 @@
 	max-width: 75%;
 	width: 75%;
 }
+.widget_selector_bootbox #bootbox-content-selector-content>div{
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
 .selectedNodeChildrenList{
 	font-size: smaller;
     margin-left: 4rem;
