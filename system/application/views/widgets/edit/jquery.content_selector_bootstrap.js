@@ -986,7 +986,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$nodes.append($node);
 					}
 
-					var $content = $('<div class="nodeOrdering"><div class="widget_data_type">If you would like to reorder the selected content for this widget, you may do so by clicking and dragging. When you are satisfied with the order, click "Continue" below.</div></div>').appendTo('#bootbox-content-selector-content').data('options',options);
+					var $content = $('<div class="nodeOrdering"><div class="widget_data_type">If you would like to reorder the selected content for this widget, you may do so by clicking and dragging. When you are satisfied with the order, click "Continue" below.</div></div>').appendTo('#bootbox-content-selector-content').data('options',options).hide();
 
 					$nodes.appendTo($content).sortable();
 					$nodes.sortable('enable');
@@ -1008,6 +1008,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				  });
 					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($footer).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
+					window.setTimeout($.proxy(function(){$(this).fadeIn(200);},$content),200);
 				});
 			}
 			var select_widget_formatting = function(options){
@@ -1089,8 +1090,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 					formattingSelection += '</div>';
-
-					var $content = $('<div class="widgetFormatting"></div>').appendTo('#bootbox-content-selector-content').data('options',options);
+					var $content = $('<div class="widgetFormatting"></div>').appendTo('#bootbox-content-selector-content').data('options',options).hide();
 					$content.append(formattingSelection);
 
 					$content.find('.form-control[name="caption"]').change(function(){
@@ -1118,6 +1118,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					})
 					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($footer).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
+					window.setTimeout($.proxy(function(){$(this).fadeIn(200);},$content),200);
 					if(isEdit){
 						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){
 							var data = $(opts.element.$).data($(this).attr('name'));
