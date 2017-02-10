@@ -811,7 +811,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one geotagged Scalar item.");
 									 return false;
 								 }
-								 var nodeList = $('#bootbox-content-selector-content .map_node_selection').data('nodes');
+								 var nodeList = $('#bootbox-content-selector-content .map_node_selection .node_selector').data('nodes');
 								 if(nodeList.length > 1){
 									 order_nodes(data,nodeList);
 								 }else{
