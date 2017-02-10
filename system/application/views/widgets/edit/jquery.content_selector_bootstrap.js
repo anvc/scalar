@@ -724,13 +724,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										 alert("Please select Scalar content that contains your timeline's temporal data.");
 										 return false;
 									 }
-
-									 var nodeList = $('#bootbox-content-selector-content .timeline_node_selection .node_selector').data('nodes');
-									 if(nodeList.length > 1){
-										 order_nodes(data,nodeList);
-									 }else{
-	 								 	select_widget_formatting(data)
-									 }
+	 								 select_widget_formatting(data)
 								 }else{
 									 data.attrs['data-timeline'] = $('#bootbox-content-selector-content .timeline_external_url_selector input').val();
 									 if(data.attrs['data-timeline'] == undefined || data.attrs['data-timeline'] == ''){
@@ -811,12 +805,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									 alert("Please select at least one geotagged Scalar item.");
 									 return false;
 								 }
-								 var nodeList = $('#bootbox-content-selector-content .map_node_selection .node_selector').data('nodes');
-								 if(nodeList.length > 1){
-									 order_nodes(data,nodeList);
-								 }else{
- 								 	select_widget_formatting(data)
-								 }
+
+ 								 select_widget_formatting(data);
  								 e.preventDefault();
  								 e.stopPropagation();
  							 }
