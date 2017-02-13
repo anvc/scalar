@@ -32,6 +32,7 @@ class ThoughtMesh {
 $js = <<<EOT
 
 $(document).ready(function() {
+  if (!$('#book-title span[data-thoughtmesh="true"]').length) return;
   $('body').on('pageLoadComplete', function() {
 	 if ($('[property="sioc:content"]').is(':empty')) return;
      var opts = {};
