@@ -997,12 +997,13 @@
             var $slot = $('<div class="widget_slot"></div>');
             var $container = $('<div class="widgetContainer well"></div>').appendTo($slot);
             $container.append($widget.data('element'));
+            var slug = undefined;
             if($widget.data('nodes') != undefined){
-              var slug = $widget.data('nodes').replace(/\*/g, '');
-            }else{
-              var slug = $widget.attr('resource').replace(/\*/g, '');
+              slug = $widget.data('nodes').replace(/\*/g, '');
+            }else if($widget.attr('resource') != undefined){
+              slug = $widget.attr('resource').replace(/\*/g, '');
             }
-            if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')!='custom_text' || slug.indexOf(',')==-1)){
+            if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')=='custom_text' || (slug!=undefined && !slug.indexOf(',')==-1))){
               var $widgetinfo = $('<div class="mediaElementFooter caption_font mediainfo"></div>').appendTo($container);
               var $descriptionPane = $('<div class="media_description pane"></div>').appendTo($widgetinfo);
               var caption_type = $widget.data('caption');

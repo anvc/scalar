@@ -19,6 +19,7 @@ class ThoughtMesh {
 		if (!$this->plugin_exists) return;
 		
 		$CI =& get_instance();
+		if ('editing'==$CI->data['mode']) return;
 		
 		$CI->template->add_css($this->plugin_path.'thoughtmesh.css');
 		$CI->template->add_js($this->plugin_path.'jquery.thoughtmesh.js');
@@ -31,6 +32,7 @@ class ThoughtMesh {
 $js = <<<EOT
 
 $(document).ready(function() {
+  if (!$('#book-title span[data-thoughtmesh="true"]').length) return;
   $('body').on('pageLoadComplete', function() {
 	 if ($('[property="sioc:content"]').is(':empty')) return;
      var opts = {};
