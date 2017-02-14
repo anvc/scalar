@@ -171,7 +171,7 @@ class Book extends MY_Controller {
 		// Placeholder for plugins
 		$this->data['plugins'] = array();
 		$path = APPPATH.'plugins/thoughtmesh_pi.php';
-		if (file_exists($path)) {
+		if (file_exists($path) && (stristr($this->data['book']->title, 'data-thoughtmesh="true"'))) {
 			require_once($path);
 			$this->data['plugins']['thoughtmesh'] = new ThoughtMesh($this->data);
 		}

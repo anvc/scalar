@@ -14,17 +14,19 @@ $(window).ready(function() {
 	var auto_approve = ('undefined'==typeof($title.children(":first").attr('data-auto-approve'))) ? 0 : 1;
 	var email_authors = ('undefined'==typeof($title.children(":first").attr('data-email-authors'))) ? 0 : 1;
 	var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? 0 : 1;
+	var thoughtmesh = ('undefined'==typeof($title.children(":first").attr('data-thoughtmesh'))) ? 0 : 1;
 	$('#duplicatable').val(is_duplicatable);
 	$('#joinable').val(is_joinable);
 	$('#hypothesis').val(hypothesis);
+	$('#thoughtmesh').val(thoughtmesh);
 	$('#auto-approve').val(auto_approve);
 	$('#email-authors').val(email_authors);
 
-	$('#duplicatable, #joinable, #hypothesis,#auto-approve,#email-authors').change(function() {
+	$('#duplicatable, #joinable, #hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable', 'hypothesis','auto-approve','email-authors'];
+		var prop_arr = ['duplicatable', 'joinable', 'hypothesis', 'thoughtmesh','auto-approve','email-authors'];
 		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
@@ -106,9 +108,16 @@ $(window).ready(function() {
 	echo 'Email book authors about new comments? &nbsp;<select id="email-authors"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 	echo '<br /><small>If set to "Yes" users with author privileges (set in Book users tab) will be emailed when new comments are contributed</small>';
 	echo '</p>';
+	echo '<p>';
 	echo 'Add the <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> sidebar? &nbsp;<select id="hypothesis"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 	echo '<br /><small>A sidebar will be layered over your book adding <a href="https://hypothes.is/" target="_blank">Hypothes.is</a> collaborative review and commenting features</small>';
 	echo '</p>';
+	if(isset($plugins) && isset($plugins['thoughtmesh'])) {
+		echo '<p>';
+		echo 'Add the <a href="http://thoughtmesh.net/" target="_blank">Thoughtmesh</a> footer? &nbsp;<select id="thoughtmesh"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+		echo '<br /><small>A footer will be added to each page in your book adding <a href="http://thoughtmesh.net/" target="_blank">Thoughtmesh</a> page interconnection features</small>';
+		echo '</p>';
+	}
 	echo "</td>\n";
 	echo "</tr>\n";
 	echo '<td><p>Joinability</p>';
