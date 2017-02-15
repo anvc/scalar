@@ -58,9 +58,8 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 <?php
 		if (!empty($plugins)):
 			foreach ($plugins as $key => $obj):
-?>
-				<li><a href="#tabs-<?=$key?>"><?=$obj->name?></a></li>
-<?php
+				if (!is_object($obj)) continue;
+				echo '<li><a href="#tabs-'.$key.'">'.$obj->name.'</a></li>'."\n";
 			endforeach;
 		endif;
 ?>
@@ -90,9 +89,10 @@ Please select below.  <span id="multiple_info">Hold down <b>shift</b> (range) or
 <?php
 	if (!empty($plugins)):
 		foreach ($plugins as $key => $obj):
-?>
-			<div id="tabs-<?=$key?>"><? if ($key==$zone) { $obj->get(); } else {echo 'Loading...';} ?></div>
-<?php
+		if (!is_object($obj)) continue;
+			echo '<div id="tabs-'.$key.'">';
+			if ($key==$zone) { $obj->get(); } else {echo 'Loading...';}
+			echo '</div>'."\n";
 		endforeach;
 	endif;
 	?>

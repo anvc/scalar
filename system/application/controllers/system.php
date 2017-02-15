@@ -550,7 +550,8 @@ class System extends MY_Controller {
 		$this->config->load('plugins');
 
 		$plugin_path = APPPATH.'plugins/thoughtmesh_pi.php';
-		if (file_exists($plugin_path)) {
+		$plugin_dir = APPPATH.'plugins/thoughtmesh';
+		if (file_exists($plugin_path) && file_exists($plugin_dir)) {
 			$this->data['plugins']['thoughtmesh'] = true;
 		}
 
