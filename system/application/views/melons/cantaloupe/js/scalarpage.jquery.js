@@ -78,6 +78,10 @@
                     size = mediaelement.model.options.size,
                     isFullWidth = false;
 
+                if (mediaelement.model.node == scalarapi.model.getCurrentPageNode()) {
+                    page.addContext(mediaelement.model.node);
+                }
+
                 if (page.adaptiveMedia == 'mobile') {
                     size = 'full';
                 }
@@ -322,10 +326,12 @@
                     }
                 }
 
+                var currentNode = scalarapi.model.getCurrentPageNode();
                 var options = {
                     url_attributes: ['href', 'src'],
                     autoplay: link.attr('data-autoplay') == 'true',
                     solo: link.attr('data-caption') == 'none',
+                    getRelated: ($('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0), // only get related content if this is a media page
                     typeLimits: typeLimits
                 };
 
@@ -450,25 +456,34 @@
 
             },
 
-            addContext: function() {
-                var contextBtn = $('<button class="header-controls-right btn btn-link btn-xs" data-toggle="popover" data-placement="bottom" >Context</button>');
-                $('article').prepend(contextBtn);
+            addContext: function(node) {
                 var contextMarkup = '';
-                var currentNode = scalarapi.model.getCurrentPageNode();
+                var currentNode;
+                if (node == null) {
+                    currentNode = scalarapi.model.getCurrentPageNode();
+                } else {
+                    currentNode = node;
+                }
                 var i, relation, relations;
-                
-                contextMarkup += '<div class="citations">' + '<b>Citations of this media</b>';
 
+                $('.context.popover').remove();
+ 
                 relations = currentNode.getRelations('referee', 'incoming'); 
                 for (i in relations) {
                     relation = relations[i];
-                    var is_inline = ($(relation.body.current.content).find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
-                    if (is_inline) {
-                        citingContent = '<i>Inline media</i>';
-                    } else {
-                        citingContent = '&ldquo;'+$(relation.body.current.content).find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+                    if (relation.body.current.content != null) {
+                        contextMarkup += '<p class="attribution"><b>Cited in <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a>:</b></p>';
+                        var temp = $('<div>'+relation.body.current.content+'</div>');
+                        wrapOrphanParagraphs(temp);
+                        var is_inline = (temp.find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
+                        if (is_inline) {
+                            citingContent = '<i>Inline media</i>';
+                        } else {
+                            temp.find('a[resource*="'+relation.target.slug+'"]').addClass('context-citation');
+                            citingContent = '&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+                        }
+                        contextMarkup += '<p>' + citingContent + '</p>';
                     }
-                    contextMarkup += '<blockquote>' + citingContent + '</blockquote><p class="attribution">&mdash;from <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                 }
                 
                 // show containing paths
@@ -485,13 +500,17 @@
                     contextMarkup += '<p>Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                 }
 
-                contextMarkup += '</div>';
-                contextBtn.popover( { 
-                    trigger: "click", 
-                    template: '<div class="popover caption_font" role="tooltip"><h3 class="popover-title"></h3><div class="popover-content"></div>',
-                    content: contextMarkup,
-                    html: true 
-                } );
+                if (contextMarkup != '') {
+                    //contextMarkup = '<div class="citations">' + '<b>Context for this item</b>' + contextMarkup + '</div>';
+                    contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
+                    var contextButton = $('<img class="path-nav info" title="Citations and context" data-toggle="popover" data-placement="bottom" src="' + page.options.root_url + '/images/info@2x.png" alt="up arrow"/>').insertBefore($('nav'));
+                    contextButton.popover({
+                        trigger: "click",
+                        html: true,
+                        content: contextMarkup,
+                        template: '<div class="context popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div>' });
+
+                }
             },
 
             addHeaderPathInfo: function() {
@@ -2669,7 +2688,7 @@
                         page.addNotes();
                     }
                     page.addColophon();
-                    //page.addContext();
+                    page.addContext();
                     break;
 
             }
