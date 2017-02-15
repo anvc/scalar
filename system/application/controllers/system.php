@@ -548,6 +548,13 @@ class System extends MY_Controller {
 		// Load Dashboard plugins
 		$this->data['plugins'] = array();
 		$this->config->load('plugins');
+
+		$plugin_path = APPPATH.'plugins/thoughtmesh_pi.php';
+		$plugin_dir = APPPATH.'plugins/thoughtmesh';
+		if (file_exists($plugin_path) && file_exists($plugin_dir)) {
+			$this->data['plugins']['thoughtmesh'] = true;
+		}
+
 		$plugins = $this->config->item('plugins');
 		if (isset($plugins['dashboard'])) {
 			foreach ($plugins['dashboard'] as $value) {
