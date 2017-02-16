@@ -276,7 +276,9 @@ function wrapOrphanParagraphs(selection) {
   			// unwrap inline media links and set them to full size if not already specified
   			$(this).find( '.inline' ).each( function() {
           	// remove inline links from wrapper while maintaining position relative to siblings
-         	pullOutElement($(this))
+         	if(!$(this).hasClass('wrap')){
+						pullOutElement($(this));
+					}
   				if ( $( this ).attr( 'data-size' ) == null ) {
   					$( this ).attr( 'data-size', 'full' );
   				}
@@ -366,6 +368,10 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
 	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
 	$tag.data('mediaelement').model.element.addClass('caption_font');
+
+	if($tag.hasClass('wrap')){
+		$tag.data('slot').addClass('wrapped_slot');
+	}
 
 	return $tag;
 

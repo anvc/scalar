@@ -614,6 +614,10 @@ a:hover { text-decoration: underline; }
 	background-repeat: no-repeat;
 }
 
+.wrapped_slot>.mediaelement, .wrapped_slot>.widgetContainer{
+	margin: 1rem;
+}
+
 .mediaelement {
 	margin-bottom: 2.4rem;
 	font-weight: normal;

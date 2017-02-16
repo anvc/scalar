@@ -105,7 +105,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if(typeof opts.element === 'undefined'){
 				opts.element = null;
 			}
-
+			if(opts.element.hasClass('wrap')){
+				opts.element.data('text-wrap','wrap-text-around-media');
+			}
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
 					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
@@ -115,6 +117,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$form.append($option);
 					if(opts.element != null && opts.element.data(option_name) !== null){
 							$option.find('select').first().val(opts.element.data(option_name));
+					}
+					if(option_name=='text-wrap'){
+						if(opts.element != null && opts.element.data(option_name) !== null && option_name=="wrap-text-around-media"){
+							$('select[name="align"] option[value="center"]').hide();
+							$('select[name="align"]').val("left");
+						}
+						$option.find('select').change(function(){
+							if($(this).val()=="wrap-text-around-media"){
+								$('select[name="align"] option[value="center"]').hide();
+								$('select[name="align"]').val("left");
+							}else{
+								$('select[name="align"] option[value="center"]').show();
+							}
+						});
 					}
 				}
 			}
@@ -1034,6 +1050,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					var formattingOptions = {
 						Size : ['Small','Medium','Large','Full'],
+						TextWrap : ['Create New Line for Widget','Wrap Text Around Widget'],
 						Align : (typeof opts.inline!='undefined' && opts.inline)?['Right','Center','Left']:['Right','Left'],
 						Caption : ['Description','Title','Title and Description','None','Custom Text']
 					};
@@ -1068,15 +1085,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					var formattingSelection = '<div class="form-horizontal heading_font">';
 					for(var o in formattingOptions){
-						var values = '<select class="form-control" name="'+o.toLowerCase()+'">';
-						for(var v in formattingOptions[o]){
-							values += '<option value="'+formattingOptions[o][v].toLowerCase().replace(/ /g,"_")+'">'+formattingOptions[o][v]+'</option>';
-						}
-						values += '</select>';
 
-						formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">'+o+':</label><div class="col-sm-5">'+values+'</div></div>';
-						if(o=="Caption"){
-							formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-4 control-label">Custom Caption:</label><div class="col-sm-6"><input class="form-control" type="text" id="caption_text"></input></div></div>';
+						if(o == "TextWrap" && typeof opts.inline!=='undefined' && opts.inline){
+							var values = '<select class="form-control" name="textwrap"><option value="nowrap">Create New Line for Widget</option><option value="wrap">Wrap Text Around Widget</option></select>';
+							formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">Text Wrap:</label><div class="col-sm-5">'+values+'</div></div>';
+						}else{
+							var values = '<select class="form-control" name="'+o.toLowerCase()+'">';
+							for(var v in formattingOptions[o]){
+								values += '<option value="'+formattingOptions[o][v].toLowerCase().replace(/ /g,"_")+'">'+formattingOptions[o][v]+'</option>';
+							}
+							values += '</select>';
+
+							formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">'+o+':</label><div class="col-sm-5">'+values+'</div></div>';
+							if(o=="Caption"){
+								formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-4 control-label">Custom Caption:</label><div class="col-sm-6"><input class="form-control" type="text" id="caption_text"></input></div></div>';
+							}
 						}
 					}
 					formattingSelection += '</div>';
@@ -1088,6 +1111,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							$content.find('#caption_text_group').show();
 						}else{
 							$content.find('#caption_text_group').hide();
+						}
+					});
+
+					$content.find('.form-control[name="textwrap"]').change(function(){
+						if($(this).val()=='wrap'){
+							$content.find('select[name="align"] option[value="center"]').hide();
+							$content.find('select[name="align"]').val('left');
+						}else{
+							$content.find('select[name="align"] option[value="center"]').show();
 						}
 					});
 
@@ -1111,11 +1143,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					window.setTimeout($.proxy(function(){$(this).fadeIn(200);},$content),200);
 					if(isEdit){
 						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){
-							var data = $(opts.element.$).data($(this).attr('name'));
-							if(data!=undefined){
-								$(this).val(data);
-								if(data=='custom_text'){
-									$content.find('#caption_text_group').show().find('input').val($(opts.element.$).data('custom_caption'));
+							if($(this).attr('name')=='textwrap'){
+								if(opts.element.hasClass('wrap')){
+									$(this).val('wrap');
+									$content.find('select[name="align"] option[value="center"]').hide();
+								}
+							}else{
+								var data = $(opts.element.$).data($(this).attr('name'));
+								if(data!=undefined){
+									$(this).val(data);
+									if(data=='custom_text'){
+										$content.find('#caption_text_group').show().find('input').val($(opts.element.$).data('custom_caption'));
+									}
 								}
 							}
 						});

@@ -136,21 +136,28 @@ CKEDITOR._scalar = {
 				delete(options.node);
 
 				element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
-				element.setAttribute('class', 'inline');
+
+				var classAttr = 'inline';
 
 				if(typeof node.version !== 'undefined'){
 					var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 				}else{
 					var href = node.current.sourceFile;
 				}
-
 				for (var key in options) {
 					if(key == "featured_annotation"){
 						href+='#'+options[key];
+					}else if(key == "text-wrap"){
+						if(options[key] == "wrap-text-around-media"){
+							classAttr += ' wrap';
+						}
 					}else{
 						element.setAttribute('data-'+key, options[key]);
 					}
 				}
+
+
+				element.setAttribute('class', classAttr);
 
 				element.setAttribute('href', href);
 				//Also have to set cke-saved-href if this is an edit, so that we can actually change the href value!
@@ -226,14 +233,22 @@ CKEDITOR._scalar = {
 		$element.removeAttr('resource').removeData();
 
 		element.setAttribute('name','scalar-inline-widget');  // Required to let empty <a> through
-		element.setAttribute('class', 'inlineWidget inline');
-
+		var classAttr = "inlineWidget inline";
 		for (var a in widget.attrs) {
-			element.setAttribute(a, widget.attrs[a]);
+			if(a == "data-textwrap"){
+				if(widget.attrs[a] == 'wrap'){
+					classAttr += ' wrap';
+				}
+			}else{
+				element.setAttribute(a, widget.attrs[a]);
+			}
 			if(a == "href"){
 				href = widget.attrs[a];
 			}
 		}
+
+
+		element.setAttribute('class', classAttr);
 
 		$element.data({
 			contentOptionsCallback: contentOptionsCallback,

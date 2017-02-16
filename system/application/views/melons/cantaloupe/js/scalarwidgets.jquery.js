@@ -1070,6 +1070,10 @@
               return false;
             });
 
+          	if($widget.hasClass('wrap')){
+          		$slot.addClass('wrapped_slot');
+          	}
+
             $widget.trigger("slotCreated");
 				 }
 
