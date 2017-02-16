@@ -115,7 +115,7 @@ $(window).ready(function() {
 	if(isset($plugins) && isset($plugins['thoughtmesh'])) {
 		echo '<p>';
 		echo 'Add the <a href="http://thoughtmesh.net/" target="_blank">Thoughtmesh</a> widget to the footer? &nbsp;<select id="thoughtmesh"><option value="0" selected>No</option><option value="1">Yes</option></select>';
-		echo '<br /><small>A widget will be added to the footer of each page in your book adding <a href="http://thoughtmesh.net/" target="_blank">Thoughtmesh</a> page interconnection features</small>';
+		echo '<br /><small>A widget will be added to the footer of each Scalar 2 page in your book adding <a href="http://thoughtmesh.net/" target="_blank">Thoughtmesh</a> page interconnections</small>';
 		echo '</p>';
 	}
 	echo "</td>\n";
