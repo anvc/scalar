@@ -2688,7 +2688,9 @@
                         page.addNotes();
                     }
                     page.addColophon();
-                    page.addContext();
+                    if (viewType != 'edit') {
+                        page.addContext();
+                    }
                     break;
 
             }
