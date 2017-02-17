@@ -74,7 +74,7 @@ $config['smtp_port'] = 465;
 $config['index_hide_published'] = true;
 
 // Redlisted domains that won't let themselves be included in expernal.php's iframe
-$config['iframe_redlist'] = array('youtube.com', 'google.com', 'microsoft.com'); 
+$config['iframe_redlist'] = array('youtube.com', 'google.com', 'microsoft.com', 'metmuseum.org'); 
 
 // Default style theme (for newly created books)
 $config['default_stylesheet'] = 'minimal';
