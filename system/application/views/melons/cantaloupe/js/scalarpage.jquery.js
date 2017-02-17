@@ -526,7 +526,7 @@
 
             },
 
-            addPathButton: function(direction, destinationNode, pathNode) {
+            addPathButton: function(direction, destinationNode, pathNode, isEndOfPath) {
             	var prefix;
             	var popooverPlacement;
             	var pathVar;
@@ -552,7 +552,11 @@
             		break;
 
             		case "right":
-            		prefix = "Continue to";
+                    if (!isEndOfPath) {
+                        prefix = "Continue to";
+                    } else {
+                        prefix = "End of path <b>“" + pathNode.getDisplayTitle() + "”</b>; Continue to";
+                    }
             		popooverPlacement = "left";
             		pathVar = "?path=" + pathNode.slug;
             		break;
@@ -703,6 +707,7 @@
                             if (pathOptionCount == 0) {
                                 end_button.addClass('primary');
                             }
+                            page.addPathButton('right', node, page.containingPath, true);
 
                             // back button
                             var back_button = null;
