@@ -2,6 +2,8 @@ article h1, article h2, article h3, article h4, article h5, article h6 { padding
 article h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height: 110%; }
 .page { padding-top: 7.0rem; padding-bottom: 2.4rem; overflow-x: hidden; }
 .body_copy, .ci-template-html { padding-left: 2rem !important; padding-right: 2rem !important; }
+
+.wrapped_slot.full_width, .mediainfo.full_width{ margin: 0 -2rem !important; }
 #gallery_content { margin-left: 2rem; margin-right: 2rem; }
 .relationships ol, .relationships ul, .relationships p, #incoming_comments, #outgoing_comments, #footer { padding-left: 2rem; padding-right: 2rem; }
 .full .mediaElementFooter { padding-left: 2rem; padding-right: 2rem; }

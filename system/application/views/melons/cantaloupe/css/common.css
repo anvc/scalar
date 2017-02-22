@@ -614,18 +614,19 @@ a:hover { text-decoration: underline; }
 	background-repeat: no-repeat;
 }
 
+.wrapped_slot>.mediaelement, .wrapped_slot>.widgetContainer{
+	margin: 1rem;
+}
+
+
+.wrapped_slot>.mediaelement, .wrapped_slot>.widgetContainer{
+	margin: 1rem;
+}
+
 .wrapped_slot.full_width, .mediainfo.full_width{
-	margin: 0 -2rem;
+	margin: 0 0 0 -7.2rem;
 }
 
-.wrapped_slot>.mediaelement, .wrapped_slot>.widgetContainer{
-	margin: 1rem;
-}
-
-
-.wrapped_slot>.mediaelement, .wrapped_slot>.widgetContainer{
-	margin: 1rem;
-}
 .wrapped_slot.full_width>.mediaelement, .wrapped_slot.full_widget>.widgetContainer{
 	margin: 0;
 	margin-top: 1rem;
