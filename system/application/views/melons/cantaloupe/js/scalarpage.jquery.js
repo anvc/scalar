@@ -178,6 +178,11 @@
                         // make sure the tags are aligned left with the body copy
                         infoElement.addClass("body_copy");
 
+                        if($(mediaelement.link).hasClass('wrap')){
+                            infoElement.addClass('full_width');
+                            mediaelement.model.element.parent('.slot').addClass('full_width');
+                        }
+
                         // modify default media element design
                         mediaelement.model.element.css('marginBottom', '0');
                         mediaelement.view.footer.hide();
