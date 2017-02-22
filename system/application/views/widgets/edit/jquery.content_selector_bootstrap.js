@@ -42,6 +42,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			return $1.toUpperCase();
     		});
     	};
+    	var sentenceCase = function(str){
+    		return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
+    	}
     	var dash_to_space = function(str) {
     		return str.replace(/-/g, ' ');
     	}
@@ -105,19 +108,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if(typeof opts.element === 'undefined'){
 				opts.element = null;
 			}
+			if(opts.element.data('text-wrap')){
+				opts.element.data('text-wrap',null);
+			}
+			var text_wrap = false;
 			if(opts.element.hasClass('wrap')){
-				opts.element.data('text-wrap','wrap-text-around-media');
+				text_wrap = true;
 			}
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
 					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
 					for (var j = 0; j < opts.data[option_name].length; j++) {
-						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
+
+						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+(option_name=='text-wrap'?sentenceCase(dash_to_space(opts.data[option_name][j])):ucwords(dash_to_space(opts.data[option_name][j])))+'</option>');
 					}
 					$form.append($option);
-					if(opts.element != null && opts.element.data(option_name) !== null){
-							$option.find('select').first().val(opts.element.data(option_name));
-					}
 					if(option_name=='text-wrap'){
 						if(opts.element != null && opts.element.data(option_name) !== null && option_name=="wrap-text-around-media"){
 							$('select[name="align"] option[value="center"]').hide();
@@ -131,6 +136,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								$('select[name="align"] option[value="center"]').show();
 							}
 						});
+						if(text_wrap){
+							$option.find('select').val('wrap-text-around-media');
+						}
+					}else if(opts.element != null && opts.element.data(option_name) !== null){
+						$option.find('select').first().val(opts.element.data(option_name));
 					}
 				}
 			}
