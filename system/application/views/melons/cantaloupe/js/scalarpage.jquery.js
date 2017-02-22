@@ -151,7 +151,7 @@
                             // remove body_copy wrapper for inline elements
                             if (isInline) {
                                 // Don't unwrap the inline element if it's parent is the main content wrapper
-                                if (link.data('slot').parent('[property="sioc:content"]').length == 0) {
+                                if (link.data('slot').parent('[property="sioc:content"]').length == 0 && !link.hasClass('wrap')) {
                                     link.data('slot').unwrap();
                                 }
 
@@ -1594,7 +1594,6 @@
                                         if ($(this).parents('.paragraph_wrapper').find('.clearnone').length == 0) {
                                             $(this).parents('.paragraph_wrapper').addClass('clearboth');
                                         }
-
                                         page.addMediaElementForLink($(this), parent);
 
                                         $(this).click(page.handleMediaLinkClick);

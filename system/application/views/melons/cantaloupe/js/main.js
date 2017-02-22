@@ -275,13 +275,13 @@ function wrapOrphanParagraphs(selection) {
 	  	$(this).contents().each(function() {
   			// unwrap inline media links and set them to full size if not already specified
   			$(this).find( '.inline' ).each( function() {
-          	// remove inline links from wrapper while maintaining position relative to siblings
-         	if(!$(this).hasClass('wrap')){
-						pullOutElement($(this));
-					}
-  				if ( $( this ).attr( 'data-size' ) == null ) {
-  					$( this ).attr( 'data-size', 'full' );
-  				}
+	          	// remove inline links from wrapper while maintaining position relative to siblings
+	         	if(!$(this).hasClass('wrap')){
+					//pullOutElement($(this));
+				}
+				if ( $( this ).attr( 'data-size' ) == null ) {
+					$( this ).attr( 'data-size', 'full' );
+				}
   			});
   			// if the element has no children after whitespace and line breaks are removed, then remove it
   			if ( $(this).text().trim().length < 1 ) {
