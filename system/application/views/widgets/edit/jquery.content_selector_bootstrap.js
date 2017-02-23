@@ -124,14 +124,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 					$form.append($option);
 					if(option_name=='text-wrap'){
-						if(opts.element != null && opts.element.data(option_name) !== null && option_name=="wrap-text-around-media"){
-							$('select[name="align"] option[value="center"]').hide();
-							$('select[name="align"]').val("left");
-						}
 						$option.find('select').change(function(){
 							if($(this).val()=="wrap-text-around-media"){
 								$('select[name="align"] option[value="center"]').hide();
-								$('select[name="align"]').val("left");
+								if($('select[name="align"]').val() == "center"){
+									$('select[name="align"]').val("left");
+								}
 							}else{
 								$('select[name="align"] option[value="center"]').show();
 							}
@@ -143,6 +141,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$option.find('select').first().val(opts.element.data(option_name));
 					}
 				}
+			}
+			if(text_wrap){
+				if($('select[name="align"]').val() == "center"){
+					$('select[name="align"]').val("left");
+				}
+				$('select[name="align"] option[value="center"]').hide();
 			}
 			if(hasAnnotationOption){
 				var $annotationSelection = $('<div class="annotationContainer"><div class="bg-info" style="padding:1rem;margin-bottom:1rem">This media has annotations. Select which annotations (if any) you want to be displayed.</div><div class="form-group">'+
@@ -1126,8 +1130,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					$content.find('.form-control[name="textwrap"]').change(function(){
 						if($(this).val()=='wrap'){
+
+							if($content.find('select[name="align"]').val() == "center"){
+								$content.find('select[name="align"]').val("left");
+							}
 							$content.find('select[name="align"] option[value="center"]').hide();
-							$content.find('select[name="align"]').val('left');
 						}else{
 							$content.find('select[name="align"] option[value="center"]').show();
 						}
