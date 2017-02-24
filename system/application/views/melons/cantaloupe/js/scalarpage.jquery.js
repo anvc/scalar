@@ -469,7 +469,8 @@
                 } else {
                     currentNode = node;
                 }
-                var i, relation, relations;
+                var i, relation, relations,
+                    contextCount = 0;
 
                 $('.context.popover').remove();
  
@@ -488,6 +489,7 @@
                             citingContent = '&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
                         }
                         contextMarkup += '<p>' + citingContent + '</p>';
+                        contextCount++;
                     }
                 }
                 
@@ -495,6 +497,7 @@
                 relations = currentNode.getRelations('path', 'incoming', 'index');
                 for (i in relations) {
                     relation = relations[i];
+                    contextCount++;
                     contextMarkup += '<p><a href="' + currentNode.url + '?path=' + relation.body.slug + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
                 }
                 
@@ -502,6 +505,7 @@
                 relations = currentNode.getRelations('tag', 'incoming');
                 for (i in relations) {
                     relation = relations[i];
+                    contextCount++;
                     contextMarkup += '<p>Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                 }
 
@@ -509,6 +513,9 @@
                 if (contextMarkup != '') {
                     contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
                     var contextButton = $('<img class="path-nav info" title="Citations and context" data-toggle="popover" data-placement="bottom" src="' + page.options.root_url + '/images/context@2x.png" alt="up arrow"/>').insertBefore($('nav'));
+                    if (contextCount > 1) {
+                        contextButton.addClass('multi');
+                    }
                     contextButton.popover({
                         trigger: "click",
                         html: true,
