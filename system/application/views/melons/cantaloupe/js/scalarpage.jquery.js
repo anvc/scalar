@@ -495,7 +495,7 @@
                 relations = currentNode.getRelations('path', 'incoming', 'index');
                 for (i in relations) {
                     relation = relations[i];
-                    contextMarkup += '<p><a href="' + currentNode.url + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
+                    contextMarkup += '<p><a href="' + currentNode.url + '?path=' + relation.body.slug + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
                 }
                 
                 // show tags

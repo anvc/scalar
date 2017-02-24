@@ -195,7 +195,7 @@
 					relations = mediaelement.model.node.getRelations('path', 'incoming', 'index');
 					for (i in relations) {
 						relation = relations[i];
-						citations.append('<p><a href="'+mediaelement.model.node.url+'">Step '+relation.index+'</a> of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
+						citations.append('<p><a href="'+mediaelement.model.node.url+'?path='+relation.body.slug+'">Step '+relation.index+'</a> of the <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a> path</p>');
 					}
 					
 					// show tags
