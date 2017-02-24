@@ -505,8 +505,8 @@
                     contextMarkup += '<p>Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                 }
 
+                $(".path-nav.info").remove();
                 if (contextMarkup != '') {
-                    //contextMarkup = '<div class="citations">' + '<b>Context for this item</b>' + contextMarkup + '</div>';
                     contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
                     var contextButton = $('<img class="path-nav info" title="Citations and context" data-toggle="popover" data-placement="bottom" src="' + page.options.root_url + '/images/context@2x.png" alt="up arrow"/>').insertBefore($('nav'));
                     contextButton.popover({
