@@ -478,15 +478,15 @@
                 for (i in relations) {
                     relation = relations[i];
                     if (relation.body.current.content != null) {
-                        contextMarkup += '<p class="attribution"><b>Cited in <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a>:</b></p>';
+                        contextMarkup += '<p class="attribution">Cited in <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a>:</p>';
                         var temp = $('<div>'+relation.body.current.content+'</div>');
                         wrapOrphanParagraphs(temp);
                         var is_inline = (temp.find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
                         if (is_inline) {
-                            citingContent = '<i>Inline media</i>';
+                            citingContent = '<p class="citation"><i>Inline media citation</i></p>';
                         } else {
                             temp.find('a[resource*="'+relation.target.slug+'"]').addClass('context-citation');
-                            citingContent = '&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+                            citingContent = '<p class="citation">&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;</p>';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
                         }
                         contextMarkup += '<p>' + citingContent + '</p>';
                         contextCount++;
@@ -498,7 +498,7 @@
                 for (i in relations) {
                     relation = relations[i];
                     contextCount++;
-                    contextMarkup += '<p><a href="' + currentNode.url + '?path=' + relation.body.slug + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
+                    contextMarkup += '<p class="citation"><a href="' + currentNode.url + '?path=' + relation.body.slug + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
                 }
                 
                 // show tags
@@ -506,7 +506,7 @@
                 for (i in relations) {
                     relation = relations[i];
                     contextCount++;
-                    contextMarkup += '<p>Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
+                    contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                 }
 
                 $(".path-nav.info").remove();
