@@ -308,7 +308,7 @@ ol.has_tags li:last-child:after { content: ""; }
 
 .path-nav { position: fixed; top: 50%; opacity: .25; }
 .path-nav img { width: 3.2rem; }
-img.path-nav { width: 2.4rem; }
+img.path-nav { width: 3.2rem; }
 .popover { width: 20rem; }
 .popover img.thumbnail { max-width: 17rem; margin-bottom: 1rem; display: inline; }
 .path-nav:hover { opacity: .9; }
@@ -316,13 +316,13 @@ img.path-nav { width: 2.4rem; }
 .path-nav.right { right: 2.4rem; }
 .path-nav.up { left: 2.4rem; top: 7rem; }
 .path-nav.down { right: 2.4rem; top: inherit; bottom: 2rem; }
-.path-nav.info { right: 2rem; top: 6.6rem; }
+.path-nav.info { right: 2.4rem; top: 7rem; cursor: pointer; }
 .path-nav-popover { font-size: 1.4rem; text-align: center; }
 /* fix for right side popovers falling off the screen */
 div.popover.path-nav-popover.top { left: calc(100% - 19.8rem) !important; }
 div.popover.path-nav-popover.top>.arrow { left: auto; right: 3rem; }
 div.context.popover.fade.bottom { left: calc(100% - 23.8rem) !important; }
-div.context.popover.fade.bottom>.arrow { left: auto; right: 2.2rem; }
+div.context.popover.fade.bottom>.arrow { left: auto; right: 3rem; }
 
 .context.popover { font-size: 1.2rem; line-height: 140%; width: 24rem; max-width: 100%; }
 .context-citation { background-color: #fff487; }
