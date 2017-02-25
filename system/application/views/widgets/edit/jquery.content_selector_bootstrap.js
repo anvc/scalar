@@ -991,21 +991,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						return false;
 					};
 
-					/*var $nodes = $('<ol class="nodeList"></ol>');
-
-					for(var n in nodeList){
-						var node = nodeList[n];
-						var $node = $('<li><strong>'+node.title+'</strong></li>').data('slug',node.slug);
-						if(typeof node.include_children !== 'undefined' && node.include_children){
-							$node.append('<div class="selectedNodeChildrenList text-muted">Includes children:</div>');
-							$childList = $('<ul></ul>').appendTo($node.find('.selectedNodeChildrenList'));
-							for(var t in node.targets){
-								$childList.append('<li><small>'+node.targets[t].target.current.title+'</small></li>');
-							}
-						}
-						$nodes.append($node);
-					}*/
-
 					var $nodes = $('<div class="btn-group-vertical" role="group" aria-label=""></div>');
 
 					for(var n in nodeList){
@@ -1026,11 +1011,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$nodes.appendTo($content).sortable();
 					$nodes.sortable('enable');
 					$nodes.sortable({
-				  	scroll:false,
-				  	placeholder: "sortable-destination",
-				  	helper:'clone',
+				  		scroll:false,
+				  		placeholder: "sortable-destination",
+				  		helper:'clone',
 						appendTo:'.widget_selector_bootbox'
-				  });
+				  	});
 
 					$footer = $('<div class="modal_footer"></div>').appendTo($content);
 					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($footer).click(function(){
