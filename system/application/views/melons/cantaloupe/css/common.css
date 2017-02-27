@@ -29,6 +29,7 @@ article h5 { font-size: 1.6rem; line-height: 2.4rem; margin-top: 2.4rem; margin-
 article h6 { font-size: 1.4rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
 
 ul > li, ol > li { margin-left: 2.0rem; }
+.dropdown-menu { text-transform: none; }
 .dropdown-menu ul > li, .dropdown-menu ol > li, #scalarheader ul > li, #scalarheader ol > li { margin-left: 0; }
 
 .alert .alert-link { font-weight: 900; }
