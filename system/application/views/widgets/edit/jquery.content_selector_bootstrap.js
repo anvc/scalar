@@ -1636,7 +1636,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a href="'+item.uri+'.versions">&nbsp;'+item.version["http://open.vocab.org/terms/versionnumber"][0].value+'&nbsp;</a></td>';
 									break;
 								case 'edit':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a href="'+item.uri+'.edit" class="btn btn-default btn-xs editLink">edit</a></td>';
+									rowHTML += '<td class="edit_col '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a href="'+item.uri+'.edit" class="btn btn-default btn-xs editLink">edit</a></td>';
 									break;
 							}
 						}
@@ -1686,7 +1686,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						});
 
 						$item.mouseover(function() {
-							$(this).find('.editLink').show();
+							$(this).find('.editLink').css('display','inline-block');
 						}).mouseout(function() {
 							$(this).find('.editLink').hide();
 						});

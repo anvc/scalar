@@ -231,3 +231,11 @@
 .moreless{
 	display: block;
 }
+.node_selector_table_body tbody>tr>td.edit_col{
+	padding: 6px 8px 4px 8px;
+}
+.node_selector_table_body tbody>tr>td.edit_col>a{
+    height: 20px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
