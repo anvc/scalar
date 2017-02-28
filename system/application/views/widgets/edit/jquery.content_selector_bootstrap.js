@@ -982,7 +982,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						e.preventDefault();
 						e.stopPropagation();
 						var nodeList = [];
-						$('.nodeOrdering ol.nodeList>li').each(function(){
+						$('.nodeOrdering .nodeItem').each(function(){
 							var slug = $(this).data('slug')+($(this).find('.selectedNodeChildrenList').length>0?'*':'');
 							nodeList.push(slug);
 						});
@@ -995,7 +995,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					for(var n in nodeList){
 						var node = nodeList[n];
-						var $node = $('<div class="btn btn-default"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> &nbsp; '+node.title+'</div>').data('slug',node.slug);
+						var $node = $('<div class="btn btn-default nodeItem"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> &nbsp; '+node.title+'</div>').data('slug',node.slug);
 						if(typeof node.include_children !== 'undefined' && node.include_children){
 							$node.append('<div class="selectedNodeChildrenList text-muted">Includes children:</div>');
 							$childList = $('<ul></ul>').appendTo($node.find('.selectedNodeChildrenList'));
