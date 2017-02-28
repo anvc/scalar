@@ -126,12 +126,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					if(option_name=='text-wrap'){
 						$option.find('select').change(function(){
 							if($(this).val()=="wrap-text-around-media"){
-								$('select[name="align"] option[value="center"]').hide();
+								$('select[name="align"] option[value="center"]').hide().attr('disabled','disabled');
 								if($('select[name="align"]').val() == "center"){
 									$('select[name="align"]').val("left");
 								}
 							}else{
-								$('select[name="align"] option[value="center"]').show();
+								$('select[name="align"] option[value="center"]').show().removeAttr('disabled');
 							}
 						});
 						if(text_wrap){
