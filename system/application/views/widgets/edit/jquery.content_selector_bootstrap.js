@@ -126,12 +126,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					if(option_name=='text-wrap'){
 						$option.find('select').change(function(){
 							if($(this).val()=="wrap-text-around-media"){
-								$('select[name="align"] option[value="center"]').hide().attr('disabled','disabled');
+								$('select[name="align"] option[value="center"]').hide().prop('disabled',true);
 								if($('select[name="align"]').val() == "center"){
 									$('select[name="align"]').val("left");
 								}
 							}else{
-								$('select[name="align"] option[value="center"]').show().removeAttr('disabled');
+								$('select[name="align"] option[value="center"]').show().prop('disabled',false);
 							}
 						});
 						if(text_wrap){
@@ -163,12 +163,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					if($(this).parents('table').find('tbody>tr:not(.info)').length > 0){
 						$(this).removeClass('text-muted');
 						$annotationRows.addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
-						$featuredAnnotation.find('option').show().removeProp('disabled');
+						$featuredAnnotation.find('option').show().prop('disabled',false);
 						$featuredAnnotation.slideDown('fast');
 					}else{
 						$(this).addClass('text-muted');
 						$annotationRows.removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
-						$featuredAnnotation.slideUp('fast',function(){$(this).find('option:not(.none)').hide().prop('disabled','disabled');});
+						$featuredAnnotation.slideUp('fast',function(){$(this).find('option:not(.none)').hide().prop('disabled',true);});
 					}
 				});
 
@@ -201,14 +201,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 												var newVal = $featuredAnnotation.find('option:not([disabled]):not(".none")').not($thisOption).first().prop('selected','selected').val();
 												$featuredAnnotation.val(newVal).change();
 											}
-											$thisOption.hide().prop('disabled','disabled');
+											$thisOption.hide().prop('disabled',true);
 										}else{
 											$(this).addClass('info').find('.glyphicon-eye-close').removeClass('glyphicon-eye-close text-muted').addClass('glyphicon-eye-open');
 											if($(this).siblings('tr:not(.info)').length == 0){
 												$(this).parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
 											}
 											$thisOption = $featuredAnnotation.find('option[value="'+$(this).data('slug')+'"]');
-											$thisOption.show().removeProp('disabled');
+											$thisOption.show().prop('disabled',false);
 											if($featuredAnnotation.find('option:not([disabled]):not(".none")').length == 1){
 												$thisOption.prop('selected','selected');
 												$featuredAnnotation.val($(this).data('slug'));
@@ -250,7 +250,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 													$annotations[annotation].parents('table').find('.annotationSelectionShowAll').removeClass('text-muted');
 												}
 												$thisOption = $featuredAnnotation.find('option[value="'+annotation+'"]');
-												$thisOption.show().removeProp('disabled');
+												$thisOption.show().prop('disabled',false);
 											}
 										}
 										$form.find('.featuredAnnotation').add($featuredAnnotation).show();
@@ -1784,30 +1784,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						container: '.bootbox'
 					});
 				});
+
 				$rows.find('.shortened_desc').each(function(){
 					if($(this).find('.moreless').length > 0){ return; }
 					$(this).parent().find('.full_desc').hide();
 					$linkContainer = $('<div class="text-right"></div>').appendTo(this);
-					$('<a href="#" class="moreless text-right visible-xs-block">more</a>').appendTo($linkContainer).toggle(
-						function(e){
-							e.preventDefault();
-							$(this).parents('.shortened_desc').find('.full_desc').show();
-							$(this).parents('.shortened_desc').find('.short_desc').hide();
-							$(this).text('less');
-							return false;
-						},
-						function(e){
-							e.preventDefault();
-							$(this).parents('.shortened_desc').find('.short_desc').show();
-							$(this).parents('.shortened_desc').find('.full_desc').hide();
-							$(this).text('more');
-							return false;
-						}
-					);
+					$('<a href="#" class="moreless text-right">more</a>').appendTo($linkContainer).click(function(e){
+						e.preventDefault();
+						var $fullDesc = $(this).parents('.shortened_desc').find('.full_desc').toggle();
+						$(this).parents('.shortened_desc').find('.short_desc').toggle();
+						$(this).text($fullDesc.is(':visible')?'less':'more');
+						return false;
+					});
 				});
 
 				$(this).find('.spinner_container').hide();
-				$(this).find('.node_types .btn').removeProp('disabled').removeClass('disabled');
+				$(this).find('.node_types .btn').prop('disabled',false).removeClass('disabled');
 
 			},$dialogue_container);
 
@@ -1926,7 +1918,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var doTypeFilter = function(){
 				$dialogue_container.find('.filter_spinner .spinner_container').show();
-				$dialogue_container.find('.node_types .btn').prop('disabled','disabled').addClass('disabled');
+				$dialogue_container.find('.node_types .btn').prop('disabled',true).addClass('disabled');
 				var opts = $dialogue_container.data('opts');
 
 				if(opts == undefined){ opts = []; }

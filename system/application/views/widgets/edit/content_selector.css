@@ -228,3 +228,6 @@
 .nodeOrdering .btn-group-vertical { margin-bottom: 2.4rem; }
 .nodeOrdering .glyphicon-menu-hamburger, .ui-sortable-handle .glyphicon-menu-hamburger { color: #b4b4b4; }
 .sortable-destination { height: 3.2rem; }
+.moreless{
+	display: block;
+}
