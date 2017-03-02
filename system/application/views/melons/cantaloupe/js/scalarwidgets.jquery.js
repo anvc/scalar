@@ -657,6 +657,7 @@
                  if ( page.adaptiveMedia != "mobile" ) {
       							$wrapper.find( '[data-toggle="popover"]' ).popover( {
       								container: '#gallery',
+                      html: true,
       								template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title heading_font heading_weight"></h3><div class="popover-content caption_font"></div></div>'
       							} );
        						}
