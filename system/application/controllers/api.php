@@ -53,7 +53,7 @@ Class Api extends CI_Controller {
 	//Defaults
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
-	private $allowable_metadata_prefixes = array('dc', 'dcterms', 'art', 'shoah', 'scalar', 'exif', 'iptc', 'bibo', 'id3');
+	private $allowable_metadata_prefixes = array('dc', 'shoah', 'scalar', 'exif');  // Rest propagated by config['ontologies']
 	private $disallowable_metadata_prefixes = array('scalar:metadata');
 	protected $data;
 
@@ -93,6 +93,12 @@ Class Api extends CI_Controller {
  		// API key login
  		} else if(!$this->user = $this->api_users->do_login($this->data['email'], $this->data['api_key'], $this->data['host'])){
  			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Could not log in via API key');
+ 		}
+ 		
+ 		//Propagate allowable prefixes
+ 		$ontologies = $this->config->item('ontologies');
+ 		foreach (array_keys($ontologies) as $key) {
+ 			array_push($this->allowable_metadata_prefixes, $key);
  		}
 	}
 

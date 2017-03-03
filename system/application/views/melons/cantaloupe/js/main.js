@@ -454,36 +454,38 @@ $(window).ready(function() {
 				var currentNode = scalarapi.model.getCurrentPageNode();
 
 				//console.log(JSON.stringify(rdf_json));
-				/*console.log('------- Current page from RDFa ---------------');
+				/*
+				console.log('------- Current page from RDFa ---------------');
 				console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
 				console.log( 'current page description: '+rdf.predicate('http://purl.org/dc/terms/description') );
 				console.log( 'current page content: '+rdf.predicate('http://rdfs.org/sioc/ns#content') );
-				console.log('------- Relationships from RDFa  -------------');*
+				console.log('------- Relationships from RDFa  -------------');
 				// Tags
 				var rel = rdf.relations('in').nodes_by_type();
-				//for (var uri in rel) console.log('has tag: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
+				for (var uri in rel) console.log('has tag: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
 				var rel = rdf.relations('out').nodes_by_type();
-				//for (var uri in rel) console.log('tag of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
+				for (var uri in rel) console.log('tag of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
 				// Paths
 				var rel = rdf.relations('in').nodes_by_type('index');
-				//for (var uri in rel) console.log('has path: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+				for (var uri in rel) console.log('has path: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				var rel = rdf.relations('out').nodes_by_type('index');
-				//for (var uri in rel) console.log('path of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+				for (var uri in rel) console.log('path of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				// Annotations
 				var rel = rdf.relations('in').nodes_by_type('t');
-				//for (var uri in rel) console.log('has annotation: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+				for (var uri in rel) console.log('has annotation: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				var rel = rdf.relations('out').nodes_by_type('t');
-				//for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+				for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				// Comments
 				var rel = rdf.relations('in').nodes_by_type('datetime');
-				//for (var uri in rel) console.log('has reply: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+				for (var uri in rel) console.log('has reply: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				var rel = rdf.relations('out').nodes_by_type('datetime');
-				//for (var uri in rel) console.log('reply of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+				for (var uri in rel) console.log('reply of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
 				// References
 				var rel = rdf.predicates('http://purl.org/dc/terms/isReferencedBy');
-				//for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
+				for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
 				var rel = rdf.predicates('http://purl.org/dc/terms/references');
-				//for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));	*/
+				for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
+				*/
 
 		  }},
 

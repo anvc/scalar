@@ -102,9 +102,18 @@
     			if ('undefined'!=typeof(featured[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+1]+'" value="1" /> '+featured[j+1]+'</label></div>').appendTo($row);
     			if ('undefined'!=typeof(featured[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+2]+'" value="1" /> '+featured[j+2]+'</label></div>').appendTo($row);
     		}
+    		// Hard-coded descriptions for certain ontology prefixes
+    		var descriptions = {
+    			'dcterms':'Dublin Core terms',
+    			'art': 'ARTstore terms',
+    			'iptc': 'Photo metadata',
+    			'bibo': 'Bibliographic Ontology Specification',
+    			'id3': 'MP3 de facto metadata standard'
+    		};
         	// Ontologies
         	for (var prefix in data) {
-        		$('<h1 name="'+prefix+'">'+prefix+'</h1>').appendTo($div);
+        		var $header = $('<h1 name="'+prefix+'">'+prefix+' &nbsp; </h1>').appendTo($div);
+        		if ('undefined'!=typeof(descriptions[prefix])) $header.append('<small>'+descriptions[prefix]+'</small>'); 
         		title_links.push('<a href="javascript:void(null);">'+prefix+'</a>');
         		var $content = $('<div></div>').appendTo($div);
         		for (var j = 0; j < data[prefix].length; j+=3) {

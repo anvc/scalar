@@ -312,6 +312,16 @@ $config['ontologies']['bibo'] = array(
 	'translationOf',
 	'translator'
 );
+$config['ontologies']['id3'] = array(
+	'Title',
+	'Artist',
+	'Album',
+	'Year',
+	'Comment',
+	'Zero-byte',
+	'Track',
+	'Genre'
+);
 
 //EOF
 

@@ -1,13 +1,19 @@
 /**
  * @projectDescription		Methods for interacting with HTML RDFa via jquery.rdfquery.js
  * @author					Craig Dietrich
- * @version					1.1
+ * @version					1.2
  */
 
 (function($) {
 	$.fn.RDFa = function(options) {
 		this.init = function() {
-			this.$rdf = this.rdf();
+			this.namespaces = {};
+			var attr = $(':root')[0].attributes;
+			for (var j = 0; j < attr.length; j++) {
+				if (-1 == attr[j].nodeName.indexOf(':') || -1 == attr[j].value.indexOf('://')) continue;
+				this.namespaces[attr[j].nodeName.substr(attr[j].nodeName.indexOf(':')+1)] = attr[j].value;
+			}
+			this.$rdf = this.rdf({'namespaces':this.namespaces});
 			this.rdf = this.$rdf.databank.dump();
         };
         this.dump = function(format) {
@@ -26,6 +32,7 @@
 			return node[predicate];
         }
         this.predicate = function(a,b) {
+        	if ('undefined'==typeof(this.predicates(a,b))) return '';
         	return this.predicates(a,b)[0].value;
         };
         this.types = function(a) {
@@ -46,35 +53,17 @@
         	var $q;
         	if ('out'==dir) {
 	        	$q = this.$rdf
-	        	.prefix('oac', 'http://www.openannotation.org/ns/')
-	        	.prefix('dcterms', 'http://purl.org/dc/terms/')
-	        	.prefix('sioc', 'http://rdfs.org/sioc/ns#')
-	        	.prefix('art', 'http://simile.mit.edu/2003/10/ontologies/artstor#')
-	        	.prefix('prov', 'http://www.w3.org/ns/prov#')
-	        	.prefix('exif', 'http://ns.adobe.com/exif/1.0/')
-	        	.prefix('iptc', 'http://ns.exiftool.ca/IPTC/IPTC/1.0/')
-	        	.prefix('bibo', 'http://purl.org/ontology/bibo/')
-	        	.prefix('id3', 'http://id3.org/id3v2.4.0#')
 	        	.where('?o oac:hasBody <'+this.options.subject+'>')
-	        	.where('?o oac:hasTarget ?s');
-	        	$q.each(function() {
+	        	.where('?o oac:hasTarget ?s')
+	        	.each(function() {
 	        		var s = me.strbefore(this.s.value.toString(),"#");
 	        		obj[s] = $.extend(me.rdf[s], {types:me.strafter(this.s.value.toString(),"#")});
 	        	});	        	
         	} else if ('in'==dir) {  // Need to do this a roundabout way because the target (this.options.subject) might have an OAC suffix (#) & rdfquery doesn't support SPARQL functions
-	        	$q = this.$rdf
-	        	.prefix('oac', 'http://www.openannotation.org/ns/')
-	        	.prefix('dcterms', 'http://purl.org/dc/terms/')
-	        	.prefix('sioc', 'http://rdfs.org/sioc/ns#')
-	        	.prefix('art', 'http://simile.mit.edu/2003/10/ontologies/artstor#')
-	        	.prefix('prov', 'http://www.w3.org/ns/prov#')
-	        	.prefix('exif', 'http://ns.adobe.com/exif/1.0/')
-	        	.prefix('iptc', 'http://ns.exiftool.ca/IPTC/IPTC/1.0/')
-	        	.prefix('bibo', 'http://purl.org/ontology/bibo/')
-	        	.prefix('id3', 'http://id3.org/id3v2.4.0#')	        	
+	        	$q = this.$rdf      	
 	        	.where('?o a oac:Annotation')
 	        	.where('?o oac:hasBody ?b')
-	        	.where('?o oac:hasTarget ?s');
+	        	.where('?o oac:hasTarget ?s')
 	        	$q.each(function() {
 	        		var s = me.strbefore(this.s.value.toString(),"#");
 	        		if (s != me.options.subject) return;
