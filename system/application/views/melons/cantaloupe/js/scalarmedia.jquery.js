@@ -259,25 +259,43 @@
 			},
 
 			addMetadataTableForNodeToElement: function(node, element) {
+				var _linkify = function(inputText) {  // http://stackoverflow.com/questions/37684/how-to-replace-plain-urls-with-links
+				    var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;  // URLs starting with http://, https://, or ftp://
+				    var replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+				    var replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;  // URLs starting with www. (without // before it, or it'd re-link the ones done above)
+				    var replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+				    var replacePattern3 = /(\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6})/gim;  // Change email addresses to mailto:: links
+				    var replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+				    var replacePattern4 = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/;  // lat/lng, link to a map
+				    var replacedText = replacedText.replace(replacePattern4, '<a href="https://www.google.com/maps/preview/@$1,$3,12z" target="_blank">$1,$3</a>');
+				    var maxLength = 95;  // Trim the length of a URL so it doesn't run off side of panel in some cases
+				    if ($('<div>'+replacedText+'</div>').find('a').length && $('<div>'+replacedText+'</div>').find('a:first').text().length > maxLength) {
+				    	var text = $('<div>'+replacedText+'</div>').find('a:first').text().substr(0,maxLength)+'...';
+				    	var $obj = $('<div>'+replacedText+'</div>');
+				    	$obj.find('a:first').text(text);
+				    	var replacedText = $obj.html();
+				    };
+				    return replacedText;
+				};	
 				var table = $( '<table></table>' ).appendTo(element);
 				// basic Scalar properties
 				table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
-				table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
+				table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'" target="_blank">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
 				table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
-				if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+node.current.description+'</td></tr>');
+				if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+_linkify(node.current.description)+'</td></tr>');
 				if (null!=node.current.source) {
 					if ('undefined'!=typeof(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line']) && node.current.source == node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value) {
-						table.append('<tr><td>iptc:By-line</td><td>'+node.current.source+'</td></tr>');
+						table.append('<tr><td>iptc:By-line</td><td>'+_linkify(node.current.source)+'</td></tr>');
 					} else if ('undefined'!=typeof(node.current.properties['http://purl.org/dc/terms/source']) && node.current.source == node.current.properties['http://purl.org/dc/terms/source'][0].value) {
-						table.append('<tr><td>dcterms:source</td><td>'+node.current.source+'</td></tr>');
+						table.append('<tr><td>dcterms:source</td><td>'+_linkify(node.current.source)+'</td></tr>');
 					}
 				}
-				if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td><a href="'+node.current.sourceLocation+'">'+node.current.sourceLocation+'</a></td></tr>');
+				if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td>'+_linkify(node.current.sourceLocation)+'</td></tr>');
 				// auxiliary properties
 				for ( prop in node.current.auxProperties ) {
 					for ( i in node.current.auxProperties[ prop ] ) {
 						value = node.current.auxProperties[ prop ][ i ];
-						table.append( '<tr><td>' + prop + '</td><td>' + value + '</td></tr>');
+						table.append( '<tr><td>' + prop + '</td><td>' + _linkify(value) + '</td></tr>');
 					}
 				}
 				// API links
