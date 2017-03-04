@@ -373,15 +373,15 @@ class Page_model extends MY_Model {
 						// Update hard URLs in version contet
 						$old = confirm_slash(base_url()).confirm_slash($book_slug).$slug;
 						$new = confirm_slash(base_url()).confirm_slash($book_slug).$array['slug'];
-						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new') WHERE version_id IN (".implode(',',$book_version_ids).")");
+						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
 						// Update soft URLs in version contet - href
 						$old = 'href="'.$slug.'"';
 						$new = 'href="'.$array['slug'].'"';
-						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".mysqli_real_escape_string($old)."', '".mysqli_real_escape_string($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
+						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
 						// Update soft URLs in version contet - resource
 						$old = 'resource="'.$slug.'"';
 						$new = 'resource="'.$array['slug'].'"';
-						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '".mysqli_real_escape_string($old)."', '".mysqli_real_escape_string($new)."') WHERE version_id IN (".implode(',',$book_version_ids).")");
+						$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
 					}
 				}
 			}

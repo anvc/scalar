@@ -681,9 +681,9 @@ class Book_model extends MY_Model {
 					foreach ($result as $row) $book_page_ids[] = $row->content_id;
 				}
 				// Run the rewrites
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, '$old', '$new') WHERE version_id IN (".implode(',',$book_version_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, '$old', '$new') WHERE content_id IN (".implode(',',$book_page_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, '$old', '$new') WHERE content_id IN (".implode(',',$book_page_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
 			}
 
     	}

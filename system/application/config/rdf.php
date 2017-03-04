@@ -1,5 +1,9 @@
 <?php
 
+// To add an ontology to Scalar:
+// 1) Add its prefix and associated URI to $config['namespaces'] -- this allows the namespace to be added to RDF and RDFa outputs
+// 2) Add its predicates (fieldnames) to $config['ontologies'] array -- this provides the fields as options when choosing 'Additional metadata'
+
 // Relationship types
 $config['rel'] = array('annotations', 'paths', 'tags', 'replies');
 $config['ref'] = array('references');
