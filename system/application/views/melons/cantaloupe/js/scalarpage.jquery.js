@@ -649,7 +649,7 @@
                                     '&rdquo;</a></p>').appendTo(pathContents);
                                 button.find('a').addClass('primary');
                                 pathOptionCount++;
-                                page.addPathButton('down', nodes[0], currentNode);
+                                //page.addPathButton('down', nodes[0], currentNode);
                             }
                         }
 
@@ -660,7 +660,7 @@
                 if ((page.containingPaths.length > 0) && options.showLateralNav) {
                     section = $('<section class="relationships"></section');
 
-                    page.addPathButton('up', page.containingPath, page.containingPath);
+                    //page.addPathButton('up', page.containingPath, page.containingPath);
  
 					if (page.containingPathNodes.length > 1) {
                         if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
