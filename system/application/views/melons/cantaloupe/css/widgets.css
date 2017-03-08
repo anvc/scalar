@@ -304,9 +304,6 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .widget_visualization .widgetContainer .widgetElement .scalarvis{
 	border: 0;
 }
-.full_widget .media_description{
-	padding: 0 1rem;
-}
 .widget_slot.grid_visualization>.well .scalarvis, .widget_slot.radial_visualization>.well .scalarvis{
     padding-right: 20px;
     box-sizing: content-box;
