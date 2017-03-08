@@ -76,6 +76,11 @@
 .full.widget_summary .media-list .media-list li:last-child{
 	border-bottom: 0;
 }
+.full .widgetElement>div{
+	border-left: 0;
+	border-right: 0;
+	border-radius: 0;
+}
 
 .widget_slot.left {
 	margin-top: 4.0rem;
