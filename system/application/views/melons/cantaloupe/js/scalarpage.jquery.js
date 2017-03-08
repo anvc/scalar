@@ -220,7 +220,7 @@
                             infoElement.addClass('full_width');
                         }
                         mediaelement.model.element.parent('.slot').addClass('full_width');
-                    }else if(mediaelement.model.element.parents('.body_copy').length > 0 && mediaelement.model.element.parents('.slot').width() >= mediaelement.model.element.parent('.body_copy').width()){
+                    }else if(mediaelement.model.element.parents('.body_copy').length > 0 && mediaelement.model.element.width() >= mediaelement.model.element.parents('.body_copy').width()){
                         mediaelement.model.element.parent('.slot').addClass('no_margin');
                     }
                 }
