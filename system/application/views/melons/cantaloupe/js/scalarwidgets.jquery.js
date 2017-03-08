@@ -393,36 +393,6 @@
 
             var timelinePromise = $.Deferred();
             $.when(timelinePromise).then($.proxy(function(){
-              var parseDate = function(date,d_string){
-                var d = {
-                    year : date.getFullYear()
-                };
-                var month = date.getMonth()+1; //Timeline expects 1-12; JS spits out 0-11
-                if(month > 1 || d_string.length > 4 || (d_string.length > 2 && (d_string.match(/\//g).length > 0 || d_string.match(/,/g).length > 0))){
-                  d.month = month;
-                  var day = date.getDate();
-                  if(day > 1 || d_string.length > 6){
-                    d.day = day;
-                    var hour = date.getHours();
-                    if(hour > 0){
-                      d.hour = hour;
-                      var minute = date.getMinutes();
-                      if(minute > 0){
-                        d.minute = minute;
-                        var second = date.getSeconds();
-                        if(second > 0){
-                          d.second = second;
-                          var millisecond = date.getMilliseconds();
-                          if(millisecond > 0){
-                            d.millisecond = millisecond;
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                return d;
-              };
               var prepareTimelineContainer = function($widget){
                 $widget.on('slotCreated',function(){
                   $(this).data('element').html('');
@@ -482,7 +452,7 @@
                           var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
                           var d = new Date(d_string);  //parse as a date
                           if(d instanceof Date){
-                            entry.start_date = parseDate(d,d_string);
+                            entry.start_date = page.parseTimelineDate(d,d_string);
                           }
                           if(dashCount < 2 || slashCount < 2){
                             useDateStringAsDateValue = true;
@@ -518,8 +488,8 @@
                             var edate = new Date(dateParts[1]);  //parse as a date
 
                             if(sdate instanceof Date && edate instanceof Date){
-                              entry.start_date = parseDate(sdate,dateParts[0]);
-                              entry.end_date = parseDate(edate,dateParts[1]);
+                              entry.start_date = page.parseTimelineDate(sdate,dateParts[0]);
+                              entry.end_date = page.parseTimelineDate(edate,dateParts[1]);
                             }
 
                           }
