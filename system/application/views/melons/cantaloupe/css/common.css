@@ -631,6 +631,10 @@ a:hover { text-decoration: underline; }
 	margin: 0 0 0 -7.2rem;
 }
 
+.wrapped_slot.no_margin>.mediaelement, .mediainfo.no_margin>.widgetContainer{
+	margin: 1rem 0;
+}
+
 .wrapped_slot.full_width>.mediaelement, .wrapped_slot.full_widget>.widgetContainer{
 	margin: 0;
 	margin-top: 1rem;

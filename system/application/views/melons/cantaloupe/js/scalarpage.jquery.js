@@ -168,6 +168,8 @@
                 }
 
                 // the "solo" option is used when showing media items that don't get media details tabs beneath
+
+
                 if (mediaelement.model.options.solo != true) {
                     if (isFullWidth) {
 
@@ -177,11 +179,6 @@
 
                         // make sure the tags are aligned left with the body copy
                         infoElement.addClass("body_copy");
-
-                        if($(mediaelement.link).hasClass('wrap')){
-                            infoElement.addClass('full_width');
-                            mediaelement.model.element.parent('.slot').addClass('full_width');
-                        }
 
                         // modify default media element design
                         mediaelement.model.element.css('marginBottom', '0');
@@ -214,6 +211,17 @@
                         // modify default media element design
                         mediaelement.model.element.css('marginBottom', '0');
                         mediaelement.view.footer.hide();
+                    }
+                }
+
+                if($(mediaelement.link).hasClass('wrap')){
+                    if(isFullWidth){
+                        if (typeof infoElement != 'undefined') {
+                            infoElement.addClass('full_width');
+                        }
+                        mediaelement.model.element.parent('.slot').addClass('full_width');
+                    }else if(mediaelement.model.element.parents('.body_copy').length > 0 && mediaelement.model.element.parents('.slot').width() >= mediaelement.model.element.parent('.body_copy').width()){
+                        mediaelement.model.element.parent('.slot').addClass('no_margin');
                     }
                 }
 
@@ -381,7 +389,7 @@
 
                             // wrap the media in a body copy element so its alignment happens inside the
                             // dimensions of the body copy
-                            if (!slotDOMElement.parent().hasClass('body_copy')) {
+                            if (!slotDOMElement.parent().hasClass('body_copy') && !link.hasClass('wrap')) {
                                 slotDOMElement.wrap('<div class="body_copy"></div>');
                             }
 
