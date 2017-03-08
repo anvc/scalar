@@ -277,7 +277,7 @@ function wrapOrphanParagraphs(selection) {
   			$(this).find( '.inline' ).each( function() {
 	          	// remove inline links from wrapper while maintaining position relative to siblings
 	         	if(!$(this).hasClass('wrap')){
-					//pullOutElement($(this));
+					pullOutElement($(this));
 				}
 				if ( $( this ).attr( 'data-size' ) == null ) {
 					$( this ).attr( 'data-size', 'full' );
