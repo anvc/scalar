@@ -76,7 +76,7 @@
 .full.widget_summary .media-list .media-list li:last-child{
 	border-bottom: 0;
 }
-.full .widgetElement>div{
+.full_widget .widgetElement>div,.full_widget .widgetElement>ul, .full .widgetElement>div,.full .widgetElement>ul{
 	border-left: 0;
 	border-right: 0;
 	border-radius: 0;
