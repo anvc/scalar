@@ -1409,12 +1409,30 @@
                                 nodes = [];
 
                             // get all of the media links in the page content
-                            var mediaLinks = page.getMediaLinks(page.bodyContent());
+                            var mediaLinks = page.getMediaLinks(page.bodyContent(),true);
+                            
                             $(mediaLinks).each(function() {
+                                if ($(this).parents('widget_carousel').length > 0) {
+                                    return;
+                                }
+                                if ($(this).hasClass('widget_link')) {
+                                    if ($(this).data('slot') !== undefined) {
+                                        $(this).data('slot').remove();
+                                    }
+                                    widgets.handleWidget($(this));
+                                }
+
                                 node = scalarapi.getNode($(this).attr('resource'));
                                 if (node != null) {
                                     nodes.push(node);
                                 }
+                            });
+
+                            mediaLinks = $(mediaLinks).filter(function(i,$e){
+                                if ($e.parents('widget_carousel').length > 0 || $e.hasClass('widget_link')) {
+                                    return false;
+                                }
+                                return true;
                             });
 
                             nodes = nodes.concat(getChildrenOfType(currentNode, 'media'));
