@@ -631,11 +631,32 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.jPlayer.push(promise);
+				}else if(this.model.mediaSource.contentType == 'document' && (this.model.mediaSource.name == 'SourceCode' || scalarapi.getQueryVars( this.model.path ).lang != null)){
+					if(typeof pendingDeferredMedia.Prism == 'undefined'){
+						pendingScripts = 0;
+						pendingDeferredMedia.Prism = [];
+						$.when(
+							$.getScript(widgets_uri+'/mediaelement/prism.js')
+						).then(function(){
+							var doc = document;
+							var approot = $('link#approot').attr('href');
+							var cssLink = document.createElement("link");
+							cssLink.href = approot+'views/widgets/mediaelement/prism.css';
+							cssLink.rel = "stylesheet";
+							cssLink.type = "text/css";
+							doc.body.appendChild(cssLink);
+							for(var i = 0; i < pendingDeferredMedia.Prism.length; i++){
+								pendingDeferredMedia.Prism[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingScripts--;
+					pendingDeferredMedia.Prism.push(promise);
 				}
 			}
 
 			$.when(promise).then($.proxy(function(){
-
 				this.parseMediaType();
 
 				this.header = $('<div class="mediaElementHeader"></div>').appendTo(this.model.element);
@@ -657,6 +678,7 @@ function YouTubeGetID(url){
 
 	  			this.populateSidebar();
 				this.populateContainer();
+
 
 				if ('undefined'!=typeof(this.mediaObjectView)) {
 
@@ -1984,7 +2006,7 @@ function YouTubeGetID(url){
 				}
 			}
 
-			if ((this.model.mediaSource.contentType == 'document') && this.mediaObjectView.hasFrameLoaded) {
+			if ((this.model.mediaSource.contentType == 'document') && !(this.model.mediaSource.name == 'SourceCode' || scalarapi.getQueryVars( this.model.path ).lang != null) && this.mediaObjectView.hasFrameLoaded) {
 				this.mediaObjectView.highlightAnnotatedLines();
 			}
 
@@ -2154,7 +2176,7 @@ function YouTubeGetID(url){
  				}
   				if ( ( this.model.mediaSource.contentType != 'image' ) && ( this.model.mediaSource.contentType != 'document' ) ) {
  					setTimeout( $.proxy(function(me){this.doAutoSeek(this);},this), 6000 );
-				} else {
+				} else if(!this.model.mediaSource.contentType == 'document' || !(this.model.mediaSource.name == 'SourceCode' || scalarapi.getQueryVars( this.model.path ).lang != null)){
  					setTimeout( $.proxy(function(me){this.doAutoSeek(this);},this), 3000 );
 				}
 			}
@@ -4247,11 +4269,6 @@ function YouTubeGetID(url){
 				temp.addClass( 'language-' + lang );
 			}
 			this.object.append( temp );
-			var approot = $('link#approot').attr('href');
-			var cssLink = document.createElement("link")
-			cssLink.href = approot+'views/widgets/mediaelement/prism.css';
-			cssLink.rel = "stylesheet";
-			cssLink.type = "text/css";
 
 			this.object.click( function( e ) {
 
@@ -4285,18 +4302,23 @@ function YouTubeGetID(url){
 			me.parentView.layoutMediaObject();
 			me.parentView.removeLoadingMessage();
 
-			var doc = document;
-			doc.body.appendChild(cssLink);
-			$.getScript( approot+'views/widgets/mediaelement/prism.js', function( script, textStatus ) {
-				me.hasLoaded = true;
-			   	me.highlightAnnotatedLines();
-				me.pause();
-				if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
-					me.parentView.doAutoSeek(me.parentView);
-				}
-			} ).fail( function( jqxhr, settings, exception ) {
-				console.log( 'error loading prism.js: ' + exception );
-			} );
+			var $pre = this.object.find('pre');
+			var $code = $pre.find('code');
+			$code.load($pre.data('src'),function(){
+		        me.hasLoaded = true;
+	           	me.highlightAnnotatedLines();
+		        me.pause();
+		        if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
+		            me.parentView.doAutoSeek(me.parentView);
+		        }
+		        if(typeof pendingScripts=='undefined'){
+		        	pendingScripts = 0;
+		        }
+		        if(--pendingScripts <= 0){
+		        	//Do one highlightAll pass after each of the script embeds are loaded - this is because Prism plugins don't seem to run if you just run Prism per element
+		        	Prism.highlightAll();
+		        }
+			});
 
 			return;
 		}
@@ -4359,7 +4381,6 @@ function YouTubeGetID(url){
 
 			var e = this.object.find( 'pre' );
 			e.attr( 'data-line', highlightStr );
-			Prism.highlightElement( e );
 
 		}
 
