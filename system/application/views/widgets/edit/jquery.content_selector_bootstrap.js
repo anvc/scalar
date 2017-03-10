@@ -1101,9 +1101,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var formattingSelection = '<div class="form-horizontal heading_font">';
 					for(var o in formattingOptions){
 
-						if(o == "TextWrap" && typeof opts.inline!=='undefined' && opts.inline){
-							var values = '<select class="form-control" name="textwrap"><option value="nowrap">Create New Line for Widget</option><option value="wrap">Wrap Text Around Widget</option></select>';
-							formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">Text Wrap:</label><div class="col-sm-5">'+values+'</div></div>';
+						if(o == "TextWrap"){
+							if(typeof opts.inline!=='undefined' && opts.inline){
+								var values = '<select class="form-control" name="textwrap"><option value="nowrap">Create New Line for Widget</option><option value="wrap">Wrap Text Around Widget</option></select>';
+								formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">Text Wrap:</label><div class="col-sm-5">'+values+'</div></div>';
+							}
 						}else{
 							var values = '<select class="form-control" name="'+o.toLowerCase()+'">';
 							for(var v in formattingOptions[o]){
