@@ -88,6 +88,8 @@
 						}
 					});
 				}
+
+				slotMediaElement.model.element.css('visibility', 'hidden');
 				
 				var slideshowHeader = $('<div class="dialog_header heading_font"></div>').prependTo(mediaDetails.contentElement);
 				if (source != undefined) {
