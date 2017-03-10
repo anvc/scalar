@@ -371,6 +371,11 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 
 	if($tag.hasClass('wrap')){
 		$tag.data('slot').addClass('wrapped_slot');
+		var align = $tag.data('align');
+		if(undefined == align){
+			align = 'right';
+		}
+		$tag.data('slot').addClass(align+'_slot');
 	}
 
 	return $tag;

@@ -107,8 +107,8 @@
                     mediaWidth = mediaelement.model.element.find('.mediaObject').width(),
                     isInline = link.hasClass("inline"),
                     size = mediaelement.model.options.size,
-                    isFullWidth = false;
-
+                    isFullWidth = false,
+                    mediaContentsWidth = mediaelement.model.element.find('.mediaObject').children().first().width();
                 if (mediaelement.model.node == scalarapi.model.getCurrentPageNode()) {
                     page.addContext(mediaelement.model.node);
                 }
@@ -140,7 +140,7 @@
                 if (size == 'native' || size == 'full') {
 
                     // if the media is the full width of the page, then remove any align styles
-                    if (mediaWidth >= page.pageWidth) {
+                    if (mediaWidth >= page.pageWidth || mediaContentsWidth >= page.pageWidth) {
                         mediaelement.model.element.parent().removeClass('left right');
                         isFullWidth = true;
 
@@ -173,7 +173,6 @@
                         mediaelement.model.options.solo = true;
                     }
 
-
                     if (isFullWidth) {
                         link.data('fullWidth', isFullWidth);
                         // full width native elements should have no body_copy wrapping them
@@ -184,6 +183,9 @@
                                 // Don't unwrap the inline element if it's parent is the main content wrapper
                                 if (link.data('slot').parent('[property="sioc:content"]').length == 0 && !link.hasClass('wrap')) {
                                     link.data('slot').unwrap();
+                                }else if(link.hasClass('wrap')){
+
+                                    pullOutElement(link.data('slot'));
                                 }
 
                                 link.data('slot').css('clear', 'both');

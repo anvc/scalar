@@ -467,6 +467,7 @@
 			} );
 
 			if (media.options.shy) {
+				var wrapped_slot = mediaTabs.parents('.slot').hasClass('wrapped_slot');
 				mediaelement.model.element.mouseenter(function() {
 					var timeout = $(this).data('timeout');
 					if (timeout != null) {
@@ -480,7 +481,9 @@
 						if (timeout != null) {
 							clearTimeout(timeout);
 						}
-						var timeout = setTimeout(function() { mediaTabs.slideUp(); }, 1000)
+						var timeout = setTimeout(function() { 
+							mediaTabs.slideUp(); 
+						}, 1000);
 						$(this).data('timeout', timeout);
 					}
 				})
