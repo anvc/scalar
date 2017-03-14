@@ -2296,9 +2296,18 @@ function YouTubeGetID(url){
 
 	 			// first time setup
 	 			if ( anno.getAnnotations( this.image.src + '-' + this.model.id ).length == 0 ) {
+	 				// if the image is in a carousel, temporarily show it so we can attach annotations to ti
+	 				var isAlreadyActive = $(this.image).closest('.item').hasClass('active');
+	 				if (!isAlreadyActive) {
+	 					$(this.image).closest('.item').addClass('active');
+	 				}
 					anno.makeAnnotatable( this.image );
 					anno.hideSelectionWidget( this.image.src + '-' + this.model.id );
 					anno.setProperties( { hi_stroke: "#3acad9" } );
+					// if the image is in a carousel, return it to its original state
+					if (!isAlreadyActive) {
+						$(this.image).closest('.item').removeClass('active');
+					}
 
 				// reload
 	 			} else {
