@@ -624,7 +624,7 @@ a:hover { text-decoration: underline; }
 .wrapped_slot.right_slot>.mediaelement{
 	margin-left: 1rem;
 }
-.wrapped_slot.right_slot>.mediaelement{
+.wrapped_slot.left_slot>.mediaelement{
 	margin-right: 1rem;
 }
 
