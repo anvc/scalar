@@ -154,8 +154,8 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 }
 
 function pullOutElement($pull) {
-  if (!jQuery.contains(document, $pull[0])) {
-    return
+  if ($pull.parents('[property="sioc:content"]').length == 0) {
+    return;
   }
   var $par = $pull.parent();
   if($pull.parents('.manual_slideshow').length != 0)
