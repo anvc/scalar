@@ -619,17 +619,17 @@ a:hover { text-decoration: underline; }
 }
 
 .wrapped_slot>.mediaelement, .wrapped_slot>.widgetContainer{
-	margin: 0 0 1rem 0;
+	margin: 0rem 0 2.4rem 0;
 }
 .wrapped_slot.right_slot>.mediaelement{
-	margin-left: 1rem;
+	margin-left: 4.8rem;
 }
 .wrapped_slot.left_slot>.mediaelement{
-	margin-right: 1rem;
+	margin-right: 4.8rem;
 }
 
 .wrapped_slot.full_width, .mediainfo.full_width{
-	margin: 0 0 0 -7.2rem;
+	margin-left: -7.2rem;
 }
 
 .wrapped_slot.no_margin>.mediaelement, .mediainfo.no_margin>.widgetContainer{
