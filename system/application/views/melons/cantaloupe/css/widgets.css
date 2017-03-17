@@ -294,7 +294,19 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 	-moz-box-shadow: none;
 	box-shadow: none;
 }
-
+.widgetContainer .carousel{
+    background-color: #444;
+}
+.widgetContainer .carousel .loading{
+	position: absolute;
+    top: 50%;
+    left: 0px;
+    right: 0px;
+    margin-top: -2rem;
+    text-align: center;
+    background-color: transparent;
+    color: #fff;
+}
 .widget_visualization .vis_widget{
 	border: 1px solid #ccc;
 }

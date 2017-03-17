@@ -540,10 +540,12 @@
                   }
                   return hasTimelineData;
                 }
-                if(parseNodes(nodes,tempdata)){
-                  $(this).data('timeline',tempdata);
-                  prepareTimelineContainer($(this));
-                }
+
+                parseNodes(nodes,tempdata);
+
+                $(this).data('timeline',tempdata);
+                prepareTimelineContainer($(this));
+
               }else{
                 prepareTimelineContainer($(this));
               }
@@ -566,7 +568,7 @@
              $widget.on('slotCreated',function(){
                //Carousel rendering content
 
-               var $carousel = $('<div class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
+               var $carousel = $('<div class="carousel slide" data-interval="false" style=""><div class="loading caption_font">Loading Media</div></div>').appendTo($element);
                var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
                if ( page.adaptiveMedia == "mobile" ) {
@@ -685,6 +687,8 @@
          							});
                     }
        						}
+                }else{
+                  $carousel.find('.loading').text("No media items found!");
                 }
                 $(this).off("slotCreated");
              });
