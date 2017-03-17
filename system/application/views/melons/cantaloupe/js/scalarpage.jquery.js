@@ -242,7 +242,11 @@
                 } else {
                     if (isFullWidth) {
                         // modify default media element design
-                        mediaelement.model.element.css('marginBottom', '0');
+                        if(mediaelement.model.link.hasClass('wrap')){
+                            mediaelement.model.element.css('marginBottom', '2.4rem');
+                        }else{
+                            mediaelement.model.element.css('marginBottom', '0');
+                        }
                         mediaelement.view.footer.hide();
                     }
                 }
@@ -251,6 +255,8 @@
                     if(isFullWidth){
                         if (typeof infoElement != 'undefined') {
                             infoElement.addClass('full_width');
+                        }else{
+                            mediaelement.model.element.parent('.slot').addClass('no_info');
                         }
                         mediaelement.model.element.parent('.slot').addClass('full_width');
                     }else if(mediaelement.model.element.parents('.body_copy').length > 0 && mediaelement.model.element.width() >= mediaelement.model.element.parents('.body_copy').width()){
@@ -318,7 +324,7 @@
 
                 page.pageWidth = parseInt($('.page').width());
 
-                // calculate the size of the content area minus margins
+                // calculate the size of the content area minus margin-s
                 var temp = $('<div class="body_copy"></div>');
                 temp.appendTo('.page');
                 page.pageWidthMinusMargins = page.pageWidth - (parseInt(temp.css('padding-left')) * 2);
