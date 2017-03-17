@@ -578,52 +578,63 @@
                }
                $carousel.css('min-height',galleryHeight+'px');
                galleryHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
-               var parseNodes = function(nodes,galleryHeight){
-                   var n = nodes.length;
-                   var hasMedia = false;
-                   for ( var i = 0; i < n; i++ ) {
-                     var node = nodes[i];
-                     if(typeof node.scalarTypes.media != 'undefined'){
-
-                       var item = $( '<div class="item" style="max-height : ' + galleryHeight + 'px;"></div>' ).appendTo( $wrapper );
-                       if ( !hasMedia ) {
-                         item.addClass( "active" );
-                       }
-
-                       var hasMedia = true;
-
-                       // if this is a media link that's already part of the content of the page, then use it
-                       var mediaContainer = $('<span><a href="'+node.current.sourceFile+'" resource="'+node.slug+'" data-size="full" data-caption="none">'+node.slug+'</a></span>').appendTo( item );
-       								 var link = mediaContainer.find( 'a' );
-       								 link.css('display', 'none');
-
-                       if ( node.current.description != null ) {
-         								var description = node.current.description;
-         								if ( node.current.source != null ) {
-         									description += ' (Source: ' + node.current.source + ')';
-         								}
-         								description = description.replace( new RegExp("\"", "g"), '&quot;' );
-
-         								item.append( '<div class="carousel-caption caption_font"><span>' +
-         									'<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace( '"', '&quot;' ) + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
-         									'</span></div>' );
-         							} else {
-         								item.append( '<div class="carousel-caption caption_font"><span>' +
-         									'<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a>'+($widget.data('hide_numbering')!=undefined?'':(' ('+( i + 1 ) + '/' + n + ')')) +
-         									'</span></div>' );
-         							}
-                      page.addMediaElementForLink( link, mediaContainer, galleryHeight );
-                    }
-                    if(typeof node.children != "undefined"){
-                      for(var t in node.children){
-                        hasmedia = parseNodes(node.children[t],galleryHeight) || hasMedia;
+               var media_nodes = [];
+               var index = 0;
+               var calculateMediaNodes = function(nodes){
+                var n = nodes.length;
+                for ( var i = 0; i < n; i++ ) {
+                      var node = nodes[i];
+                      if(typeof node.scalarTypes.media != 'undefined'){
+                          media_nodes[index++] = node;
                       }
+                      if(typeof node.children != "undefined"){
+                        for(var t in node.children){
+                          calculateMediaNodes(node.children[t]);
+                        }
+                      }
+                }
+               }
+
+               calculateMediaNodes($widget.data('node'));
+
+               var parseNodes = function(nodes,galleryHeight,hasMedia){
+                    var n = nodes.length;
+                    for (var i = 0; i < n; i++) {
+                        var node = nodes[i];
+
+                        var item = $('<div class="item" style="max-height : ' + galleryHeight + 'px;"></div>').appendTo($wrapper);
+                        if (!hasMedia) {
+                            var hasMedia = true;
+                            item.addClass("active");
+                        }
+
+
+                        // if this is a media link that's already part of the content of the page, then use it
+                        var mediaContainer = $('<span><a href="' + node.current.sourceFile + '" resource="' + node.slug + '" data-size="full" data-caption="none">' + node.slug + '</a></span>').appendTo(item);
+                        var link = mediaContainer.find('a');
+                        link.css('display', 'none');
+
+                        if (node.current.description != null) {
+                            var description = node.current.description;
+                            if (node.current.source != null) {
+                                description += ' (Source: ' + node.current.source + ')';
+                            }
+                            description = description.replace(new RegExp("\"", "g"), '&quot;');
+
+                            item.append('<div class="carousel-caption caption_font"><span>' +
+                                '<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace('"', '&quot;') + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
+                                '</span></div>');
+                        } else {
+                            item.append('<div class="carousel-caption caption_font"><span>' +
+                                '<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (<span class="numbering"></span>)')) +
+                                '</span></div>');
+                        }
+                        page.addMediaElementForLink(link, mediaContainer, galleryHeight);
                     }
-                  }
-                  return hasMedia;
                };
 
-               if(parseNodes($widget.data('node'),galleryHeight)){
+               if(media_nodes.length > 0){
+                  parseNodes(media_nodes,galleryHeight);
                  if ( page.adaptiveMedia != "mobile" ) {
       							$wrapper.find( '[data-toggle="popover"]' ).popover( {
       								container: '#gallery',
