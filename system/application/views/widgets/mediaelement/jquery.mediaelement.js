@@ -557,7 +557,7 @@ function YouTubeGetID(url){
 					promise = $.Deferred();
 					pendingDeferredMedia.OpenSeadragon.push(promise);
 
-				}else if(typeof $f === 'undefined' && this.model.mediaSource.contentType == 'video' && player == 'Flash'){
+				}else if(typeof $f === 'undefined' && this.model.mediaSource.contentType == 'video' && (player == 'Flash' || (player == 'proprietary' && this.model.mediaSource.name == 'HIDVL'))){
 					if(typeof pendingDeferredMedia.Flowplayer == 'undefined'){
 						pendingDeferredMedia.Flowplayer = [];
 						$.getScript(widgets_uri+'/mediaelement/flowplayer-3.2.13.min.js',function(){
@@ -1125,7 +1125,6 @@ function YouTubeGetID(url){
 						this.mediaObjectView = new $.JPlayerAudioObjectView(this.model, this);
 					}
 					break;
-
 					case 'video':
 					switch (player) {
 
@@ -3590,7 +3589,7 @@ function YouTubeGetID(url){
 		 */
 		jQuery.HemisphericInstituteVideoObjectView.prototype.createObject = function() {
  			var theElement = $('<div class="mediaObject" id="'+this.bsn+'_mediaObject'+this.model.id+'"/>"').appendTo(this.parentView.mediaContainer);
- 			var thePlayer = $f(this.bsn+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.swf", {
+ 			var thePlayer = $f(this.bsn+'_mediaObject'+this.model.id, this.model.mediaelement_dir+"flowplayer.commercial-3.2.18.swf", {
 
  				key: $('#flowplayer_key').attr('href'),
 
