@@ -311,7 +311,9 @@ ol.has_tags li:last-child:after { content: ""; }
 .path-nav { position: fixed; top: 50%; opacity: .25; }
 .path-nav img { width: 3.2rem; }
 img.path-nav { width: 3.2rem; }
-.popover { width: 20rem; }
+/*.popover { width: 20rem; }*/
+.popover.vis-help { font-size: 1.4rem; }
+.popover.vis-help li { margin-left: 0; }
 .popover img.thumbnail { max-width: 17rem; margin-bottom: 1rem; display: inline; }
 .path-nav:hover { opacity: .9; }
 .path-nav.left { left: 2.4rem; }

@@ -59,6 +59,7 @@
 			"comment": "All comments",
 			"current": "Current page"
 		}
+		base.popoverTemplate = '<div class="popover vis-help caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>';
 		base.currentNode = scalarapi.model.getCurrentPageNode();
 		base.modalIsOpen = false;
 		base.instanceId = 'scalarvis-' + window.scalarvis.instanceCount++;
@@ -181,7 +182,11 @@
 			// help popover
 			base.helpButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top">About this visualization</button>' );
 			visFooter.append( base.helpButton );
-			base.helpButton.popover( { trigger: "hover click", html: true } );
+			base.helpButton.popover( { 
+				trigger: "hover click", 
+				html: true, 
+				template: base.popoverTemplate
+			} );
 			
 			// legend popover
 			if (base.options.format != "tagcloud") {
@@ -199,7 +204,11 @@
 				}
 				legendMarkup += '<br><div style="max-width: 175px;">Since content can have more than one type, a given item may change colors depending on context.</div>';
 				base.legendButton.attr( "data-content", legendMarkup );
-				base.legendButton.popover( { trigger: "hover click", html: true } );
+				base.legendButton.popover( { 
+					trigger: "hover click", 
+					html: true, 
+					template: base.popoverTemplate
+				} );
 			}
 
 			if (!isMobile) {
