@@ -211,6 +211,7 @@
 
 			// if we're not in a modal, then start immediately
 			if ( !base.options.modal ) {
+				base.deriveRelationsFromContent(base.options.content);
 				base.visualize();
 			}
 
@@ -266,21 +267,26 @@
 
         base.onRelationSelect = function() {
 			var contentValue = base.visElement.find( ".vis-content-control" ).val();
-			switch ( $( this ).val() ) {
+			base.deriveRelationsFromContent(contentValue);
+			base.visualize();
+        }
+
+        base.deriveRelationsFromContent = function(content) {
+			switch ( base.options.relations ) {
 
 				case "all":
 				base.options.relations = "all";
 				break;
 
 				case "parents-children":
-				if ( contentValue == "current" ) {
+				if ( content == "current" ) {
 					base.options.relations = base.currentNode.type.id;
-				} else if ( contentValue == "all" ) {
-					base.options.relations = contentValue;
-				} else if ( contentValue == "toc" ) {
+				} else if ( content == "all" ) {
+					base.options.relations = content;
+				} else if ( content == "toc" ) {
 					base.options.relations = "all";
 				} else {
-					base.options.relations = base.options.content;
+					base.options.relations = content;
 				}
 				if ( base.options.relations == "media" ) {
 					base.options.relations = "referee";
@@ -291,8 +297,7 @@
 				base.options.relations = "none";
 				break;
 
-			}
-			base.visualize();
+			}        	
         }
 
         base.onFormatSelect = function() {
