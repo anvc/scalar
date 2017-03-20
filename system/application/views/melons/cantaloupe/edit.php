@@ -9,7 +9,7 @@
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.ui.touch-punch.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
-<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.predefined.js')?>
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
 <?$this->template->add_js('system/application/views/widgets/spectrum/spectrum.js')?>
