@@ -72,7 +72,7 @@ endforeach;
 <meta property="og:title" content="<?=((isset($book))?htmlspecialchars(trim(strip_tags($book->title))).': ':'').((isset($page->version_index))?htmlspecialchars(trim(strip_tags($title))):'Untitled')?>" />
 <meta property="og:site_name" content="<? if (isset($book)) { echo htmlspecialchars(trim(strip_tags($book->title))).((!empty($book->subtitle))?': '.htmlspecialchars(trim(strip_tags($book->subtitle))):''); } ?>" />
 <meta property="og:url" content="<? echo confirm_slash($base_uri).((isset($page->version_index))?$page->slug:''); ?>" />
-<meta property="og:description" content="<? if (isset($page->version_index)) {echo htmlspecialchars(create_excerpt($page->versions[$page->version_index]->content, 34));} else {echo htmlspecialchars(trim(strip_tags($description)));} ?>" />
+<meta property="og:description" content="<? if (isset($page->version_index) && !empty($page->versions[$page->version_index]->description)) {echo htmlspecialchars($page->versions[$page->version_index]->description);} elseif (isset($page->version_index)) {echo htmlspecialchars(create_excerpt($page->versions[$page->version_index]->content, 34));} else {echo htmlspecialchars(trim(strip_tags($description)));} ?>" />
 <meta property="og:image" content="<?php
 $default_img = $app_root.'views/arbors/html5_RDFa/scalar_logo_300x300.png';
 if (isset($page->version_index)) {

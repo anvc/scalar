@@ -117,5 +117,10 @@ $config['predefined_css'] = array(
 		'title'=>'Text content area to full width',
 		'description'=>'The text content is limited to a max width to be easy on the eyes when reading. However, in some cases you might want text content to stretch the full width of the page content area.',
 		'insert'=>".body_copy {max-width:none;}"
+	),
+	array(
+		'title'=>'Display description below title',
+		'description'=>'This snippet will display the page\'s description underneath the page\'s title at the top of the page.',
+		'insert'=>"header > h1 ~ [property=\"dcterms:description\"] {display:block !important; color:#888888; margin:0rem 2rem 4rem 2rem;}\n@media only screen and (min-width : 500px) {\n  header > h1 ~ [property=\"dcterms:description\"] {margin:-3rem 7.2rem 4rem 7.2rem;}\n}"	
 	)
 );

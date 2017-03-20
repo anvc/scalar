@@ -629,9 +629,6 @@ a:hover { text-decoration: underline; }
 	margin-right: 4.8rem;
 }
 
-.wrapped_slot.full_width, .mediainfo.full_width{
-	margin-left: -7.2rem;
-}
 
 .wrapped_slot.no_margin>.mediaelement, .mediainfo.no_margin>.widgetContainer{
 	margin: 1rem 0;
@@ -650,6 +647,7 @@ a:hover { text-decoration: underline; }
 	-webkit-backface-visibility: hidden;
 }
 
+
 /* Remove border on any text media objects or code media */
 .mediaObject iframe[src$=".txt"],
 .mediaObject pre[class^="language-"],
@@ -660,6 +658,11 @@ a:hover { text-decoration: underline; }
 }
 
 .body_copy.mediainfo {
+	margin-bottom:2.4rem;
+}
+.wrapped.mediainfo{
+	padding-left: 0;
+	padding-right: 0;
 	margin-bottom:2.4rem;
 }
 
