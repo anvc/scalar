@@ -73,7 +73,7 @@ $config['reference_options'] = array(
 						 		),
 	'insertMediaelement' 	=> array(
 								'size' => array('small', 'medium', 'large', 'native', 'full'),
-								'text-wrap' => array('create-new-line-for-media','wrap-text-around-media'),
+								//'text-wrap' => array('create-new-line-for-media','wrap-text-around-media'),
 								'align' => array('left', 'center', 'right'),
 								'caption' => array('description', 'title', 'title-and-description', 'metadata', 'none'),
 								'annotations' => array('none','all','list')
