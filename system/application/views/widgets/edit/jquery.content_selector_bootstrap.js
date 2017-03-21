@@ -2066,7 +2066,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				for(var i in slugs){
 
 					(function(slug,promise,slugs,$dialogue_container){
-						if(scalarapi.loadPage( slug.id, true, function(){
+						var handleNode = function(){
 							var nodeList = [];
 
 							slug.loaded = true;
@@ -2084,9 +2084,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								item.uri = slug_data.url;
 								item.slug = slugs[i].id;
 								item.version_uri = slug_data.current.url;
-		    				item.version_slug = item.version_uri.replace(parent_url, '');
-		    				item.content = slug_data.current.content;
-		    				item.title = slug_data.current.title;
+			    				item.version_slug = item.version_uri.replace(parent_url, '');
+			    				item.content = slug_data.current.content;
+			    				item.title = slug_data.current.title;
 								if("undefined" !== typeof slug_data.outgoingRelations && $.isArray(slug_data.outgoingRelations) && slug_data.outgoingRelations.length > 0){
 		    					item.targets = slug_data.outgoingRelations;
 								}
@@ -2095,48 +2095,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								}else{
 									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
 								}
-								item.include_children = slug.children;
+								item.include_children = slugs[i].children;
 								item.hasRelations = 'undefined' !== typeof item.targets && item.targets.length > 0;
 								$dialogue_container.data('nodes').push(item);
 							}
 							promise.resolve();
-						}, null, 1, false, null, 0, 20) == "loaded"){
-							var nodeList = [];
+						};
 
-							slug.loaded = true;
-							slug.data = scalarapi.getNode(slug.id);
+						if(scalarapi.loadPage( slug.id, true, handleNode, null, 1, false, null, 0, 20) == "loaded"){ handleNode(); }
 
-							for(var i in slugs){
-								if(!slugs[i].loaded){
-									return;
-								}
-							}
-
-							$dialogue_container.data('nodes',[]);
-							for(var i in slugs){
-								//Build node list for content selector
-								var slug_data = slugs[i].data;
-								var item = {};
-								item.uri = slug_data.url;
-								item.slug = slugs[i].id;
-								item.version_uri = slug_data.current.url;
-		    				item.version_slug = item.version_uri.replace(parent_url, '');
-		    				item.content = slug_data.current.content;
-		    				item.title = slug_data.current.title;
-								if("undefined" !== typeof slug_data.outgoingRelations && $.isArray(slug_data.outgoingRelations) && slug_data.outgoingRelations.length > 0){
-		    					item.targets = slug_data.outgoingRelations;
-								}
-								if('undefined' !== typeof slug_data.thumbnail){
-									item.thumbnail = slug_data.thumbnail;
-								}else{
-									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
-								}
-								item.include_children = slug.children;
-								item.hasRelations = 'undefined' !== typeof item.targets && item.targets.length > 0;
-								$dialogue_container.data('nodes').push(item);
-							}
-							promise.resolve();
-						}
 					})(slugs[i],init_promise,slugs,$dialogue_container);
 				}
 			}else{

@@ -25,6 +25,7 @@
 
 				 base.pendingWidgets = {};
          base.pendingNodeLoads = {};
+         base.loadedNodes = [];
          // Access to jQuery and DOM versions of element
          base.$el = $(el);
          base.el = el;
@@ -139,124 +140,109 @@
                   slugs.push({id : slug, children: include_children, loaded : false});
                }
                $widget.removeData('node');
-               for(var i in slugs){
 
-                 (function(slug,promise,slugs){
+               var handleNodes = $.proxy(function(slugs,promise){
+                 if(this.data('node')!=undefined){
+                   return;
+                 }
 
+                 var nodeList = [];
 
-                   if(scalarapi.loadPage( slug.id, fullReload, function(){
-
-                     if($widget.data('node')!=undefined){
-                       return;
-                     }
-
-                     var nodeList = [];
-
-                     slug.loaded = true;
-                     for(var i in slugs){
-                       if(!slugs[i].loaded){
-                         return;
-                       }
-                     }
-                     for(var i in slugs){
-                       var node = jQuery.extend(true, {}, scalarapi.getNode(slugs[i].id));
-                       if(slugs[i].children){
-                         node.children = {};
-                         for(var r in node.outgoingRelations){
-                           var child = node.outgoingRelations[r];
-                           var type = child.type.body;
-                           if(typeof node.children[type] == "undefined"){
-                             node.children[type] = [];
-                           }
-                           node.children[type].push(child.target);
-                         }
-                       }
-                       nodeList.push(node);
-                     }
-
-                     $widget.data('node',nodeList);
-
-                     promise.resolve();
-                   }, null, 1, false, null, 0, 20) == "loaded"){
-
-                      if($widget.data('node')!=undefined){
-                        return;
-                      }
-
-                     var nodeList = [];
-
-                     slug.loaded = true;
-
-                     for(var i in slugs){
-                       if(!slugs[i].loaded){
-                         return;
-                       }
-                     }
-
-                     for(var i in slugs){
-                       var node = jQuery.extend(true, {}, scalarapi.getNode(slugs[i].id));
-                       if(slugs[i].children){
-                         node.children = {};
-                         for(var r in node.outgoingRelations){
-                           var child = node.outgoingRelations[r];
-                           var type = child.type.body;
-                           if(typeof node.children[type] == "undefined"){
-                             node.children[type] = [];
-                           }
-                           node.children[type].push(child.target);
-                         }
-                       }
-                       nodeList.push(node);
-                     }
-
-
-                     $widget.data('node',nodeList);
-
-                     promise.resolve();
+                 for(var i in slugs){
+                   if(base.loadedNodes.indexOf(slugs[i].id) == -1){
+                     return;
                    }
-                 })(slugs[i],promise,slugs);
+                 }
+                 for(var i in slugs){
+                   var node = jQuery.extend(true, {}, scalarapi.getNode(slugs[i].id));
+                   if(slugs[i].children){
+                     node.children = {};
+                     for(var r in node.outgoingRelations){
+                       var child = node.outgoingRelations[r];
+                       var type = child.type.body;
+                       if(typeof node.children[type] == "undefined"){
+                         node.children[type] = [];
+                       }
+                       node.children[type].push(child.target);
+                     }
+                   }
+                   nodeList.push(node);
+                 }
+
+                 this.data('node',nodeList);
+
+                 promise.resolve();
+               },$widget,slugs,promise);
+
+               for(var i in slugs){
+                 if(base.loadedNodes.indexOf(slugs[i].id) > -1){
+                    handleNodes();
+                 }else if(typeof base.pendingNodeLoads[slugs[i].id] == 'undefined'){
+                    base.pendingNodeLoads[slugs[i].id] = [];
+                    base.pendingNodeLoads[slugs[i].id].push(handleNodes);
+                    (function(slug,fullReload,base){
+                       if(scalarapi.loadPage( slug.id, fullReload, function(){
+                          base.loadedNodes.push(slug.id);
+                          for(var i in base.pendingNodeLoads[slug.id]){
+                            base.pendingNodeLoads[slug.id][i]();
+                          }
+                       }, null, 1, false, null, 0, 20) == "loaded"){
+                        base.loadedNodes.push(slug.id);
+                        for(var i in base.pendingNodeLoads[slug.id]){
+                          base.pendingNodeLoads[slug.id][i]();
+                        }
+                       }
+                     })(slugs[i],fullReload,base);
+                 }else{
+                    base.pendingNodeLoads[slugs[i].id].push(handleNodes);
+                 }
                }
              }
              else{
      					 var include_children = slug.indexOf('*')>-1;
      					 var slug = slug.replace(/\*/g, '');
-               (function(include_children,slug,fullReload,$widget){
-                 if(scalarapi.loadPage( slug, fullReload, function(){
-                   if(include_children){
-                     var node = jQuery.extend(true, {}, scalarapi.getNode(slug));
-                     node.children = {};
-                     for(var r in node.outgoingRelations){
-                       var child = node.outgoingRelations[r];
-                       var type = child.type.body;
-                       if(typeof node.children[type] == "undefined"){
-                         node.children[type] = [];
-                       }
-                       node.children[type].push(child.target);
+               var handleNode = $.proxy(function(slugs,promise,include_children){
+                if(include_children){
+                   var node = jQuery.extend(true, {}, scalarapi.getNode(slug));
+                   node.children = {};
+                   for(var r in node.outgoingRelations){
+                     var child = node.outgoingRelations[r];
+                     var type = child.type.body;
+                     if(typeof node.children[type] == "undefined"){
+                       node.children[type] = [];
                      }
-                     $widget.data('node',[node]);
-                   }else{
-                     $widget.data('node',[scalarapi.getNode(slug)]);
+                     node.children[type].push(child.target);
                    }
-                   promise.resolve();
-                 }, null, 1, false, null, 0, 20) == "loaded"){
-                   if(include_children){
-                     var node = jQuery.extend(true, {}, scalarapi.getNode(slug));
-                     node.children = {};
-                     for(var r in node.outgoingRelations){
-                       var child = node.outgoingRelations[r];
-                       var type = child.type.body;
-                       if(typeof node.children[type] == "undefined"){
-                         node.children[type] = [];
-                       }
-                       node.children[type].push(child.target);
-                     }
-                     $widget.data('node',[node]);
-                   }else{
-                     $widget.data('node',[scalarapi.getNode(slug)]);
-                   }
-                   promise.resolve();
+                   $widget.data('node',[node]);
+                 }else{
+                   $widget.data('node',[scalarapi.getNode(slug)]);
                  }
-              })(include_children,slug,fullReload,$widget);
+                 promise.resolve();
+               },$widget,slug,promise,include_children);
+               if(base.loadedNodes.indexOf(slug) > -1){
+                    handleNode();
+               }else if(typeof base.pendingNodeLoads[slug] == 'undefined'){
+                
+                  base.pendingNodeLoads[slug] = [];
+                  base.pendingNodeLoads[slug].push(handleNode);
+                  (function(include_children,slug,base){
+                     if(scalarapi.loadPage( slug, fullReload, function(){
+                          base.loadedNodes.push(slug);
+                          for(var i in base.pendingNodeLoads[slug]){
+                            base.pendingNodeLoads[slug][i]();
+                          }
+                     }, null, 1, false, null, 0, 20) == "loaded"){
+                      console.log(2);
+                      base.loadedNodes.push(slug.id);
+                      for(var i in base.pendingNodeLoads[slug]){
+                        base.pendingNodeLoads[slug][i]();
+                      }
+                     }
+                  })(include_children,slug,base);
+               }else{
+                  base.pendingNodeLoads[slug].push(handleNode);
+               }
+               
              }
            }
          }
@@ -325,14 +311,14 @@
                  }
 
                  var nodes = $widget.data('node');
-                 var parseNodes = function(nodes,properties,this_markers){
+                 var parseNodes = function(nodes,properties,this_markers,map,$gmaps,isChild){
                    var n = nodes.length;
                    var hasNodes = false;
                    // add markers for each content element that has the spatial property
-                   for ( i = 0; i < n; i++ ) {
+                   for ( var i = 0; i < n; i++ ) {
 
                      var node = nodes[ i ];
-                     for ( p in properties ) {
+                     for ( var p in properties ) {
                        var property = properties[ p ];
                        if ( node.current.properties[ property ] != null ) {
                          var o = node.current.properties[ property ].length;
@@ -350,6 +336,7 @@
                              $gmaps,
                              this_markers
                            )){
+
                              hasNodes = true;
                            }
                          }
@@ -358,14 +345,14 @@
 
                      if(typeof node.children != "undefined"){
                        for(var t in node.children){
-                         hasNodes = parseNodes(node.children[t],properties,this_markers) || hasNodes;
+                         hasNodes = parseNodes(node.children[t],properties,this_markers,map,$gmaps,true) || hasNodes;
                        }
                      }
                    }
                    return hasNodes;
                  };
 
-                 if(parseNodes(nodes,properties,markers)){
+                 if(parseNodes(nodes,properties,markers,map,$gmaps)){
                    // adjust map bounds to marker bounds
                    var bounds = new google.maps.LatLngBounds();
                    $gmaps.data({'map':map,'bounds':bounds,'markers':markers});
@@ -568,7 +555,7 @@
              $widget.on('slotCreated',function(){
                //Carousel rendering content
 
-               var $carousel = $('<div class="carousel slide" data-interval="false" style=""><div class="loading caption_font">Loading Media</div></div>').appendTo($element);
+               var $carousel = $('<div class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
                var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
                if ( page.adaptiveMedia == "mobile" ) {
@@ -578,8 +565,8 @@
                  // keeping them synced up helps keep media vertically aligned in galleries
                  var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                }
-               $carousel.css('min-height',galleryHeight+'px');
                galleryHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+               $carousel.css('min-height',galleryHeight+'px');
                var media_nodes = [];
                var index = 0;
                var calculateMediaNodes = function(nodes){
@@ -719,7 +706,7 @@
                var $cardContainer = $('<div class="row cardContainer"></div>').appendTo($(this).data('element'));
                var parseNodes = function(nodes,$cardContainer){
                  var n = nodes.length;
-                 for (var i=(n-1); i>=0; i--) {
+                 for (var i=0; i<n; i++) {
                     var node = nodes[i];
                     widgets.createCardFromNode(node, $cardContainer);
                     if(typeof node.children != "undefined"){
@@ -759,7 +746,7 @@
                var $summaryContainer = $('<ul class="media-list"></ul>').appendTo($(this).data('element'));
                var parseNodes = function(nodes,$summaryContainer){
                  var n = nodes.length;
-                 for (var i=(n-1); i>=0; i--) {
+                 for (var i=0; i<n; i++) {
                     var node = nodes[i];
                     var children = [];
                     if(typeof node.children != "undefined"){
@@ -812,7 +799,7 @@
             markup += '<a href="' + node.url + '" class="goThereLink btn btn-default" role="button">Go there &raquo;</a><span class="clearfix"></span></div><span class="clearfix"></span>' +
             		'</div>' +
             	'</div></div>';
-            $target.prepend(markup);
+            $target.append(markup);
          };
 
          base.createSummaryFromNode = function(node,$target,children){
@@ -848,7 +835,7 @@
               }
 
               markup += '</div></li>';
-            $target.prepend(markup);
+            $target.append(markup);
          };
 
          base.calculateSize = function($widget){
@@ -909,7 +896,7 @@
            $slot.addClass('widget_'+widgetType);
 
            if(widgetType != 'card' && widgetType != 'visualization' && widgetType != 'summary' && widgetType != 'carousel' ){
-             $container.css('max-height',maxWidgetHeight);
+             $container.css('height',maxWidgetHeight);
              if(containerLayout == 'vertical'){
                $container.height(height);
              }
@@ -990,7 +977,8 @@
               slug = $widget.attr('resource').replace(/\*/g, '');
             }
             if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')=='custom_text' || (slug!=undefined && !slug.indexOf(',')==-1))){
-              var $widgetinfo = $('<div class="body_copy mediaElementFooter caption_font mediainfo"></div>').appendTo($container);
+              var $widgetinfo = $('<div class="mediaElementFooter caption_font mediainfo"></div>').appendTo($container);
+
               var $descriptionPane = $('<div class="media_description pane"></div>').appendTo($widgetinfo);
               var caption_type = $widget.data('caption');
               if(caption_type=='custom_text'){
