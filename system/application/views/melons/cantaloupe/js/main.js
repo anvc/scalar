@@ -154,7 +154,7 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 }
 
 function pullOutElement($pull) {
-  if (!$pull.is('[property="sioc:content"] *, .manual_slideshow *')) {
+  if (!$pull.is('[property="sioc:content"] *') || !$pull.is('.manual_slideshow *')) {
     return;
   }
   var $par = $pull.parent();

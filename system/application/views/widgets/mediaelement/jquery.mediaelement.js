@@ -631,7 +631,7 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.jPlayer.push(promise);
-				}else if(this.model.mediaSource.contentType == 'document' && (this.model.mediaSource.name == 'SourceCode' || scalarapi.getQueryVars( this.model.path ).lang != null)){
+				}else if(typeof Prism == 'undefined' && this.model.mediaSource.contentType == 'document' && (this.model.mediaSource.name == 'SourceCode' || scalarapi.getQueryVars( this.model.path ).lang != null)){
 					if(typeof pendingDeferredMedia.Prism == 'undefined'){
 						pendingScripts = 0;
 						pendingDeferredMedia.Prism = [];
@@ -651,7 +651,7 @@ function YouTubeGetID(url){
 						});
 					}
 					promise = $.Deferred();
-					pendingScripts--;
+					pendingScripts++;
 					pendingDeferredMedia.Prism.push(promise);
 				}
 			}
@@ -4319,6 +4319,8 @@ function YouTubeGetID(url){
 		        if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
 		            me.parentView.doAutoSeek(me.parentView);
 		        }
+
+				console.log($pre,$code,pendingScripts);
 		        if(typeof pendingScripts=='undefined'){
 		        	pendingScripts = 0;
 		        }
