@@ -665,9 +665,14 @@ a:hover { text-decoration: underline; }
 .wrapped.mediainfo{
 	padding-left: 0;
 	padding-right: 0;
+	clear: both;
+    padding-top: .01rem;
 	margin-bottom:2.4rem;
 }
-
+.wrapped.mediainfo.page_margins{
+	padding-left: 7.2rem;
+    padding-right: 7.2rem;
+}
 .mediaContainer,.mediaElementFooter {
 	border: none;
 	background-color: inherit;

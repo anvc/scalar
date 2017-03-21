@@ -258,9 +258,13 @@
                     if(isFullWidth){
                         if (typeof infoElement != 'undefined') {
                             infoElement.addClass('full_width');
+                            if (size == 'native' && isInline) {
+                                infoElement.addClass('page_margins');
+                            }
                         }else{
                             mediaelement.model.element.parent('.slot').addClass('no_info');
                         }
+
                         mediaelement.model.element.parent('.slot').addClass('full_width');
                     }else if(mediaelement.model.element.parents('.body_copy').length > 0 && mediaelement.model.element.width() >= mediaelement.model.element.parents('.body_copy').width()){
                         mediaelement.model.element.parent('.slot').addClass('no_margin');
