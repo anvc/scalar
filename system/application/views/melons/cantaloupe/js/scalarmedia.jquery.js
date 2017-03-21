@@ -267,7 +267,7 @@
 				    var replacePattern3 = /(\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6})/gim;  // Change email addresses to mailto:: links
 				    var replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
 				    var replacePattern4 = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/;  // lat/lng, link to a map
-				    var replacedText = replacedText.replace(replacePattern4, '<a href="https://www.google.com/maps/preview/@$1,$3,12z" target="_blank">$1,$3</a>');
+				    var replacedText = replacedText.replace(replacePattern4, '<a href="https://www.google.com/maps?q=$1,$3" target="_blank">$1,$3</a>');
 				    var maxLength = 95;  // Trim the length of a URL so it doesn't run off side of panel in some cases
 				    if ($('<div>'+replacedText+'</div>').find('a').length && $('<div>'+replacedText+'</div>').find('a:first').text().length > maxLength) {
 				    	var text = $('<div>'+replacedText+'</div>').find('a:first').text().substr(0,maxLength)+'...';
