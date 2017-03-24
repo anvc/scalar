@@ -193,7 +193,7 @@ function wrapOrphanParagraphs(selection) {
   	  		var newParagraph = false;
 	  		var is_br =  $( this ).is( 'br' );
 	  		var is_nbsp = $( this ).text() == '\xA0';
-	  		var lastElementWasHeading = false
+	  		var lastElementWasHeading = false;
 
 	  		if (lastElement != undefined) {
 	  			if ($(lastElement).is('h1,h2,h3')) {
