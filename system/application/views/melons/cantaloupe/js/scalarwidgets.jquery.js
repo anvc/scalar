@@ -861,7 +861,6 @@
            var $temp = $( '<div class="' + size + '_dim">&nbsp;</div>');
            var width = Math.min( parseInt( $( '.page' ).width() ), parseInt( $temp.appendTo( '.page' ).width() ));
            $temp.remove();
-
            if (inline) {
              // we want 'large' inline widgets to be as wide as the text
              if (size == 'large') {
@@ -876,6 +875,8 @@
              } else if (( size == 'medium' ) && ( width > ( page.bodyCopyWidth - 160 ))) {
                size = "full";
                width = page.pageWidth;
+             }else if(size == "large"){
+               width = page.bodyCopyWidth;
              }
            }
 
