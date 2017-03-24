@@ -662,6 +662,9 @@ a:hover { text-decoration: underline; }
 .body_copy.mediainfo {
 	margin-bottom:2.4rem;
 }
+.wrapped_slot.full_width, .mediainfo.full_width{
+    margin-left: -7.2rem;
+}
 .wrapped.mediainfo{
 	padding-left: 0;
 	padding-right: 0;

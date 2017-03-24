@@ -896,7 +896,6 @@
            $slot.addClass('widget_'+widgetType);
 
            if(widgetType != 'card' && widgetType != 'visualization' && widgetType != 'summary' && widgetType != 'carousel' ){
-             $container.css('height',maxWidgetHeight);
              if(containerLayout == 'vertical'){
                $container.height(height);
              }
