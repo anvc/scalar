@@ -860,7 +860,9 @@
                             section.addClass('relationships');
                             section.find('h1').text('This page is a tag of:');
                             section.find('ol').contents().unwrap().wrapAll('<ul class="tag_of"></ul>');
-                            section.show();
+                            if (section.find('ol').children().length > 0) {
+                                section.show();
+                            }
 
                             // hide contents if requested
                             if (!options.showLists) {
@@ -930,9 +932,11 @@
                 // show items that tag this page
                 if (options.showParentNav) {
                     var hasTags = $(".has_tags");
-                    hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
-                    $(".relationships").eq(0).before(hasTags.parent());
-                    hasTags.parent().addClass('relationships').show();
+                    if (hasTags.children().length > 0) {
+                        hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
+                        $(".relationships").eq(0).before(hasTags.parent());
+                        hasTags.parent().addClass('relationships').show(); 
+                    }
                 }
 
                 // move path contents list to be the bottom-most of all relationships items
