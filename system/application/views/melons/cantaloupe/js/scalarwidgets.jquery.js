@@ -912,6 +912,8 @@
 
            if ( inline ) {
 
+            
+             $slot.addClass(align+'_slot');
              $widget.after( $slot );
              $widget.hide();
 

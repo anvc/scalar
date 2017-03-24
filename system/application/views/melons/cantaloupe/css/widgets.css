@@ -96,6 +96,14 @@
 	clear: left;
 }
 
+
+.wrapped_slot.right_slot>.widgetContainer{
+	margin-left: 4.8rem;
+}
+.wrapped_slot.left_slot>.widgetContainer{
+	margin-right: 4.8rem;
+}
+
 .media_link, .widget_link { background-color: #eee; }
 .widget_link, .widget_link:hover{
 	color: #555;
