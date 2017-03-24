@@ -193,9 +193,17 @@ function wrapOrphanParagraphs(selection) {
   	  		var newParagraph = false;
 	  		var is_br =  $( this ).is( 'br' );
 	  		var is_nbsp = $( this ).text() == '\xA0';
+	  		var lastElementWasHeading = false
 
-	  		// trigger a new paragraph for these elements
-	  		if ( $( this ).is('p,div,h1,h2,h3,ul,ol') ) {
+	  		if (lastElement != undefined) {
+	  			if ($(lastElement).is('h1,h2,h3')) {
+	  				lastElementWasHeading = true;
+	  			}
+	  		}
+
+	  		// trigger a new paragraph for these elements, or any element which follows a heading, because want
+	  		// linked media to be flush with the top of the copy, not the heading
+	  		if ( $( this ).is('p,div,h1,h2,h3,ul,ol') || lastElementWasHeading ) {
 	  			newParagraph = true;
 
 	  		// trigger a new paragraph for blockquotes, but wrap them in another div first
@@ -241,10 +249,11 @@ function wrapOrphanParagraphs(selection) {
 	  		    	buffer = null;
 	  		  	}
 	  		  	// even if this element contains no free-floating text, we still need to make a paragraph out of it
-	  		  	if (!is_br && ($(me).clone().children().remove().end().text() == '')) {
+	  		  	if (!is_br && (($(me).clone().children().remove().end().text().trim() == '') || (me.nodeType == 3))) {
             		buffer = $( me );
             		buffer.wrap( "<div></div>" );
             		buffer = buffer.parent();
+            		console.log('wrap b');
 	  		  	}
 	  		}
 
