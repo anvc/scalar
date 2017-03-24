@@ -1066,13 +1066,17 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var formattingOptions = {
 						Size : ['Small','Medium','Large','Full'],
 						TextWrap : ['Create New Line for Widget','Wrap Text Around Widget'],
-						Align : (typeof opts.inline!='undefined' && opts.inline)?['Right','Center','Left']:['Right','Left'],
-						Caption : ['Description','Title','Title and Description','None','Custom Text']
+						Align : (typeof opts.inline!='undefined' && opts.inline)?['Right','Center','Left']:['Right','Left']
 					};
-
-					if((typeof options.attrs.resource == 'undefined' || options.attrs.resource == null) && (typeof options.attrs['data-nodes'] == 'undefined' || options.attrs['data-nodes'].indexOf(',')>=0)){
+					if(options.type !== "card" && options.type !== "summary"){
+						if((typeof options.attrs.resource == 'undefined' || options.attrs.resource == null) && (typeof options.attrs['data-nodes'] == 'undefined' || options.attrs['data-nodes'].indexOf(',')>=0)){
 							formattingOptions.Caption = ['None','Custom Text'];
+						}else{
+							formattingOptions.Caption = ['Description','Title','Title and Description','None','Custom Text'];
+						}
 					}
+
+					
 
 					//Need to limit formatting options per widget type here
 					switch(options.type){
