@@ -253,7 +253,6 @@ function wrapOrphanParagraphs(selection) {
             		buffer = $( me );
             		buffer.wrap( "<div></div>" );
             		buffer = buffer.parent();
-            		console.log('wrap b');
 	  		  	}
 	  		}
 
