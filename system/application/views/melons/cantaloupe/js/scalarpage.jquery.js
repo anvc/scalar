@@ -1565,6 +1565,14 @@
                                 '<span class="sr-only">Next</span>' +
                                 '</a>');
                             page.mediaCarousel.carousel({ interval: false });
+                            // changes overflow settings on the fly to make sure image annotations aren't cropped
+                            page.mediaCarousel.on('slide.bs.carousel', function() {
+                                page.mediaCarousel.find('.carousel-inner').css('overflow', 'hidden');
+                            });
+                            page.mediaCarousel.on('slid.bs.carousel', function() {
+                                page.mediaCarousel.find('.carousel-inner').css('overflow', 'visible');
+                            });
+                            page.mediaCarousel.find('.carousel-inner').css('overflow', 'visible');
                             $(mediaLinks).each(function(i) {
                                 $(this).data('index', i);
                                 $(this).click(function(e) {

@@ -411,6 +411,7 @@ a:hover { text-decoration: underline; }
 #gallery .popover { color: black; font-size: 1.2rem; text-shadow: none; color: #666; line-height: 140%; }
 #gallery .item { background-color: #444; }
 
+.carousel-inner { background-color: #444; }
 .carousel-inner>.item{
 	transition: .3s ease-in-out left;
 }

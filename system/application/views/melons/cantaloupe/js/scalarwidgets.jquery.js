@@ -654,6 +654,14 @@
                     }
                     return false;
                   });
+                  // changes overflow settings on the fly to make sure image annotations aren't cropped
+                  $carousel.on('slide.bs.carousel', function() {
+                      $carousel.find('.carousel-inner').css('overflow', 'hidden');
+                  });
+                  $carousel.on('slid.bs.carousel', function() {
+                      $carousel.find('.carousel-inner').css('overflow', 'visible');
+                  });
+                  $carousel.find('.carousel-inner').css('overflow', 'visible');
 
 
        						if(isMobile){
