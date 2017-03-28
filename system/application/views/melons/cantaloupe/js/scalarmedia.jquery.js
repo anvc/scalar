@@ -260,7 +260,8 @@
 
 			addMetadataTableForNodeToElement: function(node, element) {
 				var _linkify = function(inputText) {  // http://stackoverflow.com/questions/37684/how-to-replace-plain-urls-with-links
-				    var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;  // URLs starting with http://, https://, or ftp://
+				    if (-1!=inputText.indexOf('<a')) return inputText;
+					var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;  // URLs starting with http://, https://, or ftp://
 				    var replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
 				    var replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;  // URLs starting with www. (without // before it, or it'd re-link the ones done above)
 				    var replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
