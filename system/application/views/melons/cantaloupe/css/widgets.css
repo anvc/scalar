@@ -1,6 +1,7 @@
 
 
 /* widget pages */
+#gallery .carousel-caption a { color: inherit; }
 .carousel-caption a { color: white; }
 .widget_carousel .carousel h3 { margin: 0; padding: 0; }
 .widget_carousel .carousel-caption { padding: 0; }
