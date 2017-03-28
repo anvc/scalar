@@ -611,11 +611,11 @@
                             description = description.replace(new RegExp("\"", "g"), '&quot;');
 
                             item.append('<div class="carousel-caption caption_font"><span>' +
-                                '<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace('"', '&quot;') + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
+                                '<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace('"', '&quot;') + '" data-content="' + description + '"><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         } else {
                             item.append('<div class="carousel-caption caption_font"><span>' +
-                                '<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (<span class="numbering"></span>)')) +
+                                '<a href="' + node.url + '" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (<span class="numbering"></span>)')) +
                                 '</span></div>');
                         }
                         page.addMediaElementForLink(link, mediaContainer, galleryHeight);
@@ -654,15 +654,6 @@
                     }
                     return false;
                   });
-                  // changes overflow settings on the fly to make sure image annotations aren't cropped
-                  $carousel.on('slide.bs.carousel', function() {
-                      $carousel.find('.carousel-inner').css('overflow', 'hidden');
-                  });
-                  $carousel.on('slid.bs.carousel', function() {
-                      $carousel.find('.carousel-inner').css('overflow', 'visible');
-                  });
-                  $carousel.find('.carousel-inner').css('overflow', 'visible');
-
 
        						if(isMobile){
                     if(touchLoaded){
