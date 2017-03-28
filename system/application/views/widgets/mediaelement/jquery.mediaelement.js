@@ -2775,9 +2775,10 @@ function YouTubeGetID(url){
 					var temp2 = temp[2].split('-');
 					temp2.pop();
 					var chunk = temp2.join('-');
+					chunk = chunk.replace(/%20/g, '-');
 					temp = chunk.split('/');
 					var slug = temp[temp.length - 1];
-					var url = 'http://videos.criticalcommons.org/transcoded/http/ccserver.usc.edu/8080/cc/Members/' + chunk + '.mp4/mp4-high/' + slug + '-mp4.mp4';
+					var url = 'http://videos.criticalcommons.org/transcoded/http/ccserver.usc.edu/8080/cc/Members/' + chunk + '.mp4/mp4-high/' + slug.toLowerCase() + '-mp4.mp4';
 					this.model.path = url;
 				}
 				mimeType = this.updateCriticalCommonsURLForBrowser();
