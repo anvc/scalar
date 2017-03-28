@@ -70,12 +70,16 @@
 .widget_summary .media-list .media-list li{
 	border-bottom: 1px solid rgba(0,0,0,.09);
 }
+.widget_summary .media-list .media-list li:last-child{
+	border-bottom: none;
+}
 .full.widget_summary .media-list .media-list{
 	border: 1px solid rgba(0,0,0,.09);
 	border-radius: 4px;
 	background-color: rgba(255,255,255,.25);
 	padding: 1.2rem 1.2rem 0 1.2rem;
-  width: 100%;
+  	width: 100%;
+  	clear:both;
 }
 .full.widget_summary .media-list .media-list li{
 	padding: 1rem 6.7rem;
@@ -226,6 +230,9 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .media-body {
   display: table-cell;
   vertical-align: top;
+}
+.media-left, .media>.pull-left {
+	padding-right: 0;
 }
 .media-middle {
   vertical-align: middle;
