@@ -860,7 +860,7 @@
                             section.addClass('relationships');
                             section.find('h1').text('This page is a tag of:');
                             section.find('ol').contents().unwrap().wrapAll('<ul class="tag_of"></ul>');
-                            if (section.find('ol').children().length > 0) {
+                            if (section.find('ul').children().length > 0) {
                                 section.show();
                             }
 
@@ -923,7 +923,6 @@
                                 //age.annotatedMedia.push( node );
                             });
                             /*page.loadNextAnnotatedMedia();*/
-
                             section.show();
                         }
                     });
