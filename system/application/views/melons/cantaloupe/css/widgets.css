@@ -17,6 +17,7 @@
 	border-radius: 0;
 	padding: 0rem;
 	background-color: #fff;
+	margin-bottom: 0;
 }
 .widget_slot .tl-slider-container-mask{
 		-webkit-transition: background-color .5s linear;
@@ -139,6 +140,9 @@
 	padding: .6rem 7.2rem 1.2rem 7.2rem;
 }
 
+.widgetContainer .mediaElementFooter p{
+	margin-bottom: 2.4rem;
+}
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .description-sm { font-size: 1.4rem; line-height: 1.7rem; max-width: 70rem; }
