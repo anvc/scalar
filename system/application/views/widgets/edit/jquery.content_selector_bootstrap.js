@@ -715,7 +715,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								});
 								$timeline_content.find('a[data-type="'+timeline_data_type+'"]').click();
 
-							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="#">temporal metadata</a>.</div>').appendTo($nodeTimeline);
+							 $('<div class="widget_data_type">Choose any Scalar item whose contents include <a target="_blank" href="http://scalar.usc.edu/works/guide2/timeline-layout#metadata">temporal metadata</a>.</div>').appendTo($nodeTimeline);
 
 							 var opts = {};
 							 if(isEdit){
@@ -806,7 +806,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'map':
-							 $('<div class="widget_data_type">Choose any <a target="_blank" href="#">geotagged</a> Scalar items (including paths or tags with geotagged contents).</div>').appendTo($content);
+							 $('<div class="widget_data_type">Choose any <a target="_blank" href="http://scalar.usc.edu/works/guide2/google-map-layout">geotagged</a> Scalar items (including paths or tags with geotagged contents).</div>').appendTo($content);
 
 							 var opts = {};
 							 if(isEdit){
@@ -1107,7 +1107,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 						if(o == "TextWrap"){
 							if(typeof opts.inline!=='undefined' && opts.inline){
-								var values = '<select class="form-control" name="textwrap"><option value="nowrap">Create New Line for Widget</option><option value="wrap">Wrap Text Around Widget</option></select>';
+								var values = '<select class="form-control" name="textwrap"><option value="nowrap">Create new line for widget</option><option value="wrap">Wrap text around widget</option></select>';
 								formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">Text Wrap:</label><div class="col-sm-5">'+values+'</div></div>';
 							}
 						}else{
@@ -1119,7 +1119,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">'+o+':</label><div class="col-sm-5">'+values+'</div></div>';
 							if(o=="Caption"){
-								formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-4 control-label">Custom Caption:</label><div class="col-sm-6"><input class="form-control" type="text" id="caption_text"></input></div></div>';
+								formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-4 control-label">Custom caption:</label><div class="col-sm-6"><input class="form-control" type="text" id="caption_text"></input></div></div>';
 							}
 						}
 					}
