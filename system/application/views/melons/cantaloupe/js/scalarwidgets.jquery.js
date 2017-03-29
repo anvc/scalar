@@ -897,7 +897,6 @@
 
            if(widgetType != 'card' && widgetType != 'visualization' && widgetType != 'summary' && widgetType != 'carousel' ){
              if(containerLayout == 'vertical'){
-               $container.height(height);
              }
            }else if(widgetType == 'carousel'){
              $container.css('min-height','200px');
@@ -936,6 +935,7 @@
 
              } else {
                $container.addClass('page_margins');
+               $container.find('.media_description').addClass('body_copy');
              }
 
              $slot.parent().nextAll( ".paragraph_wrapper" ).eq( 0 ).css( "clear", "both" );
@@ -977,7 +977,8 @@
             }else if($widget.attr('resource') != undefined){
               slug = $widget.attr('resource').replace(/\*/g, '');
             }
-            if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')=='custom_text' || (slug!=undefined && !slug.indexOf(',')==-1))){
+            if($widget.data('caption')!=undefined && $widget.data('caption')!='none' && ($widget.data('caption')=='custom_text' || (slug!=undefined && slug.indexOf(',')==-1))){
+
               var $widgetinfo = $('<div class="mediaElementFooter caption_font mediainfo"></div>').appendTo($container);
 
               var $descriptionPane = $('<div class="media_description pane"></div>').appendTo($widgetinfo);
