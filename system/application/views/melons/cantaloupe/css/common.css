@@ -1105,7 +1105,7 @@ button, .btn, input, optgroup, select, textarea {
 }
 
 ul.resources { list-style: none; }
-ul.resources > li { margin-bottom: 1rem; }
+ul.resources > li { margin-bottom: 1rem; margin-left: 0; }
 
 .cke_dialog_contents_body { padding: 17px 30px 5px !important; }
 a.cke_dialog_ui_button { padding: 6px 0 !important; }
