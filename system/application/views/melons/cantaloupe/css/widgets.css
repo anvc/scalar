@@ -93,6 +93,9 @@
 	border-right: 0;
 	border-radius: 0;
 }
+.full.widget_summary .media-list .media-list li{
+	padding: 0 1rem 1rem 0;
+}
 
 .widget_slot.left {
 	margin-top: 4.0rem;

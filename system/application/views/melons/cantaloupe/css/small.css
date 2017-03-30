@@ -1,7 +1,3 @@
 #header .leaves { display: none; }
 #sidebar-nav { display: none; }
 .results_list td:nth-child(2) { display: none; }
-
-.full.widget_summary .media-list .media-list li{
-	padding: 0 1rem 1rem 0;
-}
