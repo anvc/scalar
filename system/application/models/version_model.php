@@ -567,15 +567,18 @@ class Version_model extends MY_Model {
         }
         //if (count($results)==count($sq)) return $matched;
         if (isset($result['rdf']) && !empty($result['rdf'])) {
+        	$has_matched_key = null;
 	        foreach ($sq as $term) {  // RDF fields
 	    		foreach($result['rdf'] as $key => $values) {
-	    			$type = $values[0]['type'];
-	    			if ('literal'!=$type) continue;
-					$value = $values[0]['value'];
-					$value = strip_tags($value);
-					if (!stristr($value,$term)) continue;
-	        		if (!in_array($term,$results)) $results[] = $term;
-	        		$matched[] = toNS($key, $ns);
+	    			foreach ($values as $value) {
+		    			$type = $value['type'];
+		    			if ('literal'!=$type) continue;
+						$value = strip_tags($value['value']);
+						if (!stristr($value,$term)) continue;
+		        		if (!in_array($term,$results)) $results[] = $term;
+		        		if ($has_matched_key != $key) $matched[] = toNS($key, $ns);
+		        		$has_matched_key = $key;
+	    			}
 	    		}
 	        }
         }
