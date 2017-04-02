@@ -282,6 +282,9 @@
                  var height = $(this).data('element').height();
                  if(height == 0){
                    height = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
+                   if($widget.data('container').data('size') == 'full'){
+                      height += 100;
+                   }
                  }
 
                  height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
@@ -390,7 +393,7 @@
                     // We want timelines to be max-height of 70%, so remove 60% clamp, then add 70%;
                     // could be written as a number (~1.16666667), but this seemed to be a little less magic-number-y
                     //var height_adjust = (1/.6)*.7;
-                    var height = (base.options.maxWidgetHeight,maxWidgetHeight);
+                    var height = (base.options.maxWidgetHeight,maxWidgetHeight) + 100;
                   }
                   height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
                   $timeline.height(height - 10);
@@ -510,6 +513,9 @@
                  // this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
                  // keeping them synced up helps keep media vertically aligned in galleries
                  var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
+                 if($widget.data('container').data('size') == 'full'){
+                    height += 100;
+                 }
                }
                galleryHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
                $carousel.css('min-height',galleryHeight+'px');
@@ -730,7 +736,7 @@
 				 };
 
          base.createCardFromNode = function(node,$target){
-            var widget_size = $target.parents('.widgetElement').data('widget').data('size');
+            var widget_size = $target.parents('.widgetElement').data('widget').data('container').data('size');
             var markup = '<div class="card"><div class="thumbnail">';
             if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
               markup += '<div class="thumbnail_container"><img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block"></div><hr />';
@@ -908,6 +914,8 @@
              $slot.addClass( 'full' );
              $container.addClass('page_margins');
            }
+
+           $container.data('size',size);
 
            $('body').trigger("widgetElementLoaded");
          }
