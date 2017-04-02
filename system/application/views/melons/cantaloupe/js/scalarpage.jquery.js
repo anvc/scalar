@@ -45,7 +45,9 @@
             generateIconCache: {},
             mapMarkers: [],
 
-            parseTimelineDate : function(date, d_string) {
+            dateParseRegex : /^(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?(?:(?:\s+-\s+)(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?)?$/,
+
+            getMinimalDate : function(date, d_string){
                 var d = {
                     year: date.getFullYear()
                 };
@@ -74,6 +76,121 @@
                     }
                 }
                 return d;
+            },
+
+            parseTimelineDate : function(date_string) {
+                var entry = {start_date:{}};
+                page.dateParseRegex.lastIndex = 0;
+                if(page.dateParseRegex.test(date_string)){
+                    page.dateParseRegex.lastIndex = 0;
+                    var date_parts = page.dateParseRegex.exec(date_string);
+                    entry.start_date.year = date_parts[3];
+
+                    if(date_parts[4]!=undefined){
+                        var era = date_parts[4].toLowerCase();
+                        if(($.inArray(era, ['bce','bc']) > -1 && entry.start_date.year > 0) || ($.inArray(era, ['ce','ad']) > -1 && entry.start_date.year > 0)){
+                            entry.start_date.year *= -1;
+                        }
+                    }
+
+                    if(date_parts[1]!=undefined){
+                        entry.start_date.month = date_parts[1];
+                    }
+                    if(date_parts[2]!=undefined){
+                        entry.start_date.day = date_parts[2];
+                    }
+                    if(date_parts[5]!=undefined){
+                        var time = TL.DateUtil.parseTime(date_parts[5]);
+                        entry.start_date.hour = time.hour;
+                        entry.start_date.minute = time.minute;
+                        entry.start_date.second = time.second;
+                        entry.start_date.millisecond = time.millisecond;
+                    }
+
+
+                    if(date_parts[8]!=undefined){
+                        entry.end_date = {};
+                        //Two dates
+                        entry.end_date.year = parseInt(date_parts[8]);
+
+                        if(date_parts[9]!=undefined){
+                            if(((date_parts[9] == "bce" || date_parts[9] == "BCE" || date_parts[9] == "bc" || date_parts[9] == "BC") && entry.end_date.year > 0) || entry.end_date.year < 0){
+                                entry.end_date.year *= -1;
+                            }
+                        }
+
+
+                        if(date_parts[6]!=undefined){
+                            entry.end_date.month = date_parts[6];
+                        }
+                        if(date_parts[7]!=undefined){
+                            entry.end_date.day = date_parts[7];
+                        }
+                        if(date_parts[10]!=undefined){
+                            var time = TL.DateUtil.parseTime(date_parts[10]);
+                            entry.end_date.hour = time.hour;
+                            entry.end_date.minute = time.minute;
+                            entry.end_date.second = time.second;
+                            entry.end_date.millisecond = time.millisecond;
+                        }
+                    }
+                }else{
+                    var dashCount = (date_string.match(/-/g) || []).length;
+                    var slashCount = (date_string.match(/\//g) || []).length;
+                    var useDateStringAsDateValue = false;
+                    var contains_seperator = (date_string.indexOf(" until ") + date_string.indexOf(" to ")) > -2;
+                    if (dashCount != 1 && !contains_seperator) {
+                        //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
+                        var d_string = date_string.replace(/~+$/, ''); //strip whitespace
+                        var d = new Date(d_string); //parse as a date
+                        if (d instanceof Date) {
+                            entry.start_date = page.getMinimalDate(d, d_string);
+                        }
+                        if(dashCount < 2 && slashCount < 2){
+                            useDateStringAsDateValue = true;
+                        }
+                    } else {
+                        if (contains_seperator) {
+                            date_string = date_string.replace('from ', '');
+                            if (date_string.indexOf(" until ") >= 0) {
+                                var dateParts = date_string.split(" until ");
+                            } else {
+                                var dateParts = date_string.split(" to ");
+                            }
+                        } else {
+                            var dateParts = date_string.replace(' - ', '-').split('-');
+                        }
+
+                        //We should now have two dates - a start and and end
+                        if (dateParts.length == 2) {
+                            dateParts[0] = dateParts[0].replace(/~+$/, ''); //Remove white space
+                            dateParts[1] = dateParts[1].replace(/~+$/, ''); //Remove white space
+
+                            for (var x in dateParts) {
+                                var dashCount = (dateParts[x].match(/-/g) || []).length;
+                                var slashCount = (dateParts[x].match(/\//g) || []).length;
+
+                                if (dashCount < 2 || slashCount < 2) {
+                                    useDateStringAsDateValue = true;
+                                    break;
+                                }
+                            }
+
+                            var sdate = new Date(dateParts[0]); //parse as a date
+                            var edate = new Date(dateParts[1]); //parse as a date
+
+                            if (sdate instanceof Date && edate instanceof Date) {
+                                entry.start_date = page.getMinimalDate(sdate, dateParts[0]);
+                                entry.end_date = page.getMinimalDate(edate, dateParts[1]);
+                            }
+
+                        }
+                    }
+                    if(useDateStringAsDateValue){
+                        entry.display_date =  date_string.replace(/~+$/,'');
+                    }
+                }
+                return entry;
             },
 
             incrementData: function(selection, data) {
@@ -2572,76 +2689,20 @@
                                     for (var n in nodeSet) {
                                         var relNode = nodeSet[n].current;
                                         if (typeof relNode.auxProperties != 'undefined' && ((typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0) || (typeof relNode.auxProperties['dcterms:date'] != 'undefined' && relNode.auxProperties['dcterms:date'].length > 0))) {
-                                            var entry = {};
-                                            var useDateStringAsDateValue = false;
                                             if (typeof relNode.auxProperties['dcterms:temporal'] != 'undefined' && relNode.auxProperties['dcterms:temporal'].length > 0) {
                                                 var temporal_data = relNode.auxProperties['dcterms:temporal'][0];
                                             } else {
                                                 var temporal_data = relNode.auxProperties['dcterms:date'][0];
                                             }
-
-                                            var dashCount = (temporal_data.match(/-/g) || []).length;
-                                            var slashCount = (temporal_data.match(/\//g) || []).length;
-
-                                            var contains_seperator = (temporal_data.indexOf(" until ") + temporal_data.indexOf(" to ")) > -2;
-                                            if (dashCount != 1 && !contains_seperator) {
-                                                //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
-                                                var d_string = temporal_data.replace(/~+$/, ''); //strip whitespace
-                                                var d = new Date(d_string); //parse as a date
-                                                if (d instanceof Date) {
-                                                    entry.start_date = page.parseTimelineDate(d, d_string);
-                                                }
-                                                if (dashCount < 2 || slashCount < 2) {
-                                                    useDateStringAsDateValue = true;
-                                                }
-                                            } else {
-                                                if (contains_seperator) {
-                                                    temporal_data = temporal_data.replace('from ', '');
-                                                    if (temporal_data.indexOf(" until ") >= 0) {
-                                                        var dateParts = temporal_data.split(" until ");
-                                                    } else {
-                                                        var dateParts = temporal_data.split(" to ");
-                                                    }
-                                                } else {
-                                                    var dateParts = temporal_data.replace(' - ', '-').split('-');
-                                                }
-
-                                                //We should now have two dates - a start and and end
-                                                if (dateParts.length == 2) {
-                                                    dateParts[0] = dateParts[0].replace(/~+$/, ''); //Remove white space
-                                                    dateParts[1] = dateParts[1].replace(/~+$/, ''); //Remove white space
-
-                                                    for (var x in dateParts) {
-                                                        var dashCount = (dateParts[x].match(/-/g) || []).length;
-                                                        var slashCount = (dateParts[x].match(/\//g) || []).length;
-
-                                                        if (dashCount < 2 || slashCount < 2) {
-                                                            useDateStringAsDateValue = true;
-                                                            break;
-                                                        }
-                                                    }
-
-                                                    var sdate = new Date(dateParts[0]); //parse as a date
-                                                    var edate = new Date(dateParts[1]); //parse as a date
-
-                                                    if (sdate instanceof Date && edate instanceof Date) {
-                                                        entry.start_date = page.parseTimelineDate(sdate, dateParts[0]);
-                                                        entry.end_date = page.parseTimelineDate(edate, dateParts[1]);
-                                                    }
-
-                                                }
-                                            }
+                                            var entry = page.parseTimelineDate(temporal_data);
                                             //Cool, got time stuff out of the way!
                                             //Let's do the other components Timeline.js expects
                                             entry.text = {
                                                 headline: '<a href="' + nodeSet[n].url + '">' + nodeSet[n].getDisplayTitle() + '</a>'
                                             };
 
-                                            if (useDateStringAsDateValue) {
-                                                entry.display_date = temporal_data.replace(/~+$/, '');
-                                                if (nodeSet[n].getDisplayTitle() == entry.display_date) {
-                                                    entry.display_date = "&nbsp;";
-                                                }
+                                            if(typeof entry.display_date != 'undefined' && nodeSet[n].getDisplayTitle() == entry.display_date){
+                                                entry.display_date = "&nbsp;";
                                             }
 
                                             if (typeof relNode.description != 'undefined' && relNode.description != '' && relNode.description != null) {
@@ -2669,11 +2730,10 @@
                                             }
 
                                             tempdata.events.push(entry);
+                                            
                                         }
                                     }
                                 }
-
-                                //$( '.page' ).css( 'padding-top', '5.0rem' );
 
                                 $timeline = $('<div class="caption_font timeline_embed"><div></div></div>').insertBefore('header > h1');
                                 $timeline_container = $timeline.find('div');

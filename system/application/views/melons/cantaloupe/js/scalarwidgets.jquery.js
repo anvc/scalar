@@ -416,82 +416,27 @@
                 var nodes = $(this).data('node');
 
                 var parseNodes = function(nodes,tempdata){
-                  var hasTimelineData = false;
                   for(var n in nodes){
                     var node = nodes[n];
                     var currentNode = node.current;
                     if(typeof currentNode.auxProperties != 'undefined' && ((typeof currentNode.auxProperties['dcterms:temporal'] != 'undefined' && currentNode.auxProperties['dcterms:temporal'].length > 0) || (typeof currentNode.auxProperties['dcterms:date'] != 'undefined' && currentNode.auxProperties['dcterms:date'].length > 0))){
                         hasTimelineData = true;
-                        var entry = {};
-                        var useDateStringAsDateValue = false;
                         if(typeof currentNode.auxProperties['dcterms:temporal'] != 'undefined' && currentNode.auxProperties['dcterms:temporal'].length > 0){
                           var temporal_data = currentNode.auxProperties['dcterms:temporal'][0];
                         }else{
                           var temporal_data = currentNode.auxProperties['dcterms:date'][0];
                         }
 
-                        var dashCount = (temporal_data.match(/-/g) || []).length;
-                        var slashCount = (temporal_data.match(/\//g) || []).length;
+                        var entry = page.parseTimelineDate(temporal_data);
 
-                        var contains_seperator = (temporal_data.indexOf(" until ")+temporal_data.indexOf(" to "))>-2;
-                        if(dashCount != 1 && !contains_seperator){
-                          //Assume we have a single date, either dash seperated (more than one dash) or slash seperated (no dash)
-                          var d_string = temporal_data.replace(/~+$/,''); //strip whitespace
-                          var d = new Date(d_string);  //parse as a date
-                          if(d instanceof Date){
-                            entry.start_date = page.parseTimelineDate(d,d_string);
-                          }
-                          if(dashCount < 2 || slashCount < 2){
-                            useDateStringAsDateValue = true;
-                          }
-                        }else{
-                          if(contains_seperator){
-                            temporal_data = temporal_data.replace('from ','');
-                            if(temporal_data.indexOf(" until ") >= 0){
-                              var dateParts = temporal_data.split(" until ");
-                            }else{
-                              var dateParts = temporal_data.split(" to ");
-                            }
-                          }else{
-                            var dateParts = temporal_data.replace(' - ','-').split('-');
-                          }
-
-                          //We should now have two dates - a start and and end
-                          if(dateParts.length == 2){
-                            dateParts[0] = dateParts[0].replace(/~+$/,''); //Remove white space
-                            dateParts[1] = dateParts[1].replace(/~+$/,''); //Remove white space
-
-                            for(var x in dateParts){
-                              var dashCount = (dateParts[x].match(/-/g) || []).length;
-                              var slashCount = (dateParts[x].match(/\//g) || []).length;
-
-                              if(dashCount < 2 || slashCount < 2){
-                                useDateStringAsDateValue = true;
-                                break;
-                              }
-                            }
-
-                            var sdate = new Date(dateParts[0]);  //parse as a date
-                            var edate = new Date(dateParts[1]);  //parse as a date
-
-                            if(sdate instanceof Date && edate instanceof Date){
-                              entry.start_date = page.parseTimelineDate(sdate,dateParts[0]);
-                              entry.end_date = page.parseTimelineDate(edate,dateParts[1]);
-                            }
-
-                          }
-                        }
                         //Cool, got time stuff out of the way!
                         //Let's do the other components Timeline.js expects
                         entry.text = {
                           headline : '<a href="'+node.url+'">'+node.getDisplayTitle()+'</a>'
                         };
 
-                        if(useDateStringAsDateValue){
-                          entry.display_date =  temporal_data.replace(/~+$/,'');
-                          if(node.getDisplayTitle() == entry.display_date){
+                        if(typeof entry.display_date != 'undefined' && node.getDisplayTitle() == entry.display_date){
                             entry.display_date = "&nbsp;";
-                          }
                         }
 
                         if(typeof currentNode.description != 'undefined' && currentNode.description != '' && currentNode.description != null){
@@ -518,14 +463,15 @@
                         }
 
                         tempdata.events.push(entry);
+
                     }
+
                     if(typeof node.children != "undefined"){
                       for(var t in node.children){
-                        hasTimelineData = parseNodes(node.children[t], tempdata) || hasTimelineData;
+                        parseNodes(node.children[t], tempdata);
                       }
                     }
                   }
-                  return hasTimelineData;
                 }
 
                 parseNodes(nodes,tempdata);
