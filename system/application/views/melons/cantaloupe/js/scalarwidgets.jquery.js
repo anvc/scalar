@@ -736,7 +736,6 @@
 				 };
 
          base.createCardFromNode = function(node,$target){
-            var widget_size = $target.parents('.widgetElement').data('widget').data('container').data('size');
             var markup = '<div class="card"><div class="thumbnail">';
             if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
               markup += '<div class="thumbnail_container"><img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block"></div><hr />';
