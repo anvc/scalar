@@ -47,10 +47,7 @@
 .vis_widget .scalarvis {
 	margin-top: 0;
 }
-.widget_slot.inline_full_widget{
-	margin-left: -7.2rem;
-	margin-right: -7.2rem;
-}
+
 .googleMapWidget .alert{
   position: absolute;
   top: 50%;
@@ -112,6 +109,15 @@
 
 .wrapped_slot.right_slot>.widgetContainer{
 	margin-left: 4.8rem;
+}
+.wrapped_slot.large_widget >.widgetContainer, .wrapped_slot.full_widget >.widgetContainer{
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom: 2.4rem;
+}
+.wrapped_slot.full_widget>.widgetContainer, .widget_slot.inline_full_widget{
+	margin-left: -7.2rem;
+	margin-right: -7.2rem;
 }
 .wrapped_slot.left_slot>.widgetContainer{
 	margin-right: 4.8rem;
