@@ -2299,6 +2299,7 @@
                 }
             }
             if ((viewType != 'edit') && (viewType != 'blank') && (viewType != 'meta') && (viewType != 'versions') && (viewType != 'annotation_editor')) {
+                $('[property="sioc:content"] .ci-template-html>*').unwrap();
                 wrapOrphanParagraphs($('[property="sioc:content"]'));
                 $('[property="sioc:content"]').children('p,div').not('[data-size="full"]').addClass('body_copy');
                 $('[property="sioc:content"]').children('p,div').wrap('<div class="paragraph_wrapper"></div>');

@@ -2,7 +2,7 @@
 $content = (isset($page->version_index)) ? $page->versions[0]->content : null;
 if (!empty($content)) {
 	$content = nl2br($content);
-	echo "\n".'<p>'.$content.'</p>'."\n";;
+	echo "\n".$content."\n";;
 }
 ?>
 <?php if (count($book_versions)): ?>
