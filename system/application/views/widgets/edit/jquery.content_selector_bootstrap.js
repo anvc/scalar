@@ -1065,14 +1065,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					var formattingOptions = {
 						Size : ['Small','Medium','Large','Full'],
-						TextWrap : ['Create New Line for Widget','Wrap Text Around Widget'],
+						TextWrap : ['Create new line for widget','Wrap text around widget'],
 						Align : (typeof opts.inline!='undefined' && opts.inline)?['Right','Center','Left']:['Right','Left']
 					};
 					if(options.type !== "card" && options.type !== "summary"){
 						if((typeof options.attrs.resource == 'undefined' || options.attrs.resource == null) && (typeof options.attrs['data-nodes'] == 'undefined' || options.attrs['data-nodes'].indexOf(',')>=0)){
-							formattingOptions.Caption = ['None','Custom Text'];
+							formattingOptions.Caption = ['None','Custom text'];
 						}else{
-							formattingOptions.Caption = ['Description','Title','Title and Description','None','Custom Text'];
+							formattingOptions.Caption = ['Description','Title','Title and description','None','Custom text'];
 						}
 					}
 
@@ -1087,7 +1087,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 
 					if(options.type == "carousel"){
-						formattingOptions.Numbering = ["Show Slide Numbers","Hide Slide Numbers"]
+						formattingOptions.Numbering = ["Show slide numbers","Hide slide numbers"]
 					}
 
 					if(options.type == "card"){
@@ -1108,7 +1108,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						if(o == "TextWrap"){
 							if(typeof opts.inline!=='undefined' && opts.inline){
 								var values = '<select class="form-control" name="textwrap"><option value="nowrap">Create new line for widget</option><option value="wrap">Wrap text around widget</option></select>';
-								formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">Text Wrap:</label><div class="col-sm-5">'+values+'</div></div>';
+								formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">Text wrap:</label><div class="col-sm-5">'+values+'</div></div>';
 							}
 						}else{
 							var values = '<select class="form-control" name="'+o.toLowerCase()+'">';
