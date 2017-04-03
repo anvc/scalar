@@ -808,8 +808,8 @@
             size = 'medium';
            }
            $slot.addClass(size+'_widget');
-           var $temp = $( '<div class="' + size + '_dim">&nbsp;</div>');
-           var width = Math.min( parseInt( $( '.page' ).width() ), parseInt( $temp.appendTo( '.page' ).width() ));
+           var $temp = $( '<div class="' + size + '_dim">&nbsp;</div>').appendTo( '.page' );
+           var width = Math.min( parseInt( $( '.page' ).width() ), parseInt( $temp.width() ));
            $temp.remove();
            if (inline) {
              // we want 'large' inline widgets to be as wide as the text
@@ -829,7 +829,6 @@
                width = page.bodyCopyWidth;
              }
            }
-
            vcenter = false;
            if ( size == 'full' || size == 'native') {
              if ( height == null ) {
@@ -973,10 +972,18 @@
                 })($widget,$descriptionPane,caption_type,slug);
               }
             }
+            var parent = $widget.closest('.body_copy');
+
+            // if the link is not a descendant of a body_copy region, then we'll put the media either
+            // before or after the link itself
+            if (parent.length == 0) {
+                parent = $widget;
+            }
+
             $widget.data({
                 container: $container,
                 slot: $slot,
-                parent: $widget.parent()
+                parent: parent
             });
 
             //$(window).on('resize',$.proxy(function(){widgets.calculateSize($(this));},$widget));

@@ -587,7 +587,7 @@
 
                         // if this is not an inline media element, and its size is set to 'full', then put the media after its linking text
                     } else {
-                        var embedLocation = parent.nextAll('.slot.full, .body_copy.mediainfo').last();
+                        var embedLocation = parent.nextAll('.slot.full, .widget_slot.full, .body_copy.mediainfo').last();
                         if (embedLocation.length == 0) {
                             embedLocation = parent;
                         }
@@ -1349,7 +1349,6 @@
             },
 
             getMediaLinks: function(element, includeWidgets) {
-
                 if (typeof includeWidgets === 'undefined' || includeWidgets == null) {
                     includeWidgets = false;
                 }
@@ -2299,7 +2298,6 @@
                     viewType = extension;
                 }
             }
-
             if ((viewType != 'edit') && (viewType != 'blank') && (viewType != 'meta') && (viewType != 'versions') && (viewType != 'annotation_editor')) {
                 wrapOrphanParagraphs($('[property="sioc:content"]'));
                 $('[property="sioc:content"]').children('p,div').not('[data-size="full"]').addClass('body_copy');

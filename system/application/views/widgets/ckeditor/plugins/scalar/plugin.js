@@ -86,9 +86,11 @@ CKEDITOR._scalar = {
 					var node = options.node;
 					delete(options.node);
 
+					
+					var $element = $(element.$);
 					$.each(element.$.attributes,function(i,a){
 			        	if(typeof a != 'undefined' && a.name.substring(0,5) == 'data-'){
-			        		$(element.$).removeAttr(a.name);
+			        		$element.removeAttr(a.name);
 			        	}
 			        });
 			        $element.removeAttr('resource').removeData();
@@ -143,10 +145,10 @@ CKEDITOR._scalar = {
 				delete(options.node);
 
 				element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
-
+				var $element = $(element.$);
 				$.each(element.$.attributes,function(i,a){
 		        	if(typeof a != 'undefined' && a.name.substring(0,5) == 'data-'){
-		        		$(element.$).removeAttr(a.name);
+		        		$element.removeAttr(a.name);
 		        	}
 		        });
 		        $element.removeAttr('resource').removeData();
@@ -810,17 +812,15 @@ CKEDITOR.plugins.add( 'scalar', {
             command: 'insertScalar7',
             toolbar: 'links'
         });
-				if(typeof allow_widgets != 'undefined' && allow_widgets){
-	        editor.ui.addButton( 'Scalar8', {
-	            label: 'Insert Scalar Widget Link',
-	            command: 'insertScalar8',
-	            toolbar: 'links'
-	        });
-	        editor.ui.addButton( 'Scalar9', {
-	            label: 'Insert Inline Scalar Widget Link',
-	            command: 'insertScalar9',
-	            toolbar: 'links'
-	        });
-				}
+        editor.ui.addButton( 'Scalar8', {
+            label: 'Insert Scalar Widget Link',
+            command: 'insertScalar8',
+            toolbar: 'links'
+        });
+        editor.ui.addButton( 'Scalar9', {
+            label: 'Insert Inline Scalar Widget Link',
+            command: 'insertScalar9',
+            toolbar: 'links'
+        });
     }
 });
