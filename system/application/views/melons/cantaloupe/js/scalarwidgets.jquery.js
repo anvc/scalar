@@ -514,7 +514,7 @@
                  // keeping them synced up helps keep media vertically aligned in galleries
                  var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                  if($widget.data('container').data('size') == 'full'){
-                    height += 100;
+                    galleryHeight += 100;
                  }
                }
                galleryHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
