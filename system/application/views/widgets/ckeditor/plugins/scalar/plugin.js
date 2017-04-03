@@ -812,15 +812,17 @@ CKEDITOR.plugins.add( 'scalar', {
             command: 'insertScalar7',
             toolbar: 'links'
         });
-        editor.ui.addButton( 'Scalar8', {
-            label: 'Insert Scalar Widget Link',
-            command: 'insertScalar8',
-            toolbar: 'links'
-        });
-        editor.ui.addButton( 'Scalar9', {
-            label: 'Insert Inline Scalar Widget Link',
-            command: 'insertScalar9',
-            toolbar: 'links'
-        });
+				if(typeof allow_widgets != 'undefined' && allow_widgets){
+	        editor.ui.addButton( 'Scalar8', {
+	            label: 'Insert Scalar Widget Link',
+	            command: 'insertScalar8',
+	            toolbar: 'links'
+	        });
+	        editor.ui.addButton( 'Scalar9', {
+	            label: 'Insert Inline Scalar Widget Link',
+	            command: 'insertScalar9',
+	            toolbar: 'links'
+	        });
+				}
     }
 });
