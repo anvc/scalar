@@ -830,7 +830,7 @@
 
                 // path back/continue buttons
                 if ((page.containingPaths.length > 0) && options.showLateralNav) {
-                    section = $('<section class="relationships"></section');
+                    section = $('<section class="relationships"></section>');
 
                     //page.addPathButton('up', page.containingPath, page.containingPath);
  
@@ -890,7 +890,7 @@
                         link = span.find('span[property="dcterms:title"] > a');
                         node = scalarapi.getNode(link.attr('href'));
                         if ((page.containingPathNodes.length > 0) && (page.containingPathNodes.indexOf(currentNode) == (page.containingPathNodes.length - 1))) {
-                            section = $('<section class="relationships"></section');
+                            section = $('<section class="relationships"></section>');
                             $("#footer").before(section);
                             links = $('<p></p>');
 

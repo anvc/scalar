@@ -16,6 +16,7 @@ if (!empty($content)) {
   <?php endif; ?>
 </p>
 <?php else: ?>
+<div>
 <h3 style="clear:both;">Pages</h3>
 <ul class="resources pages">
 	<?
@@ -44,4 +45,5 @@ if (!empty($content)) {
 	</li>
 	<? endforeach ?>
 </ul>
+</div>
 <?php endif; ?>
