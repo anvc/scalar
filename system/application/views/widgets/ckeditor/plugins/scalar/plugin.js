@@ -86,6 +86,13 @@ CKEDITOR._scalar = {
 					var node = options.node;
 					delete(options.node);
 
+					$.each(element.$.attributes,function(i,a){
+			        	if(typeof a != 'undefined' && a.name.substring(0,5) == 'data-'){
+			        		$(element.$).removeAttr(a.name);
+			        	}
+			        });
+			        $element.removeAttr('resource').removeData();
+
 					if(typeof node.version !== 'undefined'){
 						var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
 					}else{
@@ -136,6 +143,13 @@ CKEDITOR._scalar = {
 				delete(options.node);
 
 				element.setAttribute('name','scalar-inline-media');  // Required to let empty <a> through
+
+				$.each(element.$.attributes,function(i,a){
+		        	if(typeof a != 'undefined' && a.name.substring(0,5) == 'data-'){
+		        		$(element.$).removeAttr(a.name);
+		        	}
+		        });
+		        $element.removeAttr('resource').removeData();
 
 				var classAttr = 'inline';
 
@@ -193,7 +207,15 @@ CKEDITOR._scalar = {
 		var selectOptions = $element.data('selectOptions');
 		selectOptions.isEdit = true;
 
-		$(element.$).removeAttr('resource').removeData();
+
+		$.each(element.$.attributes,function(i,a){
+        	if(typeof a != 'undefined' && a.name.substring(0,5) == 'data-'){
+        		$element.removeAttr(a.name);
+        	}
+        });
+
+		$element.removeAttr('resource').removeData();
+
 
 		for (var a in widget.attrs) {
 			element.setAttribute(a, widget.attrs[a]);
@@ -230,7 +252,14 @@ CKEDITOR._scalar = {
 		var selectOptions = $element.data('selectOptions');
 		selectOptions.isEdit = true;
 
+		$.each(element.$.attributes,function(i,a){
+        	if(typeof a != 'undefined' && a.name.substring(0,5) == 'data-'){
+        		$element.removeAttr(a.name);
+        	}
+        });
+
 		$element.removeAttr('resource').removeData();
+
 
 		element.setAttribute('name','scalar-inline-widget');  // Required to let empty <a> through
 		var classAttr = "inlineWidget inline";

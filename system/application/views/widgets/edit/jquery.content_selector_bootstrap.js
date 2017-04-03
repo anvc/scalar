@@ -1052,7 +1052,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									widget.attrs['data-custom_caption'] = $('#bootbox-content-selector-content').find('#caption_text').val();
 								}
 							}else if($(this).attr('name')=="numbering"){
-								if($(this).val()=='Hide Slide Numbers'){
+								if($(this).val()=='hide_slide_numbers'){
 									widget.attrs['data-hide_numbering'] = true;
 								}
 							}else{
@@ -1171,6 +1171,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if(opts.element.hasClass('wrap')){
 									$(this).val('wrap');
 									$content.find('select[name="align"] option[value="center"]').hide();
+								}
+							}else if($(this).attr('name')=='numbering'){
+								var data = $(opts.element.$).data('hide_numbering');
+								if(data){
+									$(this).val('hide_slide_numbers');
 								}
 							}else{
 								var data = $(opts.element.$).data($(this).attr('name'));

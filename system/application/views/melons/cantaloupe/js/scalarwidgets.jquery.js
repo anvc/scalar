@@ -567,7 +567,7 @@
                                 '</span></div>');
                         } else {
                             item.append('<div class="carousel-caption caption_font"><span>' +
-                                '<a href="' + node.url + '" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (<span class="numbering"></span>)')) +
+                                '<a href="' + node.url + '" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
                         page.addMediaElementForLink(link, mediaContainer, galleryHeight);
