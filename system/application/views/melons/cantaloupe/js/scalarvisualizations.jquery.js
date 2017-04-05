@@ -1192,8 +1192,8 @@
 				typedNodeStorage = {};
 
 			bookTitle = $('.book-title').eq( 0 ).clone();
-			bookTitle.find( 'span' ).remove();
-			bookTitle = this.getShortenedString(  bookTitle.text(), 15 )
+			bookTitle.find( 'span' ).contents().unwrap();
+			bookTitle = this.getShortenedString(  bookTitle.text(), 15 );
 
 			base.hierarchy = { title: bookTitle, shortTitle: bookTitle, children: [], showsTitle: false };
 			base.selectedHierarchyNodes = [];
