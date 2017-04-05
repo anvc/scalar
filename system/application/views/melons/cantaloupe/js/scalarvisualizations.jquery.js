@@ -2253,12 +2253,14 @@
 
 				// collapse all nodes except the root and its children
 				branchExpand(base.hierarchy);
-				base.hierarchy.children.forEach( function( d ) {
-					branchExpand(d);
-					if (d.children != null) {
-						d.children.forEach(branchCollapseAll);
-					}
-				});
+				if (base.hierarchy.children != null) {
+					base.hierarchy.children.forEach( function( d ) {
+						branchExpand(d);
+						if (d.children != null) {
+							d.children.forEach(branchCollapseAll);
+						}
+					});
+				}
 				branchConformAll(base.hierarchy);
 
 				function pathUpdate( source, instantaneous ) {
@@ -3165,9 +3167,6 @@
 					.charge(-400)
 					.size([fullWidth, fullHeight])
 					.on('tick', function() {
-						
-						//console.log( '-----' );
-
 						if ( base.svg != null ) {
 
 							base.svg.selectAll('line.link')
@@ -3195,7 +3194,6 @@
 								.attr('y', function(d) { return d.y + 53; });
 
 						}
-						
 					});
 			}
 
