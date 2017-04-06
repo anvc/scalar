@@ -173,6 +173,8 @@
 				base.visualization.css('padding', '0');
 			}
 
+			base.abstractedNodesBySlug = {};
+
 			// footer
 			var visFooter = $( '<div class="vis_footer"></div>' ).appendTo( base.visElement );
 			if ( options.modal ) {
@@ -1108,6 +1110,16 @@
 				}
 			}
 
+			base.abstractedSortedNodes = [];
+			n = base.sortedNodes.length;
+			for (i=0; i<n; i++) {
+				node = base.sortedNodes[i];
+				if (base.abstractedNodesBySlug[node.slug] == null) {
+					base.abstractedNodesBySlug[node.slug] = {"node": node};
+				}
+				base.abstractedSortedNodes[i] = base.abstractedNodesBySlug[node.slug];
+			}
+
 			base.relations = base.arrayUnique( base.relations );
 
 			switch ( base.options.format ) {
@@ -1434,6 +1446,7 @@
 							base.selectedHierarchyNodes.push(curChild);
 						}
 						base.nodesBySlug[curChild.node.slug] = curChild;
+						base.abstractedNodesBySlug[curChild.node.slug] = curChild
 
 						if ( includeRelations ) {
 							base.addRelationsForHierarchyNode( curChild );
@@ -1557,7 +1570,12 @@
 
 					// add links that are new to us
 					if ( existingLink == null ) {
-						link = { source: relation.body, target: relation.target, value: 1, type: relation.type };
+						link = { 
+							source: base.abstractedNodesBySlug[relation.body.slug], 
+							target: base.abstractedNodesBySlug[relation.target.slug], 
+							value: 1, 
+							type: relation.type 
+						};
 						base.links.push( link );
 						base.linksBySlug[ slug ] = link;
 
@@ -1573,7 +1591,7 @@
 			n = oldLinks.length;
 			for ( i = 0; i < n; i++ ) {
 				link = oldLinks[ i ];
-				slug = link.source.slug + '-' + link.target.slug;
+				slug = link.source.node.slug + '-' + link.target.node.slug;
 				base.linksBySlug[ slug ] = null;
 				index = base.links.indexOf( link );
 				if ( index != -1 ) {
@@ -2939,8 +2957,8 @@
 				for ( i = 0; i < n; i++ ) {
 					link = base.links[ i ];
 					links.push( {
-						source: base.nodesBySlug[ link.source.slug ],
-						target: base.nodesBySlug[ link.target.slug ],
+						source: base.abstractedNodesBySlug[ link.source.node.slug ],
+						target: base.abstractedNodesBySlug[ link.target.node.slug ],
 						type: link.type.id
 					})
 				}
@@ -3161,7 +3179,7 @@
 				// so multiple instances don't try to change each other's positions
 
 				base.force = d3.layout.force()
-					.nodes( base.sortedNodes )
+					.nodes( base.abstractedSortedNodes )
 					.links( base.links )
 					.linkDistance(120)
 					.charge(-400)
@@ -3174,12 +3192,12 @@
 								.attr('y1', function(d) { return d.source.y; })
 								.attr('x2', function(d) { return d.target.x; })
 								.attr('y2', function(d) { return d.target.y; })
-								.attr('visibility', function(d) { return (d.source.slug == 'toc' || d.target.slug == 'toc') ? 'hidden' : 'visible'; });
+								.attr('visibility', function(d) { return (d.source.node.slug == 'toc' || d.target.node.slug == 'toc') ? 'hidden' : 'visible'; });
 								
 							base.svg.selectAll('circle.node')
 								.attr('cx', function(d) { return d.x; })
 								.attr('cy', function(d) { return d.y; })
-								.attr('visibility', function(d) { return d.slug == 'toc' ? 'hidden' : 'visible'; });
+								.attr('visibility', function(d) { return d.node.slug == 'toc' ? 'hidden' : 'visible'; });
 								
 							base.svg.selectAll('text.label')
 								.attr('x', function(d) { return d.x; })
@@ -3199,20 +3217,20 @@
 
 			if ( base.svg != null ) {
 
-				base.force.nodes( base.sortedNodes ).links( base.links );
+				base.force.nodes( base.abstractedSortedNodes ).links( base.links );
 
 				var container = base.svg.selectAll( 'g.container' );
 				var node = container.selectAll('g.node');
 				var link = container.selectAll('.link');
 
-				link = link.data( base.force.links(), function(d) { return d.source.slug + '-' + d.target.slug; } );
+				link = link.data( base.force.links(), function(d) { return d.source.node.slug + '-' + d.target.node.slug; } );
 					
 				link.enter().insert('svg:line', '.node')
 					.attr('class', 'link');
 					
 				link.exit().remove();
 					
-				node = node.data( base.force.nodes(), function(d) { return d.slug; } );
+				node = node.data( base.force.nodes(), function(d) { return d.node.slug; } );
 
 				var nodeEnter = node.enter().append('svg:g')
 					.attr('class', 'node')
@@ -3222,11 +3240,11 @@
 					.on('click', function(d) {
 						if (d3.event.defaultPrevented) return; // ignore drag
 						d3.event.stopPropagation();
-						var index = base.selectedNodes.indexOf(d);
+						var index = base.selectedNodes.indexOf(d.node);
 						if (index == -1) {
-							base.selectedNodes.push(d);
+							base.selectedNodes.push(d.node);
 							if ( base.options.content == "current" ) {
-								base.loadNode( d.slug, false );
+								base.loadNode( d.node.slug, false );
 							}
 						} else {
 							base.selectedNodes.splice(index, 1);
@@ -3236,7 +3254,7 @@
 						updateGraph();
 					})
 					.on("mouseover", function(d) { 
-						base.rolloverNode = d;
+						base.rolloverNode = d.node;
 						updateGraph();
 					})
 					.on("mouseout", function() { 
@@ -3255,7 +3273,7 @@
 					.attr('y', function(d) { return d.y + 21; })
 					.attr('text-anchor', 'middle')				
 					.text(function(d) { 
-						return ((base.rolloverNode == d) || (base.selectedNodes.indexOf(d) != -1)) ? d.title : d.shortTitle; 
+						return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle; 
 					});
 
 				nodeEnter.append('svg:rect')
@@ -3267,8 +3285,8 @@
 					.style( 'display', 'none' )
 					.on( 'click', function(d) { 
 						d3.event.stopPropagation();
-						if ( self.location != d.url ) {
-							return self.location = d.url;
+						if ( self.location != d.node.url ) {
+							return self.location = d.node.url;
 						}
 					});
 
@@ -3284,30 +3302,30 @@
 				
 				var updateGraph = function() {
 						
-					link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source) || (base.selectedNodes.indexOf(d.source) != -1) || (base.rolloverNode == d.target) || (base.selectedNodes.indexOf(d.target) != -1)) ? "3" : "1"; })
-						.attr('stroke-opacity', function(d) { return ((base.rolloverNode== d.source) || (base.selectedNodes.indexOf(d.source) != -1) || (base.rolloverNode == d.target) || (base.selectedNodes.indexOf(d.target) != -1)) ? '1.0' : '0.5'; })
-						.attr('stroke', function(d) { return ((base.rolloverNode == d.source) || (base.selectedNodes.indexOf(d.source) != -1) || (base.rolloverNode == d.target) || (base.selectedNodes.indexOf(d.target) != -1)) ? base.neutralColor : '#999'; });
+					link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
+						.attr('stroke-opacity', function(d) { return ((base.rolloverNode== d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
+						.attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
 						
 					node.selectAll( '.node' ).attr('fill', function(d) {
-							var interpolator = d3.interpolateRgb(base.highlightColorScale(d.type.id), d3.rgb(255,255,255));
-							return ((base.rolloverNode == d) || (base.selectedNodes.indexOf(d) != -1)) ? interpolator(0) : interpolator(.5);
+							var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255,255,255));
+							return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 						 });
 				
 					node.selectAll('.label')
-						.attr('fill', function(d) { return ((base.rolloverNode == d) || (base.selectedNodes.indexOf(d) != -1)) ? "#000" :"#999"; })
-						.attr('font-weight', function(d) { return ((base.rolloverNode == d) || (base.selectedNodes.indexOf(d) != -1)) ? 'bold' : 'normal'; })
+						.attr('fill', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? "#000" :"#999"; })
+						.attr('font-weight', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
 						.text(function(d) { 
-							return ((base.rolloverNode == d) || (base.selectedNodes.indexOf(d) != -1)) ? d.title : d.shortTitle; 
+							return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle; 
 						});
 				
 					node.selectAll('rect.visit-button')
 						.style( 'display', function(d) { 
-							return (base.selectedNodes.indexOf(d) != -1) ? 'inherit' : 'none'; 
+							return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none'; 
 						});
 				
 					node.selectAll('text.visit-button')
 						.style( 'display', function(d) { 
-							return (base.selectedNodes.indexOf(d) != -1) ? 'inherit' : 'none'; 
+							return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none'; 
 						});
 				
 				}
