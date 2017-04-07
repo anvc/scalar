@@ -1566,7 +1566,7 @@
                             var wrapper = $(annotation.element).find('.annotorious-annotationlayer');
                             var annotation_src = annotation.src;
                             var popup_src = $(this).find('.annotorious-popup-text>a').data('src');
-                            if(popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text){
+                            if(popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text && wrapper.parents('.carousel').length > 0 && wrapper.parents('.active').length > 0){
                                     var left = wrapper.offset().left + parseFloat($(this).css('left'));
                                     var top = wrapper.offset().top + parseFloat($(this).css('top'));
                                     if($(this).parent('body').length == 0){
