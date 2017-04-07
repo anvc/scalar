@@ -794,7 +794,13 @@
            var $parent = $widget.data('parent');
            var size = $widget.data('size');
            var height = $widget.data('height');
+           
            var inline = $widget.data('inline');
+           var align = $widget.data('align');
+
+           if ( align == undefined ) {
+             align = 'right';
+           }
 
            $slot.detach();
 
@@ -810,24 +816,17 @@
            var $temp = $( '<div class="' + size + '_dim">&nbsp;</div>').appendTo( '.page' );
            var width = Math.min( parseInt( $( '.page' ).width() ), parseInt( $temp.width() ));
            $temp.remove();
-           if (inline) {
-             // we want 'large' inline widgets to be as wide as the text
-             if (size == 'large') {
-               width = page.bodyCopyWidth;
-             }
-           } else {
-             // break point for large widgets to become full
-             if (( size == 'large' ) && (( page.pageWidthMinusMargins - page.bodyCopyWidth ) < 160 )) {
-               size = "full";
-               width = page.pageWidth;
-             // break point for medium widgets to become full
-             } else if (( size == 'medium' ) && ( width > ( page.bodyCopyWidth - 160 ))) {
-               size = "full";
-               width = page.pageWidth;
-             }else if(size == "large"){
-               width = page.bodyCopyWidth;
-             }
+
+           // break point for large widgets to become full
+           if (( size == 'large' ) && (( page.pageWidthMinusMargins - page.bodyCopyWidth ) < 160 )) {
+             size = "full";
+             width = page.pageWidth;
+           // break point for medium widgets to become full
+           } else if (( size == 'medium' ) && ( width > ( page.bodyCopyWidth - 160 ))) {
+             size = "full";
+             width = page.pageWidth;
            }
+
            vcenter = false;
            if ( size == 'full' || size == 'native') {
              if ( height == null ) {
@@ -835,6 +834,11 @@
              } else {
                vcenter = true;
              }
+           }
+           
+           if (size == 'large' && (align == 'left' || inline)) {
+             // we want 'large' inline or left-aligned widgets to be as wide as the text
+             width = page.bodyCopyWidth;
            }
 
            var containerLayout = (height==undefined)?"horizontal":"vertical";
@@ -849,12 +853,6 @@
              }
            }else if(widgetType == 'carousel'){
              $container.css('min-height','200px');
-           }
-           var inline = $widget.data('inline');
-           var align = $widget.data('align');
-
-           if ( align == undefined ) {
-             align = 'right';
            }
 
            if ( inline ) {

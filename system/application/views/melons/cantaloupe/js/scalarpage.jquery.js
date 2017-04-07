@@ -484,23 +484,21 @@
                 var width = Math.min(page.pageWidth, parseInt(temp.width()));
                 temp.remove();
 
-                // inline media elements can't get bigger than the width of the body copy
-                if (inline) {
-                    // we want 'large' inline media to be as wide as the text
-                    if (size == 'large') {
-                        width = page.bodyCopyWidth;
-                    }
-                } else {
-                    // break point for large media elements to become full
-                    if ((size == 'large') && ((page.pageWidthMinusMargins - page.bodyCopyWidth) < 160)) {
-                        size = "full";
-                        width = page.pageWidth;
-                        // break point for medium media elements to become full
-                    } else if ((size == 'medium') && (width > (page.bodyCopyWidth - 160))) {
-                        size = "full";
-                        width = page.pageWidth;
-                    }
+                // break point for large media elements to become full
+                if ((size == 'large') && ((page.pageWidthMinusMargins - page.bodyCopyWidth) < 160)) {
+                    size = "full";
+                    width = page.pageWidth;
+                    // break point for medium media elements to become full
+                } else if ((size == 'medium') && (width > (page.bodyCopyWidth - 160))) {
+                    size = "full";
+                    width = page.pageWidth;
                 }
+                
+                if (size == 'large' && (align == 'left' || inline)) {
+                  // we want 'large' inline or left-aligned media to be as wide as the text
+                  width = page.bodyCopyWidth;
+                }
+
 
                 var currentNode = scalarapi.model.getCurrentPageNode();
                 var options = {
