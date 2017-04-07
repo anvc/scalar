@@ -16,7 +16,6 @@
  * or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-
 (function($) {
 
     $.scalarpage = function(e, options) {
@@ -1562,6 +1561,18 @@
                                     var parent = $(this).parent();
                                     page.addNoteOrAnnotationMedia($(this), parent, width, height);
                                 });
+                            }
+
+                            var wrapper = $(annotation.element).find('.annotorious-annotationlayer');
+                            var annotation_src = annotation.src;
+                            var popup_src = $(this).find('.annotorious-popup-text>a').data('src');
+                            if(popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text){
+                                    var left = wrapper.offset().left + parseFloat($(this).css('left'));
+                                    var top = wrapper.offset().top + parseFloat($(this).css('top'));
+                                    if($(this).parent('body').length == 0){
+                                        $(this).detach().appendTo('body');
+                                    }
+                                    $(this).css({'left':left, 'top':top});
                             }
                         });
                     });

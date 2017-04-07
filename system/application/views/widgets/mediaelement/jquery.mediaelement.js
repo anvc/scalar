@@ -2356,14 +2356,15 @@ function YouTubeGetID(url){
 
 					annotation.data = {
 						src: this.image.src + '-' + this.model.id,
-						text: '<a href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
+						text: '<a data-src="'+this.image.src + '-' + this.model.id+'" href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
 						editable: editable,
 						shapes: [{
 							type: "rect",
 							units: "pixel",
 							geometry: { x: x, y: y, width: width, height: height }
 						}],
-						isMedia : annotationIsMediaType
+						isMedia : annotationIsMediaType,
+						element : this.model.element[0]
 					}
 
 					anno.addAnnotation( annotation.data );
@@ -4320,8 +4321,6 @@ function YouTubeGetID(url){
 		        if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
 		            me.parentView.doAutoSeek(me.parentView);
 		        }
-
-				console.log($pre,$code,pendingScripts);
 		        if(typeof pendingScripts=='undefined'){
 		        	pendingScripts = 0;
 		        }
