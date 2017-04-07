@@ -1,0 +1,68 @@
+.tl-timeline { font-family: 'Lato', Arial, sans-serif !important; }
+
+.tl-timeline, .tl-timeline div{
+	webkit-box-sizing: content-box;
+	moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+.tl-headline-date, .tl-headline{
+	padding: 0px;
+}
+.tl-slide-media-only .tl-slide-content-container .tl-slide-content .tl-text{
+	text-align: left !important;
+}
+.tl-slidenav-previous .tl-slidenav-content-container{
+	padding-left: 1rem;
+}
+.tl-slidenav-next .tl-slidenav-content-container{
+	margin-left: -1rem;
+}
+.timeline_embed.maximized-embed{
+	border-top: 1rem solid #f5f5f5;
+	border-bottom: .5rem solid #f5f5f5;
+}
+.widget_slot .tl-layout-portrait .tl-storyslider{
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.widget_slot .tl-slider-container-mask{
+	-webkit-transition: background-color .5s linear;
+	-moz-transition: background-color .5s linear;
+	-ms-transition: background-color .5s linear;
+	-o-transition: background-color .5s linear;
+	transition: background-color .5s linear;
+	background-color: transparent;
+}
+.widget_slot .widgetContainer.highlighted .tl-slider-container-mask{
+	background-color: rgba(197,220,235,.5);
+}
+.widget_timeline .tl-timeline{
+  background-color: #eee;
+}
+.tl-timeline a {
+    color: #026697;
+    text-decoration: none;
+}
+.tl-timeline a:focus, .tl-timeline a:hover {
+    color: #23527c;
+    text-decoration: underline;
+}
+article.page .tl-message-full .tl-message-container .tl-message-content .tl-button {
+	padding: 1rem;
+	text-decoration: none;
+	background-color: #ddd;
+	color: #444;
+	/*line-height: 3.9rem;*/
+	display: inline-block;
+	-webkit-font-smoothing: subpixel-antialiased;
+	cursor: pointer;
+	border-radius: 0;
+}
+.tl-timeline h2.tl-headline, article.page .tl-message-content { font-family: 'Lato', Arial, sans-serif !important; }
+
+.tl-timeline div.tl-text-content, article.page .tl-message-full .tl-message-container .tl-message-content { font-family: Georgia, Times, serif !important; }
+
+.tl-slidenav-previous .tl-slidenav-title, .tl-slidenav-next .tl-slidenav-title, .tl-slidenav-previous .tl-slidenav-description, .tl-slidenav-next .tl-slidenav-description{
+	opacity: .5;
+}

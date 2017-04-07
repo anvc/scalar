@@ -79,7 +79,6 @@
 										$.getScript(modules_uri+'/cantaloupe/js/date-utils.min.js',function(){
 											$.getScript(modules_uri+'/cantaloupe/js/timeline.min.js',function(){
 
-  											$('head').append('<link rel="stylesheet" type="text/css" href="'+modules_uri+'/cantaloupe/css/timeline.min.css" />');
 												loadedTimeline = true;
 												for(var i = 0; i < base.pendingWidgets.timeline.length; i++){
 														base.pendingWidgets.timeline[i].resolve();
@@ -388,15 +387,16 @@
                   $(this).data('element').html('');
                   var $timeline = $('<div class="caption_font timeline_embed"></div>').appendTo($(this).data('element'));
                   $timeline.width($(this).data('element').width());
-                  var height = $(this).data('element').height();
-                  if(height == 0){
+                  var timelineHeight = $(this).data('element').height();
+                  if(timelineHeight == 0){
                     // We want timelines to be max-height of 70%, so remove 60% clamp, then add 70%;
                     // could be written as a number (~1.16666667), but this seemed to be a little less magic-number-y
                     //var height_adjust = (1/.6)*.7;
-                    var height = (base.options.maxWidgetHeight,maxWidgetHeight) + 100;
+                    var timelineHeight = (base.options.maxWidgetHeight,maxWidgetHeight) + 100;
                   }
-                  height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
-                  $timeline.height(height - 10);
+                  timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  $timeline.height(timelineHeight - 10);
+
                   var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
 
                   $(this).off("slotCreated");
@@ -480,11 +480,10 @@
                 parseNodes(nodes,tempdata);
 
                 $(this).data('timeline',tempdata);
-                prepareTimelineContainer($(this));
 
-              }else{
-                prepareTimelineContainer($(this));
               }
+              
+              prepareTimelineContainer($(this));
 
             },$widget));
 

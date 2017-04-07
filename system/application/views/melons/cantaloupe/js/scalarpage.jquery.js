@@ -2662,7 +2662,6 @@
                                 var timelinePromise = $.Deferred();
                                 $.getScript(modules_uri + '/cantaloupe/js/date-utils.min.js', function() {
                                     $.getScript(modules_uri + '/cantaloupe/js/timeline.min.js', function() {
-                                        $('head').append('<link rel="stylesheet" type="text/css" href="' + modules_uri + '/cantaloupe/css/timeline.min.css" />')
                                         loadedTimeline = true;
                                         timelinePromise.resolve();
                                     });
