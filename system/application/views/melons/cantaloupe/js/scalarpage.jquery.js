@@ -1530,52 +1530,57 @@
                     };
 
                 } else if ('' == extension) {
-
-                    anno.addHandler('onPopupShown', function(annotation) {
-                        var height = null;
-                        $('.annotorious-popup').each(function() {
-                            var width = $(this).width();
-                            if (annotation.isMedia) {
-                                var parent = $(this).find('.annotorious-popup-text');
-                                var node = scalarapi.getNode(parent.find('a').first().attr('href'));
-                                var link = $('<a href="' + node.current.sourceFile + '" data-annotations="[]" data-align="center" resource="' + node.slug + '" class="inline"></a>').hide().appendTo(parent);
-                                page.addNoteOrAnnotationMedia(link, parent, width, height);
-                            } else {
-                                $(page.getMediaLinks($(this))).each(function() {
-                                    if ($(this).hasClass('inline')) {
-                                        $(this).wrap('<div></div>').hide().removeClass('inline');
-                                    }
-                                });
-
-                                wrapOrphanParagraphs($(this));
-
-                                $(this).children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
-
-                                $(page.getMediaLinks($(this))).each(function() {
-                                    $(this).attr({
-                                        'data-align': '',
-                                        'data-size': '',
-                                        'data-annotations': '[]',
-                                        'class': 'media_link'
+                    if(typeof anno.hasPopupShownHandler == 'undefined'){
+                        anno.addHandler('onPopupShown', function(annotation) {
+                            anno.hasPopupShownHandler = true;
+                            var height = null;
+                            $('.annotorious-popup').each(function() {
+                                var width = $(this).width();
+                                if (annotation.isMedia) {
+                                    var parent = $(this).find('.annotorious-popup-text');
+                                    var node = scalarapi.getNode(parent.find('a').first().attr('href'));
+                                    var link = $('<a href="' + node.current.sourceFile + '" data-annotations="[]" data-align="center" resource="' + node.slug + '" class="inline"></a>').hide().appendTo(parent);
+                                    page.addNoteOrAnnotationMedia(link, parent, width, height);
+                                } else {
+                                    $(page.getMediaLinks($(this))).each(function() {
+                                        if ($(this).hasClass('inline')) {
+                                            $(this).wrap('<div></div>').hide().removeClass('inline');
+                                        }
                                     });
-                                    var parent = $(this).parent();
-                                    page.addNoteOrAnnotationMedia($(this), parent, width, height);
-                                });
-                            }
 
-                            var wrapper = $(annotation.element).find('.annotorious-annotationlayer');
-                            var annotation_src = annotation.src;
-                            var popup_src = $(this).find('.annotorious-popup-text>a').data('src');
-                            if(popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text && wrapper.parents('.carousel').length > 0 && wrapper.parents('.active').length > 0){
-                                    var left = wrapper.offset().left + parseFloat($(this).css('left'));
-                                    var top = wrapper.offset().top + parseFloat($(this).css('top'));
-                                    if($(this).parent('body').length == 0){
-                                        $(this).detach().appendTo('body');
-                                    }
-                                    $(this).css({'left':left, 'top':top});
-                            }
+                                    wrapOrphanParagraphs($(this));
+
+                                    $(this).children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
+
+                                    $(page.getMediaLinks($(this))).each(function() {
+                                        $(this).attr({
+                                            'data-align': '',
+                                            'data-size': '',
+                                            'data-annotations': '[]',
+                                            'class': 'media_link'
+                                        });
+                                        var parent = $(this).parent();
+                                        page.addNoteOrAnnotationMedia($(this), parent, width, height);
+                                    });
+                                }
+
+                                var wrapper = $(annotation.element).find('.annotorious-annotationlayer');
+                                var annotation_src = annotation.src;
+                                var popup_src = $(this).find('.annotorious-popup-text>a').attr('data-src');
+                                var popup_body = $(this).find('.annotorious-popup-text').parent().detach();
+                                $(this).html('').append(popup_body);
+                                if(popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text){
+
+                                        var left = $(annotation.element).offset().left + parseFloat($(this).css('left'));
+                                        var top = $(annotation.element).offset().top + parseFloat($(this).css('top'));
+                                        if($(this).parent('body').length == 0){
+                                            $(this).detach().appendTo('body');
+                                        }
+                                        $(this).css({'left':left, 'top':top});
+                                }
+                            });
                         });
-                    });
+                    }
 
                     switch (viewType) {
 
@@ -1916,6 +1921,9 @@
                         reload = true;
                     }
                     if (reload) {
+                        $('.annotorious-item, .annotorious-popup').remove();
+                        console.log(anno);
+                        anno.removeAll();
                         page.handleMediaResize();
                     }
                 }
