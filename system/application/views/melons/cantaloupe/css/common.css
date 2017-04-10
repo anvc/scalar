@@ -592,6 +592,7 @@ a:hover { text-decoration: underline; }
 .full .mediaElementFooter { padding: 0 7.2rem 0 7.2rem; max-width: 85.4rem; }
 
 .pillarbox { background-color: #444; clear: both; }
+.media_details .pillarbox { background-color: transparent; }
 
 /* So the top-most media element aligns with the top of its paragraph */
 .slot.top{ margin-top: .5rem !important; clear: both; }

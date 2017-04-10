@@ -330,10 +330,12 @@
 						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" height="' + 
 						parseInt( thumbnailHeight * currentScale ) + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>' )[method]( element );
 				}
-				thumbnail.tooltip( { 
-					placement: "bottom",
-					template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="caption_font tooltip-inner"></div></div>'
-				} );
+				if (!isMobile) {
+					thumbnail.tooltip( { 
+						placement: "bottom",
+						template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="caption_font tooltip-inner"></div></div>'
+					} );
+				}
 				thumbnail.data('node', node);
 				
 				thumbnail.click(function() {
