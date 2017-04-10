@@ -1814,7 +1814,14 @@
 
 				var box = base.gridBoxLayer.selectAll( '.rowBox' );
 
-				box = box.data( base.sortedNodes, function(d) { return d.type.id + '-' + d.slug; } );
+				var tocNode = scalarapi.model.getMainMenuNode();
+				var gridNodes = base.sortedNodes.concat();
+				var index = gridNodes.indexOf(tocNode);
+				if (index != -1) {
+					gridNodes.splice(index, 1);
+				}
+
+				box = box.data( gridNodes, function(d) { return d.type.id + '-' + d.slug; } );
 					
 				// draw squares
 				var selection = box.enter().append('svg:rect')
