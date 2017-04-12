@@ -537,20 +537,19 @@
 
                calculateMediaNodes($widget.data('node'));
 
-               var parseNodes = function(nodes,galleryHeight,hasMedia){
+               var parseNodes = function(nodes,galleryHeight,gallerySize,hasMedia){
                     var n = nodes.length;
                     for (var i = 0; i < n; i++) {
                         var node = nodes[i];
 
-                        var item = $('<div class="item" style="max-height : ' + galleryHeight + 'px;"></div>').appendTo($wrapper);
+                        var item = $('<div class="item" style="height : ' + galleryHeight + 'px;"></div>').appendTo($wrapper);
                         if (!hasMedia) {
                             var hasMedia = true;
                             item.addClass("active");
                         }
 
-
                         // if this is a media link that's already part of the content of the page, then use it
-                        var mediaContainer = $('<span><a href="' + node.current.sourceFile + '" resource="' + node.slug + '" data-size="full" data-caption="none">' + node.slug + '</a></span>').appendTo(item);
+                        var mediaContainer = $('<span><a href="' + node.current.sourceFile + '" resource="' + node.slug + '" data-size="' + gallerySize + '" data-caption="none" data-align="center">' + node.slug + '</a></span>').appendTo(item);
                         var link = mediaContainer.find('a');
                         link.css('display', 'none');
 
@@ -569,12 +568,12 @@
                                 '<a href="' + node.url + '" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
-                        page.addMediaElementForLink(link, mediaContainer, galleryHeight);
+                        page.addMediaElementForLink(link, mediaContainer, galleryHeight, {vcenter: true});
                     }
                };
 
                if(media_nodes.length > 0){
-                  parseNodes(media_nodes,galleryHeight);
+                  parseNodes(media_nodes,galleryHeight,$widget.data('container').data('size'));
                  if ( page.adaptiveMedia != "mobile" ) {
       							$wrapper.find( '[data-toggle="popover"]' ).popover( {
       								container: '#gallery',

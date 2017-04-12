@@ -413,8 +413,9 @@ a:hover { text-decoration: underline; }
 
 .carousel-inner { background-color: #444; }
 .carousel-inner>.item{
-	transition: .3s ease-in-out left;
+	transition: 0s ease-in-out left;
 }
+.carousel .slot.top{ margin-top: 0 !important; }
 
 .carousel-control .icon-prev, .carousel-control .glyphicon-chevron-left, .carousel-control .icon-next, .carousel-control .glyphicon-chevron-right { top: 45%; font-size: 40px; }
 
