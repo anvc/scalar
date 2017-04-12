@@ -51,7 +51,7 @@
 				mediaDetails.slideshowElement = $('<div class="manual_slideshow"></div>').appendTo(mediaDetails.contentElement);
 				mediaDetails.infoElement = $('<div></div>').appendTo(mediaDetails.contentElement);
 				var sizeTest = $('<div id="media_details_buffer"></div>').appendTo(mediaDetails.contentElement);
-				var slotWidth = Math.round(parseInt($(element).width() - sizeTest.width()) * 0.68);
+				var slotWidth = Math.round(parseInt($(element).width() - sizeTest.width()) - 72);
 
 				sizeTest.remove();
 				if (collection == undefined) {
@@ -128,7 +128,6 @@
 			 * @param {Object} link				The link which spawned the mediaelement, and which contains its data.
 			 */
 			handleMediaElementMetadata: function(event, link) {
-			
 				var mediaelement = link.data('mediaelement');
 				var mediaDetails = link.data('mediaDetails');
 				
