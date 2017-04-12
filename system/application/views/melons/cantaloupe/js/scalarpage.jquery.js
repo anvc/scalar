@@ -252,6 +252,21 @@
                     }
                 });
 
+                // carousel media should be horizontally centered (somewhat duplicative of what follows)
+                if (mediaelement.model.element.closest('.carousel').length > 0) {
+                    mediaelement.model.element.css({
+                      'margin-right': 'auto',
+                      'margin-left': 'auto',
+                      'float': 'none'
+                    });
+                    mediaelement.model.element.find('.mediaObject').css({
+                      'margin-right': 'auto',
+                      'margin-left': 'auto',
+                    });
+                    mediaelement.model.element.parent().addClass("pillarbox");
+                    mediaelement.model.element.parent().removeClass('left right');
+                }
+
                 // 'full' and 'native' sized media get special sizing treatment
                 if (size == 'native' || size == 'full') {
 
@@ -310,8 +325,6 @@
                             } else {
                                 link.data('slot').insertAfter(link.parents('.paragraph_wrapper'));
                             }
-
-
                         }
                     }
                 }
@@ -456,7 +469,7 @@
 
             },
 
-            addMediaElementForLink: function(link, parent, height) {
+            addMediaElementForLink: function(link, parent, height, baseOptions) {
 
                 var inline = link.hasClass('inline'),
                     size = link.attr('data-size'),
@@ -498,7 +511,6 @@
                   width = page.bodyCopyWidth;
                 }
 
-
                 var currentNode = scalarapi.model.getCurrentPageNode();
                 var options = {
                     url_attributes: ['href', 'src'],
@@ -507,6 +519,7 @@
                     getRelated: ($('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0), // only get related content if this is a media page
                     typeLimits: typeLimits
                 };
+                $.extend(options, baseOptions);
 
                 // media at 'full' size get a maximum height
                 if (size == 'full' || size == 'native') {
