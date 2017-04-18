@@ -27,8 +27,17 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/omeka.xsl" />
 		<scalar:getStr><![CDATA[uri=$1&page=$2]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>
+	</rdf:Description>		
 
+	<rdf:Description rdf:about="system/application/rdf/omeka_to_json.php">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Omeka S</dc:title>
+		<dcterms:description><![CDATA[Find files from Omeka S installs across the web. To use, <b>do not</b> enter a search term below.  Rather, <b>enter the URL to an Omeka install's home page</b>. Note that this is only for Omeka S; for Omeka Classic, use the “Omeka sites” import page.]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/omeka.xsl" />
+		<scalar:getStr><![CDATA[uri=$1&page=$2]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
+	</rdf:Description>		
+		
 	<rdf:Description rdf:about="http://www.archive.org/advancedsearch.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Internet Archive</dc:title>
@@ -146,6 +155,6 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/nypl.xsl" />
 		<scalar:getStr><![CDATA[q=$1&publicDomainOnly=true&per_page=50&page=$2]]></scalar:getStr>
 		<scalar:header>Authorization: Token token=$api_key</scalar:header>
-	</rdf:Description>
-
-</rdf:RDF>
+	</rdf:Description>	
+	
+</rdf:RDF>	
