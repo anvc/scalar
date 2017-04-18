@@ -29,7 +29,7 @@
 		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>		
 
-	<rdf:Description rdf:about="system/application/rdf/omeka_to_json.php">
+	<rdf:Description rdf:about="system/application/rdf/omeka_s.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Omeka S</dc:title>
 		<dcterms:description><![CDATA[Find files from Omeka S installs across the web. To use, <b>do not</b> enter a search term below.  Rather, <b>enter the URL to an Omeka install's home page</b>. Note that this is only for Omeka S; for Omeka Classic, use the “Omeka sites” import page.]]></dcterms:description>
