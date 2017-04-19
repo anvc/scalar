@@ -210,8 +210,10 @@
 	box-shadow: none;
 }
 .widget_selector_bootbox .tooltip-inner{
-	max-width: 75%;
-	width: 75%;
+	max-width: 100%;
+    width: 100%;
+    padding: 2px 1px;
+    box-sizing: content-box;
 }
 .widget_selector_bootbox #bootbox-content-selector-content>div{
 	width: 100%;
