@@ -47,7 +47,7 @@ if (empty($page)) $page = 1;
 
 if (substr($uri, -1, 1) == '/') $uri = substr($uri, 0, -1);
 
-$files_url = $uri.'/api/files?page='.$page;
+$files_url = $uri.'/api/items;
 $files =@ file_get_contents($files_url);
 if (!$files) die('{}');
 $files = json_decode($files);
