@@ -45,11 +45,9 @@ if (empty($uri)) die('{}');
 $page =@ (int) $_GET['page'];
 if (empty($page)) $page = 1;
 
-$uri = str_replace('http://','',$uri);
-$uri = str_replace('https://','',$uri);
 if (substr($uri, -1, 1) == '/') $uri = substr($uri, 0, -1);
 
-$files_url = 'http://'.$uri.'/api/files?page='.$page;
+$files_url = $uri.'/api/files?page='.$page;
 $files =@ file_get_contents($files_url);
 if (!$files) die('{}');
 $files = json_decode($files);
