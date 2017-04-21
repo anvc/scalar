@@ -38,6 +38,21 @@ function spacify($camel, $glue = ' ') {  // camel to spaces
     return preg_replace( '/([a-z0-9])([A-Z])/', "$1$glue$2", $camel );
 }
 
+// function copied from 
+// https://php.net/manual/en/function.parse-url.php#106731
+function unparse_url($parsed_url) {
+	$scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+	$host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+	$port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+	$user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+	$pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']	: '';
+	$pass = ($user || $pass) ? "$pass@" : '';
+	$path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+	$query = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+	$fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+	return "$scheme$user$pass$host$port$path$query$fragment";
+}
+
 session_start();  // Storing items and geolocations from previous queries
 
 $uri =@ trim($_GET['uri']);
@@ -45,59 +60,77 @@ if (empty($uri)) die('{}');
 $page =@ (int) $_GET['page'];
 if (empty($page)) $page = 1;
 
-$uri = str_replace('http://','',$uri);
-$uri = str_replace('https://','',$uri);
-if (substr($uri, -1, 1) == '/') $uri = substr($uri, 0, -1);
+$parsed_uri = parse_url($uri);
+if (!array_key_exists('scheme', $parsed_uri)) {
+    $parsed_uri['scheme'] = 'http';
+    // If there is no scheme and no initial double-slash, PHP
+    // interprets the entire URL as a path.
+    if (!array_key_exists('host', $parsed_uri)){
+        $path_parts = explode('/', $parsed_uri['path']);
+        $parsed_uri['host'] = array_shift($path_parts);
+        $parsed_uri['path'] = implode('/', $path_parts);
+    }
+}
+elseif ($parsed_uri['scheme'] != 'http' &&
+        $parsed_uri['scheme'] != 'https') {
+    die('{}');
+}
+if (substr($parsed_uri['path'], -1, 1) == '/') {
+    $parsed_uri['path'] = substr($parsed_uri['path'], 0, -1);
+}
+unset($parsed_uri['query']);
+unset($parsed_uri['fragment']);
+$uri = unparse_url($parsed_uri);
 
-$files_url = 'http://'.$uri.'/api/files?page='.$page;
+$files_url = $uri.'/api/files?page='.$page;
 $files =@ file_get_contents($files_url);
 if (!$files) die('{}');
 $files = json_decode($files);
 if (!is_array($files)) die('{}');
 
 if (1==$page) {
-	$items_url = 'http://'.$uri.'/api/items?page='.$page;
+	$items_url = $uri.'/api/items?page='.$page;
 	$items =@ file_get_contents($items_url);
 	$items = json_decode($items);
 	$s_items = array();
-	if (isset($_SESSION[urlencode('http://'.$uri.'/api/items')])) {
-		$s_items = $_SESSION[urlencode('http://'.$uri.'/api/items')];
+	if (isset($_SESSION[urlencode($uri.'/api/items')])) {
+		$s_items = $_SESSION[urlencode($uri.'/api/items')];
 	}
 	$items = s_array_merge($s_items, $items);
-	$_SESSION[urlencode('http://'.$uri.'/api/items')] = $items;
+	$_SESSION[urlencode($uri.'/api/items')] = $items;
 }
 
-$items_url = 'http://'.$uri.'/api/items?page='.($page+1);
+$items_url = $uri.'/api/items?page='.($page+1);
 $items =@ file_get_contents($items_url);
 $items = json_decode($items);
 $s_items = array();
-if (isset($_SESSION[urlencode('http://'.$uri.'/api/items')])) {
-	$s_items = $_SESSION[urlencode('http://'.$uri.'/api/items')];
+if (isset($_SESSION[urlencode($uri.'/api/items')])) {
+	$s_items = $_SESSION[urlencode($uri.'/api/items')];
 }
 $items = s_array_merge($s_items, $items);
-$_SESSION[urlencode('http://'.$uri.'/api/items')] = $items;
+$_SESSION[urlencode($uri.'/api/items')] = $items;
 
 if (1==$page) {
-	$geo_url = 'http://'.$uri.'/api/geolocations?page='.$page;
+	$geo_url = $uri.'/api/geolocations?page='.$page;
 	$locations =@ file_get_contents($geo_url);
 	$locations = json_decode($locations);
 	$s_locations = array();
-	if (isset($_SESSION[urlencode('http://'.$uri.'/api/geolocations')])) {
-		$s_locations = $_SESSION[urlencode('http://'.$uri.'/api/geolocations')];
+	if (isset($_SESSION[urlencode($uri.'/api/geolocations')])) {
+		$s_locations = $_SESSION[urlencode($uri.'/api/geolocations')];
 	}
 	$locations = s_array_merge($s_locations, $locations);
-	$_SESSION[urlencode('http://'.$uri.'/api/geolocations')] = $locations;
+	$_SESSION[urlencode($uri.'/api/geolocations')] = $locations;
 }
 
-$geo_url = 'http://'.$uri.'/api/geolocations?page='.($page+1);
+$geo_url = $uri.'/api/geolocations?page='.($page+1);
 $locations =@ file_get_contents($geo_url);
 $locations = json_decode($locations);
 $s_locations = array();
-if (isset($_SESSION[urlencode('http://'.$uri.'/api/geolocations')])) {
-	$s_locations = $_SESSION[urlencode('http://'.$uri.'/api/geolocations')];
+if (isset($_SESSION[urlencode($uri.'/api/geolocations')])) {
+	$s_locations = $_SESSION[urlencode($uri.'/api/geolocations')];
 }
 $locations = s_array_merge($s_locations, $locations);
-$_SESSION[urlencode('http://'.$uri.'/api/geolocations')] = $locations;
+$_SESSION[urlencode($uri.'/api/geolocations')] = $locations;
 
 $output = array();
 
