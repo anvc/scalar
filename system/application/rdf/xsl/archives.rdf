@@ -36,7 +36,7 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/omeka.xsl" />
 		<scalar:getStr><![CDATA[uri=$1&page=$2]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>		
+	</rdf:Description>
 		
 	<rdf:Description rdf:about="http://www.archive.org/advancedsearch.php">
 		<rdf:type rdf:resource="scalar:External" />

@@ -35,7 +35,7 @@ function s_array_merge($array1, $array2) {  // merge array removing duplicates b
 }
 
 function spacify($camel, $glue = ' ') {  // camel to spaces
-    return preg_replace( '/([a-z0-9])([A-Z])/', "$1$glue$2", $camel );
+	return preg_replace( '/([a-z0-9])([A-Z])/', "$1$glue$2", $camel );
 }
 
 // function copied from 
@@ -45,7 +45,7 @@ function unparse_url($parsed_url) {
 	$host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
 	$port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
 	$user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-	$pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']	: '';
+	$pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
 	$pass = ($user || $pass) ? "$pass@" : '';
 	$path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 	$query = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
@@ -62,21 +62,21 @@ if (empty($page)) $page = 1;
 
 $parsed_uri = parse_url($uri);
 if (!array_key_exists('scheme', $parsed_uri)) {
-    $parsed_uri['scheme'] = 'http';
-    // If there is no scheme and no initial double-slash, PHP
-    // interprets the entire URL as a path.
-    if (!array_key_exists('host', $parsed_uri)){
-        $path_parts = explode('/', $parsed_uri['path']);
-        $parsed_uri['host'] = array_shift($path_parts);
-        $parsed_uri['path'] = implode('/', $path_parts);
-    }
+	$parsed_uri['scheme'] = 'http';
+	// If there is no scheme and no initial double-slash, PHP
+	// interprets the entire URL as a path.
+	if (!array_key_exists('host', $parsed_uri)){
+		$path_parts = explode('/', $parsed_uri['path']);
+		$parsed_uri['host'] = array_shift($path_parts);
+		$parsed_uri['path'] = implode('/', $path_parts);
+	}
 }
 elseif ($parsed_uri['scheme'] != 'http' &&
-        $parsed_uri['scheme'] != 'https') {
-    die('{}');
+		$parsed_uri['scheme'] != 'https') {
+	die('{}');
 }
 if (substr($parsed_uri['path'], -1, 1) == '/') {
-    $parsed_uri['path'] = substr($parsed_uri['path'], 0, -1);
+	$parsed_uri['path'] = substr($parsed_uri['path'], 0, -1);
 }
 unset($parsed_uri['query']);
 unset($parsed_uri['fragment']);
@@ -105,6 +105,10 @@ $items = s_array_merge($s_items, $items);
 $_SESSION[urlencode($uri.'/api/items')] = $items;
 
 $output = array();
+
+foreach ($items as $item) {
+	$output[] = $item;
+}
 
 header('Content-Type: application/json');
 echo json_encode($output);
