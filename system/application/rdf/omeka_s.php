@@ -24,7 +24,7 @@ function s_array_merge($array1, $array2) {  // merge array removing duplicates b
 	foreach ($array2 as $el2) {
 		$can_add = true;
 		foreach ($array1 as $el1) {
-			if ($el1->id == $el2->id) {
+			if ($el1['@id'] == $el2['@id']) {
 				$can_add = false;
 				break;
 			}
