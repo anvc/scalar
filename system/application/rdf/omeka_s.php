@@ -18,13 +18,13 @@
  * permissions and limitations under the License.
  */
 
-function s_array_merge($array1, $array2) {  // merge array removing duplicates based on obj->id
+function s_array_merge($array1, $array2) {  // merge array removing duplicates based on obj->@id
 	if (!is_array($array1)) $array1 = array();
 	if (!is_array($array2)) return $array1;
 	foreach ($array2 as $el2) {
 		$can_add = true;
 		foreach ($array1 as $el1) {
-			if ($el1['@id'] == $el2['@id']) {
+			if ($el1->{'@id'} == $el2->{'@id'}) {
 				$can_add = false;
 				break;
 			}
