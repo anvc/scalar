@@ -16,7 +16,9 @@ $(document).on('paste', 'textarea', function (e, c) {  // Text is cut-and-paste 
 			codemirror_cke_1.off('change', myFunc);
 			var val = codemirror_cke_1.getValue();
 			val = val.replace(/^\s+|\s+$/g, '');  // Trim line breaks from beginning and end
-			val = val.replace(new RegExp('\r?\n','g'), "<br />\n");  // Convert line breaks to <br />
+			if (-1 == val.indexOf('<br')) {  // Already has break tags, e.g., cutting and pasting from another page's 'source' mode
+				val = val.replace(new RegExp('\r?\n','g'), "<br />\n");  // Convert line breaks to <br />
+			};
 			setTimeout(function() {
 				codemirror_cke_1.setValue(val);
 			},10);
@@ -28,8 +30,6 @@ $(document).on('paste', 'textarea', function (e, c) {  // Text is cut-and-paste 
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
 
-	// %REMOVE_START%
-	// The configuration options below are needed when running CKEditor from source files.
 	config.plugins = 'dialogui,dialog,a11yhelp,basicstyles,blockquote,clipboard,panel,floatpanel,panelbutton,listblock,richcombo,format,menu,button,toolbar,elementspath,enterkey,entities,wysiwygarea,indent,indentlist,list,maximize,pastetext,pastefromword,removeformat,sourcearea,specialchar,menubutton,undo,colorbutton,colordialog,codeTag,fakeobjects,iframe,codemirror,scalar';
 	config.skin = 'bootstrapck';
 	config.allowedContent = true;
@@ -39,10 +39,11 @@ CKEDITOR.editorConfig = function( config ) {
 	config.font_defaultLabel = 'Lucida Grande';
 	config.fontSize_defaultLabel = '12px';
 	config.enterMode = CKEDITOR.ENTER_BR;
-	// %REMOVE_END%
+	
+	config.entities_greek = false;
+	config.entities_latin = false;
 
 	config.toolbar = 'Scalar';
-
 	config.toolbar_Scalar =
 	[
 		{ name: 'document', items : [ 'Source' ] },
@@ -54,9 +55,7 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'clear', items : [ 'RemoveFormat' ] }
 	];
 
-
-	// Remove some buttons provided by the standard plugins, which are
-	// not needed in the Standard(s) toolbar.
+	// Remove some buttons provided by the standard plugins, which are not needed in the Standard(s) toolbar.
 	config.removeButtons = '';
 
 	// Set the most common block elements.
