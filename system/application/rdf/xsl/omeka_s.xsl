@@ -27,43 +27,6 @@
 			<!-- arbitrary choice of square thumbnail (vs. large or medim) -->
 			<art:thumbnail rdf:resource="{othumbnail_urls/square}" />
 			<dcterms:identifier><xsl:value-of select="ofilename"/></dcterms:identifier>
-			<!-- TODO -->
-			<art:sourceLocation rdf:resource="" />
-			<xsl:apply-templates select="location_data" />
-			<xsl:apply-templates select="tags/node" />
-			<xsl:apply-templates select="element_texts/child::*" />
 		</rdf:Description>
 	</xsl:template>
-
-	<xsl:template match="location_data">
-		<dcterms:spatial><xsl:value-of select="."/></dcterms:spatial>
-	</xsl:template>
-
-	<xsl:template match="tags/node">
-		<dcterms:subject><xsl:value-of select="name"/></dcterms:subject>
-	</xsl:template>
-
-	<xsl:template match="element_texts/child::*">
-		<xsl:choose>
-			<xsl:when test="name(.) = 'Title'">
-				<dcterms:title><xsl:value-of select="."/></dcterms:title>
-			</xsl:when>
-			<xsl:when test="name(.) = 'Description'">
-				<dcterms:description><xsl:value-of select="."/></dcterms:description>
-			</xsl:when>
-			<xsl:when test="name(.) = 'Creator'">
-				<dcterms:contributor><xsl:value-of select="."/></dcterms:contributor>
-			</xsl:when>
-			<xsl:when test="name(.) = 'Source'">
-				<dcterms:source><xsl:value-of select="."/></dcterms:source>
-			</xsl:when>
-			<xsl:when test="name(.) = 'Date'">
-				<dcterms:date><xsl:value-of select="."/></dcterms:date>
-			</xsl:when>
-			<xsl:when test="name(.) = 'Coverage'">
-				<dcterms:coverage><xsl:value-of select="."/></dcterms:coverage>
-			</xsl:when>
-		</xsl:choose>
-	</xsl:template>
-
 </xsl:stylesheet>
