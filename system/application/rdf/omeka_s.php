@@ -82,19 +82,7 @@ unset($parsed_uri['query']);
 unset($parsed_uri['fragment']);
 $uri = unparse_url($parsed_uri);
 
-if (1==$page) {
-	$items_url = $uri.'/api/items?page='.$page;
-	$items =@ file_get_contents($items_url);
-	$items = json_decode($items);
-	$s_items = array();
-	if (isset($_SESSION[urlencode($uri.'/api/items')])) {
-		$s_items = $_SESSION[urlencode($uri.'/api/items')];
-	}
-	$items = s_array_merge($s_items, $items);
-	$_SESSION[urlencode($uri.'/api/items')] = $items;
-}
-
-$items_url = $uri.'/api/items?page='.($page+1);
+$items_url = $uri.'/api/items?page='.$page;
 $items =@ file_get_contents($items_url);
 $items = json_decode($items);
 $s_items = array();
@@ -107,6 +95,7 @@ $_SESSION[urlencode($uri.'/api/items')] = $items;
 $output = array();
 
 foreach ($items as $item) {
+    $item->archive = $uri;
 	$output[] = $item;
 }
 
