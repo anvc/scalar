@@ -82,6 +82,17 @@ unset($parsed_uri['query']);
 unset($parsed_uri['fragment']);
 $uri = unparse_url($parsed_uri);
 
+$media_url = $uri.'/api/media?page='.$page;
+$media =@ file_get_contents($media_url);
+$media = json_decode($media);
+$s_media = array();
+if (isset($_SESSION[urlencode($uri.'/api/media')])) {
+	$s_media = $_SESSION[urlencode($uri.'/api/media')];
+}
+$media = s_array_merge($s_media, $media);
+$_SESSION[urlencode($uri.'/api/media')] = $media;
+
+
 $items_url = $uri.'/api/items?page='.$page;
 $items =@ file_get_contents($items_url);
 $items = json_decode($items);
@@ -94,9 +105,9 @@ $_SESSION[urlencode($uri.'/api/items')] = $items;
 
 $output = array();
 
-foreach ($items as $item) {
-    $item->archive = $uri;
-	$output[] = $item;
+foreach ($media as $medium) {
+    $medium->archive = $uri;
+	$output[] = $medium;
 }
 
 header('Content-Type: application/json');
