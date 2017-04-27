@@ -92,21 +92,13 @@ if (isset($_SESSION[urlencode($uri.'/api/media')])) {
 $media = s_array_merge($s_media, $media);
 $_SESSION[urlencode($uri.'/api/media')] = $media;
 
-
-$items_url = $uri.'/api/items?page='.$page;
-$items =@ file_get_contents($items_url);
-$items = json_decode($items);
-$s_items = array();
-if (isset($_SESSION[urlencode($uri.'/api/items')])) {
-	$s_items = $_SESSION[urlencode($uri.'/api/items')];
-}
-$items = s_array_merge($s_items, $items);
-$_SESSION[urlencode($uri.'/api/items')] = $items;
-
 $output = array();
 
 foreach ($media as $medium) {
-    $medium->archive = $uri;
+	$medium->archive = $uri;
+
+	// fetch the item info, probably
+
 	$output[] = $medium;
 }
 
