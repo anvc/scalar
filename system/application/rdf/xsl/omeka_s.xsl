@@ -80,7 +80,7 @@
 
 	<xsl:template match="ofilename">
 		<dcterms:identifier>
-			<xsl:value-of select="{.}"/>
+			<xsl:value-of select="."/>
 		</dcterms:identifier>
 	</xsl:template>
 
