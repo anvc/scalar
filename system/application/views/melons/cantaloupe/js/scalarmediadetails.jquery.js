@@ -51,7 +51,7 @@
 				mediaDetails.slideshowElement = $('<div class="manual_slideshow"></div>').appendTo(mediaDetails.contentElement);
 				mediaDetails.infoElement = $('<div></div>').appendTo(mediaDetails.contentElement);
 				var sizeTest = $('<div id="media_details_buffer"></div>').appendTo(mediaDetails.contentElement);
-				var slotWidth = Math.round(parseInt($(element).width() - sizeTest.width()) - 72);
+				var slotWidth = Math.round(parseInt($(element).width() - sizeTest.width()) * .68);
 
 				sizeTest.remove();
 				if (collection == undefined) {

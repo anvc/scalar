@@ -39,7 +39,6 @@
 		var allBtn;
 		var pathBtn;
 		var tagBtn;
-		var thumbnailHeight = 84;
 		var currentScale = 1.0;
 		var mediaCollection;
 		var childPaths;
@@ -110,15 +109,6 @@
 				return children;		
 			},
 			
-			resizeThumbnails: function(isAnimated) {
-				if (!isAnimated) {
-					mediaContainer.find('.thumb').attr('height', (thumbnailHeight * currentScale));
-				} else {
-					mediaContainer.find('.thumb').animate({'height': (thumbnailHeight * currentScale)});
-				}
-				//mediaContainer.find('.media_placeholder').height((thumbnailHeight * currentScale)).width((thumbnailHeight * currentScale));
-			},
-			
 			sortCollection: function(collection, method) {
 				
 				switch (method) {
@@ -138,16 +128,6 @@
 				
 				}
 			
-			},
-			
-			decrementGalleryScale: function() {
-				currentScale *= .5;
-				gallery.resizeThumbnails(true);
-			},
-			
-			incrementGalleryScale: function() {
-				currentScale *= 2.0;
-				gallery.resizeThumbnails(true);
 			},
 			
 			setDisplayMode: function(mode) {
@@ -323,12 +303,11 @@
 				if ( node.thumbnail != undefined ) {
 					var url = node.getAbsoluteThumbnailURL();
 					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' + 
-						alttext + '" height="' + parseInt( thumbnailHeight * currentScale ) + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
+						alttext + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
 				// generic thumbnail
 				} else {
 					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri + 
-						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" height="' + 
-						parseInt( thumbnailHeight * currentScale ) + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>' )[method]( element );
+						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>' )[method]( element );
 				}
 				if (!isMobile) {
 					thumbnail.tooltip( { 
