@@ -168,8 +168,8 @@ class Book extends MY_Controller {
 			exit;
 		}
 		
-		// Placeholder for plugins
-		$this->data['plugins'] = array();
+		// Placeholder for ThoughtMesh plugin
+		if (!isset($this->data['plugins'])) $this->data['plugins'] = array();
 		$path = APPPATH.'plugins/thoughtmesh_pi.php';
 		if (file_exists($path) && (stristr($this->data['book']->title, 'data-thoughtmesh="true"'))) {
 			require_once($path);
@@ -413,7 +413,13 @@ class Book extends MY_Controller {
 
 			case false:
 
-				$this->data['view'] = 'tensor';
+				$this->data['plugins'] = array();
+				$path = APPPATH.'plugins/tensor_pi.php';
+				if (file_exists($path)) {
+					require_once($path);
+					$this->data['plugins']['tensor'] = new Tensor($this->data);
+				}
+				$this->data['view'] = __FUNCTION__;
 				break;
 
 			case 'system':

@@ -28,10 +28,8 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarwidgets.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
 <?
-if (!empty($plugins)) {
-	foreach ($plugins as $plugin => $value) {
-		$plugins[$plugin]->get();
-	}
+if (isset($plugins['thoughtmesh'])) {
+	$plugins['thoughtmesh']->get();
 }
 
 if (file_exists(confirm_slash(APPPATH).'views/melons/cantaloupe/'.$view.'.php')) {

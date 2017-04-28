@@ -1,4 +1,8 @@
 <?
+if (isset($plugins['tensor'])):
+	$plugins['tensor']->get();
+else:
+
 $this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');
 $this->template->add_css('system/application/views/widgets/import/scalarimport.css');
 $this->template->add_js('system/application/views/widgets/import/jquery.scalarimport.js');
@@ -99,3 +103,5 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 <? endif; ?>
 
 </div>
+
+<? endif; ?>
