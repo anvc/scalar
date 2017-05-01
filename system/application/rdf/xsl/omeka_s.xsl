@@ -21,7 +21,6 @@
 
 	<xsl:template match="root/node">
 		<rdf:Description rdf:about="{id}">
-			<xsl:apply-templates select="dctermstitle"/>
 			<dcterms:source>
 				<xsl:choose>
 					<xsl:when test="osource and osource != ''">
@@ -32,11 +31,6 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</dcterms:source>
-			<xsl:apply-templates select="ooriginal_url"/>
-			<xsl:apply-templates select="othumbnail_urls"/>
-			<xsl:apply-templates select="ofilename"/>
-			<xsl:apply-templates select="type"/>
-			<xsl:apply-templates select="ocreated"/>
 			<xsl:choose>
 				<xsl:when test="dctermscreator">
 					<dcterms:creator>
@@ -49,10 +43,70 @@
 					</dcterms:creator>
 				</xsl:when>
 			</xsl:choose>
-			<xsl:apply-templates select="dctermscontributor"/>
-			<xsl:apply-templates select="dctermsdescription"/>
+			<xsl:choose>
+				<!-- if date exists, it’ll be handled by apply-templates below -->
+				<xsl:when test="dctermsdate"/>
+				<xsl:when test="ocreated">
+					<dcterms:date>
+						<xsl:value-of select="ocreated/value"/>
+					</dcterms:date>
+				</xsl:when>
+				<xsl:when test="omodified">
+					<dcterms:date>
+						<xsl:value-of select="omodified/value"/>
+					</dcterms:date>
+				</xsl:when>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="dctermsformat">
+					<!-- it’ll be handled by apply-templates -->
+					<xsl:if test="not(rdfformat)">
+						<rdf:format>
+							<xsl:value-of select="dctermsformat/node[1]/value"/>
+						</rdf:format>
+					</xsl:if>
+				</xsl:when>
+				<xsl:when test="rdfformat">
+					<!-- it’ll be handled by apply-templates -->
+					<dcterms:format>
+						<xsl:value-of select="rdfformat/node[1]/value"/>
+					</dcterms:format>
+				</xsl:when>
+				<xsl:when test="omedia_type">
+					<dcterms:format>
+						<xsl:value-of select="omedia_type"/>
+					</dcterms:format>
+					<rdf:format>
+						<xsl:value-of select="omedia_type"/>
+					</rdf:format>
+				</xsl:when>
+			</xsl:choose>
+			<xsl:if test="olang and olang != '' and not(dctermslanguage)">
+				<dcterms:language>
+					<xsl:value-of select="olang"/>
+				</dcterms:language>
+			</xsl:if>
+			<xsl:apply-templates select="*"/>
 		</rdf:Description>
 	</xsl:template>
+
+	<xsl:template
+		match="archive |
+			context
+			dctermscreator |
+			id |
+			oid |
+			oingester |
+			oispublic |
+			oitem |
+			olang |
+			omedia_type |
+			oowner |
+			orenderer |
+			oresource_class |
+			oresource_template |
+			osha256 |
+			osource"/>
 
 	<xsl:template match="dctermscontributor">
 		<dcterms:contributor>
@@ -60,10 +114,28 @@
 		</dcterms:contributor>
 	</xsl:template>
 
+	<xsl:template match="dctermsdate">
+		<dcterms:date>
+			<xsl:value-of select="node[1]/value"/>
+		</dcterms:date>
+	</xsl:template>
+
 	<xsl:template match="dctermsdescription">
 		<dcterms:description>
 			<xsl:value-of select="node[1]/value"/>
 		</dcterms:description>
+	</xsl:template>
+
+	<xsl:template match="dctermsformat">
+		<dcterms:format>
+			<xsl:value-of select="node[1]/value"/>
+		</dcterms:format>
+	</xsl:template>
+
+	<xsl:template match="dctermslanguage">
+		<dcterms:language>
+			<xsl:value-of select="node[1]/value"/>
+		</dcterms:language>
 	</xsl:template>
 
 	<xsl:template match="dctermstitle">
@@ -73,9 +145,9 @@
 	</xsl:template>
 
 	<xsl:template match="ocreated">
-		<dcterms:date>
+		<dcterms:created>
 			<xsl:value-of select="ocreated/value"/>
-		</dcterms:date>
+		</dcterms:created>
 	</xsl:template>
 
 	<xsl:template match="ofilename">
@@ -106,18 +178,34 @@
 		</art:thumbnail>
 	</xsl:template>
 
+	<xsl:template match="rdfformat">
+		<rdf:format>
+			<xsl:value-of select="node[1]/value"/>
+		</rdf:format>
+	</xsl:template>
+
+	<xsl:template match="rdftype">
+		<rdf:type>
+			<xsl:value-of select="."/>
+		</rdf:type>
+	</xsl:template>
+
 	<xsl:template match="type">
 		<xsl:choose>
-			<xsl:when test="count(*) = 0 and . != 'o:Media'">
-				<dcterms:type>
-					<xsl:value-of select="."/>
-				</dcterms:type>
+			<xsl:when test="count(*) = 0">
+				<xsl:apply-templates select="." mode="handle-types"/>
 			</xsl:when>
-			<xsl:when test="node[value != 'o:Media']">
-				<dcterms:type>
-					<xsl:value-of select="node[value != 'o:Media'][1]/value"/>
-				</dcterms:type>
-			</xsl:when>
+			<xsl:otherwise>
+				<xsl:apply-templates select="node/value" mode="handle-types"/>
+			</xsl:otherwise>
 		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template match="*" mode="handle-types">
+		<xsl:if test=". != 'o:Media'">
+			<dcterms:type>
+				<xsl:value-of select="."/>
+			</dcterms:type>
+		</xsl:if>
 	</xsl:template>
 </xsl:stylesheet>
