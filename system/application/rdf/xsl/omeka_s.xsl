@@ -92,7 +92,7 @@
 
 	<xsl:template
 		match="archive |
-			context
+			context |
 			dctermscreator |
 			id |
 			oid |
