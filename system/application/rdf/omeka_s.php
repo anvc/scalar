@@ -18,6 +18,34 @@
  * permissions and limitations under the License.
  */
 
+/**
+ * Given JSON structure for a media item, find the corresponding Omeka
+ * S item and add its information to the medium structure.
+ */
+function add_item_info(&$medium, &$s_items) {
+    // Get the item URL from the medium.
+    if (!(isset($medium->{'o:item'}))) return;
+    $item_ref = $medium->{'o:item'};
+    if (!(isset($item_ref->{'@id'}))) return;
+    $item_url = $item_ref->{'@id'};
+
+    // Check our cache; fetch the item if necessary.
+    if (isset($s_items[$item_url])) {
+        $item = $s_items[$item_url];
+    } else {
+        $item =@ file_get_contents($item_url);
+        $item = json_decode($item);
+        $s_items[$item_url] = $item;
+    }
+
+    // Replace the item reference with the fetched or cached item.
+    if ($item !== null) {
+        $medium->{'o:item'} = $item;
+    }
+
+    return;
+}
+
 function s_array_merge($array1, $array2) {  // merge array removing duplicates based on obj->@id
 	if (!is_array($array1)) $array1 = array();
 	if (!is_array($array2)) return $array1;
@@ -70,8 +98,7 @@ if (!array_key_exists('scheme', $parsed_uri)) {
 		$parsed_uri['host'] = array_shift($path_parts);
 		$parsed_uri['path'] = implode('/', $path_parts);
 	}
-}
-elseif ($parsed_uri['scheme'] != 'http' &&
+} elseif ($parsed_uri['scheme'] != 'http' &&
 		$parsed_uri['scheme'] != 'https') {
 	die('{}');
 }
@@ -92,15 +119,22 @@ if (isset($_SESSION[urlencode($uri.'/api/media')])) {
 $media = s_array_merge($s_media, $media);
 $_SESSION[urlencode($uri.'/api/media')] = $media;
 
+$s_items = array();
+if (isset($_SESSION[urlencode($uri.'/api/items')])) {
+    $s_items = $_SESSION[urlencode($uri.'/api/items')];
+}
+
 $output = array();
 
 foreach ($media as $medium) {
 	$medium->archive = $uri;
 
-	// fetch the item info, probably
+    add_item_info($medium, $s_items);
 
 	$output[] = $medium;
 }
+
+$_SESSION[urlencode($uri.'/api/items')] = $s_items;
 
 header('Content-Type: application/json');
 echo json_encode($output);
