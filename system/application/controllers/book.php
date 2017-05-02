@@ -784,5 +784,10 @@ class Book extends MY_Controller {
 
 	}
 
+	// Editorial path
+	private function editorialpath() {
+		$this->data['view'] = __FUNCTION__;
+	}
+
 }
 ?>
