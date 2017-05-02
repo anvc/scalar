@@ -241,7 +241,22 @@
 								<xsl:value-of select="language"/>
 							</xsl:attribute>
 						</xsl:if>
-						<xsl:value-of select="value"/>
+						<xsl:if test="id">
+							<xsl:attribute name="rdf:resource">
+								<xsl:value-of select="id"/>
+							</xsl:attribute>
+						</xsl:if>
+						<xsl:choose>
+							<xsl:when test="value">
+								<xsl:value-of select="value"/>
+							</xsl:when>
+							<xsl:when test="display_title">
+								<xsl:value-of select="display_title"/>
+							</xsl:when>
+							<xsl:when test="olabel">
+								<xsl:value-of select="olabel"/>
+							</xsl:when>
+						</xsl:choose>
 					</xsl:element>
 				</xsl:for-each>
 			</xsl:when>
