@@ -23,27 +23,33 @@
  * S item and add its information to the medium structure.
  */
 function add_item_info(&$medium, &$s_items) {
-    // Get the item URL from the medium.
-    if (!(isset($medium->{'o:item'}))) return;
-    $item_ref = $medium->{'o:item'};
-    if (!(isset($item_ref->{'@id'}))) return;
-    $item_url = $item_ref->{'@id'};
+	// Get the item URL from the medium.
+	if (!(isset($medium->{'o:item'}))) return;
+	$item_ref = $medium->{'o:item'};
+	if (!(isset($item_ref->{'@id'}))) return;
+	$item_url = $item_ref->{'@id'};
 
-    // Check our cache; fetch the item if necessary.
-    if (isset($s_items[$item_url])) {
-        $item = $s_items[$item_url];
-    } else {
-        $item =@ file_get_contents($item_url);
-        $item = json_decode($item);
-        $s_items[$item_url] = $item;
-    }
+	// Check our cache; fetch the item if necessary.
+	if (isset($s_items[$item_url])) {
+		$item = $s_items[$item_url];
+	} else {
+		$item =@ file_get_contents($item_url);
+		$item = json_decode($item);
+		$s_items[$item_url] = $item;
+	}
 
-    // Replace the item reference with the fetched or cached item.
-    if ($item !== null) {
-        $medium->{'o:item'} = $item;
-    }
+	// Replace the item reference with the fetched or cached item.
+	// Propagate properties upward if not overridden by the medium.
+	if ($item !== null) {
+		$medium->{'o:item'} = $item;
+		foreach ($item as $key => $value) {
+			if (!(isset($medium->$key))) {
+				$medium->$key = $value;
+			}
+		}
+	}
 
-    return;
+	return;
 }
 
 function s_array_merge($array1, $array2) {  // merge array removing duplicates based on obj->@id
@@ -121,7 +127,7 @@ $_SESSION[urlencode($uri.'/api/media')] = $media;
 
 $s_items = array();
 if (isset($_SESSION[urlencode($uri.'/api/items')])) {
-    $s_items = $_SESSION[urlencode($uri.'/api/items')];
+	$s_items = $_SESSION[urlencode($uri.'/api/items')];
 }
 
 $output = array();
@@ -129,7 +135,7 @@ $output = array();
 foreach ($media as $medium) {
 	$medium->archive = $uri;
 
-    add_item_info($medium, $s_items);
+	add_item_info($medium, $s_items);
 
 	$output[] = $medium;
 }
