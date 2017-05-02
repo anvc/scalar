@@ -48,6 +48,11 @@ article h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height:
 .widget_summary.full .media-list li, .widget_card.full .card .thumbnail .caption { padding: .6rem 2.4rem 1.2rem 2.4rem; }
 .card .thumbnail_container { border-radius: 0; }
 
+.wrapped_slot.right_slot>.mediaelement{
+	margin-left: 0px !important;
+	margin-right: 0px !important;
+}
+
 /* 4in iphone 5 */
 @media only screen and (max-device-height : 1136px) {
   .results_list {height:200px;max-height:200px;}
