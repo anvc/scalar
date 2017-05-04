@@ -191,7 +191,6 @@
 						//console.log('load '+node.slug.replace( "/", "-" ));
 
 						if ( node.baseType != "http://scalar.usc.edu/2012/01/scalar-ns#Media" ) {
-							console.log( "load" );
 							block.append( spinnerElement.clone() );
 							scalarapi.loadNode( node.slug, true, function( data ) {
 							
