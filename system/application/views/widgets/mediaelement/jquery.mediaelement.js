@@ -4314,21 +4314,41 @@ function YouTubeGetID(url){
 
 			var $pre = this.object.find('pre');
 			var $code = $pre.find('code');
-			$code.load($pre.data('src'),function(){
-		        me.hasLoaded = true;
-	           	me.highlightAnnotatedLines();
-		        me.pause();
-		        if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
-		            me.parentView.doAutoSeek(me.parentView);
-		        }
-		        if(typeof pendingScripts=='undefined'){
-		        	pendingScripts = 0;
-		        }
-		        if(--pendingScripts <= 0){
-		        	//Do one highlightAll pass after each of the script embeds are loaded - this is because Prism plugins don't seem to run if you just run Prism per element
-		        	Prism.highlightAll();
-		        }
-			});
+
+			var xhr = new XMLHttpRequest();
+
+			xhr.open('GET', $pre.data('src'), true);
+
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState == 4) {
+
+					if (xhr.status < 400 && xhr.responseText) {
+						$code.get(0).textContent = xhr.responseText;
+					}
+					else if (xhr.status >= 400) {
+						$code.get(0).textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+					}
+					else {
+						$code.get(0).textContent = '✖ Error: File does not exist or is empty';
+					}
+
+					me.hasLoaded = true;
+		           	me.highlightAnnotatedLines();
+			        me.pause();
+			        if ((me.model.seekAnnotation != null) && !me.justPlayedSeekAnnotation) {
+			            me.parentView.doAutoSeek(me.parentView);
+			        }
+			        if(typeof pendingScripts=='undefined'){
+			        	pendingScripts = 0;
+			        }
+			        if(--pendingScripts <= 0){
+			        	//Do one highlightAll pass after each of the script embeds are loaded - this is because Prism plugins don't seem to run if you just run Prism per element
+			        	Prism.highlightAll();
+			        }
+				}
+			};
+
+			xhr.send(null);
 
 			return;
 		}
