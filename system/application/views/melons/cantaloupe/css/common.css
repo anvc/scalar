@@ -397,7 +397,7 @@ a:hover { text-decoration: underline; }
 .tags-page {max-width:none;}
 .tag_cloud a:hover {text-decoration:underline;}
 
-#gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; }
+#gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; clear: both; }
 #gallery_content .thumb { margin-right: 0.7rem; margin-bottom: 0.7rem; cursor: pointer; max-height: 8.4rem; max-width: 20rem; }
 #gallery_content .thumb:hover { opacity:0.65; }
 #gallery_content h3 { margin: 0 0 1rem 0; padding: 0; }
