@@ -849,6 +849,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 userType = "editor";
             }
 
+            //Temporary fix for pages that are not nodes... @Lucas
+            if(typeof base.currentNode == 'undefined'){ return; }
+
             scalarType = base.currentNode.getDominantScalarType('page');
             if (scalarType == null) {
                 scalarType = base.currentNode.getDominantScalarType('media');
