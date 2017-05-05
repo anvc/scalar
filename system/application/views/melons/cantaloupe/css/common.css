@@ -258,7 +258,7 @@ li.divider-above { border-top: 1px dotted #888; }
 	background-color: white;
 	max-width: 104rem;
 	margin: 0 auto;
-	padding: 9.8rem 0 7.8rem 0;
+	padding: 4.8rem 0 7.8rem 0;
 	min-height: 100%;
 	line-height: 2.4rem;
 	position: relative;
@@ -1090,6 +1090,39 @@ button, .btn, input, optgroup, select, textarea {
 }
 
 .btn-primary { background-color: #026697; border-color: #026697; }
+
+/* editorial workflow */
+
+.editorial-status-bar {
+	line-height: 130%;
+	margin-bottom: 4.8rem;
+	color: white;
+}
+
+.editorial-status-bar div {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.editorial-status-bar .message {
+	width: 75%;
+}
+
+.editorial-status-bar .controls {
+	width: 25%;
+	text-align: right;
+}
+
+.editorial-status-bar .controls a {
+	margin: .2rem 0 .2rem .8rem;
+}
+
+.editorial-status-bar.draft-state { background-color: #878787; padding: 2.4rem; }
+.editorial-status-bar.edit-state { background-color: #ec5e00; padding: 2.4rem; }
+.editorial-status-bar.editReview-state { background-color: #d03a38; padding: 2.4rem; }
+.editorial-status-bar.clean-state { background-color: #2898b7; padding: 2.4rem; }
+.editorial-status-bar.ready-state { background-color: #4da751; padding: 2.4rem; }
+.editorial-status-bar.published-state { background-color: #147419; padding: 2.4rem; }
 
 /* utility pages */
 

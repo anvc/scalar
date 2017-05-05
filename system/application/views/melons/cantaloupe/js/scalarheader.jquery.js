@@ -39,7 +39,79 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.dataType = 'normal';
         base.usingHypothesis = $('link#hypothesis').attr('href') === 'true';
         base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
-        // Add a reverse reference to the DOM object
+        base.editorialStates = {
+            "draft": { id: "draft", name: "Draft" },
+            "edit": { id: "edit", name: "Edit" },
+            "editReview": { id: "editReview", name: "Edit Review" },
+            "clean": { id: "clean", name: "Clean" },
+            "ready": { id: "ready", name: "Ready" },
+            "published": { id: "published", name: "Published" },
+        }
+        base.editorialBarData = {
+            "author": {
+                "draft": null,
+                "edit": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>You can’t make changes to it now, but once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any suggestions or queries.",
+                    "previousEditorialState": "draft",
+                    "nextEditorialState": "editReview",
+                    "actions": ["Dashboard"]
+                },
+                "editReview": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed.",
+                    "previousEditorialState": "edit",
+                    "nextEditorialState": "clean",
+                    "actions": ["Edit $contentType","Dashboard"]
+                },
+                "clean": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>You can’t make changes to it now, but an editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
+                    "previousEditorialState": "editReview",
+                    "nextEditorialState": "ready",
+                    "actions": ["Dashboard"]
+                },
+                "ready": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>An editor will move it to the <strong>$nextEditorialState</strong> state when it’s time to make it public.",
+                    "previousEditorialState": "clean",
+                    "nextEditorialState": "published",
+                    "actions": ["Dashboard"]
+                },
+                "published": null
+            },
+            "editor": {
+                "draft": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Please wait for the author to submit it for editing.",
+                    "previousEditorialState": null,
+                    "nextEditorialState": "edit",
+                    "actions": ["Dashboard"]
+                },
+                "edit": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>You can review it, make changes, and add queries for the author.",
+                    "previousEditorialState": "draft",
+                    "nextEditorialState": "editReview",
+                    "actions": ["Edit $contentType","Dashboard"]
+                },
+                "editReview": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Once an author moves it to the <strong>$nextEditorialState</strong> state, you can do your final review on it.",
+                    "previousEditorialState": "edit",
+                    "nextEditorialState": "clean",
+                    "actions": ["Dashboard"]
+                },
+                "clean": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Do your final review on the content and move it back to the <strong>$previousEditorialState</strong> state if it requires further changes, or to the <strong>$nextEditorialState</strong> state for publication.",
+                    "previousEditorialState": "editReview",
+                    "nextEditorialState": "ready",
+                    "actions": ["Edit $contentType","Dashboard"]
+                },
+                "ready": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Move it to the <strong>$nextEditorialState</strong> state to make it publicly available.",
+                    "previousEditorialState": "clean",
+                    "nextEditorialState": "published",
+                    "actions": ["Dashboard"]
+                },
+                "published": null
+            }
+        }
+        base.editorialState = base.editorialStates['draft'];
+         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
 
         base.init = function(){
@@ -59,11 +131,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 base.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
                 base.is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';
                 base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
+                base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
 
-                if(base.is_author || base.is_commentator || base.is_reviewer){
+                if(base.is_author || base.is_commentator || base.is_reviewer || base.is_editor){
                      base.$el.addClass('edit_enabled');
                 }
             }
+            base.okToAddOrDelete = (base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']);
+            base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean'])) || (base.is_editor && ((base.editorialState == base.editorialStates['edit']) || (base.editorialState == base.editorialStates['clean']))));
 
             //We should also grab the book ID from the RDF stuff
             base.bookId = parseInt($('link#book_id').attr('href'));
@@ -188,13 +263,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                             '<li id="ScalarHeaderHelp">'+
                                                 '<a class="headerIcon" id="helpIcon" title="Help button. Click to toggle help info."><span class="hidden-sm hidden-md hidden-lg">Help</span></a>'+
                                             '</li>'+
-                                            ((base.is_author||base.is_commentator)?
+                                            (base.okToAddOrDelete?
                                                 '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'
                                                 :'')+
-                                            ((base.is_author||base.is_commentator||base.is_reviewer)?
+                                            (base.okToCopyEdit?
                                                 '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit') + '" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
                                                 :'')+
-                                            ((base.is_author||base.is_commentator)?
+                                            (base.okToAddOrDelete?
                                                 ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
                                                     '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
@@ -233,8 +308,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</ul>'+
                                                 '</li>'
                                                 :'')+
-                                            (base.is_author?
-                                                (base.currentNode!=null?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
+                                            ((base.is_author||base.is_editor)?
+                                                (base.okToAddOrDelete?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
                                                 ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
@@ -759,7 +834,61 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
               }
             }).addClass('overflowCalculated');
+
+            base.setupEditorialBar();
         };
+        base.setupEditorialBar = function() {
+            var userType = "visitor";
+            if (base.is_author) {
+                userType = "author";
+            } else if (base.is_editor) {
+                userType = "editor";
+            }
+
+            scalarType = base.currentNode.getDominantScalarType('page');
+            if (scalarType == null) {
+                scalarType = base.currentNode.getDominantScalarType('media');
+            }
+            if (scalarType == null) {
+                contentType = 'content';
+            } else {
+                contentType = scalarType.singular;
+            }
+
+            editorialBar = $('<div class="editorial-status-bar caption_font"></div>').prependTo('article');
+
+            if (base.editorialBarData[userType] != null) {
+                var editorialBarData = base.editorialBarData[userType][base.editorialState.id];
+                if (editorialBarData != null) {
+                    editorialBar.addClass(base.editorialState.id + '-state');
+
+                    // text
+                    var text = editorialBarData.text;
+                    text = text.replace('$contentType', contentType);
+                    text = text.replace('$editorialState', base.editorialState.name);
+                    if (editorialBarData.previousEditorialState != null) {
+                        text = text.replace('$previousEditorialState', base.editorialStates[editorialBarData.previousEditorialState].name);
+                    }
+                    text = text.replace('$nextEditorialState', base.editorialStates[editorialBarData.nextEditorialState].name);
+                    editorialBar.append('<div class="message">' + text + '</div>');
+
+                    // buttons
+                    editorialControls = $('<div></div>').appendTo(editorialBar);
+                    editorialControls.wrap('<div class="controls"></div>');
+                    var button, action;
+                    for (var i in editorialBarData.actions) {
+                        action = editorialBarData.actions[i];
+                        action = action.replace('$contentType', contentType);
+                        button = $('<a class="btn" href="javascript:;">' + action + '</a>').appendTo(editorialControls);
+                        if ((i == 0) && (action != "Dashboard")) {
+                            button.addClass('btn-primary');
+                        } else {
+                            button.addClass('btn-default hidden-sm hidden-xs');
+                        }
+                    }
+                }
+            }
+        }
         base.buildSubItem = function($container){
             var slug = $container.data('slug');
 
@@ -1228,7 +1357,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 redirect_url = encodeURIComponent(window.location.href);
             }
             if (base.logged_in){
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri + '/dashboard?'+(base.is_author?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
+                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri + '/dashboard?'+((base.is_author||base.is_editor)?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign out</a></li>');
             } else {
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign in</a></li>');
