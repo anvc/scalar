@@ -842,55 +842,53 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.setupEditorialBar();
         };
         base.setupEditorialBar = function() {
-            var userType = "visitor";
-            if (base.is_author) {
-                userType = "author";
-            } else if (base.is_editor) {
-                userType = "editor";
-            }
-
-            //Temporary fix for pages that are not nodes... @Lucas
-            if(typeof base.currentNode == 'undefined'){ return; }
-
-            scalarType = base.currentNode.getDominantScalarType('page');
-            if (scalarType == null) {
-                scalarType = base.currentNode.getDominantScalarType('media');
-            }
-            if (scalarType == null) {
-                contentType = 'content';
-            } else {
-                contentType = scalarType.singular;
-            }
-
             editorialBar = $('<div class="editorial-status-bar caption_font"></div>').prependTo('article');
+            if (typeof base.currentNode != 'undefined') {
+                var userType = "visitor";
+                if (base.is_author) {
+                    userType = "author";
+                } else if (base.is_editor) {
+                    userType = "editor";
+                }
 
-            if (base.editorialBarData[userType] != null) {
-                var editorialBarData = base.editorialBarData[userType][base.editorialState.id];
-                if (editorialBarData != null) {
-                    editorialBar.addClass(base.editorialState.id + '-state');
+                scalarType = base.currentNode.getDominantScalarType('page');
+                if (scalarType == null) {
+                    scalarType = base.currentNode.getDominantScalarType('media');
+                }
+                if (scalarType == null) {
+                    contentType = 'content';
+                } else {
+                    contentType = scalarType.singular;
+                }
 
-                    // text
-                    var text = editorialBarData.text;
-                    text = text.replace('$contentType', contentType);
-                    text = text.replace('$editorialState', base.editorialState.name);
-                    if (editorialBarData.previousEditorialState != null) {
-                        text = text.replace('$previousEditorialState', base.editorialStates[editorialBarData.previousEditorialState].name);
-                    }
-                    text = text.replace('$nextEditorialState', base.editorialStates[editorialBarData.nextEditorialState].name);
-                    editorialBar.append('<div class="message">' + text + '</div>');
+                if (base.editorialBarData[userType] != null) {
+                    var editorialBarData = base.editorialBarData[userType][base.editorialState.id];
+                    if (editorialBarData != null) {
+                        editorialBar.addClass(base.editorialState.id + '-state');
 
-                    // buttons
-                    editorialControls = $('<div></div>').appendTo(editorialBar);
-                    editorialControls.wrap('<div class="controls"></div>');
-                    var button, action;
-                    for (var i in editorialBarData.actions) {
-                        action = editorialBarData.actions[i];
-                        action = action.replace('$contentType', contentType);
-                        button = $('<a class="btn" href="javascript:;">' + action + '</a>').appendTo(editorialControls);
-                        if ((i == 0) && (action != "Dashboard")) {
-                            button.addClass('btn-primary');
-                        } else {
-                            button.addClass('btn-default hidden-sm hidden-xs');
+                        // text
+                        var text = editorialBarData.text;
+                        text = text.replace('$contentType', contentType);
+                        text = text.replace('$editorialState', base.editorialState.name);
+                        if (editorialBarData.previousEditorialState != null) {
+                            text = text.replace('$previousEditorialState', base.editorialStates[editorialBarData.previousEditorialState].name);
+                        }
+                        text = text.replace('$nextEditorialState', base.editorialStates[editorialBarData.nextEditorialState].name);
+                        editorialBar.append('<div class="message">' + text + '</div>');
+
+                        // buttons
+                        editorialControls = $('<div></div>').appendTo(editorialBar);
+                        editorialControls.wrap('<div class="controls"></div>');
+                        var button, action;
+                        for (var i in editorialBarData.actions) {
+                            action = editorialBarData.actions[i];
+                            action = action.replace('$contentType', contentType);
+                            button = $('<a class="btn" href="javascript:;">' + action + '</a>').appendTo(editorialControls);
+                            if ((i == 0) && (action != "Dashboard")) {
+                                button.addClass('btn-primary');
+                            } else {
+                                button.addClass('btn-default hidden-sm hidden-xs');
+                            }
                         }
                     }
                 }
