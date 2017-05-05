@@ -1,0 +1,217 @@
+#editorialPath{
+	padding-left: 7.2rem;
+    padding-right: 7.2rem;
+}
+
+#pathHeading p{
+	margin: 2rem 0;
+}
+
+#editorialOutlinePanel{
+	margin-top: 20px;
+}
+#editorialOutlinePanel>div{
+	-webkit-transition: -webkit-transform .25s;
+	-moz-transition: -moz-transform .25s;
+    transition: transform .25s;
+
+	transform : translatey(0);
+	-webkit-transform : translatey(0);
+	-moz-transform : translatey(0);
+}
+
+#editorialOutlinePanel>.affix{
+	top: 50px;
+}
+body.shortHeader #editorialOutlinePanel>.affix{
+	transform : translatey(-30px);
+	-webkit-transform : translatey(-30px);
+	-moz-transform : translatey(-30px);
+}
+
+#editorialOutlineHeader{
+	text-align: left;
+	border: 0;
+	border-radius: 0;
+	margin-bottom: 1rem;
+	font-size: 2rem;
+	padding: .5rem 1rem;
+	width: 75%;
+}
+#editorialOutlineHeader .caret{
+	margin-top: 1.25rem;
+}
+
+#editorialOutline li, #editorialOutline ul{
+	margin: 0;
+}
+#editorialOutline ul{
+	padding: .5rem 1rem
+}
+
+#editorialOutline li{
+	padding: .25rem 1rem .25rem 2rem;
+	list-style-type: none;
+	border-left: .25rem solid #bfbfbf;
+}
+#editorialOutline li>a{
+	padding: 0px;
+	margin: 0px;
+	font-size: 1.5rem;
+	color: #bfbfbf;
+}
+
+#editorialOutline li.active>a{
+	font-weight: bold;
+	color: #000;
+}
+#editorialOutline li.inside{
+	border-left: .5rem solid #bfbfbf;
+	padding: .25rem 1rem .25rem 3rem;
+}
+
+#editorialOutline li.draft{
+	border-left-color: #b4b4b4;
+}
+
+#editorialOutline li.edit{
+	border-left-color: #ffa25e;
+}
+
+#editorialOutline li.edit_review{
+	border-left-color: #d9514d;
+}
+
+#editorialOutline li.clean{
+	border-left-color: #59c0dd;
+}
+
+#editorialOutline li.ready{
+	border-left-color: #6ebf73;
+}
+
+#editorialOutline li.published{
+	border-left-color: #15910f;
+}
+
+#editorialOutline li.child{
+	padding-left: 2rem;
+}
+#editorialPath .row #editorialOutlinePanel{
+	padding-right: 0px;
+}
+#editorialPath .row>div{
+	padding-left: 0px;
+}
+#editorialPathContents{
+	margin: 3rem 0 2rem;
+}
+
+#editorialPathContents .node{
+	cursor: default;
+	padding: 2rem 0;
+	border-top: 1px dashed #bfbfbf;
+}
+
+#editorialPathContents .node>.row{
+	margin: 0;
+	padding: 0;
+}
+
+#editorialPathContents .node .title{
+	margin: 0;
+	font-size: 2.5rem;
+}
+
+#editorialPathContents .node .state_btn{
+	    line-height: 2.5rem;
+    font-size: 1.5rem;
+	text-align: left;
+	margin: 1rem 0 .5rem;
+}
+
+#editorialPathContents .node .state_btn .caret{
+	margin-top: 1.25rem;
+	border-top-color: #fff;
+	border-bottom-color: #fff;
+}
+
+#editorialPathContents .node .draft, #editorialPathContents .node .edit, #editorialPathContents .node .edit_review, 
+#editorialPathContents .node .clean, #editorialPathContents .node .ready, #editorialPathContents .node .published{
+	color: #fff;
+}
+
+#editorialPathContents .node .draft{
+	background-color: #b4b4b4;
+}
+
+#editorialPathContents .node .edit{
+	background-color: #ffa25e;
+}
+
+#editorialPathContents .node .edit_review{
+	background-color: #d9514d;
+}
+
+#editorialPathContents .node .clean{
+	background-color: #59c0dd;
+}
+
+#editorialPathContents .node .ready{
+	background-color: #6ebf73;
+}
+
+#editorialPathContents .node .published{
+	background-color: #15910f;
+}
+
+#editorialPathContents .node .state_dropdown .dropdown-menu{
+	width: 100%;
+	padding: 0px;
+}
+
+#editorialPathContents .node .state_dropdown .dropdown-menu li{
+	padding: 0;
+	padding-left: 1rem;
+	margin: 0;
+}
+
+#editorialPathContents .node .state_dropdown .dropdown-menu a{
+	margin: 0;
+	padding: 6px 12px;
+	background-color: #fff;
+	color: #000;
+}
+
+#editorialPathContents .node .state_dropdown .dropdown-menu a:hover{
+	background-color: #eee;
+}
+
+#editorialPathContents .node .state_dropdown .dropdown-menu a.active{
+	background-color: rgba(0,0,0,.125);
+	color: #fff;
+}
+#editorialPathContents .node .state_dropdown .dropdown-menu a.active:hover{
+	background-color: rgba(0,0,0,.25);
+}
+
+#editorialPathContents .node .badge{
+	margin-right: 1rem;
+	font-weight: normal;
+	padding: 4px 10px;
+}
+
+#editorialPathContents .node .badge.view_badge{
+	background-color: #3478a6;
+}
+#editorialPathContents .node .badge.no_queries_badge{
+	background-color: #b3b3b3;
+}
+#editorialPathContents .node .badge.with_queries_badge{
+	background-color: #d9514e;
+}
+
+#editorialPathContents .node .checkbox>label{
+	font-size: 16px;
+	line-height: 20px;
+}

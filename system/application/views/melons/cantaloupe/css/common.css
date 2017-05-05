@@ -868,15 +868,18 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 
 .input_text { max-width: 50rem; width: 100%; }
 
+/* --I think this is old CSS - commenting out. If this impacts something negatively, increase specificity of selector - @Lucas
 .edit {
 	background: url(images/edit.png) no-repeat;
 	width: 3.1rem;
 	height: 2.9rem;
+*/
 	/*float: right;*/
+/*
 	margin-right: 1.5rem;
 	cursor: pointer;
 	display: inline-block;
-}
+}*/
 
 #tr_container_of td, #tr_reply_of td, #tr_annotation_of td, #tr_tag_of td { padding-bottom: 2.4rem !important; }
 .content_selector { border-radius: 0 !important; }

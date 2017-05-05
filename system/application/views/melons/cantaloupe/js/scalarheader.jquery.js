@@ -356,6 +356,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }
             }).mouseover(function(e){
                 $(this).removeClass('short');
+                $('body').removeClass('shortHeader');
             });
 
             //Convert our navbar html into a jquery element
@@ -770,12 +771,15 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if(base.usingMobileView){
                     base.oldScrollTop = 0;
                     base.$el.removeClass('short');
+                    $('body').removeClass('shortHeader');
                 }else{
                     var scrollTop = $(this).scrollTop();
                     if(scrollTop >= 50 && scrollTop > base.oldScrollTop && $('#mainMenuSubmenus').find('.expandedPage').length == 0){
                         base.$el.addClass('short');
+                        $('body').addClass('shortHeader');
                     }else{
                         base.$el.removeClass('short');
+                        $('body').removeClass('shortHeader');
                     }
                     base.oldScrollTop = scrollTop;
                 }
@@ -1258,6 +1262,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 max_width -= base.$el.find('.navbar-toggle').outerWidth()+15;
                 if(!base.usingMobileView){
                     base.$el.removeClass('short');
+                    $('body').removeClass('shortHeader');
                     $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
                     base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
                     //reset search form if switching to mobile view
