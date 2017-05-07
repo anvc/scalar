@@ -150,6 +150,9 @@ class Book extends MY_Controller {
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
 			} else {
 				$this->data['slug'] = $slug; // Can visit a page even if it hasn't been created yet
+
+				//But we should still return a 404 so the page is not cached by browsers or crawled by search engines
+				header("HTTP/1.1 404 Not Found");
 			}
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
 			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
