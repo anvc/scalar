@@ -375,6 +375,29 @@ class Book extends MY_Controller {
 		$this->data['link'] = (@!empty($_GET['link'])) ? $_GET['link'] : null;
 		$this->data['prev'] = (@!empty($_GET['prev'])) ? $_GET['prev'] : null;
 
+		//Check to make sure URLs have a valid host (does not immediately prevent all XSS)
+		if(
+			(filter_var($this->data['prev'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE) ||
+			(filter_var($this->data['link'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE)
+		){
+			$this->kickout();
+		}
+
+		//Also prevent MailTo and other non-standard URIs
+		$linkParts = parse_url($this->data['link']);
+		$prevParts = parse_url($this->data['prev']);
+		if(
+			($linkParts['scheme'] != 'http' && $linkParts['scheme'] != 'https') || 
+			($prevParts['scheme'] != 'http' && $prevParts['scheme'] != 'https')
+		){
+			$this->kickout();
+		}
+
+		//Strip any remaining HTML tags out of the URLs - this should resolve any lingering XSS exploits
+		//Probably a little redundant, but each one of these filters seems to miss at least one edge-case
+		$this->data['link'] = htmlspecialchars(filter_var(strip_tags($this->data['link']),FILTER_SANITIZE_URL));
+		$this->data['prev'] = htmlspecialchars(filter_var(strip_tags($this->data['prev']),FILTER_SANITIZE_URL));
+
 		if (empty($this->data['link']) || empty($this->data['prev'])) $this->kickout();
 		if (!stristr($this->data['prev'], base_url())) $this->kickout();
 
