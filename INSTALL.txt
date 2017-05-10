@@ -15,8 +15,7 @@ There are a few .htaccess files included in the Scalar build, therefore please m
 
 ***
 If PHP's short_open_tag (<? vs <?php) is turned off, CodeIgniter is supposed to make them operational, but this feature doesn't
-seem to be working properly.  Please make sure short_open_tag is turned on in PHP. Scalar also requires the non-default PHP extension mbstring. 
-See installation instructions for mbstring http://php.net/manual/en/mbstring.installation.php.
+seem to be working properly.  Please make sure short_open_tag is turned on in PHP. Scalar also requires the non-default PHP extensions: the GD image processing library (http://php.net/manual/en/book.image.php), and mbstring (http://php.net/manual/en/mbstring.installation.php). 
 ***
 
 ***
