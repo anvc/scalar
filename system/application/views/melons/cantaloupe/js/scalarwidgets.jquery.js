@@ -231,7 +231,6 @@
                             base.pendingNodeLoads[slug][i]();
                           }
                      }, null, 1, false, null, 0, 20) == "loaded"){
-                      console.log(2);
                       base.loadedNodes.push(slug.id);
                       for(var i in base.pendingNodeLoads[slug]){
                         base.pendingNodeLoads[slug][i]();
