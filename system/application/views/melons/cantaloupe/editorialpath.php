@@ -43,7 +43,7 @@
 			</div>
 		</div>
 		<div class="col-md-3 hidden-sm hidden-xs" id="editorialOutlinePanel">
-			<div data-spy="affix" data-offset-top="50" data-offset-bottom="100">
+			<div>
 				<button class="btn btn-default heading_font heading_weight btn-block" id="editorialOutlineHeader" type="button" data-toggle="collapse" data-target="#editorialOutline" aria-expanded="true" aria-controls="editorialOutline">
 				  Outline
 				  <span class="caret pull-right"></span>

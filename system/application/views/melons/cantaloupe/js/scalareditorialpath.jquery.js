@@ -139,15 +139,41 @@
         			break;
         		case 3:
 
+                    if($('#editorialOutlinePanel>div').height() < $(window).height()){
+                        $('#editorialOutlinePanel>div').affix({
+                          offset: {
+                            top: 50
+                          }
+                        });
+                        $('body').scrollspy({ target: '#editorialOutline', offset: 150 });
+                    }else{
+                        $('#editorialOutline').addClass('tall');
+                        $('<a class="scrollUp btn btn-primary">Scroll to Top</a>')
+                            .appendTo('#editorialOutlinePanel')
+                            .click(function(e){
+                                e.preventDefault();
+                                $('html, body').animate({
+                                    scrollTop: 0
+                                }, 1000);
+                            })
+                            .affix({
+                                offset: {
+                                    top: function(){
+                                        return $('#editorialOutlinePanel>div').height()+65;
+                                    }
+                                }
+                            });
+                    }
 
-					base.resize();
+                    base.resize();
 
         			base.$contentLoader.fadeOut('fast',function(){
         				$(this).remove();
         			});
 
         			base.$nodeList.appendTo(base.options.contents);
-        			$('body').scrollspy({ target: '#editorialOutline', offset: 150 });
+
+                    base.updateLinks();
         	}
         };
 
@@ -159,7 +185,7 @@
 
         	var nodeView = node.current.defaultView;
 
-        	var nodeItemHTML = '<div id="node_'+node.slug+'" class="node">' +
+        	var nodeItemHTML = '<div id="node_'+node.slug+'" class="editorial_node node">' +
         							'<div class="row">'+
         								'<div class="col-xs-12 col-sm-8 col-md-9">'+
         									'<h2 class="heading_font heading_weight clearboth title">'+node.getDisplayTitle()+'</h2>'+
@@ -213,8 +239,69 @@
         };
 
         base.resize = function(){
-	    	$('#editorialOutlinePanel>div').width($('#editorialOutlinePanel').width());
+	    	$('#editorialOutlinePanel>div,#editorialOutlinePanel>.scrollUp').width($('#editorialOutlinePanel').width());
 	    };
+
+        base.updateLinks = function(){
+            //Handle media links
+            $('.editorial_node .content a[resource]').each(function(){
+                base.addPlaceholderSlot($(this),true);
+            });
+
+            //Handle widget links
+            $('.editorial_node .content a[data-widget]').each(function(){
+                base.addPlaceholderSlot($(this),false);
+            });
+        };
+
+
+        //TODO: Rewrite slot manager so that it can build slots for media, widgets, and placeholders
+        base.addPlaceholderSlot = function($link, isMedia){
+            var size = $link.data('size');
+            var align = $link.data('align');
+            var inline = $link.hasClass('inline') || $link.hasClass('inlineWidget');
+
+            if(!inline && align == 'right'){
+                $link.parents('.editorial_node').addClass('gutter');
+            }
+
+            var $placeholder = $('<div class="placeholder clearfix"><div class="content"></div></div>').addClass(size).addClass(align);
+
+            if(!inline){
+                //First check to see if we have any block elements before the link...
+                var prev_block = $link.prev('br, p, div');
+
+                if(prev_block.length > 0){
+                    //If so, place the placeholder immediately after it.
+                    prev_block.after($placeholder);
+                }else{
+                    //Otherwise, check the parent for existing placeholders - if they exist, insert this after them
+                    if($link.parent().find('.placeholder').length > 0){
+                        $link.parent().find('.placeholder').last().after($placeholder);
+                    }else{
+                        //Failing that, place this placeholder immediately inside the container
+                        $link.parent().prepend($placeholder);
+                    }
+                }
+            }else{
+                $link.after($placeholder);
+            }
+
+
+            if(isMedia){
+                (function($placeholder,resource){
+                    var handleMedia = function(){
+                        var media = scalarapi.getNode(resource);
+                        $placeholder.find('.content').html(media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
+                    };
+                    if(scalarapi.loadPage( resource, false, handleMedia, null, 1, false, null, 0, 0) == "loaded"){
+                        handleMedia();
+                    }
+                })($placeholder,$link.attr('resource'));
+            }else{
+                //We probably don't have a single node name, so we will save the api call
+            }
+        };
 
         // Run initializer
         base.init();

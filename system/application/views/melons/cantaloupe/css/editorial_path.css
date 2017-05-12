@@ -10,7 +10,7 @@
 #editorialOutlinePanel{
 	margin-top: 20px;
 }
-#editorialOutlinePanel>div{
+#editorialOutlinePanel>div,#editorialOutlinePanel>.scrollUp{
 	-webkit-transition: -webkit-transform .25s;
 	-moz-transition: -moz-transform .25s;
     transition: transform .25s;
@@ -19,7 +19,10 @@
 	-webkit-transform : translatey(0);
 	-moz-transform : translatey(0);
 }
-
+#editorialOutlinePanel>.scrollUp{
+	margin-top: 1rem;
+	display: block;
+}
 #editorialOutlinePanel>.affix{
 	top: 50px;
 }
@@ -60,10 +63,19 @@ body.shortHeader #editorialOutlinePanel>.affix{
 	font-size: 1.5rem;
 	color: #bfbfbf;
 }
+#editorialOutline li>a:hover{
+	text-decoration: underline;
+	outline: 0;
+	border: 0;
+	background-color: transparent;
+
+}
+#editorialOutline.tall li>a, #editorialOutline li.active>a{
+	color: #000;
+}
 
 #editorialOutline li.active>a{
 	font-weight: bold;
-	color: #000;
 }
 #editorialOutline li.inside{
 	border-left: .5rem solid #bfbfbf;
@@ -107,111 +119,158 @@ body.shortHeader #editorialOutlinePanel>.affix{
 	margin: 3rem 0 2rem;
 }
 
-#editorialPathContents .node{
+#editorialPathContents .editorial_node{
 	cursor: default;
 	padding: 2rem 0;
 	border-top: 1px dashed #bfbfbf;
+	clear: both;
 }
 
-#editorialPathContents .node>.row{
+#editorialPathContents .editorial_node>.row{
 	margin: 0;
 	padding: 0;
 }
 
-#editorialPathContents .node .title{
+#editorialPathContents .editorial_node .title{
 	margin: 0;
 	font-size: 2.5rem;
 }
 
-#editorialPathContents .node .state_btn{
+#editorialPathContents .editorial_node .state_btn{
 	    line-height: 2.5rem;
     font-size: 1.5rem;
 	text-align: left;
 	margin: 1rem 0 .5rem;
 }
 
-#editorialPathContents .node .state_btn .caret{
+#editorialPathContents .editorial_node .state_btn .caret{
 	margin-top: 1.25rem;
 	border-top-color: #fff;
 	border-bottom-color: #fff;
 }
 
-#editorialPathContents .node .draft, #editorialPathContents .node .edit, #editorialPathContents .node .edit_review, 
-#editorialPathContents .node .clean, #editorialPathContents .node .ready, #editorialPathContents .node .published{
+#editorialPathContents .editorial_node .draft, #editorialPathContents .editorial_node .edit, #editorialPathContents .editorial_node .edit_review, 
+#editorialPathContents .editorial_node .clean, #editorialPathContents .editorial_node .ready, #editorialPathContents .editorial_node .published{
 	color: #fff;
 }
 
-#editorialPathContents .node .draft{
+#editorialPathContents .editorial_node .draft{
 	background-color: #b4b4b4;
 }
 
-#editorialPathContents .node .edit{
+#editorialPathContents .editorial_node .edit{
 	background-color: #ffa25e;
 }
 
-#editorialPathContents .node .edit_review{
+#editorialPathContents .editorial_node .edit_review{
 	background-color: #d9514d;
 }
 
-#editorialPathContents .node .clean{
+#editorialPathContents .editorial_node .clean{
 	background-color: #59c0dd;
 }
 
-#editorialPathContents .node .ready{
+#editorialPathContents .editorial_node .ready{
 	background-color: #6ebf73;
 }
 
-#editorialPathContents .node .published{
+#editorialPathContents .editorial_node .published{
 	background-color: #15910f;
 }
 
-#editorialPathContents .node .state_dropdown .dropdown-menu{
+#editorialPathContents .editorial_node .state_dropdown .dropdown-menu{
 	width: 100%;
 	padding: 0px;
 }
 
-#editorialPathContents .node .state_dropdown .dropdown-menu li{
+#editorialPathContents .editorial_node .state_dropdown .dropdown-menu li{
 	padding: 0;
 	padding-left: 1rem;
 	margin: 0;
 }
 
-#editorialPathContents .node .state_dropdown .dropdown-menu a{
+#editorialPathContents .editorial_node .state_dropdown .dropdown-menu a{
 	margin: 0;
 	padding: 6px 12px;
 	background-color: #fff;
 	color: #000;
 }
 
-#editorialPathContents .node .state_dropdown .dropdown-menu a:hover{
+#editorialPathContents .editorial_node .state_dropdown .dropdown-menu a:hover{
 	background-color: #eee;
 }
 
-#editorialPathContents .node .state_dropdown .dropdown-menu a.active{
+#editorialPathContents .editorial_node .state_dropdown .dropdown-menu a.active{
 	background-color: rgba(0,0,0,.125);
 	color: #fff;
 }
-#editorialPathContents .node .state_dropdown .dropdown-menu a.active:hover{
+#editorialPathContents .editorial_node .state_dropdown .dropdown-menu a.active:hover{
 	background-color: rgba(0,0,0,.25);
 }
 
-#editorialPathContents .node .badge{
+#editorialPathContents .editorial_node .badge{
 	margin-right: 1rem;
 	font-weight: normal;
 	padding: 4px 10px;
 }
 
-#editorialPathContents .node .badge.view_badge{
+#editorialPathContents .editorial_node .badge.view_badge{
 	background-color: #3478a6;
 }
-#editorialPathContents .node .badge.no_queries_badge{
+#editorialPathContents .editorial_node .badge.no_queries_badge{
 	background-color: #b3b3b3;
 }
-#editorialPathContents .node .badge.with_queries_badge{
+#editorialPathContents .editorial_node .badge.with_queries_badge{
 	background-color: #d9514e;
 }
 
-#editorialPathContents .node .checkbox>label{
+#editorialPathContents .editorial_node .checkbox>label{
 	font-size: 16px;
 	line-height: 20px;
+}
+#editorialPathContents .editorial_node.gutter{
+	padding-right: 4rem;
+}
+
+
+#editorialPathContents .editorial_node .placeholder{
+	clear: both;
+	margin-bottom: 1rem;
+}
+#editorialPathContents .editorial_node .placeholder .content{
+	background-color: #b4b4b4;
+	padding-top: 10vh;
+	padding-bottom: 10vh;
+	color: #fff;
+	text-align: center;
+}
+
+#editorialPathContents .editorial_node .placeholder.small .content{
+	width: 33%;
+}
+
+#editorialPathContents .editorial_node .placeholder.medium .content{
+	width: 45%;
+}
+
+#editorialPathContents .editorial_node .placeholder.large .content{
+	width: 60%;
+}
+
+#editorialPathContents .editorial_node .placeholder.full .content, #editorialPathContents .editorial_node .placeholder.native .content{
+	width: 100%;
+}
+
+#editorialPathContents .editorial_node .placeholder.right .content{
+	float: right;
+	margin-left: 1rem;
+}
+
+#editorialPathContents .editorial_node.gutter .placeholder.right .content{
+	margin-right: -4rem;
+}
+
+#editorialPathContents .editorial_node .placeholder.left .content{
+	float: left;
+	margin-right: 1rem;
 }
