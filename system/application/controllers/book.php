@@ -113,6 +113,10 @@ class Book extends MY_Controller {
 				header('Location: '.$this->data['base_uri'].$this->fallback_page);
 				exit;
 			}
+
+			//Should we give a 404 response?
+			$isNotFound = false;
+
 			// Ajax login check
 			if ('login_status'==$slug_first_segment) return $this->login_status();
 			// Load page based on slug
@@ -151,8 +155,7 @@ class Book extends MY_Controller {
 			} else {
 				$this->data['slug'] = $slug; // Can visit a page even if it hasn't been created yet
 
-				//But we should still return a 404 so the page is not cached by browsers or crawled by search engines
-				header("HTTP/1.1 404 Not Found");
+				$isNotFound = true;
 			}
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
 			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
@@ -163,8 +166,16 @@ class Book extends MY_Controller {
 			// View-specific method
 			$method_name = $this->data['view'];
 			if (method_exists($this, $method_name)) $this->$method_name();
+
 			// URI segment method
-			if (method_exists($this, $slug_first_segment) && !array_key_exists($slug_first_segment, $this->data['views'])) $this->$slug_first_segment();
+			if (method_exists($this, $slug_first_segment) && !array_key_exists($slug_first_segment, $this->data['views'])){
+				$isNotFound = false;
+				$this->$slug_first_segment();
+			} 
+
+			if($isNotFound){
+				header("HTTP/1.1 404 Not Found");
+			}
 
 		} catch (Exception $e) {
 			header($e->getMessage());
