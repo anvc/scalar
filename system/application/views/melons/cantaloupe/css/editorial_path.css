@@ -299,3 +299,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	font-style: italic;
 	color: #b4b4b4;
 }
+#editorialSidePanel>div .collapse{
+	overflow-y: auto;
+}

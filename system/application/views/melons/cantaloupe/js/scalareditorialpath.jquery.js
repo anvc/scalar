@@ -76,6 +76,14 @@
                         $('.bookname').text($('meta[property="og:site_name"]').attr('content'));
                         base.resize();
                     });
+
+                    $('body').on('headerSizeChanged',function(){
+                        var offset = $(this).hasClass('shortHeader')?19:59;
+
+                        $('body').data('bs.scrollspy').options.offset = offset;
+                        $('body').scrollspy('refresh');
+                    });
+
         			base.node_state_classes = [];
         			for(var stateClass in base.node_states){
         				base.node_state_classes.push(stateClass);
@@ -186,6 +194,12 @@
         			break;
         		case 3:
 
+                    $('#editorialSidePanel>div').affix({
+                      offset: {
+                        top: 50
+                      }
+                    });
+
                     base.resize();
 
         			base.$contentLoader.fadeOut('fast',function(){
@@ -195,6 +209,8 @@
         			base.$nodeList.appendTo(base.options.contents);
 
                     base.updateLinks();
+                    
+                    $('body').scrollspy({ target: '#editorialOutline', offset: 49 });
 
                     //Set up inline editor for editable content
                     base.options.contents.find('[contenteditable]').each(function(){
@@ -216,8 +232,7 @@
         	var nodeView = typeof node.current.defaultView !== 'undefined' ? node.current.defaultView : 'plain';
 
             var viewName = typeof views[nodeView] !== 'undefined' ? views[nodeView].name : nodeView;
-
-        	var nodeItemHTML = '<div id="node_'+node.slug+'" class="editorial_node node caption_font">' +
+        	var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
         							'<div class="row">'+
         								'<div class="col-xs-12 col-sm-8 col-md-9">'+
         									'<h2 class="heading_font heading_weight clearboth title">'+node.getDisplayTitle()+'</h2>'+
@@ -226,8 +241,8 @@
         								'</div>'+
         								'<div class="col-xs-12 col-sm-4 col-md-3">'+
         									'<div class="dropdown state_dropdown">'+
-        										'<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="btn_text">'+stateName+'</span><span class="caret pull-right"></span></button>'+
-        										'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug+'">';
+        										'<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="btn_text">'+stateName+'</span><span class="caret pull-right"></span></button>'+
+        										'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
 
         	for(var stateClass in base.node_states){
         		nodeItemHTML += 					'<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass]+'</a></li>';
@@ -242,8 +257,8 @@
 											'</div>'+
         								'</div>'+
         							'</div>'+
-                                    '<div id="node_'+node.slug+'_description" class="descriptionContent body_font well" contenteditable></div>'+
-        							'<div id="node_'+node.slug+'_body" class="bodyContent body_font" contenteditable>'+node.current.content+'</div>'+
+                                    '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent body_font well" contenteditable></div>'+
+        							'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="bodyContent body_font" contenteditable>'+node.current.content+'</div>'+
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList);
@@ -266,58 +281,20 @@
         		slug : node.slug
         	});
 
-		    var nodeOutlineItemHTML = '<li class="'+state+'"><a href="#node_'+node.slug+'">'+node.getDisplayTitle()+'</a></li>';
+		    var nodeOutlineItemHTML = '<li class="'+state+'"><a href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
 		    var $nodeOutlineItem = $(nodeOutlineItemHTML).appendTo('#editorialOutline>ul');
 
 		    $nodeOutlineItem.find('a').click(function(e){
 		    	e.preventDefault();
 		    	$('html, body').animate({
-			        scrollTop: $($(this).attr('href')).offset().top
+			        scrollTop: $($(this).attr('href')).offset().top - ($($(this).attr('href')).offset().top > $('body').scrollTop() ? 9 : 49)
 			    }, 1000);
 		    });
         };
 
         base.resize = function(){
 	    	$('#editorialSidePanel>div,#editorialSidePanel>.scrollUp').width($('#editorialSidePanel').width());
-            if($('#editorialSidePanel>div').height() < $(window).height()){
-                if($('#editorialSidePanel').hasClass('short')) return;
-
-                $('#editorialSidePanel').removeClass('tall').addClass('short').find('.scrollUp').remove();
-
-                $('#editorialSidePanel>div').affix({
-                  offset: {
-                    top: 50
-                  }
-                });
-                $('body').scrollspy({ target: '#editorialOutline', offset: 150 });
-            }else{
-
-                if($('#editorialSidePanel').hasClass('tall')) return;
-
-                //Remove old affix data
-                $(window).off('.affix');
-                $("#editorialSidePanel>div")
-                    .removeClass("affix affix-top affix-bottom")
-                    .removeData("bs.affix");
-
-                $('#editorialSidePanel').removeClass('short').addClass('tall');
-
-                $('<a class="scrollUp btn btn-primary">Scroll to Top</a>')
-                    .appendTo('#editorialSidePanel')
-                    .click(function(e){
-                        e.preventDefault();
-                        $('html, body').animate({
-                            scrollTop: 0
-                        }, 1000);
-                    })
-                    .affix({
-                        offset: {
-                            top: function(){
-                                return $('#editorialSidePanel>div').height()+65;
-                            }
-                        }
-                    }).width($('#editorialSidePanel').width());
-            }
+            $('#editorialSidePanel>div .collapse').css('max-height',$(window).height()-100);
 	    };
 
         base.updateLinks = function(){
