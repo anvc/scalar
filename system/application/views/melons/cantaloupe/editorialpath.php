@@ -42,15 +42,24 @@
 			<div id="editorialPathContents">
 			</div>
 		</div>
-		<div class="col-md-3 hidden-sm hidden-xs" id="editorialOutlinePanel">
+		<div class="col-md-3 hidden-sm hidden-xs" id="editorialSidePanel">
 			<div>
-				<button class="btn btn-default heading_font heading_weight btn-block" id="editorialOutlineHeader" type="button" data-toggle="collapse" data-target="#editorialOutline" aria-expanded="true" aria-controls="editorialOutline">
-				  Outline
-				  <span class="caret pull-right"></span>
-				</button>
-				<div class="collapse in" id="editorialOutline" aria-labelledby="editorialOutlineHeader">
+				<div class="dropdown">
+					<button class="btn btn-default heading_font heading_weight btn-block dropdown-toggle" id="editorialSideHeader" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					  <span id="panelDropdownText">Outline</span>
+					  <span class="caret pull-right"></span>
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="editorialSideHeader">
+						<li><a role="button" href="#editorialOutline" aria-expanded="true" aria-controls="editorialOutline">Outline</a></li>
+						<li><a role="button" href="#editorialContentFinder" aria-expanded="false" aria-controls="editorialContentFinder">Content Finder</a></li>
+					</ul>
+				</div>
+				<div id="editorialOutline" class="collapse in">
 					<ul class="nav">
 					</ul>
+				</div>
+				<div id="editorialContentFinder" class="collapse">
+					<p class="heading_font">Find content below and click its title to find it within <strong class="bookname"></strong>'s critical path</p>
 				</div>
 			</div>
 		</div>

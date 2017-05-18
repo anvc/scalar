@@ -28,7 +28,16 @@
         base.el = el;
 
         base.nodeList = {};
+
+        base.nodeTypes = ['page', 'media'];
+
         base.$nodeList = $('<div>');
+
+        base.numPages = {};
+
+        base.loadedPages = {};
+        
+        base.currentLoadType = 0;
 
         base.node_states = { 
         						'draft' : 'Draft',
@@ -60,6 +69,13 @@
         	switch(base.stage){
         		case 0:
         			//Do a little bit of preliminary setup...
+                    $('#editorialSidePanel .dropdown .dropdown-menu a').click(function(e){
+                        e.preventDefault();
+                        $('#editorialSidePanel .dropdown #panelDropdownText').text($(this).text());
+                        $($(this).attr('href')).addClass('in').siblings('.collapse').removeClass('in');
+                        $('.bookname').text($('meta[property="og:site_name"]').attr('content'));
+                        base.resize();
+                    });
         			base.node_state_classes = [];
         			for(var stateClass in base.node_states){
         				base.node_state_classes.push(stateClass);
@@ -73,97 +89,102 @@
 
 		        	base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Determining book size...').fadeIn('fast')});
 
-		        	//If we have manually set the number of pages, we don't need to try and parse that out...
-		        	if(base.options.numPages == 0){
-		        		base.stage = 1;
-			        	scalarapi.loadNodesByType(
-							'page', true, base.setup,
-							null, 0, false, null, 0, 1
-						);
-					}else{
-						base.stage = 2;
-						base.setup();
-					}
+		        	var loadedTypes = 0;
+                    var nodeLoadDeferred = $.Deferred();
+
+                    nodeLoadDeferred.done(function(){
+                        base.stage = 1;
+                        base.setup();
+                    });
+
+                    for(var type in base.nodeTypes){
+                        (function(base, type){
+    			        	scalarapi.loadNodesByType(
+    							type, true, function(data){
+                                    base.nodeList[type] = data;       
+                                    if(++loadedTypes == base.nodeTypes.length){
+                                        nodeLoadDeferred.resolve();
+                                    }
+                                },
+    							null, 0, false, null, 0, 1
+    						);
+                        })(base, base.nodeTypes[type]);
+                    }
 
         			break;
         		case 1:
-        			if(base.options.numPages == 0){
-	        			for(var uri in data){ break; }
-	        			var regex = /(?:\.)(\d+)\b/;
-	        			var matches = null;
-	        			if((matches = regex.exec(uri)) !== null){
-	        				//We have a version node... Just lop off that version number so we can get the citation property
-							uri = uri.slice(0, uri.lastIndexOf('.'));
-	        			}
-	        			var node = scalarapi.getNode( uri );
-						var citationProp = node.properties['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
-						regex = /(?:.*methodNumNodes=(\d+))/;
-						matches = null;
-						if((matches = regex.exec(citationProp)) === null){
-							console.error('Page, "'+uri+'," appears to have invalid citation information!"');
-						}else{
-							base.options.numPages = parseInt(matches[1]);
-						}
-					}
+                    base.numPages['total'] = 0;
+                    for(var type in base.nodeList){
+                        if(typeof base.numPages[type] === 'undefined'){
+                            var data = base.nodeList[type];
+    	        			for(var uri in data){
+        	        			var regex = /(?:\.)(\d+)\b/;
+        	        			var matches = null;
+        	        			if((matches = regex.exec(uri)) !== null){
+        	        				//We have a version node... Just lop off that version number so we can get the citation property
+        							uri = uri.slice(0, uri.lastIndexOf('.'));
+        	        			}
+        	        			var node = scalarapi.getNode( uri );
+        						var citationProp = node.properties['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
+                                console.log(node.properties);
+        						regex = /(?:.*methodNumNodes=(\d+))/;
+        						matches = null;
+        						if((matches = regex.exec(citationProp)) === null){
+        							continue;
+        						}else{
+        							base.numPages[type] = parseInt(matches[1]);
+                                    base.numPages['total'] += base.numPages[type];
+                                    break;
+        						}
+                            }
+                        }
+                    }
 					base.stage = 2;
-	        		base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Loading pages - 0%').fadeIn('fast')});
-        			scalarapi.loadNodesByType(
-						'page', true, base.setup,
-						null, 0, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
-					);
+	        		base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 0%').fadeIn('fast')});
+
+                    scalarapi.loadNodesByType(
+                        base.nodeTypes[base.currentLoadType], true, base.setup,
+                        null, 0, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
+                    );
+
         			break;
         		case 2:
         			//Parse the data!
-        			for(var uri in data){
-        				var node = scalarapi.getNode( uri );
-        				var regex = /(?:\.)(\d+)\b/;
-	        			var matches = null;
-	        			if((matches = regex.exec(uri)) === null){
-							//We don't have a version node! Load the node.
-							var node = scalarapi.getNode( uri );
-							base.addNode(node);
-	        			}
-        			}
+                    for(var uri in data){
+                        var node = scalarapi.getNode( uri );
+                        var regex = /(?:\.)(\d+)\b/;
+                        var matches = null;
+                        if((matches = regex.exec(uri)) === null){ //A lot of these filters won't need to be in place once actual editorial path functionality is in place
+                            if(uri.lastIndexOf('http', 0) === 0){
+                                //We don't have a version node! Load the node.
+                                var node = scalarapi.getNode( uri );
+                                base.addNode(node);
+                            }
+                        }
+                    }
 
-        			if(base.currentChunk*base.options.pagesPerChunk > base.options.numPages){
-        				base.$contentLoaderInfo.text('Loading pages - 100%');
-        				base.stage = 3;
-        				base.setup();
-        			}else{
-	        			base.$contentLoaderInfo.text('Loading pages - '+Math.round((base.currentChunk*base.options.pagesPerChunk)/base.options.numPages)*100+'%');
-	        			scalarapi.loadNodesByType(
-							'page', true, base.setup,
-							null, 0, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
-						);
-					}
+                    //Escape if we have loaded everything!
+        			if(base.currentChunk*base.options.pagesPerChunk > base.numPages[base.nodeTypes[base.currentLoadType]]){
+                        if(++base.currentLoadType >= base.nodeTypes.length){
+                            base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 100%');
+                            base.stage = 3;
+                            base.setup();
+                            return;
+                        }else{
+                            base.currentChunk = 0;
+                            base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 0%');
+                        }
+                    }else{
+                        base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - '+Math.round((base.currentChunk*base.options.pagesPerChunk)/base.numPages[base.nodeTypes[base.currentLoadType]])*100+'%');
+                    }
+                    
+                    scalarapi.loadNodesByType(
+                        base.nodeTypes[base.currentLoadType], true, base.setup,
+                        null, 0, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
+                    );
+
         			break;
         		case 3:
-
-                    if($('#editorialOutlinePanel>div').height() < $(window).height()){
-                        $('#editorialOutlinePanel>div').affix({
-                          offset: {
-                            top: 50
-                          }
-                        });
-                        $('body').scrollspy({ target: '#editorialOutline', offset: 150 });
-                    }else{
-                        $('#editorialOutline').addClass('tall');
-                        $('<a class="scrollUp btn btn-primary">Scroll to Top</a>')
-                            .appendTo('#editorialOutlinePanel')
-                            .click(function(e){
-                                e.preventDefault();
-                                $('html, body').animate({
-                                    scrollTop: 0
-                                }, 1000);
-                            })
-                            .affix({
-                                offset: {
-                                    top: function(){
-                                        return $('#editorialOutlinePanel>div').height()+65;
-                                    }
-                                }
-                            });
-                    }
 
                     base.resize();
 
@@ -174,6 +195,15 @@
         			base.$nodeList.appendTo(base.options.contents);
 
                     base.updateLinks();
+
+                    //Set up inline editor for editable content
+                    base.options.contents.find('[contenteditable]').each(function(){
+                        CKEDITOR.inline( $(this).attr('id'), {
+                            // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                            removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror':'codemirror',
+                            startupFocus: false
+                        } );
+                    });
         	}
         };
 
@@ -183,13 +213,15 @@
         	var state = base.node_state_classes[Math.floor(Math.random()*(base.node_state_classes.length))];
         	var stateName = base.node_states[state];        	
 
-        	var nodeView = node.current.defaultView;
+        	var nodeView = typeof node.current.defaultView !== 'undefined' ? node.current.defaultView : 'plain';
 
-        	var nodeItemHTML = '<div id="node_'+node.slug+'" class="editorial_node node">' +
+            var viewName = typeof views[nodeView] !== 'undefined' ? views[nodeView].name : nodeView;
+
+        	var nodeItemHTML = '<div id="node_'+node.slug+'" class="editorial_node node caption_font">' +
         							'<div class="row">'+
         								'<div class="col-xs-12 col-sm-8 col-md-9">'+
         									'<h2 class="heading_font heading_weight clearboth title">'+node.getDisplayTitle()+'</h2>'+
-        									'<span class="header_font badge view_badge">'+views[nodeView].name+'</span>'+
+        									'<span class="header_font badge view_badge">'+viewName+'</span>'+
         									'<span class="header_font badge no_queries_badge">No Queries</span>'+
         								'</div>'+
         								'<div class="col-xs-12 col-sm-4 col-md-3">'+
@@ -210,10 +242,17 @@
 											'</div>'+
         								'</div>'+
         							'</div>'+
-        							'<div class="content">'+node.current.content+'</div>'+
+                                    '<div id="node_'+node.slug+'_description" class="descriptionContent body_font well" contenteditable></div>'+
+        							'<div id="node_'+node.slug+'_body" class="bodyContent body_font" contenteditable>'+node.current.content+'</div>'+
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList);
+
+            if(typeof node.current.description === 'undefined' || node.current.description == null){
+                $node.find('.descriptionContent').text("(This page does not have a description.)").addClass('noDescription');
+            }else{
+                $node.find('.descriptionContent').text(node.current.description);
+            }
         	
         	$node.find('.state_dropdown li>a').click(function(e){
         		e.preventDefault();
@@ -239,17 +278,56 @@
         };
 
         base.resize = function(){
-	    	$('#editorialOutlinePanel>div,#editorialOutlinePanel>.scrollUp').width($('#editorialOutlinePanel').width());
+	    	$('#editorialSidePanel>div,#editorialSidePanel>.scrollUp').width($('#editorialSidePanel').width());
+            if($('#editorialSidePanel>div').height() < $(window).height()){
+                if($('#editorialSidePanel').hasClass('short')) return;
+
+                $('#editorialSidePanel').removeClass('tall').addClass('short').find('.scrollUp').remove();
+
+                $('#editorialSidePanel>div').affix({
+                  offset: {
+                    top: 50
+                  }
+                });
+                $('body').scrollspy({ target: '#editorialOutline', offset: 150 });
+            }else{
+
+                if($('#editorialSidePanel').hasClass('tall')) return;
+
+                //Remove old affix data
+                $(window).off('.affix');
+                $("#editorialSidePanel>div")
+                    .removeClass("affix affix-top affix-bottom")
+                    .removeData("bs.affix");
+
+                $('#editorialSidePanel').removeClass('short').addClass('tall');
+
+                $('<a class="scrollUp btn btn-primary">Scroll to Top</a>')
+                    .appendTo('#editorialSidePanel')
+                    .click(function(e){
+                        e.preventDefault();
+                        $('html, body').animate({
+                            scrollTop: 0
+                        }, 1000);
+                    })
+                    .affix({
+                        offset: {
+                            top: function(){
+                                return $('#editorialSidePanel>div').height()+65;
+                            }
+                        }
+                    }).width($('#editorialSidePanel').width());
+            }
 	    };
 
         base.updateLinks = function(){
             //Handle media links
-            $('.editorial_node .content a[resource]').each(function(){
+            $('.editorial_node .bodyContent a[resource]').each(function(){
                 base.addPlaceholderSlot($(this),true);
             });
 
             //Handle widget links
-            $('.editorial_node .content a[data-widget]').each(function(){
+            $('.editorial_node .bodyContent a[data-widget]').each(function(){
                 base.addPlaceholderSlot($(this),false);
             });
         };
@@ -284,6 +362,7 @@
                     }
                 }
             }else{
+                $placeholder.addClass('inline');
                 $link.after($placeholder);
             }
 
@@ -292,7 +371,11 @@
                 (function($placeholder,resource){
                     var handleMedia = function(){
                         var media = scalarapi.getNode(resource);
-                        $placeholder.find('.content').html(media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
+                        if(typeof media !== 'undefined' && media !== null && media !== undefined){
+                            $placeholder.find('.content').html(media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
+                        }else{
+                            $placeholder.find('.content').html('Missing Media! ('+resource+')');
+                        }
                     };
                     if(scalarapi.loadPage( resource, false, handleMedia, null, 1, false, null, 0, 0) == "loaded"){
                         handleMedia();
@@ -310,7 +393,6 @@
     $.scalarEditorialPath.defaultOptions = {
     	contents : null,
 		outline : null,
-		numPages : 0,
 		pagesPerChunk : 10
     };
     

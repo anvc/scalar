@@ -7,10 +7,12 @@
 	margin: 2rem 0;
 }
 
-#editorialOutlinePanel{
+#editorialSidePanel{
 	margin-top: 20px;
 }
-#editorialOutlinePanel>div,#editorialOutlinePanel>.scrollUp{
+
+
+#editorialSidePanel>div,#editorialSidePanel>.scrollUp{
 	-webkit-transition: -webkit-transform .25s;
 	-moz-transition: -moz-transform .25s;
     transition: transform .25s;
@@ -19,29 +21,28 @@
 	-webkit-transform : translatey(0);
 	-moz-transform : translatey(0);
 }
-#editorialOutlinePanel>.scrollUp{
+#editorialSidePanel>.scrollUp{
 	margin-top: 1rem;
 	display: block;
 }
-#editorialOutlinePanel>.affix{
+#editorialSidePanel>.affix{
 	top: 50px;
 }
-body.shortHeader #editorialOutlinePanel>.affix{
+body.shortHeader #editorialSidePanel>.affix{
 	transform : translatey(-30px);
 	-webkit-transform : translatey(-30px);
 	-moz-transform : translatey(-30px);
 }
 
-#editorialOutlineHeader{
+#editorialSideHeader{
 	text-align: left;
 	border: 0;
 	border-radius: 0;
 	margin-bottom: 1rem;
 	font-size: 2rem;
 	padding: .5rem 1rem;
-	width: 75%;
 }
-#editorialOutlineHeader .caret{
+#editorialSideHeader .caret{
 	margin-top: 1.25rem;
 }
 
@@ -70,7 +71,7 @@ body.shortHeader #editorialOutlinePanel>.affix{
 	background-color: transparent;
 
 }
-#editorialOutline.tall li>a, #editorialOutline li.active>a{
+#editorialSidePanel.tall #editorialOutline li>a, #editorialOutline li.active>a{
 	color: #000;
 }
 
@@ -109,7 +110,7 @@ body.shortHeader #editorialOutlinePanel>.affix{
 #editorialOutline li.child{
 	padding-left: 2rem;
 }
-#editorialPath .row #editorialOutlinePanel{
+#editorialPath .row #editorialSidePanel{
 	padding-right: 0px;
 }
 #editorialPath .row>div{
@@ -228,8 +229,8 @@ body.shortHeader #editorialOutlinePanel>.affix{
 	font-size: 16px;
 	line-height: 20px;
 }
-#editorialPathContents .editorial_node.gutter{
-	padding-right: 4rem;
+#editorialPathContents .editorial_node.gutter .bodyContent{
+	padding-right: 8rem;
 }
 
 
@@ -245,15 +246,15 @@ body.shortHeader #editorialOutlinePanel>.affix{
 	text-align: center;
 }
 
-#editorialPathContents .editorial_node .placeholder.small .content{
+#editorialPathContents .editorial_node .placeholder.small.inline:not(.wrap) .content, #editorialPathContents .editorial_node .placeholder.small.wrap, #editorialPathContents .editorial_node .placeholder.small:not(.inline){
 	width: 33%;
 }
 
-#editorialPathContents .editorial_node .placeholder.medium .content{
+#editorialPathContents .editorial_node .placeholder.medium.inline:not(.wrap) .content, #editorialPathContents .editorial_node .placeholder.medium.wrap, #editorialPathContents .editorial_node .placeholder.medium:not(.inline){
 	width: 45%;
 }
 
-#editorialPathContents .editorial_node .placeholder.large .content{
+#editorialPathContents .editorial_node .placeholder.large.inline:not(.wrap) .content, #editorialPathContents .editorial_node .placeholder.large.wrap, #editorialPathContents .editorial_node .placeholder.large:not(.inline){
 	width: 60%;
 }
 
@@ -261,16 +262,37 @@ body.shortHeader #editorialOutlinePanel>.affix{
 	width: 100%;
 }
 
-#editorialPathContents .editorial_node .placeholder.right .content{
+#editorialPathContents .editorial_node .placeholder.inline.right .content, #editorialPathContents .editorial_node .placeholder.right:not(.inline){
 	float: right;
 	margin-left: 1rem;
 }
 
-#editorialPathContents .editorial_node.gutter .placeholder.right .content{
-	margin-right: -4rem;
+#editorialPathContents .editorial_node .placeholder.right:not(.inline){
+	margin-right: -8rem;
 }
 
-#editorialPathContents .editorial_node .placeholder.left .content{
+#editorialPathContents .editorial_node .placeholder.inline.left .content, #editorialPathContents .editorial_node .placeholder.left:not(.inline){
 	float: left;
 	margin-right: 1rem;
+}
+
+.editorial_node .descriptionContent{
+	margin-top: 2rem;
+	position: relative;
+}
+.editorial_node .descriptionContent:after{
+	content: "Description:";
+	font-style: normal;
+	font-family: 'Lato', Arial, sans-serif !important;
+	color: #b4b4b4;
+    position: absolute;
+    font-size: 80%;
+    top: -2.5rem;
+    left: 0;
+
+}
+
+.editorial_node .descriptionContent.noDescription{
+	font-style: italic;
+	color: #b4b4b4;
 }
