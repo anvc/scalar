@@ -251,14 +251,17 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 
 #editorialPathContents .editorial_node .placeholder.medium.inline:not(.wrap) .content, #editorialPathContents .editorial_node .placeholder.medium.wrap, #editorialPathContents .editorial_node .placeholder.medium:not(.inline){
-	width: 45%;
+	width: 50%;
 }
 
 #editorialPathContents .editorial_node .placeholder.large.inline:not(.wrap) .content, #editorialPathContents .editorial_node .placeholder.large.wrap, #editorialPathContents .editorial_node .placeholder.large:not(.inline){
-	width: 60%;
+	width: 75%;
 }
 
-#editorialPathContents .editorial_node .placeholder.full .content, #editorialPathContents .editorial_node .placeholder.native .content{
+#editorialPathContents .editorial_node .placeholder.full .content, #editorialPathContents .editorial_node .placeholder.native .content,
+#editorialPathContents .editorial_node .placeholder.widget.large.inline:not(.wrap) .content, 
+#editorialPathContents .editorial_node .placeholder.widget.large.wrap
+{
 	width: 100%;
 }
 

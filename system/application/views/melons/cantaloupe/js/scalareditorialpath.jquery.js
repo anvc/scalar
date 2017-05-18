@@ -338,12 +338,13 @@
             var size = $link.data('size');
             var align = $link.data('align');
             var inline = $link.hasClass('inline') || $link.hasClass('inlineWidget');
+            var type = isMedia?'media':'widget';
 
             if(!inline && align == 'right'){
                 $link.parents('.editorial_node').addClass('gutter');
             }
 
-            var $placeholder = $('<div class="placeholder clearfix"><div class="content"></div></div>').addClass(size).addClass(align);
+            var $placeholder = $('<div class="placeholder clearfix"><div class="content"></div></div>').addClass(size).addClass(align).addClass(type);
 
             if(!inline){
                 //First check to see if we have any block elements before the link...
