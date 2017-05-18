@@ -315,6 +315,9 @@
 					} );
 				}
 				thumbnail.data('node', node);
+				thumbnail.error(function() {
+					$(this).attr('src', modules_uri + '/cantaloupe/images/media_icon_chip.png');
+				});
 				
 				thumbnail.click(function() {
 					/*if (me.currentDisplayMode != DisplayMode.All) {
