@@ -1940,7 +1940,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var rec = opts.rec;
 				var ref = opts.ref;
 
-				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading&hellip;</td></tr>');
+				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow empty"><td class="text-center" colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'">Loading&hellip;</td></tr>');
 
 				load_node_list({
 					"type" : current_type,
