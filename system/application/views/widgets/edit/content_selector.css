@@ -272,3 +272,6 @@
 .widgetList hr{
 	margin: .5rem 0;
 }
+.node_types option{
+	background-color: #fff;
+}
