@@ -191,8 +191,8 @@
 	overflow-y: auto;
 }
 .node_selector .node_search button:hover {
-    background-color: #eee;
-    border-color: #ccc;
+    background-color: #d4d4d4;
+    border-color: #8c8c8c;
 }
 .node_selector .node_search button .glyphicon {
 	top: 2px;
