@@ -2058,6 +2058,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'"></th>');
 					} else if(["visible","versions"].indexOf(fields_to_display[f])>-1){
 						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'" style="text-align:center;">'+toProperCase(fields_to_display[f].replace(/_/g," "))+'</th>');
+					}else if(fields_to_display[f] == 'url'){
+						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'">URL</th>');
 					}else{
 						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'">'+toProperCase(fields_to_display[f].replace(/_/g," "))+'</th>');
 					}
