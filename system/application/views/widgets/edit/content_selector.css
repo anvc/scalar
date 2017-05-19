@@ -199,8 +199,8 @@
 	padding: 0;
 }
 .nodeSelectorEnlargedThumbnail{
-	max-width: 300px;
-	max-height: 300px;
+	max-width: 184px;
+    max-height: 184px;
 }
 .node_selector .thumbnail {
 	border: 0px
