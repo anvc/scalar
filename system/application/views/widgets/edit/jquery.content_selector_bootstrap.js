@@ -1559,7 +1559,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var data = loaded_nodeLists[$(this).find('.node_filter select').val()];
 				}
 				if(data.length == 0){
-					$rows.html('<tr><td colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'" class="text-center empty">'+(lastLoadType == "search"?'There are no items that match your search':'There are no items of the selected type')+'</td></tr>');
+					$rows.html('<tr class="empty"><td colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'" class="text-center empty">'+(lastLoadType == "search"?'There are no items that match your search':'There are no items of the selected type')+'</td></tr>');
 				}else{
 					var start = 0;
 					if(!isLazyLoad){
