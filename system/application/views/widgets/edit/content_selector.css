@@ -279,3 +279,6 @@
 .node_types option{
 	background-color: #fff;
 }
+.node_filter .btn{
+	box-shadow: none;
+}
