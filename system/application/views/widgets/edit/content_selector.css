@@ -245,3 +245,6 @@
     box-sizing: border-box;
     font-size: 1rem;
 }
+.modal-dialog .annotationSelection p.text-muted{
+	margin-top: 7px;
+}
