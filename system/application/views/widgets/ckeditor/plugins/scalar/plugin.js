@@ -307,12 +307,16 @@ CKEDITOR._scalar = {
 		var $element = $(element.$);
 
 		cke_loadedScalarInline.push(element);
-		if(node.thumbnail != null){
-			var cssElement = '<style>'+
-													'a[resource="'+slug+'"].inline,a[href$="#'+slug+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+node.thumbnail+');}'+
-											 '</style>';
-			$('.cke_contents>iframe').contents().find('head').append(cssElement);
+		var thumbnail = node.thumbnail;
+
+		if(thumbnail == null){
+			thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 		}
+
+			var cssElement = '<style>'+
+								'a[resource="'+slug+'"].inline,a[href$="#'+slug+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+thumbnail+');}'+
+							 '</style>';
+			$('.cke_contents>iframe').contents().find('head').append(cssElement);
 		$element.data({
 			element: element,
 			type: 'media'
@@ -405,9 +409,11 @@ CKEDITOR._scalar = {
 			var pageScroll = $(window).scrollTop();
 			var thumbnail = node.thumbnail;
 			var topPos = framePosition.top+position.top-frameScroll-pageScroll+30;
+			var thumbClass = '';
 
 			if(thumbnail == null){
-				thumbnail = widgets_uri+'/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+				thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
+				var thumbClass = 'missing';
 			}
 			var data = {
 				element : element,
@@ -415,7 +421,7 @@ CKEDITOR._scalar = {
 				inline : true
 			};
 
-			$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: topPos}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'">');
+			$('#scalarLinkTooltip').css({left: framePosition.left+position.left+($(this).width()/2)-50, top: topPos}).show().data(data).find('.thumbnail').html('<img src="'+thumbnail+'" class="'+thumbClass+'">');
 
 			window.clearTimeout($('#scalarLinkTooltip').data('timeout'));
 		},function(){

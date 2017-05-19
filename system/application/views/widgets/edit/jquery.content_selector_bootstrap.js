@@ -1417,7 +1417,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 										item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
 									}else{
-										item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+										item.thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 									}
 
 									item.hasRelations = 'undefined' !== typeof item.content.rel;
@@ -2138,7 +2138,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if('undefined' !== typeof slug_data.thumbnail){
 									item.thumbnail = slug_data.thumbnail;
 								}else{
-									item.thumbnail = $('link#approot').attr('href')+'/views/widgets/ckeditor/plugins/scalar/styles/missingThumbnail.png';
+									item.thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 								}
 								item.include_children = slugs[i].children;
 								item.hasRelations = 'undefined' !== typeof item.targets && item.targets.length > 0;

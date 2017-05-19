@@ -48,6 +48,10 @@
 #scalarLinkTooltip .thumbnail img{
 	max-width: 200px;
 }
+#scalarLinkTooltip .thumbnail img.missing {
+    width: 120px;
+}
+
 #scalarLinkTooltip:after{
 	content: '';
 	position: absolute;
