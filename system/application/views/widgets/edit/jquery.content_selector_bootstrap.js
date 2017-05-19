@@ -1916,7 +1916,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if(opts.types[t] == 'composite'){
 					var type_display_name = 'Pages';
 				}else if(opts.types[t] == 'reply'){
-					var type_display_name = 'Commentary';
+					var type_display_name = 'Comments';
 				}else{
 					var type_display_name = opts.types[t].charAt(0).toUpperCase() + opts.types[t].slice(1);
 					if(type_display_name!='Media'){
