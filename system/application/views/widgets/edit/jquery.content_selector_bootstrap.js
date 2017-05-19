@@ -561,6 +561,42 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			$buttons.find('a:first').click(function() {
     				onthefly_reset();
     			});
+    			$buttons.find('a:last').click(function() {
+					var $self = $(this);
+					if ($self.data('clicked')) return false;
+					$self.data('clicked', true);
+					if (!$form.find('#onthefly-title').val().length) {
+						alert('Title is a required field.');
+						$self.data('clicked', false);
+						return false;
+					}
+					var success = function(version) {
+						for (var version_uri in version) break;
+						var urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+						var version_slug = version_uri.replace($('link#parent').attr('href'),'');
+						slug = version_slug.substr(0, version_slug.lastIndexOf('.'));
+						var uri = version_uri.substr(0, version_uri.lastIndexOf('.'));
+						var version = version[version_uri];
+						if (version_uri.substr(version_uri.length-1,1)=='/') version_uri = version_uri.substr(0, version_uri.length-1);
+						if (version_slug.substr(version_slug.length-1,1)=='/') version_slug = version_slug.substr(0, version_slug.length-1);
+						var node = {
+							content:{},slug:slug,targets:[],uri:uri,
+							version:version,version_slug:version_slug,version_uri:version_uri
+						};
+						if (opts.multiple) node = [node];
+						if ('undefined'!=typeof(window['send_form_hide_loading'])) send_form_hide_loading();
+						if ($form.closest('.content_selector_bootbox').length) {
+							$form.closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
+						} else {
+							$form.closest('.content_selector').remove();
+						}
+						$('.tt').remove();
+						opts.callback(node,opts.element);
+						reset();
+					};
+					$buttons.find('.onthefly_loading').show();
+					send_form($form, {}, success);
+				});
     		});  // /On-the-fly
     		if (opts.onthefly) {  // Display on-the-fly
     			$footer.show();
