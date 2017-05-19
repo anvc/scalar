@@ -190,10 +190,12 @@
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-.node_selector .node_search button:hover{
-	border-left: 0;
-  background-color: #fff;
-  border-color: #ccc;
+.node_selector .node_search button:hover {
+    background-color: #eee;
+    border-color: #ccc;
+}
+.node_selector .node_search button .glyphicon {
+	top: 2px;
 }
 .node_selector .panel-body{
 	padding: 0;
