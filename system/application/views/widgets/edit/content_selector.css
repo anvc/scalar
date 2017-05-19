@@ -121,6 +121,10 @@
 .node_selector_table_body{
 	border-top: 1px solid #ddd;
 }
+.node_selector_table_body .table > tbody > tr > td{
+	border-radius: 1px;
+}
+
 .node_selector{
 	height: 100%;
 	width: 100%;
