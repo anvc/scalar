@@ -267,3 +267,6 @@
   margin-right: 1rem;
   margin-top: .25rem;
 }
+.widgetList hr{
+	margin: .5rem 0;
+}
