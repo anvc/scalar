@@ -1218,7 +1218,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if(data!=undefined){
 									$(this).val(data);
 									if(data=='custom_text'){
-										$content.find('#caption_text_group').show().find('input').val($(opts.element.$).data('custom_caption'));
+										$content.find('#caption_text_group').show().find('textarea').val($(opts.element.$).data('custom_caption'));
 									}
 								}
 							}
