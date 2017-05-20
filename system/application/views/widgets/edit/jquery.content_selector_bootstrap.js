@@ -1595,8 +1595,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var data = loaded_nodeLists[$(this).find('.node_filter select').val()];
 				}
 				if(data.length == 0){
+					if(lastLoadType!="search"){
+						$dialogue_container.find('.node_search input, .node_search button').prop('disabled',true);
+					}
 					$rows.html('<tr class="empty"><td colspan="'+(opts.fields.length+(opts.allowMultiple?1:0))+'" class="text-center empty">'+(lastLoadType == "search"?'There are no items that match your search':'There are no items of the selected type')+'</td></tr>');
 				}else{
+					$dialogue_container.find('.node_search input, .node_search button').prop('disabled',false);
 					var start = 0;
 					if(!isLazyLoad){
 						$rows.html('');
