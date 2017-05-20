@@ -1630,7 +1630,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var col = opts.fields[n];
 							switch(col){
 								case 'thumbnail':
-									if(lastLoadType == "search" || current_type != "media"){
+									if(current_type != "media"){
 										$(this).find('th[data-field="thumbnail"]').hide();
 										continue;
 									}
@@ -1967,6 +1967,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$dialogue_container.find('.filter_spinner .spinner_container').show();
 				$dialogue_container.find('.node_types .btn').prop('disabled',true).addClass('disabled');
 				var opts = $dialogue_container.data('opts');
+
+				var typeName = $type_selector.find('option[value="'+current_type+'"]').text().toLowerCase();
+
+				$dialogue_container.find('.node_search>input').attr('placeholder','Search '+typeName+' by title or description');
 
 				if(opts == undefined){ opts = []; }
 
