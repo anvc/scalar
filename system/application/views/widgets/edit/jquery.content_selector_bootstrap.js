@@ -1412,10 +1412,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			    				item.version_slug = item.version_uri.replace(parent_url, '');
 			    				item.content = _data[uri];
 			    				item.version = _data[ item.version_uri ];
+			    				item.hasThumbnail = false;
 			    				item.title = ('undefined'!==typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
 			    				item.targets = 'undefined'!==typeof _data[uri].rel ? _data[uri].rel : [];
 									if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
 										item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
+										item.hasThumbnail = true;
 									}else{
 										item.thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 									}
@@ -1829,11 +1831,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 
 				$rows.find('.node_thumb img').each(function(){
-					$(this).tooltip({
-						title : '<img src="'+$(this).attr('src')+'" class="nodeSelectorEnlargedThumbnail">',
-						html : true,
-						container: '.bootbox'
-					});
+					if($(this).parents('tr').data('item').hasThumbnail){
+						$(this).tooltip({
+							title : '<img src="'+$(this).attr('src')+'" class="nodeSelectorEnlargedThumbnail">',
+							html : true,
+							container: '.bootbox'
+						});
+					}
 				});
 
 				$rows.find('.shortened_desc').each(function(){
@@ -2142,11 +2146,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			    				item.version_slug = item.version_uri.replace(parent_url, '');
 			    				item.content = slug_data.current.content;
 			    				item.title = slug_data.current.title;
+			    				item.hasThumbnail = false;
 								if("undefined" !== typeof slug_data.outgoingRelations && $.isArray(slug_data.outgoingRelations) && slug_data.outgoingRelations.length > 0){
 		    					item.targets = slug_data.outgoingRelations;
 								}
 								if('undefined' !== typeof slug_data.thumbnail){
 									item.thumbnail = slug_data.thumbnail;
+									item.hasThumbnail = true;
 								}else{
 									item.thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 								}
