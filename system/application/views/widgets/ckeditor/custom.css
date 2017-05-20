@@ -120,29 +120,6 @@
 	max-height: 75px;
 	margin: 1rem 1rem 0 0;
 }
-
-#wysiwygNewFeatures{
-	font-size: 1.4rem;
-	padding: 1rem;
-	margin-right:-8px;
-}
-#wysiwygNewFeatures hr{
-	border-bottom: 0;
-	border-top: 1px solid #f7e1b5;
-	margin: 1rem 0;
-}
-#wysiwygNewFeatures>button{
-	background-image: none;
-	font-size: 2.4rem;
-  line-height: 2.4rem;
-  height: 2.4rem;
-  padding: 0px;
-	opacity: .5;
-}
-#wysiwygNewFeatures>button:hover{
-	opacity: .75;
-	outline: none;
-}
 #insertInlineWidgetIconButton,#insertLinkedWidgetIconButton{
 	display: none;
 }

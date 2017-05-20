@@ -494,10 +494,10 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <table>
 <tr id="edit_content" class="p type_composite">
 	<td colspan="2">
-		<?php if(!isset($_COOKIE['hide_new_feature_alert'])){ ?>
-		<div id="wysiwygNewFeatures" class="alert alert-warning alert-dismissible caption_font" role="alert" style="">
+		<?php if(!isset($_COOKIE['hide_widgets_alert'])){ ?>
+		<div id="wysiwygNewFeatures" class="alert alert-info alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
-		  <strong>Want to show an annotation?</strong> We recently moved that feature into our media formatting options. <hr /> First, select a piece of media using one of the blue media buttons below, and then pick one or more of its annotations from the formatting options that follow. For step-by-step instructions, see our <a href="http://scalar.usc.edu/works/guide2/adding-media-and-annotations" class="alert-link" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" class="alert-link" target="_blank">contact</a> us</a> or post to our <a href="http://scalar.usc.edu/scalar/forums/" class="alert-link" target="_blank">forum</a> if you have any questions.
+		  <strong>Check out our latest feature – Scalar widgets.</strong><hr /> Widgets are modular interface elements that provide additional navigation, visualization, and media options for your readers. To add widgets to a page use the two new buttons in the toolbar below (the ones that look like puzzle pieces). For step-by-step instructions on adding widgets see our <a href="http://scalar.usc.edu/works/guide2/working-with-widgets" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" target="_blank">contact us</a> if you have any questions.
 		</div>
 		<?php } ?>
 		<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
@@ -1037,11 +1037,13 @@ if (isset($page->version_index)):
 endif;
 ?>
 </form>
-
-<?php
-if(isset($_GET['allow_widgets'])){
-?>
-	<script>var allow_widgets = true;</script>
-<?php
-}
-?>
+<script>
+	$('#wysiwygNewFeatures .close').click(function(){
+		var cookie_days = 0;
+		var cookie_months = 1;
+		var d = new Date();
+		d.setTime(d.setMonth(d.getMonth() + cookie_months) + (cookie_days*86400000));
+		var cookie_expiration = "; expires="+ d.toUTCString();
+		document.cookie = "hide_widgets_alert=true" + cookie_expiration;
+	});
+</script>

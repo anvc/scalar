@@ -438,15 +438,6 @@ CKEDITOR.plugins.add( 'scalar', {
 
 			CKEDITOR._scalar.editor = editor;
 
-			$('#wysiwygNewFeatures .close').click(function(){
-				var cookie_days = 0;
-				var cookie_months = 1;
-				var d = new Date();
-				d.setTime(d.setMonth(d.getMonth() + cookie_months) + (cookie_days*86400000));
-				var cookie_expiration = "; expires="+ d.toUTCString();
-				document.cookie = "hide_new_feature_alert=true" + cookie_expiration;
-			});
-
 			cke_loadedScalarInline = [];
 			cke_loadedScalarInlineWidget = [];
 			cke_loadedScalarLinkedWidget = [];

@@ -1192,3 +1192,32 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 	font-size: 1.75rem;
 	margin-top: 1.5rem;
 }
+
+
+
+#wysiwygNewFeatures{
+	font-size: 1.4rem;
+	padding: 1rem;
+	margin-right:-8px;
+}
+#wysiwygNewFeatures hr{
+	border-bottom: 0;
+	border-top: 1px solid #a6e1ec;
+	margin: 1rem 0;
+}
+#wysiwygNewFeatures>button{
+	background-image: none;
+	font-size: 2.4rem;
+  line-height: 2.4rem;
+  height: 2.4rem;
+  padding: 0px;
+	opacity: .5;
+}
+#wysiwygNewFeatures>button:hover{
+	opacity: .75;
+	outline: none;
+}
+
+#wysiwygNewFeatures .close{
+	right: 0px;
+}
