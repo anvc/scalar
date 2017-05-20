@@ -165,9 +165,12 @@
 .node_selector table>thead>tr>th[data-field="include_children"]{
 	text-align: center;
 }
-.node_selector .loadingRow{
+.node_selector .loadingRow, .node_selector tr.empty{
 	padding: 5px;
 	font-size: 2.1rem;
+}
+.node_selector .loadingRow td, .node_selector tr.empty td{
+	padding-top: 1.5rem;
 }
 #nodeSelectorDropdown{
     width: 100%;
