@@ -1638,7 +1638,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									rowHTML += '<td class="node_thumb '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
 									break;
 								case 'title':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'">'+item.title+'</a></td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">'+item.title+'</a></td>';
 									break;
 								case 'description':
 									var short_desc = shorten_description(desc);
