@@ -117,7 +117,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
-					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
+					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select name="'+option_name+'"></select></div></div>');
 					for (var j = 0; j < opts.data[option_name].length; j++) {
 
 						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+(option_name=='text-wrap'?sentenceCase(dash_to_space(opts.data[option_name][j])):ucwords(dash_to_space(opts.data[option_name][j])))+'</option>');
@@ -805,13 +805,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 }
 							 break;
 						 case 'visualization':
-							 var select = '<select class="form-control" name="viscontent"><option value="all">All content</option><option value="toc">Table of contents</option><option value="page">All pages</option><option value="path">All paths</option><option value="tag">All tags</option><option value="annotation">All annotations</option><option value="media">All media</option><option value="comment">All comments</option><option value="current">This page</option></select>';
+							 var select = '<select class="btn btn-default" name="viscontent"><option value="all">All content</option><option value="toc">Table of contents</option><option value="page">All pages</option><option value="path">All paths</option><option value="tag">All tags</option><option value="annotation">All annotations</option><option value="media">All media</option><option value="comment">All comments</option><option value="current">This page</option></select>';
 							 $('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What content would you like to include?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
-							 select = '<select class="form-control" name="visrelations"><option value="all">All relationships</option><option value="parents-children">Parents and children</option><option value="none">No relationships</option></select>';
+							 select = '<select class="btn btn-default" name="visrelations"><option value="all">All relationships</option><option value="parents-children">Parents and children</option><option value="none">No relationships</option></select>';
 						 	 $('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What relationships would you like to visualize?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
-							 select = '<select class="form-control" name="visformat"><option value="grid">Grid</option><option value="tree">Tree</option><option value="radial">Radial</option><option value="force-directed">Force-directed</option></select>';
+							 select = '<select class="btn btn-default" name="visformat"><option value="grid">Grid</option><option value="tree">Tree</option><option value="radial">Radial</option><option value="force-directed">Force-directed</option></select>';
 						 	 $('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What type of visualization would you like to use?</label><div class="col-sm-6">'+select+'</div></div>').appendTo($content);
 
  							 if(isEdit){
@@ -1143,11 +1143,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 						if(o == "TextWrap"){
 							if(typeof opts.inline!=='undefined' && opts.inline){
-								var values = '<select class="form-control" name="textwrap"><option value="nowrap">Create new line for widget</option><option value="wrap">Wrap text around widget</option></select>';
+								var values = '<select class="btn btn-default" name="textwrap"><option value="nowrap">Create new line for widget</option><option value="wrap">Wrap text around widget</option></select>';
 								formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">Text wrap:</label><div class="col-sm-5">'+values+'</div></div>';
 							}
 						}else{
-							var values = '<select class="form-control" name="'+o.toLowerCase()+'">';
+							var values = '<select class="btn btn-default" name="'+o.toLowerCase()+'">';
 							for(var v in formattingOptions[o]){
 								values += '<option value="'+formattingOptions[o][v].toLowerCase().replace(/ /g,"_")+'">'+formattingOptions[o][v]+'</option>';
 							}
@@ -1155,7 +1155,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 							formattingSelection += '<div class="form-group"><label class="col-sm-2 col-sm-offset-3 control-label">'+o+':</label><div class="col-sm-5">'+values+'</div></div>';
 							if(o=="Caption"){
-								formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-4 control-label">Custom caption:</label><div class="col-sm-6"><input class="form-control" type="text" id="caption_text"></input></div></div>';
+								formattingSelection += '<div class="form-group" id="caption_text_group" style="display: none;"><label class="col-sm-2 col-sm-offset-3 control-label">Custom caption:</label><div class="col-sm-5"><textarea class="form-control" id="caption_text"></textarea></div></div>';
 							}
 						}
 					}
@@ -1163,7 +1163,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var $content = $('<div class="widgetFormatting"></div>').appendTo('#bootbox-content-selector-content').data('options',options).hide();
 					$content.append(formattingSelection);
 
-					$content.find('.form-control[name="caption"]').change(function(){
+					$content.find('select[name="caption"]').change(function(){
 						if($(this).val()=='custom_text'){
 							$content.find('#caption_text_group').show();
 						}else{
@@ -1171,7 +1171,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					});
 
-					$content.find('.form-control[name="textwrap"]').change(function(){
+					$content.find('select[name="textwrap"]').change(function(){
 						if($(this).val()=='wrap'){
 
 							if($content.find('select[name="align"]').val() == "center"){
@@ -1476,11 +1476,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																		<div class="row"> \
 																			<div class="col-sm-5 col-md-4 node_filter"> \
 																				<div class="node_types form-inline"> \
-																					<select class="btn btn-default generic_button large form-control"> \
+																					<select class="btn btn-default generic_button large"> \
 																					</select> \
 																					<br class="visible-xs"> \
 																					<br class="visible-xs"> \
-																	        <button class="btn btn-default form-control" type="button">Filter results</button> \
+																	        <button class="btn btn-default" type="button">Filter results</button> \
 																					<div class="filter_spinner form-control" style="position: relative;"><div class="spinner_container" style="position: absolute; top: 50%; left: 50%;"></div></div> \
 																					<hr class="visible-xs"> \
 																				</div> \
