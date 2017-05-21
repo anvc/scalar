@@ -19,11 +19,8 @@ class Tensor {
 
 	public function get() {
 
-		if (!$this->plugin_exists) return $this->error('The Tensor plugin does not exist. Contact the system admin to install Tensor at <b>/system/application/plugsin/tensor</b>.');
+		if (!$this->plugin_exists) return $this->error('The Tensor plugin does not exist. Contact the system admin to install Tensor at <b>system/application/plugsin/tensor</b>.');
 		if (empty($this->book)) return $this->error('Information about the current book was not sent to the Tensor plugin.');
-		
-		//$CI =& get_instance();
-		//$CI->template->add_js('system/application/views/melons/cantaloupe/js/jquery-iframe-auto-height.min.js');
 		
 		$html = '';
 		$html .= '<style>'."\n";
