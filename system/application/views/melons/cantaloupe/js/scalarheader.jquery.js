@@ -839,7 +839,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               }
             }).addClass('overflowCalculated');
 
-            base.setupEditorialBar();
+            // Commenting this out until it can be placed into header without taking up space in the layout ~Craig
+            //base.setupEditorialBar();
         };
         base.setupEditorialBar = function() {
             editorialBar = $('<div class="editorial-status-bar caption_font"></div>').prependTo('article');
