@@ -2060,7 +2060,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							"page" : 0
 						});
 					$(this).data('timeout',undefined);
-				},this),200));
+				},this),400));
 			});
 
 			if(isset(opts.fields)){;
