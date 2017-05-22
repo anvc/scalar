@@ -10,7 +10,7 @@ foreach ($page->meta as $p => $values) {
 		if ($human_title == 'urn') continue;
 		$type = $value['type'];
 		$value = $value['value'];
-		$value = (substr($value, 0, 4)=='http') ? '<a href="'.$value.'">'.$value.'</a>' : $value;
+		$value = (strstr($value,'://')) ? '<a href="'.$value.'">'.$value.'</a>' : $value;
 		echo '<tr>';
 		echo '<td style="white-space:nowrap;"><b>'.$human_title.'</b></td>';
 		echo '<td>'.$p.'</td>';
@@ -35,7 +35,7 @@ foreach ($page->versions as $key => $version) {
 			if ($human_title == 'urn') continue;
 			$type = $value['type'];
 			$value = $value['value'];
-			$value = (substr($value, 0, 4)=='http') ? '<a href="'.$value.'">'.$value.'</a>' : $value;
+			$value = (strstr($value,'://')) ? '<a href="'.$value.'">'.$value.'</a>' : $value;
 			echo '<tr>';
 			echo '<td style="white-space:nowrap;"><b>'.$human_title.'</b></td>';
 			echo '<td>'.$p.'</td>';
