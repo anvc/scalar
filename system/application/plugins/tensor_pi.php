@@ -19,7 +19,7 @@ class Tensor {
 
 	public function get() {
 
-		if (!$this->plugin_exists) return $this->error('The Tensor plugin does not exist. Contact the system admin to install Tensor at <b>system/application/plugsin/tensor</b>.');
+		if (!$this->plugin_exists) return $this->error('The Tensor plugin does not exist. Contact the system admin to install Tensor at <b>system/application/plugins/tensor</b>.');
 		if (empty($this->book)) return $this->error('Information about the current book was not sent to the Tensor plugin.');
 		
 		$html = '';

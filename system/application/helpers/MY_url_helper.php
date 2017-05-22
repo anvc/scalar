@@ -28,6 +28,7 @@
 		if (is_array($url)) $url = $url[0];
 		if (empty($url)) return null;
 		if (strstr($url, '://')) return $url;
+		if (substr($url,0,2) == '//') return 'http:'.$url;  // A lot of javascript depends on the existance of "://"
 		return confirm_slash($prefix).$url;
 		
 	}	
