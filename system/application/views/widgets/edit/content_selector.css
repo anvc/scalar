@@ -285,3 +285,7 @@
 #bootbox-media-options-form select.btn, .widgetFormatting select.btn{
 	margin-top: 2px;
 }
+
+#bootbox-media-options-form select.btn, .widgetFormatting select.btn, #bootbox-media-options-form select.btn option, .widgetFormatting select.btn option{
+	text-align: left;
+}
