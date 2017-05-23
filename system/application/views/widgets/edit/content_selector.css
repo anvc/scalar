@@ -282,3 +282,6 @@
 .node_types option{
 	background-color: #fff;
 }
+#bootbox-media-options-form select.btn, .widgetFormatting select.btn{
+	margin-top: 2px;
+}
