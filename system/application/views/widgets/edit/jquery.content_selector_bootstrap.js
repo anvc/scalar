@@ -117,7 +117,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
-					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select name="'+option_name+'"></select></div></div>');
+					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="btn btn-default" name="'+option_name+'"></select></div></div>');
 					for (var j = 0; j < opts.data[option_name].length; j++) {
 
 						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+(option_name=='text-wrap'?sentenceCase(dash_to_space(opts.data[option_name][j])):ucwords(dash_to_space(opts.data[option_name][j])))+'</option>');
