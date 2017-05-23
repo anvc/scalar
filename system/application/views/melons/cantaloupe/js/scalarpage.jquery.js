@@ -803,7 +803,6 @@
                 // path contents
                 $('.path_of').each(function() {
                     if ($(this).parent().is('section')) {
-
                         pathContents = $(this).parent();
                         pathContents.addClass('relationships');
                         pathContents.show();
@@ -1070,10 +1069,13 @@
                 if (pathContents != null) {
                     var relationships = $(".relationships");
                     if (relationships.length > 1) {
-                        // move to second from bottom
+                        // if lateral path nav is present, move to second from bottom
                         if ((page.containingPaths.length > 0) && options.showLateralNav) {
-                            if (!relationships.eq(relationships.length - 2).children('.path_of').length) {
-                                $(".relationships").last().before(pathContents);
+                            // accounts for case where page is in a path but still has no lateral nav
+                            if ($(".relationships").last()[0] != pathContents[0]) {
+                                if (!relationships.eq(relationships.length - 2).children('.path_of').length) {
+                                    $(".relationships").last().before(pathContents);
+                                }
                             }
                             // move to bottom
                         } else {
