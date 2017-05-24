@@ -1546,6 +1546,7 @@
 
                 } else if ('' == extension) {
                     if(typeof anno.hasPopupShownHandler == 'undefined'){
+                        userOpenedImageAnnotations = [];
                         anno.addHandler('onPopupShown', function(annotation) {
                             anno.hasPopupShownHandler = true;
                             var height = null;
@@ -1583,11 +1584,13 @@
                                 var annotation_src = annotation.src;
                                 var popup_src = $(this).find('.annotorious-popup-text>a').attr('data-src');
                                 var popup_body = $(this).find('.annotorious-popup-text').parent().detach();
+
                                 $(this).html('').append(popup_body);
                                 if(popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text){
-
-                                        var left = $(annotation.element).offset().left + parseFloat($(this).css('left'));
-                                        var top = $(annotation.element).offset().top + parseFloat($(this).css('top'));
+                                        $(annotation.element).data('hasUserOpened',true);
+                                        var left = $(annotation.element).offset().left + parseFloat(annotation.shapes[0].geometry.x);
+                                        var top = $(annotation.element).offset().top + parseFloat(annotation.shapes[0].geometry.y) + parseFloat(annotation.shapes[0].geometry.height) + 5; // Magic number...
+                                        console.log([left,$(annotation.element).offset().left,annotation.shapes[0].geometry.x],[top,$(annotation.element).offset().top,annotation.shapes[0].geometry.y],$(annotation.element));
                                         if($(this).parent('body').length == 0){
                                             $(this).detach().appendTo('body');
                                         }

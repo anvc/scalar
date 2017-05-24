@@ -1885,8 +1885,9 @@ function YouTubeGetID(url){
 		 * @param {Object} annotation 		The spatial annotation to be shown.
 		 */
 		this.showSpatialAnnotation = function(annotation) {
-			annotation.data.src = this.mediaObjectView.image.src + '#' + this.mediaObjectView.model.id;
-			anno.highlightAnnotation( annotation.data );
+			if($(anno.getAnnotations(annotation.data.element)).data('hasUserOpened')==undefined){
+				anno.highlightAnnotation( annotation.data );
+			}
 			if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
 				$('body').trigger('show_annotation', [annotation, me]);
 			}
@@ -2249,7 +2250,7 @@ function YouTubeGetID(url){
 
 			$(this.image).attr({
 				'src': url,
-				'data-original': url + '-' + this.model.id // needed to support annotorious if the same image appears on the page more than once
+				'data-original': url + '#' + this.model.id // needed to support annotorious if the same image appears on the page more than once
 			});
 
 			$(this.image).load(function() {
@@ -2294,14 +2295,14 @@ function YouTubeGetID(url){
 	 				n = annotations.length;
 
 	 			// first time setup
-	 			if ( anno.getAnnotations( this.image.src + '-' + this.model.id ).length == 0 ) {
+	 			if ( anno.getAnnotations( this.image.src + '#' + this.model.id ).length == 0 ) {
 	 				// if the image is in a carousel, temporarily show it so we can attach annotations to ti
 	 				var isAlreadyActive = $(this.image).closest('.item').hasClass('active');
 	 				if (!isAlreadyActive) {
 	 					$(this.image).closest('.item').addClass('active');
 	 				}
 					anno.makeAnnotatable( this.image );
-					anno.hideSelectionWidget( this.image.src + '-' + this.model.id );
+					anno.hideSelectionWidget( this.image.src + '#' + this.model.id );
 					anno.setProperties( { hi_stroke: "#3acad9" } );
 					// if the image is in a carousel, return it to its original state
 					if (!isAlreadyActive) {
@@ -2355,8 +2356,8 @@ function YouTubeGetID(url){
 					};
 
 					annotation.data = {
-						src: this.image.src + '-' + this.model.id,
-						text: '<a data-src="'+this.image.src + '-' + this.model.id+'" href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
+						src: this.image.src + '#' + this.model.id,
+						text: '<a data-src="'+this.image.src + '#' + this.model.id+'" href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
 						editable: editable,
 						shapes: [{
 							type: "rect",
