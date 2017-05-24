@@ -1586,14 +1586,29 @@
                                 var popup_body = $(this).find('.annotorious-popup-text').parent().detach();
 
                                 $(this).html('').append(popup_body);
-                                if(popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text){
+                                if($(this).parents('.media_details').length == 0 && popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text){
+                                        $(this).css('max-width','');
                                         $(annotation.element).data('hasUserOpened',true);
                                         var left = $(annotation.element).offset().left + parseFloat(annotation.shapes[0].geometry.x);
                                         var top = $(annotation.element).offset().top + parseFloat(annotation.shapes[0].geometry.y) + parseFloat(annotation.shapes[0].geometry.height) + 5; // Magic number...
                                         if($(this).parent('body').length == 0){
                                             $(this).detach().appendTo('body');
                                         }
+                                        if($(this).width()+left+24 > $(window).width()){
+                                            left -= ($(this).width()+left+24)-$(window).width();
+                                        }
                                         $(this).css({'left':left, 'top':top});
+                                        $(this).css('max-width',winwidth-48);
+                                }else if($(this).parents('.media_details').length > 0 && popup_src!=undefined && annotation_src == popup_src && $(this).find('.annotorious-popup-text').html() == annotation.text){
+                                    $(this).css('max-width','');
+                                    var annowidth = $(this).width();
+                                    var winwidth = $(window).width();
+                                    var offset = $(this).offset().left;
+                                    var currentLeft = parseFloat($(this).css('left'));
+                                    if(offset + annowidth + 24 > winwidth){
+                                        $(this).css('left',currentLeft-((annowidth+offset+24)-winwidth));
+                                    }
+                                    $(this).css('max-width',winwidth-48);
                                 }
                             });
                         });

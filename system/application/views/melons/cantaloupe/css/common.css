@@ -1221,3 +1221,6 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 #wysiwygNewFeatures .close{
 	right: 0px;
 }
+body>.annotorious-popup{
+	z-index: 100 !important;
+}
