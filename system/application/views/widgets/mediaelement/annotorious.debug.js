@@ -3452,8 +3452,6 @@ $JSCompiler_prototypeAlias$$.stopSelection = function $$JSCompiler_prototypeAlia
 };
 function $JSCompiler_StaticMethods__attachListener$$($JSCompiler_StaticMethods__attachListener$self$$, $activeCanvas$$) {
   $goog$events$listen$$($activeCanvas$$, $annotorious$events$ui$EventType$DOWN$$, function($annotations$$1_coords_event$$16$$) {
-    console.log("start selection event");
-    console.log($annotations$$1_coords_event$$16$$);
     $annotations$$1_coords_event$$16$$ = $annotorious$events$ui$sanitizeCoordinates$$($annotations$$1_coords_event$$16$$, $activeCanvas$$);
     $JSCompiler_StaticMethods__attachListener$self$$.$_viewer$.$highlightAnnotation$($JSCompiler_alias_FALSE$$);
     $JSCompiler_StaticMethods__attachListener$self$$.$_selectionEnabled$ ? ($goog$style$showElement$$($JSCompiler_StaticMethods__attachListener$self$$.$_editCanvas$, $JSCompiler_alias_TRUE$$), $JSCompiler_StaticMethods__attachListener$self$$.$_currentSelector$.startSelection($annotations$$1_coords_event$$16$$.x, $annotations$$1_coords_event$$16$$.y)) : ($annotations$$1_coords_event$$16$$ = $JSCompiler_StaticMethods__attachListener$self$$.$_viewer$.$getAnnotationsAt$($annotations$$1_coords_event$$16$$.x, 

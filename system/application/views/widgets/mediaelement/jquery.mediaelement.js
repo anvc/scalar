@@ -1885,7 +1885,7 @@ function YouTubeGetID(url){
 		 * @param {Object} annotation 		The spatial annotation to be shown.
 		 */
 		this.showSpatialAnnotation = function(annotation) {
-			annotation.data.src = this.mediaObjectView.image.src + '-' + this.mediaObjectView.model.id;
+			annotation.data.src = this.mediaObjectView.image.src + '#' + this.mediaObjectView.model.id;
 			anno.highlightAnnotation( annotation.data );
 			if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
 				$('body').trigger('show_annotation', [annotation, me]);
