@@ -1590,7 +1590,6 @@
                                         $(annotation.element).data('hasUserOpened',true);
                                         var left = $(annotation.element).offset().left + parseFloat(annotation.shapes[0].geometry.x);
                                         var top = $(annotation.element).offset().top + parseFloat(annotation.shapes[0].geometry.y) + parseFloat(annotation.shapes[0].geometry.height) + 5; // Magic number...
-                                        console.log([left,$(annotation.element).offset().left,annotation.shapes[0].geometry.x],[top,$(annotation.element).offset().top,annotation.shapes[0].geometry.y],$(annotation.element));
                                         if($(this).parent('body').length == 0){
                                             $(this).detach().appendTo('body');
                                         }
