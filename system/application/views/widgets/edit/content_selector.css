@@ -239,9 +239,17 @@
     margin-bottom: 1rem;
 }
 .selectedNodeChildrenList ul { list-style: disc; }
-.nodeOrdering .btn, .ui-sortable-handle.btn { text-align: left; height: inherit !important; width: inherit !important; font-size: 1.4rem; }
+.nodeOrdering .btn, .ui-sortable-handle.btn { text-align: left; height: inherit; width: inherit ; font-size: 1.4rem; }
 .nodeOrdering .btn-group-vertical { margin-bottom: 2.4rem; }
 .nodeOrdering .glyphicon-menu-hamburger, .ui-sortable-handle .glyphicon-menu-hamburger { color: #b4b4b4; }
+.nodeOrdering .sortable-destination{
+	width: 100%;
+	background-color: #e6e6e6;
+	 height: 3.2rem;
+}
+.nodeOrdering .btn-default:hover{
+	background-color: #eee;
+}
 .sortable-destination { height: 3.2rem; }
 .moreless{
 	display: block;
