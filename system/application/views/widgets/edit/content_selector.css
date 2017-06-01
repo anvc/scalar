@@ -311,6 +311,11 @@
 	margin-bottom: 10px;
 	border-color: #ddd;
 }
+
+.node_selector .panel-heading .btn{
+	height: 34px;
+}
+
 @media only screen and (max-width : 768px) {
 	.node_selector .panel-heading{
 		padding: 0px;
