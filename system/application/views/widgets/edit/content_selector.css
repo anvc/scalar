@@ -315,7 +315,8 @@
 	height: 34px;
 }
 .widgetOptions .modal_footer .node_count, .content_selector_bootbox .footer .node_count {
-    padding-right: 10px;
+    padding-right: 2rem;
+    font-size: 14px;
 }
 
 @media only screen and (max-width : 768px) {
