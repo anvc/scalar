@@ -1007,7 +1007,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						 $(this).remove();
 						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select a widget').fadeIn('fast');});
 						 $('#bootbox-content-selector-content').find('.widgetList').fadeIn('fast');
-						 $('.widget_selector_bootbox .modal-dialog').css('width','').css('margin-left','').css('margin-right','');
+						 $('.widget_selector_bootbox .modal-dialog').css('width','auto').css('margin-left','20px').css('margin-right','20px');
 					 });
 					})
 					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($footer).click(submitAction).data("isEdit",isEdit);
@@ -1017,9 +1017,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 			var order_nodes = function(options,nodeList){
 
-				$('.widget_selector_bootbox').find('.modal-dialog').css('width','').css('margin-left','').css('margin-right','');
 
 				$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
+
+					$('.widget_selector_bootbox').find('.modal-dialog').css('width','').css('margin-left','').css('margin-right','');
+
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Reorder selected pages').fadeIn('fast');});
 					var submitAction = function(e){
 						e.preventDefault();
@@ -1077,7 +1079,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				});
 			}
 			var select_widget_formatting = function(options){
-				$('.widget_selector_bootbox .modal-dialog').css('width','').css('margin-left','').css('margin-right','');
 				
 				var isEdit = options.isEdit;
 
@@ -1086,6 +1087,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 				$previous_page = $('#bootbox-content-selector-content').find('.nodeOrdering').length > 0?$('#bootbox-content-selector-content').find('.nodeOrdering'):$('#bootbox-content-selector-content').find('.widgetOptions');
 				$previous_page.fadeOut('fast',function(){
+
+					$('.widget_selector_bootbox .modal-dialog').css('width','').css('margin-left','').css('margin-right','');
+					
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Choose formatting').fadeIn('fast');});
 					var submitAction = function(e){
 						e.preventDefault();
@@ -1246,8 +1250,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				size: 'large',
 				animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
 			});
-
-			$(box).find('.modal-dialog').css('width','').css('margin-left','').css('margin-right','').removeClass('modal-lg');
+			$(box).find('.modal-dialog').css('width','auto').css('margin-left','20px').css('margin-right','20px').removeClass('modal-lg');
 
 			$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
 
