@@ -492,7 +492,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							}
 						},$selector,box,opts);
 					}else{
-						options.nodeCountContainer = $nodeCount = $('<span class="node_count form-control-static pull-right"></span>');
+						options.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
 					}
 				 if("undefined" !== typeof opts.type && opts.type!=null){
 					 if($.isArray(opts.type)){
@@ -771,7 +771,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count form-control-static pull-right"></span>');
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
 							 hasNodeCount = true;
 							 
 							 opts.fields = ["title","description","url","preview","include_children"],
@@ -865,7 +865,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count form-control-static pull-right"></span>');
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
 							 hasNodeCount = true;
 							 
 							 opts.allowChildren = true;
@@ -906,7 +906,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count form-control-static pull-right"></span>');
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
 							 hasNodeCount = true;
 
 							 opts.allowChildren = true;
@@ -949,7 +949,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count form-control-static pull-right"></span>');
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
 							 hasNodeCount = true;
 
 							 opts.allowChildren = true;
@@ -991,7 +991,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 }
 							 }
 							 opts.allowMultiple = true;
-							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count form-control-static pull-right"></span>');
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
 							 hasNodeCount = true;
 							 
 							 opts.allowChildren = true;
@@ -1552,7 +1552,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																	</div> \
 																	<div class="panel-footer"> \
 																		<div class="row"> \
-																			<div class="col-sm-5 col-sm-offset-7 col-md-4 col-md-offset-8 selected_node_count text-right"></div> \
+																			<div class="col-sm-5 col-sm-offset-7 col-md-4 col-md-offset-8 selected_node_count text-warning text-right"></div> \
 																		</div> \
 																	</div> \
 																</div>';
