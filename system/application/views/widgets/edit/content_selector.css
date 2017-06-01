@@ -297,3 +297,52 @@
 #bootbox-media-options-form select.btn, .widgetFormatting select.btn, #bootbox-media-options-form select.btn option, .widgetFormatting select.btn option{
 	text-align: left;
 }
+
+.node_filter .node_types>.filter_spinner{
+	position: relative;
+	display: inline;
+}
+.node_filter .node_types>.filter_spinner .spinner_container{
+	position: absolute; 
+	top: 50%; 
+	left: 50%;
+}
+.node_selector .panel-heading hr{
+	margin-bottom: 10px;
+	border-color: #ddd;
+}
+@media only screen and (max-width : 768px) {
+	.node_selector .panel-heading{
+		padding: 0px;
+	}
+	.node_selector .panel-heading hr{
+		margin-bottom: 20px;
+	}
+	.node_filter .node_types>select{
+		width: 59%;
+		display: inline;
+	}
+	.node_filter .node_types>button{
+		width: 40%;
+		display: inline;
+	}
+	.node_filter .node_types>.filter_spinner{
+		height: 0px;
+		padding: 0px;
+		display: block;
+	}
+	.node_filter .node_types>.filter_spinner .spinner_container{
+		background-color: #fff;
+		opacity: 0.5;
+		text-align: right;
+		width: 41%;
+		right: 0px;
+		top: -34px;
+		left: 58%;
+		height: 34px;
+	}
+	.node_filter .node_types>.filter_spinner .spinner_container .spinner{
+		left: 50%;
+		top: 50%;
+	}
+}

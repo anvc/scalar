@@ -1089,7 +1089,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$previous_page.fadeOut('fast',function(){
 
 					$('.widget_selector_bootbox .modal-dialog').css('width','').css('margin-left','').css('margin-right','');
-					
+
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Choose formatting').fadeIn('fast');});
 					var submitAction = function(e){
 						e.preventDefault();
@@ -1489,16 +1489,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var dialogue_container = '<div class="panel-default node_selector"> \
 																	<div class="panel-heading"> \
+																		<hr> \
 																		<div class="row"> \
 																			<div class="col-sm-5 col-md-4 node_filter"> \
-																				<div class="node_types form-inline"> \
-																					<select class="btn btn-default generic_button large"> \
-																					</select> \
+																				<div class="node_types"> \
+																					<select class="btn btn-default generic_button large"></select> \
+																					<button class="btn btn-default" type="button">Filter results</button> \
+																					<div class="filter_spinner form-control"><div class="spinner_container"></div></div> \
 																					<br class="visible-xs"> \
-																					<br class="visible-xs"> \
-																	        <button class="btn btn-default" type="button">Filter results</button> \
-																					<div class="filter_spinner form-control" style="position: relative;"><div class="spinner_container" style="position: absolute; top: 50%; left: 50%;"></div></div> \
-																					<hr class="visible-xs"> \
 																				</div> \
 																			</div> \
 																			<div class="col-sm-6 col-sm-offset-1 col-md-5 col-md-offset-3"> \
