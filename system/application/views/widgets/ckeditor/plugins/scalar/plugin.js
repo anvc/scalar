@@ -432,7 +432,7 @@ CKEDITOR._scalar = {
 
 CKEDITOR.plugins.add( 'scalar', {
     //icons: 'scalar1,scalar2,scalar3,scalar4,scalar5,scalar6,scalar7',
-		icons: 'scalar1,scalar2,scalar5,scalar6,scalar7,scalar8,scalar9',
+	icons: 'scalarkeyboard,scalar1,scalar2,scalar5,scalar6,scalar7,scalar8,scalar9',
     requires: 'dialog',
     init: function( editor ) {
 
@@ -608,7 +608,19 @@ CKEDITOR.plugins.add( 'scalar', {
 			});
 	    var pluginDirectory = this.path;
 
-	    	editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );
+	    editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );
+	    
+        editor.addCommand( 'insertScalarKeyboard', {  // Keyboard
+            exec: function( editor ) {
+            	var $keyboard = $('#language-keyboard');
+            	if (!$keyboard.length) return;
+            	$keyboard.show().css({
+					top: (parseInt($(window).height()) - parseInt($keyboard.outerHeight()) - 20 + $(window).scrollTop()) + 'px',
+					left: (parseInt($(window).width()) - parseInt($keyboard.outerWidth()) - 20) + 'px'
+				});
+            }
+        });	    
+	    
         editor.addCommand( 'insertScalar1', {
             exec: function( editor ) {
 							var sel = editor.getSelection();
@@ -718,7 +730,6 @@ CKEDITOR.plugins.add( 'scalar', {
             }
         });
 
-
 				//BEGIN WIDGET CODE
 
 				editor.addCommand('insertScalar8',{ //Widget Link
@@ -784,6 +795,11 @@ CKEDITOR.plugins.add( 'scalar', {
 
 				//END WIDGET CODE
 
+		editor.ui.addButton( 'ScalarKeyboard', {
+			label: 'Display Language Keyboard',
+			command: 'insertScalarKeyboard',
+			toolbar: 'characters'
+		});
         editor.ui.addButton( 'Scalar1', {
             label: 'Insert Scalar Media Link',
             command: 'insertScalar1',

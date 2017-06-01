@@ -3,6 +3,7 @@
 .cke_dialog_ui_html {white-space: normal !important;}
 .cke_dialog_ui_checkbox label {cursor:pointer !important;}
 
+.cke_button__scalarkeyboard,
 .cke_button__scalar1,
 .cke_button__scalar2,
 .cke_button__scalar3,
@@ -20,6 +21,7 @@
 	margin-left:1px !important;
 	margin-right:1px !important;
 }
+..cke_button__scalarkeyboard:hover,
 .cke_button__scalar1:hover,
 .cke_button__scalar2:hover,
 .cke_button__scalar3:hover,
