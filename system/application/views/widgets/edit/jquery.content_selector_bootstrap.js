@@ -470,8 +470,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
     		// Default content
     		var $content = $('<div class="content"></div>').appendTo($wrapper);
-				var $selector = $('<div class="selector" style="height: 100%; width: 100%;"></div>').appendTo($content)
-				 var options = {};
+    		var $nodeCount;
+			var $selector = $('<div class="selector" style="height: 100%; width: 100%;"></div>').appendTo($content)
+			var options = {};
 				//  if(isEdit){
 				// 	 var $el = $(element.$);
 				// 	 if($el.attr("resource")!=undefined){
@@ -490,6 +491,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								box.modal('hide');
 							}
 						},$selector,box,opts);
+					}else{
+						options.nodeCountContainer = $nodeCount = $('<span class="node_count pull-right"></span>');
 					}
 				 if("undefined" !== typeof opts.type && opts.type!=null){
 					 if($.isArray(opts.type)){
@@ -617,6 +620,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						box.modal('hide');
 					 }
 				 },$selector,box,opts));
+				 $footer.append($nodeCount);
 			}
     	};
     	// Propagate the interface
@@ -707,7 +711,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	};
 
 			var select_widget_options = function(widget_type,isEdit){
-
+				var hasNodeCount = false;
+				var $nodeCount;
 				$('.widget_selector_bootbox').find('.modal-dialog').css('width','auto').css('margin-left','20px').css('margin-right','20px');
 
 				if(typeof isEdit == "undefined" || isEdit == null){
@@ -766,6 +771,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count pull-right"></span>');
+							 hasNodeCount = true;
+							 
 							 opts.fields = ["title","description","url","preview","include_children"],
 							 opts.allowChildren = true;
 							 opts.types = ['composite','media','path','tag','term','reply'];
@@ -857,10 +865,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count pull-right"></span>');
+							 hasNodeCount = true;
+							 
 							 opts.allowChildren = true;
 							 opts.fields = ["title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
+
 
 							 $('<div class="node_selection map_node_selection">').appendTo($content).node_selection_dialogue(opts);
 
@@ -894,6 +906,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 					 }
 							 }
 							 opts.allowMultiple = true;
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count pull-right"></span>');
+							 hasNodeCount = true;
+
 							 opts.allowChildren = true;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['path','tag','term','media'];
@@ -934,6 +949,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 }
 							 }
 							 opts.allowMultiple = true;
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count pull-right"></span>');
+							 hasNodeCount = true;
+
 							 opts.allowChildren = true;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
@@ -973,6 +991,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								 }
 							 }
 							 opts.allowMultiple = true;
+							 opts.nodeCountContainer = $nodeCount = $('<span class="node_count pull-right"></span>');
+							 hasNodeCount = true;
+							 
 							 opts.allowChildren = true;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
@@ -1011,6 +1032,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					 });
 					})
 					$('<a class="btn btn-primary pull-right">Continue</a>').appendTo($footer).click(submitAction).data("isEdit",isEdit);
+
+					if(hasNodeCount){
+						$nodeCount.appendTo($footer);
+					}
 					$content.append('<div class="clearfix"></div>');
 					modal_height();
 				});
@@ -1341,6 +1366,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var lastLoadType = "init";
 			var lastLoadCriteria = {};
 			var lastPage = false;
+
 			var isset = function(x){ return typeof x !== 'undefined' && x !== null; };
 			var toProperCase = function (x) { return x.replace(/\w\S*/g, function(x){return x.charAt(0).toUpperCase() + x.substr(1).toLowerCase();}); }
 
@@ -1489,7 +1515,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var dialogue_container = '<div class="panel-default node_selector"> \
 																	<div class="panel-heading"> \
-																		<hr> \
 																		<div class="row"> \
 																			<div class="col-sm-5 col-md-4 node_filter"> \
 																				<div class="node_types"> \
@@ -1871,8 +1896,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			},$dialogue_container);
 
 			var updateSelectedCounter = $.proxy(function(){
-
-				var $count = $(this).find('.selected_node_count');
+				if(isset($(this).data('opts').nodeCountContainer)){
+					var $count = $(this).data('opts').nodeCountContainer;
+				}else{
+					var $count = $(this).find('.selected_node_count');
+				}
 				if($(this).data('nodes') == undefined){
 					$(this).data('nodes',[]);
 				}
@@ -1904,7 +1932,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var $filter = $dialogue_container.find('.node_filter');
 			var $search = $dialogue_container.find('.node_search');
-			var $count = $dialogue_container.find('.selected_node_count');
+
+			if(isset(opts.nodeCountContainer)){
+				var $count = opts.nodeCountContainer;
+				$dialogue_container.find('.selected_node_count').parent('.row').remove();
+			}else{
+				var $count = $dialogue_container.find('.selected_node_count');
+			}
 			var $fields = $dialogue_container.find('.node_fields');
 
 			if(opts.types.length < 2){

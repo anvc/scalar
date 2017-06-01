@@ -19,9 +19,8 @@
 .content_selector_bootbox .loading {position:relative; text-align:center; margin-top:60px; font-size:14px; color:red;}
 .content_selector_bootbox .howto {text-align:center; padding-top:60px; padding-bottom:60px; font-size:14px; line-height:200%;}
 .content_selector_bootbox .modal-header .title {padding-left:15px; font-weight:500;}
-.content_selector_bootbox .footer {position:relative; height:52px; background-color:#eeeeee; border-top:solid 1px #dddddd;}
-.content_selector_bootbox .footer > div:first-of-type {text-align:left; position:absolute; top:5px; left:10px; z-index:5;}
-.content_selector_bootbox .footer > div:last-of-type {text-align:right; position:absolute; top:5px; right:10px; z-index:6;}
+.content_selector_bootbox .footer > div:first-of-type {float: left;}
+.content_selector_bootbox .footer > div:last-of-type {float: right;}
 .content_selector_bootbox .footer a {margin-top:5px; margin-bottom:5px;}
 
 /*.content_selector_bootbox thead {background-color:#eeeeee;}
@@ -148,8 +147,8 @@
 	cursor: pointer
 }
 .node_selector .selected_node_count{
-	font-weight: bold;
-	color: #32a71a
+	color: #000;
+    font-size: 14px;
 }
 .node_selector .botton_options_box{
 	float:left;
@@ -266,7 +265,7 @@
 	margin-top: 7px;
 }
 .widget_data_type{
-	padding: 1rem 0 0 0;
+	padding: 1rem 0;
 }
 
 .widget_type{
@@ -314,6 +313,13 @@
 
 .node_selector .panel-heading .btn{
 	height: 34px;
+}
+
+.widgetOptions .modal_footer .node_count, .content_selector_bootbox .footer .node_count {
+	font-size: 14px;
+	font-weight: 400;
+    padding-right: 10px;
+    line-height: 34px;
 }
 
 @media only screen and (max-width : 768px) {
