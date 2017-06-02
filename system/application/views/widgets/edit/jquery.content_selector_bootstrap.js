@@ -1238,7 +1238,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						 }
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">'+(isEdit?'Edit':'Insert')+' '+options.type+' widget</a>').appendTo($footer).click(submitAction);
+					$('<a class="btn btn-primary pull-right">'+(isEdit?'Done':'Insert '+options.type+' widget')+'</a>').appendTo($footer).click(submitAction);
 					$content.append('<div class="clearfix"></div>');
 					window.setTimeout($.proxy(function(){$(this).fadeIn(200);},$content),200);
 					if(isEdit){
