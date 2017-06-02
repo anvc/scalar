@@ -517,7 +517,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				});
 				$selector.node_selection_dialogue(options);
     		// Footer buttons
-    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Create page on-the-fly</a> &nbsp; &nbsp;</div><div><a href="javascript:void(null);" class="cancel btn btn-default btn-sm generic_button">Cancel</a></div></div>').appendTo($wrapper);
+    		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default generic_button">Create page on-the-fly</a> &nbsp; &nbsp;</div><div><a href="javascript:void(null);" class="cancel btn btn-default generic_button">Cancel</a></div></div>').appendTo($wrapper);
 
     		// Bootstrap positioning
   			$footer.find('.cancel').hide();  // Remove cancel button
@@ -528,7 +528,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     			$footer.hide();
 					$content.hide();
     			var $onthefly = $('<div class="create_onthefly"><div>Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
-					var $buttons = $('<div class="footer onthefly_buttons"><div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Save and link</a></div></div>').appendTo($wrapper);
+					var $buttons = $('<div class="footer onthefly_buttons"><div class="buttons"><span class="onthefly_loading">Loading...</span>&nbsp; <a href="javascript:void(null);" class="btn btn-default generic_button">Cancel</a>&nbsp; <a href="javascript:void(null);" class="btn btn-primary generic_button default">Save and link</a></div></div>').appendTo($wrapper);
     			//$('<div class="heading_font title">Create new page</div>').insertBefore($options);
     			//$options.hide();
     			var $form = $onthefly.find('form');
@@ -608,7 +608,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		}
 			if (opts.multiple) {
 				$footer.show();
-				$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
+				$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary generic_button default">Add Selected</a>');
 				$footer.find('a:last').click($.proxy(function(box,opts){
 					if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
 						var nodes = [];
@@ -1962,7 +1962,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$dialogue_container.find('.selected_node_count').css('float','right').css('margin-left',0);
 				var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
 				if (isset(opts.allowMultiple) && opts.allowMultiple) {
-					var $selectall = $('<button type="button" class="btn btn-default btn-sm">Select all</button>').appendTo($deleteOpts);
+					var $selectall = $('<button type="button" class="btn btn-default">Select all</button>').appendTo($deleteOpts);
 					$selectall.off('click').on('click', function() {
 						var checked = $(this).hasClass('active');
 						var $rows = $(this).closest('.node_selector').find('tbody tr');
@@ -1977,7 +1977,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$(this).blur();
 					});
 				}
-				$deleteOpts.append('<button type="button" class="btn btn-default btn-sm">Delete selected</button>');
+				$deleteOpts.append('<button type="button" class="btn btn-default">Delete selected</button>');
 			}
 
 			if (isset(opts.addOptions) && opts.addOptions) {
@@ -1987,8 +1987,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				} else {
 					$deleteOpts.append('<span> | </span>');
 				}
-				$deleteOpts.append('<button type="button" class="btn btn-default btn-sm">Add new page</button>');
-				$deleteOpts.append('<select class="btn btn-default btn-sm"><option value="">Import media</option></select>');
+				$deleteOpts.append('<button type="button" class="btn btn-default">Add new page</button>');
+				$deleteOpts.append('<select class="btn btn-default"><option value="">Import media</option></select>');
 				$deleteOpts.find('button:last').off('click').on('click', function() {
 					document.location.href = $('link#parent').attr('href')+'new.edit';
 				});
