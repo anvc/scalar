@@ -52,13 +52,17 @@ class System extends MY_Controller {
 		$this->data['featured_books'] = $this->books->get_index_books();
 
 		$this->data['other_books'] = array();
-		if (isset($_REQUEST['view_all'])) {
-			$this->data['other_books'] = $this->books->get_index_books(false);
-		} elseif (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) {
-			$this->data['other_books'] = $this->books->get_index_books(false, $_REQUEST['sq']);
-			if (empty($this->data['other_books'])) $this->data['book_list_search_error'] = 'No books found for "'.trim(htmlspecialchars($_REQUEST['sq'])).'"';
-		} elseif (isset($_REQUEST['sq'])) {
-			$this->data['book_list_search_error'] = 'Please enter a search term';
+		$this->data['render_published'] = (isset($this->config->config['index_render_published']) && false === $this->config->config['index_render_published']) ? false : true;  // Config item was added later so if it's not present default to true
+		$this->data['hide_published'] = (isset($this->config->config['index_hide_published']) && false === $this->config->config['index_hide_published']) ? false : true;  // Config item was added later so if it's not present default to true
+		if ($this->data['render_published']) {
+			if (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) {
+				$this->data['other_books'] = $this->books->get_index_books(false, $_REQUEST['sq']);
+				if (empty($this->data['other_books'])) $this->data['book_list_search_error'] = 'No books found for "'.trim(htmlspecialchars($_REQUEST['sq'])).'"';
+			} elseif (!$this->data['hide_published'] || isset($_REQUEST['view_all'])) {
+				$this->data['other_books'] = $this->books->get_index_books(false);
+			} elseif (isset($_REQUEST['sq'])) {
+				$this->data['book_list_search_error'] = 'Please enter a search term';
+			}
 		}
 
 		$this->data['user_books'] = array();

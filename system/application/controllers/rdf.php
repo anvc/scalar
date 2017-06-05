@@ -107,6 +107,7 @@ class Rdf extends MY_Controller {
 
 		try {
 			if (empty($this->data['book'])) {
+				$render_published = (isset($this->config->config['index_render_published']) && false === $this->config->config['index_render_published']) ? false : true;  // Config item was added later so if it's not present default to true
 				$system = new stdClass;
 				$system->type = 'system';
 				$system->title = $this->lang->line('install_name');
@@ -114,7 +115,7 @@ class Rdf extends MY_Controller {
 										    $this->data['content'],
 										    array(
 										  	  'content'  => $system,
-										  	  'books'    => $this->books->get_all(null, true),
+										  	  'books'    => ($render_published) ? $this->books->get_all(null, true) : array(),
 										  	  'base_uri' => $this->data['base_uri']
 										    )
 										 );

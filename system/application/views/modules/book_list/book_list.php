@@ -61,13 +61,17 @@ if (count($featured_books) > 0) {
 	print_books($featured_books);
 	echo '<br clear="both" />';
 }
+
+if ($render_published):
 ?>
 <h3><?=lang('welcome.other_books')?></h3>
 <form action="<?=base_url()?>" id="book_list_search">
 <div>
 <div><input type="text" name="sq" class="generic_text_input" value="<?=(isset($_REQUEST['sq'])?trim(htmlspecialchars($_REQUEST['sq'])):'')?>" /></div>
 <div><input type="submit" class="generic_button" value="Search" /></div>
+<? if ($hide_published): ?>
 <div><button type="submit" class="generic_button" value="1" name="view_all" >View All</button></div>
+<? endif; ?>
 </div>
 </form>
 <?
@@ -76,12 +80,14 @@ if (isset($book_list_search_error)) {
 }
 ?>
 <br clear="both" />
-<? if (count($other_books) > 0) print_books($other_books) ?>
-</div>
+<? 
+if (count($other_books) > 0) print_books($other_books);
+endif;
+echo '</div>'."\n";
 
-<?
 if ($login->is_logged_in) {
-	echo '<div id="user_books"><h3>Your Books</h3>';
+	echo '<div id="user_books">';
+	echo '<h3>Your Books</h3>';
 	if (count($user_books) > 0) {
 		echo '<ul class="book_icons">';
 		print_books($user_books, true);
@@ -92,5 +98,6 @@ if ($login->is_logged_in) {
 }
 ?>
 <br clear="both" />
+
 </div>
 </div>
