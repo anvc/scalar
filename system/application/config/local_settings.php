@@ -70,6 +70,9 @@ $config['smtp_password'] = (getenv('SCALAR_SMTP_PASSWORD') ? getenv('SCALAR_SMTP
 $config['smtp_secure'] = 'ssl';   // 'ssl' or 'tls'       
 $config['smtp_port'] = 465; 
 
+// Whether to activate the self-published books feature on the book index page
+$config['index_render_published'] = true;
+
 // If true, keep self-published books on the book index page hidden under a tab
 $config['index_hide_published'] = true;
 
