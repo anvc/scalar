@@ -403,9 +403,11 @@
                 // make images that don't come from Critical Commons open the image file in a new tab when clicked
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
                     if ((mediaelement.model.node.current.mediaSource.contentType == 'image') && (mediaelement.model.node.current.sourceFile.indexOf('criticalcommons.org') == -1)) {
-                        mediaelement.model.element.find('.mediaObject').click(function() {
-                            window.open(mediaelement.model.node.current.sourceFile, 'popout');
-                        }).css('cursor', 'pointer');
+                        if (!isMobile) {
+                            mediaelement.model.element.find('.mediaObject').click(function() {
+                                window.open(mediaelement.model.node.current.sourceFile, 'popout');
+                            }).css('cursor', 'pointer');
+                        }
                     }
                 }
 
