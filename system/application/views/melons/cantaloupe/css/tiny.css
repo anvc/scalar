@@ -6,7 +6,7 @@ article h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height:
 	margin-left: -2rem !important;
     margin-right: -2rem !important;
 }
-ul > li, ol > li { margin-left: 0; }
+.relationships ul > li, .relationships ol > li { margin-left: 0; }
 .wrapped_slot.full_width, .mediainfo.full_width{ margin: 0 -2rem !important; }
 #gallery_content { margin-left: 2rem; margin-right: 2rem; }
 .relationships ol, .relationships ul, .relationships p, #incoming_comments, #outgoing_comments, #footer { padding-left: 2rem; padding-right: 2rem; }
