@@ -1,3 +1,5 @@
+<?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
 <?
 $js = <<<END
 
@@ -20,6 +22,12 @@ $( document ).ready(function() {
 			insert_rel_fields('urn:scalar:version:'+replace, $("select[name='replace'] option[value='urn:scalar:version:"+replace+"']").attr('rel'));
 		}
 	}
+	// Additional metadata
+	$('.add_additional_metadata:first').click(function() {
+		$('#metadata_rows_parent').show();
+		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
+		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,input_class:'input-sm'});
+	});
 });
 // http://stackoverflow.com/questions/11920697/how-to-get-hash-value-in-a-url-in-js
 function getHashValue(key) {
@@ -127,6 +135,11 @@ function get_urn_from_uri(data, uri) {
   }
   return false;
 }
+function custom_file_input(el) {
+  var filename = $(el).val().replace(/\\\/g,"/");
+  filename = filename.substr(filename.lastIndexOf('/')+1);
+  $('#upload-file-info').html(filename);
+}
 
 END;
 $this->template->add_js($js, 'embed');
@@ -138,6 +151,56 @@ h2 {margin-top:0; padding-top:0; margin-left:0; padding-left:0; margin-right:0; 
 .upload-page table tr td:first-of-type {font-family:"Lato",Arial,sans-serif !important; padding-right:20px; white-space:nowrap;}
 .upload-page table td {vertical-align:middle !important; padding-bottom:12px;}
 .upload-page table .buttons {padding-top:12px;}
+#metadata_rows_parent {display:none;}
+#metadata_rows_parent td:last-of-type {min-width:600px;}
+#metadata_rows {margin-top:-12px;}
+#metadata_rows .form-group label {padding-top:3px;}
+#metadata_rows .form-group input {margin-bottom:4px;}
+#metadata_rows .control-label {font-size:14px;}
+#metadata_rows input {box-shadow:none; -webkit-box-shadow:none;}
+#upload-file-info {color:#333333;}
+/* http://blog.koalite.com/bbg/ */
+.btn-grey { 
+  color: #000000; 
+  background-color: #CFCFCF; 
+  border-color: #B3B3B3; 
+} 
+.btn-grey:hover, 
+.btn-grey:focus, 
+.btn-grey:active, 
+.btn-grey.active, 
+.open .dropdown-toggle.btn-grey { 
+  color: #000000; 
+  background-color: #B3B3B3; 
+  border-color: #B3B3B3; 
+} 
+.btn-grey:active, 
+.btn-grey.active, 
+.open .dropdown-toggle.btn-grey { 
+  background-image: none; 
+} 
+.btn-grey.disabled, 
+.btn-grey[disabled], 
+fieldset[disabled] .btn-grey, 
+.btn-grey.disabled:hover, 
+.btn-grey[disabled]:hover, 
+fieldset[disabled] .btn-grey:hover, 
+.btn-grey.disabled:focus, 
+.btn-grey[disabled]:focus, 
+fieldset[disabled] .btn-grey:focus, 
+.btn-grey.disabled:active, 
+.btn-grey[disabled]:active, 
+fieldset[disabled] .btn-grey:active, 
+.btn-grey.disabled.active, 
+.btn-grey[disabled].active, 
+fieldset[disabled] .btn-grey.active { 
+  background-color: #CFCFCF; 
+  border-color: #B3B3B3; 
+} 
+.btn-grey .badge { 
+  color: #CFCFCF; 
+  background-color: #000000; 
+}
 END;
 $this->template->add_css($css, 'embed');
 ?>
@@ -146,7 +209,7 @@ $this->template->add_css($css, 'embed');
 Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than <?=ini_get('upload_max_filesize')?> in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).<br /><br />
 Recommended formats (most compatible): css, gif, html, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml<br />
 Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
-<span style="color:#c90000;">Files will overwrite.</span> Uploading the same file to the same place will overwrite any existing file.<br /><br />
+<span style="color:#c90000;">Files will overwrite.</span> Uploading the same file to the same place will overwrite an existing file of the same name.<br /><br />
 <form target="hidden_upload" id="file_upload_form" method="post" enctype="multipart/form-data" action="<?=$base_uri?>upload" class="panel" onsubmit="return validate_upload_form_file($(this));">
 <input type="hidden" name="action" value="add" />
 <input type="hidden" name="native" value="1" />
@@ -183,10 +246,22 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	  	}
 	  ?></select>
 	</td></tr>
-	<tr><td class="field">Choose file</td><td><input type="file" name="source_file" /></td></tr>
+	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
+	<tr><td class="field">Metadata</td><td>
+		<a href="javascript:;" class="btn btn-default add_additional_metadata" role="button">Add additional metadata</a>&nbsp; 
+		<small>Any IPTC or ID3 fields embedded in the file will auto-populate during upload</small>	
+	</td></tr>
+	<tr><td class="field">Choose file</td><td>
+		<!-- <input type="file" name="source_file" /> -->
+		<label class="btn btn-grey" for="my-file-selector">
+		    <input id="my-file-selector" name="source_file" type="file" style="display:none;" onchange="custom_file_input(this);">
+		    Choose File
+		</label>
+		<span class='label' id="upload-file-info">No file chosen.</span>
+	</td></tr>
 	<tr><td>&nbsp;</td><td class="buttons">
 		<input type="submit" value="Upload" id="submit_button" class="btn btn-primary" />
-		<span style="color:red;display:none;" id="loading">&nbsp; Loading media metadata...</span>
+		<small style="color:red;display:none;" id="loading">&nbsp; Loading media metadata...</small>
 	</td></tr>
 </table>
 <iframe id="hidden_upload" name="hidden_upload" src="" style="width:0;height:0;border:0px solid #fff"></iframe>

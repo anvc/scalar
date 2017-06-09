@@ -6,7 +6,9 @@
 			data: null,
 			ns: null,
 			parser_url:'',
-			url:''
+			url:'',
+			row_class:'',
+			input_class:''
 	};  	
 	
     $.fn.add_metadata = function(options) {
@@ -65,7 +67,7 @@
                             if ($insert_into.is('ul') || $insert_into.is('ol')) { // scalarimport
                             	$insert = $('<li><span class="field">'+val+'</span><span class="value"><input type="text" name="'+val+'" value="" /></span></li>');
                             } else if ( $( 'article' ).length ) { // cantaloupe
-                                $insert = $('<div class="form-group '+val+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control" value="" /></div></div>');
+                                $insert = $('<div class="form-group '+val+' '+((opts.row_class.length)?opts.row_class:'')+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control '+((opts.input_class.length)?opts.input_class:'')+'" value="" /></div></div>');
                             } else {  // honeydew
                                 $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="" /></td></tr>');
                             }
