@@ -612,6 +612,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	    
         editor.addCommand( 'insertScalarKeyboard', {  // Keyboard
             exec: function( editor ) {
+            	CKEDITOR._scalar.editor = editor;
             	var $keyboard = $('#language-keyboard');
             	if (!$keyboard.length) return;
             	$keyboard.show().css({
@@ -623,6 +624,7 @@ CKEDITOR.plugins.add( 'scalar', {
 	    
         editor.addCommand( 'insertScalar1', {
             exec: function( editor ) {
+            				CKEDITOR._scalar.editor = editor;
 							var sel = editor.getSelection();
 							var isEdit = false;
 							var element = sel.getStartElement();
@@ -655,6 +657,7 @@ CKEDITOR.plugins.add( 'scalar', {
         });
         editor.addCommand( 'insertScalar2', {
             exec: function( editor ) {
+				CKEDITOR._scalar.editor = editor;
         		var sel = editor.getSelection();
 						var element = sel.getStartElement();
 						var isEdit = false;
@@ -681,6 +684,7 @@ CKEDITOR.plugins.add( 'scalar', {
         });
         editor.addCommand( 'insertScalar5', {
             exec: function( editor ) {
+            	CKEDITOR._scalar.editor = editor;
 	    		var sel = editor.getSelection();
 	    		if (sel.getRanges()[0].collapsed) {
 	    			alert('Please select text to transform into a note link');
@@ -704,6 +708,7 @@ CKEDITOR.plugins.add( 'scalar', {
         });
         editor.addCommand( 'insertScalar6', {
             exec: function( editor ) {
+            	CKEDITOR._scalar.editor = editor;
 	    		var sel = editor.getSelection();
 	    		if (sel.getRanges()[0].collapsed) {
 	    			alert('Please select text to transform into a link');
@@ -726,6 +731,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
         editor.addCommand( 'insertScalar7', {  // External link
             exec: function( editor ) {
+            	CKEDITOR._scalar.editor = editor;
         		CKEDITOR._scalar.external_link(editor, {});
             }
         });
@@ -734,6 +740,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
 				editor.addCommand('insertScalar8',{ //Widget Link
 					exec: function(editor){
+            			CKEDITOR._scalar.editor = editor;
 						var sel = editor.getSelection();
 						var isEdit = false;
 						var element = sel.getStartElement();
@@ -767,6 +774,7 @@ CKEDITOR.plugins.add( 'scalar', {
 
 				editor.addCommand('insertScalar9',{ //Widget Inline Link
 					exec: function(editor){
+            			CKEDITOR._scalar.editor = editor;
 
 						var sel = editor.getSelection();
 						var element = sel.getStartElement();

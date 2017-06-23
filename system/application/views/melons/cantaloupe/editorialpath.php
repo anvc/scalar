@@ -12,6 +12,7 @@
 	$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js');
 	$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js');
 	$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js');
+	$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');
 	$this->template->add_js('system/application/views/widgets/edit/jquery.predefined.js');
 	$this->template->add_js('system/application/views/widgets/spectrum/spectrum.js');
 	$this->template->add_js('system/application/views/widgets/spinner/spin.min.js');
@@ -27,6 +28,11 @@
 	$this->template->add_css('system/application/views/melons/cantaloupe/css/editorial_path.css');
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/scalareditorialpath.jquery.js');
 	$this->template->add_js('var views='.json_encode($this->config->item('views')), 'embed');
+
+	if ($this->config->item('reference_options')) {
+		$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
+	}
+
 ?> 
 
 <div id="editorialPath">

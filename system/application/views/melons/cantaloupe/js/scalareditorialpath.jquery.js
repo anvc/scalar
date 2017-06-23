@@ -79,8 +79,9 @@
 
                     $('body').on('headerSizeChanged',function(){
                         var offset = $(this).hasClass('shortHeader')?19:59;
-
-                        $('body').data('bs.scrollspy').options.offset = offset;
+                        if(typeof $('body').data('bs.scrollspy') != 'undefined'){
+                                $('body').data('bs.scrollspy').options.offset = offset;
+                        }
                         $('body').scrollspy('refresh');
                     });
 
@@ -133,6 +134,9 @@
         							uri = uri.slice(0, uri.lastIndexOf('.'));
         	        			}
         	        			var node = scalarapi.getNode( uri );
+                                if(typeof node == 'undefined'){
+                                    continue;
+                                }
         						var citationProp = node.properties['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
                                 console.log(node.properties);
         						regex = /(?:.*methodNumNodes=(\d+))/;
@@ -174,7 +178,7 @@
                     //Escape if we have loaded everything!
         			if(base.currentChunk*base.options.pagesPerChunk > base.numPages[base.nodeTypes[base.currentLoadType]]){
                         if(++base.currentLoadType >= base.nodeTypes.length){
-                            base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 100%');
+                            base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType-1]+' nodes - 100%');
                             base.stage = 3;
                             base.setup();
                             return;
@@ -202,23 +206,63 @@
 
                     base.resize();
 
-        			base.$contentLoader.fadeOut('fast',function(){
-        				$(this).remove();
-        			});
-
         			base.$nodeList.appendTo(base.options.contents);
-
-                    base.updateLinks();
                     
                     $('body').scrollspy({ target: '#editorialOutline', offset: 49 });
 
                     //Set up inline editor for editable content
-                    base.options.contents.find('[contenteditable]').each(function(){
-                        CKEDITOR.inline( $(this).attr('id'), {
-                            // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                            removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror':'codemirror',
-                            startupFocus: false
-                        } );
+                    var editorial_nodes = base.$nodeList.find('.editorial_node').hide();
+                    var num_editorial_nodes = editorial_nodes.length;
+                    var editorial_node_index = 1;
+
+                    base.$contentLoaderInfo.text('Loading editors...');
+
+                    var editable_fields = [];
+                    editorial_nodes.each(function(){
+
+                        base.updateLinks($(this));
+                        $(this).show().fadeTo(0,0);
+                        var $parent = $(this);
+                        $(this).find('[contenteditable]').each(function(){
+                            if(!$(this)[0].isContentEditable){
+                                return;
+                            }
+
+                            $parent.data('editableFields',$parent.data('editableFields')+1);
+
+                            var editor = CKEDITOR.inline( $(this).attr('id'), {
+                                // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                                removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
+                                startupFocus: false,
+                                toolbar : 'ScalarInline'
+                            } );
+
+                            editor.on('focus', $.proxy(function(editor,base,ev) {
+                                    if($(this).hasClass('descriptionContent')) return;
+                                    
+                                    $('html, body').animate({
+                                        scrollTop: $(this).offset().top - ($(this).offset().top > $('body').scrollTop() ? 99 : 139)
+                                    }, 1000);
+                                    base.stripPlaceholders($(this));
+                                    editor.plugins['scalar'].init(editor);
+                            },this,editor,base));  
+
+
+                            editor.on('blur', $.proxy(function($parent,base,ev) {
+                                    if($('.bootbox').length > 0) return;
+                                    if($(this).hasClass('descriptionContent')) return;
+                                    
+                                    base.updateLinks($parent);
+                            },this,$parent,base)); 
+                            
+
+                            editor.on('instanceReady', $.proxy(function(base,ev) {
+                                $(this).fadeTo(1000,100);
+                                base.$contentLoader.fadeOut('fast',function(){
+                                    $(this).remove();
+                                });
+                            },$parent,base));
+                        });
                     });
         	}
         };
@@ -257,8 +301,9 @@
 											'</div>'+
         								'</div>'+
         							'</div>'+
+                                    '<label for="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionLabel">Description</label>'+
                                     '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent body_font well" contenteditable></div>'+
-        							'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="bodyContent body_font" contenteditable>'+node.current.content+'</div>'+
+        							'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font" contenteditable>'+node.current.content+'</div>'+
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList);
@@ -297,14 +342,14 @@
             $('#editorialSidePanel>div .collapse').css('max-height',$(window).height()-100);
 	    };
 
-        base.updateLinks = function(){
+        base.updateLinks = function($node){
             //Handle media links
-            $('.editorial_node .bodyContent a[resource]').each(function(){
+            $node.find('.bodyContent a[resource]').each(function(){
                 base.addPlaceholderSlot($(this),true);
             });
 
             //Handle widget links
-            $('.editorial_node .bodyContent a[data-widget]').each(function(){
+            $node.find('.bodyContent a[data-widget]').each(function(){
                 base.addPlaceholderSlot($(this),false);
             });
         };
@@ -321,7 +366,7 @@
                 $link.parents('.editorial_node').addClass('gutter');
             }
 
-            var $placeholder = $('<div class="placeholder clearfix"><div class="content"></div></div>').addClass(size).addClass(align).addClass(type);
+            var $placeholder = $('<div class="placeholder clearfix" contenteditable="false"><div class="content"></div></div>').addClass(size).addClass(align).addClass(type);
 
             if(!inline){
                 //First check to see if we have any block elements before the link...
@@ -364,6 +409,10 @@
             }
         };
 
+        base.stripPlaceholders = function($el){
+            $el.find('.placeholder').remove();
+        }
+
         // Run initializer
         base.init();
     };
@@ -388,3 +437,5 @@ $(function(){
 		outline : $('#editorialOutline')
 	});
 });
+
+CKEDITOR.disableAutoInline = true;

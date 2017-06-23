@@ -233,6 +233,10 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding-right: 8rem;
 }
 
+#editorialPathContents .editorial_node.gutter .bodyContent.cke_focus{
+	padding-right: 0px;
+}
+
 
 #editorialPathContents .editorial_node .placeholder{
 	clear: both;
@@ -283,15 +287,10 @@ body.shortHeader #editorialSidePanel>.affix{
 	margin-top: 2rem;
 	position: relative;
 }
-.editorial_node .descriptionContent:after{
-	content: "Description:";
+.editorial_node .descriptionLabel:after{
 	font-style: normal;
 	font-family: 'Lato', Arial, sans-serif !important;
 	color: #b4b4b4;
-    position: absolute;
-    font-size: 80%;
-    top: -2.5rem;
-    left: 0;
 
 }
 
@@ -301,4 +300,40 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #editorialSidePanel>div .collapse{
 	overflow-y: auto;
+}
+
+.note {color:#038200; text-decoration:underline;}
+.cke_focus a.inline {
+	display:block; background:#cccccc; border:solid 5px #bbbbbb; height:75px; margin:0;
+	background-image:url(../../../widgets/ckeditor/plugins/scalar/styles/media.png); background-position:center center; background-repeat:no-repeat;
+	margin-left:20%; margin-right:20%;
+}
+.cke_focus a.inline.inlineWidget {
+	background-image:url(../../../widgets/ckeditor/plugins/scalar/styles/widget.png);
+}
+
+.cke_focus a.inline.inlineWidget[data-widget="visualization"] {
+	background-size: auto 75%;
+	background-image:url(../images/widget_image_visualization.png);
+}
+.cke_focus a.inline.inlineWidget[data-widget="timeline"] {
+	background-size: auto 75%;
+	background-image:url(../images/widget_image_timeline.png);
+}
+.cke_focus a.inline.inlineWidget[data-widget="map"] {
+	background-size: auto 75%;
+	background-image:url(../images/widget_image_map.png);
+}
+.cke_focus a.inline.inlineWidget[data-widget="carousel"] {
+	background-size: auto 75%;
+	background-image:url(../images/widget_image_carousel.png);
+}
+.cke_focus a.inline.inlineWidget[data-widget="card"] {
+	background-size: auto 75%;
+	background-image:url(../images/widget_image_card.png);
+}
+
+.cke_focus a.inline.inlineWidget[data-widget="summary"] {
+	background-size: auto 75%;
+	background-image:url(../images/widget_image_summary.png);
 }
