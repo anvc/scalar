@@ -50,6 +50,7 @@
 
         base.stage = 0;
         base.currentChunk = 0;
+        base.needsScrollspyRefresh = false;
         
         // Add a reverse reference to the DOM object
         base.$el.data("scalarEditorialPath", base);
@@ -78,11 +79,21 @@
                     });
 
                     $('body').on('headerSizeChanged',function(){
-                        var offset = $(this).hasClass('shortHeader')?19:59;
+                        var offset = $(this).hasClass('shortHeader')?19:69;
                         if(typeof $('body').data('bs.scrollspy') != 'undefined'){
                                 $('body').data('bs.scrollspy').options.offset = offset;
                         }
                         $('body').scrollspy('refresh');
+                    });
+
+                    $(window).scroll(function(e) {
+                       if($(window).scrollTop() + $(window).height() >= ($(document).height()-50)) {
+                           if(base.$nodeList.find('.loader').length == 0 && typeof base.nextNodeIndexToLoad !== 'undefined' && typeof base.currentNodeList !== 'undefined' && base.nextNodeIndexToLoad < base.currentNodeList.length){
+                              $('body').css('overflow-y','hidden');
+                              base.$nodeList.append('<div class="loader">Loading...</div>');
+                              base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],$.proxy(function(){$(this).remove();$('body').css('overflow-y','auto').scrollspy('refresh');},base.$nodeList.find('.loader')));
+                           }
+                       }
                     });
 
         			base.node_state_classes = [];
@@ -114,9 +125,8 @@
                                     if(++loadedTypes == base.nodeTypes.length){
                                         nodeLoadDeferred.resolve();
                                     }
-                                },
-    							null, 0, false, null, 0, 1
-    						);
+                                }
+                            );
                         })(base, base.nodeTypes[type]);
                     }
 
@@ -138,7 +148,6 @@
                                     continue;
                                 }
         						var citationProp = node.properties['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
-                                console.log(node.properties);
         						regex = /(?:.*methodNumNodes=(\d+))/;
         						matches = null;
         						if((matches = regex.exec(citationProp)) === null){
@@ -170,7 +179,11 @@
                             if(uri.lastIndexOf('http', 0) === 0){
                                 //We don't have a version node! Load the node.
                                 var node = scalarapi.getNode( uri );
-                                base.addNode(node);
+                                node.editorialState = base.node_state_classes[Math.floor(Math.random()*(base.node_state_classes.length))];
+                                if(typeof base.nodeList.unsorted == 'undefined'){
+                                    base.nodeList.unsorted = [];
+                                }
+                                base.nodeList.unsorted.push(node);
                             }
                         }
                     }
@@ -196,7 +209,38 @@
                     );
 
         			break;
-        		case 3:
+                case 3:
+                    //created sorted lists of nodes
+                    //Author Suggested (Need to have this functionality - for now, just shuffled.)
+                    base.nodeList.sortedByAuthorSuggested = base.nodeList.unsorted.slice();
+                    // TODO: Replace this with actual Author Suggested order...
+                    for (let i = base.nodeList.sortedByAuthorSuggested.length; i; i--) {
+                        let j = Math.floor(Math.random() * i);
+                        [base.nodeList.sortedByAuthorSuggested[i - 1], base.nodeList.sortedByAuthorSuggested[j]] = [base.nodeList.sortedByAuthorSuggested[j], base.nodeList.sortedByAuthorSuggested[i - 1]];
+                    }
+
+                    //Name
+                    base.nodeList.sortedByName = base.nodeList.unsorted.slice();
+                    base.nodeList.sortedByName.sort(function(a, b) {
+                      a = a.current.title.toLowerCase(), b = b.current.title.toLowerCase();
+                      return a>b?1:(a<b?-1:0);
+                    });
+
+                    //Date Asc
+                    base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.unsorted.slice();
+                    base.nodeList.sortedByLastModifiedDateAsc.sort(function(a, b) {
+                      a = new Date(a.current.created), b = new Date(b.current.created);
+                      return a>b?1:(a<b?-1:0);
+                    });
+
+                    //Date Desc
+                    base.nodeList.sortedByLastModifiedDateDesc = base.nodeList.unsorted.slice();
+                    base.nodeList.sortedByLastModifiedDateDesc.sort(function(a, b) {
+                      a = new Date(a.current.created), b = new Date(b.current.created);
+                      return a>b?-1:(a<b?1:0);
+                    });
+                    base.propogateInitialPage();
+        		case 4:
 
                     $('#editorialSidePanel>div').affix({
                       offset: {
@@ -208,69 +252,127 @@
 
         			base.$nodeList.appendTo(base.options.contents);
                     
-                    $('body').scrollspy({ target: '#editorialOutline', offset: 49 });
+                    $('body').scrollspy({ target: '#editorialOutline', offset: 69 });
 
-                    //Set up inline editor for editable content
-                    var editorial_nodes = base.$nodeList.find('.editorial_node').hide();
-                    var num_editorial_nodes = editorial_nodes.length;
-                    var editorial_node_index = 1;
+                    // //Set up inline editor for editable content
+                    // var editorial_nodes = base.$nodeList.find('.editorial_node').hide();
+                    // var num_editorial_nodes = editorial_nodes.length;
+                    // var editorial_node_index = 1;
 
-                    base.$contentLoaderInfo.text('Loading editors...');
+                    // base.$contentLoaderInfo.text('Loading editors...');
 
-                    var editable_fields = [];
-                    editorial_nodes.each(function(){
+                    // var editable_fields = [];
+                    // editorial_nodes.each(function(){
 
-                        base.updateLinks($(this));
-                        $(this).show().fadeTo(0,0);
-                        var $parent = $(this);
-                        $(this).find('[contenteditable]').each(function(){
-                            if(!$(this)[0].isContentEditable){
-                                return;
-                            }
+                    //     base.updateLinks($(this));
+                    //     $(this).show().fadeTo(0,0);
+                    //     var $parent = $(this);
+                    //     $(this).find('[contenteditable]').each(function(){
+                    //         if(!$(this)[0].isContentEditable){
+                    //             return;
+                    //         }
 
-                            $parent.data('editableFields',$parent.data('editableFields')+1);
+                    //         $parent.data('editableFields',$parent.data('editableFields')+1);
 
-                            var editor = CKEDITOR.inline( $(this).attr('id'), {
-                                // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                                removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
-                                startupFocus: false,
-                                toolbar : 'ScalarInline'
-                            } );
+                    //         var editor = CKEDITOR.inline( $(this).attr('id'), {
+                    //             // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                    //             removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
+                    //             startupFocus: false,
+                    //             toolbar : 'ScalarInline'
+                    //         } );
 
-                            editor.on('focus', $.proxy(function(editor,base,ev) {
-                                    if($(this).hasClass('descriptionContent')) return;
+                    //         editor.on('focus', $.proxy(function(editor,base,ev) {
+                    //                 if($(this).hasClass('descriptionContent')) return;
                                     
-                                    $('html, body').animate({
-                                        scrollTop: $(this).offset().top - ($(this).offset().top > $('body').scrollTop() ? 99 : 139)
-                                    }, 1000);
-                                    base.stripPlaceholders($(this));
-                                    editor.plugins['scalar'].init(editor);
-                            },this,editor,base));  
+                    //                 $('html, body').animate({
+                    //                     scrollTop: $(this).offset().top - ($(this).offset().top > $('body').scrollTop() ? 99 : 139)
+                    //                 }, 1000);
+                    //                 base.stripPlaceholders($(this));
+                    //                 editor.plugins['scalar'].init(editor);
+                    //         },this,editor,base));  
 
 
-                            editor.on('blur', $.proxy(function($parent,base,ev) {
-                                    if($('.bootbox').length > 0) return;
-                                    if($(this).hasClass('descriptionContent')) return;
+                    //         editor.on('blur', $.proxy(function($parent,base,ev) {
+                    //                 if($('.bootbox').length > 0) return;
+                    //                 if($(this).hasClass('descriptionContent')) return;
                                     
-                                    base.updateLinks($parent);
-                            },this,$parent,base)); 
+                    //                 base.updateLinks($parent);
+                    //         },this,$parent,base)); 
                             
 
-                            editor.on('instanceReady', $.proxy(function(base,ev) {
-                                $(this).fadeTo(1000,100);
-                                base.$contentLoader.fadeOut('fast',function(){
-                                    $(this).remove();
-                                });
-                            },$parent,base));
-                        });
-                    });
+                    //         editor.on('instanceReady', $.proxy(function(base,ev) {
+                    //             $(this).fadeTo(1000,100);
+                    //             base.$contentLoader.fadeOut('fast',function(){
+                    //                 $(this).remove();
+                    //             });
+                    //         },$parent,base));
+                    //     });
+                    // });
         	}
         };
 
-        base.addNode = function(node){
+        base.propogateInitialPage = function(){
+            base.nextNodeIndexToLoad = 0;
+            base.currentNodeList = base.nodeList.sortedByAuthorSuggested;
+            base.$nodeList.appendTo(base.options.contents);
+
+            var pagePadding = ($(window).height()-$('.editorialpath-page').height())+60;
+            var callback = function(){
+                var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
+                if(base.nextNodeIndexToLoad < base.currentNodeList.length && nodeListBottom < $(window).height()){
+                    base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+                }else{
+                    base.stage = 4;
+                    base.loadOutline();
+                    $('body').scrollspy('refresh');
+                    base.setup();
+                }
+            }
+            base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+        };
+
+        base.loadOutline = function(){
+            for(var node in base.currentNodeList){
+                node = base.currentNodeList[node];
+                var nodeOutlineItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
+                var $nodeOutlineItem = $(nodeOutlineItemHTML).appendTo('#editorialOutline>ul');
+
+                $nodeOutlineItem.find('a').click($.proxy(function(slug, e){
+                    e.preventDefault();
+                    base.scrollToNode(slug);
+                },base, node.slug));
+            }
+        };
+
+        base.scrollToNode = function(nodeSlug){
+            var $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
+            if($node.length > 0){
+                $('html, body').animate({
+                        scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 19 : 59)
+                }, 1000);
+                window.setTimeout(function(){$('body').scrollspy('refresh');},1000);
+            }else{
+                var callback = function(){
+                    console.log(base.nextNodeIndexToLoad, base.currentNodeList[base.nextNodeIndexToLoad-1].slug);
+                    if(base.nextNodeIndexToLoad >= base.currentNodeList.length || base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
+                        $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
+                        console.log($node);
+                        $('html, body').animate({
+                                scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 19 : 59)
+                        }, 1000);
+                        window.setTimeout(function(){$('body').scrollspy('refresh');},1000);
+                    }else{
+                        base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+                    }
+                }
+                base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+            }
+        };
+
+        base.addNode = function(node,callback){
         	var currentVersion = node.current;
 
-        	var state = base.node_state_classes[Math.floor(Math.random()*(base.node_state_classes.length))];
+        	var state = node.editorialState;
         	var stateName = base.node_states[state];        	
 
         	var nodeView = typeof node.current.defaultView !== 'undefined' ? node.current.defaultView : 'plain';
@@ -306,7 +408,12 @@
         							'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font" contenteditable>'+node.current.content+'</div>'+
         						'</div>';
 
+
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList);
+
+            if($.isFunction(callback)){
+                $node.on('initialNodeLoad',callback);
+            }
 
             if(typeof node.current.description === 'undefined' || node.current.description == null){
                 $node.find('.descriptionContent').text("(This page does not have a description.)").addClass('noDescription');
@@ -323,18 +430,47 @@
 
         	$node.data({
         		title : currentVersion.title,
-        		slug : node.slug
+        		slug : node.slug,
+                state : state
         	});
 
-		    var nodeOutlineItemHTML = '<li class="'+state+'"><a href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
-		    var $nodeOutlineItem = $(nodeOutlineItemHTML).appendTo('#editorialOutline>ul');
+            $node.find('[contenteditable]').each(function(){
+                if(!$(this)[0].isContentEditable){
+                    return;
+                }
 
-		    $nodeOutlineItem.find('a').click(function(e){
-		    	e.preventDefault();
-		    	$('html, body').animate({
-			        scrollTop: $($(this).attr('href')).offset().top - ($($(this).attr('href')).offset().top > $('body').scrollTop() ? 9 : 49)
-			    }, 1000);
-		    });
+                $node.data('editableFields',$node.data('editableFields')+1);
+
+                var editor = CKEDITOR.inline( $(this).attr('id'), {
+                    // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                    removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
+                    startupFocus: false,
+                    toolbar : 'ScalarInline'
+                } );
+
+                editor.on('focus', $.proxy(function(editor,base,ev) {
+                        if($(this).hasClass('descriptionContent')) return;
+                        base.stripPlaceholders($(this));
+                        editor.plugins['scalar'].init(editor);
+                },this,editor,base));
+
+                editor.on('blur', $.proxy(function($parent,base,ev) {
+                        if($('.bootbox').length > 0) return;
+                        if($(this).hasClass('descriptionContent')) return;
+                        
+                        base.updateLinks($node);
+                },this,$node,base));
+
+                editor.on('instanceReady', $.proxy(function(base,ev) {
+                    $(this).fadeTo(1000,100);
+                    base.$contentLoader.fadeOut('fast',function(){
+                        $(this).remove();
+                    });
+                },$node,base));
+            });
+
+            base.updateLinks($node);
+
         };
 
         base.resize = function(){
@@ -343,20 +479,31 @@
 	    };
 
         base.updateLinks = function($node){
-            //Handle media links
-            $node.find('.bodyContent a[resource]').each(function(){
-                base.addPlaceholderSlot($(this),true);
-            });
 
-            //Handle widget links
-            $node.find('.bodyContent a[data-widget]').each(function(){
-                base.addPlaceholderSlot($(this),false);
-            });
+            var linkCount = 0; //$node.find('.bodyContent a[resource]').length + $node.find('.bodyContent a[data-widget]').length;
+            $node.data('linkCount',linkCount);
+            //Handle media links
+            // $node.find('.bodyContent a[resource]').each(function(){
+            //     base.addPlaceholderSlot($(this),true,$node);
+            // });
+
+            // //Handle widget links
+            // $node.find('.bodyContent a[data-widget]').each(function(){
+            //     base.addPlaceholderSlot($(this),false,$node);
+            // });
+
+            if($node.find('.bodyContent a[resource][data-align="right"]:not(.inline),.bodyContent a[data-widget][data-align="right"]:not(.inline)').length > 0){
+                $node.addClass('gutter');
+            }
+
+            if(linkCount <= 0){
+                $node.trigger('initialNodeLoad').off('initialNodeLoad');
+            }
         };
 
 
         //TODO: Rewrite slot manager so that it can build slots for media, widgets, and placeholders
-        base.addPlaceholderSlot = function($link, isMedia){
+        base.addPlaceholderSlot = function($link, isMedia, $node){
             var size = $link.data('size');
             var align = $link.data('align');
             var inline = $link.hasClass('inline') || $link.hasClass('inlineWidget');
@@ -391,7 +538,7 @@
 
 
             if(isMedia){
-                (function($placeholder,resource){
+                (function($placeholder,resource,$node){
                     var handleMedia = function(){
                         var media = scalarapi.getNode(resource);
                         if(typeof media !== 'undefined' && media !== null && media !== undefined){
@@ -399,13 +546,21 @@
                         }else{
                             $placeholder.find('.content').html('Missing Media! ('+resource+')');
                         }
+                        $node.data('linkCount',$node.data('linkCount')-1);
+                        if($node.data('linkCount') <= 0){
+                            $node.trigger('initialNodeLoad').off('initialNodeLoad');
+                        }
                     };
                     if(scalarapi.loadPage( resource, false, handleMedia, null, 1, false, null, 0, 0) == "loaded"){
                         handleMedia();
                     }
-                })($placeholder,$link.attr('resource'));
+                })($placeholder,$link.attr('resource'),$node);
             }else{
                 //We probably don't have a single node name, so we will save the api call
+                $node.data('linkCount',$node.data('linkCount')-1);
+                if($node.data('linkCount') <= 0){
+                    $node.trigger('initialNodeLoad').off('initialNodeLoad');
+                }
             }
         };
 
@@ -420,7 +575,7 @@
     $.scalarEditorialPath.defaultOptions = {
     	contents : null,
 		outline : null,
-		pagesPerChunk : 10
+		pagesPerChunk : 100
     };
     
     $.fn.scalarEditorialPath = function(options){
