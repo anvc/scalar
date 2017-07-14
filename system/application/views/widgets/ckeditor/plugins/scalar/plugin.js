@@ -295,7 +295,7 @@ CKEDITOR._scalar = {
 			CKEDITOR._scalar.editor.updateElement(element);
 		}
 		if(cke_loadedScalarInlineWidget.indexOf(element)==-1){
-			CKEDITOR._scalar.addCKInlineWidgetPreview(element);
+			CKEDITOR._scalar.addCKInlineWidgetPreview(element,0);
 		}
 	},
 	addCKInlineMediaPreview : function(slug,element,additionalInlineOffset){
@@ -327,7 +327,7 @@ CKEDITOR._scalar = {
 				var frameScroll = CKEDITOR._scalar.editor.editable().isInline()?0:$('.cke_contents>iframe').contents().scrollTop();
 				var pageScroll = $(window).scrollTop();
 				
-				var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top+10+additionalInlineOffset:framePosition.top+position.top-frameScroll-pageScroll+10;
+				var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top+20+additionalInlineOffset:framePosition.top+position.top-frameScroll-pageScroll+10;
 
 				if(!CKEDITOR._scalar.editor.editable().isInline() && frameScroll > position.top){
 					topPos = framePosition.top+10;
@@ -359,11 +359,17 @@ CKEDITOR._scalar = {
 					}
 					switch($(this).data('align')){
 						case 'right':
-							var gearIconLeft = framePosition.left + frameWidth - 40;
+							var gearIconLeft = framePosition.left + frameWidth - 60;
+							if($(CKEDITOR._scalar.editor.container.$).parent().hasClass('gutter') && $(this).hasClass('inline')){
+								gearIconLeft -= 60;
+							}
 							var xIconLeft = gearIconLeft - (placeholderWidth-50);
 							break;
 						case 'center':
 							var gearIconLeft = framePosition.left + (frameWidth/2.0) + (placeholderWidth/2.0) - 40;
+							if($(CKEDITOR._scalar.editor.container.$).parent().hasClass('gutter')){
+								gearIconLeft -= 60;
+							}
 							var xIconLeft = gearIconLeft - (placeholderWidth-50);
 							break;
 						default:
@@ -402,7 +408,7 @@ CKEDITOR._scalar = {
 				var frameScroll = CKEDITOR._scalar.editor.editable().isInline()?0:$('.cke_contents>iframe').contents().scrollTop();
 				var pageScroll = $(window).scrollTop();
 				
-				var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top+10+additionalInlineOffset:framePosition.top+position.top-frameScroll-pageScroll+10;
+				var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top+20+additionalInlineOffset:framePosition.top+position.top-frameScroll-pageScroll+10;
 
 				if(!CKEDITOR._scalar.editor.editable().isInline() && frameScroll > position.top){
 					topPos = framePosition.top+10;
@@ -434,12 +440,17 @@ CKEDITOR._scalar = {
 					}
 					switch($(this).data('align')){
 						case 'right':
-						console.log(framePosition,frameWidth);
-							var gearIconLeft = framePosition.left + frameWidth - 40;
+							var gearIconLeft = framePosition.left + frameWidth - 50;
+							if($(CKEDITOR._scalar.editor.container.$).parent().hasClass('gutter') && $(this).hasClass('inline')){
+								gearIconLeft -= 60;
+							}
 							var xIconLeft = gearIconLeft - (placeholderWidth-50);
 							break;
 						case 'center':
 							var gearIconLeft = framePosition.left + (frameWidth/2.0) + (placeholderWidth/2.0) - 40;
+							if($(CKEDITOR._scalar.editor.container.$).parent().hasClass('gutter')){
+								gearIconLeft -= 60;
+							}
 							var xIconLeft = gearIconLeft - (placeholderWidth-50);
 							break;
 						default:
@@ -655,7 +666,7 @@ CKEDITOR.plugins.add( 'scalar', {
 										contentOptionsCallback : CKEDITOR._scalar.widgetInlineCallback,
 									  selectOptions : {isEdit:true,type:'widget',msg:'Edit Inline Scalar Widget Link',element:element,callback:CKEDITOR._scalar.widgetInlineCallback,inline:true}
 									});
-									CKEDITOR._scalar.addCKInlineWidgetPreview(element);
+									CKEDITOR._scalar.addCKInlineWidgetPreview(element,0);
 								}else{
 									$(element.$).data({
 										element : element,

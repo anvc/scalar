@@ -234,10 +234,10 @@ body.shortHeader #editorialSidePanel>.affix{
 	line-height: 20px;
 }
 #editorialPathContents .editorial_node .bodyContent{
-	padding: .5rem;
+	padding: 10px;
 }
 #editorialPathContents .editorial_node.gutter .bodyContent{
-	padding-right: 8rem;
+	padding-right: 70px;
 }
 
 
@@ -305,7 +305,7 @@ body.shortHeader #editorialSidePanel>.affix{
 
 #editorialPathContents .editorial_node .bodyContent a[resource][data-align="right"]:not(.inline):before,
 #editorialPathContents .editorial_node .bodyContent a[data-widget][data-align="right"]:not(.inline):before{
-	margin-right: -7.5rem;
+	margin-right: -60px;
 }
 
 #editorialPathContents .editorial_node .bodyContent a[resource][data-align="left"]:before,
