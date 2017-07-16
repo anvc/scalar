@@ -246,11 +246,11 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	  	}
 	  ?></select>
 	</td></tr>
-	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
 	<tr><td class="field">Metadata</td><td>
 		<a href="javascript:;" class="btn btn-default add_additional_metadata" role="button">Add additional metadata</a>&nbsp; 
 		<small>Any IPTC or ID3 fields embedded in the file will auto-populate during upload</small>	
 	</td></tr>
+	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
 	<tr><td class="field">Choose file</td><td>
 		<!-- <input type="file" name="source_file" /> -->
 		<label class="btn btn-grey" for="my-file-selector">
