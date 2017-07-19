@@ -949,7 +949,7 @@
                 // accommodate long labels that wrap to multiple lines (if it is centered, then
                 // we likely aren't showing lateral relationship nav anyway so don't worry about it)
                 if (!options.isCentered) {
-                    var cont_btn = $('.nav_btn.primary');
+                    var cont_btn = $('.relationships .nav_btn.primary');
                     var back_btn = cont_btn.parent().children('#back-btn');
                     if (cont_btn.length !== 0) {
                         if (back_btn.length !== 0) {
