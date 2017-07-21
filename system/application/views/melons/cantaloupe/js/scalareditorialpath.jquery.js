@@ -96,6 +96,13 @@
                        }
                     });
 
+                    $('#contentOrderDropdown a').click(function(e){
+                        e.preventDefault();
+                        base.changeSort($(this).data('sort'));
+                        $(this).parent().addClass('active').siblings().removeClass('active');
+                        $('#contentOrderDropdown .btn .text').text($(this).text());
+                    });
+
         			base.node_state_classes = [];
         			for(var stateClass in base.node_states){
         				base.node_state_classes.push(stateClass);
@@ -226,18 +233,28 @@
                       return a>b?1:(a<b?-1:0);
                     });
 
+                    //Type
+                    base.nodeList.sortedByType = base.nodeList.sortedByName.slice();
+                    base.nodeList.sortedByType.sort(function(a, b) {
+                        namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
+                        a = a.baseType; b = b.baseType;
+                        return a>b?1:(a<b?-1:(namea>nameb?1:(namea<nameb?-1:0)));
+                    });
+
                     //Date Asc
-                    base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.unsorted.slice();
+                    base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.sortedByName.slice();
                     base.nodeList.sortedByLastModifiedDateAsc.sort(function(a, b) {
+                        namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
                       a = new Date(a.current.created), b = new Date(b.current.created);
-                      return a>b?1:(a<b?-1:0);
+                        return a>b?1:(a<b?-1:(namea>nameb?1:(namea<nameb?-1:0)));
                     });
 
                     //Date Desc
-                    base.nodeList.sortedByLastModifiedDateDesc = base.nodeList.unsorted.slice();
+                    base.nodeList.sortedByLastModifiedDateDesc = base.nodeList.sortedByName.slice();
                     base.nodeList.sortedByLastModifiedDateDesc.sort(function(a, b) {
+                      namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
                       a = new Date(a.current.created), b = new Date(b.current.created);
-                      return a>b?-1:(a<b?1:0);
+                        return a>b?-1:(a<b?1:(namea>nameb?1:(namea<nameb?-1:0)));
                     });
                     base.propogateInitialPage();
         		case 4:
@@ -312,11 +329,24 @@
         };
 
         base.propogateInitialPage = function(){
-            base.nextNodeIndexToLoad = 0;
-            base.currentNodeList = base.nodeList.sortedByAuthorSuggested;
             base.$nodeList.appendTo(base.options.contents);
-
             var pagePadding = ($(window).height()-$('.editorialpath-page').height())+60;
+            base.changeSort('AuthorSuggested');
+        };
+
+        base.changeSort = function(sortName){
+            base.nextNodeIndexToLoad = 0;
+            base.currentNodeList = base.nodeList["sortedBy"+sortName];
+
+            var activeSlug = undefined;
+
+
+            if(base.$nodeList.find('.editorial_node').length > 0){
+                activeSlug = $('#editorialOutline>ul>li.active').data('slug');
+            }
+
+            $('#editorialOutline>ul').add(base.$nodeList).html('');
+
             var callback = function(){
                 var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
                 if(base.nextNodeIndexToLoad < base.currentNodeList.length && nodeListBottom < $(window).height()){
@@ -337,14 +367,14 @@
                 var nodeOutlineItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
                 var $nodeOutlineItem = $(nodeOutlineItemHTML).appendTo('#editorialOutline>ul');
 
-                $nodeOutlineItem.find('a').click($.proxy(function(slug, e){
+                $nodeOutlineItem.data('slug',node.slug).find('a').click($.proxy(function(slug, e){
                     e.preventDefault();
-                    base.scrollToNode(slug);
+                    base.scrollToNode(slug,false);
                 },base, node.slug));
             }
         };
 
-        base.scrollToNode = function(nodeSlug){
+        base.scrollToNode = function(nodeSlug,reloadOutline){
             var $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
             if($node.length > 0){
                 $('html, body').animate({
@@ -356,10 +386,12 @@
                     console.log(base.nextNodeIndexToLoad, base.currentNodeList[base.nextNodeIndexToLoad-1].slug);
                     if(base.nextNodeIndexToLoad >= base.currentNodeList.length || base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
                         $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
-                        console.log($node);
                         $('html, body').animate({
                                 scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 19 : 59)
                         }, 1000);
+                        if(reloadOutline){
+                            base.loadOutline();
+                        }
                         window.setTimeout(function(){$('body').scrollspy('refresh');},1000);
                     }else{
                         base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
@@ -409,7 +441,7 @@
         						'</div>';
 
 
-        	var $node = $(nodeItemHTML).appendTo(base.$nodeList);
+        	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
 
             if($.isFunction(callback)){
                 $node.on('initialNodeLoad',callback);

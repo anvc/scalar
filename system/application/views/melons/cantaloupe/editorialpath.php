@@ -43,6 +43,19 @@
 				<p>This page presents a simplified view of all content in the book, designed to provide quick access for editing. You can <strong>directly edit any text below</strong> and changes will be saved immediately.</p>
 				<div id="pathOrderSelectionContainer">
 					<span class="text-muted">Content order: </span>
+					<div class="dropdown" id="contentOrderDropdown">
+					  <button class="btn btn-default dropdown-toggle" type="button" id="contentOrderDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+					    <span class="text">Author suggested</span>
+					    <span class="caret pull-right"></span>
+					  </button>
+					  <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="contentOrderDropdownButton">
+					    <li class="active"><a href="#" data-sort="AuthorSuggested">Author suggested</a></li>
+					    <li><a href="#" data-sort="Name">Name</a></li>
+					    <li><a href="#" data-sort="Type">Type</a></li>
+					    <li><a href="#" data-sort="LastModifiedDateAsc">Edit date ascending</a></li>
+					    <li><a href="#" data-sort="LastModifiedDateDesc">Edit date descending</a></li>
+					  </ul>
+					</div>
 				</div>
 			</heading>
 			<div id="editorialPathContents">

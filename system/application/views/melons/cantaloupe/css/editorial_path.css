@@ -346,3 +346,15 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 
 .note {color:#038200; text-decoration:underline;}
+
+#contentOrderDropdown{
+	display: inline-block;
+	margin-left: 1rem;
+}
+#contentOrderDropdown .caret{
+	margin-top: .75rem;
+}
+#contentOrderDropdown .btn, #contentOrderDropdown .dropdown-menu{
+	width: 20rem;
+	text-align: left;
+}
