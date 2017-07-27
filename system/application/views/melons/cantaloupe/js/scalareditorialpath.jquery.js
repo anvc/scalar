@@ -152,7 +152,6 @@
                         $('#matchedNodes').html('');
                         if($(this).val().length > 0){
                             var height = $('#filterDropdown .dropdown-menu').height();
-                            console.log(height);
                             $('#filterDropdown').addClass('hasContent');
                             $('#editorialContentFinder').css('padding-bottom',height);
                             if(res.length > 0){
@@ -327,8 +326,6 @@
                                 base.currentFilterType = $(this).text();
                                 $('#filterTypeText').text(base.currentFilterType);
                                 base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
-
-                    console.log(base.nodeList.splitByType[base.currentFilterType]);
                         });
                     }
 
