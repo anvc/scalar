@@ -13,6 +13,7 @@
 	$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js');
 	$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js');
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');
+	$this->template->add_js('system/application/views/melons/cantaloupe/js/fuse.min.js');
 	$this->template->add_js('system/application/views/widgets/edit/jquery.predefined.js');
 	$this->template->add_js('system/application/views/widgets/spectrum/spectrum.js');
 	$this->template->add_js('system/application/views/widgets/spinner/spin.min.js');
@@ -45,12 +46,11 @@
 					<span class="text-muted">Content order: </span>
 					<div class="dropdown" id="contentOrderDropdown">
 					  <button class="btn btn-default dropdown-toggle" type="button" id="contentOrderDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-					    <span class="text">Author suggested</span>
+					    <span class="text">Name</span>
 					    <span class="caret pull-right"></span>
 					  </button>
 					  <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="contentOrderDropdownButton">
-					    <li class="active"><a href="#" data-sort="AuthorSuggested">Author suggested</a></li>
-					    <li><a href="#" data-sort="Name">Name</a></li>
+					    <li class="active"><a href="#" data-sort="Name">Name</a></li>
 					    <li><a href="#" data-sort="Type">Type</a></li>
 					    <li><a href="#" data-sort="LastModifiedDateAsc">Edit date ascending</a></li>
 					    <li><a href="#" data-sort="LastModifiedDateDesc">Edit date descending</a></li>
@@ -78,8 +78,25 @@
 					</ul>
 				</div>
 				<div id="editorialContentFinder" class="collapse">
-					<p class="heading_font">Find content below and click its title to find it within <strong class="bookname"></strong>'s critical path</p>
+					<p class="heading_font">Find content below and click its title to find it within <strong class="bookname"></strong>'s editorial path</p>
+					<form class="form-inline">
+						<div class="form-group" id="filterDropdown">
+							<button class="btn btn-default dropdown-toggle form-control input-sm" id="filterTypeDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							  <small id="filterTypeText"></small>
+							  <span class="caret pull-right"></span>
+							</button>
+							<ul class="dropdown-menu" aria-labelledby="filterTypeDropdown">
+							</ul>
+						</div>
+						<div class="form-group">
+						    <input type="text" class="form-control input-sm" id="editorialPathSearchText" placeholder="Search by title">
+						</div>
+					</form>
+					<ul id="matchedNodes">
+
+					</ul>
 				</div>
+				<div class="editorialSidePanelLoaderIndicator"><div class="spinner_container"></div></div>
 			</div>
 		</div>
 </div>

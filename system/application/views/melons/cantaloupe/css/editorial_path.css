@@ -52,11 +52,13 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialOutline li, #editorialOutline ul{
 	margin: 0;
 }
-#editorialOutline ul{
+#editorialOutline ul, #matchedNodes{
 	padding: .5rem 1rem
 }
 
-#editorialOutline li{
+
+
+#editorialOutline li, #matchedNodes li{
 	padding: .25rem 1rem .25rem 2rem;
 	list-style-type: none;
 	border-left: .25rem solid #bfbfbf;
@@ -74,7 +76,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	background-color: transparent;
 
 }
-#editorialSidePanel.tall #editorialOutline li>a, #editorialOutline li.active>a{
+#editorialSidePanel.tall #editorialOutline li>a, #editorialOutline li.active>a, #matchedNodes li>a{
 	color: #000;
 }
 
@@ -87,27 +89,27 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding: .25rem 1rem .25rem 3rem;
 }
 
-#editorialOutline li.draft{
+#editorialOutline li.draft, #matchedNodes li.draft{
 	border-left-color: #b4b4b4;
 }
 
-#editorialOutline li.edit{
+#editorialOutline li.edit, #matchedNodes li.edit{
 	border-left-color: #ffa25e;
 }
 
-#editorialOutline li.edit_review{
+#editorialOutline li.edit_review, #matchedNodes li.edit_review{
 	border-left-color: #d9514d;
 }
 
-#editorialOutline li.clean{
+#editorialOutline li.clean, #matchedNodes li.clean{
 	border-left-color: #59c0dd;
 }
 
-#editorialOutline li.ready{
+#editorialOutline li.ready, #matchedNodes li.ready{
 	border-left-color: #6ebf73;
 }
 
-#editorialOutline li.published{
+#editorialOutline li.published, #matchedNodes li.published{
 	border-left-color: #15910f;
 }
 
@@ -357,4 +359,47 @@ body.shortHeader #editorialSidePanel>.affix{
 #contentOrderDropdown .btn, #contentOrderDropdown .dropdown-menu{
 	width: 20rem;
 	text-align: left;
+}
+
+#editorialSidePanel .editorialSidePanelLoaderIndicator{
+		display: none;
+}
+#editorialSidePanel.loading_nodes .editorialSidePanelLoaderIndicator{
+	display: block;
+	position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(238,238,238,.75);
+    cursor: progress;
+}
+#editorialSidePanel.loading_nodes .in{
+	opacity: .5;
+}
+#editorialSidePanel .editorialSidePanelLoaderIndicator .spinner_container{
+	position: absolute;
+    top: 50%;
+    left: 50%;
+}
+#editorialContentFinder .form-group{
+	width: 45%;
+}
+#editorialContentFinder .form-group .form-control{
+	width: 100%;
+	text-align: left;
+	line-height: 1em;
+}
+#editorialContentFinder .form-group .caret{
+	margin-top: .5em
+}
+#editorialContentFinder #filterDropdown.hasContent{
+	position: relative;
+}
+#editorialContentFinder #filterDropdown .dropdown-menu{
+	margin-top: -1.5rem;
+}
+#editorialContentFinder #filterDropdown.hasContent .dropdown-menu{
+	margin-top: 0;
+	top: 3.5rem;
 }

@@ -51,6 +51,20 @@
         base.stage = 0;
         base.currentChunk = 0;
         base.needsScrollspyRefresh = false;
+        base.currentFilterType = undefined;
+        base.fuse = null;
+        base.searchOptions = {
+              shouldSort: true,
+              includeMatches: false,
+              threshold: 0.333,
+              location: 0,
+              distance: 100,
+              maxPatternLength: 32,
+              minMatchCharLength: 1,
+              keys: [
+                "current.title"
+            ]
+        };
         
         // Add a reverse reference to the DOM object
         base.$el.data("scalarEditorialPath", base);
@@ -79,7 +93,7 @@
                     });
 
                     $('body').on('headerSizeChanged',function(){
-                        var offset = $(this).hasClass('shortHeader')?19:69;
+                        var offset = $(this).hasClass('shortHeader')?32:69;
                         if(typeof $('body').data('bs.scrollspy') != 'undefined'){
                                 $('body').data('bs.scrollspy').options.offset = offset;
                         }
@@ -103,12 +117,65 @@
                         $('#contentOrderDropdown .btn .text').text($(this).text());
                     });
 
+
+                    var spinner_options = {
+                      lines: 13, // The number of lines to draw
+                      length: 5, // The length of each line
+                      width: 2, // The line thickness
+                      radius: 6, // The radius of the inner circle
+                      rotate: 0, // The rotation offset
+                      color: '#000', // #rgb or #rrggbb
+                      speed: 1, // Rounds per second
+                      trail: 60, // Afterglow percentage
+                      shadow: false, // Whether to render a shadow
+                      hwaccel: false, // Whether to use hardware acceleration
+                      className: 'spinner', // The CSS class to assign to the spinner
+                      zIndex: 2e9, // The z-index (defaults to 2000000000)
+                      top: 'auto', // Top position relative to parent in px
+                      right: 'auto' // Left position relative to parent in px
+                    };
+                    var spinner = new Spinner(spinner_options).spin();
+                    $('#editorialSidePanel .editorialSidePanelLoaderIndicator').find('.spinner_container').each(function(){
+                        $(this).append(spinner.el);
+                    });
+
         			base.node_state_classes = [];
         			for(var stateClass in base.node_states){
         				base.node_state_classes.push(stateClass);
         			}
 					base.node_state_string = base.node_state_classes.join(' ');
 					$(window).on('resize',base.resize);
+
+                    $('#editorialPathSearchText').on('keyup blur',function(){
+                        if(typeof base.fuse == 'undefined') return;
+                        var res = base.fuse.search($(this).val());
+                        $('#matchedNodes').html('');
+                        if($(this).val().length > 0){
+                            var height = $('#filterDropdown .dropdown-menu').height();
+                            console.log(height);
+                            $('#filterDropdown').addClass('hasContent');
+                            $('#editorialContentFinder').css('padding-bottom',height);
+                            if(res.length > 0){
+                                for(var n in res){
+                                    var node = res[n];
+                                    var nodeMatchItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
+                                    var $nodeMatchItem = $(nodeMatchItemHTML).appendTo('#matchedNodes');
+
+                                    $nodeMatchItem.data('slug',node.slug).find('a').click($.proxy(function(slug, e){
+                                        e.preventDefault();
+                                        $('#editorialSidePanel').addClass('loading_nodes');
+                                        window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                        return false;
+                                    },base, node.slug));
+                                }
+                            }else{
+                                $('<li class="empty text-muted"><small>No content matched your search!</small></li>').appendTo('#matchedNodes');
+                            }
+                        }else{
+                            $('#filterDropdown').removeClass('hasContent');
+                            $('#editorialContentFinder').css('padding-bottom',0);
+                        }
+                    });
 
         			//Add the loader text for the content
 		        	base.$contentLoader = $('<div class="loader text-muted well text-center"><strong>Loading book content... Please wait, this might take a little while.</strong><br /><small class="info"></small></span>').appendTo(base.options.contents);
@@ -172,7 +239,7 @@
 
                     scalarapi.loadNodesByType(
                         base.nodeTypes[base.currentLoadType], true, base.setup,
-                        null, 0, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
+                        null, 1, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
                     );
 
         			break;
@@ -212,19 +279,18 @@
                     
                     scalarapi.loadNodesByType(
                         base.nodeTypes[base.currentLoadType], true, base.setup,
-                        null, 0, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
+                        null, 1, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
                     );
 
         			break;
                 case 3:
-                    //created sorted lists of nodes
-                    //Author Suggested (Need to have this functionality - for now, just shuffled.)
-                    base.nodeList.sortedByAuthorSuggested = base.nodeList.unsorted.slice();
-                    // TODO: Replace this with actual Author Suggested order...
-                    for (let i = base.nodeList.sortedByAuthorSuggested.length; i; i--) {
-                        let j = Math.floor(Math.random() * i);
-                        [base.nodeList.sortedByAuthorSuggested[i - 1], base.nodeList.sortedByAuthorSuggested[j]] = [base.nodeList.sortedByAuthorSuggested[j], base.nodeList.sortedByAuthorSuggested[i - 1]];
-                    }
+                    //remove any duplicate nodes - since we are grabbing relationships, we will likely have some.
+                    var uniqueNodes = [];
+                    $.each(base.nodeList.unsorted, function(i, el){
+                        if($.inArray(el, uniqueNodes) === -1) uniqueNodes.push(el);
+                    });
+                    base.nodeList.unsorted = uniqueNodes;
+
 
                     //Name
                     base.nodeList.sortedByName = base.nodeList.unsorted.slice();
@@ -235,11 +301,43 @@
 
                     //Type
                     base.nodeList.sortedByType = base.nodeList.sortedByName.slice();
+                    base.nodeList.splitByType = {};
+                    var filterTypes = [];
+                    for(var node in base.nodeList.sortedByType){
+                        var a = base.nodeList.sortedByType[node];
+                        if(typeof a.domType == 'undefined'){
+                            a.domType = a.getDominantScalarType();
+                        }
+
+                        if(typeof base.nodeList.splitByType[a.domType.singular] == 'undefined'){
+                            base.nodeList.splitByType[a.domType.singular] = [];
+                            filterTypes.push(a.domType.singular);
+                        }
+
+                        base.nodeList.splitByType[a.domType.singular].push(a);
+                    }
+
+                    filterTypes.sort();
+                    base.currentFilterType = filterTypes[0];
+                    $('#filterTypeText').text(base.currentFilterType);
+                    base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
+                    for(var t in filterTypes){
+                        $('<li><a role="button" href="#">'+filterTypes[t]+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').click(function(e){
+                                e.preventDefault();
+                                base.currentFilterType = $(this).text();
+                                $('#filterTypeText').text(base.currentFilterType);
+                                base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
+
+                    console.log(base.nodeList.splitByType[base.currentFilterType]);
+                        });
+                    }
+
                     base.nodeList.sortedByType.sort(function(a, b) {
                         namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
-                        a = a.baseType; b = b.baseType;
+                        a = a.domType.id; b = b.domType.id;
                         return a>b?1:(a<b?-1:(namea>nameb?1:(namea<nameb?-1:0)));
                     });
+
 
                     //Date Asc
                     base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.sortedByName.slice();
@@ -331,10 +429,14 @@
         base.propogateInitialPage = function(){
             base.$nodeList.appendTo(base.options.contents);
             var pagePadding = ($(window).height()-$('.editorialpath-page').height())+60;
-            base.changeSort('AuthorSuggested');
+            base.changeSort('Name');
         };
 
         base.changeSort = function(sortName){
+            for(name in CKEDITOR.instances)
+            {
+                CKEDITOR.instances[name].destroy(true);
+            }
             base.nextNodeIndexToLoad = 0;
             base.currentNodeList = base.nodeList["sortedBy"+sortName];
 
@@ -369,7 +471,9 @@
 
                 $nodeOutlineItem.data('slug',node.slug).find('a').click($.proxy(function(slug, e){
                     e.preventDefault();
-                    base.scrollToNode(slug,false);
+                    $('#editorialSidePanel').addClass('loading_nodes');
+
+                    window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
                 },base, node.slug));
             }
         };
@@ -378,21 +482,23 @@
             var $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
             if($node.length > 0){
                 $('html, body').animate({
-                        scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 19 : 59)
+                        scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 0 : 30)
                 }, 1000);
-                window.setTimeout(function(){$('body').scrollspy('refresh');},1000);
+                window.setTimeout(function(){$('#editorialSidePanel').removeClass('loading_nodes');},1000);
             }else{
                 var callback = function(){
-                    console.log(base.nextNodeIndexToLoad, base.currentNodeList[base.nextNodeIndexToLoad-1].slug);
                     if(base.nextNodeIndexToLoad >= base.currentNodeList.length || base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
                         $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
-                        $('html, body').animate({
-                                scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 19 : 59)
-                        }, 1000);
-                        if(reloadOutline){
-                            base.loadOutline();
-                        }
-                        window.setTimeout(function(){$('body').scrollspy('refresh');},1000);
+
+                        window.setTimeout($.proxy(function(){
+                            $('html, body').animate({
+                                    scrollTop: this.offset().top - (this.offset().top > $('body').scrollTop() ? 0 : 30)
+                            }, 1000);
+                            if(reloadOutline){
+                                base.loadOutline();
+                            }
+                            window.setTimeout(function(){$('body').scrollspy('refresh'); $('#editorialSidePanel').removeClass('loading_nodes');},1000);
+                        },$node,base,reloadOutline),1000);
                     }else{
                         base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
                     }
@@ -415,7 +521,8 @@
         								'<div class="col-xs-12 col-sm-8 col-md-9">'+
         									'<h2 class="heading_font heading_weight clearboth title">'+node.getDisplayTitle()+'</h2>'+
         									'<span class="header_font badge view_badge">'+viewName+'</span>'+
-        									'<span class="header_font badge no_queries_badge">No Queries</span>'+
+                                            '<span class="header_font badge no_queries_badge">No Queries</span>'+
+                                            '<span class="header_font badge type_badge">'+node.domType.singular+'</span>'+
         								'</div>'+
         								'<div class="col-xs-12 col-sm-4 col-md-3">'+
         									'<div class="dropdown state_dropdown">'+
