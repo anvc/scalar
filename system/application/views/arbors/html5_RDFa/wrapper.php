@@ -1,7 +1,7 @@
 <?
 // Define page style based on precedence (book -> current path -> page)
 $title = $description = $color = $primary_role = $default_view = '';
-$background = $banner = $style = $js = $hypothesis = null;
+$background = $banner = $style = $js = $hypothesis = $margin_nav = null;
 $publisher = $publisher_thumbnail = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {
@@ -11,6 +11,7 @@ if (isset($book) && !empty($book)) {
 	if (!empty($book->custom_style)) $style .= $book->custom_style."\n";
 	if (!empty($book->custom_js)) $js .= $book->custom_js."\n";
 	if (stristr($book->title, 'data-hypothesis="true"')) $hypothesis = true;
+	if (stristr($book->title, 'data-margin-nav="true"')) $margin_nav = true;
 	if (!empty($book->publisher)) $publisher = $book->publisher;
 	if (!empty($book->publisher_thumbnail)) $publisher_thumbnail = $book->publisher_thumbnail;
 }
@@ -131,6 +132,9 @@ if (isset($page->version_index)) {
 <link id="recaptcha_public_key" href="<?=$recaptcha_public_key?>" />
 <? if ($hypothesis): ?>
 <link id="hypothesis" href="true" />
+<? endif ?>
+<? if ($margin_nav): ?>
+<link id="magin_nav" href="true" />
 <? endif ?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>

@@ -63,6 +63,9 @@ function select_interface(melon) {
    	} else {
 		$('<span>There are no theme options for the current template</span>').appendTo('#interface');
     }
+    $('.cantaloupe').hide();
+    console.log(selected_melon);
+    if ('cantaloupe' == selected_melon['meta']['slug']) $('.cantaloupe').show();
 }
 // Add Main Menu items
 function select_versions() {
@@ -228,6 +231,31 @@ $(window).ready(function() {
 		);
 		return false;
 	});
+
+	var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
+	var margin_nav = ('undefined'==typeof($title.children(":first").attr('data-margin-nav'))) ? 0 : 1;
+	$('#margin-nav').val(margin_nav).change(function() {
+		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
+		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
+		var $span = $title.children(':first');
+		var prop_arr = ['margin-nav'];
+		var all_false = true;
+		for (var j in prop_arr) {
+			var prop = prop_arr[j];
+			var make_true = (parseInt($('#'+prop).val())) ? true : false;
+			all_false = (all_false && !make_true) ? true : false;
+			if (make_true) {
+				$span.attr('data-'+prop, 'true');
+			} else {
+				$span.removeAttr('data-'+prop);
+			}
+		}
+		if(all_false && $title.children(':first').is('span')) {
+			$title.children(':first').contents().unwrap();
+		}
+		$('input[name="title"]').val( $title.html() );
+	});
+
 });
 
 function make_taxonomy_pages(onomy) {
@@ -366,10 +394,19 @@ function make_taxonomy_pages(onomy) {
 			echo '</tr>';
 			// Template/stylesheet
 			echo '<tr>';
-			echo '<td><p>Interface</p></td>'."\n";
+			echo '<td>Interface</td>'."\n";
 			echo '<td>';
 			echo '<p id="interface">';
 			echo '</p>';
+			echo "</td>\n";
+			echo '<td>';
+			echo "</td>\n";
+			echo "</tr>\n";
+			// Magin navigation (formerly "pinwheel")
+			echo '<tr class="cantaloupe">';
+			echo '<td>Margin navigation</td>'."\n";
+			echo '<td>';
+			echo 'Add left/right arrows while on a path? &nbsp;<select id="margin-nav"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 			echo "</td>\n";
 			echo '<td>';
 			echo "</td>\n";
