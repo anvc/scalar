@@ -343,6 +343,11 @@ class MY_Model extends CI_Model {
 
     	if (!$this->slug_exists($slug, $book_id, $content_id)) return $slug;
 
+    	$has_numerical_ext = is_numeric(substr($slug, strrpos($slug, '-')+1)) ? true : false;
+    	if ($has_numerical_ext) {
+    		$slug = substr($slug, 0, strrpos($slug, '-'));
+    	}
+    	
     	$j = 1;
     	$adj_slug = $slug.'-'.$j;
 

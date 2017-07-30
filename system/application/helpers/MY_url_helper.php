@@ -215,6 +215,7 @@
 
     function safe_name($filename='', $allow_forward_slash=true, $max_length=100) {
 
+    	$reserved_words = array('system', 'application', 'media');
     	$filename = strip_tags($filename);
     	$filename = str_replace(" ","-",$filename);
     	if (strlen($filename) > $max_length) $filename = substr($filename, 0, $max_length);
@@ -224,13 +225,20 @@
     		$filename =@ preg_replace('/[^A-Za-z0-9-_]/', '', $filename); 
     	}
 		$filename = strtolower($filename);
+		if (in_array($filename, $reserved_words)) $filename .= '-1';
    		return $filename;
 
     }
     
     function create_suffix($filename='', $count=1) {
+    	
+    	$has_numerical_ext = is_numeric(substr($filename, strrpos($filename, '-')+1)) ? true : false;
+    	if ($has_numerical_ext) {
+    		$filename = substr($filename, 0, strrpos($filename, '-'));
+    	}
     	$filename = $filename.'-'.$count;
     	return $filename;
+    	
     }
 
     function confirm_base($uri) {
