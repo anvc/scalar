@@ -134,7 +134,7 @@ if (isset($page->version_index)) {
 <link id="hypothesis" href="true" />
 <? endif ?>
 <? if ($margin_nav): ?>
-<link id="magin_nav" href="true" />
+<link id="margin_nav" href="true" />
 <? endif ?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
