@@ -402,11 +402,11 @@ function make_taxonomy_pages(onomy) {
 			echo '<td>';
 			echo "</td>\n";
 			echo "</tr>\n";
-			// Magin navigation (formerly "pinwheel")
+			// Margin navigation (formerly "pinwheel")
 			echo '<tr class="cantaloupe">';
-			echo '<td>Margin navigation</td>'."\n";
+			echo '<td>Navigation</td>'."\n";
 			echo '<td>';
-			echo 'Add left/right arrows while on a path? &nbsp;<select id="margin-nav"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+			echo 'Display navigation buttons in margins? &nbsp;<select id="margin-nav"><option value="0" selected>No</option><option value="1">Yes</option></select>';
 			echo "</td>\n";
 			echo '<td>';
 			echo "</td>\n";
