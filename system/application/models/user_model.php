@@ -237,6 +237,8 @@ class User_model extends MY_Model {
 
     public function get_by_email_and_reset_string($email='', $reset_string='') {
 
+    	if (empty($email) || empty($reset_string)) return false;
+    	
     	$this->db->select('*');
     	$this->db->from($this->users_table);
     	$this->db->where($this->users_table.'.email', $email);

@@ -100,9 +100,12 @@ class Login_model extends User_model {
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
 				throw new Exception( lang('login.invalid') );
 			} else {
-				if (!empty($result->reset_string)) {
-					throw new Exception( lang('login.is_reset') );
-				}
+				// Commenting this out ... if someone asks for a reset it shouldn't lock the user out
+				// if (!empty($result->reset_string)) {
+				//	throw new Exception( lang('login.is_reset') );
+				// }
+				// ... rather, get rid of the reset string if the user successfully logs in
+				parent::save_reset_string($result->user_id, '');
 				$result->is_logged_in = true;
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
 				return true;

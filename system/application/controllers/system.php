@@ -237,7 +237,7 @@ class System extends MY_Controller {
 			} else {
 				$user = $this->users->get_by_email_and_reset_string($email, $reset_string);
 				if (!$user) {
-					$this->data['create_login_error'] = 'The email address does not match the reset key';
+					$this->data['create_login_error'] = 'The email address does not match the reset key or the reset key has expired';
 				} else {
 					try {
 						$this->users->set_password_from_form_fields($user->user_id, $_POST);
