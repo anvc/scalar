@@ -645,66 +645,68 @@
             },
 
             addContext: function(node) {
-                var contextMarkup = '';
-                var currentNode;
-                if (node == null) {
-                    currentNode = scalarapi.model.getCurrentPageNode();
-                } else {
-                    currentNode = node;
-                }
-                var i, relation, relations,
-                    contextCount = 0;
+                if ($('#margin_nav').length) {
+                    var contextMarkup = '';
+                    var currentNode;
+                    if (node == null) {
+                        currentNode = scalarapi.model.getCurrentPageNode();
+                    } else {
+                        currentNode = node;
+                    }
+                    var i, relation, relations,
+                        contextCount = 0;
 
-                $('.context.popover').remove();
- 
-                relations = currentNode.getRelations('referee', 'incoming'); 
-                for (i in relations) {
-                    relation = relations[i];
-                    if (relation.body.current.content != null) {
-                        contextMarkup += '<p class="attribution">Cited in <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a>:</p>';
-                        var temp = $('<div>'+relation.body.current.content+'</div>');
-                        wrapOrphanParagraphs(temp);
-                        var is_inline = (temp.find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
-                        if (is_inline) {
-                            citingContent = '<p class="citation"><i>Inline media citation</i></p>';
-                        } else {
-                            temp.find('a[resource*="'+relation.target.slug+'"]').addClass('context-citation');
-                            citingContent = '<p class="citation">&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;</p>';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+                    $('.context.popover').remove();
+     
+                    relations = currentNode.getRelations('referee', 'incoming'); 
+                    for (i in relations) {
+                        relation = relations[i];
+                        if (relation.body.current.content != null) {
+                            contextMarkup += '<p class="attribution">Cited in <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a>:</p>';
+                            var temp = $('<div>'+relation.body.current.content+'</div>');
+                            wrapOrphanParagraphs(temp);
+                            var is_inline = (temp.find('a[resource*="'+relation.target.slug+'"]').hasClass('inline')) ? true : false;
+                            if (is_inline) {
+                                citingContent = '<p class="citation"><i>Inline media citation</i></p>';
+                            } else {
+                                temp.find('a[resource*="'+relation.target.slug+'"]').addClass('context-citation');
+                                citingContent = '<p class="citation">&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;</p>';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+                            }
+                            contextMarkup += '<p>' + citingContent + '</p>';
+                            contextCount++;
                         }
-                        contextMarkup += '<p>' + citingContent + '</p>';
+                    }
+                    
+                    // show containing paths
+                    relations = currentNode.getRelations('path', 'incoming', 'index');
+                    for (i in relations) {
+                        relation = relations[i];
                         contextCount++;
+                        contextMarkup += '<p class="citation"><a href="' + currentNode.url + '?path=' + relation.body.slug + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
                     }
-                }
-                
-                // show containing paths
-                relations = currentNode.getRelations('path', 'incoming', 'index');
-                for (i in relations) {
-                    relation = relations[i];
-                    contextCount++;
-                    contextMarkup += '<p class="citation"><a href="' + currentNode.url + '?path=' + relation.body.slug + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
-                }
-                
-                // show tags
-                relations = currentNode.getRelations('tag', 'incoming');
-                for (i in relations) {
-                    relation = relations[i];
-                    contextCount++;
-                    contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
-                }
-
-                $(".path-nav.info").remove();
-                if (contextMarkup != '') {
-                    contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
-                    var contextButton = $('<img class="path-nav info" title="Citations and context" data-toggle="popover" data-placement="bottom" src="' + page.options.root_url + '/images/context@2x.png" alt="up arrow"/>').insertBefore($('nav'));
-                    if (contextCount > 1) {
-                        contextButton.addClass('multi');
+                    
+                    // show tags
+                    relations = currentNode.getRelations('tag', 'incoming');
+                    for (i in relations) {
+                        relation = relations[i];
+                        contextCount++;
+                        contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                     }
-                    contextButton.popover({
-                        trigger: "click",
-                        html: true,
-                        content: contextMarkup,
-                        template: '<div class="context popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div>' });
 
+                    $(".path-nav.info").remove();
+                    if (contextMarkup != '') {
+                        contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
+                        var contextButton = $('<img class="path-nav info" title="Citations and context" data-toggle="popover" data-placement="bottom" src="' + page.options.root_url + '/images/context@2x.png" alt="up arrow"/>').insertBefore($('nav'));
+                        if (contextCount > 1) {
+                            contextButton.addClass('multi');
+                        }
+                        contextButton.popover({
+                            trigger: "click",
+                            html: true,
+                            content: contextMarkup,
+                            template: '<div class="context popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div>' });
+
+                    }
                 }
             },
 
@@ -735,52 +737,54 @@
             },
 
             addPathButton: function(direction, destinationNode, pathNode, isEndOfPath) {
-            	var prefix;
-            	var popooverPlacement;
-            	var pathVar;
-            	var content;
-            	switch (direction) {
+                if ($('#margin_nav').length) {
+                	var prefix;
+                	var popooverPlacement;
+                	var pathVar;
+                	var content;
+                	switch (direction) {
 
-            		case "up":
-            		prefix = "Up to";
-            		popooverPlacement = "bottom";
-            		pathVar = '';
-            		break;
+                		case "up":
+                		prefix = "Up to";
+                		popooverPlacement = "bottom";
+                		pathVar = '';
+                		break;
 
-            		case "down":
-            		prefix = "Begin with";
-            		popooverPlacement = "top";
-            		pathVar = "?path=" + pathNode.slug;
-            		break;
+                		case "down":
+                		prefix = "Begin with";
+                		popooverPlacement = "top";
+                		pathVar = "?path=" + pathNode.slug;
+                		break;
 
-            		case "left":
-            		prefix = "Back to";
-            		popooverPlacement = "right";
-            		pathVar = "?path=" + pathNode.slug;
-            		break;
+                		case "left":
+                		prefix = "Back to";
+                		popooverPlacement = "right";
+                		pathVar = "?path=" + pathNode.slug;
+                		break;
 
-            		case "right":
-                    if (!isEndOfPath) {
-                        prefix = "Continue to";
-                    } else {
-                        prefix = "End of path <b>“" + pathNode.getDisplayTitle() + "”</b>; Continue to";
-                    }
-            		popooverPlacement = "left";
-            		pathVar = "?path=" + pathNode.slug;
-            		break;
+                		case "right":
+                        if (!isEndOfPath) {
+                            prefix = "Continue to";
+                        } else {
+                            prefix = "End of path <b>“" + pathNode.getDisplayTitle() + "”</b>; Continue to";
+                        }
+                		popooverPlacement = "left";
+                		pathVar = "?path=" + pathNode.slug;
+                		break;
 
-            	}
-            	content = prefix + ' <b>“' + destinationNode.getDisplayTitle() + '”</b>';
-            	var thumbnailURL = destinationNode.getAbsoluteThumbnailURL();
-            	if (thumbnailURL != null) {
-            		content = '<img class="thumbnail" height="120" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
-            	}
-                var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + direction + ' arrow"/></a>').insertBefore($('nav'));
-            	arrow.popover({
-            		trigger: "hover click",
-            		html: true,
-            		content: content,
-            		template: '<div class="popover caption_font path-nav-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
+                	}
+                	content = prefix + ' <b>“' + destinationNode.getDisplayTitle() + '”</b>';
+                	var thumbnailURL = destinationNode.getAbsoluteThumbnailURL();
+                	if (thumbnailURL != null) {
+                		content = '<img class="thumbnail" height="120" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
+                	}
+                    var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + direction + ' arrow"/></a>').insertBefore($('nav'));
+                	arrow.popover({
+                		trigger: "hover click",
+                		html: true,
+                		content: content,
+                		template: '<div class="popover caption_font path-nav-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>' });
+                }
             },
 
             // Currently used options: showLists, showParentNav, showChildNav, showLateralNav, isCentered, showAnno, showComments, showTags
