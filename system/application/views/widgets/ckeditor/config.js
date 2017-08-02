@@ -30,46 +30,46 @@ $(document).on('paste', 'textarea', function (e, c) {  // Text is cut-and-paste 
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
 
-	config.plugins = 
-			'a11yhelp,'+
-			'basicstyles,'+
-			'blockquote,'+
-			'button,'+
-			'clipboard,'+
-			'codemirror,'+
-			'codeTag,'+
-			'colorbutton,'+
-			'colordialog,'+
-			'dialog,'+
-			'dialogui,'+
-			'elementspath,'+
-			'enterkey,'+
-			'entities,'+
-			'fakeobjects,'+
-			'floatingspace,'+
-			'floatpanel,'+
-			'format,'+
-			'iframe,'+
-			'indent,'+
-			'indentlist,'+
-			'list,'+
-			'listblock,'+
-			'maximize,'+
-			'menu,'+
-			'menubutton,'+
-			'panel,'+
-			'panelbutton,'+
-			'pastefromword,'+
-			'pastetext,'+
-			'removeformat,'+
-			'richcombo,'+
-			'scalar,'+
-			'sourcearea,'+
-			'specialchar,'+
-			'toolbar,'+
-			'undo,'+
-			'wysiwygarea';
-
+    config.plugins = 
+            'dialogui,'+
+            'dialog,'+
+            'a11yhelp,'+
+            'basicstyles,'+
+            'blockquote,'+
+            'clipboard,'+
+            'panel,'+
+            'floatpanel,'+
+            'panelbutton,'+
+            'listblock,'+
+            'richcombo,'+
+            'format,'+
+            'menu,'+
+            'button,'+
+            'toolbar,'+
+            'elementspath,'+
+            'enterkey,'+
+            'entities,'+
+            'wysiwygarea,'+
+            'indent,'+
+            'indentlist,'+
+            'list,'+
+            'maximize,'+
+            'pastetext,'+
+            'pastefromword,'+
+            'removeformat,'+
+            'sourcearea,'+
+            'specialchar,'+
+            'menubutton,'+
+            'undo,'+
+            'colorbutton,'+
+            'colordialog,'+
+            'codeTag,'+
+            'fakeobjects,'+
+            'iframe,'+
+            'codemirror,'+
+            'scalar,'+
+            'floatingspace';
+            
 	config.skin = 'bootstrapck';
 	config.allowedContent = true;
 	config.extraAllowedContent = 'code pre a[*]';
