@@ -817,6 +817,7 @@ class Book extends MY_Controller {
 	// Annotation editor page
 	private function annotation_editor() {
 
+		$this->data['mode'] = 'editing';
 		if (!$this->login_is_book_admin('Commentator')) $this->require_login(4);
 
 	}

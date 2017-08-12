@@ -130,10 +130,10 @@ if (isset($page->version_index)) {
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
 <link id="recaptcha2_site_key" href="<?=$recaptcha2_site_key?>" />
 <link id="recaptcha_public_key" href="<?=$recaptcha_public_key?>" />
-<? if ($hypothesis): ?>
+<? if (!$mode && $hypothesis): ?>
 <link id="hypothesis" href="true" />
 <? endif ?>
-<? if ($margin_nav): ?>
+<? if (!$mode && $margin_nav): ?>
 <link id="margin_nav" href="true" />
 <? endif ?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />

@@ -77,7 +77,7 @@ echo doctype('html5')."\n"
 <? endif ?>
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
-<? if ($hypothesis): ?>
+<? if (!$mode && $hypothesis): ?>
 <link id="hypothesis" href="true" />
 <? endif ?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
