@@ -1,5 +1,6 @@
 .cke_chrome {border-radius:0px !important;}
 .cke_reset {width:100% !important;}
+.cke_button {cursor:pointer !important;}
 .cke_dialog_ui_html {white-space: normal !important;}
 .cke_dialog_ui_checkbox label {cursor:pointer !important;}
 
