@@ -8,7 +8,7 @@ $(document).ready(function() {
 	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
 	$selector.height(height + 'px');
 	var options = {
-		fields:["visible","title","description","last_edited_by","date","versions","edit"],
+		fields:["visible","title","description","last_edited_by","date_created","versions","edit"],
 		deleteOptions:true,
 		addOptions:true,
 		allowMultiple:true,

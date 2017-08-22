@@ -64,19 +64,21 @@ $(document).ready(function() {
 		var auto_approve = ('undefined'==typeof($title.children(":first").attr('data-auto-approve'))) ? false : true;
 		var email_authors = ('undefined'==typeof($title.children(":first").attr('data-email-authors'))) ? false : true;
 		var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? false : true;
+		var thoughtmesh = ('undefined'==typeof($title.children(":first").attr('data-thoughtmesh'))) ? 0 : 1;
 		$('#duplicatable').prop('checked', is_duplicatable);
 		$('#joinable').prop('checked', is_joinable);
 		$('#hypothesis').prop('checked', hypothesis);
+		$('#thoughtmesh').val(thoughtmesh);
 		$('#auto-approve').prop('checked', auto_approve);
 		$('#email-authors').prop('checked', email_authors);
     };
     title_init_values();
     $('input[name="title"]').change(title_init_values);
-	$('#duplicatable, #joinable, #hypothesis,#auto-approve,#email-authors').change(function() {
+	$('#duplicatable, #joinable, #hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable', 'hypothesis','auto-approve','email-authors'];
+		var prop_arr = ['duplicatable', 'joinable', 'hypothesis', 'thoughtmesh', 'auto-approve','email-authors'];
 		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
@@ -276,7 +278,18 @@ function select_versions() {
 		    </label>
 		  </div>       
         </div>
-      </div>   
+      </div>
+      <div class="form-group form-group-bottom-margin">
+        <label for="comments" class="col-sm-2 control-label">Plugins</label>
+        <div class="col-sm-10">
+		  <div class="checkbox">
+		    <label>
+		      <input type="checkbox" id="thoughtmesh" value="1">
+		      Add <a href="http://thoughtmesh.net/" target="_blank">ThoughtMesh</a> to the footer? 
+		    </label>
+		  </div>       
+        </div>
+      </div> 
       <div class="form-group">
         <label for="toc" class="col-sm-2 control-label">Table of Contents</label>
         <div class="col-sm-5" id="toc-wrapper">

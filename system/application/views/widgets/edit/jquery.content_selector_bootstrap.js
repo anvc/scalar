@@ -1486,7 +1486,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				include_children : 2,
 				visible : 1,
 				last_edited_by : 2,
-				date : 2,
+				date_created : 2,
 				versions : 1,
 				edit : 1
 			}
@@ -1716,7 +1716,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									}
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+prov_uri+'">'+fullname+'</a></td>';
 									break;
-								case 'date':
+								case 'date_created':
 									var monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
 									function getSuffix(n) {return n < 11 || n > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((n - 1) % 10, 3)] : 'th'};
 									var dt = new Date(item.version["http://purl.org/dc/terms/created"][0].value);
@@ -1988,9 +1988,34 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$deleteOpts.append('<span> | </span>');
 				}
 				$deleteOpts.append('<button type="button" class="btn btn-default">Add new page</button>');
-				$deleteOpts.append('<select class="btn btn-default"><option value="">Import media</option></select>');
 				$deleteOpts.find('button:last').off('click').on('click', function() {
 					document.location.href = $('link#parent').attr('href')+'new.edit';
+				});
+				var parent = $('link#parent').attr('href');
+				var $importOpts = $('<select class="btn btn-default" style="max-width:130px;"><option value="">Import media</option></select>').appendTo($deleteOpts);
+				$importOpts.append('<optgroup label="Affiliated archives">');
+				$importOpts.append('<option value="'+parent+'import/critical_commons">Critical Commons</option>');
+				$importOpts.append('<option value="'+parent+'import/cuban_theater_digital_archive">Cuban Theater Digital Archive</option>');
+				$importOpts.append('<option value="'+parent+'import/hemispheric_institute">Hemispheric Institute</option>');
+				$importOpts.append('<option value="'+parent+'import/internet_archive">Internet Archive</option>');
+				$importOpts.append('<option value="'+parent+'import/play">PLAY!</option>');
+				$importOpts.append('<option value="'+parent+'import/shoah_foundation_vha_online">VHA Online</option>');
+				$importOpts.append('<option value="'+parent+'import/shoah_foundation_vha">VHA</option>');
+				$importOpts.append('</optgroup>');
+				$importOpts.append('<optgroup label="Other archives">');
+				$importOpts.append('<option value="'+parent+'import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</option>');
+				$importOpts.append('<option value="'+parent+'import/omeka">Omeka sites</option>');
+				$importOpts.append('<option value="'+parent+'import/soundcloud">SoundCloud</option>');
+				$importOpts.append('<option value="'+parent+'import/vimeo">Vimeo</option>');
+				$importOpts.append('<option value="'+parent+'import/youtube">YouTube</option>');
+				$importOpts.append('</optgroup>');
+				$importOpts.append('<optgroup label="Files, URLs">');
+				$importOpts.append('<option value="'+parent+'upload">Upload file</option>');
+				$importOpts.append('<option value="'+parent+'new.edit#type=media">Internet URL</option>');
+				$importOpts.append('</optgroup>');
+				$importOpts.change(function() {
+					var url = $(this).find('option:selected').val();
+					document.location.href = url;
 				});
 			}
 

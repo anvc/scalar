@@ -501,7 +501,7 @@ class System extends MY_Controller {
 		        break;
 		    case 'publish':
 			    // Do Nothing.  Nothing needs to be done.
-		    break;
+		    	break;
 		    // Page-types follow, purposely at the bottom of the switch so that they fall into 'default'
 		    default:
 		    	if (!empty($this->data['book'])) {

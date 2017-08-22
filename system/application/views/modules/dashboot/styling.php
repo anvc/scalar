@@ -101,7 +101,7 @@ function select_interface(melon) {
     for (var j in interfaces) {
     	if (melon==interfaces[j]['meta']['slug']) melon_obj = interfaces[j];
 		$('<option'+((melon==interfaces[j]['meta']['slug'])?' selected':'')+((!interfaces[j]['meta']['is_selectable'])?' disabled':'')+' value="'+interfaces[j]['meta']['slug']+'">'+interfaces[j]['meta']['name']+'</option>').appendTo($template.find('select:first'));
-    }
+    };
     $template.find('select:first').change(function() {
 		var selected = $(this).find(':selected').val();
 		select_interface(selected);
@@ -113,7 +113,35 @@ function select_interface(melon) {
    		for (var j in melon_obj['stylesheets']) {
 			$('<option'+((stylesheet==melon_obj['stylesheets'][j]['slug'])?' selected':'')+' value="'+melon_obj['stylesheets'][j]['slug']+'">'+melon_obj['stylesheets'][j]['name']+'</option>').appendTo($stylesheets.find('select:first'));
    		}
-   	}
+   	};
+   	if ('cantaloupe'==melon_obj['meta']['slug']) {
+		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
+		var margin_nav = ('undefined'==typeof($title.children(":first").attr('data-margin-nav'))) ? 0 : 1;
+		var $margin_nav = $('<div class="checkbox" style="display:inline-block;"><label for="margin-nav"><input type="checkbox" id="margin-nav" value="1" /> Display navigation buttons in margins?</label></div>').appendTo($wrapper);
+		$wrapper.find('#margin-nav').val(margin_nav).change(function() {
+			var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
+			if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
+			var $span = $title.children(':first');
+			var prop_arr = ['margin-nav'];
+			var all_false = true;
+			for (var j in prop_arr) {
+				var prop = prop_arr[j];
+				var make_true = ($('#'+prop).is(':checked')) ? true : false;
+				console.log('make_true: '+make_true);
+				all_false = (all_false && !make_true) ? true : false;
+				if (make_true) {
+					$span.attr('data-'+prop, 'true');
+				} else {
+					$span.removeAttr('data-'+prop);
+				}
+			}
+			if(all_false && $title.children(':first').is('span')) {
+				$title.children(':first').contents().unwrap();
+			}
+			console.log($title.html());
+			$('input[name="title"]').val( $title.html() );
+		});
+   	};
 };
 </script>
 
@@ -127,10 +155,10 @@ function select_interface(melon) {
 	  <input type="hidden" name="action" value="do_save_style" />
 	  <input type="hidden" name="zone" value="styling" />
 	  <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
+	  <input type="hidden" name="title" value="<?=htmlspecialchars($book->title)?>" />
       <div class="form-group">
         <label for="scope" class="col-sm-2 control-label">Reader interface</label>
-        <div class="col-sm-10" id="interface-wrapper">
-        </div>
+        <div class="col-sm-10" id="interface-wrapper"></div>
       </div>	   
       <div class="form-group">
         <label for="upload_publisher_thumb" class="col-sm-2 control-label">Thumbnail image</label>
@@ -194,14 +222,14 @@ function select_interface(melon) {
       </div>    
       <div class="form-group">
         <label for="custom_style" class="col-sm-2 control-label">Custom CSS</label>
-        <div class="col-sm-10" id="interface-wrapper">
+        <div class="col-sm-10">
           <small>Example: &nbsp; .navbar {background-color:red;} &nbsp; no <?=htmlspecialchars('<style>')?> tags needed</small>
           <textarea class="form-control" rows="8" id="custom_style" name="custom_style"><?=htmlspecialchars($book->custom_style)?></textarea>
         </div>
       </div>
       <div class="form-group">
         <label for="custom_js" class="col-sm-2 control-label">Custom JavaScript</label>
-        <div class="col-sm-10" id="interface-wrapper">
+        <div class="col-sm-10">
           <small>Example: &nbsp; JavaScript or jQuery source, Google Analytics embed code &nbsp; no <?=htmlspecialchars('<script>')?> tags needed</small>
           <textarea class="form-control" rows="8" id="custom_js" name="custom_js"><?=htmlspecialchars($book->custom_js)?></textarea>
         </div>
