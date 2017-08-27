@@ -423,8 +423,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 	    	} else {
 	    		var foot = parseInt( foot_el.height() );
 	    	}
-				var $body = $content_selector_bootbox.find('.modal-body');
-				var bodyPadding = $body.outerHeight()-$body.height();
+			var $body = $content_selector_bootbox.find('.modal-body');
+			var bodyPadding = $body.outerHeight()-$body.height();
 	    	var window_height = parseInt($(window).height());
 	    	var val = window_height - head - foot - (margin*2) - bodyPadding;
     		$this.find('.content').height(val);
@@ -872,7 +872,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.fields = ["title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
-
 
 							 $('<div class="node_selection map_node_selection">').appendTo($content).node_selection_dialogue(opts);
 
@@ -1487,6 +1486,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				visible : 1,
 				last_edited_by : 2,
 				date_created : 2,
+				date_edited : 2,
 				versions : 1,
 				edit : 1
 			}
@@ -1504,7 +1504,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				"onChangeCallback" : defaultCallback,
 				"deleteOptions" : false,
 				"addOptions" : false,
-				"rowSelectMethod" : 'checkbox'  /* checkbox|highlight */
+				"rowSelectMethod" : 'checkbox',  /* checkbox|highlight */
+				"isEdit" : false,
+				"editable" : []
 			};
 
 			$.extend(opts, options);
@@ -1559,7 +1561,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
       var $dialogue_container = $(dialogue_container);
 
-			$dialogue_container.hide();
+	  $dialogue_container.hide();
 
 			if (window['Spinner']) {
 				var spinner_options = {
@@ -1582,7 +1584,55 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$dialogue_container.find('.spinner_container').each(function(){
 					$(this).append(spinner.el).hide();
 				});
-			}
+			};
+			var htmlspecialchars = function(string, quoteStyle, charset, doubleEncode) {
+				  var optTemp = 0
+				  var i = 0
+				  var noquotes = false
+				  if (typeof quoteStyle === 'undefined' || quoteStyle === null) {
+				    quoteStyle = 2
+				  }
+				  string = string || ''
+				  string = string.toString()
+				  if (doubleEncode !== false) {
+				    // Put this first to avoid double-encoding
+				    string = string.replace(/&/g, '&amp;')
+				  }
+				  string = string
+				    .replace(/</g, '&lt;')
+				    .replace(/>/g, '&gt;')
+				  var OPTS = {
+				    'ENT_NOQUOTES': 0,
+				    'ENT_HTML_QUOTE_SINGLE': 1,
+				    'ENT_HTML_QUOTE_DOUBLE': 2,
+				    'ENT_COMPAT': 2,
+				    'ENT_QUOTES': 3,
+				    'ENT_IGNORE': 4
+				  }
+				  if (quoteStyle === 0) {
+				    noquotes = true
+				  }
+				  if (typeof quoteStyle !== 'number') {
+				    // Allow for a single string or an array of string flags
+				    quoteStyle = [].concat(quoteStyle)
+				    for (i = 0; i < quoteStyle.length; i++) {
+				      // Resolve string input to bitwise e.g. 'ENT_IGNORE' becomes 4
+				      if (OPTS[quoteStyle[i]] === 0) {
+				        noquotes = true
+				      } else if (OPTS[quoteStyle[i]]) {
+				        optTemp = optTemp | OPTS[quoteStyle[i]]
+				      }
+				    }
+				    quoteStyle = optTemp
+				  }
+				  if (quoteStyle & OPTS.ENT_HTML_QUOTE_SINGLE) {
+				    string = string.replace(/'/g, '&#039;')
+				  }
+				  if (!noquotes) {
+				    string = string.replace(/"/g, '&quot;')
+				  }
+				  return string
+			};
 			var resize = $.proxy(function($dialogue_container){
 				$dialogue_container.show();
 				var height = $(this).height();
@@ -1619,6 +1669,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 				return string;
 			}
+			
 			var updateNodeList = $.proxy(function(isLazyLoad){
 				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
 					isLazyLoad = false;
@@ -1678,34 +1729,33 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										continue;
 									}
 									$(this).find('th[data-field="thumbnail"]').show();
-									rowHTML += '<td class="node_thumb '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
+									rowHTML += '<td class="node_thumb '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="'+item.thumbnail+'"></td>';
 									break;
 								case 'title':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">'+item.title+'</a></td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'"><a href="'+item.uri+'"'+(($rows.closest('.modal').length)?' target="_blank"':'')+'>'+item.title+'</a></td>';
 									break;
 								case 'description':
 									var short_desc = shorten_description(desc);
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]+' ':'')+(desc!==short_desc?'shortened_desc':'')+'">'+(desc!==short_desc?'<div class="full_desc">'+desc.replace(/"/g, '\\"')+'</div><div class="short_desc">'+short_desc+'</div>':desc)+'</td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]+' ':'')+(desc!==short_desc?'shortened_desc ':'')+''+((-1!=opts.editable.indexOf(col))?'editable':'')+'" data-field="'+col+'">'+(desc!==short_desc?'<div class="full_desc">'+desc.replace(/"/g, '\\"')+'</div><div class="short_desc">'+short_desc+'</div>':desc)+'</td>';
 									break;
 								case 'url':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">/'+item.slug+'</td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'">/'+item.slug+'</td>';
 									break;
 								case 'preview':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" target="_blank">Preview</a></td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'"><a href="'+item.uri+'" target="_blank">Preview</a></td>';
 									break;
 								case 'include_children':
 									hasChildSelector = true;
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+' select_children text-center" style="vertical-align: middle;">';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+' select_children text-center'+((-1!=opts.editable.indexOf(col))?' editable':'')+'" style="vertical-align: middle;">';
 									if(item.hasRelations){
 										rowHTML += '<input type="checkbox" value="">';
 									}
 									rowHTML += '</td>';
 									break;
-								// Added by Craig
 								case 'visible':
 									var is_visible = (1==parseInt(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive'][0].value)) ? true : false;
 									var visibleThumbUrl = (is_visible) ? $('link#approot').attr('href')+'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href')+'views/widgets/edit/hidden-icon.png';
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a class="visibilityLink" href="javascript:void(null);"><img src="'+visibleThumbUrl+'" /></a></td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'" align="center"><a class="visibilityLink" href="javascript:void(null);"><img src="'+visibleThumbUrl+'" /></a></td>';
 									break;
 								case 'last_edited_by':
 									var fullname = '';
@@ -1714,24 +1764,31 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										if (prov_uri != o) continue;
 										fullname = $this.data('_data')[o]["http://xmlns.com/foaf/0.1/name"][0].value;
 									}
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+prov_uri+'">'+fullname+'</a></td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'"><a href="'+prov_uri+'">'+fullname+'</a></td>';
 									break;
 								case 'date_created':
 									var monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
 									function getSuffix(n) {return n < 11 || n > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((n - 1) % 10, 3)] : 'th'};
-									var dt = new Date(item.version["http://purl.org/dc/terms/created"][0].value);
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'">'+monthNames[dt.getMonth()]+' '+dt.getDate()+getSuffix(dt.getDate())+' '+dt.getFullYear()+'</td>';
+									var dt = new Date(item.content["http://purl.org/dc/terms/created"][0].value);
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'">'+monthNames[dt.getMonth()]+' '+dt.getDate()+getSuffix(dt.getDate())+' '+dt.getFullYear()+'</td>';
+									break;
+								case 'date_edited':
+									var monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+									function getSuffix(n) {return n < 11 || n > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((n - 1) % 10, 3)] : 'th'};
+									var dt = new Date(item.content["http://purl.org/dc/terms/created"][0].value);
+									var createdStr = 'Date created: '+monthNames[dt.getMonth()]+' '+dt.getDate()+getSuffix(dt.getDate())+' '+dt.getFullYear();
+									dt = new Date(item.version["http://purl.org/dc/terms/created"][0].value);
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'" title="'+createdStr+'">'+monthNames[dt.getMonth()]+' '+dt.getDate()+getSuffix(dt.getDate())+' '+dt.getFullYear()+'</td>';
 									break;
 								case 'versions':
-									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a href="'+item.uri+'.versions">&nbsp;'+item.version["http://open.vocab.org/terms/versionnumber"][0].value+'&nbsp;</a></td>';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'" align="center"><a href="'+item.uri+'.versions">&nbsp;'+item.version["http://open.vocab.org/terms/versionnumber"][0].value+'&nbsp;</a></td>';
 									break;
 								case 'edit':
-									rowHTML += '<td class="edit_col '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a href="'+item.uri+'.edit" class="btn btn-default btn-xs editLink">edit</a></td>';
+									rowHTML += '<td class="edit_col '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a href="'+item.uri+'.edit" class="btn btn-default btn-sm editLink">Edit</a></td>';
 									break;
 							}
 						}
 						rowHTML+='</tr>';
-						//<td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>
 						var $item = $(rowHTML).appendTo($rows).data({'slug':item.slug,'item':item});
 
 						if(hasChildSelector){
@@ -1770,10 +1827,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								$item.find('.select_children input[type="checkbox"]').attr('checked',true);
 							}
 						}
-
-						$item.find('a').click(function(e){
-							e.stopPropagation();
-						});
 
 						$item.mouseover(function() {
 							$(this).find('.editLink').css('display','inline-block');
@@ -1863,9 +1916,65 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								e.stopPropagation();
 								return false;
 							});
-						}
-					}
-				}
+						}; //allowMultiple
+						
+					}; //for data.length
+					
+					if (opts.isEdit) {
+						var doMouseLeave = function($cell) {
+							$cell.removeClass('collapse_padding');
+							$cell.closest('tr').find('td').css('vertical-align','top');
+							if ($cell.data('has-link')) {
+								var $temp = $('<div>'+$cell.data('orig-html')+'</div>');
+								$temp.children('a:first').html($cell.children('input:first').val());
+								var replace = $temp.html().slice();
+							} else {
+								var replace = $cell.children('input:first').val();
+							};
+							if (!replace.length && $cell.data('field')=='description') replace = '<em>No Description</em>';
+							$cell.html(replace);
+							$cell.data('is-editing', false);
+							if ($cell.data('has-link')) $cell.find('a:first').click(function(e) {
+								e.stopPropagation();
+							})
+						};
+						$rows.find('tr').click(function() {
+							$(this).find('.editable').each(function() {
+								var $cell = $(this);
+								if ($cell.data('is-editing')) {
+									doMouseLeave($cell);
+								} else {
+									$cell.addClass('collapse_padding');
+									$cell.closest('tr').find('td').css('vertical-align','middle');
+									$cell.data('is-editing', true);
+									$cell.data('has-link', false);
+									$cell.data('orig-html', $cell.html().slice());
+									if ($cell.children('a').length) {
+										$cell.data('has-link', true);
+										var replace = $cell.children('a:first').html().slice();
+									} else if ($cell.children('em').length && $cell.html().slice() == '<em>No Description</em>') {
+										var replace = '';
+									} else {
+										var replace = $cell.html().slice();
+									};
+									$cell.html('<input class="form-control input-xs" type="text" value="'+htmlspecialchars(replace)+'" />');
+									$cell.find('input').click(function(event) {
+										event.stopPropagation();
+									}).keypress(function(e) {
+									    if(e.which == 13) {
+									    	$(this).closest('tr').click();
+									    }
+									});
+								};
+							});
+						});
+					};
+					
+					$rows.find('a').click(function(e){
+						e.stopPropagation();
+					});
+					
+				};
 
 				$rows.find('.node_thumb img').each(function(){
 					if($(this).parents('tr').data('item').hasThumbnail){

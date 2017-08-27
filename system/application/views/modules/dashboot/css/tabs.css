@@ -47,7 +47,7 @@ header h5 {margin-bottom:14px;}
 
 .nav-tabs {margin-bottom:30px;}
 .tab-pane .loading {text-align:center; color:#777777; margin-top:20px;}
-.tab-pane.active .alert {margin-top:-12px;}
+.tab-pane.active .alert {position:relative; top:-12px; margin-bottom:8px;}
 
 #custom_style {margin-bottom:6px;}
 .predefined_wrapper .select select, .predefined_wrapper .button input  {margin-bottom:3px;}
@@ -63,3 +63,5 @@ header h5 {margin-bottom:14px;}
 
 .bootbox button.close {background:url(../images/close_icon.png) no-repeat; width:30px; height:30px; margin-top:-2px; opacity:1;}
 .bootbox button.close:hover {background-image:url(../images/close_icon_hover.png); opacity:1;}
+
+.awaiting-comments {padding-top:8px; padding-bottom:8px; color:#222222;}

@@ -224,6 +224,9 @@ class Rdf extends MY_Controller {
 					$this->load->model($class.'_model', plural($class));
 					$model = plural($class);
 					break;
+				case 'user':
+					// TODO
+					break;
 				default:
 					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
 					exit;

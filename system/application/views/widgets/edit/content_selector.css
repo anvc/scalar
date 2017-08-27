@@ -130,6 +130,12 @@
 .node_selector select{
 	text-align:left;
 }
+.node_selector .input-xs {
+  height: auto;
+  padding: 2px 5px;
+  font-size: 12px;
+  border-radius: 3px;
+}
 .media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
 }
@@ -165,7 +171,7 @@
 }
 .node_selector .loadingRow, .node_selector tr.empty{
 	padding: 5px;
-	font-size: 2.1rem;
+	font-size: 1.5rem;
 }
 .node_selector .loadingRow td, .node_selector tr.empty td{
 	padding-top: 1.5rem;
@@ -184,7 +190,7 @@
 .node_selector_table_body.multiple tbody>tr:hover{
 	cursor: default;
 }
-.node_selector .node_rows{
+.node_selector .node_rows:not(.btn){
 	font-size: smaller;
 	cursor: pointer;
 }
@@ -214,6 +220,8 @@
 }
 .node_selector .editLink {
 	display:none;
+	padding-top:1px;
+	padding-bottom:1px;
 }
 .node_selector .filter_spinner{
 	border: 0;
@@ -252,10 +260,14 @@
 .moreless{
 	display: block;
 }
-.node_selector_table_body tbody>tr>td.edit_col{
-	padding: 6px 8px 4px 8px;
+.node_selector .editable.collapse_padding {
+	padding-top:1px;
+	padding-bottom:1px;
 }
-.node_selector_table_body tbody>tr>td.edit_col>a{
+.node_selector_table_body tbody>tr>td.edit_col{
+	padding: 4px 8px 4px 8px;
+}
+.node_selector_table_body tbody>tr>td.edit_col>a:not(.btn){
     height: 20px;
     box-sizing: border-box;
     font-size: 1rem;
