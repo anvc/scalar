@@ -581,32 +581,38 @@
 
                 $node.data('editableFields',$node.data('editableFields')+1);
 
-                var editor = CKEDITOR.inline( $(this).attr('id'), {
-                    // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                    removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
-                    startupFocus: false,
-                    toolbar : 'ScalarInline'
-                } );
+                $(this).on('focus',function(e){
+                    e.preventDefault();
+                    $(this).off('focus');
+                    var editor = CKEDITOR.inline( $(this).attr('id'), {
+                        // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                        removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
+                        startupFocus: false,
+                        toolbar : 'ScalarInline'
+                    } );
 
-                editor.on('focus', $.proxy(function(editor,base,ev) {
-                        if($(this).hasClass('descriptionContent')) return;
-                        base.stripPlaceholders($(this));
-                        editor.plugins['scalar'].init(editor);
-                },this,editor,base));
+                    editor.on('focus', $.proxy(function(editor,base,ev) {
+                            if($(this).hasClass('descriptionContent')) return;
+                            base.stripPlaceholders($(this));
+                            editor.plugins['scalar'].init(editor);
+                    },this,editor,base));
 
-                editor.on('blur', $.proxy(function($parent,base,ev) {
-                        if($('.bootbox').length > 0) return;
-                        if($(this).hasClass('descriptionContent')) return;
-                        
-                        base.updateLinks($node);
-                },this,$node,base));
+                    editor.on('blur', $.proxy(function($parent,base,ev) {
+                            if($('.bootbox').length > 0) return;
+                            if($(this).hasClass('descriptionContent')) return;
+                            
+                            base.updateLinks($node);
+                    },this,$node,base));
 
-                editor.on('instanceReady', $.proxy(function(base,ev) {
-                    $(this).fadeTo(1000,100);
-                    base.$contentLoader.fadeOut('fast',function(){
-                        $(this).remove();
-                    });
-                },$node,base));
+                    editor.on('instanceReady', $.proxy(function(base,ev) {
+                        $(this).fadeTo(1000,100);
+                        base.$contentLoader.fadeOut('fast',function(){
+                            $(this).remove();
+                        });
+                    },$node,base));
+                    $(this).trigger('click');
+                    console.log(CKEDITOR.instances);
+                });
             });
 
             base.updateLinks($node);
