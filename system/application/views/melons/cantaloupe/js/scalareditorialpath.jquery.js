@@ -216,11 +216,11 @@
         	        				//We have a version node... Just lop off that version number so we can get the citation property
         							uri = uri.slice(0, uri.lastIndexOf('.'));
         	        			}
-        	        			var node = scalarapi.getNode( uri );
+        	        			var node = data[uri];
                                 if(typeof node == 'undefined'){
                                     continue;
                                 }
-        						var citationProp = node.properties['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
+        						var citationProp = node['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
         						regex = /(?:.*methodNumNodes=(\d+))/;
         						matches = null;
         						if((matches = regex.exec(citationProp)) === null){
@@ -244,11 +244,12 @@
         			break;
         		case 2:
         			//Parse the data!
+                    var new_nodes = 0;
                     for(var uri in data){
                         var node = scalarapi.getNode( uri );
                         var regex = /(?:\.)(\d+)\b/;
                         var matches = null;
-                        if((matches = regex.exec(uri)) === null){ //A lot of these filters won't need to be in place once actual editorial path functionality is in place
+                        if((matches = regex.exec(uri)) === null){
                             if(uri.lastIndexOf('http', 0) === 0){
                                 //We don't have a version node! Load the node.
                                 var node = scalarapi.getNode( uri );
@@ -257,6 +258,7 @@
                                     base.nodeList.unsorted = [];
                                 }
                                 base.nodeList.unsorted.push(node);
+                                new_nodes++;
                             }
                         }
                     }
@@ -274,11 +276,13 @@
                         }
                     }else{
                         base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - '+Math.round((base.currentChunk*base.options.pagesPerChunk)/base.numPages[base.nodeTypes[base.currentLoadType]])*100+'%');
+                        if(new_nodes > 0){
+                            base.currentChunk++;
+                        }
                     }
-                    
                     scalarapi.loadNodesByType(
                         base.nodeTypes[base.currentLoadType], true, base.setup,
-                        null, 1, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
+                        null, 1, false, null, base.currentChunk*base.options.pagesPerChunk, base.options.pagesPerChunk
                     );
 
         			break;
