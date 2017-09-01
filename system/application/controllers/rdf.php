@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -96,6 +96,8 @@ class Rdf extends MY_Controller {
 		$this->data['pagination'] = array();
 		if (!empty($start)||$start===0) $this->data['pagination']['start'] = $start;
 		if (!empty($results)) $this->data['pagination']['results'] = $results;
+		// Display all users regardless of list-in-index status?
+		$this->data['u_all'] = (isset($_REQUEST['u_all']) && 1==$_REQUEST['u_all'] && $this->login_is_book_admin()) ? true : false;
 
 	}
 
@@ -127,6 +129,7 @@ class Rdf extends MY_Controller {
 										  array(
 										    'book'     => $this->data['book'],
 										  	'users'    => $contrib,
+										  	'u_all'	   => (($this->data['u_all'])?RDF_Object::USERS_ALL:RDF_Object::USERS_LISTED),
 										  	'base_uri' => $this->data['base_uri']
 										  )
 									   );

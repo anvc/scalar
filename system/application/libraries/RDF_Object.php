@@ -41,6 +41,8 @@ class RDF_Object {
 	const NO_PAGINATION = null;
 	const PROVENANCE_ALL = 1;
 	const PROVENANCE_NONE = null;
+	const USERS_ALL = 1;
+	const USERS_LISTED = 2;
 	public $ns = array();
 	private $version_cache = array();
 	private $user_cache = array();
@@ -62,7 +64,8 @@ class RDF_Object {
 	                         'max_recurses' => 0,
 	                         'num_recurses' => 0,
 							 'total'   		=> 0,
-							 'anon_name'	=> 'anonymous'
+							 'anon_name'	=> 'anonymous',
+							 'u_all'		=> self::USERS_LISTED
 							 );
 
 	public function __construct() {
@@ -240,7 +243,7 @@ class RDF_Object {
 		// Book users
 		$settings['book']->users = array();
 		foreach ($settings['users'] as $row) {
-			if (!$row->list_in_index) continue;
+			if ($settings['u_all']==self::USERS_LISTED && !$row->list_in_index) continue;
 			$sort_number = (int) $row->sort_number;
 			$user_base = $settings['base_uri'].'users/'.$row->user_id;
 			$settings['book']->users[] = $user_base.$this->annotation_append($row);
@@ -267,7 +270,7 @@ class RDF_Object {
 
 	 	// Users
 		foreach ($settings['users'] as $row) {
-			if (!$row->list_in_index) continue;
+			if ($settings['u_all']==self::USERS_LISTED && !$row->list_in_index) continue;
 			$return[$settings['base_uri'].'users/'.$row->user_id] = $CI->users->rdf($row);
 		}
 
