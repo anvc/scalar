@@ -29,6 +29,8 @@ $(window).on('scroll',function() {
 });
 </script>
 
+<div class="bgcolor">
+
 <header class="container-fluid">
   <div class="row">
     <div class="col-xs-12 col-sm-6">
@@ -95,3 +97,5 @@ else: ?>
   <div role="tabpanel" class="tab-pane<?=(('utils'==$zone)?' active':'')?>" id="tabs-utils"><? if ('utils'==$zone) { $this->load->view('modules/dashboot/utils'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
 </section>	
 <?php endif; ?>
+
+</div>

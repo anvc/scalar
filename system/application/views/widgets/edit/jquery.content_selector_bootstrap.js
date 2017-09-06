@@ -431,94 +431,79 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	};
     	// Initialize the interface
     	var init = function() {
-				//If we already have an element, don't open the modal
-				//Instead, grab the current node and pass it to the callback instead
-				if(typeof opts.element != 'undefined'){
-					if(typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null && opts.forceSelect == false){
-						var parent = null;
-
-						//Get the slug of the currently selected node
-						currentSlug = opts.element.getAttribute('resource');
-
-						//Now that we have the slug, load the page via the api, then run the callback
-						(function(slug,parent,element,callback){
-							scalarapi.loadPage( slug, true, function(){
-									var node = scalarapi.getNode(slug);
-									node.parent = parent;
-									callback(node,element);
-							}, null, 1, false, null, 0, 1 );
-						})(currentSlug,parent,opts.element, opts.callback);
-
-						return;
-					}else{
-						var selectOptions = $(opts.element.$).data('selectOptions');
-						selectOptions.forceSelect = false;
-					}
-				}
+			//If we already have an element, don't open the modal
+			//Instead, grab the current node and pass it to the callback instead
+			if(typeof opts.element != 'undefined'){
+				if(typeof opts.element.getAttribute('href') != 'undefined' && opts.element.getAttribute('href')!=null && opts.forceSelect == false){
+					var parent = null;
+					//Get the slug of the currently selected node
+					currentSlug = opts.element.getAttribute('resource');
+					//Now that we have the slug, load the page via the api, then run the callback
+					(function(slug,parent,element,callback){
+						scalarapi.loadPage( slug, true, function(){
+								var node = scalarapi.getNode(slug);
+								node.parent = parent;
+								callback(node,element);
+						}, null, 1, false, null, 0, 1 );
+					})(currentSlug,parent,opts.element, opts.callback);
+					return;
+				}else{
+					var selectOptions = $(opts.element.$).data('selectOptions');
+					selectOptions.forceSelect = false;
+				};
+			};
 
     		$('.content_selector, .bootbox, .modal-backdrop, .tt').remove();
     		var $wrapper = $('<div class="wrapper"></div>').appendTo($this);
     		// Create the modal
-    		//$(document).scrollTop(0);  // iOS
-				bootbox.hideAll()
-				var box = bootbox.dialog({
-					message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
-					title: 'Select content',
-					className: 'content_selector_bootbox',
-					animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
-				});
-				$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
+			bootbox.hideAll()
+			var box = bootbox.dialog({
+				message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
+				title: 'Select content',
+				className: 'content_selector_bootbox',
+				animate: true  // This must remain true for iOS, otherwise the wysiwyg selection goes away
+			});
+			$('.bootbox').find( '.modal-title' ).addClass( 'heading_font' );
     		// Default content
     		var $content = $('<div class="content"></div>').appendTo($wrapper);
     		var $nodeCount;
 			var $selector = $('<div class="selector" style="height: 100%; width: 100%;"></div>').appendTo($content)
 			var options = {};
-				//  if(isEdit){
-				// 	 var $el = $(element.$);
-				// 	 if($el.attr("resource")!=undefined){
- 			// 			opts.selected = [$el.attr("resource")];
- 			// 		 }else if($el.data("nodes")!=undefined){
- 			// 			opts.selected = $el.data("nodes").split(",");
- 			// 		 }
-				//  }
-				 options.resultsPerPage = opts.resultsPerPage;
-				 options.allowMultiple = opts.multiple;
-				 options.allowChildren = false;
-					if(!opts.multiple){
-						options.onChangeCallback = $.proxy(function(box,opts){
-							if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
-								opts.callback($(this).find('.node_selector').data('nodes')[0],opts.element);
-								box.modal('hide');
-							}
-						},$selector,box,opts);
-					}else{
-						options.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
-					}
-				 if("undefined" !== typeof opts.type && opts.type!=null){
-					 if($.isArray(opts.type)){
-						 options.types = opts.type;
-					 	 options.defaultType = opts.type[0];
-					 }else{
-						 options.types = [opts.type];
-					 	 options.defaultType = opts.type;
-					 }
+			 options.resultsPerPage = opts.resultsPerPage;
+			 options.allowMultiple = opts.multiple;
+			 options.allowChildren = false;
+				if(!opts.multiple){
+					options.onChangeCallback = $.proxy(function(box,opts){
+						if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
+							opts.callback($(this).find('.node_selector').data('nodes')[0],opts.element);
+							box.modal('hide');
+						}
+					},$selector,box,opts);
+				}else{
+					options.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
+				}
+			 if("undefined" !== typeof opts.type && opts.type!=null){
+				 if($.isArray(opts.type)){
+					 options.types = opts.type;
+				 	 options.defaultType = opts.type[0];
+				 }else{
+					 options.types = [opts.type];
+				 	 options.defaultType = opts.type;
 				 }
-
-				var $content_selector_bootbox = $('.content_selector_bootbox');
-				$this.appendTo($('#bootbox-content-selector-content'))
-
-				$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
-				$('.bootbox-close-button').empty();
-				$(window).resize(function() {
-					modal_height();
-				});
-				box.on("hidden.bs.modal", function() {
-					reset();
-				});
-				$selector.node_selection_dialogue(options);
+			 }
+			var $content_selector_bootbox = $('.content_selector_bootbox');
+			$this.appendTo($('#bootbox-content-selector-content'))
+			$content_selector_bootbox.find('.modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
+			$('.bootbox-close-button').empty();
+			$(window).resize(function() {
+				modal_height();
+			});
+			box.on("hidden.bs.modal", function() {
+				reset();
+			});
+			$selector.node_selection_dialogue(options);
     		// Footer buttons
     		var $footer = $('<div class="footer"><div><a href="javascript:void(null);" class="btn btn-default generic_button">Create page on-the-fly</a> &nbsp; &nbsp;</div><div><a href="javascript:void(null);" class="cancel btn btn-default generic_button">Cancel</a></div></div>').appendTo($wrapper);
-
     		// Bootstrap positioning
   			$footer.find('.cancel').hide();  // Remove cancel button
   			modal_height();  // TODO: I can't get rid of the small jump ... for some reason header and footer height isn't what it should be on initial modal_height() call
@@ -1371,6 +1356,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var load_node_list = function(options){
 				lastLoadCriteria = options;
+				var promise = options.promise;
 				var doSearch = false;
 				var type = options.type;
 				if("undefined" !== typeof options.search && options.search !== null){
@@ -1382,17 +1368,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 				var ref = options.ref;
 				var rec = options.rec;
-				var promise = options.promise;
-				var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec='+rec+'&ref='+ref+'&start='+(options.page*opts.resultsPerPage)+"&results="+opts.resultsPerPage;
+				if ('users'==type) {
+					var url = parent_url+'rdf?format=json&u_all=1';
+				} else {
+					var url = parent_url+'rdf/instancesof/'+type+'?format=json&rec='+rec+'&ref='+ref+'&start='+(options.page*opts.resultsPerPage)+"&results="+opts.resultsPerPage;
+				};
 				if ('undefined'!=typeof(opts.fields) && -1 != opts.fields.indexOf('last_edited_by')) {
 					url += '&prov=1';
 				}
 				if ('undefined'!=typeof(opts.fields) && -1 != opts.fields.indexOf('edit')) {
 					url += '&hidden=1';
-				}
+				};
 				if(doSearch){
 					url += "&sq="+search;
-				}
+				};
 				if(!doSearch && typeof loaded_nodeLists[type]!=="undefined" && options.page == 0){
 					promise.resolve();
 				}else{
@@ -1406,9 +1395,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							loaded_nodeLists[type] = [];
 						}
 						rel_filter_match = false;
+						// First look for relationship nodes and term nodes
 						for (var uri in _data) {
-							//First just go through and pick out any of the URN entries
-
 							if(uri.indexOf('urn:scalar:'+type)>-1){
 								var body = _data[uri]['http://www.openannotation.org/ns/hasBody'][0]['value'].split('#')[0];
 								body = body.substr(0, body.lastIndexOf('.'));
@@ -1423,16 +1411,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if("undefined" === typeof _data[body].rel){
 										_data[body].rel = [];
 								}
-
 								var version = _data[ _data[target]['http://purl.org/dc/terms/hasVersion'][0].value ];
-
 								_data[target].target = {current:{title:('undefined'!==typeof(version["http://purl.org/dc/terms/title"])) ? version["http://purl.org/dc/terms/title"][0].value : ''}};
 								_data[body].rel.push(_data[target]);
 								have_relationships = true;
 							}
 						}
-
-						//From  previous content selector: if we have relationships, then assume we only want nodes w/ relationships
+						// If we have relationships, then assume we only want nodes w/ relationships
 						if(type != 'composite' && rel_filter_match){
 							for (var uri in _data) {
 								if ('undefined'!=typeof(_data[uri]['http://purl.org/dc/terms/hasVersion']) && "undefined" == typeof _data[uri].matchesFilter) {
@@ -1440,11 +1425,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								}
 							}
 						}
-
 						var added_rows = 0;
 			    		for (var uri in _data) {
+			    			// Is a Version
 			    			if ('undefined'!=typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
-									var item = {};
+								var item = {};
 			    				item.uri = uri;
 			    				item.slug = uri.replace(parent_url, '');
 			    				item.version_uri = _data[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
@@ -1454,22 +1439,36 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			    				item.hasThumbnail = false;
 			    				item.title = ('undefined'!==typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
 			    				item.targets = 'undefined'!==typeof _data[uri].rel ? _data[uri].rel : [];
-									if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']){
-										item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
-										item.hasThumbnail = true;
-									}else{
-										item.thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
-									}
-
-									item.hasRelations = 'undefined' !== typeof item.content.rel;
-
-									if(doSearch){
-										search_results.push(item);
-									}else{
-			    					loaded_nodeLists[type].push(item);
-									}
-									added_rows++;
-			    			}
+								if('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']) {
+									item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
+									item.hasThumbnail = true;
+								} else {
+									item.thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
+								}
+								item.hasRelations = 'undefined' !== typeof item.content.rel;
+								if(doSearch){
+									search_results.push(item);
+								} else {
+									loaded_nodeLists[type].push(item);
+								}
+								added_rows++;
+							// Is a Book (e.g., so we can get book users)
+			    			} else if ('undefined'!=typeof(_data[uri]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) && 'http://scalar.usc.edu/2012/01/scalar-ns#Book'==_data[uri]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value) {
+			    				if ('undefined'!=typeof(_data[uri]['http://rdfs.org/sioc/ns#has_owner'])) {
+				    				for (var k = 0; k < _data[uri]['http://rdfs.org/sioc/ns#has_owner'].length; k++) {
+				    					var item = {};
+				    					var arr = _data[uri]['http://rdfs.org/sioc/ns#has_owner'][k].value.split('#');
+				    					item.uri = arr[0];
+				    					for (var m = 0; m < arr[1].split('&').length; m++) {
+				    						var user_var = arr[1].split('&')[m].split('=');
+				    						item[user_var[0]] = user_var[1];
+				    					};
+					    				item.content = _data[item.uri];
+					    				loaded_nodeLists[type].push(item);
+					    				added_rows++;
+				    				};
+			    				};
+			    			};
 			    		}
 						lastPage = added_rows == 0;
 						promise.resolve();
@@ -1479,16 +1478,22 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var fieldWidths = {
 				thumbnail : 1,
 				title : 2,
+				name : 2,
 				description : 'auto',
 				url : 2,
+				homepage : 2,
 				preview : 2,
 				include_children : 2,
 				visible : 1,
+				listed : 1,
+				order : 1,
+				role : 1,
 				last_edited_by : 2,
 				date_created : 2,
 				date_edited : 2,
 				versions : 1,
-				edit : 1
+				edit : 1,
+				bio_contributions : 2
 			}
 			var defaultCallback = function(){};
 			var opts = {
@@ -1502,8 +1507,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				"allowChildren" : false,
 				"selected" : [],
 				"onChangeCallback" : defaultCallback,
+				"userOptions" : false,
 				"deleteOptions" : false,
 				"addOptions" : false,
+				"displayHeading" : true,
 				"rowSelectMethod" : 'checkbox',  /* checkbox|highlight */
 				"isEdit" : false,
 				"editable" : []
@@ -1633,10 +1640,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				  }
 				  return string
 			};
+			var ucwords = function(str) {  // http://locutus.io/php/ucwords/
+				  return (str + '')
+				    .replace(/^(.)|\s+(.)/g, function ($1) {
+				      return $1.toUpperCase()
+				    })
+				}
 			var resize = $.proxy(function($dialogue_container){
 				$dialogue_container.show();
 				var height = $(this).height();
-				height -= $(this).find('.panel-heading').outerHeight();
+				if (!opts.displayHeading) {
+					$dialogue_container.find('.panel-heading').hide();
+				} else {
+					height -= $(this).find('.panel-heading').outerHeight();
+				};
 				height -= $(this).find('.panel-footer').outerHeight();
 				height -= 10;  // Update by Craig; orig value: 28
 				$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
@@ -1671,6 +1688,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 			
 			var updateNodeList = $.proxy(function(isLazyLoad){
+
 				if("undefined" === typeof isLazyLoad || isLazyLoad == null){
 					isLazyLoad = false;
 				}
@@ -1711,7 +1729,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							}
 						}
 
-						var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
+						var desc = (item.version && 'undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
 						var rowHTML = '<tr>';
 
 						if(isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox'==opts.rowSelectMethod){
@@ -1734,6 +1752,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								case 'title':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'"><a href="'+item.uri+'"'+(($rows.closest('.modal').length)?' target="_blank"':'')+'>'+item.title+'</a></td>';
 									break;
+								case 'name': // foaf:name
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'"><a href="'+item.uri+'"'+(($rows.closest('.modal').length)?' target="_blank"':'')+'>'+item.content['http://xmlns.com/foaf/0.1/name'][0].value+'</a></td>';
+									break;								
 								case 'description':
 									var short_desc = shorten_description(desc);
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]+' ':'')+(desc!==short_desc?'shortened_desc ':'')+''+((-1!=opts.editable.indexOf(col))?'editable':'')+'" data-field="'+col+'">'+(desc!==short_desc?'<div class="full_desc">'+desc.replace(/"/g, '\\"')+'</div><div class="short_desc">'+short_desc+'</div>':desc)+'</td>';
@@ -1741,6 +1762,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								case 'url':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'">/'+item.slug+'</td>';
 									break;
+								case 'homepage': // foaf:homepage
+									var homepage = ('undefined'!=typeof(item.content['http://xmlns.com/foaf/0.1/homepage']) && item.content['http://xmlns.com/foaf/0.1/homepage'][0].value.length) ? item.content['http://xmlns.com/foaf/0.1/homepage'][0].value : '';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'"><a href="'+homepage+'" target="_blank">'+homepage+'</a></td>';
+									break;										
 								case 'preview':
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'"><a href="'+item.uri+'" target="_blank">Preview</a></td>';
 									break;
@@ -1753,10 +1778,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									rowHTML += '</td>';
 									break;
 								case 'visible':
-									var is_visible = (1==parseInt(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive'][0].value)) ? true : false;
+									var is_visible = ('undefined'!=typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive']) && 1==parseInt(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive'][0].value)) ? true : false;
 									var visibleThumbUrl = (is_visible) ? $('link#approot').attr('href')+'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href')+'views/widgets/edit/hidden-icon.png';
 									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'" align="center"><a class="visibilityLink" href="javascript:void(null);"><img src="'+visibleThumbUrl+'" /></a></td>';
 									break;
+								case 'listed':
+									var is_listed = (1==parseInt(item.listed)) ? true : false;
+									var listedThumbUrl = (is_listed) ? $('link#approot').attr('href')+'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href')+'views/widgets/edit/hidden-icon.png';
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'" style="padding-left:19px;"><a class="visibilityLink" href="javascript:void(null);"><img src="'+listedThumbUrl+'" /></a></td>';
+									break;
+								case 'order':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable':'')+'" style="padding-left:23px;">'+item.index+'</td>';
+									break;
+								case 'role':
+									rowHTML += '<td class="'+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+''+((-1!=opts.editable.indexOf(col))?' editable editable-role':'')+'">'+ucwords(item.role)+'</td>';
+									break;									
 								case 'last_edited_by':
 									var fullname = '';
 									var prov_uri = item.version["http://www.w3.org/ns/prov#wasAttributedTo"][0].value;
@@ -1785,6 +1821,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									break;
 								case 'edit':
 									rowHTML += '<td class="edit_col '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'" align="center"><a href="'+item.uri+'.edit" class="btn btn-default btn-sm editLink">Edit</a></td>';
+									break;
+								case 'bio_contributions':
+									rowHTML += '<td class="edit_col '+(fieldWidths[col]!='auto'?'col-xs-'+fieldWidths[col]:'')+'"><a href="'+item.uri+'" class="btn btn-default btn-sm editLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm editLink">Contributions</a></td>';
 									break;
 							}
 						}
@@ -2041,7 +2080,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			var $filter = $dialogue_container.find('.node_filter');
 			var $search = $dialogue_container.find('.node_search');
-
+			
 			if(isset(opts.nodeCountContainer)){
 				var $count = opts.nodeCountContainer;
 				$dialogue_container.find('.selected_node_count').parent('.row').remove();
@@ -2087,7 +2126,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					});
 				}
 				$deleteOpts.append('<button type="button" class="btn btn-default">Delete selected</button>');
-			}
+			};
+			
+			if (isset(opts.userOptions) && opts.userOptions) {
+				if ('undefined'==typeof($deleteOpts)) {
+					$dialogue_container.find('.selected_node_count').css('float','right').css('margin-left',0);
+					var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
+				} else {
+					$deleteOpts.append('<span> | </span>');
+				}
+				$deleteOpts.append('<button type="button" class="btn btn-default">Add new user</button>');
+				$deleteOpts.find('button:last').off('click').on('click', function() {
+					// TODO
+				});				
+			};
 
 			if (isset(opts.addOptions) && opts.addOptions) {
 				if ('undefined'==typeof($deleteOpts)) {
@@ -2246,7 +2298,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if(isset(opts.fields)){;
 				fields_to_display = opts.fields;
 				for(var f in fields_to_display){
-					if(["thumbnail","preview","edit"].indexOf(fields_to_display[f])>-1){
+					if(["thumbnail","preview","edit","bio_contributions"].indexOf(fields_to_display[f])>-1){
 						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'"></th>');
 					} else if(["visible","versions"].indexOf(fields_to_display[f])>-1){
 						$fields.append('<th class="'+(fieldWidths[fields_to_display[f]]!='auto'?'col-xs-'+fieldWidths[fields_to_display[f]]:'')+'" data-field="'+fields_to_display[f].toLowerCase().replace(/ /g,"_")+'" style="text-align:center;">'+toProperCase(fields_to_display[f].replace(/_/g," "))+'</th>');

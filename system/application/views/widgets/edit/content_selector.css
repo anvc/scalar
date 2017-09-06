@@ -263,9 +263,10 @@
 .node_selector .editable.collapse_padding {
 	padding-top:1px;
 	padding-bottom:1px;
+	padding-left:8px !important;
 }
 .node_selector_table_body tbody>tr>td.edit_col{
-	padding: 4px 8px 4px 8px;
+	padding: 6px 8px 4px 8px;
 }
 .node_selector_table_body tbody>tr>td.edit_col>a:not(.btn){
     height: 20px;
