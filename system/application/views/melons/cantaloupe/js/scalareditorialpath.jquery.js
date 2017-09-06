@@ -587,7 +587,7 @@
                     var editor = CKEDITOR.inline( $(this).attr('id'), {
                         // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
                         removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
-                        startupFocus: false,
+                        startupFocus: true,
                         toolbar : 'ScalarInline'
                     } );
 
@@ -610,8 +610,6 @@
                             $(this).remove();
                         });
                     },$node,base));
-                    $(this).trigger('click');
-                    console.log(CKEDITOR.instances);
                 });
             });
 
