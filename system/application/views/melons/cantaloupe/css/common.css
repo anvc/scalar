@@ -22,7 +22,7 @@ article h1, article h2, article h3, article h4, article h5, article h6 { padding
 .mediaelement h1,.mediaelement h2,.mediaelement h3,.mediaelement h4,.mediaelement h5,.mediaelement h6 { padding-left: 0; padding-right: 0; margin-top: 20px; margin-bottom: 10px; }
 .ci-template-html h1,.ci-template-html h2,.ci-template-html h3,.ci-template-html h4,.ci-template-html h5,.ci-template-html h6 { padding-left: 0; padding-right: 0; margin-top: 20px; margin-bottom: 10px; }
 article h1 { font-size: 4.9rem; line-height: 6rem; margin-top: 0rem; margin-bottom: 4.8rem; }
-article h2 { font-size: 2.8rem; line-height: 4.8rem; margin-top: 4.8rem; margin-bottom: 2.4rem; }
+article h2 { font-size: 2.8rem; line-height: 3.2rem; margin-top: 4.8rem; margin-bottom: 2.4rem; }
 article h3 { font-size: 2.1rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
 article h4 { font-size: 1.8rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
 article h5 { font-size: 1.6rem; line-height: 2.4rem; margin-top: 2.4rem; margin-bottom: 1.2rem; }
@@ -95,6 +95,8 @@ video { background-color: black; }
 .scalarnotice .close_link a:hover {text-decoration:none}
 
 /* --- HEADER --- */
+
+header { padding-top: 4.8rem; }
 
 #header {
 	color: #ccc;
@@ -201,7 +203,7 @@ li.divider-above { border-top: 1px dotted #888; }
 
 /* ---- */
 
-.image_header { min-height: 50rem; /*background-attachment: fixed;*/ background-size: cover; margin-bottom: 4.8rem; }
+.image_header { min-height: 50rem; background-size: cover; }
 .image_header .title_card {
 	position: inherit;
 	width: 66%;
@@ -257,9 +259,9 @@ li.divider-above { border-top: 1px dotted #888; }
 .page {
 	background-color: white;
 	max-width: 104rem;
-	margin: 0 auto;
-	padding: 9.8rem 0 7.8rem 0;
-	min-height: 100%;
+	margin: 4.8rem auto 0 auto;
+	padding: 5rem 0 7.8rem 0;
+	min-height: calc(100% - 4.8rem);
 	line-height: 2.4rem;
 	position: relative;
 	-webkit-transition: opacity .5s ease-in-out;
@@ -513,7 +515,7 @@ a:hover { text-decoration: underline; }
 	position: fixed;
 	max-width: inherit;
 	width:100%;
-	height:100%;
+	height:calc(100% - 4.8rem);
 	background-color: black;
 	color: white;
 	border: none;
@@ -1030,7 +1032,7 @@ a.nav_btn:hover {
 .loading p {position: absolute; width: 100%; text-align: center; color: #cacaca; font-weight: bold; margin: 0; font-size:16px; line-height: 16px}
 
 /* misc */
-.maximized-embed { width: 100%; height: 65rem; margin-bottom: 2rem; }
+.maximized-embed { width: 100%; height: 65rem; margin-bottom: 2rem; margin-top: -4.8rem; }
 .google-info-window h2 { font-size: 1.6rem; padding: 0; margin: 0 0 1rem; line-height: 100%; }
 .google-info-window { line-height: 130%; font-weight: normal; }
 
@@ -1098,7 +1100,7 @@ button, .btn, input, optgroup, select, textarea {
 
 .editorial-status-bar {
 	line-height: 130%;
-	margin-bottom: 4.8rem;
+	margin-top: -4.8rem;
 	color: white;
 }
 

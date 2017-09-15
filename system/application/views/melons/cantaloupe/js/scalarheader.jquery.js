@@ -40,6 +40,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.usingHypothesis = $('link#hypothesis').attr('href') === 'true';
         base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
         base.editorialStates = {
+            "none": { id: "none", name: null },
             "draft": { id: "draft", name: "Draft" },
             "edit": { id: "edit", name: "Edit" },
             "editReview": { id: "editReview", name: "Edit Review" },
@@ -49,21 +50,26 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         }
         base.editorialBarData = {
             "author": {
-                "draft": null,
+                "draft": {
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Continue working until you're ready to submit it for editing.",
+                    "previousEditorialState": null,
+                    "nextEditorialState": "edit",
+                    "actions": ["Dashboard"]
+                },
                 "edit": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>You can’t make changes to it now, but once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any suggestions or queries.",
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any changes or queries.",
                     "previousEditorialState": "draft",
                     "nextEditorialState": "editReview",
                     "actions": ["Dashboard"]
                 },
                 "editReview": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed.",
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed. Use the <strong>Editorial Path</strong> to view all changes at once.",
                     "previousEditorialState": "edit",
                     "nextEditorialState": "clean",
-                    "actions": ["Edit $contentType","Dashboard"]
+                    "actions": ["Edit $contentType","Editorial Path"]
                 },
                 "clean": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>You can’t make changes to it now, but an editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
+                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>An editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
                     "previousEditorialState": "editReview",
                     "nextEditorialState": "ready",
                     "actions": ["Dashboard"]
@@ -110,8 +116,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 "published": null
             }
         }
-        base.editorialState = base.editorialStates['draft'];
-         // Add a reverse reference to the DOM object
+        base.editorialState = base.editorialStates['none'];
+        // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
 
         base.init = function(){
@@ -142,6 +148,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             //We should also grab the book ID from the RDF stuff
             base.bookId = parseInt($('link#book_id').attr('href'));
+
+            base.parent = $('link#parent').attr('href');
 
             //We need some wrapper classes for Bootstrap, so we'll add those here. There are also some helper classes as well.
             base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
@@ -840,7 +848,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }).addClass('overflowCalculated');
 
             // Commenting this out until it can be placed into header without taking up space in the layout ~Craig
-            //base.setupEditorialBar();
+            base.setupEditorialBar();
         };
         base.setupEditorialBar = function() {
             editorialBar = $('<div class="editorial-status-bar caption_font"></div>').prependTo('article');
@@ -889,6 +897,17 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 button.addClass('btn-primary');
                             } else {
                                 button.addClass('btn-default hidden-sm hidden-xs');
+                                switch (action) {
+                                    case "Dashboard":
+                                    button.attr('href', system_uri + '/dashboard?book_id=' + base.bookId + '&zone=editorial#tabs-editorial');
+                                    break;
+                                    case "Editorial Path":
+                                    button.attr('href', base.parent + 'editorialpath');
+                                    break;
+                                    case "Edit $contentType":
+                                    button.attr('href', base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit'));
+                                    break;
+                                }
                             }
                         }
                     }
