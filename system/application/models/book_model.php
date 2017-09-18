@@ -259,15 +259,21 @@ class Book_model extends MY_Model {
     	return false;
     }
 
-    public function get_images($book_id) {
+    public function get_images($book_id, $additional_suffixes=array()) {
 
+    	$add_str = '';
+    	if (!empty($additional_suffixes)) {
+    		foreach ($additional_suffixes as $suffix) {
+    			$add_str .= "OR b.url LIKE '%.$suffix' ";
+    		}
+    	}
     	$q = "SELECT A.content_id, A.slug, B.version_id, B.url, B.title, B.version_num ".
     		 "FROM scalar_db_content A, scalar_db_versions B " .
     		 "WHERE B.content_id = A.content_id " .
     		 "AND A.book_id = $book_id " .
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
-    		 "AND (B.url LIKE '%.gif' OR B.url LIKE '%.jpg' OR B.url LIKE '%.jpeg' OR B.url LIKE '%.png' OR B.url LIKE '%JPEG%') " .
+    		 "AND (B.url LIKE '%.gif' OR B.url LIKE '%.jpg' OR B.url LIKE '%.jpeg' OR B.url LIKE '%.png' OR B.url LIKE '%JPEG%' ".$add_str.") " .
     		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
     	$result = $query->result();

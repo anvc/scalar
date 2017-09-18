@@ -2365,6 +2365,18 @@
             }
 
             page.getContainingPathInfo();
+            
+    		var cover_video = function() {  // Have <video> tag mimic background-size:cover
+    			$video = $(this);
+    			var scale_h = parseInt($video.parent().width()) / $video.data('orig_w');
+    			var scale_v = parseInt($video.parent().height()) / $video.data('orig_h');
+    			var scale = scale_h > scale_v ? scale_h : scale_v;
+    			$video.width(scale * $video.data('orig_w'));
+    			$video.height(scale * $video.data('orig_h'));
+        		$video.parent().scrollLeft( ($video.width() - $video.parent().width()) / 2 );
+        		$video.parent().scrollTop( ($video.height() - $video.parent().height()) / 2 );  
+    		}            
+            
             switch (viewType) {
 
                 case 'splash':
@@ -2382,14 +2394,24 @@
                     var banner = currentNode.banner;
                     if ('undefined' != typeof(banner) && banner.length && -1 == banner.indexOf('//')) banner = $('link#parent').attr('href') + banner;
                     $('[property="art:url"]').hide();
-                    // element.css('backgroundImage', $('body').css('backgroundImage'));
-                    element.css('background-image', "url('" + banner + "')");
+                    if ('.mp4'==banner.substr(banner.length-4, 4)) {  // The controller looks for ".mp4" so do the same here ~cd
+                    	element.addClass('has_video').prepend('<div class="video_wrapper"><video autoplay muted loop playsinline preload="none"><source src="'+banner+'" type="video/mp4"></video></div>');
+                    	element.find('.video_wrapper video:first').on('loadedmetadata', function() {
+                    		var $video = $(this);
+                    		var self = this;
+                    		$video.data('orig_w', parseInt($video.get(0).videoWidth));
+                    		$video.data('orig_h', parseInt($video.get(0).videoHeight));
+                    		$(window).resize(function() {
+                    			cover_video.call($video.get(0));
+                    		}).trigger('resize');
+                    	});
+                    } else {
+                    	element.css('background-image', "url('" + banner + "')");
+                    }
                     $('body').css('backgroundImage', 'none');
                     $('.paragraph_wrapper').remove();
                     page.addRelationshipNavigation({ showChildNav: true, showLateralNav: true, isCentered: true });
-                    //console.log( $('.relationships') );
                     $('.relationships').appendTo('.title_card');
-
                     window.setTimeout(function() {
                         $('.splash').delay(1000).addClass('fade_in').queue('fx', function(next) {
                             $('.blackout').remove();
@@ -2464,8 +2486,19 @@
                     if ('undefined' != typeof(banner) && banner.length && -1 == banner.indexOf('//')) banner = $('link#parent').attr('href') + banner;
                     $('.page').css('padding-top', '5rem');
                     $('article > header').before('<div class="image_header"><div class="title_card"></div></div>');
-                    // $( '.image_header' ).css( 'backgroundImage', $('body').css('backgroundImage') );
-                    $('.image_header').css('background-image', "url('" + banner + "')");
+                    if ('.mp4'==banner.substr(banner.length-4, 4)) {  // The controller looks for ".mp4" so do the same here ~cd
+                    	$('.image_header').addClass('has_video').prepend('<div class="video_wrapper"><video autoplay muted loop playsinline preload="none"><source src="'+banner+'" type="video/mp4"></video></div>');
+                    	$('.image_header').find('.video_wrapper video:first').on('loadedmetadata', function() {
+                    		var $video = $(this);
+                    		$video.data('orig_w', parseInt($video.get(0).videoWidth));
+                    		$video.data('orig_h', parseInt($video.get(0).videoHeight));
+                    		$(window).resize(function() {
+                    			cover_video.call($video.get(0));
+                    		}).trigger('resize');
+                    	});
+                    } else {
+                    	$('.image_header').css('background-image', "url('" + banner + "')");
+                    };
                     $('.title_card').append($('header > h1'));
                     if (currentNode.current.description != null) {
                         $('.title_card').append('<div class="description">' + currentNode.current.description + '</div>');

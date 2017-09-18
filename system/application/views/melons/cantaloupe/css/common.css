@@ -578,6 +578,20 @@ a:hover { text-decoration: underline; }
 	pointer-events: none; /* TODO: this won't work in IE */
 }
 .title_card .relationships { max-width: inherit; }
+.splash.has_video {  /* Remove scale transform since it's jumpy with video but keep opacity transform */
+	-webkit-transform: scale( 1.0, 1.0 );
+	-moz-transform: scale( 1.0, 1.0 );
+	-o-transform: scale( 1.0, 1.0 );
+	transform: scale( 1.0, 1.0 );
+}
+.image_header.has_video {
+	position:relative;
+}
+.splash .video_wrapper, .image_header .video_wrapper  {
+  position: absolute;
+  top: 0; right:0; bottom:0; left:0;
+  overflow: hidden;
+}
 
 /* --- MEDIA --- */
 

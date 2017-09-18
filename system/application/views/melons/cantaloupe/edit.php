@@ -283,11 +283,19 @@ $(document).ready(function() {
 	var choose_banner = $('#choose_banner');
 	var chosen_banner = choose_banner.find('option:selected').val();
 	choose_banner.change(function() {
-		$(this).parent().parent().find('.thumb_preview').parent().remove();
+		$(this).parent().parent().find('.well').remove();
 		chosen_banner = choose_banner.find('option:selected').val();
-		if ((chosen_banner.indexOf('://') == -1) && (chosen_banner != '')) { chosen_banner = $('link[id="parent"]').attr('href') + chosen_banner; }
-		$(this).parent().parent().append('<div class="well"><img src="'+chosen_banner+'" class="thumb_preview" /></div>');
+		if (chosen_banner.length) {
+			if ((chosen_banner.indexOf('://') == -1) && (chosen_banner != '')) { chosen_banner = $('link[id="parent"]').attr('href') + chosen_banner; }
+			$(this).parent().parent().append('<div class="well"><img src="'+chosen_banner+'" class="thumb_preview" /></div>');
+			$(this).parent().parent().find('.thumb_preview').load(function() {
+				// ...
+			}).error(function() {
+				$(this).replaceWith('<span>Item is a MP4 video, now experimentally supported as a Key Image. The video might not play as expected across all platforms.</span>');
+			});
+		};
 	});
+	choose_banner.change();
 	// Predefined CSS
 	if ('undefined'!=window['predefined_css'] && !$.isEmptyObject(window['predefined_css'])) {
     	$('textarea[name="scalar:custom_style"]').predefined({msg:'Insert predefined CSS:',data:window['predefined_css']});
@@ -854,7 +862,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 						<div class="form-group">
 						<select id="choose_banner" name="scalar:banner" class="form-control"><option value="">Choose an image</option><?
 		  				$matched = false;
-		  				foreach ($book_images as $book_image_row) {
+		  				foreach ($book_images_and_mp4 as $book_image_row) {
 		  					if (@$page->banner==$book_image_row->versions[$book_image_row->version_index]->url) $matched = true;
 		  					$slug_version = get_slug_version($book_image_row->slug);
 		  					echo '<option value="'.$book_image_row->versions[$book_image_row->version_index]->url.'" '.((@$page->banner==$book_image_row->versions[$book_image_row->version_index]->url)?'selected':'').'>'.$book_image_row->versions[$book_image_row->version_index]->title.((!empty($slug_version))?' ('.$slug_version.')':'').'</option>';
@@ -863,7 +871,6 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		  					echo '<option value="'.@$page->banner.'" selected>'.@$page->banner.'</option>';
 		  				}
 		  			?></select></div>
-					<?=((@!empty($page->banner))?'<div class="well"><img src="'.abs_url($page->banner,confirm_slash(base_url()).confirm_slash($book->slug)).'" class="thumb_preview" /></div>':'')?>
 				</div>
 			</div>
 		</div>

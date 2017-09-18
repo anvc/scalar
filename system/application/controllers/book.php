@@ -810,6 +810,7 @@ class Book extends MY_Controller {
 
 		// List of images/audio
 		$this->data['book_images'] = $this->books->get_images($book_id);
+		$this->data['book_images_and_mp4'] = $this->books->get_images($book_id, array('mp4'));
 		$this->data['book_audio'] = $this->books->get_audio($book_id);
 
 	}
