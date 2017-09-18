@@ -1,5 +1,9 @@
 
-.system_wrapper { min-width: 950px; max-width: 1050px; }
+.system_wrapper {
+	min-width: 950px; max-width: 1050px;
+	margin-left: auto; margin-right: auto;
+	padding-left: 2.0rem; padding-right: 2.0rem;	
+}
 
 #user_books {
 	background-color: white;
