@@ -311,7 +311,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Local media files</a>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit#type=media') + '">Internet media files</a>'+
+                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit?type=media&') + '">Internet media files</a>'+
                                                         '</li>'+
                                                     '</ul>'+
                                                 '</li>'
@@ -1440,10 +1440,19 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 });
             });
         };
-         base.get_param = function(url){
+        base.get_param = function(url){
             //@TODO: Add non-book related Get Params back to URLs Here
-            if (url.indexOf('?') < 0) { url += '?';}
-            url += ((scalarapi.getQuerySegment(window.location.href).length)?scalarapi.getQuerySegment(window.location.href):'');
+            var allowable_vars = ['path','m'];
+            if (scalarapi.getQuerySegment(window.location.href).length) {
+            	var vars = scalarapi.getQuerySegment(window.location.href).split('&');
+            	for (var j = 0; j < vars.length; j++) {
+            		var field = vars[j].split('=')[0];
+            		if (allowable_vars.indexOf(field) == -1) continue;
+            		if (url.indexOf('?') == -1) url += '?';
+            		url += vars[j];
+            		if (j < vars.length-1) url += '&';
+            	}
+            }
             return url;
         }
         base.getParents = function(node,depth){
