@@ -375,6 +375,8 @@ a:hover { text-decoration: underline; }
 	color: white;
 	border: none;
 	background-position: center center;
+    top: 0px;
+    bottom: 0px;
 }
 
 /* Body copy */
