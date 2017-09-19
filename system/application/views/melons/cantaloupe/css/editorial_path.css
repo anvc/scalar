@@ -122,6 +122,9 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPath .row>div{
 	padding-left: 0px;
 }
+#editorialPath .row>div.leftInfo{
+	padding-left: 10px;
+}
 #editorialPathContents{
 	margin: 3rem 0 2rem;
 }
@@ -133,6 +136,14 @@ body.shortHeader #editorialSidePanel>.affix{
 	clear: both;
 }
 
+#editorialPathContents .editorial_node .badges{
+	margin-top: 1rem;
+}
+
+#editorialPathContents .editorial_node .edit_btn{
+    padding: 2px 6px;
+    margin-left: 3px;
+}
 #editorialPathContents .editorial_node>.row{
 	margin: 0;
 	padding: 0;
@@ -239,11 +250,11 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding: 10px;
 }
 #editorialPathContents .editorial_node.gutter .bodyContent{
-	padding-right: 70px;
+	padding-right: 33%;
 }
 
 
-#editorialPathContents .editorial_node .bodyContent a[resource]:before,#editorialPathContents .editorial_node .bodyContent a[data-widget]:before{
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource],#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget]{
 	clear: both;
 	margin-bottom: 1rem;
 	background-color: #b4b4b4;
@@ -251,31 +262,40 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding-bottom: 10vh;
 	color: #fff;
 	text-align: center;
-	display: block;content: "\A";
+	display: block;content: "This is some text\A";
    
 }
-#editorialPathContents .editorial_node .bodyContent a[resource]:not(.wrap):after,#editorialPathContents .editorial_node .bodyContent a[data-widget]:not(.wrap):after{
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource]:not(.wrap):after,#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget]:not(.wrap):after{
 	clear: both;
 	content: "\A";
 	display: block;
 }
 
-#editorialPathContents .editorial_node .bodyContent a[resource].inline,#editorialPathContents .editorial_node .bodyContent a[data-widget].inline{
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource].inline,#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget].inline{
 	display: block;
 }
-#editorialPathContents .editorial_node .bodyContent a[resource][data-size="small"]:before,#editorialPathContents .editorial_node .bodyContent a[data-widget][data-size="small"]:before{
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-size="small"],#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-size="small"]{
 	width: 33%;
 }
+#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[resource][data-size="small"], #editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-widget][data-size="small"]{
+	width: 44.78%;
+}
 
-#editorialPathContents .editorial_node .bodyContent a[resource][data-size="medium"]:before,#editorialPathContents .editorial_node .bodyContent a[data-widget][data-size="medium"]:before{
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-size="medium"] ,#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-size="medium"]{
 	width: 50%;
 }
-
-#editorialPathContents .editorial_node .bodyContent a[resource][data-size="large"]:before,#editorialPathContents .editorial_node .bodyContent a[data-widget][data-size="large"]:before{
-	width: 75%;
+#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[resource][data-size="medium"], #editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-widget][data-size="medium"]{
+	width: 74.63%;
 }
 
-#editorialPathContents .editorial_node .bodyContent a[resource]:not(.wrap),#editorialPathContents .editorial_node .bodyContent a[data-widget]:not(.wrap){
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-size="large"] ,#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-size="large"]{
+	width: 75%;
+}
+#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[resource][data-size="large"], #editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-widget][data-size="large"]{
+	width: 111.94%;
+}
+
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource]:not(.wrap),#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget]:not(.wrap){
 	white-space: pre;
 	clear: both;
 }
@@ -290,42 +310,40 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding: 0 !important;
 }
 
-#editorialPathContents .editorial_node .bodyContent a[resource][data-size="full"]:before,
-#editorialPathContents .editorial_node .bodyContent a[resource][data-size="native"]:before,
-#editorialPathContents .editorial_node .bodyContent a[data-widget][data-size="full"]:before,
-#editorialPathContents .editorial_node .bodyContent a[data-widget][data-size="native"]:before
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-size="full"],
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-size="native"],
+#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-size="full"],
+#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-size="native"]
 {
 	width: 100%;
 }
 
-#editorialPathContents .editorial_node .bodyContent a[resource][data-align="right"]:before,
-#editorialPathContents .editorial_node .bodyContent a[data-widget][data-align="right"]:before
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-align="right"],
+#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-align="right"] 
 {
 	float: right;
 	margin-left: 1rem;
 }
 
-#editorialPathContents .editorial_node .bodyContent a[resource][data-align="right"]:not(.inline):before,
-#editorialPathContents .editorial_node .bodyContent a[data-widget][data-align="right"]:not(.inline):before{
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-align="right"]:not(.inline),
+#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-align="right"]:not(.inline){
 	margin-right: -60px;
 }
 
-#editorialPathContents .editorial_node .bodyContent a[resource][data-align="left"]:before,
-#editorialPathContents .editorial_node .bodyContent a[data-widget][data-align="left"]:before{
+#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-align="right"]:not(.inline){
+	margin-right: -48%;
+}
+
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-align="left"],
+#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-align="left"]{
 	float: left;
 	margin-right: 1rem;
 }
 
-#editorialPathContents .editorial_node .bodyContent a[resource][data-align="right"]:not(.inline):before,
-#editorialPathContents .editorial_node .bodyContent a[data-widget][data-align="left"]:not(.inline):before{
+#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-align="right"]:not(.inline),
+#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-align="left"]:not(.inline){
 	margin-top: 2rem;
 	position: relative;
-}
-.editorial_node .descriptionLabel:after{
-	font-style: normal;
-	font-family: 'Lato', Arial, sans-serif !important;
-	color: #b4b4b4;
-
 }
 #editorialPathContents .loader{
 	text-align: center;
@@ -339,9 +357,17 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding-bottom: 10px;
 }
 
+.cke_chrome.cke_reset_all{
+	margin-top: -50px;
+}
+
+.editorial_node .descriptionContent{
+	padding-top: 1rem;
+	color: #b4b4b4;
+	position: relative;
+}
 .editorial_node .descriptionContent.noDescription{
 	font-style: italic;
-	color: #b4b4b4;
 }
 #editorialSidePanel>div .collapse{
 	overflow-y: auto;

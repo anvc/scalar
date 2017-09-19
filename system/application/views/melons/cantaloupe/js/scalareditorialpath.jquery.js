@@ -65,6 +65,13 @@
                 "current.title"
             ]
         };
+
+        base.ucwords = function(str) {
+          return (str + '')
+            .replace(/^(.)|\s+(.)/g, function ($1) {
+              return $1.toUpperCase()
+            })
+        };
         
         // Add a reverse reference to the DOM object
         base.$el.data("scalarEditorialPath", base);
@@ -513,17 +520,22 @@
 
         	var state = node.editorialState;
         	var stateName = base.node_states[state];        	
-
+            var node_url = scalarapi.model.urlPrefix+node.slug;
         	var nodeView = typeof node.current.defaultView !== 'undefined' ? node.current.defaultView : 'plain';
-
+            var queryCount = 0;
+            var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
             var viewName = typeof views[nodeView] !== 'undefined' ? views[nodeView].name : nodeView;
         	var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
         							'<div class="row">'+
-        								'<div class="col-xs-12 col-sm-8 col-md-9">'+
-        									'<h2 class="heading_font heading_weight clearboth title">'+node.getDisplayTitle()+'</h2>'+
-        									'<span class="header_font badge view_badge">'+viewName+'</span>'+
-                                            '<span class="header_font badge no_queries_badge">No Queries</span>'+
-                                            '<span class="header_font badge type_badge">'+node.domType.singular+'</span>'+
+        								'<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
+        									'<h2 class="heading_font heading_weight clearboth title"><a href="'+node_url+'">'+node.getDisplayTitle()+'</a></h2>'+
+                                            '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font"></div>'+
+        									'<div class="header_font badges">'+
+                                                '<span class="header_font badge view_badge">'+viewName+'</span>'+
+                                                '<span class="header_font badge no_queries_badge">'+(queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y')+'</span>'+
+                                                '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>'+
+                                                '<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>'+
+                                            '</div>'+
         								'</div>'+
         								'<div class="col-xs-12 col-sm-4 col-md-3">'+
         									'<div class="dropdown state_dropdown">'+
@@ -543,11 +555,9 @@
 											'</div>'+
         								'</div>'+
         							'</div>'+
-                                    '<label for="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionLabel">Description</label>'+
-                                    '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent body_font well" contenteditable></div>'+
-        							'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font" contenteditable>'+node.current.content+'</div>'+
+                                    (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
+                                                 '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">[No Content]</div>')+
         						'</div>';
-
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
 
@@ -574,14 +584,11 @@
                 state : state
         	});
 
-            $node.find('[contenteditable]').each(function(){
-                if(!$(this)[0].isContentEditable){
-                    return;
-                }
-
+            $node.find('.descriptionContent, .bodyContent').each(function(){
                 $node.data('editableFields',$node.data('editableFields')+1);
 
-                $(this).on('focus',function(e){
+                $(this).on('click',function(e){
+                    $(this).prop('contenteditable',true);
                     e.preventDefault();
                     $(this).off('focus');
                     var editor = CKEDITOR.inline( $(this).attr('id'), {
@@ -591,6 +598,8 @@
                         toolbar : 'ScalarInline'
                     } );
 
+                    $(this).data('editor',editor);
+
                     editor.on('focus', $.proxy(function(editor,base,ev) {
                             if($(this).hasClass('descriptionContent')) return;
                             base.stripPlaceholders($(this));
@@ -598,9 +607,13 @@
                     },this,editor,base));
 
                     editor.on('blur', $.proxy(function($parent,base,ev) {
+                            if($(this).data('editor')!=null){
+                                $(this).data('editor').destroy();
+                                $(this).data('editor',null);
+                            }
+                            $(this).prop('contenteditable',false);
                             if($('.bootbox').length > 0) return;
                             if($(this).hasClass('descriptionContent')) return;
-                            
                             base.updateLinks($node);
                     },this,$node,base));
 
@@ -626,6 +639,43 @@
 
             var linkCount = 0; //$node.find('.bodyContent a[resource]').length + $node.find('.bodyContent a[data-widget]').length;
             $node.data('linkCount',linkCount);
+
+            $node.find('.bodyContent a[resource], .bodyContent a[data-widget]').each(function(){
+                var $placeholder = $('<div class="placeholder clearfix" contenteditable="false"><div class="content"></div></div>');
+                if($(this).hasClass('wrap')){
+                    $placeholder.addClass('wrap');
+                }
+                if($(this).hasClass('inline')){
+                    $placeholder.addClass('inline');
+                }
+                if($(this).is('[resource]')){
+                    $placeholder.attr('resource',$(this).attr('resource'));
+                }
+                if($(this).is('[data-widget]')){
+                    $placeholder.attr('data-widget',$(this).attr('data-widget'));
+                }
+                if($(this).is('[data-align]')){
+                    $placeholder.attr('data-align',$(this).attr('data-align'));
+                }
+                if($(this).is('[data-size]')){
+                    $placeholder.attr('data-size',$(this).attr('data-size'));
+                }
+                if($(this).prev('.placeholder').length > 0){
+                    $(this).prev('.placeholder').last().after($placeholder);
+                }else if($(this).parent().is('p')){
+                    $(this).parent().prepend($placeholder);
+                }else if($(this).prev('br, div, p').length > 0){
+                    $(this).prev('br, div, p').last().after($placeholder);
+                }else{
+                    $(this).parents('.bodyContent').prepend($placeholder);
+                }
+                console.log('hmm');
+                $placeholder.on('mouseDown mouseUp click focus',function(e){
+                    console.log('test');
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
             //Handle media links
             // $node.find('.bodyContent a[resource]').each(function(){
             //     base.addPlaceholderSlot($(this),true,$node);
@@ -677,7 +727,6 @@
                 }
             }else{
                 $placeholder.addClass('inline');
-                $link.after($placeholder);
             }
 
 
