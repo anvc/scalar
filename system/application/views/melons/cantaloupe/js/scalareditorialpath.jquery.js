@@ -153,6 +153,13 @@
 					base.node_state_string = base.node_state_classes.join(' ');
 					$(window).on('resize',base.resize);
 
+                    $('#contentFinder').submit(function(e){
+                        e.stopPropagation();
+                        e.preventDefault();
+                        $('#editorialPathSearchText').trigger('blur');
+                        return false;
+                    });
+
                     $('#editorialPathSearchText').on('keyup blur',function(){
                         if(typeof base.fuse == 'undefined') return;
                         var res = base.fuse.search($(this).val());
@@ -321,7 +328,7 @@
 
                         if(typeof base.nodeList.splitByType[a.domType.singular] == 'undefined'){
                             base.nodeList.splitByType[a.domType.singular] = [];
-                            filterTypes.push(a.domType.singular);
+                            filterTypes.push(base.ucwords(a.domType.singular));
                         }
 
                         base.nodeList.splitByType[a.domType.singular].push(a);
@@ -641,12 +648,9 @@
             $node.data('linkCount',linkCount);
 
             $node.find('.bodyContent a[resource], .bodyContent a[data-widget]').each(function(){
-                var $placeholder = $('<div class="placeholder clearfix" contenteditable="false"><div class="content"></div></div>');
+                var $placeholder = $('<div class="placeholder caption_font clearfix" contenteditable="false"><div class="content"><div class="body"></div></div></div>');
                 if($(this).hasClass('wrap')){
                     $placeholder.addClass('wrap');
-                }
-                if($(this).hasClass('inline')){
-                    $placeholder.addClass('inline');
                 }
                 if($(this).is('[resource]')){
                     $placeholder.attr('resource',$(this).attr('resource'));
@@ -660,30 +664,38 @@
                 if($(this).is('[data-size]')){
                     $placeholder.attr('data-size',$(this).attr('data-size'));
                 }
-                if($(this).prev('.placeholder').length > 0){
-                    $(this).prev('.placeholder').last().after($placeholder);
-                }else if($(this).parent().is('p')){
-                    $(this).parent().prepend($placeholder);
-                }else if($(this).prev('br, div, p').length > 0){
-                    $(this).prev('br, div, p').last().after($placeholder);
+
+                if($(this).hasClass('inline')){
+                    $(this).after($placeholder.addClass('inline'));
                 }else{
-                    $(this).parents('.bodyContent').prepend($placeholder);
+                    if($(this).prev('.placeholder').length > 0){
+                        $(this).prev('.placeholder').last().after($placeholder);
+                    }else if($(this).parent().is('p')){
+                        $(this).parent().prepend($placeholder);
+                    }else if($(this).prev('br, div, p').length > 0){
+                        $(this).prev('br, div, p').last().after($placeholder);
+                    }else{
+                        $(this).parents('.bodyContent').prepend($placeholder);
+                    }
                 }
+
                 $placeholder.click(function(e){
                     e.preventDefault();
                     e.stopPropagation();
-
                 });
 
                 if($(this).is('[resource]')){
                     (function($placeholder,resource,$node){
                         var handleMedia = function(){
                             var media = scalarapi.getNode(resource);
-
+                            var description = media.current.description;
+                            if(typeof description !== 'undefined' && description != null){
+                                $placeholder.find('content').append('<div class="description">'+description+'</div>');
+                            }
                             if(typeof media !== 'undefined' && media !== null && media !== undefined){
-                                $placeholder.find('.content').html('<img class="placeholder_thumbnail" src="'+media.thumbnail+'"><br />'+media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
+                                $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+media.thumbnail+'"><br />'+media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
                             }else{
-                                $placeholder.find('.content').html('Missing Media! ('+resource+')');
+                                $placeholder.find('.body').html('Missing Media! ('+resource+')');
                             }
                         };
                         if(scalarapi.loadPage( resource, false, handleMedia, null, 1, false, null, 0, 0) == "loaded"){
@@ -691,12 +703,52 @@
                         }
                     })($placeholder,$(this).attr('resource'),$node);
                 }else{
-                    
-                    //We probably don't have a single node name, so we will save the api call
-                    $placeholder.find('.content').html('<img class="placeholder_thumbnail" src="'+$('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$(this).data('widget')+'.png"><br />'+base.ucwords($(this).data('widget'))+' Widget<br />(Click to load widget)');
-                    $node.data('linkCount',$node.data('linkCount')-1);
-                    if($node.data('linkCount') <= 0){
-                        $node.trigger('initialNodeLoad').off('initialNodeLoad');
+                    $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+$('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$(this).data('widget')+'.png"><br />'+base.ucwords($(this).data('widget'))+' Widget<br />(Click to load widget)');
+                    var slug = undefined;
+                    if($(this).data('nodes') != undefined){
+                      slug = $(this).data('nodes').replace(/\*/g, '');
+                    }else if($(this).attr('resource') != undefined){
+                      slug = $(this).attr('resource').replace(/\*/g, '');
+                    }
+                    if($(this).data('caption')!=undefined && $(this).data('caption')!='none' && ($(this).data('caption')=='custom_text' || (slug!=undefined && slug.indexOf(',')==-1))){
+                        var $description = $('<div class="description"></div>').appendTo($placeholder.find('content'));
+                        var caption_type = $(this).data('caption');
+                        if(caption_type=='custom_text'){
+                            $description.html('<p>'+$(this).data('custom_caption')+'</p>').css('display','block');
+                        }else {
+                            (function($description,caption_type,slug){
+                              var load_caption = function(node){
+                                switch ( caption_type ) {
+
+                                    case 'title':
+                                    description = node.getDisplayTitle();
+                                    break;
+
+                                    case 'title_and_description':
+                                    if ( node.current.description != null ) {
+                                        description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+                                    } else {
+                                        description = node.getDisplayTitle();
+                                    }
+                                    break;
+
+                                    default:
+                                    description = node.current.description;
+                                    if ( node.current.description == null ) {
+                                        description = '<p><i>No description available.</i></p>';
+                                    }
+                                    break;
+
+                                }
+                                $description.html(description).css('display','block');
+                              };
+                              if(scalarapi.loadPage( slug, true, function(){
+                                load_caption(scalarapi.getNode(slug));
+                              }, null, 1, false, null, 0, 20) == "loaded"){
+                                load_caption(scalarapi.getNode(slug));
+                              }
+                            })($description,caption_type,slug);
+                        } 
                     }
                 }
             });

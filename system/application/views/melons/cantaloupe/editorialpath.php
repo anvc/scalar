@@ -79,7 +79,7 @@
 				</div>
 				<div id="editorialContentFinder" class="collapse">
 					<p class="heading_font">Find content below and click its title to find it within <strong class="bookname"></strong>'s editorial path</p>
-					<form class="form-inline">
+					<form id="contentFinder" class="form-inline">
 						<div class="form-group" id="filterDropdown">
 							<button class="btn btn-default dropdown-toggle form-control input-sm" id="filterTypeDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							  <small id="filterTypeText"></small>
