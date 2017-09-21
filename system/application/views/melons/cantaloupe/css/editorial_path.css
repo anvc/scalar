@@ -68,6 +68,8 @@ body.shortHeader #editorialSidePanel>.affix{
 	margin: 0px;
 	font-size: 1.5rem;
 	color: #bfbfbf;
+    line-height: 1.6rem;
+    padding: .4rem;
 }
 #editorialOutline li>a:hover{
 	text-decoration: underline;
