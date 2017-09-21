@@ -264,7 +264,7 @@ class Book_model extends MY_Model {
     	$add_str = '';
     	if (!empty($additional_suffixes)) {
     		foreach ($additional_suffixes as $suffix) {
-    			$add_str .= "OR b.url LIKE '%.$suffix' ";
+    			$add_str .= "OR B.url LIKE '%".$suffix."' ";
     		}
     	}
     	$q = "SELECT A.content_id, A.slug, B.version_id, B.url, B.title, B.version_num ".
