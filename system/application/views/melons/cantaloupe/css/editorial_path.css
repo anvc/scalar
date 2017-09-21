@@ -258,8 +258,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	clear: both;
 	margin-bottom: 1rem;
 	background-color: #b4b4b4;
-	padding-top: 10vh;
-	padding-bottom: 10vh;
 	color: #fff;
 	text-align: center;
 	display: block;content: "This is some text\A";
@@ -298,6 +296,12 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPathContents .editorial_node .bodyContent .placeholder[resource]:not(.wrap),#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget]:not(.wrap){
 	white-space: pre;
 	clear: both;
+}
+
+.placeholder>.content>.placeholder_thumbnail{
+	max-width: 75%;
+	display: block;
+	margin: auto;
 }
 
 [contenteditable="true"]:active,[contenteditable="true"]:focus{

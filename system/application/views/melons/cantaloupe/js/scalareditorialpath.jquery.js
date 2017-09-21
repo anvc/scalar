@@ -669,22 +669,37 @@
                 }else{
                     $(this).parents('.bodyContent').prepend($placeholder);
                 }
-                console.log('hmm');
-                $placeholder.on('mouseDown mouseUp click focus',function(e){
-                    console.log('test');
+                $placeholder.click(function(e){
                     e.preventDefault();
                     e.stopPropagation();
-                });
-            });
-            //Handle media links
-            // $node.find('.bodyContent a[resource]').each(function(){
-            //     base.addPlaceholderSlot($(this),true,$node);
-            // });
 
-            // //Handle widget links
-            // $node.find('.bodyContent a[data-widget]').each(function(){
-            //     base.addPlaceholderSlot($(this),false,$node);
-            // });
+                });
+
+                if($(this).is('[resource]')){
+                    (function($placeholder,resource,$node){
+                        var handleMedia = function(){
+                            var media = scalarapi.getNode(resource);
+
+                            if(typeof media !== 'undefined' && media !== null && media !== undefined){
+                                $placeholder.find('.content').html('<img class="placeholder_thumbnail" src="'+media.thumbnail+'"><br />'+media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
+                            }else{
+                                $placeholder.find('.content').html('Missing Media! ('+resource+')');
+                            }
+                        };
+                        if(scalarapi.loadPage( resource, false, handleMedia, null, 1, false, null, 0, 0) == "loaded"){
+                            handleMedia();
+                        }
+                    })($placeholder,$(this).attr('resource'),$node);
+                }else{
+                    
+                    //We probably don't have a single node name, so we will save the api call
+                    $placeholder.find('.content').html('<img class="placeholder_thumbnail" src="'+$('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$(this).data('widget')+'.png"><br />'+base.ucwords($(this).data('widget'))+' Widget<br />(Click to load widget)');
+                    $node.data('linkCount',$node.data('linkCount')-1);
+                    if($node.data('linkCount') <= 0){
+                        $node.trigger('initialNodeLoad').off('initialNodeLoad');
+                    }
+                }
+            });
 
             if($node.find('.bodyContent a[resource][data-align="right"]:not(.inline),.bodyContent a[data-widget][data-align="right"]:not(.inline)').length > 0){
                 $node.addClass('gutter');
@@ -692,68 +707,6 @@
 
             if(linkCount <= 0){
                 $node.trigger('initialNodeLoad').off('initialNodeLoad');
-            }
-        };
-
-
-        //TODO: Rewrite slot manager so that it can build slots for media, widgets, and placeholders
-        base.addPlaceholderSlot = function($link, isMedia, $node){
-            var size = $link.data('size');
-            var align = $link.data('align');
-            var inline = $link.hasClass('inline') || $link.hasClass('inlineWidget');
-            var type = isMedia?'media':'widget';
-
-            if(!inline && align == 'right'){
-                $link.parents('.editorial_node').addClass('gutter');
-            }
-
-            var $placeholder = $('<div class="placeholder clearfix" contenteditable="false"><div class="content"></div></div>').addClass(size).addClass(align).addClass(type);
-
-            if(!inline){
-                //First check to see if we have any block elements before the link...
-                var prev_block = $link.prev('br, p, div');
-
-                if(prev_block.length > 0){
-                    //If so, place the placeholder immediately after it.
-                    prev_block.after($placeholder);
-                }else{
-                    //Otherwise, check the parent for existing placeholders - if they exist, insert this after them
-                    if($link.parent().find('.placeholder').length > 0){
-                        $link.parent().find('.placeholder').last().after($placeholder);
-                    }else{
-                        //Failing that, place this placeholder immediately inside the container
-                        $link.parent().prepend($placeholder);
-                    }
-                }
-            }else{
-                $placeholder.addClass('inline');
-            }
-
-
-            if(isMedia){
-                (function($placeholder,resource,$node){
-                    var handleMedia = function(){
-                        var media = scalarapi.getNode(resource);
-                        if(typeof media !== 'undefined' && media !== null && media !== undefined){
-                            $placeholder.find('.content').html(media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
-                        }else{
-                            $placeholder.find('.content').html('Missing Media! ('+resource+')');
-                        }
-                        $node.data('linkCount',$node.data('linkCount')-1);
-                        if($node.data('linkCount') <= 0){
-                            $node.trigger('initialNodeLoad').off('initialNodeLoad');
-                        }
-                    };
-                    if(scalarapi.loadPage( resource, false, handleMedia, null, 1, false, null, 0, 0) == "loaded"){
-                        handleMedia();
-                    }
-                })($placeholder,$link.attr('resource'),$node);
-            }else{
-                //We probably don't have a single node name, so we will save the api call
-                $node.data('linkCount',$node.data('linkCount')-1);
-                if($node.data('linkCount') <= 0){
-                    $node.trigger('initialNodeLoad').off('initialNodeLoad');
-                }
             }
         };
 
