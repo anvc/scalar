@@ -524,14 +524,18 @@
 
         base.addNode = function(node,callback){
         	var currentVersion = node.current;
-
         	var state = node.editorialState;
-        	var stateName = base.node_states[state];        	
+        	var stateName = base.node_states[state];
             var node_url = scalarapi.model.urlPrefix+node.slug;
         	var nodeView = typeof node.current.defaultView !== 'undefined' ? node.current.defaultView : 'plain';
             var queryCount = 0;
             var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
             var viewName = typeof views[nodeView] !== 'undefined' ? views[nodeView].name : nodeView;
+
+            if(typeof viewName == 'undefined' || viewName == null){
+                viewName = views['plain'];
+            }
+
         	var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
         							'<div class="row">'+
         								'<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
