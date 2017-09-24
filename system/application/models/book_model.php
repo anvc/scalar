@@ -812,6 +812,14 @@ class Book_model extends MY_Model {
 
 
     }
+    
+    public function enable_editorial_workflow($book_id, $bool) {
+    	
+    	$val = ($bool) ? 1 : 0;
+    	$this->db->where('book_id', $book_id);
+    	$this->db->update($this->books_table, array('editorial_is_on'=>$val));
+    	
+    }
 
     public function get_by_slug($uri='') {
 

@@ -340,6 +340,11 @@ class System extends MY_Controller {
 		 			$this->set_login_params();
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
 		 			exit;
+		 		case 'enable_editorial_workflow':
+		 			$bool = (isset($_POST['enable']) && $_POST['enable']) ? true : false;
+		 			$this->books->enable_editorial_workflow($_POST['book_id'],$bool);
+		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone=editorial#tabs-editorial');
+		 			exit;
 		 		case 'do_save_sharing':
 		 			$this->books->save(array('title'=>$_POST['title'],'book_id'=>(int)$_POST['book_id']));
 		 			$array = $_POST;
@@ -499,6 +504,10 @@ class System extends MY_Controller {
 		    case 'users':
 		        $this->data['current_book_users'] = ($book_id) ? $this->users->get_book_users($book_id) : array();
 		        break;
+		    case 'editorial':
+		    	$this->data['can_editorial'] = (isset($this->data['book']->editorial_is_on)) ? true : false;
+		    	$this->data['editorial_is_on'] = (isset($this->data['book']->editorial_is_on) && $this->data['book']->editorial_is_on) ? true : false;
+		    	break;
 		    case 'publish':
 			    // Do Nothing.  Nothing needs to be done.
 		    	break;
