@@ -1408,13 +1408,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								body = body.substr(0, body.lastIndexOf('.'));
 								var target = _data[uri]['http://www.openannotation.org/ns/hasTarget'][0]['value'].split('#')[0];
 								target = target.substr(0, target.lastIndexOf('.'));
-								if("undefined" === typeof _data[body].rel){
+								
+								if(typeof _data[target] !== 'undefined'){
+									if("undefined" === typeof _data[body].rel){
 										_data[body].rel = [];
+									}
+									var version = _data[ _data[target]['http://purl.org/dc/terms/hasVersion'][0].value ];
+									_data[target].target = {current:{title:('undefined'!==typeof(version["http://purl.org/dc/terms/title"])) ? version["http://purl.org/dc/terms/title"][0].value : ''}};
+									_data[body].rel.push(_data[target]);
+									have_relationships = true;
 								}
-								var version = _data[ _data[target]['http://purl.org/dc/terms/hasVersion'][0].value ];
-								_data[target].target = {current:{title:('undefined'!==typeof(version["http://purl.org/dc/terms/title"])) ? version["http://purl.org/dc/terms/title"][0].value : ''}};
-								_data[body].rel.push(_data[target]);
-								have_relationships = true;
 							}
 						}
 						// If we have relationships, then assume we only want nodes w/ relationships
