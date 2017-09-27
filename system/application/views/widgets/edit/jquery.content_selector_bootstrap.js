@@ -472,6 +472,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			 options.resultsPerPage = opts.resultsPerPage;
 			 options.allowMultiple = opts.multiple;
 			 options.allowChildren = false;
+			 opts.rec = 1;
 				if(!opts.multiple){
 					options.onChangeCallback = $.proxy(function(box,opts){
 						if(("undefined" !== typeof $(this).find('.node_selector').data('nodes') && $(this).find('.node_selector').data('nodes').length > 0)){
@@ -763,6 +764,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.allowChildren = true;
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
+							 opts.rec = 1;
 
 							 $('<div class="node_selection timeline_node_selection">').appendTo($nodeTimeline).node_selection_dialogue(opts);
 
@@ -857,6 +859,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.fields = ["title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
+							 opts.rec = 1;
 
 							 $('<div class="node_selection map_node_selection">').appendTo($content).node_selection_dialogue(opts);
 
@@ -897,6 +900,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['path','tag','term','media'];
 							 opts.defaultType = 'path';
+							 opts.rec = 1;
 
 							 $('<div class="node_selection carousel_multi_selection">').appendTo($multiCarousel).node_selection_dialogue(opts);
 
@@ -940,6 +944,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
+							 opts.rec = 1;
 
 							 $('<div class="node_selection card_multi_selection">').appendTo($multiCard).node_selection_dialogue(opts);
 
@@ -982,6 +987,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							 opts.fields = ["thumbnail","title","description","url","preview","include_children"];
 							 opts.types = ['composite','media','path','tag','term','reply'];
 							 opts.defaultType = 'composite';
+							 opts.rec = 1;
 
 							 $('<div class="node_selection summary_multi_selection">').appendTo($multiSummary).node_selection_dialogue(opts);
 
@@ -1502,7 +1508,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var opts = {
 				"fields" : ["thumbnail","title","description","url","preview"],
 				"allowMultiple" : false,
-				"rec" : 1,
+				"rec" : 0,
 				"ref" : 0,
 				"defaultType" : 'content',
 				"types" : ['composite','media','path','tag','annotation','reply','term'],
