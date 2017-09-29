@@ -160,7 +160,12 @@
                         return false;
                     });
 
-                    $('#editorialPathSearchText').on('keyup blur',function(){
+                    $('#editorialPathSearchText').on('keydown',function(){$(this).removeClass('resolved');}).on('keyup blur',function(){
+                        if($(this).hasClass('resolved')){
+                            return;
+                        }
+                        $(this).addClass('resolved');
+                        console.log($(this).val());
                         if(typeof base.fuse == 'undefined') return;
                         var res = base.fuse.search($(this).val());
                         $('#matchedNodes').html('');
@@ -171,15 +176,25 @@
                             if(res.length > 0){
                                 for(var n in res){
                                     var node = res[n];
-                                    var nodeMatchItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
+                                    var nodeMatchItemHTML = '<li>'+
+                                                                '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#result_'+node.slug.replace(/\//g, '_')+'" aria-expanded="false" aria-controls="collapseExample">'+
+                                                                    'Button with data-target'+
+                                                                '</button>'+
+                                                                '<div class="collapse" id="result_'+node.slug.replace(/\//g, '_')+'">'+
+                                                                  '<div class="well">'+
+                                                                    '...'+
+                                                                  '</div>'+
+                                                                '</div>'+
+                                                            '</li>';
+                                    //var nodeMatchItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
                                     var $nodeMatchItem = $(nodeMatchItemHTML).appendTo('#matchedNodes');
-
-                                    $nodeMatchItem.data('slug',node.slug).find('a').click($.proxy(function(slug, e){
+                                    $nodeMatchItem.find('.collapse').collapse({toggle:false});
+                                    /*$nodeMatchItem.data('slug',node.slug).find('a').click($.proxy(function(slug, e){
                                         e.preventDefault();
                                         $('#editorialSidePanel').addClass('loading_nodes');
                                         window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
                                         return false;
-                                    },base, node.slug));
+                                    },base, node.slug));*/
                                 }
                             }else{
                                 $('<li class="empty text-muted"><small>No content matched your search!</small></li>').appendTo('#matchedNodes');
@@ -328,7 +343,7 @@
 
                         if(typeof base.nodeList.splitByType[a.domType.singular] == 'undefined'){
                             base.nodeList.splitByType[a.domType.singular] = [];
-                            filterTypes.push(base.ucwords(a.domType.singular));
+                            filterTypes.push(a.domType.singular);
                         }
 
                         base.nodeList.splitByType[a.domType.singular].push(a);
@@ -339,9 +354,10 @@
                     $('#filterTypeText').text(base.currentFilterType);
                     base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
                     for(var t in filterTypes){
-                        $('<li><a role="button" href="#">'+filterTypes[t]+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').click(function(e){
+                        $('<li><a role="button" data-type="'+filterTypes[t]+'" href="#">'+base.ucwords(filterTypes[t])+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').click(function(e){
                                 e.preventDefault();
-                                base.currentFilterType = $(this).text();
+                                $('#editorialPathSearchText').removeClass('resolved');
+                                base.currentFilterType = $(this).data('type');
                                 $('#filterTypeText').text(base.currentFilterType);
                                 base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
                         });
@@ -601,7 +617,7 @@
                 $(this).on('click',function(e){
                     $(this).prop('contenteditable',true);
                     e.preventDefault();
-                    $(this).off('focus');
+
                     var editor = CKEDITOR.inline( $(this).attr('id'), {
                         // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
                         removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
@@ -611,6 +627,7 @@
 
                     $(this).data('editor',editor);
 
+
                     editor.on('focus', $.proxy(function(editor,base,ev) {
                             if($(this).hasClass('descriptionContent')) return;
                             base.stripPlaceholders($(this));
@@ -619,7 +636,8 @@
 
                     editor.on('blur', $.proxy(function($parent,base,ev) {
                             if($(this).data('editor')!=null){
-                                $(this).data('editor').destroy();
+                                CKEDITOR.instances[$(this).data('editor').name].destroy(true);
+                                console.log("Destroyed instance");
                                 $(this).data('editor',null);
                             }
                             $(this).prop('contenteditable',false);
