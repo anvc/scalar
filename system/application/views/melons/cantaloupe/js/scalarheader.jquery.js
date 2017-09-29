@@ -38,6 +38,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.oldScrollTop = 0;
         base.dataType = 'normal';
         base.usingHypothesis = $('link#hypothesis').attr('href') === 'true';
+        base.editorialWorkflowEnabled = $('link#editorial_workflow').attr('href') === 'true';
         base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
         base.editorialStates = {
             "none": { id: "none", name: null },
@@ -116,7 +117,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 "published": null
             }
         }
-        base.editorialState = base.editorialStates['none'];
+        if (!base.editorialWorkflowEnabled) {
+            base.editorialState = base.editorialStates['none'];
+        } else {
+            base.editorialState = base.editorialStates['edit'];
+        }
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
 
@@ -847,7 +852,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               }
             }).addClass('overflowCalculated');
 
-            // Commenting this out until it can be placed into header without taking up space in the layout ~Craig
             base.setupEditorialBar();
         };
         base.setupEditorialBar = function() {
