@@ -292,9 +292,10 @@
                         }
                     }
 
+
                     //Escape if we have loaded everything!
         			if(base.currentChunk*base.options.pagesPerChunk > base.numPages[base.nodeTypes[base.currentLoadType]]){
-                        if(++base.currentLoadType >= base.nodeTypes.length){
+                       if(++base.currentLoadType >= base.nodeTypes.length){
                             base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType-1]+' nodes - 100%');
                             base.stage = 3;
                             base.setup();
@@ -307,6 +308,8 @@
                         base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - '+Math.round((base.currentChunk*base.options.pagesPerChunk)/base.numPages[base.nodeTypes[base.currentLoadType]])*100+'%');
                         if(new_nodes > 0){
                             base.currentChunk++;
+                        }else{
+                            base.stage = 3;
                         }
                     }
                     scalarapi.loadNodesByType(
