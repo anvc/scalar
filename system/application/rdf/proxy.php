@@ -31,8 +31,6 @@ if (!$is_valid_domain) die ('Invalid domain');
 
 header("content-type: text/xml");
 
-if(substr($xsl, 0, 8)=='https://') $xsl = 'http://'.substr($xsl, 8);
-
 $format =@ ($_REQUEST['format']=='json') ? 'json' : 'xml';
 
 if (empty($uri)) die ('Invalid URI');
