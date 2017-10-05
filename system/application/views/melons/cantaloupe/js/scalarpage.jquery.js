@@ -1763,6 +1763,7 @@
 
                         case "splash":
                         case "book_splash":
+                        case "path_splash":
                         case "versions":
                         case "history":
                             // these views don't get media
@@ -2888,6 +2889,47 @@
                             $("ol.toc").before('<h3 class="heading_font heading_weight">Table of Contents</h3>');
                             break;
 
+                        case 'path_splash':
+                            $('article').addClass('visual_path');        
+                            //Display contents of path page to match rest of scrolling layout
+                            /*if (currentNode.current.content && currentNode.current.content.length) {
+                                $("[property='sioc:content']").prepend('<div id="splash"></div>'); 
+                                var keyImage = (currentNode.data['http://scalar.usc.edu/2012/01/scalar-ns#banner']) ? currentNode.data['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
+                                $("#splash").css({
+                                    "background-image": "url("+((-1==keyImage.indexOf('://'))?parent:'')+keyImage+")",
+                                    "min-height": "400px"
+                                });
+                            };*/
+                            //Find out how long the path is and collect the slugs for each item on the path
+                            var pathContents = currentNode.getRelatedNodes("path", "outgoing", "false");
+                            // load HTML
+                            if (pathContents.length > 0) {
+                                var base_url = $('link#parent').attr('href');
+                                for (var i = 0; i < pathContents.length; i++) {
+                                    var title = pathContents[i].current.title;
+                                    var slug = pathContents[i].slug;
+                                    var key = (pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner']) ? pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
+                                    if (-1==key.indexOf('://')) key = parent+key;
+                                    var description = (pathContents[i].current.description) ? pathContents[i].current.description : '';
+                                    var $description = $('<div>'+description+'</div>');
+                                    if ($description.find('br').length) {  // If there is more than one paragraph (<br /><br />) only show the first paragraph
+                                        if ($description.find('br:first').next().is('br')) {
+                                            description = description.substr(0, description.indexOf('<br'));
+                                            description += ' [...]';
+                                        };
+                                    };
+                                    var default_view = pathContents[i].current.defaultView;
+                                    var media_urls = [];
+                                    $("[property='sioc:content']").append('<div class="sp-block sp-block-'+default_view+'" id="'+slug+'"><h1 class="padded-multiline"><a class="sp-title" href="'+base_url+slug+'">' + title + '</a></h1><div class="sp-block__content ' +slug+ '">' +((description.length)?description:'')+ '</div></div>');
+                                    // set background
+                                    $("#"+slug).css({ "background-image": 'url("'+((key.length)?key:'')+'")' }).find('.sp-block__content').append('<div><a class="nav_btn primary" href="'+base_url+slug+'">Continue</a></div>');
+                                    if (description.length) {
+                                        $("."+slug).css("background-color", "#fff");
+                                    };
+                                    $("#"+slug).append('<div style="visibility:hidden; clear:both; height:1px; overflow:hidden;"></div>');
+                                }
+                            }                                          
+                            break;  
                     }
 
                     page.setupScreenedBackground();
