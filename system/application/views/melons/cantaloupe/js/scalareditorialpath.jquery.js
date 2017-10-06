@@ -165,7 +165,6 @@
                             return;
                         }
                         $(this).addClass('resolved');
-                        console.log($(this).val());
                         if(typeof base.fuse == 'undefined') return;
                         var res = base.fuse.search($(this).val());
                         $('#matchedNodes').html('');
@@ -276,6 +275,7 @@
                     var new_nodes = 0;
                     for(var uri in data){
                         var node = scalarapi.getNode( uri );
+                        console.log(data[uri],node);
                         var regex = /(?:\.)(\d+)\b/;
                         var matches = null;
                         if((matches = regex.exec(uri)) === null){
@@ -554,6 +554,7 @@
         	var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
         							'<div class="row">'+
         								'<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
+                                            '<div class="notice"></div>'+
         									'<h2 class="heading_font heading_weight clearboth title"><a href="'+node_url+'">'+node.getDisplayTitle()+'</a></h2>'+
                                             '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font"></div>'+
         									'<div class="header_font badges">'+
@@ -586,6 +587,7 @@
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
+            $node.data('node',node);
 
             if($.isFunction(callback)){
                 $node.on('initialNodeLoad',callback);
@@ -614,48 +616,141 @@
                 $node.data('editableFields',$node.data('editableFields')+1);
 
                 $(this).on('click',function(e){
-                    $(this).prop('contenteditable',true);
-                    e.preventDefault();
+                    if($(this).hasClass('noDescription')){
+                        $(this).removeClass('noDescription').text('');
+                    }
+                    
+                    if($(this).data('editor')==null){
+                        $(this).data('unloading',false);
+                        $(this).prop('contenteditable',true);
+                        e.preventDefault();
+                        var editor = CKEDITOR.inline( $(this).attr('id'), {
+                            // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                            removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat, colorbutton, format, specialchar, indent, indentlist, list, blockquote, iframe, codeTag'
+                                                                                 :'codemirror, removeformat',
+                            startupFocus: true,
+                            allowedContent: true,
+                            extraAllowedContent : 'code pre a[*]',
+                            toolbar : 'ScalarInline'
+                        } );
 
-                    var editor = CKEDITOR.inline( $(this).attr('id'), {
-                        // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                        removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
-                        startupFocus: true,
-                        toolbar : 'ScalarInline'
-                    } );
-
-                    $(this).data('editor',editor);
-
-
-                    editor.on('focus', $.proxy(function(editor,base,ev) {
-                            if($(this).hasClass('descriptionContent')) return;
-                            base.stripPlaceholders($(this));
-                            editor.plugins['scalar'].init(editor);
-                    },this,editor,base));
-
-                    editor.on('blur', $.proxy(function($parent,base,ev) {
-                            if($(this).data('editor')!=null){
-                                CKEDITOR.instances[$(this).data('editor').name].destroy(true);
-                                console.log("Destroyed instance");
-                                $(this).data('editor',null);
+                        if(typeof base.ckeditorWatcher != 'undefined' && base.ckeditorWatcher !== null){
+                            if(base.wasDirty){
+                                base.wasDirty = false;
+                                base.saveCurrentEditor(base.currentEditNode);
                             }
-                            $(this).prop('contenteditable',false);
-                            if($('.bootbox').length > 0) return;
-                            if($(this).hasClass('descriptionContent')) return;
-                            base.updateLinks($node);
-                    },this,$node,base));
+                            window.clearInterval(base.ckeditorWatcher);
+                            window.clearTimeout(base.ckeditorSaveTimeout); 
+                        }
 
-                    editor.on('instanceReady', $.proxy(function(base,ev) {
-                        $(this).fadeTo(1000,100);
-                        base.$contentLoader.fadeOut('fast',function(){
-                            $(this).remove();
+                        base.currentEditNode = $(this).parents('.editorial_node');
+                        base.wasDirty = false;
+
+                        base.ckeditorWatcher = window.setInterval($.proxy(function(){
+                            if(editor.checkDirty()){
+                                base.wasDirty = true;
+                                editor.resetDirty();
+                                if(base.ckeditorSaveTimeout !== null){
+                                    window.clearTimeout(base.ckeditorSaveTimeout);
+                                }
+                                base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
+                                    if(base.wasDirty){
+                                        base.wasDirty = false;
+                                        base.saveNode(base.currentEditNode);
+                                    }
+                                },this),1000);
+                            }
+                        },editor),500);
+
+                        $(this).data('editor',editor);
+
+
+                        editor.on('focus', $.proxy(function(editor,base,ev) {
+                                if($(this).hasClass('descriptionContent')) return;
+                                //base.stripPlaceholders($(this));
+                                editor.plugins['scalar'].init(editor);
+                        },this,editor,base));
+                        editor.on('blur',function(){
+                            return false;
                         });
-                    },$node,base));
+                        $(window).off('hidden.bs.modal').on("hidden.bs.modal", function() {
+                            editor.focus();
+                        });
+                        $(this).on('blur', $.proxy(function($parent,base,ev) {
+                                if($(ev.originalEvent.relatedTarget).hasClass('editLink') || $(ev.originalEvent.relatedTarget).hasClass('deleteLink')){
+                                    return false;
+                                }
+                                if($(ev.originalEvent.relatedTarget).parents('.bootbox').length > 0){
+                                    return false;
+                                }
+                                if($(ev.originalEvent.relatedTarget).hasClass('bootbox')){
+                                    return false;
+                                }
+                                if($(this).data('unloading')){
+                                    return false;
+                                }
+                                $(this).find('.placeholder').off('hover');
+                                $(this).prop('contenteditable',false);
+
+                                //Save the current watcher then unload it.
+                                if(base.wasDirty){
+                                    base.saveNode(base.currentEditNode);
+                                    base.wasDirty = false;
+                                }
+                                window.clearInterval(base.ckeditorWatcher);
+                                window.clearTimeout(base.ckeditorSaveTimeout);
+
+                                if($(this).data('editor')!=null){
+                                    CKEDITOR.instances[$(this).data('editor').name].destroy(true);
+                                    $(this).data('editor',null);
+                                }
+
+                                if($(this).hasClass('descriptionContent') && $(this).text() == ""){
+                                    $(this).text("(This page does not have a description.)").addClass('noDescription');
+                                }
+                        },this,$node,base));
+
+                        editor.on('instanceReady', $.proxy(function(base,ev) {
+                            $(this).fadeTo(1000,100);
+                            base.$contentLoader.fadeOut('fast',function(){
+                                $(this).remove();
+                            });
+                        },$node,base));
+                    }
                 });
             });
 
             base.updateLinks($node);
 
+        };
+
+        base.saveNode = function($node){
+            var node = $node.data('node');
+            var notice = $('<div class="alert" role="alert">Saving...</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
+            var title = $node.find('.title').text();
+            var $description = $node.find('.descriptionContent');
+            var description = $description.hasClass('noDescription')?'':$description.text();
+            var $body = $node.find('.bodyContent');
+            var $body_copy = $body.clone();
+            $body_copy.find('.placeholder').remove();
+            var body = $body_copy.html();
+            var baseProperties =  {
+                native: 1,
+                id: userId,
+                'api_key':''
+            };
+            var pageData = {
+                action: 'UPDATE',
+                uriSegment: scalarapi.basepath(node.url),
+                'dcterms:title': title,
+                'dcterms:description': description,
+                'sioc:content': body
+            };
+            scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
+                var notice = $('<div class="alert alert-success" role="alert">Page updated successfully!</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
+            },function(e){
+                var notice = $('<div class="alert alert-danger" role="alert">Error in saving page! ('+e+')</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
+            });
         };
 
         base.resize = function(){
@@ -664,11 +759,11 @@
 	    };
 
         base.updateLinks = function($node){
-
+            base.stripPlaceholders($node.find('.bodyContent'));
             var linkCount = 0; //$node.find('.bodyContent a[resource]').length + $node.find('.bodyContent a[data-widget]').length;
             $node.data('linkCount',linkCount);
-
             $node.find('.bodyContent a[resource], .bodyContent a[data-widget]').each(function(){
+
                 var $placeholder = $('<div class="placeholder caption_font clearfix" contenteditable="false"><div class="content"><div class="body"></div></div></div>');
                 if($(this).hasClass('wrap')){
                     $placeholder.addClass('wrap');
@@ -685,12 +780,11 @@
                 if($(this).is('[data-size]')){
                     $placeholder.attr('data-size',$(this).attr('data-size'));
                 }
-
                 if($(this).hasClass('inline')){
                     $(this).after($placeholder.addClass('inline'));
                 }else{
-                    if($(this).prev('.placeholder').length > 0){
-                        $(this).prev('.placeholder').last().after($placeholder);
+                    if($(this).siblings('.placeholder').length > 0){
+                        $(this).siblings('.placeholder').last().after($placeholder);
                     }else if($(this).parent().is('p')){
                         $(this).parent().prepend($placeholder);
                     }else if($(this).prev('br, div, p').length > 0){
@@ -699,7 +793,9 @@
                         $(this).parents('.bodyContent').prepend($placeholder);
                     }
                 }
-
+                
+                $(this).attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
+                $placeholder.attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
                 $placeholder.click(function(e){
                     e.preventDefault();
                     e.stopPropagation();
@@ -732,7 +828,7 @@
                       slug = $(this).attr('resource').replace(/\*/g, '');
                     }
                     if($(this).data('caption')!=undefined && $(this).data('caption')!='none' && ($(this).data('caption')=='custom_text' || (slug!=undefined && slug.indexOf(',')==-1))){
-                        var $description = $('<div class="description"></div>').appendTo($placeholder.find('content'));
+                        var $description = $('<div class="description">').appendTo($placeholder.find('content'));
                         var caption_type = $(this).data('caption');
                         if(caption_type=='custom_text'){
                             $description.html('<p>'+$(this).data('custom_caption')+'</p>').css('display','block');
@@ -772,15 +868,14 @@
                         } 
                     }
                 }
+                linkCount++;
             });
 
             if($node.find('.bodyContent a[resource][data-align="right"]:not(.inline),.bodyContent a[data-widget][data-align="right"]:not(.inline)').length > 0){
                 $node.addClass('gutter');
             }
 
-            if(linkCount <= 0){
-                $node.trigger('initialNodeLoad').off('initialNodeLoad');
-            }
+            $node.trigger('initialNodeLoad').off('initialNodeLoad');
         };
 
         base.stripPlaceholders = function($el){
@@ -788,6 +883,7 @@
         }
 
         // Run initializer
+        base.$el.data('editorialPath',base);
         base.init();
     };
     

@@ -172,3 +172,23 @@
 	}
 
 }
+
+.modal-backdrop.in{
+	z-index: 10000;
+}
+.bootbox.modal{
+	z-index: 10001;
+}
+
+.scalarEditorMediaWidgetMenu{
+	display: block;    
+	background-color: #f5f5f5;
+    border-bottom: 1px solid #e3e3e3;
+	padding: .5rem;
+	position: absolute;
+	display: none;
+}
+.scalarEditorMediaWidgetMenu li{
+	display: inline;
+	margin: 0 .5rem;
+}

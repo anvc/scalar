@@ -29,13 +29,14 @@
 	$this->template->add_css('system/application/views/melons/cantaloupe/css/editorial_path.css');
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/scalareditorialpath.jquery.js');
 	$this->template->add_js('var views='.json_encode($this->config->item('views')), 'embed');
-
+	$this->template->add_css('system/application/views/widgets/ckeditor/custom.css');
+	$this->template->add_css('system/application/views/widgets/ckeditor/plugins/scalar/styles/scalar.css');
 	if ($this->config->item('reference_options')) {
 		$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 	}
+	$this->template->add_js('var userId="'.$login->email.'";', 'embed');
 
 ?> 
-
 <div id="editorialPath">
 	<div class="row">
 		<div class="col-xs-12 col-md-9">
