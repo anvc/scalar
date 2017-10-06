@@ -2890,16 +2890,8 @@
                             break;
 
                         case 'path_splash':
-                            $('article').addClass('visual_path');        
-                            //Display contents of path page to match rest of scrolling layout
-                            /*if (currentNode.current.content && currentNode.current.content.length) {
-                                $("[property='sioc:content']").prepend('<div id="splash"></div>'); 
-                                var keyImage = (currentNode.data['http://scalar.usc.edu/2012/01/scalar-ns#banner']) ? currentNode.data['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
-                                $("#splash").css({
-                                    "background-image": "url("+((-1==keyImage.indexOf('://'))?parent:'')+keyImage+")",
-                                    "min-height": "400px"
-                                });
-                            };*/
+                            // original concept for this layout by Alicia Peaker, Bryn Mawr College
+                            $('article').addClass('visual_path');  
                             //Find out how long the path is and collect the slugs for each item on the path
                             var pathContents = currentNode.getRelatedNodes("path", "outgoing", "false");
                             // load HTML
