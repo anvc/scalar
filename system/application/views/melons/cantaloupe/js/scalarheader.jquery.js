@@ -1126,15 +1126,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var splitList = $('<ul></ul>');
 
                     var node = scalarapi.getNode($(this).data('slug'));
-
+                    var splitList = $('<ul></ul>');
+                    
                     var path_of = node.getRelatedNodes('path', 'outgoing');
-
                     var features = node.getRelatedNodes('referee', 'outgoing');
                     var tag_of = node.getRelatedNodes('tag', 'incoming');
                     var annotates = node.getRelatedNodes('annotation', 'outgoing');
                     var comments_on = node.getRelatedNodes('comment', 'outgoing');
-
-                    var base = $('#scalarheader.navbar').data('scalarheader');
 
                     if(path_of.length > 0){
                         var newList = $('<li><strong>Contains</strong><ol></ol></li>').appendTo(splitList).find('ol');

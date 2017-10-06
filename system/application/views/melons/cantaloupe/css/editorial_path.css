@@ -52,19 +52,23 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialOutline li, #editorialOutline ul{
 	margin: 0;
 }
+#editorialOutline ul{
+	padding: .5rem 1rem;
+}
 #editorialOutline ul, #matchedNodes{
-	padding: .5rem 1rem
+	padding: .5rem 0
 }
 #matchedNodes{
 	margin-top: 1rem;
 }
 
 
-
-#editorialOutline li, #matchedNodes li{
+#editorialOutline li{
 	padding: .25rem 1rem .25rem 2rem;
-	list-style-type: none;
 	border-left: .25rem solid #bfbfbf;
+}
+#editorialOutline li, #matchedNodes li{
+	list-style-type: none;
 }
 #editorialOutline li>a{
 	padding: 0px;
@@ -81,8 +85,27 @@ body.shortHeader #editorialSidePanel>.affix{
 	background-color: transparent;
 
 }
-#editorialSidePanel.tall #editorialOutline li>a, #editorialOutline li.active>a, #matchedNodes li>a{
+#editorialSidePanel.tall #editorialOutline li>a, #editorialOutline li.active>a, #matchedNodes li>a>small{
 	color: #000;
+}
+#matchedNodes li>a{
+	cursor: pointer;
+}
+#matchedNodes li>a>small{
+	margin-right: 1rem;
+	font-size: 10px;
+	line-height: 16px;
+}
+#matchedNodes li .content, #matchedNodes li .relations{
+	font-size: 1.25rem;
+	line-height: 1.32rem;
+	padding-left: 2.25rem;
+}
+#matchedNodes li .relations{
+	margin-top: 1rem;
+}
+#matchedNodes li .relations ol li{
+	list-style-type: decimal;
 }
 #editorialOutline li.active>a{
 	font-weight: bold;
@@ -427,7 +450,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	font-style: italic;
 }
 #editorialSidePanel>div .collapse{
-	overflow-y: auto;
+    padding-bottom: 1rem;
 }
 #editorialContentFinder{
 	padding: .5rem 1rem;

@@ -175,19 +175,117 @@
                             if(res.length > 0){
                                 for(var n in res){
                                     var node = res[n];
-                                    var nodeMatchItemHTML = '<li>'+
-                                                                '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#result_'+node.slug.replace(/\//g, '_')+'" aria-expanded="false" aria-controls="collapseExample">'+
-                                                                    'Button with data-target'+
-                                                                '</button>'+
+                                    var splitList = $('<ul></ul>');
+                    
+                                    var path_of = node.getRelatedNodes('path', 'outgoing');
+                                    var features = node.getRelatedNodes('referee', 'outgoing');
+                                    var tag_of = node.getRelatedNodes('tag', 'incoming');
+                                    var annotates = node.getRelatedNodes('annotation', 'outgoing');
+                                    var comments_on = node.getRelatedNodes('comment', 'outgoing');
+
+                                    console.log(path_of,features,tag_of,annotates,comments_on);
+                                    if(path_of.length > 0){
+                                        var newList = $('<li><strong>Contains</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                                        for(var i in path_of){
+                                            var relNode = path_of[i];
+                                            var nodeItem = $('<li><a href="#">'+relNode.current.title+'</a></li>');
+                                            nodeItem.find('a').click($.proxy(function(slug, e){
+                                                e.preventDefault();
+                                                $('#editorialSidePanel').addClass('loading_nodes');
+                                                window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                                return false;
+                                            },base, relNode.slug));
+                                            newList.append(nodeItem);
+                                        }
+                                    }
+
+                                    if(features.length > 0){
+                                        var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                                        for(var i in features){
+                                            var relNode = features[i];
+                                            var nodeItem = $('<li><a href="#">'+relNode.current.title+'</a></li>');
+                                            nodeItem.find('a').click($.proxy(function(slug, e){
+                                                e.preventDefault();
+                                                $('#editorialSidePanel').addClass('loading_nodes');
+                                                window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                                return false;
+                                            },base, relNode.slug));
+                                            newList.append(nodeItem);
+
+                                        }
+                                    }
+
+                                    if(tag_of.length > 0){
+                                        var newList = $('<li><strong>Tagged by</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
+                                        for(var i in tag_of){
+                                            var relNode = tag_of[i];
+                                            var nodeItem = $('<li><a href="#">'+relNode.current.title+'</a></li>');
+                                            nodeItem.find('a').click($.proxy(function(slug, e){
+                                                e.preventDefault();
+                                                $('#editorialSidePanel').addClass('loading_nodes');
+                                                window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                                return false;
+                                            },base, relNode.slug));
+                                            newList.append(nodeItem);
+
+                                        }
+                                    }
+
+                                    if(annotates.length > 0){
+                                        var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                                        for(var i in annotates){
+                                            var relNode = annotates[i];
+                                            var nodeItem = $('<li><a href="#">'+relNode.current.title+'</a></li>');
+                                            nodeItem.find('a').click($.proxy(function(slug, e){
+                                                e.preventDefault();
+                                                $('#editorialSidePanel').addClass('loading_nodes');
+                                                window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                                return false;
+                                            },base, relNode.slug));
+                                            newList.append(nodeItem);
+
+                                        }
+                                    }
+
+                                    if(comments_on.length > 0){
+                                        var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
+                                        for(var i in comments_on){
+                                            var relNode = comments_on[i];
+                                            var nodeItem = $('<li><a href="#">'+relNode.current.title+'</a></li>');
+                                            nodeItem.find('a').click($.proxy(function(slug, e){
+                                                e.preventDefault();
+                                                $('#editorialSidePanel').addClass('loading_nodes');
+                                                window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                                return false;
+                                            },base, relNode.slug));
+                                            newList.append(nodeItem);
+                                        }
+                                    }
+
+                                    var nodeMatchItemHTML = '<li class="heading_font">'+
+                                                                '<a class="resultTitle" data-toggle="collapse" data-target="#result_'+node.slug.replace(/\//g, '_')+'" aria-expanded="false" aria-controls="result_'+node.slug.replace(/\//g, '_')+'">'+
+                                                                    '<small class="glyphicon glyphicon-triangle-right" aria-hidden="true"></small>'+node.getDisplayTitle()+
+                                                                '</a>'+
                                                                 '<div class="collapse" id="result_'+node.slug.replace(/\//g, '_')+'">'+
-                                                                  '<div class="well">'+
-                                                                    '...'+
+                                                                  '<div class="content">'+$('<div>'+node.current.content+'</div>').text().substring(0,100)+'... <a class="moreLink" href="#">[More]</a></div>'+
+                                                                  '<div class="relations">'+
                                                                   '</div>'+
                                                                 '</div>'+
                                                             '</li>';
                                     //var nodeMatchItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
                                     var $nodeMatchItem = $(nodeMatchItemHTML).appendTo('#matchedNodes');
-                                    $nodeMatchItem.find('.collapse').collapse({toggle:false});
+                                    $nodeMatchItem.find('.relations').append(splitList);
+                                    $nodeMatchItem.find('.moreLink').click($.proxy(function(slug, e){
+                                        e.preventDefault();
+                                        $('#editorialSidePanel').addClass('loading_nodes');
+                                        window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                        return false;
+                                    },base, node.slug));
+                                    $nodeMatchItem.find('.collapse').collapse({toggle:false}).on('show.bs.collapse',function(){
+                                        $(this).parents('li').find('.resultTitle small').removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
+                                    }).on('hide.bs.collapse',function(){
+                                        $(this).parents('li').find('.resultTitle small').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+                                    });
                                     /*$nodeMatchItem.data('slug',node.slug).find('a').click($.proxy(function(slug, e){
                                         e.preventDefault();
                                         $('#editorialSidePanel').addClass('loading_nodes');
@@ -353,9 +451,10 @@
                     $('#filterTypeText').text(base.currentFilterType);
                     base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
                     for(var t in filterTypes){
-                        $('<li><a role="button" data-type="'+filterTypes[t]+'" href="#">'+base.ucwords(filterTypes[t])+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').click(function(e){
+                        $('<li><a role="button" data-type="'+filterTypes[t]+'" href="#">'+base.ucwords(filterTypes[t])+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').find('a').click(function(e){
                                 e.preventDefault();
                                 $('#editorialPathSearchText').removeClass('resolved');
+                                console.log($(this).data('type'));
                                 base.currentFilterType = $(this).data('type');
                                 $('#filterTypeText').text(base.currentFilterType);
                                 base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
