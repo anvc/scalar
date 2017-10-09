@@ -11,7 +11,7 @@ CKEDITOR._scalar = {
 	widgetOptions : function(options){
 		$('<div></div>').widget_options(options);
 	},
-	flushEditor : function(editor,newContent,placeholder){
+	flushEditor : function(editor){
 		//TODO:Replace this with a better solution...
 		var inline = editor.editable().isInline();
 		if(inline){
@@ -22,33 +22,7 @@ CKEDITOR._scalar = {
 			$('#editorialPath').data('editorialPath').updateLinks($editableBody.parent());
             $editableBody.click();
 		}else{
-
-			var placeholders = CKEDITOR._scalar.editor.document.find('img.placeholder');
-        	for(var i = 0; i < placeholders.count(); i++){
-        		placeholders.getItem(i).remove();
-        	}
-        	var mediaWidgetLinks = [];
-        	var links = CKEDITOR._scalar.editor.document.find('a');
-        	for(var i = 0; i < links.count(); i++){
-        		var link = links.getItem(i);
-        		if($(link.$).attr('resource') || $(link.$).attr('data-widget')){
-        			mediaWidgetLinks.push(link);
-        		}
-        	}
-        	CKEDITOR._scalar.editor.document.getBody().removeClass('gutter');
-        	for(var link in mediaWidgetLinks){
-        		var thisLink = mediaWidgetLinks[link];
-        		$.when( CKEDITOR._scalar.addNewPlaceholder(thisLink,false) ).then(
-				  function( placeholder ) {
-				    $(placeholder.$).data('link',thisLink);
-					$(newContent.$).data('placeholder',placeholder);
-					CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
-					if(CKEDITOR._scalar.editor.document.find('img.linked.placeholder.align_right').count() > 0){
-						CKEDITOR._scalar.editor.document.getBody().addClass('gutter');
-					}
-				  }
-				);
-        	}
+        	CKEDITOR._scalar.addPlaceholders();
 		}
 	},
 	addNewPlaceholder : function(element,inLoader){
@@ -161,42 +135,10 @@ CKEDITOR._scalar = {
 				  }
 			});
 		}
-		if(typeof newPlaceholder != 'undefined'){
-			addContentOptions(newPlaceholder);
-			$(newPlaceholder.$).data('newlink',false);
-		}else{
-			if(CKEDITOR._scalar.editor.editable().isInline()){
-				var placeholders = CKEDITOR._scalar.editor.editable().find('.placeholder');
-				for(var i = 0; i < placeholders.count(); i++){
-		    		var placeholder = placeholders.getItem(i);
-		    		var links = CKEDITOR._scalar.editor.document.find('a');
-		    		var link = null;
-		    		for(var n = 0; n < links.count(); n++){
-		    			if($(links.getItem(n).$).data('linkid') == $(placeholder.$).data('linkid')){
-		    				link = links.getItem(n);
-		    			}
-		    		}
-		    		$(placeholder.$).data('link',link);
-		    		$(link.$).data('placeholder',placeholder);
-		    		addContentOptions(placeholder);
-		    	}
-			}else{
-		    	if(CKEDITOR._scalar.editor.document.find('img.linked.placeholder.align_right').count() > 0){
-					CKEDITOR._scalar.editor.document.getBody().addClass('gutter');
-				}
-				
-				var placeholders = CKEDITOR._scalar.editor.document.find('img.placeholder');
-		    	for(var i = 0; i < placeholders.count(); i++){
-		    		var placeholder = placeholders.getItem(i);
-		    		var link = placeholder.getParent().getChild($(placeholders.getItem(i).$).data('content'));
-		    		$(placeholder.$).data('link',link);
-		    		$(link.$).data('placeholder',placeholder);
-					addContentOptions(placeholder);
-		    	}
-		    }
-		}
 
-    	CKEDITOR._scalar.UpdatePlaceholderHoverEvents(CKEDITOR._scalar.editor);
+		addContentOptions(newPlaceholder);
+		$(newPlaceholder.$).data('newlink',false);
+    	CKEDITOR._scalar.UpdatePlaceholderHoverEvents(CKEDITOR._scalar.editor,$(newPlaceholder.$));
 	},
 	updateEditMenuPosition : function(editor){
 		CKEDITOR._scalar.editor = editor;
@@ -228,58 +170,59 @@ CKEDITOR._scalar = {
 			left:leftPos
 		});
 	},
-	UpdatePlaceholderHoverEvents : function(editor){
-		$('.scalarEditorMediaWidgetMenu').remove();
-		CKEDITOR._scalar.$editorMenu = $('<ul class="caption_font scalarEditorMediaWidgetMenu"><li class="pull-left"><a href="#" class="deleteLink">Delete</a></li><li class="pull-right"><a href="#" class="editLink">Edit</a></li></ul>')
-			.appendTo('body')
-			.hover(function(){
-				window.clearTimeout(CKEDITOR._scalar.editMenuTimeout);
-			},function(){
-				window.clearTimeout(CKEDITOR._scalar.editMenuTimeout);
-				CKEDITOR._scalar.editMenuTimeout = window.setTimeout(function(){
-					CKEDITOR._scalar.$editorMenu.hide();
-				},50);
+	UpdatePlaceholderHoverEvents : function(editor,$placeholder){
+		if(typeof CKEDITOR._scalar.$editorMenu == 'undefined'){
+			CKEDITOR._scalar.$editorMenu = $('<ul class="caption_font scalarEditorMediaWidgetMenu"><li class="pull-left"><a href="#" class="deleteLink">Delete</a></li><li class="pull-right"><a href="#" class="editLink">Edit</a></li></ul>')
+				.appendTo('body')
+				.hover(function(){
+					window.clearTimeout(CKEDITOR._scalar.editMenuTimeout);
+				},function(){
+					window.clearTimeout(CKEDITOR._scalar.editMenuTimeout);
+					CKEDITOR._scalar.editMenuTimeout = window.setTimeout(function(){
+						CKEDITOR._scalar.$editorMenu.hide();
+					},50);
+				});
+			CKEDITOR._scalar.$editorMenu.find('.editLink').click(function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				CKEDITOR._scalar.$editorMenu.hide();
+				var element = CKEDITOR._scalar.$editorMenu.data('link');
+				isEdit = true;
+
+				if($(element.$).data('selectOptions').type!=null&&$(element.$).data('selectOptions').type=="widget"){
+					console.log($(element.$).data('selectOptions'));
+					CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
+				}else{
+					CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+				}
 			});
-		CKEDITOR._scalar.$editorMenu.find('.editLink').click(function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			CKEDITOR._scalar.$editorMenu.hide();
-			var element = CKEDITOR._scalar.$editorMenu.data('link');
-			isEdit = true;
-
-			if($(element.$).data('selectOptions').type!=null&&$(element.$).data('selectOptions').type=="widget"){
-				console.log($(element.$).data('selectOptions'));
-				CKEDITOR._scalar.selectWidget($(element.$).data('selectOptions'));
-			}else{
-				CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
-			}
-		});
-		CKEDITOR._scalar.$editorMenu.find('.deleteLink').click(function(e){
-			e.preventDefault();
-			e.stopPropagation();
-			CKEDITOR._scalar.$editorMenu.hide();
-			var element = CKEDITOR._scalar.$editorMenu.data('link');
-			var inline = CKEDITOR._scalar.editor.editable().isInline();
-			var doDelete = window.confirm("Are you sure you would like to delete this "+$(element.$).data('selectOptions').type+"? \n(Click \"OK\" to remove, click \"Cancel\" to keep.)");
-			if(!doDelete){
+			CKEDITOR._scalar.$editorMenu.find('.deleteLink').click(function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				CKEDITOR._scalar.$editorMenu.hide();
+				var element = CKEDITOR._scalar.$editorMenu.data('link');
+				var inline = CKEDITOR._scalar.editor.editable().isInline();
+				var doDelete = window.confirm("Are you sure you would like to delete this "+$(element.$).data('selectOptions').type+"? \n(Click \"OK\" to remove, click \"Cancel\" to keep.)");
+				if(!doDelete){
+					return false;
+				}
+				if(!inline){
+					$(element.$).data('placeholder').remove(true);
+					element.remove();
+				}else{
+					$($(element.$).data('placeholder').$).remove();
+					$(element.$).remove();
+					var $editableBody = $(CKEDITOR._scalar.editor.editable().$).data('unloading',true);
+					CKEDITOR.instances[$editableBody.data('editor').name].destroy(true);
+					$editableBody.prop('contenteditable',false).data('editor',null);
+					$('#editorialPath').data('editorialPath').updateLinks($editableBody.parent());
+		            $editableBody.click();
+				}
 				return false;
-			}
-			if(!inline){
-				$(element.$).data('placeholder').remove(true);
-				element.remove();
-			}else{
-				$($(element.$).data('placeholder').$).remove();
-				$(element.$).remove();
-				var $editableBody = $(CKEDITOR._scalar.editor.editable().$).data('unloading',true);
-				CKEDITOR.instances[$editableBody.data('editor').name].destroy(true);
-				$editableBody.prop('contenteditable',false).data('editor',null);
-				$('#editorialPath').data('editorialPath').updateLinks($editableBody.parent());
-	            $editableBody.click();
-			}
-			return false;
-		});
+			});
+		}
 
-		$(editor.editable().$).find('.placeholder').off('hover').hover(function(e){
+		$placeholder.off('hover').hover(function(e){
 			CKEDITOR._scalar.$editorMenu.show().width($(this).width()).data({
 				link:$(this).data('link'),
 				placeholder:$(this)
@@ -573,7 +516,38 @@ CKEDITOR._scalar = {
 		}
 
 		CKEDITOR._scalar.flushEditor(CKEDITOR._scalar.editor,element,isEdit?placeholder:'');
-	}
+	},
+	addPlaceholders : function(){
+		var createThumbnails = function(){
+								var mediaWidgetLinks = [];
+						    	var links = CKEDITOR._scalar.editor.document.find('a');
+						    	for(var i = 0; i < links.count(); i++){
+						    		var link = links.getItem(i);
+						    		if($(link.$).attr('resource') || $(link.$).attr('data-widget')){
+						    			mediaWidgetLinks.push(link);
+						    		}
+						    	}
+						    	CKEDITOR._scalar.editor.document.getBody().removeClass('gutter');
+						    	for(var link in mediaWidgetLinks){
+						    		var thisLink = mediaWidgetLinks[link];
+						    		$.when( CKEDITOR._scalar.addNewPlaceholder(thisLink,false) ).then(
+									  function( placeholder ) {
+									    $(placeholder.$).data('link',thisLink);
+										$(thisLink.$).data('placeholder',placeholder);
+										CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
+										if(CKEDITOR._scalar.editor.document.find('img.linked.placeholder.align_right').count() > 0){
+											CKEDITOR._scalar.editor.document.getBody().addClass('gutter');
+										}
+									  }
+									);
+						    	}
+							};
+		if(typeof scalarapi != 'undefined'){
+			createThumbnails();
+		}else{
+			$.getScript(widgets_uri+'/api/scalarapi.js',createThumbnails)
+		}
+    }
 };
 
 CKEDITOR.plugins.add( 'scalar', {
@@ -599,9 +573,6 @@ CKEDITOR.plugins.add( 'scalar', {
 						}
 					},CKEDITOR._scalar.editor));
 					cke_addedScalarScrollEvent = true;
-				}
-				if(typeof scalarapi == 'undefined'){
-					$.getScript(widgets_uri+'/api/scalarapi.js');
 				}
 			});
 	    var pluginDirectory = this.path;
@@ -877,40 +848,6 @@ CKEDITOR.plugins.add( 'scalar', {
 	        	}
         	}
 		});
-		CKEDITOR._scalar.editor.on( 'contentDom', CKEDITOR._scalar.populatePlaceholderData);
-    },
-    afterInit: function( editor ) {
-    		if(editor.config.toolbar == "ScalarInline") return;
-    		CKEDITOR._scalar.placeholderContentPairs = [];
-    		CKEDITOR._scalar.updatePlaceholderIndicies = function(){
-    			for(var i = 0; i < CKEDITOR._scalar.placeholderContentPairs.length; i++){
-					CKEDITOR._scalar.placeholderContentPairs[i][0].attributes['data-content'] = CKEDITOR._scalar.placeholderContentPairs[i][1].getIndex();
-					CKEDITOR._scalar.placeholderContentPairs[i][1].attributes['data-index'] = CKEDITOR._scalar.placeholderContentPairs[i][1].getIndex();
-				}
-    		}
-			CKEDITOR._scalar.editor.dataProcessor.dataFilter.addRules( {
-				elements: {
-					'a' : function(element){
-						if(element.attributes.resource || element.attributes['data-widget']){
-							var addThumbnails = $.proxy(function(){
-								$.when( CKEDITOR._scalar.addNewPlaceholder(element,true) ).then(
-								  $.proxy(function( placeholder ) {
-								  	console.log(this);
-								    CKEDITOR._scalar.placeholderContentPairs.push([placeholder,this]);
-		        					CKEDITOR._scalar.updatePlaceholderIndicies();
-								  },this)
-								);
-							},element);
-							if(typeof scalarapi != 'undefined'){
-								addThumbnails();
-							}else{
-								$.getScript(widgets_uri+'/api/scalarapi.js',addThumbnails)
-							}
-		        		}
-	        			return element;
-	        		}
-	        	}
-			} );
-		    
-		}
+		CKEDITOR._scalar.editor.on( 'contentDom', CKEDITOR._scalar.addPlaceholders);
+    }
 });
