@@ -160,8 +160,9 @@ CKEDITOR._scalar = {
 		var frameScroll = inline?0:$('.cke_contents>iframe').contents().scrollTop();
 		var pageScroll = $(window).scrollTop();
 		var inlineOffset = -50;
+		var additionalOffsetLeft = (inline&&$placeholder.parent().data('align')=='left'?10:0);
 		var topPos = inline?$placeholder.offset().top+inlineOffset:framePosition.top+position.top-frameScroll;
-		var leftPos = framePosition.left+position.left+parseInt($placeholder.css('margin-left'))+parseInt($placeholder.css('padding-left'));
+		var leftPos = additionalOffsetLeft+framePosition.left+position.left+parseInt($placeholder.css('margin-left'))+parseInt($placeholder.css('padding-left'));
 		if(!CKEDITOR._scalar.editor.editable().isInline() && frameScroll > position.top){
 			topPos = framePosition.top;
 		}
@@ -519,28 +520,45 @@ CKEDITOR._scalar = {
 	},
 	addPlaceholders : function(){
 		var createThumbnails = function(){
-								var mediaWidgetLinks = [];
-						    	var links = CKEDITOR._scalar.editor.document.find('a');
-						    	for(var i = 0; i < links.count(); i++){
-						    		var link = links.getItem(i);
-						    		if($(link.$).attr('resource') || $(link.$).attr('data-widget')){
-						    			mediaWidgetLinks.push(link);
-						    		}
-						    	}
-						    	CKEDITOR._scalar.editor.document.getBody().removeClass('gutter');
-						    	for(var link in mediaWidgetLinks){
-						    		var thisLink = mediaWidgetLinks[link];
-						    		$.when( CKEDITOR._scalar.addNewPlaceholder(thisLink,false) ).then(
-									  function( placeholder ) {
-									    $(placeholder.$).data('link',thisLink);
-										$(thisLink.$).data('placeholder',placeholder);
-										CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
-										if(CKEDITOR._scalar.editor.document.find('img.linked.placeholder.align_right').count() > 0){
-											CKEDITOR._scalar.editor.document.getBody().addClass('gutter');
-										}
-									  }
-									);
-						    	}
+								if(CKEDITOR._scalar.editor.editable().isInline()){
+									var placeholders = CKEDITOR._scalar.editor.editable().find('.placeholder');
+									for(var i = 0; i < placeholders.count(); i++){
+							    		var placeholder = placeholders.getItem(i);
+							    		var links = CKEDITOR._scalar.editor.document.find('a');
+							    		var link = null;
+							    		for(var n = 0; n < links.count(); n++){
+							    			if($(links.getItem(n).$).data('linkid') == $(placeholder.$).data('linkid')){
+							    				link = links.getItem(n);
+							    			}
+							    		}
+							    		$(placeholder.$).data('link',link);
+							    		$(link.$).data('placeholder',placeholder);
+							    		CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
+							    	}
+								}else{
+									var mediaWidgetLinks = [];
+							    	var links = CKEDITOR._scalar.editor.document.find('a');
+							    	for(var i = 0; i < links.count(); i++){
+							    		var link = links.getItem(i);
+							    		if($(link.$).attr('resource') || $(link.$).attr('data-widget')){
+							    			mediaWidgetLinks.push(link);
+							    		}
+							    	}
+							    	CKEDITOR._scalar.editor.document.getBody().removeClass('gutter');
+							    	for(var link in mediaWidgetLinks){
+							    		var thisLink = mediaWidgetLinks[link];
+							    		$.when( CKEDITOR._scalar.addNewPlaceholder(thisLink,false) ).then(
+										  function( placeholder ) {
+										    $(placeholder.$).data('link',thisLink);
+											$(thisLink.$).data('placeholder',placeholder);
+											CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
+											if(CKEDITOR._scalar.editor.document.find('img.linked.placeholder.align_right').count() > 0){
+												CKEDITOR._scalar.editor.document.getBody().addClass('gutter');
+											}
+										  }
+										);
+							    	}
+							    }
 							};
 		if(typeof scalarapi != 'undefined'){
 			createThumbnails();
@@ -564,7 +582,7 @@ CKEDITOR.plugins.add( 'scalar', {
 			cke_addedScalarScrollEvent = false;
 			CKEDITOR._scalar.editor.on('mode',function(e){
 				if(!cke_addedScalarScrollEvent){
-					$(window).add($('.cke_wysiwyg_frame').contents()).off('scroll').on('scroll',$.proxy(function(e){
+					$(window).add($('.cke_wysiwyg_frame').contents()).off('scroll.ckeScalar').on('scroll.ckeScalar',$.proxy(function(e){
 						if(typeof this == 'undefined'){
 							return false;
 						}
