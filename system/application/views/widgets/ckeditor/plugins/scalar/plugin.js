@@ -35,71 +35,105 @@ CKEDITOR._scalar = {
         			mediaWidgetLinks.push(link);
         		}
         	}
-
+        	CKEDITOR._scalar.editor.document.getBody().removeClass('gutter');
         	for(var link in mediaWidgetLinks){
         		var thisLink = mediaWidgetLinks[link];
-        		var placeholder = CKEDITOR._scalar.addNewPlaceholder(thisLink,false);
-				$(placeholder.$).data('link',thisLink);
-				$(newContent.$).data('placeholder',placeholder);
-				CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
+        		$.when( CKEDITOR._scalar.addNewPlaceholder(thisLink,false) ).then(
+				  function( placeholder ) {
+				    $(placeholder.$).data('link',thisLink);
+					$(newContent.$).data('placeholder',placeholder);
+					CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
+					if(CKEDITOR._scalar.editor.document.find('img.linked.placeholder.align_right').count() > 0){
+						CKEDITOR._scalar.editor.document.getBody().addClass('gutter');
+					}
+				  }
+				);
         	}
-        	if(CKEDITOR._scalar.editor.document.find('img.linked.placeholder.align_right').count() > 0){
-				CKEDITOR._scalar.editor.document.getBody().addClass('gutter');
-			}else{
-				CKEDITOR._scalar.editor.document.getBody().removeClass('gutter');
-			}
-			
 		}
 	},
 	addNewPlaceholder : function(element,inLoader){
 		if(typeof inLoader == 'undefined'){
 			inLoader = true;
 		}
-		
-		if(inLoader){
-			if(element.attributes['resource'])
-	        {
-	            var thumbnail = element.attributes.href;
-	            var title = "media";
-	            var isMedia = true;
-	        }else if(element.attributes['data-widget']){
-	        	var thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+element.attributes['data-widget']+'.png';
-	        	var title = element.attributes['data-widget']+" widget";
-	        	var isMedia = false;
-	        }
-			var cssClass = (element.hasClass('inline')?'inline':'linked')+" placeholder";
-			var placeholder = new CKEDITOR.htmlParser.element('img',{
-				class : cssClass+' '+element.attributes['data-size'] + ' align_'+element.attributes['data-align'],
-				src : thumbnail,
-				title : title,
-				contentEditable : 'false'
-			});
-		}else{
-			if(element.hasAttribute('resource'))
-	        {
-	            var thumbnail = element.getAttribute('href');
-	            var title = "media";
-	            var isMedia = true;
-	        }else if(element.hasAttribute('data-widget')){
-	        	var thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+element.getAttribute('data-widget')+'.png';
-	        	var title = element.getAttribute('data-widget')+" widget";
-	        	var isMedia = false;
-	        }
-			var cssClass = (element.hasClass('inline')?'inline':'linked')+" placeholder";
-			var placeholder = CKEDITOR._scalar.editor.document.createElement('img');
-			var attributes = {
-				class : cssClass+' '+element.getAttribute('data-size') + ' align_'+element.getAttribute('data-align'),
-				src : thumbnail,
-				title : title,
-				contentEditable : 'false'
-			};
-			attributes['data-newLink'] = true;
-			attributes['data-content'] = element.getIndex();
-			placeholder.setAttributes(attributes);
-		}
 
-		placeholder.insertAfter(element);
-		return placeholder;
+		var deferred = jQuery.Deferred();
+		var promise = deferred.promise();
+		
+		var createPlaceholder = $.proxy(function(inLoader,deferred){
+			var element = this;
+			if(inLoader){
+				if(element.attributes['resource'])
+		        {
+		        	var node = scalarapi.getNode(element.attributes['resource']);
+		        	var thumbnail = node.thumbnail;
+					if(thumbnail == null){
+						thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
+					}
+		            var title = "media";
+		            var isMedia = true;
+		        }else if(element.attributes['data-widget']){
+		        	var thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+element.attributes['data-widget']+'.png';
+		        	var title = element.attributes['data-widget']+" widget";
+		        	var isMedia = false;
+		        }
+				var cssClass = (element.hasClass('inline')?'inline':'linked')+" placeholder";
+				var placeholder = new CKEDITOR.htmlParser.element('img',{
+					class : cssClass+' '+element.attributes['data-size'] + ' align_'+element.attributes['data-align'],
+					src : thumbnail,
+					title : title,
+					contentEditable : 'false'
+				});
+			}else{
+				if(element.hasAttribute('resource'))
+		        {
+		        	var node = scalarapi.getNode(element.getAttribute('resource'));
+		        	var thumbnail = node.thumbnail;
+					if(thumbnail == null){
+						thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
+					}
+		            var title = "media";
+		            var isMedia = true;
+		        }else if(element.hasAttribute('data-widget')){
+		        	var thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+element.getAttribute('data-widget')+'.png';
+		        	var title = element.getAttribute('data-widget')+" widget";
+		        	var isMedia = false;
+		        }
+				var cssClass = (element.hasClass('inline')?'inline':'linked')+" placeholder";
+				var placeholder = CKEDITOR._scalar.editor.document.createElement('img');
+				var attributes = {
+					class : cssClass+' '+element.getAttribute('data-size') + ' align_'+element.getAttribute('data-align'),
+					src : thumbnail,
+					title : title,
+					contentEditable : 'false'
+				};
+				attributes['data-newLink'] = true;
+				attributes['data-content'] = element.getIndex();
+				placeholder.setAttributes(attributes);
+			}
+
+			placeholder.insertAfter(element);
+			deferred.resolve(placeholder);
+		},element,inLoader,deferred);
+
+		var slug = null;
+		if(inLoader){
+			if(element.attributes['resource']){
+		    	slug = element.attributes['resource'];
+		    }
+		}else{
+			if(element.hasAttribute('resource')){
+				slug = element.getAttribute('resource')
+			}
+		}
+		if(slug !== null){
+        	if(scalarapi.loadPage( slug, false, createPlaceholder) == "loaded"){
+				createPlaceholder();
+			}
+        }else{
+        	createPlaceholder();
+        }
+
+        return promise;		
 	},
 	populatePlaceholderData : function(e,newPlaceholder){
 		var addContentOptions = function(placeholder){
@@ -847,20 +881,31 @@ CKEDITOR.plugins.add( 'scalar', {
     },
     afterInit: function( editor ) {
     		if(editor.config.toolbar == "ScalarInline") return;
-    		var placeholderContentPairs = [];
-    		var updatePlaceholderIndicies = function(){
-    			for(var i = 0; i < placeholderContentPairs.length; i++){
-					placeholderContentPairs[i][0].attributes['data-content'] = placeholderContentPairs[i][1].getIndex();
-					placeholderContentPairs[i][1].attributes['data-index'] = placeholderContentPairs[i][1].getIndex();
+    		CKEDITOR._scalar.placeholderContentPairs = [];
+    		CKEDITOR._scalar.updatePlaceholderIndicies = function(){
+    			for(var i = 0; i < CKEDITOR._scalar.placeholderContentPairs.length; i++){
+					CKEDITOR._scalar.placeholderContentPairs[i][0].attributes['data-content'] = CKEDITOR._scalar.placeholderContentPairs[i][1].getIndex();
+					CKEDITOR._scalar.placeholderContentPairs[i][1].attributes['data-index'] = CKEDITOR._scalar.placeholderContentPairs[i][1].getIndex();
 				}
     		}
 			CKEDITOR._scalar.editor.dataProcessor.dataFilter.addRules( {
 				elements: {
 					'a' : function(element){
 						if(element.attributes.resource || element.attributes['data-widget']){
-							var placeholder = CKEDITOR._scalar.addNewPlaceholder(element);
-	        				placeholderContentPairs.push([placeholder,element]);
-	        				updatePlaceholderIndicies();
+							var addThumbnails = $.proxy(function(){
+								$.when( CKEDITOR._scalar.addNewPlaceholder(element,true) ).then(
+								  $.proxy(function( placeholder ) {
+								  	console.log(this);
+								    CKEDITOR._scalar.placeholderContentPairs.push([placeholder,this]);
+		        					CKEDITOR._scalar.updatePlaceholderIndicies();
+								  },this)
+								);
+							},element);
+							if(typeof scalarapi != 'undefined'){
+								addThumbnails();
+							}else{
+								$.getScript(widgets_uri+'/api/scalarapi.js',addThumbnails)
+							}
 		        		}
 	        			return element;
 	        		}
