@@ -2439,6 +2439,7 @@
                     page.addExternalLinks();
                     page.addColophon();
                     page.addNotes();
+                    page.addContext();
                     break;
 
                 case 'visualization':
@@ -2470,6 +2471,7 @@
                     page.addExternalLinks();
                     page.addColophon();
                     page.addNotes();
+                    page.addContext();
                     break;
 
                 case 'blank':
@@ -2520,6 +2522,7 @@
                     page.addExternalLinks();
                     page.addColophon();
                     page.addNotes();
+                    page.addContext();
                     break;
 
                 default:
