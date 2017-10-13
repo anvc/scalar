@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `url_is_public` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `display_in_index` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `is_featured` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `editorial_is_on` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `thumbnail` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `background` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `template` varchar(64) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'cantaloupe',

@@ -30,6 +30,8 @@ $(document).ready(function() {
     // Warn user about changing the book slug
     $('input[name="slug"]').data('orig-value',$('input[name="slug"]').val()).keydown(function() {
 		var $this = $(this);
+		if ($this.data('active')) return;
+		$this.data('active',true);
 		if (true!==$this.data('confirmed')) {
 			BootstrapDialog.show({
 				type: 'type-warning',
@@ -39,6 +41,7 @@ $(document).ready(function() {
 	                label: 'Cancel',
 	                cssClass: 'btn-default',
 	                action: function(dialog) {
+		                $this.data('active',false);
 						$this.data('confirmed',false);
 						dialog.close();
 						$this.val($this.data('orig-value'));
@@ -48,6 +51,7 @@ $(document).ready(function() {
 	                label: 'Continue',
 	                cssClass: 'btn-primary',
 	                action: function(dialog) {
+	                	$this.data('active',false);
 						$this.data('confirmed',true);
 						dialog.close();
 						$this.focus();	                    
@@ -60,12 +64,14 @@ $(document).ready(function() {
 	var title_init_values = function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		var is_duplicatable = ('undefined'==typeof($title.children(":first").attr('data-duplicatable'))) ? false : true;
+		var hide_versions = ('undefined'==typeof($title.children(":first").attr('data-hide-versions'))) ? false : true;
 		var is_joinable = ('undefined'==typeof($title.children(":first").attr('data-joinable'))) ? false : true;
 		var auto_approve = ('undefined'==typeof($title.children(":first").attr('data-auto-approve'))) ? false : true;
 		var email_authors = ('undefined'==typeof($title.children(":first").attr('data-email-authors'))) ? false : true;
 		var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? false : true;
 		var thoughtmesh = ('undefined'==typeof($title.children(":first").attr('data-thoughtmesh'))) ? 0 : 1;
 		$('#duplicatable').prop('checked', is_duplicatable);
+		$('#hide-versions').prop('checked', hide_versions);
 		$('#joinable').prop('checked', is_joinable);
 		$('#hypothesis').prop('checked', hypothesis);
 		$('#thoughtmesh').val(thoughtmesh);
@@ -74,11 +80,11 @@ $(document).ready(function() {
     };
     title_init_values();
     $('input[name="title"]').change(title_init_values);
-	$('#duplicatable, #joinable, #hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
+	$('#duplicatable,#hide-versions,#joinable,#hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable', 'hypothesis', 'thoughtmesh', 'auto-approve','email-authors'];
+		var prop_arr = ['duplicatable', 'hide-versions', 'joinable', 'hypothesis', 'thoughtmesh', 'auto-approve','email-authors'];
 		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
@@ -226,7 +232,7 @@ function select_versions() {
             <option value="article"<?=(('article'==$book->scope)?' selected':'')?>>Article</option>
             <option value="project"<?=(('project'==$book->scope)?' selected':'')?>>Project</option>
           </select>
-          <label class="control-label label-text"><small>For cosmentic purposes only&mdash;will be displayed throughout the interface</small></label>
+          <label class="control-label label-text"><small>For cosmetic purposes only&mdash;will be displayed throughout the interface</small></label>
         </div>
       </div>
       <div class="form-group">
@@ -251,7 +257,13 @@ function select_versions() {
 		      <input type="checkbox" id="duplicatable" value="1">
 		      Can be duplicated by you and others
 		    </label>
-		  </div>  
+		  </div>
+		  <div class="checkbox">
+		    <label>
+		      <input type="checkbox" id="hide-versions" value="1">
+		      Only authors and editors can see past versions
+		    </label>
+		  </div>		  
 		  <!-- joinability isn't in the spec, so putting as a hidden element for now -->     
 		  <input type="checkbox" id="joinable" value="1" style="display:none;">
         </div>

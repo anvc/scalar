@@ -154,7 +154,6 @@ class Book extends MY_Controller {
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
 			} else {
 				$this->data['slug'] = $slug; // Can visit a page even if it hasn't been created yet
-
 				$isNotFound = true;
 			}
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
@@ -825,7 +824,23 @@ class Book extends MY_Controller {
 
 	// Editorial path
 	private function editorialpath() {
+		
 		$this->data['view'] = __FUNCTION__;
+		
+	}
+	
+	// User pages
+	private function users() {
+
+		if (method_exists($this, $this->data['view'])) return;
+		if ($this->data['mode'] == 'editing') return;
+		$this->load->model('user_book_model', 'user_books');
+		$user_id = (int) no_ext($this->uri->segment(3));
+		$user = $this->user_books->get($this->data['book']->book_id, $user_id);
+		if (empty($user) || !$this->users->is_a($user->relationship, 'reviewer')) $user = null;
+		$this->data['book_user'] = $user;
+		$this->data['view'] = __FUNCTION__;
+		
 	}
 
 }
