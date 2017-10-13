@@ -39,7 +39,7 @@ $(window).on('scroll',function() {
           <img class="avatar small" src="<?=$app_root.'views/modules/dashboot/images/generic-avatar.png'?>" alt="User avatar" />
           <?=$login->fullname?> 
         </a>
-<?php if ('user'!=$zone): ?>
+<?php if ('user'!=$zone && !empty($book_id)): ?>
         <span class="s">/</span> 
         <div class="dropdown">
           <a href="javascript:void(null);" data-toggle="dropdown"><?=$book->title?></a>
@@ -59,8 +59,8 @@ $(window).on('scroll',function() {
     </div>
     <nav class="col-xs-12 col-sm-6">
       <h5>
-        <a href="javascript:void(null);">About Scalar</a> | 
-        <a href="javascript:void(null);">User's Guide</a> 
+        <a href="http://scalar.usc.edu">About Scalar</a> | 
+        <a href="http://scalar.usc.edu/works/guide2">User's Guide</a> 
         <img class="scalar_logo small" src="<?=$app_root.'views/modules/dashboot/images/scalar-avatar.png'?>" alt="Small Scalar logo" />
       </h5>
     </nav>    
@@ -83,6 +83,7 @@ else: ?>
 	    <li role="presentation"<?=(('pages'==$zone)?' class="active"':'')?>><a href="#tabs-pages" data-toggle="tab">Content</a></li>
 	    <li role="presentation"<?=(('users'==$zone)?' class="active"':'')?>><a href="#tabs-users" data-toggle="tab">Users</a></li>
 	    <li role="presentation"<?=(('utils'==$zone)?' class="active"':'')?>><a href="#tabs-utils" data-toggle="tab">Utilities</a></li>
+	    <li role="presentation" class="right-tab"><a href="<?=((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':'')?>">Return to book &raquo;</a></li>
 	  </ul>  
 	</div>
   </div>

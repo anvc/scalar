@@ -33,31 +33,51 @@ $(document).ready(function() {
 	});
 });
 </script>
+
 <? if (isset($_REQUEST['action']) && 'user_saved'==$_REQUEST['action']): ?>
-<div class="alert alert-success">User profile has been saved<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-success">User profile has been saved<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['action']) && 'duplicated'==$_REQUEST['action']): ?>
-<div class="alert alert-success">Book has been duplicated (and the new book is now present in the list to the right)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-success">Book has been duplicated (and the new book is now present in the list to the right)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
-<div class="alert alert-success">Book has been created (and is now present in the list to the right)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-success">Book has been created (and is now present in the list to the right)<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'email_exists'==$_REQUEST['error']): ?>
-<div class="alert alert-danger">The email address entered already exists in the system. Please try again with a different email.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-danger">The email address entered already exists in the system. Please try again with a different email.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'fullname_required'==$_REQUEST['error']): ?>
-<div class="alert alert-danger">Full name is a required field.  Please enter a full name and try again.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-danger">Full name is a required field.  Please enter a full name and try again.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'incorrect_password'==$_REQUEST['error']): ?>
-<div class="alert alert-danger">Incorrect current password<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-danger">Incorrect current password<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'password_match'==$_REQUEST['error']): ?>
-<div class="alert alert-danger">New password and retype password do not match<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<div class="alert alert-danger">New password and retype password do not match<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
+<? if (isset($_REQUEST['error']) && 'invalid_captcha_1'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">Invalid CAPTCHA response<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'invalid_captcha_2'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">The CAPTCHA was not successful<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'no_dir_created'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">Could not create the directory for this new book on the filesystem<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'no_media_dir_created'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">Could not create the media folder inside this new book's folder on the filesystem; something may be wrong with the file permissions<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'not_duplicatable'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">The chosen book is not duplicatable<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'error_while_duplicating'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">There was an error attempting to duplicate the chosen book<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+
 <div class="container-fluid user">
   <div class="row">
     <section class="col-xs-12 col-sm-6">
-      <div class="page-header"><h4>Account</h4></div>
+      <div class="page-header"><h4>Account<a class="sign-out" href="<?=confirm_slash(base_url())?>system/logout?action=do_logout&redirect_url=<?=confirm_slash(base_url())?>">Sign out</a></h4></div>
 	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" id="user_form">
 	    <input type="hidden" name="action" value="do_save_user" />
 	    <input type="hidden" name="id" value="<?=$login->user_id?>" />
@@ -147,7 +167,7 @@ $(document).ready(function() {
 	    		echo '</a>';
 	    		echo '</td>';
 	    		echo '<td>';
-	    		echo $role;
+	    		echo '<a href="'.base_url().$my_book->slug.'/users/'.$login->user_id.'">'.$role.'</a>';
 	    		echo '</td>';
 	    		echo '<td>';
 	    		echo '<a href="?book_id='.$my_book->book_id.'&zone=style#tabs-style" class="btn btn-default btn-xs pull-right showme">Dashboard</a>';
@@ -191,7 +211,7 @@ $(document).ready(function() {
             </select>
           </div>
           <div class="col-sm-6">
-            <small>For cosmentic purposes only&mdash;will be displayed throughout the interface</small>
+            <small>For cosmetic purposes only&mdash;will be displayed throughout the interface</small>
           </div>
         </div>        	  
       </div>
@@ -208,7 +228,7 @@ $(document).ready(function() {
   <div class="modal-dialog" role="document">
     <div class="modal-content">
 	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (0==this.book_to_duplicate.value) {alert('Please select a book to duplicate');return false;} else if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a title for the new book');return false;}">
-	  <input type="hidden" name="action" value="do_duplicate_book" />
+	  <input type="hidden" name="action" value="do_add_book" />
 	  <input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 	  <input type="hidden" name="book_to_duplicate" value="0" />
       <div class="modal-body">
