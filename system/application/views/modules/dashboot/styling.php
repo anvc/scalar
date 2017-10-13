@@ -68,6 +68,21 @@ $(document).ready(function() {
     };
     $('textarea[name="custom_style"]').data('orig-value',$('textarea[name="custom_style"]').val()).keydown(html_warning);
     $('textarea[name="custom_js"]').data('orig-value',$('textarea[name="custom_js"]').val()).keydown(html_warning);
+    // Background image
+    var set_background_preview = function() {
+		var $select = $('#background');
+		var $preview = $('#background_preview');
+		var url = $select.val();
+		if (!url.length) {
+			$preview.hide();
+			return;
+		}
+		if (-1==url.indexOf('://')) url = $('link#parent').attr('href')+url;
+		$preview.find('img').attr('src', url);
+		$preview.show();
+    };
+    $('#background').change(set_background_preview);
+    set_background_preview();
 });
 //Select the reader interface (Scalar 1, Scalar 2, ...)
 function select_interface(melon) {
@@ -206,10 +221,9 @@ function select_interface(melon) {
 	  			}		    
 		    ?></select>
         </div>
-<?php if (!empty($book->background)): ?>
-        <div class="col-sm-offset-2 col-sm-10">
+        <div id="background_preview" style="display:none;" class="col-sm-offset-2 col-sm-10">
           <div class="thumb-wrapper">
-            <img src="<?=abs_url($book->background,confirm_slash(base_url()).$book->slug).'?t='.time()?>" />
+            <img src="" />
           </div>
           <div class="checkbox" style="display:inline-block;">
             <label>
@@ -217,8 +231,7 @@ function select_interface(melon) {
               Remove background image
             </label>
           </div>          
-        </div>
-<?php endif; ?>        
+        </div>       
       </div>    
       <div class="form-group">
         <label for="custom_style" class="col-sm-2 control-label">Custom CSS</label>

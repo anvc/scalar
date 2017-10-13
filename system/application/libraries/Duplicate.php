@@ -87,7 +87,7 @@ class Duplicate {
 	 		$pages[$j]->versions = array();
 	 		$pages[$j]->versions = $this->CI->versions->get_all($pages[$j]->content_id, null, 1);  // Most recent version
 	 		// Save new page
-	 		$page = $this->_scrub_page_fields($pages[$j], $book_id);
+	 		$page = $this->_scrub_page_fields($pages[$j], $book_id, array('prev_uri'=>$duplicated_uri,'uri'=>$uri));
 	 		$content_id = $this->CI->pages->create($page);
 	 		// Save new version (_scrub_version_fields() will turn object into array, to allow RDF fields to be flattened)
 	 		$pages[$j]->versions[0] = $this->_scrub_version_fields($pages[$j]->versions[0], $content_id, array('prev_uri'=>$duplicated_uri,'uri'=>$uri,'prev_title'=>$duplicated_book->title));
@@ -196,13 +196,18 @@ class Duplicate {
     	
     }
     
-    private function _scrub_page_fields($obj, $book_id=0) {
+    private function _scrub_page_fields($obj, $book_id=0, $options) {
     	
     	if (isset($obj->content_id)) unset($obj->content_id);
     	if (isset($obj->created)) unset($obj->created);
     	if (isset($obj->urn)) unset($obj->urn);
 	 	$obj->user_id = (isset($obj->user)) ? (int) $obj->user : 0;
 	 	$obj->book_id = (int) $book_id;
+	 	
+	 	if (!empty($obj->thumbnail) && !isURL($obj->thumbnail)) $obj->thumbnail = confirm_slash($options['prev_uri']).$obj->thumbnail;
+	 	if (!empty($obj->background) && !isURL($obj->background)) $obj->background = confirm_slash($options['prev_uri']).$obj->background;
+	 	if (!empty($obj->banner) && !isURL($obj->banner)) $obj->banner = confirm_slash($options['prev_uri']).$obj->banner;
+	 	if (!empty($obj->audio) && !isURL($obj->audio)) $obj->audio = confirm_slash($options['prev_uri']).$obj->audio;
 	 	
 	 	return $obj;
     	

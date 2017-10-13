@@ -300,10 +300,10 @@ class System extends MY_Controller {
 		 			unset($array['back_to_book']);
 		 			unset($array['action']);
 		 			unset($array['zone']);
-		 			$this->books->save($array);
+		 			$_array = $this->books->save($array);
 		 			$this->books->save_versions($array);
 		 			if ($back_to_book) {
-		 				header('Location: '.base_url().$this->data['book']->slug);
+		 				header('Location: '.base_url().$_array['slug']);
 		 			} else {
 						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_style_saved');
 		 			}
@@ -358,7 +358,8 @@ class System extends MY_Controller {
 					$array = $_POST;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout();
 					$skip_captcha = (isset($array['zone']) && 'all-books'==$array['zone'] && $this->data['login_is_super']) ? true : false;
-					$duplicate = (is_numeric($array['book_to_duplicate']) && 0!=$array['book_to_duplicate']) ? true : false;
+					$duplicate = (is_numeric($array['book_to_duplicate']) && !empty($array['book_to_duplicate'])) ? true : false;
+					$skip_captcha = true;
 					try {
 						if ($duplicate) {
 							$book_id = (int) $this->books->duplicate($array, (($skip_captcha)?false:true));

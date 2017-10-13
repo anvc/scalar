@@ -577,8 +577,9 @@ class RDF_Object {
 		// Content user
 		if (isset($row->user) && is_object($row->user)) {  // User was found
 			$uri = $CI->users->prov_wasAttributedTo($row->user->user_id,$settings['base_uri']);
-			if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf($row->user);
-		} elseif (isset($row->user) && is_numeric($row->user)) {  // User wasn't found by there is an ID number (could be "0")
+			//if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf($row->user);
+			$this->_safely_write_rdf($return, $uri, $CI->users->rdf($row->user));  // User page node might be same as User FOAF node
+		} elseif (isset($row->user) && is_numeric($row->user)) {  // User wasn't found but there is an ID number (could be "0")
 			$uri = $CI->users->prov_wasAttributedTo($row->user,$settings['base_uri']);
 			if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->users->rdf((object)array(
 																					'fullname'=>'Anonymous'
@@ -909,6 +910,13 @@ class RDF_Object {
 		if (array_key_exists($uri, $return)) return true;
 		return false;
 
+	}
+	
+	private function _safely_write_rdf(&$return, $uri, $rdf) {
+		
+		if (!$this->_uri_exists($return, $uri)) $return[$uri] = $rdf;
+		$return[$uri] = array_merge($return[$uri], $rdf);
+		
 	}
 
 	private function _object_exists($s, $p, $o) {
