@@ -2923,7 +2923,8 @@
                                     };
                                     $("#"+slug).append('<div style="visibility:hidden; clear:both; height:1px; overflow:hidden;"></div>');
                                 }
-                            }                                          
+                            }    
+                            okToAddExtras = false;                                      
                             break;  
                     }
 
