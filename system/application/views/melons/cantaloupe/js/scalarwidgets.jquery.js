@@ -453,6 +453,13 @@
                             url : currentNode.sourceFile,
                             thumbnail : thumbnail_url
                           };
+
+                          var mediaType = TL.MediaType(entry.media);
+
+                          
+                          if(mediaType.type=='imageblank'){
+                            entry.media.url = thumbnail_url;
+                          }
                         }else if(typeof node.thumbnail !== 'undefined' && node.thumbnail != null && node.thumbnail != '') {
                           entry.media = {
                             url : thumbnail_url,

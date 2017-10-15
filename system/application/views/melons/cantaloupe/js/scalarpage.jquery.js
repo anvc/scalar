@@ -2807,6 +2807,11 @@
                                                     url: relNode.sourceFile,
                                                     thumbnail: thumbnail_url
                                                 };
+                                                var mediaType = TL.MediaType(entry.media);
+
+                                                if(mediaType.type=='imageblank'){
+                                                  entry.media.url = thumbnail_url;
+                                                }
                                             } else if (typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
                                                 entry.media = {
                                                     url: thumbnail_url,
