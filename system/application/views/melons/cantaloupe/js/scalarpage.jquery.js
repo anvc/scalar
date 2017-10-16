@@ -2809,8 +2809,10 @@
                                                 };
                                                 var mediaType = TL.MediaType(entry.media);
 
-                                                if(mediaType.type=='imageblank'){
-                                                  entry.media.url = thumbnail_url;
+                                                if(mediaType.type=='imageblank' && thumbnail_url != null){
+                                                    entry.media.url = thumbnail_url;
+                                                }else if(mediaType.type=='imageblank'){
+                                                    delete entry.media;
                                                 }
                                             } else if (typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
                                                 entry.media = {

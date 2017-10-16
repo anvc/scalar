@@ -457,8 +457,14 @@
                           var mediaType = TL.MediaType(entry.media);
 
                           
-                          if(mediaType.type=='imageblank'){
+                          if(mediaType.type=='imageblank' && thumbnail_url != null){
                             entry.media.url = thumbnail_url;
+                          }else if(mediaType.type=='imageblank'){
+                            delete entry.media;
+                          }
+                          
+                          if(node.slug == 'nycdh-award'){
+                            console.log(node,entry);
                           }
                         }else if(typeof node.thumbnail !== 'undefined' && node.thumbnail != null && node.thumbnail != '') {
                           entry.media = {
