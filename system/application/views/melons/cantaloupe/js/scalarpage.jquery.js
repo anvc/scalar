@@ -43,6 +43,7 @@
             adaptiveMedia: 'full',
             generateIconCache: {},
             mapMarkers: [],
+            pendingDeferredScripts: {},
 
             dateParseRegex : /^(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?(?:(?:\s+-\s+)(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?)?$/,
 
@@ -1763,7 +1764,7 @@
 
                         case "splash":
                         case "book_splash":
-                        case "path_splash":
+                        case "visual_path":
                         case "versions":
                         case "history":
                             // these views don't get media
@@ -2269,6 +2270,123 @@
                     return 0;
                 });
                 listItems.detach().appendTo(list);
+            },
+
+            setupGoogleMapsLayout: function() {
+                $('.page').css('padding-top', '5.0rem');
+                $('header > span:not').eq(0).before('<div id="google-maps" class="maximized-embed"></div>');
+
+                // create map
+                var mapOptions = {
+                    zoom: 8,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                }
+                var map = new google.maps.Map(document.getElementById('google-maps'), mapOptions);
+                var markerCount = 0;
+                var validCoordCount = 0;
+                var coordsAreValid;
+
+                //Global scope google map variable
+                $gmaps = $('#google-maps');
+
+                // create info window
+                var infoWindow = new google.maps.InfoWindow({
+                    content: contentString,
+                    maxWidth: 400
+                });
+
+                var marker, property, contents, node, contentString, label, pathIndex,
+                    properties = [
+                        'http://purl.org/dc/terms/coverage',
+                        'http://purl.org/dc/terms/spatial'
+                    ]
+                markers = [],
+                    foundError = true;
+
+                var pathContents = currentNode.getRelatedNodes('path', 'outgoing');
+                var tagContents = currentNode.getRelatedNodes('tag', 'outgoing');
+                var contents = pathContents.concat(tagContents);
+
+                for (p in properties) {
+
+                    property = properties[p];
+
+                    // if the current page has the spatial property, then
+                    if (currentNode.current.properties[property] != null) {
+
+                        n = currentNode.current.properties[property].length;
+                        for (i = 0; i < n; i++) {
+                            coordsAreValid = page.addMarkerFromLatLonStrToMap(
+                                currentNode.current.properties[property][i].value,
+                                currentNode.getDisplayTitle(),
+                                currentNode.current.description,
+                                null,
+                                map,
+                                infoWindow,
+                                currentNode.getAbsoluteThumbnailURL()
+                            );
+                            markerCount++;
+                            if (coordsAreValid) {
+                                validCoordCount++;
+                            }
+                        }
+
+                    }
+
+                    n = contents.length;
+
+                    // add markers for each content element that has the spatial property
+                    for (i = 0; i < n; i++) {
+
+                        node = contents[i];
+
+                        if (node.current.properties[property] != null) {
+
+                            o = node.current.properties[property].length;
+                            for (j = 0; j < o; j++) {
+
+                                label = null;
+                                pathIndex = pathContents.indexOf(node);
+                                if (pathIndex != -1) {
+                                    label = (pathIndex + 1).toString();
+                                }
+
+                                coordsAreValid = page.addMarkerFromLatLonStrToMap(
+                                    node.current.properties[property][j].value,
+                                    node.getDisplayTitle(),
+                                    node.current.description,
+                                    node.url,
+                                    map,
+                                    infoWindow,
+                                    node.getAbsoluteThumbnailURL(),
+                                    label
+                                );
+                                markerCount++;
+                                if (coordsAreValid) {
+                                    validCoordCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $gmaps.css('max-height', 0.6 * $(window).height());
+
+                $(window).on('resize', function() {
+                    var markers = $gmaps.data('markers')
+                    if (markers.length > 1) {
+                        $gmaps.data('map').fitBounds($('#google-maps').data('bounds'));
+                    }
+                    $gmaps.css('max-height', 0.6 * $(window).height());
+                });
+
+                if (validCoordCount == 0) {
+                    $gmaps.find('.alert').remove();
+                    $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>');
+                } else if (markerCount == 0) {
+                    $gmaps.find('.alert').remove();
+                    $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>');
+                }
             }
 
         };
@@ -2534,121 +2652,21 @@
                         // look for related geographic metadata and use it to build a Google Map
                         case "google_maps":
                         case "google_maps_path":
-
-                            $('.page').css('padding-top', '5.0rem');
-                            $('header > h1').before('<div id="google-maps" class="maximized-embed"></div>');
-
-                            // create map
-                            var mapOptions = {
-                                zoom: 8,
-                                mapTypeId: google.maps.MapTypeId.ROADMAP
-                            }
-                            var map = new google.maps.Map(document.getElementById('google-maps'), mapOptions);
-                            var markerCount = 0;
-                            var validCoordCount = 0;
-                            var coordsAreValid;
-
-                            //Global scope google map variable
-                            $gmaps = $('#google-maps');
-
-                            // create info window
-                            var infoWindow = new google.maps.InfoWindow({
-                                content: contentString,
-                                maxWidth: 400
-                            });
-
-                            var marker, property, contents, node, contentString, label, pathIndex,
-                                properties = [
-                                    'http://purl.org/dc/terms/coverage',
-                                    'http://purl.org/dc/terms/spatial'
-                                ]
-                            markers = [],
-                                foundError = true;
-
-                            var pathContents = currentNode.getRelatedNodes('path', 'outgoing');
-                            var tagContents = currentNode.getRelatedNodes('tag', 'outgoing');
-                            var contents = pathContents.concat(tagContents);
-
-                            for (p in properties) {
-
-                                property = properties[p];
-
-                                // if the current page has the spatial property, then
-                                if (currentNode.current.properties[property] != null) {
-
-                                    n = currentNode.current.properties[property].length;
-                                    for (i = 0; i < n; i++) {
-                                        coordsAreValid = page.addMarkerFromLatLonStrToMap(
-                                            currentNode.current.properties[property][i].value,
-                                            currentNode.getDisplayTitle(),
-                                            currentNode.current.description,
-                                            null,
-                                            map,
-                                            infoWindow,
-                                            currentNode.getAbsoluteThumbnailURL()
-                                        );
-                                        markerCount++;
-                                        if (coordsAreValid) {
-                                            validCoordCount++;
-                                        }
+                            if(typeof page.pendingDeferredScripts.GoogleMaps == 'undefined'){
+                                page.pendingDeferredScripts.GoogleMaps = [];
+                                $.when(
+                                    $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'))
+                                ).then(function(){
+                                    for(var i = 0; i < page.pendingDeferredScripts.GoogleMaps.length; i++){
+                                        page.pendingDeferredScripts.GoogleMaps[i].resolve();
                                     }
-
-                                }
-
-                                n = contents.length;
-
-                                // add markers for each content element that has the spatial property
-                                for (i = 0; i < n; i++) {
-
-                                    node = contents[i];
-
-                                    if (node.current.properties[property] != null) {
-
-                                        o = node.current.properties[property].length;
-                                        for (j = 0; j < o; j++) {
-
-                                            label = null;
-                                            pathIndex = pathContents.indexOf(node);
-                                            if (pathIndex != -1) {
-                                                label = (pathIndex + 1).toString();
-                                            }
-
-                                            coordsAreValid = page.addMarkerFromLatLonStrToMap(
-                                                node.current.properties[property][j].value,
-                                                node.getDisplayTitle(),
-                                                node.current.description,
-                                                node.url,
-                                                map,
-                                                infoWindow,
-                                                node.getAbsoluteThumbnailURL(),
-                                                label
-                                            );
-                                            markerCount++;
-                                            if (coordsAreValid) {
-                                                validCoordCount++;
-                                            }
-                                        }
-                                    }
-                                }
+                                });
                             }
-
-                            $gmaps.css('max-height', 0.6 * $(window).height());
-
-                            $(window).on('resize', function() {
-                                var markers = $gmaps.data('markers')
-                                if (markers.length > 1) {
-                                    $gmaps.data('map').fitBounds($('#google-maps').data('bounds'));
-                                }
-                                $gmaps.css('max-height', 0.6 * $(window).height());
-                            });
-
-                            if (validCoordCount == 0) {
-                                $gmaps.find('.alert').remove();
-                                $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>');
-                            } else if (markerCount == 0) {
-                                $gmaps.find('.alert').remove();
-                                $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>');
-                            }
+                            promise = $.Deferred();
+                            page.pendingDeferredScripts.GoogleMaps.push(promise);
+                            $.when(promise).then($.proxy(function(){
+                                page.setupGoogleMapsLayout();
+                            },this));
                             break;
 
                         case "vis":
@@ -2899,7 +2917,7 @@
                             $("ol.toc").before('<h3 class="heading_font heading_weight">Table of Contents</h3>');
                             break;
 
-                        case 'path_splash':
+                        case 'visual_path':
                             // original concept for this layout by Alicia Peaker, Bryn Mawr College
                             $('article').addClass('visual_path');  
                             //Find out how long the path is and collect the slugs for each item on the path

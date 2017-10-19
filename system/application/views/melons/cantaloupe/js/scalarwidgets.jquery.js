@@ -100,7 +100,21 @@
 								base.renderVisualization($widget);
 								break;
 							case 'map':
-								base.renderMap($widget);
+                if(typeof page.pendingDeferredScripts.GoogleMaps == 'undefined'){
+                    page.pendingDeferredScripts.GoogleMaps = [];
+                    $.when(
+                        $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'))
+                    ).then(function(){
+                        for(var i = 0; i < page.pendingDeferredScripts.GoogleMaps.length; i++){
+                            page.pendingDeferredScripts.GoogleMaps[i].resolve();
+                        }
+                    });
+                }
+                promise = $.Deferred();
+                page.pendingDeferredScripts.GoogleMaps.push(promise);
+                $.when(promise).then($.proxy(function(){
+                    base.renderMap($widget);
+                },this));
 								break;
 							case 'carousel':
 								base.renderCarousel($widget);
