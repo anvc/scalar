@@ -144,6 +144,9 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialOutline li.active{
 	border-left-width: .5rem;
 }
+#editorialOutline, #editorialContentFinder{
+	overflow-y: auto;
+}
 #editorialOutline li.child{
 	padding-left: 2rem;
 }

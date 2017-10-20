@@ -1,8 +1,5 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed') ?>
 <?php
-	die("Endpoint not implemented.");
-?>
-<?php
 	$this->template->add_css('system/application/views/widgets/ckeditor/custom.css');
 	$this->template->add_css('system/application/views/widgets/spectrum/spectrum.css');
 	$this->template->add_css('system/application/views/widgets/edit/content_selector.css');

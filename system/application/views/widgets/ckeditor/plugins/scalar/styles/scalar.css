@@ -1,35 +1,62 @@
 .note {color:#038200; text-decoration:underline;}
-a.inline {
-	display:block; background:#cccccc; border:solid 5px #bbbbbb; height:75px; margin:0;
-	background-image:url(media.png); background-position:center center; background-repeat:no-repeat;
-	margin-left:20%; margin-right:20%;
+.cke_editable.gutter{
+	padding-right: 5rem;
 }
-a.inline.inlineWidget {
-	background-image:url(widget.png);
+img.placeholder{
+	display: block;
+	margin-bottom: 1rem;
+	width: auto;
+	height: auto;
 }
-
-a.inline.inlineWidget[data-widget="visualization"] {
-	background-size: auto 75%;
-	background-image:url(../../../../../melons/cantaloupe/images/widget_image_visualization.png);
+img.inline.placeholder{
+	clear: both;
+	padding: 0 1rem 1rem 1rem;
 }
-a.inline.inlineWidget[data-widget="timeline"] {
-	background-size: auto 75%;
-	background-image:url(../../../../../melons/cantaloupe/images/widget_image_timeline.png);
+img.inline.placeholder.align_right{
+	position: relative;
+	left: 100%;
 }
-a.inline.inlineWidget[data-widget="map"] {
-	background-size: auto 75%;
-	background-image:url(../../../../../melons/cantaloupe/images/widget_image_map.png);
+img.placeholder.small{
+	width: 33%;
 }
-a.inline.inlineWidget[data-widget="carousel"] {
-	background-size: auto 75%;
-	background-image:url(../../../../../melons/cantaloupe/images/widget_image_carousel.png);
+img.placeholder.medium{
+	width: 50%;	
 }
-a.inline.inlineWidget[data-widget="card"] {
-	background-size: auto 75%;
-	background-image:url(../../../../../melons/cantaloupe/images/widget_image_card.png);
+img.placeholder.large{
+	width: 75%;
 }
-
-a.inline.inlineWidget[data-widget="summary"] {
-	background-size: auto 75%;
-	background-image:url(../../../../../melons/cantaloupe/images/widget_image_summary.png);
+img.placeholder.full, img.linked.placeholder.align_right.full{
+	width: 100%;
+	left: 0;
+	margin-left: 0;
+	margin-right: 0;
+	padding-left: 0;
+	padding-right: 0;
+}
+img.linked.placeholder.align_right.full{
+	width: 112%;
+	margin-right: -11%;
+}
+img.inline.placeholder.align_right.small{
+	margin-left: -33%;
+}
+img.inline.placeholder.align_right.medium{
+	margin-left: -50%;
+}
+img.inline.placeholder.align_right.large{
+	margin-left: -75%;
+}
+img.inline.placeholder.align_center{
+	margin: 0 auto;
+}
+img.linked.placeholder.align_left{
+	float: left;
+	clear: left;
+	padding-right: 1rem;
+}
+img.linked.placeholder.align_right{
+	float: right;
+	clear: right;
+	padding-left: 1rem;
+	margin-right: -5rem;
 }
