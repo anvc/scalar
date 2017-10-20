@@ -2930,7 +2930,7 @@
                                     var slug = pathContents[i].slug;
                                     var key = (pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner']) ? pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
                                     if (-1==key.indexOf('://')) key = parent+key;
-                                    var description = (pathContents[i].current.description) ? pathContents[i].current.description : '';
+                                    var description = (pathContents[i].current.description) ? pathContents[i].current.description : ' ';
                                     var $description = $('<div>'+description+'</div>');
                                     if ($description.find('br').length) {  // If there is more than one paragraph (<br /><br />) only show the first paragraph
                                         if ($description.find('br:first').next().is('br')) {
