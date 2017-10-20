@@ -118,6 +118,7 @@ if (isset($page->version_index)) {
 <link id="use_proxy" href="true" />
 <link id="proxy_url" href="<?=base_url().$book->slug.'/proxy'?>" />
 <? endif ?>
+<link id="scalar_version" href="<?=$this->load->view('scalar-version',true);?>" />
 <link id="book_id" href="<?=$book->book_id?>" />
 <link id="parent" href="<?=$base_uri?>" />
 <link id="approot" href="<?=confirm_slash(base_url())?>system/application/" />
