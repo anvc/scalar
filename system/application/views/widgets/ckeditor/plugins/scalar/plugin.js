@@ -529,11 +529,16 @@ CKEDITOR._scalar = {
 							    		for(var n = 0; n < links.count(); n++){
 							    			if($(links.getItem(n).$).data('linkid') == $(placeholder.$).data('linkid')){
 							    				link = links.getItem(n);
+							    				$(placeholder.$).data('link',link);
+									    		$(link.$).data('placeholder',placeholder);
+									    		CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
+									    		break;
 							    			}
 							    		}
-							    		$(placeholder.$).data('link',link);
-							    		$(link.$).data('placeholder',placeholder);
-							    		CKEDITOR._scalar.populatePlaceholderData(false,placeholder);
+							    		
+							    		if(!link){
+							    			console.log("Could not find matching link for placeholder:",placeholder);
+							    		}
 							    	}
 								}else{
 									var mediaWidgetLinks = [];

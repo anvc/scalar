@@ -267,7 +267,11 @@
                                                                     '<small class="glyphicon glyphicon-triangle-right" aria-hidden="true"></small>'+node.getDisplayTitle()+
                                                                 '</a>'+
                                                                 '<div class="collapse" id="result_'+node.slug.replace(/\//g, '_')+'">'+
-                                                                  '<div class="content">'+$('<div>'+node.current.content+'</div>').text().substring(0,100)+'... <a class="moreLink" href="#">[More]</a></div>'+
+                                                                    (!node.current.content?(
+                                                                        '<div class="content"><a class="moreLink" href="#">[no content]</a></div>'
+                                                                    ):(
+                                                                        '<div class="content">'+$('<div>'+node.current.content+'</div>').text().substring(0,100)+'... <a class="moreLink" href="#">[More]</a></div>'
+                                                                    ))+
                                                                   '<div class="relations">'+
                                                                   '</div>'+
                                                                 '</div>'+
@@ -373,7 +377,6 @@
                     var new_nodes = 0;
                     for(var uri in data){
                         var node = scalarapi.getNode( uri );
-                        console.log(data[uri],node);
                         var regex = /(?:\.)(\d+)\b/;
                         var matches = null;
                         if((matches = regex.exec(uri)) === null){
@@ -686,6 +689,10 @@
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
+            console.log(node.domType.singular);
+            if(node.domType.singular == "media"){
+                $node.find('.bodyContent').addClass('media');
+            }
             $node.data('node',node);
 
             if($.isFunction(callback)){
@@ -711,7 +718,7 @@
                 state : state
         	});
 
-            $node.find('.descriptionContent, .bodyContent').each(function(){
+            $node.find('.descriptionContent, .bodyContent:not(.media)').each(function(){
                 $node.data('editableFields',$node.data('editableFields')+1);
 
                 $(this).on('click',function(e){
@@ -833,6 +840,9 @@
             var $body_copy = $body.clone();
             $body_copy.find('.placeholder').remove();
             var body = $body_copy.html();
+            if($body.hasClass('media')){
+                body = null;
+            }
             var baseProperties =  {
                 native: 1,
                 id: userId,
@@ -905,11 +915,20 @@
                         var handleMedia = function(){
                             var media = scalarapi.getNode(resource);
                             var description = media.current.description;
+                            var thumbnail_url = media.getAbsoluteThumbnailURL();
+                            if(!thumbnail_url){
+                                if(media.current.mediaSource.contentType == "image" && !media.current.mediaSource.isProprietary){
+                                    thumbnail_url = media.current.sourceFile;
+                                }else{
+                                    thumbnail_url = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
+                                }
+                            }
+                            console.log(media);
                             if(typeof description !== 'undefined' && description != null){
                                 $placeholder.find('content').append('<div class="description">'+description+'</div>');
                             }
                             if(typeof media !== 'undefined' && media !== null && media !== undefined){
-                                $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+media.thumbnail+'"><br />'+media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
+                                $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+thumbnail_url+'"><br />'+media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
                             }else{
                                 $placeholder.find('.body').html('Missing Media! ('+resource+')');
                             }
