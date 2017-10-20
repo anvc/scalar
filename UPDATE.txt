@@ -40,14 +40,14 @@ If you're updating from a version before 2.1, see further down below.
 
 1) Extract the release ZIP to your local computer
 2) Copy all folders in /system/application to the corresponding folder on your webserver EXCEPT:
-(These are folders that have install-specific config files, so we don't want to overwrite the ones you have on your webserver)
+(These are folders that have install-specific config files, so we don't want to overwrite the ones you have on your webserver:)
 system/application/cache
 system/application/config
 system/application/language
 system/application/logs
 system/application/plugins
 3) Update all folders in the /system folder EXCEPT:
-(You just updated /system/application in step #, so don't update it here)
+(You just updated /system/application in step #2, so don't update it here:)
 system/application
 4) Check to see if there are any changes to config files or the database scheme at "Changes to config files over time" (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time)
 
