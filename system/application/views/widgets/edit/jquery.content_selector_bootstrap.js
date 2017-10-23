@@ -1888,20 +1888,19 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 
 						if(opts.allowMultiple){
-							$item.off('click').click(function(e){
-								// Craig decoupled the actions below from the checkbox, since it might not be present if rowSelectMethod==highlight
+							$item.off('click').click(function(e){  // Decoupled the actions below from the checkbox, since it might not be present if rowSelectMethod==highlight ~cd
 								e.stopPropagation();
 								var $dialogue_container = $(this).parents('.node_selector');
 								var item = $(this).data('item');
 								var $icon = $(this).find('.select_row>input[type="checkbox"]').find('.glyphicon:first');
 								var checked = $(this).hasClass('current');
 								var $childSelector = $(this).find('.select_row').siblings('.select_children');
-								var hasChildSelector = $childSelector.length > 0;
+								var hasChildSelector = ($childSelector.length > 0) ? true : false;
 								var index = -1;
 								if(undefined!==$dialogue_container.data('nodes')){
 									for(var n in $dialogue_container.data('nodes')){
 											var selected_node = $dialogue_container.data('nodes')[n];
-											if(selected_node.slug == item.slug){
+											if(selected_node.uri == item.uri){  // Nodes might not have slugs (e.g., user nodes) so switching this to uri ~cd
 												index = n;
 												break;
 											}
@@ -1919,7 +1918,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										if(undefined!==$dialogue_container.data('nodes')){
 											for(var n in $dialogue_container.data('nodes')){
 													var selected_node = $dialogue_container.data('nodes')[n];
-													if(selected_node.slug == item.slug){
+													if(selected_node.uri == item.uri){  // Nodes might not have slugs (e.g., user nodes) so switching this to uri ~cd
 														index = n;
 														break;
 													}
@@ -1969,7 +1968,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}; //for data.length
 					
 					if (opts.isEdit) {
-						var doMouseLeave = function($cell) {
+						var doStopEditing = function($cell) {
 							$cell.removeClass('collapse_padding');
 							$cell.closest('tr').find('td').css('vertical-align','top');
 							if ($cell.data('has-link')) {
@@ -1990,7 +1989,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							$(this).find('.editable').each(function() {
 								var $cell = $(this);
 								if ($cell.data('is-editing')) {
-									doMouseLeave($cell);
+									doStopEditing($cell);
 								} else {
 									$cell.addClass('collapse_padding');
 									$cell.closest('tr').find('td').css('vertical-align','middle');
