@@ -856,13 +856,13 @@ class System extends MY_Controller {
 				$user_id =@ (int) $_REQUEST['id'];
 				$book_ids =@ (array) $_REQUEST['selected_ids'];
 				$list_in_index = (isset($_REQUEST['list_in_index']) && !$_REQUEST['list_in_index']) ? 0 : 1;
-				$clear_user_books = (isset($_REQUEST['clear_user_books']) && !empty($_REQUEST['clear_user_books'])) ? true : false;
+				$relationship = (isset($_REQUEST['relationship']) && !empty($_REQUEST['relationship'])) ? trim($_REQUEST['relationship']) : 'author';
 				foreach ($book_ids as $book_id) {
 					$this->data['book'] = $this->books->get($book_id);
 					$this->set_user_book_perms();
 					if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
 				}
-				$this->data['content'] = $this->users->save_books($user_id, $book_ids, 'author', $list_in_index);
+				$this->data['content'] = $this->users->save_books($user_id, $book_ids, $relationship, $list_in_index);
 				for ($j = 0; $j < count($this->data['content']); $j++) $this->data['content'][$j]->id = $this->data['content'][$j]->book_id;
 				break;
 			case 'reorder_versions':

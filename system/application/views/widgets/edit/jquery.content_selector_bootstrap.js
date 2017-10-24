@@ -2132,8 +2132,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$rows.trigger('click');
 						$(this).blur();
 					});
-				}
-				$deleteOpts.append('<button type="button" class="btn btn-default">Delete selected</button>');
+				};
+				var $deleteBtn = $('<button type="button" class="btn btn-default">Delete selected</button>').appendTo($deleteOpts);
+				$deleteBtn.click(function() {
+					if ('function'==typeof(opts.deleteOptions)) {
+						var $selected = $(this).closest('.selector').find('.node_selector_table_body tr.current');
+						if (!$selected.length) {
+							alert('Please select one or more content to delete');
+							return;
+						}
+						opts.deleteOptions($selected);
+						return;
+					}
+					alert('Could not find deleteOptions function');					
+				});
 			};
 			
 			if (isset(opts.userOptions) && opts.userOptions) {
@@ -2145,7 +2157,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 				$deleteOpts.append('<button type="button" class="btn btn-default">Add new user</button>');
 				$deleteOpts.find('button:last').off('click').on('click', function() {
-					// TODO
+					if ('function'==typeof(opts.userOptions)) {
+						opts.userOptions();
+						return;
+					}
+					alert('Could not find userOptions function');
 				});				
 			};
 
