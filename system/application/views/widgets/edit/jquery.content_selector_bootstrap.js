@@ -788,7 +788,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							data.isEdit = $(this).data('isEdit');
 							data.attrs["data-widget"] = data.type;
 							if (timeline_data_type == 'node') {
-								var nodes = $('#bootbox-content-selector-content .timeline_node_selection').data('serialize_nodes')();
+								var nodes = $('#bootbox-content-selector-content .timeline_node_selection').data('node_selector').serialize_nodes();
 								data.attrs['data-nodes'] = nodes;
 								if (data.attrs['data-nodes'] == undefined || data.attrs['data-nodes'].length == 0) {
 									alert("Please select Scalar content that contains your timeline's temporal data.");
@@ -874,7 +874,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							data.attrs["data-widget"] = data.type;
 							data.isEdit = $(this).data('isEdit');
 
-							data.attrs['data-nodes'] = $('#bootbox-content-selector-content .map_node_selection').data('serialize_nodes')();
+							data.attrs['data-nodes'] = $('#bootbox-content-selector-content .map_node_selection').data('node_selector').serialize_nodes();
 							if (data.attrs['data-nodes'] == undefined || data.attrs['data-nodes'].length == 0) {
 								alert("Please select at least one geotagged Scalar item.");
 								return false;
@@ -914,7 +914,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var data = { type: "carousel", attrs: {} };
 							data.attrs["data-widget"] = data.type;
 							data.isEdit = $(this).data('isEdit');
-							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection').data('serialize_nodes')();
+							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection').data('node_selector').serialize_nodes();
 							if (data.attrs["data-nodes"] == '') {
 								alert("Please select at least one media item for your carousel widget.");
 								return false;
@@ -958,7 +958,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var data = { type: "card", attrs: {} };
 							data.attrs["data-widget"] = data.type;
 							data.isEdit = $(this).data('isEdit');
-							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection').data('serialize_nodes')();
+							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection').data('node_selector').serialize_nodes();
 							if (data.attrs["data-nodes"] == '') {
 								alert("Please select at least one item for your card widget.");
 								return false;
@@ -1001,7 +1001,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var data = { type: "summary", attrs: {} };
 							data.isEdit = $(this).data('isEdit');
 							data.attrs["data-widget"] = data.type;
-							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection').data('serialize_nodes')();
+							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection').serialize_nodes();
 							if (data.attrs["data-nodes"] == '') {
 								alert("Please select at least one item for your summary widget.");
 								return false;
@@ -1349,11 +1349,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		}
 	}
 
+	//Node Selector Plugin
 	$.fn.node_selection_dialogue = function(options) {
 
 		var self = this;
 		var $this = $(this);
-
 		var parent_url = $('link#parent').attr('href');
 
 		var loaded_nodeLists = {};
@@ -2236,11 +2236,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$type_selector.append('<option value="' + opts.types[t] + '">' + type_display_name + '</option>');
 		}
 
+		$type_selector.val(current_type);
+
 		var doTypeFilter = function() {
 			$dialogue_container.find('.filter_spinner .spinner_container').show();
 			$dialogue_container.find('.node_types .btn').prop('disabled', true).addClass('disabled');
 			var opts = $dialogue_container.data('opts');
-
 			var typeName = $type_selector.find('option[value="' + current_type + '"]').text().toLowerCase();
 
 			$dialogue_container.find('.node_search>input').attr('placeholder', 'Search ' + typeName + ' by title or description');
@@ -2435,19 +2436,25 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		} else {
 			init_promise.resolve();
 		}
-		$(this).data('serialize_nodes', $.proxy(function() {
-			if ($(this).data('nodes') == undefined) {
-				return '';
+		$(this).data('node_selector',{
+			serialize_nodes :  $.proxy(function() {
+					if ($(this).data('nodes') == undefined) {
+						return '';
+					}
+					var slugs = [];
+					for (var i in $(this).data('nodes')) {
+						var item = $(this).data('nodes')[i];
+						slugs.push(item.slug);
+						if (!$(this).data('opts').allowChildren || 'undefined' === typeof item.targets || 'undefined' === item.include_children || !item.include_children) { continue; }
+						slugs[slugs.length - 1] += '*';
+					}
+					return slugs.join(',');
+				}, $dialogue_container),
+			refresh_nodes: function(){
+				delete loaded_nodeLists[type];
+				doTypeFilter();
 			}
-			var slugs = [];
-			for (var i in $(this).data('nodes')) {
-				var item = $(this).data('nodes')[i];
-				slugs.push(item.slug);
-				if (!$(this).data('opts').allowChildren || 'undefined' === typeof item.targets || 'undefined' === item.include_children || !item.include_children) { continue; }
-				slugs[slugs.length - 1] += '*';
-			}
-			return slugs.join(',');
-		}, $dialogue_container));
+		});
 
 		$(this).on('doResize', resize);
 
