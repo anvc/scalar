@@ -824,7 +824,7 @@ class Book extends MY_Controller {
 
 	// Editorial path
 	private function editorialpath() {
-		
+		$this->protect_book('reviewer');
 		$this->data['view'] = __FUNCTION__;
 		
 	}
