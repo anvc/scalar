@@ -2451,7 +2451,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					return slugs.join(',');
 				}, $dialogue_container),
 			refresh_nodes: function(){
-				delete loaded_nodeLists[type];
+				loaded_nodeLists = {};
 				doTypeFilter();
 			}
 		});
