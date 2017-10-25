@@ -1,0 +1,62 @@
+.note {color:#038200; text-decoration:underline;}
+.cke_editable.gutter{
+	padding-right: 5rem;
+}
+img.placeholder{
+	display: block;
+	margin-bottom: 1rem;
+	width: auto;
+	height: auto;
+}
+img.inline.placeholder{
+	clear: both;
+	padding: 0 1rem 1rem 1rem;
+}
+img.inline.placeholder.align_right{
+	position: relative;
+	left: 100%;
+}
+img.placeholder.small{
+	width: 33%;
+}
+img.placeholder.medium{
+	width: 50%;	
+}
+img.placeholder.large{
+	width: 75%;
+}
+img.placeholder.full, img.linked.placeholder.align_right.full{
+	width: 100%;
+	left: 0;
+	margin-left: 0;
+	margin-right: 0;
+	padding-left: 0;
+	padding-right: 0;
+}
+img.linked.placeholder.align_right.full{
+	width: 112%;
+	margin-right: -11%;
+}
+img.inline.placeholder.align_right.small{
+	margin-left: -33%;
+}
+img.inline.placeholder.align_right.medium{
+	margin-left: -50%;
+}
+img.inline.placeholder.align_right.large{
+	margin-left: -75%;
+}
+img.inline.placeholder.align_center{
+	margin: 0 auto;
+}
+img.linked.placeholder.align_left{
+	float: left;
+	clear: left;
+	padding-right: 1rem;
+}
+img.linked.placeholder.align_right{
+	float: right;
+	clear: right;
+	padding-left: 1rem;
+	margin-right: -5rem;
+}

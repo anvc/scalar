@@ -27,6 +27,23 @@ $(document).on('paste', 'textarea', function (e, c) {  // Text is cut-and-paste 
 	}
 });
 
+//TODO: Remove this after editor changes are live
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+    return false;
+};
+
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
 
@@ -67,9 +84,8 @@ CKEDITOR.editorConfig = function( config ) {
             'fakeobjects,'+
             'iframe,'+
             'codemirror,'+
-            'scalar,'+
+            (getUrlParameter("useBetaEditor")?'scalarbeta,':'scalar,')+
             'floatingspace';
-            
 	config.skin = 'bootstrapck';
 	config.allowedContent = true;
 	config.extraAllowedContent = 'code pre a[*]';
