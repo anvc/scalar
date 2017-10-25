@@ -788,7 +788,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							data.isEdit = $(this).data('isEdit');
 							data.attrs["data-widget"] = data.type;
 							if (timeline_data_type == 'node') {
-								var nodes = $('#bootbox-content-selector-content .timeline_node_selection').data('node_selector').serialize_nodes();
+								var nodes = $('#bootbox-content-selector-content .timeline_node_selection').data('node_selection_dialogue').serialize_nodes();
 								data.attrs['data-nodes'] = nodes;
 								if (data.attrs['data-nodes'] == undefined || data.attrs['data-nodes'].length == 0) {
 									alert("Please select Scalar content that contains your timeline's temporal data.");
@@ -874,7 +874,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							data.attrs["data-widget"] = data.type;
 							data.isEdit = $(this).data('isEdit');
 
-							data.attrs['data-nodes'] = $('#bootbox-content-selector-content .map_node_selection').data('node_selector').serialize_nodes();
+							data.attrs['data-nodes'] = $('#bootbox-content-selector-content .map_node_selection').data('node_selection_dialogue').serialize_nodes();
 							if (data.attrs['data-nodes'] == undefined || data.attrs['data-nodes'].length == 0) {
 								alert("Please select at least one geotagged Scalar item.");
 								return false;
@@ -914,7 +914,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var data = { type: "carousel", attrs: {} };
 							data.attrs["data-widget"] = data.type;
 							data.isEdit = $(this).data('isEdit');
-							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection').data('node_selector').serialize_nodes();
+							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .carousel_multi_selection').data('node_selection_dialogue').serialize_nodes();
 							if (data.attrs["data-nodes"] == '') {
 								alert("Please select at least one media item for your carousel widget.");
 								return false;
@@ -958,7 +958,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var data = { type: "card", attrs: {} };
 							data.attrs["data-widget"] = data.type;
 							data.isEdit = $(this).data('isEdit');
-							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection').data('node_selector').serialize_nodes();
+							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .card_multi_selection').data('node_selection_dialogue').serialize_nodes();
 							if (data.attrs["data-nodes"] == '') {
 								alert("Please select at least one item for your card widget.");
 								return false;
@@ -2436,7 +2436,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		} else {
 			init_promise.resolve();
 		}
-		$(this).data('node_selector',{
+		$(this).data('node_selection_dialogue',{
 			serialize_nodes :  $.proxy(function() {
 					if ($(this).data('nodes') == undefined) {
 						return '';
