@@ -131,29 +131,25 @@ function select_interface(melon) {
    	};
    	if ('cantaloupe'==melon_obj['meta']['slug']) {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
-		var margin_nav = ('undefined'==typeof($title.children(":first").attr('data-margin-nav'))) ? 0 : 1;
+		var margin_nav = ('undefined'==typeof($title.children(":first").attr('data-margin-nav'))) ? false : true;
 		var $margin_nav = $('<div class="checkbox" style="display:inline-block;"><label for="margin-nav"><input type="checkbox" id="margin-nav" value="1" /> Display navigation buttons in margins?</label></div>').appendTo($wrapper);
-		$wrapper.find('#margin-nav').val(margin_nav).change(function() {
+		$wrapper.find('#margin-nav').prop('checked', margin_nav).change(function() {
 			var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 			if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 			var $span = $title.children(':first');
 			var prop_arr = ['margin-nav'];
-			var all_false = true;
 			for (var j in prop_arr) {
 				var prop = prop_arr[j];
 				var make_true = ($('#'+prop).is(':checked')) ? true : false;
-				console.log('make_true: '+make_true);
-				all_false = (all_false && !make_true) ? true : false;
 				if (make_true) {
 					$span.attr('data-'+prop, 'true');
 				} else {
 					$span.removeAttr('data-'+prop);
 				}
 			}
-			if(all_false && $title.children(':first').is('span')) {
+			if($title.children(':first').is('span') && !$title.children(':first').get(0).attributes.length) {
 				$title.children(':first').contents().unwrap();
 			}
-			console.log($title.html());
 			$('input[name="title"]').val( $title.html() );
 		});
    	};
@@ -170,6 +166,7 @@ function select_interface(melon) {
 	  <input type="hidden" name="action" value="do_save_style" />
 	  <input type="hidden" name="zone" value="styling" />
 	  <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
+	  <input type="hidden" name="slug" value="<?=$book->slug?>" />
 	  <input type="hidden" name="title" value="<?=htmlspecialchars($book->title)?>" />
       <div class="form-group">
         <label for="scope" class="col-sm-2 control-label">Reader interface</label>
