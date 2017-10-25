@@ -1661,10 +1661,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if (!opts.displayHeading) {
 					$dialogue_container.find('.panel-heading').hide();
 				} else {
-					height -= $(this).find('.panel-heading').outerHeight();
+					height -= $(this).find('.panel-heading').height();  // Change from outerHeight to height ~cd
+					height -= 8;  // This accounts for the top padding; the bottom padding overlaps the table so disregarding ~cd
 				};
 				height -= $(this).find('.panel-footer').outerHeight();
-				height -= 10;  // Update by Craig; orig value: 28
+				height -= 20;  // Magic number that is essentially the bottom margin of the whole container ~cd
 				$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
 				height -= $(this).find('.panel-body>table').outerHeight();
 				var orig_height = height;
@@ -1676,7 +1677,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$dialogue_container.find('.node_selector_table_body').height(height);
 			},this,$dialogue_container);
 			var shorten_description = function(description){
-				var max_chars = 200; //Magic number...
+				var max_chars = 200; // Magic number...
 				var words = description.split(" ");
 				var cur_length = 0;
 				var string = '';
@@ -1694,7 +1695,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 				}
 				return string;
-			}
+			};
 			
 			var updateNodeList = $.proxy(function(isLazyLoad){
 

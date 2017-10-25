@@ -85,18 +85,16 @@ $(document).ready(function() {
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
 		var prop_arr = ['duplicatable', 'hide-versions', 'joinable', 'hypothesis', 'thoughtmesh', 'auto-approve','email-authors'];
-		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
-			var make_true = $('#'+prop).is(':checked') ? true : false;
-			all_false = (all_false && !make_true) ? true : false;
+			var make_true = ($('#'+prop).is(':checked')) ? true : false;
 			if (make_true) {
 				$span.attr('data-'+prop, 'true');
 			} else {
 				$span.removeAttr('data-'+prop);
 			}
 		}
-		if(all_false && $title.children(':first').is('span')) {
+		if($title.children(':first').is('span') && !$title.children(':first').get(0).attributes.length) {
 			$title.children(':first').contents().unwrap();
 		}
 		$('input[name="title"]').val( $title.html() );

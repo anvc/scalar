@@ -1,9 +1,11 @@
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?$this->template->add_css('body {margin-bottom:0;}','embed')?>
-<!-- 
-<div class="alert alert-danger awaiting-comments" role="alert">You have comments awaiting moderation. <a href="javascript:void(null);" id="review-comments">Review &raquo;</a></div>
--->
+<?php 
+if ($replies_not_live > 0):
+	echo '<div class="alert alert-danger awaiting-comments" role="alert">You have comments awaiting moderation. <a href="javascript:void(null);" id="review-comments">Review &raquo;</a></div>'."\n";
+endif;
+?>
 <script>
 $(document).ready(function() {
 	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#tabs-pages');
@@ -49,6 +51,7 @@ function deleteOptions($content) {
 		$('.selector .botton_options_box button:nth-child(2)').removeProp('disabled');
 		var $selector = $('.selector');
 		$selector.find('.node_selector').remove();
+		// TODO: preserve correct filter
 		$selector.html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);
 	});
 };
