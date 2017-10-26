@@ -1001,7 +1001,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var data = { type: "summary", attrs: {} };
 							data.isEdit = $(this).data('isEdit');
 							data.attrs["data-widget"] = data.type;
-							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection').serialize_nodes();
+							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .summary_multi_selection').data('node_selection_dialogue').serialize_nodes();
 							if (data.attrs["data-nodes"] == '') {
 								alert("Please select at least one item for your summary widget.");
 								return false;
