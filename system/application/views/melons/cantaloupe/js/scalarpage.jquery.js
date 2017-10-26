@@ -219,7 +219,6 @@
             },
 
             handleMediaElementMetadata: function(event, link) {
-
                 var mediaelement = link.data('mediaelement'),
                     mediaWidth = mediaelement.model.element.find('.mediaObject').width(),
                     isInline = link.hasClass("inline"),
@@ -2929,7 +2928,7 @@
                                     var title = pathContents[i].current.title;
                                     var slug = pathContents[i].slug;
                                     var key = (pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner']) ? pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
-                                    if (-1==key.indexOf('://')) key = parent+key;
+                                    if (-1==key.indexOf('://')) key = base_url+key;
                                     var description = (pathContents[i].current.description) ? pathContents[i].current.description : ' ';
                                     var $description = $('<div>'+description+'</div>');
                                     if ($description.find('br').length) {  // If there is more than one paragraph (<br /><br />) only show the first paragraph
