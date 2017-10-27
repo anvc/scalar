@@ -1515,7 +1515,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"allowMultiple": false,
 			"rec": 0,
 			"ref": 0,
-			"defaultType": 'content',
+			"defaultType": 'composite',
 			"types": ['composite', 'media', 'path', 'tag', 'annotation', 'reply', 'term'],
 			"resultsPerPage": 50,
 			"allowChildren": false,
