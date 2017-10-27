@@ -176,14 +176,30 @@
                                 for(var n in res){
                                     var node = res[n];
                                     var splitList = $('<ul></ul>');
-                    
+
                                     var path_of = node.getRelatedNodes('path', 'outgoing');
                                     var features = node.getRelatedNodes('referee', 'outgoing');
                                     var tag_of = node.getRelatedNodes('tag', 'incoming');
                                     var annotates = node.getRelatedNodes('annotation', 'outgoing');
                                     var comments_on = node.getRelatedNodes('comment', 'outgoing');
 
-                                    console.log(path_of,features,tag_of,annotates,comments_on);
+
+                                    var hasRelations = path_of.length + features.length + tag_of.length + annotates.length + annotates.length > 0;
+                                    var hasDescription = (typeof node.current.description !== 'undefined' || typeof node.current.content !== 'undefined') &&
+                                                         (node.current.description !== null || node.current.content !== null) &&
+                                                         (node.current.description !== '' || node.current.content !== '');
+                                    var description = '';
+                                    if(hasDescription){
+                                        if(typeof node.current.description !== 'undefined' && node.current.description !== null && node.current.description !== ''){
+                                            description = node.current.description;
+                                        }else{
+                                            description = node.current.content;
+                                        }
+
+                                        var node_url = scalarapi.model.urlPrefix+node.slug;
+                                        description = $('<div>'+description+'</div>').text().substring(0,100)+'... <a class="moreLink" href="'+node_url+'">[More]</a>';
+                                    }
+
                                     if(path_of.length > 0){
                                         var newList = $('<li><strong>Contains</strong><ol></ol></li>').appendTo(splitList).find('ol');
                                         for(var i in path_of){
@@ -262,29 +278,50 @@
                                         }
                                     }
 
-                                    var nodeMatchItemHTML = '<li class="heading_font">'+
-                                                                '<a class="resultTitle" data-toggle="collapse" data-target="#result_'+node.slug.replace(/\//g, '_')+'" aria-expanded="false" aria-controls="result_'+node.slug.replace(/\//g, '_')+'">'+
-                                                                    '<small class="glyphicon glyphicon-triangle-right" aria-hidden="true"></small>'+node.getDisplayTitle()+
-                                                                '</a>'+
-                                                                '<div class="collapse" id="result_'+node.slug.replace(/\//g, '_')+'">'+
-                                                                    (!node.current.content?(
-                                                                        '<div class="content"><a class="moreLink" href="#">[no content]</a></div>'
-                                                                    ):(
-                                                                        '<div class="content">'+$('<div>'+node.current.content+'</div>').text().substring(0,100)+'... <a class="moreLink" href="#">[More]</a></div>'
-                                                                    ))+
-                                                                  '<div class="relations">'+
-                                                                  '</div>'+
-                                                                '</div>'+
-                                                            '</li>';
-                                    //var nodeMatchItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
-                                    var $nodeMatchItem = $(nodeMatchItemHTML).appendTo('#matchedNodes');
-                                    $nodeMatchItem.find('.relations').append(splitList);
-                                    $nodeMatchItem.find('.moreLink').click($.proxy(function(slug, e){
+                                    if(hasRelations || hasDescription){
+                                        var nodeMatchItemHTML = '<li class="heading_font">'+
+                                                                    '<a class="resultTitle" href="#">'+
+                                                                        '<small class="glyphicon glyphicon-triangle-right dropdownCaret" aria-hidden="true" data-toggle="collapse" data-target="#result_'+node.slug.replace(/\//g, '_')+'" aria-expanded="false" aria-controls="result_'+node.slug.replace(/\//g, '_')+'"></small>'+node.getDisplayTitle()+
+                                                                    '</a>'+
+                                                                    '<div class="collapse" id="result_'+node.slug.replace(/\//g, '_')+'">'+
+                                                                      '<div class="description"></div>'+
+                                                                      '<div class="relations"></div>'+
+                                                                    '</div>'+
+                                                                '</li>';
+                                                                console.log(nodeMatchItemHTML);
+                                    }else{
+                                        var nodeMatchItemHTML = '<li class="heading_font">'+
+                                                                    '<a class="resultTitle" href="#">'+
+                                                                        node.getDisplayTitle()+
+                                                                    '</a>'+
+                                                                '</li>';
+                                    }
+                                    
+                                    var $nodeMatchItem = $(nodeMatchItemHTML).appendTo('#matchedNodes').data('slug',node.slug);
+                                    
+                                    if(hasRelations){
+                                        $nodeMatchItem.find('.relations').append(splitList);
+                                    }
+
+                                    if(hasDescription){
+                                        $nodeMatchItem.find('.description').append('<div class="content">'+description+'</div>');
+                                    }
+                                    
+                                    $nodeMatchItem.find('.resultTitle').click(function(e){
                                         e.preventDefault();
                                         $('#editorialSidePanel').addClass('loading_nodes');
-                                        window.setTimeout($.proxy(function(slug){ this.scrollToNode(slug,false); },base,slug),1);
+                                        var slug = $(this).parents('li').data('slug');
+                                        window.setTimeout(function(){base.scrollToNode(slug,false);},1);
                                         return false;
-                                    },base, node.slug));
+                                    });
+                                    
+
+                                    $nodeMatchItem.find('.dropdownCaret').click(function(e){
+                                        $(this).parents('li').find('.collapse').collapse('toggle');
+                                        e.stopPropagation();
+                                        return false;
+                                    });
+                                    
                                     $nodeMatchItem.find('.collapse').collapse({toggle:false}).on('show.bs.collapse',function(){
                                         $(this).parents('li').find('.resultTitle small').removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
                                     }).on('hide.bs.collapse',function(){
@@ -668,7 +705,7 @@
         								'</div>'+
         								'<div class="col-xs-12 col-sm-4 col-md-3">'+
         									'<div class="dropdown state_dropdown">'+
-        										'<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="btn_text">'+stateName+'</span><span class="caret pull-right"></span></button>'+
+        										'<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret pull-right"></span><span class="btn_text">'+stateName+'</span></button>'+
         										'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
 
         	for(var stateClass in base.node_states){
@@ -730,10 +767,13 @@
                         $(this).data('unloading',false);
                         $(this).prop('contenteditable',true);
                         e.preventDefault();
+                        //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
                         var editor = CKEDITOR.inline( $(this).attr('id'), {
                             // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                            removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat, colorbutton, format, specialchar, indent, indentlist, list, blockquote, iframe, codeTag'
-                                                                                 :'codemirror, removeformat',
+                            removePlugins: $(this).hasClass('descriptionContent')?'scalar, scalarbeta, codemirror, removeformat, colorbutton, format, specialchar, indent, indentlist, list, blockquote, iframe, codeTag'
+                                                                                 :'scalar, codemirror, removeformat',
+                            extraPlugins: $(this).hasClass('descriptionContent')?''
+                                                                                 :'scalarbeta',
                             startupFocus: true,
                             allowedContent: true,
                             extraAllowedContent : 'code pre a[*]',
@@ -774,7 +814,7 @@
                         editor.on('focus', $.proxy(function(editor,base,ev) {
                                 if($(this).hasClass('descriptionContent')) return;
                                 //base.stripPlaceholders($(this));
-                                editor.plugins['scalar'].init(editor);
+                                editor.plugins['scalarbeta'].init(editor);
                         },this,editor,base));
                         editor.on('blur',function(){
                             return false;

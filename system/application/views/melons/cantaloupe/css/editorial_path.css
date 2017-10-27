@@ -83,13 +83,20 @@ body.shortHeader #editorialSidePanel>.affix{
 	outline: 0;
 	border: 0;
 	background-color: transparent;
-
 }
 #editorialSidePanel.tall #editorialOutline li>a, #editorialOutline li.active>a, #matchedNodes li>a>small{
 	color: #000;
 }
+#matchedNodes>li{
+	padding-left: 2rem;
+}
+
 #matchedNodes li>a{
 	cursor: pointer;
+}
+#matchedNodes li .dropdownCaret{
+	float: left;
+	margin-left: -2rem;
 }
 #matchedNodes li>a>small{
 	margin-right: 1rem;

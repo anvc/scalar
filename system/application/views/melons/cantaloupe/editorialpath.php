@@ -47,8 +47,8 @@
 					<span class="text-muted">Content order: </span>
 					<div class="dropdown" id="contentOrderDropdown">
 					  <button class="btn btn-default dropdown-toggle" type="button" id="contentOrderDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-					    <span class="text">Name</span>
 					    <span class="caret pull-right"></span>
+					    <span class="text">Name</span>
 					  </button>
 					  <ul class="dropdown-menu dropdown-menu-left" aria-labelledby="contentOrderDropdownButton">
 					    <li class="active"><a href="#" data-sort="Name">Name</a></li>
