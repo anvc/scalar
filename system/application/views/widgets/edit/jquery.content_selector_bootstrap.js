@@ -1534,7 +1534,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		$.extend(opts, options);
 
 		var current_type = opts.defaultType;
-
+		if(opts.types.indexOf(current_type) === -1){
+			opts.defaultType = current_type = opts.types[0];
+		}
+		
 		var init_promise = $.Deferred();
 
 		var dialogue_container = '<div class="panel-default node_selector"> \
