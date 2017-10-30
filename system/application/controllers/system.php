@@ -360,6 +360,10 @@ class System extends MY_Controller {
 					$skip_captcha = (isset($array['zone']) && 'all-books'==$array['zone'] && $this->data['login_is_super']) ? true : false;
 					$duplicate = (is_numeric($array['book_to_duplicate']) && !empty($array['book_to_duplicate'])) ? true : false;
 					$skip_captcha = true;
+					if (empty($array['title'])) {
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=1');
+						exit;
+					}
 					try {
 						if ($duplicate) {
 							$book_id = (int) $this->books->duplicate($array, (($skip_captcha)?false:true));
@@ -389,11 +393,22 @@ class System extends MY_Controller {
 				case 'do_add_user':  // Admin: All Users
 					if (!$this->data['login_is_super']) $this->kickout();
 					$array = $_POST;
-					$book_title = (isset($array['book_title'])  && !empty($array['book_title']) && 'title of first book (optional)'!=$array['book_title']) ? trim($array['book_title']) : null;
-					$user_id = (int) $this->users->add($array);
-					if (!empty($user_id) && !empty($book_title)) {
-						$book_id = $this->books->add(array('title'=>$book_title), false);  // Don't test CAPTCHA
-						if (!empty($book_id)) $this->books->save_users($book_id, array($user_id), 'author');
+					if (empty($array['email']) || empty($array['fullname']) || empty($array['password_1'])) {
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=1');
+						exit;
+					}
+					if ($array['password_1'] != $array['password_2']) {
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=2');
+						exit;
+					}
+					try {
+						$array['password'] = $array['password_1'];
+						unset($array['password_1']);
+						unset($array['password_2']);
+						$user_id = (int) $this->users->add($array);
+					} catch (Exception $e) {
+						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=3');
+						exit;
 					}
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
 					exit;
@@ -426,6 +441,30 @@ class System extends MY_Controller {
 				case "get_recent_book_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
 					$this->data['recent_book_list'] = $this->books->get_all_with_creator(0, false,'created','desc',500);
+					break;
+				case 'do_delete_users':  // Admin: Tools > List recently created users
+					if (!$this->data['login_is_super']) $this->kickout();
+					$zone = $this->data['zone'];
+					$user_ids = explode(',',$_REQUEST['user_ids']);
+					$delete_books = (1==(int)$_REQUEST['delete_books']) ? true : false;
+					foreach ($user_ids as $user_id) {
+						$user_id = (int) $user_id;
+						if (empty($user_id)) continue;
+						$user = $this->users->get_by_user_id($user_id);
+						if (empty($user)) continue;
+						if ($delete_books) {
+							$books = $this->users->get_books($user_id);
+							foreach ($books as $book) {
+								if (!$this->users->is_a($book->relationship, 'author')) continue;
+								$this->books->delete($book->book_id);
+							}
+						}
+						$this->users->delete($user_id);
+					}
+					// Don't bresk
+				case "get_recent_users":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$this->data['recent_user_list'] = $this->users->get_all(0, true, 'user_id', 'desc',500);
 					break;
 				case "get_email_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
@@ -468,6 +507,7 @@ class System extends MY_Controller {
 		$this->data['book'] = ($book_id) ? $this->books->get($book_id) : array();
 		$this->data['title'] = (!empty($this->data['book'])) ? $this->data['book']->title.' Dashboard' : $this->config->item('install_name').': Dashboard';
 		$this->data['cover_title'] = 'Dashboard';
+		$this->data['register_key'] = $this->config->item('register_key');
 
 		// Get general data for each zone; this is useful for displaying red dots for "not live" content in each tab, even though it's a performance hit
 		$this->data['current_book_users'] =
@@ -554,7 +594,6 @@ class System extends MY_Controller {
 			 			$this->data['books'] = array();
 			 		}
 					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();
-
 					break;
 			}
 		}

@@ -1,20 +1,8 @@
 <?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
-<? if (isset($_REQUEST['action']) && 'deleted'==$_REQUEST['action']): ?>
-<div class="saved">
-<a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
-Book has been deleted
-</div><br />
-<? endif ?>
-<? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
-<div class="saved">
-<a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
-Book has been added
-</div><br />
-<? endif ?>
+
 		<style>
 		.admin-nav-wrap {
-			margin:7px 0;
-			float:left;
+			margin:12px 0px 0px 0px;
 			width:100%;
 		}
 		.book-search-form {
@@ -52,8 +40,9 @@ Book has been added
 				var rel = $this.attr('rel');
 				var id = $this.parents('tr').find("td[property='id']").html();
 				var ids = new Array;
-				var elements = $this.parent().find("span");
+				var elements = $this.closest('td').find("span");
 				for (var j = 0; j < elements.length; j++) {
+					if (!$(elements[j]).attr('id')) continue;
 					ids.push( $(elements[j]).attr('id') );
 				}
 				var post = {'id':id};
@@ -67,13 +56,13 @@ Book has been added
 				$.post('api/'+resource, post, function(data) {
 					selector.html('');
 					var option = $('<option value="0">(Select none)</option>');
-					selector.append(option);
 					for (var j = 0; j < data.length; j++) {
 						var rel_id = data[j].user_id;
 						if ('undefined'==typeof(rel_id)) rel_id = data[j].book_id;
 						var title = data[j].fullname;
 						if ('undefined'==typeof(title)) title = data[j].title;
 						var selected = (ids.indexOf(rel_id) != -1) ? true : false;
+						console.log(ids);
 						var option = $('<option value="'+rel_id+'"'+((selected)?' selected':'')+'>'+title+'</option>');
 						selector.append(option);
 					}
@@ -124,52 +113,37 @@ Book has been added
 		}
 		</script>
 
-		<form style="display:inline-block" action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-books" method="post">
+		<? if (isset($_GET['error']) && $_GET['error']==1): ?>
+		<div class="error" style="max-width:none; margin-bottom:16px;">Title is a required field<a style="float:right;" href="?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-books#tabs-all-books">clear</a></div>
+		<? endif; ?>
+		<? if (isset($_REQUEST['action']) && 'deleted'==$_REQUEST['action']): ?>
+		<div class="saved" style="max-width:none; margin-bottom:16px;">
+		<a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
+		Book has been deleted
+		</div>
+		<? endif ?>
+		<? if (isset($_REQUEST['action']) && 'added'==$_REQUEST['action']): ?>
+		<div class="saved" style="max-width:none; margin-bottom:16px;">
+		<a style="float:right;" href="?zone=all-books#tabs-all-books">clear</a>
+		Book has been added and is present in the list below
+		</div>
+		<? endif ?>
+
+		<form style="margin:10px 0px 18px 0px; white-space:nowrap;" action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-books" method="post">
 		<input type="hidden" name="zone" value="all-books" />
 		<input type="hidden" name="action" value="do_add_book" />
-		Add new book: <input type="text" name="title" value="title" style="width:200px;" onfocus="if (this.value=='title') this.value='';" />&nbsp;
-		<select name="user_id">
-			<option value="0">(Initial author)</option>
+		<span style="float:left; margin-right:6px;">Add new book:</span>
+		<input type="text" name="title" value="" placeholder="Title" style="width:200px;float:left;" />
+		<input type="text" name="subtitle" value="" placeholder="Subtitle" style="width:200px;float:left;margin-left:8px;" />
+		<select name="user_id" style="font-size:12px; float:left; margin-left:8px; margin-right:8px; padding-top:1px; padding-bottom:0px;">
+			<option value="0">Initial author</option>
 		<? foreach ($users as $user): ?>
 			<option value="<?=$user->user_id?>"><?=$user->fullname?></option>
 		<? endforeach ?>
-		</select>&nbsp;
-		<input type="submit" value="Go" class="generic_button" />
-		</form>
-		<div class="admin-nav-wrap">
-		<? if (!empty($books)): ?>
-		<?
-			if((count($books)-1) != $total)
-				$count = count($books);
-			else
-				$count = count($books)-1;
-		?>
-		<? if ($start !== 0 || (count($books)-1) == $total): ?>
-		<? if($start !== 0): ?>
-		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
-		&nbsp;
-		<? endif ?>
-		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
-		<? if(count($books)-1 == $total): ?>
-		 &nbsp;		<span class="next"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
-		<? endif ?>
-		<form style="display:inline-block" class="jump-form">
-		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
-		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
-		 </form>
-		 &nbsp; &nbsp; &nbsp; &nbsp;
-		<? endif ?>
-		<? endif ?>
-		<form class="book-search-form">
-		 	<input placeholder="Find Book" type="text" class="book-search" size="20" />
-			<input style="vertical-align:bottom;" type="submit" value="Search" class="generic_button" />
-			<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing book ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
-			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-books">clear</a>
-		 </form>
-		</div>
-
-
+		</select>
+		<input type="submit" value="Add" style="padding:3px 8px 1px 8px !important; float:left;" class="generic_button default" />
 		<br clear="both" />
+		</form>
 
 		<div class="table_wrapper">
 		<table cellspacing="0" cellpadding="0" class="tablesorter">
@@ -192,6 +166,7 @@ Book has been added
 			<tbody>
 <?
 		if (!empty($books)) {
+			$count = count($books);
 			for($i=0;$i<$count;$i++) {
 				$desc_excerpt = create_excerpt($books[$i]->description);
 				if (strlen($books[$i]->description) == strlen($desc_excerpt)) $desc_excerpt = null;
@@ -222,7 +197,7 @@ Book has been added
 				}
 				echo '<p><a href="javascript:;" class="value_select_trigger multiple generic_button" resource="get_system_users" rel="save_book_users" style="white-space:nowrap;">Edit users</a></p>';
 				echo "</td>\n";
-				echo '<td style="white-space:nowrap;">'.date( 'M j, Y g:i A', strtotime($books[$i]->created) )."</td>\n";
+				echo '<td style="white-space:nowrap;">'.date( 'M j, Y', strtotime($books[$i]->created) )."</td>\n";
 				echo "</tr>\n";
 			}
 		}
@@ -231,7 +206,6 @@ Book has been added
 		</table>
 		</div>
 
-		<? if (!empty($books)): ?>
 		<div class="admin-nav-wrap">
 		<?
 			if((count($books)-1) != $total)
@@ -246,13 +220,18 @@ Book has been added
 		<? endif ?>
 		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($books)-1 == $total): ?>
-		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
+		 &nbsp;		<span class="next"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
 		<? endif ?>
 		<form style="display:inline-block" class="jump-form">
 		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
 		 	<input style="text-align:right" placeholder="<?=$start/$total+1?>" type="text" class="jump-to-page" size="2" />
 		 </form>
+		 &nbsp; &nbsp; &nbsp; &nbsp;
 		<? endif ?>
+		<form class="book-search-form">
+		 	<input placeholder="Search for a book" type="text" class="book-search" size="20" />
+			<input type="submit" value="Search" class="generic_button" style="padding:3px 8px 1px 8px !important; vertical-align:top;" />
+			<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing book ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
+			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-books">clear</a>
+		 </form>
 		</div>
-		<? endif ?>
-		<br />

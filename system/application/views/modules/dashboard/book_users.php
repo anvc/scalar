@@ -17,7 +17,7 @@
 		});
 
 		function resizeList() {
-    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 100))+'px'); // magic number to get list height right
+    		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 72))+'px'); // magic number to get list height right
 		}
 
 		function add_book_user(book_id) {
@@ -194,11 +194,10 @@
 		</tbody>
 		</table>
 		</div>
-		<div style="padding:20px 0 0 0">
+		<div style="padding:20px 0 6px 0">
 			<? if (!empty($book) && $login_is_super): ?>
 			<a class="generic_button large" title="Super admin feature" href="javascript:void(null);" onclick="add_book_user(<?=$book->book_id?>);" id="connect_book_user_link">Add a user (admin)</a>
 			<? endif ?>
 			<a class="generic_button large" href="javascript:void(null);" onclick="request_book_user(<?=$book->book_id?>)" id="request_book_user_link">Add a user</a>
 		</div>
-		<br />
 <? endif ?>
