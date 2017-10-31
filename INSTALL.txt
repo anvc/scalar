@@ -19,6 +19,14 @@ seem to be working properly.  Please make sure short_open_tag is turned on in PH
 ***
 
 ***
+The Scalar webroot needs to be writable by the web server in order to create Books. 
+
+    chmod 0775 ./(scalar root folder)
+    
+When Scalar creates the book folders it should chmod the newly created folders to 0775 (or whatever is set in system/application/config/local_settings.php
+***
+
+***
 You can download the most recent Scalar build from GitHub. However, we also occassionally package Scalar into a GitHub Release,
 downloadable at https://github.com/anvc/scalar/releases. Installing from a release ensures that the Scalar team has tested its contents on development and 
 live environments (e.g., scalar.usc.edu).  To update an existing Scalar install, see UPDATE.txt.
