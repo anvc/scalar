@@ -2510,7 +2510,11 @@
                     }
 
                     var banner = currentNode.banner;
-                    if ('undefined' != typeof(banner) && banner.length && -1 == banner.indexOf('//')) banner = $('link#parent').attr('href') + banner;
+                    if ('undefined' != typeof(banner) && banner.length && -1 == banner.indexOf('//')) {
+                    	banner = $('link#parent').attr('href') + banner;
+                    } else if ('undefined' == typeof(banner) || !banner) {
+                    	banner = '';
+                    };
                     $('[property="art:url"]').hide();
                     if ('.mp4'==banner.substr(banner.length-4, 4)) {  // The controller looks for ".mp4" so do the same here ~cd
                     	element.addClass('has_video').prepend('<div class="video_wrapper"><video autoplay muted loop playsinline preload="none"><source src="'+banner+'" type="video/mp4"></video></div>');
@@ -2603,7 +2607,11 @@
 
                 case 'image_header':
                     var banner = currentNode.banner;
-                    if ('undefined' != typeof(banner) && banner.length && -1 == banner.indexOf('//')) banner = $('link#parent').attr('href') + banner;
+                    if ('undefined' != typeof(banner) && banner.length && -1 == banner.indexOf('//')) {
+                    	banner = $('link#parent').attr('href') + banner;
+                    } else if ('undefined' == typeof(banner) || !banner) {
+                    	banner = '';
+                    };
                     $('.page').css('padding-top', '5rem');
                     $('article > header').before('<div class="image_header"><div class="title_card"></div></div>');
                     if ('.mp4'==banner.substr(banner.length-4, 4)) {  // The controller looks for ".mp4" so do the same here ~cd
@@ -2928,7 +2936,11 @@
                                     var title = pathContents[i].current.title;
                                     var slug = pathContents[i].slug;
                                     var key = (pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner']) ? pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
-                                    if (-1==key.indexOf('://')) key = base_url+key;
+                                	if ('undefined'==typeof(key)) {
+                                		key = '';
+                                	} else if (-1==key.indexOf('://')) {
+                                    	key = base_url+key;
+                                    }
                                     var description = (pathContents[i].current.description) ? pathContents[i].current.description : ' ';
                                     var $description = $('<div>'+description+'</div>');
                                     if ($description.find('br').length) {  // If there is more than one paragraph (<br /><br />) only show the first paragraph
