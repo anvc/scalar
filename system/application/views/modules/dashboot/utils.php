@@ -25,6 +25,14 @@ $(document).ready(function() {
 		};
 	});
 });
+function setupAPIExplorer() {
+	var apiExplorerFrame = window.frames['api-explorer-frame'];
+	apiExplorerFrame.setBookURL( $('link#parent').attr('href'));
+}
+function resizeIframe(obj) {
+	obj.style.height = 0;
+	obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+}
 </script>
 <div class="container-fluid properties">
   <div class="row">
@@ -71,18 +79,25 @@ $(document).ready(function() {
 	     	</p>
     	</div>
     	<div class="section" id="api-explorer" data-iframe-url="">
-    		<!-- 
     		<h4>API Explorer</h4> 
-    		<p class="m">
-				You can use this utility to:
+    		<div class="m">
+				<p>You can use this utility to:</p>
 				<ul>
 					<li>Generate API queries for this Scalar book</li>
 					<li>Grab an excerpt of this book to copy to another using the Import tool</li>
 					<li>Get word counts for specific pages, groups of pages, or the entire book</li>
-				</ul>  		
-    		</p>
-    		-->
-    		<iframe class="i" src="http://scalar.usc.edu/tools/apiexplorer/"></iframe>
+				</ul> 		
+    		</div><?php
+	        $path = 'system/application/plugins/apiexplorer/index.html';
+	        $get_vars = '';
+	        echo '<div class="plugin apiexplorer">';
+	        if (file_exists(FCPATH.$path)) {
+	        	echo '<iframe id="api-explorer-frame" style="width:100%; min-height:700px; border:none;" onload="resizeIframe(this);" src="'.confirm_slash(base_url()).$path.$get_vars.'"></iframe>'."\n";
+	        } else {
+	        	echo '<div style="padding:10px; border:solid 1px #cccccc; background-color:#eeeeee;">The <b>API Explorer</b> plugin can\'t be found.  Please contact a system administrator to install the plugin in a folder named <b>apiexplorer</b> at <b>/system/application/plugins/</b>.</div>';
+	        }
+	        echo '</div>';
+	        ?>
     	</div>
     </section>
   </div>
