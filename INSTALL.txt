@@ -117,6 +117,9 @@ Scalar, you will have access to all Scalar books and additional admin tabs in th
 even super admins can't save changes to others' books unless they are explicitly provided "author" privilege  
 in the "Users" tab of the book's "Dashboard" area.  
 
+Make sure to read through the Scalar 2 Guide, particularly the Advanced Topics section, for useful information
+including how to keep unwanted users from registering on your Scalar install: http://scalar.usc.edu/works/guide2/advanced-topics
+
 In the event your users wish to transfer Scalar books from other installs into your Scalar install, we have a  
 Scalar Transfer Tool available in a different repository: https://github.com/Michael628/scalar-book-transfer-tool   
 Simply download the package then place the ZIP's contents into the system/application/plugins/transfer folder.   
