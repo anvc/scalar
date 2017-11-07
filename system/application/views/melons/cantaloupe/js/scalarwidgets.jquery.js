@@ -409,8 +409,8 @@
                   }
                   timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
                   $timeline.height(timelineHeight - 10);
-
-                  var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200});
+                  var zoom = $widget.data('zoom')?$widget.data('zoom'):2;
+                  var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200,scale_factor:zoom});
 
                   $(this).off("slotCreated");
                 });

@@ -1173,6 +1173,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					formattingOptions.Size = ['Full'];
 				}
 
+
+				if (options.type == "timeline") {
+					formattingOptions.Zoom = ['25%','50%','100%','200%','400%'];
+				}
+
 				var formattingSelection = '<div class="form-horizontal heading_font">';
 				for (var o in formattingOptions) {
 
@@ -1184,7 +1189,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					} else {
 						var values = '<select class="btn btn-default" name="' + o.toLowerCase() + '">';
 						for (var v in formattingOptions[o]) {
-							values += '<option value="' + formattingOptions[o][v].toLowerCase().replace(/ /g, "_") + '">' + formattingOptions[o][v] + '</option>';
+							if(o == "Zoom"){
+								var val = parseFloat(formattingOptions[o][v].replace('%',''))/50.0;
+								values += '<option value="' + val + '">' + formattingOptions[o][v] + '</option>';
+							}else{
+								values += '<option value="' + formattingOptions[o][v].toLowerCase().replace(/ /g, "_") + '">' + formattingOptions[o][v] + '</option>';
+							}
 						}
 						values += '</select>';
 
@@ -1205,6 +1215,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$content.find('#caption_text_group').hide();
 					}
 				});
+
+				$content.find('select[name="zoom"]').val('2');
 
 				$content.find('select[name="textwrap"]').change(function() {
 					if ($(this).val() == 'wrap') {

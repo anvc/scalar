@@ -2863,7 +2863,8 @@
                                 $timeline_container.height(height);
                                 $timeline.height(height + 15);
 
-                                timeline = new TL.Timeline($timeline_container.get(0), tempdata);
+                                var zoom = 'undefined' !== typeof timeline_zoom?timeline_zoom:2;
+                                timeline = new TL.Timeline($timeline_container.get(0), tempdata,{scale_factor:zoom});
 
                                 $('body').addClass('timeline');
                                 $(window).on('resize', function() {
