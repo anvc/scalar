@@ -518,7 +518,7 @@
                     url_attributes: ['href', 'src'],
                     autoplay: link.attr('data-autoplay') == 'true',
                     solo: link.attr('data-caption') == 'none',
-                    getRelated: ($('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0), // only get related content if this is a media page
+                    getRelated: (typeof currentNode !== 'undefined' && $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0), // only get related content if this is a media page
                     typeLimits: typeLimits
                 };
                 $.extend(options, baseOptions);

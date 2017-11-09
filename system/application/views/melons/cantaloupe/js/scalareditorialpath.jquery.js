@@ -729,7 +729,6 @@
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
-            console.log(node.domType.singular);
             if(node.domType.singular == "media"){
                 $node.find('.bodyContent').addClass('media');
             }
@@ -840,7 +839,8 @@
                                 }
                                 $(this).find('.placeholder').off('hover');
                                 $(this).prop('contenteditable',false);
-
+console.log($(this).prop('contenteditable'));
+base.updatePlaceholders($(this));
                                 //Save the current watcher then unload it.
                                 if(base.wasDirty){
                                     base.saveNode(base.currentEditNode);
@@ -909,7 +909,32 @@
 	    	$('#editorialSidePanel>div,#editorialSidePanel>.scrollUp').width($('#editorialSidePanel').width());
             $('#editorialSidePanel>div .collapse').css('max-height',$(window).height()-100);
 	    };
+        base.updatePlaceholders = function($node){
 
+            var renderPlaceholderContent = function($placeholder){
+                if($placeholder.hasClass('opened')){
+                    return false;
+                }
+                $placeholder.addClass('opened');
+                //Load the media or widget!
+                $tempLink = $('a[data-linkid='+$placeholder.data('linkid')+']').clone().appendTo($placeholder.find('.body').html('')).hide();
+                $tempLink.data('fitToContainer',true);
+                if($placeholder.data('widget')){
+                    //Widget!
+                    widgets.handleWidget($tempLink);
+                }else{
+                    //Media!
+                    
+                }
+            }
+
+            $node.find('.placeholder').off('click').click(function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                renderPlaceholderContent($(this));
+                return false;
+            });
+        }
         base.updateLinks = function($node){
             base.stripPlaceholders($node.find('.bodyContent'));
             var linkCount = 0; //$node.find('.bodyContent a[resource]').length + $node.find('.bodyContent a[data-widget]').length;
@@ -948,10 +973,6 @@
                 
                 $(this).attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
                 $placeholder.attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
-                $placeholder.click(function(e){
-                    e.preventDefault();
-                    e.stopPropagation();
-                });
 
                 if($(this).is('[resource]')){
                     (function($placeholder,resource,$node){
@@ -966,7 +987,6 @@
                                     thumbnail_url = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
                                 }
                             }
-                            console.log(media);
                             if(typeof description !== 'undefined' && description != null){
                                 $placeholder.find('content').append('<div class="description">'+description+'</div>');
                             }
@@ -1036,6 +1056,7 @@
                 $node.addClass('gutter');
             }
 
+            base.updatePlaceholders($node);
             $node.trigger('initialNodeLoad').off('initialNodeLoad');
         };
 

@@ -299,6 +299,10 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding: 1rem;
     white-space: normal;
 }
+#editorialPathContents .editorial_node .bodyContent .placeholder.opened .content .body{
+	padding: 1px;
+	background-color:#eee;
+}
 #editorialPathContents .editorial_node .bodyContent .placeholder:before{
 	display: none;
 }

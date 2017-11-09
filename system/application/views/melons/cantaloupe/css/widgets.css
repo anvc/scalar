@@ -19,6 +19,9 @@
 	background-color: #fff;
 	margin-bottom: 2.4rem;
 }
+.placeholder .widget_slot .widgetContainer{
+	margin-bottom: 0;
+}
 .widget_slot .widgetContainer.highlighted{
 	background-color: rgba(197,220,235,.5);
 }
@@ -147,6 +150,11 @@
 
 .widgetContainer .mediaElementFooter p{
 	margin-bottom: 2.4rem;
+}
+.placeholder .widgetContainer .mediaElementFooter p{
+	margin-bottom: 0;
+	padding-left: 1rem;
+	padding-bottom: 1.2rem;
 }
 /*div[data-widget=card] .thumbnail { height: 30rem; }*/
 div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }

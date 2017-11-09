@@ -174,10 +174,13 @@
 }
 
 .modal-backdrop.in{
-	z-index: 10000;
+	z-index: 1049;
 }
 .bootbox.modal{
-	z-index: 10001;
+	z-index: 1050;
+}
+.cke_float{
+	z-index: 1048 !important;
 }
 
 .scalarEditorMediaWidgetMenu{

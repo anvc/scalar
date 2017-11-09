@@ -537,7 +537,12 @@
                } else {
                  // this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
                  // keeping them synced up helps keep media vertically aligned in galleries
-                 var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
+                 if($widget.parents('.placeholder').length > 0){
+                  var galleryHeight = Math.min(200,base.options.maxWidgetHeight,maxWidgetHeight);
+                 }else{
+                  var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
+                 }
+                 
                  if($widget.data('container').data('size') == 'full'){
                     galleryHeight += 100;
                  }
@@ -594,6 +599,7 @@
                                 '<a href="' + node.url + '" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
+                        console.log(link,mediaContainer,galleryHeight);
                         page.addMediaElementForLink(link, mediaContainer, galleryHeight, {vcenter: true});
                     }
                };
@@ -813,6 +819,18 @@
          };
 
          base.calculateSize = function($widget){
+           if($widget.parents('.placeholder').length > 0){
+            var $container = $widget.data('container');
+            var $slot = $widget.data('slot');
+            var widgetType = $widget.data('widget');
+            $slot.addClass('widget_'+widgetType);
+            if(widgetType == 'carousel'){
+               $container.css('min-height','200px');
+             }
+             $slot.appendTo($widget.parents('.placeholder').find('.body'));
+            $('body').trigger("widgetElementLoaded");
+            return;
+           }
            var bodyWidth = page.bodyCopyWidth;
            var $slot = $widget.data('slot');
            var $container = $widget.data('container');
