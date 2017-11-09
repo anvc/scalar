@@ -766,6 +766,9 @@
                     }
                     
                     if($(this).data('editor')==null){
+                        if($(this).find('.placeholder.opened').length > 0){
+                            base.closePlaceholders($(this));
+                        }
                         $(this).data('unloading',false);
                         $(this).prop('contenteditable',true);
                         e.preventDefault();
@@ -909,6 +912,15 @@ base.updatePlaceholders($(this));
 	    	$('#editorialSidePanel>div,#editorialSidePanel>.scrollUp').width($('#editorialSidePanel').width());
             $('#editorialSidePanel>div .collapse').css('max-height',$(window).height()-100);
 	    };
+
+        base.closePlaceholders = function($node){
+            $node.find('.placeholder.opened').each(function(){
+                $(this).find('.body').remove();
+                $(this).find('.oldBody').removeClass('oldBody').addClass('body').show();
+                $(this).removeClass('opened');
+            });
+        };
+
         base.updatePlaceholders = function($node){
 
             var renderPlaceholderContent = function($placeholder){
@@ -917,6 +929,7 @@ base.updatePlaceholders($(this));
                 }
                 $placeholder.addClass('opened');
                 //Load the media or widget!
+                $placeholder.find('.content').append($placeholder.find('.body').clone().hide().addClass('oldBody').removeClass('body'));
                 $tempLink = $('a[data-linkid='+$placeholder.data('linkid')+']').clone().appendTo($placeholder.find('.body').html('')).hide();
                 $tempLink.data('fitToContainer',true);
                 if($placeholder.data('widget')){
