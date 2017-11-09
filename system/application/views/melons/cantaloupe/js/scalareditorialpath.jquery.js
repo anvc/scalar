@@ -471,7 +471,7 @@
                     //Type
                     base.nodeList.sortedByType = base.nodeList.sortedByName.slice();
                     base.nodeList.splitByType = {};
-                    var filterTypes = [];
+                    var filterTypes = ['all'];
                     for(var node in base.nodeList.sortedByType){
                         var a = base.nodeList.sortedByType[node];
                         if(typeof a.domType == 'undefined'){
@@ -488,16 +488,19 @@
 
                     filterTypes.sort();
                     base.currentFilterType = filterTypes[0];
-                    $('#filterTypeText').text(base.currentFilterType);
-                    base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
+                    $('#filterTypeText').text(base.ucwords(base.currentFilterType));
+                    base.fuse = new Fuse(base.nodeList.sortedByName, base.searchOptions);
                     for(var t in filterTypes){
                         $('<li><a role="button" data-type="'+filterTypes[t]+'" href="#">'+base.ucwords(filterTypes[t])+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').find('a').click(function(e){
                                 e.preventDefault();
                                 $('#editorialPathSearchText').removeClass('resolved');
-                                console.log($(this).data('type'));
                                 base.currentFilterType = $(this).data('type');
-                                $('#filterTypeText').text(base.currentFilterType);
-                                base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
+                                $('#filterTypeText').text(base.ucwords(base.currentFilterType));
+                                if(base.currentFilterType === 'all'){
+                                    base.fuse = new Fuse(base.nodeList.sortedByName,base.searchOptions);
+                                }else{
+                                    base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
+                                }
                         });
                     }
 
