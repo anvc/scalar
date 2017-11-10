@@ -135,7 +135,7 @@
 		<span style="float:left; margin-right:6px;">Add new book:</span>
 		<input type="text" name="title" value="" placeholder="Title" style="width:200px;float:left;" />
 		<input type="text" name="subtitle" value="" placeholder="Subtitle" style="width:200px;float:left;margin-left:8px;" />
-		<select name="user_id" style="font-size:12px; float:left; margin-left:8px; margin-right:8px; padding-top:1px; padding-bottom:0px;">
+		<select name="user_id" style="font-size:12px; float:left; margin-left:8px; margin-right:8px; padding-top:1px; padding-bottom:0px; max-width:200px;">
 			<option value="0">Initial author</option>
 		<? foreach ($users as $user): ?>
 			<option value="<?=$user->user_id?>"><?=$user->fullname?></option>

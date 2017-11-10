@@ -40,7 +40,7 @@ $(document).ready(function() {
 <form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_recent_book_list" />
-List most recent 500 books:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
+List all books:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Delete books and their creators from this list; links open All Books or All Users tab in new window</span>
 <div class="div_list"><?php 
 	if (!isset($recent_book_list)) {
@@ -82,7 +82,7 @@ if (isset($recent_book_list) && !empty($recent_book_list)) {
 <form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_recent_users" />
-List most recent 500 users:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
+List all users:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Delete users from this list; link opens All Users tab in new window</span>
 <div class="div_list"><?php 
 	if (!isset($recent_user_list)) {

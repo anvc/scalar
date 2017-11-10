@@ -440,7 +440,7 @@ class System extends MY_Controller {
 					// Don't break
 				case "get_recent_book_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
-					$this->data['recent_book_list'] = $this->books->get_all_with_creator(0, false,'created','desc',500);
+					$this->data['recent_book_list'] = $this->books->get_all_with_creator(0, false,'created','desc');
 					break;
 				case 'do_delete_users':  // Admin: Tools > List recently created users
 					if (!$this->data['login_is_super']) $this->kickout();
@@ -464,7 +464,7 @@ class System extends MY_Controller {
 					// Don't bresk
 				case "get_recent_users":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
-					$this->data['recent_user_list'] = $this->users->get_all(0, true, 'user_id', 'desc',500);
+					$this->data['recent_user_list'] = $this->users->get_all(0, true, 'user_id', 'desc');
 					break;
 				case "get_email_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
