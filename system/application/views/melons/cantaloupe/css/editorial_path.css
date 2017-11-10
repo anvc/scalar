@@ -544,3 +544,28 @@ body.shortHeader #editorialSidePanel>.affix{
 	font-size: 1.5rem;
 	text-align: center;
 }
+.placeholder .mediaelement{
+	margin-bottom: 0;
+}
+.placeholder .mediaElementFooter{
+	padding-top: 1rem;
+}
+.placeholder .media_tabs, .placeholder .media_description{
+	margin: 0;
+	padding: 0 1.2rem 1.2rem 1.2rem;
+}
+.placeholder .mediaelement, .placeholder .mediaObject>*{
+	max-width: 100%;
+	height: auto !important;
+}
+.placeholder .media_tabs{
+	display: none !important;
+}
+#editorialPathContents .editorial_node .bodyContent .mediaelement{
+	margin: 0;
+}
+
+#editorialPathContents .editorial_node .bodyContent .placeholder.opened{
+	color: #000;
+	text-align: left;
+}

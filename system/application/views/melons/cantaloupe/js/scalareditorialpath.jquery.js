@@ -937,7 +937,15 @@ base.updatePlaceholders($(this));
                     widgets.handleWidget($tempLink);
                 }else{
                     //Media!
+                    var options = {
+                        url_attributes: ['href', 'src'],
+                        autoplay: false,
+                        solo: $tempLink.attr('data-caption') == 'none',
+                        getRelated: false
+                    };
                     
+                    $tempLink.slotmanager_create_slot($placeholder.width(), null, options);
+                    $placeholder.find('.body').append($tempLink.data('slot'));
                 }
             }
 
