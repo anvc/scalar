@@ -11,6 +11,13 @@ $(document).ready(function() {
 		$row.removeClass('info');
 		$row.find('.showme').css('visibility','hidden');
 	});
+	$('.table-row-click').find('a').click(function(e) {
+		e.stopPropagation();
+	});
+	$('.table-row-click').find('tr').click(function() {
+		var url = $(this).find('a:first').attr('href');
+		document.location.href = url;
+	});
 	// Duplicate modal
 	var $duplicateBookModal = $('#duplicateBookModal');
 	var $submit_btn = $duplicateBookModal.find('button[type="submit"]');
@@ -146,7 +153,7 @@ $(document).ready(function() {
       </div>
       <div class="page-v-spacer"></div>
       <div class="table-responsive">
-        <table class="table table-condensed table-hover-custom">
+        <table class="table table-condensed table-hover-custom table-row-click">
           <thead>
             <tr>
               <th>Title</th>

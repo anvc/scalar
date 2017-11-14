@@ -139,7 +139,7 @@
 .media_options_bootbox .table-fixed>tbody>tr:first-child>td, .node_selector_table_body tbody>tr:first-child>td{
 	border-top: 0px;
 }
-.node_selector_table_body tbody>tr:not(.empty):hover{
+.node_selector_table_body tbody>tr:not(.empty):not(.no-hover):hover{
 	background-color: #d9edf7;
 	cursor: pointer
 }
@@ -214,6 +214,9 @@
 .nodeSelectorEnlargedThumbnail{
 	max-width: 184px;
     max-height: 184px;
+}
+.node_selector .visibilityLink img {
+	margin-top:-3px;
 }
 .node_selector .thumbnail {
 	border: 0px
@@ -330,6 +333,10 @@
     padding-right: 2rem;
     font-size: 14px;
 }
+
+.contributions table td {padding:8px 8px 0px 8px;}
+.contributions .page-title td {padding-top:8px; padding-bottom:8px; background-color:#eeeeee;}
+.contributions table tr.spacer td {padding-top:0px;}
 
 @media only screen and (max-width : 768px) {
 	.node_selector .panel-heading{

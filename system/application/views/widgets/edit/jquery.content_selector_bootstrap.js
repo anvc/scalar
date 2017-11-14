@@ -1536,6 +1536,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"userOptions": false,
 			"deleteOptions": false,
 			"addOptions": false,
+			"contributionsOptions": false,
 			"displayHeading": true,
 			"rowSelectMethod": 'checkbox',
 			/* checkbox|highlight */
@@ -1717,6 +1718,25 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 			return string;
 		};
+		var push_row = function(post, callback) {
+			$('#saving').show();
+			$.ajax({
+				  type: "POST",
+				  url: 'api/save_row',
+				  data: post,
+				  success: function(data) {
+					  data.error = false;
+					  $('#saving').hide();
+					  callback(data);
+				  },
+				  error: function(data) {
+					  data.error = 'Something went wrong while trying to save';
+					  $('#saving').hide();
+					  callback(data);
+				  },
+				  dataType: 'json'
+				});	
+		};
 
 		var updateNodeList = $.proxy(function(isLazyLoad) {
 
@@ -1759,10 +1779,24 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							}
 						}
 					}
-
+					
+					var content_id = 0;
+					if ('undefined'!=typeof(item.content) && 'undefined'!=typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) {
+						var content_urn = item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+						content_id = content_urn.substr(content_urn.lastIndexOf(':')+1);
+					};
+					var version_id = 0;
+					if ('undefined'!=typeof(item.version) && 'undefined'!=typeof(item.version['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) {
+						var version_urn = item.version['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+						version_id = version_urn.substr(version_urn.lastIndexOf(':')+1);
+					};
+					var user_id = 0;
+					if ('undefined'!=typeof(item.uri) && -1 != item.uri.indexOf('/users/')) {
+						user_id = item.uri.substr(item.uri.lastIndexOf('/')+1);
+					};
 					var desc = (item.version && 'undefined' != typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
-					var rowHTML = '<tr>';
-
+					
+					var rowHTML = '<tr data-content-id="'+content_id+'" data-version-id="'+version_id+'" data-user-id="'+user_id+'">';
 					if (isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox' == opts.rowSelectMethod) {
 						rowHTML += '<td class="text-center select_row" style="vertical-align: middle; width: 5rem"><input type="checkbox" ' + (index > -1 ? 'checked' : '') + '></td>';
 					}
@@ -1781,14 +1815,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								rowHTML += '<td class="node_thumb ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="' + item.thumbnail + '"></td>';
 								break;
 							case 'title':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.title + '</a></td>';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="'+col+'"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.title + '</a></td>';
 								break;
 							case 'name': // foaf:name
 								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.content['http://xmlns.com/foaf/0.1/name'][0].value + '</a></td>';
 								break;
 							case 'description':
 								var short_desc = shorten_description(desc);
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] + ' ' : '') + (desc !== short_desc ? 'shortened_desc ' : '') + '' + ((-1 != opts.editable.indexOf(col)) ? 'editable' : '') + '" data-field="' + col + '">' + (desc !== short_desc ? '<div class="full_desc">' + desc.replace(/"/g, '\\"') + '</div><div class="short_desc">' + short_desc + '</div>' : desc) + '</td>';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] + ' ' : '') + (desc !== short_desc ? 'shortened_desc ' : '') + '' + ((-1 != opts.editable.indexOf(col)) ? 'editable' : '') + '" property="'+col+'">' + (desc !== short_desc ? '<div class="full_desc">' + desc.replace(/"/g, '\\"') + '</div><div class="short_desc">' + short_desc + '</div>' : desc) + '</td>';
 								break;
 							case 'url':
 								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '">/' + item.slug + '</td>';
@@ -1811,18 +1845,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							case 'visible':
 								var is_visible = ('undefined' != typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive']) && 1 == parseInt(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive'][0].value)) ? true : false;
 								var visibleThumbUrl = (is_visible) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" align="center"><a class="visibilityLink" href="javascript:void(null);"><img src="' + visibleThumbUrl + '" /></a></td>';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="is_live" align="center"><a class="visibilityLink" href="javascript:void(null);"><img src="' + visibleThumbUrl + '" /></a></td>';
 								break;
 							case 'listed':
 								var is_listed = (1 == parseInt(item.listed)) ? true : false;
 								var listedThumbUrl = (is_listed) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="padding-left:19px;"><a class="visibilityLink" href="javascript:void(null);"><img src="' + listedThumbUrl + '" /></a></td>';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="list_in_index" style="padding-left:19px;"><a class="visibilityLink" href="javascript:void(null);"><img src="' + listedThumbUrl + '" /></a></td>';
 								break;
 							case 'order':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="padding-left:23px;">' + item.index + '</td>';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="sort_number" style="padding-left:23px;">' + item.index + '</td>';
 								break;
 							case 'role':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable editable-role' : '') + '">' + ucwords(item.role) + '</td>';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable editable-role' : '') + '" property="relationship">' + ucwords(item.role) + '</td>';
 								break;
 							case 'last_edited_by':
 								var fullname = '';
@@ -1856,7 +1890,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '" align="center"><a href="' + item.uri + '.edit" class="btn btn-default btn-sm editLink">Edit</a></td>';
 								break;
 							case 'bio_contributions':
-								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '"><a href="' + item.uri + '" class="btn btn-default btn-sm editLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm editLink">Contributions</a></td>';
+								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '"><a href="' + item.uri + '" class="btn btn-default btn-sm editLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm editLink contributionsLink">Contributions</a></td>';
 								break;
 						}
 					}
@@ -1930,7 +1964,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									}
 								}
 							}
-							if (index == -1) {
+							if (index == -1) {  // Item is being checked
 								if ($dialogue_container.data('nodes') == undefined) {
 									$dialogue_container.data('nodes', [item]);
 								} else {
@@ -1938,6 +1972,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								}
 								$(this).addClass('current');
 								if (item.hasRelations && hasChildSelector) {
+									// TODO: not sure what this does since it's the same for loop as above ~cd
 									var index = -1;
 									if (undefined !== $dialogue_container.data('nodes')) {
 										for (var n in $dialogue_container.data('nodes')) {
@@ -1948,10 +1983,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 											}
 										}
 									}
+									// End not sure what this does
 									$childSelector.find('input[type="checkbox"]').attr('checked', true);
 									$dialogue_container.data('nodes')[index].include_children = true;
 								}
-							} else {
+							} else {  // Item is being unchecked
 								$dialogue_container.find('.selectAll input[type="checkbox"]').attr("checked", false);
 								$dialogue_container.data('nodes').splice(index, 1);
 								$(this).removeClass('current');
@@ -1992,57 +2028,140 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}; //for data.length
 
 				if (opts.isEdit) {
+					var doStartEditing = function($cell) {
+						var value = '';
+						$cell.addClass('collapse_padding');
+						$cell.closest('tr').find('td').css('vertical-align', 'middle');
+						$cell.data('is-editing', true);
+						$cell.data('has-link', false);
+						$cell.data('orig-html', $cell.html().slice());
+						if ($cell.children('a').length) {
+							$cell.data('has-link', true);
+							value = $cell.children('a:first').html();
+							var replace = value.slice();
+							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" />');
+						} else if ($cell.hasClass('editable-role')) {
+							value = $cell.text();
+							var replace = '<select>';
+							replace += '<option value="Author"'+(('Author'==value)?' selected':'')+'>Author</option>';
+							replace += '<option value="Commentator"'+(('Commentator'==value)?' selected':'')+'>Commentator</option>';
+							replace += '<option value="Reviewer"'+(('Reviewer'==value)?' selected':'')+'>Reviewer</option>';
+							replace += '<option value="Reader"'+(('Reader'==value)?' selected':'')+'>Reader</option>';
+							replace += '</select>';
+							$cell.html(replace);
+						} else if ($cell.children('em').length && $cell.html().slice() == '<em>No Description</em>') {
+							value = '';
+							var replace = value.slice();
+							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" />');
+						} else {
+							value = $cell.html();
+							var replace = value.slice();
+							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" />');
+						};
+						$cell.find('input, select').click(function(event) {
+							event.stopPropagation();
+						}).keypress(function(e) {
+							if (e.which == 13) {
+								$(this).closest('tr').click();
+							}
+						});
+						$cell.data('orig-value', value);
+					};
 					var doStopEditing = function($cell) {
+						var property = $cell.attr('property');
+						var value = '';
 						$cell.removeClass('collapse_padding');
 						$cell.closest('tr').find('td').css('vertical-align', 'top');
 						if ($cell.data('has-link')) {
 							var $temp = $('<div>' + $cell.data('orig-html') + '</div>');
-							$temp.children('a:first').html($cell.children('input:first').val());
+							value = $cell.children('input:first').val();
+							$temp.children('a:first').html(value.slice());
 							var replace = $temp.html().slice();
+						} else if ($cell.hasClass('editable-role')) {
+							value = $cell.children('select').val();
+							replace = value.slice();
 						} else {
-							var replace = $cell.children('input:first').val();
+							value = $cell.children('input:first').val();
+							var replace = value.slice();
 						};
-						if (!replace.length && $cell.data('field') == 'description') replace = '<em>No Description</em>';
+						if (!replace.length && $cell.attr('property') == 'description') replace = '<em>No Description</em>';
 						$cell.html(replace);
 						$cell.data('is-editing', false);
 						if ($cell.data('has-link')) $cell.find('a:first').click(function(e) {
 							e.stopPropagation();
 						})
+						var the_return = {};
+						the_return[property] = value;
+						return the_return;
 					};
 					$rows.find('tr').click(function() {
-						$(this).find('.editable').each(function() {
+						var $this = $(this);
+						var to_save = {};
+						$this.find('.editable').each(function() {
 							var $cell = $(this);
 							if ($cell.data('is-editing')) {
-								doStopEditing($cell);
+								$.extend(to_save, doStopEditing($cell));
 							} else {
-								$cell.addClass('collapse_padding');
-								$cell.closest('tr').find('td').css('vertical-align', 'middle');
-								$cell.data('is-editing', true);
-								$cell.data('has-link', false);
-								$cell.data('orig-html', $cell.html().slice());
-								if ($cell.children('a').length) {
-									$cell.data('has-link', true);
-									var replace = $cell.children('a:first').html().slice();
-								} else if ($cell.children('em').length && $cell.html().slice() == '<em>No Description</em>') {
-									var replace = '';
-								} else {
-									var replace = $cell.html().slice();
-								};
-								$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" />');
-								$cell.find('input').click(function(event) {
-									event.stopPropagation();
-								}).keypress(function(e) {
-									if (e.which == 13) {
-										$(this).closest('tr').click();
-									}
-								});
+								doStartEditing($cell);
 							};
 						});
+						var do_save = false;
+						for (var field in to_save) {
+							if ($this.find('td[property="'+field+'"]').data('orig-value') != to_save[field]) do_save = true;
+						}
+						if (do_save) {
+							if (parseInt($this.data('version-id'))) {
+								to_save.section = 'versions';
+								to_save.id = $this.data('version-id');
+							} else if (parseInt($this.data('user-id'))) {
+								to_save.section = 'user_books';
+								to_save.id = $this.data('user-id');
+								to_save.book_id = book_id;
+								to_save.list_in_index = (-1 != $this.find('td[property="list_in_index"] img').attr('src').indexOf('visible-icon')) ? 1 : 0;
+								if (parseInt(to_save.id) == my_user_id && to_save.relationship.toLowerCase() != 'author' && !confirm('Are you sure you wish to change your role away from Author? You might lose permissions to edit this book.')) {
+									$this.find('td[property="relationship"]').text('Author');
+									$this.click();
+									return;
+								}
+							};
+							if ('undefined'!=to_save.section) {
+								push_row(to_save, function(data) {
+									if (data.error) return alert(data.error);
+									console.log(data);
+								});
+							};
+						};
 					});
 				};
 
 				$rows.find('a').click(function(e) {
 					e.stopPropagation();
+					var $this = $(this);
+					if (opts.isEdit && $this.hasClass('visibilityLink') && 'is_live'==$this.parent().attr('property')) {
+						var content_id = $this.closest('tr').data('content-id');
+						var is_live = (-1 != $this.find('img').attr('src').indexOf('visible-icon')) ? true : false;
+						var post = {section:'pages',id:content_id,is_live:((is_live)?0:1)};
+						push_row(post, function(data) {
+							if (data.error) return alert(data.error);
+							var visibleThumbUrl = (1==data.is_live) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
+							$this.find('img').attr('src', visibleThumbUrl);
+						});
+					} else if (opts.isEdit && $this.hasClass('visibilityLink') && 'list_in_index'==$this.parent().attr('property')) {
+						var user_id = $this.closest('tr').data('user-id');
+						var list_in_index = (-1 != $this.find('img').attr('src').indexOf('visible-icon')) ? true : false;
+						var relationship = $this.closest('tr').find('td[property="relationship"]').text();
+						var sort_number = $this.closest('tr').find('td[property="sort_number"]').text();
+						var post = {section:'user_books',id:user_id,book_id:book_id,list_in_index:((list_in_index)?0:1),relationship:relationship,sort_number:sort_number};
+						push_row(post, function(data) {
+							if (data.error) return alert(data.error);
+							var visibleThumbUrl = (1==data.list_in_index) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
+							$this.find('img').attr('src', visibleThumbUrl);
+						});
+					} else if ($this.hasClass('contributionsLink')) {
+						if (!opts.contributionsOptions) return alert("Couldn't find the contributions callback");
+						var bool = $this.closest('tr').next().hasClass('contributions');
+						opts.contributionsOptions($this.closest('tr'), ((bool)?false:true));
+					};
 				});
 
 			};
@@ -2226,6 +2345,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var url = $(this).find('option:selected').val();
 				document.location.href = url;
 			});
+		};
+		
+		if ('undefined'!=typeof($deleteOpts)) {
+			$deleteOpts.append('<span id="saving" class="alert alert-warning">Saving...</span>');
 		}
 
 		var $rows = $dialogue_container.find('.node_rows');

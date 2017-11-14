@@ -83,7 +83,7 @@ else: ?>
 	    <li role="presentation"<?=(('pages'==$zone)?' class="active"':'')?>><a href="#tabs-pages" data-toggle="tab">Content</a></li>
 	    <li role="presentation"<?=(('users'==$zone)?' class="active"':'')?>><a href="#tabs-users" data-toggle="tab">Users</a></li>
 	    <li role="presentation"<?=(('utils'==$zone)?' class="active"':'')?>><a href="#tabs-utils" data-toggle="tab">Utilities</a></li>
-	    <li role="presentation" class="right-tab"><a href="<?=((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':'')?>">Return to book &raquo;</a></li>
+	    <li role="presentation" class="right-tab"><a href="<?=((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':'')?>" title="Return to <?=htmlspecialchars(strip_tags($book->title))?>">Return to book &raquo;</a></li>
 	  </ul>  
 	</div>
   </div>

@@ -132,7 +132,8 @@ function select_interface(melon) {
    	if ('cantaloupe'==melon_obj['meta']['slug']) {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		var margin_nav = ('undefined'==typeof($title.children(":first").attr('data-margin-nav'))) ? false : true;
-		var $margin_nav = $('<div class="checkbox" style="display:inline-block;"><label for="margin-nav"><input type="checkbox" id="margin-nav" value="1" /> Display navigation buttons in margins?</label></div>').appendTo($wrapper);
+		$wrapper.append('<br clear="both" />');
+		var $margin_nav = $('<div class="checkbox" style="display:block;"><label for="margin-nav"><input type="checkbox" id="margin-nav" value="1" /> Display navigation buttons in margins?</label></div>').appendTo($wrapper);
 		$wrapper.find('#margin-nav').prop('checked', margin_nav).change(function() {
 			var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 			if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
