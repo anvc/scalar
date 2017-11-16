@@ -17,7 +17,7 @@ header h4 {font-weight:900;}
 .modal-body .page-header h4 {font-weight:900;}
 .modal-footer {border-top:none;}
 .modal small {color:#777777; float:left;}
-.alert {margin-left:15px; margin-right:15px; position:relative; margin-bottom:8px;}
+.alert.awaiting-comments {margin-left:15px; margin-right:15px; position:relative; margin-bottom:8px;}
 .table-hover tbody tr {cursor:pointer;}
 table th {font-weight:normal;}
 label, small, th {color:#777777;}
@@ -77,3 +77,6 @@ header h5 {margin-bottom:14px;}
 .bootbox button.close:hover {background-image:url(../images/close_icon_hover.png); opacity:1;}
 
 .awaiting-comments {padding-top:8px; padding-bottom:8px; color:#222222;}
+
+#export-content {display:none;}
+#export-content-text {margin-top:8px; width:100%; height:400px; font-size:smaller;}

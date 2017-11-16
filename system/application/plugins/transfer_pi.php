@@ -58,7 +58,7 @@ class Transfer {
 			if ($this->plugin_exists) {
 				echo '<iframe style="width:100%; min-height:600px; border:none;" src="application/plugins/'.$this->plugin_path.$get_vars.'"></iframe>'."\n";
 			} else {
-				echo '<div style="padding:10px; border:solid 1px #cccccc; background-color:#eeeeee;">The <b>'.$this->name.'</b> plugin can\'t be found.  Please contact a system administrator to install the plugin in a folder named <b>'.strtolower(get_class($this)).'</b> at <b>/system/application/plugins/</b>.</div>';
+				echo '<div class="alert alert-warning">Please contact a system administrator to install the plugin in a folder named <b>'.strtolower(get_class($this)).'</b> at <b>/system/application/plugins/</b>.</div>';
 			}
 ?>	
 				</div>
