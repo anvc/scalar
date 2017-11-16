@@ -5,6 +5,7 @@ body {height:100%; background-color:#c1c1c1; margin:0px 70px 0px 70px; font-fami
 .bgcolor {background-color:#ffffff; min-height:100%; max-width:1040px; margin-left:auto; margin-right:auto; padding-left:40px; padding-right:40px;}
 header {padding-top:22px;}
 header h4 {font-weight:900;}
+table {border-collapse:initial;}
 
 .avatar.small {width:25px; margin-bottom:0.5rem; margin-right:0.5rem;}
 .scalar_logo.small {width:18px; margin-bottom:0.5rem; margin-left:0.5rem;}
