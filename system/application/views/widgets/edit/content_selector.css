@@ -326,7 +326,7 @@
 	border-color: #ddd;
 }
 
-.node_selector .panel-heading .btn{
+.node_selector .panel-heading .btn, .node_selector .panel-footer .btn {
 	height: 34px;
 }
 .widgetOptions .modal_footer .node_count, .content_selector_bootbox .footer .node_count {

@@ -2320,7 +2320,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				document.location.href = $('link#parent').attr('href') + 'new.edit';
 			});
 			var parent = $('link#parent').attr('href');
-			var $importOpts = $('<select class="btn btn-default" style="max-width:130px;"><option value="">Import media</option></select>').appendTo($deleteOpts);
+			var $importOpts = $('<select class="btn btn-default generic_button large" style="max-width:130px;"><option value="">Import media</option></select>').appendTo($deleteOpts);
 			$importOpts.append('<optgroup label="Affiliated archives">');
 			$importOpts.append('<option value="' + parent + 'import/critical_commons">Critical Commons</option>');
 			$importOpts.append('<option value="' + parent + 'import/cuban_theater_digital_archive">Cuban Theater Digital Archive</option>');
