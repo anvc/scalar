@@ -1689,6 +1689,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			height -= $(this).find('.panel-footer').outerHeight();
 			height -= 20; // Magic number that is essentially the bottom margin of the whole container ~cd
 			$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
+			console.log($dialogue_container.find('.node_selector_table_body>table').width());
 			height -= $(this).find('.panel-body>table').outerHeight();
 			var orig_height = height;
 			height = Math.max(height, 50);
@@ -2595,6 +2596,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		});
 
 		$(this).on('doResize', resize);
+		$(window).on('resize',resize);
 
 		return $(this);
 	};

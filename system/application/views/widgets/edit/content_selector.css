@@ -373,3 +373,15 @@
 		top: 50%;
 	}
 }
+.node_selector_table_body select, .node_selector_table_body input{
+	box-sizing: border-box;
+	max-width: 100%;
+	width: 100%;
+}
+.node_selector_table_body button, .node_selector_table_body a.btn{
+	box-sizing: border-box;
+	max-width: 100%;
+	display: inline-block;
+	margin: 0;
+	padding: 0 .5rem;
+}
