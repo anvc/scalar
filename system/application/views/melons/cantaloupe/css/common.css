@@ -1144,12 +1144,20 @@ button, .btn, input, optgroup, select, textarea {
 	margin: .2rem 0 .2rem .8rem;
 }
 
-.editorial-status-bar.draft-state { background-color: #878787; padding: 2.4rem; }
-.editorial-status-bar.edit-state { background-color: #ec5e00; padding: 2.4rem; }
-.editorial-status-bar.editReview-state { background-color: #d03a38; padding: 2.4rem; }
-.editorial-status-bar.clean-state { background-color: #2898b7; padding: 2.4rem; }
-.editorial-status-bar.ready-state { background-color: #4da751; padding: 2.4rem; }
-.editorial-status-bar.published-state { background-color: #147419; padding: 2.4rem; }
+.editorial-status-bar { padding: 2.4rem; }
+/* darker colors
+.draft-state { background-color: #878787; }
+.edit-state { background-color: #ec5e00; }
+.editReview-state { background-color: #d03a38; }
+.clean-state { background-color: #2898b7; }
+.ready-state { background-color: #4da751; }
+.published-state { background-color: #147419; }*/
+.draft-state { background-color: #b4b4b4; }
+.edit-state { background-color: #ffa365; }
+.editReview-state { background-color: #d75452; }
+.clean-state { background-color: #5fc0dc; }
+.ready-state { background-color: #72b376; }
+.published-state { background-color: #198f1e; }
 
 /* utility pages */
 
