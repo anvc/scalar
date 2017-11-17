@@ -1,3 +1,5 @@
+// Line 3578 was editing by Craig Dietrich, 17 November 2017, to correct a touch event problem on Win10
+
 function $JSCompiler_alias_THROW$$($jscomp_throw_param$$) {
   throw $jscomp_throw_param$$;
 }
@@ -3573,7 +3575,8 @@ function $JSCompiler_StaticMethods_redraw$$($JSCompiler_StaticMethods_redraw$sel
     $JSCompiler_StaticMethods_redraw$self$$.$_annotator$.popup.show($JSCompiler_StaticMethods_redraw$self$$.$_currentAnnotation$, new $annotorious$shape$geom$Point$$($bbox_shape$$10$$.x, $bbox_shape$$10$$.y + $bbox_shape$$10$$.height + 5))
   }
 }
-;var $annotorious$events$ui$hasTouch$$ = "ontouchstart" in window, $annotorious$events$ui$hasMouse$$ = !$annotorious$events$ui$hasTouch$$, $annotorious$events$ui$EventType$DOWN$$ = $annotorious$events$ui$hasTouch$$ ? "touchstart" : "mousedown", $annotorious$events$ui$EventType$OVER$$ = $annotorious$events$ui$hasTouch$$ ? "touchenter" : "mouseover", $annotorious$events$ui$EventType$MOVE$$ = $annotorious$events$ui$hasTouch$$ ? "touchmove" : "mousemove", $annotorious$events$ui$EventType$UP$$ = $annotorious$events$ui$hasTouch$$ ? 
+// Was  ;var $annotorious$events$ui$hasTouch$$ = "ontouchstart" in window  ~cd
+;var $annotorious$events$ui$hasTouch$$ = false, $annotorious$events$ui$hasMouse$$ = !$annotorious$events$ui$hasTouch$$, $annotorious$events$ui$EventType$DOWN$$ = $annotorious$events$ui$hasTouch$$ ? "touchstart" : "mousedown", $annotorious$events$ui$EventType$OVER$$ = $annotorious$events$ui$hasTouch$$ ? "touchenter" : "mouseover", $annotorious$events$ui$EventType$MOVE$$ = $annotorious$events$ui$hasTouch$$ ? "touchmove" : "mousemove", $annotorious$events$ui$EventType$UP$$ = $annotorious$events$ui$hasTouch$$ ? 
 "touchend" : "mouseup", $annotorious$events$ui$EventType$OUT$$ = $annotorious$events$ui$hasTouch$$ ? "touchleave" : "mouseout";
 function $annotorious$events$ui$sanitizeCoordinates$$($event$$21$$, $parent$$25$$) {
   var $points$$8$$ = $JSCompiler_alias_FALSE$$;

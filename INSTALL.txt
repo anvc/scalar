@@ -161,5 +161,5 @@ A few updates to core/htmlparser files, found by searching for 'Updated by Craig
 Annotorious:
 1) Replaced "Add a Comment..." with "Enter annotation title..." (views/widgets/mediaelement/annotorious.debug.js)
 2) Replaced the "canvas" selector with "canvas.annotorious-item" and the "canvas.hidden" selector with "canvas.annotorious-item.hidden" (views/widgets/mediaelement/css/annotorious.css)
-
+3) Updated a line in annotorious.debug.js that seems to resolve a touch event problem on Win10 without disrupting touch events on iOS
 
