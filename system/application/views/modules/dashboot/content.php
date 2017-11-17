@@ -35,7 +35,7 @@ $(window).on('scroll',function() {
   <div class="row">
     <div class="col-xs-12 col-sm-6">
       <h4>
-        <a href="?book_id=<?=$book->book_id?>&zone=user#tabs-user" class="<?=(('user'==$zone)?'active':'')?>">
+        <a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=user#tabs-user" class="<?=(('user'==$zone)?'active':'')?>">
           <img class="avatar small" src="<?=$app_root.'views/modules/dashboot/images/generic-avatar.png'?>" alt="User avatar" />
           <?=$login->fullname?> 
         </a>
