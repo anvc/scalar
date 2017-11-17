@@ -33,7 +33,7 @@ label, small, th {color:#777777;}
 }
 .thumb-wrapper {background-color:#eeeeee; border-radius:4px; margin:6px 12px 0px 0px; padding:8px 13px 8px 13px; display:inline-block;}
 .thumb-wrapper img {max-width:120px; max-height:120px; vertical-align:top;}
-.showme {visibility:hidden;} /* will be shown via some JS action */ 
+.showme {visibility:hidden;} 
 .has-feedback .form-control-feedback {color:#999999; cursor:pointer; pointer-events:initial;}
 #properties_form small {padding-top:9px; padding-bottom:10px; display:inline-block;}
 

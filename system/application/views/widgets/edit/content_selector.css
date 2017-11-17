@@ -382,6 +382,7 @@
 	box-sizing: border-box;
 	max-width: 100%;
 	display: inline-block;
+	visibility:hidden;
 	margin: 0;
 	padding: 0 .5rem;
 }

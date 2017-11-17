@@ -1936,9 +1936,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 
 					$item.mouseover(function() {
-						$(this).find('.editLink').css('display', 'inline-block');
+						$(this).find('.editLink').css('visibility','visible');
 					}).mouseout(function() {
-						$(this).find('.editLink').hide();
+						$(this).find('.editLink').css('visibility','hidden');
 					});
 
 					if (index > -1) {
