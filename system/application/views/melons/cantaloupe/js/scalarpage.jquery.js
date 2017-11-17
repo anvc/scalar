@@ -1763,7 +1763,6 @@
 
                         case "splash":
                         case "book_splash":
-                        case "visual_path":
                         case "versions":
                         case "history":
                             // these views don't get media

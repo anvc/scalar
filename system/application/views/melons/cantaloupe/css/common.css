@@ -1268,6 +1268,7 @@ body>.annotorious-popup{
 	background-size: cover;
     min-height: 400px;
     background-color: #e5e5e5;
+    clear: both;
 }
 .padded-multiline { 
   line-height: 1.4; 
