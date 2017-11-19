@@ -19,6 +19,7 @@
     	opts = $.extend( {}, defaults, options );
     	var $div = $('<div>Loading ontologies ...</div>').appendTo($this);
     	var bootstrap_enabled = false;
+    	var can_localstorage = 'localStorage' in window && window['localStorage'] !== null;
 
 		if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
 	    	opts['buttons'] = [ 
@@ -141,6 +142,65 @@
     			});        		
         	}
     	});
+    	
+    };
+    
+    $.fn.populate_metadata_from_localstorage = function(options) {
+    
+    	var $insert_into = $(this);
+    	if ($insert_into.children().length) return;
+    	opts = $.extend( {}, defaults, options )
+    	var can_localstorage = 'localStorage' in window && window['localStorage'] !== null;
+    	
+    	var arr = null;
+    	if (can_localstorage) {
+    		var obj = localStorage.getItem('scalar_previous_metadata_fields');
+    		if (null!=obj) {
+    			obj = JSON.parse(obj);
+    			if (!$.isEmptyObject(obj)) {
+    				arr = [];
+	    			for (var j in obj) {
+	    				arr.push(obj[j].name);
+	    			};
+    			};
+    		};
+    	};
+    	if (!arr) {
+    		arr = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
+    	};
+    	
+    	var $insert;
+    	for (var j = 0; j < arr.length; j++) {
+    		var val = arr[j];
+	        if ($insert_into.is('ul') || $insert_into.is('ol')) { // scalarimport
+	        	$insert = $('<li><span class="field">'+val+'</span><span class="value"><input type="text" name="'+val+'" value="" /></span></li>');
+	        } else if ( $( 'article' ).length ) { // cantaloupe
+	            $insert = $('<div class="form-group '+val+' '+((opts.row_class.length)?opts.row_class:'')+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control '+((opts.input_class.length)?opts.input_class:'')+'" value="" /></div></div>');
+	        } else {  // honeydew
+	            $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="" /></td></tr>');
+	        }
+			$insert_into.append($insert);
+    	};
+    	
+    };
+    
+    $.fn.save_metadata_to_localstorage = function(options) {
+
+    	var $insert_into = $(this);
+    	opts = $.extend( {}, defaults, options )
+    	var can_localstorage = 'localStorage' in window && window['localStorage'] !== null;
+    	var obj = {};
+    	var count = 0;
+    	if (can_localstorage) {
+    		$insert_into.find('input').each(function() {
+    			var $this = $(this);
+    			if (!$this.val().length) return;
+    			var name = $this.attr('name');
+    			obj[count] = {name:name};
+    			count++;
+    		});
+    		localStorage.setItem('scalar_previous_metadata_fields', JSON.stringify(obj));
+    	};
     	
     };
     

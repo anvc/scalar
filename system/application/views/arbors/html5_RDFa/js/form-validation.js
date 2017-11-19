@@ -182,6 +182,7 @@ function validate_edit_form(form, no_action) {
 	var finish = function() {
 		var textarea = CKEDITOR.instances['sioc:content'].getData();
 		form.find('textarea[name="sioc:content"]').val(textarea);
+		if ('undefined'!=typeof($.fn.save_metadata_to_localstorage)) $('#metadata_rows').save_metadata_to_localstorage();
 		if (no_action) {
 			send_form_no_action(form);
 		} else {
@@ -192,7 +193,7 @@ function validate_edit_form(form, no_action) {
 	var commit = function() {
 		if (!check_fields()) return false;
 		finish();  
-		// Don't use thumbnail upload, it seems to be the cause of the random logouts since it runs in an iframe
+		// Don't use thumbnail upload, it is the cause of the random logouts since it runs in an iframe
 		/*
 		var file_el = form.find('input[name="source_file"]');
 		if (file_el.length && file_el.val().length) {

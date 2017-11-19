@@ -309,6 +309,7 @@ $(document).ready(function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
 	});
+	$('#metadata_rows').populate_metadata_from_localstorage();
 	$('.populate_exif_fields:first').click(function() {
 		if (!confirm('This feature will find any IPTC or ID3 metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files, and ID3 in MP3 fles, by external applications. Do you wish to continue?')) return;
 		var url = $('input[name="scalar:url"]').val();
