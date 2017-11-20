@@ -327,7 +327,7 @@ CKEDITOR._scalar = {
 				var frameScroll = CKEDITOR._scalar.editor.editable().isInline()?0:$('.cke_contents>iframe').contents().scrollTop();
 				var pageScroll = $(window).scrollTop();
 				
-				var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top+20+additionalInlineOffset:framePosition.top+position.top-frameScroll-pageScroll+10;
+				var topPos = (framePosition.top+position.top-frameScroll)+10;
 
 				if(!CKEDITOR._scalar.editor.editable().isInline() && frameScroll > position.top){
 					topPos = framePosition.top+10;
@@ -408,7 +408,7 @@ CKEDITOR._scalar = {
 				var frameScroll = CKEDITOR._scalar.editor.editable().isInline()?0:$('.cke_contents>iframe').contents().scrollTop();
 				var pageScroll = $(window).scrollTop();
 				
-				var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top+20+additionalInlineOffset:framePosition.top+position.top-frameScroll-pageScroll+10;
+				var topPos = (framePosition.top+position.top-frameScroll)+10;
 
 				if(!CKEDITOR._scalar.editor.editable().isInline() && frameScroll > position.top){
 					topPos = framePosition.top+10;
