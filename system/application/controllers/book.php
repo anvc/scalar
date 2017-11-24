@@ -824,7 +824,10 @@ class Book extends MY_Controller {
 
 	// Editorial path
 	private function editorialpath() {
-		$this->protect_book('reviewer');
+		if($this->data['book']->editorial_is_on !== "1" || !$this->login_is_book_admin('reviewer')){
+			header('Location: '.$this->data['base_uri'].$this->fallback_page);
+			return;
+		}
 		$this->data['view'] = __FUNCTION__;
 		
 	}
