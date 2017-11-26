@@ -56,12 +56,13 @@ class Reference_model extends MY_Model {
 
 	public function get_children($parent_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
 
-		// Return only children that are of type 'media'
-		// TODO: This is a place holder for adapting the front-end to handle both pages and media
+		// This used to return only type 'media' pages, which are references to media from the WYSIWYG editor
+		// Now Scalar logs class="note" relationships as well, so this might return pages; leave it up to the front-end to figure out what to do with it
 		$nodes = parent::get_children($this->references_table, $parent_version_id, $orderby, $orderdir, $version_datetime, $is_live);
 		$return = array();
 		foreach ($nodes as $node) {
-			if ('media'==$node->child_content_type) $return[] = $node;
+			//if ('media'==$node->child_content_type) $return[] = $node;
+			$return[] = $node;
 		}
 		return $return;
 

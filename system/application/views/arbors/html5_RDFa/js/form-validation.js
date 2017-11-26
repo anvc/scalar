@@ -305,7 +305,7 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 	values['references'] = [];
 	var textarea = $('textarea[name="sioc:content"]').val();
 	var $temp = $('<div>'+textarea+'</div>');
-	$temp.find('a').each(function() {
+	$temp.find('a, .note').each(function() {
 		var resource = $(this).attr('resource');
 		if ('undefined'==typeof(resource)) return;
 		values['references'].push($('<input value="'+resource+'" />'));

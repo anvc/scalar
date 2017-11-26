@@ -1066,7 +1066,18 @@
                         hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
                         $(".relationships").eq(0).before(hasTags.parent());
                         hasTags.parent().addClass('relationships').show(); 
-                    }
+                    };
+                    var noteOf = $('.has_reference').find('[typeof="scalar:Composite"]');  // Right now Scalar logs media links and class="note", so assume that a relationship to a page is a note
+                    if (noteOf.length) {
+                    	noteOf.closest('.has_reference').find('li').hide();
+                    	noteOf.closest('.has_reference').contents().unwrap().wrapAll('<ul class="has_reference"></ul>');
+                    	noteOf.closest('.has_reference').siblings('h1').text('This ' + selfType + ' is a note in:');
+                   	 	$(".relationships").eq(0).before($(this).closest('.has_reference').parent());
+                   	 	noteOf.closest('.has_reference').parent().addClass('relationships').show(); 
+	                    noteOf.each(function() {
+	                    	$(this).closest('li').show();
+	                    });
+                    };
                 }
 
                 // move path contents list to be the bottom-most of all relationships items

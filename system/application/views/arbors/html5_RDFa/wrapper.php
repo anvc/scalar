@@ -403,7 +403,7 @@ if (!empty($has_references)):
 ?>
 	<section>
 		<h1>This page is referenced by:</h1>
-		<ol>
+		<ol class="has_reference">
 <? 		foreach ($has_references as $reference_item): ?>
 			<li>
 				<a aria-hidden="true" rel="dcterms:isReferencedBy" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
