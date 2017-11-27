@@ -12,6 +12,10 @@ $(document).ready(function() {
   setTimeout(function() {
     $('html').css('position','static').css('overflow-y','auto');
   }, 100);
+  // Tab is selected in the URL
+  if (window.location.hash) {
+     $('a[href="'+window.location.hash+'"]').click();
+  };
   // Reload page when a new tab is selected
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var $shown = $(e.target);
@@ -39,7 +43,7 @@ $(window).on('scroll',function() {
           <img class="avatar small" src="<?=$app_root.'views/modules/dashboot/images/generic-avatar.png'?>" alt="User avatar" />
           <?=$login->fullname?> 
         </a>
-<?php if ('user'!=$zone && !empty($book_id)): ?>
+<?php if ('user'!=$zone && !empty($book_id) && !empty($book)): ?>
         <span class="s">/</span> 
         <div class="dropdown">
           <a href="javascript:void(null);" data-toggle="dropdown"><?=$book->title?></a>

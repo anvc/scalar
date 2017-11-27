@@ -437,6 +437,7 @@ class System extends MY_Controller {
 						}
 						$this->books->delete($book_id);
 					}
+					if (isset($_GET['book_id']) && is_numeric($_GET['book_id'])) $book_id = (int) $_GET['book_id'];
 					// Don't break
 				case "get_recent_book_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();

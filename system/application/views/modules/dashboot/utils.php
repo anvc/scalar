@@ -7,6 +7,11 @@
 #import {display:block;}
 .m {margin-top:18px; margin-bottom:22px;}
 .i {width:100%; border:0; margin:0; padding:0; margin-top:16px;}
+.div_list {width:100%; height:300px; box-shadow:inset 0 1px 1px rgba(0,0,0,.075); border-radius:4px; border:solid 1px #aaaaaa; overflow:auto; resize:vertical; white-space:nowrap;}
+.div_list > div {padding:0px 10px 0px 10px;}
+.div_list > div > input[type="checkbox"], .div_list > div label {cursor:pointer;}
+.div_list > div.active {background-color:#eeeeee;}
+#do_delete_users_form, #do_delete_books_form {margin-top:6px; text-align:right;}
 ', 'embed')?>
 
 <script>
@@ -16,9 +21,14 @@ $(document).ready(function() {
 		$this.closest('.nav').find('li').removeClass('active');
 		$this.addClass('active');
 		$this.closest('.row').find('.section').hide();
-		var $section = $this.closest('.row').find('#'+$this.text().toLowerCase().replace(' ','-'));
+		var $section = $this.closest('.row').find('#'+$this.data('id'));
 		$section.show();
 	});
+	if (-1!=document.location.href.indexOf('&pill=')) {
+		var pill = document.location.href.substr(document.location.href.indexOf('&pill=')+6);
+		pill = pill.substr(0, pill.indexOf('#'));
+		$('.nav-pills:first').find('[data-id="'+pill+'"]').click();
+	};
 	$('.export-link').click(function(e) {
 		e.preventDefault();
 		var url = $(this).attr('href');
@@ -29,18 +39,60 @@ $(document).ready(function() {
 			$content.find('#export-content-text').val(data);
 		}, 'text');
 	});
+	$('#do_delete_books_form').submit(function() {
+		if (!$(this).prev().find('input:checked').length) return false; 
+		var msg='Are you sure you wish to delete the selected books'; 
+		if ($(this).find('[name="delete_creators"]').val()==1) msg+=' and their creator user accounts'; 
+		if (!confirm(msg+'?')) return false;
+		var book_ids=[];
+		$(this).prev().find('input:checked').each(function() {
+			book_ids.push($(this).val());
+		});
+		$(this).find('[name="book_ids"]').val(book_ids.join(','));
+		return true;
+	});
+	$('#do_delete_users_form').submit(function() {
+		if (!$(this).prev().find('input:checked').length) return false; 
+		var msg='Are you sure you wish to delete the selected users'; 
+		if ($(this).find('[name="delete_books"]').val()==1) msg+=' and books they author'; 
+		msg += '?';
+		if ($(this).find('[name="delete_books"]').val()==1) msg+=' This might include books with multiple authors.';
+		if (!confirm(msg)) return false; 
+		var user_ids=[];
+		$(this).prev().find('input:checked').each(function() {
+			user_ids.push($(this).val());
+		});
+		$(this).find('[name="user_ids"]').val(user_ids.join(','));
+		return true;
+	});
+	$('.div_list').find('input[type="checkbox"]').change(function() {
+		var checked = $(this).is(':checked') ? true : false;
+		if (checked) {
+			$(this).closest('div').addClass('active');
+		} else {
+			$(this).closest('div').removeClass('active');
+		};
+	});
 });
 </script>
 <div class="container-fluid properties">
   <div class="row">
-    <aside class="col-xs-2">
+    <aside class="col-xs-2" style="width:21%;">
 	  <ul class="nav nav-pills nav-stacked">
-	    <li class="active"><a href="javascript:void(null);">Import</a></li>
-	    <li><a href="javascript:void(null);">Export</a></li>
-	    <li><a href="javascript:void(null);">API Explorer</a></li>
+	    <li class="active" data-id="import"><a href="javascript:void(null);">Import</a></li>
+	    <li data-id="export"><a href="javascript:void(null);">Export</a></li>
+	    <li data-id="api-explorer"><a href="javascript:void(null);">API Explorer</a></li>
+<? if ($login_is_super): ?>
+		<li class="admin" data-id="manage-users"><a href="javascript:void(null);">Manage users</a></li>
+		<li class="admin" data-id="manage-books"><a href="javascript:void(null);">Manage books</a></li>
+		<li class="admin" data-id="generate-email-list"><a href="javascript:void(null);">Generate email list</a></li>
+		<li class="admin" data-id="recreate-book-folders"><a href="javascript:void(null);">Recreate book folders</a></li>
+		<li class="admin" data-id="list-all-users"><a href="javascript:void(null);">List all users</a></li>
+		<li class="admin" data-id="list-all-books"><a href="javascript:void(null);">List all books</a></li>
+<? endif ?>
 	  </ul> 
     </aside>
-    <section class="col-xs-10">
+    <section class="col-xs-10" style="width:79%;">
     	<div class="section" id="import">
     		<h4>Import</h4>
 	        <p class="m">Import content and relationships from public Scalar books, raw Scalar RDF-JSON, or comma seperated values files. For more information visit the <a href="http://scalar.usc.edu/works/guide2">Scalar 2 Guide</a>'s <a href="http://scalar.usc.edu/works/guide2/advanced-topics">Advanced Topics</a> path.</p><?php
@@ -85,7 +137,7 @@ $(document).ready(function() {
 	     	<script>
 	     	</script>
     	</div>
-    	<div class="section" id="api-explorer" data-iframe-url="">
+    	<div class="section" id="api-explorer">
     		<h4>API Explorer</h4> 
     		<div class="m">
 				<p>You can use this utility to:</p>
@@ -105,6 +157,132 @@ $(document).ready(function() {
 	        }
 	        echo '</div>';
 	        ?>
+    	</div>
+    	<div class="section" id="manage-users">
+    		<h4>Manage users</h4>
+    		Pending...
+    	</div>
+    	<div class="section" id="manage-books">
+    		<h4>Manage books</h4>
+    		Pending...
+    	</div>
+    	<div class="section" id="generate-email-list">
+			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=generate-email-list#tabs-utils" method="post">
+			<input type="hidden" name="zone" value="utils" />
+			<input type="hidden" name="action" value="get_email_list" />
+			<h4>Generate email list</h4><br />
+			Please cut-and-paste into the "Bcc" (rather than "Cc") field to protect anonymity<br />
+			<textarea class="textarea_list form-control" style="width:100%; height:300px;"><?php 
+				if (!isset($email_list)) {
+					
+				} elseif (empty($email_list)) {
+					echo 'No email addresses could be found';
+				} else {
+					echo implode(", ", $email_list);
+				}
+			?></textarea><br />
+			<input type="submit" value="Generate" class="btn btn-primary" onclick="this.disabled=true;" />
+			</form>   	
+    	</div>
+    	<div class="section" id="recreate-book-folders">
+			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=recreate-book-folders#tabs-utils" method="post">
+			<input type="hidden" name="zone" value="utils" />
+			<input type="hidden" name="action" value="recreate_book_folders" />
+			<h4>Recreate book folders</h4>
+			Will rebuild book folders that may have gone missing from the Scalar root directory.<br /><br />
+			<textarea class="textarea_list form-control" style="width:100%; height:300px;"><?php 
+				if (!isset($book_list)) {
+					
+				} elseif (empty($book_list)) {
+					echo 'No book folders required recreating';
+				} else {
+					echo implode("\n", $book_list);
+				}
+			?></textarea><br />
+			<input type="submit" value="Recreate" class="btn btn-primary" onclick="this.disabled=true;" />
+			</form>    	
+    	</div>
+    	<div class="section" id="list-all-users">
+			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-all-users#tabs-utils" method="post">
+			<input type="hidden" name="zone" value="utils" />
+			<input type="hidden" name="action" value="get_recent_users" />
+			<h4>List all users</h4>
+			You can delete users and their associated books from this list; links will open in the All Users tab in new window.<br /><br />
+			<div class="div_list"><?php 
+				if (!isset($recent_user_list)) {
+					
+				} elseif (empty($recent_user_list)) {
+					echo 'No users could be found!';
+				} else {
+					foreach($recent_user_list as $user) {
+						echo '<div>';
+						echo '<label><input type="checkbox" name="user_id[]" value="'.$user->user_id.'" /> &nbsp; ';
+						echo $user->email.'</label> &nbsp; ';
+						echo '<a href="'.base_url().'system/dashboard?zone=all-users&id='.$user->user_id.'#tabs-all-users" target="_blank">'.((!empty($user->fullname))?trim($user->fullname):'(No fullname)').'</a> &nbsp; ';
+						echo (!empty($user->url)) ? '<a href="'.$user->url.'" target="_blank">'.$user->url.'</a> &nbsp; ' : '';
+						echo '</div>'."\n";
+					}
+				}
+			echo '</div>'."\n";
+			echo '</form>'."\n";
+			if (isset($recent_user_list) && !empty($recent_user_list)) {
+				echo '<form id="do_delete_users_form" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=list-all-users#tabs-utils" method="post">';
+				echo '<input type="hidden" name="zone" value="utils" />';
+				echo '<input type="hidden" name="action" value="do_delete_users" />';
+				echo '<input type="hidden" name="user_ids" value="" />';
+				echo '<input type="hidden" name="delete_books" value="0" />';
+				echo '<input type="submit" class="btn btn-default btn-sm" value="Delete selected users" onclick="$(this).closest(\'form\').find(\'[name=\\\'delete_books\\\']\').val(0)" /> &nbsp; ';
+				echo '<input type="submit" class="btn btn-default btn-sm" value="Delete selected users and books they author" onclick="$(this).closest(\'form\').find(\'[name=\\\'delete_books\\\']\').val(1)" />';
+				echo '</form>'."\n";
+			}
+			?>
+			<br />
+			<input type="button" value="Generate" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').submit();" />
+    	</div>
+    	<div class="section" id="list-all-books">
+			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-all-books#tabs-utils" method="post">
+			<input type="hidden" name="zone" value="utils" />
+			<input type="hidden" name="action" value="get_recent_book_list" />
+			<h4>List all books</h4>
+			Delete books and their creators from this list; links will open in the All Books or All Users tab in new window.<br /><br />
+			<div class="div_list"><?php 
+				if (!isset($recent_book_list)) {
+					
+				} elseif (empty($recent_book_list)) {
+					echo 'No books could be found!';
+				} else {
+					foreach($recent_book_list as $book) {
+						echo '<div>';
+						echo '<label><input type="checkbox" name="book_id[]" value="'.$book->book_id.'" /> &nbsp; ';
+						echo date('Y-m-d', strtotime($book->created)).'</label> &nbsp; ';
+						echo '<a href="'.base_url().'system/dashboard?zone=all-books&id='.$book->book_id.'#tabs-all-books" target="_blank">'.((!empty($book->title))?trim($book->title):'(No title)').'</a> &nbsp; ';
+						echo (!empty($book->subtitle)) ? $book->subtitle.' &nbsp; ' : '';
+						echo (!empty($book->description)) ? $book->subtitle.' &nbsp; ' : '';
+						if (!empty($book->creator)) {
+							echo 'created by &nbsp; <a href="'.base_url().'system/dashboard?zone=all-users&id='.$book->creator->user_id.'#tabs-all-users" target="_blank">';
+							echo $book->creator->fullname;
+							echo '</a> &nbsp; ';
+						} else {
+							echo 'created by user no longer exists &nbsp; ';
+						}
+						echo '</div>'."\n";
+					}
+				}
+			echo '</div>'."\n";
+			echo '</form>'."\n";
+			if (isset($recent_book_list) && !empty($recent_book_list)) {
+				echo '<form id="do_delete_books_form" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=list-all-books#tabs-utils" method="post">';
+				echo '<input type="hidden" name="zone" value="utils" />';
+				echo '<input type="hidden" name="action" value="do_delete_books" />';
+				echo '<input type="hidden" name="book_ids" value="" />';
+				echo '<input type="hidden" name="delete_creators" value="0" />';
+				echo '<input type="submit" class="btn btn-default btn-sm" value="Delete selected books" onclick="$(this).closest(\'form\').find(\'[name=\\\'delete_creators\\\']\').val(0)" /> &nbsp; ';
+				echo '<input type="submit" class="btn btn-default btn-sm" value="Delete selected books and their creator user accounts" onclick="$(this).closest(\'form\').find(\'[name=\\\'delete_creators\\\']\').val(1)" />';
+				echo '</form>'."\n";
+			}
+			?>
+			<br />
+			<input type="button" value="Generate" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').submit();" />
     	</div>
     </section>
   </div>

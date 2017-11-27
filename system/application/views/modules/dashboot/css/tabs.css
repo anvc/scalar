@@ -100,3 +100,6 @@ header h5 {margin-bottom:14px;}
 
 .message-pane { border-radius: 5px; border: 1px solid #dedede; padding: 20px; font-size: 18px; color: #686868; line-height: 130%; }
 .message-pane.dark { background-color: #f9f9f9; }
+
+.nav-pills > li.admin > a {color: #d9534f;}
+.nav-pills > li.admin.active > a {background-color: #d9534f; color:white;}
