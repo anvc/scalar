@@ -24,6 +24,26 @@
 		var mediaelement = m;
 		var element = e;
 
+		var _linkify = function(inputText) {  // http://stackoverflow.com/questions/37684/how-to-replace-plain-urls-with-links
+		    if (-1!=inputText.indexOf('<a')) return inputText;
+			var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;  // URLs starting with http://, https://, or ftp://
+		    var replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+		    var replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;  // URLs starting with www. (without // before it, or it'd re-link the ones done above)
+		    var replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+		    var replacePattern3 = /(\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6})/gim;  // Change email addresses to mailto:: links
+		    var replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+		    var replacePattern4 = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/;  // lat/lng, link to a map
+		    var replacedText = replacedText.replace(replacePattern4, '<a href="https://www.google.com/maps?q=$1,$3" target="_blank">$1,$3</a>');
+		    var maxLength = 95;  // Trim the length of a URL so it doesn't run off side of panel in some cases
+		    if ($('<div>'+replacedText+'</div>').find('a').length && $('<div>'+replacedText+'</div>').find('a:first').text().length > maxLength) {
+		    	var text = $('<div>'+replacedText+'</div>').find('a:first').text().substr(0,maxLength)+'...';
+		    	var $obj = $('<div>'+replacedText+'</div>');
+		    	$obj.find('a:first').text(text);
+		    	var replacedText = $obj.html();
+		    };
+		    return replacedText;
+		};
+		
 		var media = {
 
 			options: $.extend({
@@ -259,25 +279,6 @@
 			},
 
 			addMetadataTableForNodeToElement: function(node, element) {
-				var _linkify = function(inputText) {  // http://stackoverflow.com/questions/37684/how-to-replace-plain-urls-with-links
-				    if (-1!=inputText.indexOf('<a')) return inputText;
-					var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;  // URLs starting with http://, https://, or ftp://
-				    var replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
-				    var replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;  // URLs starting with www. (without // before it, or it'd re-link the ones done above)
-				    var replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
-				    var replacePattern3 = /(\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6})/gim;  // Change email addresses to mailto:: links
-				    var replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
-				    var replacePattern4 = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/;  // lat/lng, link to a map
-				    var replacedText = replacedText.replace(replacePattern4, '<a href="https://www.google.com/maps?q=$1,$3" target="_blank">$1,$3</a>');
-				    var maxLength = 95;  // Trim the length of a URL so it doesn't run off side of panel in some cases
-				    if ($('<div>'+replacedText+'</div>').find('a').length && $('<div>'+replacedText+'</div>').find('a:first').text().length > maxLength) {
-				    	var text = $('<div>'+replacedText+'</div>').find('a:first').text().substr(0,maxLength)+'...';
-				    	var $obj = $('<div>'+replacedText+'</div>');
-				    	$obj.find('a:first').text(text);
-				    	var replacedText = $obj.html();
-				    };
-				    return replacedText;
-				};	
 				var table = $( '<table></table>' ).appendTo(element);
 				// basic Scalar properties
 				table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
@@ -302,7 +303,7 @@
 				// API links
 				table.append('<tr><td>View as</td><td><a href="'+node.url+'.rdfxml">RDF-XML</a>, <a href="'+node.url+'.rdfjson">RDF-JSON</a>, or <a href="'+node.url+'.meta">HTML</a></td></tr>');				
 			}
-		}
+		}  //!var media
 
 		var node = mediaelement.model.node;
 
@@ -350,7 +351,7 @@
 				var descriptionPane = $('<div class="media_description pane"></div>').appendTo(element);
 				if (node.current.source != null) {
 					if (media.options.caption != 'metadata') {
-						description += '<br><i>Source: ' + node.current.source + '</i>';
+						description += '<br>Source: ' + _linkify(node.current.source);
 					} else {
 						descriptionPane.addClass('media_metadata');
 					}
