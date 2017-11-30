@@ -885,6 +885,7 @@ base.updatePlaceholders($(this));
             var $body = $node.find('.bodyContent');
             var $body_copy = $body.clone();
             $body_copy.find('.placeholder').remove();
+            $body_copy.find('a[data-linkid]').removeAttr('data-linkid');
             var body = $body_copy.html();
             if($body.hasClass('media')){
                 body = null;
@@ -1073,7 +1074,7 @@ base.updatePlaceholders($(this));
                 linkCount++;
             });
 
-            if($node.find('.bodyContent a[resource][data-align="right"]:not(.inline),.bodyContent a[data-widget][data-align="right"]:not(.inline)').length > 0){
+            if($node.find('.bodyContent a[resource][data-align="right"]:not(.inline),.bodyContent a[data-widget][data-align="right"]:not(.inline),.bodyContent a[data-size="full"]').length > 0){
                 $node.addClass('gutter');
             }
 
