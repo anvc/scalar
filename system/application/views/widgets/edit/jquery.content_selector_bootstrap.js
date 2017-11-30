@@ -2432,30 +2432,29 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		});
 		$search.find('button').click(function() {
 			var $dialogue_container = $(this).parents('.node_selector');
+			lastLoadType = "filter";
 			var $search = $dialogue_container.find('.node_search');
 			$search.find('input').val('');
 			doTypeFilter();
 		});
 		$search.find('input').on("keyup change", function() {
 			if ($(this).val() == "") {
-				var $dialogue_container = $(this).parents('.node_selector');
-				var $type_filter_button = $dialogue_container.find('.node_filter button');
-				doTypeFilter();
+				$(this).parents('.node_selector').find('.node_search button').click();
 				return false;
 			}
 			if ($(this).data('timeout') != undefined) {
 				window.clearTimeout($(this).data('timeout'));
 			}
+			var this_opts = opts;
 			$(this).data('timeout', setTimeout($.proxy(function() {
 				lastLoadType = "search";
 				var promise = $.Deferred();
 				$.when(promise).then(updateNodeList);
 				var $dialogue_container = $(this).parents('.node_selector');
 				var $type_selector = $dialogue_container.find('.node_filter select');
-				var opts = $dialogue_container.data('opts');
-				var rec = opts.rec;
-				var ref = opts.ref;
-				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr>');
+				var rec = this_opts.rec;
+				var ref = this_opts.ref;
+				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="' + (this_opts.fields.length + (this_opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr>');
 				load_node_list({
 					"type": current_type,
 					"search": $dialogue_container.find('.node_search input').val(),
