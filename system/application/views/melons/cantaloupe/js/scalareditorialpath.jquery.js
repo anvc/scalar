@@ -1012,7 +1012,7 @@ base.updatePlaceholders($(this));
                                 $placeholder.find('content').append('<div class="description">'+description+'</div>');
                             }
                             if(typeof media !== 'undefined' && media !== null && media !== undefined){
-                                $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+thumbnail_url+'"><br />'+media.getDisplayTitle()+'<br />(Click to load '+media.current.mediaSource.contentType+')');
+                                $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+thumbnail_url+'"><br />'+media.getDisplayTitle()+'<span class="clickToLoadNotice"><br />(Click to load '+media.current.mediaSource.contentType+')</span>');
                             }else{
                                 $placeholder.find('.body').html('Missing Media! ('+resource+')');
                             }
@@ -1022,7 +1022,7 @@ base.updatePlaceholders($(this));
                         }
                     })($placeholder,$(this).attr('resource'),$node);
                 }else{
-                    $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+$('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$(this).data('widget')+'.png"><br />'+base.ucwords($(this).data('widget'))+' Widget<br />(Click to load widget)');
+                    $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+$('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_'+$(this).data('widget')+'.png"><br />'+base.ucwords($(this).data('widget'))+' Widget<span class="clickToLoadNotice"><br />(Click to load widget)</span>');
                     var slug = undefined;
                     if($(this).data('nodes') != undefined){
                       slug = $(this).data('nodes').replace(/\*/g, '');

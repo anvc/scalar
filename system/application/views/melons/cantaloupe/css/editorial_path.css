@@ -569,3 +569,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	color: #000;
 	text-align: left;
 }
+.cke_editable .clickToLoadNotice{
+	display: none;
+}
