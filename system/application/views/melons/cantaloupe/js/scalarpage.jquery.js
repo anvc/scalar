@@ -3004,6 +3004,16 @@
                         }
                         page.addExternalLinks();
                         page.addNotes();
+                    } else {
+                        page.addRelationshipNavigation({
+                            showLists: false,
+                            showParentNav: false,
+                            showChildNav: false,
+                            showLateralNav: false,
+                            showAnno: false,
+                            showComments: false,
+                            showTags: false
+                        });
                     }
                     page.addColophon();
                     if (viewType != 'edit') {
