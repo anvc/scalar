@@ -109,6 +109,9 @@
         // Disallow certain files
         private function is_allowed($file) {
         	
+        	if (stristr($file, '../')) return false;
+        	if (stristr($file, './')) return false;
+			if ('.'==substr($file, 0, 1)) return false;
         	$ext = pathinfo($file, PATHINFO_EXTENSION);
         	if ('php' == $ext) return false;
         	if ('php4' == $ext) return false;
