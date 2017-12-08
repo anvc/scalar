@@ -100,6 +100,24 @@ header h5 {margin-bottom:14px;}
 
 .message-pane { border-radius: 5px; border: 1px solid #dedede; padding: 20px; font-size: 18px; color: #686868; line-height: 130%; }
 .message-pane.dark { background-color: #f9f9f9; }
+.editorial-summary .col-md-8 { padding-right: 0; }
+.editorial-gauge { width: 100%; }
+.editorial-fragment { 
+	height: 40px; 
+	display: inline-block; 
+	cursor: pointer; 
+	color: white; 
+	line-height: 40px; 
+	text-align: center; 
+	font-size: 14px; 
+	overflow: hidden; 
+	white-space: nowrap;
+}
+.usage-rights-gauge { font-size: 12px; color: #666; width: 100%; }
+.usage-rights-fragment { background-color: #2A6496; height: 5px; }
 
 .nav-pills > li.admin > a {color: #d9534f;}
 .nav-pills > li.admin.active > a {background-color: #d9534f; color:white;}
+
+.visibilityLink .glyphicon-eye-open { color: #888888; }
+.visibilityLink .glyphicon-eye-close { color: #c1c1c1; }

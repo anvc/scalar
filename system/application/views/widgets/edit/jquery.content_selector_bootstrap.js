@@ -1845,13 +1845,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								break;
 							case 'visible':
 								var is_visible = ('undefined' != typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive']) && 1 == parseInt(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive'][0].value)) ? true : false;
-								var visibleThumbUrl = (is_visible) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="is_live" align="center"><a class="visibilityLink" href="javascript:void(null);"><img src="' + visibleThumbUrl + '" /></a></td>';
+								var visibleThumbUrl = (is_visible) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="is_live" align="center"><a class="visibilityLink" href="javascript:void(null);"><span class="glyphicon ' + visibleThumbUrl + '" aria-hidden="true"></span></a></td>';
 								break;
 							case 'listed':
 								var is_listed = (1 == parseInt(item.listed)) ? true : false;
-								var listedThumbUrl = (is_listed) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="list_in_index" style="padding-left:19px;"><a class="visibilityLink" href="javascript:void(null);"><img src="' + listedThumbUrl + '" /></a></td>';
+								var listedThumbUrl = (is_listed) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="list_in_index" style="padding-left:19px;"><a class="visibilityLink" href="javascript:void(null);"><span class="glyphicon ' + listedThumbUrl + '" aria-hidden="true"></span></a></td>';
 								break;
 							case 'order':
 								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="sort_number" style="padding-left:23px;">' + item.index + '</td>';
@@ -2118,7 +2118,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								to_save.section = 'user_books';
 								to_save.id = $this.data('user-id');
 								to_save.book_id = book_id;
-								to_save.list_in_index = (-1 != $this.find('td[property="list_in_index"] img').attr('src').indexOf('visible-icon')) ? 1 : 0;
+								to_save.list_in_index = $this.find('td[property="list_in_index"] .glyphicon-eye-open').length > 0 ? 1 : 0;
 								if (parseInt(to_save.id) == my_user_id && to_save.relationship.toLowerCase() != 'author' && !confirm('Are you sure you wish to change your role away from Author? You might lose permissions to edit this book.')) {
 									$this.find('td[property="relationship"]').text('Author');
 									$this.click();
@@ -2140,23 +2140,23 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var $this = $(this);
 					if (opts.isEdit && $this.hasClass('visibilityLink') && 'is_live'==$this.parent().attr('property')) {
 						var content_id = $this.closest('tr').data('content-id');
-						var is_live = (-1 != $this.find('img').attr('src').indexOf('visible-icon')) ? true : false;
+						var is_live = $this.find('.glyphicon-eye-open').length > 0 ? true : false;
 						var post = {section:'pages',id:content_id,is_live:((is_live)?0:1)};
 						push_row(post, function(data) {
 							if (data.error) return alert(data.error);
-							var visibleThumbUrl = (1==data.is_live) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
-							$this.find('img').attr('src', visibleThumbUrl);
+							var visibleThumbUrl = (1==data.is_live) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
+							$this.find('.glyphicon').removeClass('glyphicon-eye-open glyphicon-eye-close').addClass(visibleThumbUrl);
 						});
 					} else if (opts.isEdit && $this.hasClass('visibilityLink') && 'list_in_index'==$this.parent().attr('property')) {
 						var user_id = $this.closest('tr').data('user-id');
-						var list_in_index = (-1 != $this.find('img').attr('src').indexOf('visible-icon')) ? true : false;
+						var list_in_index = $this.find('.glyphicon-eye-open').length > 0 ? true : false;
 						var relationship = $this.closest('tr').find('td[property="relationship"]').text();
 						var sort_number = $this.closest('tr').find('td[property="sort_number"]').text();
 						var post = {section:'user_books',id:user_id,book_id:book_id,list_in_index:((list_in_index)?0:1),relationship:relationship,sort_number:sort_number};
 						push_row(post, function(data) {
 							if (data.error) return alert(data.error);
-							var visibleThumbUrl = (1==data.list_in_index) ? $('link#approot').attr('href') + 'views/widgets/edit/visible-icon.png' : $('link#approot').attr('href') + 'views/widgets/edit/hidden-icon.png';
-							$this.find('img').attr('src', visibleThumbUrl);
+							var visibleThumbUrl = (1==data.list_in_index) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
+							$this.find('.glyphicon').removeClass('glyphicon-eye-open glyphicon-eye-close').addClass(visibleThumbUrl);
 						});
 					} else if ($this.hasClass('contributionsLink')) {
 						if (!opts.contributionsOptions) return alert("Couldn't find the contributions callback");
