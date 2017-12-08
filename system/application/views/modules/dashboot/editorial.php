@@ -13,8 +13,25 @@ $editorial_states = array(
   "editReview" => array( 'id' => "editReview", 'name' => "Edit Review", 'next' => 'clear' ),
   "clean" => array( 'id' => "clean", 'name' => "Clean", 'next' => 'ready' ),
   "ready" => array( 'id' => "ready", 'name' => "Ready", 'next' => 'published' ),
-  "published" => array( 'id' => "published", 'name' => "Published" ),
+  "published" => array( 'id' => "published", 'name' => "Published" )
 );
+$state_counts = array(
+  "draft" => rand(0, 100),
+  "edit" => rand(0, 100),
+  "editReview" => rand(0, 100),
+  "clean" => rand(0, 100),
+  "ready" => rand(0, 100),
+  "published" => 0
+);
+$state_percentages = array();
+$usage_rights_percentage = rand(0, 100) * .01;
+$page_count = 0;
+foreach ($state_counts as $key => $value) {
+  $page_count += $value;
+}
+foreach ($state_counts as $key => $value) {
+  $state_percentages[$key] = $value / $page_count;
+}
 
 $user_type = $user_types[array_rand($user_types, 1)];
 $editorial_state = array_rand($editorial_states, 1);
@@ -210,10 +227,19 @@ $current_messaging = $editorial_messaging[$user_type][$proxy_editorial_state][$e
 
 if ($editorial_is_on): ?>
 <div class="container-fluid properties">
-  <div class="row">
+  <div class="row editorial-summary">
     <div class="col-md-8">
       <div class="message-pane">
-        <p><strong><? echo($editorial_quantifiers[$editorial_quantifier] . ' ' . $project_type) ?> is in the <? echo($editorial_states[$editorial_state]['name']) ?> state.</strong><br><? echo($current_messaging['current_task']) ?></p>
+        <p><strong><? echo($editorial_quantifiers[$editorial_quantifier].' '.$project_type) ?> is in the <? echo($editorial_states[$editorial_state]['name']) ?> state.</strong><br><? echo($current_messaging['current_task']) ?></p>
+        <div class="editorial-gauge"><? 
+          foreach ($state_percentages as $key => $value) {
+            $percentage = round($value*100);
+            echo('<div class="'.$key.'-state editorial-fragment" style="width: '.($value*100).'%"><strong>'.$editorial_states[$key]['name'].'</strong> ('.$percentage.'%)</div>');
+          }
+        ?></div>
+        <div class="usage-rights-gauge">
+          <? echo('<div class="usage-rights-fragment" style="width: '.($usage_rights_percentage*100).'%"></div>Usage rights: '.($usage_rights_percentage*100).'%'); ?>    
+        </div>
       </div>
     </div>
     <div class="col-md-4">
