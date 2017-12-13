@@ -1,9 +1,9 @@
 @import url(//fonts.googleapis.com/css?family=Lato:900,400);
 
 html {width:100%; height:100%;}
-body {height:100%; background-color:#c1c1c1; margin:0px 70px 0px 70px; font-family: 'Lato', Arial, sans-serif;}
-.bgcolor {background-color:#ffffff; min-height:100%; max-width:1040px; margin-left:auto; margin-right:auto; padding-left:40px; padding-right:40px;}
-header {padding-top:22px;}
+body {height:100%; background-color:#c1c1c1; margin: 0; font-family: 'Lato', Arial, sans-serif;}
+.bgcolor {background-color:#ffffff; min-height:100%; max-width:1040px; margin-left:auto; margin-right:auto; padding-left:10px; padding-right:10px;}
+header {padding-top:10px;}
 header h4 {font-weight:900;}
 table {border-collapse:initial;}
 
@@ -121,3 +121,14 @@ header h5 {margin-bottom:14px;}
 
 .visibilityLink .glyphicon-eye-open { color: #888888; }
 .visibilityLink .glyphicon-eye-close { color: #c1c1c1; }
+
+/* (tablets, 768px and up) */
+@media (min-width: 768px) { 
+	.bgcolor { padding-left:40px; padding-right:40px; }
+	header { padding-top:22px; }
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) {	
+	body { margin: 0px 70px 0px 70px; }
+}

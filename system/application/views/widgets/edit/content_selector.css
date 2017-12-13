@@ -129,6 +129,7 @@
 }
 .node_selector select{
 	text-align:left;
+	vertical-align: top;
 }
 .node_selector .input-xs {
   height: auto;
@@ -157,10 +158,10 @@
 }
 .node_selector .botton_options_box{
 	float:left;
-	white-space:nowrap;
 }
 .node_selector .botton_options_box button, .node_selector .botton_options_box > span{
 	margin-right:10px;
+	margin-bottom: 10px;
 }
 .node_selector .panel-heading, .node_selector .panel-footer{
 	background-color: transparent;

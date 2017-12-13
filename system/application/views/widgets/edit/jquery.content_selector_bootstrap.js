@@ -2260,7 +2260,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 		if (isset(opts.deleteOptions) && opts.deleteOptions) {
 			$dialogue_container.find('.selected_node_count').css('float', 'right').css('margin-left', 0);
-			var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
+			var $deleteOpts = $('<div class="col-xs-7 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
 			if (isset(opts.allowMultiple) && opts.allowMultiple) {
 				var $selectall = $('<button type="button" class="btn btn-default">Select all</button>').appendTo($deleteOpts);
 				$selectall.off('click').on('click', function() {
@@ -2295,9 +2295,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		if (isset(opts.userOptions) && opts.userOptions) {
 			if ('undefined' == typeof($deleteOpts)) {
 				$dialogue_container.find('.selected_node_count').css('float', 'right').css('margin-left', 0);
-				var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
+				var $deleteOpts = $('<div class="col-xs-7 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
 			} else {
-				$deleteOpts.append('<span> | </span>');
+				$deleteOpts.append('<span> &nbsp; </span>');
 			}
 			$deleteOpts.append('<button type="button" class="btn btn-default">Add new user</button>');
 			$deleteOpts.find('button:last').off('click').on('click', function() {
@@ -2312,9 +2312,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		if (isset(opts.addOptions) && opts.addOptions) {
 			if ('undefined' == typeof($deleteOpts)) {
 				$dialogue_container.find('.selected_node_count').css('float', 'right').css('margin-left', 0);
-				var $deleteOpts = $('<div class="col-xs-6 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
+				var $deleteOpts = $('<div class="col-xs-7 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
 			} else {
-				$deleteOpts.append('<span> | </span>');
+				$deleteOpts.append('<span> &nbsp; </span>');
 			}
 			$deleteOpts.append('<button type="button" class="btn btn-default">Add new page</button>');
 			$deleteOpts.find('button:last').off('click').on('click', function() {
