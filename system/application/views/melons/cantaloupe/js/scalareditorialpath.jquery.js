@@ -288,7 +288,6 @@
                                                                       '<div class="relations"></div>'+
                                                                     '</div>'+
                                                                 '</li>';
-                                                                console.log(nodeMatchItemHTML);
                                     }else{
                                         var nodeMatchItemHTML = '<li class="heading_font">'+
                                                                     '<a class="resultTitle" href="#">'+
@@ -842,8 +841,7 @@
                                 }
                                 $(this).find('.placeholder').off('hover');
                                 $(this).prop('contenteditable',false);
-console.log($(this).prop('contenteditable'));
-base.updatePlaceholders($(this));
+                                base.updatePlaceholders($(this));
                                 //Save the current watcher then unload it.
                                 if(base.wasDirty){
                                     base.saveNode(base.currentEditNode);
@@ -886,6 +884,7 @@ base.updatePlaceholders($(this));
             var $body_copy = $body.clone();
             $body_copy.find('.placeholder').remove();
             $body_copy.find('a[data-linkid]').removeAttr('data-linkid');
+            $body_copy.find('a[data-cke-saved-href]').removeAttr('data-cke-saved-href');
             var body = $body_copy.html();
             if($body.hasClass('media')){
                 body = null;
@@ -962,7 +961,6 @@ base.updatePlaceholders($(this));
             var linkCount = 0; //$node.find('.bodyContent a[resource]').length + $node.find('.bodyContent a[data-widget]').length;
             $node.data('linkCount',linkCount);
             $node.find('.bodyContent a[resource], .bodyContent a[data-widget]').each(function(){
-
                 var $placeholder = $('<div class="placeholder caption_font clearfix" contenteditable="false"><div class="content"><div class="body"></div></div></div>');
                 if($(this).hasClass('wrap')){
                     $placeholder.addClass('wrap');
@@ -984,10 +982,12 @@ base.updatePlaceholders($(this));
                 }else{
                     if($(this).siblings('.placeholder').length > 0){
                         $(this).siblings('.placeholder').last().after($placeholder);
-                    }else if($(this).parent().is('p')){
+                    }else if($(this).parent().is('p, div')){
                         $(this).parent().prepend($placeholder);
-                    }else if($(this).prev('br, div, p').length > 0){
-                        $(this).prev('br, div, p').last().after($placeholder);
+                    }else if($(this).parents('br, div, p, h1, h2, h3, h4, h5, h6, h7').length > 0){
+                        $(this).parents('br, div, p, h1, h2, h3, h4, h5, h6, h7').first().prepend($placeholder);
+                    }else if($(this).prev('br, div, p, h1, h2, h3, h4, h5, h6, h7').length > 0){
+                        $(this).prev('br, div, p, h1, h2, h3, h4, h5, h6, h7').last().after($placeholder);
                     }else{
                         $(this).parents('.bodyContent').prepend($placeholder);
                     }
@@ -1075,7 +1075,8 @@ base.updatePlaceholders($(this));
             });
 
             if($node.find('.bodyContent a[resource][data-align="right"]:not(.inline),.bodyContent a[data-widget][data-align="right"]:not(.inline),.bodyContent a[data-size="full"]').length > 0){
-                $node.addClass('gutter');
+                //Don't add a gutter any more, because it makes for some weird visual artifacts
+                //$node.addClass('gutter');
             }
 
             base.updatePlaceholders($node);

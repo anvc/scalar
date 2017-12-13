@@ -290,10 +290,6 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPathContents .editorial_node .bodyContent{
 	padding: 10px;
 }
-#editorialPathContents .editorial_node.gutter .bodyContent{
-	padding-right: 25%;
-	padding-left: 5%;
-}
 
 #editorialPathContents .editorial_node .bodyContent .placeholder .content .body{
 	background-color: #b4b4b4;
@@ -367,11 +363,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	vertical-align: top;
 }
 
-#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[resource][data-size="small"]:not(.inline),
-#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-widget][data-size="small"]:not(.inline){
-	width: 47.14%;
-}
-
 #editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-size="medium"]:not(.inline),
 #editorialPathContents .editorial_node .bodyContent .placeholder.inline[resource][data-size="medium"] .content,
 #editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-size="medium"]:not(.inline),
@@ -385,17 +376,13 @@ body.shortHeader #editorialSidePanel>.affix{
 	vertical-align: top;
 }
 
-#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[resource][data-size="medium"]:not(.inline),
-#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-widget][data-size="medium"]:not(.inline){
-	width: 71.43%;
-}
-
 #editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-size="large"]:not(.inline),
 #editorialPathContents .editorial_node .bodyContent .placeholder.inline[resource][data-size="large"] .content,
 #editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-size="large"]:not(.inline),
 #editorialPathContents .editorial_node .bodyContent .placeholder.inline[data-widget][data-size="large"] .content{
 	width: 75%;
 }
+
 #editorialPathContents .editorial_node .bodyContent .placeholder.inline.wrap[resource][data-size="large"],
 #editorialPathContents .editorial_node .bodyContent .placeholder.inline.wrap[data-widget][data-size="large"]{
 	width: 75%;
@@ -403,10 +390,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	vertical-align: top;
 }
 
-#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[resource][data-size="large"]:not(.inline),
-#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-widget][data-size="large"]:not(.inline){
-	width: 107.14%;
-}
 
 #editorialPathContents .editorial_node .bodyContent .placeholder[resource]:not(.wrap),#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget]:not(.wrap){
 	white-space: pre;
@@ -434,32 +417,14 @@ body.shortHeader #editorialSidePanel>.affix{
 	width: 100%;
 }
 
-#editorialPathContents .editorial_node .bodyContent .placeholder[data-size="full"]{
-	margin-left: -7.125%;
-    margin-right: 0;
-    width: 142.75%;
-}
 
-#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-align="right"],
-#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-align="right"] 
-{
-	margin-left: 1rem;
-}
 
 
 #editorialPathContents .editorial_node .bodyContent .placeholder.inline[resource][data-align="right"] .content,
 #editorialPathContents .editorial_node .bodyContent .placeholder.inline[data-widget][data-align="right"] .content{
 	float: right;
 }
-#editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-align="right"]:not(.inline),
-#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-align="right"]:not(.inline){
-	margin-right: -60px;
-	float: right;
-}
 
-#editorialPathContents .editorial_node.gutter .bodyContent .placeholder[data-align="right"]:not(.inline){
-	margin-right: -33%;
-}
 
 #editorialPathContents .editorial_node .bodyContent .placeholder[resource][data-align="left"],
 #editorialPathContents .editorial_node .bodyContent .placeholder[data-widget][data-align="left"]{
