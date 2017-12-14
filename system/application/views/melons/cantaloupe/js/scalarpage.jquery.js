@@ -436,22 +436,22 @@
 
                             }
                             var content = $(
-                                '<div class="popup-image" style="padding: 1rem;">' +
-                                    '<img src="'+src+'"/>' +
+                                '<div style="padding: 1rem;">' +
+                                    '<img class="featherlight-image" src="'+src+'"/>' +
                                     '<div class="caption_font mediainfo">' + 
-                                    '<div class="mediaElementFooter">' + 
-                                        '<div class="media_tabs" style="display: block;">' +
-                                            '<div class="media_tab select">Description</div>' + 
-                                            '<div class="media_tab">Citations</div>' + 
-                                            '<div class="media_tab" onclick="javascript:window.open( \'' + node.current.sourceFile + '\', \'popout\' );">Source file</div>' +
-                                        '</div>' +
-                                        '<div class="media_description pane" style="display: block;">' +
-                                            '<p>'+description+'</p>' +
+                                        '<div class="mediaElementFooter">' + 
+                                            '<div class="media_tabs" style="display: block;">' +
+                                                '<div class="media_tab select">Description</div>' + 
+                                                '<div class="media_tab">Citations</div>' + 
+                                                '<div class="media_tab" onclick="javascript:window.open( \'' + node.current.sourceFile + '\', \'popout\' );">Source file</div>' +
+                                            '</div>' +
+                                            '<div class="media_description pane" style="display: block; max-width: 52rem;">' +
+                                                '<p>'+description+'</p>' +
+                                            '</div>' +
                                         '</div>' +
                                     '</div>' +
                                 '</div>');
-                            content.find('.media_tab').eq(1).data('node', node);
-                            content.find('.media_tab').eq(1).click(function() {
+                            content.find('.media_tab').eq(1).data('node', node).click(function() {
                                 page.mediaDetails.show($(this).data('node'));
                                 var current = $.featherlight.current();
                                 current.close();
