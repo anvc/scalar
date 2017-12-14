@@ -37,6 +37,7 @@
 }
 
 .mediaObject { z-index:7; }
+.mediaObject img { cursor: pointer; }
 .annotorious-popup-text .mediaObject, .current_annotation .mediaObject { z-index: auto; }
 
 .note_viewer .mediaelement{

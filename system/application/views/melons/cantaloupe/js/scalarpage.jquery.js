@@ -404,9 +404,59 @@
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
                     if ((mediaelement.model.node.current.mediaSource.contentType == 'image') && (mediaelement.model.node.current.sourceFile.indexOf('criticalcommons.org') == -1)) {
                         if (!isMobile) {
-                            mediaelement.model.element.find('.mediaObject').click(function() {
-                                window.open(mediaelement.model.node.current.sourceFile, 'popout');
-                            }).css('cursor', 'pointer');
+                            var src = mediaelement.model.element.find('img').attr('src');
+                            var description;
+                            var node = mediaelement.model.node;
+                            switch (link.attr('data-caption')) {
+
+                                case 'title':
+                                description = node.getDisplayTitle();
+                                break;
+
+                                case 'title-and-description':
+                                if ( node.current.description != null ) {
+                                    description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+                                } else {
+                                    description = node.getDisplayTitle();
+                                }
+                                break;
+
+                                case 'metadata':
+                                description = $('<div></div>');
+                                media.addMetadataTableForNodeToElement(node, description);
+                                description.unwrap();
+                                break;
+
+                                default:
+                                description = node.current.description;
+                                if ( node.current.description == null ) {
+                                    description = '<p><i>No description available.</i></p>';
+                                }
+                                break;
+
+                            }
+                            var content = $(
+                                '<div class="popup-image" style="padding: 1rem;">' +
+                                    '<img src="'+src+'"/>' +
+                                    '<div class="caption_font mediainfo">' + 
+                                    '<div class="mediaElementFooter">' + 
+                                        '<div class="media_tabs" style="display: block;">' +
+                                            '<div class="media_tab select">Description</div>' + 
+                                            '<div class="media_tab">Citations</div>' + 
+                                            '<div class="media_tab" onclick="javascript:window.open( \'' + node.current.sourceFile + '\', \'popout\' );">Source file</div>' +
+                                        '</div>' +
+                                        '<div class="media_description pane" style="display: block;">' +
+                                            '<p>'+description+'</p>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>');
+                            content.find('.media_tab').eq(1).data('node', node);
+                            content.find('.media_tab').eq(1).click(function() {
+                                page.mediaDetails.show($(this).data('node'));
+                                var current = $.featherlight.current();
+                                current.close();
+                            })
+                            mediaelement.model.element.find('.mediaObject').featherlight(content);
                         }
                     }
                 }

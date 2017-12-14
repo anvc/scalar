@@ -543,7 +543,9 @@ $(window).ready(function() {
 				widgets_uri+'/mediaelement/annotorious.debug.js',
 				widgets_uri+'/mediaelement/css/annotorious.css',
 				widgets_uri+'/mediaelement/mediaelement.css',
-				widgets_uri+'/mediaelement/jquery.mediaelement.js'], complete:function() {
+				widgets_uri+'/mediaelement/jquery.mediaelement.js',
+				widgets_uri+'/mediaelement/featherlight.min.css',
+				widgets_uri+'/mediaelement/featherlight.min.js'], complete:function() {
 
 		        var currentNode = scalarapi.model.getCurrentPageNode();
 

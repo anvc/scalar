@@ -463,7 +463,7 @@
 				media.options[ 'details' ].show( node );
 			} );
 
-			var sourceTab = $( '<div class="media_tab">Source</div>' ).appendTo( mediaTabs );
+			var sourceTab = $( '<div class="media_tab">Source file</div>' ).appendTo( mediaTabs );
 			sourceTab.click( function() {
 				window.open( node.current.sourceFile, 'popout' );
 			} );
