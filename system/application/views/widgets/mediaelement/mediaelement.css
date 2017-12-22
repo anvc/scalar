@@ -40,13 +40,6 @@
 .mediaObject img { cursor: pointer; }
 .annotorious-popup-text .mediaObject, .current_annotation .mediaObject { z-index: auto; }
 
-.featherlight-image {
-    width: auto !important;
-    height: auto !important;
-    max-width: 100%;
-    max-height: 80vh;
-}
-
 .note_viewer .mediaelement{
 	margin: 0px;
 }

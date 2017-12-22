@@ -400,63 +400,15 @@
                     }
                 }
 
-                // make images that don't come from Critical Commons open the image file in a lightbox when clicked
+                // make images that don't come from Critical Commons open the citations view when clicked
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
                     if ((mediaelement.model.node.current.mediaSource.contentType == 'image') && (mediaelement.model.node.current.sourceFile.indexOf('criticalcommons.org') == -1)) {
                         if (!isMobile) {
-                            var src = mediaelement.model.element.find('img').attr('src');
-                            var description;
-                            var node = mediaelement.model.node;
-                            switch (link.attr('data-caption')) {
-
-                                case 'title':
-                                description = node.getDisplayTitle();
-                                break;
-
-                                case 'title-and-description':
-                                if ( node.current.description != null ) {
-                                    description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
-                                } else {
-                                    description = node.getDisplayTitle();
+                            mediaelement.model.element.find('.mediaObject').click(function() {
+                                if ($('.media_details').css('display') == 'none') {                                    
+                                    page.mediaDetails.show(mediaelement.model.node);
                                 }
-                                break;
-
-                                case 'metadata':
-                                description = $('<div></div>');
-                                media.addMetadataTableForNodeToElement(node, description);
-                                description.unwrap();
-                                break;
-
-                                default:
-                                description = node.current.description;
-                                if ( node.current.description == null ) {
-                                    description = '<p><i>No description available.</i></p>';
-                                }
-                                break;
-
-                            }
-                            var content = $(
-                                '<div style="padding: 1rem;">' +
-                                    '<img class="featherlight-image" src="'+src+'"/>' +
-                                    '<div class="caption_font mediainfo">' + 
-                                        '<div class="mediaElementFooter">' + 
-                                            '<div class="media_tabs" style="display: block;">' +
-                                                '<div class="media_tab select">Description</div>' + 
-                                                '<div class="media_tab">Citations</div>' + 
-                                                '<div class="media_tab" onclick="javascript:window.open( \'' + node.current.sourceFile + '\', \'popout\' );">Source file</div>' +
-                                            '</div>' +
-                                            '<div class="media_description pane" style="display: block; max-width: 52rem;">' +
-                                                '<p>'+description+'</p>' +
-                                            '</div>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</div>');
-                            content.find('.media_tab').eq(1).data('node', node).click(function() {
-                                page.mediaDetails.show($(this).data('node'));
-                                var current = $.featherlight.current();
-                                current.close();
-                            })
-                            mediaelement.model.element.find('.mediaObject').featherlight(content);
+                            }).css('cursor', 'pointer');
                         }
                     }
                 }
