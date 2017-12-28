@@ -106,16 +106,17 @@
             return 'media/'.$targetName;
         }
 
-        // Disallow certain files
-        private function is_allowed($file) {
+		// Disallow certain files
+		private function is_allowed($file) {
         	
 			if (stristr($file, '../')) return false;
 			if (stristr($file, './')) return false;
 			if ('.'==substr($file, 0, 1)) return false;
 			if ('google'==substr($file, 0, 6)) return false;
 			$ext = pathinfo($file, PATHINFO_EXTENSION);
-			if ('php' == $ext) return false;
-			if ('php4' == $ext) return false;
+			if (empty($ext)) return false; // Require a file extension
+			if ('php' == $ext || 'php' == substr($ext, 0, 3)) return false;;
+			if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
 			return true;
         	
         }
