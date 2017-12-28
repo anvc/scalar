@@ -27,6 +27,7 @@
 class MY_Controller extends CI_Controller {
 
 	public $data = array();
+	protected $fallback_page = 'index';
 
 	public function __construct() {
 
@@ -182,6 +183,54 @@ class MY_Controller extends CI_Controller {
 		$uri = (confirm_slash(base_url())).'system/permissions?redirect_url='.urlencode($this->redirect_url());
 		header('Location: '.$uri);
 		exit;
+		
+	}
+	
+	/**
+	 * Redirect to the fallback page
+	 * @return null
+	 */
+	
+	protected function fallback() {
+		
+		if (isset($this->data['base_uri']) && !empty($this->data['base_uri'])) {
+			$url = $this->data['base_uri'].$this->fallback_page;
+		} else if (isset($this->data['book']) && !empty($this->data['book']) && isset($this->data['book']->slug)) {
+			$url = confirm_slash(base_url()).confirm_slash($this->data['book']->slug).$this->fallback_page;
+		} else {
+			$this->kickout();
+		}
+		header('Location: '.$url);
+		exit;
+		
+	}
+	
+	/**
+	 * Test whether the editorial workflow feature is turned on for the current book
+	 * @return bool
+	 */
+	
+	protected function editorial_is_on() {
+		
+		if (!$this->login_is_book_admin('Reviewer')) return false;
+		if (isset($this->data['book']) && isset($this->data['book']->editorial_is_on) && $this->data['book']->editorial_is_on) {
+			return true;
+		}
+		return false;
+		
+	}
+	
+	/**
+	 * Test whether the editorial workflow can be turned on based on the database configuration
+	 * @return bool
+	 */
+	
+	protected function can_editorial() {
+		
+		if (isset($this->data['book']) && isset($this->data['book']->editorial_is_on)) {
+			return true;
+		}
+		return false;
 		
 	}
 

@@ -37,7 +37,6 @@ class Book extends MY_Controller {
 	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
 	private $vis_views = array('vis', 'visindex', 'vispath', 'vismedia', 'vistag');
 	private $fallback_melon = 'honeydew';  // This is independant of the default melon set in the config, which is used for new book creation
-	private $fallback_page = 'index';  // The default home page for a book (/index)
 	private $max_recursions = 2;  // Get relationships of the current page, and the relationships of those relationships (e.g., get this pages tags, and the pages those tags tag)
 
 	/**
@@ -109,10 +108,7 @@ class Book extends MY_Controller {
 			$uri = explode('.',implode('/',array_slice($this->uri->segments, 1)));
 			$slug = $uri[0];
 			$slug_first_segment = (strpos($slug,'/')) ? substr($slug, 0, strpos($slug,'/')) : $slug;
-			if (empty($slug)) {
-				header('Location: '.$this->data['base_uri'].$this->fallback_page);
-				exit;
-			}
+			if (empty($slug)) $this->fallback();
 
 			//Should we give a 404 response?
 			$isNotFound = false;
@@ -824,10 +820,8 @@ class Book extends MY_Controller {
 
 	// Editorial path
 	private function editorialpath() {
-		if($this->data['book']->editorial_is_on !== "1" || !$this->login_is_book_admin('reviewer')){
-			header('Location: '.$this->data['base_uri'].$this->fallback_page);
-			return;
-		}
+		
+		if (!$this->editorial_is_on()) $this->fallback();
 		$this->data['view'] = __FUNCTION__;
 		
 	}

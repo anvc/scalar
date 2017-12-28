@@ -547,8 +547,8 @@ class System extends MY_Controller {
 		        $this->data['current_book_users'] = ($book_id) ? $this->users->get_book_users($book_id) : array();
 		        break;
 		    case 'editorial':
-		    	$this->data['can_editorial'] = (isset($this->data['book']->editorial_is_on)) ? true : false;
-		    	$this->data['editorial_is_on'] = (isset($this->data['book']->editorial_is_on) && $this->data['book']->editorial_is_on) ? true : false;
+		    	$this->data['can_editorial'] = $this->can_editorial();
+		    	$this->data['editorial_is_on'] = $this->editorial_is_on();
 		    	break;
 		    case 'publish':
 			    // Do Nothing.  Nothing needs to be done.
