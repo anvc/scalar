@@ -358,7 +358,7 @@ class System extends MY_Controller {
 					$array = $_POST;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout();
 					$skip_captcha = (isset($array['zone']) && 'all-books'==$array['zone'] && $this->data['login_is_super']) ? true : false;
-					$duplicate = (is_numeric($array['book_to_duplicate']) && !empty($array['book_to_duplicate'])) ? true : false;
+					$duplicate = (isset($array['book_to_duplicate']) && is_numeric($array['book_to_duplicate']) && !empty($array['book_to_duplicate'])) ? true : false;
 					$skip_captcha = true;
 					if (empty($array['title'])) {
 						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=1');

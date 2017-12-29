@@ -90,7 +90,7 @@
         // Thumbnail for the publisher of the book
         public function uploadPublisherThumb($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-            if (!$this->is_allowed($_FILES['upload_thumb']['name'])) throw new Exception('Can not upload thumbnail with that pattern');
+            if (!$this->is_allowed($_FILES['upload_publisher_thumb']['name'])) throw new Exception('Can not upload thumbnail with that pattern');
             $tempFile = $_FILES['upload_publisher_thumb']['tmp_name'];
             $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
             $ext = pathinfo($_FILES['upload_publisher_thumb']['name'], PATHINFO_EXTENSION);
