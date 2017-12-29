@@ -227,10 +227,9 @@ class MY_Controller extends CI_Controller {
 	
 	protected function can_editorial() {
 		
-		if (isset($this->data['book']) && isset($this->data['book']->editorial_is_on)) {
-			return true;
-		}
-		return false;
+		$can = true;
+		if (!isset($this->data['book']) || !isset($this->data['book']->editorial_is_on)) $can = false;
+		return $can;
 		
 	}
 

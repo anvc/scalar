@@ -385,6 +385,11 @@ class RDF_Object {
 		if (!count($row->versions)) return null;
 		$row->version_index = 0;
 		$row = $this->_provenance($row, $settings);
+		if (!isset($settings['book']->editorial_is_on) || empty($settings['book']->editorial_is_on)) {
+			for ($j = 0; $j < count($row->versions); $j++) {
+				unset($row->versions[$j]->editorial_state);
+			}
+		}
 		if (!isset($settings['max_recurses'])) return $row;
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
 
@@ -468,6 +473,10 @@ class RDF_Object {
 			}
 			// Categories (commentaries, reviews) (comments on the book itself)
 			if (!empty($row->category)) $versions[$key]->category = $row->category;
+			// Editorial Workflow
+			if (!isset($settings['book']->editorial_is_on) || empty($settings['book']->editorial_is_on)) {
+				unset($versions[$key]->editorial_state);
+			}
 			// Paywall
 			if (isset($row->paywall) && 1 == $row->paywall && false===$settings['paywall_msg']) {
 				unset($versions[$key]->content);

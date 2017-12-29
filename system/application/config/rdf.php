@@ -80,6 +80,7 @@ $config['rdf_fields'] = array(
 		'has_annotation' => 		'scalar:hasAnnotation',
 		'continue_to_content_id' => 'scalar:continue_to_content_id',
 		'version' =>				'scalar:version',
+		'editorial_state' =>		'scalar:editorialState',
 		'citation' =>				'scalar:citation',
 		'category' =>               'scalar:category',
 		'version_num' => 			'ov:versionnumber',
