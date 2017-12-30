@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -379,6 +379,7 @@ class Version_model extends MY_Model {
     	$data['continue_to_content_id'] = (isset($array['continue_to_content_id'])) ? (int) $array['continue_to_content_id'] : 0;
     	$data['version_num'] = ($this->get_version_num($content_id) + 1);
     	$data['sort_number'] = (isset($array['sort_number'])) ? (int) $array['sort_number'] : 0;
+    	if (isset($array['editorial_state'])) $data['editorial_state'] = trim($array['editorial_state']);
     	$data['attribution'] = isset($array['attribution']) ? serialize($array['attribution']) : '';
      	$data['default_view'] = 'plain';
      	if (isset($array['default_view'])) {
@@ -402,7 +403,8 @@ class Version_model extends MY_Model {
  				if (!strstr($key, ':')) continue;
  				$in_rdf_fields = false;
  				foreach ($ci->rdf_store->ns as $ns_pname => $ns_uri) {
- 					if ($this->rdf_field_exists(str_replace($ns_pname.':', $ns_uri, $key))) $in_rdf_fields = true;
+ 					if ($this->rdf_field_exists($key)) $in_rdf_fields = true;
+ 					if ($this->rdf_field_exists( lcfirst(str_replace(' ', '', ucwords(strtr($key, '_', ' ')))) )) $in_rdf_fields = true;  // underscore to camelcase
  				}
  				if (!$in_rdf_fields) {
  					if (!isset($additional_metadata[$key])) $additional_metadata[$key] = array();
