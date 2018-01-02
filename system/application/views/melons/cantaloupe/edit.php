@@ -470,7 +470,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <? endif ?>
 <input type="hidden" name="urn:scalar:book" value="<?=$book->urn?>" />
 <input type="hidden" name="path" value="<?=(isset($_GET['path']))?trim($_GET['path']):''?>" />
-<?if (isset($page->versions[$page->version_index]->editorial_state)):?>
+<?if (isset($page->version_index) && isset($page->versions[$page->version_index]->editorial_state)):?>
 <input type="hidden" name="scalar:editorial_state" value="<?=$page->versions[$page->version_index]->editorial_state?>" />
 <? endif ?>
 
