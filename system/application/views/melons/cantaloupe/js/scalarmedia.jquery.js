@@ -279,8 +279,13 @@
 			},
 
 			addMetadataTableForNodeToElement: function(node, element) {
-				var table = $( '<table></table>' ).appendTo(element);
+				// custom method if applicable
+				if ('undefined'!=typeof(window['customAddMetadataTableForNodeToElement'])) {
+					customAddMetadataTableForNodeToElement(node, element, _linkify);
+					return;
+				}
 				// basic Scalar properties
+				var table = $( '<table></table>' ).appendTo(element);
 				table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
 				table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'" target="_blank">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
 				table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
