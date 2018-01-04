@@ -9,8 +9,8 @@ $editorial_quantifiers = array(
 );
 $editorial_states = array(
   "draft" => array( 'id' => "draft", 'name' => "Draft" , 'next' => 'edit'),
-  "edit" => array( 'id' => "edit", 'name' => "Edit", 'next' => 'editReview' ),
-  "editReview" => array( 'id' => "editReview", 'name' => "Edit Review", 'next' => 'clear' ),
+  "edit" => array( 'id' => "edit", 'name' => "Edit", 'next' => 'editreview' ),
+  "editreview" => array( 'id' => "editreview", 'name' => "Edit Review", 'next' => 'clear' ),
   "clean" => array( 'id' => "clean", 'name' => "Clean", 'next' => 'ready' ),
   "ready" => array( 'id' => "ready", 'name' => "Ready", 'next' => 'published' ),
   "published" => array( 'id' => "published", 'name' => "Published" )
@@ -18,7 +18,7 @@ $editorial_states = array(
 $state_counts = array(
   "draft" => rand(0, 100),
   "edit" => rand(0, 100),
-  "editReview" => rand(0, 100),
+  "editreview" => rand(0, 100),
   "clean" => rand(0, 100),
   "ready" => rand(0, 100),
   "published" => 0
@@ -80,7 +80,7 @@ $editorial_messaging = array(
         'next_task' => 'Move content from the <strong>Edit Review</strong> state to the Clean state as you respond to editor changes and queries.'
       )
     ),
-    'editReview' => array(
+    'editreview' => array(
       'all' => array(
         'current_task' => 'Review and respond to editor changes and queries.',
         'next_task' => 'Move content from the <strong>Edit Review</strong> state to the Clean state as you respond to editor changes and queries.'
@@ -164,7 +164,7 @@ $editorial_messaging = array(
         'next_task' => 'Move content in the <strong>Edit</strong> state to the <strong>Edit Review</strong> state as you finish making changes and adding queries to it.'
       )
     ),
-    'editReview' => array(
+    'editreview' => array(
       'all' => array(
         'current_task' => 'As the author responds to the edits, they will move content to the <strong>Clean</strong> state for final review.',
         'next_task' => 'Please wait for the author to move content to the <strong>Clean</strong> state.'

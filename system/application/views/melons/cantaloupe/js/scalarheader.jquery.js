@@ -44,7 +44,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             "none": { id: "none", name: null },
             "draft": { id: "draft", name: "Draft" },
             "edit": { id: "edit", name: "Edit" },
-            "editReview": { id: "editReview", name: "Edit Review" },
+            "editreview": { id: "editreview", name: "Edit Review" },
             "clean": { id: "clean", name: "Clean" },
             "ready": { id: "ready", name: "Ready" },
             "published": { id: "published", name: "Published" },
@@ -60,10 +60,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 "edit": {
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any changes or queries.",
                     "previousEditorialState": "draft",
-                    "nextEditorialState": "editReview",
+                    "nextEditorialState": "editreview",
                     "actions": ["Dashboard"]
                 },
-                "editReview": {
+                "editreview": {
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed. Use the <strong>Editorial Path</strong> to view all changes at once.",
                     "previousEditorialState": "edit",
                     "nextEditorialState": "clean",
@@ -71,7 +71,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 },
                 "clean": {
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>An editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
-                    "previousEditorialState": "editReview",
+                    "previousEditorialState": "editreview",
                     "nextEditorialState": "ready",
                     "actions": ["Dashboard"]
                 },
@@ -93,10 +93,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 "edit": {
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>You can review it, make changes, and add queries for the author.",
                     "previousEditorialState": "draft",
-                    "nextEditorialState": "editReview",
+                    "nextEditorialState": "editreview",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
-                "editReview": {
+                "editreview": {
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Once an author moves it to the <strong>$nextEditorialState</strong> state, you can do your final review on it.",
                     "previousEditorialState": "edit",
                     "nextEditorialState": "clean",
@@ -104,7 +104,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 },
                 "clean": {
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Do your final review on the content and move it back to the <strong>$previousEditorialState</strong> state if it requires further changes, or to the <strong>$nextEditorialState</strong> state for publication.",
-                    "previousEditorialState": "editReview",
+                    "previousEditorialState": "editreview",
                     "nextEditorialState": "ready",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
@@ -120,7 +120,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         if (!base.editorialWorkflowEnabled) {
             base.editorialState = base.editorialStates['none'];
         } else {
-            base.editorialState = base.editorialStates['edit'];
+            base.editorialState = base.editorialStates[scalarapi.model.getCurrentPageNode().current.editorialState];
         }
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
