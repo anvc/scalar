@@ -115,7 +115,8 @@
 			if ('google'==substr($file, 0, 6)) return false;
 			$ext = pathinfo($file, PATHINFO_EXTENSION);
 			if (empty($ext)) return false; // Require a file extension
-			if ('php' == $ext || 'php' == substr($ext, 0, 3)) return false;;
+			if ('php' == $ext || 'php' == substr($ext, 0, 3)) return false;
+			if ('zip' == $ext) return false;
 			if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
 			return true;
         	
