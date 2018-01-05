@@ -400,16 +400,14 @@
                     }
                 }
 
-                // make images that don't come from Critical Commons open the citations view when clicked
+                // make images open the citations view when clicked
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
-                    if ((mediaelement.model.node.current.mediaSource.contentType == 'image') && (mediaelement.model.node.current.sourceFile.indexOf('criticalcommons.org') == -1)) {
-                        if (!isMobile) {
-                            mediaelement.model.element.find('.mediaObject').click(function() {
-                                if ($('.media_details').css('display') == 'none') {                                    
-                                    page.mediaDetails.show(mediaelement.model.node);
-                                }
-                            }).css('cursor', 'pointer');
-                        }
+                    if (!isMobile) {
+                        mediaelement.model.element.find('.mediaObject').click(function() {
+                            if ($('.media_details').css('display') == 'none') {                                    
+                                page.mediaDetails.show(mediaelement.model.node);
+                            }
+                        }).css('cursor', 'pointer');
                     }
                 }
 
@@ -2546,6 +2544,7 @@
                     $('.paragraph_wrapper').remove();
                     page.addRelationshipNavigation({ showChildNav: true, showLateralNav: true, isCentered: true });
                     $('.relationships').appendTo('.title_card');
+                    //$('<div class="">Image: “'+currentNode.banner.title+'” Source: '+currentNode.banner.current.source+'</div>').appendTo('.title_card');
                     window.setTimeout(function() {
                         $('.splash').delay(1000).addClass('fade_in').queue('fx', function(next) {
                             $('.blackout').remove();
