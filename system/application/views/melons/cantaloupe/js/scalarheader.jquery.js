@@ -117,10 +117,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 "published": null
             }
         }
-        if (!base.editorialWorkflowEnabled) {
-            base.editorialState = base.editorialStates['none'];
-        } else {
-            base.editorialState = base.editorialStates[scalarapi.model.getCurrentPageNode().current.editorialState];
+        base.editorialState = base.editorialStates['none'];
+        if (base.editorialWorkflowEnabled) {
+            var currentNode = scalarapi.model.getCurrentPageNode();
+            if (currentNode != null) {
+                base.editorialState = base.editorialStates[currentNode.current.editorialState];
+            }
         }
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
