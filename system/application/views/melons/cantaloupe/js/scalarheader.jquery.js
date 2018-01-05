@@ -120,7 +120,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.editorialState = base.editorialStates['none'];
         if (base.editorialWorkflowEnabled) {
             var currentNode = scalarapi.model.getCurrentPageNode();
-            if (currentNode != null) {
+            if (currentNode != null && currentNode.current.editorialState != null) {
                 base.editorialState = base.editorialStates[currentNode.current.editorialState];
             }
         }
