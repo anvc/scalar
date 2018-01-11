@@ -8,6 +8,7 @@ $editorial_quantifiers = array(
   'minority' => 'Some of this'
 );
 $editorial_states = array(
+  "hidden" => array( 'id' => "hidden", 'name' => "Hidden" , 'next' => 'draft'),
   "draft" => array( 'id' => "draft", 'name' => "Draft" , 'next' => 'edit'),
   "edit" => array( 'id' => "edit", 'name' => "Edit", 'next' => 'editreview' ),
   "editreview" => array( 'id' => "editreview", 'name' => "Edit Review", 'next' => 'clear' ),
@@ -16,6 +17,7 @@ $editorial_states = array(
   "published" => array( 'id' => "published", 'name' => "Published" )
 );
 $state_counts = array(
+  "hidden" => rand(0, 100),
   "draft" => rand(0, 100),
   "edit" => rand(0, 100),
   "editreview" => rand(0, 100),
@@ -34,7 +36,9 @@ foreach ($state_counts as $key => $value) {
 }
 
 $user_type = $user_types[array_rand($user_types, 1)];
-$editorial_state = array_rand($editorial_states, 1);
+do {
+  $editorial_state = array_rand($editorial_states, 1);
+} while ($editorial_state == 'hidden');
 $has_editions = false;
 $proxy_editorial_state = $editorial_state;
 if ($has_editions && $editorial_state == 'published') {
@@ -234,7 +238,7 @@ if ($editorial_is_on): ?>
         <div class="editorial-gauge"><? 
           foreach ($state_percentages as $key => $value) {
             $percentage = round($value*100);
-            echo('<div class="'.$key.'-state editorial-fragment" style="width: '.($value*100).'%"><strong>'.$editorial_states[$key]['name'].'</strong> ('.$percentage.'%)</div>');
+            echo('<a href="#" class="'.$key.'-state editorial-fragment" style="width: '.($value*100).'%" data-toggle="popover" role="button" data-placement="bottom" title="'.$editorial_states[$key]['name'].'" data-content="'.$percentage.'% / '.$state_counts[$key].' items">&nbsp;&nbsp;<strong>'.$editorial_states[$key]['name'].'</strong> ('.$percentage.'%)&nbsp;&nbsp;</a>');
           }
         ?></div>
         <div class="usage-rights-gauge">
@@ -255,6 +259,20 @@ if ($editorial_is_on): ?>
       </div>
     </div>
   </div>
+  <script>
+  $(document).ready(function() {
+    $('.editorial-fragment').each(function() {
+      if (this.offsetHeight < this.scrollHeight || this.offsetWidth < this.scrollWidth) {
+        $(this).html('&nbsp;');
+        $(this).popover({ 
+          trigger: "hover click", 
+          html: true, 
+          template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+        });
+      }
+    });
+  });
+  </script>
   <!--<div class="row">
     <div class="col-md-12">
       <h4>Browse content by state</h4>

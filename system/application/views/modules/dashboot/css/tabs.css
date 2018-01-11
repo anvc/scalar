@@ -84,16 +84,18 @@ header h5 {margin-bottom:14px;}
 
 .btn-state { color: white; }
 .btn-state:hover { color: white; }
+.hidden-state { background-color: black; }
 .draft-state { background-color: #b4b4b4; }
 .edit-state { background-color: #ffa365; }
-.editReview-state { background-color: #d75452; }
+.editreview-state { background-color: #d75452; }
 .clean-state { background-color: #5fc0dc; }
 .ready-state { background-color: #72b376; }
 .published-state { background-color: #198f1e; }
 
+.hidden-state:hover { background-color: #444; }
 .draft-state:hover { background-color: #888888; }
 .edit-state:hover { background-color: #be7a4e; }
-.editReview-state:hover { background-color: #a13e3d; }
+.editreview-state:hover { background-color: #a13e3d; }
 .clean-state:hover { background-color: #4891a5; }
 .ready-state:hover { background-color: #55905b; }
 .published-state:hover { background-color: #147419; }
@@ -112,9 +114,14 @@ header h5 {margin-bottom:14px;}
 	font-size: 14px; 
 	overflow: hidden; 
 	white-space: nowrap;
+	text-decoration: none;
 }
+.editorial-fragment:hover, .editorial-fragment:active, .editorial-fragment:visited { text-decoration: none; color: white; }
 .usage-rights-gauge { font-size: 12px; color: #666; width: 100%; }
 .usage-rights-fragment { background-color: #2A6496; height: 5px; }
+.popover { border-radius: 0; font-size: 10px; font-family: 'Lato', Arial, sans-serif; }
+.popover-title { font-size: 10px; background-color: white; font-weight: 900; }
+.popover-content, .popover-title { padding: 4px; }
 
 .nav-pills > li.admin > a {color: #d9534f;}
 .nav-pills > li.admin.active > a {background-color: #d9534f; color:white;}
