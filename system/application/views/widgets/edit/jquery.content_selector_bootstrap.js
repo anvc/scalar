@@ -1535,6 +1535,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"onChangeCallback": defaultCallback,
 			"userOptions": false,
 			"deleteOptions": false,
+			"deleteButton": 'Delete selected',
 			"addOptions": false,
 			"contributionsOptions": false,
 			"displayHeading": true,
@@ -2277,7 +2278,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$(this).blur();
 				});
 			};
-			var $deleteBtn = $('<button type="button" class="btn btn-default">Delete selected</button>').appendTo($deleteOpts);
+			var $deleteBtn = $('<button type="button" class="btn btn-default">'+opts.deleteButton+'</button>').appendTo($deleteOpts);
 			$deleteBtn.click(function() {
 				if ('function' == typeof(opts.deleteOptions)) {
 					var $selected = $(this).closest('.selector').find('.node_selector_table_body tr.current');

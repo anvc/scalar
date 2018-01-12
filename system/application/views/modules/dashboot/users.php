@@ -13,6 +13,7 @@ $(document).ready(function() {
 		types:['users'],
 		displayHeading:false,
 		deleteOptions:deleteOptions,
+		deleteButton:'Remove selected',
 		userOptions:userOptions,
 		contributionsOptions:contributions,
 		allowMultiple:true,
@@ -135,15 +136,16 @@ function userOptions() {
 		$(this).closest('div').find('input').val('').focus();
 	});
 	$userOptionsModal.find('.modal-footer button:last').off('click').on('click', function() {
+		var $btn = $(this);
 		var $selected = $userOptionsModal.find('tr.active');
 		if (!$selected.length) {
 			alert('Please select a user\'s name from the list');
 			return;
 		}
 		var user_id = $selected.data('user_id');
-		$(this).prop('disabled','disabled');
+		$btn.prop('disabled','disabled');
 		$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
-			$(this).removeProp('disabled');
+			$btn.removeProp('disabled');
 			$userOptionsModal.modal('hide');
 			var $selector = $('.selector');
 			$selector.find('.node_selector').remove();

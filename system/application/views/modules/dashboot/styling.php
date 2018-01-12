@@ -206,7 +206,7 @@ function select_interface(melon) {
       <div class="form-group">
         <label for="background" class="col-sm-2 control-label">Background image</label>
         <div class="col-sm-10">
-          <select style="width:auto;float:left;margin-right:12px;" class="form-control" id="background" name="background">
+          <select style="width:auto;float:left;margin-right:12px;max-width:100%;" class="form-control" id="background" name="background">
 		    <option value="">Choose an image</option><?php 
 			    $matched = false;
 	  			foreach ($current_book_images as $book_image_row) {
