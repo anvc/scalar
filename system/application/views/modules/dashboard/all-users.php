@@ -35,7 +35,7 @@
 
    			$('#register_key').click(function() {
    	   			var $this = $(this);
-   	   			$this.replaceWith('<span style="padding-left:20px;padding-top:2px;float:right;"><b>key'+(($this.data('key').indexOf(' OR ')!=-1)?'s':'')+'</b>: '+$this.data('key')+'</span>');
+   	   			$this.replaceWith('<span style="padding-left:20px;padding-top:2px;float:right;"><b>key'+(($this.data('key').toString().indexOf(' OR ')!=-1)?'s':'')+'</b>: '+$this.data('key').toString()+'</span>');
    			});
 
 		});
