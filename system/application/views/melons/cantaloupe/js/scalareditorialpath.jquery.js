@@ -723,8 +723,12 @@
 											'</div>'+
         								'</div>'+
         							'</div>'+
-                                    (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
-                                                 '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">[No Content]</div>')+
+                                    (viewName!=='basic'?(
+                                        '<div class="clearfix header_font viewWarning">Note: This page includes significant visual elements now shown here; <a href="'+node_url+'">View as reader</a> to see them.</div>'
+                                    ):(
+                                        (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
+                                                     '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">[No Content]</div>')
+                                    ))+
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();

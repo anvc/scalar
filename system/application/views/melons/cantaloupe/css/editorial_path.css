@@ -283,10 +283,12 @@ body.shortHeader #editorialSidePanel>.affix{
 	font-size: 16px;
 	line-height: 20px;
 }
-#editorialPathContents .editorial_node .bodyContent{
+#editorialPathContents .editorial_node .bodyContent, #editorialPathContents .editorial_node .viewWarning{
 	padding: 10px;
 }
-
+#editorialPathContents .editorial_node .viewWarning{
+	font-size: small;
+}
 #editorialPathContents .editorial_node .bodyContent .placeholder .content .body{
 	background-color: #b4b4b4;
 	padding: 1rem;
