@@ -723,18 +723,20 @@
 											'</div>'+
         								'</div>'+
         							'</div>'+
-                                    (viewName!=='basic'?(
+                                    (viewName!=='Basic'?(
                                         '<div class="clearfix header_font viewWarning">Note: This page includes significant visual elements now shown here; <a href="'+node_url+'">View as reader</a> to see them.</div>'
                                     ):(
                                         (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
-                                                     '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">[No Content]</div>')
+                                                     '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font noContent">[No Content]</div>')
                                     ))+
         						'</div>';
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
+
             if(node.domType.singular == "media"){
-                $node.find('.bodyContent').addClass('media');
+                $node.find('.bodyContent').addClass('media').html('').append('<div class="mediaView"><a data-size="native" data-align="center" class="inline" resource="'+node.slug+'" name="'+node.getDisplayTitle()+'" href="'+node.current.sourceFile+'" data-linkid="node_inline-media_body_1"></a>');
             }
+
             $node.data('node',node);
 
             if($.isFunction(callback)){
@@ -964,7 +966,7 @@
             base.stripPlaceholders($node.find('.bodyContent'));
             var linkCount = 0; //$node.find('.bodyContent a[resource]').length + $node.find('.bodyContent a[data-widget]').length;
             $node.data('linkCount',linkCount);
-            $node.find('.bodyContent a[resource], .bodyContent a[data-widget]').each(function(){
+            $node.find('a[resource], a[data-widget]').each(function(){
                 var $placeholder = $('<div class="placeholder caption_font clearfix" contenteditable="false"><div class="content"><div class="body"></div></div></div>');
                 if($(this).hasClass('wrap')){
                     $placeholder.addClass('wrap');
@@ -1006,6 +1008,7 @@
                             var media = scalarapi.getNode(resource);
                             var description = media.current.description;
                             var thumbnail_url = media.getAbsoluteThumbnailURL();
+                            console.log(thumbnail_url);
                             if(!thumbnail_url){
                                 if(media.current.mediaSource.contentType == "image" && !media.current.mediaSource.isProprietary){
                                     thumbnail_url = media.current.sourceFile;
@@ -1013,6 +1016,7 @@
                                     thumbnail_url = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
                                 }
                             }
+                            console.log(thumbnail_url);
                             if(typeof description !== 'undefined' && description != null){
                                 $placeholder.find('content').append('<div class="description">'+description+'</div>');
                             }
