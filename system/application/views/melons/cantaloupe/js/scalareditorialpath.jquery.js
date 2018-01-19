@@ -683,10 +683,10 @@
         	var state = node.editorialState;
         	var stateName = base.node_states[state];
             var node_url = scalarapi.model.urlPrefix+node.slug;
-        	var nodeView = typeof node.current.defaultView !== 'undefined' ? node.current.defaultView : 'plain';
+        	var nodeView = (typeof node.current.defaultView !== 'undefined' && node.current.defaultView != null) ? node.current.defaultView : 'plain';
             var queryCount = 0;
             var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
-            var viewName = typeof views[nodeView] !== 'undefined' ? views[nodeView].name : nodeView;
+            var viewName = typeof views[nodeView] !== 'undefined' && views[nodeView] != null ? views[nodeView].name : nodeView;
 
             if(typeof viewName == 'undefined' || viewName == null){
                 viewName = views['plain'];
