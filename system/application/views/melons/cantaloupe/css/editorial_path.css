@@ -283,10 +283,12 @@ body.shortHeader #editorialSidePanel>.affix{
 	font-size: 16px;
 	line-height: 20px;
 }
-#editorialPathContents .editorial_node .bodyContent{
+#editorialPathContents .editorial_node .bodyContent, #editorialPathContents .editorial_node .viewWarning{
 	padding: 10px;
 }
-
+#editorialPathContents .editorial_node .viewWarning{
+	font-size: small;
+}
 #editorialPathContents .editorial_node .bodyContent .placeholder .content .body{
 	background-color: #b4b4b4;
 	padding: 1rem;
@@ -295,6 +297,13 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPathContents .editorial_node .bodyContent .placeholder.opened .content .body{
 	padding: 1px;
 	background-color:#eee;
+}
+#editorialPathContents .editorial_node .bodyContent.media .placeholder.opened .content .body{
+	background-color: transparent;
+}
+
+#editorialPathContents .editorial_node .bodyContent.media .placeholder.opened .mediaelement{
+	margin: 0 auto;
 }
 #editorialPathContents .editorial_node .bodyContent .placeholder:before{
 	display: none;
@@ -550,6 +559,9 @@ body.shortHeader #editorialSidePanel>.affix{
 	font-size: 1.5rem;
 	text-align: center;
 }
+.bodyContent.media .mediaElementFooter{
+	display: none;
+}
 .placeholder .mediaelement{
 	margin-bottom: 0;
 }
@@ -560,7 +572,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	margin: 0;
 	padding: 0 1.2rem 1.2rem 1.2rem;
 }
-.placeholder .mediaelement, .placeholder .mediaObject>*{
+.bodyContent:not(.media) .placeholder .mediaelement, .bodyContent:not(.media) .placeholder .mediaObject>*{
 	max-width: 100%;
 	height: auto !important;
 }
