@@ -94,17 +94,19 @@ class Image_Metadata {
 		$exif = exif_read_data($path);
 		
 		if (isset($exif['GPSLongitude']) && isset($exif['GPSLongitudeRef']) && isset($exif['GPSLatitude']) && isset($exif['GPSLatitudeRef'])) {
-			$deg = $this->fraction_to_decimal($exif['GPSLongitude'][0]);
-			$min = $this->fraction_to_decimal($exif['GPSLongitude'][1]);
-			$sec = $this->fraction_to_decimal($exif['GPSLongitude'][2]);
-			$lng = $this->dms_to_dec($deg, $min, $sec);
-			if ('W' == $exif['GPSLongitudeRef']) $lng = $lng * -1;		
-			$deg = $this->fraction_to_decimal($exif['GPSLatitude'][0]);
-			$min = $this->fraction_to_decimal($exif['GPSLatitude'][1]);
-			$sec = $this->fraction_to_decimal($exif['GPSLatitude'][2]);
-			$lat = $this->dms_to_dec($deg, $min, $sec);
-			if ('S' == $exif['GPSLatitudeRef']) $lat = $lat * -1;
-			return array('dcterms:spatial'=>$lat.','.$lng);
+			if (is_array($exif['GPSLongitude']) && is_array($exif['GPSLatitude'])) {
+				$deg = $this->fraction_to_decimal($exif['GPSLongitude'][0]);
+				$min = $this->fraction_to_decimal($exif['GPSLongitude'][1]);
+				$sec = $this->fraction_to_decimal($exif['GPSLongitude'][2]);
+				$lng = $this->dms_to_dec($deg, $min, $sec);
+				if ('W' == $exif['GPSLongitudeRef']) $lng = $lng * -1;		
+				$deg = $this->fraction_to_decimal($exif['GPSLatitude'][0]);
+				$min = $this->fraction_to_decimal($exif['GPSLatitude'][1]);
+				$sec = $this->fraction_to_decimal($exif['GPSLatitude'][2]);
+				$lat = $this->dms_to_dec($deg, $min, $sec);
+				if ('S' == $exif['GPSLatitudeRef']) $lat = $lat * -1;
+				return array('dcterms:spatial'=>$lat.','.$lng);
+			}
 		}
 		
 		return array();
