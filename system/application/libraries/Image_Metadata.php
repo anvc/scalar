@@ -46,7 +46,7 @@ class Image_Metadata {
 		foreach ($exif_arr as $field => $value) {
 			switch ($format) {
 				case Image_Metadata::FORMAT_NS:
-					$return[$this->exif_ns.':'.$field] = $this->rdf_value($value);
+					$return[$field] = $this->rdf_value($value);  // Might not have exif: prefix
 					break;
 				case Image_Metadata::FORMAT_URI:
 					$return[$this->exif_uri.$field] = $this->rdf_value($value);
@@ -91,8 +91,22 @@ class Image_Metadata {
 
 	private function get_exif($path='') {
 
-		// $exif = exif_read_data($path);
-		// TODO: there doesn't seem to be much value in exif data, at least for Scalar
+		$exif = exif_read_data($path);
+		
+		if (isset($exif['GPSLongitude']) && isset($exif['GPSLongitudeRef']) && isset($exif['GPSLatitude']) && isset($exif['GPSLatitudeRef'])) {
+			$deg = $this->fraction_to_decimal($exif['GPSLongitude'][0]);
+			$min = $this->fraction_to_decimal($exif['GPSLongitude'][1]);
+			$sec = $this->fraction_to_decimal($exif['GPSLongitude'][2]);
+			$lng = $this->dms_to_dec($deg, $min, $sec);
+			if ('W' == $exif['GPSLongitudeRef']) $lng = $lng * -1;		
+			$deg = $this->fraction_to_decimal($exif['GPSLatitude'][0]);
+			$min = $this->fraction_to_decimal($exif['GPSLatitude'][1]);
+			$sec = $this->fraction_to_decimal($exif['GPSLatitude'][2]);
+			$lat = $this->dms_to_dec($deg, $min, $sec);
+			if ('S' == $exif['GPSLatitudeRef']) $lat = $lat * -1;
+			return array('dcterms:spatial'=>$lat.','.$lng);
+		}
+		
 		return array();
 
 	}
@@ -121,6 +135,24 @@ class Image_Metadata {
 		}
 		return $return;
 
+	}
+	
+	private function dms_to_dec($deg, $min, $sec, $round = 0) {
+		
+   		$dec = $deg + ((($min * 60) + ($sec)) / 3600);
+   		if ($round != 0) $dec = round($dec, $round);
+ 		return $dec;
+ 		
+	}
+	
+	private function fraction_to_decimal($str) {
+		
+		if (!strpos($str, '/')) return $str;
+		$first = substr($str, 0, strpos($str,'/'));
+		$last = substr($str, strpos($str,'/')+1);
+		$num = $first / $last;
+		return $num;
+		
 	}
 
 } // class
