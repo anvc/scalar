@@ -343,7 +343,7 @@
                     });
 
         			//Add the loader text for the content
-		        	base.$contentLoader = $('<div class="loader text-muted well text-center"><strong>Loading book content... Please wait, this might take a little while.</strong><br /><small class="info"></small></span>').appendTo(base.options.contents);
+		        	base.$contentLoader = $('<div class="loader text-muted well text-center caption_font"><strong>Loading book content... Please wait, this might take a little while.</strong><br /><small class="info"></small></span>').appendTo(base.options.contents);
 		        	base.$contentLoaderInfo = base.$contentLoader.find('.info');
 
 		        	base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Determining book size...').fadeIn('fast')});

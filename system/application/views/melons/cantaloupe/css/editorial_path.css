@@ -9,6 +9,7 @@
 
 #editorialSidePanel{
 	margin-top: 20px;
+	padding-left: 20px !important;
 }
 
 
@@ -38,8 +39,8 @@ body.shortHeader #editorialSidePanel>.affix{
 	border: 0;
 	border-radius: 0;
 	margin-bottom: 1rem;
-	font-size: 2rem;
-	padding: .5rem 1rem;
+	font-size: 1.8rem;
+	padding: .5rem 1rem .5rem 0;
 }
 #editorialSideHeader .caret{
 	margin-top: 1.25rem;
@@ -60,7 +61,7 @@ body.shortHeader #editorialSidePanel>.affix{
 
 
 #editorialOutline li{
-	padding: .25rem 1rem .25rem 2rem;
+	padding: .25rem 1rem .25rem 1rem;
 	border-left: .25rem solid #bfbfbf;
 }
 #editorialOutline li, #matchedNodes li{
@@ -69,9 +70,9 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialOutline li>a{
 	padding: 0px;
 	margin: 0px;
-	font-size: 1.5rem;
+	font-size: 1.4rem;
 	color: #bfbfbf;
-    line-height: 1.6rem;
+    line-height: 1.5rem;
     padding: .4rem;
 }
 #editorialOutline li>a:hover{
@@ -159,11 +160,12 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPath .row>div{
 	padding-left: 0px;
 }
-#editorialPath .row>div.leftInfo{
+/*#editorialPath .row>div.leftInfo{
 	padding-left: 10px;
-}
+}*/
 #editorialPathContents{
 	margin: 3rem 0 2rem;
+	font-size: 1.4rem;
 }
 
 #editorialPathContents .editorial_node{
@@ -174,7 +176,7 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 
 #editorialPathContents .editorial_node .badges{
-	margin-top: 1rem;
+	margin-top: 2rem;
 }
 
 #editorialPathContents .editorial_node .edit_btn{
@@ -188,7 +190,8 @@ body.shortHeader #editorialSidePanel>.affix{
 
 #editorialPathContents .editorial_node .title{
 	margin: 0;
-	font-size: 2.5rem;
+	font-size: 2.4rem;
+	line-height: 2.8rem;
 }
 
 #editorialPathContents .editorial_node .state_btn{
@@ -280,11 +283,14 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 
 #editorialPathContents .editorial_node .checkbox>label{
-	font-size: 16px;
-	line-height: 20px;
+	font-size: 14px;
+	line-height: 18px;
 }
-#editorialPathContents .editorial_node .bodyContent, #editorialPathContents .editorial_node .viewWarning{
-	padding: 10px;
+#editorialPathContents .editorial_node .bodyContent {
+	padding: 20px 0 20px 0;
+}
+#editorialPathContents .editorial_node .viewWarning{
+	padding: 10px 0 10px 0;
 }
 #editorialPathContents .editorial_node .viewWarning{
 	font-size: small;
@@ -460,7 +466,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	background-color: #eee;
 	color: #aaa;
 	font-size: 1.5rem;
-	border-top: 1px dashed #bfbfbf;
 }
 .editorialpath-page{
 	padding-bottom: 10px;
@@ -472,8 +477,10 @@ body.shortHeader #editorialSidePanel>.affix{
 
 .editorial_node .descriptionContent{
 	padding-top: 1rem;
-	color: #b4b4b4;
+	color: #727272;
 	position: relative;
+	font-size: 1.3rem;
+	line-height: 1.6rem;
 }
 .editorial_node .descriptionContent.noDescription{
 	font-style: italic;

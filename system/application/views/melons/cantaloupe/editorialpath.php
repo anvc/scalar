@@ -69,17 +69,17 @@
 					  <span id="panelDropdownText">Outline</span>
 					  <span class="caret pull-right"></span>
 					</button>
-					<ul class="dropdown-menu" aria-labelledby="editorialSideHeader">
+					<ul class="dropdown-menu caption_font" aria-labelledby="editorialSideHeader">
 						<li><a role="button" href="#editorialOutline" aria-expanded="true" aria-controls="editorialOutline">Outline</a></li>
 						<li><a role="button" href="#editorialContentFinder" aria-expanded="false" aria-controls="editorialContentFinder">Content Finder</a></li>
 					</ul>
 				</div>
-				<div id="editorialOutline" class="collapse in">
+				<div id="editorialOutline" class="collapse in caption_font">
 					<ul class="nav">
 					</ul>
 				</div>
 				<div id="editorialContentFinder" class="collapse">
-					<p class="heading_font">Find content below and click its title to find it within <strong class="bookname"></strong>'s editorial path</p>
+					<p class="heading_font">Search below to quickly find and navigate to content in the editorial path.</p>
 					<form id="contentFinder" class="form-inline">
 						<div class="form-group" id="filterDropdown">
 							<button class="btn btn-default dropdown-toggle form-control input-sm" id="filterTypeDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
