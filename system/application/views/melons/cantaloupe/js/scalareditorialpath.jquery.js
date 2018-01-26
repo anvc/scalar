@@ -1021,7 +1021,7 @@
                                 $placeholder.find('content').append('<div class="description">'+description+'</div>');
                             }
                             if(typeof media !== 'undefined' && media !== null && media !== undefined){
-                                $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+thumbnail_url+'"><br />'+media.getDisplayTitle()+'<span class="clickToLoadNotice"><br />(Click to load '+media.current.mediaSource.contentType+')</span>');
+                                $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+thumbnail_url+'"><br />'+media.getDisplayTitle()+'<span class="clickToLoadNotice"><br />(Click to load '+(media.current.mediaSource.contentType=='image'?'full image':media.current.mediaSource.contentType)+')</span>');
                             }else{
                                 $placeholder.find('.body').html('Missing Media! ('+resource+')');
                             }
