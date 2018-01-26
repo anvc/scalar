@@ -60,6 +60,10 @@ $this->template->add_css($css, 'embed');
 $js = <<<'END'
 
 $(document).ready(function() {
+	CKEDITOR.replace( 'editor', {
+
+		extraPlugins: ($('link#editorial_workflow').length > 0)?'editorialTools':''
+	});
 	// If the type is passed via GET
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
@@ -512,7 +516,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		  <strong>Check out our latest feature – Scalar widgets.</strong><hr /> Widgets are modular interface elements that provide additional navigation, visualization, and media options for your readers. To add widgets to a page use the two new buttons in the toolbar below (the ones that look like puzzle pieces). For step-by-step instructions on adding widgets see our <a href="http://scalar.usc.edu/works/guide2/working-with-widgets" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" target="_blank">contact us</a> if you have any questions.
 		</div>
 		<?php } ?>
-		<textarea class="ckeditor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
+		<textarea id="editor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
 		if (isset($page->version_index)):
 			$content = $page->versions[$page->version_index]->content;
 			if (!empty($content)) {

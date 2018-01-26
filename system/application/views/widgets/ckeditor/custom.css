@@ -195,3 +195,44 @@
 	display: inline;
 	margin: 0 .5rem;
 }
+
+#cke_40 .cke_toolgroup{
+	padding: 0px;
+}
+.cke_button.cke_button__editorialtools{
+	padding: 4px 6px;
+}
+.cke_button.cke_button__editorialtools.active{
+	background: #2894b8;
+}
+
+.cke_button.cke_button__editorialtools .cke_button_icon{
+	display: none;
+}
+.cke_button.cke_button__editorialtools .cke_button_label{
+	display: inline-block;
+}
+.cke_button.cke_button__editorialtools.active .cke_button_label{
+	color: #d6eaf0;
+}
+.editorialToolsExpanded .cke_contents{
+	width: 75% !important;
+	float: left;
+	clear: left;
+}
+.editorialToolsPanel{
+	display: none;
+}
+.editorialToolsExpanded .editorialToolsPanel{
+	display: block;
+	float: right;
+	clear: right;
+	width: 24%;
+	background-color: #e0e0e1;
+	border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+}
+.editorialToolsExpanded .cke_bottom{
+	clear: both;
+}

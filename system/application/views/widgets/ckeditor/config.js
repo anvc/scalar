@@ -107,7 +107,8 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
 		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
-		{ name: 'clear', items : [ 'RemoveFormat' ] }
+		{ name: 'clear', items : [ 'RemoveFormat' ] },
+		{ name: 'editorial', items:['editorialTools']}
 	];
 	config.toolbar_ScalarInline =
 	[
