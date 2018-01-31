@@ -42,7 +42,7 @@
         base.node_states = { 
         						'draft' : 'Draft',
 	        					'edit'  : 'Edit',
-	        					'edit_review' : 'Edit Review',
+	        					'editreview' : 'Edit Review',
 	        					'clean' : 'Clean',
 	        					'ready' : 'Ready',
 	        					//'published' : 'Published'
@@ -419,7 +419,7 @@
                             if(uri.lastIndexOf('http', 0) === 0){
                                 //We don't have a version node! Load the node.
                                 var node = scalarapi.getNode( uri );
-                                node.editorialState = base.node_state_classes[Math.floor(Math.random()*(base.node_state_classes.length))];
+                                node.editorialState = node.current.editorialState || 'draft';
                                 if(typeof base.nodeList.unsorted == 'undefined'){
                                     base.nodeList.unsorted = [];
                                 }
@@ -539,61 +539,7 @@
         			base.$nodeList.appendTo(base.options.contents);
                     
                     $('body').scrollspy({ target: '#editorialOutline', offset: 69 });
-
-                    // //Set up inline editor for editable content
-                    // var editorial_nodes = base.$nodeList.find('.editorial_node').hide();
-                    // var num_editorial_nodes = editorial_nodes.length;
-                    // var editorial_node_index = 1;
-
-                    // base.$contentLoaderInfo.text('Loading editors...');
-
-                    // var editable_fields = [];
-                    // editorial_nodes.each(function(){
-
-                    //     base.updateLinks($(this));
-                    //     $(this).show().fadeTo(0,0);
-                    //     var $parent = $(this);
-                    //     $(this).find('[contenteditable]').each(function(){
-                    //         if(!$(this)[0].isContentEditable){
-                    //             return;
-                    //         }
-
-                    //         $parent.data('editableFields',$parent.data('editableFields')+1);
-
-                    //         var editor = CKEDITOR.inline( $(this).attr('id'), {
-                    //             // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                    //             removePlugins: $(this).hasClass('descriptionContent')?'scalar, codemirror, removeformat':'codemirror, removeformat',
-                    //             startupFocus: false,
-                    //             toolbar : 'ScalarInline'
-                    //         } );
-
-                    //         editor.on('focus', $.proxy(function(editor,base,ev) {
-                    //                 if($(this).hasClass('descriptionContent')) return;
-                                    
-                    //                 $('html, body').animate({
-                    //                     scrollTop: $(this).offset().top - ($(this).offset().top > $('body').scrollTop() ? 99 : 139)
-                    //                 }, 1000);
-                    //                 base.stripPlaceholders($(this));
-                    //                 editor.plugins['scalar'].init(editor);
-                    //         },this,editor,base));  
-
-
-                    //         editor.on('blur', $.proxy(function($parent,base,ev) {
-                    //                 if($('.bootbox').length > 0) return;
-                    //                 if($(this).hasClass('descriptionContent')) return;
-                                    
-                    //                 base.updateLinks($parent);
-                    //         },this,$parent,base)); 
-                            
-
-                    //         editor.on('instanceReady', $.proxy(function(base,ev) {
-                    //             $(this).fadeTo(1000,100);
-                    //             base.$contentLoader.fadeOut('fast',function(){
-                    //                 $(this).remove();
-                    //             });
-                    //         },$parent,base));
-                    //     });
-                    // });
+                    base.$contentLoader.fadeOut('fast');
         	}
         };
 
@@ -693,9 +639,9 @@
             }
 
         	var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
+                                    '<div class="row"><div class="col-xs-4 col-xs-offset-4 notice"></div></div>'+
         							'<div class="row">'+
         								'<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
-                                            '<div class="notice"></div>'+
         									'<h2 class="heading_font heading_weight clearboth title"><a href="'+node_url+'">'+node.getDisplayTitle()+'</a></h2>'+
                                             '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font"></div>'+
         									'<div class="header_font badges">'+
@@ -754,6 +700,7 @@
         		$(this).parents('ul').find('a.active').removeClass('active');
         		$(this).addClass('active');
         		$(this).parents('.state_dropdown').find('.state_btn').removeClass(base.node_state_string).addClass($(this).data('state')).find('.btn_text').text($(this).text());
+                base.saveNode($(this).parents('.editorial_node').data('state',$(this).data('state')));
         	});
 
         	$node.data({
@@ -886,6 +833,7 @@
             var title = $node.find('.title').text();
             var $description = $node.find('.descriptionContent');
             var description = $description.hasClass('noDescription')?'':$description.text();
+            var editorialState = $node.data('state');
             var $body = $node.find('.bodyContent');
             var $body_copy = $body.clone();
             $body_copy.find('.placeholder').remove();
@@ -905,7 +853,8 @@
                 uriSegment: scalarapi.basepath(node.url),
                 'dcterms:title': title,
                 'dcterms:description': description,
-                'sioc:content': body
+                'sioc:content': body,
+                'scalar:editorial_state': editorialState
             };
             scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
                 var notice = $('<div class="alert alert-success" role="alert">Page updated successfully!</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');

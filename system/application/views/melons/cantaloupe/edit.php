@@ -473,9 +473,6 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <? endif ?>
 <input type="hidden" name="urn:scalar:book" value="<?=$book->urn?>" />
 <input type="hidden" name="path" value="<?=(isset($_GET['path']))?trim($_GET['path']):''?>" />
-<?if (isset($page->version_index) && isset($page->versions[$page->version_index]->editorial_state)):?>
-<input type="hidden" name="scalar:editorial_state" value="<?=$page->versions[$page->version_index]->editorial_state?>" />
-<? endif ?>
 
 <div class="form-horizontal">
 	<div class="form-group">
@@ -490,6 +487,28 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>" />
 		</div>
 	</div>
+	<?if ($book->editorial_is_on === '1'): ?>
+		<div class="form-group">
+			<label for="editorial_state" class="col-sm-2">Editorial State</label>
+			<div class="col-sm-10">
+				<select id="editorial_state" class="form-control" name="scalar:editorial_state">
+					<?php
+						$editorialStates = [
+							'draft' => 'Draft',
+							'edit' => 'Edit',
+							'editreview' => 'Edit Review',
+							'clean' => 'Clean',
+							'ready' => 'Ready'
+						];
+						$currentState = isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
+						foreach($editorialStates as $val=>$option){
+							echo "<option value=\"$val\"".($currentState==$val?' selected':'').">$option</option>";
+						}
+					?>
+				</select>
+			</div>
+		</div>
+	<? endif ?>
 </div>
 
 <div class="type_media form-horizontal">

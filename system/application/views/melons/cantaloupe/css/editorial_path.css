@@ -129,7 +129,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	border-left-color: #ffa25e;
 }
 
-#editorialOutline li.edit_review{
+#editorialOutline li.editreview{
 	border-left-color: #d9514d;
 }
 
@@ -207,7 +207,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	border-bottom-color: #fff;
 }
 
-#editorialPathContents .editorial_node .draft, #editorialPathContents .editorial_node .edit, #editorialPathContents .editorial_node .edit_review, 
+#editorialPathContents .editorial_node .draft, #editorialPathContents .editorial_node .edit, #editorialPathContents .editorial_node .editreview, 
 #editorialPathContents .editorial_node .clean, #editorialPathContents .editorial_node .ready, #editorialPathContents .editorial_node .published{
 	color: #fff;
 }
@@ -220,7 +220,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	background-color: #ffa25e;
 }
 
-#editorialPathContents .editorial_node .edit_review{
+#editorialPathContents .editorial_node .editreview{
 	background-color: #d9514d;
 }
 
@@ -553,15 +553,13 @@ body.shortHeader #editorialSidePanel>.affix{
 .editorial_node .notice{
 	padding: 0px;
 	background-color: transparent;
-	height: 2rem;
 	margin-bottom: 0px;
 	margin-top: -1.75rem;
 }
 .editorial_node .notice .alert{
-	padding: 0px;
-	margin: 0px;
+	padding: .5rem;
+	margin: .5rem 0 0 0;
 	border: 0px;
-	width: 100%;
 	height: 100%;
 	line-height: 2rem;
 	font-size: 1.5rem;
