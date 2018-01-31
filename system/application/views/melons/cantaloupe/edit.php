@@ -60,8 +60,7 @@ $this->template->add_css($css, 'embed');
 $js = <<<'END'
 
 $(document).ready(function() {
-	CKEDITOR.replace( 'editor', {
-
+	CKEDITOR.instances['sioc:content'] = CKEDITOR.replace( 'editor', {
 		extraPlugins: ($('link#editorial_workflow').length > 0)?'editorialTools':''
 	});
 	// If the type is passed via GET
