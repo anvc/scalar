@@ -34,8 +34,16 @@
 	if ($this->config->item('reference_options')) {
 		$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 	}
-	$this->template->add_js('var userId="'.$login->email.'";', 'embed');
 
+	$role = 'author';
+	foreach($book->contributors as $contributor){
+		if($contributor->user_id == $login->user_id){
+			$role = $contributor->relationship;
+			break;
+		}
+	}
+
+	$this->template->add_js('var userId="'.$login->email.'"; var userRole="'.$role.'";', 'embed');
 ?> 
 <div id="editorialPath">
 	<div class="row">

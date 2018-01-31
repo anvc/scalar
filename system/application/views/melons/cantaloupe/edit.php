@@ -491,21 +491,64 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<div class="form-group">
 			<label for="editorial_state" class="col-sm-2">Editorial State</label>
 			<div class="col-sm-10">
-				<select id="editorial_state" class="form-control" name="scalar:editorial_state">
 					<?php
 						$editorialStates = [
 							'draft' => 'Draft',
 							'edit' => 'Edit',
 							'editreview' => 'Edit Review',
 							'clean' => 'Clean',
-							'ready' => 'Ready'
+							'ready' => 'Ready',
+							'published' => 'Published'
 						];
+						
+						$currentRole = 'author';
+						foreach($book->contributors as $contributor){
+							if($contributor->user_id == $login->user_id){
+								$currentRole = $contributor->relationship;
+								break;
+							}
+						}
 						$currentState = isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
-						foreach($editorialStates as $val=>$option){
+						$availableStates = [$currentState=>$editorialStates[$currentState]];
+						$disabled = true;
+						switch($currentState){
+							case 'draft':
+								if($currentRole == 'author'){
+									$availableStates = array_slice($editorialStates,0,2);
+									$disabled = false;
+								}
+								break;
+							case 'edit':
+								if($currentRole == 'reviewer'){
+									$availableStates = array_slice($editorialStates,0,3);
+									$disabled = false;
+								}
+								break;
+							case 'editreview':
+								if($currentRole == 'author'){
+									$availableStates = array_slice($editorialStates,2,2);
+									$disabled = false;
+								}
+								break;
+							case 'clean':
+								if($currentRole == 'reviewer'){
+									$availableStates = array_slice($editorialStates,2,3);
+									$disabled = false;
+								}
+								break;
+							case 'ready':
+								if($currentRole == 'reviewer'){
+									$availableStates = array_slice($editorialStates,2,4);
+									$disabled = false;
+								}
+								break;
+						}
+						echo '<select id="editorial_state" class="form-control" name="scalar:editorial_state" '.($disabled?' disabled':'').'>';
+						foreach($availableStates as $val=>$option){
 							echo "<option value=\"$val\"".($currentState==$val?' selected':'').">$option</option>";
 						}
+						echo '</select>';
 					?>
-				</select>
 			</div>
 		</div>
 	<? endif ?>

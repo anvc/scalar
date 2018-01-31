@@ -47,7 +47,36 @@
 	        					'ready' : 'Ready',
 	        					//'published' : 'Published'
         				   };
-
+        base.node_state_flow = {
+            'author' : {
+                'draft' : [
+                    'draft',
+                    'edit'
+                ],
+                'editreview' : [
+                    'editreview',
+                    'clean'
+                ]
+            },
+            'editor' : {
+                'edit' : [
+                    'draft',
+                    'edit',
+                    'editreview'
+                ],
+                'clean' : [
+                    'editreview',
+                    'clean',
+                    'ready'
+                ],
+                'ready' : [
+                    'editreview',
+                    'clean',
+                    'ready',
+                    'published'
+                ]
+            }
+        }
         base.stage = 0;
         base.currentChunk = 0;
         base.needsScrollspyRefresh = false;
@@ -651,18 +680,23 @@
                                                 '<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>'+
                                             '</div>'+
         								'</div>'+
-        								'<div class="col-xs-12 col-sm-4 col-md-3">'+
-        									'<div class="dropdown state_dropdown">'+
-        										'<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret pull-right"></span><span class="btn_text">'+stateName+'</span></button>'+
-        										'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
+        								'<div class="col-xs-12 col-sm-4 col-md-3">';
+        									
+        	if(base.node_state_flow[userRole][state]){
+                nodeItemHTML += '<div class="dropdown state_dropdown">'+
+                                                '<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret pull-right"></span><span class="btn_text">'+stateName+'</span></button>'+
+                    								'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
+            	for(var stateClassIndex in base.node_state_flow[userRole][state]){
+                    var stateClass = base.node_state_flow[userRole][state][stateClassIndex];
+            		nodeItemHTML += 					'<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass]+'</a></li>';
+            	}
 
-        	for(var stateClass in base.node_states){
-        		nodeItemHTML += 					'<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass]+'</a></li>';
-        	}
-        											
-			nodeItemHTML += 					'</ul>'+
-        									'</div>'+
-											'<div class="checkbox">'+
+        	    nodeItemHTML +=                     '</ul>'+
+                                            '</div>';
+            }else{
+                nodeItemHTML += '<button disabled class="'+state+' btn state_btn btn-block" type="button"></span><span class="btn_text">'+stateName+'</span></button>';
+            }
+			nodeItemHTML += 				'<div class="checkbox">'+
 												'<label>'+
 													'<input type="checkbox"> Usage rights'+
 												'</label>'+
