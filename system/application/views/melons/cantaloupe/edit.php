@@ -1,4 +1,5 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_js('var fullName="'.$login->fullname.'";', 'embed');?>
 <?$this->template->add_css('system/application/views/widgets/ckeditor/custom.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/jquery-ui-custom/jquery-ui.min.css')?>
 <?$this->template->add_css('system/application/views/widgets/spectrum/spectrum.css')?>
