@@ -212,6 +212,16 @@
 .cke_button.cke_button__editorialtools .cke_button_label{
 	display: inline-block;
 }
+.cke_button.cke_button__editorialtools,.cke_button.cke_button__editorialtools .cke_button_label{
+	cursor: pointer !important;
+}
+.cke_button.cke_button__editorialtools.cke_button_disabled,.cke_button.cke_button__editorialtools.cke_button_disabled .cke_button_label{
+	cursor: default !important;
+	opacity: .75 !important;
+}
+.cke_button.cke_button__editorialtools.cke_button_disabled:hover{
+	background-color: #fff;
+}
 .cke_button.cke_button__editorialtools.active .cke_button_label{
 	color: #d6eaf0;
 }

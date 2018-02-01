@@ -9,6 +9,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         editor.addContentsCss( pluginDirectory + 'css/editorialTools.css' );
 	    
 	    editor.on('mode',function(e){
+            $(editor.container.$).find('.cke_button.cke_button__editorialtools').removeClass('active');
             $(editor.container.$).find('.cke_inner').removeClass('editorialToolsExpanded');
             if(!addedEditorialToolsPanel){
                 $editorialToolsPanel = $('<div class="editorialToolsPanel clearfix">test</div>').insertAfter($(editor.container.$).find('.cke_contents'));
