@@ -39,6 +39,11 @@
         
         base.currentLoadType = 0;
 
+        base.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
+        base.is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';
+        base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
+        base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
+
         base.node_states = { 
         						'draft' : 'Draft',
 	        					'edit'  : 'Edit',
@@ -77,6 +82,7 @@
                 ]
             }
         }
+        base.node_state_flow = base.is_author?base.node_state_flow['author']:(base.is_editor?base.node_state_flow['editor']:[]);
         base.stage = 0;
         base.currentChunk = 0;
         base.needsScrollspyRefresh = false;
@@ -682,12 +688,12 @@
         								'</div>'+
         								'<div class="col-xs-12 col-sm-4 col-md-3">';
         									
-        	if(base.node_state_flow[userRole][state]){
+        	if(base.node_state_flow[state]){
                 nodeItemHTML += '<div class="dropdown state_dropdown">'+
                                                 '<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret pull-right"></span><span class="btn_text">'+stateName+'</span></button>'+
                     								'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
-            	for(var stateClassIndex in base.node_state_flow[userRole][state]){
-                    var stateClass = base.node_state_flow[userRole][state][stateClassIndex];
+            	for(var stateClassIndex in base.node_state_flow[state]){
+                    var stateClass = base.node_state_flow[state][stateClassIndex];
             		nodeItemHTML += 					'<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass]+'</a></li>';
             	}
 

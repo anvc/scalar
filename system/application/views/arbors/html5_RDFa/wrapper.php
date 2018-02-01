@@ -137,6 +137,11 @@ if (isset($page->version_index)) {
 <? endif ?>
 <? if ($editorial): ?>
 <link id="editorial_workflow" href="true" />
+<?if (isset($page) && isset($page->version_index) && isset($page->versions[$page->version_index]->editorial_state)):?>
+<link id="editorial_state" href="<?=$page->versions[$page->version_index]->editorial_state?>" />
+<? else: ?>
+<link id="editorial_state" href="draft" />
+<? endif ?>
 <? endif ?>
 <? if (!$mode && $margin_nav): ?>
 <link id="margin_nav" href="true" />
