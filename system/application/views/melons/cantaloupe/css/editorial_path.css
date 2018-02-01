@@ -289,12 +289,6 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPathContents .editorial_node .bodyContent {
 	padding: 20px 0 20px 0;
 }
-#editorialPathContents .editorial_node .viewWarning{
-	padding: 10px 0 10px 0;
-}
-#editorialPathContents .editorial_node .viewWarning{
-	font-size: small;
-}
 #editorialPathContents .editorial_node .bodyContent .placeholder .content .body{
 	background-color: #b4b4b4;
 	padding: 1rem;
@@ -530,6 +524,11 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #editorialContentFinder .form-group{
 	width: 48%;
+}
+.viewWarning{
+	font-size: small;
+	padding: .5rem;
+	margin: 1rem 0 .5rem 0;
 }
 #editorialContentFinder .form-group .form-control{
 	width: 100%;
