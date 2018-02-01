@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         base.$editorialToolsPanel;
         base.addedEditorialToolsPanel = false;
         base.expandedEditorWidth = 0;
-        base.editorialState = $('#editorial_state').attr('href');
+        base.editorialState = base.editorialStates[$('header span.metadata[property="scalar:editorialState"]').text();
 
         base.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
         base.is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';

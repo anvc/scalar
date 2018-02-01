@@ -119,7 +119,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         }
         base.editorialState = base.editorialStates['none'];
         if (base.editorialWorkflowEnabled) {
-            base.editorialState = $('#editorial_state').attr('href');
+            if($('header span.metadata[property="scalar:editorialState"]').length > 0){
+                base.editorialState = base.editorialStates[$('header span.metadata[property="scalar:editorialState"]').text()];
+            }else{
+                base.editorialState = base.editorialStates["draft"];
+            }
         }
         // Add a reverse reference to the DOM object
         base.$el.data("scalarheader", base);
