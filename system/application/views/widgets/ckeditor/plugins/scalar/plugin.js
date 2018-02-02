@@ -512,12 +512,13 @@ CKEDITOR._scalar = {
 			if($(this).parents('.cke_focus,body.cke_editable').length == 0){
 				return true;
 			}
+			
 			var position = $(this).position();
 			var framePosition = $(CKEDITOR._scalar.editor.editable().isInline()?CKEDITOR._scalar.editor.container.$:CKEDITOR._scalar.editor.document.$.defaultView.frameElement).offset();
 			var frameScroll = CKEDITOR._scalar.editor.editable().isInline()?0:$('.cke_contents>iframe').contents().scrollTop();
 			var pageScroll = $(window).scrollTop();
 			var thumbnail = node.thumbnail;
-			console.log(position.top,framePosition.top,pageScroll,$(this).offset().top);
+
 			var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top-pageScroll+30:framePosition.top+position.top-frameScroll-pageScroll+30;
 			var thumbClass = '';
 
