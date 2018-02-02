@@ -93,7 +93,7 @@ CKEDITOR._scalar = {
 			        		$element.removeAttr(a.name);
 			        	}
 			        });
-			        $element.removeAttr('resource').removeData();
+			        $element.removeAttr('resource');//.removeData();
 
 					if(typeof node.version !== 'undefined'){
 						var href = node.version['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
@@ -150,7 +150,7 @@ CKEDITOR._scalar = {
 		        		$element.removeAttr(a.name);
 		        	}
 		        });
-		        $element.removeAttr('resource').removeData();
+		        $element.removeAttr('resource');//.removeData();
 
 				var classAttr = 'inline';
 
