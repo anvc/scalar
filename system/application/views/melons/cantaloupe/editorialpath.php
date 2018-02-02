@@ -34,9 +34,8 @@
 	if ($this->config->item('reference_options')) {
 		$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 	}
-
-
 	$this->template->add_js('var userId="'.$login->email.'";', 'embed');
+
 ?> 
 <div id="editorialPath">
 	<div class="row">
@@ -87,7 +86,7 @@
 							  <small id="filterTypeText"></small>
 							  <span class="caret pull-right"></span>
 							</button>
-							<ul class="dropdown-menu" aria-labelledby="filterTypeDropdown">
+							<ul class="dropdown-menu caption_font" aria-labelledby="filterTypeDropdown">
 							</ul>
 						</div>
 						<div class="form-group">

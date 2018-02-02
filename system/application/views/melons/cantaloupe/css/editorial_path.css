@@ -57,6 +57,8 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #matchedNodes{
 	margin-top: 1rem;
+	font-size: 1.4rem;
+    line-height: 1.5rem;
 }
 
 
@@ -68,7 +70,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	list-style-type: none;
 }
 #editorialOutline li>a{
-	padding: 0px;
 	margin: 0px;
 	font-size: 1.4rem;
 	color: #bfbfbf;
@@ -86,6 +87,7 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #matchedNodes>li{
 	padding-left: 2rem;
+	margin-bottom: 1.4rem;
 }
 
 #matchedNodes li>a{
@@ -101,15 +103,19 @@ body.shortHeader #editorialSidePanel>.affix{
 	line-height: 16px;
 }
 #matchedNodes li .content, #matchedNodes li .relations{
-	font-size: 1.25rem;
-	line-height: 1.32rem;
-	padding-left: 2.25rem;
+	font-size: 1.2rem;
+	line-height: 1.3rem;
+	padding-top: 1rem;
 }
-#matchedNodes li .relations{
-	margin-top: 1rem;
+#matchedNodes li .relations ol, #matchedNodes li .relations ul>li>ul {
+	margin-top: .4rem;
+	margin-bottom: 1rem;
 }
 #matchedNodes li .relations ol li{
 	list-style-type: decimal;
+}
+#matchedNodes li .relations li{
+	margin-bottom: .2rem;
 }
 #editorialOutline li.active>a{
 	font-weight: bold;
@@ -150,6 +156,8 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #editorialOutline, #editorialContentFinder{
 	overflow-y: auto;
+	font-size: 1.4rem;
+	line-height: 1.8rem;
 }
 #editorialOutline li.child{
 	padding-left: 2rem;
@@ -480,12 +488,6 @@ body.shortHeader #editorialSidePanel>.affix{
 .editorial_node .descriptionContent.noDescription{
 	font-style: italic;
 }
-#editorialSidePanel>div .collapse{
-    padding-bottom: 1rem;
-}
-#editorialContentFinder{
-	padding: .5rem 1rem;
-}
 
 .note {color:#038200; text-decoration:underline;}
 
@@ -542,8 +544,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	position: relative;
 }
 #editorialContentFinder #filterDropdown .dropdown-menu{
-	margin-left: 1rem;
-    margin-top: -3rem;
+    margin-top: -3.5rem;
 }
 #editorialContentFinder #filterDropdown.hasContent .dropdown-menu{
 	margin-top: 0;

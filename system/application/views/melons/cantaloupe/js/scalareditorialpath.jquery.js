@@ -319,7 +319,7 @@
                                                                         '<small class="glyphicon glyphicon-triangle-right dropdownCaret" aria-hidden="true" data-toggle="collapse" data-target="#result_'+node.slug.replace(/\//g, '_')+'" aria-expanded="false" aria-controls="result_'+node.slug.replace(/\//g, '_')+'"></small>'+node.getDisplayTitle()+
                                                                     '</a>'+
                                                                     '<div class="collapse" id="result_'+node.slug.replace(/\//g, '_')+'">'+
-                                                                      '<div class="description"></div>'+
+                                                                      '<div class="description body_font"></div>'+
                                                                       '<div class="relations"></div>'+
                                                                     '</div>'+
                                                                 '</li>';
@@ -335,10 +335,14 @@
                                     
                                     if(hasRelations){
                                         $nodeMatchItem.find('.relations').append(splitList);
+                                    } else {
+                                        $nodeMatchItem.find('.relations').remove();
                                     }
 
                                     if(hasDescription){
                                         $nodeMatchItem.find('.description').append('<div class="content">'+description+'</div>');
+                                    } else {
+                                        $nodeMatchItem.find('.description').remove();
                                     }
                                     
                                     $nodeMatchItem.find('.resultTitle').click(function(e){
