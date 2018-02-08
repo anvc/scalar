@@ -32,7 +32,11 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 			</tr>
 			<? if ($register_key): ?>
 			<tr>
-				<td class="field">Registration<br />key <span style="color:red;">*</span></td><td class="value"><input type="text" name="registration_key" value="<?=$registration_key?>" class="input_text" /><div class="register_msg"><?=$this->config->item('registration_key_msg');?></div></td>
+				<td class="field">Registration<br />key <span style="color:red;">*</span></td><td class="value"><input type="text" name="registration_key" value="<?=$registration_key?>" class="input_text" />
+			<? if (!empty($this->config->item('registration_key_msg'))): ?>
+				<div class="register_msg"><?=$this->config->item('registration_key_msg')?></div></td>
+			<? endif ?>				
+				</td>
 			</tr>
 			<? endif ?>
 			<tr>
