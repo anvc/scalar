@@ -12,8 +12,11 @@ $config['active_book_list'] = 'book_list';
 // Default cover module 
 $config['active_cover'] = 'cover';
 
+// Default dashboard module
+$config['active_dashboard'] = 'dashboot';
+
 // SALT, any string you want as long as it is complicated
-$config['shasalt'] = (getenv('SCALAR_SHASALT') ? getenv('SCALAR_SHASALT') : '');
+$config['shasalt'] = (getenv('SCALAR_SHASALT') ? getenv('SCALAR_SHASALT') : 'a6868605dd30b840589d11463981db8b');
 
 // chmod permissions when the system creates directories or places uploaded files (e.g., 0775)
 $config['chmod_mode'] = 0775;
@@ -28,19 +31,19 @@ $config['recaptcha2_secret_key'] = (getenv('SCALAR_RECAPTCHA2_SECRET_KEY') ? get
 
 // Register key (leave blank if no register key required, e.g., array())
 // One of the strings placed in this array will be required in order for new users to register
-$config['register_key'] = array();
+$config['register_key'] = array('scalar4me');
 
 // Soundcloud key
-$config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : '');
+$config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : 'db62d146446a3af286699ba5e5eb8339');
 
 // Digital Public Library of America key
-$config['dpla_key'] = (getenv('SCALAR_DPLA_KEY') ? getenv('SCALAR_DPLA_KEY') : '');
+$config['dpla_key'] = (getenv('SCALAR_DPLA_KEY') ? getenv('SCALAR_DPLA_KEY') : '9f9e4ef7578d8b2b17811720869ec77f');
 
 // Flowplayer key
-$config['flowplayer_key'] = (getenv('SCALAR_FLOWPLAYER_KEY') ? getenv('SCALAR_FLOWPLAYER_KEY') : '');
+$config['flowplayer_key'] = (getenv('SCALAR_FLOWPLAYER_KEY') ? getenv('SCALAR_FLOWPLAYER_KEY') : '095b1678109acb79c61');
 
 // Google Maps key
-$config['google_maps_key'] = (getenv('SCALAR_GOOGLE_MAPS_KEY') ? getenv('SCALAR_GOOGLE_MAPS_KEY') : '');
+$config['google_maps_key'] = (getenv('SCALAR_GOOGLE_MAPS_KEY') ? getenv('SCALAR_GOOGLE_MAPS_KEY') : 'AIzaSyBOttvbPzBW47HCrZ24RZHaftXtHVwuvFU');
 
 // New York Public Library key
 $config['nypl_key'] = (getenv('SCALAR_NYPL_KEY') ? getenv('SCALAR_NYPL_KEY') : '');
@@ -51,6 +54,9 @@ $config['index_msg'] = '';
 // Custom message displayed inside a book. Will remain hidden after user closes the popup for the first time.
 $config['book_msg'] = '';
 $config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
+
+// Custom message displayed beneath the registration key field on the register page
+$config['registration_key_msg'] = '';
 
 // LDAP authentication settings
 $config['use_ldap'] = (getenv('SCALAR_USE_LDAP') ? getenv('SCALAR_USE_LDAP') : false);  // Default: off
@@ -68,10 +74,10 @@ $config['smtp_auth'] = true;
 $config['smtp_username'] = (getenv('SCALAR_SMTP_USERNAME') ? getenv('SCALAR_SMTP_USERNAME') : '');    
 $config['smtp_password'] = (getenv('SCALAR_SMTP_PASSWORD') ? getenv('SCALAR_SMTP_PASSWORD') : '');     
 $config['smtp_secure'] = 'ssl';   // 'ssl' or 'tls'       
-$config['smtp_port'] = 465; 
+$config['smtp_port'] = 465;          
 
 // Whether to activate the self-published books feature on the book index page
-$config['index_render_published'] = true;
+$config['index_render_published'] = false;
 
 // If true, keep self-published books on the book index page hidden under a tab
 $config['index_hide_published'] = true;

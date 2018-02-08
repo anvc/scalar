@@ -77,6 +77,9 @@ label {cursor:pointer;}
 	font-size: 100%;
 }
 
+.register_wrapper tr { vertical-align: top; }
+.register_msg { font-style: italic; margin-top: .5rem; }
+
 .login_logo_wrapper {
 	height:70px;
 	background-image:url(images/scalar_logo_small.png); background-repeat:no-repeat; 
