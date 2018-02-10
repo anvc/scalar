@@ -79,6 +79,8 @@ label {cursor:pointer;}
 
 .register_wrapper tr { vertical-align: top; }
 .register_wrapper td.value { vertical-align:middle; }
+.register_wrapper td.value label {vertical-align:top;}
+.register_wrapper td.value label a {vertical-align:top;}
 .register_msg { font-style: italic; margin-top: .5rem; }
 
 .login_logo_wrapper {
