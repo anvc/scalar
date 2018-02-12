@@ -127,7 +127,7 @@ class MY_Controller extends CI_Controller {
 	 * @return 	bool
 	 */
 
-	protected function login_is_book_admin($level='Author') {
+	protected function login_is_book_admin($level='Editor') {
 
 		if ($this->users->is_a(strtolower($this->data['user_level']), $level)) return true;
 		return false;
@@ -141,7 +141,7 @@ class MY_Controller extends CI_Controller {
 	 * @return 	null
 	 */
 
-	protected function protect_book($level='Author') {
+	protected function protect_book($level='Editor') {
 
 		if (!$this->login_is_book_admin($level)) $this->kickout();
 

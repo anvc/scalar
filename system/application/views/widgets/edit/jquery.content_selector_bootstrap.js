@@ -1542,7 +1542,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"rowSelectMethod": 'checkbox',
 			/* checkbox|highlight */
 			"isEdit": false,
-			"editable": []
+			"editable": [],
+			"roles": ['author', 'commentator', 'reviewer', 'reader']
 		};
 
 		$.extend(opts, options);
@@ -2045,10 +2046,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						} else if ($cell.hasClass('editable-role')) {
 							value = $cell.text();
 							var replace = '<select>';
-							replace += '<option value="Author"'+(('Author'==value)?' selected':'')+'>Author</option>';
-							replace += '<option value="Commentator"'+(('Commentator'==value)?' selected':'')+'>Commentator</option>';
-							replace += '<option value="Reviewer"'+(('Reviewer'==value)?' selected':'')+'>Reviewer</option>';
-							replace += '<option value="Reader"'+(('Reader'==value)?' selected':'')+'>Reader</option>';
+							for (var j = 0; j < opts.roles.length; j++) {
+								replace += '<option value="'+ucwords(opts.roles[j])+'"'+((ucwords(opts.roles[j])==value)?' selected':'')+'>'+ucwords(opts.roles[j])+'</option>';
+							};
 							replace += '</select>';
 							$cell.html(replace);
 						} else if ($cell.children('em').length && $cell.html().slice() == '<em>No Description</em>') {
@@ -2066,6 +2066,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							if (e.which == 13) {
 								$(this).closest('tr').click();
 							}
+						});
+						$cell.find('select').change(function(event) {
+							$(this).closest('tr').click();
 						});
 						$cell.data('orig-value', value);
 					};

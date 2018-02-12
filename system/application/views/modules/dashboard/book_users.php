@@ -179,7 +179,7 @@
 				echo '<tr typeof="user_books" id="user_row_'.$row->user_id.'">';
 				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a href="javascript:remove_book_user('.@$book->book_id.','.$row->user_id.');" style="color: rgb(136, 136, 136);" onclick="return confirm(\'Are you sure you wish to REMOVE the connection to '.htmlspecialchars($row->fullname,ENT_QUOTES).'?\');" class="generic_button">Remove</a></td>'."\n";
 				echo '<td property="id">'.$row->user_id."</td>\n";
-				echo '<td class="editable enum {\'author\',\'commentator\',\'reviewer\',\'reader\'}" property="relationship">'.$row->relationship."</td>\n";
+				echo '<td class="editable enum {\''.implode("','",$relationships).'\'}" property="relationship">'.$row->relationship."</td>\n";
 				echo '<td class="editable boolean" property="list_in_index">'.$row->list_in_index."</td>\n";
 				echo '<td class="editable number" property="sort_number">'.$row->sort_number."</td>\n";
 				echo '<td property="fullname">'.$row->fullname."</td>\n";

@@ -4,6 +4,7 @@
 
 <script>
 var my_user_id = <?=(($login->is_logged_in)?$login->user_id:0)?>;
+var roles = ['<?=implode("','",$relationships)?>'];
 $(document).ready(function() {
 	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#tabs-users');
 	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
@@ -19,7 +20,8 @@ $(document).ready(function() {
 		allowMultiple:true,
 		rowSelectMethod:'highlight',
 		isEdit:true,
-		editable:["order","role"]
+		editable:["order","role"],
+		roles:roles
 	};
 	$selector.node_selection_dialogue(node_options);	
 });
@@ -145,7 +147,7 @@ function userOptions() {
 		var user_id = $selected.data('user_id');
 		$btn.prop('disabled','disabled');
 		$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
-			$btn.removeProp('disabled');
+			$btn.prop('disabled', false);
 			$userOptionsModal.modal('hide');
 			var $selector = $('.selector');
 			$selector.find('.node_selector').remove();

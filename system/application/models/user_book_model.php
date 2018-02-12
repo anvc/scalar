@@ -56,5 +56,19 @@ class User_book_model extends User_model {
     	return $result[0];
 
     }
+    
+    public function get_relationship_enums() {
+
+    	$row = $this->db->query("SHOW COLUMNS FROM ".$this->db->dbprefix.$this->user_book_table." LIKE 'relationship'")->row()->Type;
+    	$regex = "/'(.*?)'/";
+    	preg_match_all( $regex , $row, $enum_array );
+    	$enum_fields = $enum_array[1];
+    	foreach ($enum_fields as $key=>$value)
+    	{
+    		$enums[$value] = $value;
+    	}
+    	return $enums;
+    	 
+    }
 
 }

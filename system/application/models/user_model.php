@@ -26,7 +26,7 @@
 
 class User_model extends MY_Model {
 
-	private $user_levels = array('author', 'commentator', 'reviewer', 'reader');  // In order of level (top level first)
+	private $user_levels = array('author', 'editor', 'commentator', 'reviewer', 'reader');  // In order of level (top level first)
 
     public function __construct() {
 

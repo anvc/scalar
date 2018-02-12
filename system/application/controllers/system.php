@@ -544,6 +544,8 @@ class System extends MY_Controller {
 				usort($this->data['interfaces'], "sort_interfaces");
 				break;
 		    case 'users':
+		    	$this->load->model('user_book_model', 'user_books');
+		    	$this->data['relationships'] = $this->user_books->get_relationship_enums();
 		        $this->data['current_book_users'] = ($book_id) ? $this->users->get_book_users($book_id) : array();
 		        break;
 		    case 'editorial':
