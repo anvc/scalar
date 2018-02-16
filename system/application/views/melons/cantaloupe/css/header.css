@@ -84,6 +84,9 @@ a.headerIcon{
 .navbar #newIcon{
 	background-image: url(../images/new_icon.png);
 }
+.navbar #editorialPathIcon{
+	background-image: url(../images/editorialpath_icon.png);
+}
 .navbar .rightArrowIcon, #mobileMainMenuSubmenus .rightArrowIcon{
 	background-image: url(../images/menu_arrow_icon.png);
 	height: 22px;

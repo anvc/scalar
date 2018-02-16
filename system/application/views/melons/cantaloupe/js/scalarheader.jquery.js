@@ -151,6 +151,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                      base.$el.addClass('edit_enabled');
                 }
             }
+            base.isEditorialPathPage =  $('.editorialpath-page>#editorialPath').length > 0;
             base.okToAddOrDelete = (base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']);
             base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean'])) || (base.is_editor && ((base.editorialState == base.editorialStates['edit']) || (base.editorialState == base.editorialStates['clean']))));
 
@@ -282,7 +283,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                             (base.okToAddOrDelete?
                                                 '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'
                                                 :'')+
-                                            (base.okToCopyEdit?
+                                            (base.okToCopyEdit&&!base.isEditorialPathPage?
                                                 '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit') + '" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
                                                 :'')+
                                             (base.okToAddOrDelete?
@@ -325,8 +326,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</li>'
                                                 :'')+
                                             ((base.is_author||base.is_editor)?
-                                                (base.okToAddOrDelete?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
-                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
+                                                (base.okToAddOrDelete&&!base.isEditorialPathPage?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
+                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')+
+                                                (base.editorialWorkflowEnabled&&!base.isEditorialPathPage?'<li id="ScalarHeaderEditorialPath"><a href="' + base.get_param(scalarapi.model.urlPrefix + 'editorialpath') + '" class="headerIcon" id="editorialPathIcon" title="Editorial path. Click to access the editorial path for this book."><span class="hidden-sm hidden-md hidden-lg">Editorial path</span></a></li>':'')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
                                                 '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
