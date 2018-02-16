@@ -906,17 +906,17 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 button.addClass('btn-primary');
                             } else {
                                 button.addClass('btn-default hidden-sm hidden-xs');
-                                switch (action) {
-                                    case "Dashboard":
-                                    button.attr('href', system_uri + '/dashboard?book_id=' + base.bookId + '&zone=editorial#tabs-editorial');
-                                    break;
-                                    case "Editorial Path":
-                                    button.attr('href', base.parent + 'editorialpath');
-                                    break;
-                                    case "Edit $contentType":
-                                    button.attr('href', base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit'));
-                                    break;
-                                }
+                            }
+                            switch (action) {
+                                case "Dashboard":
+                                button.attr('href', system_uri + '/dashboard?book_id=' + base.bookId + '&zone=editorial#tabs-editorial');
+                                break;
+                                case "Editorial Path":
+                                button.attr('href', base.parent + 'editorialpath');
+                                break;
+                                case "Edit " + contentType:
+                                button.attr('href', base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit'));
+                                break;
                             }
                         }
                     }
