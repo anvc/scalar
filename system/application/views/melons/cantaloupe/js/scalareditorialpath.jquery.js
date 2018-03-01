@@ -756,6 +756,9 @@
                     $node.data('editableFields',$node.data('editableFields')+1);
 
                     $(this).on('click',function(e){
+                        if(!base.node_state_flow[$node.data('state')]){
+                            return false;
+                        }
                         if($(this).hasClass('noDescription')){
                             $(this).removeClass('noDescription').text('');
                         }
