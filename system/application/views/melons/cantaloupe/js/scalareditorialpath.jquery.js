@@ -751,120 +751,121 @@
         		slug : node.slug,
                 state : state
         	});
+            if(base.node_state_flow[state]){
+                $node.find('.descriptionContent, .bodyContent:not(.media)').each(function(){
+                    $node.data('editableFields',$node.data('editableFields')+1);
 
-            $node.find('.descriptionContent, .bodyContent:not(.media)').each(function(){
-                $node.data('editableFields',$node.data('editableFields')+1);
-
-                $(this).on('click',function(e){
-                    if($(this).hasClass('noDescription')){
-                        $(this).removeClass('noDescription').text('');
-                    }
-                    
-                    if($(this).data('editor')==null){
-                        if($(this).find('.placeholder.opened').length > 0){
-                            base.closePlaceholders($(this));
+                    $(this).on('click',function(e){
+                        if($(this).hasClass('noDescription')){
+                            $(this).removeClass('noDescription').text('');
                         }
-                        $(this).data('unloading',false);
-                        $(this).prop('contenteditable',true);
-                        e.preventDefault();
-                        //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
-                        var editor = CKEDITOR.inline( $(this).attr('id'), {
-                            // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                            removePlugins: $(this).hasClass('descriptionContent')?'scalar, scalarbeta, codemirror, removeformat, colorbutton, format, specialchar, indent, indentlist, list, blockquote, iframe, codeTag'
-                                                                                 :'scalar, codemirror, removeformat',
-                            extraPlugins: $(this).hasClass('descriptionContent')?''
-                                                                                 :'scalarbeta',
-                            startupFocus: true,
-                            allowedContent: true,
-                            extraAllowedContent : 'code pre a[*]',
-                            toolbar : 'ScalarInline'
-                        } );
-
-                        if(typeof base.ckeditorWatcher != 'undefined' && base.ckeditorWatcher !== null){
-                            if(base.wasDirty){
-                                base.wasDirty = false;
-                                base.saveCurrentEditor(base.currentEditNode);
+                        
+                        if($(this).data('editor')==null){
+                            if($(this).find('.placeholder.opened').length > 0){
+                                base.closePlaceholders($(this));
                             }
-                            window.clearInterval(base.ckeditorWatcher);
-                            window.clearTimeout(base.ckeditorSaveTimeout); 
-                        }
+                            $(this).data('unloading',false);
+                            $(this).prop('contenteditable',true);
+                            e.preventDefault();
+                            //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
+                            var editor = CKEDITOR.inline( $(this).attr('id'), {
+                                // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                                removePlugins: $(this).hasClass('descriptionContent')?'scalar, scalarbeta, codemirror, removeformat, colorbutton, format, specialchar, indent, indentlist, list, blockquote, iframe, codeTag'
+                                                                                     :'scalar, codemirror, removeformat',
+                                extraPlugins: $(this).hasClass('descriptionContent')?''
+                                                                                     :'scalarbeta',
+                                startupFocus: true,
+                                allowedContent: true,
+                                extraAllowedContent : 'code pre a[*]',
+                                toolbar : 'ScalarInline'
+                            } );
 
-                        base.currentEditNode = $(this).parents('.editorial_node');
-                        base.wasDirty = false;
-
-                        base.ckeditorWatcher = window.setInterval($.proxy(function(){
-                            if(editor.checkDirty()){
-                                base.wasDirty = true;
-                                editor.resetDirty();
-                                if(base.ckeditorSaveTimeout !== null){
-                                    window.clearTimeout(base.ckeditorSaveTimeout);
-                                }
-                                base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
-                                    if(base.wasDirty){
-                                        base.wasDirty = false;
-                                        base.saveNode(base.currentEditNode);
-                                    }
-                                },this),1000);
-                            }
-                        },editor),500);
-
-                        $(this).data('editor',editor);
-
-
-                        editor.on('focus', $.proxy(function(editor,base,ev) {
-                                if($(this).hasClass('descriptionContent')) return;
-                                //base.stripPlaceholders($(this));
-                                editor.plugins['scalarbeta'].init(editor);
-                        },this,editor,base));
-                        editor.on('blur',function(){
-                            return false;
-                        });
-                        $(window).off('hidden.bs.modal').on("hidden.bs.modal", function() {
-                            editor.focus();
-                        });
-                        $(this).on('blur', $.proxy(function($parent,base,ev) {
-                                if($(ev.originalEvent.relatedTarget).hasClass('editLink') || $(ev.originalEvent.relatedTarget).hasClass('deleteLink')){
-                                    return false;
-                                }
-                                if($(ev.originalEvent.relatedTarget).parents('.bootbox').length > 0){
-                                    return false;
-                                }
-                                if($(ev.originalEvent.relatedTarget).hasClass('bootbox')){
-                                    return false;
-                                }
-                                if($(this).data('unloading')){
-                                    return false;
-                                }
-                                $(this).find('.placeholder').off('hover');
-                                $(this).prop('contenteditable',false);
-                                base.updatePlaceholders($(this));
-                                //Save the current watcher then unload it.
+                            if(typeof base.ckeditorWatcher != 'undefined' && base.ckeditorWatcher !== null){
                                 if(base.wasDirty){
-                                    base.saveNode(base.currentEditNode);
                                     base.wasDirty = false;
+                                    base.saveCurrentEditor(base.currentEditNode);
                                 }
                                 window.clearInterval(base.ckeditorWatcher);
-                                window.clearTimeout(base.ckeditorSaveTimeout);
+                                window.clearTimeout(base.ckeditorSaveTimeout); 
+                            }
 
-                                if($(this).data('editor')!=null){
-                                    CKEDITOR.instances[$(this).data('editor').name].destroy(true);
-                                    $(this).data('editor',null);
+                            base.currentEditNode = $(this).parents('.editorial_node');
+                            base.wasDirty = false;
+
+                            base.ckeditorWatcher = window.setInterval($.proxy(function(){
+                                if(editor.checkDirty()){
+                                    base.wasDirty = true;
+                                    editor.resetDirty();
+                                    if(base.ckeditorSaveTimeout !== null){
+                                        window.clearTimeout(base.ckeditorSaveTimeout);
+                                    }
+                                    base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
+                                        if(base.wasDirty){
+                                            base.wasDirty = false;
+                                            base.saveNode(base.currentEditNode);
+                                        }
+                                    },this),1000);
                                 }
+                            },editor),500);
 
-                                if($(this).hasClass('descriptionContent') && $(this).text() == ""){
-                                    $(this).text("(This page does not have a description.)").addClass('noDescription');
-                                }
-                        },this,$node,base));
+                            $(this).data('editor',editor);
 
-                        editor.on('instanceReady', $.proxy(function(base,ev) {
-                            $(this).fadeTo(1000,100);
-                            base.$contentLoader.fadeOut('fast',function(){
-                                $(this).remove();
+
+                            editor.on('focus', $.proxy(function(editor,base,ev) {
+                                    if($(this).hasClass('descriptionContent')) return;
+                                    //base.stripPlaceholders($(this));
+                                    editor.plugins['scalarbeta'].init(editor);
+                            },this,editor,base));
+                            editor.on('blur',function(){
+                                return false;
                             });
-                        },$node,base));
-                    }
+                            $(window).off('hidden.bs.modal').on("hidden.bs.modal", function() {
+                                editor.focus();
+                            });
+                            $(this).on('blur', $.proxy(function($parent,base,ev) {
+                                    if($(ev.originalEvent.relatedTarget).hasClass('editLink') || $(ev.originalEvent.relatedTarget).hasClass('deleteLink')){
+                                        return false;
+                                    }
+                                    if($(ev.originalEvent.relatedTarget).parents('.bootbox').length > 0){
+                                        return false;
+                                    }
+                                    if($(ev.originalEvent.relatedTarget).hasClass('bootbox')){
+                                        return false;
+                                    }
+                                    if($(this).data('unloading')){
+                                        return false;
+                                    }
+                                    $(this).find('.placeholder').off('hover');
+                                    $(this).prop('contenteditable',false);
+                                    base.updatePlaceholders($(this));
+                                    //Save the current watcher then unload it.
+                                    if(base.wasDirty){
+                                        base.saveNode(base.currentEditNode);
+                                        base.wasDirty = false;
+                                    }
+                                    window.clearInterval(base.ckeditorWatcher);
+                                    window.clearTimeout(base.ckeditorSaveTimeout);
+
+                                    if($(this).data('editor')!=null){
+                                        CKEDITOR.instances[$(this).data('editor').name].destroy(true);
+                                        $(this).data('editor',null);
+                                    }
+
+                                    if($(this).hasClass('descriptionContent') && $(this).text() == ""){
+                                        $(this).text("(This page does not have a description.)").addClass('noDescription');
+                                    }
+                            },this,$node,base));
+
+                            editor.on('instanceReady', $.proxy(function(base,ev) {
+                                $(this).fadeTo(1000,100);
+                                base.$contentLoader.fadeOut('fast',function(){
+                                    $(this).remove();
+                                });
+                            },$node,base));
+                        }
+                    });
                 });
-            });
+            }
 
             base.updateLinks($node);
 
