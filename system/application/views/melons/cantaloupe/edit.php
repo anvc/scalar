@@ -56,6 +56,48 @@ p {margin-bottom: 1.2rem;}
 .predefined_wrapper {padding-top:10px;}
 .predefined_wrapper select {max-width:350px;}
 .predefined_wrapper .desc {padding-top:4px; color:#333333;}
+
+.state_dropdown,.state_dropdown .btn{text-align: left;}
+
+.state_dropdown .caret{margin-top: 1.25rem;border-top-color: #fff;border-bottom-color: #fff;}
+
+.state_dropdown .draft, .state_dropdown .edit, .state_dropdown .editreview, .state_dropdown .clean, .state_dropdown .ready, .state_dropdown .published{color: #fff;}
+
+#editorial_state_text span{
+	display: none;
+	line-height: 1.75rem;
+    font-size: 1.5rem;
+}
+
+.state_dropdown .draft{background-color: #b4b4b4;}
+#editorial_state_text.draft .draft{color: #b4b4b4; display: block;}
+
+.state_dropdown .edit{background-color: #ffa25e;}
+#editorial_state_text.edit .edit{color: #ffa25e; display: block;}
+
+.state_dropdown .editreview{background-color: #d9514d;}
+#editorial_state_text.editreview .editreview{color: #d9514d; display: block;}
+
+.state_dropdown .clean{background-color: #59c0dd;}
+#editorial_state_text.clean .clean{color: #59c0dd; display: block;}
+
+.state_dropdown .ready{background-color: #6ebf73;}
+#editorial_state_text.ready .ready{color: #6ebf73; display: block;}
+
+.state_dropdown .published{background-color: #15910f;}
+#editorial_state_text.published .published{color: #15910f; display: block;}
+
+.state_dropdown .dropdown-menu{width: 100%; padding: 0px;}
+
+.state_dropdown .dropdown-menu li{padding: 0; padding-left: 1rem; margin: 0;}
+
+.state_dropdown .dropdown-menu a{margin: 0; padding: 6px 12px; background-color: #fff; color: #000;}
+
+.state_dropdown .dropdown-menu a:hover{background-color: #eee;}
+
+.state_dropdown .dropdown-menu a.active{background-color: rgba(0,0,0,.125); color: #fff;}
+.state_dropdown .dropdown-menu a.active:hover{background-color: rgba(0,0,0,.25);}
+
 END;
 $this->template->add_css($css, 'embed');
 $js = <<<'END'
@@ -381,6 +423,17 @@ $(document).ready(function() {
 		}
 	});
 
+	//Editorial state stuff:
+	if($('link#editorial_workflow').length > 0){
+		$('.state_dropdown li>a').click(function(e){
+    		e.preventDefault();
+    		$(this).parents('ul').find('a.active').removeClass('active');
+    		$(this).addClass('active');
+    		$(this).parents('.state_dropdown').find('.state_btn').removeClass('draft edit editreview clean ready published').addClass($(this).data('state')).find('.btn_text').text($(this).text());
+    		$('#editorial_state').val($(this).data('state'));
+    		$('#editorial_state_text').removeClass('draft edit editreview clean ready published').addClass($(this).data('state'));
+    	});
+	}
 });
 // Determine if the page is a composite or media and show/hide certain elements accordingly
 function checkTypeSelect() {
@@ -490,7 +543,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 	</div>
 	<?if ($book->editorial_is_on === '1'): ?>
 		<div class="form-group">
-			<label for="editorial_state" class="col-sm-2">Editorial State</label>
+			<label class="col-sm-2">Status</label>
 			<div class="col-sm-10">
 					<?php
 						$editorialStates = [
@@ -544,12 +597,30 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								}
 								break;
 						}
-						echo '<select id="editorial_state" class="form-control" name="scalar:editorial_state" '.($disabled?' disabled':'').'>';
-						foreach($availableStates as $val=>$option){
-							echo "<option value=\"$val\"".($currentState==$val?' selected':'').">$option</option>";
-						}
-						echo '</select>';
+						echo '<input type="hidden" id="editorial_state" class="form-control" name="scalar:editorial_state" '.($disabled?' disabled':'').' value="'.$currentState.'" />';
 					?>
+				<div class="row">
+					<div class="col-xs-12 col-sm-4 col-md-3" id="editorial_state_button_container">
+						<div class="dropdown state_dropdown">
+							<button class="<?=$currentState?> btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" <?=($disabled?'disabled':'')?>><span class="caret pull-right"></span><span class="btn_text"><?=$editorialStates[$currentState]?></span></button>
+							<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown">
+								<?php
+									foreach ($availableStates as $key => $value) {
+										echo "<li class=\"$key\"><a href=\"#\" data-state=\"$key\" class=\"".($key == $currentState?'active':'')."\">$value</a></li>";
+									}
+								?>
+            				</ul>
+						</div>
+					</div>
+					<div class="<?=$currentState?> col-xs-12 col-sm-8 col-md-9" id="editorial_state_text">
+						<span class="draft">In this state, authors compose page content until ready for editorial review, at which time the page should be moved to the <strong>Edit State</strong>.</span>
+						<span class="edit">In this state, editors may make changes and add author queries; authors must wait to review those changes until the page is moved to the <strong>Edit Review</strong> state.</span>
+						<span class="editreview">In this state, authors review author queries and changes made by editors; once all changes are complete the page should be moved to the <strong>Clean</strong> state.</span>
+						<span class="clean">In this state, editors review final changes made by authors before moving the page to the <strong>Ready</strong> state.</span>
+						<span class="ready">This page is ready to be <strong>Published</strong>.</span>
+						<span class="published">This page is visible to the public.</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	<? endif ?>
