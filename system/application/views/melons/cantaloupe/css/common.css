@@ -295,9 +295,8 @@ section.relationships {
 }
 
 /* shows has_tags ordered lists as comma-separated inline lists */
-ol.has_tags { list-style: none;}
-ol.has_tags li { display: inline; }
-ol.has_tags li:not(:first-child) { margin-left: 0; }
+ol.has_tags { list-style: none; padding-left: 7.2rem; }
+ol.has_tags li { display: inline; margin-left: 0; }
 ol.has_tags li:after { content: "| "; }
 ol.has_tags li:last-child:after { content: ""; }
 
@@ -1153,7 +1152,7 @@ button, .btn, input, optgroup, select, textarea {
 .published-state { background-color: #147419; }*/
 .editorial-status-bar.draft-state { background-color: #b4b4b4; padding: 2.4rem; }
 .editorial-status-bar.edit-state { background-color: #ffa365; padding: 2.4rem; }
-.editorial-status-bar.editReview-state { background-color: #d75452; padding: 2.4rem; }
+.editorial-status-bar.editreview-state { background-color: #d75452; padding: 2.4rem; }
 .editorial-status-bar.clean-state { background-color: #5fc0dc; padding: 2.4rem; }
 .editorial-status-bar.ready-state { background-color: #72b376; padding: 2.4rem; }
 .editorial-status-bar.published-state { background-color: #198f1e; padding: 2.4rem; }
