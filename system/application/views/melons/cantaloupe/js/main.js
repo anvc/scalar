@@ -186,6 +186,7 @@ function wrapOrphanParagraphs(selection) {
       	var buffer = null;
       	var lastElement;
       	var brCount = 0;
+      	var followsWrappedMedia = false;
 
 	  	$( this ).contents().each(function() {
 
@@ -194,6 +195,11 @@ function wrapOrphanParagraphs(selection) {
 	  		var is_br =  $( this ).is( 'br' );
 	  		var is_nbsp = $( this ).text() == '\xA0';
 	  		var lastElementWasHeading = false;
+	  		if ($(this).is('a') && $(this).hasClass('inline') && $(this).hasClass('wrap')) {
+	  			followsWrappedMedia = true;
+	  		} else if (!is_br) {
+	  			followsWrappedMedia = false;
+	  		}
 
 	  		if (lastElement != undefined) {
 	  			if ($(lastElement).is('h1,h2,h3')) {
@@ -211,6 +217,10 @@ function wrapOrphanParagraphs(selection) {
 	  			newParagraph = true;
 	  			 $( this ).wrap( '<div>' );
 	  			 me = $( this ).parent();
+
+	  		// trigger a new paragraph for a br that follows wrapped inline media
+	  		} else if (is_br && brCount == 0 && followsWrappedMedia) {
+	  			newParagraph = true;
 
 	  		// trigger a new paragraph for two consecutive br tags
 	  		} else if ( is_br && ( brCount == 1 ) ) {
