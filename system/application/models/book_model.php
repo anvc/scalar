@@ -742,21 +742,21 @@ class Book_model extends MY_Model {
 		if (isset($array['title']) && !empty($array['title'])) {
 			$doc = new DOMDocument();
 			$doc->substituteEntities = false;
-			$content = mb_convert_encoding($sValue, 'html-entities', 'utf-8');
+			$array['title'] = mb_convert_encoding($array['title'], 'html-entities', 'utf-8');
 			@$doc->loadHTML('<div>'.$array['title'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 			$array['title'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
 		}
 		if (isset($array['subtitle']) && !empty($array['subtitle'])) {
 			$doc = new DOMDocument();
 			$doc->substituteEntities = false;
-			$content = mb_convert_encoding($sValue, 'html-entities', 'utf-8');
+			$array['subtitle'] = mb_convert_encoding($array['subtitle'], 'html-entities', 'utf-8');
 			@$doc->loadHTML('<div>'.$array['subtitle'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 			$array['subtitle'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
 		}
 		if (isset($array['description']) && !empty($array['description'])) {
 			$doc = new DOMDocument();
 			$doc->substituteEntities = false;
-			$content = mb_convert_encoding($sValue, 'html-entities', 'utf-8');
+			$array['description'] = mb_convert_encoding($array['description'], 'html-entities', 'utf-8');
 			@$doc->loadHTML('<div>'.$array['description'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 			$array['description'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
 		}
