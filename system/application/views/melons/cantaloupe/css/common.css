@@ -71,6 +71,7 @@ video { background-color: black; }
 .notice > p {margin:0px 0px 0px 0px; padding:0px 10px 0px 10px; line-height:140%; text-align:center;}
 
 .notice-page-creator-not-contributor { display: none; }
+.error.editorial_is_on {margin-top:-48px;}
 
 #centered-message {
 	position: absolute;

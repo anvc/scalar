@@ -753,6 +753,36 @@ class System extends MY_Controller {
 				$this->data['content'] = $this->users->get_all();
 				for ($j = 0; $j < count($this->data['content']); $j++) unset($this->data['content'][$j]->password);
 				break;
+			case 'get_editorial_count':
+				$this->load->model('page_model', 'pages');
+				$this->load->model('version_model', 'versions');
+				$book_id = (isset($_REQUEST['book_id']) && !empty($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
+				$this->data['book'] = $this->books->get($book_id);
+				if (empty($this->data['book'])) die ('{"error":"Invalid book"}');
+				if (!isset($this->data['book']->editorial_is_on) || empty($this->data['book']->editorial_is_on)) die ('{"error":"Editorial Workflow is not active"}');
+				$this->set_user_book_perms();
+				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+				$this->data['content'] = array(
+							'draft' => 0,
+							'edit' => 0,
+							'editreview' => 0,
+							'clean' => 0,
+							'ready' => 0,
+							'published' => 0,
+							'hidden' => 0,
+							'usagerights' => 0
+				);
+				$content = $this->pages->get_all($this->data['book']->book_id, null, null, false);
+				for ($j = 0; $j < count($content); $j++) {
+					if (isset($content[$j]->is_live) && empty($content[$j]->is_live)) {
+						$this->data['content']['hidden']++;
+						continue;
+					}
+					$version = $this->versions->get_single($content[$j]->content_id, null, $content[$j]->recent_version_id);
+					if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
+					if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usage_rights']++;
+				}
+				$this->data['content'] = json_encode($this->data['content']);
 			case 'get_onomy':
 				$result = array();
 				if (isset($_REQUEST['slug'])) {

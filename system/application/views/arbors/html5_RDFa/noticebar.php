@@ -1,6 +1,9 @@
 <?php
 if ($mode || empty($page) || !isset($page->user) || !isset($book->contributors) || !isset($page->version_index)) return;
 
+// Is Editorial Workflow on?
+$editorial = (isset($book->editorial_is_on) && $book->editorial_is_on) ? true : false;
+
 // List of categories to point out in a notice
 $categories_display_notice = array('review', 'commentary');
 
@@ -87,7 +90,7 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 
 // Page isn't visible
 if (isset($page->is_live) && !$page->is_live) {
-	echo '		<div class="error notice-hidden"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible in the page editor or in the Dashboard.</p></div>'."\n";
+	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible in the page editor or in the Dashboard.</p></div>'."\n";
 }
 
 // Page is paywalled
@@ -103,7 +106,7 @@ if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie ([1-9])[^0-9]/',$
 
 // Errors handled by HTML and Javaacript (No Javascript warning, old IE warning)
 ?>
-		<noscript><div class="error notice-js-required"><p>This site requires Javascript to be turned on. Please <a href="http://www.btny.purdue.edu/enablejavascript.html">enable Javascript</a> and reload the page.</p></div></noscript>
+		<noscript><div class="error notice-js-required'.(($editorial)?' editorial_is_on':'').'"><p>This site requires Javascript to be turned on. Please <a href="http://www.btny.purdue.edu/enablejavascript.html">enable Javascript</a> and reload the page.</p></div></noscript>
 <?
 $msg = $this->config->item('book_msg');
 $cookie = $this->config->item("book_msg_cookie_name");

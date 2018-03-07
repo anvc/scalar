@@ -194,7 +194,10 @@ class Rdf extends MY_Controller {
 	public function instancesof($class='') {
 
 		if ('system'==$class) return self::system();  // Built-in pages
-
+		if (empty($this->data['book'])) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		}
 		try {
 			$class = no_ext($class);
 			$type = $category = null;
