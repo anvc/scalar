@@ -737,6 +737,29 @@ class Book_model extends MY_Model {
 			if (substr($field, 0, 13) != 'book_version_') continue;
 			unset($array[$field]);
 		}
+		
+		// Validate HTML in title, subtitle, description
+		if (isset($array['title']) && !empty($array['title'])) {
+			$doc = new DOMDocument();
+			$doc->substituteEntities = false;
+			$content = mb_convert_encoding($sValue, 'html-entities', 'utf-8');
+			@$doc->loadHTML('<div>'.$array['title'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+			$array['title'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
+		}
+		if (isset($array['subtitle']) && !empty($array['subtitle'])) {
+			$doc = new DOMDocument();
+			$doc->substituteEntities = false;
+			$content = mb_convert_encoding($sValue, 'html-entities', 'utf-8');
+			@$doc->loadHTML('<div>'.$array['subtitle'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+			$array['subtitle'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
+		}
+		if (isset($array['description']) && !empty($array['description'])) {
+			$doc = new DOMDocument();
+			$doc->substituteEntities = false;
+			$content = mb_convert_encoding($sValue, 'html-entities', 'utf-8');
+			@$doc->loadHTML('<div>'.$array['description'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+			$array['description'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
+		}
 
 		// Save row
 		$this->db->where('book_id', $book_id);
