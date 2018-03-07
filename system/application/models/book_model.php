@@ -760,6 +760,13 @@ class Book_model extends MY_Model {
 			@$doc->loadHTML('<div>'.$array['description'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 			$array['description'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
 		}
+		if (isset($array['publisher']) && !empty($array['publisher'])) {
+			$doc = new DOMDocument();
+			$doc->substituteEntities = false;
+			$array['publisher'] = mb_convert_encoding($array['publisher'], 'html-entities', 'utf-8');
+			@$doc->loadHTML('<div>'.$array['publisher'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+			$array['publisher'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
+		}
 
 		// Save row
 		$this->db->where('book_id', $book_id);
