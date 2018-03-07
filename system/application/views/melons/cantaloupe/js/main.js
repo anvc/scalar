@@ -218,8 +218,8 @@ function wrapOrphanParagraphs(selection) {
 	  			 $( this ).wrap( '<div>' );
 	  			 me = $( this ).parent();
 
-	  		// trigger a new paragraph for a br that follows wrapped inline media
-	  		} else if (is_br && brCount == 0 && followsWrappedMedia) {
+	  		// trigger a new paragraph for wrapped inline media
+	  		} else if (followsWrappedMedia) {
 	  			newParagraph = true;
 
 	  		// trigger a new paragraph for two consecutive br tags
