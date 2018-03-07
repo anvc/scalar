@@ -202,8 +202,6 @@
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id,
       success: function(data) {
 
-        console.log(data);
-
         var content_count = 0;
         var most_advanced_state = {'state':'hidden', 'count':0};
 
@@ -238,8 +236,6 @@
         } else {
           editorial_quantifier = 'minority';
         }
-
-        console.log(editorial_state);
 
         var current_messaging = editorial_messaging[user_type][proxy_editorial_state.id][editorial_quantifier];
 
