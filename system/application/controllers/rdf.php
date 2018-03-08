@@ -232,9 +232,9 @@ class Rdf extends MY_Controller {
 					break;
 				default:
 					$editorial_states = array('draft','edit','editreview','clean','ready','published');
-					if (in_array($class, $editorial_states)) {
+					if (isset($this->data['book']->editorial_is_on) && !empty($this->data['book']->editorial_is_on) && in_array($class, $editorial_states)) {
 						$model = 'pages';
-						// TODO
+						$this->data['editorial_state'] = substr($class, 0);  // clone
 					} else {
 						header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
 						exit;
@@ -268,7 +268,8 @@ class Rdf extends MY_Controller {
 			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 			                         	 'pagination'   => $this->data['pagination'],
 			                         	 'max_recurses' => $this->data['recursion'],
-			                             'paywall_msg'	=> $this->can_bypass_paywall()
+			                             'paywall_msg'	=> $this->can_bypass_paywall(),
+			                           	 'editorial_state' => ((isset($this->data['editorial_state']))?$this->data['editorial_state']:null)
 			                           )
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);

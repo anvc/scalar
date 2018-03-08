@@ -65,7 +65,8 @@ class RDF_Object {
 	                         'num_recurses' => 0,
 							 'total'   		=> 0,
 							 'anon_name'	=> 'anonymous',
-							 'u_all'		=> self::USERS_LISTED
+							 'u_all'		=> self::USERS_LISTED,
+							 'editorial_state' => null
 							 );
 
 	public function __construct() {
@@ -441,6 +442,15 @@ class RDF_Object {
 		}
 
 		if (!count($versions)) return;
+		
+		// If editorial_state is present only pass through versions that match
+		if (!empty($settings['editorial_state'])) {
+			if (!isset($versions[0]->editorial_state)) return;
+			for ($j = count($versions)-1; $j >= 0; $j--) {
+				if ($versions[$j]->editorial_state != $settings['editorial_state']) unset($versions[$j]);
+			}
+			if (!count($versions)) return;
+		}
 
 		// Special fields including references and users (if applicable)
 		$row->version = $settings['base_uri'].$row->slug.'.'.$versions[0]->version_num;
