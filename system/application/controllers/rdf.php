@@ -231,8 +231,14 @@ class Rdf extends MY_Controller {
 					$model = plural($class);
 					break;
 				default:
-					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
-					exit;
+					$editorial_states = array('draft','edit','editreview','clean','ready','published');
+					if (in_array($class, $editorial_states)) {
+						$model = 'pages';
+						// TODO
+					} else {
+						header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+						exit;
+					}
 			}
 
 			// The much speadier search only on title and description based on the presence of recent_version_id

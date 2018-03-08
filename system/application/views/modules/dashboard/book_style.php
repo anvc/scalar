@@ -467,7 +467,9 @@ function make_taxonomy_pages(onomy) {
 			echo '<td style="vertical-align:middle;" class="row_div" colspan="2">';
 			echo '<textarea name="custom_js" style="width:100%;height:120px;">';
 			echo (!empty($row->custom_js)) ? trim($row->custom_js) : '';
-			echo '</textarea></td>'."\n";
+			echo '</textarea>'."\n";
+			echo '<div class="predefined_wrapper">Visit the <a href="http://scalar.usc.edu/works/guide2" target="_blank">Scalar 2 Guide</a> for <a href="http://scalar.usc.edu/works/guide2/advanced-topics" target="_blank">example Javascript snippets</a> including one for <a href="http://scalar.usc.edu/works/guide2/revealing-individual-authors-in-page-headers" target="_blank">revealing individual page authors</a>.</div>'."\n";
+			echo "</td>\n";
 			echo "</tr>\n";
 			// Scope
 			echo '<tr typeof="books" class="styling_sub">';

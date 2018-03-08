@@ -61,8 +61,7 @@ header h5 {margin-bottom:14px;}
 .right-tab a:hover {background-color:white !important}
 .nav-tabs > li.right-tab > a {border:0;}
 
-#custom_style {margin-bottom:6px;}
-#custom_style, #custom_js {margin-top:4px;}
+#custom_style, #custom_js {margin-top:4px; margin-bottom:6px;}
 .predefined_wrapper .select select, .predefined_wrapper .button input  {margin-bottom:3px;}
 .predefined_wrapper .desc {color:#777777; margin:0px 12px 0px 0px;}
 

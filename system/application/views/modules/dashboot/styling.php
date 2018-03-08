@@ -243,6 +243,7 @@ function select_interface(melon) {
         <div class="col-sm-10">
           <small>Example: &nbsp; JavaScript or jQuery source, Google Analytics embed code &nbsp; no <?=htmlspecialchars('<script>')?> tags needed</small>
           <textarea class="form-control" rows="8" id="custom_js" name="custom_js"><?=htmlspecialchars($book->custom_js)?></textarea>
+          <div class="predefined_wrapper">Visit the <a href="http://scalar.usc.edu/works/guide2" target="_blank">Scalar 2 Guide</a> for <a href="http://scalar.usc.edu/works/guide2/advanced-topics" target="_blank">example Javascript snippets</a> including one for <a href="http://scalar.usc.edu/works/guide2/revealing-individual-authors-in-page-headers" target="_blank">revealing individual page authors</a>.</div>
         </div>
       </div>	       
       <div class="page-header"></div>  

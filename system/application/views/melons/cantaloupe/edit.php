@@ -1032,6 +1032,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 					<p>Enter custom JavaScript to be applied to this page and its path or tag children:</p>
 	   				<small>Javascript or jQuery source, no &lt;script&gt; tags required</small>
 	   				<textarea class="form-control monospace_font" rows="10" name="scalar:custom_scripts"><?=!empty($page->custom_scripts) ? $page->custom_scripts : ''?></textarea>
+	   				<div class="predefined_wrapper">Visit the <a href="http://scalar.usc.edu/works/guide2" target="_blank">Scalar 2 Guide</a> for <a href="http://scalar.usc.edu/works/guide2/advanced-topics" target="_blank">example Javascript snippets</a> including one for <a href="http://scalar.usc.edu/works/guide2/revealing-individual-authors-in-page-headers" target="_blank">revealing individual page authors</a>.</div>
 				</div>
 			</div>
 		</div>
