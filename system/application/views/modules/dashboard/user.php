@@ -6,6 +6,13 @@ $(window).ready(function() {
     	$('#user_form').submit();
     	return false;
     });
+    $('.add_book_form').submit(function() {
+    	if (!this.title.value.length||this.title.value=='New book title') {
+        	alert('Please enter a book title');
+        	return false;
+        }
+        $(this).find('input[type="submit"]').prop('disabled','disabled');
+    });
 });
 </script>
 
@@ -127,7 +134,7 @@ $(window).ready(function() {
 <tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Create new book</td>
 	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" class="add_book_form" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
+		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" class="add_book_form">
 		<input type="hidden" name="action" value="do_add_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 		<input name="title" type="text" value="New book title" style="width:300px;" onclick="if (this.value=='New book title') this.value='';" />
