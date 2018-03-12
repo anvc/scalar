@@ -3,6 +3,8 @@
     class File_Upload {
 
     	const THUMB_WIDTH = 200;
+    	const PDF_URL = 'https://upload.wikimedia.org/wikipedia/commons/e/ec/Pdf_by_mimooh.svg';
+    	const DOC_URL = 'https://upload.wikimedia.org/wikipedia/commons/8/88/MS_word_DOC_icon.svg';
 
         public function __construct() {}
 
@@ -46,6 +48,16 @@
                 $this->resize($targetPath,self::THUMB_WIDTH);
             } catch (Exception $e) {
                 unlink($targetPath);
+                $parts = pathinfo($targetPath);
+                if (!empty($parts['extension'])) {
+	                switch (strtolower($parts['extension'])) {
+	                	case 'pdf':
+	                		return self::PDF_URL;
+	                	case 'doc':
+	                	case 'docx':
+	                		return self::DOC_URL;
+	                }
+                }
                 return false;
             }
             $path = substr($targetPath, (strpos($targetPath, $slug)+strlen($slug)));
@@ -135,7 +147,7 @@
         // Resize an already uploaded image
         private function resize($targetFile,$newwidth) {
         	list($width, $height, $type) = getimagesize($targetFile);
-        	if (!$width || !$height) return;  // Not an image
+        	if (!$width || !$height) throw new Exception('Image not of proper type');
         	$r = $width / $height;
         	$newheight = $newwidth/$r;
         	switch ($type) {

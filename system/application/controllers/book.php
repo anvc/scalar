@@ -559,7 +559,7 @@ class Book extends MY_Controller {
 			}
 
 			if (false!==$thumbUrl) {
-				$return[$url]['scalar:thumbnail'] = confirm_slash(base_url()).$slug.$thumbUrl;
+				$return[$url]['scalar:thumbnail'] = (strstr($thumbUrl,'//')) ? $thumbUrl : confirm_slash(base_url()).$slug.$thumbUrl;
 			}
 			echo json_encode($return);
 			exit;
