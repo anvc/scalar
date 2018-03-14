@@ -946,6 +946,31 @@ class System extends MY_Controller {
 				$this->versions->reorder_versions($content_id);
 				$this->data['content'] = $this->versions->get_all($content_id);
 				break;
+			case 'save_editorial_state':
+				$version_id =@ (int) $_REQUEST['version_id'];
+				$book_id =@ (int) $_REQUEST['book_id'];  
+				$state =@ trim($_REQUEST['state']);
+				if (empty($book_id) && empty($version_id)) die ("{'error':'Invalid request'}");
+				$states = array('draft','edit','editreview','clean','ready','published');
+				if (empty($state) || !in_array($state,$states)) die ("{'error':'Invalid state'}");
+				if (!empty($version_id)) {  // Change a single page to a state
+					$this->load->model('page_model', 'pages');
+					$this->load->model('version_model', 'versions');
+					$version = $this->versions->get($version_id);
+					if (empty($version)) die ("{'error':'Could not find version'}");
+					$this->data['book'] = $this->books->get_by_content_id($version->content_id);
+					$this->set_user_book_perms();
+					if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
+					$this->versions->save(array('id'=>$version_id,'editorial_state'=>$state));
+					$this->data['content'] = array('version_id'=>$version_id,'state'=>$state);
+				} else {  // Change all pages in the book to a state
+					$this->data['book'] = $this->books->get($book_id, false);
+					$this->set_user_book_perms();
+					if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
+					$version_ids = $this->books->save_editorial_states($book_id, $state);
+					$this->data['content'] = array('version_ids'=>$version_ids,'state'=>$state);
+				}
+				break;
 			case 'delete_content_path_links':
 				$version_ids = (array) $_POST['version_ids'];
 				$content_ids = array();

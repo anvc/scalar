@@ -820,6 +820,37 @@ class Book_model extends MY_Model {
     	return $this->get_users($book_id);
 
     }
+    
+    public function save_editorial_states($book_id=0, $state=null, $is_live=true) {
+    	
+    	$ci=&get_instance();
+    	$ci->load->model("version_model","versions");
+    	
+    	// Get all pages in a book
+    	$this->db->select('content_id');
+    	$this->db->select('recent_version_id');
+    	$this->db->from($this->pages_table);
+    	$this->db->where('book_id', $book_id);
+    	if ($is_live) $this->db->where('is_live', 1);
+    	$query = $this->db->get();
+    	$result = $query->result();
+    	
+    	// Get most recent versions
+    	$version_ids = array();
+    	foreach ($result as $row) {
+    		$version = $this->versions->get_single($row->content_id, null, $row->recent_version_id);
+    		if (empty($version)) continue;
+    		$version_ids[] = (int) $version->version_id;
+    	}
+    	if (empty($version_ids)) return $version_ids;
+
+    	// Set states
+    	foreach ($version_ids as $version_id) {
+    		$this->versions->save(array('id'=>$version_id,'editorial_state'=>$state));
+    	}
+    	return $version_ids;
+    	
+    }
 
     public function delete_users($book_id) {
 
