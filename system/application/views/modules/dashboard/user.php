@@ -1,4 +1,5 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.duplicatabledialog.js')?>
 
 <script>
 $(window).ready(function() {
@@ -12,6 +13,28 @@ $(window).ready(function() {
         	return false;
         }
         $(this).find('input[type="submit"]').prop('disabled','disabled');
+    });
+    $('input[name="is_duplicate"]').change(function() {
+		var checked = $(this).is(':checked');
+		var $value = $('input[name="book_to_duplicate"]');
+		if (!checked) {
+			$value.val(0);
+			$('input[name="is_duplicate"]').parent().find('span:first').html('Duplicate of another book?');
+		} else {
+			$('<div></div>').duplicatabledialog({
+				'url':$('link#sysroot').attr('href')+'system/api/get_duplicatable_books',
+				'callback':function(book_id, title) {
+					if (!book_id) {
+						$value.val(0);
+						$('input[name="is_duplicate"]').parent().find('span:first').html('Duplicate of another book?');
+						$('input[name="is_duplicate"]').prop('checked',false);
+					} else {
+						$('input[name="book_to_duplicate"]').val(book_id);
+						$('input[name="is_duplicate"]').parent().find('span:first').html('Duplicate of: <b>'+title+'</b>');
+					}
+				}
+			});
+		};
     });
 });
 </script>
@@ -137,7 +160,9 @@ $(window).ready(function() {
 		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" class="add_book_form">
 		<input type="hidden" name="action" value="do_add_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
+		<input type="hidden" name="book_to_duplicate" value="0" />
 		<input name="title" type="text" value="New book title" style="width:300px;" onclick="if (this.value=='New book title') this.value='';" />
+		<label><input type="checkbox" name="is_duplicate" /><span>Duplicate of another book?</span></label>	
 		<? if (!empty($recaptcha2_site_key)): ?>
 		            <div class="g-recaptcha" data-sitekey="<?php echo $recaptcha2_site_key; ?>"></div>
 		            <script type="text/javascript"
@@ -146,18 +171,6 @@ $(window).ready(function() {
 		<? elseif (!empty($recaptcha_public_key)): ?>
 				<?  print(recaptcha_get_html($recaptcha_public_key, '', $this->config->item('is_https'))); ?>
 		<? endif ?>
-		<select name="book_to_duplicate" style="width:302px;">
-<?
-		if (!isset($duplicatable_books) || empty($duplicatable_books)):
-			echo '<option value="0">Not a duplicate of another book</option>'."\n";
-		else:
-			echo '<option value="0">Not a duplicate of another book</option>'."\n";
-			foreach ($duplicatable_books as $duplicatable_book) {
-				echo '<option value="'.$duplicatable_book->book_id.'">'.$duplicatable_book->title.'</option>'."\n";
-			}
-		endif;
-?>
-		</select> &nbsp; <small>Books require permission set in the Sharing tab to be displayed in this list</small><br />
 		<input type="submit" value="Create" class="generic_button" />
 		</form>
 	</td>

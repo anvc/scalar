@@ -167,3 +167,6 @@ td.styling_last {text-align:right; padding-right:0px;}
 .content_selector label input {margin-right:5px;}
 .content_selector .howto {font-size:16px !important;}
 .content_selector .footer .btn {font-size:12px !important;}
+
+input[name="is_duplicate"] {top:2px; position:relative; margin-right:8px; margin-left:16px;}
+

@@ -525,7 +525,7 @@ class System extends MY_Controller {
 		switch ($this->data['zone']) {
 			case '':
 			case 'user':
-				$this->data['duplicatable_books'] = $this->books->get_duplicatable();
+				//$this->data['duplicatable_books'] = $this->books->get_duplicatable();
 				require_once(APPPATH.'libraries/recaptcha/recaptchalib.php');
 				break;
 			case 'style':
@@ -668,6 +668,10 @@ class System extends MY_Controller {
 			case 'get_user_books':
 				if (!$this->data['login']->is_logged_in) $this->kickout();
 				$this->data['content'] = $this->books->get_all($this->data['login']->user_id, false);
+				break;
+			case 'get_duplicatable_books':
+				if (!$this->data['login']->is_logged_in) $this->kickout();
+				$this->data['content'] = $this->books->get_duplicatable();
 				break;
 			case 'get_path_of':
 				$this->load->model('path_model', 'paths');
