@@ -25,17 +25,20 @@
         'all': {
           'current_task': 'Continue working until you’re ready to submit it for editing.',
           'next_task': 'When you’re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
-          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>']
+          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
+          'next_task_ids': ['allToEdit']
         },
         'majority': {
           'current_task': 'Continue working on the <strong>Draft</strong> portions until you’re ready to submit them for editing.',
           'next_task': 'When you’re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
-          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>']
+          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
+          'next_task_ids': ['allToEdit']
         },
         'minority': {
           'current_task': 'Continue working on the <strong>Draft</strong> portions until you’re ready to submit them for editing.',
           'next_task': 'When you’re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
-          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>']
+          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
+          'next_task_ids': ['allToEdit']
         }
       },
       'edit': {
@@ -114,25 +117,25 @@
           'next_task': 'Please wait for the author to submit content for editing.'
         },
         'majority': {
-          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <strong>Editorial Path</strong>.',
+          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <a href="'+$('link#parent').attr('href')+'editorialpath">Editorial Path</a>.',
           'next_task': 'Move content in the <strong>Edit</strong> state to the <strong>Edit Review</strong> state as you finish making changes and adding queries to it.'
         },
         'minority': {
-          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <strong>Editorial Path</strong>.',
+          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <a href="'+$('link#parent').attr('href')+'editorialpath">Editorial Path</a>.',
           'next_task': 'Move content in the <strong>Edit</strong> state to the <strong>Edit Review</strong> state as you finish making changes and adding queries to it.'
         }
       },
       'edit': {
         'all': {
-          'current_task': 'Review, make changes, and add queries to content by editing individual pages or using the <strong>Editorial Path</strong>.',
+          'current_task': 'Review, make changes, and add queries to content by editing individual pages or using the <a href="'+$('link#parent').attr('href')+'editorialpath">Editorial Path</a>.',
           'next_task': 'Move content to the <strong>Edit Review</strong> state as you finish making changes and adding queries to it.'
         },
         'majority': {
-          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <strong>Editorial Path</strong>.',
+          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <a href="'+$('link#parent').attr('href')+'editorialpath">Editorial Path</a>.',
           'next_task': 'Move content in the <strong>Edit</strong> state to the <strong>Edit Review</strong> state as you finish making changes and adding queries to it.'
         },
         'minority': {
-          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <strong>Editorial Path</strong>.',
+          'current_task': 'Review, make changes, and add queries to content in the <strong>Edit</strong> state by editing individual pages or using the <a href="'+$('link#parent').attr('href')+'editorialpath">Editorial Path</a>.',
           'next_task': 'Move content in the <strong>Edit</strong> state to the <strong>Edit Review</strong> state as you finish making changes and adding queries to it.'
         }
       },
@@ -168,17 +171,20 @@
         'all': {
           'current_task': 'Publish it whenever the time is right.',
           'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Published</strong>','Create a new edition']
+          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Published</strong>','Create a new edition'],
+          'next_task_ids': ['allToPublished','newEdition']
         },
         'majority': {
           'current_task': 'Publish it whenever the time is right.',
           'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition']
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task_ids': ['allToPublished','newEdition']
         },
         'minority': {
           'current_task': 'Publish it whenever the time is right.',
           'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition']
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task_ids': ['allToPublished','newEdition']
         }
       },
       'published': {
@@ -196,30 +202,52 @@
     }
   }
 
+  function moveAllContentToState(newState) {
+    $.ajax({
+      url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState,
+      success: function(data) {
+        console.log(data);
+      },
+      error: function(error) {
+        console.log(error);
+      }
+    })
+  }
+
+  function createNewEdition() {
+    console.log('create new edition');
+  }
+
   $(document).ready(function() {
+
+    console.log($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id);
 
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id,
       success: function(data) {
 
         var content_count = 0;
-        var most_advanced_state = {'state':'hidden', 'count':0};
+        var non_hidden_content_count = 0;
+        var earliest_state = {'state':'published', 'count':0};
 
         // initial data processing; figure out the overall book state
         var currentIndex;
         var newIndex;
         for (var key in data) {
           if (key != 'usagerights') {
-            currentIndex = editorial_state_array.indexOf(most_advanced_state.state);
+            currentIndex = editorial_state_array.indexOf(earliest_state.state);
             newIndex = editorial_state_array.indexOf(key);
-            if (data[key] > 0 && newIndex > currentIndex) {
-              most_advanced_state.state = key;
-              most_advanced_state.count = data[key];
+            if (data[key] > 0 && newIndex <= currentIndex && newIndex != 0) {
+              earliest_state.state = key;
+              earliest_state.count = data[key];
+            }
+            if (newIndex != 0) {
+              non_hidden_content_count += data[key];
             }
             content_count += data[key];
           }
         }
-        var editorial_state = editorial_states[most_advanced_state.state];
+        var editorial_state = editorial_states[earliest_state.state];
 
         var has_editions = false; // TODO: make this real
         var proxy_editorial_state = editorial_state;
@@ -229,9 +257,9 @@
 
         // figure out how to quantify the overall book state
         var editorial_quantifier;
-        if (most_advanced_state.count == content_count) {
+        if (earliest_state.count == non_hidden_content_count) {
           editorial_quantifier = 'all';
-        } else if (most_advanced_state.count >= content_count * .5) {
+        } else if (earliest_state.count >= non_hidden_content_count * .5) {
           editorial_quantifier = 'majority';
         } else {
           editorial_quantifier = 'minority';
@@ -245,11 +273,13 @@
         // build the editorial state gauge
         var percentage;
         var key;
+        var item_quantifier;
         for (var index in editorial_state_array) {
           key = editorial_state_array[index];
           if (data[key] > 0) {
             percentage = parseFloat(data[key]) / content_count * 100;
-            $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' items">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
+            item_quantifier = (data[key] > 1) ? 'items' : 'item';
+            $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
           }
         }
         $('.editorial-fragment').each(function() {
@@ -267,7 +297,21 @@
         // build the next steps messaging
         $('#secondary-message').append('<p>'+current_messaging['next_task']+'</p>');
         for (var index in current_messaging['next_task_buttons']) {
-          $('#secondary-message').append('<button class="btn btn-block btn-state '+editorial_state['next']+'-state">'+current_messaging['next_task_buttons'][index]+'</button>');
+          var button = $('<button class="btn btn-block btn-state '+editorial_state['next']+'-state">'+current_messaging['next_task_buttons'][index]+'</button>').appendTo($('#secondary-message'));
+          switch (current_messaging['next_task_ids'][index]) {
+            case 'allToEdit':
+            button.click(function() { 
+              button.prop('disabled', 'disabled');
+              moveAllContentToState('edit'); 
+            });
+            break;
+            case 'allToPublished':
+            button.click(function() { moveAllContentToState('published'); });
+            break;
+            case 'newEdition':
+            button.click(createNewEdition);
+            break;
+          }
         }
       }
     });
