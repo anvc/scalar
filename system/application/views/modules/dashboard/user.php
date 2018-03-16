@@ -162,7 +162,7 @@ $(window).ready(function() {
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 		<input type="hidden" name="book_to_duplicate" value="0" />
 		<input name="title" type="text" value="New book title" style="width:300px;" onclick="if (this.value=='New book title') this.value='';" />
-		<label><input type="checkbox" name="is_duplicate" /><span>Duplicate of another book?</span></label>	
+		<label><input type="checkbox" name="is_duplicate" /><span>Duplicate of another book?</span></label><br />
 		<? if (!empty($recaptcha2_site_key)): ?>
 		            <div class="g-recaptcha" data-sitekey="<?php echo $recaptcha2_site_key; ?>"></div>
 		            <script type="text/javascript"
