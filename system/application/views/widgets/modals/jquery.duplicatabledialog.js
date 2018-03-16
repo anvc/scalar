@@ -26,6 +26,9 @@
     	  		opts.callback(0);
     	  	} }
     	];
+    	opts['open'] = function(event, ui) {
+    		$(this).parent().children().children('.ui-dialog-titlebar-close').hide();
+    	};
     	
     	// Structure
     	$this.addClass('duplicatabledialog');
@@ -33,7 +36,7 @@
     	$('<p>'+msg+'</p>').appendTo($this);
     	var $div = $('<div>Loading...</div>').appendTo($this);
     	$div.css({
-    		height:200,
+    		height:210,
     		overflow:'auto',
     		backgroundColor:'#eeeeee'
     	});

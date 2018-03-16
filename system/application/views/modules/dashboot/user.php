@@ -20,23 +20,47 @@ $(document).ready(function() {
 	});
 	// Duplicate modal
 	var $duplicateBookModal = $('#duplicateBookModal');
-	var $submit_btn = $duplicateBookModal.find('button[type="submit"]');
-	if ($duplicateBookModal.find('.alert').length) {
-		$submit_btn.hide();
-	} else {
-		$submit_btn.show();
-	}	
+	$duplicateBookModal.find('.loading').show();
+	$duplicateBookModal.find('.no-rows').hide();
+	$duplicateBookModal.find('.rows').hide();
+	$duplicateBookModal.find('button:last').prop('disabled','disabled');
 	$duplicateBookModal.on('shown.bs.modal', function () {
-		$duplicateBookModal.find('tbody tr').each(function() {
-			var $this = $(this);
-			$this.removeClass('active').removeClass('info').unbind('click');
-			$this.click(function() {
-				var $row = $(this);
-				var book_id = parseInt($row.data('id'));
-				$row.addClass('active').addClass('info').siblings().removeClass('active').removeClass('info');
-				$this.closest('form').find('input[name="book_to_duplicate"]').val(book_id);
-			});
+		var url = $('link#sysroot').attr('href')+'system/api/get_duplicatable_books';
+		$.getJSON(url, function(data) {
+			$duplicateBookModal.find('.loading').hide();
+			if (!data || !data.length) {
+				$duplicateBookModal.find('.no-rows').show();
+			} else {
+				$duplicateBookModal.find('.rows').show();
+				$duplicateBookModal.find('button:last').prop('disabled',false);
+				var $content = $duplicateBookModal.find('tbody:first');
+				$content.css({
+					maxHeight:210,
+					overflow:'auto',
+				});
+				for (var j = 0; j < data.length; j++) {
+	    			var str = data[j].title.replace(/<.*?>/g, '');
+	    			if (data[j].subtitle!=null && data[j].subtitle.length) str += ': '+data[j].subtitle.replace(/<.*?>/g, '');
+					var $row = $('<tr data-id="'+data[j].book_id+'"><td>'+str+'</td></tr>').appendTo($content); 
+				};
+				$duplicateBookModal.find('tbody tr').each(function() {
+					var $this = $(this);
+					$this.removeClass('active').removeClass('info').unbind('click');
+					$this.click(function() {
+						var $row = $(this);
+						var book_id = parseInt($row.data('id'));
+						$row.addClass('active').addClass('info').siblings().removeClass('active').removeClass('info');
+						$this.closest('form').find('input[name="book_to_duplicate"]').val(book_id);
+					});
+				});
+			};
 		});
+	}).on('hidden.bs.modal', function() {
+		var $duplicateBookModal = $('#duplicateBookModal');
+		$duplicateBookModal.find('.loading').show();
+		$duplicateBookModal.find('.no-rows').hide();
+		$duplicateBookModal.find('.rows').hide();
+		$duplicateBookModal.find('button:last').prop('disabled','disabled');
 	});
 });
 </script>
@@ -239,35 +263,25 @@ $(document).ready(function() {
 	  <input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 	  <input type="hidden" name="book_to_duplicate" value="0" />
       <div class="modal-body">
-        <div class="page-header"><h4>Duplicate a book</h4></div>
-<?php if (empty($duplicatable_books) || !count($duplicatable_books)): ?>
-		<div class="alert alert-danger">There are no books presently set to be duplicatable in this Scalar install.</div>
-<?php else: ?>
-        <div class="table-responsive">
+      	<div class="page-header"><h4>Duplicate a book</h4></div>
+      	<div class="loading">Loading...</div>
+      	<div class="no-rows alert alert-danger">There are no books presently set to be duplicatable in this Scalar install.</div>
+      	<div class="rows" class="table-responsive">
           <table class="table table-condensed table-hover">
             <thead>
               <tr><th>Book to duplicate</th></tr>
             </thead>
-            <tbody><?php
-	            foreach ($duplicatable_books as $duplicatable_book) {
-	 	    		echo '<tr data-id="'.$duplicatable_book->book_id.'">';
-		    		echo '<td>';
-		    		echo strip_tags($duplicatable_book->title);
-		    		echo '</td>';
-		    		echo '</tr>';           		
-	            }
-            ?></tbody>
+            <tbody></tbody>
           </table>
         </div>
-        <div class="page-v-spacer"></div>
-        <div class="form-group">
+        <div class="rows page-v-spacer"></div>
+        <div class="rows form-group">
           <label for="title" class="col-sm-1 control-label">Title</label>
           <div class="col-sm-11">
             <input type="text" class="form-control" id="title" name="title" placeholder="New book title">
           </div>
-        </div>          
-<?php endif; ?>      
-      </div>
+        </div>
+      </div>    
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="submit" class="btn btn-primary">Duplicate</button>

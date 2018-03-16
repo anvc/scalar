@@ -16,16 +16,15 @@ $(window).ready(function() {
     });
     $('input[name="is_duplicate"]').change(function() {
 		var checked = $(this).is(':checked');
-		var $value = $('input[name="book_to_duplicate"]');
 		if (!checked) {
-			$value.val(0);
+			$('input[name="book_to_duplicate"]').val(0);
 			$('input[name="is_duplicate"]').parent().find('span:first').html('Duplicate of another book?');
 		} else {
 			$('<div></div>').duplicatabledialog({
 				'url':$('link#sysroot').attr('href')+'system/api/get_duplicatable_books',
 				'callback':function(book_id, title) {
 					if (!book_id) {
-						$value.val(0);
+						$('input[name="book_to_duplicate"]').val(0);
 						$('input[name="is_duplicate"]').parent().find('span:first').html('Duplicate of another book?');
 						$('input[name="is_duplicate"]').prop('checked',false);
 					} else {
