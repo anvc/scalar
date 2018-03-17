@@ -12,7 +12,8 @@
     "editreview": {'id': "editreview", 'name': "Edit Review", 'next': 'clear' },
     "clean": {'id': "clean", 'name': "Clean", 'next': 'ready' },
     "ready": {'id': "ready", 'name': "Ready", 'next': 'published' },
-    "published": {'id': "published", 'name': "Published" }
+    "published": {'id': "published", 'name': "Published" },
+    "empty": {'id': "empty", 'name': "empty"}
   };
   var editorial_quantifiers = {
     'all': 'This',
@@ -108,6 +109,12 @@
           'current_task': 'Congratulations!',
           'next_task': 'Once an edition is created, its content cannot be changed. Any changes you make will be automatically moved to the <strong>Latest Edits</strong> edition.'
         }
+      },
+      'empty': {
+        'all': {
+          'current_task': 'Add some content to get started.',
+          'next_task': 'Return here to check on your progress through editorial.'
+        }
       }
     },
     'editor': {
@@ -198,6 +205,12 @@
           'current_task': 'Congratulations!',
           'next_task': 'Once an edition is created, its content cannot be changed. Any changes authors make will be automatically moved to the <strong>Latest Edits</strong> edition.'
         }
+      },
+      'empty': {
+        'all': {
+          'current_task': 'An author needs to start adding content.',
+          'next_task': 'Return here to check on the status of editorial.'
+        }
       }
     }
   }
@@ -206,10 +219,10 @@
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState,
       success: function(data) {
-        console.log(data);
+        location.reload();
       },
       error: function(error) {
-        console.log(error);
+        location.reload();
       }
     })
   }
@@ -247,7 +260,13 @@
             content_count += data[key];
           }
         }
-        var editorial_state = editorial_states[earliest_state.state];
+
+        var editorial_state;
+        if (non_hidden_content_count == 0) {
+          editorial_state = editorial_states['empty'];
+        } else {
+          editorial_state = editorial_states[earliest_state.state];
+        }
 
         var has_editions = false; // TODO: make this real
         var proxy_editorial_state = editorial_state;
@@ -268,7 +287,11 @@
         var current_messaging = editorial_messaging[user_type][proxy_editorial_state.id][editorial_quantifier];
 
         $('#primary-message > p').remove();
-        $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
+        if (editorial_state.id == 'empty') {
+          $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is '+editorial_state['name']+'.</strong><br>'+current_messaging['current_task']+'</p>');
+        } else {
+          $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
+        }
 
         // build the editorial state gauge
         var percentage;
@@ -291,8 +314,10 @@
         });
 
         // build the usage rights gauge
-        usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
-        $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div>Usage rights: '+Math.round(usage_rights_percentage)+'%');
+        if (content_count > 0) {
+          usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
+          $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div>Usage rights: '+Math.round(usage_rights_percentage)+'%');
+        }
 
         // build the next steps messaging
         $('#secondary-message').append('<p>'+current_messaging['next_task']+'</p>');
