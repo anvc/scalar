@@ -380,6 +380,7 @@ class Version_model extends MY_Model {
     	$data['version_num'] = ($this->get_version_num($content_id) + 1);
     	$data['sort_number'] = (isset($array['sort_number'])) ? (int) $array['sort_number'] : 0;
     	if (isset($array['editorial_state'])) $data['editorial_state'] = trim($array['editorial_state']);
+    	if (isset($array['usage_rights'])) $data['usage_rights'] = (int) $array['usage_rights'];
     	$data['attribution'] = isset($array['attribution']) ? serialize($array['attribution']) : '';
      	$data['default_view'] = 'plain';
      	if (isset($array['default_view'])) {

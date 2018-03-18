@@ -81,6 +81,7 @@ $config['rdf_fields'] = array(
 		'continue_to_content_id' => 'scalar:continue_to_content_id',
 		'version' =>				'scalar:version',
 		'editorial_state' =>		'scalar:editorialState',
+		'usage_rights' =>			'scalar:usageRights',
 		'citation' =>				'scalar:citation',
 		'category' =>               'scalar:category',
 		'version_num' => 			'ov:versionnumber',

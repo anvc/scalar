@@ -562,7 +562,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								break;
 							}
 						}
-						$currentState = isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
+						$currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
 						$availableStates = [$currentState=>$editorialStates[$currentState]];
 						$disabled = true;
 						switch($currentState){
@@ -621,6 +621,12 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 						<span class="published">This page is visible to the public.</span>
 					</div>
 				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="page_description" class="col-sm-2">&nbsp;</label>
+			<div class="col-sm-10">
+				<label><input type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?> /> &nbsp; Usage rights</label>
 			</div>
 		</div>
 	<? endif ?>

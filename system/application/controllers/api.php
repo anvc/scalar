@@ -38,7 +38,7 @@ Class Api extends CI_Controller {
 	private $optional_update_fields = array('dcterms:description','scalar:fullname','sioc:content');
 	private $relate_fields = array('scalar:urn', 'scalar:child_urn', 'scalar:child_rel');
 	private $content_metadata = array('category', 'thumbnail', 'background', 'banner', 'custom_style', 'custom_scripts', 'color', 'slug', 'audio', 'is_live');
-	private $version_metadata = array('url', 'default_view', 'continue_to_content_id', 'sort_number','editorial_state');
+	private $version_metadata = array('url', 'default_view', 'continue_to_content_id', 'sort_number','editorial_state','usage_rights');
 	private $delete_fields = array('scalar:urn');
 	private $content_types = array('book', 'media', 'composite', 'version');
 

@@ -91,7 +91,7 @@ class Image_Metadata {
 
 	private function get_exif($path='') {
 
-		$exif = exif_read_data($path);
+		$exif =@ exif_read_data($path);
 		
 		if (isset($exif['GPSLongitude']) && isset($exif['GPSLongitudeRef']) && isset($exif['GPSLatitude']) && isset($exif['GPSLatitudeRef'])) {
 			if (is_array($exif['GPSLongitude']) && is_array($exif['GPSLatitude'])) {

@@ -34,7 +34,7 @@ $(document).ready(function() {
 				$duplicateBookModal.find('.rows').show();
 				$duplicateBookModal.find('button:last').prop('disabled',false);
 				var $content = $duplicateBookModal.find('tbody:first');
-				$content.css({
+				$content.empty().css({
 					maxHeight:210,
 					overflow:'auto',
 				});

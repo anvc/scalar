@@ -784,7 +784,7 @@ class System extends MY_Controller {
 					}
 					$version = $this->versions->get_single($content[$j]->content_id, null, $content[$j]->recent_version_id);
 					if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
-					if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usage_rights']++;
+					if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 				}
 				$this->data['content'] = json_encode($this->data['content']);
 			case 'get_onomy':
