@@ -301,7 +301,7 @@
           key = editorial_state_array[index];
           if (data[key] > 0) {
             percentage = parseFloat(data[key]) / content_count * 100;
-            item_quantifier = (data[key] > 1) ? 'items' : 'item';
+            item_quantifier = (data[key] != 1) ? 'items' : 'item';
             $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
           }
         }
@@ -316,7 +316,8 @@
         // build the usage rights gauge
         if (content_count > 0) {
           usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
-          $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div>Usage rights: '+Math.round(usage_rights_percentage)+'%');
+          item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
+          $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier);
         }
 
         // build the next steps messaging
