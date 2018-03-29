@@ -12,7 +12,7 @@ $(document).ready(function() {
 	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
 	$selector.height(height + 'px');
 	node_options = {  /* global */
-		fields:["visible","title","description","last_edited_by","date_edited","versions","edit"],
+		fields:["thumbnail","visible","title","description","last_edited_by","date_edited","versions","edit"],
 		deleteOptions:deleteOptions,
 		addOptions:true,
 		allowMultiple:true,
