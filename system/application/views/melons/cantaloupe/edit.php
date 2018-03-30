@@ -19,6 +19,13 @@
 if ($this->config->item('reference_options')) {
 	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 }
+
+$contributors = [];
+foreach($book->contributors as $contributor){
+	$contributors[$contributor->user_id] = $contributor->fullname;
+}
+
+$this->template->add_js('var contributors='.json_encode($contributors),'embed');
 $this->template->add_js('var views='.json_encode($this->config->item('views')), 'embed');
 $this->template->add_js('var media_views='.json_encode( $this->config->item('media_views') ? $this->config->item('media_views') : array(key($views)=>reset($views)) ), 'embed');
 if ($this->config->item('predefined_css')) {
@@ -100,11 +107,11 @@ p {margin-bottom: 1.2rem;}
 
 END;
 $this->template->add_css($css, 'embed');
-$js = <<<'END'
 
+$js = <<<'END'
 $(document).ready(function() {
 	CKEDITOR.instances['sioc:content'] = CKEDITOR.replace( 'editor', {
-		extraPlugins: ($('link#editorial_workflow').length > 0)?'editorialTools':''
+		extraPlugins: ($('link#editorial_workflow').length > 0)?'widget,editorialTools':''
 	});
 	// If the type is passed via GET
 	checkTypeSelect();
@@ -476,6 +483,12 @@ function badges() {
 	$('a[role="tab"] .badge').html(((total>0)?total:''));
 };
 END;
+
+$js .= " var page_slug = '$page->slug';";
+if ($book->editorial_is_on === '1'){
+	$this->template->add_js('system/application/views/melons/cantaloupe/js/diff_match_patch.js');
+}
+
 $this->template->add_js($js, 'embed');
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
