@@ -1885,9 +1885,10 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
  * @param	start				Result number to start with
  * @param	results				Number of results to return
  * @param 	provenance			If true, will return provenance of the nodes
+ * @param   allVersions         If true, will return all versions - else, returns only current version
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results, provenance) {
+ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results, provenance, allVersions) {
 
 	var url = this.model.urlPrefix+uriSegment;
 	var node = this.model.nodesByURL[this.model.urlPrefix+uriSegment];
@@ -1918,6 +1919,9 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 		prov = provenance ? 1 : 0;
 	}
 	queryString += '&prov='+prov;
+
+	var versions = (allVersions === true)?1:0;
+	queryString += '&versions='+versions;
 
 	if (this.loadPageStatus[url] == null) {
 		this.loadPageStatus[url] = {isLoading:false, queuedSuccessCallbacks:[], queuedErrorCallbacks:[]};
