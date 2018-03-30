@@ -288,7 +288,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit') + '" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
                                                 :'')+
                                             (base.okToDelete?
-                                                ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')+
+                                                ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')
+                                                :'')+
+                                            (base.is_author?
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
                                                     '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
                                                         '<span class="visible-xs">Import</span>'+
