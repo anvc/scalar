@@ -68,6 +68,13 @@ class Version_model extends MY_Model {
   				//$row->url[$key] = linkencode($row->url[$key], true);
   			}
   		}
+  		
+  		// Only show queries on edit page
+  		if (isset($row->queries)) {
+			if (!isset($this->data['mode']) || $this->data['mode'] != 'editing' || !isset($this->data['book']->editorial_is_on) || !$this->data['book']->editorial_is_on) {
+				unset($row->queries);
+			}
+  		}
 
   		$rdf = parent::rdf($row, $prefix);
 
@@ -381,6 +388,11 @@ class Version_model extends MY_Model {
     	$data['sort_number'] = (isset($array['sort_number'])) ? (int) $array['sort_number'] : 0;
     	if (isset($array['editorial_state'])) $data['editorial_state'] = trim($array['editorial_state']);
     	if (isset($array['usage_rights'])) $data['usage_rights'] = (int) $array['usage_rights'];
+    	if (isset($array['queries'])) {
+    		$json = json_decode($array['queries']);
+    		if (!is_null($json)) $data['queries'] = $array['queries'];
+    		unset($json);
+    	}
     	$data['attribution'] = isset($array['attribution']) ? serialize($array['attribution']) : '';
      	$data['default_view'] = 'plain';
      	if (isset($array['default_view'])) {
