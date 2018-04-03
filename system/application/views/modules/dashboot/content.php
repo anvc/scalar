@@ -4,6 +4,7 @@
 <?$this->template->add_css('system/application/views/modules/dashboot/css/tabs.css')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-3.1.0.min.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <?$this->template->add_link('parent',((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':''))?>
 <script>
 var book_id = <?=((!empty($book)&&isset($book->book_id))?$book->book_id:0)?>;
@@ -44,10 +45,10 @@ $(window).on('scroll',function() {
           <img class="avatar small" src="<?=$app_root.'views/modules/dashboot/images/generic-avatar.png'?>" alt="User avatar" />
           <?=$login->fullname?> 
         </a>
-<?php if ('user'!=$zone && !empty($book_id) && !empty($book)): ?>
+<?php if ('user'!=$zone): ?>
         <span class="s">/</span> 
         <div class="dropdown">
-          <a href="javascript:void(null);" data-toggle="dropdown"><?=$book->title?></a>
+          <a href="javascript:void(null);" data-toggle="dropdown"><?=(!empty($book))?$book->title:'My books'?></a>
           <span class="caret"></span>
           <ul class="dropdown-menu"><?php 
 	    	  foreach ($my_books as $my_book) {
@@ -73,10 +74,10 @@ $(window).on('scroll',function() {
 </header>
 
 <?php 
-if ('user'==$zone || empty($book) || !isset($book->book_id)): 
+if ('user'==$zone): 
 
   $this->load->view('modules/dashboot/user');
-
+  
 else: ?>
 <nav class="container-fluid">
   <div class="row">
@@ -87,8 +88,10 @@ else: ?>
 	    <li role="presentation"<?=(('styling'==$zone)?' class="active"':'')?>><a href="#tabs-styling" data-toggle="tab">Styling</a></li>
 	    <li role="presentation"<?=(('pages'==$zone)?' class="active"':'')?>><a href="#tabs-pages" data-toggle="tab">Content</a></li>
 	    <li role="presentation"<?=(('users'==$zone)?' class="active"':'')?>><a href="#tabs-users" data-toggle="tab">Users</a></li>
-	    <li role="presentation"<?=(('utils'==$zone)?' class="active"':'')?>><a href="#tabs-utils" data-toggle="tab">Utilities</a></li>
-	    <li role="presentation" class="right-tab"><a href="<?=((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':'')?>" title="Return to <?=htmlspecialchars(strip_tags($book->title))?>">Return to book &raquo;</a></li>
+	    <li role="presentation"<?=(('utils'==$zone||'all-users'==$zone||'all-books'==$zone)?' class="active"':'')?>><a href="#tabs-utils" data-toggle="tab">Utilities</a></li>
+	    <?php if (!empty($book)): ?>
+	    <li role="presentation" class="right-tab"><a href="<?=((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':'')?>" title="Return to <?=(!empty($book))?htmlspecialchars(strip_tags($book->title)):''?>">Return to book &raquo;</a></li>
+	    <?php endif; ?>
 	  </ul>  
 	</div>
   </div>
@@ -100,7 +103,7 @@ else: ?>
   <div role="tabpanel" class="tab-pane<?=(('styling'==$zone)?' active':'')?>" id="tabs-style"><? if ('styling'==$zone) { $this->load->view('modules/dashboot/styling'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('pages'==$zone)?' active':'')?>" id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboot/pages'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('users'==$zone)?' active':'')?>" id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboot/users'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
-  <div role="tabpanel" class="tab-pane<?=(('utils'==$zone)?' active':'')?>" id="tabs-utils"><? if ('utils'==$zone) { $this->load->view('modules/dashboot/utils'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+  <div role="tabpanel" class="tab-pane<?=(('utils'==$zone||'all-users'==$zone||'all-books'==$zone)?' active':'')?>" id="tabs-utils"><? if ('utils'==$zone||'all-users'==$zone||'all-books'==$zone) { $this->load->view('modules/dashboot/utils'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
 </section>	
 <?php endif; ?>
 

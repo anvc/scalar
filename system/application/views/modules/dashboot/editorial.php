@@ -1,3 +1,9 @@
+<?
+if (empty($book)) {
+	header('Location: '.$this->base_url.'?zone=user');
+	exit;
+}
+?>
 <?php if ($editorial_is_on): ?>
 <script>
   var user_type = '<?echo($user_level);?>'.toLowerCase();

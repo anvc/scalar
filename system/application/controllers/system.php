@@ -355,13 +355,19 @@ class System extends MY_Controller {
 		 			exit;
 				case 'do_add_book':   // Admin: All Books (requires title) & My Account (user_id & title)
 					$user_id =@ (int) $_POST['user_id'];
+					$get = '?';
+					if (isset($book_id)) $get .= 'book_id='.$book_id.'&';
+					if (isset($this->data['zone'])) $get .= 'zone='.$this->data['zone'].'&';
+					if (isset($_REQUEST['pill'])) $get .= 'pill='.$_REQUEST['pill'].'&';
 					$array = $_POST;
 					if (empty($user_id) && !$this->data['login_is_super']) $this->kickout();
 					$skip_captcha = (isset($array['zone']) && 'all-books'==$array['zone'] && $this->data['login_is_super']) ? true : false;
 					$duplicate = (isset($array['book_to_duplicate']) && is_numeric($array['book_to_duplicate']) && !empty($array['book_to_duplicate'])) ? true : false;
 					$skip_captcha = true;
 					if (empty($array['title'])) {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=1');
+						$get .= 'error=1';
+						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+						header('Location: '.$this->base_url.$get);
 						exit;
 					}
 					try {
@@ -371,7 +377,9 @@ class System extends MY_Controller {
 							$book_id = (int) $this->books->add($array, (($skip_captcha)?false:true));
 						}
 					} catch (Exception $e) {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error='.$e->getMessage());
+						$get .= 'error='.$e->getMessage();
+						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+						header('Location: '.$this->base_url.$get);
 						exit;
 					}
 					// Option to redirect to page of choice
@@ -387,18 +395,28 @@ class System extends MY_Controller {
 						header('Location: '.$redirect_url);
 					// Redirect to Dashboard > My Account
 					} else {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action='.(($duplicate)?'duplicated':'added'));
+						$get .= 'action='.(($duplicate)?'duplicated':'added');
+						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+						header('Location: '.$this->base_url.$get);
 					}
 					exit;
 				case 'do_add_user':  // Admin: All Users
 					if (!$this->data['login_is_super']) $this->kickout();
+					$get = '?';
+					if (isset($book_id)) $get .= 'book_id='.$book_id.'&';
+					if (isset($this->data['zone'])) $get .= 'zone='.$this->data['zone'].'&';
+					if (isset($_REQUEST['pill'])) $get .= 'pill='.$_REQUEST['pill'].'&';
 					$array = $_POST;
 					if (empty($array['email']) || empty($array['fullname']) || empty($array['password_1'])) {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=1');
+						$get .= 'error=1';
+						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+						header('Location: '.$this->base_url.$get);
 						exit;
 					}
 					if ($array['password_1'] != $array['password_2']) {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=2');
+						$get .= 'error=2';
+						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+						header('Location: '.$this->base_url.$get);
 						exit;
 					}
 					try {
@@ -407,19 +425,30 @@ class System extends MY_Controller {
 						unset($array['password_2']);
 						$user_id = (int) $this->users->add($array);
 					} catch (Exception $e) {
-						header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=3');
+						$get .= 'error=3';
+						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+						header('Location: '.$this->base_url.$get);
 						exit;
 					}
-					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=added');
+					$get .= 'action=added';
+					if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+					header('Location: '.$this->base_url.$get);
 					exit;
 				case 'do_delete':  // Admin: All Users & All Books
 					if (!$this->data['login_is_super']) $this->kickout();
 					$zone = $this->data['zone'];
+					$pill = (isset($_REQUEST['pill'])) ? $_REQUEST['pill'] : null;
+					$tab = (isset($_REQUEST['tab'])) ? '#'.$_REQUEST['tab'] : null;
+					$book_id = (isset($_REQUEST['book_id'])) ? $_REQUEST['book_id'] : null;
 					$delete = (int) $_REQUEST['delete'];
 					$type = $_REQUEST['type'];
 					if (!is_object($this->$type)) show_error('Invalid section');
 					if (!$this->$type->delete($delete)) show_error('There was a problem deleting. Please try again');
-					header('Location: '.$this->base_url.'?action=deleted&zone='.$zone.'#tabs-'.$zone);
+					$get = '?action=delete&zone='.$zone;
+					if (!empty($book_id)) $get .= '&book_id='.$book_id;
+					if (!empty($pill)) $get .= '&pill='.$pill;
+					$get .= (!empty($tab)) ? $tab : '#tabs-'.$zone;
+					header('Location: '.$this->base_url.$get);
 					exit;
 				case 'do_delete_books':  // Admin: Tools > List recently created books 
 					if (!$this->data['login_is_super']) $this->kickout();

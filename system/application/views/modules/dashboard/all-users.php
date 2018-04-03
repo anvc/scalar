@@ -112,7 +112,7 @@
 				echo '<td class="editable" property="fullname">'.$users[$i]->fullname."</td>\n";
 				echo '<td class="editable" property="email">'.$users[$i]->email."</td>\n";
 				echo '<td class="editable" property="password">'.(strlen($users[$i]->password)?str_repeat('&bull;', 10):'')."</td>\n";
-				echo '<td class="editable" property="url"><a href="'.$users[$i]->url.'" target="_blank">'.$users[$i]->url."</a></td>\n";
+				echo '<td class="editable has_link" property="url"><a href="'.$users[$i]->url.'" target="_blank">'.$users[$i]->url."</a></td>\n";
 				echo '<td>';
 				foreach ($users[$i]->books as $book) {
 					echo '<a href="'.confirm_slash(base_url()).$book->slug.'">';

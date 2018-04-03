@@ -105,6 +105,7 @@ function edit_row($row) {
 			}
 			originals[property] = value;
 		});
+		if ($row.find('.edit_button').length) $row.data('edit_button',$row.find('.edit_button').parent().html());
 		$row.find('a:first').html('Save');
 		$row.find('a:first').addClass('default');
 		$row.find('a:first').blur();
@@ -211,7 +212,7 @@ function push_row(row,post) {
 				value = '<a href="'+window['book_uri']+data['slug']+'">'+value+'</a>';
 			} else if ($this.hasClass('has_link')) {
 				if (value.indexOf('://')!=-1) {
-					value = '<a target="_blank" href="'+value+'">'+$.fn.scalardashboardtable('basename', value)+'</a>';
+					value = '<a target="_blank" href="'+value+'">'+value+'</a>';
 				} else {
 					value = '<a href="'+$('#sysroot').attr('href')+value+'">'+value+'</a>';
 				}
@@ -220,7 +221,8 @@ function push_row(row,post) {
 			$this.html(value);
 		});
 		row.data('mode','read');
-		row.find('a:first').html('Edit');
+		var str = (row.data('edit_button')) ? row.data('edit_button') : 'Edit';
+		row.find('a:first').html(str);
 		row.find('a:first').removeClass('default');
 		row.find('a:first').blur();		 
 		var version_id = row.data('most_recent_version');

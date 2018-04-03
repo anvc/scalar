@@ -1,3 +1,9 @@
+<?
+if (empty($book)) {
+	header('Location: '.$this->base_url.'?zone=user');
+	exit;
+}
+?> 
 <?$this->template->add_css('system/application/views/modules/dashboot/css/custom.jquery-ui.min.css')?>
 <?$this->template->add_css('system/application/views/modules/dashboot/css/bootstrap-dialog.min.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>

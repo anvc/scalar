@@ -1,3 +1,9 @@
+<?
+if (empty($book)) {
+	header('Location: '.$this->base_url.'?zone=user');
+	exit;
+}
+?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?$this->template->add_css('body {margin-bottom:0;}','embed')?>

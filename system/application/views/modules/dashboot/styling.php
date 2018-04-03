@@ -1,9 +1,14 @@
+<?
+if (empty($book)) {
+	header('Location: '.$this->base_url.'?zone=user');
+	exit;
+}
+?>
 <?$this->template->add_css('system/application/views/modules/dashboot/css/custom.jquery-ui.min.css')?>
 <?$this->template->add_css('system/application/views/modules/dashboot/css/bootstrap-dialog.min.css')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/custom.jquery-ui.min.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap-dialog.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.predefined.js')?>
-
 
 <link id="active_melon" href="<?=$this->config->item('active_melon')?>" />
 <link id="book_melon" href="<?=$book->template?>" />
