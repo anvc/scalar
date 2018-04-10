@@ -108,7 +108,7 @@
     		// Hard-coded descriptions for certain ontology prefixes
     		var descriptions = {
     			'dcterms':'Dublin Core terms',
-    			'art': 'ARTstore terms',
+    			'art': 'ARTstor terms',
     			'iptc': 'Photo metadata',
     			'bibo': 'Bibliographic Ontology Specification',
     			'id3': 'MP3 de facto metadata standard'
