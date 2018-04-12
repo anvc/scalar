@@ -1146,7 +1146,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Contains</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in path_of){
                             var relNode = path_of[i];
-                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'?path='+node.slug+'" tabindex="-1">'+relNode.current.title+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1164,7 +1164,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in features){
                             var relNode = features[i];
-                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1183,7 +1183,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Tagged by</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
                         for(var i in tag_of){
                             var relNode = tag_of[i];
-                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1202,7 +1202,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in annotates){
                             var relNode = annotates[i];
-                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1221,7 +1221,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in comments_on){
                             var relNode = comments_on[i];
-                            var nodeItem = $('<li><a href="'+base.get_param(relNode.url)+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1585,7 +1585,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var tocNode, listItem;
                     for (i=n-1; i>=0; i--) { //going in reverse here, since we're prepending...
                         tocNode = menuItems[i];
-                        listItem = $( '<li><a href="' + base.get_param(tocNode.url) + '">'+ tocNode.getDisplayTitle() + '</a></li>' )
+                        listItem = $( '<li><a href="' + tocNode.url + '">'+ tocNode.getDisplayTitle() + '</a></li>' )
                                     .prependTo( menu )
                                     .data({
                                         'slug': tocNode.slug,
