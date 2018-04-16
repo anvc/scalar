@@ -70,6 +70,7 @@ class Book_model extends MY_Model {
 
   		if (!isset($row->type) || empty($row->type)) $row->type = 'book';
   		if (isset($row->subtitle) && !empty($row->subtitle)) $row->title = $row->title.'<span class="subtitle">: '.$row->subtitle.'</span>';
+  		if (!isset($row->is_part_of)) $row->is_part_of = base_url();
   		return parent::rdf($row, $base_uri);
 
   	}
