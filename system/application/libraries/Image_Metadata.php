@@ -135,7 +135,7 @@ class Image_Metadata {
 		if (!is_array($value)) $value = array($value);
 		foreach ($value as $val) {
 			if (empty($val)) continue;
-			$return[] = array('value' => htmlspecialchars($val), 'type' => ((isURL($val))?'uri':'literal') );
+			$return[] = array('value' => $val, 'type' => ((isURL($val))?'uri':'literal') );
 		}
 		return $return;
 
