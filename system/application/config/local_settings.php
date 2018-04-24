@@ -33,14 +33,17 @@ $config['register_key'] = array();
 // Soundcloud key
 $config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : '');
 
-// Digital Public Library of America key
-$config['dpla_key'] = (getenv('SCALAR_DPLA_KEY') ? getenv('SCALAR_DPLA_KEY') : '');
+// Google Maps key
+$config['google_maps_key'] = (getenv('SCALAR_GOOGLE_MAPS_KEY') ? getenv('SCALAR_GOOGLE_MAPS_KEY') : '');
+
+// YouTube Data API key
+$config['youtube_data_key'] = (getenv('SCALAR_YOUTUBE_DATA_KEY') ? getenv('SCALAR_YOUTUBE_DATA_KEY') : '');
 
 // Flowplayer key
 $config['flowplayer_key'] = (getenv('SCALAR_FLOWPLAYER_KEY') ? getenv('SCALAR_FLOWPLAYER_KEY') : '');
 
-// Google Maps key
-$config['google_maps_key'] = (getenv('SCALAR_GOOGLE_MAPS_KEY') ? getenv('SCALAR_GOOGLE_MAPS_KEY') : '');
+// Digital Public Library of America key
+$config['dpla_key'] = (getenv('SCALAR_DPLA_KEY') ? getenv('SCALAR_DPLA_KEY') : '');
 
 // New York Public Library key
 $config['nypl_key'] = (getenv('SCALAR_NYPL_KEY') ? getenv('SCALAR_NYPL_KEY') : '');
