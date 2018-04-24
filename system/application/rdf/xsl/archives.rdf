@@ -42,7 +42,7 @@
 		<dc:title>YouTube</dc:title>
 		<dcterms:description><![CDATA[Note: Because its API is subject to intermittent change, and because its content is often the target of DMCA requests, YouTube media tend to be less stable than media hosted elsewhere.<br><br>Search for and import media from YouTube by typing a keyword below.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/youtube_2.xsl" />
-		<scalar:getStr><![CDATA[part=snippet&q=$1&type=video&maxResults=50&key=AIzaSyAfbHGdyPoE2IPlyGno50_o14QMq4kt9j4]]></scalar:getStr>
+		<scalar:getStr><![CDATA[part=snippet&q=$1&type=video&maxResults=50]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>		
 	

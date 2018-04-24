@@ -37,6 +37,13 @@ if (empty($uri)) die ('Invalid URI');
 
 $uri = str_replace(' ', '+', $uri);
 
+if (stristr($uri, "youtube")) {
+	include(__DIR__.'/../config/local_settings.php');
+	$key = trim($config['youtube_data_key']);
+	if (empty($key)) die('Please contact a system admin to add a YouTube Data API key to the local_settings.php config file');
+	$uri .= '&key='.$key;
+}
+
 function jsonToXML($json) {
 	$return = '<?xml version="1.0" ?>';
 	$return .= '<root>';
