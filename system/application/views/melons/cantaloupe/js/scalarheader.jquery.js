@@ -810,8 +810,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.handleResize();
             base.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
-
-            base.$el.find('.title_wrapper.visible-xs .book-title').dotdotdot({
+            $('body').bind('pageLoadComplete',$.proxy(function(){
+                var base = this;
+                base.$el.find('.title_wrapper.visible-xs .book-title').dotdotdot({
                       ellipsis: '…',
                       wrap: 'letter',
                       height: 50,
@@ -841,24 +842,27 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                       }
                     });
 
-            base.$el.find('#desktopTitleWrapper').dotdotdot({
-              ellipsis: '…',
-              wrap: 'letter',
-              height: 50,
-              callback: function(isTruncated, fullText){
-                //Check if author text is overflowed - if so, add a bootstrap tooltip.
-                var base = $('#scalarheader.navbar').data('scalarheader');
-                var desktopTitle = base.$el.find('#desktopTitleWrapper');
-                if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
-                  var titleHtml = fullText.text().split(' by ');
-                  titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
+                base.$el.find('#desktopTitleWrapper').dotdotdot({
+                  ellipsis: '…',
+                  wrap: 'letter',
+                  height: 50,
+                  callback: function(isTruncated, fullText){
+                    //Check if author text is overflowed - if so, add a bootstrap tooltip.
+                    var base = $('#scalarheader.navbar').data('scalarheader');
+                    var desktopTitle = base.$el.find('#desktopTitleWrapper');
+                    if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
+                      var titleHtml = fullText.text().split(' by ');
+                      titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
 
-                  desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
-                }else if(!isTruncated){
-                  desktopTitle.tooltip('destroy').removeClass('withTooltip');
-                }
-              }
-            }).addClass('overflowCalculated');
+                      desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
+                    }else if(!isTruncated){
+                      desktopTitle.tooltip('destroy').removeClass('withTooltip');
+                    }
+                  }
+                }).addClass('overflowCalculated');
+            },base));
+
+
 
             base.setupEditorialBar();
         };
@@ -1454,14 +1458,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             //@TODO: Add non-book related Get Params back to URLs Here
             var allowable_vars = ['path','m'];
             if (scalarapi.getQuerySegment(window.location.href).length) {
-            	var vars = scalarapi.getQuerySegment(window.location.href).split('&');
-            	for (var j = 0; j < vars.length; j++) {
-            		var field = vars[j].split('=')[0];
-            		if (allowable_vars.indexOf(field) == -1) continue;
-            		if (url.indexOf('?') == -1) url += '?';
-            		url += vars[j];
-            		if (j < vars.length-1) url += '&';
-            	}
+                var vars = scalarapi.getQuerySegment(window.location.href).split('&');
+                for (var j = 0; j < vars.length; j++) {
+                    var field = vars[j].split('=')[0];
+                    if (allowable_vars.indexOf(field) == -1) continue;
+                    if (url.indexOf('?') == -1) url += '?';
+                    url += vars[j];
+                    if (j < vars.length-1) url += '&';
+                }
             }
             return url;
         }
@@ -1629,12 +1633,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         window.location.href=url;
                         return;
                     }, function(result) {
-                    	alert('An error occurred attempting to hide this page: '+result);
-                    	var login = $('link#approot').attr('href').replace('application','login');
-                    	if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
-                    	var url = $('link#parent').attr('href');
-                    	window.location.href=login+'?redirect_url='+encodeURIComponent(url);
-                    	return;
+                        alert('An error occurred attempting to hide this page: '+result);
+                        var login = $('link#approot').attr('href').replace('application','login');
+                        if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
+                        var url = $('link#parent').attr('href');
+                        window.location.href=login+'?redirect_url='+encodeURIComponent(url);
+                        return;
                     });
                 }
             });
