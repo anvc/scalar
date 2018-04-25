@@ -845,7 +845,10 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 			source = this.mediaSources['WAV'];
 	
 		} else if (uri.indexOf('getdownloaditem') != -1) {  // CONTENTdm
-			source = this.mediaSources['JPEG'];			
+			source = this.mediaSources['JPEG'];	
+			
+		} else if (uri.indexOf('birds.cornell.edu') != -1) {  // eBird
+			source = this.mediaSources['JPEG'];	
 			
 		} else if (uri.substr(uri.length - 4) == 'JPEG' || uri.substr(uri.length - 10) == 'Item+Image') {
 			source = this.mediaSources['JPEG'];
