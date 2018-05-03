@@ -484,7 +484,7 @@ function badges() {
 };
 END;
 
-$js .= " var page_slug = '$page->slug';";
+$js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'";';
 if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'){
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/diff_match_patch.js');
 }
