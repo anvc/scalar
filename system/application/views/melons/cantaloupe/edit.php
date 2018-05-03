@@ -20,7 +20,7 @@ if ($this->config->item('reference_options')) {
 	$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 }
 
-$contributors = [];
+$contributors = array();
 foreach($book->contributors as $contributor){
 	$contributors[$contributor->user_id] = $contributor->fullname;
 }
@@ -485,7 +485,7 @@ function badges() {
 END;
 
 $js .= " var page_slug = '$page->slug';";
-if ($book->editorial_is_on === '1'){
+if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'){
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/diff_match_patch.js');
 }
 
@@ -554,19 +554,19 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>" />
 		</div>
 	</div>
-	<?if ($book->editorial_is_on === '1'): ?>
+	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'): ?>
 		<div class="form-group">
 			<label class="col-sm-2">Status</label>
 			<div class="col-sm-10">
 					<?php
-						$editorialStates = [
+						$editorialStates = array(
 							'draft' => 'Draft',
 							'edit' => 'Edit',
 							'editreview' => 'Edit Review',
 							'clean' => 'Clean',
 							'ready' => 'Ready',
 							'published' => 'Published'
-						];
+						);
 						
 						$currentRole = 'author';
 						foreach($book->contributors as $contributor){
@@ -576,7 +576,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 							}
 						}
 						$currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
-						$availableStates = [$currentState=>$editorialStates[$currentState]];
+						$availableStates = array($currentState=>$editorialStates[$currentState]);
 						$disabled = true;
 						switch($currentState){
 							case 'draft':
