@@ -847,8 +847,12 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 		} else if (uri.indexOf('getdownloaditem') != -1) {  // CONTENTdm
 			source = this.mediaSources['JPEG'];	
 			
-		} else if (uri.indexOf('birds.cornell.edu') != -1) {  // eBird
-			source = this.mediaSources['JPEG'];	
+		} else if (uri.indexOf('birds.cornell.edu') != -1 && uri.indexOf('/large') != -1) {  // eBird
+			source = this.mediaSources['JPEG'];
+		} else if (uri.indexOf('birds.cornell.edu') != -1 && uri.indexOf('/audio') != -1) {
+			source = this.mediaSources['MPEG-3'];
+		} else if (uri.indexOf('birds.cornell.edu') != -1 && uri.indexOf('/video') != -1) {
+			source = this.mediaSources['MPEG-4'];
 			
 		} else if (uri.substr(uri.length - 4) == 'JPEG' || uri.substr(uri.length - 10) == 'Item+Image') {
 			source = this.mediaSources['JPEG'];
