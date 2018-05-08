@@ -53,7 +53,7 @@ Class Api extends CI_Controller {
 	//Defaults
 	private $default_return_format = 'json';
 	private $allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json');
-	private $allowable_metadata_prefixes = array('dc', 'shoah', 'scalar', 'exif');  // Rest propagated by config['ontologies']
+	private $allowable_metadata_prefixes = array('dc', 'shoah', 'scalar', 'exif');  // The rest are propagated by config['ontologies']
 	private $disallowable_metadata_prefixes = array('scalar:metadata');
 	protected $data;
 
