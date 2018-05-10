@@ -611,6 +611,8 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								break;
 						}
 						echo '<input type="hidden" id="editorial_state" class="form-control" name="scalar:editorial_state" value="'.$currentState.'" />';
+
+						echo '<input type="hidden" id="editorial_queries" name="scalar:queries" value="{[]}" />';
 					?>
 				<div class="row">
 					<div class="col-xs-12 col-sm-4 col-md-3" id="editorial_state_button_container">
