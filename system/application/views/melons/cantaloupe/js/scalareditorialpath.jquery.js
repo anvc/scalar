@@ -50,7 +50,7 @@
 	        					'editreview' : 'Edit Review',
 	        					'clean' : 'Clean',
 	        					'ready' : 'Ready',
-	        					//'published' : 'Published'
+	        					'published' : 'Published'
         				   };
         base.node_state_flow = {
             'author' : {
