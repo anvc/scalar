@@ -96,70 +96,18 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }
                 //Queries
                     base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Queries</a></li>');
-                    var dummyQueries = [
-                        {
-                            id : 1,
-                            user : "Michele Severiano",
-                            date :  "2017-01-01 10:29:08", //assuming MySQL date format
-                            body : "Bacon ipsum dolor amet spare ribs pork loin flank venison tail beef t-bone shank strip steak meatball sirloin bacon jerky cupim pancetta. Fatback pork landjaeger, chicken bresaola meatball turkey spare ribs ground round cupim shoulder.",
-                            resolved: false,
-                            replyTo : null
-                        },
-                        {
-                            id : 2,
-                            user : "Jescha Jonas",
-                            date :  "2017-01-02 4:12:11",
-                            body : "Prosciutto porchetta capicola, bresaola ball tip spare ribs pork belly frankfurter kevin rump filet mignon cupim pork loin andouille. Pork loin sirloin brisket tenderloin.",
-                            resolved: false,
-                            replyTo : 1
-                        },
-                        {
-                            id : 3,
-                            user : "Hal Casey",
-                            date :  "2017-01-10 5:20:38",
-                            body : "Cupim prosciutto short ribs porchetta leberkas chuck tenderloin frankfurter strip steak pig corned beef tri-tip. T-bone bacon brisket pancetta, andouille biltong ham hock hamburger.",
-                            resolved: true,
-                            replyTo : null
-                        },
-                        {
-                            id : 4,
-                            user : "Ármann Mathilde",
-                            date :  "2017-01-11 2:24:37",
-                            body : "Brisket tri-tip filet mignon porchetta rump jowl ribeye pork capicola meatball. Filet mignon andouille flank salami boudin beef ribs alcatra. Beef ribs brisket t-bone strip steak shankle.",
-                            resolved: false,
-                            replyTo : null
-                        },
-                        {
-                            id : 5,
-                            user : "Hal Casey",
-                            date :  "2017-01-23 23:23:23",
-                            body : "Pork loin sirloin brisket tenderloin.",
-                            resolved: false,
-                            replyTo : 4
-                        },
-                        {
-                            id : 6,
-                            user : "Ármann Mathilde",
-                            date :  "2017-01-24 19:18:17",
-                            body : "Shank cupim jowl spare ribs turkey andouille boudin salami buffalo pork fatback.",
-                            resolved: false,
-                            replyTo : 4
-                        },
-                        {
-                            id : 7,
-                            user : "Ármann Mathilde",
-                            date :  "2017-01-24 06:08:10",
-                            body : "Meatball prosciutto picanha pastrami.",
-                            resolved: false,
-                            replyTo : 3
-                        }
-                    ];
+                    if($('span.metadata[property="scalar:queries"]').length > 0){
+                        console.log($('span.metadata[property="scalar:queries"]').text());
+                        var queries = JSON.parse($('span.metadata[property="scalar:queries"]').text());
+                    }else{
+                        var queries = [];
+                    }
 
                     var processedQueries = {};
                     //Build queries into a nicer format:
                     //(We are assuming queries are returned in date ascending)
-                    for(var q in dummyQueries){
-                        var query = dummyQueries[q];
+                    for(var q in queries){
+                        var query = queries[q];
                         if(query.replyTo === null && !processedQueries[query.id]){
                             processedQueries[query.id] = query;
                             processedQueries[query.id].replies = {};
@@ -214,12 +162,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         }
                         var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+monthNames[date.getMonth()]+' '+date.getDate();
                         var $query = $('<div class="query" id="query_'+query.id+'">'+
-                                            (!query.resolved?'<button class="btn btn-sm pull-right">Resolve</button>':'')+
+                                            (!query.resolved?'<button class="btn btn-sm pull-right resolve">Resolve</button>':'')+
                                             '<strong class="user">'+query.user+'</strong>'+
                                             '<small class="date">'+dateString+'</small>'+
                                             '<div class="body">'+query.body+'</div>'+
                                        '</div>');
-
+                        $query.data('timestamp',date.toISOString());
                         if(query.resolved){
                             $query.appendTo(base.$resolvedQueries.find('#resolvedQueries'));
                         }else{
@@ -237,27 +185,28 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                                     '</form>'+
                                               '</div>').appendTo($query);
                             $newReply.find('button').click(function(e){
-                            //Doesn't actually save yet!
-                            e.preventDefault();
-                            var $newReply = $(this).parents('.newReply');
-                            var $replies = $(this).parents('.query').find('.replies');
-                            var text = $newReply.find('input').val();
-                            $newReply.find('input').val('');
-                            var date = new Date();
-                            var hour = date.getHours();
-                            var suffix = "am";
-                            if(hour > 12){
-                                hour -= 12;
-                                suffix = "pm";
-                            }else if(hour == 0){
-                                hour = 12;
-                            }
-                            var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+monthNames[date.getMonth()]+' '+date.getDate();
-                            var $query = $('<div class="query">'+
-                                                '<strong class="user">'+fullName+'</strong>'+
-                                                '<small class="date">'+dateString+'</small>'+
-                                                '<div class="body">'+text+'</div>'+
-                                           '</div>').appendTo($replies);
+                                //Doesn't actually save yet!
+                                e.preventDefault();
+                                var $newReply = $(this).parents('.newReply');
+                                var $replies = $(this).parents('.query').find('.replies');
+                                var text = $newReply.find('input').val();
+                                $newReply.find('input').val('');
+                                var date = new Date();
+                                var hour = date.getHours();
+                                var suffix = "am";
+                                if(hour > 12){
+                                    hour -= 12;
+                                    suffix = "pm";
+                                }else if(hour == 0){
+                                    hour = 12;
+                                }
+                                var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+monthNames[date.getMonth()]+' '+date.getDate();
+                                var $query = $('<div class="query">'+
+                                                    '<strong class="user">'+fullName+'</strong>'+
+                                                    '<small class="date">'+dateString+'</small>'+
+                                                    '<div class="body">'+text+'</div>'+
+                                               '</div>').appendTo($replies);
+                                $query.data('timestamp',date.toISOString());
                             });
                         }
                         for(var r in query.replies){
