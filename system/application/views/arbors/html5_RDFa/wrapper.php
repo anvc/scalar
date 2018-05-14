@@ -19,6 +19,7 @@ if (isset($book) && !empty($book)) {
 if (isset($page->versions) && isset($page->versions[$page->version_index]->has_paths) && !empty($page->versions[$page->version_index]->has_paths)) {
 	$path_index = $page->versions[$page->version_index]->requested_path_index;
 	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->background)) $background = trim($page->versions[$page->version_index]->has_paths[$path_index]->background);
+	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->banner)) $banner = trim($page->versions[$page->version_index]->has_paths[$path_index]->banner);
 	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->custom_style)) $style .= trim($page->versions[$page->version_index]->has_paths[$path_index]->custom_style)."\n";
 	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)) $js .= trim($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)."\n";
 }
