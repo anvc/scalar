@@ -575,6 +575,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								break;
 							}
 						}
+						$currentQueries = str_replace('"', '&quot;', isset($page->versions)&&isset($page->versions[$page->version_index]->queries)?$page->versions[$page->version_index]->queries:'[]');
 						$currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
 						$availableStates = array($currentState=>$editorialStates[$currentState]);
 						$disabled = true;
@@ -586,7 +587,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								}
 								break;
 							case 'edit':
-								if($currentRole == 'reviewer'){
+								if($currentRole == 'editor'){
 									$availableStates = array_slice($editorialStates,0,3);
 									$disabled = false;
 								}
@@ -598,19 +599,21 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 								}
 								break;
 							case 'clean':
-								if($currentRole == 'reviewer'){
+								if($currentRole == 'editor'){
 									$availableStates = array_slice($editorialStates,2,3);
 									$disabled = false;
 								}
 								break;
 							case 'ready':
-								if($currentRole == 'reviewer'){
+								if($currentRole == 'editor'){
 									$availableStates = array_slice($editorialStates,2,4);
 									$disabled = false;
 								}
 								break;
 						}
-						echo '<input type="hidden" id="editorial_state" class="form-control" name="scalar:editorial_state" '.($disabled?' disabled':'').' value="'.$currentState.'" />';
+						echo '<input type="hidden" id="editorial_state" class="form-control" name="scalar:editorial_state" value="'.$currentState.'" />';
+
+						echo '<input type="hidden" id="editorial_queries" name="scalar:queries" value="'.$currentQueries.'" />';
 					?>
 				<div class="row">
 					<div class="col-xs-12 col-sm-4 col-md-3" id="editorial_state_button_container">
