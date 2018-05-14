@@ -802,14 +802,15 @@
                                     if(base.ckeditorSaveTimeout !== null){
                                         window.clearTimeout(base.ckeditorSaveTimeout);
                                     }
-                                    base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
+                                    /*base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
                                         if(base.wasDirty){
                                             base.wasDirty = false;
                                             base.saveNode(base.currentEditNode);
                                         }
-                                    },this),1000);
+                                    },this),1000);*/
                                 }
                             },editor),500);
+
 
                             $(this).data('editor',editor);
 
@@ -904,9 +905,13 @@
                 'scalar:editorial_state': editorialState
             };
             scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
-                var notice = $('<div class="alert alert-success" role="alert">Page updated successfully!</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
+                var notice = $('<div class="alert alert-success" role="alert">Page updated successfully!</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast',function(){
+                    window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);
+                });
             },function(e){
-                var notice = $('<div class="alert alert-danger" role="alert">Error in saving page! ('+e+')</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
+                var notice = $('<div class="alert alert-danger" role="alert">Error in saving page! ('+e+')</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast',function(){
+                   window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);    
+                });
             });
         };
 
