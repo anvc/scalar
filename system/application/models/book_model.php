@@ -651,7 +651,7 @@ class Book_model extends MY_Model {
 				$ci->load->helper('url');
     		}
     		$array['slug'] = safe_name($array['slug'], false);  // Don't allow forward slashes
-    		;
+
 			// If slug has changed, rename folder on filesystem and update text content URLs
 			if ($array['slug'] != $slug) {
 				$dbprefix = $this->db->dbprefix;  // Since we're using a custom MySQL query below
