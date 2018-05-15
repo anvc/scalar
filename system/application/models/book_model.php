@@ -651,7 +651,7 @@ class Book_model extends MY_Model {
 				$ci->load->helper('url');
     		}
     		$array['slug'] = safe_name($array['slug'], false);  // Don't allow forward slashes
-
+    		;
 			// If slug has changed, rename folder on filesystem and update text content URLs
 			if ($array['slug'] != $slug) {
 				$dbprefix = $this->db->dbprefix;  // Since we're using a custom MySQL query below
@@ -738,8 +738,9 @@ class Book_model extends MY_Model {
 			if (substr($field, 0, 13) != 'book_version_') continue;
 			unset($array[$field]);
 		}
-		
+
 		// Validate HTML in title, subtitle, description
+		/*
 		if (isset($array['title']) && !empty($array['title'])) {
 			$doc = new DOMDocument();
 			$doc->substituteEntities = false;
@@ -768,6 +769,7 @@ class Book_model extends MY_Model {
 			@$doc->loadHTML('<div>'.$array['publisher'].'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 			$array['publisher'] = substr($doc->saveXML($doc->getElementsByTagName('div')->item(0)), 5, -6);
 		}
+		*/
 
 		// Save row
 		$this->db->where('book_id', $book_id);
