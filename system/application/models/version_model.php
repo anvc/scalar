@@ -361,7 +361,7 @@ class Version_model extends MY_Model {
 	 * Note that validation is assumed to have already occured (e.g., in the controller)
 	 */
     public function create($content_id=0, $array=array()) {
-
+ 
     	if ('array'!=gettype($array)) $array = (array) $array;
     	if (empty($content_id)) throw new Exception('Invalid content ID');
     	$ci =& get_instance();  // for use with the rdf_store
@@ -388,9 +388,9 @@ class Version_model extends MY_Model {
     	$data['sort_number'] = (isset($array['sort_number'])) ? (int) $array['sort_number'] : 0;
     	if (isset($array['editorial_state'])) $data['editorial_state'] = trim($array['editorial_state']);
     	if (isset($array['usage_rights'])) $data['usage_rights'] = (int) $array['usage_rights'];
-    	if (isset($array['queries'])) {
-    		$json = json_decode($array['queries']);
-    		if (!is_null($json)) $data['queries'] = $array['queries'];
+    	if (isset($array['editorial_queries'])) {
+    		$json = json_decode($array['editorial_queries']);
+    		if (!is_null($json)) $data['editorial_queries'] = $array['editorial_queries'];
     		unset($json);
     	}
     	$data['attribution'] = isset($array['attribution']) ? serialize($array['attribution']) : '';
