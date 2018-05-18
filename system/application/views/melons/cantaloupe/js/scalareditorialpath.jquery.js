@@ -718,15 +718,44 @@
             }
             nodeItemHTML +=      (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
                                                      '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font noContent">[No Content]</div>')+
-        						'</div>';
+        						'</div>';     
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
-
+        	
             if(node.domType.singular == "media"){
                 $node.find('.bodyContent').addClass('media').html('').append('<div class="mediaView"><a data-size="native" data-align="center" class="inline" resource="'+node.slug+'" name="'+node.getDisplayTitle()+'" href="'+node.current.sourceFile+'" data-linkid="node_inline-media_body_1"></a>');
             }
 
             $node.data('node',node);
+            
+            // Added by Craig
+            var additionalMetadataFields = {};
+            if ('undefined' != typeof(window['rdfFields']) && 'undefined' != typeof(window['namespaces'])) {
+            	var $additionalMetadata = $('<div class="clearfix additionalMetadata" style="padding-bottom:2rem;">Additional Metadata</div>').appendTo($node);
+            	var isBuiltInField = function(pnode) {
+            		for (var fieldname in window['rdfFields']) {
+            			if (window['rdfFields'][fieldname] == pnode) return true;
+            		}
+            		return false;
+            	};
+            	for (var uri in node.current.properties) {
+            		for (var prefix in window['namespaces']) {
+            			if (-1 != uri.indexOf(window['namespaces'][prefix])) {
+            				pnode = uri.replace(window['namespaces'][prefix], prefix+':');
+            				if (isBuiltInField(pnode)) continue;
+            				additionalMetadataFields[pnode] = node.current.properties[uri];
+            			}
+            		}
+            	};
+            	// Added by Craig
+            	if (!$.isEmptyObject(additionalMetadataFields)) {
+            		for (var pnode in additionalMetadataFields) {
+            			var $row = $('<div><div class="col-xs-4"></div><div class="col-xs-8"></div></div>').appendTo($additionalMetadata);
+            			$row.find('div:first').text(pnode);
+            			$row.find('div:last').text(additionalMetadataFields[pnode][0].value);
+            		};
+            	}; 
+            };                   
 
             if($.isFunction(callback)){
                 $node.on('initialNodeLoad',callback);
@@ -869,8 +898,8 @@
                         }
                     });
                 });
-            }
-
+            }           
+            
             base.updateLinks($node);
 
         };

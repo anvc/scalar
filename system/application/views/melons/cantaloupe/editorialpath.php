@@ -35,6 +35,8 @@
 		$this->template->add_js('var reference_options='.json_encode($this->config->item('reference_options')), 'embed');
 	}
 	$this->template->add_js('var userId="'.$login->email.'";', 'embed');
+	$this->template->add_js('var rdfFields='.json_encode($this->config->item('rdf_fields')).';', 'embed');
+	$this->template->add_js('var namespaces='.json_encode($this->config->item('namespaces')).';', 'embed');
 
 ?> 
 <div id="editorialPath">
