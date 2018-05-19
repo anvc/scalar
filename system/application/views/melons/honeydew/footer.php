@@ -32,7 +32,7 @@ if (isset($page->version_index) && isset($page->versions[$page->version_index]) 
 	$title = $page->versions[$page->version_index]->title;
 	$created = $page->versions[$page->version_index]->created;
 	$version_num = $page->versions[$page->version_index]->version_num;
-	echo '<span class="screen-version"><a href="'.$base_uri.$page->slug.'.'.$version_num.'.versions">Version '.$version_num.'</a> <span id="screen-version-id">id '.$page->versions[$page->version_index]->version_id.'</span> ';
+	echo '<span class="screen-version"><a title="Go to permalink" href="'.$base_uri.$page->slug.'.'.$version_num.'">Version '.$version_num.'</a> <span id="screen-version-id">id '.$page->versions[$page->version_index]->version_id.'</span> ';
 	echo 'of this page'.((!empty($created))?', updated '.date('d F Y', strtotime($created)):'');
 	echo '<span id="version_created_by"> by <a href="'.@$page->versions[$page->version_index]->user->uri.'">'.$page->versions[$page->version_index]->user->fullname.'</a></span>';
 	echo '.';
@@ -57,7 +57,7 @@ endif;
 if (isset($book) && !empty($book)):
  	echo '.  <a href="'.confirm_slash(base_url()).confirm_slash($book->slug).'help">Help reading this '.$book->scope.'</a>.</span><br />'."\n";
  endif;
- 
+
 // Publisher and license
 echo '<span class="poweredby">'."\n";
 if (!empty($book->publisher)) echo 'Published by '.$book->publisher.'. ';

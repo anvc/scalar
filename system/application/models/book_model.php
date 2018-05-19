@@ -165,9 +165,9 @@ class Book_model extends MY_Model {
     	return $result;
 
     }
-    
+
     public function get_all_with_creator($user_id=0, $is_live=false, $orderby='title', $orderdir='asc', $total=null) {
-    
+
     	$this->db->select('*');
     	$this->db->from($this->books_table);
     	if (!empty($user_id)) {
@@ -182,16 +182,16 @@ class Book_model extends MY_Model {
     		$this->db->limit($total);
     	}
     	$this->db->order_by($orderby, $orderdir);
-    
+
     	$query = $this->db->get();
     	$result = $query->result();
     	$ci=&get_instance();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->creator = $ci->users->get_by_user_id($result[$j]->user);
     	}
-    
+
     	return $result;
-    
+
     }
 
     public function get_duplicatable($orderby='title',$orderdir='asc') {
@@ -251,6 +251,10 @@ class Book_model extends MY_Model {
     }
     public function is_margin_nav($book) {
     	if (stristr($book->title, 'data-margin-nav="true"')) return true;
+    	return false;
+    }
+    public function is_hide_versions($book) {
+    	if (stristr($book->title, 'data-hide-versions="true"')) return true;
     	return false;
     }
 	public function has_paywall($book) {
@@ -443,7 +447,7 @@ class Book_model extends MY_Model {
     	$active_melon = $this->config->item('active_melon');
     	if (empty($template) && !empty($active_melon)) $template = trim($active_melon);  // Otherwise use MySQL default
     	if (empty($chmod_mode)) $chmod_mode = 0777;
-    	
+
     	if ($captcha) {
 	    	// ReCAPTCHA version 1
 	    	$recaptcha_public_key = $this->config->item('recaptcha_public_key');
@@ -523,7 +527,7 @@ class Book_model extends MY_Model {
     	// Don't validate author, as admin functions can create books not connected to any author
 		$book = $this->get($array['book_to_duplicate']);
 		if (!self::is_duplicatable($book)) throw new Exception('not_duplicatable');
-		
+
 		if ($captcha) {
 			// ReCAPTCHA version 1
 			$recaptcha_public_key = $this->config->item('recaptcha_public_key');
@@ -554,7 +558,7 @@ class Book_model extends MY_Model {
 				if (!$resp->is_valid) throw new Exception ('invalid_captcha_2');
 			}
 		}
-		
+
     	$this->load->library('Duplicate', 'duplicate');
     	try {
 			$book_id = $this->duplicate->book($array);
@@ -823,12 +827,12 @@ class Book_model extends MY_Model {
     	return $this->get_users($book_id);
 
     }
-    
+
     public function save_editorial_states($book_id=0, $state=null, $is_live=true) {
-    	
+
     	$ci=&get_instance();
     	$ci->load->model("version_model","versions");
-    	
+
     	// Get all pages in a book
     	$this->db->select('content_id');
     	$this->db->select('recent_version_id');
@@ -837,7 +841,7 @@ class Book_model extends MY_Model {
     	if ($is_live) $this->db->where('is_live', 1);
     	$query = $this->db->get();
     	$result = $query->result();
-    	
+
     	// Get most recent versions
     	$version_ids = array();
     	foreach ($result as $row) {
@@ -852,7 +856,7 @@ class Book_model extends MY_Model {
     		$this->versions->save(array('id'=>$version_id,'editorial_state'=>$state));
     	}
     	return $version_ids;
-    	
+
     }
 
     public function delete_users($book_id) {
@@ -876,13 +880,13 @@ class Book_model extends MY_Model {
 
 
     }
-    
+
     public function enable_editorial_workflow($book_id, $bool) {
-    	
+
     	$val = ($bool) ? 1 : 0;
     	$this->db->where('book_id', $book_id);
     	$this->db->update($this->books_table, array('editorial_is_on'=>$val));
-    	
+
     }
 
     public function get_by_slug($uri='') {

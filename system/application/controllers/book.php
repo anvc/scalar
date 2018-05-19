@@ -125,6 +125,9 @@ class Book extends MY_Controller {
 				$this->data['version_datetime'] = null;
 				if (!empty($version_num)) {
 					$version = $this->versions->get_by_version_num($page->content_id, $version_num);
+					if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin() && $this->pages->is_using_recent_version_id($this->data['book']->book_id)) {
+						if ($version->version_id != $page->recent_version_id) $this->require_login(5);
+					}
 					if (!empty($version)) $this->data['version_datetime'] = $version->created;
 				}
 				// Build (hierarchical) RDF object for the page's version(s)
@@ -166,7 +169,7 @@ class Book extends MY_Controller {
 			if (method_exists($this, $slug_first_segment) && !array_key_exists($slug_first_segment, $this->data['views'])){
 				$isNotFound = false;
 				$this->$slug_first_segment();
-			} 
+			}
 
 			if($isNotFound){
 				header("HTTP/1.1 404 Not Found");
@@ -176,7 +179,7 @@ class Book extends MY_Controller {
 			header($e->getMessage());
 			exit;
 		}
-		
+
 		// Placeholder for ThoughtMesh plugin
 		if (!isset($this->data['plugins'])) $this->data['plugins'] = array();
 		$path = APPPATH.'plugins/thoughtmesh_pi.php';
@@ -396,7 +399,7 @@ class Book extends MY_Controller {
 		$linkParts = parse_url($this->data['link']);
 		$prevParts = parse_url($this->data['prev']);
 		if(
-			($linkParts['scheme'] != 'http' && $linkParts['scheme'] != 'https') || 
+			($linkParts['scheme'] != 'http' && $linkParts['scheme'] != 'https') ||
 			($prevParts['scheme'] != 'http' && $prevParts['scheme'] != 'https')
 		){
 			$this->kickout();
@@ -675,6 +678,9 @@ class Book extends MY_Controller {
 		}
 		$this->data['page']->version_index = $key;
 
+		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
+		if ($this->data['hide_versions'] && !$this->login_is_book_admin()) $this->require_login(4);
+
 		$this->data['hide_edit_bar'] = true;
 
 	}
@@ -701,14 +707,20 @@ class Book extends MY_Controller {
 		reset($this->data['page']->versions);
 		$this->data['page']->version_index = key($this->data['page']->versions);
 		$this->data['hide_edit_bar'] = true;
+		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
+		if ($this->data['hide_versions'] && !$this->login_is_book_admin()) $this->require_login(4);
 
 	}
 
 	// List metadata in a human-readable way
 	private function meta() {
 
+		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
 		$all = (isset($_GET['versions']) && 1==$_GET['versions']) ? true : false;
-		if ($all || 'honeydew'==$this->data['melon']) {  // Overwrite previous page's versions array (which only has the most recent version)
+		if ($all && $this->data['hide_versions'] && !$this->login_is_book_admin()) $this->require_login(4);
+		$this->data['is_book_admin'] = $this->login_is_book_admin();
+
+		if ($all) {  // Overwrite previous page's versions array (which only has the most recent version)
 			unset($this->data['page']->versions);
 			$this->data['page']->user = $this->data['page']->user->user_id;
 			$settings = array(
@@ -820,12 +832,12 @@ class Book extends MY_Controller {
 
 	// Editorial path
 	private function editorialpath() {
-		
+
 		if (!$this->editorial_is_on()) $this->fallback();
 		$this->data['view'] = __FUNCTION__;
-		
+
 	}
-	
+
 	// User pages
 	private function users() {
 
@@ -837,7 +849,7 @@ class Book extends MY_Controller {
 		if (empty($user) || !$this->users->is_a($user->relationship, 'reviewer')) $user = null;
 		$this->data['book_user'] = $user;
 		$this->data['view'] = __FUNCTION__;
-		
+
 	}
 
 }

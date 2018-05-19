@@ -93,6 +93,14 @@ if (isset($page->is_live) && !$page->is_live) {
 	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible in the page editor or in the Dashboard.</p></div>'."\n";
 }
 
+// Page isn't visible
+if ($view == 'versions' && $hide_versions) {
+	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made visible in the Dashboard.</p></div>'."\n";
+}
+if ($view == 'meta' && $hide_versions && isset($_GET['versions']) && 1==$_GET['versions']) {
+	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made visible in the Dashboard.</p></div>'."\n";
+}
+
 // Page is paywalled
 // NOTE: this is removed, though hidden rather than commented out so that JS could bring it back if an author wishes to
 if (isset($page->paywall) && $page->paywall) {
@@ -106,7 +114,7 @@ if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie ([1-9])[^0-9]/',$
 
 // Errors handled by HTML and Javaacript (No Javascript warning, old IE warning)
 ?>
-		<noscript><div class="error notice-js-required'.(($editorial)?' editorial_is_on':'').'"><p>This site requires Javascript to be turned on. Please <a href="http://www.btny.purdue.edu/enablejavascript.html">enable Javascript</a> and reload the page.</p></div></noscript>
+		<noscript><div class="error notice-js-required<?=(($editorial)?' editorial_is_on':'')?>"><p>This site requires Javascript to be turned on. Please <a href="http://www.btny.purdue.edu/enablejavascript.html">enable Javascript</a> and reload the page.</p></div></noscript>
 <?
 $msg = $this->config->item('book_msg');
 $cookie = $this->config->item("book_msg_cookie_name");

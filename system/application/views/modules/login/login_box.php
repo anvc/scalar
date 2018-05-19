@@ -22,7 +22,10 @@
 <div class="error">Please sign in to edit the requested page</div>
 <? endif ?>
 <? if (isset($_REQUEST['msg']) && $_REQUEST['msg']==4): ?>
-<div class="error">Please sign in to access pages that are restricted to book authors</div>
+<div class="error">Please sign in to access pages that are restricted to book authors and editors</div>
+<? endif ?>
+<? if (isset($_REQUEST['msg']) && $_REQUEST['msg']==5): ?>
+<div class="error">Please sign in to access a past version that is restricted to book authors and editors</div>
 <? endif ?>
 	<form action="<?=confirm_slash(base_url())?>system/login" method="post" class="panel">
 		<input type="hidden" name="action" value="do_login" />

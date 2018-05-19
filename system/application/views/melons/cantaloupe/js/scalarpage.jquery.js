@@ -766,14 +766,14 @@
                         if (!isEndOfPath) {
                             prefix = "Continue to";
                         } else {
-                            prefix = "End of path <b>“" + pathNode.getDisplayTitle() + "”</b>; Continue to";
+                            prefix = "End of path <b>\"" + pathNode.getDisplayTitle() + "\"</b>; Continue to";
                         }
                 		popooverPlacement = "left";
                 		pathVar = "?path=" + pathNode.slug;
                 		break;
 
                 	}
-                	content = prefix + ' <b>“' + destinationNode.getDisplayTitle() + '”</b>';
+                	content = prefix + ' <b>"' + destinationNode.getDisplayTitle() + '"</b>';
                 	var thumbnailURL = destinationNode.getAbsoluteThumbnailURL();
                 	if (thumbnailURL != null) {
                 		content = '<img class="thumbnail" height="120" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
@@ -1134,17 +1134,24 @@
 
             addColophon: function() {
                 var currentNode = scalarapi.model.getCurrentPageNode();
+                var can_show_versions = ($('.navbar-header .book-title').find('[data-hide-versions="true"').length) ? false : true;
+                var $level = $('link#user_level');
+                if ($level.length) {
+                	if ('scalar:author' == $level.attr('href').toLowerCase()) can_show_versions = true;
+                	if ('scalar:editor' == $level.attr('href').toLowerCase()) can_show_versions = true;
+                }
                 var $footer = $('#footer');
                 $footer.append('<div id="colophon" class="caption_font"><p id="scalar-credit"></p></div>');
                 var $par = $footer.find('#scalar-credit');
                 if (null !== currentNode.current.number) { // Make sure there is a version .. Added by Craig 6 December 2015
-                    $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date(currentNode.current.created).toLocaleDateString() + ' ');
+                    $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '" title="Go to permalink">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date(currentNode.current.created).toLocaleDateString() + ' ');
                     if ('undefined' != currentNode.paywall && 1 == parseInt(currentNode.paywall)) $par.append('&nbsp;<span class="glyphicon glyphicon-lock" aria-hidden="true" title="This page is protected by the paywall"></span> ');
-                    $par.append('| <a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions">All versions</a> | ');
-                    $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta">Metadata</a><br />');
+                    $par.append(' | ');
+                    if (can_show_versions) $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions" title="View all versions">All versions</a> | ');
+                    $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta" title="View metadata for this page">Metadata</a><br />');
                 }
                 $par.append('<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a>');
-                $par.append(' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> (v' + $('link#scalar_version').attr('href').trim() + ') | ');
+                $par.append(' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> (<a href="https://github.com/anvc/scalar">' + $('link#scalar_version').attr('href').trim() + '</a>) | ');
                 $par.append('<a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | ');
                 $par.append('<a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | ');
                 $par.append('<a href="http://scalar.usc.edu/contact/">Scalar Feedback</a>');
@@ -1193,7 +1200,7 @@
                         noteViewer = $('.note_viewer');
                     $('[rev="scalar:has_note"]').removeClass('media_link');
                     note.addClass('media_link');
-                    noteViewer.text('Loading…');
+                    noteViewer.text('Loading...');
                     noteViewer.css({
                         'left': position.left,
                         'top': position.top + parseInt(note.height()) + 3
@@ -2391,10 +2398,10 @@
 
                 if (validCoordCount == 0) {
                     $gmaps.find('.alert').remove();
-                    $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any valid geographic metadata associated with this page.</div>');
+                    $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn\'t find any valid geographic metadata associated with this page.</div>');
                 } else if (markerCount == 0) {
                     $gmaps.find('.alert').remove();
-                    $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn’t find any geographic metadata associated with this page.</div>');
+                    $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn\'t find any geographic metadata associated with this page.</div>');
                 }
             }
 
@@ -2544,7 +2551,7 @@
                     $('.paragraph_wrapper').remove();
                     page.addRelationshipNavigation({ showChildNav: true, showLateralNav: true, isCentered: true });
                     $('.relationships').appendTo('.title_card');
-                    //$('<div class="">Image: “'+currentNode.banner.title+'” Source: '+currentNode.banner.current.source+'</div>').appendTo('.title_card');
+                    //$('<div class="">Image: "'+currentNode.banner.title+'" Source: '+currentNode.banner.current.source+'</div>').appendTo('.title_card');
                     window.setTimeout(function() {
                         $('.splash').delay(1000).addClass('fade_in').queue('fx', function(next) {
                             $('.blackout').remove();

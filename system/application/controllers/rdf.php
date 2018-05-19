@@ -80,6 +80,7 @@ class Rdf extends MY_Controller {
 		}
 		// Display all versions?
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;
+		if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin()) $this->data['versions'] = false;
 		// Search terms
 		$this->data['sq'] = (isset($_REQUEST['sq']) && !empty($_REQUEST['sq'])) ? search_split_terms($_REQUEST['sq']) : null;
 		$this->data['s_all'] = (isset($_REQUEST['s_all']) && 1==$_REQUEST['s_all']) ? true : false;
@@ -262,7 +263,7 @@ class Rdf extends MY_Controller {
 			                           	 'method'		=> __FUNCTION__.'/'.$class,
 			                         	 'restrict'		=> $this->data['restrict'],
 			                         	 'rel'			=> $rel,
-			                         	 'sq'			=> $this->data['sq'], 
+			                         	 'sq'			=> $this->data['sq'],
 			                         	 'versions'		=> (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
 			                         	 'ref'			=> (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
 			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
