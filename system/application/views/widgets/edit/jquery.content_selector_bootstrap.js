@@ -1452,50 +1452,56 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 					var added_rows = 0;
-					for (var uri in _data) {
-						// Is a Version
-						if ('undefined' != typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
-							var item = {};
-							item.uri = uri;
-							item.slug = uri.replace(parent_url, '');
-							item.version_uri = _data[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
-							item.version_slug = item.version_uri.replace(parent_url, '');
-							item.content = _data[uri];
-							item.version = _data[item.version_uri];
-							item.hasThumbnail = false;
-							item.title = ('undefined' !== typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
-							item.targets = 'undefined' !== typeof _data[uri].rel ? _data[uri].rel : [];
-							if ('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']) {
-								item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
-								item.hasThumbnail = true;
-							} else {
-								item.thumbnail = $('link#approot').attr('href') + '/views/melons/cantaloupe/images/media_icon_chip.png';
-							}
-							item.hasRelations = 'undefined' !== typeof item.content.rel;
-							if (doSearch) {
-								search_results.push(item);
-							} else {
-								loaded_nodeLists[type].push(item);
-							}
-							added_rows++;
+					if ('users' == type) {
+						for (var uri in _data) {
 							// Is a Book (e.g., so we can get book users)
-						} else if ('undefined' != typeof(_data[uri]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) && 'http://scalar.usc.edu/2012/01/scalar-ns#Book' == _data[uri]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value) {
-							if ('undefined' != typeof(_data[uri]['http://rdfs.org/sioc/ns#has_owner'])) {
-								for (var k = 0; k < _data[uri]['http://rdfs.org/sioc/ns#has_owner'].length; k++) {
-									var item = {};
-									var arr = _data[uri]['http://rdfs.org/sioc/ns#has_owner'][k].value.split('#');
-									item.uri = arr[0];
-									for (var m = 0; m < arr[1].split('&').length; m++) {
-										var user_var = arr[1].split('&')[m].split('=');
-										item[user_var[0]] = user_var[1];
+							if ('undefined' != typeof(_data[uri]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) && 'http://scalar.usc.edu/2012/01/scalar-ns#Book' == _data[uri]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0].value) {
+								if ('undefined' != typeof(_data[uri]['http://rdfs.org/sioc/ns#has_owner'])) {
+									for (var k = 0; k < _data[uri]['http://rdfs.org/sioc/ns#has_owner'].length; k++) {
+										var item = {};
+										var arr = _data[uri]['http://rdfs.org/sioc/ns#has_owner'][k].value.split('#');
+										item.uri = arr[0];
+										for (var m = 0; m < arr[1].split('&').length; m++) {
+											var user_var = arr[1].split('&')[m].split('=');
+											item[user_var[0]] = user_var[1];
+										};
+										item.content = _data[item.uri];
+										loaded_nodeLists[type].push(item);
+										added_rows++;
 									};
-									item.content = _data[item.uri];
-									loaded_nodeLists[type].push(item);
-									added_rows++;
 								};
 							};
 						};
-					}
+					} else {
+						for (var uri in _data) {
+							// Is a Version
+							if ('undefined' != typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
+								var item = {};
+								item.uri = uri;
+								item.slug = uri.replace(parent_url, '');
+								item.version_uri = _data[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
+								item.version_slug = item.version_uri.replace(parent_url, '');
+								item.content = _data[uri];
+								item.version = _data[item.version_uri];
+								item.hasThumbnail = false;
+								item.title = ('undefined' !== typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
+								item.targets = 'undefined' !== typeof _data[uri].rel ? _data[uri].rel : [];
+								if ('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']) {
+									item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
+									item.hasThumbnail = true;
+								} else {
+									item.thumbnail = $('link#approot').attr('href') + '/views/melons/cantaloupe/images/media_icon_chip.png';
+								}
+								item.hasRelations = 'undefined' !== typeof item.content.rel;
+								if (doSearch) {
+									search_results.push(item);
+								} else {
+									loaded_nodeLists[type].push(item);
+								}
+								added_rows++;
+							};
+						};
+					};
 					lastPage = added_rows == 0;
 					promise.resolve();
 				});
@@ -1770,6 +1776,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					start = $rows.find('tr').length;
 					$rows.find('.loadingRow').remove();
 				}
+
 				for (var i = start; i < data.length; i++) {
 					var item = data[i];
 					var index = -1;
@@ -1805,7 +1812,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 
 					var hasChildSelector = false;
-
+					
 					for (var n in opts.fields) {
 						var col = opts.fields[n];
 						switch (col) {
@@ -1893,7 +1900,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '" align="center"><a href="' + item.uri + '.edit" class="btn btn-default btn-sm editLink">Edit</a></td>';
 								break;
 							case 'bio_contributions':
-								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '"><a href="' + item.uri + '" class="btn btn-default btn-sm editLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm editLink contributionsLink">Contributions</a></td>';
+								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '"><a href="' + item.uri + '" class="btn btn-default btn-sm bioLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm contributionsLink">Contributions</a></td>';
 								break;
 						}
 					}
@@ -1938,9 +1945,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 
 					$item.mouseover(function() {
-						$(this).find('.editLink').css('visibility','visible');
+						$(this).find('.editLink, .bioLink, .contributionsLink').css('visibility','visible');
 					}).mouseout(function() {
-						$(this).find('.editLink').css('visibility','hidden');
+						$(this).find('.editLink, .bioLink, .contributionsLink').css('visibility','hidden');
+					});
+					$item.find('.editLink, .bioLink').off('click').click(function(e) {
+						e.stopPropagation();
 					});
 
 					if (index > -1) {
