@@ -16,7 +16,7 @@ $(document).ready(function() {
 	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
 	$selector.height(height + 'px');
 	node_options = {  /* global */
-		fields:["name",'homepage','role','listed','order','bio_contributions'],
+		fields:["name",'homepage','role','listed','order','edit','bio_contributions'],
 		types:['users'],
 		displayHeading:false,
 		deleteOptions:deleteOptions,
@@ -27,9 +27,10 @@ $(document).ready(function() {
 		rowSelectMethod:'highlight',
 		isEdit:true,
 		editable:["order","role"],
+		startEditTrigger:'.editLink',
 		roles:roles
 	};
-	$selector.node_selection_dialogue(node_options);	
+	$selector.node_selection_dialogue(node_options);
 });
 function contributions($row, bool) {
 	var do_contributions = function($contrib, data, user_id) {
@@ -48,7 +49,7 @@ function contributions($row, bool) {
 		};
 	};
  	if (bool) {
-		var $contrib = $('<tr class="contributions no-hover"><td colspan="6">Loading...</td></tr>').insertAfter($row);
+		var $contrib = $('<tr class="contributions no-hover"><td colspan="7">Loading...</td></tr>').insertAfter($row);
 		var post = {user_id:parseInt($row.data('user-id')),book_id:book_id};
 		$.ajax({
 			  type: "POST",
@@ -62,8 +63,8 @@ function contributions($row, bool) {
 				  $contrib.remove();
 			  },
 			  dataType: 'json'
-			});	
-		
+			});
+
 	} else {
 		$row.next('.contributions').remove();
 	};
@@ -138,7 +139,7 @@ function userOptions() {
 				$this.addClass('active').addClass('info').siblings().removeClass('active').removeClass('info');
 			});
 		});
-		
+
 	});
 	$userOptionsModal.find('.glyphicon-remove').click(function() {
 		$(this).closest('div').find('input').val('').focus();
@@ -187,7 +188,7 @@ function userOptions() {
 	            <tbody></tbody>
 	          </table>
 	        </div>
-	    </div> 
+	    </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

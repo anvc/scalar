@@ -7,7 +7,7 @@ if (empty($book)) {
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?$this->template->add_css('body {margin-bottom:0;}','embed')?>
-<?php 
+<?php
 if ($replies_not_live > 0):
 	echo '<div class="alert alert-danger awaiting-comments" role="alert">You have comments awaiting moderation. <a href="javascript:void(null);" id="review-comments">Review &raquo;</a></div>'."\n";
 endif;
@@ -24,9 +24,10 @@ $(document).ready(function() {
 		allowMultiple:true,
 		rowSelectMethod:'highlight',
 		isEdit:true,
-		editable:["title","description"]
+		editable:["title","description"],
+		startEditTrigger:'.editLink'
 	};
-	$selector.node_selection_dialogue(node_options);	
+	$selector.node_selection_dialogue(node_options);
 	$('#review-comments').click(function() {
 		$('.selector .node_types select:first').val('reply');
 		$('.selector .node_types button:first').click();

@@ -1545,10 +1545,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"addOptions": false,
 			"contributionsOptions": false,
 			"displayHeading": true,
-			"rowSelectMethod": 'checkbox',
-			/* checkbox|highlight */
+			"rowSelectMethod": 'checkbox', /* checkbox|highlight */
 			"isEdit": false,
 			"editable": [],
+			"startEditTrigger": 'click',
 			"roles": ['author', 'commentator', 'reviewer', 'reader']
 		};
 
@@ -1897,7 +1897,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" align="center"><a href="' + item.uri + '.versions">&nbsp;' + item.version["http://open.vocab.org/terms/versionnumber"][0].value + '&nbsp;</a></td>';
 								break;
 							case 'edit':
-								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '" align="center"><a href="' + item.uri + '.edit" class="btn btn-default btn-sm editLink">Edit</a></td>';
+								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '" align="center"><a href="javascript:void(null);" class="btn btn-default btn-sm editLink">Edit row</a></td>';
 								break;
 							case 'bio_contributions':
 								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '"><a href="' + item.uri + '" class="btn btn-default btn-sm bioLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm contributionsLink">Contributions</a></td>';
@@ -1949,7 +1949,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}).mouseout(function() {
 						$(this).find('.editLink, .bioLink, .contributionsLink').css('visibility','hidden');
 					});
-					$item.find('.editLink, .bioLink').off('click').click(function(e) {
+					$item.find('.bioLink').off('click').click(function(e) {
 						e.stopPropagation();
 					});
 
@@ -2109,8 +2109,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						the_return[property] = value;
 						return the_return;
 					};
-					$rows.find('tr').click(function() {
-						var $this = $(this);
+					var invokeEditing = function($this) {
 						var to_save = {};
 						$this.find('.editable').each(function() {
 							var $cell = $(this);
@@ -2145,11 +2144,28 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									console.log(data);
 								});
 							};
-						};
-					});
+						};						
+					};
+					if ('click' == opts.startEditTrigger) {
+						$rows.find('tr').click(function() {
+							invokeEditing($(this));
+						});
+					} else {
+						$el = $rows.find(opts.startEditTrigger);
+						$el.click(function(e) {
+							var $this = $(this);
+							invokeEditing($this.closest('tr'));
+							if ($this.hasClass('btn-default')) {
+								$this.removeClass('btn-default').addClass('btn-primary').text('Save row');
+							} else {
+								$this.removeClass('btn-primary').addClass('btn-default').text('Edit row');
+							};
+							$this.blur();
+						});
+					};
 				};
 
-				$rows.find('a').click(function(e) {
+				$rows.find('a:not(.btn)').click(function(e) {
 					e.stopPropagation();
 					var $this = $(this);
 					if (opts.isEdit && $this.hasClass('visibilityLink') && 'is_live'==$this.parent().attr('property')) {
@@ -2172,11 +2188,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							var visibleThumbUrl = (1==data.list_in_index) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
 							$this.find('.glyphicon').removeClass('glyphicon-eye-open glyphicon-eye-close').addClass(visibleThumbUrl);
 						});
-					} else if ($this.hasClass('contributionsLink')) {
-						if (!opts.contributionsOptions) return alert("Couldn't find the contributions callback");
-						var bool = $this.closest('tr').next().hasClass('contributions');
-						opts.contributionsOptions($this.closest('tr'), ((bool)?false:true));
 					};
+				});
+				
+				$rows.find('.contributionsLink').click(function(e) {
+					//e.stopPropagation();
+					var $this = $(this);
+					if (!opts.contributionsOptions) return alert("Couldn't find the contributions callback");
+					var bool = $this.closest('tr').next().hasClass('contributions');
+					opts.contributionsOptions($this.closest('tr'), ((bool)?false:true));
+					if ($this.hasClass('active')) {
+						$this.removeClass('active');
+					} else {
+						$this.addClass('active');
+					};
+					$this.blur();
 				});
 
 			};

@@ -149,7 +149,7 @@
 	    cursor: default;
 }
 .node_selector_table_body tbody>tr.current{
-	background-color: #c7e6f6;
+	background-color: #c7e6f6 !important;
 	cursor: pointer
 }
 .node_selector .selected_node_count{
@@ -226,6 +226,17 @@
 	display:none;
 	padding-top:1px;
 	padding-bottom:1px;
+}
+.node_selector .editLink.btn-default:hover {
+	background-color:#f1f1f1;
+}
+.node_selector .editLink.btn-primary {
+	margin-top:-4px;
+	visibility:visible !important;
+	padding-bottom:1px;
+}
+.node_selector .editLink.btn-primary:hover {
+	background-color:#376c98;
 }
 .node_selector .filter_spinner{
 	border: 0;
@@ -335,6 +346,7 @@
     font-size: 14px;
 }
 
+.contributionsLink.active {visibility:visible !important;}
 .contributions table td {padding:8px 8px 0px 8px;}
 .contributions .page-title td {padding-top:8px; padding-bottom:8px; background-color:#eeeeee;}
 .contributions table tr.spacer td {padding-top:0px;}
