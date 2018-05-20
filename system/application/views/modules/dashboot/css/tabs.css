@@ -18,6 +18,7 @@ table {border-collapse:initial;}
 .modal-body .page-header h4 {font-weight:900;}
 .modal-footer {border-top:none;}
 .modal small {color:#777777; float:left;}
+.alert {margin-left:15px; margin-right:15px; padding-top:9px; padding-bottom:10px;}
 .alert.awaiting-comments {margin-left:15px; margin-right:15px; position:relative; margin-bottom:8px;}
 .table-hover tbody tr {cursor:pointer;}
 table th {font-weight:normal;}

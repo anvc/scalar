@@ -3,7 +3,7 @@ if (empty($book)) {
 	header('Location: '.$this->base_url.'?zone=user');
 	exit;
 }
-?> 
+?>
 <?$this->template->add_css('system/application/views/modules/dashboot/css/custom.jquery-ui.min.css')?>
 <?$this->template->add_css('system/application/views/modules/dashboot/css/bootstrap-dialog.min.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
@@ -33,6 +33,14 @@ $(document).ready(function() {
     	var value = ($el.is(':checked')) ? 1 : 0;
     	$el.parent().find('input[name="'+name+'"]').val(value);
     });
+    // Thumb upload change
+    $('input[name="upload_publisher_thumb"]').change(function() {
+        var oFReader = new FileReader();
+        oFReader.readAsDataURL(this.files[0]);
+        oFReader.onload = function(oFREvent) {
+			$('#publisher_thumb_wrapper').show().find('img:first')[0].src = oFREvent.target.result;
+        };
+    });
     // Warn user about changing the book slug
     $('input[name="slug"]').data('orig-value',$('input[name="slug"]').val()).keydown(function() {
 		var $this = $(this);
@@ -51,7 +59,7 @@ $(document).ready(function() {
 						$this.data('confirmed',false);
 						dialog.close();
 						$this.val($this.data('orig-value'));
-						$this.blur();	                    
+						$this.blur();
 	                }
 	            }, {
 	                label: 'Continue',
@@ -60,9 +68,9 @@ $(document).ready(function() {
 	                	$this.data('active',false);
 						$this.data('confirmed',true);
 						dialog.close();
-						$this.focus();	                    
+						$this.focus();
 	                }
-	            }]	            
+	            }]
 	        });
 		}
     });
@@ -75,12 +83,12 @@ $(document).ready(function() {
 		var auto_approve = ('undefined'==typeof($title.children(":first").attr('data-auto-approve'))) ? false : true;
 		var email_authors = ('undefined'==typeof($title.children(":first").attr('data-email-authors'))) ? false : true;
 		var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? false : true;
-		var thoughtmesh = ('undefined'==typeof($title.children(":first").attr('data-thoughtmesh'))) ? 0 : 1;
+		var thoughtmesh = ('undefined'==typeof($title.children(":first").attr('data-thoughtmesh'))) ? false : true;
 		$('#duplicatable').prop('checked', is_duplicatable);
 		$('#hide-versions').prop('checked', hide_versions);
 		$('#joinable').prop('checked', is_joinable);
 		$('#hypothesis').prop('checked', hypothesis);
-		$('#thoughtmesh').val(thoughtmesh);
+		$('#thoughtmesh').prop('checked', thoughtmesh);
 		$('#auto-approve').prop('checked', auto_approve);
 		$('#email-authors').prop('checked', email_authors);
     };
@@ -202,7 +210,7 @@ function select_versions() {
 	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" enctype="multipart/form-data" id="properties_form">
 	  <input type="hidden" name="action" value="do_save_style" />
 	  <input type="hidden" name="zone" value="style" />
-	  <input type="hidden" name="book_id" value="<?=$book->book_id?>" />   
+	  <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
       <div class="form-group">
         <label for="title" class="col-sm-2 control-label">Title</label>
         <div class="col-sm-10">
@@ -248,14 +256,14 @@ function select_versions() {
 		      <input type="hidden" name="url_is_public" value="<?=(($book->url_is_public)?1:0)?>" />
 		      No login required
 		    </label>
-		  </div>   
+		  </div>
 		  <div class="checkbox">
 		    <label>
 		      <input type="checkbox" id="display_in_index_el"<?=(($book->display_in_index)?' checked':'')?>>
 		      <input type="hidden" name="display_in_index" value="<?=(($book->display_in_index)?1:0)?>" />
 		      Can be found in Scalar index and by search engines
 		    </label>
-		  </div> 
+		  </div>
 		  <div class="checkbox">
 		    <label>
 		      <input type="checkbox" id="duplicatable" value="1">
@@ -267,8 +275,8 @@ function select_versions() {
 		      <input type="checkbox" id="hide-versions" value="1">
 		      Only authors and editors can see past versions
 		    </label>
-		  </div>		  
-		  <!-- joinability isn't in the spec, so putting as a hidden element for now -->     
+		  </div>
+		  <!-- joinability isn't in the spec, so putting as a hidden element for now -->
 		  <input type="checkbox" id="joinable" value="1" style="display:none;">
         </div>
       </div>
@@ -280,19 +288,19 @@ function select_versions() {
 		      <input type="checkbox" id="auto-approve" value="1">
 		      Automatically approve new comments
 		    </label>
-		  </div>   
+		  </div>
 		  <div class="checkbox">
 		    <label>
 		      <input type="checkbox" id="email-authors" value="1">
 		      Email authors when comments are added
 		    </label>
-		  </div> 
+		  </div>
 		  <div class="checkbox">
 		    <label>
 		      <input type="checkbox" id="hypothesis" value="1">
 		      Enable <a href="http://hypothes.is" target="_blank">Hypothes.is</a> sidebar
 		    </label>
-		  </div>       
+		  </div>
         </div>
       </div>
       <div class="form-group form-group-bottom-margin">
@@ -301,11 +309,11 @@ function select_versions() {
 		  <div class="checkbox">
 		    <label>
 		      <input type="checkbox" id="thoughtmesh" value="1">
-		      Add <a href="http://thoughtmesh.net/" target="_blank">ThoughtMesh</a> to the footer? 
+		      Add <a href="http://thoughtmesh.net/" target="_blank">ThoughtMesh</a> to the footer
 		    </label>
-		  </div>       
+		  </div>
         </div>
-      </div> 
+      </div>
       <div class="form-group">
         <label for="toc" class="col-sm-2 control-label">Table of Contents</label>
         <div class="col-sm-5" id="toc-wrapper">
@@ -318,7 +326,7 @@ function select_versions() {
           <input type="text" class="form-control" id="publisher" name="publisher" value="<?=htmlspecialchars($book->publisher)?>">
           <small>Any HTML hyperlink included here will also be applied to the publisher logo</small>
         </div>
-      </div>      
+      </div>
       <div class="form-group">
         <label for="upload_publisher_thumb" class="col-sm-2 control-label">Publisher logo</label>
         <div class="col-sm-4">
@@ -330,30 +338,28 @@ function select_versions() {
               </span>
             </label>
             <input type="text" class="form-control" readonly>
-          </div>  
-        </div>    
-        <div class="col-sm-6 col-overrun-left">            
+          </div>
+        </div>
+        <div class="col-sm-6 col-overrun-left">
 		  <label class="control-label label-text"><small>JPG, PNG, or GIF&mdash;will be resized to 120px</small></label>
 		</div>
-<?php if (!empty($book->publisher_thumbnail)): ?>
-        <div class="col-sm-offset-2 col-sm-10">
+        <div id="publisher_thumb_wrapper" class="col-sm-offset-2 col-sm-10" style="<?=(!empty($book->publisher_thumbnail))?'':'display:none'?>">
           <div class="thumb-wrapper">
-            <img src="<?=base_url().$book->slug.'/'.$book->publisher_thumbnail?>" />
+            <img src="<?=base_url().$book->slug.'/'.$book->publisher_thumbnail?>?t=<?=time()?>" />
           </div>
           <div class="checkbox" style="display:inline-block;">
             <label>
-              <input type="checkbox" name="remove_publisher_thumbnail" value="1"> 
+              <input type="checkbox" name="remove_publisher_thumbnail" value="1">
               Remove publisher thumbnail
             </label>
           </div>
         </div>
-<?php endif; ?>
       </div>
-      <div class="page-header"></div>  
+      <div class="page-header"></div>
       <div class="form-group">
         <div class="col-sm-12">
           <div class="pull-right">
-            <button type="submit" class="btn btn-default">Save</button> &nbsp; 
+            <button type="submit" class="btn btn-default">Save</button> &nbsp;
             <button type="submit" class="btn btn-primary" name="back_to_book" value="1">Save and return to book</button>
           </div>
         </div>
