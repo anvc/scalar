@@ -22,16 +22,24 @@ $(document).on('change', ':file', function() {  // https://www.abeautifulsite.ne
     label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
     input.trigger('fileselect', [numFiles, label]);
 });
-$(document).ready(function() {	
+$(document).ready(function() {
 	// Bootstrap file label
     $(':file').on('fileselect', function(event, numFiles, label) {
 		$(this).closest('.input-group').find('input[type="text"]').val(label);
-    });	
+    });
     // Select the interface template
 	var active_melon = $('#active_melon').attr('href');
     var book_melon = $('#book_melon').attr('href');
     if (!book_melon.length) book_melon = active_melon;
 	select_interface(book_melon);
+    // Thumb upload change
+    $('input[name="upload_thumb"]').change(function() {
+        var oFReader = new FileReader();
+        oFReader.readAsDataURL(this.files[0]);
+        oFReader.onload = function(oFREvent) {
+			$('#thumb_wrapper').show().find('img:first')[0].src = oFREvent.target.result;
+        };
+    });
 	// Predefined CSS selector
     var predefined_css = $("#predefined_css").text();
     $('textarea[name="custom_style"]').predefined({msg:'Insert predefined CSS:',data:((predefined_css.length)?JSON.parse(predefined_css):{})});
@@ -55,7 +63,7 @@ $(document).ready(function() {
 							dialog.close();
 							$this.data('open', false);
 							$this.val($this.data('orig-value'));
-							$this.blur();	                    
+							$this.blur();
 		                }
 		            }, {
 		                label: 'Continue',
@@ -64,9 +72,9 @@ $(document).ready(function() {
 							$this.data('confirmed',true);
 							dialog.close();
 							$this.data('open', false);
-							$this.focus();	                    
+							$this.focus();
 		                }
-		            }]	            
+		            }]
 		        });
 			}
 		}
@@ -113,7 +121,7 @@ function select_interface(melon) {
 				var checked = $modal.find("input[type='radio']:checked").val();
 				$('select[name="template"]').val(checked).change();
 				$modal.modal('hide');
-			});			
+			});
 		};
 		$modal.modal();
 	});
@@ -174,12 +182,13 @@ function select_interface(melon) {
 	  <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
 	  <input type="hidden" name="slug" value="<?=$book->slug?>" />
 	  <input type="hidden" name="title" value="<?=htmlspecialchars($book->title)?>" />
+	  <input type="hidden" name="dont_save_versions" value="1" />
       <div class="form-group">
         <label for="scope" class="col-sm-2 control-label">Reader interface</label>
         <div class="col-sm-10" id="interface-wrapper"></div>
-      </div>	   
+      </div>
       <div class="form-group">
-        <label for="upload_publisher_thumb" class="col-sm-2 control-label">Thumbnail image</label>
+        <label for="upload_thumb" class="col-sm-2 control-label">Thumbnail image</label>
         <div class="col-sm-4">
           <div class="input-group">
             <input type="hidden" name="thumbnail" value="<?=$book->thumbnail?>" />
@@ -189,30 +198,28 @@ function select_interface(melon) {
               </span>
             </label>
             <input type="text" class="form-control" readonly>
-          </div>  
-        </div>    
-        <div class="col-sm-6 col-overrun-left">            
+          </div>
+        </div>
+        <div class="col-sm-6 col-overrun-left">
 		  <label class="control-label label-text"><small>JPG, PNG, or GIF&mdash;will be resized to 120px</small></label>
 		</div>
-<?php if (!empty($book->thumbnail)): ?>
-        <div class="col-sm-offset-2 col-sm-10">
+        <div id="thumb_wrapper" class="col-sm-offset-2 col-sm-10" style="<?=(!empty($book->thumbnail))?'':'display:none;'?>">
           <div class="thumb-wrapper">
-            <img src="<?=base_url().$book->slug.'/'.$book->thumbnail?>" />
+            <img src="<?=base_url().$book->slug.'/'.$book->thumbnail?>?t=<?=time()?>" />
           </div>
           <div class="checkbox" style="display:inline-block;">
             <label>
-              <input type="checkbox" name="remove_thumbnail" value="1"> 
+              <input type="checkbox" name="remove_thumbnail" value="1">
               Remove thumbnail image
             </label>
           </div>
         </div>
-<?php endif; ?>
       </div>
       <div class="form-group">
         <label for="background" class="col-sm-2 control-label">Background image</label>
         <div class="col-sm-10">
           <select style="width:auto;float:left;margin-right:12px;max-width:100%;" class="form-control" id="background" name="background">
-		    <option value="">Choose an image</option><?php 
+		    <option value="">Choose an image</option><?php
 			    $matched = false;
 	  			foreach ($current_book_images as $book_image_row) {
 	  				if ($book->background==$book_image_row->versions[$book_image_row->version_index]->url) $matched = true;
@@ -221,7 +228,7 @@ function select_interface(melon) {
 	  			}
 	  			if (!empty($book->background) && !$matched) {
 	  				echo '<option value="'.$book->background.'" selected>'.$book->background.'</option>';
-	  			}		    
+	  			}
 		    ?></select>
         </div>
         <div id="background_preview" style="display:none;" class="col-sm-offset-2 col-sm-10">
@@ -230,12 +237,12 @@ function select_interface(melon) {
           </div>
           <div class="checkbox" style="display:inline-block;">
             <label>
-              <input type="checkbox" name="remove_background" value="1"> 
+              <input type="checkbox" name="remove_background" value="1">
               Remove background image
             </label>
-          </div>          
-        </div>       
-      </div>    
+          </div>
+        </div>
+      </div>
       <div class="form-group">
         <label for="custom_style" class="col-sm-2 control-label">Custom CSS</label>
         <div class="col-sm-10">
@@ -250,16 +257,16 @@ function select_interface(melon) {
           <textarea class="form-control" rows="8" id="custom_js" name="custom_js"><?=htmlspecialchars($book->custom_js)?></textarea>
           <div class="predefined_wrapper">Visit the <a href="http://scalar.usc.edu/works/guide2" target="_blank">Scalar 2 Guide</a> for <a href="http://scalar.usc.edu/works/guide2/advanced-topics" target="_blank">example Javascript snippets</a> including one for <a href="http://scalar.usc.edu/works/guide2/revealing-individual-authors-in-page-headers" target="_blank">revealing individual page authors</a>.</div>
         </div>
-      </div>	       
-      <div class="page-header"></div>  
+      </div>
+      <div class="page-header"></div>
       <div class="form-group">
         <div class="col-sm-12">
           <div class="pull-right">
-            <button type="submit" class="btn btn-default">Save</button> &nbsp; 
+            <button type="submit" class="btn btn-default">Save</button> &nbsp;
             <button type="submit" class="btn btn-primary" name="back_to_book" value="1">Save and return to book</button>
           </div>
         </div>
-      </div>     
+      </div>
       </form>
     </section>
   </div>
@@ -273,13 +280,13 @@ function select_interface(melon) {
         <div class="container-fluid">
 		  <div class="row">
 	        <div class="col-sm-12" style="margin-bottom:12px;">
-			  Scalar 2 is our new, easier to read interface, while Scalar 1 is our original design. You can switch back and 
-			  forth between the two interfaces as much as you like, though 
-			  <a href="http://scalar.usc.edu/works/guide2/switching-books-authored-in-scalar-10?path=scalar-20-whats-new" target="_blank">some reformatting may be required</a> 
-			  to convert books created in Scalar 1 to take advantage of the features in Scalar 2.        
+			  Scalar 2 is our new, easier to read interface, while Scalar 1 is our original design. You can switch back and
+			  forth between the two interfaces as much as you like, though
+			  <a href="http://scalar.usc.edu/works/guide2/switching-books-authored-in-scalar-10?path=scalar-20-whats-new" target="_blank">some reformatting may be required</a>
+			  to convert books created in Scalar 1 to take advantage of the features in Scalar 2.
 	        </div>
-		  </div> 
-		</div>      	  
+		  </div>
+		</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

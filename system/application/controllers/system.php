@@ -134,15 +134,15 @@ class System extends MY_Controller {
 		exit;
 
 	}
-	
+
 	public function permissions() {
-	
+
 		$this->data['title'] = $this->lang->line('install_name').': Book Permissions';
-		
+
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/login/permissions_box', $this->data);
 		$this->template->render();
-	
+
 	}
 
 	public function register() {
@@ -300,8 +300,10 @@ class System extends MY_Controller {
 		 			unset($array['back_to_book']);
 		 			unset($array['action']);
 		 			unset($array['zone']);
+		 			$dont_save_versions = isset($array['dont_save_versions']) ? true : false;
+		 			if (isset($array['dont_save_versions'])) unset($array['dont_save_versions']);
 		 			$_array = $this->books->save($array);
-		 			$this->books->save_versions($array);
+		 			if (!$dont_save_versions) $this->books->save_versions($array);
 		 			if ($back_to_book) {
 		 				header('Location: '.base_url().$_array['slug']);
 		 			} else {
@@ -450,7 +452,7 @@ class System extends MY_Controller {
 					$get .= (!empty($tab)) ? $tab : '#tabs-'.$zone;
 					header('Location: '.$this->base_url.$get);
 					exit;
-				case 'do_delete_books':  // Admin: Tools > List recently created books 
+				case 'do_delete_books':  // Admin: Tools > List recently created books
 					if (!$this->data['login_is_super']) $this->kickout();
 					$zone = $this->data['zone'];
 					$book_ids = explode(',',$_REQUEST['book_ids']);
@@ -981,7 +983,7 @@ class System extends MY_Controller {
 				break;
 			case 'save_editorial_state':
 				$version_id =@ (int) $_REQUEST['version_id'];
-				$book_id =@ (int) $_REQUEST['book_id'];  
+				$book_id =@ (int) $_REQUEST['book_id'];
 				$state =@ trim($_REQUEST['state']);
 				if (empty($book_id) && empty($version_id)) die ("{'error':'Invalid request'}");
 				$states = array('draft','edit','editreview','clean','ready','published');
