@@ -12,6 +12,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
         base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
         base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
 
+        base.monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
         base.hideVersions = function(){
 
         };
@@ -31,7 +33,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             if($content.data('diffContainer')){
                 return;
             }
-            $content.text('%%TEXT%%'+$content.text()+'%%TEXT%%')
+            $content.text('%%TEXT%%'+$content.text()+'%%TEXT%%');
             var text = $content[0].outerText;
             var tokens = $content[0].outerHTML.split(text);
             var newHTML = $content[0].outerHTML;
@@ -50,6 +52,163 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
             $content[0].outerHTML = newHTML.replace(/%%TEXT%%/g,'');
         };
+        base.serializeQueries = function(){
+            var queryJSON = {"queries":[]};
+            base.$queries.children('.query').each(function(){
+                var query = $(this).data('query');
+                //Remove the replies - we'll build those again
+                delete query.replies;
+                queryJSON.queries.push(query);
+                //Now add the replies...
+                $(this).find('.replies .query').each(function(){
+                    var query = $(this).data('query');
+                    //These shouldn't have replies, but just in case...
+                    delete query.replies;
+                    queryJSON.queries.push(query);
+                });
+            });
+            base.$resolvedQueries.find('#resolvedQueries').children('.query').each(function(){
+                var query = $(this).data('query');
+                //Remove the replies - we'll build those again
+                delete query.replies;
+                query.resolved = true;
+                queryJSON.queries.push(query);
+                //Now add the replies...
+                $(this).find('.replies .query').each(function(){
+                    var query = $(this).data('query');
+                    query.resolved = true;
+                    //These shouldn't have replies, but just in case...
+                    delete query.replies;
+                    queryJSON.queries.push(query);
+                });
+            });
+            queryJSON.queries.sort(function(a,b){
+                return a.id - b.id;
+            });
+            $('#editorial_queries').val(JSON.stringify(queryJSON));
+            $('#unsavedQueryWarning').show().attr('aria-hidden','false');
+        }
+        base.addQuery = function(query,scrollToQuery){
+            var date = query.date;
+            var hour = date.getHours();
+            var suffix = "am";
+            if(hour > 12){
+                hour -= 12;
+                suffix = "pm";
+            }else if(hour == 0){
+                hour = 12;
+            }
+            var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+            var $query = $('<div class="query" id="query_'+query.id+'">'+
+                                (!query.resolved?'<button class="btn btn-sm pull-right resolve">Resolve</button>':'')+
+                                '<strong class="user">'+query.user+'</strong>'+
+                                '<small class="date">'+dateString+'</small>'+
+                                '<div class="body">'+query.body+'</div>'+
+                           '</div>');
+            $query.data('query',query);
+            $query.find('.resolve').click(function(){
+                base.$resolvedQueries.show();
+                var $query = $(this).parents('.query');
+                $query.appendTo(base.$resolvedQueries.find('#resolvedQueries'));
+                $(this).remove();
+                $query.find('.newReply').remove();
+                var query = $query.data('query');
+                query.resolved = true;
+                $query.data('query',query);
+                base.serializeQueries();
+            });
+            var $replies = $('<div class="replies"></div>').appendTo($query);
+            if(!query.resolved){
+                var $newReply = $('<div class="newReply">'+
+                                        '<form class="form-inline">'+
+                                            '<div class="form-group">'+
+                                                '<label class="sr-only" for="reply_'+query.id+'">New reply</label>'+
+                                                '<input type="text" class="form-control input-sm" id="reply_'+query.id+'" placeholder="New reply">'+
+                                                '<button type="submit" class="btn btn-default btn-sm pull-right">Submit</button>'+
+                                            '</div>'+
+                                        '</form>'+
+                                  '</div>').appendTo($query);
+                $newReply.find('button').click(function(e){
+                    e.preventDefault();
+                    var $newReply = $(this).parents('.newReply');
+                    var parentID = $(this).parents('.query').data('query').id;
+                    var $replies = $(this).parents('.query').find('.replies');
+                    var bodyText = $newReply.find('input').val();
+                    if(bodyText==''){
+                        return false;
+                    }
+                    var id = ++base.highestID;
+                    var newReply = {
+                        id : id,
+                        user : fullName,
+                        date :  new Date(),
+                        body : bodyText,
+                        resolved: false,
+                        replyTo : parentID
+                    };
+                    $newReply.find('input').val('');
+                    date = newReply.date;
+                    hour = date.getHours();
+                    suffix = "am";
+                    if(hour > 12){
+                        hour -= 12;
+                        suffix = "pm";
+                    }else if(hour == 0){
+                        hour = 12;
+                    }
+                    dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                    var $reply = $('<div class="query" id="query_'+newReply.id+'">'+
+                                        '<strong class="user">'+newReply.user+'</strong>'+
+                                        '<small class="date">'+dateString+'</small>'+
+                                        '<div class="body">'+newReply.body+'</div>'+
+                                   '</div>').appendTo($replies);
+                    $reply.data('query',newReply);
+
+                    base.serializeQueries();
+                });
+            }
+            for(var r in query.replies){
+                var reply = query.replies[r];
+                date = reply.date;
+                hour = date.getHours();
+                suffix = "am";
+                if(hour > 12){
+                    hour -= 12;
+                    suffix = "pm";
+                }else if(hour == 0){
+                    hour = 12;
+                }
+                dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                var $reply = $('<div class="query" id="query_'+reply.id+'">'+
+                                    '<strong class="user">'+reply.user+'</strong>'+
+                                    '<small class="date">'+dateString+'</small>'+
+                                    '<div class="body">'+reply.body+'</div>'+
+                               '</div>').appendTo($replies);
+                $reply.data('query',reply);
+            }
+            if(query.resolved){
+                base.$resolvedQueries.show();
+                $query.appendTo(base.$resolvedQueries.find('#resolvedQueries'));
+                if(scrollToQuery && scrollToQuery === true){
+                    base.$queriesPanel.animate({
+                        scrollTop: $query.offset().top-base.$queriesPanel.offset().top
+                    }, 200);
+                }
+            }else{
+                $query.appendTo(base.$queries);
+                if(scrollToQuery && scrollToQuery === true){
+                    base.$queries.find('.new').removeClass('new');
+                    $query.addClass('new');
+                    base.$queriesPanel.animate({
+                        scrollTop: $query.offset().top-base.$queriesPanel.offset().top
+                    }, 200);
+                    window.setTimeout(function(){
+                        base.$queries.find('.new').removeClass('new');
+                    },200);
+                }
+            }
+        }
+
         base.displayVersions = function(versions){
             //if we only have one version selected, simply show the version - otherwise, show the diff
             if(versions.length == 1){
@@ -95,19 +254,26 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Edits</a></li>');
                     }
                 //Queries
+                    $('input[value="Save"]').click(function(){
+                        $('#unsavedQueryWarning').hide().attr('aria-hidden','true');
+                    });
                     base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Queries</a></li>');
-                    if($('span.metadata[property="scalar:queries"]').length > 0){
-                        console.log($('span.metadata[property="scalar:queries"]').text());
-                        var queries = JSON.parse($('span.metadata[property="scalar:queries"]').text());
+                    if($('#editorial_queries').length > 0){
+                        var queries = JSON.parse($('#editorial_queries').val()).queries;
                     }else{
                         var queries = [];
                     }
 
                     var processedQueries = {};
+                    base.highestID = -1;
                     //Build queries into a nicer format:
                     //(We are assuming queries are returned in date ascending)
                     for(var q in queries){
                         var query = queries[q];
+                        query.date = new Date(query.date);
+                        if(query.id > base.highestID){
+                            base.highestID = query.id;
+                        }
                         if(query.replyTo === null && !processedQueries[query.id]){
                             processedQueries[query.id] = query;
                             processedQueries[query.id].replies = {};
@@ -115,14 +281,35 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             processedQueries[query.replyTo].replies[query.id] = query;
                         }
                     }
+                    base.$queriesPanel = $('<div class="queriesPanel panel"></div>').appendTo(base.$editorialToolsPanelBody);
+                    base.$addNewQueryForm = $('<div id="addNewQueryForm" class="clearfix"><textarea placeholder="Enter query..." class="form-control" id="addNewQueryFormText"></textarea><button type="button" class="pull-right btn btn-sm">Submit</button></div>').prependTo(base.$queriesPanel).hide();
+                    base.$addNewQueryForm.find('button').click(function(e){
+                        var id = ++base.highestID;
+                        var query = {
+                            id : id,
+                            user : fullName,
+                            date :  new Date(),
+                            body : $('#addNewQueryForm textarea').val(),
+                            resolved: false,
+                            replyTo : null
+                        };
 
-                    base.$addNewQueryButton = $('<button id="addNewQuery" class="pull-right btn">Add new</button>').prependTo(base.$editorialToolsPanelHeader);
-                    base.$addNewQueryButton.click(function(e){
+                        $('#addNewQueryForm textarea').val('');
+                        $('#addNewQueryForm').hide();
+
+                        base.addQuery(query,true);
+                        base.serializeQueries();
                         e.preventDefault();
                     });
 
-                    base.$queriesPanel = $('<div class="queriesPanel panel"></div>').appendTo(base.$editorialToolsPanelBody);
-                    var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    base.$addNewQueryButton = $('<button id="addNewQuery" class="pull-right btn">Add new</button>').prependTo(base.$editorialToolsPanelHeader);
+                    base.$addNewQueryButton.click(function(e){
+                        $('#addNewQueryForm').show();
+                        base.$queriesPanel.animate({
+                            scrollTop: $('#addNewQueryForm').offset().top-base.$queriesPanel.offset().top
+                        }, 200);
+                        e.preventDefault();
+                    });
                     base.$queries = $('<div class="queries"></div>').appendTo(base.$queriesPanel);
                     var resolvedQueriesHTML = '<div class="resolvedQueries">'+
                                                     '<a class="queryDropdownToggle" href="#">'+
@@ -132,7 +319,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                                     '</div>'+
                                               '</div>';
 
-                    base.$resolvedQueries = $(resolvedQueriesHTML).appendTo(base.$queriesPanel);
+                    base.$resolvedQueries = $(resolvedQueriesHTML).appendTo(base.$queriesPanel).hide();
 
                     base.$resolvedQueries.find('.queryDropdownToggle').click(function(e){
                         $(this).parents('.resolvedQueries').find('.collapse').collapse('toggle');
@@ -143,90 +330,16 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$resolvedQueries.find('.collapse').collapse({toggle:false}).on('show.bs.collapse',function(){
                         $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
                         $(this).parents('.panel').animate({
-                            scrollTop: $('.resolvedQueries').offset().top
+                            scrollTop: $('.resolvedQueries').offset().top-base.$queriesPanel.offset().top
                         }, 200);
                     }).on('hide.bs.collapse',function(){
                         $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
                     });
 
+
                     for(var q in processedQueries){
                         var query = processedQueries[q];
-                        var date = new Date(query.date);
-                        var hour = date.getHours();
-                        var suffix = "am";
-                        if(hour > 12){
-                            hour -= 12;
-                            suffix = "pm";
-                        }else if(hour == 0){
-                            hour = 12;
-                        }
-                        var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+monthNames[date.getMonth()]+' '+date.getDate();
-                        var $query = $('<div class="query" id="query_'+query.id+'">'+
-                                            (!query.resolved?'<button class="btn btn-sm pull-right resolve">Resolve</button>':'')+
-                                            '<strong class="user">'+query.user+'</strong>'+
-                                            '<small class="date">'+dateString+'</small>'+
-                                            '<div class="body">'+query.body+'</div>'+
-                                       '</div>');
-                        $query.data('timestamp',date.toISOString());
-                        if(query.resolved){
-                            $query.appendTo(base.$resolvedQueries.find('#resolvedQueries'));
-                        }else{
-                            $query.appendTo(base.$queries)
-                        }
-                        var $replies = $('<div class="replies"></div>').appendTo($query);
-                        if(!query.resolved){
-                            var $newReply = $('<div class="newReply">'+
-                                                    '<form class="form-inline">'+
-                                                        '<div class="form-group">'+
-                                                            '<label class="sr-only" for="reply_'+query.id+'">New reply</label>'+
-                                                            '<input type="text" class="form-control input-sm" id="reply_'+query.id+'" placeholder="New reply">'+
-                                                            '<button type="submit" class="btn btn-default btn-sm pull-right">Submit</button>'+
-                                                        '</div>'+
-                                                    '</form>'+
-                                              '</div>').appendTo($query);
-                            $newReply.find('button').click(function(e){
-                                //Doesn't actually save yet!
-                                e.preventDefault();
-                                var $newReply = $(this).parents('.newReply');
-                                var $replies = $(this).parents('.query').find('.replies');
-                                var text = $newReply.find('input').val();
-                                $newReply.find('input').val('');
-                                var date = new Date();
-                                var hour = date.getHours();
-                                var suffix = "am";
-                                if(hour > 12){
-                                    hour -= 12;
-                                    suffix = "pm";
-                                }else if(hour == 0){
-                                    hour = 12;
-                                }
-                                var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+monthNames[date.getMonth()]+' '+date.getDate();
-                                var $query = $('<div class="query">'+
-                                                    '<strong class="user">'+fullName+'</strong>'+
-                                                    '<small class="date">'+dateString+'</small>'+
-                                                    '<div class="body">'+text+'</div>'+
-                                               '</div>').appendTo($replies);
-                                $query.data('timestamp',date.toISOString());
-                            });
-                        }
-                        for(var r in query.replies){
-                            var reply = query.replies[r];
-                            date = new Date(reply.date);
-                            hour = date.getHours();
-                            suffix = "am";
-                            if(hour > 12){
-                                hour -= 12;
-                                suffix = "pm";
-                            }else if(hour == 0){
-                                hour = 12;
-                            }
-                            dateString = hour+':'+date.getMinutes()+' '+suffix+' '+monthNames[date.getMonth()]+' '+date.getDate();
-                            var $reply = $('<div class="query" id="query_'+reply.id+'">'+
-                                                '<strong class="user">'+reply.user+'</strong>'+
-                                                '<small class="date">'+dateString+'</small>'+
-                                                '<div class="body">'+reply.body+'</div>'+
-                                           '</div>').appendTo($replies);
-                        }
+                        base.addQuery(query);
                     }
 
 
@@ -265,7 +378,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             }else if(hour == 0){
                                 hour = 12;
                             }
-                            dateString = hour+':'+date.getMinutes()+' '+suffix+' '+monthNames[date.getMonth()]+' '+date.getDate();
+                            dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
                         }
                         
                         $version

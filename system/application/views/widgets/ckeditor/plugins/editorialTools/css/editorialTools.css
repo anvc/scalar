@@ -47,6 +47,10 @@
 .editorialToolsExpanded .cke_bottom{
 	clear: both;
 }
+#unsavedQueryWarning{
+	display: none;
+	padding: .5rem 1rem;
+}
 #editorialToolsPanelHeader{
 	position: absolute;
 	top: 0;
@@ -138,12 +142,26 @@
 #editorialToolsPanel.queries .queriesPanel{
 	display: block;
 }
-#editorialToolsPanel.queries .queriesPanel .queries>.query,#editorialToolsPanel.queries .queriesPanel #resolvedQueries>.query{
+#editorialToolsPanel.queries .queriesPanel .queries>.query,#editorialToolsPanel.queries .queriesPanel #resolvedQueries>.query, #editorialToolsPanel.queries .queriesPanel #addNewQueryForm{
 	padding: .5rem;
 	margin-bottom: 1.5rem;
 }
-#editorialToolsPanel.queries .queriesPanel .queries>.query{
+#editorialToolsPanel.queries .queriesPanel #addNewQueryForm textarea{
+	border-radius: 0;
+}
+#editorialToolsPanel.queries .queriesPanel #addNewQueryForm .btn{
+	border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+	padding: 2px 12px;
+	margin-top: .5rem;
+}
+#editorialToolsPanel.queries .queriesPanel .queries>.query, #editorialToolsPanel.queries .queriesPanel #addNewQueryForm{
 	background-color: #fff;
+	transition: background-color .5s;
+}
+#editorialToolsPanel.queries .queriesPanel .queries>.query.new{
+	background-color: #e1edf7;
 }
 #editorialToolsPanel.queries .queriesPanel #resolvedQueries>.query{
 	background-color: #efefef;
@@ -165,9 +183,24 @@
 #editorialToolsPanel.queries #editorialToolsPanelHeader #addNewQuery:hover{
 	background: #eee;
 }
-#editorialToolsPanel.queries .queriesPanel .query .btn:hover{
+#editorialToolsPanel.queries .queriesPanel .query .btn:hover, #editorialToolsPanel.queries .queriesPanel #addNewQueryForm .btn:hover{
 	background: #e1edf7;	
 }
+
+#editorialToolsPanel.queries .queriesPanel .query .replies{
+	padding-left: 1rem;
+}
+#editorialToolsPanel.queries .queriesPanel .query .replies .user{
+	margin-left: -1.375rem;
+}
+#editorialToolsPanel.queries .queriesPanel .query .replies .user:before{
+	content: "\21AA";
+	padding-right: .375rem;
+	font-weight: normal;
+	color: #eee;
+}
+
+
 #editorialToolsPanel.queries .queriesPanel .query .user, #editorialToolsPanel.queries .queriesPanel .query .date, #editorialToolsPanel.queries .queriesPanel .query .body{
 	display: block;
 }

@@ -665,6 +665,9 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <table>
 <tr id="edit_content" class="p type_composite">
 	<td colspan="2">
+		<div id="unsavedQueryWarning" class="alert alert-warning" role="alert" aria-hidden="true">
+			<strong>Notice:</strong> There are unsaved Query changes - please save page to commit changes.
+		</div>
 		<?php /* if(!isset($_COOKIE['hide_widgets_alert'])){ ?>
 		<div id="wysiwygNewFeatures" class="alert alert-info alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
