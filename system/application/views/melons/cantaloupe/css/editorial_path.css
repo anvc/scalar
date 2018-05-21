@@ -609,3 +609,129 @@ body.shortHeader #editorialSidePanel>.affix{
 .media_description{
 	word-wrap: break-word;
 }
+#editorialQueries{
+	position: absolute;
+	z-index: 99;
+	width: 25%;
+	background-color: #e0e0e0;
+	right: 0;
+	border: 1rem solid #e0e0e0;
+	box-sizing: content-box;
+	transform : translatey(7rem);
+	-webkit-transform : translatey(7rem);
+	-moz-transform : translatey(7rem);
+	max-height: 75vh;
+	overflow-y: auto;
+	-webkit-box-shadow: -10px 40px 20px -20px white,-10px -40px 20px -20px white;
+	-moz-box-shadow: -10px 40px 20px -20px white,-10px -40px 20px -20px white;
+	box-shadow: -10px 40px 20px -20px white,-10px -40px 20px -20px white;
+	display: none;
+}
+#editorialQueries>h4{
+	width: auto;
+	display: inline-block;
+	margin: 0px;
+}
+#editorialQueries>button{
+	border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+	padding: 2px 12px;
+}
+.queryDropdownToggle{
+	font-weight: bold;
+	color: rgb(51, 51, 51);
+	text-decoration: none;
+	font-size: 14px;
+}
+.queryDropdownToggle:hover,.queryDropdownToggle:focus{
+	text-decoration: none;
+	color: #333;
+}
+
+#editorialQueries .queries>.query,#editorialQueries #resolvedQueries>.query, #editorialQueries #addNewQueryForm{
+	padding: .5rem;
+	margin-top: 1rem;
+	margin-bottom: .5rem;
+}
+#editorialQueries #addNewQueryForm textarea{
+	border-radius: 0;
+}
+#editorialQueries #addNewQueryForm .btn{
+	border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+	padding: 2px 12px;
+	margin-top: .5rem;
+}
+#editorialQueries .queries>.query, #editorialQueries #addNewQueryForm{
+	background-color: #fff;
+	transition: background-color .5s;
+}
+#editorialQueries .queries>.query.new{
+	background-color: #e1edf7;
+}
+#editorialQueries #resolvedQueries>.query{
+	background-color: #efefef;
+	background-color: #f2f2f2;
+    color: #777;
+}
+#editorialQueries .query .query, #editorialQueries .query .newReply{
+	margin-top: .5rem;
+	padding-top: .5rem;
+	border-top: 1px solid #eee;
+}
+#editorialQueries .query .btn,#editorialQueries .query input{
+	padding: .25rem .5rem;
+    height: 2.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+#editorialQueries #addNewQueryForm{
+	display: none;
+}
+#editorialQueries #addNewQueryForm .btn{
+	background: #eee;
+}
+#editorialQueries .query .btn:hover, #editorialQueries #addNewQueryForm .btn:hover{
+	background: #e1edf7;	
+}
+
+#editorialQueries .query .replies{
+	padding-left: 1rem;
+}
+#editorialQueries .query .replies .user{
+	margin-left: -1.375rem;
+}
+#editorialQueries .query .replies .user:before{
+	content: "\21AA";
+	padding-right: .375rem;
+	font-weight: normal;
+	color: #eee;
+}
+
+
+#editorialQueries .query .user, #editorialQueries .query .date, #editorialQueries .query .body{
+	display: block;
+}
+#editorialQueries .query .user{
+	line-height: 14px;
+}
+#editorialQueries .query .form-group{
+	width: 100%;
+}
+#editorialQueries .query .form-group .btn{
+	width: 25%;
+}
+#editorialQueries .query .form-group input{
+	width: 74%;
+}
+#editorialQueries .query .date{
+	font-size: 12px;
+	opacity: .9;
+	margin-bottom: .25rem;
+}
+#editorialQueries .query .body{
+	margin-bottom: .25rem;
+}

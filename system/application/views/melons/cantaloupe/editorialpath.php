@@ -18,6 +18,8 @@
 	$this->template->add_js('system/application/views/widgets/spectrum/spectrum.js');
 	$this->template->add_js('system/application/views/widgets/spinner/spin.min.js');
 
+	$this->template->add_js('var fullName="'.$login->fullname.'";', 'embed');
+
 	$this->template->add_js('system/application/views/arbors/html5_RDFa/js/jquery.rdfquery.rules-1.0.js');
 	$this->template->add_js('system/application/views/arbors/html5_RDFa/js/jquery.RDFa.js');
 	$this->template->add_js('system/application/views/arbors/html5_RDFa/js/form-validation.js?v=2');
@@ -40,6 +42,20 @@
 
 ?> 
 <div id="editorialPath">
+	<div id="editorialQueries">
+		<h4 class="heading_font heading_weight">Queries</h4>
+		<button id="addNewQuery" class="pull-right btn">Add new</button>
+		<div id="addNewQueryForm" class="clearfix"><textarea placeholder="Enter query..." class="form-control" id="addNewQueryFormText"></textarea><button type="button" class="pull-right btn btn-sm">Submit</button></div>
+		<div class="queries">
+		</div>
+		<div class="resolvedQueries">
+			<a class="queryDropdownToggle" href="#">
+				<small class="glyphicon glyphicon-triangle-right dropdownCaret" aria-hidden="true" data-toggle="collapse" data-target="#resolvedQueries" aria-expanded="false" aria-controls="resolvedQueries"></small> Resolved queries (<span class="queryCount">0</span>)
+			</a>
+			<div class="collapse queries" id="resolvedQueries">
+			</div>
+		</div>
+	</div>
 	<div class="row">
 		<div class="col-xs-12 col-md-9">
 			<heading class="heading_font" id="pathHeading">
@@ -68,8 +84,8 @@
 			<div>
 				<div class="dropdown">
 					<button class="btn btn-default heading_font heading_weight btn-block dropdown-toggle" id="editorialSideHeader" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					  <span id="panelDropdownText">Outline</span>
 					  <span class="caret pull-right"></span>
+					  <span id="panelDropdownText">Outline</span>
 					</button>
 					<ul class="dropdown-menu caption_font" aria-labelledby="editorialSideHeader">
 						<li><a role="button" href="#editorialOutline" aria-expanded="true" aria-controls="editorialOutline">Outline</a></li>
@@ -85,8 +101,8 @@
 					<form id="contentFinder" class="form-inline">
 						<div class="form-group" id="filterDropdown">
 							<button class="btn btn-default dropdown-toggle form-control input-sm" id="filterTypeDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							  <small id="filterTypeText"></small>
 							  <span class="caret pull-right"></span>
+							  <small id="filterTypeText"></small>
 							</button>
 							<ul class="dropdown-menu caption_font" aria-labelledby="filterTypeDropdown">
 							</ul>

@@ -126,6 +126,47 @@
         	switch(base.stage){
         		case 0:
         			//Do a little bit of preliminary setup...
+                    base.highestID = -1;
+                    $(window).click(function(){
+                        $('#editorialQueries').hide();
+                    });
+                    $('#editorialQueries').click(function(e){
+                        e.stopPropagation();
+                    });
+                     $('#editorialQueries').find('.queryDropdownToggle').click(function(e){
+                        $(this).parents('.resolvedQueries').find('.collapse').collapse('toggle');
+                        e.stopPropagation();
+                        return false;
+                    });
+                    $('#editorialQueries').find('.collapse').collapse({toggle:false}).on('show.bs.collapse',function(){
+                        $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
+                    }).on('hide.bs.collapse',function(){
+                        $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+                    });
+                    $('#addNewQuery').click(function(){
+                        $('#addNewQueryForm').show();
+                        $('#editorialQueries').animate({
+                            scrollTop: 0
+                        }, 200);
+                    });
+                    $('#addNewQueryForm').find('button').click(function(e){
+                        var id = ++base.highestID;
+                        var query = {
+                            id : id,
+                            user : fullName,
+                            date :  new Date(),
+                            body : $('#addNewQueryForm textarea').val(),
+                            resolved: false
+                        };
+
+                        $('#addNewQueryForm textarea').val('');
+                        $('#addNewQueryForm').hide();
+                        $('#noQueries').remove();
+                        base.addQuery(query,true);
+                        base.serializeQueries();
+                        e.preventDefault();
+                    });
+
                     $('#editorialSidePanel .dropdown .dropdown-menu a').click(function(e){
                         e.preventDefault();
                         $('#editorialSidePanel .dropdown #panelDropdownText').text($(this).text());
@@ -572,8 +613,7 @@
                         top: 50
                       }
                     });
-
-                    base.resize();
+                    window.setTimeout(base.resize,400);
 
         			base.$nodeList.appendTo(base.options.contents);
                     
@@ -663,10 +703,156 @@
             }
         };
 
+        base.monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        base.serializeQueries = function(){
+            //We need to serialize the queries then save them... Let's see.
+        };
+        base.addQuery = function(query,scrollToQuery){
+            var date = query.date;
+            if(typeof date === "string"){
+                date = new Date(date);
+            }
+            var hour = date.getHours();
+            var suffix = "am";
+            if(hour > 12){
+                hour -= 12;
+                suffix = "pm";
+            }else if(hour == 0){
+                hour = 12;
+            }
+            var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+            var $query = $('<div class="query" id="query_'+query.id+'">'+
+                                (!query.resolved?'<button class="btn btn-sm pull-right resolve">Resolve</button>':'')+
+                                '<strong class="user">'+query.user+'</strong>'+
+                                '<small class="date">'+dateString+'</small>'+
+                                '<div class="body">'+query.body+'</div>'+
+                           '</div>');
+            $query.data('query',query);
+            $query.find('.resolve').click(function(){
+                $('#editorialQueries .resolvedQueries').show();
+                var $query = $(this).parents('.query');
+                $query.appendTo('#editorialQueries .resolvedQueries .queries');
+                $(this).remove();
+                $query.find('.newReply').remove();
+                var query = $query.data('query');
+                query.resolved = true;
+                $query.data('query',query);
+                $('#editorialQueries .resolvedQueries .queryCount').text(parseInt($('#editorialQueries .resolvedQueries .queryCount').text())+1);
+                $('#editorialQueries .resolvedQueries').find('.collapse').collapse('show');
+                base.serializeQueries();
+            });
+            var $replies = $('<div class="replies"></div>').appendTo($query);
+            if(!query.resolved){
+                var $newReply = $('<div class="newReply">'+
+                                        '<form class="form-inline">'+
+                                            '<div class="form-group">'+
+                                                '<label class="sr-only" for="reply_'+query.id+'">New reply</label>'+
+                                                '<input type="text" class="form-control input-sm" id="reply_'+query.id+'" placeholder="New reply">'+
+                                                '<button type="submit" class="btn btn-default btn-sm pull-right">Submit</button>'+
+                                            '</div>'+
+                                        '</form>'+
+                                  '</div>').appendTo($query);
+                $newReply.find('button').click(function(e){
+                    e.preventDefault();
+                    var $newReply = $(this).parents('.newReply');
+                    var bodyText = $newReply.find('input').val();
+                    if(bodyText==''){
+                        return false;
+                    }
+                    var newReply = {
+                        user : fullName,
+                        date :  new Date(),
+                        body : bodyText
+                    };
+                    $newReply.find('input').val('');
+                    date = newReply.date;
+                    hour = date.getHours();
+                    suffix = "am";
+                    if(hour > 12){
+                        hour -= 12;
+                        suffix = "pm";
+                    }else if(hour == 0){
+                        hour = 12;
+                    }
+                    dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                    var $reply = $('<div class="query">'+
+                                        '<strong class="user">'+newReply.user+'</strong>'+
+                                        '<small class="date">'+dateString+'</small>'+
+                                        '<div class="body">'+newReply.body+'</div>'+
+                                   '</div>').appendTo($replies);
+                    $reply.data('query',newReply);
+
+                    base.serializeQueries();
+                });
+            }
+            for(var r in query.replies){
+                var reply = query.replies[r];
+                date = reply.date;
+                if(typeof date === "string"){
+                    date = new Date(date);
+                }
+                hour = date.getHours();
+                suffix = "am";
+                if(hour > 12){
+                    hour -= 12;
+                    suffix = "pm";
+                }else if(hour == 0){
+                    hour = 12;
+                }
+                dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                var $reply = $('<div class="query" id="query_'+reply.id+'">'+
+                                    '<strong class="user">'+reply.user+'</strong>'+
+                                    '<small class="date">'+dateString+'</small>'+
+                                    '<div class="body">'+reply.body+'</div>'+
+                               '</div>').appendTo($replies);
+                $reply.data('query',reply);
+            }
+            if(query.resolved){
+                $query.appendTo($('#editorialQueries .resolvedQueries .queries'));
+                $('#editorialQueries .resolvedQueries').show();
+                $('#editorialQueries .resolvedQueries .queryCount').text(parseInt($('#editorialQueries .resolvedQueries .queryCount').text())+1);
+                if(scrollToQuery && scrollToQuery === true){
+                    $('#editorialQueries').animate({
+                        scrollTop: $query.offset().top-$('#editorialQueries').offset().top
+                    }, 200);
+                }
+            }else{
+                $query.appendTo($('#editorialQueries>.queries'));
+                if(scrollToQuery && scrollToQuery === true){
+                    $('#editorialqueries>.queries').find('.new').removeClass('new');
+                    $query.addClass('new');
+                    $('#editorialQueries').animate({
+                        scrollTop: $query.offset().top-$('#editorialQueries').offset().top
+                    }, 200);
+                    window.setTimeout(function(){
+                        $query.removeClass('new');
+                    },200);
+                }
+            }
+        };
+        base.populateQueries = function(queries,$parentNodeElement){
+            $('#editorialQueries').data('currentNode',$parentNodeElement);
+            $('#editorialQueries .queries').html('');
+            $('#editorialQueries .resolvedQueries').hide();
+            base.highestID = -1;
+            for(var q in queries){
+                var query = queries[q];
+                if(query.id > base.highestID){
+                    base.highestID = query.id;
+                }
+                base.addQuery(query);
+            }
+            
+            if(base.highestID == -1){
+                $('<div id="noQueries" class="text-muted text-center">There are no queries yet.</div>').appendTo($('#editorialQueries>.queries'));
+            }
+
+            $('#editorialQueries').show();
+        };
         base.addNode = function(node,callback){
         	var currentVersion = node.current;
             var queries = currentVersion.editorialQueries?JSON.parse(currentVersion.editorialQueries).queries:[];
-            console.log(queries);
         	var state = node.editorialState;
         	var stateName = base.node_states[state];
             var node_url = scalarapi.model.urlPrefix+node.slug;
@@ -674,7 +860,7 @@
             var queryCount = 0;
             for(var i in queries){
                 var query = queries[i];
-                if(!query.resolved && query.replyTo == null){
+                if(!query.resolved){
                     queryCount++;
                 }
             }
@@ -729,7 +915,16 @@
         						'</div>';     
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
-        	
+            $node.find('.with_queries_badge').click(function(e){
+                if($('#editorialQueries').is(':visible') && $('#editorialQueries').data('currentNode') == $node){
+                    return true;
+                }
+                e.stopPropagation();
+                var offsetTop = $node.position().top;
+                $('#editorialQueries').css('top',offsetTop);
+                $('#editorialQueries').css('max-height',$node.innerHeight()-50);
+                base.populateQueries(queries,$node);
+            });
             if(node.domType.singular == "media"){
                 $node.find('.bodyContent').addClass('media').html('').append('<div class="mediaView"><a data-size="native" data-align="center" class="inline" resource="'+node.slug+'" name="'+node.getDisplayTitle()+'" href="'+node.current.sourceFile+'" data-linkid="node_inline-media_body_1"></a>');
             }
