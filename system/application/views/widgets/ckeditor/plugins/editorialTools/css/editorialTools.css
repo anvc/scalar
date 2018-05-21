@@ -47,6 +47,10 @@
 .editorialToolsExpanded .cke_bottom{
 	clear: both;
 }
+#unsavedQueryWarning{
+	display: none;
+	padding: .5rem 1rem;
+}
 #editorialToolsPanelHeader{
 	position: absolute;
 	top: 0;

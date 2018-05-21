@@ -86,6 +86,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 return a.id - b.id;
             });
             $('#editorial_queries').val(JSON.stringify(queryJSON));
+            $('#unsavedQueryWarning').show().attr('aria-hidden','false');
         }
         base.addQuery = function(query,scrollToQuery){
             var date = query.date;
@@ -190,7 +191,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $query.appendTo(base.$resolvedQueries.find('#resolvedQueries'));
                 if(scrollToQuery && scrollToQuery === true){
                     base.$queriesPanel.animate({
-                        scrollTop: $query.offset().top
+                        scrollTop: $query.offset().top-base.$queriesPanel.offset().top
                     }, 200);
                 }
             }else{
@@ -199,7 +200,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$queries.find('.new').removeClass('new');
                     $query.addClass('new');
                     base.$queriesPanel.animate({
-                        scrollTop: $query.offset().top
+                        scrollTop: $query.offset().top-base.$queriesPanel.offset().top
                     }, 200);
                     window.setTimeout(function(){
                         base.$queries.find('.new').removeClass('new');
@@ -253,6 +254,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Edits</a></li>');
                     }
                 //Queries
+                    $('input[value="Save"]').click(function(){
+                        $('#unsavedQueryWarning').hide().attr('aria-hidden','true');
+                    });
                     base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Queries</a></li>');
                     if($('#editorial_queries').length > 0){
                         var queries = JSON.parse($('#editorial_queries').val()).queries;
@@ -301,6 +305,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$addNewQueryButton = $('<button id="addNewQuery" class="pull-right btn">Add new</button>').prependTo(base.$editorialToolsPanelHeader);
                     base.$addNewQueryButton.click(function(e){
                         $('#addNewQueryForm').show();
+                        base.$queriesPanel.animate({
+                            scrollTop: $('#addNewQueryForm').offset().top-base.$queriesPanel.offset().top
+                        }, 200);
                         e.preventDefault();
                     });
                     base.$queries = $('<div class="queries"></div>').appendTo(base.$queriesPanel);
@@ -323,7 +330,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$resolvedQueries.find('.collapse').collapse({toggle:false}).on('show.bs.collapse',function(){
                         $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
                         $(this).parents('.panel').animate({
-                            scrollTop: $('.resolvedQueries').offset().top
+                            scrollTop: $('.resolvedQueries').offset().top-base.$queriesPanel.offset().top
                         }, 200);
                     }).on('hide.bs.collapse',function(){
                         $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
