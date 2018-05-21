@@ -402,7 +402,7 @@
 
                 // make images open the citations view when clicked
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
-                    if (!isMobile) {
+                    if (!isMobile && mediaelement.model.mediaSource.contentType == 'image') {
                         mediaelement.model.element.find('.mediaObject').click(function() {
                             if ($('.media_details').css('display') == 'none') {                                    
                                 page.mediaDetails.show(mediaelement.model.node);
@@ -1134,7 +1134,7 @@
 
             addColophon: function() {
                 var currentNode = scalarapi.model.getCurrentPageNode();
-                var can_show_versions = ($('.navbar-header .book-title').find('[data-hide-versions="true"').length) ? false : true;
+                var can_show_versions = ($('.navbar-header .book-title').find('[data-hide-versions="true"]').length) ? false : true;
                 var $level = $('link#user_level');
                 if ($level.length) {
                 	if ('scalar:author' == $level.attr('href').toLowerCase()) can_show_versions = true;
