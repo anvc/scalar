@@ -665,11 +665,19 @@
 
         base.addNode = function(node,callback){
         	var currentVersion = node.current;
+            var queries = currentVersion.editorialQueries?JSON.parse(currentVersion.editorialQueries).queries:[];
+            console.log(queries);
         	var state = node.editorialState;
         	var stateName = base.node_states[state];
             var node_url = scalarapi.model.urlPrefix+node.slug;
         	var nodeView = (typeof node.current.defaultView !== 'undefined' && node.current.defaultView != null) ? node.current.defaultView : 'plain';
             var queryCount = 0;
+            for(var i in queries){
+                var query = queries[i];
+                if(!query.resolved && query.replyTo == null){
+                    queryCount++;
+                }
+            }
             var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
             var viewName = typeof views[nodeView] !== 'undefined' && views[nodeView] != null ? views[nodeView].name : nodeView;
 
@@ -685,7 +693,7 @@
                                             '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font"></div>'+
         									'<div class="header_font badges">'+
                                                 '<span class="header_font badge view_badge">'+viewName+'</span>'+
-                                                '<span class="header_font badge no_queries_badge">'+(queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y')+'</span>'+
+                                                '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y')+'</span>'+
                                                 '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>'+
                                                 '<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>'+
                                             '</div>'+
@@ -764,7 +772,7 @@
             if(typeof node.current.description === 'undefined' || node.current.description == null){
                 $node.find('.descriptionContent').text("(This page does not have a description.)").addClass('noDescription');
             }else{
-                $node.find('.descriptionContent').text(node.current.description);
+                $node.find('.descriptionContent').html(node.current.description);
             }
         	
         	$node.find('.state_dropdown li>a').click(function(e){
