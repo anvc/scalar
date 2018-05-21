@@ -57,30 +57,36 @@ CKEDITOR.plugins.add( 'editorialTools', {
             base.$queries.children('.query').each(function(){
                 var query = $(this).data('query');
                 //Remove the replies - we'll build those again
-                delete query.replies;
-                queryJSON.queries.push(query);
+                delete query.replyTo;
+                query.replies = [];
                 //Now add the replies...
                 $(this).find('.replies .query').each(function(){
-                    var query = $(this).data('query');
+                    var reply = $(this).data('query');
+                    delete reply.replyTo;
+                    delete reply.id;
                     //These shouldn't have replies, but just in case...
-                    delete query.replies;
-                    queryJSON.queries.push(query);
+                    delete reply.replies;
+                    query.replies.push(reply);
                 });
+                queryJSON.queries.push(query);
             });
             base.$resolvedQueries.find('#resolvedQueries').children('.query').each(function(){
                 var query = $(this).data('query');
                 //Remove the replies - we'll build those again
-                delete query.replies;
+                query.replies = [];
+                delete query.replyTo;
                 query.resolved = true;
-                queryJSON.queries.push(query);
                 //Now add the replies...
                 $(this).find('.replies .query').each(function(){
-                    var query = $(this).data('query');
-                    query.resolved = true;
+                    var reply = $(this).data('query');
+                    delete reply.replyTo;
+                    delete reply.id;
+                    delete reply.resolved;
                     //These shouldn't have replies, but just in case...
-                    delete query.replies;
-                    queryJSON.queries.push(query);
+                    delete reply.replies;
+                    query.replies.push(reply);
                 });
+                queryJSON.queries.push(query);
             });
             queryJSON.queries.sort(function(a,b){
                 return a.id - b.id;
@@ -90,6 +96,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
         }
         base.addQuery = function(query,scrollToQuery){
             var date = query.date;
+            if(typeof date === "string"){
+                date = new Date(date);
+            }
             var hour = date.getHours();
             var suffix = "am";
             if(hour > 12){
@@ -115,6 +124,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 var query = $query.data('query');
                 query.resolved = true;
                 $query.data('query',query);
+                base.$resolvedQueries.find('.queryCount').text(parseInt(base.$resolvedQueries.find('.queryCount').text())+1);
                 base.serializeQueries();
             });
             var $replies = $('<div class="replies"></div>').appendTo($query);
@@ -131,20 +141,14 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $newReply.find('button').click(function(e){
                     e.preventDefault();
                     var $newReply = $(this).parents('.newReply');
-                    var parentID = $(this).parents('.query').data('query').id;
-                    var $replies = $(this).parents('.query').find('.replies');
                     var bodyText = $newReply.find('input').val();
                     if(bodyText==''){
                         return false;
                     }
-                    var id = ++base.highestID;
                     var newReply = {
-                        id : id,
                         user : fullName,
                         date :  new Date(),
-                        body : bodyText,
-                        resolved: false,
-                        replyTo : parentID
+                        body : bodyText
                     };
                     $newReply.find('input').val('');
                     date = newReply.date;
@@ -157,7 +161,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         hour = 12;
                     }
                     dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
-                    var $reply = $('<div class="query" id="query_'+newReply.id+'">'+
+                    var $reply = $('<div class="query">'+
                                         '<strong class="user">'+newReply.user+'</strong>'+
                                         '<small class="date">'+dateString+'</small>'+
                                         '<div class="body">'+newReply.body+'</div>'+
@@ -170,6 +174,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
             for(var r in query.replies){
                 var reply = query.replies[r];
                 date = reply.date;
+                if(typeof date === "string"){
+                    date = new Date(date);
+                }
                 hour = date.getHours();
                 suffix = "am";
                 if(hour > 12){
@@ -188,6 +195,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
             if(query.resolved){
                 base.$resolvedQueries.show();
+                base.$resolvedQueries.find('.queryCount').text(parseInt(base.$resolvedQueries.find('.queryCount').text())+1);
                 $query.appendTo(base.$resolvedQueries.find('#resolvedQueries'));
                 if(scrollToQuery && scrollToQuery === true){
                     base.$queriesPanel.animate({
@@ -264,23 +272,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         var queries = [];
                     }
 
-                    var processedQueries = {};
-                    base.highestID = -1;
-                    //Build queries into a nicer format:
-                    //(We are assuming queries are returned in date ascending)
-                    for(var q in queries){
-                        var query = queries[q];
-                        query.date = new Date(query.date);
-                        if(query.id > base.highestID){
-                            base.highestID = query.id;
-                        }
-                        if(query.replyTo === null && !processedQueries[query.id]){
-                            processedQueries[query.id] = query;
-                            processedQueries[query.id].replies = {};
-                        }else if(query.replyTo !== null && processedQueries[query.replyTo]){
-                            processedQueries[query.replyTo].replies[query.id] = query;
-                        }
-                    }
                     base.$queriesPanel = $('<div class="queriesPanel panel"></div>').appendTo(base.$editorialToolsPanelBody);
                     base.$addNewQueryForm = $('<div id="addNewQueryForm" class="clearfix"><textarea placeholder="Enter query..." class="form-control" id="addNewQueryFormText"></textarea><button type="button" class="pull-right btn btn-sm">Submit</button></div>').prependTo(base.$queriesPanel).hide();
                     base.$addNewQueryForm.find('button').click(function(e){
@@ -290,13 +281,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             user : fullName,
                             date :  new Date(),
                             body : $('#addNewQueryForm textarea').val(),
-                            resolved: false,
-                            replyTo : null
+                            resolved: false
                         };
 
                         $('#addNewQueryForm textarea').val('');
                         $('#addNewQueryForm').hide();
-
+                        $('#noQueries').remove();
                         base.addQuery(query,true);
                         base.serializeQueries();
                         e.preventDefault();
@@ -313,7 +303,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$queries = $('<div class="queries"></div>').appendTo(base.$queriesPanel);
                     var resolvedQueriesHTML = '<div class="resolvedQueries">'+
                                                     '<a class="queryDropdownToggle" href="#">'+
-                                                        '<small class="glyphicon glyphicon-triangle-right dropdownCaret" aria-hidden="true" data-toggle="collapse" data-target="#resolvedQueries" aria-expanded="false" aria-controls="resolvedQueries"></small> Resolved queries'+
+                                                        '<small class="glyphicon glyphicon-triangle-right dropdownCaret" aria-hidden="true" data-toggle="collapse" data-target="#resolvedQueries" aria-expanded="false" aria-controls="resolvedQueries"></small> Resolved queries (<span class="queryCount">0</span>)'+
                                                     '</a>'+
                                                     '<div class="collapse" id="resolvedQueries">'+
                                                     '</div>'+
@@ -336,12 +326,17 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
                     });
 
-
-                    for(var q in processedQueries){
-                        var query = processedQueries[q];
+                    base.highestID = -1;
+                    for(var q in queries){
+                        var query = queries[q];
+                        if(query.id > base.highestID){
+                            base.highestID = query.id;
+                        }
                         base.addQuery(query);
                     }
-
+                    if(base.highestID == -1){
+                        $('<div id="noQueries" class="text-muted text-center">There are no queries yet.</div>').appendTo(base.$queries);
+                    }
 
                 //Versions
                 base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Versions</a></li>');
