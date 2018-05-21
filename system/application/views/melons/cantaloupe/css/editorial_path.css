@@ -287,7 +287,14 @@ body.shortHeader #editorialSidePanel>.affix{
 	background-color: #b3b3b3;
 }
 #editorialPathContents .editorial_node .badge.with_queries_badge{
-	background-color: #d9514e;
+	background-color: #fc9e62;
+	cursor: pointer;
+}
+#editorialPathContents .editorial_node .badge.with_queries_badge:hover{
+	background-color: #ee955d
+}
+#editorialPathContents .editorial_node .editable{
+	cursor: pointer;
 }
 
 #editorialPathContents .editorial_node .checkbox>label{

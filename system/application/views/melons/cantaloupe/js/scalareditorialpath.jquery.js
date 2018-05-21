@@ -783,7 +783,7 @@
             if(base.node_state_flow[state]){
                 $node.find('.descriptionContent, .bodyContent:not(.media)').each(function(){
                     $node.data('editableFields',$node.data('editableFields')+1);
-
+                    $(this).addClass('editable');
                     $(this).on('click',function(e){
                         if(!base.node_state_flow[$node.data('state')]){
                             return false;
@@ -909,7 +909,7 @@
             var notice = $('<div class="alert" role="alert">Saving...</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
             var title = $node.find('.title').text();
             var $description = $node.find('.descriptionContent');
-            var description = $description.hasClass('noDescription')?'':$description.text();
+            var description = $description.hasClass('noDescription')?'':$description.html();
             var editorialState = $node.data('state');
             var $body = $node.find('.bodyContent');
             var $body_copy = $body.clone();
@@ -1038,7 +1038,6 @@
                             var media = scalarapi.getNode(resource);
                             var description = media.current.description;
                             var thumbnail_url = media.getAbsoluteThumbnailURL();
-                            console.log(thumbnail_url);
                             if(!thumbnail_url){
                                 if(media.current.mediaSource.contentType == "image" && !media.current.mediaSource.isProprietary){
                                     thumbnail_url = media.current.sourceFile;
@@ -1046,7 +1045,6 @@
                                     thumbnail_url = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
                                 }
                             }
-                            console.log(thumbnail_url);
                             if(typeof description !== 'undefined' && description != null){
                                 $placeholder.find('content').append('<div class="description">'+description+'</div>');
                             }
