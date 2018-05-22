@@ -167,6 +167,9 @@
                         e.preventDefault();
                     });
 
+                    base.$saveNotice = $('<div class="alert alert-success" role="alert" id="saveNotice">Page updated</div>').appendTo('body');
+                    base.$warningNotice = $('<div class="alert alert alert-danger" role="alert" id="saveErrorNotice">Error saving page</div>').appendTo('body');
+
                     $('#editorialSidePanel .dropdown .dropdown-menu a').click(function(e){
                         e.preventDefault();
                         $('#editorialSidePanel .dropdown #panelDropdownText').text($(this).text());
@@ -927,11 +930,10 @@
             }
 
         	var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
-                                    '<div class="row"><div class="col-xs-4 col-xs-offset-4 notice"></div></div>'+
         							'<div class="row">'+
         								'<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
         									'<h2 class="heading_font heading_weight clearboth title"><a href="'+node_url+'">'+node.getDisplayTitle()+'</a></h2>'+
-                                            '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font"></div>'+
+                                            '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font disabled"></div>'+
         									'<div class="header_font badges">'+
                                                 '<span class="header_font badge view_badge">'+viewName+'</span>'+
                                                 '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y')+'</span>'+
@@ -983,36 +985,34 @@
             if(node.domType.singular == "media"){
                 $node.find('.bodyContent').addClass('media').html('').append('<div class="mediaView"><a data-size="native" data-align="center" class="inline" resource="'+node.slug+'" name="'+node.getDisplayTitle()+'" href="'+node.current.sourceFile+'" data-linkid="node_inline-media_body_1"></a>');
             }
-
             $node.data('node',node);
             
             // Added by Craig
             var additionalMetadataFields = {};
             if ('undefined' != typeof(window['rdfFields']) && 'undefined' != typeof(window['namespaces'])) {
-            	var $additionalMetadata = $('<div class="clearfix additionalMetadata" style="padding-bottom:2rem;">Additional Metadata</div>').appendTo($node);
-            	var isBuiltInField = function(pnode) {
-            		for (var fieldname in window['rdfFields']) {
-            			if (window['rdfFields'][fieldname] == pnode) return true;
-            		}
-            		return false;
-            	};
-            	for (var uri in node.current.properties) {
-            		for (var prefix in window['namespaces']) {
-            			if (-1 != uri.indexOf(window['namespaces'][prefix])) {
-            				pnode = uri.replace(window['namespaces'][prefix], prefix+':');
-            				if (isBuiltInField(pnode)) continue;
-            				additionalMetadataFields[pnode] = node.current.properties[uri];
-            			}
-            		}
-            	};
-            	// Added by Craig
-            	if (!$.isEmptyObject(additionalMetadataFields)) {
-            		for (var pnode in additionalMetadataFields) {
+                var isBuiltInField = function(pnode) {
+                    for (var fieldname in window['rdfFields']) {
+                        if (window['rdfFields'][fieldname] == pnode) return true;
+                    }
+                    return false;
+                };
+                for (var uri in node.current.properties) {
+                    for (var prefix in window['namespaces']) {
+                        if (-1 != uri.indexOf(window['namespaces'][prefix])) {
+                            pnode = uri.replace(window['namespaces'][prefix], prefix+':');
+                            if (isBuiltInField(pnode)) continue;
+                            additionalMetadataFields[pnode] = node.current.properties[uri];
+                        }
+                    }
+                };
+                if (!$.isEmptyObject(additionalMetadataFields)) {
+                	var $additionalMetadata = $('<div class="clearfix additionalMetadata" style="padding-bottom:2rem;"><h3>Additional Metadata</h3></div>').appendTo($node);
+                	for (var pnode in additionalMetadataFields) {
             			var $row = $('<div class="row"><div class="col-xs-4 fieldName"></div><div class="col-xs-8 fieldVal"></div></div>').appendTo($additionalMetadata);
             			$row.find('.fieldName').text(pnode);
             			$row.find('.fieldVal').text(additionalMetadataFields[pnode][0].value);
             		};
-            	}; 
+            	}
             };                   
 
             if($.isFunction(callback)){
@@ -1022,7 +1022,7 @@
             if(typeof node.current.description === 'undefined' || node.current.description == null){
                 $node.find('.descriptionContent').text("(This page does not have a description.)").addClass('noDescription');
             }else{
-                $node.find('.descriptionContent').html(node.current.description);
+                $node.find('.descriptionContent').text(node.current.description);
             }
         	
         	$node.find('.state_dropdown li>a').click(function(e){
@@ -1039,9 +1039,25 @@
                 state : state
         	});
             if(base.node_state_flow[state]){
-                $node.find('.descriptionContent, .bodyContent:not(.media)').each(function(){
                 $node.find('.usageRights').removeAttr("disabled");
                 $node.find('.disabled').removeClass('disabled');
+                $node.find('.descriptionContent,.additionalMetadata .fieldVal')
+                    .addClass('editable')
+                    .prop('contenteditable',true)
+                    .on('focus', function() {
+                        $(this).data('before', $(this).text());
+                    })
+                    .on('blur', function() {
+                        if ($(this).data('before') !== $(this).text()) {
+                            base.saveNode($node);
+                        }
+                    }).on('keydown', function(e) {
+                      if (e.which == 13) {
+                        $(this).blur();
+                        return false;
+                      }
+                    });
+                $node.find('.bodyContent:not(.media)').each(function(){
                     $node.data('editableFields',$node.data('editableFields')+1);
                     $(this).addClass('editable');
                     $(this).on('click',function(e){
@@ -1062,10 +1078,8 @@
                             //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
                             var editor = CKEDITOR.inline( $(this).attr('id'), {
                                 // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                                removePlugins: $(this).hasClass('descriptionContent')?'scalar, scalarbeta, codemirror, removeformat, colorbutton, format, specialchar, indent, indentlist, list, blockquote, iframe, codeTag'
-                                                                                     :'scalar, codemirror, removeformat',
-                                extraPlugins: $(this).hasClass('descriptionContent')?''
-                                                                                     :'scalarbeta',
+                                removePlugins: 'scalar, codemirror, removeformat',
+                                extraPlugins: 'scalarbeta',
                                 startupFocus: true,
                                 allowedContent: true,
                                 extraAllowedContent : 'code pre a[*]',
@@ -1105,8 +1119,6 @@
 
 
                             editor.on('focus', $.proxy(function(editor,base,ev) {
-                                    if($(this).hasClass('descriptionContent')) return;
-                                    //base.stripPlaceholders($(this));
                                     editor.plugins['scalarbeta'].init(editor);
                             },this,editor,base));
                             editor.on('blur',function(){
@@ -1143,10 +1155,6 @@
                                         CKEDITOR.instances[$(this).data('editor').name].destroy(true);
                                         $(this).data('editor',null);
                                     }
-
-                                    if($(this).hasClass('descriptionContent') && $(this).text() == ""){
-                                        $(this).text("(This page does not have a description.)").addClass('noDescription');
-                                    }
                             },this,$node,base));
 
                             editor.on('instanceReady', $.proxy(function(base,ev) {
@@ -1173,7 +1181,7 @@
             var notice = $('<div class="alert" role="alert">Saving...</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
             var title = $node.find('.title').text();
             var $description = $node.find('.descriptionContent');
-            var description = $description.hasClass('noDescription')?'':$description.html();
+            var description = $description.hasClass('noDescription')?'':$description.text();
             var editorialState = $node.data('state');
             var $body = $node.find('.bodyContent');
             var $body_copy = $body.clone();
@@ -1213,11 +1221,11 @@
             pageData["scalar:usage_rights"] = $node.find('.usageRights').prop('checked')?1:0;
 
             scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
-                var notice = $('<div class="alert alert-success" role="alert">Page updated</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast',function(){
+                base.$saveNotice.fadeIn('fast',function(){
                     window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);
                 });
             },function(e){
-                var notice = $('<div class="alert alert-danger" role="alert">Error saving page: '+e+'</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast',function(){
+                base.$warningNotice.text('Error saving page: '+e+'</div>').fadeIn('fast',function(){
                    window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);    
                 });
             });
