@@ -955,9 +955,9 @@
             }else{
                 nodeItemHTML += '<button disabled class="'+state+' btn state_btn btn-block" type="button"></span><span class="btn_text">'+stateName+'</span></button>';
             }
-			nodeItemHTML += 				'<div class="checkbox">'+
-												'<label>'+
-													'<input type="checkbox"> Usage rights'+
+			nodeItemHTML += 				'<div class="checkbox usageRightsField disabled">'+
+												'<label class="disabled">'+
+													'<input type="checkbox" val="1" disabled class="usageRights"'+(currentVersion.usageRights && currentVersion.usageRights === 1 ? ' checked':'')+'> Usage rights'+
 												'</label>'+
 											'</div>'+
         								'</div>'+
@@ -1040,6 +1040,8 @@
         	});
             if(base.node_state_flow[state]){
                 $node.find('.descriptionContent, .bodyContent:not(.media)').each(function(){
+                $node.find('.usageRights').removeAttr("disabled");
+                $node.find('.disabled').removeClass('disabled');
                     $node.data('editableFields',$node.data('editableFields')+1);
                     $(this).addClass('editable');
                     $(this).on('click',function(e){
@@ -1158,6 +1160,10 @@
                 });
             }           
             
+            $node.find('.usageRights').change(function(){
+                base.saveNode($node);
+            });
+
             base.updateLinks($node);
 
         };
@@ -1202,6 +1208,9 @@
             if(node.current.editorialQueries){
                 pageData["scalar:editorial_queries"] = node.current.editorialQueries;
             }
+
+            //Add usage rights:
+            pageData["scalar:usage_rights"] = $node.find('.usageRights').prop('checked')?1:0;
 
             scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
                 var notice = $('<div class="alert alert-success" role="alert">Page updated</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast',function(){

@@ -298,8 +298,13 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 
 #editorialPathContents .editorial_node .checkbox>label{
-	font-size: 14px;
-	line-height: 18px;
+	font-size: 1.3rem;
+	line-height: 1.6rem;
+    color: #727272;
+}
+#editorialPathContents .editorial_node .checkbox>label .usageRights{
+	margin-top: 2px;
+	opacity: 0.75;
 }
 #editorialPathContents .editorial_node .bodyContent {
 	padding: 20px 0 20px 0;
