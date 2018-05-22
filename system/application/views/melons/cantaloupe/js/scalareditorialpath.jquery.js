@@ -707,6 +707,60 @@
 
         base.serializeQueries = function(){
             //We need to serialize the queries then save them... Let's see.
+            var queryJSON = {"queries":[]};
+            $('#editorialQueries>.queries').children('.query').each(function(){
+                var query = $(this).data('query');
+                //Remove the replies - we'll build those again
+                delete query.replyTo;
+                query.replies = [];
+                //Now add the replies...
+                $(this).find('.replies .query').each(function(){
+                    var reply = $(this).data('query');
+                    delete reply.replyTo;
+                    delete reply.id;
+                    //These shouldn't have replies, but just in case...
+                    delete reply.replies;
+                    query.replies.push(reply);
+                });
+                queryJSON.queries.push(query);
+            });
+            $('#editorialQueries .resolvedQueries .queries').children('.query').each(function(){
+                var query = $(this).data('query');
+                //Remove the replies - we'll build those again
+                query.replies = [];
+                delete query.replyTo;
+                query.resolved = true;
+                //Now add the replies...
+                $(this).find('.replies .query').each(function(){
+                    var reply = $(this).data('query');
+                    delete reply.replyTo;
+                    delete reply.id;
+                    delete reply.resolved;
+                    //These shouldn't have replies, but just in case...
+                    delete reply.replies;
+                    query.replies.push(reply);
+                });
+                queryJSON.queries.push(query);
+            });
+            queryJSON.queries.sort(function(a,b){
+                return a.id - b.id;
+            });
+            var $node = $('#editorialQueries').data('$currentNode');
+            var node = $node.data('node');
+            node.current.editorialQueries = JSON.stringify(queryJSON);
+            $node.data('node',node);
+            var queryCount = 0;
+            for(var i in queryJSON.queries){
+                var query = queryJSON.queries[i];
+                if(!query.resolved){
+                    queryCount++;
+                }
+            }
+            $node.find('.with_queries_badge,.no_queries_badge')
+                 .removeClass('with_queries_badge,no_queries_badge')
+                 .addClass(queryCount>0?'with_queries_badge':'no_queries_badge')
+                 .text((queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y'));
+            base.saveNode($node);
         };
         base.addQuery = function(query,scrollToQuery){
             var date = query.date;
@@ -832,7 +886,7 @@
             }
         };
         base.populateQueries = function(queries,$parentNodeElement){
-            $('#editorialQueries').data('currentNode',$parentNodeElement);
+            $('#editorialQueries').data('$currentNode',$parentNodeElement);
             $('#editorialQueries .queries').html('');
             $('#editorialQueries .resolvedQueries').hide();
             base.highestID = -1;
@@ -864,6 +918,7 @@
                     queryCount++;
                 }
             }
+            $('#editorialQueries .resolvedQueries .queryCount').text('0');
             var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
             var viewName = typeof views[nodeView] !== 'undefined' && views[nodeView] != null ? views[nodeView].name : nodeView;
 
@@ -916,7 +971,7 @@
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
             $node.find('.with_queries_badge').click(function(e){
-                if($('#editorialQueries').is(':visible') && $('#editorialQueries').data('currentNode') == $node){
+                if($('#editorialQueries').is(':visible') && $('#editorialQueries').data('$currentNode') == $node){
                     return true;
                 }
                 e.stopPropagation();
@@ -1143,6 +1198,11 @@
                 pageData[$(this).find('.fieldName').text()] = $(this).find('.fieldVal').text();    
             });
             
+            //Add the editorial queries in:
+            if(node.current.editorialQueries){
+                pageData["scalar:editorial_queries"] = node.current.editorialQueries;
+            }
+
             scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
                 var notice = $('<div class="alert alert-success" role="alert">Page updated</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast',function(){
                     window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);
