@@ -482,6 +482,9 @@ function confirm_editorial_state_then_save($form, no_action){
 	if($('#editorial_state').val() === initial_state || hasEditorialStateAlertCookie){
 		validate_edit_form($form,no_action);
 	}else{
+		if(!no_action){
+			no_action = false;
+		}
 		$('#editorialStateConfirmation .new_state').text(editorialStates[$('#editorial_state').val()]);
 		$('#editorialStateConfirmationSave').data('no_action',no_action);
 		$('#editorialStateConfirmationSave').data('$form',$form);
