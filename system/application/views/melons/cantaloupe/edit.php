@@ -468,13 +468,36 @@ $(document).ready(function() {
 var re = new RegExp("hideEditorialStateAlert=([^;]+)");
 var value = re.exec(document.cookie);
 var hasEditorialStateAlertCookie = value != null;
+//Once you move this page to the State state, <span class="post_change_effect"></span>
+is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
+is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';
+is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
+is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
 var editorialStates = {
-						'draft':'Draft',
-						'edit' : 'Edit',
-						'editreview' : 'Edit Review',
-						'clean' : 'Clean',
-						'ready' : 'Ready',
-						'published' : 'Published'
+						'draft':{
+							'name':'Draft',
+							'changeEffect':(is_editor?'you':'editors')+" won't be able to perform review actions until authors have finished their changes."
+						},
+						'edit' :{
+							'name':'Edit',
+							'changeEffect':(is_author?'you':'authors')+" won't be able to make changes until editors have finished their review."
+						},
+						'editreview' :{
+							'name':'Edit Review',
+							'changeEffect':(is_editor?'you':'editors')+" won't be able to make changes until authors have finished their review."
+						},
+						'clean' :{
+							'name':'Clean',
+							'changeEffect':(is_author?'you':'authors')+" will no longer be allowed to make edits."
+						},
+						'ready' :{
+							'name':'Ready',
+							'changeEffect':"it will be publishable by authors and editors."
+						},
+						'published' :{
+							'name':'Published',
+							'changeEffect':"it will no longer be editable within this book's edition, and will be made public."
+						}
 					};
 
 //If we're using the editorial state, first check to make sure if we have changed the editorial state - if so, alert re: that first
@@ -485,7 +508,8 @@ function confirm_editorial_state_then_save($form, no_action){
 		if(!no_action){
 			no_action = false;
 		}
-		$('#editorialStateConfirmation .new_state').text(editorialStates[$('#editorial_state').val()]);
+		$('#editorialStateConfirmation .new_state').text(editorialStates[$('#editorial_state').val()].name);
+		$('#editorialStateConfirmation .post_change_effect').text(editorialStates[$('#editorial_state').val()].changeEffect);
 		$('#editorialStateConfirmationSave').data('no_action',no_action);
 		$('#editorialStateConfirmationSave').data('$form',$form);
 		$('#editorialStateConfirmation').modal('show');
