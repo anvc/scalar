@@ -104,6 +104,12 @@ p {margin-bottom: 1.2rem;}
 
 .state_dropdown .dropdown-menu a.active{background-color: rgba(0,0,0,.125); color: #fff;}
 .state_dropdown .dropdown-menu a.active:hover{background-color: rgba(0,0,0,.25);}
+#editorialStateConfirmation .modal-content{
+	padding: 2rem;
+}
+#editorialStateConfirmationLabel{
+	margin: 0;
+}
 
 END;
 $this->template->add_css($css, 'embed');
@@ -441,7 +447,49 @@ $(document).ready(function() {
     		$('#editorial_state_text').removeClass('draft edit editreview clean ready published').addClass($(this).data('state'));
     	});
 	}
+	initial_state = $('#editorial_state').val();
+	$('#editorialStateConfirmationSave').click(function(e){
+		e.preventDefault();
+		validate_edit_form($(this).data('$form'),$(this).data('no_action'));
+		if($('#editorialStateConfirmation .dontShow').prop('checked')){
+			var cookie_days = 7;
+			var cookie_months = 0;
+			var d = new Date();
+			d.setTime(d.setMonth(d.getMonth() + cookie_months) + (cookie_days*86400000));
+			var cookie_expiration = "; expires="+ d.toUTCString();
+			document.cookie = "hideEditorialStateAlert=true" + cookie_expiration;
+			hasEditorialStateAlertCookie = true;
+		}
+		$('#editorialStateConfirmation').modal('hide');
+		initial_state = $('#editorial_state').val();
+		return false;
+	});
 });
+var re = new RegExp("hideEditorialStateAlert=([^;]+)");
+var value = re.exec(document.cookie);
+var hasEditorialStateAlertCookie = value != null;
+var editorialStates = {
+						'draft':'Draft',
+						'edit' : 'Edit',
+						'editreview' : 'Edit Review',
+						'clean' : 'Clean',
+						'ready' : 'Ready',
+						'published' : 'Published'
+					};
+
+//If we're using the editorial state, first check to make sure if we have changed the editorial state - if so, alert re: that first
+function confirm_editorial_state_then_save($form, no_action){
+	if($('#editorial_state').val() === initial_state || hasEditorialStateAlertCookie){
+		validate_edit_form($form,no_action);
+	}else{
+		$('#editorialStateConfirmation .new_state').text(editorialStates[$('#editorial_state').val()]);
+		$('#editorialStateConfirmationSave').data('no_action',no_action);
+		$('#editorialStateConfirmationSave').data('$form',$form);
+		$('#editorialStateConfirmation').modal('show');
+	}
+	return false;
+}
+
 // Determine if the page is a composite or media and show/hide certain elements accordingly
 function checkTypeSelect() {
 	var selected =  $("input:radio[name='rdf:type']:checked").val();
@@ -527,7 +575,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
     </div>
   </div>
 </div>
-<form id="edit_form" class="caption_font" method="post" action="<?=base_url().$book->slug.'/'?>" onsubmit="validate_edit_form($(this));return false;">
+<form id="edit_form" class="caption_font" method="post" action="<?=base_url().$book->slug.'/'?>" onsubmit="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($(this));return false;">
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
@@ -1191,7 +1239,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<div id="saving_text" class="text-warning" style="display:inline-block;visibility:hidden;padding-right:12px;"></div>
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
-		<input type="button" class="btn btn-default" value="Save" onclick="validate_edit_form($('#edit_form'),true);" />&nbsp; &nbsp;
+		<input type="button" class="btn btn-default" value="Save" onclick="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($('#edit_form'),true);" />&nbsp; &nbsp;
 		<input type="submit" class="btn btn-primary" value="Save and view" />
 	</div>
 </div>
@@ -1211,6 +1259,27 @@ if (isset($page->version_index)):
 endif;
 ?>
 </form>
+<div class="modal fade" id="editorialStateConfirmation" tabindex="-1" role="dialog" aria-labelledby="editorialStateConfirmationLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title heading_font heading_weight" id="editorialStateConfirmationLabel">Change editorial state</h4>
+      </div>
+      <div class="modal-body">
+        Once you move this <span class="content_type">page</span> to the <strong class="new_state">State</strong> state, <span class="post_change_effect"></span> Are you sure you want to do this?
+      </div>
+      <div class="modal-footer">
+		<div class="checkbox pull-left">
+			<label>
+				<input type="checkbox" class="dontShow"> Don't show this again
+			</label>
+		</div>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="editorialStateConfirmationSave">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 	$('#wysiwygNewFeatures .close').click(function(){
 		var cookie_days = 0;
