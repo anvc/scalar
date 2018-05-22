@@ -769,3 +769,10 @@ body.shortHeader #saveNotice, body.shortHeader #saveErrorNotice{
 #editorialQueries .query .body{
 	margin-bottom: .25rem;
 }
+
+#editorialStateConfirmation .modal-content{
+	padding: 2rem;
+}
+#editorialStateConfirmationLabel{
+	margin: 0;
+}

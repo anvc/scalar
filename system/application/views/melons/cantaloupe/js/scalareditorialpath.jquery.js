@@ -44,14 +44,32 @@
         base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
         base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
 
-        base.node_states = { 
-        						'draft' : 'Draft',
-	        					'edit'  : 'Edit',
-	        					'editreview' : 'Edit Review',
-	        					'clean' : 'Clean',
-	        					'ready' : 'Ready',
-	        					'published' : 'Published'
-        				   };
+        base.node_states = {
+                            'draft':{
+                                'name':'Draft',
+                                'changeEffect':(base.is_editor?'you':'editors')+" won't be able to perform review actions until authors have finished their changes."
+                            },
+                            'edit' :{
+                                'name':'Edit',
+                                'changeEffect':(base.is_author?'you':'authors')+" won't be able to make changes until editors have finished their review."
+                            },
+                            'editreview' :{
+                                'name':'Edit Review',
+                                'changeEffect':(base.is_editor?'you':'editors')+" won't be able to make changes until authors have finished their review."
+                            },
+                            'clean' :{
+                                'name':'Clean',
+                                'changeEffect':(base.is_author?'you':'authors')+" will no longer be allowed to make edits."
+                            },
+                            'ready' :{
+                                'name':'Ready',
+                                'changeEffect':"it will be publishable by authors and editors."
+                            },
+                            'published' :{
+                                'name':'Published',
+                                'changeEffect':"it will no longer be editable within this book's edition, and will be made public."
+                            }
+                        };
         base.node_state_flow = {
             'author' : {
                 'draft' : [
@@ -169,6 +187,25 @@
 
                     base.$saveNotice = $('<div class="alert alert-success" role="alert" id="saveNotice">Page updated</div>').appendTo('body');
                     base.$warningNotice = $('<div class="alert alert alert-danger" role="alert" id="saveErrorNotice">Error saving page</div>').appendTo('body');
+
+                    var re = new RegExp("hideEditorialStateAlert=([^;]+)");
+                    var value = re.exec(document.cookie);
+                    base.hasEditorialStateAlertCookie = value != null;
+                    $('#editorialStateConfirmationSave').click(function(e){
+                        e.preventDefault();
+                        if($('#editorialStateConfirmation .dontShow').prop('checked')){
+                            var cookie_days = 7;
+                            var cookie_months = 0;
+                            var d = new Date();
+                            d.setTime(d.setMonth(d.getMonth() + cookie_months) + (cookie_days*86400000));
+                            var cookie_expiration = "; expires="+ d.toUTCString();
+                            document.cookie = "hideEditorialStateAlert=true" + cookie_expiration;
+                            base.hasEditorialStateAlertCookie = true;
+                        }
+                        $('#editorialStateConfirmation').modal('hide');
+                        $('#editorialStateConfirmationSave').data('$link').data('changeState')();
+                        return false;
+                    });
 
                     $('#editorialSidePanel .dropdown .dropdown-menu a').click(function(e){
                         e.preventDefault();
@@ -706,6 +743,14 @@
             }
         };
 
+        base.showStateChangeAlert = function($link){
+            $('#editorialStateConfirmation .new_state').text(base.node_states[$link.data('state')].name);
+            $('#editorialStateConfirmation .post_change_effect').text(base.node_states[$link.data('state')].changeEffect);
+            $('#editorialStateConfirmation .content_type').text($link.parents('.editorial_node').find('.bodyContent').hasClass('media')?'media file':'page');
+            $('#editorialStateConfirmationSave').data('$link',$link);
+            $('#editorialStateConfirmation').modal('show');
+        };
+
         base.monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         base.serializeQueries = function(){
@@ -911,7 +956,7 @@
         	var currentVersion = node.current;
             var queries = currentVersion.editorialQueries?JSON.parse(currentVersion.editorialQueries).queries:[];
         	var state = node.editorialState;
-        	var stateName = base.node_states[state];
+        	var stateName = base.node_states[state].name;
             var node_url = scalarapi.model.urlPrefix+node.slug;
         	var nodeView = (typeof node.current.defaultView !== 'undefined' && node.current.defaultView != null) ? node.current.defaultView : 'plain';
             var queryCount = 0;
@@ -949,7 +994,7 @@
                     								'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
             	for(var stateClassIndex in base.node_state_flow[state]){
                     var stateClass = base.node_state_flow[state][stateClassIndex];
-            		nodeItemHTML += 					'<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass]+'</a></li>';
+            		nodeItemHTML += 					'<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass].name+'</a></li>';
             	}
 
         	    nodeItemHTML +=                     '</ul>'+
@@ -1025,13 +1070,22 @@
                 $node.find('.descriptionContent').text(node.current.description);
             }
         	
-        	$node.find('.state_dropdown li>a').click(function(e){
-        		e.preventDefault();
-        		$(this).parents('ul').find('a.active').removeClass('active');
-        		$(this).addClass('active');
-        		$(this).parents('.state_dropdown').find('.state_btn').removeClass(base.node_state_string).addClass($(this).data('state')).find('.btn_text').text($(this).text());
-                base.saveNode($(this).parents('.editorial_node').data('state',$(this).data('state')));
-        	});
+        	$node.find('.state_dropdown li>a').each(function(){
+                $(this).click(function(e){
+            		e.preventDefault();
+                    //Present an alert if we haven't hidden alerts...
+                    if(base.hasEditorialStateAlertCookie){
+                        $(this).data('changeState')();
+                    }else if(!$(this).hasClass('active')){
+                        base.showStateChangeAlert($(this));
+                    }
+            	}).data('changeState',$.proxy(function(){
+                    $(this).parents('ul').find('a.active').removeClass('active');
+                    $(this).addClass('active');
+                    $(this).parents('.state_dropdown').find('.state_btn').removeClass(base.node_state_string).addClass($(this).data('state')).find('.btn_text').text($(this).text());
+                    base.saveNode($(this).parents('.editorial_node').data('state',$(this).data('state')));
+                },this));
+            });
 
         	$node.data({
         		title : currentVersion.title,

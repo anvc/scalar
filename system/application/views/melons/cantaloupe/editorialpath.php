@@ -119,3 +119,25 @@
 			</div>
 		</div>
 </div>
+
+<div class="modal fade" id="editorialStateConfirmation" tabindex="-1" role="dialog" aria-labelledby="editorialStateConfirmationLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title heading_font heading_weight" id="editorialStateConfirmationLabel">Change editorial state</h4>
+      </div>
+      <div class="modal-body">
+        Once you move this <span class="content_type">page</span> to the <strong class="new_state">State</strong> state, <span class="post_change_effect"></span> Are you sure you want to do this?
+      </div>
+      <div class="modal-footer">
+		<div class="checkbox pull-left">
+			<label>
+				<input type="checkbox" class="dontShow"> Don't show this again
+			</label>
+		</div>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="editorialStateConfirmationSave">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
