@@ -953,9 +953,9 @@
             	// Added by Craig
             	if (!$.isEmptyObject(additionalMetadataFields)) {
             		for (var pnode in additionalMetadataFields) {
-            			var $row = $('<div><div class="col-xs-4"></div><div class="col-xs-8"></div></div>').appendTo($additionalMetadata);
-            			$row.find('div:first').text(pnode);
-            			$row.find('div:last').text(additionalMetadataFields[pnode][0].value);
+            			var $row = $('<div class="row"><div class="col-xs-4 fieldName"></div><div class="col-xs-8 fieldVal"></div></div>').appendTo($additionalMetadata);
+            			$row.find('.fieldName').text(pnode);
+            			$row.find('.fieldVal').text(additionalMetadataFields[pnode][0].value);
             		};
             	}; 
             };                   
@@ -1124,18 +1124,25 @@
                 body = null;
             }
             var baseProperties =  {
-                native: 1,
-                id: userId,
+                'native': 1,
+                'id': userId,
                 'api_key':''
             };
+
             var pageData = {
-                action: 'UPDATE',
-                uriSegment: scalarapi.basepath(node.url),
+                'action': 'UPDATE',
+                'uriSegment': scalarapi.basepath(node.url),
                 'dcterms:title': title,
                 'dcterms:description': description,
                 'sioc:content': body,
                 'scalar:editorial_state': editorialState
             };
+
+            //Go through and add metadata to page data now:
+            $node.find('.additionalMetadata .row').each(function(){
+                pageData[$(this).find('.fieldName').text()] = $(this).find('.fieldVal').text();    
+            });
+            
             scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
                 var notice = $('<div class="alert alert-success" role="alert">Page updated</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast',function(){
                     window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);
