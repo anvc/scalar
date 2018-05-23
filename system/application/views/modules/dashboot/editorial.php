@@ -351,6 +351,23 @@ if (empty($book)) {
 </script>
 
 <div class="container-fluid properties">
+  <div class="row editions">
+    <div class="col-sm-12">
+      <h3 class="message">There are no editions of this <?=$book->scope?></h3>
+      <p class="message">You can create new editions that checkpoint the work you are doing.</p>
+      
+      <div class="btn-group">
+	    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	      Seeing latest edits &nbsp; <span class="caret"></span>
+	    </button>
+	    <ul class="dropdown-menu">
+	      <li><a href="#">Latest edits</a></li>
+	    </ul>
+	  </div> &nbsp; 
+	  <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>
+      
+    </div>
+  </div>
   <div class="row editorial-summary">
     <div class="col-md-8">
       <div id="primary-message" class="message-pane">
@@ -371,7 +388,7 @@ if (empty($book)) {
   </div>-->
   <div class="row">
     <section class="col-xs-7">
-      <p><br><br><button class="btn btn-primary" data-toggle="modal" data-target="#confirmEditorialWorkflow">Disable editorial workflow</button></p>
+      <p><br><br><button class="btn btn-default" data-toggle="modal" data-target="#confirmEditorialWorkflow">Disable editorial workflow</button></p>
     </section>
   </div>
 </div>
@@ -391,6 +408,26 @@ if (empty($book)) {
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
         <button type="submit" class="btn btn-primary">Turn off</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="manageEditions" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="return false;">
+      <input type="hidden" name="book_id" value="<?=$book->book_id?>" />  
+      <input type="hidden" name="action" value="enable_editorial_workflow" />
+      <div class="modal-header">
+      	<h4>Manage editions</h4>
+      </div>
+      <div class="modal-body">
+       	  <p>Pending...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
       </form>
     </div>

@@ -82,6 +82,9 @@ header h5 {margin-bottom:14px;}
 #export-content {display:none;}
 #export-content-text {margin-top:8px; width:100%; height:400px; font-size:smaller;}
 
+.editions {padding-bottom:20px;}
+.editions h3, .editions h4 {padding-top:0px; margin-top:0px; margin-bottom:6px;}
+
 .btn-state { color: white; }
 .btn-state:hover { color: white; }
 .hidden-state { background-color: black; }
@@ -100,6 +103,7 @@ header h5 {margin-bottom:14px;}
 .ready-state:hover { background-color: #55905b; }
 .published-state:hover { background-color: #147419; }
 
+.message { color: #686868; }
 .message-pane { border-radius: 5px; border: 1px solid #dedede; padding: 20px; font-size: 18px; color: #686868; line-height: 130%; }
 .message-pane.dark { background-color: #f9f9f9; }
 .editorial-summary .col-md-8 { padding-right: 0; }
