@@ -253,3 +253,87 @@
 #editorialToolsPanel .versionList tr.selected{
 	background-color: #e5f6fe
 }
+#editorialDiffEditor{
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+	overflow: auto;
+	cursor: text;
+	line-height: 1.6;
+    font-family: "Lucida Grande","Lucida Sans Unicode",sans-serif;
+    font-size: 13px;
+    color: #111;
+    padding: 20px;
+}
+span[data-diff="chunk"]{
+	display: inline-block;
+	padding: 2px;
+}
+span[data-diff="chunk"].over{
+	background-color: #eee;
+}
+span[data-diff="del"]{
+	color: #f00;
+	text-decoration-line: line-through;
+	text-decoration-style: wavy;
+}
+
+span[data-diff="ins"]{
+	color: #0f0;
+	text-decoration-line: underline;
+	text-decoration-style: wavy;
+}
+
+span[data-diff="del"]>*,span[data-diff="ins"]>* {
+    color: #111;
+}
+
+.note {color:#038200; text-decoration:underline;}
+a.inline {
+	width: 498px;
+	display:block; background:#cccccc; border:solid 5px #bbbbbb; height:75px; margin:0;
+	background-image:url(media.png); background-position:center center; background-repeat:no-repeat;
+	margin-left:20%; margin-right:20%;
+}
+.editorialToolsExpanded a.inline{
+	width: 340px;
+}
+a.inline.inlineWidget {
+	background-image:url(widget.png);
+}
+
+a.inline.inlineWidget[data-widget="visualization"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_visualization.png);
+}
+a.inline.inlineWidget[data-widget="timeline"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_timeline.png);
+}
+a.inline.inlineWidget[data-widget="map"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_map.png);
+}
+a.inline.inlineWidget[data-widget="carousel"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_carousel.png);
+}
+a.inline.inlineWidget[data-widget="card"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_card.png);
+}
+
+a.inline.inlineWidget[data-widget="summary"] {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_summary.png);
+}
+
+span[data-diff="del"] a.inline{
+	border-color: #c6b1b1;
+	background-color: #d4c4c4;
+	opacity: .5;
+}
+span[data-diff="ins"] a.inline{
+	border-color: #acccab;
+	background-color: #c1d9c0;
+}

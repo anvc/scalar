@@ -19,8 +19,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
         };
 
         base.currentToken = 57344;
-        base.htmlTokens = {};
-        base.tokenHTML = {};
+        base.htmlTokens = [];
+        base.htmlTokenRelationships = {};
 
         base.tokenizeHTML = function(content){
             var $content = $(content);
@@ -34,23 +34,60 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 return;
             }
             $content.text('%%TEXT%%'+$content.text()+'%%TEXT%%');
-            var text = $content[0].outerText;
-            var tokens = $content[0].outerHTML.split(text);
+            var text = $content.text();
+            var tags = $content[0].outerHTML.split(text);
             var newHTML = $content[0].outerHTML;
-
-            for(var i in tokens){
-                if(base.htmlTokens[tokens[i]] != null && typeof base.htmlTokens[tokens[i]] != undefined){
-                    var regex = new RegExp(tokens[i], "g");
-                    newHTML = newHTML.replace(regex, base.htmlTokens[tokens[i]]);
+            var openingTag = null;
+            for(var i in tags){
+                var tag = tags[i];
+                if(i==0 && tags.length == 2){
+                    openingTag = {
+                        html : tag,
+                        closingTag : null
+                    };
                 }else{
-                    base.htmlTokens[tokens[i]] = String.fromCharCode(base.currentToken);
-                    base.tokenHTML[base.htmlTokens[tokens[i]]] = tokens[i];
-                    base.currentToken++;
-                    var regex = new RegExp(tokens[i], "g");
-                    newHTML =   newHTML.replace(regex, base.htmlTokens[tokens[i]]);
+                    var combinedTag = [];
+
+                    if(!!openingTag){
+                        combinedTag.push(openingTag.html);
+                    }
+
+                    combinedTag.push(tags[i]);
+
+                    var foundMatch = false;
+                    var tokens = [];
+                    for(var t in base.htmlTokens){
+                        var existing_combinedTag = base.htmlTokens[t].combinedTag;
+                        if(existing_combinedTag[0] != combinedTag[0] || existing_combinedTag.length != combinedTag.length){
+                            continue;
+                        }else if(combinedTag.length == 2 && existing_combinedTag[1] != combinedTag[1]){
+                            continue;
+                        }
+                        foundMatch = true;
+                        tokens = base.htmlTokens[t].tokens;
+                    }
+                    if(!foundMatch){
+                        var t = String.fromCharCode(base.currentToken++);
+                        tokens.push(t);
+                        base.htmlTokenRelationships[t] = {endTag:null};
+                        if(combinedTag.length == 2){
+                            base.htmlTokenRelationships[t].endTag = String.fromCharCode(base.currentToken++);
+                            tokens.push(base.htmlTokenRelationships[t].endTag);
+                        }
+                        base.htmlTokens.push({
+                            'combinedTag' : combinedTag,
+                            'tokens' : tokens
+                        });
+                    }
+
+                    for(var i = 0; i < combinedTag.length; i++){
+                        var regex = new RegExp(combinedTag[i].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), "g");
+                        newHTML = newHTML.replace(regex, tokens[i]);
+                    }
                 }
             }
-            $content[0].outerHTML = newHTML.replace(/%%TEXT%%/g,'');
+            newHTML = newHTML.replace(/\%\%TEXT\%\%/g,'');
+            $content.replaceWith(newHTML);
         };
         base.serializeQueries = function(){
             var queryJSON = {"queries":[]};
@@ -217,12 +254,130 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
         }
 
+        base.createInteractiveDiff = function(diff){
+            //First, build a tree...
+            var html = [];
+            var waitingTags = [];
+            for(var d in diff){
+                var thisDiff = diff[d];
+                if(thisDiff[0] == 0){
+                    //No change!
+                    if(waitingTags.length == 0){
+                        html.push({'html':thisDiff[1]});
+                    }else{
+                        for(var w in waitingTags){
+                            waitingTags[w].tags.push(thisDiff[1]);
+                        }
+                    }
+                }else if(thisDiff[0] == -1){
+                    //Subtraction... Let's see if this has any content or if it's a naked tag
+                    if(base.htmlTokenRelationships[thisDiff[1]] && base.htmlTokenRelationships[thisDiff[1]].endTag){
+                        //we have a closing tag somewhere... wait until we've found the closing one.
+                        waitingTags.push({
+                            type : 'del',
+                            waitingFor : base.htmlTokenRelationships[thisDiff[1]].endTag,
+                            tags : [
+                                '<span data-diff="del">'+thisDiff[1]
+                            ]
+                        });
+                    }else{
+                        var newTag = '<span data-diff="del">'+thisDiff[1]+'</span>';
+                        var content = '';
+                        for(var w in waitingTags){
+                            if(waitingTags[w].waitingFor == thisDiff[1]){
+                                //We found a closing tag! Huzzah!
+                                for(var t = 1; t < waitingTags[w].tags.length; t++){
+                                    content+=waitingTags[w].tags[t];
+                                }
+                                newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
+                                waitingTags.splice(w, 1);
+                            }
+                        }
+                        if(waitingTags.length > 0){
+                            for(var w in waitingTags){
+                                waitingTags[w].tags.push(newTag);
+                            }
+                        }else{
+                            html.push({'html':newTag,'content':content});
+                        }
+                    }
+                }else if(thisDiff[0] == 1){
+                    //Addition... Let's see if this has any content or if it's a naked tag
+                    if(base.htmlTokenRelationships[thisDiff[1]] && base.htmlTokenRelationships[thisDiff[1]].endTag){
+                        //we have a closing tag somewhere... wait until we've found the closing one.
+                        waitingTags.push({
+                            type : 'ins',
+                            waitingFor : base.htmlTokenRelationships[thisDiff[1]].endTag,
+                            tags : [
+                                '<span data-diff="ins">'+thisDiff[1]
+                            ]
+                        });
+                    }else{
+                        var newTag = '<span data-diff="ins">'+thisDiff[1]+'</span>';
+                        var content = '';
+                        for(var w in waitingTags){
+                            if(waitingTags[w].waitingFor == thisDiff[1]){
+                                //We found a closing tag! Huzzah!
+                                for(var t = 1; t < waitingTags[w].tags.length; t++){
+                                    content+=waitingTags[w].tags[t];
+                                }
+                                newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
+                                waitingTags.splice(w, 1);
+                            }
+                        }
+                        if(waitingTags.length > 0){
+                            for(var w in waitingTags){
+                                waitingTags[w].tags.push(newTag);
+                            }
+                        }else{
+                            html.push({'html':newTag,'content':content});
+                        }
+                    }
+                }
+            }
+            //Just clean up any insertions/deletions without a matching deletion/insertion...
+            var cleanedHTML = [];
+            for(var s = 0; s < html.length; s++){
+                var segment = html[s].html;
+                var $segment = $(segment);
+                if(!!$segment.data('diff')){
+                    if(!html[s+1] || html[s].content != html[s+1].content){
+                            var $new_segment = $('<span><span data-diff="placeholder">'+html[s].content+'</span></span>');
+                            $new_segment.attr('data-diff',$segment.data('diff')=='ins'?'del':'ins');
+                            cleanedHTML.push('<span data-diff="chunk">'+segment+$new_segment[0].outerHTML+'</span>');
+                    }else if(html[s].content == html[s+1].content){
+                        cleanedHTML.push('<span data-diff="chunk">'+segment+html[++s].html+'</span>');
+                    }
+                }else{
+                    cleanedHTML.push(segment);
+                }
+            }
+            var cleanedHTML = cleanedHTML.join('');
+            for(var h in base.htmlTokens){
+                var tokenSet = base.htmlTokens[h];
+                for(var t in tokenSet.tokens){
+                    var regex = new RegExp(tokenSet.tokens[t], "g");
+                    cleanedHTML = cleanedHTML.replace(regex, tokenSet.combinedTag[t]);
+                }
+            }
+            base.$diffEditor.html(cleanedHTML);
+        }
+
         base.displayVersions = function(versions){
             //if we only have one version selected, simply show the version - otherwise, show the diff
             if(versions.length == 1){
 
             }else if(versions.length == 2){
+                editor.setReadOnly(true);
+                $(editor.container.$).find('iframe').hide();
+                if(!base.$diffEditor){
+                    base.$diffEditor = $('<div id="editorialDiffEditor"></div>').appendTo($(editor.container.$).find('.cke_contents'));
+                }else{
+                    base.$diffEditor.html('');
+                }
+
                 var oldContent = $('<div>'+versions[1].content+'</div>').data('diffContainer',true);
+
                 base.tokenizeHTML(oldContent);
                 var newContent = $('<div>'+versions[0].content+'</div>').data('diffContainer',true);
                 base.tokenizeHTML(newContent);
@@ -230,7 +385,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 var dmp = new diff_match_patch();
                 var diff = dmp.diff_main(oldContent.text(),newContent.text());
                 dmp.diff_cleanupSemantic(diff);
-                console.log(diff);
+                base.createInteractiveDiff(diff);
             }
         };
 

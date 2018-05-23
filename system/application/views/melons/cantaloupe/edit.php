@@ -1,4 +1,11 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?php
+	if(isset($_GET['compareVersions'])){
+		require_once(APPPATH.'plugins/htmldiff_pi.php');
+		die('hmm');
+	}
+?>
+
 <?$this->template->add_js('var fullName="'.$login->fullname.'";', 'embed');?>
 <?$this->template->add_css('system/application/views/widgets/ckeditor/custom.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/jquery-ui-custom/jquery-ui.min.css')?>
