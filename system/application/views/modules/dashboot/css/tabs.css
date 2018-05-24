@@ -15,6 +15,7 @@ table {border-collapse:initial;}
 .page-v-spacer {margin:0px 0px 20px 0px;}
 .modal-open .modal {overflow-y:hidden;}
 .modal-content {border-radius:0;}
+.modal-header h4 {margin-top:0px; margin-bottom:0px;}
 .modal-body .page-header h4 {font-weight:900;}
 .modal-footer {border-top:none;}
 .modal small {color:#777777; float:left;}
@@ -132,6 +133,9 @@ header h5 {margin-bottom:14px;}
 
 .visibilityLink .glyphicon-eye-open { color: #888888; }
 .visibilityLink .glyphicon-eye-close { color: #c1c1c1; }
+
+#manageEditions .title {font-weight:bold; padding-bottom:8px;}
+#manageEditions .edition {padding-bottom:4px;}
 
 /* (tablets, 768px and up) */
 @media (min-width: 768px) { 

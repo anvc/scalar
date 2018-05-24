@@ -239,8 +239,6 @@ if (empty($book)) {
 
   $(document).ready(function() {
 
-    console.log($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id);
-
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id,
       success: function(data) {
@@ -346,8 +344,64 @@ if (empty($book)) {
           }
         }
       }
-    });
+    }); // Ajax
+
+	$('#manageEditions').on('show.bs.modal', function() {
+		$('.editions .btn').blur();
+		var $modal = $(this);
+		$body = $modal.find('.modal-body:first');
+		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {	
+			if ('undefined'==typeof(json.editions) || !Array.isArray(json.editions)) {
+				alert('Something went wrong trying to get Editions: the data returned was formatted incorrectly.');
+				return;
+			};
+			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
+				if ('undefined'==typeof(count.published)) {
+					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
+					return;
+				};
+				$body.empty();
+				if (json.editions.length) {
+					$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
+					for (var j = 0; j < json.editions.length; j++) {
+						$row = $('<div class="row edition"></div>').appendTo($body);
+						$('<div class="col-sm-2"><a class="glyphicon glyphicon-pencil" href="javascript:void(null);"></a> &nbsp; <a class="glyphicon glyphicon-remove text-danger" href="javascript:void(null);"></a></div>').appendTo($row);
+						$('<div class="col-sm-4">'+json.editions[j].datetime+'</div>').appendTo($row);
+						$('<div class="col-sm-6"><b>'+json.editions[j].title+'</b></div>').appendTo($row);
+					};
+					$('<div class="row"><div class="col-sm-12">&nbsp;</div></div>').appendTo($body);
+				};
+				var can_create_edition = true;
+				for (var type in count) {
+					if ('published'==type || 'hidden'==type || 'usagerights'==type) continue;
+					if (parseInt(count[type]) > 0) can_create_edition = false; 
+				};
+				can_create_edition = true; // Temp
+				if (!can_create_edition) {
+					$body.append('<p>Right now you can\'t create a new Edition.  All of your pages must be in <b>Published</b> state to create an Edition.</p>');
+					return;					
+				} else {
+					$body.append('<p>You can create a new Edition since all of your pages are in <b>Published</b> state.</p>');
+					$('<div class="row title"><div class="col-sm-12">Create</div></div>').appendTo($body);
+					var $fields_row = $('<form class="row fields"></form').appendTo($body);
+					$fields_row.append('<div class="col-sm-8"><div class="input-group"><input required type="text" class="form-control" placeholder="Edition title"><span class="input-group-btn"><button class="btn btn-primary" type="submit">Create</button></span></div>');
+					$fields_row.submit(function() {
+						var $form = $(this);
+						var title = $form.find('input[type="text"]:first').val();
+						if (!title.length) {
+							alert('Title is a required field.');
+							return false;
+						};
+						$form.find('.btn:last').prop('disabled','disabled');
+						return false;
+					});
+				};
+			});
+		});
+	});
+    
   });
+
 </script>
 
 <div class="container-fluid properties">
@@ -403,7 +457,9 @@ if (empty($book)) {
       	<h4>Confirm</h4>
       </div>
       <div class="modal-body">
-       	  <p>Are you sure you wish to turn off the Editorial Workflow for this <?=$book->scope?>?</p>
+       	  <p><b>Turning off the Editorial Workflow will disable any Editions.</b> Your readers will see all pages in their most up-to-date
+       	  version. However, all data will be maintained in case you wish to turn the Editorial Workflow back on.<br /><br />
+       	  Are you sure you wish to turn off the Editorial Workflow for this <?=$book->scope?>?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -423,11 +479,10 @@ if (empty($book)) {
       	<h4>Manage editions</h4>
       </div>
       <div class="modal-body">
-       	  <p>Pending...</p>
+       	  <p>Loading...</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
       </form>
     </div>
