@@ -381,7 +381,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
                     var newAttr = jQuery.makeArray($new[0].attributes).sort();
                     var parsedNewAttr = {};
-                    for(var a in oldAttr){
+                    for(var a in newAttr){
                         parsedNewAttr[newAttr[a].name] = newAttr[a].nodeValue;
                     }
 
