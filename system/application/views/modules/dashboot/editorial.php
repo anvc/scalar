@@ -403,7 +403,7 @@ if (empty($book)) {
       	<h4>Confirm</h4>
       </div>
       <div class="modal-body">
-       	  <p>Are you sure you wish to turn off the Editorial Workflow for this book?</p>
+       	  <p>Are you sure you wish to turn off the Editorial Workflow for this <?=$book->scope?>?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -439,8 +439,8 @@ if (empty($book)) {
     <section class="col-xs-7">
       <h3 style="margin-top:0px; padding-top:0px; margin-bottom:16px; padding-bottom:0px;">Editorial Workflow</h3>
       <p>
-      Track the editorial state of each piece of content in your book.  Enable editorial workflow on the current
-      book by clicking the button below, or <a href="javascript:void(null);">learn more</a>.
+      Track the editorial state of each piece of content in your <?=$book->scope?>.  Enable editorial workflow on the current
+      <?=$book->scope?> by clicking the button below, or <a href="javascript:void(null);">learn more</a>.
       <br /><br />
       <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#confirmEditorialWorkflow">Enable editorial workflow</button>
       </p>
@@ -458,7 +458,8 @@ if (empty($book)) {
       	<h4>Confirm</h4>
       </div>
       <div class="modal-body">
-       	  <p>Are you sure you wish to turn on the Editorial Workflow for this book?</p>
+       	  <p><b>There will be performance and user interface changes to every page in your <?=$book->scope?>.</b><br /><br />
+       	  Are you sure you wish to turn on the Editorial Workflow?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -474,8 +475,8 @@ if (empty($book)) {
     <section class="col-xs-7">
       <h3 style="margin-top:0px; padding-top:0px; margin-bottom:16px; padding-bottom:0px;">Editorial Workflow</h3>
       <p>
-      Track the editorial state of each piece of content in your book.  Enable editorial workflow on the current
-      book by clicking the button below, or <a href="javascript:void(null);">learn more</a>.
+      Track the editorial state of each piece of content in your <?=$book->scope?>.  Enable editorial workflow on the current
+      <?=$book->scope?> by clicking the button below, or <a href="javascript:void(null);">learn more</a>.
       </p>
       <p>
       <strong>The database for this Scalar install hasn't been updated to support Editorial Workflow features.</strong> 
