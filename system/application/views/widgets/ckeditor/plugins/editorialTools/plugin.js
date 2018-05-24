@@ -283,6 +283,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }else{
                         var newTag = '<span data-diff="del">'+thisDiff[1]+'</span>';
                         var content = '';
+                        var isTag = !!base.htmlTokenRelationships[thisDiff[1]];
                         for(var w in waitingTags){
                             if(waitingTags[w].waitingFor == thisDiff[1]){
                                 //We found a closing tag! Huzzah!
@@ -291,9 +292,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 }
                                 newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
                                 waitingTags.splice(w, 1);
+                                isTag = true;
                             }
                         }
-                        if(waitingTags.length > 0){
+                        if(!isTag && waitingTags.length > 0){
                             for(var w in waitingTags){
                                 waitingTags[w].tags.push(newTag);
                             }
@@ -315,6 +317,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }else{
                         var newTag = '<span data-diff="ins">'+thisDiff[1]+'</span>';
                         var content = '';
+                        var isTag = !!base.htmlTokenRelationships[thisDiff[1]];
                         for(var w in waitingTags){
                             if(waitingTags[w].waitingFor == thisDiff[1]){
                                 //We found a closing tag! Huzzah!
@@ -323,10 +326,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 }
                                 newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
                                 waitingTags.splice(w, 1);
+                                isTag = true;
                             }
                         }
-                        if(waitingTags.length > 0){
+                        if(!isTag && waitingTags.length > 0){
                             for(var w in waitingTags){
+                                console.log("adding "+newTag+" to ",waitingTags[w]);
                                 waitingTags[w].tags.push(newTag);
                             }
                         }else{
@@ -343,10 +348,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 if(!!$segment.data('diff')){
                     if(!html[s+1] || html[s].content != html[s+1].content){
                             var $new_segment = $('<span><span data-diff="placeholder">'+html[s].content+'</span></span>');
-                            $new_segment.attr('data-diff',$segment.data('diff')=='ins'?'del':'ins');
                             cleanedHTML.push('<span data-diff="chunk">'+segment+$new_segment[0].outerHTML+'</span>');
                     }else if(html[s].content == html[s+1].content){
-                        cleanedHTML.push('<span data-diff="chunk">'+segment+html[++s].html+'</span>');
+                        cleanedHTML.push('<span data-diff="chunk" data-diffType="swap">'+segment+html[++s].html+'</span>');
                     }
                 }else{
                     cleanedHTML.push(segment);
@@ -361,8 +365,52 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }
             }
             base.$diffEditor.html(cleanedHTML);
-        }
 
+
+            //Look for false positives and clean up widgets/media links
+            base.$diffEditor.find('span[data-diffType="swap"]').each(function(){
+                var $children = $(this).children();
+                var $old = $children.first().children().first();
+                var $new = $children.last().children().first();
+                if(!!$old[0] && !!$new[0]){
+                    var oldAttr = jQuery.makeArray($old[0].attributes).sort();
+                    var parsedOldAttr = {};
+                    for(var a in oldAttr){
+                        parsedOldAttr[oldAttr[a].name] = oldAttr[a].nodeValue;
+                    }
+
+                    var newAttr = jQuery.makeArray($new[0].attributes).sort();
+                    var parsedNewAttr = {};
+                    for(var a in newAttr){
+                        parsedNewAttr[newAttr[a].name] = newAttr[a].nodeValue;
+                    }
+
+                    //First check to see if we have the same number of attributes...
+                    var falsePositive = oldAttr.length == newAttr.length;
+
+                    //If so, check each attribute in the old element to see if they equal the new element
+                    if(falsePositive){
+                        for(var a in parsedOldAttr){
+                            if(typeof parsedNewAttr[a] === "undefined" || parsedOldAttr[a] != parsedNewAttr[a]){
+                                console.log(a,parsedOldAttr[a],parsedNewAttr[a]);
+                                falsePositive = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(falsePositive){
+                        $(this).replaceWith($new);
+                    }
+                }
+
+                $(this).find('span[data-diff] a.inline').not(':last').hide();
+            });
+
+        }
+        base.addNewLinePlaceholders = function(html){
+            return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag">{new line}</span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag">{new line}</span>');
+        }
         base.displayVersions = function(versions){
             //if we only have one version selected, simply show the version - otherwise, show the diff
             if(versions.length == 1){
@@ -376,10 +424,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$diffEditor.html('');
                 }
 
-                var oldContent = $('<div>'+versions[1].content+'</div>').data('diffContainer',true);
-
+                var oldHTML = base.addNewLinePlaceholders(versions[1].content);
+                var oldContent = $('<div>'+oldHTML+'</div>').data('diffContainer',true);
                 base.tokenizeHTML(oldContent);
-                var newContent = $('<div>'+versions[0].content+'</div>').data('diffContainer',true);
+
+                var newHTML = base.addNewLinePlaceholders(versions[0].content);
+                var newContent = $('<div>'+newHTML+'</div>').data('diffContainer',true);
                 base.tokenizeHTML(newContent);
 
                 var dmp = new diff_match_patch();
