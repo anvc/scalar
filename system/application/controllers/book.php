@@ -72,6 +72,8 @@ class Book extends MY_Controller {
 				$this->require_login(1);
 			}
 		}
+		$this->data['book']->editions = (isset($this->data['book']->editions) && !empty($this->data['book']->editions)) ? json_decode($this->data['book']->editions) : null;
+		$this->data['book']->editions = (isset($this->data['book']->editions) && isset($this->data['book']->editorial_is_on)) ? $this->data['book']->editions->editions : null;
 		$this->data['book']->contributors = $this->books->get_users($this->data['book']->book_id);
 		$this->data['book']->versions = $this->books->get_book_versions($this->data['book']->book_id, true); // TOC
 		$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);

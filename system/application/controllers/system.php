@@ -789,18 +789,7 @@ class System extends MY_Controller {
 				for ($j = 0; $j < count($this->data['content']); $j++) unset($this->data['content'][$j]->password);
 				break;
 			case 'get_editions':
-				$this->data['content'] = array(
-					'editions' => array(
-						array(
-							'title' => 'Edition A',
-							'datetime' => '9999-12-31 23:59:59'
-						),
-						array(
-							'title' => 'Edition B',
-							'datetime' => '9999-12-31 23:59:59'
-						)
-					)
-				);
+				$this->data['content'] = array();
 				$this->data['content'] = json_encode($this->data['content']);
 				break;
 			case 'get_editorial_count':

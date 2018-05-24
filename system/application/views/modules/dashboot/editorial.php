@@ -351,10 +351,7 @@ if (empty($book)) {
 		var $modal = $(this);
 		$body = $modal.find('.modal-body:first');
 		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {	
-			if ('undefined'==typeof(json.editions) || !Array.isArray(json.editions)) {
-				alert('Something went wrong trying to get Editions: the data returned was formatted incorrectly.');
-				return;
-			};
+			if ('undefined'==typeof(json.editions) || !Array.isArray(json.editions)) json.editions = [];
 			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
 				if ('undefined'==typeof(count.published)) {
 					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
@@ -376,7 +373,7 @@ if (empty($book)) {
 					if ('published'==type || 'hidden'==type || 'usagerights'==type) continue;
 					if (parseInt(count[type]) > 0) can_create_edition = false; 
 				};
-				can_create_edition = true; // Temp
+				can_create_edition = false; // Temp
 				if (!can_create_edition) {
 					$body.append('<p>Right now you can\'t create a new Edition.  All of your pages must be in <b>Published</b> state to create an Edition.</p>');
 					return;					
