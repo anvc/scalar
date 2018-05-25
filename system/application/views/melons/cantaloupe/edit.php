@@ -68,6 +68,7 @@ p {margin-bottom: 1.2rem;}
 
 .state_dropdown .caret{margin-top: 1.25rem;border-top-color: #fff;border-bottom-color: #fff;}
 
+.saveAndMove.draft, .saveAndMove.edit, .saveAndMove.editreview, .saveAndMove.clean, .saveAndMove.ready, .saveAndMove.published,
 .state_dropdown .draft, .state_dropdown .edit, .state_dropdown .editreview, .state_dropdown .clean, .state_dropdown .ready, .state_dropdown .published{color: #fff;}
 
 #editorial_state_text span{
@@ -76,22 +77,22 @@ p {margin-bottom: 1.2rem;}
     font-size: 1.5rem;
 }
 
-.state_dropdown .draft{background-color: #b4b4b4;}
+.saveAndMove.draft, .state_dropdown .draft{background-color: #b4b4b4;}
 #editorial_state_text.draft .draft{color: #b4b4b4; display: block;}
 
-.state_dropdown .edit{background-color: #ffa25e;}
+.saveAndMove.edit, .state_dropdown .edit{background-color: #ffa25e;}
 #editorial_state_text.edit .edit{color: #ffa25e; display: block;}
 
-.state_dropdown .editreview{background-color: #d9514d;}
+.saveAndMove.editreview, .state_dropdown .editreview{background-color: #d9514d;}
 #editorial_state_text.editreview .editreview{color: #d9514d; display: block;}
 
-.state_dropdown .clean{background-color: #59c0dd;}
+.saveAndMove.clean, .state_dropdown .clean{background-color: #59c0dd;}
 #editorial_state_text.clean .clean{color: #59c0dd; display: block;}
 
-.state_dropdown .ready{background-color: #6ebf73;}
+.saveAndMove.ready, .state_dropdown .ready{background-color: #6ebf73;}
 #editorial_state_text.ready .ready{color: #6ebf73; display: block;}
 
-.state_dropdown .published{background-color: #15910f;}
+.saveAndMove.published, .state_dropdown .published{background-color: #15910f;}
 #editorial_state_text.published .published{color: #15910f; display: block;}
 
 .state_dropdown .dropdown-menu{width: 100%; padding: 0px;}
@@ -501,6 +502,10 @@ var editorialStates = {
 					};
 
 //If we're using the editorial state, first check to make sure if we have changed the editorial state - if so, alert re: that first
+function change_editorial_state_then_save($form){
+	$('.state_dropdown li:last-child>a').click();
+	confirm_editorial_state_then_save($form);
+}
 function confirm_editorial_state_then_save($form, no_action){
 	if($('#editorial_state').val() === initial_state || hasEditorialStateAlertCookie){
 		validate_edit_form($form,no_action);
@@ -653,39 +658,42 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 						$currentQueries = (isset($page->versions) && isset($page->versions[$page->version_index]->editorial_queries)) ? htmlspecialchars($page->versions[$page->version_index]->editorial_queries) : htmlspecialchars('{"queries":[]}');
 						$currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
 						$availableStates = array($currentState=>$editorialStates[$currentState]);
-						$disabled = true;
+						$canChangeState = false;
 						switch($currentState){
 							case 'draft':
 								if($currentRole == 'author'){
 									$availableStates = array_slice($editorialStates,0,2);
-									$disabled = false;
+									$canChangeState = true;
 								}
 								break;
 							case 'edit':
 								if($currentRole == 'editor'){
 									$availableStates = array_slice($editorialStates,0,3);
-									$disabled = false;
+									$canChangeState = true;
 								}
 								break;
 							case 'editreview':
 								if($currentRole == 'author'){
 									$availableStates = array_slice($editorialStates,2,2);
-									$disabled = false;
+									$canChangeState = true;
 								}
 								break;
 							case 'clean':
 								if($currentRole == 'editor'){
 									$availableStates = array_slice($editorialStates,2,3);
-									$disabled = false;
+									$canChangeState = true;
 								}
 								break;
 							case 'ready':
 								if($currentRole == 'editor'){
 									$availableStates = array_slice($editorialStates,2,4);
-									$disabled = false;
+									$canChangeState = true;
 								}
 								break;
 						}
+
+						$nextState = end($availableStates);
+
 						echo '<input type="hidden" id="editorial_state" class="form-control" name="scalar:editorial_state" value="'.$currentState.'" />';
 
 						echo '<input type="hidden" id="editorial_queries" name="scalar:editorial_queries" value="'.$currentQueries.'" />';
@@ -693,7 +701,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 				<div class="row">
 					<div class="col-xs-12 col-sm-4 col-md-3" id="editorial_state_button_container">
 						<div class="dropdown state_dropdown">
-							<button class="<?=$currentState?> btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" <?=($disabled?'disabled':'')?>><span class="caret pull-right"></span><span class="btn_text"><?=$editorialStates[$currentState]?></span></button>
+							<button class="<?=$currentState?> btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" <?=(!$canChangeState?'disabled':'')?>><span class="caret pull-right"></span><span class="btn_text"><?=$editorialStates[$currentState]?></span></button>
 							<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown">
 								<?php
 									foreach ($availableStates as $key => $value) {
@@ -1266,8 +1274,25 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<div id="saving_text" class="text-warning" style="display:inline-block;visibility:hidden;padding-right:12px;"></div>
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
+		<?php 
+			if(isset($book->editorial_is_on) && !$canChangeState){
+				echo '<div class="editingDisabled">';
+			}
+		?>
 		<input type="button" class="btn btn-default" value="Save" onclick="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($('#edit_form'),true);" />&nbsp; &nbsp;
 		<input type="submit" class="btn btn-primary" value="Save and view" />
+		<?php 
+			if(isset($book->editorial_is_on) && !$canChangeState){
+				echo '</div>';
+			}
+		?>
+		<?php 
+			if(isset($book->editorial_is_on) && $canChangeState){
+		?>
+			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower($nextState); ?>" value="Save and move to <?= $nextState ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
+		<?php
+			}
+		?>
 	</div>
 </div>
 <br />
