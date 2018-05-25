@@ -630,7 +630,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		</div>
 	</div>
 	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'): ?>
-		<div class="form-group">
+		<div class="form-group statusGroup">
 			<label class="col-sm-2">Status</label>
 			<div class="col-sm-10">
 					<?php
@@ -714,7 +714,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 				</div>
 			</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group usageGroup">
 			<label for="page_description" class="col-sm-2">&nbsp;</label>
 			<div class="col-sm-10">
 				<label><input type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?> /> &nbsp; Usage rights</label>

@@ -15,7 +15,14 @@ CKEDITOR.plugins.add( 'editorialTools', {
         base.monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         base.hideVersions = function(){
+            base.$versionListBody.find('.selected').removeClass('selected').find('.current').addClass('selected');
 
+            $('#title').show();
+            $('#page_description').show();
+            $('#title_placeholder').hide();
+            $('#description_placeholder').hide();
+
+            base.restoreEditor();
         };
 
         base.currentToken = 57344;
@@ -253,9 +260,89 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }
             }
         }
+        base.restoreEditor = function(newHTML){
+            if(base.$diffEditor){
+                base.$diffEditor.detach();
+            }
+            if(newHTML){
+                editor.setData(newHTML);
+            }
+            editor.setReadOnly(false);
+            $(editor.container.$).find('iframe').show();
 
-        base.createInteractiveDiff = function(diff){
-            //First, build a tree...
+            $('.editingDisabled').removeClass('editingDisabled');
+        }
+        base.disableEditor = function(newHTML){
+            editor.setReadOnly(true);
+            $(editor.container.$).find('iframe').hide();
+            $('#editor-tabpanel,input[value="Save"],input[value="Save and view"],.statusGroup,.usageGroup,.saveAndMove').addClass('editingDisabled');
+            if(!base.$diffEditor){
+                base.$diffEditor = $('<div id="editorialDiffEditor"></div>').appendTo($(editor.container.$).find('.cke_contents'));
+
+                $('<div id="title_placeholder" class="form-control placeholderField"></div>').insertAfter('#title');
+                $('<div id="description_placeholder" class="form-control placeholderField"></div>').insertAfter('#page_description');
+
+            }else{
+                base.$diffEditor.html('').appendTo($(editor.container.$).find('.cke_contents'));
+
+                $('#title_placeholder').show();
+                $('#description_placeholder').show();
+            }
+        }
+        base.createInteractiveDiff = function(diff,titleDiff,descriptionDiff){
+            //Let's do the title and description first - they're simpler...
+            var titleText = '';
+            for(var d = 0; d<titleDiff.length; d++){
+                var thisDiff = titleDiff[d];
+                var nextDiff = titleDiff[d+1];
+                if(thisDiff[0] == 0){
+                    titleText += thisDiff[1];
+                }else if(!nextDiff || nextDiff[0] == 0){
+                    //Either we are at the end, or the next item is unchanged - just highlight this chunk.
+                    titleText += '<span data-diff="chunk">';
+                        var thisText = thisDiff[1].replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
+                        titleText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
+                    titleText += '</span>';
+                }else{
+                    //We have a following item and it is a change - let's pair these up.
+                    titleText += '<span data-diff="chunk">';
+                        var thisText = thisDiff[1].replace('/&/g','&amp;').replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
+                        var nextText = nextDiff[1].replace('/&/g','&amp;').replace(/\</g,"&lt;").replace(/\>/g,"&gt;")
+                        titleText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
+                        titleText += '<span data-diff="'+(nextDiff[0]==-1?'del':'ins')+'">'+nextText+'</span>';
+                    titleText += '</span>';
+                    d++;
+                }
+            }
+            $('#title_placeholder').html(titleText);
+
+
+            var descriptionText = '';
+            for(var d = 0; d<descriptionDiff.length; d++){
+                var thisDiff = descriptionDiff[d];
+                var nextDiff = descriptionDiff[d+1];
+                if(thisDiff[0] == 0){
+                    descriptionText += thisDiff[1];
+                }else if(!nextDiff || nextDiff[0] == 0){
+                    //Either we are at the end, or the next item is unchanged - just highlight this chunk.
+                    descriptionText += '<span data-diff="chunk">';
+                        var thisText = thisDiff[1].replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
+                        descriptionText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
+                    descriptionText += '</span>';
+                }else{
+                    //We have a following item and it is a change - let's pair these up.
+                    descriptionText += '<span data-diff="chunk">';
+                        var thisText = thisDiff[1].replace('/&/g','&amp;').replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
+                        var nextText = nextDiff[1].replace('/&/g','&amp;').replace(/\</g,"&lt;").replace(/\>/g,"&gt;")
+                        descriptionText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
+                        descriptionText += '<span data-diff="'+(nextDiff[0]==-1?'del':'ins')+'">'+nextText+'</span>';
+                    descriptionText += '</span>';
+                    d++;
+                }
+            }
+            $('#description_placeholder').html(descriptionText);
+
+            //Now onto the body! First, build a tree...
             var html = [];
             var waitingTags = [];
             for(var d in diff){
@@ -263,7 +350,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 if(thisDiff[0] == 0){
                     //No change!
                     if(waitingTags.length == 0){
-                        html.push({'html':thisDiff[1]});
+                        html.push({'html':thisDiff[1],'dir':thisDiff[0]});
                     }else{
                         for(var w in waitingTags){
                             waitingTags[w].tags.push(thisDiff[1]);
@@ -291,8 +378,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                     content+=waitingTags[w].tags[t];
                                 }
                                 newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
+                                thisDiff[0] = waitingTags[w].type=='ins'?1:0;
                                 waitingTags.splice(w, 1);
                                 isTag = true;
+                                break;
                             }
                         }
                         if(!isTag && waitingTags.length > 0){
@@ -300,7 +389,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 waitingTags[w].tags.push(newTag);
                             }
                         }else{
-                            html.push({'html':newTag,'content':content});
+                            html.push({'html':newTag,'content':content,'dir':thisDiff[0]});
                         }
                     }
                 }else if(thisDiff[0] == 1){
@@ -325,8 +414,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                     content+=waitingTags[w].tags[t];
                                 }
                                 newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
+                                thisDiff[0] = waitingTags[w].type=='ins'?1:0;
                                 waitingTags.splice(w, 1);
                                 isTag = true;
+                                break;
                             }
                         }
                         if(!isTag && waitingTags.length > 0){
@@ -335,7 +426,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 waitingTags[w].tags.push(newTag);
                             }
                         }else{
-                            html.push({'html':newTag,'content':content});
+                            html.push({'html':newTag,'content':content,'dir':thisDiff[0]});
                         }
                     }
                 }
@@ -348,7 +439,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 if(!!$segment.data('diff')){
                     if(!html[s+1] || html[s].content != html[s+1].content){
                             var $new_segment = $('<span><span data-diff="placeholder">'+html[s].content+'</span></span>');
-                            cleanedHTML.push('<span data-diff="chunk">'+segment+$new_segment[0].outerHTML+'</span>');
+                            cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+$new_segment[0].outerHTML):($new_segment[0].outerHTML+segment))+'</span>');
                     }else if(html[s].content == html[s+1].content){
                         cleanedHTML.push('<span data-diff="chunk" data-diffType="swap">'+segment+html[++s].html+'</span>');
                     }
@@ -392,7 +483,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     if(falsePositive){
                         for(var a in parsedOldAttr){
                             if(typeof parsedNewAttr[a] === "undefined" || parsedOldAttr[a] != parsedNewAttr[a]){
-                                console.log(a,parsedOldAttr[a],parsedNewAttr[a]);
                                 falsePositive = false;
                                 break;
                             }
@@ -404,38 +494,49 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }
                 }
 
+                //We don't need to show both versions of a media/widget link - hide the older one
                 $(this).find('span[data-diff] a.inline').not(':last').hide();
             });
-
         }
         base.addNewLinePlaceholders = function(html){
-            return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag">{new line}</span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag">{new line}</span>');
+            return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag"></span>');
         }
         base.displayVersions = function(versions){
-            //if we only have one version selected, simply show the version - otherwise, show the diff
+            if(!editor.readOnly){
+                //if we only have one version selected, simply show the version - otherwise, show the diff
+                base.disableEditor();
+                $('#title').hide();
+                $('#page_description').hide();
+            }
+
             if(versions.length == 1){
-
+                var newHTML = base.addNewLinePlaceholders(versions[0].content);
+                $('#title_placeholder').text(versions[0].title).prop('disabled',true);
+                $('#description_placeholder').text(versions[0].description).prop('disabled',true);
+                base.$diffEditor.html(newHTML);
             }else if(versions.length == 2){
-                editor.setReadOnly(true);
-                $(editor.container.$).find('iframe').hide();
-                if(!base.$diffEditor){
-                    base.$diffEditor = $('<div id="editorialDiffEditor"></div>').appendTo($(editor.container.$).find('.cke_contents'));
-                }else{
-                    base.$diffEditor.html('');
-                }
-
+                var oldTitle = versions[1].title;
+                var oldDescription = versions[1].description || '';
                 var oldHTML = base.addNewLinePlaceholders(versions[1].content);
                 var oldContent = $('<div>'+oldHTML+'</div>').data('diffContainer',true);
                 base.tokenizeHTML(oldContent);
 
+                var newTitle = versions[0].title;
+                var newDescription = versions[0].description || '';
                 var newHTML = base.addNewLinePlaceholders(versions[0].content);
                 var newContent = $('<div>'+newHTML+'</div>').data('diffContainer',true);
                 base.tokenizeHTML(newContent);
 
                 var dmp = new diff_match_patch();
                 var diff = dmp.diff_main(oldContent.text(),newContent.text());
+                var titleDiff = dmp.diff_main(oldTitle,newTitle);  
+                var descriptionDiff = dmp.diff_main(oldDescription,newDescription);
+
                 dmp.diff_cleanupSemantic(diff);
-                base.createInteractiveDiff(diff);
+                dmp.diff_cleanupSemantic(titleDiff);
+                dmp.diff_cleanupSemantic(descriptionDiff);
+
+                base.createInteractiveDiff(diff,titleDiff,descriptionDiff);
             }
         };
 
@@ -443,6 +544,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
         editor.addContentsCss( this.path + 'css/editorialToolsInner.css' );
 	    
 	    editor.on('mode',function(e){
+            base.currentPageInfo = {
+                title : $('#title').val(),
+                description : $('#page_description').val()
+            };
             $(editor.container.$).find('.cke_button.cke_button__editorialtools').removeClass('active');
             $(editor.container.$).find('.cke_inner').removeClass('editorialToolsExpanded');
             if(!base.addedEditorialToolsPanel){
@@ -609,6 +714,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 }
                                 currentlySelected = base.$versionListBody.find('.selected');
                                 if(currentlySelected.length == 1 && currentlySelected.first().hasClass('current')){
+                                    $('.state_dropdown').prop('disabled',base.currentPageInfo.canChangeState);
+                                    $('#title').prop('disabled',false).val(base.currentPageInfo.title);
+                                    $('#page_description').prop('disabled',false).val(base.currentPageInfo.description);
                                     base.hideVersions();
                                 }else{
                                     var versions = [];
@@ -628,11 +736,17 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 base.$editorialToolsPanel.addClass(base.$editorialToolsPanelHeaderDropdown.find('li>a').first().addClass('active').text().toLowerCase());
                 if(base.$editorialToolsPanelHeaderDropdown.find('li>a').length > 1){
                     base.$editorialToolsPanelHeaderDropdown.find('li>a').click(function(e){
+                        if(base.$editorialToolsPanel.hasClass('versions')){
+                            $('.state_dropdown').prop('disabled',base.currentPageInfo.canChangeState);
+                            $('#title').prop('disabled',false).val(base.currentPageInfo.title);
+                            $('#page_description').prop('disabled',false).val(base.currentPageInfo.description);
+                        }
                         e.preventDefault();
                         base.$editorialToolsPanel.removeClass($(this).parents('ul').find('a.active').removeClass('active').text().toLowerCase());
                         $(this).addClass('active');
                         base.$editorialToolsPanelHeaderDropdown.find('button .text').text($(this).text());
                         base.$editorialToolsPanel.addClass($(this).text().toLowerCase());
+                        base.hideVersions();
                     });
                 }else{
                     base.$editorialToolsPanelHeaderDropdown.find('button').prop('disabled',true).find('.caret').hide();
