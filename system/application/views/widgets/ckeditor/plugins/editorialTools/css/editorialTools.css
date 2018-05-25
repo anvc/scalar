@@ -135,9 +135,8 @@
 	color: #333;
 }
 
-#editorialToolsPanel.edit .editPanel{
+#editorialToolsPanel.edits .editsPanel{
 	display: block;
-	background-color: teal;
 }
 #editorialToolsPanel.queries .queriesPanel{
 	display: block;
@@ -253,7 +252,7 @@
 #editorialToolsPanel .versionList tr.selected{
 	background-color: #e5f6fe
 }
-#editorialDiffEditor{
+#editorialDiffEditor, #editorialReviewEditor{
 	width: 100%;
 	height: 100%;
 	background-color: #fff;
@@ -305,7 +304,7 @@ a.inline.inlineWidget[data-widget="summary"] {
 	background-image:url(../../../../../melons/cantaloupe/images/widget_image_summary.png);
 }
 
-span[data-diff="del"]{
+span[data-diff="del"],span[data-diff="placeholder"]:first-child{
 	text-decoration-line: line-through;
 }
 
@@ -313,6 +312,12 @@ span[data-diff],span[data-diff]>* {
 	background-color: #fff28d;
 }
 
+span[data-diff="chunk"]{
+	white-space: nowrap;
+}
+body.isReviewing span[data-diff="chunk"]{
+	cursor: pointer;
+}
 span[data-diff] a.inline{
 	border-color: #f0e487;
 	background-color: #fff28d;
@@ -353,4 +358,31 @@ span.br_tag::before,span.p_tag::before{
 	filter: grayscale(100%);
 	pointer-events: none;
 	opacity: .5;
+}
+body.isReviewing .btn-sm{
+	padding: .125rem 1rem;
+	margin: 0 .25rem;
+}
+body.isReviewing .tooltip-inner{
+	padding: .75rem;
+	margin-top: -.75rem;
+}
+#acceptRejectAll .btn{
+	margin: 1rem;
+}
+#editorialDiffEditor .hiddenVisual, #editorialReviewEditor .hiddenVisual, .accepted_rejected{
+	display: none;
+}
+
+.accepted .accepted_rejected,.rejected .accepted_rejected{
+	display: block;
+}
+.accepted .rejected{
+	display: none;
+}
+.rejected .accepted{
+	display: none;
+}
+.text-success{
+	color: #4cae4c;
 }

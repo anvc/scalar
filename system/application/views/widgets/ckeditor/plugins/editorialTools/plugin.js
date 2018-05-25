@@ -12,6 +12,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
         base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
         base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
 
+        base.waitingForReview = false;
+
         base.monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         base.hideVersions = function(){
@@ -274,6 +276,13 @@ CKEDITOR.plugins.add( 'editorialTools', {
             if(base.$diffEditor){
                 base.$diffEditor.detach();
             }
+            if(base.waitingForReview){
+                base.$reviewEditor.show();
+                return;
+            }
+            if(base.$reviewEditor){
+                base.$reviewEditor.detach();
+            }
             if(newHTML){
                 editor.setData(newHTML);
             }
@@ -282,11 +291,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
             $('.editingDisabled').removeClass('editingDisabled');
         }
-        base.disableEditor = function(newHTML){
+        base.disableEditor = function(reviewMode){
             editor.setReadOnly(true);
             $(editor.container.$).find('iframe').hide();
             $('#editor-tabpanel,input[value="Save"],input[value="Save and view"],.statusGroup,.usageGroup,.saveAndMove').addClass('editingDisabled');
-            if(!base.$diffEditor){
+            if(!base.$reviewEditor){
+                base.$reviewEditor = $('<div id="editorialReviewEditor"></div>').appendTo($(editor.container.$).find('.cke_contents'));
                 base.$diffEditor = $('<div id="editorialDiffEditor"></div>').appendTo($(editor.container.$).find('.cke_contents'));
 
                 $('<div id="title_placeholder" class="form-control placeholderField"></div>').insertAfter('#title');
@@ -294,12 +304,26 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
             }else{
                 base.$diffEditor.html('').appendTo($(editor.container.$).find('.cke_contents'));
-
-                $('#title_placeholder').show();
-                $('#description_placeholder').show();
             }
+            if(reviewMode){
+                base.$diffEditor.hide();
+                base.$reviewEditor.show();
+                $('body').addClass('isReviewing');
+            }else{
+                $('body').removeClass('isReviewing');
+                base.$reviewEditor.hide();
+                base.$diffEditor.show();
+            }
+
+            $('#title').hide();
+            $('#page_description').hide();
+
+
+            $('#title_placeholder').show();
+            $('#description_placeholder').show();
         }
-        base.createInteractiveDiff = function(diff,titleDiff,descriptionDiff){
+        base.createInteractiveDiff = function(diff,titleDiff,descriptionDiff,reviewMode){
+            var $viewport = reviewMode?base.$reviewEditor:base.$diffEditor;
             //Let's do the title and description first - they're simpler...
             var titleText = '';
             for(var d = 0; d<titleDiff.length; d++){
@@ -432,7 +456,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         }
                         if(!isTag && waitingTags.length > 0){
                             for(var w in waitingTags){
-                                console.log("adding "+newTag+" to ",waitingTags[w]);
                                 waitingTags[w].tags.push(newTag);
                             }
                         }else{
@@ -448,7 +471,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 var $segment = $(segment);
                 if(!!$segment.data('diff')){
                     if(!html[s+1] || html[s].content != html[s+1].content){
-                            var $new_segment = $('<span><span data-diff="placeholder">'+html[s].content+'</span></span>');
+                            var $new_segment = $('<span data-diff="placeholder">'+html[s].content+'</span>');
                             cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+$new_segment[0].outerHTML):($new_segment[0].outerHTML+segment))+'</span>');
                     }else if(html[s].content == html[s+1].content){
                         cleanedHTML.push('<span data-diff="chunk" data-diffType="swap">'+segment+html[++s].html+'</span>');
@@ -465,11 +488,11 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     cleanedHTML = cleanedHTML.replace(regex, tokenSet.combinedTag[t]);
                 }
             }
-            base.$diffEditor.html(cleanedHTML);
+            $viewport.html(cleanedHTML);
 
 
             //Look for false positives and clean up widgets/media links
-            base.$diffEditor.find('span[data-diffType="swap"]').each(function(){
+            $viewport.find('span[data-diffType="swap"]').each(function(){
                 var $children = $(this).children();
                 var $old = $children.first().children().first();
                 var $new = $children.last().children().first();
@@ -505,24 +528,246 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }
 
                 //We don't need to show both versions of a media/widget link - hide the older one
-                $(this).find('span[data-diff] a.inline').not(':last').hide();
+                $(this).find('span[data-diff]').not(':last').find('a.inline').addClass('hiddenVisual');
+            });
+            $viewport.find('a').click(function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).parents('span[data-diff="chunk"]').tooltip('show');
+                return false;
+            });
+
+            if(reviewMode){
+
+                var chunkID = 0;
+                //If we're in review mode, we have a few more things we need to do...
+                $('span[data-diff="chunk"]').each(function(){
+                    if($(this).find('a.inline,a[resource]')){
+                        $(this).tooltip({
+                            "html": true,
+                            "title": '<button type="button" class="btn btn-sm btn-primary viewFormatting">View all formatting changes</button>',
+                            "trigger": "click",
+                            "container": container
+                        }).on('shown.bs.tooltip',function(){
+                            $chunk = $(this);
+                            $('.viewFormatting').off('click').click(function(){
+                                $('#editorialReviewFormattingChanges').modal('show');
+                                $chunk.tooltip('hide');
+                            });
+                        }).on('show.bs.tooltip',function(){
+                            $('span[data-diff="chunk"]').not(this).tooltip('hide');
+                        });
+
+                        //Also build a list of changes...But only if we are replacing a visual element with another
+                        var $old = $(this).children().first().children('a.inline,a[resource]');
+                        var $new = $(this).children().last().children('a.inline,a[resource]');
+                        if(!!$old[0] && !!$new[0]){
+                            base.determineFormattingChanges($old,$new);
+                        }
+
+                        return;
+                    }
+                    var this_chunkID = chunkID++;
+                    $(this).attr('id','chunk_'+chunkID);
+                    //For each chunk, make a tooltip...
+                    var container = $.contains($('#editorialReviewEditor'),this)?'#editorialReviewEditor':'body';
+                    $(this).tooltip({
+                        "html": true,
+                        "title": '<button type="button" class="btn btn-sm btn-danger">Reject</button><button type="button" class="btn btn-sm btn-success">Accept</button>',
+                        "trigger": "click",
+                        "container": container
+                    }).on('show.bs.tooltip',function(){
+                        $('span[data-diff="chunk"]').not(this).tooltip('hide');
+                    }).on('shown.bs.tooltip',function(){
+                        var chunkID = $(this).attr('id');
+                        $('.tooltip-inner .btn-danger').off('click').click(function(){
+                            base.rejectEdit($('#'+chunkID).tooltip('hide'));
+                        });
+                        $('.tooltip-inner .btn-success').off('click').click(function(){
+                            base.acceptEdit($('#'+chunkID).tooltip('hide'))
+                        });
+
+                    });
+                });
+                $('#editorialReviewEditor').on('scroll',function(){
+                    $(this).find('span[data-diff="chunk"]').tooltip('hide');
+                });
+            }
+        }
+        base.acceptEdit = function($chunk){
+            var $newChunk = $($chunk.children('span[data-diff]').last().html()).removeClass('hiddenVisual');
+            $chunk.replaceWith($newChunk);
+            if($('span[data-diff="chunk"]').length == 0){
+                base.waitingForReview = false;
+                base.restoreEditor(base.$reviewEditor.html());
+            }
+        }
+        base.rejectEdit = function($chunk){
+            var $newChunk = $($chunk.children('span[data-diff]').first().html()).removeClass('hiddenVisual');
+            $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
+            $chunk.replaceWith($newChunk);
+            if($('span[data-diff="chunk"]').length == 0){
+                base.waitingForReview = false;
+                base.restoreEditor(base.$reviewEditor.html());
+            }
+        }
+
+        base.determineFormattingChanges = function($old,$new){
+            var oldWasHidden = $old.hasClass('hiddenVisual');
+            $old.removeClass('hiddenVisual');
+            var oldAttr = jQuery.makeArray($old[0].attributes).sort();
+            var parsedOldAttr = {};
+            for(var a in oldAttr){
+                parsedOldAttr[oldAttr[a].name] = {value:oldAttr[a].nodeValue,changed:false};
+            }
+
+            var newAttr = jQuery.makeArray($new[0].attributes).sort();
+            var parsedNewAttr = {};
+            for(var a in newAttr){
+                parsedNewAttr[newAttr[a].name] = {value:newAttr[a].nodeValue,changed:false};
+            }
+
+            for(var a in parsedOldAttr){
+                if(typeof parsedNewAttr[a] === "undefined"){
+                    parsedOldAttr[a].changed = true;
+                }else if(parsedOldAttr[a].value != parsedNewAttr[a].value){
+                    parsedNewAttr[a].changed = true;
+                }
+            }
+            for(var a in parsedNewAttr){
+                if(typeof parsedOldAttr[a] === "undefined"){
+                    parsedNewAttr[a].changed = true;
+                }
+            }
+            if(oldWasHidden){
+                $old.addClass('hiddenVisual');
+            }
+
+            var changeHTML = '<tr><td>';
+
+            var oldMethod = $old.hasClass('inline')?'Inline':'Linked';
+            var oldType = (!!parsedOldAttr['data-widget'])?'Widget':'Image';
+
+            if(oldType=="Image"){
+                var targetNode = scalarapi.getNode(parsedOldAttr['resource'].value);
+                var oldSubtext = targetNode.getDisplayTitle();
+            }else{
+                var numNodes = parsedOldAttr['data-nodes'].value.split(',').length;
+                var oldSubtext = numNodes + (numNodes!=1?'items':'item');
+            }
+            
+            var newMethod = $new.hasClass('inline')?'Inline':'Linked';
+            var newType = (!!parsedNewAttr['data-widget'])?'Widget':'Image';
+
+            if(newType=="Image"){
+                var targetNode = scalarapi.getNode(parsedNewAttr['resource'].value);
+                var newSubtext = targetNode.getDisplayTitle();
+            }else{
+                var numNodes = parsedNewAttr['data-nodes'].value.split(',').length;
+                var newSubtext = numNodes + (numNodes!=1?'items':'item');
+            }
+            if(oldMethod != newMethod || oldType != newType){
+                changeHTML += '<s><strong>'+oldMethod+' '+oldType+'</strong><br />'+oldSubtext+'</s><br />';
+            }
+
+            if(oldMethod != newMethod || oldType != oldType){
+                changeHTML += '<span class="changed">';
+            }
+
+            changeHTML += '<strong>'+newMethod+' '+newType+'</strong><br />'+newSubtext;
+
+            if(oldMethod != newMethod || oldType != oldType){
+                changeHTML += '</span>';
+            }
+
+            //Second Column: Old Attributes
+            changeHTML += '</td><td>';
+            var attrNames = Object.keys(parsedOldAttr).sort();
+            for(var i in attrNames){
+                var a = attrNames[i];
+                if(['name','resource','href','class'].indexOf(a) > -1){
+                    continue;
+                }
+                var attribute = parsedOldAttr[a];
+                if(['data-annotations','data-nodes'].indexOf(a) > -1){
+                    var value = '<span class="childNodeList">'+attribute.value.split(',').length + ' items</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>';
+                }else{
+                    var value = attribute.value;
+                }
+                changeHTML += '<div class="row"><div class="col-xs-6">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
+            }
+
+            //Third Column: New Attributes
+            changeHTML += '</td><td>';
+
+            attrNames = Object.keys(parsedOldAttr).sort();
+            for(var i in attrNames){
+                var a = attrNames[i];
+                if(['name','resource','href','class'].indexOf(a) > -1){
+                    continue;
+                }
+                var attribute = parsedNewAttr[a];
+                if(['data-annotations','data-nodes'].indexOf(a) > -1){
+                    var value = '<span class="childNodeList">'+attribute.value.split(',').length + ' items</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>'
+                }else{
+                    var value = attribute.value;
+                }
+                changeHTML += '<div class="row"><div class="col-xs-6">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
+            }
+
+            //Final  Column: Buttons
+            changeHTML += '</td><td class="text-center"><button type="button" class="btn btn-sm btn-danger">Reject</button><button type="button" class="btn btn-sm btn-success">Accept</button><div class="accepted_rejected"><strong class="accepted text-success">Accepted</strong><strong class="rejected text-danger">Rejected</strong><br /><button class="btn btn-default btn-sm">Cancel</button>';
+            changeHTML += '</td></tr>';
+
+            var $chunk = $old.parents('[data-diff="chunk"]');
+
+            var $row = $(changeHTML).appendTo('#editorialReviewFormattingChangesList');
+            $row.data('$chunk',$chunk);
+            $row.find('.btn-danger').click(function(){
+                $(this).parents('td').find('.btn-danger,.btn-success').hide();
+                $(this).parents('td').addClass('rejected');
+            });
+            $row.find('.btn-success').click(function(){
+                $(this).parents('td').find('.btn-danger,.btn-success').hide();
+                $(this).parents('td').addClass('accepted');
+            });
+            $row.find('.btn-default').click(function(){
+                $(this).parents('td').find('.btn-danger,.btn-success').show();
+                $(this).parents('td').removeClass('rejected accepted');
+            });
+            $row.find('.showAll').click(function(e){
+                e.preventDefault();
+                var $list = $(this).parent().find('.childNodeList');
+                if(!$(this).hasClass('open')){
+                    $(this).addClass('open');
+                    $(this).text('Hide');
+                    var node_list = $(this).attr('data-nodes').split(',');
+                    var nodeTitles = [];
+                    for(var n in node_list){
+                        var slug = node_list[n].replace('*','');
+                        nodeTitles.push(slug);
+                    }
+                    $list.text(nodeTitles.join(', '));
+                }else{
+                    $(this).removeClass('open');
+                    $(this).text('Show All');
+                    $list.text($(this).attr('data-nodes').split(',').length+' items');
+                }
+                //Iterate through each node and add them to the list
+                return false;
             });
         }
+
         base.addNewLinePlaceholders = function(html){
             return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag"></span>');
         }
-        base.displayVersions = function(versions){
-            if(!editor.readOnly){
-                //if we only have one version selected, simply show the version - otherwise, show the diff
-                base.disableEditor();
-                $('#title').hide();
-                $('#page_description').hide();
-            }
-
+        base.displayVersions = function(versions,reviewMode){
+            //if we only have one version selected, simply show the version - otherwise, show the diff
+            base.disableEditor(reviewMode);
             if(versions.length == 1){
                 var newHTML = base.addNewLinePlaceholders(versions[0].content);
-                $('#title_placeholder').text(versions[0].title).prop('disabled',true);
-                $('#description_placeholder').text(versions[0].description).prop('disabled',true);
+                $('#title_placeholder').text(versions[0].title);
+                $('#description_placeholder').text(versions[0].description);
                 base.$diffEditor.html(newHTML);
             }else if(versions.length == 2){
                 var oldTitle = versions[1].title;
@@ -546,13 +791,65 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 dmp.diff_cleanupSemantic(titleDiff);
                 dmp.diff_cleanupSemantic(descriptionDiff);
 
-                base.createInteractiveDiff(diff,titleDiff,descriptionDiff);
+                base.createInteractiveDiff(diff,titleDiff,descriptionDiff,reviewMode);
             }
         };
 
         $('head').append('<link rel="stylesheet" href="'+this.path + 'css/editorialTools.css" type="text/css" />');
         editor.addContentsCss( this.path + 'css/editorialToolsInner.css' );
 	    
+        base.loadEditsPanel = function(){
+            var previousState = null;
+            if(base.editorialState == "editreview"){
+                previousState = "edit";
+            }else if(base.editorialState == "clean"){
+                previousState = "editreview";
+            }else if(base.editorialState == "ready"){
+                previousState = "clean";
+            }
+            if(previousState != null){
+
+                //Go through each of the versions until we find the first instance of the previous state... This shouldn't take long.
+                var old_version = null;
+                for(var v in base.versionsList){
+                    if(base.versionsList[v].editorialState == previousState){
+                        old_version = base.versionsList[v];
+                    }
+                    if(old_version != null && base.versionsList[v].editorialState != previousState){
+                        break;
+                    }
+                }
+                if(old_version != null){
+                    base.displayVersions([base.versionsList[0],old_version],true);
+                }
+            }
+        };
+
+        editor.on('instanceReady',function(e){
+            if(base.is_author && base.editorialState === "editreview"){
+                $('#editorialReviewFormattingChangesCommit').click(function(){
+                    $('#editorialReviewFormattingChangesList td.accepted,#editorialReviewFormattingChangesList td.rejected').each(function(){
+                        if($(this).hasClass('rejected')){
+                            base.rejectEdit($(this).parent().data('$chunk'));
+                        }else{
+                            base.acceptEdit($(this).parent().data('$chunk'));
+                        }
+                        $(this).parent().remove();
+                    });
+                    $('#editorialReviewFormattingChanges').modal('hide');
+                });
+                base.waitingForReview = true;
+                base.disableEditor(true);
+                $('#title').hide();
+                $('#page_description').hide();
+                window.setTimeout(function(){
+                    editor.setReadOnly(false);
+                    editor.execCommand('toggleEditorialTools');
+                    editor.setReadOnly(true);
+                },200);
+            }
+        });
+
 	    editor.on('mode',function(e){
             base.currentPageInfo = {
                 title : $('#title').val(),
@@ -580,7 +877,24 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     if(base.is_author && base.editorialState === "editreview"){
                         //Build out the edits panel...
                         base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Edits</a></li>');
-                    }
+                        base.$editsPanel = $('<div class="editsPanel panel"> \
+                                                    <p><strong>This page has been edited.</strong></p> \
+                                                    <p>Visible changes are <span data-diff="example">highlighted in yellow</span>, and must be accepted or rejected before the page can be saved.</p> \
+                                                    <p>Click the highlights to accept or reject individual edits, or use the buttons below to accept or reject all changes at once.</p> \
+                                                    <p id="acceptRejectAll" class="text-center"><button type="button" class="btn btn-danger">Reject all</button><button type="button" class="btn btn-success">Accept all</button></ p>\
+                                              </div>').appendTo(base.$editorialToolsPanelBody);
+
+                        $('#acceptRejectAll .btn-danger').click(function(){
+                            $('span[data-diff="chunk"]').tooltip('hide').each(function(){
+                                base.rejectEdit($(this));
+                            })
+                        });
+                        $('#acceptRejectAll .btn-success').click(function(){
+                            $('span[data-diff="chunk"]').tooltip('hide').each(function(){
+                                base.acceptEdit($(this));
+                            })
+                        });
+                    }   
                 //Queries
                     $('input[value="Save"]').click(function(){
                         $('#unsavedQueryWarning').hide().attr('aria-hidden','true');
@@ -663,10 +977,15 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 base.$versionsPanel = $('<div class="versionsPanel panel"><p>Select two versions to compare the differences between them.</div>').appendTo(base.$editorialToolsPanelBody);
                 base.$versionList = $('<div class="versionList"><table><tbody><tr class="loading"><td col-span="3">Loading...</span></td></tr></tbody></table></div>').appendTo(base.$versionsPanel);
                 base.$versionListBody = base.$versionList.find('tbody');
+                base.versionList = [];
                 scalarapi.loadPage( page_slug, true, function(){
                     //build the version tab...
                     base.$versionList.find('.loading').remove();
                     var node = scalarapi.getNode(page_slug);
+                    base.versionsList = node.versions;
+                    if($('#editorialToolsPanel .editsPanel').length > 0){
+                        base.loadEditsPanel();
+                    }
                     var currentNode = true;
                     var prevAuthor = -1;
                     for(var i in node.versions){
@@ -761,6 +1080,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     base.$editorialToolsPanelHeaderDropdown.find('button').prop('disabled',true).find('.caret').hide();
                 }
+                
             }else{
                 $editorialToolsPanel.height($(editor.container.$).find('.cke_contents').height());
             }

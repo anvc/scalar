@@ -1332,6 +1332,34 @@ endif;
     </div>
   </div>
 </div>
+<div class="modal fade" id="editorialReviewFormattingChanges" tabindex="-1" role="dialog" aria-labelledby="editorialReviewFormattingChangesLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title heading_font heading_weight" id="editorialReviewFormattingChangesLabel">Formatting changes</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+        	<caption>The following formatting changes have been made on this page:</caption>
+        	<thead>
+        		<tr>
+        			<th>Item</th>
+        			<th>Original Properties</th>
+        			<th>New Properties</th>
+        			<th></th>
+        		</tr>
+        	</thead>
+        	<tbody id="editorialReviewFormattingChangesList">
+        	</tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="editorialReviewFormattingChangesCommit">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 	$('#wysiwygNewFeatures .close').click(function(){
 		var cookie_days = 0;
