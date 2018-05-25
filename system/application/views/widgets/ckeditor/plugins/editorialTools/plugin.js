@@ -25,7 +25,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
             base.restoreEditor();
         };
 
-        base.currentToken = 57344;
+        // First entry in Unicode's Private Use Area; will roll over into supplemental Private Use Areas if needed...
+        // See: https://www.unicode.org/versions/Unicode6.0.0/ch16.pdf
+        base.currentToken = 57344; 
         base.htmlTokens = [];
         base.htmlTokenRelationships = {};
 
@@ -75,10 +77,18 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }
                     if(!foundMatch){
                         var t = String.fromCharCode(base.currentToken++);
+                        if(base.currentToken > 63743 && base.currentToken < 983040){
+                            //Move over to supplemental unicode set A - will roll over to set B if needed...
+                            base.currentToken = 983040; //This should probably never happen - but if somehow someone has more than 6,400 changed tags...
+                        }
                         tokens.push(t);
                         base.htmlTokenRelationships[t] = {endTag:null};
                         if(combinedTag.length == 2){
                             base.htmlTokenRelationships[t].endTag = String.fromCharCode(base.currentToken++);
+                            if(base.currentToken > 63743 && base.currentToken < 983040){
+                                //Move over to supplemental unicode set A - will roll over to set B if needed...
+                                base.currentToken = 983040;
+                            }
                             tokens.push(base.htmlTokenRelationships[t].endTag);
                         }
                         base.htmlTokens.push({
