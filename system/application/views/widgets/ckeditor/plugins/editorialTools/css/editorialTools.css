@@ -308,10 +308,12 @@ span[data-diff="del"],span[data-diff="placeholder"]:first-child{
 	text-decoration-line: line-through;
 }
 
-span[data-diff],span[data-diff]>* {
+span[data-diff],span[data-diff]>*, #editorialReviewFormattingChanges .changed {
 	background-color: #fff28d;
 }
-
+#editorialReviewFormattingChanges .row{
+	margin-bottom: 1px;
+}
 span[data-diff="chunk"]{
 	white-space: nowrap;
 }

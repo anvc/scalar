@@ -287,6 +287,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 editor.setData(newHTML);
             }
             editor.setReadOnly(false);
+
             $(editor.container.$).find('iframe').show();
 
             $('.editingDisabled').removeClass('editingDisabled');
@@ -773,17 +774,19 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 var oldTitle = versions[1].title;
                 var oldDescription = versions[1].description || '';
                 var oldHTML = base.addNewLinePlaceholders(versions[1].content);
-                var oldContent = $('<div>'+oldHTML+'</div>').data('diffContainer',true);
-                base.tokenizeHTML(oldContent);
+                var $oldContent = $('<div>'+oldHTML+'</div>').data('diffContainer',true);
+                $oldContent.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
+                base.tokenizeHTML($oldContent);
 
                 var newTitle = versions[0].title;
                 var newDescription = versions[0].description || '';
                 var newHTML = base.addNewLinePlaceholders(versions[0].content);
-                var newContent = $('<div>'+newHTML+'</div>').data('diffContainer',true);
-                base.tokenizeHTML(newContent);
+                var $newContent = $('<div>'+newHTML+'</div>').data('diffContainer',true);
+                $newContent.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
+                base.tokenizeHTML($newContent);
 
                 var dmp = new diff_match_patch();
-                var diff = dmp.diff_main(oldContent.text(),newContent.text());
+                var diff = dmp.diff_main($oldContent.text(),$newContent.text());
                 var titleDiff = dmp.diff_main(oldTitle,newTitle);  
                 var descriptionDiff = dmp.diff_main(oldDescription,newDescription);
 
@@ -815,18 +818,27 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     if(base.versionsList[v].editorialState == previousState){
                         old_version = base.versionsList[v];
                     }
-                    if(old_version != null && base.versionsList[v].editorialState != previousState){
+
+                    if((v > 0 && base.versionsList[v].editorialState == base.editorialState) || (old_version != null && base.versionsList[v].editorialState != previousState)){
                         break;
                     }
                 }
                 if(old_version != null){
                     base.displayVersions([base.versionsList[0],old_version],true);
+                }else{
+                    base.waitingForReview = false;
+                    base.restoreEditor(base.$reviewEditor.html());
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
+
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(1)').remove();
+                    base.$editsPanel.remove();
                 }
             }
         };
 
         editor.on('instanceReady',function(e){
-            if(base.is_author && base.editorialState === "editreview"){
+            if( (base.is_author && base.editorialState === "editreview") ||
+                (base.is_editor && base.editorialState === "clean") ){
                 $('#editorialReviewFormattingChangesCommit').click(function(){
                     $('#editorialReviewFormattingChangesList td.accepted,#editorialReviewFormattingChangesList td.rejected').each(function(){
                         if($(this).hasClass('rejected')){
@@ -846,6 +858,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     editor.setReadOnly(false);
                     editor.execCommand('toggleEditorialTools');
                     editor.setReadOnly(true);
+                    base.loadEditsPanel();
                 },200);
             }
         });
@@ -874,7 +887,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 base.$editorialToolsPanelHeaderDropdown = $(dropdownHTML).appendTo(base.$editorialToolsPanelHeader);
 
                 //Edits
-                    if(base.is_author && base.editorialState === "editreview"){
+                    if( (base.is_author && base.editorialState === "editreview") ||
+                        (base.is_editor && base.editorialState === "clean") ){
                         //Build out the edits panel...
                         base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Edits</a></li>');
                         base.$editsPanel = $('<div class="editsPanel panel"> \
@@ -983,9 +997,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$versionList.find('.loading').remove();
                     var node = scalarapi.getNode(page_slug);
                     base.versionsList = node.versions;
-                    if($('#editorialToolsPanel .editsPanel').length > 0){
-                        base.loadEditsPanel();
-                    }
                     var currentNode = true;
                     var prevAuthor = -1;
                     for(var i in node.versions){
