@@ -358,28 +358,29 @@ if (empty($book)) {
 					return;
 				};
 				$body.empty();
-				if (json.editions.length) {
-					$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
+				$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
+				if ('undefined'!=typeof(json.editions) && json.editions.length) {
 					for (var j = 0; j < json.editions.length; j++) {
 						$row = $('<div class="row edition"></div>').appendTo($body);
 						$('<div class="col-sm-2"><a class="glyphicon glyphicon-pencil" href="javascript:void(null);"></a> &nbsp; <a class="glyphicon glyphicon-remove text-danger" href="javascript:void(null);"></a></div>').appendTo($row);
-						$('<div class="col-sm-4">'+json.editions[j].datetime+'</div>').appendTo($row);
+						$('<div class="col-sm-4 formatted">'+json.editions[j].formatted+'</div>').appendTo($row);
 						$('<div class="col-sm-6"><b>'+json.editions[j].title+'</b></div>').appendTo($row);
 					};
 					$('<div class="row"><div class="col-sm-12">&nbsp;</div></div>').appendTo($body);
+				} else {
+					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
 				};
 				var can_create_edition = true;
 				for (var type in count) {
 					if ('published'==type || 'hidden'==type || 'usagerights'==type) continue;
 					if (parseInt(count[type]) > 0) can_create_edition = false; 
 				};
-				can_create_edition = false; // Temp
+				$('<div class="row title"><div class="col-sm-12">Create</div></div>').appendTo($body);
 				if (!can_create_edition) {
 					$body.append('<p>Right now you can\'t create a new Edition.  All of your pages must be in <b>Published</b> state to create an Edition.</p>');
 					return;					
 				} else {
 					$body.append('<p>You can create a new Edition since all of your pages are in <b>Published</b> state.</p>');
-					$('<div class="row title"><div class="col-sm-12">Create</div></div>').appendTo($body);
 					var $fields_row = $('<form class="row fields"></form').appendTo($body);
 					$fields_row.append('<div class="col-sm-8"><div class="input-group"><input required type="text" class="form-control" placeholder="Edition title"><span class="input-group-btn"><button class="btn btn-primary" type="submit">Create</button></span></div>');
 					$fields_row.submit(function() {
