@@ -4,6 +4,7 @@ if (empty($book)) {
 	exit;
 }
 ?>
+<?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-dateformat.min.js')?>
 <?php if ($editorial_is_on): ?>
 <script>
   var user_type = '<?echo($user_level);?>'.toLowerCase();
@@ -350,8 +351,30 @@ if (empty($book)) {
 		$('.editions .btn').blur();
 		var $modal = $(this);
 		$body = $modal.find('.modal-body:first');
+		var do_save_editions = function(add) {
+			var json = {'editions':[]};
+			$body.find('.edition').each(function() {
+				if ($(this).hasClass('deleted')) return;
+				var obj = {'title':$(this).find('.title').html(),'millisecond_timestamp':parseInt($(this).find('.formatted').attr('title'))};
+				json.editions.push(obj);
+			});
+			if ('undefined'!=typeof(add)) {
+				json.editions.push({'title':add.title,'millisecond_timestamp':parseInt(add.millisecond_timestamp)});
+			};
+			$.post($('link#sysroot').attr('href')+'system/api/save_editions', {book_id:book_id,editions:JSON.stringify(json)}, function(data) {
+				if ('undefined'!=typeof(data.error) && data.error.length) {
+					alert('Something went wrong attempting to save: '+data.error);
+					return;
+				};
+				$('#manageEditions').trigger('show.bs.modal');
+			}, 'json');
+		};
 		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {	
 			if ('undefined'==typeof(json.editions) || !Array.isArray(json.editions)) json.editions = [];
+			if ('undefined'!=typeof(json.error) && json.error.length) {
+				alert('There was an error attempting to get Editions: '+json.error);
+				return;
+			}
 			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
 				if ('undefined'==typeof(count.published)) {
 					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
@@ -361,12 +384,22 @@ if (empty($book)) {
 				$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
 				if ('undefined'!=typeof(json.editions) && json.editions.length) {
 					for (var j = 0; j < json.editions.length; j++) {
+						json.editions[j].formatted = $.format.date(json.editions[j].millisecond_timestamp, "ddd, MMMM D, yyyy");
 						$row = $('<div class="row edition"></div>').appendTo($body);
 						$('<div class="col-sm-2"><a class="glyphicon glyphicon-pencil" href="javascript:void(null);"></a> &nbsp; <a class="glyphicon glyphicon-remove text-danger" href="javascript:void(null);"></a></div>').appendTo($row);
-						$('<div class="col-sm-4 formatted">'+json.editions[j].formatted+'</div>').appendTo($row);
-						$('<div class="col-sm-6"><b>'+json.editions[j].title+'</b></div>').appendTo($row);
+						$('<div class="col-sm-4 formatted" title="'+json.editions[j].millisecond_timestamp+'">'+json.editions[j].formatted+'</div>').appendTo($row);
+						$('<div class="col-sm-6"><b class="title">'+json.editions[j].title+'</b></div>').appendTo($row);
 					};
 					$('<div class="row"><div class="col-sm-12">&nbsp;</div></div>').appendTo($body);
+					$body.find('.edition a:nth-child(1)').click(function() {
+						alert('Pending...');
+					});
+					$body.find('.edition a:nth-child(2)').click(function() {
+						if (confirm('Are you sure you wish to DELETE this '+$(this).closest('.edition').find('.title').text()+'? This operation can not be undone.')) {
+							$(this).closest('.edition').addClass('deleted');
+							do_save_editions();
+						};
+					});
 				} else {
 					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
 				};
@@ -391,6 +424,8 @@ if (empty($book)) {
 							return false;
 						};
 						$form.find('.btn:last').prop('disabled','disabled');
+						// Create edition JSON
+						do_save_editions({title:title,millisecond_timestamp:(new Date().getTime())});
 						return false;
 					});
 				};
@@ -407,7 +442,6 @@ if (empty($book)) {
     <div class="col-sm-12">
       <h3 class="message">There are no editions of this <?=$book->scope?></h3>
       <p class="message">You can create new editions that checkpoint the work you are doing.</p>
-      
       <div class="btn-group">
 	    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 	      Seeing latest edits &nbsp; <span class="caret"></span>
@@ -417,7 +451,6 @@ if (empty($book)) {
 	    </ul>
 	  </div> &nbsp; 
 	  <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>
-      
     </div>
   </div>
   <div class="row editorial-summary">

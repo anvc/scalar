@@ -789,15 +789,13 @@ class System extends MY_Controller {
 				for ($j = 0; $j < count($this->data['content']); $j++) unset($this->data['content'][$j]->password);
 				break;
 			case 'get_editions':
-				$date = time();
-				/*
-				$this->data['content'] = array(
-					'editions' => array(
-						array('title'=>'Edition A', 'datetime'=>$date, 'formatted'=>date('l, F jS, Y',$date))
-					)
-				);
-				*/
-				$this->data['content'] = json_encode($this->data['content']);
+				$book_id = (isset($_REQUEST['book_id']) && !empty($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
+				$this->data['book'] = $this->books->get($book_id);
+				if (!isset($this->data['book']->editorial_is_on) || empty($this->data['book']->editorial_is_on)) die ('{"error":"Editorial Workflow is not active"}');
+				if (!isset($this->data['book']->editions)) die ('{"error":"Editions database field hasn\'t been set"}');
+				$this->set_user_book_perms();
+				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+				$this->data['content'] = $this->data['book']->editions;
 				break;
 			case 'get_editorial_count':
 				$this->load->model('page_model', 'pages');
@@ -991,6 +989,16 @@ class System extends MY_Controller {
 				if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$content_id)) die ("{'error':'Invalid permissions'}");
 				$this->versions->reorder_versions($content_id);
 				$this->data['content'] = $this->versions->get_all($content_id);
+				break;
+			case 'save_editions':
+				$book_id =@ (int) $_REQUEST['book_id'];
+				$this->data['book'] = $this->books->get($book_id);
+				$editions = json_decode($_REQUEST['editions']);
+				if (empty($editions) || !isset($editions->editions)) die ('{"error":"Request not formatted correctly"}');
+				if (!isset($this->data['book']->editorial_is_on) || empty($this->data['book']->editorial_is_on)) die ('{"error":"Editorial Workflow is not active"}');
+				$this->set_user_book_perms();
+				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+				$this->data['content'] = $this->books->save(array('book_id'=>$book_id, 'editions'=>$_REQUEST['editions']));
 				break;
 			case 'save_editorial_state':
 				$version_id =@ (int) $_REQUEST['version_id'];
