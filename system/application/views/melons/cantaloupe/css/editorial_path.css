@@ -285,6 +285,7 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #editorialPathContents .editorial_node .badge.no_queries_badge{
 	background-color: #b3b3b3;
+	cursor: pointer;
 }
 #editorialPathContents .editorial_node .badge.with_queries_badge{
 	background-color: #fc9e62;
@@ -292,6 +293,9 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #editorialPathContents .editorial_node .badge.with_queries_badge:hover{
 	background-color: #ee955d
+}
+#editorialPathContents .editorial_node .badge.no_queries_badge:hover{
+	background-color: #a3a3a3	
 }
 #editorialPathContents .editorial_node .editable{
 	cursor: pointer;

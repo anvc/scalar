@@ -1000,7 +1000,7 @@
         	    nodeItemHTML +=                     '</ul>'+
                                             '</div>';
             }else{
-                nodeItemHTML += '<button disabled class="'+state+' btn state_btn btn-block" type="button"></span><span class="btn_text">'+stateName+'</span></button>';
+                nodeItemHTML += '<button class="'+state+' btn state_btn btn-block btn-disabled" type="button"></span><span class="btn_text">'+stateName+'</span></button>';
             }
 			nodeItemHTML += 				'<div class="checkbox usageRightsField disabled">'+
 												'<label class="disabled">'+
@@ -1017,7 +1017,7 @@
         						'</div>';     
 
         	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
-            $node.find('.with_queries_badge').click(function(e){
+            $node.find('.with_queries_badge, .no_queries_badge').click(function(e){
                 if($('#editorialQueries').is(':visible') && $('#editorialQueries').data('$currentNode') == $node){
                     return true;
                 }
