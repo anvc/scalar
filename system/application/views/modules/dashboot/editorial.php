@@ -322,7 +322,7 @@ if (empty($book)) {
         if (content_count > 0) {
           usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
           item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
-          $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier);
+          $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a></span>');
         }
 
         // build the next steps messaging

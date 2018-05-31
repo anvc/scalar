@@ -317,6 +317,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	background-color: #b4b4b4;
 	padding: 1rem;
     white-space: normal;
+    line-height: 1.8rem;
 }
 #editorialPathContents .editorial_node .bodyContent .placeholder.opened .content .body{
 	padding: 1px;
