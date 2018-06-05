@@ -260,8 +260,8 @@ li.divider-above { border-top: 1px dotted #888; }
 .page {
 	background-color: white;
 	max-width: 104rem;
-	margin: 4.8rem auto 0 auto;
-	padding: 5rem 0 7.8rem 0;
+	margin: 5.2rem auto 0 auto;
+	padding: 0 0 7.8rem 0;
 	min-height: calc(100% - 4.8rem);
 	line-height: 2.4rem;
 	position: relative;
@@ -1122,7 +1122,7 @@ button, .btn, input, optgroup, select, textarea {
 
 .editorial-status-bar {
 	line-height: 130%;
-	margin-top: -4.8rem;
+	/*margin-top: -4.8rem;*/
 	color: white;
 }
 

@@ -55,7 +55,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Continue working until you're ready to submit it for editing.",
                     "previousEditorialState": null,
                     "nextEditorialState": "edit",
-                    "actions": ["Dashboard"]
+                    "actions": ["Edit $contentType","Dashboard"]
                 },
                 "edit": {
                     "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any changes or queries.",
@@ -862,9 +862,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }).addClass('overflowCalculated');
             },base));
 
-
-
-            base.setupEditorialBar();
+            if(base.dataType == 'normal'){
+                base.setupEditorialBar();
+            }
         };
         base.setupEditorialBar = function() {
             editorialBar = $('<div class="editorial-status-bar caption_font"></div>').prependTo('article');

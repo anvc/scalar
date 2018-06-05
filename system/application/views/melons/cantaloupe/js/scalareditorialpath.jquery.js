@@ -185,8 +185,8 @@
                         e.preventDefault();
                     });
 
-                    base.$saveNotice = $('<div class="alert alert-success" role="alert" id="saveNotice">Page updated</div>').appendTo('body');
-                    base.$warningNotice = $('<div class="alert alert alert-danger" role="alert" id="saveErrorNotice">Error saving page</div>').appendTo('body');
+                    base.$saveNotice = $('<div class="alert alert-success caption_font" role="alert" id="saveNotice">Page updated</div>').appendTo('body');
+                    base.$warningNotice = $('<div class="alert alert alert-danger caption_font" role="alert" id="saveErrorNotice">Error saving page</div>').appendTo('body');
 
                     var re = new RegExp("hideEditorialStateAlert=([^;]+)");
                     var value = re.exec(document.cookie);
