@@ -487,7 +487,7 @@ if (empty($book)) {
       <div class="modal-header">
       	<h4>Confirm</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
        	  <p><b>Turning off the Editorial Workflow will disable any Editions.</b> Your readers will see all pages in their most up-to-date
        	  version. However, all data will be maintained in case you wish to turn the Editorial Workflow back on.<br /><br />
        	  Are you sure you wish to turn off the Editorial Workflow for this <?=$book->scope?>?</p>
@@ -509,7 +509,7 @@ if (empty($book)) {
       <div class="modal-header">
       	<h4>Manage editions</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
        	  <p>Loading...</p>
       </div>
       <div class="modal-footer">
@@ -543,7 +543,7 @@ if (empty($book)) {
       <div class="modal-header">
       	<h4>Confirm</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
        	  <p><b>There will be performance and user interface changes to every page in your <?=$book->scope?>.</b><br /><br />
        	  Are you sure you wish to turn on the Editorial Workflow?</p>
       </div>

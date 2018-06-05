@@ -1184,6 +1184,8 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .cke_dialog_ui_labeled_label, .cke_dialog_body label, select.cke_dialog_ui_input_select, .cke_dialog_ui_button, .cke_dialog_ui_html, .cke_dialog_ui_input_text {
 	font: normal normal normal 14px 'Lato', Arial, sans-serif !important;
 }
+.cke_toolgroup { margin-right:  3px !important; }
+.cke_button_label { padding-left: 0 !important; }
 .media_options_bootbox .table-fixed thead {
   width: 96%;
 }

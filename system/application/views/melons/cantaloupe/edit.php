@@ -66,14 +66,14 @@ p {margin-bottom: 1.2rem;}
 
 .state_dropdown,.state_dropdown .btn{text-align: left;}
 
-.state_dropdown .caret{margin-top: 1.25rem;border-top-color: #fff;border-bottom-color: #fff;}
+.state_dropdown .caret{margin-top: .85rem;border-top-color: #fff;border-bottom-color: #fff;}
 
 .saveAndMove.draft, .saveAndMove.edit, .saveAndMove.editreview, .saveAndMove.clean, .saveAndMove.ready, .saveAndMove.published,
 .state_dropdown .draft, .state_dropdown .edit, .state_dropdown .editreview, .state_dropdown .clean, .state_dropdown .ready, .state_dropdown .published{color: #fff;}
 
 #editorial_state_text span{
 	display: none;
-	line-height: 1.75rem;
+	line-height: 2rem;
     font-size: 1.5rem;
 }
 
@@ -580,7 +580,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
         <h2 class="modal-title">Extra HTML Tags</h2>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
         <p>You have HTML tags included in the Custom JS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;script&gt; and &lt;/script&gt; tags are automatically included by Scalar.</p>
       </div>
       <div class="modal-footer">
@@ -597,7 +597,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
         <h2 class="modal-title">Extra HTML Tags</h2>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
         <p>You have HTML tags included in the Custom CSS box. Adding HTML to this box will cause style errors which may cause problems with your Scalar book. Note that &lt;style&gt; and &lt;/style&gt; tags are automatically included by Scalar.</p>
       </div>
       <div class="modal-footer">
@@ -749,7 +749,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <tr id="edit_content" class="p type_composite">
 	<td colspan="2">
 		<div id="unsavedQueryWarning" class="alert alert-warning" role="alert" aria-hidden="true">
-			<strong>Notice:</strong> There are unsaved Query changes - please save page to commit changes.
+			<strong>Notice:</strong> There are unsaved query changes—please save page to commit.
 		</div>
 		<?php /* if(!isset($_COOKIE['hide_widgets_alert'])){ ?>
 		<div id="wysiwygNewFeatures" class="alert alert-info alert-dismissible caption_font" role="alert" style="">
@@ -1317,7 +1317,7 @@ endif;
       <div class="modal-header">
         <h4 class="modal-title heading_font heading_weight" id="editorialStateConfirmationLabel">Change editorial state</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
         Once you move this <span class="content_type">page</span> to the <strong class="new_state">State</strong> state, <span class="post_change_effect"></span> Are you sure you want to do this?
       </div>
       <div class="modal-footer">
@@ -1338,7 +1338,7 @@ endif;
       <div class="modal-header">
         <h4 class="modal-title heading_font heading_weight" id="editorialReviewFormattingChangesLabel">Formatting changes</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
         <table class="table">
         	<caption>The following formatting changes have been made on this page:</caption>
         	<thead>

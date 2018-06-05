@@ -63,7 +63,6 @@
 }
 #editorialToolsPanelHeader .dropdown button{
 	height: 4rem;
-	width: 100%;
 	text-align: left;
 	border: 0px;
 	margin: 0 0 0 12px;
@@ -76,7 +75,7 @@
 	padding: .5rem;
 }
 #editorialToolsPanelHeader .dropdown button .caret{
-	margin-top: 1rem;
+	margin-top: .85rem;
 }
 #editorialToolsPanelHeader .open>.dropdown-menu{
 	top: 3.5rem;
@@ -89,7 +88,7 @@
 #editorialToolsPanelHeader #addNewQuery{
 	display: none;
     height: 3rem;
-    margin: .5rem;
+    margin: .5rem 0;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fff;
@@ -363,14 +362,15 @@ span.br_tag::before,span.p_tag::before{
 }
 body.isReviewing .btn-sm{
 	padding: .125rem 1rem;
-	margin: 0 .25rem;
+	/*margin: 0 .25rem;*/
 }
 body.isReviewing .tooltip-inner{
 	padding: .75rem;
 	margin-top: -.75rem;
 }
 #acceptRejectAll .btn{
-	margin: 1rem;
+	margin-top: 1rem;
+	margin-right: 1rem;
 }
 #editorialDiffEditor .hiddenVisual, #editorialReviewEditor .hiddenVisual, .accepted_rejected{
 	display: none;

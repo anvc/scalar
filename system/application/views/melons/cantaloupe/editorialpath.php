@@ -83,9 +83,8 @@
 		<div class="col-md-3 hidden-sm hidden-xs" id="editorialSidePanel">
 			<div>
 				<div class="dropdown">
-					<button class="btn btn-default heading_font heading_weight btn-block dropdown-toggle" id="editorialSideHeader" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					  <span class="caret pull-right"></span>
-					  <span id="panelDropdownText">Outline</span>
+					<button class="btn btn-default heading_font heading_weight dropdown-toggle" id="editorialSideHeader" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					  <span id="panelDropdownText">Outline</span> &nbsp; <span class="caret pull-right"></span>
 					</button>
 					<ul class="dropdown-menu caption_font" aria-labelledby="editorialSideHeader">
 						<li><a role="button" href="#editorialOutline" aria-expanded="true" aria-controls="editorialOutline">Outline</a></li>
@@ -126,7 +125,7 @@
       <div class="modal-header">
         <h4 class="modal-title heading_font heading_weight" id="editorialStateConfirmationLabel">Change editorial state</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body caption_font">
         Once you move this <span class="content_type">page</span> to the <strong class="new_state">State</strong> state, <span class="post_change_effect"></span> Are you sure you want to do this?
       </div>
       <div class="modal-footer">

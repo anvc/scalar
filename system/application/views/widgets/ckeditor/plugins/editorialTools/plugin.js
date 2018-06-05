@@ -190,7 +190,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                             '<div class="form-group">'+
                                                 '<label class="sr-only" for="reply_'+query.id+'">New reply</label>'+
                                                 '<input type="text" class="form-control input-sm" id="reply_'+query.id+'" placeholder="New reply">'+
-                                                '<button type="submit" class="btn btn-default btn-sm pull-right">Submit</button>'+
+                                                '<button type="submit" class="btn btn-default btn-sm pull-right">Add</button>'+
                                             '</div>'+
                                         '</form>'+
                                   '</div>').appendTo($query);
@@ -880,7 +880,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 base.$editorialToolsPanelBody = $('<div id="editorialToolsPanelBody"></div>').appendTo(base.$editorialToolsPanel);
 
                 var dropdownHTML =  '<div class="dropdown heading_font">'+
-                                        '<button class="btn btn-default dropdown-toggle" type="button" id="editorialToolsPanelHeaderDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="caret pull-right"></span><span class="text"></span></button>'+
+                                        '<button class="btn btn-default dropdown-toggle" type="button" id="editorialToolsPanelHeaderDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="text"></span> &nbsp; <span class="caret pull-right"></span></button>'+
                                         '<ul class="dropdown-menu" aria-labelledby="editorialToolsPanelHeaderDropdown">'+
                                         '</ul>'+
                                     '</div>';
@@ -895,7 +895,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                                     <p><strong>This page has been edited.</strong></p> \
                                                     <p>Visible changes are <span data-diff="example">highlighted in yellow</span>, and must be accepted or rejected before the page can be saved.</p> \
                                                     <p>Click the highlights to accept or reject individual edits, or use the buttons below to accept or reject all changes at once.</p> \
-                                                    <p id="acceptRejectAll" class="text-center"><button type="button" class="btn btn-danger">Reject all</button><button type="button" class="btn btn-success">Accept all</button></ p>\
+                                                    <p id="acceptRejectAll"><button type="button" class="btn btn-danger">Reject all</button><button type="button" class="btn btn-success">Accept all</button></ p>\
                                               </div>').appendTo(base.$editorialToolsPanelBody);
 
                         $('#acceptRejectAll .btn-danger').click(function(){
@@ -921,7 +921,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }
 
                     base.$queriesPanel = $('<div class="queriesPanel panel"></div>').appendTo(base.$editorialToolsPanelBody);
-                    base.$addNewQueryForm = $('<div id="addNewQueryForm" class="clearfix"><textarea placeholder="Enter query..." class="form-control" id="addNewQueryFormText"></textarea><button type="button" class="pull-right btn btn-sm">Submit</button></div>').prependTo(base.$queriesPanel).hide();
+                    base.$addNewQueryForm = $('<div id="addNewQueryForm" class="clearfix"><textarea placeholder="Enter query..." class="form-control" id="addNewQueryFormText"></textarea><button type="button" class="pull-right btn btn-sm">Add</button></div>').prependTo(base.$queriesPanel).hide();
                     base.$addNewQueryForm.find('button').click(function(e){
                         var id = ++base.highestID;
                         var query = {
@@ -940,7 +940,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         e.preventDefault();
                     });
 
-                    base.$addNewQueryButton = $('<button id="addNewQuery" class="pull-right btn">Add new</button>').prependTo(base.$editorialToolsPanelHeader);
+                    base.$addNewQueryButton = $('<button id="addNewQuery" class="pull-right btn btn-sm">Add new</button>').prependTo(base.$editorialToolsPanelHeader);
                     base.$addNewQueryButton.click(function(e){
                         $('#addNewQueryForm').show();
                         base.$queriesPanel.animate({
@@ -983,7 +983,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         base.addQuery(query);
                     }
                     if(base.highestID == -1){
-                        $('<div id="noQueries" class="text-muted text-center">There are no queries yet.</div>').appendTo(base.$queries);
+                        $('<div id="noQueries" class="text-muted">There are no queries yet.</div>').appendTo(base.$queries);
                     }
 
                 //Versions
@@ -1102,7 +1102,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $(editor.container.$).find('.cke_inner').toggleClass('editorialToolsExpanded');
                 $(editor.container.$).find('.cke_button.cke_button__editorialtools').toggleClass('active');
                 base.expandedEditorWidth = $(editor.container.$).find('.cke_inner ').outerWidth();
-                base.$editorialToolsPanel.width((base.expandedEditorWidth*.3)-10);
+                base.$editorialToolsPanel.width((base.expandedEditorWidth*.3)-4);
             }
         });
 
