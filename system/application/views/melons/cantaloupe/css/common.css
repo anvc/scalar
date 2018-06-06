@@ -890,6 +890,8 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 	vertical-align: top;
 }
 
+#edit_form { padding-top: 4.8rem; }
+
 .input_text { max-width: 50rem; width: 100%; }
 
 /* --I think this is old CSS - commenting out. If this impacts something negatively, increase specificity of selector - @Lucas
