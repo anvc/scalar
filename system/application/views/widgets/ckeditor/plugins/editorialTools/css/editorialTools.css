@@ -74,9 +74,6 @@
 #editorialToolsPanelHeader .dropdown-menu>li>a{
 	padding: .5rem;
 }
-#editorialToolsPanelHeader .dropdown button .caret{
-	margin-top: .85rem;
-}
 #editorialToolsPanelHeader .open>.dropdown-menu{
 	top: 3.5rem;
     left: 12px;
@@ -266,7 +263,11 @@
 .note {color:#038200; text-decoration:underline;}
 a.inline {
 	width: 498px;
-	display:block; background:#cccccc; border:solid 5px #bbbbbb; height:75px; margin:0;
+	display:block; 
+	background:#cccccc; 
+	border:solid 5px #bbbbbb; 
+	height:75px; 
+	margin:0;
 	background-image:url(media.png); background-position:center center; background-repeat:no-repeat;
 	margin-left:20%; margin-right:20%;
 }
@@ -387,4 +388,21 @@ body.isReviewing .tooltip-inner{
 }
 .text-success{
 	color: #4cae4c;
+}
+span[data-diff="chunk"].accepted a.inline, span[data-diff="chunk"].rejected a.inline{
+	background:#cccccc; 
+	border:solid 5px #bbbbbb; 
+}
+
+span[data-diff="chunk"].accepted, span[data-diff="chunk"].accepted span[data-diff],span[data-diff="chunk"].accepted span[data-diff]>*,
+span[data-diff="chunk"].rejected, span[data-diff="chunk"].rejected span[data-diff],span[data-diff="chunk"].rejected span[data-diff]>*{
+	background-color: transparent;
+	cursor: text;
+}
+
+span[data-diff="chunk"].accepted span[data-diff]:first-child,span[data-diff="chunk"].rejected span[data-diff]:nth-child(2){
+	display: none;
+}
+span[data-diff="chunk"].rejected span[data-diff="del"],span[data-diff="chunk"].rejected span[data-diff="placeholder"]:first-child{
+	text-decoration: none;
 }

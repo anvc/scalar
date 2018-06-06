@@ -149,7 +149,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             });
             $('#editorial_queries').val(JSON.stringify(queryJSON));
             $('#unsavedQueryWarning').show().attr('aria-hidden','false');
-        }
+        };
         base.addQuery = function(query,scrollToQuery){
             var date = query.date;
             if(typeof date === "string"){
@@ -271,7 +271,69 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     },200);
                 }
             }
-        }
+        };
+        base.enableSave = function(newHtml){
+
+            var $placeholder = $('<div>'+newHtml+'</div>');
+
+
+            $placeholder.find('.br_tag').each(function(){
+                $(this).replaceWith('<br />');
+            });
+
+            $placeholder.find('.p_tag').each(function(){
+                $(this).replaceWith('<p />');
+            });
+
+            $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
+                var $newChunk = $('<div>'+($(this).children('span[data-diff]').last().html())+'</div>');
+                $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
+                $(this).replaceWith($newChunk.html());
+            });
+
+            $placeholder.find('span[data-diff="chunk"].rejected').each(function(){
+                var $newChunk = $('<div>'+($(this).children('span[data-diff]').first().html())+'</div>');
+                $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
+                $(this).replaceWith($newChunk.html());    
+            });
+            console.log($placeholder.html());
+            $(editor.container.$).find('iframe').show();
+            editor.setData($placeholder.html());
+
+            $('#title_placeholder').hide();
+            $placeholder.html($('#title_placeholder').html());
+
+            $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
+                var $newChunk = $('<div>'+($(this).children('span[data-diff]').last().html())+'</div>');
+                $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
+                $(this).replaceWith($newChunk.html());
+            });
+
+            $placeholder.find('span[data-diff="chunk"].rejected').each(function(){
+                var $newChunk = $('<div>'+($(this).children('span[data-diff]').first().html())+'</div>');
+                $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
+                $(this).replaceWith($newChunk.html());
+            });
+            $('#title').val($placeholder.html()).show();
+
+            $('#description_placeholder').hide();
+            $placeholder.html($('#description_placeholder').html());
+            $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
+                var $newChunk = $('<div>'+($(this).children('span[data-diff]').last().html())+'</div>');
+                $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
+                $(this).replaceWith($newChunk.html());    
+            });
+            
+            $placeholder.find('span[data-diff="chunk"].rejected').each(function(){
+                var $newChunk = $('<div>'+($(this).children('span[data-diff]').first().html())+'</div>');
+                $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
+                $(this).replaceWith($newChunk.html());
+            });
+            $('#page_description').val($placeholder.html()).show();
+
+
+            $('.saveButtons .editingDisabled').removeClass('editingDisabled');
+        };
         base.restoreEditor = function(newHTML){
             if(base.$diffEditor){
                 base.$diffEditor.detach();
@@ -336,7 +398,13 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     //Either we are at the end, or the next item is unchanged - just highlight this chunk.
                     titleText += '<span data-diff="chunk">';
                         var thisText = thisDiff[1].replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
+                        if(thisDiff[0]==1){
+                            titleText += '<span data-diff="placeholder"></span>';    
+                        }
                         titleText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
+                        if(thisDiff[0]==-1){
+                            titleText += '<span data-diff="placeholder"></span>';    
+                        }
                     titleText += '</span>';
                 }else{
                     //We have a following item and it is a change - let's pair these up.
@@ -362,7 +430,13 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     //Either we are at the end, or the next item is unchanged - just highlight this chunk.
                     descriptionText += '<span data-diff="chunk">';
                         var thisText = thisDiff[1].replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
+                        if(thisDiff[0]==1){
+                            descriptionText += '<span data-diff="placeholder"></span>';    
+                        }
                         descriptionText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
+                        if(thisDiff[0]==-1){
+                            descriptionText += '<span data-diff="placeholder"></span>';    
+                        }
                     descriptionText += '</span>';
                 }else{
                     //We have a following item and it is a change - let's pair these up.
@@ -539,77 +613,84 @@ CKEDITOR.plugins.add( 'editorialTools', {
             });
 
             if(reviewMode){
-
                 var chunkID = 0;
                 //If we're in review mode, we have a few more things we need to do...
-                $('span[data-diff="chunk"]').each(function(){
-                    if($(this).find('a.inline,a[resource]')){
+                if($('span[data-diff="chunk"]').length == 0){
+                    base.waitingForReview = false;
+                    base.restoreEditor();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(1)').remove();
+                    base.$editsPanel.remove();
+                    $('.cke_button.cke_button__editorialtools').click();
+                }else{
+                    $('span[data-diff="chunk"]').each(function(){
+                        var container = 'body';
+                        if($(this).find('span[data-diff]>a.inline,span[data-diff]>a[resource]').length > 1){
+                            $(this).tooltip({
+                                "html": true,
+                                "title": '<button type="button" class="btn btn-sm btn-primary viewFormatting">View all formatting changes</button>',
+                                "trigger": "click",
+                                "container": container
+                            }).on('shown.bs.tooltip',function(){
+                                $chunk = $(this);
+                                $('.viewFormatting').off('click').click(function(){
+                                    $('#editorialReviewFormattingChanges').modal('show');
+                                    $chunk.tooltip('hide');
+                                });
+                            }).on('show.bs.tooltip',function(){
+                                $('span[data-diff="chunk"]').not(this).tooltip('hide');
+                            });
+
+                            //Also build a list of changes...But only if we are replacing a visual element with another
+                            var $old = $(this).children().first().children('a.inline,a[resource]');
+                            var $new = $(this).children().last().children('a.inline,a[resource]');
+                            if(!!$old[0] && !!$new[0]){
+                                base.determineFormattingChanges($old,$new);
+                            }
+
+                            return;
+                        }
+                        var this_chunkID = chunkID++;
+                        $(this).attr('id','chunk_'+chunkID);
+                        //For each chunk, make a tooltip...
                         $(this).tooltip({
                             "html": true,
-                            "title": '<button type="button" class="btn btn-sm btn-primary viewFormatting">View all formatting changes</button>',
+                            "title": '<button type="button" class="btn btn-sm btn-danger">Reject</button><button type="button" class="btn btn-sm btn-success">Accept</button>',
                             "trigger": "click",
                             "container": container
-                        }).on('shown.bs.tooltip',function(){
-                            $chunk = $(this);
-                            $('.viewFormatting').off('click').click(function(){
-                                $('#editorialReviewFormattingChanges').modal('show');
-                                $chunk.tooltip('hide');
-                            });
                         }).on('show.bs.tooltip',function(){
                             $('span[data-diff="chunk"]').not(this).tooltip('hide');
-                        });
+                        }).on('shown.bs.tooltip',function(){
+                            var chunkID = $(this).attr('id');
+                            $('.tooltip-inner .btn-danger').off('click').click(function(){
+                                base.rejectEdit($('#'+chunkID).tooltip('hide'));
+                            });
+                            $('.tooltip-inner .btn-success').off('click').click(function(){
+                                base.acceptEdit($('#'+chunkID).tooltip('hide'))
+                            });
 
-                        //Also build a list of changes...But only if we are replacing a visual element with another
-                        var $old = $(this).children().first().children('a.inline,a[resource]');
-                        var $new = $(this).children().last().children('a.inline,a[resource]');
-                        if(!!$old[0] && !!$new[0]){
-                            base.determineFormattingChanges($old,$new);
-                        }
-
-                        return;
-                    }
-                    var this_chunkID = chunkID++;
-                    $(this).attr('id','chunk_'+chunkID);
-                    //For each chunk, make a tooltip...
-                    var container = $.contains($('#editorialReviewEditor'),this)?'#editorialReviewEditor':'body';
-                    $(this).tooltip({
-                        "html": true,
-                        "title": '<button type="button" class="btn btn-sm btn-danger">Reject</button><button type="button" class="btn btn-sm btn-success">Accept</button>',
-                        "trigger": "click",
-                        "container": container
-                    }).on('show.bs.tooltip',function(){
-                        $('span[data-diff="chunk"]').not(this).tooltip('hide');
-                    }).on('shown.bs.tooltip',function(){
-                        var chunkID = $(this).attr('id');
-                        $('.tooltip-inner .btn-danger').off('click').click(function(){
-                            base.rejectEdit($('#'+chunkID).tooltip('hide'));
                         });
-                        $('.tooltip-inner .btn-success').off('click').click(function(){
-                            base.acceptEdit($('#'+chunkID).tooltip('hide'))
-                        });
-
                     });
-                });
-                $('#editorialReviewEditor').on('scroll',function(){
-                    $(this).find('span[data-diff="chunk"]').tooltip('hide');
-                });
+                    $('#editorialReviewEditor').on('scroll',function(){
+                        $(this).find('span[data-diff="chunk"]').tooltip('hide');
+                    });
+                }
             }
         }
-        base.acceptEdit = function($chunk){
-            var $newChunk = $($chunk.children('span[data-diff]').last().html()).removeClass('hiddenVisual');
-            $chunk.replaceWith($newChunk);
-            if($('span[data-diff="chunk"]').length == 0){
-                base.waitingForReview = false;
-                base.restoreEditor(base.$reviewEditor.html());
+        base.acceptEdit = function($chunk,skipSaveCheck){
+            $chunk.removeClass('rejected').addClass('accepted');
+            if(!!skipSaveCheck){
+                return;
+            }else if($('span[data-diff="chunk"]:not(.accepted,.rejected)').length == 0){
+                base.enableSave(base.$reviewEditor.html());
             }
         }
-        base.rejectEdit = function($chunk){
-            var $newChunk = $($chunk.children('span[data-diff]').first().html()).removeClass('hiddenVisual');
-            $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
-            $chunk.replaceWith($newChunk);
-            if($('span[data-diff="chunk"]').length == 0){
-                base.waitingForReview = false;
-                base.restoreEditor(base.$reviewEditor.html());
+        base.rejectEdit = function($chunk,skipSaveCheck){
+            $chunk.removeClass('accepted').addClass('rejected');
+            if(!!skipSaveCheck){
+                return;
+            }else if($('span[data-diff="chunk"]:not(.accepted,.rejected)').length == 0){
+                base.enableSave(base.$reviewEditor.html());
             }
         }
 
@@ -691,7 +772,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }
                 var attribute = parsedOldAttr[a];
                 if(['data-annotations','data-nodes'].indexOf(a) > -1){
-                    var value = '<span class="childNodeList">'+attribute.value.split(',').length + ' items</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>';
+                    if(attribute.value == ''){
+                        var value = '<span class="childNodeList">None</span>';
+                    }else{
+                        var listLength = attribute.value.split(',').length;
+                        var value = '<span class="childNodeList">'+ listLength + ' item'+(listLength!=1?'s':'')+'</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>';
+                    }
                 }else{
                     var value = attribute.value;
                 }
@@ -709,7 +795,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }
                 var attribute = parsedNewAttr[a];
                 if(['data-annotations','data-nodes'].indexOf(a) > -1){
-                    var value = '<span class="childNodeList">'+attribute.value.split(',').length + ' items</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>'
+                    if(attribute.value == ''){
+                        var value = '<span class="childNodeList">None</span>';
+                    }else{
+                        var listLength = attribute.value.split(',').length;
+                        var value = '<span class="childNodeList">'+ listLength + ' item'+(listLength!=1?'s':'')+'</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>';
+                    }
                 }else{
                     var value = attribute.value;
                 }
@@ -827,11 +918,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.displayVersions([base.versionsList[0],old_version],true);
                 }else{
                     base.waitingForReview = false;
-                    base.restoreEditor(base.$reviewEditor.html());
+                    base.restoreEditor();
                     base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
 
                     base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(1)').remove();
                     base.$editsPanel.remove();
+                    $('.cke_button.cke_button__editorialtools').click();
                 }
             }
         };
@@ -842,8 +934,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $('#editorialReviewFormattingChangesCommit').click(function(){
                     $('#editorialReviewFormattingChangesList td.accepted,#editorialReviewFormattingChangesList td.rejected').each(function(){
                         if($(this).hasClass('rejected')){
+                            $('span[data-diff="chunk"]').tooltip('hide');
                             base.rejectEdit($(this).parent().data('$chunk'));
                         }else{
+                            $('span[data-diff="chunk"]').tooltip('hide');
                             base.acceptEdit($(this).parent().data('$chunk'));
                         }
                         $(this).parent().remove();
@@ -880,7 +974,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 base.$editorialToolsPanelBody = $('<div id="editorialToolsPanelBody"></div>').appendTo(base.$editorialToolsPanel);
 
                 var dropdownHTML =  '<div class="dropdown heading_font">'+
-                                        '<button class="btn btn-default dropdown-toggle" type="button" id="editorialToolsPanelHeaderDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="text"></span> &nbsp; <span class="caret pull-right"></span></button>'+
+                                        '<button class="btn btn-default dropdown-toggle text-right" type="button" id="editorialToolsPanelHeaderDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="text pull-left"></span> &nbsp; <span class="caret"></span></button>'+
                                         '<ul class="dropdown-menu" aria-labelledby="editorialToolsPanelHeaderDropdown">'+
                                         '</ul>'+
                                     '</div>';
@@ -900,13 +994,15 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
                         $('#acceptRejectAll .btn-danger').click(function(){
                             $('span[data-diff="chunk"]').tooltip('hide').each(function(){
-                                base.rejectEdit($(this));
-                            })
+                                base.rejectEdit($(this),true);
+                            });
+                            base.enableSave(base.$reviewEditor.html());
                         });
                         $('#acceptRejectAll .btn-success').click(function(){
                             $('span[data-diff="chunk"]').tooltip('hide').each(function(){
-                                base.acceptEdit($(this));
-                            })
+                                base.acceptEdit($(this),true);
+                            });
+                            base.enableSave(base.$reviewEditor.html());
                         });
                     }   
                 //Queries

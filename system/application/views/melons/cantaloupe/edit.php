@@ -1268,7 +1268,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 
 <hr>
 
-<div class="row clearboth">
+<div class="row clearboth saveButtons">
 	<div class="col-md-12" style="text-align:right;margin-top:10px;">
 		<span id="saved_text" class="text-success" style="float:left;display:none;"></span>
 		<div id="saving_text" class="text-warning" style="display:inline-block;visibility:hidden;padding-right:12px;"></div>
