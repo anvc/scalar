@@ -2289,7 +2289,6 @@
             },
 
             setupGoogleMapsLayout: function() {
-                $('.page').css('padding-top', '5.0rem');
                 $('header > span:not').eq(0).before('<div id="google-maps" class="maximized-embed"></div>');
 
                 // create map
@@ -2615,7 +2614,6 @@
 
                 case 'blank':
                     $('h1').hide();
-                    $('.page').css('padding-top', '5.0rem');
                     // hide continue_to metadata
                     $('[rel="scalar:continue_to"]').each(function() {
                         var href = $(this).attr('href');
@@ -2630,7 +2628,6 @@
                     } else if ('undefined' == typeof(banner) || !banner) {
                     	banner = '';
                     };
-                    $('.page').css('padding-top', '5rem');
                     $('article > header').before('<div class="image_header"><div class="title_card"></div></div>');
                     if ('.mp4'==banner.substr(banner.length-4, 4)) {  // The controller looks for ".mp4" so do the same here ~cd
                     	$('.image_header').addClass('has_video').prepend('<div class="video_wrapper"><video autoplay muted loop playsinline preload="none"><source src="'+banner+'" type="video/mp4"></video></div>');
@@ -2787,8 +2784,6 @@
                             break;
 
                         case "timeline":
-                            $('.page').css('padding-top', '5rem');
-                            
                             var timelinePromise = $.Deferred(function(deferred) {
                                 $(deferred.resolve);
                             });
