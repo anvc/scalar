@@ -655,7 +655,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         //For each chunk, make a tooltip...
                         $(this).tooltip({
                             "html": true,
-                            "title": '<button type="button" class="btn btn-sm btn-danger">Reject</button><button type="button" class="btn btn-sm btn-success">Accept</button>',
+                            "title": '<button type="button" class="btn btn-sm btn-danger">Reject</button> <button type="button" class="btn btn-sm btn-success">Accept</button>',
                             "trigger": "click",
                             "container": container
                         }).on('show.bs.tooltip',function(){
