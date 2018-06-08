@@ -52,31 +52,31 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.editorialBarData = {
             "author": {
                 "draft": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Continue working until you're ready to submit it for editing.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Continue working until you're ready to submit it for editing.",
                     "previousEditorialState": null,
                     "nextEditorialState": "edit",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
                 "edit": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any changes or queries.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any changes or queries.",
                     "previousEditorialState": "draft",
                     "nextEditorialState": "editreview",
                     "actions": ["Dashboard"]
                 },
                 "editreview": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed. Use the <strong>Editorial Path</strong> to view all changes at once.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed. Use the <strong>Editorial Path</strong> to view all changes at once.",
                     "previousEditorialState": "edit",
                     "nextEditorialState": "clean",
                     "actions": ["Edit $contentType","Editorial Path"]
                 },
                 "clean": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>An editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>An editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
                     "previousEditorialState": "editreview",
                     "nextEditorialState": "ready",
                     "actions": ["Dashboard"]
                 },
                 "ready": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>An editor will move it to the <strong>$nextEditorialState</strong> state when it’s time to make it public.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>An editor will move it to the <strong>$nextEditorialState</strong> state when it’s time to make it public.",
                     "previousEditorialState": "clean",
                     "nextEditorialState": "published",
                     "actions": ["Dashboard"]
@@ -85,34 +85,34 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             },
             "editor": {
                 "draft": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Please wait for the author to submit it for editing.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Please wait for the author to submit it for editing.",
                     "previousEditorialState": null,
                     "nextEditorialState": "edit",
                     "actions": ["Dashboard"]
                 },
                 "edit": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>You can review it, make changes, and add queries for the author.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>You can review it, make changes, and add queries for the author.",
                     "previousEditorialState": "draft",
                     "nextEditorialState": "editreview",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
                 "editreview": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Once an author moves it to the <strong>$nextEditorialState</strong> state, you can do your final review on it.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Once an author moves it to the <strong>$nextEditorialState</strong> state, you can do your final review on it.",
                     "previousEditorialState": "edit",
                     "nextEditorialState": "clean",
                     "actions": ["Dashboard"]
                 },
                 "clean": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Do your final review on the content and move it back to the <strong>$previousEditorialState</strong> state if it requires further changes, or to the <strong>$nextEditorialState</strong> state for publication.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Do your final review on the content and move it back to the <strong>$previousEditorialState</strong> state if it requires further changes, or to the <strong>$nextEditorialState</strong> state for publication.",
                     "previousEditorialState": "editreview",
                     "nextEditorialState": "ready",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
                 "ready": {
-                    "text": "<strong>This $contentType is in the $editorialState state.</strong><br/>Move it to the <strong>$nextEditorialState</strong> state to make it publicly available.",
+                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Move it to the <strong>$nextEditorialState</strong> state to make it publicly available.",
                     "previousEditorialState": "clean",
                     "nextEditorialState": "published",
-                    "actions": ["Dashboard"]
+                    "actions": ["Edit $contentType","Dashboard"]
                 },
                 "published": null
             }
@@ -154,7 +154,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.isEditorialPathPage =  $('.editorialpath-page>#editorialPath').length > 0;
             base.okToAdd = (base.is_author || base.is_commentator);
             base.okToDelete = (base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']);
-            base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean'])) || (base.is_editor && ((base.editorialState == base.editorialStates['edit']) || (base.editorialState == base.editorialStates['clean']))));
+            base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean'])) || (base.is_editor && ((base.editorialState == base.editorialStates['edit']) || (base.editorialState == base.editorialStates['clean']) || (base.editorialState == base.editorialStates['ready']))));
 
             //We should also grab the book ID from the RDF stuff
             base.bookId = parseInt($('link#book_id').attr('href'));
@@ -891,15 +891,35 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     if (editorialBarData != null) {
                         editorialBar.addClass(base.editorialState.id + '-state');
 
+                        // get number of open queries
+                        var queryCount = 0;
+                        var queryData = JSON.parse(base.currentNode.current.editorialQueries);
+                        var i = 0;
+                        var n = queryData.queries.length;
+                        for (i=0; i<n; i++) {
+                            if (!queryData.queries[i].resolved) {
+                                queryCount++;
+                            }
+                        }
+
                         // text
                         var text = editorialBarData.text;
                         text = text.replace('$contentType', contentType);
                         text = text.replace('$editorialState', base.editorialState.name);
+                        if (queryCount > 0) {
+                            text = text.replace('$openQueryCount', queryCount);
+                            if (queryCount == 1) {
+                                text = text.replace('open queries', 'open query');
+                            }
+                        }
                         if (editorialBarData.previousEditorialState != null) {
                             text = text.replace('$previousEditorialState', base.editorialStates[editorialBarData.previousEditorialState].name);
                         }
                         text = text.replace('$nextEditorialState', base.editorialStates[editorialBarData.nextEditorialState].name);
                         editorialBar.append('<div class="message">' + text + '</div>');
+                        if (queryCount == 0) {
+                            editorialBar.find('span.query-msg').remove();
+                        }
 
                         // buttons
                         editorialControls = $('<div></div>').appendTo(editorialBar);
