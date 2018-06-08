@@ -781,7 +781,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     var value = attribute.value;
                 }
-                changeHTML += '<div class="row"><div class="col-xs-6">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
+                changeHTML += '<div class="row"><div class="col-xs-6 attribute">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
             }
 
             //Third Column: New Attributes
@@ -804,11 +804,11 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     var value = attribute.value;
                 }
-                changeHTML += '<div class="row"><div class="col-xs-6">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
+                changeHTML += '<div class="row"><div class="col-xs-6 attribute">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
             }
 
             //Final  Column: Buttons
-            changeHTML += '</td><td class="text-center"><button type="button" class="btn btn-sm btn-danger">Reject</button><button type="button" class="btn btn-sm btn-success">Accept</button><div class="accepted_rejected"><strong class="accepted text-success">Accepted</strong><strong class="rejected text-danger">Rejected</strong><br /><button class="btn btn-default btn-sm">Cancel</button>';
+            changeHTML += '</td><td class="text-center"><button type="button" class="btn btn-sm btn-danger">Reject</button> <button type="button" class="btn btn-sm btn-success">Accept</button><div class="accepted_rejected"><strong class="accepted text-success">Accepted</strong><strong class="rejected text-danger">Rejected</strong> &nbsp; <button class="btn btn-default btn-sm">Cancel</button>';
             changeHTML += '</td></tr>';
 
             var $chunk = $old.parents('[data-diff="chunk"]');
