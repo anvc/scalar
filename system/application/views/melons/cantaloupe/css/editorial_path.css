@@ -315,7 +315,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding: 20px 0 20px 0;
 }
 #editorialPathContents .editorial_node .bodyContent .placeholder .content .body{
-	background-color: #b4b4b4;
+	background-color: #eee;
 	padding: 1rem;
     white-space: normal;
     line-height: 1.8rem;
@@ -347,7 +347,7 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPathContents .editorial_node .bodyContent .placeholder[resource],#editorialPathContents .editorial_node .bodyContent .placeholder[data-widget]{
 	clear: both;
 	margin-bottom: 1rem;
-	color: #fff;
+	color: #666;
 	text-align: center;
 	display: block;
    

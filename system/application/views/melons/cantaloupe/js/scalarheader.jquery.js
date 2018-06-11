@@ -893,12 +893,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
                         // get number of open queries
                         var queryCount = 0;
-                        var queryData = JSON.parse(base.currentNode.current.editorialQueries);
-                        var i = 0;
-                        var n = queryData.queries.length;
-                        for (i=0; i<n; i++) {
-                            if (!queryData.queries[i].resolved) {
-                                queryCount++;
+                        if (base.currentNode.current.editorialQueries != null) {
+                            var queryData = JSON.parse(base.currentNode.current.editorialQueries);
+                            var i = 0;
+                            var n = queryData.queries.length;
+                            for (i=0; i<n; i++) {
+                                if (!queryData.queries[i].resolved) {
+                                    queryCount++;
+                                }
                             }
                         }
 

@@ -712,7 +712,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 						</div>
 					</div>
 					<div class="<?=$currentState?> col-xs-12 col-sm-8 col-md-9" id="editorial_state_text">
-						<span class="draft">In this state, authors compose page content until ready for editorial review, at which time the page should be moved to the <strong>Edit State</strong>.</span>
+						<span class="draft">In this state, authors compose page content until ready for editorial review, at which time the page should be moved to the <strong>Edit</strong> state.</span>
 						<span class="edit">In this state, editors may make changes and add author queries; authors must wait to review those changes until the page is moved to the <strong>Edit Review</strong> state.</span>
 						<span class="editreview">In this state, authors review author queries and changes made by editors; once all changes are complete the page should be moved to the <strong>Clean</strong> state.</span>
 						<span class="clean">In this state, editors review final changes made by authors before moving the page to the <strong>Ready</strong> state.</span>
