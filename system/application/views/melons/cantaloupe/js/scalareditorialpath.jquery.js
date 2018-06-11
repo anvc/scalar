@@ -979,10 +979,14 @@
         								'<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
         									'<h2 class="heading_font heading_weight clearboth title"><a href="'+node_url+'">'+node.getDisplayTitle()+'</a></h2>'+
                                             '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font disabled"></div>'+
-        									'<div class="header_font badges">'+
-                                                '<span class="header_font badge view_badge">'+viewName+'</span>'+
-                                                '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y')+'</span>'+
-                                                '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>'+
+        									'<div class="header_font badges">';
+            if (viewName != 'Basic') {
+                nodeItemHTML += '<span class="header_font badge view_badge">'+viewName+'</span>';
+            }
+            if (node.domType.singular != "page") {
+                nodeItemHTML += '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>';
+            }
+            nodeItemHTML += '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' quer'+(queryCount!=1?'ies':'y')+'</span>'+
                                                 '<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>'+
                                             '</div>'+
         								'</div>'+
