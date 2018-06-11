@@ -314,6 +314,9 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPathContents .editorial_node .bodyContent {
 	padding: 20px 0 20px 0;
 }
+#editorialPathContents .editorial_node .bodyContent .placeholder {
+	cursor: pointer;
+}
 #editorialPathContents .editorial_node .bodyContent .placeholder .content .body{
 	background-color: #eee;
 	padding: 1rem;
