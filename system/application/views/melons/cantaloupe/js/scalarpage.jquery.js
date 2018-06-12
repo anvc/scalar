@@ -1977,7 +1977,6 @@
                     }
                     if (reload) {
                         $('.annotorious-item, .annotorious-popup').remove();
-                        console.log(anno);
                         anno.removeAll();
                         page.handleMediaResize();
                     }

@@ -654,7 +654,21 @@ function YouTubeGetID(url){
 					promise = $.Deferred();
 					pendingScripts++;
 					pendingDeferredMedia.Prism.push(promise);
-				}
+				}else if((typeof google == 'undefined' || typeof google.maps == 'undefined') && this.model.mediaSource.name == 'KML'){
+					if(typeof pendingDeferredMedia.GoogleMaps == 'undefined'){
+						pendingScripts = 0;
+						pendingDeferredMedia.GoogleMaps = [];
+						$.when(
+							$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'))
+						).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.GoogleMaps.length; i++){
+								pendingDeferredMedia.GoogleMaps[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.GoogleMaps.push(promise);
+                }
 			}
 
 			$.when(promise).then($.proxy(function(){
