@@ -120,7 +120,9 @@ if (isset($page->version_index)) {
 <link id="use_proxy" href="true" />
 <link id="proxy_url" href="<?=base_url().$book->slug.'/proxy'?>" />
 <? endif ?>
-<link id="scalar_version" href="<?=$this->load->view('scalar-version',true);?>" />
+<link id="scalar_version" href="<?php
+    include('system/application/views/scalar-version.php');
+?>" />
 <link id="book_id" href="<?=$book->book_id?>" />
 <link id="parent" href="<?=$base_uri?>" />
 <link id="approot" href="<?=confirm_slash(base_url())?>system/application/" />
@@ -143,12 +145,12 @@ if (isset($page->version_index)) {
 <? if (!$mode && $margin_nav): ?>
 <link id="margin_nav" href="true" />
 <? endif ?>
+<link id="google_maps_key" href="<?=$this->config->item('google_maps_key')?>" />
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-1.7.min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.3-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
-<link id="google_maps_key" href="<?=$this->config->item('google_maps_key')?>" />
 <?=template_script_tag_relative(__FILE__, 'js/html5shiv/dist/html5shiv.js')."\n" // Keep thus UNDER jQuery, etc., otherwise things go haywire?>
 <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
 <? if (!empty($_scripts)) echo $_scripts?>
