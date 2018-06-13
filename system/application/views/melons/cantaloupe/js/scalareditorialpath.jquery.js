@@ -39,6 +39,8 @@
         
         base.currentLoadType = 0;
 
+        base.additional_nodes_to_load = 5; //Additional nodes to load below screen bottom to ensure lazy scrolling is smooth
+
         base.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
         base.is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';
         base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
@@ -226,9 +228,16 @@
                     $(window).scroll(function(e) {
                        if($(window).scrollTop() + $(window).height() >= ($(document).height()-50)) {
                            if(base.$nodeList.find('.loader').length == 0 && typeof base.nextNodeIndexToLoad !== 'undefined' && typeof base.currentNodeList !== 'undefined' && base.nextNodeIndexToLoad < base.currentNodeList.length){
-                              $('body').css('overflow-y','hidden');
-                              base.$nodeList.append('<div class="loader">Loading...</div>');
-                              base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],$.proxy(function(){$(this).remove();$('body').css('overflow-y','auto').scrollspy('refresh');},base.$nodeList.find('.loader')));
+                              var loadedNodes = 0;
+                              var callback = function(){
+                                var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
+                                if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || ++loadedNodes < base.additional_nodes_to_load)){
+                                    base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+                                }
+                                $('body').scrollspy('refresh');
+                              }
+                              loadedNodes++;
+                              base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
                            }
                        }
                     });
@@ -524,7 +533,7 @@
 
                     scalarapi.loadNodesByType(
                         base.nodeTypes[base.currentLoadType], true, base.setup,
-                        null, 1, false, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
+                        null, null, null, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
                     );
 
         			break;
@@ -578,7 +587,6 @@
                         if($.inArray(el, uniqueNodes) === -1) uniqueNodes.push(el);
                     });
                     base.nodeList.unsorted = uniqueNodes;
-
 
                     //Name
                     base.nodeList.sortedByName = base.nodeList.unsorted.slice();
@@ -685,9 +693,14 @@
 
             $('#editorialOutline>ul').add(base.$nodeList).html('');
 
+            var extraLoadedNodes = 0;
+
             var callback = function(){
                 var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
-                if(base.nextNodeIndexToLoad < base.currentNodeList.length && nodeListBottom < $(window).height()){
+                if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || extraLoadedNodes < (base.additional_nodes_to_load-1))){
+                    if(nodeListBottom >= $(window).height()){
+                        extraLoadedNodes++;
+                    }
                     base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
                 }else{
                     base.stage = 4;
@@ -722,8 +735,10 @@
                 }, 1000);
                 window.setTimeout(function(){$('#editorialSidePanel').removeClass('loading_nodes');},1000);
             }else{
+                var extraLoadedNodes = 0;
+                var foundNode = false;
                 var callback = function(){
-                    if(base.nextNodeIndexToLoad >= base.currentNodeList.length || base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
+                    if(base.nextNodeIndexToLoad >= base.currentNodeList.length || (base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug || extraLoadedNodes >= base.additional_nodes_to_load)){
                         $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
 
                         window.setTimeout($.proxy(function(){
@@ -736,6 +751,12 @@
                             window.setTimeout(function(){$('body').scrollspy('refresh'); $('#editorialSidePanel').removeClass('loading_nodes');},1000);
                         },$node,base,reloadOutline),1000);
                     }else{
+                        if(base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
+                            foundNode = true;
+                        }
+                        if(foundNode){
+                            extraLoadedNodes++;
+                        }
                         base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
                     }
                 }
