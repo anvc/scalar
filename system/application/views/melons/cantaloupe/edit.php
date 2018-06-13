@@ -112,6 +112,11 @@ p {margin-bottom: 1.2rem;}
 	margin: 0;
 }
 
+#unsavedQueryWarning{
+	display: none;
+	padding: .5rem 1rem;
+}
+
 END;
 $this->template->add_css($css, 'embed');
 
@@ -748,9 +753,11 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <table>
 <tr id="edit_content" class="p type_composite">
 	<td colspan="2">
-		<div id="unsavedQueryWarning" class="alert alert-warning" role="alert" aria-hidden="true">
-			<strong>Notice:</strong> There are unsaved query changes—please save page to commit.
-		</div>
+		<?php if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'){ ?>
+			<div id="unsavedQueryWarning" class="alert alert-warning" role="alert" aria-hidden="true">
+				<strong>Notice:</strong> There are unsaved query changes—please save page to commit.
+			</div>
+		<?php } ?>
 		<?php /* if(!isset($_COOKIE['hide_widgets_alert'])){ ?>
 		<div id="wysiwygNewFeatures" class="alert alert-info alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
