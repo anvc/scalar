@@ -306,6 +306,7 @@ a.inline.inlineWidget[data-widget="summary"] {
 
 span[data-diff="del"],span[data-diff="placeholder"]:first-child{
 	text-decoration-line: line-through;
+	-webkit-text-decoration-line: line-through;
 }
 
 span[data-diff],span[data-diff]>*, #editorialReviewFormattingChanges .changed {
