@@ -164,7 +164,7 @@
                         $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
                     });
                     $('#addNewQuery').click(function(){
-                        $('#addNewQueryForm').show();
+                        $('#addNewQueryForm').show().find('#addNewQueryFormText').focus();
                         $('#editorialQueries').animate({
                             scrollTop: 0
                         }, 200);
@@ -871,7 +871,7 @@
                                         '<form class="form-inline">'+
                                             '<div class="form-group">'+
                                                 '<label class="sr-only" for="reply_'+query.id+'">New reply</label>'+
-                                                '<input type="text" class="form-control input-sm" id="reply_'+query.id+'" placeholder="New reply">'+
+                                                '<input type="text" class="form-control input-sm replyText" id="reply_'+query.id+'" placeholder="New reply">'+
                                                 '<button type="submit" class="btn btn-default btn-sm pull-right">Submit</button>'+
                                             '</div>'+
                                         '</form>'+
@@ -904,8 +904,13 @@
                                         '<small class="date">'+dateString+'</small>'+
                                         '<div class="body">'+newReply.body+'</div>'+
                                    '</div>').appendTo($replies);
-                    $reply.data('query',newReply);
 
+                    $('#editorialQueries').animate({
+                        scrollTop: $newReply.offset().top-$('#editorialQueries').offset().top
+                    }, 200);
+                    
+                    $reply.data('query',newReply);
+                    $(this).siblings('.replyText').focus();
                     base.serializeQueries();
                 });
             }

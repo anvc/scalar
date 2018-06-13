@@ -189,7 +189,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                         '<form class="form-inline">'+
                                             '<div class="form-group">'+
                                                 '<label class="sr-only" for="reply_'+query.id+'">New reply</label>'+
-                                                '<input type="text" class="form-control input-sm" id="reply_'+query.id+'" placeholder="New reply">'+
+                                                '<input type="text" class="form-control input-sm replyText" id="reply_'+query.id+'" placeholder="New reply">'+
                                                 '<button type="submit" class="btn btn-default btn-sm pull-right">Add</button>'+
                                             '</div>'+
                                         '</form>'+
@@ -197,7 +197,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $newReply.find('button').click(function(e){
                     e.preventDefault();
                     var $newReply = $(this).parents('.newReply');
-                    var bodyText = $newReply.find('input').val();
+                    var bodyText = $newReply.find('.replyText').focus().val();
                     if(bodyText==''){
                         return false;
                     }
@@ -223,7 +223,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                         '<div class="body">'+newReply.body+'</div>'+
                                    '</div>').appendTo($replies);
                     $reply.data('query',newReply);
-
+                    base.$queriesPanel.animate({
+                        scrollTop: $newReply.offset().top-base.$queriesPanel.offset().top
+                    }, 0);
                     base.serializeQueries();
                 });
             }
@@ -1038,7 +1040,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
                     base.$addNewQueryButton = $('<button id="addNewQuery" class="pull-right btn btn-sm">Add new</button>').prependTo(base.$editorialToolsPanelHeader);
                     base.$addNewQueryButton.click(function(e){
-                        $('#addNewQueryForm').show();
+                        $('#addNewQueryForm').show().find('#addNewQueryFormText').focus();
                         base.$queriesPanel.animate({
                             scrollTop: $('#addNewQueryForm').offset().top-base.$queriesPanel.offset().top
                         }, 200);
