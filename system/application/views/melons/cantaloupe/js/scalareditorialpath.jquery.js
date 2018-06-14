@@ -663,7 +663,7 @@
                     base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.sortedByName.slice();
                     base.nodeList.sortedByLastModifiedDateAsc.sort(function(a, b) {
                         a = new Date(a.current.created), b = new Date(b.current.created);
-                        return a>b?1:(a<b?-1:0);
+                        return a<b?1:(a>b?-1:0);
                     });
 
                     //Date Desc
