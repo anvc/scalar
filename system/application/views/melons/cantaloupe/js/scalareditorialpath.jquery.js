@@ -1338,6 +1338,9 @@
             var $description = $node.find('.descriptionContent');
             var description = $description.hasClass('noDescription')?'':$description.text();
             var editorialState = $node.data('state');
+
+            $('#editorialOutline a[data-node="'+node.slug+'"]').parent('li').removeClass().addClass(editorialState+' active');
+
             var $body = $node.find('.bodyContent');
             var $body_copy = $body.clone();
             $body_copy.find('.placeholder').remove();
