@@ -380,7 +380,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         $(this).tooltip({
                             "html": true,
                             "title": '<button type="button" class="btn btn-sm btn-danger">Reject</button> <button type="button" class="btn btn-sm btn-success">Accept</button>',
-                            "trigger": "click",
+                            "trigger": "manual",
                             "container": container
                         }).on('show.bs.tooltip',function(){
                             $('span[data-diff="chunk"]').not(this).tooltip('hide');
@@ -394,6 +394,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             });
 
                         }).click(function(e){
+                            if(!$(this).hasClass('rejected') && !$(this).hasClass('accepted')){
+                                $(this).tooltip('show');
+                            }
                             e.stopPropagation();
                         });
                     });
@@ -695,7 +698,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                                     <p><strong>This page has been edited.</strong></p> \
                                                     <p>Visible changes are <span data-diff="example">highlighted in yellow</span>, and must be accepted or rejected before the page can be saved.</p> \
                                                     <p>Click the highlights to accept or reject individual edits, or use the buttons below to accept or reject all changes at once.</p> \
-                                                    <p id="acceptRejectAll"><button type="button" class="btn btn-danger">Reject all</button><button type="button" class="btn btn-success">Accept all</button></ p>\
+                                                    <div id="acceptRejectAll" class="row"> \
+                                                        <div class="col-xs-12 col-md-6"><button type="button" class="btn btn-danger">Reject all</button></div> \
+                                                        <div class="col-xs-12 col-md-6"><button type="button" class="btn btn-success">Accept all</button></div> \
+                                                    </div>\
                                               </div>').appendTo(base.$editorialToolsPanelBody);
 
                         $('#acceptRejectAll .btn-danger').click(function(){
@@ -924,8 +930,14 @@ CKEDITOR.plugins.add( 'editorialTools', {
             exec: function( editor ) {
                 $(editor.container.$).find('.cke_inner').toggleClass('editorialToolsExpanded');
                 $(editor.container.$).find('.cke_button.cke_button__editorialtools').toggleClass('active');
-                base.expandedEditorWidth = $(editor.container.$).find('.cke_inner ').outerWidth();
-                base.$editorialToolsPanel.width((base.expandedEditorWidth*.3)-4);
+                var resize = function(){
+                    base.expandedEditorWidth = $(editor.container.$).find('.cke_inner ').outerWidth();
+                    base.$editorialToolsPanel.width((base.expandedEditorWidth*.3)-4);
+                }
+                $(window).resize(function(){
+                    resize();
+                });
+                resize();
             }
         });
 

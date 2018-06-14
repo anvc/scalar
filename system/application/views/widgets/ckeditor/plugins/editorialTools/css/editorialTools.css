@@ -244,7 +244,14 @@
 #editorialToolsPanel .versionList tr.selected{
 	background-color: #e5f6fe
 }
-#editorialDiffEditor, #editorialReviewEditor{
+
+.cke_contents{
+	position: relative;
+}
+#editorialReviewEditor, #editorialDiffEditor{
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
 	background-color: #fff;
@@ -333,9 +340,14 @@ body.isReviewing .tooltip-inner{
 	padding: .75rem;
 	margin-top: -.75rem;
 }
+#acceptRejectAll{
+	margin: 1rem 0 0;
+}
 #acceptRejectAll .btn{
-	margin-top: 1rem;
-	margin-right: 1rem;
+	width: 100%;
+}
+#acceptRejectAll>div{
+	padding: .5rem;
 }
 #editorialDiffEditor .hiddenVisual, #editorialReviewEditor .hiddenVisual, .accepted_rejected{
 	display: none;
