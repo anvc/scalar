@@ -1129,7 +1129,6 @@
                         "title": 'All changes must be resolved before changing state. Click on the "Open in page editor" button to process changes.',
                         "trigger": "hover"
                     });
-                    console.log($node.find('.state_btn'));
                 } else if(!!base.node_state_flow[state]){
                     $node.find('.usageRights').removeAttr("disabled");
                     $node.find('.disabled').removeClass('disabled');
@@ -1291,42 +1290,40 @@
                     versions.sort(function(a,b){
                         return b.number - a.number;
                     });
-                    
+
                     var old_version = null;
                     for(var v in versions){
                         if(versions[v].editorialState == previousState){
                             old_version = versions[v];
                         }
 
-                        if((v > 0 && versions[v].editorialState == base.editorialState) || (old_version != null && versions[v].editorialState != previousState)){
+                        if((v > 0 && versions[v].editorialState == state) || (old_version != null && versions[v].editorialState != previousState)){
                             break;
                         }
                     }
                     if(old_version != null){
                         reviewVersions = [versions[0],old_version];
+                        diff = scalar_diff.diff(
+                            {
+                                'body' : reviewVersions[1].content,
+                                'title' : reviewVersions[1].title,
+                                'description' : reviewVersions[1].description || ''
+                            },
+                            {
+                                'body' : reviewVersions[0].content,
+                                'title' : reviewVersions[0].title,
+                                'description' : reviewVersions[0].description || ''
+                            },
+                            true,
+                            true
+                        );
+
+                        if(diff.chunkCount == 0){
+                            waitingForReview = false;
+                        }
                     }else{
                         waitingForReview = false;
                     }
-
-                    diff = scalar_diff.diff(
-                        {
-                            'body' : reviewVersions[1].content,
-                            'title' : reviewVersions[1].title,
-                            'description' : reviewVersions[1].description || ''
-                        },
-                        {
-                            'body' : reviewVersions[0].content,
-                            'title' : reviewVersions[0].title,
-                            'description' : reviewVersions[0].description || ''
-                        },
-                        true,
-                        true
-                    );
-
-                    if(diff.chunkCount == 0){
-                        waitingForReview = false;
-                    }
-
                     deferred.resolve();
                 }, null, 1, false, null, 0, 0, null, true);
             }else{
