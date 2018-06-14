@@ -27,6 +27,10 @@
 	$this->template->add_js('system/application/views/widgets/cookie/jquery.cookie.js');
 	$this->template->add_js('system/application/views/widgets/api/scalarapi.js');
 
+	$this->template->add_js('system/application/views/widgets/diff/diff_match_patch.js');
+	$this->template->add_js('system/application/views/widgets/diff/scalar_diff.js');
+	$this->template->add_css('system/application/views/widgets/diff/scalar_diff.css');
+
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/tinysort.min.js');
 	$this->template->add_css('system/application/views/melons/cantaloupe/css/editorial_path.css');
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/scalareditorialpath.jquery.js');

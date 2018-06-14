@@ -245,6 +245,11 @@ body.shortHeader #editorialSidePanel>.affix{
 	background-color: #15910f;
 }
 
+#editorialPathContents .btn-disabled{
+	opacity: .5;
+	cursor: not-allowed;
+}
+
 #editorialPathContents .editorial_node .state_dropdown .dropdown-menu{
 	width: 100%;
 	padding: 0px;
@@ -493,6 +498,12 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 .editorialpath-page{
 	padding-bottom: 10px;
+}
+
+#editorialQueries.disabled #addNewQuery, #editorialQueries.disabled .newReply, #editorialQueries.disabled .resolve{
+	cursor: not-allowed;
+	display: none;
+	pointer-events: none;
 }
 
 .cke_chrome.cke_reset_all{

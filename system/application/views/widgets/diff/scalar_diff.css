@@ -1,0 +1,46 @@
+span[data-diff="del"],span[data-diff="placeholder"]:first-child{
+	text-decoration-line: line-through;
+	-webkit-text-decoration-line: line-through;
+}
+
+span[data-diff],span[data-diff]>*{
+	background-color: #fff28d;
+}
+span[data-diff="chunk"]{
+	white-space: nowrap;
+}
+span[data-diff] a.inline{
+	border-color: #f0e487;
+	background-color: #fff28d;
+}
+span[data-diff="del"] > a.inline{
+	position: relative;
+}
+span[data-diff="del"] > a.inline::after {
+    content: "\0020";
+    position: absolute;
+    top: 50%;
+    border-bottom: 1px solid #000;
+    left: -1rem;
+    right: -1rem;
+    height: 0px;
+    overflow: hidden;
+}
+span.br_tag,span.p_tag{
+	display: block;
+	position: relative;
+}
+span.br_tag::after,span.p_tag::after{
+	content: "\00b6";
+}
+span.br_tag::before,span.p_tag::before{
+	display: block;
+	height: 0;
+	position: absolute;
+	content: "\0020";
+	border-bottom: 1px dashed rgba(0,0,0,.25);
+	left: 1.5rem;
+	right: .5rem;
+	overflow: hidden;
+	top: 50%;
+}

@@ -959,7 +959,7 @@
                 }
             }
         };
-        base.populateQueries = function(queries,$parentNodeElement){
+        base.populateQueries = function(queries,$parentNodeElement,canAddQueries){
             $('#editorialQueries').data('$currentNode',$parentNodeElement);
             $('#editorialQueries .queries').html('');
             $('#editorialQueries .resolvedQueries').hide();
@@ -976,7 +976,7 @@
                 $('<div id="noQueries" class="text-muted text-center">There are no queries yet.</div>').appendTo($('#editorialQueries>.queries'));
             }
 
-            $('#editorialQueries').show();
+            $('#editorialQueries').toggleClass('disabled',!canAddQueries).show();
         };
         base.addNode = function(node,callback){
         	var currentVersion = node.current;
@@ -986,278 +986,352 @@
             var node_url = scalarapi.model.urlPrefix+node.slug;
         	var nodeView = (typeof node.current.defaultView !== 'undefined' && node.current.defaultView != null) ? node.current.defaultView : 'plain';
             var queryCount = 0;
+
+            var diff = {};
+
+            var deferred = $.Deferred().then(function(){
+
+                $('#editorialQueries .resolvedQueries .queryCount').text('0');
+                var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
+                var viewName = typeof views[nodeView] !== 'undefined' && views[nodeView] != null ? views[nodeView].name : nodeView;
+
+                if(typeof viewName == 'undefined' || viewName == null){
+                    viewName = views['plain'];
+                }
+
+                var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
+                                        '<div class="row">'+
+                                            '<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
+                                                '<h2 class="heading_font heading_weight clearboth title"><a href="'+node_url+'">'+node.getDisplayTitle()+'</a></h2>'+
+                                                '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font disabled"></div>'+
+                                                '<div class="header_font badges">';
+                if (viewName != 'Basic') {
+                    nodeItemHTML += '<span class="header_font badge view_badge">'+viewName+'</span>';
+                }
+                if (node.domType.singular != "page") {
+                    nodeItemHTML += '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>';
+                }
+                nodeItemHTML += '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' quer'+(queryCount!=1?'ies':'y')+'</span>'+
+                                                    (!!base.node_state_flow[state]?'<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>':'')+
+                                                '</div>'+
+                                            '</div>'+
+                                            '<div class="col-xs-12 col-sm-4 col-md-3">';
+                                                
+                if(!!base.node_state_flow[state] && !waitingForReview){
+                    nodeItemHTML += '<div class="dropdown state_dropdown">'+
+                                                    '<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret pull-right"></span><span class="btn_text">'+stateName+'</span></button>'+
+                                                        '<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
+                    for(var stateClassIndex in base.node_state_flow[state]){
+                        var stateClass = base.node_state_flow[state][stateClassIndex];
+                        nodeItemHTML +=                     '<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass].name+'</a></li>';
+                    }
+
+                    nodeItemHTML +=                     '</ul>'+
+                                                '</div>';
+                }else{
+                    nodeItemHTML += '<button class="'+state+' btn state_btn btn-block btn-disabled" type="button"></span><span class="btn_text">'+stateName+'</span></button>';
+                }
+                nodeItemHTML +=                 '<div class="checkbox usageRightsField disabled">'+
+                                                    '<label class="disabled">'+
+                                                        '<input type="checkbox" val="1" disabled class="usageRights"'+(currentVersion.usageRights && currentVersion.usageRights === 1 ? ' checked':'')+'> Usage rights'+
+                                                    '</label>'+
+                                                '</div>'+
+                                            '</div>'+
+                                        '</div>';
+                if(viewName!=='Basic'){
+                    nodeItemHTML += '<div class="clearfix header_font viewWarning alert alert-warning text-center"><strong>Note:</strong> This page includes significant visual elements not shown here; <a href="'+node_url+'">View as reader</a> to see them.</div>';
+                }
+                nodeItemHTML +=      (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
+                                                             '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font noContent">[No Content]</div>')+
+                                        '</div>';
+
+                var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
+                if(!waitingForReview){
+                    $node.find('.with_queries_badge, .no_queries_badge').click(function(e){
+                        if($('#editorialQueries').is(':visible') && $('#editorialQueries').data('$currentNode') == $node){
+                            return true;
+                        }
+                        e.stopPropagation();
+                        var offsetTop = $node.position().top;
+                        $('#editorialQueries').css('top',offsetTop);
+                        $('#editorialQueries').css('max-height',$node.innerHeight()-50);
+                        base.populateQueries(queries,$node,base.node_state_flow[state]);
+                    });
+                }
+                if(node.domType.singular == "media"){
+                    $node.find('.bodyContent').addClass('media').html('').append('<div class="mediaView"><a data-size="native" data-align="center" class="inline" resource="'+node.slug+'" name="'+node.getDisplayTitle()+'" href="'+node.current.sourceFile+'" data-linkid="node_inline-media_body_1"></a>');
+                }
+                $node.data('node',node);
+                
+                // Added by Craig
+                var additionalMetadataFields = {};
+                if ('undefined' != typeof(window['rdfFields']) && 'undefined' != typeof(window['namespaces'])) {
+                    var isBuiltInField = function(pnode) {
+                        for (var fieldname in window['rdfFields']) {
+                            if (window['rdfFields'][fieldname] == pnode) return true;
+                        }
+                        return false;
+                    };
+                    for (var uri in node.current.properties) {
+                        for (var prefix in window['namespaces']) {
+                            if (-1 != uri.indexOf(window['namespaces'][prefix])) {
+                                pnode = uri.replace(window['namespaces'][prefix], prefix+':');
+                                if (isBuiltInField(pnode)) continue;
+                                additionalMetadataFields[pnode] = node.current.properties[uri];
+                            }
+                        }
+                    };
+                    if (!$.isEmptyObject(additionalMetadataFields)) {
+                        var $additionalMetadata = $('<div class="clearfix additionalMetadata" style="padding-bottom:2rem;"><h3>Additional Metadata</h3></div>').appendTo($node);
+                        for (var pnode in additionalMetadataFields) {
+                            var $row = $('<div class="row"><div class="col-xs-4 fieldName"></div><div class="col-xs-8 fieldVal"></div></div>').appendTo($additionalMetadata);
+                            $row.find('.fieldName').text(pnode);
+                            $row.find('.fieldVal').text(additionalMetadataFields[pnode][0].value);
+                        };
+                    }
+                };                   
+
+                if($.isFunction(callback)){
+                    $node.on('initialNodeLoad',callback);
+                }
+
+                if(typeof node.current.description === 'undefined' || node.current.description == null){
+                    $node.find('.descriptionContent').text("(This page does not have a description.)").addClass('noDescription');
+                }else{
+                    $node.find('.descriptionContent').text(node.current.description);
+                }
+                
+                $node.find('.state_dropdown li>a').each(function(){
+                    $(this).click(function(e){
+                        e.preventDefault();
+                        //Present an alert if we haven't hidden alerts...
+                        if(base.hasEditorialStateAlertCookie){
+                            $(this).data('changeState')();
+                        }else if(!$(this).hasClass('active')){
+                            base.showStateChangeAlert($(this));
+                        }
+                    }).data('changeState',$.proxy(function(){
+                        $(this).parents('ul').find('a.active').removeClass('active');
+                        $(this).addClass('active');
+                        $(this).parents('.state_dropdown').find('.state_btn').removeClass(base.node_state_string).addClass($(this).data('state')).find('.btn_text').text($(this).text());
+                        base.saveNode($(this).parents('.editorial_node').data('state',$(this).data('state')));
+                    },this));
+                });
+
+                $node.data({
+                    title : currentVersion.title,
+                    slug : node.slug,
+                    state : state
+                });
+                if(waitingForReview){
+                    $node.find('.bodyContent').html(diff.body);
+                    $node.find('.state_btn').tooltip({
+                        "title": 'All changes must be resolved before changing state. Click on the "Open in page editor" button to process changes.',
+                        "trigger": "hover"
+                    });
+                    console.log($node.find('.state_btn'));
+                } else if(!!base.node_state_flow[state]){
+                    $node.find('.usageRights').removeAttr("disabled");
+                    $node.find('.disabled').removeClass('disabled');
+                    $node.find('.descriptionContent,.additionalMetadata .fieldVal')
+                        .addClass('editable')
+                        .prop('contenteditable',true)
+                        .on('focus', function() {
+                            $(this).data('before', $(this).text());
+                        })
+                        .on('blur', function() {
+                            if ($(this).data('before') !== $(this).text()) {
+                                base.saveNode($node);
+                            }
+                        }).on('keydown', function(e) {
+                          if (e.which == 13) {
+                            $(this).blur();
+                            return false;
+                          }
+                        });
+                    $node.find('.bodyContent:not(.media)').each(function(){
+                        $node.data('editableFields',$node.data('editableFields')+1);
+                        $(this).addClass('editable');
+                        $(this).on('click',function(e){
+                            if(!base.node_state_flow[$node.data('state')]){
+                                return false;
+                            }
+                            if($(this).hasClass('noDescription')){
+                                $(this).removeClass('noDescription').text('');
+                            }
+                            
+                            if($(this).data('editor')==null){
+                                if($(this).find('.placeholder.opened').length > 0){
+                                    base.closePlaceholders($(this));
+                                }
+                                $(this).data('unloading',false);
+                                $(this).prop('contenteditable',true);
+                                e.preventDefault();
+                                //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
+                                var editor = CKEDITOR.inline( $(this).attr('id'), {
+                                    // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
+                                    removePlugins: 'scalar, codemirror, removeformat',
+                                    extraPlugins: 'scalarbeta',
+                                    startupFocus: true,
+                                    allowedContent: true,
+                                    extraAllowedContent : 'code pre a[*]',
+                                    toolbar : 'ScalarInline'
+                                } );
+
+                                if(typeof base.ckeditorWatcher != 'undefined' && base.ckeditorWatcher !== null){
+                                    if(base.wasDirty){
+                                        base.wasDirty = false;
+                                        base.saveCurrentEditor(base.currentEditNode);
+                                    }
+                                    window.clearInterval(base.ckeditorWatcher);
+                                    window.clearTimeout(base.ckeditorSaveTimeout); 
+                                }
+
+                                base.currentEditNode = $(this).parents('.editorial_node');
+                                base.wasDirty = false;
+
+                                base.ckeditorWatcher = window.setInterval($.proxy(function(){
+                                    if(editor.checkDirty()){
+                                        base.wasDirty = true;
+                                        editor.resetDirty();
+                                        if(base.ckeditorSaveTimeout !== null){
+                                            window.clearTimeout(base.ckeditorSaveTimeout);
+                                        }
+                                        /*base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
+                                            if(base.wasDirty){
+                                                base.wasDirty = false;
+                                                base.saveNode(base.currentEditNode);
+                                            }
+                                        },this),1000);*/
+                                    }
+                                },editor),500);
+
+
+                                $(this).data('editor',editor);
+
+
+                                editor.on('focus', $.proxy(function(editor,base,ev) {
+                                        editor.plugins['scalarbeta'].init(editor);
+                                },this,editor,base));
+                                editor.on('blur',function(){
+                                    return false;
+                                });
+                                $(window).off('hidden.bs.modal').on("hidden.bs.modal", function() {
+                                    editor.focus();
+                                });
+                                $(this).on('blur', $.proxy(function($parent,base,ev) {
+                                        if($(ev.originalEvent.relatedTarget).hasClass('editLink') || $(ev.originalEvent.relatedTarget).hasClass('deleteLink')){
+                                            return false;
+                                        }
+                                        if($(ev.originalEvent.relatedTarget).parents('.bootbox').length > 0){
+                                            return false;
+                                        }
+                                        if($(ev.originalEvent.relatedTarget).hasClass('bootbox')){
+                                            return false;
+                                        }
+                                        if($(this).data('unloading')){
+                                            return false;
+                                        }
+                                        $(this).find('.placeholder').off('hover');
+                                        $(this).prop('contenteditable',false);
+                                        base.updatePlaceholders($(this));
+                                        //Save the current watcher then unload it.
+                                        if(base.wasDirty){
+                                            base.saveNode(base.currentEditNode);
+                                            base.wasDirty = false;
+                                        }
+                                        window.clearInterval(base.ckeditorWatcher);
+                                        window.clearTimeout(base.ckeditorSaveTimeout);
+
+                                        if($(this).data('editor')!=null){
+                                            CKEDITOR.instances[$(this).data('editor').name].destroy(true);
+                                            $(this).data('editor',null);
+                                        }
+                                },this,$node,base));
+
+                                editor.on('instanceReady', $.proxy(function(base,ev) {
+                                    $(this).fadeTo(1000,100);
+                                    base.$contentLoader.fadeOut('fast',function(){
+                                        $(this).remove();
+                                    });
+                                },$node,base));
+                            }
+                        });
+                    });
+                }           
+                
+                $node.find('.usageRights').change(function(){
+                    base.saveNode($node);
+                });
+
+                base.updateLinks($node);
+            });
+
             for(var i in queries){
                 var query = queries[i];
                 if(!query.resolved){
                     queryCount++;
                 }
             }
-            $('#editorialQueries .resolvedQueries .queryCount').text('0');
-            var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
-            var viewName = typeof views[nodeView] !== 'undefined' && views[nodeView] != null ? views[nodeView].name : nodeView;
+            var waitingForReview = false;
+            var reviewVersions = [];
+            if( (base.is_author && state === "editreview") ||
+                (base.is_editor && state === "clean") ){
+                waitingForReview = true;
 
-            if(typeof viewName == 'undefined' || viewName == null){
-                viewName = views['plain'];
-            }
-
-        	var nodeItemHTML = '<div id="node_'+node.slug.replace(/\//g, '_')+'" class="editorial_node node caption_font">' +
-        							'<div class="row">'+
-        								'<div class="col-xs-12 col-sm-8 col-md-9 leftInfo">'+
-        									'<h2 class="heading_font heading_weight clearboth title"><a href="'+node_url+'">'+node.getDisplayTitle()+'</a></h2>'+
-                                            '<div id="node_'+node.slug.replace(/\//g, '_')+'_description" class="descriptionContent caption_font disabled"></div>'+
-        									'<div class="header_font badges">';
-            if (viewName != 'Basic') {
-                nodeItemHTML += '<span class="header_font badge view_badge">'+viewName+'</span>';
-            }
-            if (node.domType.singular != "page") {
-                nodeItemHTML += '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>';
-            }
-            nodeItemHTML += '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' quer'+(queryCount!=1?'ies':'y')+'</span>'+
-                                                '<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>'+
-                                            '</div>'+
-        								'</div>'+
-        								'<div class="col-xs-12 col-sm-4 col-md-3">';
-        									
-        	if(base.node_state_flow[state]){
-                nodeItemHTML += '<div class="dropdown state_dropdown">'+
-                                                '<button class="'+state+' btn state_btn btn-block dropdown-toggle" type="button" id="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret pull-right"></span><span class="btn_text">'+stateName+'</span></button>'+
-                    								'<ul class="dropdown-menu" aria-labelledby="stateSelectorDropdown_'+node.slug.replace(/\//g, '_')+'">';
-            	for(var stateClassIndex in base.node_state_flow[state]){
-                    var stateClass = base.node_state_flow[state][stateClassIndex];
-            		nodeItemHTML += 					'<li class="'+stateClass+'"><a href="#" data-state="'+stateClass+'" class="'+(state == stateClass ? 'active':'')+'">'+base.node_states[stateClass].name+'</a></li>';
-            	}
-
-        	    nodeItemHTML +=                     '</ul>'+
-                                            '</div>';
-            }else{
-                nodeItemHTML += '<button class="'+state+' btn state_btn btn-block btn-disabled" type="button"></span><span class="btn_text">'+stateName+'</span></button>';
-            }
-			nodeItemHTML += 				'<div class="checkbox usageRightsField disabled">'+
-												'<label class="disabled">'+
-													'<input type="checkbox" val="1" disabled class="usageRights"'+(currentVersion.usageRights && currentVersion.usageRights === 1 ? ' checked':'')+'> Usage rights'+
-												'</label>'+
-											'</div>'+
-        								'</div>'+
-        							'</div>';
-            if(viewName!=='Basic'){
-                nodeItemHTML += '<div class="clearfix header_font viewWarning alert alert-warning text-center"><strong>Note:</strong> This page includes significant visual elements not shown here; <a href="'+node_url+'">View as reader</a> to see them.</div>';
-            }
-            nodeItemHTML +=      (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
-                                                     '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font noContent">[No Content]</div>')+
-        						'</div>';     
-
-        	var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
-            $node.find('.with_queries_badge, .no_queries_badge').click(function(e){
-                if($('#editorialQueries').is(':visible') && $('#editorialQueries').data('$currentNode') == $node){
-                    return true;
+                var previousState = "edit";
+                if(state == "clean"){
+                    previousState = "editreview";
                 }
-                e.stopPropagation();
-                var offsetTop = $node.position().top;
-                $('#editorialQueries').css('top',offsetTop);
-                $('#editorialQueries').css('max-height',$node.innerHeight()-50);
-                base.populateQueries(queries,$node);
-            });
-            if(node.domType.singular == "media"){
-                $node.find('.bodyContent').addClass('media').html('').append('<div class="mediaView"><a data-size="native" data-align="center" class="inline" resource="'+node.slug+'" name="'+node.getDisplayTitle()+'" href="'+node.current.sourceFile+'" data-linkid="node_inline-media_body_1"></a>');
-            }
-            $node.data('node',node);
-            
-            // Added by Craig
-            var additionalMetadataFields = {};
-            if ('undefined' != typeof(window['rdfFields']) && 'undefined' != typeof(window['namespaces'])) {
-                var isBuiltInField = function(pnode) {
-                    for (var fieldname in window['rdfFields']) {
-                        if (window['rdfFields'][fieldname] == pnode) return true;
-                    }
-                    return false;
-                };
-                for (var uri in node.current.properties) {
-                    for (var prefix in window['namespaces']) {
-                        if (-1 != uri.indexOf(window['namespaces'][prefix])) {
-                            pnode = uri.replace(window['namespaces'][prefix], prefix+':');
-                            if (isBuiltInField(pnode)) continue;
-                            additionalMetadataFields[pnode] = node.current.properties[uri];
+
+
+                scalarapi.loadPage( node.slug, true, function(){
+                    var versions = scalarapi.getNode(node.slug).versions;
+
+                    versions.sort(function(a,b){
+                        return b.number - a.number;
+                    });
+                    
+                    var old_version = null;
+                    for(var v in versions){
+                        if(versions[v].editorialState == previousState){
+                            old_version = versions[v];
+                        }
+
+                        if((v > 0 && versions[v].editorialState == base.editorialState) || (old_version != null && versions[v].editorialState != previousState)){
+                            break;
                         }
                     }
-                };
-                if (!$.isEmptyObject(additionalMetadataFields)) {
-                	var $additionalMetadata = $('<div class="clearfix additionalMetadata" style="padding-bottom:2rem;"><h3>Additional Metadata</h3></div>').appendTo($node);
-                	for (var pnode in additionalMetadataFields) {
-            			var $row = $('<div class="row"><div class="col-xs-4 fieldName"></div><div class="col-xs-8 fieldVal"></div></div>').appendTo($additionalMetadata);
-            			$row.find('.fieldName').text(pnode);
-            			$row.find('.fieldVal').text(additionalMetadataFields[pnode][0].value);
-            		};
-            	}
-            };                   
+                    if(old_version != null){
+                        reviewVersions = [versions[0],old_version];
+                    }else{
+                        waitingForReview = false;
+                    }
 
-            if($.isFunction(callback)){
-                $node.on('initialNodeLoad',callback);
-            }
+                    diff = scalar_diff.diff(
+                        {
+                            'body' : reviewVersions[1].content,
+                            'title' : reviewVersions[1].title,
+                            'description' : reviewVersions[1].description || ''
+                        },
+                        {
+                            'body' : reviewVersions[0].content,
+                            'title' : reviewVersions[0].title,
+                            'description' : reviewVersions[0].description || ''
+                        },
+                        true,
+                        true
+                    );
 
-            if(typeof node.current.description === 'undefined' || node.current.description == null){
-                $node.find('.descriptionContent').text("(This page does not have a description.)").addClass('noDescription');
+                    if(diff.chunkCount == 0){
+                        waitingForReview = false;
+                    }
+
+                    deferred.resolve();
+                }, null, 1, false, null, 0, 0, null, true);
             }else{
-                $node.find('.descriptionContent').text(node.current.description);
+                deferred.resolve();
             }
-        	
-        	$node.find('.state_dropdown li>a').each(function(){
-                $(this).click(function(e){
-            		e.preventDefault();
-                    //Present an alert if we haven't hidden alerts...
-                    if(base.hasEditorialStateAlertCookie){
-                        $(this).data('changeState')();
-                    }else if(!$(this).hasClass('active')){
-                        base.showStateChangeAlert($(this));
-                    }
-            	}).data('changeState',$.proxy(function(){
-                    $(this).parents('ul').find('a.active').removeClass('active');
-                    $(this).addClass('active');
-                    $(this).parents('.state_dropdown').find('.state_btn').removeClass(base.node_state_string).addClass($(this).data('state')).find('.btn_text').text($(this).text());
-                    base.saveNode($(this).parents('.editorial_node').data('state',$(this).data('state')));
-                },this));
-            });
-
-        	$node.data({
-        		title : currentVersion.title,
-        		slug : node.slug,
-                state : state
-        	});
-            if(base.node_state_flow[state]){
-                $node.find('.usageRights').removeAttr("disabled");
-                $node.find('.disabled').removeClass('disabled');
-                $node.find('.descriptionContent,.additionalMetadata .fieldVal')
-                    .addClass('editable')
-                    .prop('contenteditable',true)
-                    .on('focus', function() {
-                        $(this).data('before', $(this).text());
-                    })
-                    .on('blur', function() {
-                        if ($(this).data('before') !== $(this).text()) {
-                            base.saveNode($node);
-                        }
-                    }).on('keydown', function(e) {
-                      if (e.which == 13) {
-                        $(this).blur();
-                        return false;
-                      }
-                    });
-                $node.find('.bodyContent:not(.media)').each(function(){
-                    $node.data('editableFields',$node.data('editableFields')+1);
-                    $(this).addClass('editable');
-                    $(this).on('click',function(e){
-                        if(!base.node_state_flow[$node.data('state')]){
-                            return false;
-                        }
-                        if($(this).hasClass('noDescription')){
-                            $(this).removeClass('noDescription').text('');
-                        }
-                        
-                        if($(this).data('editor')==null){
-                            if($(this).find('.placeholder.opened').length > 0){
-                                base.closePlaceholders($(this));
-                            }
-                            $(this).data('unloading',false);
-                            $(this).prop('contenteditable',true);
-                            e.preventDefault();
-                            //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
-                            var editor = CKEDITOR.inline( $(this).attr('id'), {
-                                // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                                removePlugins: 'scalar, codemirror, removeformat',
-                                extraPlugins: 'scalarbeta',
-                                startupFocus: true,
-                                allowedContent: true,
-                                extraAllowedContent : 'code pre a[*]',
-                                toolbar : 'ScalarInline'
-                            } );
-
-                            if(typeof base.ckeditorWatcher != 'undefined' && base.ckeditorWatcher !== null){
-                                if(base.wasDirty){
-                                    base.wasDirty = false;
-                                    base.saveCurrentEditor(base.currentEditNode);
-                                }
-                                window.clearInterval(base.ckeditorWatcher);
-                                window.clearTimeout(base.ckeditorSaveTimeout); 
-                            }
-
-                            base.currentEditNode = $(this).parents('.editorial_node');
-                            base.wasDirty = false;
-
-                            base.ckeditorWatcher = window.setInterval($.proxy(function(){
-                                if(editor.checkDirty()){
-                                    base.wasDirty = true;
-                                    editor.resetDirty();
-                                    if(base.ckeditorSaveTimeout !== null){
-                                        window.clearTimeout(base.ckeditorSaveTimeout);
-                                    }
-                                    /*base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
-                                        if(base.wasDirty){
-                                            base.wasDirty = false;
-                                            base.saveNode(base.currentEditNode);
-                                        }
-                                    },this),1000);*/
-                                }
-                            },editor),500);
-
-
-                            $(this).data('editor',editor);
-
-
-                            editor.on('focus', $.proxy(function(editor,base,ev) {
-                                    editor.plugins['scalarbeta'].init(editor);
-                            },this,editor,base));
-                            editor.on('blur',function(){
-                                return false;
-                            });
-                            $(window).off('hidden.bs.modal').on("hidden.bs.modal", function() {
-                                editor.focus();
-                            });
-                            $(this).on('blur', $.proxy(function($parent,base,ev) {
-                                    if($(ev.originalEvent.relatedTarget).hasClass('editLink') || $(ev.originalEvent.relatedTarget).hasClass('deleteLink')){
-                                        return false;
-                                    }
-                                    if($(ev.originalEvent.relatedTarget).parents('.bootbox').length > 0){
-                                        return false;
-                                    }
-                                    if($(ev.originalEvent.relatedTarget).hasClass('bootbox')){
-                                        return false;
-                                    }
-                                    if($(this).data('unloading')){
-                                        return false;
-                                    }
-                                    $(this).find('.placeholder').off('hover');
-                                    $(this).prop('contenteditable',false);
-                                    base.updatePlaceholders($(this));
-                                    //Save the current watcher then unload it.
-                                    if(base.wasDirty){
-                                        base.saveNode(base.currentEditNode);
-                                        base.wasDirty = false;
-                                    }
-                                    window.clearInterval(base.ckeditorWatcher);
-                                    window.clearTimeout(base.ckeditorSaveTimeout);
-
-                                    if($(this).data('editor')!=null){
-                                        CKEDITOR.instances[$(this).data('editor').name].destroy(true);
-                                        $(this).data('editor',null);
-                                    }
-                            },this,$node,base));
-
-                            editor.on('instanceReady', $.proxy(function(base,ev) {
-                                $(this).fadeTo(1000,100);
-                                base.$contentLoader.fadeOut('fast',function(){
-                                    $(this).remove();
-                                });
-                            },$node,base));
-                        }
-                    });
-                });
-            }           
-            
-            $node.find('.usageRights').change(function(){
-                base.saveNode($node);
-            });
-
-            base.updateLinks($node);
-
         };
 
         base.saveNode = function($node){

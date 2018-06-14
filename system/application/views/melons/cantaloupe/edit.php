@@ -4,6 +4,11 @@
 <?$this->template->add_css('system/application/views/widgets/edit/jquery-ui-custom/jquery-ui.min.css')?>
 <?$this->template->add_css('system/application/views/widgets/spectrum/spectrum.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
+<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'){
+	$this->template->add_js('system/application/views/widgets/diff/diff_match_patch.js');
+	$this->template->add_css('system/application/views/widgets/diff/scalar_diff.css');
+	$this->template->add_js('system/application/views/widgets/diff/scalar_diff.js');
+}?>
 <?$this->template->add_js('system/application/views/widgets/ckeditor/ckeditor.js')?>
 <? $this->template->add_js('if ( window.CKEDITOR && ( !CKEDITOR.env.ie || CKEDITOR.env.version > 7 ) ){CKEDITOR.env.isCompatible = true;}','embed'); ?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery-ui-custom/jquery-ui.min.js')?>
@@ -123,7 +128,8 @@ $this->template->add_css($css, 'embed');
 $js = <<<'END'
 $(document).ready(function() {
 	CKEDITOR.instances['sioc:content'] = CKEDITOR.replace( 'editor', {
-		extraPlugins: ($('link#editorial_workflow').length > 0)?'widget,editorialTools':''
+		extraPlugins: ($('link#editorial_workflow').length > 0)?'widget,editorialTools':'',
+		readOnly : $('#editor').data("readonly")?true:false
 	});
 	// If the type is passed via GET
 	checkTypeSelect();
@@ -454,9 +460,14 @@ $(document).ready(function() {
     	});
 	}
 	initial_state = $('#editorial_state').val();
+	$('body').on('savedPage',function(e){
+		$('.form-horizontal, #edit_content, .tab-pane, .saveButtons').toggleClass('editingDisabled',!editorialStates[$('#editorial_state').val()].canEdit);
+	});
 	$('#editorialStateConfirmationSave').click(function(e){
 		e.preventDefault();
-		validate_edit_form($(this).data('$form'),$(this).data('no_action'));
+		if(validate_edit_form($(this).data('$form'),$(this).data('no_action'))){
+			$('body').trigger('savedPage');
+		}
 		if($('#editorialStateConfirmation .dontShow').prop('checked')){
 			var cookie_days = 7;
 			var cookie_months = 0;
@@ -482,26 +493,32 @@ is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')
 var editorialStates = {
 						'draft':{
 							'name':'Draft',
+							'canEdit':is_author,
 							'changeEffect':(is_editor?'you':'editors')+" won't be able to perform review actions until authors have finished their changes."
 						},
 						'edit' :{
 							'name':'Edit',
+							'canEdit':is_editor,
 							'changeEffect':(is_author?'you':'authors')+" won't be able to make changes until editors have finished their review."
 						},
 						'editreview' :{
 							'name':'Edit Review',
+							'canEdit':is_author,
 							'changeEffect':(is_editor?'you':'editors')+" won't be able to make changes until authors have finished their review."
 						},
 						'clean' :{
 							'name':'Clean',
+							'canEdit':is_editor,
 							'changeEffect':(is_author?'you':'authors')+" will no longer be allowed to make edits."
 						},
 						'ready' :{
 							'name':'Ready',
+							'canEdit':true,
 							'changeEffect':"it will be publishable by authors and editors."
 						},
 						'published' :{
 							'name':'Published',
+							'canEdit':true,
 							'changeEffect':"it will no longer be editable within this book's edition, and will be made public."
 						}
 					};
@@ -513,7 +530,9 @@ function change_editorial_state_then_save($form){
 }
 function confirm_editorial_state_then_save($form, no_action){
 	if($('#editorial_state').val() === initial_state || hasEditorialStateAlertCookie){
-		validate_edit_form($form,no_action);
+		if(validate_edit_form($form,no_action)){
+			$('body').trigger('savedPage');
+		}
 	}else{
 		if(!no_action){
 			no_action = false;
@@ -570,13 +589,65 @@ function badges() {
 END;
 
 $js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'";';
-if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'){
-	$this->template->add_js('system/application/views/melons/cantaloupe/js/diff_match_patch.js');
-}
 
 $this->template->add_js($js, 'embed');
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
+
+$editorialStates = array(
+	'draft' => 'Draft',
+	'edit' => 'Edit',
+	'editreview' => 'Edit Review',
+	'clean' => 'Clean',
+	'ready' => 'Ready',
+	'published' => 'Published'
+);
+
+$currentRole = 'author';
+foreach($book->contributors as $contributor){
+	if($contributor->user_id == $login->user_id){
+		$currentRole = $contributor->relationship;
+		break;
+	}
+}
+$currentQueries = (isset($page->versions) && isset($page->versions[$page->version_index]->editorial_queries)) ? htmlspecialchars($page->versions[$page->version_index]->editorial_queries) : htmlspecialchars('{"queries":[]}');
+$currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
+$availableStates = array($currentState=>$editorialStates[$currentState]);
+$canChangeState = false;
+switch($currentState){
+	case 'draft':
+		if($currentRole == 'author'){
+			$availableStates = array_slice($editorialStates,0,2);
+			$canChangeState = true;
+		}
+		break;
+	case 'edit':
+		if($currentRole == 'editor'){
+			$availableStates = array_slice($editorialStates,0,3);
+			$canChangeState = true;
+		}
+		break;
+	case 'editreview':
+		if($currentRole == 'author'){
+			$availableStates = array_slice($editorialStates,1,3);
+			$canChangeState = true;
+		}
+		break;
+	case 'clean':
+		if($currentRole == 'editor'){
+			$availableStates = array_slice($editorialStates,2,3);
+			$canChangeState = true;
+		}
+		break;
+	case 'ready':
+		if($currentRole == 'editor'){
+			$availableStates = array_slice($editorialStates,2,4);
+			$canChangeState = true;
+		}
+		break;
+}
+
+$nextState = end($availableStates);
 ?>
 <div id="script-confirm" class="modal fade">
   <div class="modal-dialog">
@@ -626,17 +697,17 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 <input type="hidden" name="urn:scalar:book" value="<?=$book->urn?>" />
 <input type="hidden" name="path" value="<?=(isset($_GET['path']))?trim($_GET['path']):''?>" />
 
-<div class="form-horizontal">
+<div class="form-horizontal<?=$canChangeState?'':' editingDisabled'?>">
 	<div class="form-group">
 		<label for="title" class="col-sm-2">Title</label>
 		<div class="col-sm-10">
-			<input type="text" class="form-control" id="title" name="dcterms:title" value="<?=@htmlspecialchars($version->title)?>" />
+			<input type="text" class="form-control" id="title" name="dcterms:title" value="<?=@htmlspecialchars($version->title)?>"<?=$canChangeState?'':' disabled'?> />
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="page_description" class="col-sm-2">Description</label>
 		<div class="col-sm-10">
-			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>" />
+			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>"<?=$canChangeState?'':' disabled'?> />
 		</div>
 	</div>
 	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'): ?>
@@ -644,61 +715,6 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			<label class="col-sm-2">Status</label>
 			<div class="col-sm-10">
 					<?php
-						$editorialStates = array(
-							'draft' => 'Draft',
-							'edit' => 'Edit',
-							'editreview' => 'Edit Review',
-							'clean' => 'Clean',
-							'ready' => 'Ready',
-							'published' => 'Published'
-						);
-						
-						$currentRole = 'author';
-						foreach($book->contributors as $contributor){
-							if($contributor->user_id == $login->user_id){
-								$currentRole = $contributor->relationship;
-								break;
-							}
-						}
-						$currentQueries = (isset($page->versions) && isset($page->versions[$page->version_index]->editorial_queries)) ? htmlspecialchars($page->versions[$page->version_index]->editorial_queries) : htmlspecialchars('{"queries":[]}');
-						$currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
-						$availableStates = array($currentState=>$editorialStates[$currentState]);
-						$canChangeState = false;
-						switch($currentState){
-							case 'draft':
-								if($currentRole == 'author'){
-									$availableStates = array_slice($editorialStates,0,2);
-									$canChangeState = true;
-								}
-								break;
-							case 'edit':
-								if($currentRole == 'editor'){
-									$availableStates = array_slice($editorialStates,0,3);
-									$canChangeState = true;
-								}
-								break;
-							case 'editreview':
-								if($currentRole == 'author'){
-									$availableStates = array_slice($editorialStates,2,2);
-									$canChangeState = true;
-								}
-								break;
-							case 'clean':
-								if($currentRole == 'editor'){
-									$availableStates = array_slice($editorialStates,2,3);
-									$canChangeState = true;
-								}
-								break;
-							case 'ready':
-								if($currentRole == 'editor'){
-									$availableStates = array_slice($editorialStates,2,4);
-									$canChangeState = true;
-								}
-								break;
-						}
-
-						$nextState = end($availableStates);
-
 						echo '<input type="hidden" id="editorial_state" class="form-control" name="scalar:editorial_state" value="'.$currentState.'" />';
 
 						echo '<input type="hidden" id="editorial_queries" name="scalar:editorial_queries" value="'.$currentQueries.'" />';
@@ -730,13 +746,13 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		<div class="form-group usageGroup">
 			<label for="page_description" class="col-sm-2">&nbsp;</label>
 			<div class="col-sm-10">
-				<label><input type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?> /> &nbsp; Usage rights</label>
+				<label><input type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?><?=$canChangeState?'':' disabled class="disabled"'?>/> &nbsp; Usage rights</label>
 			</div>
 		</div>
 	<? endif ?>
 </div>
 
-<div class="type_media form-horizontal">
+<div class="type_media form-horizontal<?=$canChangeState?'':' editingDisabled'?>">
 	<div class="form-group">
 		<label for="media_file_url" class="col-sm-2">Media file URL</label>
 		<div class="col-sm-10">
@@ -751,7 +767,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 </div>
 
 <table>
-<tr id="edit_content" class="p type_composite">
+<tr id="edit_content" class="p type_composite<?=$canChangeState?'':' editingDisabled'?>">
 	<td colspan="2">
 		<?php if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'){ ?>
 			<div id="unsavedQueryWarning" class="alert alert-warning" role="alert" aria-hidden="true">
@@ -764,14 +780,17 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 		  <strong>Check out our latest feature – Scalar widgets.</strong><hr /> Widgets are modular interface elements that provide additional navigation, visualization, and media options for your readers. To add widgets to a page use the two new buttons in the toolbar below (the ones that look like puzzle pieces). For step-by-step instructions on adding widgets see our <a href="http://scalar.usc.edu/works/guide2/working-with-widgets" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" target="_blank">contact us</a> if you have any questions.
 		</div>
 		<?php } */ ?>
-		<textarea id="editor" wrap="soft" name="sioc:content" style="visibility:hidden;"><?
+		<textarea id="editor" wrap="soft" name="sioc:content" style="visibility:hidden;"<?php if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && !$canChangeState){ echo ' data-readonly="true"';} ?>>
+		<?php
 		if (isset($page->version_index)):
 			$content = $page->versions[$page->version_index]->content;
 			if (!empty($content)) {
 				echo cleanbr(htmlspecialchars($content));
 			}
 		endif;
-		?></textarea>
+		?>
+		</textarea>
+		
 	</td>
 </tr>
 </table>
@@ -802,7 +821,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 	</ul>
 	<div class="tab-content">
 
-		<div id="layout-pane" role="tabpanel" class="tab-pane active">
+		<div id="layout-pane" role="tabpanel" class="tab-pane active<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8"><p>Select the layout that will be used on this page:</p></div>
 			</div>
@@ -812,7 +831,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="path-pane" role="tabpanel" class="tab-pane">
+		<div id="path-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 					<?
@@ -869,7 +888,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="comment-pane" role="tabpanel" class="tab-pane">
+		<div id="comment-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 					<?
@@ -920,7 +939,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="annotation-pane" role="tabpanel" class="tab-pane">
+		<div id="annotation-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 			    <?
@@ -1008,7 +1027,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="tag-pane" role="tabpanel" class="tab-pane">
+		<div id="tag-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 			    <?
@@ -1063,7 +1082,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="thumbnail-pane" role="tabpanel" class="tab-pane">
+		<div id="thumbnail-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 					<div class="form-group">
@@ -1090,7 +1109,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="background-image-pane" role="tabpanel" class="tab-pane">
+		<div id="background-image-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 					<p>Choose an image from your library to use as the background for this page (leaving this blank will cause the page to inherit the book's background):</p>
@@ -1111,7 +1130,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="banner-image-pane" role="tabpanel" class="tab-pane">
+		<div id="banner-image-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 					<p>Choose an image from your library to use as the primary visual for the Image Header, Splash, and Book Splash layouts:</p>
@@ -1131,7 +1150,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="custom-css-pane" role="tabpanel" class="tab-pane">
+		<div id="custom-css-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-12">
 					<p>Enter custom CSS to be applied to this page and its path or tag children:</p>
@@ -1141,7 +1160,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="custom-javascript-pane" role="tabpanel" class="tab-pane">
+		<div id="custom-javascript-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-12">
 					<p>Enter custom JavaScript to be applied to this page and its path or tag children:</p>
@@ -1152,7 +1171,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="background-audio-pane" role="tabpanel" class="tab-pane">
+		<div id="background-audio-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 					<p>Select an audio file from your library to play on this page (please use judiciously, and consider accessibility for the hearing impaired):</p>
@@ -1172,7 +1191,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="color-pane" role="tabpanel" class="tab-pane">
+		<div id="color-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
 					<h4>Color</h4>
@@ -1182,7 +1201,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="properties-pane" role="tabpanel" class="tab-pane">
+		<div id="properties-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-12">
 					<div class="form-horizontal">
@@ -1232,7 +1251,7 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 			</div>
 		</div>
 
-		<div id="metadata-pane" role="tabpanel" class="tab-pane">
+		<div id="metadata-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-12">
 					<div class="form-horizontal">
@@ -1275,28 +1294,28 @@ $version = (isset($page->version_index)) ? $page->versions[$page->version_index]
 
 <hr>
 
-<div class="row clearboth saveButtons">
+<div class="row clearboth">
 	<div class="col-md-12" style="text-align:right;margin-top:10px;">
-		<span id="saved_text" class="text-success" style="float:left;display:none;"></span>
+		<div id="saved_text" class="text-success" style="display:none;"></div>
 		<div id="saving_text" class="text-warning" style="display:inline-block;visibility:hidden;padding-right:12px;"></div>
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
 		<?php 
-			if(isset($book->editorial_is_on) && !$canChangeState){
-				echo '<div class="editingDisabled">';
+			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1'){
+				echo '<div class="'.(!$canChangeState?'editingDisabled ':'').'saveButtons">';
 			}
 		?>
 		<input type="button" class="btn btn-default" value="Save" onclick="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($('#edit_form'),true);" />&nbsp; &nbsp;
 		<input type="submit" class="btn btn-primary" value="Save and view" />
 		<?php 
-			if(isset($book->editorial_is_on) && !$canChangeState){
+			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && !$canChangeState){
 				echo '</div>';
 			}
 		?>
 		<?php 
-			if(isset($book->editorial_is_on) && $canChangeState){
+			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $canChangeState){
 		?>
-			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower($nextState); ?>" value="Save and move to <?= $nextState ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
+			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower(str_replace(' ','',$nextState)); ?>" value="Save and move to <?= $nextState ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
 		<?php
 			}
 		?>
