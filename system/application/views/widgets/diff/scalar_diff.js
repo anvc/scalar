@@ -80,7 +80,11 @@ var scalar_diff = {
 	    $content.replaceWith(newHTML);
 	},
 	'_addNewLinePlaceholders' : function(html){
-		return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag"></span>');
+        if (html != null) {
+            return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag"></span>');
+        } else {
+            return html;
+        }
 	},
 	'_addMarkup' : function(diff){
 		var titleText = '';
