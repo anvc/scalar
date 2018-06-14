@@ -48,26 +48,32 @@
 
         base.node_states = {
                             'draft':{
+                                'id':0,
                                 'name':'Draft',
                                 'changeEffect':(base.is_editor?'you':'editors')+" won't be able to perform review actions until authors have finished their changes."
                             },
                             'edit' :{
+                                'id':1,
                                 'name':'Edit',
                                 'changeEffect':(base.is_author?'you':'authors')+" won't be able to make changes until editors have finished their review."
                             },
                             'editreview' :{
+                                'id':2,
                                 'name':'Edit Review',
                                 'changeEffect':(base.is_editor?'you':'editors')+" won't be able to make changes until authors have finished their review."
                             },
                             'clean' :{
+                                'id':3,
                                 'name':'Clean',
                                 'changeEffect':(base.is_author?'you':'authors')+" will no longer be allowed to make edits."
                             },
                             'ready' :{
+                                'id':4,
                                 'name':'Ready',
                                 'changeEffect':"it will be publishable by authors and editors."
                             },
                             'published' :{
+                                'id':5,
                                 'name':'Published',
                                 'changeEffect':"it will no longer be editable within this book's edition, and will be made public."
                             }
@@ -595,6 +601,14 @@
                       return a>b?1:(a<b?-1:0);
                     });
 
+
+                    //State
+                    base.nodeList.sortedByEditorialState = base.nodeList.sortedByName.slice();
+                    base.nodeList.sortedByEditorialState.sort(function(a, b) {
+                      a = base.node_states[a.current.editorialState].id, b = base.node_states[b.editorialState].id;
+                      return a>b?1:(a<b?-1:0);
+                    });
+
                     //Type
                     base.nodeList.sortedByType = base.nodeList.sortedByName.slice();
                     base.nodeList.splitByType = {};
@@ -612,6 +626,7 @@
 
                         base.nodeList.splitByType[a.domType.singular].push(a);
                     }
+
 
                     filterTypes.sort();
                     base.currentFilterType = filterTypes[0];
@@ -641,17 +656,15 @@
                     //Date Asc
                     base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.sortedByName.slice();
                     base.nodeList.sortedByLastModifiedDateAsc.sort(function(a, b) {
-                        namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
-                      a = new Date(a.current.created), b = new Date(b.current.created);
-                        return a>b?1:(a<b?-1:(namea>nameb?1:(namea<nameb?-1:0)));
+                        a = new Date(a.current.created), b = new Date(b.current.created);
+                        return a>b?1:(a<b?-1:0);
                     });
 
                     //Date Desc
                     base.nodeList.sortedByLastModifiedDateDesc = base.nodeList.sortedByName.slice();
                     base.nodeList.sortedByLastModifiedDateDesc.sort(function(a, b) {
-                      namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
-                      a = new Date(a.current.created), b = new Date(b.current.created);
-                        return a>b?-1:(a<b?1:(namea>nameb?1:(namea<nameb?-1:0)));
+                        a = new Date(a.current.created), b = new Date(b.current.created);
+                        return a>b?1:(a<b?-1:0);
                     });
                     base.propogateInitialPage();
         		case 4:
