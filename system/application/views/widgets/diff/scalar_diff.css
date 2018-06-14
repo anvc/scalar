@@ -7,7 +7,7 @@ span[data-diff],span[data-diff]>*{
 	background-color: #fff28d;
 }
 span[data-diff="chunk"]{
-	white-space: nowrap;
+	display: inline-block;
 }
 span[data-diff] a.inline{
 	border-color: #f0e487;
