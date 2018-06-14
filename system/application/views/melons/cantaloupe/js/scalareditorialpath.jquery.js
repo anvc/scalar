@@ -603,10 +603,16 @@
 
 
                     //State
-                    base.nodeList.sortedByEditorialState = base.nodeList.sortedByName.slice();
-                    base.nodeList.sortedByEditorialState.sort(function(a, b) {
+                    base.nodeList.sortedByEditorialStateAsc = base.nodeList.sortedByName.slice();
+                    base.nodeList.sortedByEditorialStateAsc.sort(function(a, b) {
                       a = base.node_states[a.current.editorialState].id, b = base.node_states[b.editorialState].id;
                       return a>b?1:(a<b?-1:0);
+                    });
+                    
+                    base.nodeList.sortedByEditorialStateDesc = base.nodeList.sortedByName.slice();
+                    base.nodeList.sortedByEditorialStateDesc.sort(function(a, b) {
+                      a = base.node_states[a.current.editorialState].id, b = base.node_states[b.editorialState].id;
+                      return a<b?1:(a>b?-1:0);
                     });
 
                     //Type

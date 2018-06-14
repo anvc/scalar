@@ -77,7 +77,8 @@
 					    <li><a href="#" data-sort="Type">Type</a></li>
 					    <li><a href="#" data-sort="LastModifiedDateAsc">Edit date ascending</a></li>
 					    <li><a href="#" data-sort="LastModifiedDateDesc">Edit date descending</a></li>
-					    <li><a href="#" data-sort="EditorialState">Editorial state</a></li>
+					    <li><a href="#" data-sort="EditorialStateAsc">Editorial state ascending</a></li>
+					    <li><a href="#" data-sort="EditorialStateDesc">Editorial state descending</a></li>
 					  </ul>
 					</div>
 				</div>
