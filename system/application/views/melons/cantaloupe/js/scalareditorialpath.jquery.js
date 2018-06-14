@@ -831,6 +831,15 @@
                  .text((queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y'));
             base.saveNode($node);
         };
+
+        base.sortResolved = function(){
+            var queries = $('#editorialQueries .resolvedQueries .queries').children().get();
+            queries.sort(function(a,b){
+                return parseInt(b.dataset.time) - parseInt(a.dataset.time);
+            });
+            $('#editorialQueries .resolvedQueries .queries').append(queries);
+        };
+
         base.addQuery = function(query,scrollToQuery){
             var date = query.date;
             if(typeof date === "string"){
@@ -844,18 +853,18 @@
             }else if(hour == 0){
                 hour = 12;
             }
-            var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+            var dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
             var $query = $('<div class="query" id="query_'+query.id+'">'+
                                 (!query.resolved?'<button class="btn btn-sm pull-right resolve">Resolve</button>':'')+
                                 '<strong class="user">'+query.user+'</strong>'+
                                 '<small class="date">'+dateString+'</small>'+
                                 '<div class="body">'+query.body+'</div>'+
-                           '</div>');
+                           '</div>').attr('data-time',date.getTime());
             $query.data('query',query);
             $query.find('.resolve').click(function(){
                 $('#editorialQueries .resolvedQueries').show();
                 var $query = $(this).parents('.query');
-                $query.appendTo('#editorialQueries .resolvedQueries .queries');
+                $query.prependTo('#editorialQueries .resolvedQueries .queries');
                 $(this).remove();
                 $query.find('.newReply').remove();
                 var query = $query.data('query');
@@ -864,6 +873,7 @@
                 $('#editorialQueries .resolvedQueries .queryCount').text(parseInt($('#editorialQueries .resolvedQueries .queryCount').text())+1);
                 $('#editorialQueries .resolvedQueries').find('.collapse').collapse('show');
                 base.serializeQueries();
+                base.sortResolved();
             });
             var $replies = $('<div class="replies"></div>').appendTo($query);
             if(!query.resolved){
@@ -898,7 +908,7 @@
                     }else if(hour == 0){
                         hour = 12;
                     }
-                    dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                    dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
                     var $reply = $('<div class="query">'+
                                         '<strong class="user">'+newReply.user+'</strong>'+
                                         '<small class="date">'+dateString+'</small>'+
@@ -928,7 +938,7 @@
                 }else if(hour == 0){
                     hour = 12;
                 }
-                dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
                 var $reply = $('<div class="query" id="query_'+reply.id+'">'+
                                     '<strong class="user">'+reply.user+'</strong>'+
                                     '<small class="date">'+dateString+'</small>'+
@@ -937,7 +947,7 @@
                 $reply.data('query',reply);
             }
             if(query.resolved){
-                $query.appendTo($('#editorialQueries .resolvedQueries .queries'));
+                $query.prependTo($('#editorialQueries .resolvedQueries .queries'));
                 $('#editorialQueries .resolvedQueries').show();
                 $('#editorialQueries .resolvedQueries .queryCount').text(parseInt($('#editorialQueries .resolvedQueries .queryCount').text())+1);
                 if(scrollToQuery && scrollToQuery === true){
@@ -946,7 +956,7 @@
                     }, 200);
                 }
             }else{
-                $query.appendTo($('#editorialQueries>.queries'));
+                $query.prependTo($('#editorialQueries>.queries'));
                 if(scrollToQuery && scrollToQuery === true){
                     $('#editorialqueries>.queries').find('.new').removeClass('new');
                     $query.addClass('new');
@@ -971,6 +981,7 @@
                 }
                 base.addQuery(query);
             }
+            base.sortResolved();
             
             if(base.highestID == -1){
                 $('<div id="noQueries" class="text-muted text-center">There are no queries yet.</div>').appendTo($('#editorialQueries>.queries'));

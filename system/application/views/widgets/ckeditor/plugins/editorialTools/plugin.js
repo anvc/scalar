@@ -68,6 +68,13 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $('#editorial_queries').val(JSON.stringify(queryJSON));
             $('#unsavedQueryWarning').show().attr('aria-hidden','false');
         };
+        base.sortResolved = function(){
+            var queries = base.$resolvedQueries.find('#resolvedQueries').children().get();
+            queries.sort(function(a,b){
+                return parseInt(b.dataset.time) - parseInt(a.dataset.time);
+            });
+            base.$resolvedQueries.find('#resolvedQueries').append(queries);
+        };
         base.addQuery = function(query,scrollToQuery){
             var date = query.date;
             if(typeof date === "string"){
@@ -81,18 +88,18 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }else if(hour == 0){
                 hour = 12;
             }
-            var dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+            var dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
             var $query = $('<div class="query" id="query_'+query.id+'">'+
                                 (!query.resolved?'<button class="btn btn-sm pull-right resolve">Resolve</button>':'')+
                                 '<strong class="user">'+query.user+'</strong>'+
                                 '<small class="date">'+dateString+'</small>'+
                                 '<div class="body">'+query.body+'</div>'+
-                           '</div>');
+                           '</div>').attr('data-time',date.getTime());
             $query.data('query',query);
             $query.find('.resolve').click(function(){
                 base.$resolvedQueries.show();
                 var $query = $(this).parents('.query');
-                $query.appendTo(base.$resolvedQueries.find('#resolvedQueries'));
+                $query.prependTo(base.$resolvedQueries.find('#resolvedQueries'));
                 $(this).remove();
                 $query.find('.newReply').remove();
                 var query = $query.data('query');
@@ -100,6 +107,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $query.data('query',query);
                 base.$resolvedQueries.find('.queryCount').text(parseInt(base.$resolvedQueries.find('.queryCount').text())+1);
                 base.serializeQueries();
+                base.sortResolved();
             });
             var $replies = $('<div class="replies"></div>').appendTo($query);
             if(!query.resolved){
@@ -134,7 +142,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }else if(hour == 0){
                         hour = 12;
                     }
-                    dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                    dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
                     var $reply = $('<div class="query">'+
                                         '<strong class="user">'+newReply.user+'</strong>'+
                                         '<small class="date">'+dateString+'</small>'+
@@ -161,7 +169,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else if(hour == 0){
                     hour = 12;
                 }
-                dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
                 var $reply = $('<div class="query" id="query_'+reply.id+'">'+
                                     '<strong class="user">'+reply.user+'</strong>'+
                                     '<small class="date">'+dateString+'</small>'+
@@ -179,7 +187,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }, 200);
                 }
             }else{
-                $query.appendTo(base.$queries);
+                $query.prependTo(base.$queries);
                 if(scrollToQuery && scrollToQuery === true){
                     base.$queries.find('.new').removeClass('new');
                     $query.addClass('new');
@@ -780,6 +788,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         }
                         base.addQuery(query);
                     }
+
+                    base.sortResolved();
+
                     if(base.highestID == -1){
                         $('<div id="noQueries" class="text-muted">There are no queries yet.</div>').appendTo(base.$queries);
                     }
@@ -825,7 +836,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             }else if(hour == 0){
                                 hour = 12;
                             }
-                            dateString = hour+':'+date.getMinutes()+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
+                            dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
                         }
                         
                         $version
