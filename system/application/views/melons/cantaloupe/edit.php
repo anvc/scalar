@@ -711,7 +711,7 @@ $nextState = end($availableStates);
 		</div>
 	</div>
 	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'): ?>
-		<div class="form-group statusGroup">
+		<div class="form-group statusGroup<?=isset($page->version_index)?'':' editingDisabled'?>">
 			<label class="col-sm-2">Status</label>
 			<div class="col-sm-10">
 					<?php
@@ -1313,7 +1313,7 @@ $nextState = end($availableStates);
 			}
 		?>
 		<?php 
-			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $canChangeState){
+			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $canChangeState && isset($page->version_index)){
 		?>
 			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower(str_replace(' ','',$nextState)); ?>" value="Save and move to <?= $nextState ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
 		<?php
