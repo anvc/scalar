@@ -1350,6 +1350,17 @@
             var description = $description.hasClass('noDescription')?'':$description.text();
             var editorialState = $node.data('state');
 
+            if(!!base.node_state_flow[editorialState]){
+                $node.find('.descriptionContent,.additionalMetadata .fieldVal')
+                        .addClass('editable')
+                        .prop('contenteditable',true);
+            }else{
+                $node.find('.descriptionContent,.additionalMetadata .fieldVal')
+                        .removeClass('editable')
+                        .prop('contenteditable',false);
+            }
+
+
             $('#editorialOutline a[data-node="'+node.slug+'"]').parent('li').removeClass().addClass(editorialState+' active');
 
             var $body = $node.find('.bodyContent');
