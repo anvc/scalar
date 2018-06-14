@@ -731,7 +731,7 @@
             var $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
             if($node.length > 0){
                 $('html, body').animate({
-                        scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 0 : 30)
+                        scrollTop: $node.offset().top - 49
                 }, 1000);
                 window.setTimeout(function(){$('#editorialSidePanel').removeClass('loading_nodes');},1000);
             }else{
