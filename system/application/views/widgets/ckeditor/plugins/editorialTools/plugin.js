@@ -695,12 +695,16 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 base.rejectEdit($(this),true);
                             });
                             base.enableSave(base.$reviewEditor.html());
+                            $('#acceptRejectAll .btn-danger').addClass('disabled');
+                            $('#acceptRejectAll .btn-success').removeClass('disabled');
                         });
                         $('#acceptRejectAll .btn-success').click(function(){
                             $('span[data-diff="chunk"]').tooltip('hide').each(function(){
                                 base.acceptEdit($(this),true);
                             });
                             base.enableSave(base.$reviewEditor.html());
+                            $('#acceptRejectAll .btn-success').addClass('disabled');
+                            $('#acceptRejectAll .btn-danger').removeClass('disabled');
                         });
                     }   
                 //Queries
