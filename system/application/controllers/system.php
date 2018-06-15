@@ -658,13 +658,10 @@ class System extends MY_Controller {
 		$dashboard = $this->config->item('active_dashboard');
 
 		// Check GET var and then cookie to see if we have a preferred dashboard - @Lucas
-		if(!isset($_COOKIE['dashboard'])){
-			unset($_COOKIE['dashboard']);
-			setcookie('dashboard', null, -1);
-		}else if(in_array($_GET['dashboard'],['dashboard','dashboot'])){
+		if(isset($_COOKIE['dashboard'])&&in_array($_GET['dashboard'],['dashboard','dashboot'])){
 			$dashboard = $_GET['dashboard'];
 			setcookie("dashboard", $dashboard, time()+604800); // Seven days...
-		}else if(in_array($_COOKIE['dashboard'],['dashboard','dashboot'])){
+		}else if(isset($_COOKIE['dashboard'])&&in_array($_COOKIE['dashboard'],['dashboard','dashboot'])){
 			$dashboard = $_COOKIE['dashboard'];
 		}else if(isset($_COOKIE['dashboard'])){
 			//We have something invalid in our cookie - get rid of it
