@@ -656,6 +656,19 @@ class System extends MY_Controller {
 
 		// Load dashboard
 		$dashboard = $this->config->item('active_dashboard');
+
+		// Check GET var and then cookie to see if we have a preferred dashboard - @Lucas
+		if(in_array($_GET['dashboard'],['dashboard','dashboot'])){
+			$dashboard = $_GET['dashboard'];
+			setcookie("dashboard", $dashboard, time()+604800); // Seven days...
+		}else if(in_array($_COOKIE['dashboard'],['dashboard','dashboot'])){
+			$dashboard = $_COOKIE['dashboard'];
+		}else if(isset($_COOKIE['dashboard'])){
+			//We have something invalid in our cookie - get rid of it
+			unset($_COOKIE['dashboard']);
+			setcookie('dashboard', null, -1);
+		}
+
 		if (empty($dashboard) || !file_exists(APPPATH.'views/modules/'.$dashboard)) $dashboard = 'dashboard';
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/'.$dashboard.'/content', $this->data);
