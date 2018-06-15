@@ -238,6 +238,13 @@ if (empty($book)) {
     console.log('create new edition');
   }
 
+  function calculateFragmentOverflow(){
+    var additionalPadding = 10;
+    $('.editorial-fragment').each(function() {
+      $(this).css('text-indent',($(this).find('strong').width()+additionalPadding) > $(this).innerWidth()?'100vw':0);
+    });
+  }
+
   $(document).ready(function() {
 
     $.ajax({
@@ -317,6 +324,9 @@ if (empty($book)) {
             template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
           });
         });
+
+        $(window).resize(calculateFragmentOverflow);
+        calculateFragmentOverflow();
 
         // build the usage rights gauge
         if (content_count > 0) {
