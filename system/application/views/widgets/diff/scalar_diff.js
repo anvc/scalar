@@ -80,7 +80,7 @@ var scalar_diff = {
 	    $content.replaceWith(newHTML);
 	},
 	'_addNewLinePlaceholders' : function(html){
-        if (html != null) {
+        if (!!html) { //Just make sure HTML isn't null or empty or anything...
             return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag"></span>');
         } else {
             return html;
@@ -242,8 +242,8 @@ var scalar_diff = {
             var $segment = $(segment);
             if(!!$segment.data('diff')){
                 if(!html[s+1] || html[s].content != html[s+1].content){
-                        var $new_segment = $('<span data-diff="placeholder">'+html[s].content+'</span>');
-                        cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+$new_segment[0].outerHTML):($new_segment[0].outerHTML+segment))+'</span>');
+                        var new_segment = '<span data-diff="placeholder">'+html[s].content+'</span>'
+                        cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+new_segment):(new_segment+segment))+'</span>');
                 }else if(html[s].content == html[s+1].content){
                     cleanedHTML.push('<span data-diff="chunk" data-diffType="swap">'+segment+html[++s].html+'</span>');
                 }
