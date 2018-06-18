@@ -2384,6 +2384,15 @@
                     }
                 }
 
+                // add kml layers for each content element
+                for (i=0; i<n; i++) {
+                    node = contents[i];
+                    if (node.current.mediaSource.name == 'KML') {
+                        var kmlLayer = new google.maps.KmlLayer(node.current.sourceFile);
+                        kmlLayer.setMap(map);
+                    }
+                }
+
                 $gmaps.css('max-height', 0.6 * $(window).height());
 
                 $(window).on('resize', function() {
