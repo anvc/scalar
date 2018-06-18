@@ -341,7 +341,7 @@ body.isReviewing .tooltip-inner{
 	margin-top: -.75rem;
 }
 #acceptRejectAll{
-	margin: 1rem 0 0;
+	margin: 1rem 0 0 -.5rem;
 }
 #acceptRejectAll .btn{
 	width: 100%;
