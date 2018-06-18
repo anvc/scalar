@@ -239,8 +239,12 @@ var scalar_diff = {
         var cleanedHTML = [];
         for(var s = 0; s < html.length; s++){
             var segment = html[s].html;
-            var $segment = $(segment);
-            if(!!$segment.data('diff')){
+            var segmentNodes = $.parseHTML(segment);
+            if(segmentNodes.length > 0){
+                var $segment = $(segmentNodes[0]);
+            }
+
+            if(!!$segment && !!$segment.data('diff')){
                 if(!html[s+1] || html[s].content != html[s+1].content){
                         var new_segment = '<span data-diff="placeholder">'+html[s].content+'</span>'
                         cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+new_segment):(new_segment+segment))+'</span>');
