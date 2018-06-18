@@ -238,11 +238,9 @@ var scalar_diff = {
         //Just clean up any insertions/deletions without a matching deletion/insertion...
         var cleanedHTML = [];
         for(var s = 0; s < html.length; s++){
+            
             var segment = html[s].html;
-            var segmentNodes = $.parseHTML(segment);
-            if(segmentNodes.length > 0){
-                var $segment = $(segmentNodes[0]);
-            }
+            var $segment = $('<div>'+segment+'</div>').children().first();
 
             if(!!$segment && !!$segment.data('diff')){
                 if(!html[s+1] || html[s].content != html[s+1].content){
