@@ -1522,19 +1522,19 @@
                     (function($placeholder,resource,$node){
                         var handleMedia = function(){
                             var media = scalarapi.getNode(resource);
-                            var description = media.current.description;
-                            var thumbnail_url = media.getAbsoluteThumbnailURL();
-                            if(!thumbnail_url){
-                                if(media.current.mediaSource.contentType == "image" && !media.current.mediaSource.isProprietary){
-                                    thumbnail_url = media.current.sourceFile;
-                                }else{
-                                    thumbnail_url = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
+                            if(!!media.current && !!media.current.description){
+                                $placeholder.find('content').append('<div class="description">'+media.current.description+'</div>');
+                            }
+                            if(!!media && !!media.current){
+                                var thumbnail_url = media.getAbsoluteThumbnailURL();
+                                if(!thumbnail_url){
+                                    if(media.current.mediaSource.contentType == "image" && !media.current.mediaSource.isProprietary){
+                                        thumbnail_url = media.current.sourceFile;
+                                    }else{
+                                        thumbnail_url = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
+                                    }
                                 }
-                            }
-                            if(typeof description !== 'undefined' && description != null){
-                                $placeholder.find('content').append('<div class="description">'+description+'</div>');
-                            }
-                            if(typeof media !== 'undefined' && media !== null && media !== undefined){
+
                                 $placeholder.find('.body').html('<img class="placeholder_thumbnail" src="'+thumbnail_url+'"><br />'+media.getDisplayTitle()+'<span class="clickToLoadNotice"><br />(Click to load '+(media.current.mediaSource.contentType=='image'?'full image':media.current.mediaSource.contentType)+')</span>');
                             }else{
                                 $placeholder.find('.body').html('Missing Media! ('+resource+')');
@@ -1575,11 +1575,12 @@
                                     break;
 
                                     default:
-                                    description = node.current.description;
-                                    if ( node.current.description == null ) {
-                                        description = '<p><i>No description available.</i></p>';
-                                    }
-                                    break;
+                                        if(!!node.current && node.current.description){
+                                            description = node.current.description;
+                                        }else{
+                                            description = '<p><i>No description available.</i></p>';
+                                        }
+                                        break;
 
                                 }
                                 $description.html(description).css('display','block');
