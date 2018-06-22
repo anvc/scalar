@@ -683,7 +683,7 @@ $nextState = end($availableStates);
     </div>
   </div>
 </div>
-<form id="edit_form" class="caption_font" method="post" action="<?=base_url().$book->slug.'/'?>" onsubmit="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($(this));return false;">
+<form id="edit_form" class="caption_font" method="post" action="<?=base_url().$book->slug.'/'?>" onsubmit="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($(this));return false;" autocomplete="off">
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
 <input type="hidden" name="scalar:urn" value="<?=(isset($page->version_index)) ? $page->versions[$page->version_index]->urn : ''?>" />
