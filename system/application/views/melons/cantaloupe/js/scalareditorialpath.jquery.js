@@ -147,10 +147,34 @@
             	base.setup();
             }
         };
+        base.currentLoaderValue = 0;
+        base.updateLoader = function(percent,sidebarText){
+            if(percent === "increment"){
+                base.currentLoaderValue += ((100-base.currentLoaderValue)/2)*Math.random();
+                percent = base.currentLoaderValue;
+            }
+            base.$loadingBar.find('.inner').width(percent+'%');
+            base.currentLoaderValue = percent;
+            if(percent >= 100){
+                base.$loadingBar.fadeOut('fast',function(){
+                    base.currentLoaderValue = 0;
+                    $(this).find('.inner').width(0);
+                });
+            }else if(!base.$loadingBar.is(':visible')){
+                base.$loadingBar.fadeIn('fast');
+            }
+            if(!!sidebarText){
+                $('.editorialSidePanelLoaderIndicator').attr('data-text',sidebarText);
+            }else{
+                $('.editorialSidePanelLoaderIndicator').attr('data-text',"");
+            }
+        };
 
         base.setup = function(data){
         	switch(base.stage){
         		case 0:
+
+                    $('body').on('pageLoadComplete, delayedResize',base.resize);
         			//Do a little bit of preliminary setup...
                     base.highestID = -1;
                     $(window).click(function(){
@@ -193,6 +217,18 @@
                         e.preventDefault();
                     });
 
+                    var setupLoadingBar = function(){
+                        base.$loadingBar.appendTo('#scalarheader');
+                    }
+
+                    base.$loadingBar = $('<div id="loadingBarHeader"><div class="inner"></div></div>').hide();
+
+                    if($('#scalarheader').length > 0){
+                        setupLoadingBar();
+                    }else{
+                        $('body').on('headerCreated',setupLoadingBar);
+                    }
+
                     base.$saveNotice = $('<div class="alert alert-success caption_font" role="alert" id="saveNotice">Page updated</div>').appendTo('body');
                     base.$warningNotice = $('<div class="alert alert alert-danger caption_font" role="alert" id="saveErrorNotice">Error saving page</div>').appendTo('body');
 
@@ -220,7 +256,6 @@
                         $('#editorialSidePanel .dropdown #panelDropdownText').text($(this).text());
                         $($(this).attr('href')).addClass('in').siblings('.collapse').removeClass('in');
                         $('.bookname').text($('meta[property="og:site_name"]').attr('content'));
-                        base.resize();
                     });
 
                     $('body').on('headerSizeChanged',function(){
@@ -235,12 +270,16 @@
                        if($(window).scrollTop() + $(window).height() >= ($(document).height()-50)) {
                            if(base.$nodeList.find('.loader').length == 0 && typeof base.nextNodeIndexToLoad !== 'undefined' && typeof base.currentNodeList !== 'undefined' && base.nextNodeIndexToLoad < base.currentNodeList.length){
                               var loadedNodes = 0;
+                              base.updateLoader((loadedNodes/base.additional_nodes_to_load)*100);
                               var callback = function(){
+                                base.updateLoader((loadedNodes/base.additional_nodes_to_load)*100);
                                 var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
                                 if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || ++loadedNodes < base.additional_nodes_to_load)){
                                     base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+                                }else{
+                                    base.updateLoader(100);
+                                    $('body').scrollspy('refresh');
                                 }
-                                $('body').scrollspy('refresh');
                               }
                               loadedNodes++;
                               base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
@@ -282,7 +321,6 @@
         				base.node_state_classes.push(stateClass);
         			}
 					base.node_state_string = base.node_state_classes.join(' ');
-					$(window).on('resize',base.resize);
 
                     $('#contentFinder').submit(function(e){
                         e.stopPropagation();
@@ -535,6 +573,7 @@
                         }
                     }
 					base.stage = 2;
+                    base.updateLoader(0);
 	        		base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 0%').fadeIn('fast')});
 
                     scalarapi.loadNodesByType(
@@ -568,16 +607,20 @@
                     //Escape if we have loaded everything!
         			if(base.currentChunk*base.options.pagesPerChunk > base.numPages[base.nodeTypes[base.currentLoadType]] || new_nodes <= 0){
                        if(++base.currentLoadType >= base.nodeTypes.length){
+                            base.updateLoader(100);
                             base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType-1]+' nodes - 100%');
                             base.stage = 3;
                             base.setup();
                             return;
                         }else{
+                            base.updateLoader(0);
                             base.currentChunk = 0;
                             base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 0%');
                         }
                     }else{
-                        base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - '+Math.round((base.currentChunk*base.options.pagesPerChunk)/base.numPages[base.nodeTypes[base.currentLoadType]])*100+'%');
+                        var percent = Math.round((base.currentChunk*base.options.pagesPerChunk)/base.numPages[base.nodeTypes[base.currentLoadType]])*100;
+                        base.updateLoader(percent);
+                        base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - '+percent+'%');
                         base.currentChunk++;
                     }
                     scalarapi.loadNodesByType(
@@ -680,10 +723,9 @@
                         top: 50
                       }
                     });
-                    window.setTimeout(base.resize,400);
 
         			base.$nodeList.appendTo(base.options.contents);
-                    
+
                     $('body').scrollspy({ target: '#editorialOutline', offset: 69 });
                     base.$contentLoader.fadeOut('fast');
         	}
@@ -713,9 +755,9 @@
             $('#editorialOutline>ul').add(base.$nodeList).html('');
 
             var extraLoadedNodes = 0;
-
+            base.updateLoader(0);
             var callback = function(){
-                base.loadOutline();
+                base.updateLoader("increment");
                 var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
                 if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || extraLoadedNodes < (base.additional_nodes_to_load-1))){
                     if(nodeListBottom >= $(window).height()){
@@ -723,11 +765,14 @@
                     }
                     base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
                 }else{
+                    base.updateLoader(100,"");
                     $('body').scrollspy('refresh');
                     base.stage = 4;
                     base.setup();
                 }
             }
+
+            base.loadOutline();
             base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
         };
 
@@ -749,26 +794,43 @@
         base.scrollToNode = function(nodeSlug,reloadOutline){
             var $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
             if($node.length > 0){
+                base.updateLoader(100,"");
                 $('html, body').animate({
                         scrollTop: $node.offset().top - 49
                 }, 1000);
                 window.setTimeout(function(){$('#editorialSidePanel').removeClass('loading_nodes');},1000);
             }else{
+                var percent = 0;
+                var percentPerNode = 0;
+                var currentPage = 1;
                 var extraLoadedNodes = 0;
                 var foundNode = false;
+                var numNodes = 0;
+                for(var i = base.nextNodeIndexToLoad; i < base.currentNodeList.length; i++){
+                    numNodes++;
+                    if(base.currentNodeList[i].slug == nodeSlug){
+                        break;
+                    }
+                }
+                base.updateLoader(percent,"Loading page 1 of "+numNodes);
+
+                percentPerNode = (1/numNodes)*100;
+
                 var callback = function(){
+                    percent += percentPerNode;
+                    base.updateLoader(percent,"Loading page "+(++currentPage)+" of "+numNodes);
+
                     if(base.nextNodeIndexToLoad >= base.currentNodeList.length || (base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug || extraLoadedNodes >= base.additional_nodes_to_load)){
                         $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
-
-                        window.setTimeout($.proxy(function(){
-                            $('html, body').animate({
-                                    scrollTop: this.offset().top - (this.offset().top > $('body').scrollTop() ? 0 : 30)
-                            }, 1000);
-                            if(reloadOutline){
-                                base.loadOutline();
-                            }
-                            window.setTimeout(function(){$('body').scrollspy('refresh'); $('#editorialSidePanel').removeClass('loading_nodes');},1000);
-                        },$node,base,reloadOutline),1000);
+                        base.updateLoader(100);
+                        $('html, body').animate({
+                                scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 0 : 30)
+                        }, 1000);
+                        if(reloadOutline){
+                            base.loadOutline();
+                        }
+                        $('body').scrollspy('refresh');
+                        $('#editorialSidePanel').removeClass('loading_nodes');
                     }else{
                         if(base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
                             foundNode = true;

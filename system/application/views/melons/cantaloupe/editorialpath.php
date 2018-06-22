@@ -90,7 +90,7 @@
 			<div>
 				<div class="dropdown">
 					<button class="btn btn-default heading_font heading_weight dropdown-toggle" id="editorialSideHeader" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					  <span id="panelDropdownText">Outline</span> &nbsp; <span class="caret pull-right"></span>
+					  <span id="panelDropdownText" class="pull-left">Outline</span> &nbsp; <span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu caption_font" aria-labelledby="editorialSideHeader">
 						<li><a role="button" href="#editorialOutline" aria-expanded="true" aria-controls="editorialOutline">Outline</a></li>

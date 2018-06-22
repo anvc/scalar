@@ -865,6 +865,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             if(base.dataType == 'normal'){
                 base.setupEditorialBar();
             }
+
+            $('body').trigger('headerCreated');
         };
         base.setupEditorialBar = function() {
             editorialBar = $('<div class="editorial-status-bar caption_font"></div>').prependTo('article');

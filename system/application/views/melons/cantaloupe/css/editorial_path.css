@@ -43,9 +43,6 @@ body.shortHeader #editorialSidePanel>.affix{
 	font-size: 1.8rem;
 	padding: .5rem 1rem .5rem 0;
 }
-#editorialSideHeader .caret{
-	margin-top: 1rem;
-}
 
 #editorialOutline li, #editorialOutline ul{
 	margin: 0;
@@ -186,6 +183,7 @@ body.shortHeader #editorialSidePanel>.affix{
 
 #editorialPathContents .editorial_node .badges{
 	margin-top: 2rem;
+	margin-bottom: 1rem;
 }
 
 #editorialPathContents .editorial_node .edit_btn{
@@ -575,7 +573,7 @@ body.shortHeader #saveNotice, body.shortHeader #saveErrorNotice{
     right: 0px;
     bottom: 0px;
     background-color: rgba(238,238,238,.75);
-    cursor: progress;
+    cursor: pointer;
 }
 #editorialSidePanel.loading_nodes .in{
 	opacity: .5;
@@ -795,4 +793,30 @@ body.shortHeader #saveNotice, body.shortHeader #saveErrorNotice{
 }
 #editorialStateConfirmationLabel{
 	margin: 0;
+}
+
+#loadingBarHeader{
+	position: absolute;
+	bottom: -5px;
+	height: 5px;
+	background-color: rgba(200,200,200,.75);
+	width: 100%;
+}
+#loadingBarHeader .inner{
+	height: 100%;
+	width: 0%;
+	background-color: #026697;
+	-webkit-transition: all 600ms cubic-bezier(0.19, 1, 0.22, 1);
+  	transition:         all 600ms cubic-bezier(0.19, 1, 0.22, 1); 
+}
+.editorialSidePanelLoaderIndicator::after {
+	font-size: 1rem;
+    content: attr(data-text);
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    right: 10px;
+    text-align: center;
+    margin-top: -50px;
+    color: #999;
 }
