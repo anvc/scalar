@@ -52,31 +52,31 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.editorialBarData = {
             "author": {
                 "draft": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Continue working until you're ready to submit it for editing.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Continue working until you're ready to submit it for editing.",
                     "previousEditorialState": null,
                     "nextEditorialState": "edit",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
                 "edit": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any changes or queries.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Once an editor moves it into <strong>$nextEditorialState</strong>, you can respond to any changes or queries.",
                     "previousEditorialState": "draft",
                     "nextEditorialState": "editreview",
                     "actions": ["Dashboard"]
                 },
                 "editreview": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed. Use the <strong>Editorial Path</strong> to view all changes at once.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Edit this page to review and respond to editor changes and queries, moving it to the <strong>$nextEditorialState</strong> state once all issues have been addressed. Use the <strong>Editorial Path</strong> to view all changes at once.",
                     "previousEditorialState": "edit",
                     "nextEditorialState": "clean",
                     "actions": ["Edit $contentType","Editorial Path"]
                 },
                 "clean": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>An editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>An editor will review and either move it back to the <strong>$previousEditorialState</strong> state for further changes, or into the <strong>$nextEditorialState</strong> state for publication.",
                     "previousEditorialState": "editreview",
                     "nextEditorialState": "ready",
                     "actions": ["Dashboard"]
                 },
                 "ready": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>An editor will move it to the <strong>$nextEditorialState</strong> state when it’s time to make it public.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>An editor will move it to the <strong>$nextEditorialState</strong> state when it’s time to make it public.",
                     "previousEditorialState": "clean",
                     "nextEditorialState": "published",
                     "actions": ["Dashboard"]
@@ -85,31 +85,31 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             },
             "editor": {
                 "draft": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Please wait for the author to submit it for editing.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Please wait for the author to submit it for editing.",
                     "previousEditorialState": null,
                     "nextEditorialState": "edit",
                     "actions": ["Dashboard"]
                 },
                 "edit": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>You can review it, make changes, and add queries for the author.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>You can review it, make changes, and add queries for the author.",
                     "previousEditorialState": "draft",
                     "nextEditorialState": "editreview",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
                 "editreview": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Once an author moves it to the <strong>$nextEditorialState</strong> state, you can do your final review on it.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Once an author moves it to the <strong>$nextEditorialState</strong> state, you can do your final review on it.",
                     "previousEditorialState": "edit",
                     "nextEditorialState": "clean",
                     "actions": ["Dashboard"]
                 },
                 "clean": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Do your final review on the content and move it back to the <strong>$previousEditorialState</strong> state if it requires further changes, or to the <strong>$nextEditorialState</strong> state for publication.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Do your final review on the content and move it back to the <strong>$previousEditorialState</strong> state if it requires further changes, or to the <strong>$nextEditorialState</strong> state for publication.",
                     "previousEditorialState": "editreview",
                     "nextEditorialState": "ready",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
                 "ready": {
-                    "text": "<strong>This $contentType is in the $editorialState state <span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Move it to the <strong>$nextEditorialState</strong> state to make it publicly available.",
+                    "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Move it to the <strong>$nextEditorialState</strong> state to make it publicly available.",
                     "previousEditorialState": "clean",
                     "nextEditorialState": "published",
                     "actions": ["Edit $contentType","Dashboard"]
