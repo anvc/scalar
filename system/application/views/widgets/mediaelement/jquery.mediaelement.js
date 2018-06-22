@@ -1108,145 +1108,148 @@ function YouTubeGetID(url){
 					player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
 				}
 
+				if (this.model.node.current.auxProperties['dcterms:accessRights'] == 'culturally-sensitive') {
+					this.mediaObjectView = new $.CulturallySensitiveObjectView(this.model, this);
 
-				switch (this.model.mediaSource.contentType) {
+				} else {
 
-					case '3D':
-					if (player == 'Threejs') {
-						this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
-					}
-					break;
+					switch (this.model.mediaSource.contentType) {
 
-					case 'image':
-					if (player == 'QuickTime') {
-						this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
-					} else {
-						this.mediaObjectView = new $.ImageObjectView(this.model, this);
-					}
-					break;
+						case '3D':
+						if (player == 'Threejs') {
+							this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
+						}
+						break;
 
-					case 'tiledImage':
-						this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
-					break;
+						case 'image':
+						if (player == 'QuickTime') {
+							this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
+						} else {
+							this.mediaObjectView = new $.ImageObjectView(this.model, this);
+						}
+						break;
 
-					case 'audio':
-					if (this.model.mediaSource.name == 'SoundCloud') {
-						this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);
-					} else if (player == 'QuickTime') {
-						this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
-					} else if (player == 'native') {
-						this.mediaObjectView = new $.HTML5AudioObjectView(this.model, this);
-					} else if (player == 'jPlayer') {
-						this.mediaObjectView = new $.JPlayerAudioObjectView(this.model, this);
-					}
-					break;
-					case 'video':
-					switch (player) {
+						case 'tiledImage':
+							this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
+						break;
 
-						case 'QuickTime':
-							if (this.model.mediaSource.name == 'QuickTimeStreaming') {
-								this.mediaObjectView = new $.StreamingQuickTimeObjectView(this.model, this);
-							} else {
-								this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
+						case 'audio':
+						if (this.model.mediaSource.name == 'SoundCloud') {
+							this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);
+						} else if (player == 'QuickTime') {
+							this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
+						} else if (player == 'native') {
+							this.mediaObjectView = new $.HTML5AudioObjectView(this.model, this);
+						} else if (player == 'jPlayer') {
+							this.mediaObjectView = new $.JPlayerAudioObjectView(this.model, this);
+						}
+						break;
+						case 'video':
+						switch (player) {
+
+							case 'QuickTime':
+								if (this.model.mediaSource.name == 'QuickTimeStreaming') {
+									this.mediaObjectView = new $.StreamingQuickTimeObjectView(this.model, this);
+								} else {
+									this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
+								}
+							break;
+
+							case 'Flash':
+								this.mediaObjectView = new $.FlowplayerVideoObjectView(this.model, this);
+							break;
+
+							case 'native':
+							this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+							break;
+
+							case 'proprietary':
+							switch (this.model.mediaSource.name) {
+
+								case 'HIDVL':
+								this.mediaObjectView = new $.HemisphericInstituteVideoObjectView(this.model, this);
+								break;
+
+								case 'Vimeo':
+								this.mediaObjectView = new $.VimeoVideoObjectView(this.model, this);
+								break;
+
+								case 'YouTube':
+								this.mediaObjectView = new $.YouTubeVideoObjectView(this.model, this);
+								break;
+
 							}
+							break;
+
+							default:
+							this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
+							break;
+
+						}
 						break;
 
-						case 'Flash':
-							this.mediaObjectView = new $.FlowplayerVideoObjectView(this.model, this);
-						break;
-
-						case 'native':
-						this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
-						break;
-
-						case 'proprietary':
+						case 'map':
 						switch (this.model.mediaSource.name) {
 
-							case 'HIDVL':
-							this.mediaObjectView = new $.HemisphericInstituteVideoObjectView(this.model, this);
+							case 'HyperCities':
+							if ((this.model.options.header == 'nav_bar') || (this.model.meta == scalarapi.stripAllExtensions(window.location.href)) || this.model.options.height) {
+								this.mediaObjectView = new $.HyperCitiesObjectView(this.model, this);
+							} else {
+								// replace HyperCities with maximize instructions if slot is too small
+								this.model.mediaSource = scalarapi.mediaSources.GIF;
+								this.mediaObjectView = new $.ImageObjectView(this.model, this);
+								this.model.path = this.model.mediaelement_dir +'hypercities_card.gif';
+							}
 							break;
 
-							case 'Vimeo':
-							this.mediaObjectView = new $.VimeoVideoObjectView(this.model, this);
+							case 'KML':
+							this.mediaObjectView = new $.GoogleMapsObjectView(this.model, this);
 							break;
 
-							case 'YouTube':
-							this.mediaObjectView = new $.YouTubeVideoObjectView(this.model, this);
+							default:
+							this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
 							break;
 
 						}
 						break;
 
-						default:
-						this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
-						break;
+						case 'document':
+						switch (this.model.mediaSource.name) {
 
-					}
-					break;
+							case 'HTML':
+							this.mediaObjectView = new $.HTMLObjectView(this.model, this);
+							break;
 
-					case 'map':
-					switch (this.model.mediaSource.name) {
+							case 'PDF':
+							this.mediaObjectView = new $.PDFObjectView(this.model, this);
+							break;
 
-						case 'HyperCities':
-						if ((this.model.options.header == 'nav_bar') || (this.model.meta == scalarapi.stripAllExtensions(window.location.href)) || this.model.options.height) {
-							this.mediaObjectView = new $.HyperCitiesObjectView(this.model, this);
-						} else {
-							// replace HyperCities with maximize instructions if slot is too small
-							this.model.mediaSource = scalarapi.mediaSources.GIF;
-							this.mediaObjectView = new $.ImageObjectView(this.model, this);
-							this.model.path = this.model.mediaelement_dir +'hypercities_card.gif';
-						}
-						break;
+							case 'PlainText':
+							var queryVars = scalarapi.getQueryVars( this.model.path );
+							if ( queryVars.lang != null ) {
+								this.mediaObjectView = new $.SourceCodeObjectView(this.model, this);
+							} else {
+								this.mediaObjectView = new $.TextObjectView(this.model, this);
+							}
+							break;
 
-						case 'KML':
-						this.mediaObjectView = new $.GoogleMapsObjectView(this.model, this);
-						break;
-
-						default:
-						this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
-						break;
-
-					}
-					break;
-
-					case 'document':
-					switch (this.model.mediaSource.name) {
-
-						case 'HTML':
-						this.mediaObjectView = new $.HTMLObjectView(this.model, this);
-						break;
-
-						case 'PDF':
-						this.mediaObjectView = new $.PDFObjectView(this.model, this);
-						break;
-
-						case 'PlainText':
-						var queryVars = scalarapi.getQueryVars( this.model.path );
-						if ( queryVars.lang != null ) {
+							case 'SourceCode':
 							this.mediaObjectView = new $.SourceCodeObjectView(this.model, this);
-						} else {
-							this.mediaObjectView = new $.TextObjectView(this.model, this);
+							break;
+
+							case 'Prezi':
+							this.mediaObjectView = new $.PreziObjectView(this.model, this);
+							break;
+
 						}
 						break;
 
-						case 'SourceCode':
-						this.mediaObjectView = new $.SourceCodeObjectView(this.model, this);
+						default:
+						this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
 						break;
-
-						case 'Prezi':
-						this.mediaObjectView = new $.PreziObjectView(this.model, this);
-						break;
-
 					}
-					break;
-
-					default:
-					this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
-					break;
-
 				}
 			}
-
 		}
 
 		/**
@@ -5146,6 +5149,66 @@ function YouTubeGetID(url){
 
 		jQuery.ThreejsObjectView.prototype.degreesToRadians = function(degrees) {
 			return (degrees / 360.0) * (Math.PI * 2);
+		}
+
+	}
+
+	/**
+	 * View for culturally sensitive content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.CulturallySensitiveObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.isLiquid = true;					// media will expand to fill available space
+
+		/**
+		 * Creates the media object.
+		 */
+		jQuery.CulturallySensitiveObjectView.prototype.createObject = function() {
+
+			this.mediaObject = $( '<div class="mediaObject culturally-sensitive" id="culturallysensitive'+me.model.id+'">'+
+				'<img src="' + this.model.mediaelement_dir + 'culturallysensitive_icon.png" height="105"/>'+
+				'<div><span class="warning"><strong>Protected: Respecting Cultural Protocols</strong><br/></span><span class="explanation">Information about this item can be shared publicly, but the media itself cannot be made publicly available, in accordance with cultural values, beliefs, or protocols that define its access and use. Learn more about appropriate ways of interacting with Indigenous cultural heritage materials and the labels used in this publication <a href="#">here</a>.</div>'+
+			'</span></div>' ).appendTo( this.parentView.mediaContainer );
+
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+			return;
+		}
+
+		// These functions are basically irrelevant for this type of media
+		jQuery.CulturallySensitiveObjectView.prototype.play = function() { }
+		jQuery.CulturallySensitiveObjectView.prototype.pause = function() { }
+		jQuery.CulturallySensitiveObjectView.prototype.seek = function(time) { }
+		jQuery.CulturallySensitiveObjectView.prototype.getCurrentTime = function() { }
+		jQuery.CulturallySensitiveObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.CulturallySensitiveObjectView.prototype.resize = function(width, height) {
+			$('#culturallysensitive'+me.model.id).width(Math.round(width));
+			$('#culturallysensitive'+me.model.id).height(Math.round(height));
+			console.log(width+' '+height);
+			var theElement = document.getElementById('culturallysensitive'+this.model.id);
+			if (theElement) {
+				if (width < 320) {
+					$(theElement).addClass('small');
+				} else {
+					$(theElement).removeClass('small');
+				}
+			}
 		}
 
 	}
