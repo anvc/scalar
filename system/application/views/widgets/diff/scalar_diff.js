@@ -61,7 +61,7 @@ var scalar_diff = {
 	                if(combinedTag.length == 2){
 	                    htmlTokenRelationships[t].endTag = String.fromCharCode(scalar_diff._currentToken++);
 	                    if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
-	                        //Move over to supplemental unicode set A - will roll over to set B if needed...
+	                        //Move over to Supplementary Private Use Area-A - will roll over to set B if needed...
 	                        scalar_diff._currentToken = 983040;
 	                    }
 	                    tokens.push(htmlTokenRelationships[t].endTag);
