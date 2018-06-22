@@ -353,7 +353,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     $('span[data-diff="chunk"]').each(function(){
                         var container = 'body';
-                        if($(this).find('span[data-diff]>a.inline,span[data-diff]>a[resource]').length > 1){
+                        if($(this).find('span[data-diff]>a[data-widget],span[data-diff]>a[resource]').length > 1){
                             $(this).tooltip({
                                 "html": true,
                                 "title": '<button type="button" class="btn btn-sm btn-primary viewFormatting">View all formatting changes</button>',
@@ -370,8 +370,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             });
 
                             //Also build a list of changes...But only if we are replacing a visual element with another
-                            var $old = $(this).children().first().children('a.inline,a[resource]');
-                            var $new = $(this).children().last().children('a.inline,a[resource]');
+                            var $old = $(this).children().first().children('a[data-widget],a[resource]');
+                            var $new = $(this).children().last().children('a[data-widget],a[resource]');
                             if(!!$old[0] && !!$new[0]){
                                 base.determineFormattingChanges($old,$new);
                             }
@@ -461,25 +461,25 @@ CKEDITOR.plugins.add( 'editorialTools', {
             var changeHTML = '<tr><td>';
 
             var oldMethod = $old.hasClass('inline')?'Inline':'Linked';
-            var oldType = (!!parsedOldAttr['data-widget'])?'Widget':'Image';
+            var oldType = (!!parsedOldAttr['data-widget'])?'Widget':'Media';
 
             if(oldType=="Image"){
                 var targetNode = scalarapi.getNode(parsedOldAttr['resource'].value);
                 var oldSubtext = targetNode.getDisplayTitle();
             }else{
-                var numNodes = parsedOldAttr['data-nodes'].value.split(',').length;
-                var oldSubtext = numNodes + (numNodes!=1?'items':'item');
+                var numNodes = !!parsedOldAttr['data-nodes']?parsedOldAttr['data-nodes'].value.split(',').length:0;
+                var oldSubtext = numNodes>0?numNodes + (numNodes!=1?'items':'item'):'';
             }
             
             var newMethod = $new.hasClass('inline')?'Inline':'Linked';
-            var newType = (!!parsedNewAttr['data-widget'])?'Widget':'Image';
+            var newType = (!!parsedNewAttr['data-widget'])?'Widget':'Media';
 
-            if(newType=="Image"){
+            if(newType=="Media"){
                 var targetNode = scalarapi.getNode(parsedNewAttr['resource'].value);
                 var newSubtext = targetNode.getDisplayTitle();
             }else{
-                var numNodes = parsedNewAttr['data-nodes'].value.split(',').length;
-                var newSubtext = numNodes + (numNodes!=1?'items':'item');
+                var numNodes = !!parsedNewAttr['data-nodes']?parsedNewAttr['data-nodes'].value.split(',').length:0;
+                var newSubtext = numNodes>0?numNodes + (numNodes!=1?'items':'item'):'';
             }
             if(oldMethod != newMethod || oldType != newType){
                 changeHTML += '<s><strong>'+oldMethod+' '+oldType+'</strong><br />'+oldSubtext+'</s><br />';

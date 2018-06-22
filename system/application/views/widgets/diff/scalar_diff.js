@@ -50,7 +50,6 @@ var scalar_diff = {
 	                tokens = htmlTokens[t].tokens;
 	            }
 	            if(!foundMatch){
-                    console.log(scalar_diff._currentToken);
 	                var t = String.fromCharCode(scalar_diff._currentToken++);
 	                if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
 	                    //Move over to supplemental unicode set A - will roll over to set B if needed...
@@ -70,8 +69,6 @@ var scalar_diff = {
 	                    'combinedTag' : combinedTag,
 	                    'tokens' : tokens
 	                });
-
-                    console.log(combinedTag,tokens);
 	            }
 
 	            for(var i = 0; i < combinedTag.length; i++){
@@ -365,7 +362,6 @@ var scalar_diff = {
 	        	'description' : descriptionDiff,
 	        	'tokens' : {'list' : htmlTokens, 'relationships' : htmlTokenRelationships}
 	        };
-
 			if(addMarkup){
 				diff = scalar_diff._addMarkup(diff);
 			}
