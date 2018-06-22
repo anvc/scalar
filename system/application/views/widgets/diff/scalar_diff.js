@@ -2,22 +2,23 @@ var scalar_diff = {
 
     // First entry in Unicode's Private Use Area; will roll over into supplemental Private Use Areas if needed...
     // See: https://www.unicode.org/versions/Unicode6.0.0/ch16.pdf
-	'_startingToken' : 57344,
-
-	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships,currentToken){
+	'_currentToken' : 57344,
+	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships){
 		//Actually do the tokenization - don't call this directly!
 	    var childNodes = $content.find('*');
 	    if(childNodes.length > 0){
-	        childNodes.each(function(){
-	            scalar_diff._tokenizeHTML($(this),htmlTokens,htmlTokenRelationships,currentToken);
-	        });
+            for(var i = 0; i < childNodes.length; i++){
+                scalar_diff._tokenizeHTML($(childNodes[i]),htmlTokens,htmlTokenRelationships);
+            }
 	    }
 	    if($content.data('diffContainer')){
 	        return $content.text();
 	    }
 	    $content.text('%%TEXT%%'+$content.text()+'%%TEXT%%');
 	    var text = $content.text();
+
 	    var tags = $content[0].outerHTML.split(text);
+
 	    var newHTML = $content[0].outerHTML;
 	    var openingTag = null;
 	    for(var i in tags){
@@ -49,18 +50,19 @@ var scalar_diff = {
 	                tokens = htmlTokens[t].tokens;
 	            }
 	            if(!foundMatch){
-	                var t = String.fromCharCode(currentToken++);
-	                if(currentToken > 63743 && currentToken < 983040){
+                    console.log(scalar_diff._currentToken);
+	                var t = String.fromCharCode(scalar_diff._currentToken++);
+	                if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
 	                    //Move over to supplemental unicode set A - will roll over to set B if needed...
-	                    currentToken = 983040; //This should probably never happen - but if somehow someone has more than 6,400 changed tags...
+	                    scalar_diff._currentToken = 983040; //This should probably never happen - but if somehow someone has more than 6,400 changed tags...
 	                }
 	                tokens.push(t);
 	                htmlTokenRelationships[t] = {endTag:null};
 	                if(combinedTag.length == 2){
-	                    htmlTokenRelationships[t].endTag = String.fromCharCode(currentToken++);
-	                    if(currentToken > 63743 && currentToken < 983040){
+	                    htmlTokenRelationships[t].endTag = String.fromCharCode(scalar_diff._currentToken++);
+	                    if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
 	                        //Move over to supplemental unicode set A - will roll over to set B if needed...
-	                        currentToken = 983040;
+	                        scalar_diff._currentToken = 983040;
 	                    }
 	                    tokens.push(htmlTokenRelationships[t].endTag);
 	                }
@@ -68,6 +70,8 @@ var scalar_diff = {
 	                    'combinedTag' : combinedTag,
 	                    'tokens' : tokens
 	                });
+
+                    console.log(combinedTag,tokens);
 	            }
 
 	            for(var i = 0; i < combinedTag.length; i++){
@@ -318,20 +322,17 @@ var scalar_diff = {
 			_old.body = scalar_diff._addNewLinePlaceholders(_old.body);
 			_new.body = scalar_diff._addNewLinePlaceholders(_new.body);
 		}
-		
 		var htmlTokens = [];
 		var htmlTokenRelationships = {};
 		// First entry in Unicode's Private Use Area; will roll over into supplemental Private Use Areas if needed...
     	// See: https://www.unicode.org/versions/Unicode6.0.0/ch16.pdf
-		var currentToken = scalar_diff._startingToken;
 
 		var $body = $('<div>'+_old.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
 		var oldTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
-			htmlTokenRelationships,
-			currentToken
+			htmlTokenRelationships
 		);
 
 		$body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
@@ -339,8 +340,7 @@ var scalar_diff = {
 		var newTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
-			htmlTokenRelationships,
-			currentToken
+			htmlTokenRelationships
 		);		
 
 		if(typeof diff_match_patch !== 'undefined' && !!diff_match_patch){
