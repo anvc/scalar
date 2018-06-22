@@ -322,12 +322,18 @@ a.inline.inlineWidget[data-widget="summary"] {
 body.isReviewing span[data-diff="chunk"]{
 	cursor: pointer;
 }
-.editingDisabled,.disabled,body.isReviewing .cke_button__source{
+.editingDisabled:not(#edit_content),.disabled,body.isReviewing .cke_button__source,#edit_content.editingDisabled .cke_toolbar:not(#cke_40){
 	filter: gray;
 	filter: grayscale(100%);
 	pointer-events: none;
 	opacity: .75;
 	cursor: not-allowed;
+}
+#edit_content.editingDisabled .cke_contents{
+	pointer-events: none;
+}
+#edit_content.editingDisabled #editorialToolsPanel.queries #editorialToolsPanelHeader #addNewQuery, #edit_content.editingDisabled .resolve, #edit_content.editingDisabled .newReply{
+	display: none;
 }
 .saveButtons{
 	display: inline;

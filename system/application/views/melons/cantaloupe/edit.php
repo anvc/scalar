@@ -129,7 +129,6 @@ $js = <<<'END'
 $(document).ready(function() {
 	CKEDITOR.instances['sioc:content'] = CKEDITOR.replace( 'editor', {
 		extraPlugins: ($('link#editorial_workflow').length > 0)?'widget,editorialTools':'',
-		readOnly : $('#editor').data("readonly")?true:false
 	});
 	// If the type is passed via GET
 	checkTypeSelect();

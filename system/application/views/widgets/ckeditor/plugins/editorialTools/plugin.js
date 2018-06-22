@@ -284,10 +284,14 @@ CKEDITOR.plugins.add( 'editorialTools', {
             if(newHTML){
                 editor.setData(newHTML);
             }
-            editor.setReadOnly(false);
 
             $(editor.container.$).find('iframe').show();
 
+            if($('#editor').data("readonly")){
+                return;   
+            }
+
+            editor.setReadOnly(false);
             $('.editingDisabled').removeClass('editingDisabled');
         }
         base.disableEditor = function(reviewMode){
