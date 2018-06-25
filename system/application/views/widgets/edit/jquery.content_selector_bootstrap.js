@@ -657,7 +657,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					loaded_nodeLists[type] = [];
 					for (var uri in _data) {
 						if ('undefined' != typeof(_data[uri]['http://purl.org/dc/terms/hasVersion'])) {
-
 							var item = {};
 							item.uri = uri;
 							item.slug = uri.replace(parent_url, '');
@@ -667,7 +666,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							item.version = _data[item.version_uri];
 							item.title = ('undefined' != typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
 							item.targets = [];
-
 							loaded_nodeLists[type].push(item);
 						}
 					}
@@ -1395,10 +1393,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			} else {
 				var url = parent_url + 'rdf/instancesof/' + type + '?format=json&rec=' + rec + '&ref=' + ref + '&start=' + (options.page * opts.resultsPerPage) + "&results=" + opts.resultsPerPage;
 			};
-			if ('undefined' != typeof(opts.fields) && -1 != opts.fields.indexOf('last_edited_by')) {
+			if (-1 != opts.fields.indexOf('last_edited_by')) {
 				url += '&prov=1';
 			}
-			if ('undefined' != typeof(opts.fields) && -1 != opts.fields.indexOf('edit')) {
+			if (-1 != opts.fields.indexOf('edit') || opts.editorialOptions !== false) {
 				url += '&hidden=1';
 			};
 			if (doSearch) {
@@ -2442,7 +2440,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 		for (var t in opts.types) {
 
-			if (opts.types[t] == 'composite') {
+			if (opts.types[t] == 'content') {
+				var type_display_name = 'All';
+			} else if (opts.types[t] == 'composite') {
 				var type_display_name = 'Pages';
 			} else if (opts.types[t] == 'reply') {
 				var type_display_name = 'Comments';

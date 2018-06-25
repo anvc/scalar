@@ -461,14 +461,15 @@ STR;
 		types.push(editorial_states[type].name);
 	};
 	node_options = {  /* global */
-		fields:["title","description","last_edited_by"],
+		fields:["visible","title","description","last_edited_by","date_edited"],
 		allowMultiple:true,
 		rowSelectMethod:'highlight',
 		rec:"0",
 		ref:"0",
 		editorialOptions:true,
 		defaultType:"content",
-		types:types
+		types:types,
+		isEdit:true
 	};
 	$selector.node_selection_dialogue(node_options);
     
@@ -477,6 +478,7 @@ STR;
 </script>
 
 <div class="container-fluid properties">
+  <? if (0): ?>
   <div class="row editions">
     <div class="col-sm-12">
       <h3 class="message">There are no editions of this <?=$book->scope?></h3>
@@ -492,6 +494,7 @@ STR;
 	  <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>
     </div>
   </div>
+  <? endif; ?>
   <div class="row editorial-summary">
     <div class="col-md-8">
       <div id="primary-message" class="message-pane">
