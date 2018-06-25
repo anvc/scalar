@@ -229,6 +229,9 @@ class MY_Controller extends CI_Controller {
 		
 		$can = true;
 		if (!isset($this->data['book']) || !isset($this->data['book']->editorial_is_on)) $can = false;
+		if (!$this->db->field_exists('editorial_state', 'versions')) $can = false;
+		if (!$this->db->field_exists('usage_rights', 'versions')) $can = false;
+		if (!$this->db->field_exists('editorial_queries', 'versions')) $can = false;
 		return $can;
 		
 	}

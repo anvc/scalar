@@ -5,6 +5,15 @@ if (empty($book)) {
 }
 ?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-dateformat.min.js')?>
+<?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
+<?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
+<?php
+$css = <<<STR
+#cstitle {font-weight:bold; margin:22px 0px 22px 0px;}
+#cs .selector {padding-left:0px !important; padding-right:0px !important;}
+STR;
+?>
+<?$this->template->add_css($css,'embed')?>
 <?php if ($editorial_is_on): ?>
 <script>
   var user_type = '<?echo($user_level);?>'.toLowerCase();
@@ -442,8 +451,28 @@ if (empty($book)) {
 			});
 		});
 	});
+
+	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#cs');
+	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
+	$selector.height(height + 'px');
+	var types = ['content'];
+	for (var type in editorial_states) {
+		if ('hidden'==type.toLowerCase() || 'empty'==type.toLowerCase()) continue;
+		types.push(editorial_states[type].name);
+	};
+	node_options = {  /* global */
+		fields:["title","description","last_edited_by"],
+		allowMultiple:true,
+		rowSelectMethod:'highlight',
+		rec:"0",
+		ref:"0",
+		editorialOptions:true,
+		defaultType:"content",
+		types:types
+	};
+	$selector.node_selection_dialogue(node_options);
     
-  });
+  }); // load
 
 </script>
 
@@ -475,12 +504,12 @@ if (empty($book)) {
       <div id="secondary-message" class="message-pane dark"></div>
     </div>
   </div>
-  <!--<div class="row">
+  <div class="row">
     <div class="col-md-12">
-      <h4>Browse content by state</h4>
-      <p>(Content selector goes here)</p>
+      <h5 id="cstitle">Browse content by state</h5>
+      <div id="cs"></div>
     </div>
-  </div>-->
+  </div>
   <div class="row">
     <section class="col-xs-7">
       <p><br><br><button class="btn btn-default" data-toggle="modal" data-target="#confirmEditorialWorkflow">Disable editorial workflow</button></p>

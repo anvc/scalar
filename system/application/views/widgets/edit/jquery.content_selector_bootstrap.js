@@ -1038,7 +1038,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		}
 		var order_nodes = function(options, nodeList) {
 
-
 			$('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast', function() {
 
 				$('.widget_selector_bootbox').find('.modal-dialog').css('width', '').css('margin-left', '').css('margin-right', '');
@@ -1543,6 +1542,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"deleteOptions": false,
 			"deleteButton": 'Delete selected',
 			"addOptions": false,
+			"editorialOptions": false,
 			"contributionsOptions": false,
 			"displayHeading": true,
 			"rowSelectMethod": 'checkbox', /* checkbox|highlight */
@@ -2331,6 +2331,47 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				alert('Could not find deleteOptions function');
 			});
 		};
+		
+		if (isset(opts.editorialOptions) && opts.editorialOptions) {
+			if ('undefined' == typeof($deleteOpts)) {
+				$dialogue_container.find('.selected_node_count').css('float', 'right').css('margin-left', 0);
+				var $deleteOpts = $('<div class="col-xs-7 botton_options_box"></div>').appendTo($dialogue_container.find('.panel-footer .row:first'));
+				if (isset(opts.allowMultiple) && opts.allowMultiple) {
+					var $selectall = $('<button type="button" class="btn btn-default">Select all</button>').appendTo($deleteOpts);
+					$selectall.off('click').on('click', function() {
+						var checked = $(this).hasClass('active');
+						var $rows = $(this).closest('.node_selector').find('tbody tr');
+						if (checked) {
+							$rows = $rows.filter('.current');
+							$(this).removeClass('active');
+						} else {
+							$rows = $rows.not('.current');
+							$(this).addClass('active');
+						}
+						$rows.trigger('click');
+						$(this).blur();
+					});
+				};
+			} else {
+				$deleteOpts.append('<span> &nbsp; </span>');
+			}
+			$edOption = $('<div class="btn-group"></div>').appendTo($deleteOpts);
+			$edOption.append('<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Choose an action <span class="caret"></span></button>');
+			var $edOptionList = $('<ul class="dropdown-menu"></ul>').appendTo($edOption);
+			for (var j = 0; j < opts.types.length; j++) {
+				if (opts.types[j].toLowerCase() == opts.defaultType.toLowerCase()) continue;
+				$edOptionList.append('<li><a href="#">Move to <b>'+opts.types[j]+'</b> state</a></li>');
+			};
+			$edOption.find('a').click(function() {
+				var $this = $(this);
+				if (!$this.closest('.node_selector').find('tbody tr.current').length) {
+					alert('Please select one or more items');
+					return;
+				}
+				var type = $(this).find('b').text().replace(' ', '').toLowerCase();
+				doEditorialFilter(type);
+			});
+		};
 
 		if (isset(opts.userOptions) && opts.userOptions) {
 			if ('undefined' == typeof($deleteOpts)) {
@@ -2407,7 +2448,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var type_display_name = 'Comments';
 			} else {
 				var type_display_name = opts.types[t].charAt(0).toUpperCase() + opts.types[t].slice(1);
-				if (type_display_name != 'Media') {
+				if (type_display_name != 'Media' && opts.editorialOptions === false) {
 					type_display_name += 's';
 				}
 			}
@@ -2442,7 +2483,17 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				"promise": promise,
 				"page": 0
 			});
-		}
+		};
+		
+		var doEditorialFilter = function(filter) {
+			
+			console.log(filter);
+			// TODO: Lucas, not sure how you want to proceed here
+			// We're already loading all content, so the filter can act by simply hide/show I assume
+			// However this will create a lot of problems with the load-by-50 pagination, ie, what 
+			// happens if the next 50 load and none/some of them are of the filter type? Would look funky 
+			
+		};
 
 		$type_filter_button.click(function() {
 			lastLoadType = "filter";

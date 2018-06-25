@@ -163,6 +163,9 @@
 	margin-right:10px;
 	margin-bottom: 10px;
 }
+.node_selector .botton_options_box .dropdown-menu {
+	margin-top:-8px; width:auto;
+}
 .node_selector .panel-heading, .node_selector .panel-footer{
 	background-color: transparent;
 	padding: 8px 0;
