@@ -240,7 +240,20 @@ STR;
       error: function(error) {
         location.reload();
       }
-    })
+    });
+  }
+
+  function moveSomeContentToState(version_ids, newState) {
+	$.ajax({
+		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
+		data: {version_id:version_ids,state:newState},
+		success: function(data) {
+		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);;
+		},
+		error: function(error) {
+	 	  alert('Something went wrong attemptiong to save: '+error);
+	 	}
+	});
   }
 
   function createNewEdition() {
@@ -461,12 +474,12 @@ STR;
 		types.push(editorial_states[type].name);
 	};
 	node_options = {  /* global */
-		fields:["visible","title","description","last_edited_by","date_edited"],
+		fields:["visible","title","description","editorial_state","last_edited_by","date_edited","usage_rights"],
 		allowMultiple:true,
 		rowSelectMethod:'highlight',
 		rec:"0",
 		ref:"0",
-		editorialOptions:true,
+		editorialOptions:moveSomeContentToState,
 		defaultType:"content",
 		types:types,
 		isEdit:true

@@ -389,7 +389,7 @@
 		top: 50%;
 	}
 }
-.node_selector_table_body select, .node_selector_table_body input{
+.node_selector_table_body select, .node_selector_table_body input:not([type='checkbox']) {
 	box-sizing: border-box;
 	max-width: 100%;
 	width: 100%;

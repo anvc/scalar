@@ -389,7 +389,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				get_vars.start = opts.start;
 				get_vars.results = opts.resultsPerPage;
 			}
-			var url = opts.parent + 'rdf/instancesof/' + type + '?format=json&' + obj_to_vars(get_vars);
+			var url = opts.parent + 'rdf/instancesof/' + type.replace(/\s+/g, '').toLowerCase() + '?format=json&' + obj_to_vars(get_vars);
 			return url;
 		};
 		// Search
@@ -648,7 +648,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (typeof loaded_nodeLists[type] !== "undefined") {
 				promise.resolve();
 			} else {
-				var url = parent_url + 'rdf/instancesof/' + type + '?format=json&rec=0&ref=0';
+				var url = parent_url + 'rdf/instancesof/' + type.replace(/\s+/g, '').toLowerCase() + '?format=json&rec=0&ref=0';
 				$.getJSON(url, function() {}).always(function(_data) {
 					if ('undefined' != typeof(_data.status)) {
 						alert('There was a problem trying to get a list of content: ' + _data.status + ' ' + _data.statusText + '. Please try again.');
@@ -1391,7 +1391,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if ('users' == type) {
 				var url = parent_url + 'rdf?format=json&u_all=1';
 			} else {
-				var url = parent_url + 'rdf/instancesof/' + type + '?format=json&rec=' + rec + '&ref=' + ref + '&start=' + (options.page * opts.resultsPerPage) + "&results=" + opts.resultsPerPage;
+				var url = parent_url + 'rdf/instancesof/' + type.replace(/\s+/g, '').toLowerCase() + '?format=json&rec=' + rec + '&ref=' + ref + '&start=' + (options.page * opts.resultsPerPage) + "&results=" + opts.resultsPerPage;
 			};
 			if (-1 != opts.fields.indexOf('last_edited_by')) {
 				url += '&prov=1';
@@ -1520,6 +1520,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			last_edited_by: 2,
 			date_created: 2,
 			date_edited: 2,
+			editorial_state: 1,
+			usage_rights: 2,
 			versions: 1,
 			edit: 1,
 			bio_contributions: 2
@@ -1891,6 +1893,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								dt = new Date(item.version["http://purl.org/dc/terms/created"][0].value);
 								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" title="' + createdStr + '">' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear() + '</td>';
 								break;
+							case 'editorial_state':
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="'+col+'">' + ucwords(item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value) + '</a></td>';
+								break;
+							case 'usage_rights':
+								var is_checked = ('undefined' != typeof(item.version['http://scalar.usc.edu/2012/01/scalar-ns#usageRights']) && 1 == parseInt(item.version['http://scalar.usc.edu/2012/01/scalar-ns#usageRights'][0].value)) ? true : false;
+								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="'+col+'" style="text-align:left;padding-left:38px;"><input type="checkbox" name="'+col+'" value="1" '+((is_checked)?'checked':'')+' /></td>';
+								break;								
 							case 'versions':
 								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" align="center"><a href="' + item.uri + '.versions">&nbsp;' + item.version["http://open.vocab.org/terms/versionnumber"][0].value + '&nbsp;</a></td>';
 								break;
@@ -2163,7 +2172,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					};
 				};
 
-				$rows.find('a:not(.btn)').click(function(e) {
+				$rows.find('a:not(.btn), [type="checkbox"]').click(function(e) {
 					e.stopPropagation();
 					var $this = $(this);
 					if (opts.isEdit && $this.hasClass('visibilityLink') && 'is_live'==$this.parent().attr('property')) {
@@ -2185,6 +2194,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							if (data.error) return alert(data.error);
 							var visibleThumbUrl = (1==data.list_in_index) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
 							$this.find('.glyphicon').removeClass('glyphicon-eye-open glyphicon-eye-close').addClass(visibleThumbUrl);
+						});
+					} else if (opts.isEdit && 'usage_rights'==$this.prop('name')) {
+						var version_id = $this.closest('tr').data('version-id');
+						var checked = $this.is(':checked') ? true : false;
+						var post = {section:'versions',id:version_id,book_id:book_id,usage_rights:((checked)?1:0)};
+						push_row(post, function(data) {
+							if (data.error) return alert(data.error);
+							$this.prop('checked', ((parseInt(data.usage_rights))?true:false));
 						});
 					};
 				});
@@ -2358,7 +2375,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var $edOptionList = $('<ul class="dropdown-menu"></ul>').appendTo($edOption);
 			for (var j = 0; j < opts.types.length; j++) {
 				if (opts.types[j].toLowerCase() == opts.defaultType.toLowerCase()) continue;
-				$edOptionList.append('<li><a href="#">Move to <b>'+opts.types[j]+'</b> state</a></li>');
+				$edOptionList.append('<li><a href="javascript:void(null);">Move to <b>'+opts.types[j]+'</b> state</a></li>');
 			};
 			$edOption.find('a').click(function() {
 				var $this = $(this);
@@ -2367,7 +2384,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					return;
 				}
 				var type = $(this).find('b').text().replace(' ', '').toLowerCase();
-				doEditorialFilter(type);
+				var version_ids = [];
+				$this.closest('.selector').find('tr.current').each(function() {
+					version_ids.push(parseInt($(this).data('version-id')));
+				});
+				if ('function' == typeof(opts.editorialOptions)) {
+					opts.editorialOptions(version_ids, type);
+					return;
+				}
+				alert('Could not find editorialOptions function');
 			});
 		};
 
@@ -2484,16 +2509,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				"page": 0
 			});
 		};
-		
-		var doEditorialFilter = function(filter) {
-			
-			console.log(filter);
-			// TODO: Lucas, not sure how you want to proceed here
-			// We're already loading all content, so the filter can act by simply hide/show I assume
-			// However this will create a lot of problems with the load-by-50 pagination, ie, what 
-			// happens if the next 50 load and none/some of them are of the filter type? Would look funky 
-			
-		};
 
 		$type_filter_button.click(function() {
 			lastLoadType = "filter";
@@ -2567,6 +2582,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '" style="text-align:center;">' + toProperCase(fields_to_display[f].replace(/_/g, " ")) + '</th>');
 				} else if (fields_to_display[f] == 'url') {
 					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">URL</th>');
+				} else if (fields_to_display[f] == 'editorial_state') {
+					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">State</th>');
 				} else {
 					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">' + toProperCase(fields_to_display[f].replace(/_/g, " ")) + '</th>');
 				}

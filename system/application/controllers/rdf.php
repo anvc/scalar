@@ -200,7 +200,7 @@ class Rdf extends MY_Controller {
 			exit;
 		}
 		try {
-			$class = no_ext($class);
+			$class = strtolower(no_ext($class));
 			$type = $category = null;
 			$rel = RDF_Object::REL_CHILDREN_ONLY;
 			switch ($class) {
@@ -233,6 +233,7 @@ class Rdf extends MY_Controller {
 					break;
 				default:
 					$editorial_states = array('draft','edit','editreview','clean','ready','published');
+					// TODO use can_editorial()
 					if (isset($this->data['book']->editorial_is_on) && !empty($this->data['book']->editorial_is_on) && in_array($class, $editorial_states)) {
 						$model = 'pages';
 						$this->data['editorial_state'] = substr($class, 0);  // clone
