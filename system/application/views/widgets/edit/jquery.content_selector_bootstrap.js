@@ -2516,6 +2516,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var $type_selector = $dialogue_container.find('.node_filter select');
 			var $search = $dialogue_container.find('.node_search');
 			$search.find('input').val('');
+
+			if(!!opts.refreshAfterFilter){
+				loaded_nodeLists = {};
+			}
+
 			current_type = $type_selector.val();
 			doTypeFilter();
 			$type_selector.siblings('button').blur();

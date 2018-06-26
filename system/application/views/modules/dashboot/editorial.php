@@ -474,15 +474,16 @@ STR;
 		types.push(editorial_states[type].name);
 	};
 	node_options = {  /* global */
-		fields:["visible","title","description","editorial_state","last_edited_by","date_edited","usage_rights"],
-		allowMultiple:true,
-		rowSelectMethod:'highlight',
-		rec:"0",
-		ref:"0",
-		editorialOptions:moveSomeContentToState,
-		defaultType:"content",
-		types:types,
-		isEdit:true
+      fields:["visible","title","description","editorial_state","last_edited_by","date_edited","usage_rights"],
+      allowMultiple:true,
+      rowSelectMethod:'highlight',
+      rec:"0",
+      ref:"0",
+      editorialOptions:moveSomeContentToState,
+      defaultType:"content",
+      types:types,
+      isEdit:true,
+      refreshAfterFilter:true
 	};
 	$selector.node_selection_dialogue(node_options);
     
