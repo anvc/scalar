@@ -81,7 +81,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     "nextEditorialState": "published",
                     "actions": ["Dashboard"]
                 },
-                "published": null
+                "published": null,
+                "pastVersion": {
+                    "text": "<strong>Version $versionNum of this $contentType was in the $editorialState state.</strong><br/>Go to the latest version to see its current state.",
+                    "previousEditorialState": null,
+                    "nextEditorialState": null,
+                    "actions": ["Latest version"]
+                }
             },
             "editor": {
                 "draft": {
@@ -114,7 +120,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     "nextEditorialState": "published",
                     "actions": ["Edit $contentType","Dashboard"]
                 },
-                "published": null
+                "published": null,
+                "pastVersion": {
+                    "text": "<strong>Version $versionNum of this $contentType was in the $editorialState state.</strong><br/>Go to the latest version to see its current state.",
+                    "previousEditorialState": null,
+                    "nextEditorialState": null,
+                    "actions": ["Latest version"]
+                }
             }
         }
         base.editorialState = base.editorialStates['none'];
@@ -888,8 +900,15 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     contentType = scalarType.singular;
                 }
 
+                var version = scalarapi.getVersionExtension(window.location.href);
+
                 if (base.editorialBarData[userType] != null) {
-                    var editorialBarData = base.editorialBarData[userType][base.editorialState.id];
+                    var editorialBarData;
+                    if (version == '') {
+                        editorialBarData = base.editorialBarData[userType][base.editorialState.id];
+                    } else {
+                         editorialBarData = base.editorialBarData[userType]['pastVersion'];
+                    }
                     if (editorialBarData != null) {
                         editorialBar.addClass(base.editorialState.id + '-state');
 
@@ -909,6 +928,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         // text
                         var text = editorialBarData.text;
                         text = text.replace('$contentType', contentType);
+                        text = text.replace('$versionNum', version);
                         text = text.replace('$editorialState', base.editorialState.name);
                         if (queryCount > 0) {
                             text = text.replace('$openQueryCount', queryCount);
@@ -919,7 +939,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         if (editorialBarData.previousEditorialState != null) {
                             text = text.replace('$previousEditorialState', base.editorialStates[editorialBarData.previousEditorialState].name);
                         }
-                        text = text.replace('$nextEditorialState', base.editorialStates[editorialBarData.nextEditorialState].name);
+                        if (editorialBarData.nextEditorialState != null) {
+                         text = text.replace('$nextEditorialState', base.editorialStates[editorialBarData.nextEditorialState].name);
+                        }
                         editorialBar.append('<div class="message">' + text + '</div>');
                         if (queryCount == 0) {
                             editorialBar.find('span.query-msg').remove();
@@ -947,6 +969,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 break;
                                 case "Edit " + contentType:
                                 button.attr('href', base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit'));
+                                break;
+                                case "Latest version":
+                                button.attr('href', scalarapi.stripVersion(window.location.href));
                                 break;
                             }
                         }
