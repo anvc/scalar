@@ -83,7 +83,10 @@ $config['index_render_published'] = true;
 $config['index_hide_published'] = true;
 
 // Redlisted domains that won't let themselves be included in expernal.php's iframe
-$config['iframe_redlist'] = array('youtube.com', 'vimeo.com', 'google.com', 'microsoft.com', 'metmuseum.org', 'bloomberg.com', 'nytimes.com', 'nationalreview.com', 'theguardian.com'); 
+$config['iframe_redlist'] = array('youtube.com', 'vimeo.com', 'google.com', 'microsoft.com', 'metmuseum.org', 'bloomberg.com', 'nytimes.com', 'nationalreview.com', 'theguardian.com', 'twitter.com'); 
+
+// If true, external hyperlinks will go directly to the external page rather than attempt to be rendered in Scalar's external.php
+$config['external_direct_hyperlink'] = false;
 
 // Default style theme (for newly created books)
 $config['default_stylesheet'] = 'minimal';
