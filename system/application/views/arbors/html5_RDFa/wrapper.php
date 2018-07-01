@@ -145,6 +145,9 @@ if (isset($page->version_index)) {
 <? if (!$mode && $margin_nav): ?>
 <link id="margin_nav" href="true" />
 <? endif ?>
+<? if (true === $this->config->item('external_direct_hyperlink')): ?>
+<link id="external_direct_hyperlink" href="true" />
+<? endif ?>
 <link id="google_maps_key" href="<?=$this->config->item('google_maps_key')?>" />
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>

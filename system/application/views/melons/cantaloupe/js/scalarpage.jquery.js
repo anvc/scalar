@@ -2064,21 +2064,20 @@
             },
 
             addExternalLinks: function() {
-                page.bodyContentLinks().each(function() {
-
+            	var can_use_external_page = ($('link#external_direct_hyperlink').length && 'true'==$('link#external_direct_hyperlink').attr('href')) ? false : true;
+            	if (!can_use_external_page) return;
+            	page.bodyContentLinks().each(function() {
                     var base_url = $('link#parent').attr('href');
                     var $link = $(this);
                     var resource = $link.attr('resource');
                     var href = $link.attr('href');
                     var target = ('undefined' != typeof($link.attr('target'))) ? $link.attr('target') : null;
                     var url = $(this).attr("href");
-
-                    // Link without resource=""	(external or internal)
-                    if (resource == null) {
+                    if (resource == null) {  // Links with resource="" are always internal
                         if ('undefined' != typeof(href) && base_url) {
-                            if (href.substr(0, 4) == 'http' && href.indexOf(base_url) == -1) { // External link
-                                $link.click(function() { // Open with previous header
-                                    if (target) { // E.g., open in a new page
+                            if (href.substr(0, 4) == 'http' && href.indexOf(base_url) == -1) { // Is an external link
+                                $link.click(function() {
+                                    if (target) { // E.g., open in a new tab
                                         $link.click();
                                         return false;
                                     } else {

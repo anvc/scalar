@@ -389,33 +389,46 @@ class Book extends MY_Controller {
 		$this->data['link'] = (@!empty($_GET['link'])) ? $_GET['link'] : null;
 		$this->data['prev'] = (@!empty($_GET['prev'])) ? $_GET['prev'] : null;
 
-		//Check to make sure URLs have a valid host (does not immediately prevent all XSS)
-		if(
-			(filter_var($this->data['prev'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE) ||
-			(filter_var($this->data['link'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE)
-		){
+		// Check to make sure URLs have a valid host
+		if ((filter_var($this->data['prev'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE) || (filter_var($this->data['link'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE)) {
 			$this->kickout();
 		}
-
-		//Also prevent MailTo and other non-standard URIs
+		
+		// Prevent MailTo and other non-standard URIs
 		$linkParts = parse_url($this->data['link']);
 		$prevParts = parse_url($this->data['prev']);
-		if(
-			($linkParts['scheme'] != 'http' && $linkParts['scheme'] != 'https') ||
-			($prevParts['scheme'] != 'http' && $prevParts['scheme'] != 'https')
-		){
+		if (($linkParts['scheme'] != 'http' && $linkParts['scheme'] != 'https') || ($prevParts['scheme'] != 'http' && $prevParts['scheme'] != 'https')) {
 			$this->kickout();
 		}
-
-		//Strip any remaining HTML tags out of the URLs - this should resolve any lingering XSS exploits
-		//Probably a little redundant, but each one of these filters seems to miss at least one edge-case
+		
+		// Strip any remaining HTML tags out of the URLs
 		$this->data['link'] = htmlspecialchars(filter_var(strip_tags($this->data['link']),FILTER_SANITIZE_URL));
 		$this->data['prev'] = htmlspecialchars(filter_var(strip_tags($this->data['prev']),FILTER_SANITIZE_URL));
-
 		if (empty($this->data['link']) || empty($this->data['prev'])) $this->kickout();
 		if (!stristr($this->data['prev'], base_url())) $this->kickout();
-
-		// Special case known domains that don't allow iframes
+		
+		// Make sure the link is contained in the text body of the prev page
+		$slug = str_replace(base_url().$this->data['book']->slug.'/', '', $this->data['prev']);
+		if (strpos($slug, '?')) $slug = substr($slug, 0, strpos($slug, '?'));
+		$page = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
+		if (empty($page)) $this->kickout();
+		$contents = $this->versions->get_all_page_contents($page->content_id);
+		$has_link = false;
+		foreach ($contents as $content) {
+			if (stristr($content, $this->data['link'])) {
+				$has_link = true;
+				break;
+			}
+		}
+		if (!$has_link) $this->kickout();
+		
+		// Bypass if configured to do so... the front-end shouldn't be pointing to /external at all, though, if setting is true
+		if (true === $this->config->item('external_direct_hyperlink')) {
+			header('Location: '.$this->data['link']);
+			exit;
+		}
+		
+		// Special case known domains that don't allow iframes from local_settings.php
 		foreach ($this->config->item('iframe_redlist') as $forbidden) {
 			if (stristr($this->data['link'], $forbidden)) {
 				header('Location: '.$this->data['link']);

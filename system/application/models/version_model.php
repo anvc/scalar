@@ -271,6 +271,30 @@ class Version_model extends MY_Model {
     	return $result[0]->content_id;
 
     }
+    
+    /**
+     * Return the content field from all versions of a certain content ID
+     */
+    public function get_all_page_contents($content_id=0) {
+    	
+		if (empty($content_id)) return false;
+		
+		$this->db->select('version_id');
+		$this->db->select('content');
+    	$this->db->where('content_id',$content_id);
+    	$query = $this->db->get($this->versions_table);
+    	$result = $query->result();
+
+    	$return = array();
+    	
+    	foreach ($result as $key => $value) {
+    		$version_id = $result[$key]->version_id;
+    		$return[$version_id] = $result[$key]->content; 
+    	}
+    	
+    	return $return;
+    	
+    }
 
 	/**
 	 * Return true of the owner ("user") of a version is the passed user ID

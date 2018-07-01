@@ -80,6 +80,9 @@ echo doctype('html5')."\n"
 <? if (!$mode && $hypothesis): ?>
 <link id="hypothesis" href="true" />
 <? endif ?>
+<? if (true === $this->config->item('external_direct_hyperlink')): ?>
+<link id="external_direct_hyperlink" href="true" />
+<? endif ?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>

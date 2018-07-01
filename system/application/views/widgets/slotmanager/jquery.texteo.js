@@ -20,7 +20,7 @@
 /**
  * @projectDescription  Find HTML links in a text and broadcast information about them including their location in a scroll area
  * @author              Craig Dietrich
- * @version             2.2  (Version 1.0 is used by http://vectors.usc.edu/projects/learningfromyoutube)
+ * @version             2.3  (Version 1.0 is used by http://vectors.usc.edu/projects/learningfromyoutube)
  * @abstract			Needs to be refactored
  * 
  * Usage:
@@ -87,6 +87,8 @@
 
 				var hide_icon = ($link.hasClass('hide_icon')) ? true : false;	
 				if (!hide_icon && !jQuery.trim($link.html()).length) hide_icon = true
+				
+            	var can_use_external_page = ($('link#external_direct_hyperlink').length && 'true'==$('link#external_direct_hyperlink').attr('href')) ? false : true;
 
 				// Link with resource="..." (media)
 				if ('undefined'!=typeof(resource)) {
@@ -143,9 +145,14 @@
 								$link.click();
 								return false;
 							} else {
-								var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
-								document.location.href=link_to;
-								return false;
+								if (!can_use_external_page) {
+									$link.click();
+									return false;
+								} else {
+									var link_to = base_url+'external?link='+encodeURIComponent($(this).attr('href'))+'&prev='+encodeURIComponent(document.location.href);
+									document.location.href=link_to;
+									return false;
+								}
 							}
 						});
 					} else if (href.indexOf('://') != -1) {  // Internal link with absolute URL
