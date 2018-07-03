@@ -268,7 +268,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</ul>'+
                                             '</li>'+
                                         '</ul>'+
-                                        '<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper"><span class="hidden-xs author_text"> by <span id="header_authors" data-placement="bottom"></span></span></span>'+
+                                        '<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper"><span class="hidden-xs author_text"><span id="header_authors" data-placement="bottom"></span></span></span>'+
                                         '<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight">'+
                                             '<li class="" id="ScalarHeaderMenuSearch">'+
                                                 '<a class="headerIcon" id="searchIcon" title="Search button. Click to open search field.">'+
@@ -630,38 +630,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             base.buildUserMenu(base.$el.find('#ScalarHeaderMenuUserList'));
 
-            var i, n, authors = [];
-
-            // Get owners of book
-            $('body').find('a.metadata[rel="sioc:has_owner"]').each(function(){
-                authors.push($('body span[resource="'+($(this).attr('href').split('#')[0])+'"] span[property="foaf:name"]').html());
-            });
-
-            var author,
-                n = authors.length,
-                author_text = navbar.find( '#header_authors' );
-
-            // Build string for author credit
-            for ( var i = 0; i < n; i++ ) {
-                author = authors[ i ];
-                if(i > 0){
-                    if ( i == ( n - 1 )) {
-                        if ( n > 2 ) {
-                            author_text.append( ', and ' );
-                        } else {
-                            author_text.append( ' and ' );
-                        }
-                    } else {
-                        author_text.append( ', ' );
-                    }
-                }
-                author_text.append( author );
-            }
-            // remove the 'by' if there are no authors to list
-            if ( n == 0 ) {
-                $( '.author_text' ).empty();
-            }
-
+            navbar.find('#header_authors').text(getAuthorCredit());
 
             var helpElement = $('<div></div>').appendTo('body');
             base.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );

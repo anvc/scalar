@@ -312,6 +312,41 @@ function wrapOrphanParagraphs(selection) {
 	});
 }
 
+function getAuthorCredit() {
+    var i, n,
+    	authors = [];
+
+    // Get owners of book
+    $('body').find('a.metadata[rel="sioc:has_owner"]').each(function(){
+        authors.push($('body span[resource="'+($(this).attr('href').split('#')[0])+'"] span[property="foaf:name"]').html());
+    });
+
+    var author,
+        n = authors.length,
+    	authorString = '';
+
+    // Build string for author credit
+    for ( var i = 0; i < n; i++ ) {
+        author = authors[ i ];
+        if (i == 0) {
+            authorString += 'by ';
+        } else if (i > 0) {
+            if ( i == ( n - 1 )) {
+                if ( n > 2 ) {
+                    authorString += ', and ';
+                } else {
+                    authorString += ' and ';
+                }
+            } else {
+                authorString += ', ';
+            }
+        }
+        authorString += author;
+    }
+
+    return authorString;
+}
+
 
 /**
  * Create a slot and attach to a tag (ported from honeydew slot manager)

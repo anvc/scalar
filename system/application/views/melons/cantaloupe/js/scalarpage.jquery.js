@@ -1290,36 +1290,7 @@
 
                 // add book authors if this is a book splash page
                 if (viewType == 'book_splash') {
-
-                    var i, n,
-                        owners = scalarapi.model.getBookNode().properties['http://rdfs.org/sioc/ns#has_owner'],
-                        authors = [];
-                    if (owners) {
-                        n = owners.length;
-                        for (i = 0; i < n; i++) {
-                            authors.push(scalarapi.getNode(scalarapi.stripAllExtensions(owners[i].value)));
-                        }
-                    }
-
-                    var author,
-                        n = authors.length,
-                        byline = $('.title_card > h2');
-                    for (var i = 0; i < n; i++) {
-                        author = authors[i];
-                        if (i == 0) {
-                            byline.append('by ');
-                        } else if (i == (n - 1)) {
-                            if (n > 2) {
-                                byline.append(', and ');
-                            } else {
-                                byline.append(' and ');
-                            }
-                        } else {
-                            byline.append(', ');
-                        }
-                        byline.append(author.getDisplayTitle());
-                    }
-
+                    $('.title_card > h2').append(getAuthorCredit());
                 }
 
                 var publisherNode = scalarapi.model.getPublisherNode();
