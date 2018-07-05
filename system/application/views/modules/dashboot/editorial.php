@@ -5,6 +5,7 @@ if (empty($book)) {
 }
 ?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-dateformat.min.js')?>
+<?$this->template->add_js('system/application/views/widgets/api/scalarapi.js')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?php
@@ -248,7 +249,7 @@ STR;
 		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
 		data: {version_id:version_ids,state:newState},
 		success: function(data) {
-		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);;
+		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);
 		},
 		error: function(error) {
 	 	  alert('Something went wrong attemptiong to save: '+error);
@@ -474,7 +475,7 @@ STR;
 		types.push(editorial_states[type].name);
 	};
 	node_options = {  /* global */
-      fields:["visible","title","description","editorial_state","last_edited_by","date_edited","usage_rights"],
+      fields:["visible","title","type_icon","format","description","editorial_state","last_edited_by","date_edited","usage_rights"],
       allowMultiple:true,
       rowSelectMethod:'highlight',
       rec:"0",
