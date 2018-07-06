@@ -39,7 +39,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		}
 		// Helpers
 		var ucwords = function(str) { // http://kevin.vanzonneveld.net
-			return (str + '').replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function($1) {
+			return (str ).replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function($1) {
 				return $1.toUpperCase();
 			});
 		};
@@ -1411,6 +1411,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						alert('There was a problem trying to get a list of content: ' + _data.status + ' ' + _data.statusText + '. Please try again.');
 						return;
 					}
+					if(typeof scalarapi !== "undefined"){
+						scalarapi.parsePage(_data);
+					}
 					if (!doSearch && options.page == 0) {
 						loaded_nodeLists[type] = [];
 					}
@@ -1481,6 +1484,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								item.content = _data[uri];
 								item.version = _data[item.version_uri];
 								item.hasThumbnail = false;
+
+								if(typeof scalarapi !== "undefined"){
+									var node = scalarapi.getNode(item.slug);
+									item.node_type = node.getDominantScalarType().id;
+									if(!!node.current.mediaSource){
+										item.content_type = node.current.mediaSource.name;
+									}
+								}
+
 								item.title = ('undefined' !== typeof(item.version["http://purl.org/dc/terms/title"])) ? item.version["http://purl.org/dc/terms/title"][0].value : '';
 								item.targets = 'undefined' !== typeof _data[uri].rel ? _data[uri].rel : [];
 								if ('undefined' !== typeof item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail']) {
@@ -1508,7 +1520,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			thumbnail: 1,
 			title: 2,
 			name: 2,
-			description: 'auto',
+			description: 3,
 			url: 2,
 			homepage: 2,
 			preview: 2,
@@ -1524,7 +1536,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			usage_rights: 2,
 			versions: 1,
 			edit: 1,
-			bio_contributions: 2
+			bio_contributions: 2,
+			type_icon : 1,
+			format : 1
 		}
 		var defaultCallback = function() {};
 		var opts = {
@@ -1680,32 +1694,83 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			return string
 		};
 		var ucwords = function(str) { // http://locutus.io/php/ucwords/
-			return (str + '')
+			return (str )
 				.replace(/^(.)|\s+(.)/g, function($1) {
 					return $1.toUpperCase()
 				})
 		}
+		var getScrollbarWidth = function() {
+		    var outer = document.createElement("div");
+		    outer.style.visibility = "hidden";
+		    outer.style.width = "100px";
+		    outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+		    document.body.appendChild(outer);
+
+		    var widthNoScroll = outer.offsetWidth;
+		    // force scrollbars
+		    outer.style.overflow = "scroll";
+
+		    // add innerdiv
+		    var inner = document.createElement("div");
+		    inner.style.width = "100%";
+		    outer.appendChild(inner);        
+
+		    var widthWithScroll = inner.offsetWidth;
+
+		    // remove divs
+		    outer.parentNode.removeChild(outer);
+
+		    return widthNoScroll - widthWithScroll;
+		}
+		var scrollBarWidth = getScrollbarWidth();
 		var resize = $.proxy(function($dialogue_container) {
-			$dialogue_container.show();
+			var pips_per_row = 0;
+			$dialogue_container.find('thead th').each(function(){
+				if(!$(this).is(':visible')){
+					return;
+				}
+				pips_per_row += $(this).data('width');
+			});
+			$dialogue_container.find('thead th').each(function(){
+				$(this).css('width',100*($(this).data('width')/pips_per_row)+'%');
+			});
+			pips_per_row = 0;
+			$dialogue_container.find('tbody tr:first td').each(function(){
+				pips_per_row += $(this).data('width');
+			});
+
+			$dialogue_container.find('tbody td').each(function(){
+				$(this).css('width',100*($(this).data('width')/pips_per_row)+'%');
+			});
+
+			$dialogue_container.show().find('.node_selector_table_body table').hide();
+			$dialogue_container.find('.node_selector_table_body').css('height','auto');
 			var height = $(this).height();
+
 			if (!opts.displayHeading) {
 				$dialogue_container.find('.panel-heading').hide();
+				var heading_height = 0;
 			} else {
-				height -= $(this).find('.panel-heading').height(); // Change from outerHeight to height ~cd
-				height -= 8; // This accounts for the top padding; the bottom padding overlaps the table so disregarding ~cd
-			};
-			height -= $(this).find('.panel-footer').outerHeight();
-			height -= 20; // Magic number that is essentially the bottom margin of the whole container ~cd
-			$dialogue_container.find('.panel-body>table').width($dialogue_container.find('.node_selector_table_body>table').width());
-			
-			height -= $(this).find('.panel-body>table').outerHeight();
-			var orig_height = height;
-			height = Math.max(height, 50);
-			if (height > orig_height) {
-				var diff = height - orig_height;
-				$(this).height($(this).height() + diff);
+				$dialogue_container.find('.panel-heading').show();
+				var heading_height = $(this).find('.panel-heading').outerHeight();
 			}
-			$dialogue_container.find('.node_selector_table_body').height(height);
+			
+			var body_height = $(this).find('.panel-body').outerHeight();
+			var footer_height = $(this).find('.panel-footer').outerHeight();
+			
+			height -= (heading_height+body_height+footer_height);
+			height = Math.max(height, 50);
+
+			$dialogue_container.find('.node_selector_table_body').height(height).find('table').show();
+
+			var body = $dialogue_container.find('.node_selector_table_body')[0];
+
+			if (body.offsetHeight < body.scrollHeight) {
+				$dialogue_container.find('.panel-body>table').css('padding-right',scrollBarWidth+'px');
+			} else {
+			    $dialogue_container.find('.panel-body>table').css('padding-right','0px');
+			}
 		}, this, $dialogue_container);
 		var shorten_description = function(description) {
 			var max_chars = 200; // Magic number...
@@ -1822,31 +1887,31 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									continue;
 								}
 								$(this).find('th[data-field="thumbnail"]').show();
-								rowHTML += '<td class="node_thumb ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="' + item.thumbnail + '"></td>';
+								rowHTML += '<td class="node_thumb ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="' + item.thumbnail + '"></td>';
 								break;
 							case 'title':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="'+col+'"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.title + '</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.title + '</a></td>';
 								break;
 							case 'name': // foaf:name
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.content['http://xmlns.com/foaf/0.1/name'][0].value + '</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.content['http://xmlns.com/foaf/0.1/name'][0].value + '</a></td>';
 								break;
 							case 'description':
 								var short_desc = shorten_description(desc);
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] + ' ' : '') + (desc !== short_desc ? 'shortened_desc ' : '') + '' + ((-1 != opts.editable.indexOf(col)) ? 'editable' : '') + '" property="'+col+'">' + (desc !== short_desc ? '<div class="full_desc">' + desc.replace(/"/g, '\\"') + '</div><div class="short_desc">' + short_desc + '</div>' : desc) + '</td>';
+								rowHTML += '<td class="' + (desc !== short_desc ? 'shortened_desc ' : '') + ((-1 != opts.editable.indexOf(col)) ? 'editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">' + (desc !== short_desc ? '<div class="full_desc">' + desc.replace(/"/g, '\\"') + '</div><div class="short_desc">' + short_desc + '</div>' : desc) + '</td>';
 								break;
 							case 'url':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '">/' + item.slug + '</td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'">/' + item.slug + '</td>';
 								break;
 							case 'homepage': // foaf:homepage
 								var homepage = ('undefined' != typeof(item.content['http://xmlns.com/foaf/0.1/homepage']) && item.content['http://xmlns.com/foaf/0.1/homepage'][0].value.length) ? item.content['http://xmlns.com/foaf/0.1/homepage'][0].value : '';
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '"><a href="' + homepage + '" target="_blank">' + homepage + '</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><a href="' + homepage + '" target="_blank">' + homepage + '</a></td>';
 								break;
 							case 'preview':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '"><a href="' + item.uri + '" target="_blank">Preview</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><a href="' + item.uri + '" target="_blank">Preview</a></td>';
 								break;
 							case 'include_children':
 								hasChildSelector = true;
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + ' select_children text-center' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="vertical-align: middle;">';
+								rowHTML += '<td class="select_children text-center' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="vertical-align: middle;">';
 								if (item.hasRelations) {
 									rowHTML += '<input type="checkbox" value="">';
 								}
@@ -1855,18 +1920,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							case 'visible':
 								var is_visible = ('undefined' != typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive']) && 1 == parseInt(item.content['http://scalar.usc.edu/2012/01/scalar-ns#isLive'][0].value)) ? true : false;
 								var visibleThumbUrl = (is_visible) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="is_live" align="center"><a class="visibilityLink" href="javascript:void(null);"><span class="glyphicon ' + visibleThumbUrl + '" aria-hidden="true"></span></a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="is_live" align="center"><a class="visibilityLink" href="javascript:void(null);"><span class="glyphicon ' + visibleThumbUrl + '" aria-hidden="true"></span></a></td>';
 								break;
 							case 'listed':
 								var is_listed = (1 == parseInt(item.listed)) ? true : false;
 								var listedThumbUrl = (is_listed) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="list_in_index" style="padding-left:19px;"><a class="visibilityLink" href="javascript:void(null);"><span class="glyphicon ' + listedThumbUrl + '" aria-hidden="true"></span></a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="list_in_index" style="padding-left:19px;"><a class="visibilityLink" href="javascript:void(null);"><span class="glyphicon ' + listedThumbUrl + '" aria-hidden="true"></span></a></td>';
 								break;
 							case 'order':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="sort_number" style="padding-left:23px;">' + item.index + '</td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="sort_number" style="padding-left:23px;">' + item.index + '</td>';
 								break;
 							case 'role':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable editable-role' : '') + '" property="relationship">' + ucwords(item.role) + '</td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable editable-role' : '') + '" data-width="' + fieldWidths[col] +'" property="relationship">' + ucwords(item.role) + '</td>';
 								break;
 							case 'last_edited_by':
 								var fullname = '';
@@ -1875,14 +1940,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									if (prov_uri != o) continue;
 									fullname = $this.data('_data')[o]["http://xmlns.com/foaf/0.1/name"][0].value;
 								}
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '"><a href="' + prov_uri + '">' + fullname + '</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><a href="' + prov_uri + '">' + fullname + '</a></td>';
 								break;
 							case 'date_created':
 								var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 								function getSuffix(n) { return n < 11 || n > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((n - 1) % 10, 3)] : 'th' };
 								var dt = new Date(item.content["http://purl.org/dc/terms/created"][0].value);
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '">' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear() + '</td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'">' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear() + '</td>';
 								break;
 							case 'date_edited':
 								var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -1891,23 +1956,37 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								var dt = new Date(item.content["http://purl.org/dc/terms/created"][0].value);
 								var createdStr = 'Date created: ' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear();
 								dt = new Date(item.version["http://purl.org/dc/terms/created"][0].value);
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" title="' + createdStr + '">' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear() + '</td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" title="' + createdStr + '">' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear() + '</td>';
 								break;
 							case 'editorial_state':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="'+col+'">' + ucwords(item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value) + '</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">' + ucwords(item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value) + '</a></td>';
+								break;
+							case 'type_icon':
+								if(typeof scalarapi !== "undefined"){
+									rowHTML += '<td class="text-center ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><img src="'+$('link#approot').attr('href') + '/views/melons/cantaloupe/images/menu_'+item.node_type+'_icon.png"></td>';
+								}else{
+									rowHTML += '<td class="text-center ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">icon</td>';
+								}
+								break;
+							case 'format':
+								if(typeof scalarapi !== "undefined"){
+									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">'+item.content_type+'</td>';
+								}else{
+									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">icon</td>';
+								}
 								break;
 							case 'usage_rights':
 								var is_checked = ('undefined' != typeof(item.version['http://scalar.usc.edu/2012/01/scalar-ns#usageRights']) && 1 == parseInt(item.version['http://scalar.usc.edu/2012/01/scalar-ns#usageRights'][0].value)) ? true : false;
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" property="'+col+'" style="text-align:left;padding-left:38px;"><input type="checkbox" name="'+col+'" value="1" '+((is_checked)?'checked':'')+' /></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'" style="text-align:left;padding-left:38px;"><input type="checkbox" name="'+col+'" value="1" '+((is_checked)?'checked':'')+' /></td>';
 								break;								
 							case 'versions':
-								rowHTML += '<td class="' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" align="center"><a href="' + item.uri + '.versions">&nbsp;' + item.version["http://open.vocab.org/terms/versionnumber"][0].value + '&nbsp;</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" align="center"><a href="' + item.uri + '.versions">&nbsp;' + item.version["http://open.vocab.org/terms/versionnumber"][0].value + '&nbsp;</a></td>';
 								break;
 							case 'edit':
-								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '" align="center"><a href="javascript:void(null);" class="btn btn-default btn-sm editLink">Edit row</a></td>';
+								rowHTML += '<td class="edit_col" data-width="' + fieldWidths[col] +'" align="center"><a href="javascript:void(null);" class="btn btn-default btn-sm editLink">Edit row</a></td>';
 								break;
 							case 'bio_contributions':
-								rowHTML += '<td class="edit_col ' + (fieldWidths[col] != 'auto' ? 'col-xs-' + fieldWidths[col] : '') + '"><a href="' + item.uri + '" class="btn btn-default btn-sm bioLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm contributionsLink">Contributions</a></td>';
+								rowHTML += '<td class="edit_col" data-width="' + fieldWidths[col] +'"><a href="' + item.uri + '" class="btn btn-default btn-sm bioLink">Bio page</a> &nbsp; &nbsp; <a href="javascript:void(null);" class="btn btn-default btn-sm contributionsLink">Contributions</a></td>';
 								break;
 						}
 					}
@@ -2248,6 +2327,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$(this).find('.spinner_container').hide();
 			$(this).find('.node_types .btn').prop('disabled', false).removeClass('disabled');
 
+
+			resize();
 		}, $dialogue_container);
 
 		var updateSelectedCounter = $.proxy(function() {
@@ -2582,17 +2663,23 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			fields_to_display = opts.fields;
 			for (var f in fields_to_display) {
 				if (["thumbnail", "preview", "edit", "bio_contributions"].indexOf(fields_to_display[f]) > -1) {
-					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '"></th>');
+					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '"></th>');
 				} else if (["visible", "versions"].indexOf(fields_to_display[f]) > -1) {
-					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '" style="text-align:center;">' + toProperCase(fields_to_display[f].replace(/_/g, " ")) + '</th>');
+					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '" style="text-align:center;">' + toProperCase(fields_to_display[f].replace(/_/g, " ")) + '</th>');
 				} else if (fields_to_display[f] == 'url') {
-					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">URL</th>');
+					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">URL</th>');
 				} else if (fields_to_display[f] == 'editorial_state') {
-					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">State</th>');
+					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">State</th>');
+				} else if (fields_to_display[f] == 'type_icon') {
+					$fields.append('<th data-width="'+fieldWidths[fields_to_display[f]]+'" class="text-center"  data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">Type</th>');
+				} else if (fields_to_display[f] == 'format') {
+					$fields.append('<th  data-width="'+fieldWidths[fields_to_display[f]]+'" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">Format</th>');
 				} else {
-					$fields.append('<th class="' + (fieldWidths[fields_to_display[f]] != 'auto' ? 'col-xs-' + fieldWidths[fields_to_display[f]] : '') + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">' + toProperCase(fields_to_display[f].replace(/_/g, " ")) + '</th>');
+					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">' + toProperCase(fields_to_display[f].replace(/_/g, " ")) + '</th>');
 				}
 			}
+
+			resize();
 		}
 
 		if (!isset(opts.preserveContent) || !opts.preserveContent) {
@@ -2623,7 +2710,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			updateSelectedCounter();
 			$dialogue_container.find('.node_filter button').click();
 			$(this).append($dialogue_container);
-			window.setTimeout(resize, 400);
 		}, this, $dialogue_container, opts, resize);
 
 		jQuery.when(init_promise).then(init_selector);
