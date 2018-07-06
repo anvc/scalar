@@ -112,7 +112,7 @@ header h5 {margin-bottom:14px;}
 .editorial-fragment { 
 	height: 40px; 
 	display: inline-block; 
-	cursor: pointer; 
+	cursor: default; 
 	color: white; 
 	line-height: 40px; 
 	text-align: center; 
