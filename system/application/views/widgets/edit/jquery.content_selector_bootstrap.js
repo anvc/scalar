@@ -1499,7 +1499,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									item.thumbnail = item.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0]['value'];
 									item.hasThumbnail = true;
 								} else {
-									item.thumbnail = $('link#approot').attr('href') + '/views/melons/cantaloupe/images/media_icon_chip.png';
+									item.thumbnail = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/media_icon_chip.png';
 								}
 								item.hasRelations = 'undefined' !== typeof item.content.rel;
 								if (doSearch) {
@@ -1963,7 +1963,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								break;
 							case 'type_icon':
 								if(typeof scalarapi !== "undefined"){
-									rowHTML += '<td class="text-center ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><img src="'+$('link#approot').attr('href') + '/views/melons/cantaloupe/images/menu_'+item.node_type+'_icon.png"></td>';
+									rowHTML += '<td class="text-center ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><img src="'+$('link#approot').attr('href') + 'views/widgets/edit/'+item.node_type+'_icon.png" srcset="'+$('link#approot').attr('href') + 'views/widgets/edit/'+item.node_type+'_icon_2x.png 2x"></td>';
 								}else{
 									rowHTML += '<td class="text-center ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">icon</td>';
 								}
@@ -2765,7 +2765,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								item.thumbnail = slug_data.thumbnail;
 								item.hasThumbnail = true;
 							} else {
-								item.thumbnail = $('link#approot').attr('href') + '/views/melons/cantaloupe/images/media_icon_chip.png';
+								item.thumbnail = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/media_icon_chip.png';
 							}
 							item.include_children = slugs[i].children;
 							item.hasRelations = 'undefined' !== typeof item.targets && item.targets.length > 0;

@@ -408,8 +408,8 @@
 	padding-bottom: 4px;
 }
 td[property="type_icon"] img{
-	width: auto;
-	height: 22px;
+	width: 12px;
+	height: auto;
 }
 .table-fixed thead th, .table-fixed tbody td{
 	display: inline-block;
