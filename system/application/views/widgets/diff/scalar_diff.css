@@ -8,6 +8,7 @@ span[data-diff],span[data-diff]>*{
 }
 span[data-diff="chunk"]{
 	display: inline-block;
+	white-space: pre-wrap;
 }
 span[data-diff].withBlockElement{
 	display: block;

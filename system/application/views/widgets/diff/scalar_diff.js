@@ -175,11 +175,19 @@ var scalar_diff = {
                     });
                 }else{
                     var newTag = '<span data-diff="del">'+thisDiff[1]+'</span>';
-                    var content = '';
+                    var content = thisDiff[1];
+                    for(var h in diff.tokens.list){
+                        var tokenSet = diff.tokens.list[h];
+                        for(var t in tokenSet.tokens){
+                            var regex = new RegExp(tokenSet.tokens[t], "g");
+                            content = content.replace(regex, '');
+                        }
+                    }
                     var isTag = !!diff.tokens.relationships[thisDiff[1]];
                     for(var w in waitingTags){
                         if(waitingTags[w].waitingFor == thisDiff[1]){
                             //We found a closing tag! Huzzah!
+                            content = '';
                             for(var t = 1; t < waitingTags[w].tags.length; t++){
                                 content+=waitingTags[w].tags[t];
                             }
@@ -211,11 +219,19 @@ var scalar_diff = {
                     });
                 }else{
                     var newTag = '<span data-diff="ins">'+thisDiff[1]+'</span>';
-                    var content = '';
+                    var content = thisDiff[1];
+                    for(var h in diff.tokens.list){
+                        var tokenSet = diff.tokens.list[h];
+                        for(var t in tokenSet.tokens){
+                            var regex = new RegExp(tokenSet.tokens[t], "g");
+                            content = content.replace(regex, '');
+                        }
+                    }
                     var isTag = !!diff.tokens.relationships[thisDiff[1]];
                     for(var w in waitingTags){
                         if(waitingTags[w].waitingFor == thisDiff[1]){
                             //We found a closing tag! Huzzah!
+                            content = '';
                             for(var t = 1; t < waitingTags[w].tags.length; t++){
                                 content+=waitingTags[w].tags[t];
                             }
@@ -248,7 +264,7 @@ var scalar_diff = {
                         if(html[s].content === ' ' || html[s].content === ''){  //Sometimes we get diffs from tiny whitespace changes that originate from CKEditor
                             cleanedHTML.push(html[s].content);
                         }else{
-                            var new_segment = '<span data-diff="placeholder">'+html[s].content+'</span>'
+                            var new_segment = '<span data-diff="placeholder">'+(html[s].dir==-1?html[s].content:'')+'</span>'
                             cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+new_segment):(new_segment+segment))+'</span>');
                         }
                 }else if(html[s].content == html[s+1].content){
@@ -332,8 +348,6 @@ var scalar_diff = {
 		}
 		var htmlTokens = [];
 		var htmlTokenRelationships = {};
-		// First entry in Unicode's Private Use Area; will roll over into supplemental Private Use Areas if needed...
-    	// See: https://www.unicode.org/versions/Unicode6.0.0/ch16.pdf
 
 		var $body = $('<div>'+_old.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
