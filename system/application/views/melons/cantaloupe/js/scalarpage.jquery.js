@@ -914,7 +914,7 @@
                                 continuePhrase = "Return to";
                             }
 
-                            var end_button = $('<a class="nav_btn" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br /> ' + continuePhrase + ' &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>').appendTo(links);
+                            var end_button = $('<a class="nav_btn" href="' + node.url + '">End of path &ldquo;' + page.containingPath.getDisplayTitle() + '&rdquo;; <br/>' + continuePhrase + ' &ldquo;' + node.getDisplayTitle() + '&rdquo;</a>').appendTo(links);
                             if (pathOptionCount == 0) {
                                 end_button.addClass('primary');
                             }
@@ -928,14 +928,6 @@
                                 back_button = $('<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
                             }
                             section.append(links);
-
-                            if (back_button != null) {
-                                back_button.height(end_button.innerHeight()).css({ 'line-height': end_button.height() + 'px', float: 'left' });
-                                $(window).resize(function() {
-                                    var end_button = $('#back-btn').siblings('.nav_btn').first();
-                                    $('#back-btn').height(end_button.innerHeight()).css({ 'line-height': end_button.height() + 'px' });
-                                });
-                            }
 
                             pathOptionCount++;
                             containingPathOptionCount++;
@@ -952,36 +944,42 @@
                 // if relationship nav isn't centered, add bootstrap column formatting to help
                 // accommodate long labels that wrap to multiple lines (if it is centered, then
                 // we likely aren't showing lateral relationship nav anyway so don't worry about it)
+                var cont_btn = $('.relationships .nav_btn.primary');
+                var back_btn = cont_btn.parent().children('#back-btn');
                 if (!options.isCentered) {
-                    var cont_btn = $('.relationships .nav_btn.primary');
-                    var back_btn = cont_btn.parent().children('#back-btn');
                     if (cont_btn.length !== 0) {
                         if (back_btn.length !== 0) {
                             cont_btn.parent().addClass('container');
                             back_btn.wrap('<div style="padding:0;width:initial;text-align:center" class="col-md-1 col-xs-1"></div>');
                             cont_btn.wrap('<div style="padding:0;" class="col-md-5 col-xs-9"></div>');
+                        }
+                    }
+                } else {
+                    back_btn.css('float', '');
+                }
 
+                var temp = (back_btn.parent().parent().height() - back_btn.height()) / 2;
+
+                back_btn.css('padding-top', temp);
+                back_btn.css('padding-bottom', temp);
+                back_btn.css('vertical-align', 'top');
+                back_btn.css('height', '');
+
+                //Fix back button height on resize
+                $(window).resize(function() {
+                    var back_btn = $('#back-btn');
+                    if (back_btn.length > 0) {
+                        var cont_btn = back_btn.parent().parent().find('.nav_btn.primary');
+                        if (cont_btn.length > 0) {
+                            back_btn.css('padding-top', 0);
+                            back_btn.css('padding-bottom', 0);
                             var temp = (back_btn.parent().parent().height() - back_btn.height()) / 2;
                             back_btn.css('padding-top', temp);
                             back_btn.css('padding-bottom', temp);
-                            back_btn.css('vertical-align', 'top');
+                            back_btn.css('height', '');
                         }
                     }
-                    //Fix back button height on resize
-                    $(window).resize(function() {
-                        var back_btn = $('#back-btn');
-                        if (back_btn.length > 0) {
-                            var cont_btn = back_btn.parent().parent().find('.nav_btn.primary');
-                            if (cont_btn.length > 0) {
-                                back_btn.css('padding-top', 0);
-                                back_btn.css('padding-bottom', 0);
-                                var temp = (back_btn.parent().parent().height() - back_btn.height()) / 2;
-                                back_btn.css('padding-top', temp);
-                                back_btn.css('padding-bottom', temp);
-                            }
-                        }
-                    });
-                }
+                });
 
                 // tag contents
                 if (options.showTags) {
