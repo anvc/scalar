@@ -163,7 +163,7 @@ function set_versions(nodes) {
 	});
 	$versions.sortable({
 		  axis: "y",
-		  containment: "parent",
+		  containment: "#toc-wrapper",
 		  handle: ".pull-left",
 		  tolerance: 'intersect',
 		  helper: function(event, ui){

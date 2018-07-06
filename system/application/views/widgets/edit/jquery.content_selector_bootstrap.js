@@ -2070,6 +2070,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									$dialogue_container.data('nodes').push(item);
 								}
 								$(this).addClass('current');
+								$(this).closest('table').find('tr').not(this).each(function() {
+									if ($(this).find("td.edit_col .btn:first:contains('Save')").length) $(this).find('.btn:first').click();
+								});
 								if (item.hasRelations && hasChildSelector) {
 									// TODO: not sure what this does since it's the same for loop as above ~cd
 									var index = -1;
@@ -2093,6 +2096,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if (hasChildSelector) {
 									$childSelector.find('input[type="checkbox"]').attr('checked', false);
 								}
+								if ($(this).find("td.edit_col .btn:first:contains('Save')").length) $(this).find('.btn:first').click();
 							}
 							$(this).find('.select_row>input[type="checkbox"]').attr('checked', ((checked) ? false : true));
 							updateSelectedCounter();
@@ -2160,11 +2164,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							event.stopPropagation();
 						}).keypress(function(e) {
 							if (e.which == 13) {
-								$(this).closest('tr').click();
+								$(this).closest('tr').find('.editLink').click();
 							}
 						});
 						$cell.find('select').change(function(event) {
-							$(this).closest('tr').click();
+							$(this).closest('tr').find('.editLink').click();
 						});
 						$cell.data('orig-value', value);
 					};
@@ -2200,8 +2204,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$this.find('.editable').each(function() {
 							var $cell = $(this);
 							if ($cell.data('is-editing')) {
+								console.log('stop editing');
 								$.extend(to_save, doStopEditing($cell));
 							} else {
+								console.log('sstart editing');
 								doStartEditing($cell);
 							};
 						});
@@ -2243,8 +2249,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							invokeEditing($this.closest('tr'));
 							if ($this.hasClass('btn-default')) {
 								$this.removeClass('btn-default').addClass('btn-primary').text('Save row');
+								if ($this.closest('tr').hasClass('current')) e.stopPropagation();
 							} else {
 								$this.removeClass('btn-primary').addClass('btn-default').text('Edit row');
+								if (!$this.closest('tr').hasClass('current')) e.stopPropagation();
 							};
 							$this.blur();
 						});

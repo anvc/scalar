@@ -148,7 +148,7 @@
 .node_selector_table_body>tr.empty{
 	    cursor: default;
 }
-.node_selector_table_body>tr.current{
+.node_selector_table_body>tr.current, .node_selector_table_body tbody>tr.current{
 	background-color: #c7e6f6 !important;
 	cursor: pointer
 }
@@ -234,7 +234,6 @@
 	background-color:#f1f1f1;
 }
 .node_selector .editLink.btn-primary {
-	margin-top:-4px;
 	visibility:visible !important;
 	padding-bottom:1px;
 }
