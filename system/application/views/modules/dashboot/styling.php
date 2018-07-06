@@ -166,6 +166,9 @@ function select_interface(melon) {
 			}
 			$('input[name="title"]').val( $title.html() );
 		});
+		$wrapper.children().not('.checkbox').hide();
+   	} else if ('honeydew'==melon_obj['meta']['slug']) {
+		$wrapper.closest('.form-group').hide();
    	};
 };
 </script>
