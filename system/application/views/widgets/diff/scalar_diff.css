@@ -9,6 +9,9 @@ span[data-diff],span[data-diff]>*{
 span[data-diff="chunk"]{
 	display: inline-block;
 }
+span[data-diff].withBlockElement{
+	display: block;
+}
 span[data-diff] a.inline{
 	border-color: #f0e487;
 	background-color: #fff28d;
@@ -43,4 +46,26 @@ span.br_tag::before,span.p_tag::before{
 	right: .5rem;
 	overflow: hidden;
 	top: 50%;
+}
+
+span[data-diff="chunk"].accepted a.inline, span[data-diff="chunk"].rejected a.inline{
+	background-color:#cccccc; 
+	border:solid 5px #bbbbbb; 
+}
+
+span[data-diff="chunk"].accepted, span[data-diff="chunk"].accepted span[data-diff],span[data-diff="chunk"].accepted span[data-diff]>*,
+span[data-diff="chunk"].rejected, span[data-diff="chunk"].rejected span[data-diff],span[data-diff="chunk"].rejected span[data-diff]>*{
+	background-color: transparent;
+	cursor: text;
+}
+
+span[data-diff="chunk"].accepted span[data-diff]:first-child,span[data-diff="chunk"].rejected span[data-diff]:nth-child(2){
+	display: none;
+}
+span[data-diff="chunk"].rejected span[data-diff="del"],span[data-diff="chunk"].rejected span[data-diff="placeholder"]:first-child{
+	text-decoration: none;
+}
+
+span[data-diff="chunk"].rejected span[data-diff]:first-child > a.inline::after{
+    display: none;
 }

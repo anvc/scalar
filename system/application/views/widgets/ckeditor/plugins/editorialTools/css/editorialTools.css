@@ -370,20 +370,3 @@ body.isReviewing .tooltip-inner{
 .text-success{
 	color: #4cae4c;
 }
-span[data-diff="chunk"].accepted a.inline, span[data-diff="chunk"].rejected a.inline{
-	background:#cccccc; 
-	border:solid 5px #bbbbbb; 
-}
-
-span[data-diff="chunk"].accepted, span[data-diff="chunk"].accepted span[data-diff],span[data-diff="chunk"].accepted span[data-diff]>*,
-span[data-diff="chunk"].rejected, span[data-diff="chunk"].rejected span[data-diff],span[data-diff="chunk"].rejected span[data-diff]>*{
-	background-color: transparent;
-	cursor: text;
-}
-
-span[data-diff="chunk"].accepted span[data-diff]:first-child,span[data-diff="chunk"].rejected span[data-diff]:nth-child(2){
-	display: none;
-}
-span[data-diff="chunk"].rejected span[data-diff="del"],span[data-diff="chunk"].rejected span[data-diff="placeholder"]:first-child{
-	text-decoration: none;
-}

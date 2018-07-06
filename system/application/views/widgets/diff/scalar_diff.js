@@ -304,7 +304,14 @@ var scalar_diff = {
             }
 
             //We don't need to show both versions of a media/widget link - hide the older one
-            $(this).find('span[data-diff]').not(':last').find('a.inline').addClass('hiddenVisual');
+            if($(this).find('span[data-diff]:last').find('a.inline').length > 0){
+                $(this).find('span[data-diff]:first').find('a.inline').addClass('hiddenVisual');
+            }
+            $(this).find('span[data-diff]:not([data-diff="chunk"])').each(function(){
+                if($(this).find('div,p,br,.br_tag,.p_tag,.inline')){
+                    $(this).parent('span[data-diff]').addClass('withBlockElement');
+                }
+            });
         });
 
         cleanedHTML = $tempBody.html();
