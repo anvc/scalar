@@ -728,6 +728,8 @@
 
                     $('body').scrollspy({ target: '#editorialOutline', offset: 69 });
                     base.$contentLoader.fadeOut('fast');
+                    
+                    base.resize();
         	}
         };
 
