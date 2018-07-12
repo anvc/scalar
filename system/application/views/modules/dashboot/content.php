@@ -84,7 +84,9 @@ else: ?>
     <div class="col-xs-12">
 	  <ul class="nav nav-tabs" role="tablist">
 	    <li role="presentation"<?=(('style'==$zone)?' class="active"':'')?>><a href="#tabs-style" data-toggle="tab">Properties</a></li>
+	    <? if ($editorial_tab): ?>
 	    <li role="presentation"<?=(('editorial'==$zone)?' class="active"':'')?>><a href="#tabs-editorial" data-toggle="tab">Editorial</a></li>
+	    <? endif; ?>
 	    <li role="presentation"<?=(('styling'==$zone)?' class="active"':'')?>><a href="#tabs-styling" data-toggle="tab">Styling</a></li>
 	    <li role="presentation"<?=(('pages'==$zone)?' class="active"':'')?>><a href="#tabs-pages" data-toggle="tab">Content</a></li>
 	    <li role="presentation"<?=(('users'==$zone)?' class="active"':'')?>><a href="#tabs-users" data-toggle="tab">Users</a></li>
@@ -99,7 +101,9 @@ else: ?>
 
 <section class="tab-content">
   <div role="tabpanel" class="tab-pane<?=(('style'==$zone)?' active':'')?>" id="tabs-style"><? if ('style'==$zone) { $this->load->view('modules/dashboot/props'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+  <? if ($editorial_tab): ?>
   <div role="tabpanel" class="tab-pane<?=(('editorial'==$zone)?' active':'')?>" id="tabs-editorial"><? if ('editorial'==$zone) { $this->load->view('modules/dashboot/editorial'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
+  <? endif; ?>
   <div role="tabpanel" class="tab-pane<?=(('styling'==$zone)?' active':'')?>" id="tabs-style"><? if ('styling'==$zone) { $this->load->view('modules/dashboot/styling'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('pages'==$zone)?' active':'')?>" id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboot/pages'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('users'==$zone)?' active':'')?>" id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboot/users'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>

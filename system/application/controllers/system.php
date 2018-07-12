@@ -656,17 +656,25 @@ class System extends MY_Controller {
 
 		// Load dashboard
 		$dashboard = $this->config->item('active_dashboard');
-
-		// Check GET var and then cookie to see if we have a preferred dashboard - @Lucas
-		if(isset($_GET['dashboard'])&&in_array($_GET['dashboard'],['dashboard','dashboot'])){
+		// Check GET var and then cookie to see if we have a preferred dashboard 
+		if (isset($_GET['dashboard']) && in_array($_GET['dashboard'],['dashboard','dashboot'])){
 			$dashboard = $_GET['dashboard'];
 			setcookie("dashboard", $dashboard, time()+604800); // Seven days...
-		}else if(isset($_COOKIE['dashboard'])&&in_array($_COOKIE['dashboard'],['dashboard','dashboot'])){
+		} elseif (isset($_COOKIE['dashboard']) && in_array($_COOKIE['dashboard'],['dashboard','dashboot'])){
 			$dashboard = $_COOKIE['dashboard'];
-		}else if(isset($_COOKIE['dashboard'])){
-			//We have something invalid in our cookie - get rid of it
+		} elseif (isset($_COOKIE['dashboard'])) {  // We have something invalid in our cookie - get rid of it
 			unset($_COOKIE['dashboard']);
 			setcookie('dashboard', null, -1);
+		}
+		
+		// Load Editorial tab
+		$this->data['editorial_tab'] = false;
+		// Check GET var and then cookie to see if we can turn the tab on
+		if (isset($_GET['editorial_tab'])) {
+			$this->data['editorial_tab']= (!empty($_GET['editorial_tab'])) ? true : false;
+			setcookie("editorial_tab", $this->data['editorial_tab'], time()+604800); // Seven days...
+		} elseif (isset($_COOKIE['editorial_tab'])){
+			$this->data['editorial_tab']= (!empty($_COOKIE['editorial_tab'])) ? true : false;
 		}
 
 		if (empty($dashboard) || !file_exists(APPPATH.'views/modules/'.$dashboard)) $dashboard = 'dashboard';
