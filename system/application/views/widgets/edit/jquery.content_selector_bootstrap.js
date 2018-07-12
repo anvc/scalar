@@ -1878,7 +1878,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					
 					var rowHTML = '<tr data-content-id="'+content_id+'" data-version-id="'+version_id+'" data-user-id="'+user_id+'">';
 					if (isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox' == opts.rowSelectMethod) {
-						rowHTML += '<td class="text-center select_row" style="height: 50px;" data-width="1"><input type="checkbox" ' + (index > -1 ? 'checked' : '') + ' style="margin-top: 1.5rem;"></td>';
+						rowHTML += '<td class="text-center select_row" style="height: 50px;" data-width="1"><input type="checkbox" ' + (index > -1 ? 'checked' : '') + '></td>';
 					}
 
 					var hasChildSelector = false;
@@ -2054,7 +2054,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							e.stopPropagation();
 							var $dialogue_container = $(this).parents('.node_selector');
 							var item = $(this).data('item');
-							var $icon = $(this).find('.select_row>input[type="checkbox"]').find('.glyphicon:first');
 							var checked = $(this).hasClass('current');
 							var $childSelector = $(this).find('.select_row').siblings('.select_children');
 							var hasChildSelector = ($childSelector.length > 0) ? true : false;
@@ -2103,7 +2102,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								}
 								if ($(this).find("td.edit_col .btn:first:contains('Save')").length) $(this).find('.btn:first').click();
 							}
-							$(this).find('.select_row>input[type="checkbox"]').attr('checked', ((checked) ? false : true));
+							$(this).find('.select_row > input[type="checkbox"]').attr('checked', ((checked) ? false : true));
 							updateSelectedCounter();
 						});
 					} else {
@@ -2264,7 +2263,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					};
 				};
 
-				$rows.find('a:not(.btn), [type="checkbox"]').click(function(e) {
+				$rows.find('a:not(.btn), [name="usage_rights"]').click(function(e) {
 					e.stopPropagation();
 					var $this = $(this);
 					if (opts.isEdit && $this.hasClass('visibilityLink') && 'is_live'==$this.parent().attr('property')) {
