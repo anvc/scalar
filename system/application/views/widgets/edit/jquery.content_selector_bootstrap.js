@@ -1467,10 +1467,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										};
 										item.content = _data[item.uri];
 										
-										if(!!loaded_nodeLists){
+										if(typeof loaded_nodeLists == "undefined"){
 											loaded_nodeLists = {};
 										}
-										if(!!loaded_nodeLists[type]){
+										if(typeof loaded_nodeLists == "undefined"){
 											loaded_nodeLists[type] = [];
 										}
 										loaded_nodeLists[type].push(item);
@@ -1512,10 +1512,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								if (doSearch) {
 									search_results.push(item);
 								} else {
-									if(!!loaded_nodeLists){
+									if(typeof loaded_nodeLists == "undefined"){
 										loaded_nodeLists = {};
 									}
-									if(!!loaded_nodeLists[type]){
+									if(typeof loaded_nodeLists == "undefined"){
 										loaded_nodeLists[type] = [];
 									}
 									loaded_nodeLists[type].push(item);
