@@ -108,14 +108,17 @@ class MY_Controller extends CI_Controller {
 
 	protected function set_user_book_perms() {
 
-		$this->data['user_level'] = null;
-		// Admin
-		if ($this->data['login_is_super']) {
-			$this->data['user_level'] = 'Author';
-		// Book author
-		} elseif (!empty($this->data['book']) && in_array($this->data['book']->book_id, $this->data['login_book_ids'])) {
+		$this->data['user_level'] = null;  // For general permissions
+		$this->data['user_level_as_defined'] = null;  // For user interface options
+		
+		if (!empty($this->data['book']) && in_array($this->data['book']->book_id, $this->data['login_book_ids'])) {
 			$user_level = array_get_node('book_id', $this->data['book']->book_id, $this->data['login_books']);
 			$this->data['user_level'] = ucwords($user_level['value']['relationship']);
+			$this->data['user_level_as_defined'] = ucwords($user_level['value']['relationship']);
+		}
+
+		if ($this->data['login_is_super']) {
+			$this->data['user_level'] = 'Author';
 		}
 
 	}

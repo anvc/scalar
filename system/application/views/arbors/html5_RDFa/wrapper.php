@@ -129,8 +129,8 @@ if (isset($page->version_index)) {
 <? if ($login->is_logged_in): ?>
 <link id="logged_in" href="<?=confirm_slash(base_url())?>system/users/<?=$login->user_id?>" />
 <? endif ?>
-<? if ($login_is_super || $this->users->is_a($user_level,'reviewer')): ?>
-<link id="user_level" href="scalar:<?=(($login_is_super)?'Author':ucwords($user_level))?>" />
+<? if (null !== $user_level): ?>
+<link id="user_level" href="scalar:<?=ucwords(((!empty($user_level_as_defined))?$user_level_as_defined:'Author'))?>" />
 <? endif ?>
 <link id="flowplayer_key" href="<?=$this->config->item('flowplayer_key')?>" />
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
