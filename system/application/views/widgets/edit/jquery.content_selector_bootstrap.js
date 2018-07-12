@@ -1470,7 +1470,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										if(typeof loaded_nodeLists == "undefined"){
 											loaded_nodeLists = {};
 										}
-										if(typeof loaded_nodeLists == "undefined"){
+										if(typeof loaded_nodeLists[type] == "undefined"){
 											loaded_nodeLists[type] = [];
 										}
 										loaded_nodeLists[type].push(item);
@@ -1515,7 +1515,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									if(typeof loaded_nodeLists == "undefined"){
 										loaded_nodeLists = {};
 									}
-									if(typeof loaded_nodeLists == "undefined"){
+									if(typeof loaded_nodeLists[type] == "undefined"){
 										loaded_nodeLists[type] = [];
 									}
 									loaded_nodeLists[type].push(item);
@@ -1538,7 +1538,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			homepage: 4,
 			preview: 2,
 			include_children: 2,
-			visible: 1,
+			visible: 3,
 			listed: 2,
 			order: 2,
 			role: 2,
@@ -1548,7 +1548,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			editorial_state: 2,
 			usage_rights: 4,
 			versions: 2,
-			edit: 2,
+			edit: 3,
 			bio_contributions: 4,
 			type_icon : 1,
 			format : 2
@@ -1774,7 +1774,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (body.offsetHeight < body.scrollHeight) {
 				$dialogue_container.find('.panel-body>table').css('width',($dialogue_container.find('.panel-body').width()-scrollBarWidth)+'px');
 			} else {
-			    $dialogue_container.find('.panel-body>table').css('width','auto');
+			    $dialogue_container.find('.panel-body>table').css('width','100%');
 			}
 		}, this, $dialogue_container);
 		var shorten_description = function(description) {
