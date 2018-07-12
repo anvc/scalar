@@ -1530,28 +1530,28 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 		}
 		var fieldWidths = {
-			thumbnail: 1,
-			title: 2,
-			name: 2,
-			description: 3,
-			url: 2,
-			homepage: 2,
+			thumbnail: 2,
+			title: 4,
+			name: 4,
+			description: 6,
+			url: 4,
+			homepage: 4,
 			preview: 2,
 			include_children: 2,
 			visible: 1,
-			listed: 1,
-			order: 1,
-			role: 1,
-			last_edited_by: 2,
-			date_created: 2,
-			date_edited: 2,
-			editorial_state: 1,
-			usage_rights: 2,
-			versions: 1,
-			edit: 1,
-			bio_contributions: 2,
+			listed: 2,
+			order: 2,
+			role: 2,
+			last_edited_by: 4,
+			date_created: 4,
+			date_edited: 4,
+			editorial_state: 2,
+			usage_rights: 4,
+			versions: 2,
+			edit: 2,
+			bio_contributions: 4,
 			type_icon : 1,
-			format : 1
+			format : 2
 		}
 		var defaultCallback = function() {};
 		var opts = {
@@ -1745,15 +1745,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 				pips_per_row += $(this).data('width');
 			});
-			$dialogue_container.find('thead th').each(function(){
-				$(this).css('width',100*($(this).data('width')/pips_per_row)+'%');
-			});
-			pips_per_row = 0;
-			$dialogue_container.find('tbody tr:first td').each(function(){
-				pips_per_row += $(this).data('width');
-			});
-
-			$dialogue_container.find('tbody td').each(function(){
+			$dialogue_container.find('thead th,tbody td').each(function(){
 				$(this).css('width',100*($(this).data('width')/pips_per_row)+'%');
 			});
 
@@ -1780,9 +1772,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var body = $dialogue_container.find('.node_selector_table_body')[0];
 
 			if (body.offsetHeight < body.scrollHeight) {
-				$dialogue_container.find('.panel-body>table').css('padding-right',scrollBarWidth+'px');
+				$dialogue_container.find('.panel-body>table').css('width',($dialogue_container.find('.panel-body').width()-scrollBarWidth)+'px');
 			} else {
-			    $dialogue_container.find('.panel-body>table').css('padding-right','0px');
+			    $dialogue_container.find('.panel-body>table').css('width','auto');
 			}
 		}, this, $dialogue_container);
 		var shorten_description = function(description) {
@@ -1886,7 +1878,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					
 					var rowHTML = '<tr data-content-id="'+content_id+'" data-version-id="'+version_id+'" data-user-id="'+user_id+'">';
 					if (isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox' == opts.rowSelectMethod) {
-						rowHTML += '<td class="text-center select_row" style="vertical-align: middle; width: 5rem"><input type="checkbox" ' + (index > -1 ? 'checked' : '') + '></td>';
+						rowHTML += '<td class="text-center select_row" style="height: 50px;" data-width="1"><input type="checkbox" ' + (index > -1 ? 'checked' : '') + ' style="margin-top: 1.5rem;"></td>';
 					}
 
 					var hasChildSelector = false;
@@ -1900,7 +1892,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									continue;
 								}
 								$(this).find('th[data-field="thumbnail"]').show();
-								rowHTML += '<td class="node_thumb ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" style="vertical-align: middle;"><img class="img-responsive center-block" style="max-height: 50px;" src="' + item.thumbnail + '"></td>';
+								rowHTML += '<td class="node_thumb ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><img class="img-responsive center-block" style="max-height: 50px;" src="' + item.thumbnail + '"></td>';
 								break;
 							case 'title':
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.title + '</a></td>';
@@ -1924,9 +1916,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								break;
 							case 'include_children':
 								hasChildSelector = true;
-								rowHTML += '<td class="select_children text-center' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="vertical-align: middle;">';
+								rowHTML += '<td class="select_children text-center' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="height: 50px;" data-width="' + fieldWidths[col] +'">';
 								if (item.hasRelations) {
-									rowHTML += '<input type="checkbox" value="">';
+									rowHTML += '<input type="checkbox" value="" style="margin-top: 1.5rem;">';
 								}
 								rowHTML += '</td>';
 								break;
@@ -2403,7 +2395,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		}
 
 		if (isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox' == opts.rowSelectMethod) {
-			$('<input type="checkbox">').appendTo($('<th data-field="selected" class="text-center selectAll" style="width: 5rem"></th>').appendTo($fields)).change(function() {
+			$('<input type="checkbox">').appendTo($('<th data-field="selected" class="text-center selectAll" data-width="1"></th>').appendTo($fields)).change(function() {
 				var checked = $(this).is(":checked");
 				var $rows = $(this).parents('.node_selector').find('tbody tr');
 				if (checked) {
