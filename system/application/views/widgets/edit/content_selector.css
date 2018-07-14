@@ -407,9 +407,10 @@
 	padding-top: 4px;
 	padding-bottom: 4px;
 }
-td[property="type_icon"] img{
+td[property="format"] img{
 	width: 12px;
 	height: auto;
+	margin-right: .5rem;
 }
 .table-fixed thead th, .table-fixed tbody td{
 	display: inline-block;

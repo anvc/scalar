@@ -475,7 +475,7 @@ STR;
 		types.push(editorial_states[type].name);
 	};
 	node_options = {  /* global */
-      fields:["visible","title","type_icon","format","description","editorial_state","last_edited_by","date_edited","usage_rights"],
+      fields:["visible","title","format","description","editorial_state","last_edited_by","date_edited","usage_rights"],
       allowMultiple:true,
       rowSelectMethod:'highlight',
       rec:"0",

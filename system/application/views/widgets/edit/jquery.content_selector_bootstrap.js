@@ -1545,13 +1545,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			last_edited_by: 4,
 			date_created: 4,
 			date_edited: 4,
-			editorial_state: 2,
+			editorial_state: 3,
 			usage_rights: 4,
 			versions: 2,
 			edit: 3,
 			bio_contributions: 4,
-			type_icon : 1,
-			format : 2
+			format : 3
 		}
 		var defaultCallback = function() {};
 		var opts = {
@@ -1964,18 +1963,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" title="' + createdStr + '">' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear() + '</td>';
 								break;
 							case 'editorial_state':
-								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">' + ucwords(item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value) + '</a></td>';
-								break;
-							case 'type_icon':
-								if(typeof scalarapi !== "undefined"){
-									rowHTML += '<td class="text-center ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><img src="'+$('link#approot').attr('href') + 'views/widgets/edit/'+item.node_type+'_icon.png" srcset="'+$('link#approot').attr('href') + 'views/widgets/edit/'+item.node_type+'_icon_2x.png 2x"></td>';
-								}else{
-									rowHTML += '<td class="text-center ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">icon</td>';
-								}
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">' + ucwords(item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value.replace('review',' review')) + '</a></td>';
 								break;
 							case 'format':
 								if(typeof scalarapi !== "undefined"){
-									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">'+item.content_type+'</td>';
+									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><img src="'+$('link#approot').attr('href') + 'views/widgets/edit/'+item.node_type+'_icon.png" srcset="'+$('link#approot').attr('href') + 'views/widgets/edit/'+item.node_type+'_icon_2x.png 2x"> '+(item.content_type.replace('Code',' Code'))+'</td>';
 								}else{
 									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">icon</td>';
 								}
@@ -2682,8 +2674,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">URL</th>');
 				} else if (fields_to_display[f] == 'editorial_state') {
 					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">State</th>');
-				} else if (fields_to_display[f] == 'type_icon') {
-					$fields.append('<th data-width="'+fieldWidths[fields_to_display[f]]+'" class="text-center"  data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">Type</th>');
 				} else if (fields_to_display[f] == 'format') {
 					$fields.append('<th  data-width="'+fieldWidths[fields_to_display[f]]+'" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">Format</th>');
 				} else {
