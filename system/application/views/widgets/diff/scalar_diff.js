@@ -14,11 +14,11 @@ var scalar_diff = {
 	    if($content.data('diffContainer')){
 	        return $content.text();
 	    }
-	    $content.text('%%TEXT%%'+$content.text()+'%%TEXT%%');
-	    var text = $content.text();
-
-	    var tags = $content[0].outerHTML.split(text);
-
+        if($content.html() != ''){
+            var tags = $content[0].outerHTML.split($content.html());
+        }else{
+            var tags = [$content[0].outerHTML];
+        }
 	    var newHTML = $content[0].outerHTML;
 	    var openingTag = null;
 	    for(var i in tags){
@@ -73,12 +73,12 @@ var scalar_diff = {
 
 	            for(var i = 0; i < combinedTag.length; i++){
 	                var regex = new RegExp(combinedTag[i].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), "g");
-	                newHTML = newHTML.replace(regex, tokens[i]);
+	                newHTML = newHTML.replace(regex, ' \r\n'+tokens[i]+'\r\n ');
 	            }
 	        }
 	    }
-	    newHTML = '\n'+newHTML.replace(/\%\%TEXT\%\%/g,'')+'\n';
-	    $content.replaceWith(newHTML);
+	    newHTML = newHTML;
+	    $content.replaceWith(document.createTextNode(newHTML));
 	},
 	'_addNewLinePlaceholders' : function(html){
         if (!!html) { //Just make sure HTML isn't null or empty or anything...
@@ -150,6 +150,13 @@ var scalar_diff = {
 
         //Now onto the body! First, build a tree...
         var html = [];
+
+        //Clean up some white space
+        for(var d in diff.body){
+            diff.body[d][1] = diff.body[d][1].replace(/\n/g, '').replace(/\r/g, '');
+            diff.body[d][2] = diff.body[d][1].trim();
+        }
+
         var waitingTags = [];
         for(var d in diff.body){
             var thisDiff = diff.body[d];
@@ -164,18 +171,18 @@ var scalar_diff = {
                 }
             }else if(thisDiff[0] == -1){
                 //Subtraction... Let's see if this has any content or if it's a naked tag
-                if(diff.tokens.relationships[thisDiff[1]] && diff.tokens.relationships[thisDiff[1]].endTag){
+                if(diff.tokens.relationships[thisDiff[2]] && diff.tokens.relationships[thisDiff[2]].endTag){
                     //we have a closing tag somewhere... wait until we've found the closing one.
                     waitingTags.push({
                         type : 'del',
-                        waitingFor : diff.tokens.relationships[thisDiff[1]].endTag,
+                        waitingFor : diff.tokens.relationships[thisDiff[2]].endTag,
                         tags : [
-                            '<span data-diff="del">'+thisDiff[1]
+                            '<span data-diff="del">'+thisDiff[2]
                         ]
                     });
                 }else{
                     var newTag = '<span data-diff="del">'+thisDiff[1]+'</span>';
-                    var content = thisDiff[1];
+                    var content = '';
                     for(var h in diff.tokens.list){
                         var tokenSet = diff.tokens.list[h];
                         for(var t in tokenSet.tokens){
@@ -183,15 +190,14 @@ var scalar_diff = {
                             content = content.replace(regex, '');
                         }
                     }
-                    var isTag = !!diff.tokens.relationships[thisDiff[1]];
+                    var isTag = typeof diff.tokens.relationships[thisDiff[2]] !== 'undefined';
                     for(var w in waitingTags){
-                        if(waitingTags[w].waitingFor == thisDiff[1]){
+                        if(waitingTags[w].waitingFor.charCodeAt(0) == thisDiff[2].charCodeAt(0)){
                             //We found a closing tag! Huzzah!
-                            content = '';
                             for(var t = 1; t < waitingTags[w].tags.length; t++){
                                 content+=waitingTags[w].tags[t];
                             }
-                            newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
+                            newTag = waitingTags[w].tags.join('')+thisDiff[2]+'</span>';
                             thisDiff[0] = waitingTags[w].type=='ins'?1:0;
                             waitingTags.splice(w, 1);
                             isTag = true;
@@ -208,18 +214,18 @@ var scalar_diff = {
                 }
             }else if(thisDiff[0] == 1){
                 //Addition... Let's see if this has any content or if it's a naked tag
-                if(diff.tokens.relationships[thisDiff[1]] && diff.tokens.relationships[thisDiff[1]].endTag){
+                if(diff.tokens.relationships[thisDiff[2]] && diff.tokens.relationships[thisDiff[2]].endTag){
                     //we have a closing tag somewhere... wait until we've found the closing one.
                     waitingTags.push({
                         type : 'ins',
-                        waitingFor : diff.tokens.relationships[thisDiff[1]].endTag,
+                        waitingFor : diff.tokens.relationships[thisDiff[2]].endTag,
                         tags : [
-                            '<span data-diff="ins">'+thisDiff[1]
+                            '<span data-diff="ins">'+thisDiff[2]
                         ]
                     });
                 }else{
                     var newTag = '<span data-diff="ins">'+thisDiff[1]+'</span>';
-                    var content = thisDiff[1];
+                    var content = '';
                     for(var h in diff.tokens.list){
                         var tokenSet = diff.tokens.list[h];
                         for(var t in tokenSet.tokens){
@@ -227,15 +233,14 @@ var scalar_diff = {
                             content = content.replace(regex, '');
                         }
                     }
-                    var isTag = !!diff.tokens.relationships[thisDiff[1]];
+                    var isTag = typeof diff.tokens.relationships[thisDiff[2]] !== 'undefined';
                     for(var w in waitingTags){
-                        if(waitingTags[w].waitingFor == thisDiff[1]){
+                        if(waitingTags[w].waitingFor.charCodeAt(0) == thisDiff[2].charCodeAt(0)){
                             //We found a closing tag! Huzzah!
-                            content = '';
                             for(var t = 1; t < waitingTags[w].tags.length; t++){
                                 content+=waitingTags[w].tags[t];
                             }
-                            newTag = waitingTags[w].tags.join('')+thisDiff[1]+'</span>';
+                            newTag = waitingTags[w].tags.join('')+thisDiff[2]+'</span>';
                             thisDiff[0] = waitingTags[w].type=='ins'?1:0;
                             waitingTags.splice(w, 1);
                             isTag = true;
@@ -260,14 +265,14 @@ var scalar_diff = {
             var $segment = $('<div>'+segment+'</div>').children().first();
 
             if(!!$segment && !!$segment.data('diff')){
-                if(!html[s+1] || html[s].content != html[s+1].content){
+                if(!html[s+1] || (html[s].content != html[s+1].content && !(html[s].dir == -1 && html[s+1].dir == 1))){
                         if(html[s].content === ' ' || html[s].content === ''){  //Sometimes we get diffs from tiny whitespace changes that originate from CKEditor
                             cleanedHTML.push(html[s].content);
                         }else{
-                            var new_segment = '<span data-diff="placeholder">'+(html[s].dir==-1?html[s].content:'')+'</span>'
+                            var new_segment = '<span data-diff="placeholder">'+html[s].content+'</span>';
                             cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+new_segment):(new_segment+segment))+'</span>');
                         }
-                }else if(html[s].content == html[s+1].content){
+                }else{
                     cleanedHTML.push('<span data-diff="chunk" data-diffType="swap">'+segment+html[++s].html+'</span>');
                 }
             }else{
@@ -320,11 +325,11 @@ var scalar_diff = {
             }
 
             //We don't need to show both versions of a media/widget link - hide the older one
-            if($(this).find('span[data-diff]:last').find('a.inline').length > 0){
-                $(this).find('span[data-diff]:first').find('a.inline').addClass('hiddenVisual');
+            if($(this).find('span[data-diff]:last').find('a[data-widget],a[resource]').length > 0){
+                $(this).find('span[data-diff]:first').find('a[data-widget],a[resource]').addClass('hiddenVisual');
             }
             $(this).find('span[data-diff]:not([data-diff="chunk"])').each(function(){
-                if($(this).find('div,p,br,.br_tag,.p_tag,.inline')){
+                if($(this).find('div,p,br,.br_tag,.p_tag,.inline').length > 0){
                     $(this).parent('span[data-diff]').addClass('withBlockElement');
                 }
             });
@@ -356,21 +361,20 @@ var scalar_diff = {
 			htmlTokens,
 			htmlTokenRelationships
 		);
-
-		$body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
+		
+        $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
 		var newTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
 			htmlTokenRelationships
-		);		
+		);
 
 		if(typeof diff_match_patch !== 'undefined' && !!diff_match_patch){
 			var dmp = new diff_match_patch();
 
 	        var bodyDiff = dmp.diff_main(oldTokenizedBody,newTokenizedBody);
 	        dmp.diff_cleanupSemantic(bodyDiff);
-	        
 	        var titleDiff = dmp.diff_main(_old.title,_new.title);  
 	        dmp.diff_cleanupSemantic(titleDiff);
 	        
