@@ -182,7 +182,7 @@ var scalar_diff = {
                     });
                 }else{
                     var newTag = '<span data-diff="del">'+thisDiff[1]+'</span>';
-                    var content = '';
+                    var content = thisDiff[1];
                     for(var h in diff.tokens.list){
                         var tokenSet = diff.tokens.list[h];
                         for(var t in tokenSet.tokens){
@@ -225,7 +225,7 @@ var scalar_diff = {
                     });
                 }else{
                     var newTag = '<span data-diff="ins">'+thisDiff[1]+'</span>';
-                    var content = '';
+                    var content = thisDiff[1];
                     for(var h in diff.tokens.list){
                         var tokenSet = diff.tokens.list[h];
                         for(var t in tokenSet.tokens){
@@ -269,7 +269,7 @@ var scalar_diff = {
                         if(html[s].content === ' ' || html[s].content === ''){  //Sometimes we get diffs from tiny whitespace changes that originate from CKEditor
                             cleanedHTML.push(html[s].content);
                         }else{
-                            var new_segment = '<span data-diff="placeholder">'+html[s].content+'</span>';
+                            var new_segment = '<span data-diff="placeholder"></span>';
                             cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+new_segment):(new_segment+segment))+'</span>');
                         }
                 }else{
