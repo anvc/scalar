@@ -231,10 +231,17 @@ class Rdf extends MY_Controller {
 					$this->load->model($class.'_model', plural($class));
 					$model = plural($class);
 					break;
+				case 'hidden':
+					if (!$this->data['login'] || !$this->login_is_book_admin()) {
+						header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+						exit;
+					}
+					$this->data['hidden'] = 1;
+					$model = 'pages';
+					break;
 				default:
 					$editorial_states = array('draft','edit','editreview','clean','ready','published');
-					// TODO use can_editorial()
-					if (isset($this->data['book']->editorial_is_on) && !empty($this->data['book']->editorial_is_on) && in_array($class, $editorial_states)) {
+					if ($this->can_editorial() && in_array($class, $editorial_states)) {
 						$model = 'pages';
 						$this->data['editorial_state'] = substr($class, 0);  // clone
 					} else {
@@ -243,17 +250,22 @@ class Rdf extends MY_Controller {
 					}
 			}
 
-			// The much speadier search only on title and description based on the presence of recent_version_id
+			// If there is a search, this is a much speadier search only on title and description based on the presence of recent_version_id
 			if (!empty($this->data['sq']) && 'pages'==$model && !$this->data['s_all']) {
 				$content = $this->$model->search_with_recent_version_id($this->data['book']->book_id, $this->data['sq'], $type, (($this->data['hidden'])?false:true));
 				if (!count($content) && !$this->$model->is_using_recent_version_id($this->data['book']->book_id)) {
 					$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));  // This is the same as the slow call below
 				} else {
-					$this->data['sq'] = null;  // Versions already exist in successful recent_version_id search
+					$this->data['sq'] = null;
 				}
-			// The much slower search on all fields including metadata
+			// All other gathering of content
 			} else {
 				$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));
+			}
+			if ('hidden'==$class) {
+				for ($j = count($content)-1; $j >= 0; $j--) {
+					if ($content[$j]->is_live) unset($content[$j]);
+				}
 			}
 			$this->rdf_object->index(
 			                         $this->data['content'],
