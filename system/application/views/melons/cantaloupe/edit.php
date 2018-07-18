@@ -83,22 +83,22 @@ p {margin-bottom: 1.2rem;}
 }
 
 .saveAndMove.draft, .state_dropdown .draft{background-color: #b4b4b4;}
-#editorial_state_text.draft .draft{color: #b4b4b4; display: block;}
+#editorial_state_text.draft .draft{color: #878787; display: block;}
 
 .saveAndMove.edit, .state_dropdown .edit{background-color: #ffa25e;}
-#editorial_state_text.edit .edit{color: #ffa25e; display: block;}
+#editorial_state_text.edit .edit{color: #ec5e00; display: block;}
 
 .saveAndMove.editreview, .state_dropdown .editreview{background-color: #d9514d;}
-#editorial_state_text.editreview .editreview{color: #d9514d; display: block;}
+#editorial_state_text.editreview .editreview{color: #d03a38; display: block;}
 
 .saveAndMove.clean, .state_dropdown .clean{background-color: #59c0dd;}
-#editorial_state_text.clean .clean{color: #59c0dd; display: block;}
+#editorial_state_text.clean .clean{color: #2898b7; display: block;}
 
 .saveAndMove.ready, .state_dropdown .ready{background-color: #6ebf73;}
-#editorial_state_text.ready .ready{color: #6ebf73; display: block;}
+#editorial_state_text.ready .ready{color: #4da751; display: block;}
 
 .saveAndMove.published, .state_dropdown .published{background-color: #15910f;}
-#editorial_state_text.published .published{color: #15910f; display: block;}
+#editorial_state_text.published .published{color: #147419; display: block;}
 
 .state_dropdown .dropdown-menu{width: 100%; padding: 0px;}
 
