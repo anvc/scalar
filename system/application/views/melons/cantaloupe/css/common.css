@@ -1319,7 +1319,7 @@ body>.annotorious-popup{
 .sp-button:hover { background-color:#217298; }
 .sp-button a, .sp-button a:hover { text-decoration: none; color: #000; }
 @media only screen and (min-width: 520px) {
-    #splash, .sp-block { position: relative; background-attachment: fixed; }
+    #splash, .sp-block { position: static; background-attachment: fixed; }
     .sp-block { padding: 7.2rem; }
     #splash {
 		background-size: cover;
