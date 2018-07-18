@@ -1107,7 +1107,7 @@
                     nodeItemHTML += '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>';
                 }
                 nodeItemHTML += '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' quer'+(queryCount!=1?'ies':'y')+'</span>'+
-                                                    (!!base.node_state_flow[state]?'<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>':'')+
+                                                    (!!base.node_state_flow[state]?'<a href="'+node_url+'.edit" target="_blank" class="edit_btn btn btn-sm btn-default">Open in page editor</a>':'')+
                                                 '</div>'+
                                             '</div>'+
                                             '<div class="col-xs-12 col-sm-4 col-md-3">';
