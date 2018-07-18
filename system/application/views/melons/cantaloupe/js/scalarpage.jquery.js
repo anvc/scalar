@@ -2927,7 +2927,8 @@
                                 var base_url = $('link#parent').attr('href');
                                 for (var i = 0; i < pathContents.length; i++) {
                                     var title = pathContents[i].current.title;
-                                    var slug = pathContents[i].slug;
+                                    var slug = pathContents[i].slug
+                                    var slugProxy = slug.replace('/', '-');
                                     var key = (pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner']) ? pathContents[i].data['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
                                 	if ('undefined'==typeof(key)) {
                                 		key = '';
@@ -2943,11 +2944,11 @@
                                         };
                                     };
                                     var default_view = pathContents[i].current.defaultView;
-                                    $("[property='sioc:content']").append('<div class="sp-block sp-block-'+default_view+'" id="'+slug+'"><h1 class="padded-multiline"><a class="sp-title" href="'+base_url+slug+'">' + title + '</a></h1><div class="sp-block__content ' +slug+ '">' +((description.length)?description:'')+ '</div></div>');
+                                    $("[property='sioc:content']").append('<div class="sp-block sp-block-'+default_view+'" id="'+slugProxy+'"><h1 class="padded-multiline"><a class="sp-title" href="'+base_url+slug+'">' + title + '</a></h1><div class="sp-block__content ' +slugProxy+ '">' +((description.length)?description:'')+ '</div></div>');
                                     // set background
                                     if ('.mp4'==key.substr(key.length-4, 4)) {  // The controller looks for ".mp4" so do the same here ~cd
-                                    	$("#"+slug).addClass('has_video').prepend('<div class="video_wrapper"><video autoplay muted loop playsinline preload="none"><source src="'+key+'" type="video/mp4"></video></div>');
-                                    	$("#"+slug).find('.video_wrapper video:first').on('loadedmetadata', function() {
+                                    	$("#"+slugProxy).addClass('has_video').prepend('<div class="video_wrapper"><video autoplay muted loop playsinline preload="none"><source src="'+key+'" type="video/mp4"></video></div>');
+                                    	$("#"+slugProxy).find('.video_wrapper video:first').on('loadedmetadata', function() {
                                     		var $video = $(this);
                                     		$video.data('orig_w', parseInt($video.get(0).videoWidth));
                                     		$video.data('orig_h', parseInt($video.get(0).videoHeight));
@@ -2956,12 +2957,12 @@
                                     		}).trigger('resize');
                                     	});
                                     } else {
-                                        $("#"+slug).css({ "background-image": 'url("'+((key.length)?key:'')+'")' });
+                                        $("#"+slugProxy).css({ "background-image": 'url("'+((key.length)?key:'')+'")' });
                                     };
                                     // end set background
-                                    $('#'+slug).find('.sp-block__content').append('<div><a class="nav_btn primary" href="'+base_url+slug+'">Continue</a></div>')
-                                    if (description.length) $("."+slug).css("background-color", "#fff");
-                                    $("#"+slug).append('<div style="visibility:hidden; clear:both; height:1px; overflow:hidden;"></div>');
+                                    $('#'+slugProxy).find('.sp-block__content').append('<div><a class="nav_btn primary" href="'+base_url+slug+'">Continue</a></div>')
+                                    if (description.length) $("."+slugProxy).css("background-color", "#fff");
+                                    $("#"+slugProxy).append('<div style="visibility:hidden; clear:both; height:1px; overflow:hidden;"></div>');
                                 }
                             }    
                             okToAddExtras = false;                                      
