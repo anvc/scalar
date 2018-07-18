@@ -120,7 +120,7 @@
 
 					</ul>
 				</div>
-				<div class="editorialSidePanelLoaderIndicator"><div class="spinner_container"></div></div>
+				<div class="editorialSidePanelLoaderIndicator caption_font"><div class="spinner_container"></div></div>
 			</div>
 		</div>
 </div>
