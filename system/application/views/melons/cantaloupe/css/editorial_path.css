@@ -523,9 +523,9 @@ body.shortHeader #editorialSidePanel>.affix{
 }
 #saveNotice, #saveErrorNotice{
 	position: fixed;
-	top: 60px;
-	left: 25vw;
-	right: 25vw;
+	top: 50px;
+	left: 0;
+	right: 0;
 	-webkit-transition: -webkit-transform .25s;
 	-moz-transition: -moz-transform .25s;
     transition: transform .25s;
@@ -535,12 +535,13 @@ body.shortHeader #editorialSidePanel>.affix{
 	-moz-transform : translatey(0);
 	display: none;
 	text-align: center;
+	border-radius: 0;
 }
 
 body.shortHeader #saveNotice, body.shortHeader #saveErrorNotice{
-	transform : translatey(-30px);
-	-webkit-transform : translatey(-30px);
-	-moz-transform : translatey(-30px);
+	transform : translatey(-40px);
+	-webkit-transform : translatey(-40px);
+	-moz-transform : translatey(-40px);
 }
 
 .editorial_node .additionalMetadata .row{
