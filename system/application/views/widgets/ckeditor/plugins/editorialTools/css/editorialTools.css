@@ -214,6 +214,7 @@
 }
 #editorialToolsPanel.queries .queriesPanel .query .body{
 	margin-bottom: .25rem;
+	line-height: 130%;
 }
 
 #editorialToolsPanel.versions .versionsPanel{
