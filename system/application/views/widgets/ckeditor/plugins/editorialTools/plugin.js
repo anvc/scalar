@@ -643,21 +643,20 @@ CKEDITOR.plugins.add( 'editorialTools', {
         base.loadEditsPanel = function(){
             var previousState = null;
             if(base.editorialState == "editreview"){
-                previousState = "edit";
+                previousState = ["edit","clean"];
             }else if(base.editorialState == "clean"){
-                previousState = "editreview";
-            }else if(base.editorialState == "ready"){
-                previousState = "clean";
+                previousState = ["editreview"];
             }
             if(previousState != null){
 
                 //Go through each of the versions until we find the first instance of the previous state... This shouldn't take long.
                 var old_version = null;
                 for(var v in base.versionsList){
-                    if(base.versionsList[v].editorialState == previousState){
+                    if(previousState.indexOf(base.versionsList[v].editorialState) > -1){
                         old_version = base.versionsList[v];
                     }
-                    if((v > 0 && base.versionsList[v].editorialState == base.editorialState) || (old_version != null && base.versionsList[v].editorialState != previousState)){
+
+                    if((v>0 && base.versionsList[v].editorialState == base.editorialState) || (old_version != null && previousState.indexOf(base.versionsList[v].editorialState) == -1)){
                         break;
                     }
                 }
