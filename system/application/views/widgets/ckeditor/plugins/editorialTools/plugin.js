@@ -353,32 +353,44 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     $('span[data-diff="chunk"]').each(function(){
                         var container = 'body';
-                        if($(this).find('span[data-diff]>a[data-widget],span[data-diff]>a[resource]').length > 1){
-                            $(this).tooltip({
-                                "html": true,
-                                "title": '<button type="button" class="btn btn-sm btn-primary viewFormatting">View all formatting changes</button>',
-                                "trigger": "click",
-                                "container": container
-                            }).on('shown.bs.tooltip',function(){
-                                $chunk = $(this);
-                                $('.viewFormatting').off('click').click(function(){
-                                    $('#editorialReviewFormattingChanges').modal('show');
-                                    $chunk.tooltip('hide');
-                                });
-                            }).on('show.bs.tooltip',function(){
-                                $('span[data-diff="chunk"]').not(this).tooltip('hide');
-                            });
+                        var this_chunkID = chunkID++;
 
+                        if($(this).find('span[data-diff]>a[data-widget],span[data-diff]>a[resource]').length > 1){
                             //Also build a list of changes...But only if we are replacing a visual element with another
                             var $old = $(this).children().first().children('a[data-widget],a[resource]');
                             var $new = $(this).children().last().children('a[data-widget],a[resource]');
-                            if(!!$old[0] && !!$new[0]){
-                                base.determineFormattingChanges($old,$new);
-                            }
+                            if(!!$old[0] && !!$new[0] && base.determineFormattingChanges($old,$new,this_chunkID)){
+                                $(this).tooltip({
+                                    "html": true,
+                                    "title": '<button type="button" class="btn btn-sm btn-primary viewFormatting">View formatting changes</button>',
+                                    "trigger": "click",
+                                    "container": container
+                                }).on('shown.bs.tooltip',function(){
+                                    $chunk = $(this);
+                                    $('.viewFormatting').off('click').click(function(){
+                                        $('#editorialReviewFormattingChangesList tr').hide();
+                                        $('#editorialReviewFormattingChangesList tr[data-chunk="'+this_chunkID+'"').show();
 
-                            return;
+                                        $('#editorialReviewFormattingChanges caption .page_caption').hide();
+                                        $('#editorialReviewFormattingChanges caption .link_caption').show();
+                                        var type = $new.is('a[data-widget]')?'widget':'media';
+                                        if($new.is('.inline')){
+                                            type = "inline "+type;
+                                        }else{
+                                            type += " link";
+                                        }
+                                        $('#editorialReviewFormattingChanges caption .type').text(type);
+
+                                        $('#editorialReviewFormattingChanges').modal('show');
+                                        $chunk.tooltip('hide');
+                                    });
+                                }).on('show.bs.tooltip',function(){
+                                    $('span[data-diff="chunk"]').not(this).tooltip('hide');
+                                });
+
+                                return;
+                            }
                         }
-                        var this_chunkID = chunkID++;
                         $(this).attr('id','chunk_'+chunkID);
                         //For each chunk, make a tooltip...
                         $(this).tooltip({
@@ -404,6 +416,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             e.stopPropagation();
                         });
                     });
+                    base.calculatePendingVisualChanges();
                     $('#editorialReviewEditor').on('scroll',function(){
                         $(this).find('span[data-diff="chunk"]').tooltip('hide');
                     });
@@ -412,6 +425,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         }
         base.acceptEdit = function($chunk,skipSaveCheck){
             $chunk.removeClass('rejected').addClass('accepted');
+            $chunk.find('.wasHidden').removeClass('wasHidden').addClass('hiddenVisual');
             if(!!skipSaveCheck){
                 return;
             }else if($('span[data-diff="chunk"]:not(.accepted,.rejected)').length == 0){
@@ -420,6 +434,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         }
         base.rejectEdit = function($chunk,skipSaveCheck){
             $chunk.removeClass('accepted').addClass('rejected');
+            $chunk.find('.hiddenVisual').removeClass('hiddenVisual').addClass('wasHidden');
             if(!!skipSaveCheck){
                 return;
             }else if($('span[data-diff="chunk"]:not(.accepted,.rejected)').length == 0){
@@ -427,7 +442,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
         }
 
-        base.determineFormattingChanges = function($old,$new){
+        base.determineFormattingChanges = function($old,$new,chunkID){
             var oldWasHidden = $old.hasClass('hiddenVisual');
             $old.removeClass('hiddenVisual');
             var oldAttr = jQuery.makeArray($old[0].attributes).sort();
@@ -441,24 +456,30 @@ CKEDITOR.plugins.add( 'editorialTools', {
             for(var a in newAttr){
                 parsedNewAttr[newAttr[a].name] = {value:newAttr[a].nodeValue,changed:false};
             }
-
+            var numChanges = 0;
             for(var a in parsedOldAttr){
                 if(typeof parsedNewAttr[a] === "undefined"){
                     parsedOldAttr[a].changed = true;
+                    numChanges++;
                 }else if(parsedOldAttr[a].value != parsedNewAttr[a].value){
                     parsedNewAttr[a].changed = true;
+                    numChanges++;
                 }
             }
             for(var a in parsedNewAttr){
                 if(typeof parsedOldAttr[a] === "undefined"){
                     parsedNewAttr[a].changed = true;
+                    numChanges++;
                 }
             }
             if(oldWasHidden){
                 $old.addClass('hiddenVisual');
             }
+            if(numChanges == 0){
+                return false;
+            }
 
-            var changeHTML = '<tr><td>';
+            var changeHTML = '<tr data-chunk="'+chunkID+'"><td>';
 
             var oldMethod = $old.hasClass('inline')?'Inline':'Linked';
             var oldType = (!!parsedOldAttr['data-widget'])?'Widget':'Media';
@@ -548,17 +569,23 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
             var $row = $(changeHTML).appendTo('#editorialReviewFormattingChangesList');
             $row.data('$chunk',$chunk);
-            $row.find('.btn-danger').click(function(){
+            $row.find('.btn-danger').click(function(e){
+                e.preventDefault();
                 $(this).parents('td').find('.btn-danger,.btn-success').hide();
                 $(this).parents('td').addClass('rejected');
+                return false;
             });
-            $row.find('.btn-success').click(function(){
+            $row.find('.btn-success').click(function(e){
+                e.preventDefault();
                 $(this).parents('td').find('.btn-danger,.btn-success').hide();
                 $(this).parents('td').addClass('accepted');
+                return false;
             });
-            $row.find('.btn-default').click(function(){
+            $row.find('.btn-default').click(function(e){
+                e.preventDefault();
                 $(this).parents('td').find('.btn-danger,.btn-success').show();
                 $(this).parents('td').removeClass('rejected accepted');
+                return false;
             });
             $row.find('.showAll').click(function(e){
                 e.preventDefault();
@@ -581,6 +608,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 //Iterate through each node and add them to the list
                 return false;
             });
+
+            return true;
         }
         base.displayVersions = function(versions,reviewMode){
             //if we only have one version selected, simply show the version - otherwise, show the diff
@@ -628,7 +657,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     if(base.versionsList[v].editorialState == previousState){
                         old_version = base.versionsList[v];
                     }
-
                     if((v > 0 && base.versionsList[v].editorialState == base.editorialState) || (old_version != null && base.versionsList[v].editorialState != previousState)){
                         break;
                     }
@@ -647,6 +675,14 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
         };
 
+        base.calculatePendingVisualChanges = function(){
+            var num_changes = $('#editorialReviewFormattingChangesList tr').length;
+            $('#formatting_notice').toggle(num_changes > 0);
+            $('#formatting_notice .plural').toggle(num_changes > 1);
+            $('#formatting_notice .singular').toggle(num_changes == 1);
+            $('#formatting_notice .change_count').text(num_changes);
+        }
+
         editor.on('instanceReady',function(e){
             if( (base.is_author && base.editorialState === "editreview") ||
                 (base.is_editor && base.editorialState === "clean") ){
@@ -661,6 +697,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         }
                         $(this).parent().remove();
                     });
+                    base.calculatePendingVisualChanges();
                     $('#editorialReviewFormattingChanges').modal('hide');
                 });
                 base.waitingForReview = true;
@@ -701,13 +738,21 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         base.$editsPanel = $('<div class="editsPanel panel"> \
                                                     <p><strong>This page has been edited.</strong></p> \
                                                     <p>Visible changes are <span data-diff="example">highlighted in yellow</span>, and must be accepted or rejected before the page can be saved.</p> \
+                                                    <p><div id="formatting_notice">In addition there <span class="plural">are</span><span class="singular" style="display: none;">is</span> <a href="#" id="view_visual_changes_link"><span class="change_count">0</span> formatting change<span class="plural">s</span></a> that need your review.</div>\
                                                     <p>Click the highlights to accept or reject individual edits, or use the buttons below to accept or reject all changes at once.</p> \
                                                     <div id="acceptRejectAll" class="row"> \
                                                         <div class="col-xs-12 col-md-6"><button type="button" class="btn btn-danger">Reject all</button></div> \
                                                         <div class="col-xs-12 col-md-6"><button type="button" class="btn btn-success">Accept all</button></div> \
                                                     </div>\
                                               </div>').appendTo(base.$editorialToolsPanelBody);
-
+                        base.$editsPanel.find('#view_visual_changes_link').click(function(e){
+                            e.preventDefault();
+                            $('#editorialReviewFormattingChangesList tr').show();
+                            $('#editorialReviewFormattingChanges caption .page_caption').show();
+                            $('#editorialReviewFormattingChanges caption .link_caption').hide();
+                            $('#editorialReviewFormattingChanges').modal('show');
+                            return false;
+                        });
                         $('#acceptRejectAll .btn-danger').click(function(){
                             $('span[data-diff="chunk"]').tooltip('hide').each(function(){
                                 base.rejectEdit($(this),true);

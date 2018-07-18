@@ -356,6 +356,7 @@ var scalar_diff = {
 
 		var $body = $('<div>'+_old.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
+        $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
 		var oldTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
@@ -364,6 +365,7 @@ var scalar_diff = {
 		
         $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
+        $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
 		var newTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,

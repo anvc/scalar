@@ -1547,6 +1547,7 @@
             var linkCount = 0; //$node.find('.bodyContent a[resource]').length + $node.find('.bodyContent a[data-widget]').length;
             $node.data('linkCount',linkCount);
             $node.find('a[resource], a[data-widget]').each(function(){
+                if($(this).hasClass('hiddenVisual')) return;
                 var $placeholder = $('<div class="placeholder caption_font clearfix" contenteditable="false"><div class="content"><div class="body"></div></div></div>');
                 if($(this).hasClass('wrap')){
                     $placeholder.addClass('wrap');

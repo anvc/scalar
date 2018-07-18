@@ -1365,7 +1365,10 @@ endif;
       </div>
       <div class="modal-body caption_font">
         <table class="table">
-        	<caption>The following formatting changes have been made on this page:</caption>
+        	<caption>
+        		<span class="page_caption">The following formatting changes have been made on this page:</span>
+        		<span class="link_caption" style="display: none">The following formatting changes have been made on this <span class="type"></span>:</span>
+        	</caption>
         	<thead>
         		<tr>
         			<th>Item</th>

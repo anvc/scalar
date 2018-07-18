@@ -655,7 +655,7 @@ body.shortHeader #saveNotice, body.shortHeader #saveErrorNotice{
 .cke_editable .clickToLoadNotice{
 	display: none;
 }
-.bodyContent a.inline{
+.bodyContent a.inline, .bodyContent a.hiddenVisual{
 	display: none;
 }
 .media_description{
