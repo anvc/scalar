@@ -28,6 +28,7 @@
         base.el = el;
 
         base.nodeList = {};
+        base.nodeEditorialStates = {};
 
         base.nodeTypes = ['page', 'media'];
 
@@ -633,88 +634,13 @@
                     //remove any duplicate nodes - since we are grabbing relationships, we will likely have some.
                     var uniqueNodes = [];
                     $.each(base.nodeList.unsorted, function(i, el){
-                        if($.inArray(el, uniqueNodes) === -1) uniqueNodes.push(el);
+                        if($.inArray(el, uniqueNodes) !== -1) return;
+                        uniqueNodes.push(el);
                     });
                     base.nodeList.unsorted = uniqueNodes;
 
-                    //Name
-                    base.nodeList.sortedByName = base.nodeList.unsorted.slice();
-                    base.nodeList.sortedByName.sort(function(a, b) {
-                      a = a.current.title.toLowerCase(), b = b.current.title.toLowerCase();
-                      return a>b?1:(a<b?-1:0);
-                    });
-
-
-                    //State
-                    base.nodeList.sortedByEditorialStateAsc = base.nodeList.sortedByName.slice();
-                    base.nodeList.sortedByEditorialStateAsc.sort(function(a, b) {
-                      a = base.node_states[a.current.editorialState].id, b = base.node_states[b.editorialState].id;
-                      return a>b?1:(a<b?-1:0);
-                    });
-
-                    base.nodeList.sortedByEditorialStateDesc = base.nodeList.sortedByName.slice();
-                    base.nodeList.sortedByEditorialStateDesc.sort(function(a, b) {
-                      a = base.node_states[a.current.editorialState].id, b = base.node_states[b.editorialState].id;
-                      return a<b?1:(a>b?-1:0);
-                    });
-
-                    //Type
-                    base.nodeList.sortedByType = base.nodeList.sortedByName.slice();
-                    base.nodeList.splitByType = {};
-                    var filterTypes = ['all'];
-                    for(var node in base.nodeList.sortedByType){
-                        var a = base.nodeList.sortedByType[node];
-                        if(typeof a.domType == 'undefined'){
-                            a.domType = a.getDominantScalarType();
-                        }
-
-                        if(typeof base.nodeList.splitByType[a.domType.singular] == 'undefined'){
-                            base.nodeList.splitByType[a.domType.singular] = [];
-                            filterTypes.push(a.domType.singular);
-                        }
-
-                        base.nodeList.splitByType[a.domType.singular].push(a);
-                    }
-
-
-                    filterTypes.sort();
-                    base.currentFilterType = filterTypes[0];
-                    $('#filterTypeText').text(base.ucwords(base.currentFilterType));
-                    base.fuse = new Fuse(base.nodeList.sortedByName, base.searchOptions);
-                    for(var t in filterTypes){
-                        $('<li><a role="button" data-type="'+filterTypes[t]+'" href="#">'+base.ucwords(filterTypes[t])+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').find('a').click(function(e){
-                                e.preventDefault();
-                                $('#editorialPathSearchText').removeClass('resolved');
-                                base.currentFilterType = $(this).data('type');
-                                $('#filterTypeText').text(base.ucwords(base.currentFilterType));
-                                if(base.currentFilterType === 'all'){
-                                    base.fuse = new Fuse(base.nodeList.sortedByName,base.searchOptions);
-                                }else{
-                                    base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
-                                }
-                        });
-                    }
-
-                    base.nodeList.sortedByType.sort(function(a, b) {
-                        namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
-                        a = a.domType.id; b = b.domType.id;
-                        return a>b?1:(a<b?-1:(namea>nameb?1:(namea<nameb?-1:0)));
-                    });
-
-
-                    //Date Asc
-                    base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.sortedByName.slice();
-                    base.nodeList.sortedByLastModifiedDateAsc.sort(function(a, b) {
-                        a = new Date(a.current.created), b = new Date(b.current.created);
-                        return a<b?1:(a>b?-1:0);
-                    });
-
-                    //Date Desc
-                    base.nodeList.sortedByLastModifiedDateDesc = base.nodeList.sortedByName.slice();
-                    base.nodeList.sortedByLastModifiedDateDesc.sort(function(a, b) {
-                        a = new Date(a.current.created), b = new Date(b.current.created);
-                        return a>b?1:(a<b?-1:0);
-                    });
+                    base.updateLists();
+                    
                     base.propogateInitialPage();
         		case 4:
 
@@ -733,6 +659,89 @@
         	}
         };
 
+        base.updateLists = function(){
+            //Name
+            base.nodeList.sortedByName = base.nodeList.unsorted.slice();
+            base.nodeList.sortedByName.sort(function(a, b) {
+              a = a.current.title.toLowerCase(), b = b.current.title.toLowerCase();
+              return a>b?1:(a<b?-1:0);
+            });
+
+
+            //State
+            base.nodeList.sortedByEditorialStateAsc = base.nodeList.sortedByName.slice();
+            base.nodeList.sortedByEditorialStateAsc.sort(function(a, b) {
+              a = base.node_states[a.current.editorialState].id, b = base.node_states[b.editorialState].id;
+              return a>b?1:(a<b?-1:0);
+            });
+
+            base.nodeList.sortedByEditorialStateDesc = base.nodeList.sortedByName.slice();
+            base.nodeList.sortedByEditorialStateDesc.sort(function(a, b) {
+              a = base.node_states[a.current.editorialState].id, b = base.node_states[b.editorialState].id;
+              return a<b?1:(a>b?-1:0);
+            });
+
+            //Type
+            base.nodeList.sortedByType = base.nodeList.sortedByName.slice();
+            base.nodeList.splitByType = {};
+            var filterTypes = ['all'];
+            for(var node in base.nodeList.sortedByType){
+                var a = base.nodeList.sortedByType[node];
+                if(typeof a.domType == 'undefined'){
+                    a.domType = a.getDominantScalarType();
+                }
+
+                if(typeof base.nodeList.splitByType[a.domType.singular] == 'undefined'){
+                    base.nodeList.splitByType[a.domType.singular] = [];
+                    filterTypes.push(a.domType.singular);
+                }
+
+                base.nodeList.splitByType[a.domType.singular].push(a);
+            }
+
+
+            filterTypes.sort();
+            base.currentFilterType = filterTypes[0];
+            $('#filterTypeText').text(base.ucwords(base.currentFilterType));
+            base.fuse = new Fuse(base.nodeList.sortedByName, base.searchOptions);
+            for(var t in filterTypes){
+                $('<li><a role="button" data-type="'+filterTypes[t]+'" href="#">'+base.ucwords(filterTypes[t])+'</a></li>').appendTo('#editorialContentFinder .dropdown-menu').find('a').click(function(e){
+                        e.preventDefault();
+                        $('#editorialPathSearchText').removeClass('resolved');
+                        base.currentFilterType = $(this).data('type');
+                        $('#filterTypeText').text(base.ucwords(base.currentFilterType));
+                        if(base.currentFilterType === 'all'){
+                            base.fuse = new Fuse(base.nodeList.sortedByName,base.searchOptions);
+                        }else{
+                            base.fuse = new Fuse(base.nodeList.splitByType[base.currentFilterType], base.searchOptions);
+                        }
+                });
+            }
+
+            base.nodeList.sortedByType.sort(function(a, b) {
+                namea = a.current.title.toLowerCase(), nameb = b.current.title.toLowerCase();
+                a = a.domType.id; b = b.domType.id;
+                return a>b?1:(a<b?-1:(namea>nameb?1:(namea<nameb?-1:0)));
+            });
+
+
+            //Date Asc
+            base.nodeList.sortedByLastModifiedDateAsc = base.nodeList.sortedByName.slice();
+            base.nodeList.sortedByLastModifiedDateAsc.sort(function(a, b) {
+                a = new Date(a.current.created), b = new Date(b.current.created);
+                return a<b?1:(a>b?-1:0);
+            });
+
+            //Date Desc
+            base.nodeList.sortedByLastModifiedDateDesc = base.nodeList.sortedByName.slice();
+            base.nodeList.sortedByLastModifiedDateDesc.sort(function(a, b) {
+                a = new Date(a.current.created), b = new Date(b.current.created);
+                return a>b?1:(a<b?-1:0);
+            });
+
+            base.loadOutline();
+        }
+
         base.propogateInitialPage = function(){
             base.$nodeList.appendTo(base.options.contents);
             var pagePadding = ($(window).height()-$('.editorialpath-page').height())+60;
@@ -747,16 +756,8 @@
             base.nextNodeIndexToLoad = 0;
             base.currentNodeList = base.nodeList["sortedBy"+sortName];
 
-            var activeSlug = undefined;
-
-
-            if(base.$nodeList.find('.editorial_node').length > 0){
-                activeSlug = $('#editorialOutline>ul>li.active').data('slug');
-            }
-
-            $('#editorialOutline>ul').add(base.$nodeList).html('');
-
             var extraLoadedNodes = 0;
+            $(base.$nodeList).html('');
             base.updateLoader(0);
             var callback = function(){
                 base.updateLoader("increment");
@@ -773,15 +774,15 @@
                     base.setup();
                 }
             }
-
-            base.loadOutline();
             base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+            base.loadOutline();
         };
 
         base.loadOutline = function(){
+            $('#editorialOutline>ul').html('');
             for(var node in base.currentNodeList){
                 node = base.currentNodeList[node];
-                var nodeOutlineItemHTML = '<li class="'+node.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
+                var nodeOutlineItemHTML = '<li class="'+node.current.editorialState+'"><a data-node="'+node.slug+'" href="#node_'+node.slug.replace(/\//g, '_')+'">'+node.getDisplayTitle()+'</a></li>';
                 var $nodeOutlineItem = $(nodeOutlineItemHTML).appendTo('#editorialOutline>ul');
 
                 $nodeOutlineItem.data('slug',node.slug).find('a').click($.proxy(function(slug, e){
@@ -1075,7 +1076,7 @@
         base.addNode = function(node,callback){
         	var currentVersion = node.current;
             var queries = currentVersion.editorialQueries?JSON.parse(currentVersion.editorialQueries).queries:[];
-        	var state = node.editorialState;
+        	var state = node.current.editorialState;
         	var stateName = base.node_states[state].name;
             var node_url = scalarapi.model.urlPrefix+node.slug;
         	var nodeView = (typeof node.current.defaultView !== 'undefined' && node.current.defaultView != null) ? node.current.defaultView : 'plain';
@@ -1482,8 +1483,19 @@
 
             //Add usage rights:
             pageData["scalar:usage_rights"] = $node.find('.usageRights').prop('checked')?1:0;
-
+            var slug = node.slug;
             scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
+                var reload_node = function(){
+                    var node = scalarapi.getNode(slug);
+                    for(var n in base.nodeList.unsorted){
+                        if(base.nodeList.unsorted[n].slug == slug){
+                            base.nodeList.unsorted[n] = node;
+                        }
+                    }
+                    base.updateLists();
+                }
+                if(scalarapi.loadPage( slug, true, reload_node, null, 1, false, null, 0, 20) == "loaded") reload_node();
+
                 base.$saveNotice.fadeIn('fast',function(){
                     window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);
                 });
