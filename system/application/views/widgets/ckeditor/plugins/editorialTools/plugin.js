@@ -360,6 +360,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             var $old = $(this).children().first().children('a[data-widget],a[resource]');
                             var $new = $(this).children().last().children('a[data-widget],a[resource]');
                             if(!!$old[0] && !!$new[0] && base.determineFormattingChanges($old,$new,this_chunkID)){
+                                $(this).data('chunk_id',this_chunkID);
                                 $(this).tooltip({
                                     "html": true,
                                     "title": '<button type="button" class="btn btn-sm btn-primary viewFormatting">View formatting changes</button>',
@@ -369,7 +370,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                     $chunk = $(this);
                                     $('.viewFormatting').off('click').click(function(){
                                         $('#editorialReviewFormattingChangesList tr').hide();
-                                        $('#editorialReviewFormattingChangesList tr[data-chunk="'+this_chunkID+'"').show();
+                                        $('#editorialReviewFormattingChangesList tr[data-chunk="'+$chunk.data('chunk_id')+'"').show();
 
                                         $('#editorialReviewFormattingChanges caption .page_caption').hide();
                                         $('#editorialReviewFormattingChanges caption .link_caption').show();
