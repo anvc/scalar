@@ -319,6 +319,7 @@ a.inline.inlineWidget[data-widget="summary"] {
 #editorialReviewFormattingChangesList .attribute {
 	font-style: italic;
 	color: #666;
+	text-align: right;
 }
 body.isReviewing span[data-diff="chunk"]{
 	cursor: pointer;

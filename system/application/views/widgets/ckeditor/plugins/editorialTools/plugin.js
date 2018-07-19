@@ -536,7 +536,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     var value = attribute.value;
                 }
-                changeHTML += '<div class="row"><div class="col-xs-6 attribute">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
+                changeHTML += '<div class="row"><div class="col-xs-4 attribute">'+a.replace('data-','')+'</div><div class="col-xs-8'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
             }
 
             //Third Column: New Attributes
@@ -559,7 +559,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     var value = attribute.value;
                 }
-                changeHTML += '<div class="row"><div class="col-xs-6 attribute">'+a.replace('data-','')+'</div><div class="col-xs-6'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
+                changeHTML += '<div class="row"><div class="col-xs-4 attribute">'+a.replace('data-','')+'</div><div class="col-xs-8'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
             }
 
             //Final  Column: Buttons
