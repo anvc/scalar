@@ -737,7 +737,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         base.$editsPanel = $('<div class="editsPanel panel"> \
                                                     <p><strong>This page has been edited.</strong></p> \
                                                     <p>Visible changes are <span data-diff="example">highlighted in yellow</span>, and must be accepted or rejected before the page can be saved.</p> \
-                                                    <p><div id="formatting_notice">In addition there <span class="plural">are</span><span class="singular" style="display: none;">is</span> <a href="#" id="view_visual_changes_link"><span class="change_count">0</span> formatting change<span class="plural">s</span></a> that need your review.</div>\
+                                                    <p id="formatting_notice">In addition there <span class="plural">are</span><span class="singular" style="display: none;">is</span> <a href="#" id="view_visual_changes_link"><span class="change_count">0</span> formatting change<span class="plural">s</span></a> that need your review.</p>\
                                                     <p>Click the highlights to accept or reject individual edits, or use the buttons below to accept or reject all changes at once.</p> \
                                                     <div id="acceptRejectAll" class="row"> \
                                                         <div class="col-xs-12 col-md-6"><button type="button" class="btn btn-danger">Reject all</button></div> \
