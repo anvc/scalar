@@ -370,7 +370,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                     $chunk = $(this);
                                     $('.viewFormatting').off('click').click(function(){
                                         $('#editorialReviewFormattingChangesList tr').hide();
-                                        $('#editorialReviewFormattingChangesList tr[data-chunk="'+$chunk.data('chunk_id')+'"').show();
+                                        $('#editorialReviewFormattingChangesList tr[data-chunk="'+$chunk.data('chunk_id')+'"]').show();
 
                                         $('#editorialReviewFormattingChanges caption .page_caption').hide();
                                         $('#editorialReviewFormattingChanges caption .link_caption').show();
