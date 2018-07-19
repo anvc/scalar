@@ -536,6 +536,7 @@ body.shortHeader #editorialSidePanel>.affix{
 	display: none;
 	text-align: center;
 	border-radius: 0;
+	z-index: 100;
 }
 
 body.shortHeader #saveNotice, body.shortHeader #saveErrorNotice{
