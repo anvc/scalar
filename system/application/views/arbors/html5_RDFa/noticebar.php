@@ -95,10 +95,10 @@ if (isset($page->is_live) && !$page->is_live) {
 
 // Page isn't visible
 if ($view == 'versions' && $hide_versions) {
-	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made visible in the Dashboard.</p></div>'."\n";
+	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are currently only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made public in the Dashboard.</p></div>'."\n";
 }
 if ($view == 'meta' && $hide_versions && isset($_GET['versions']) && 1==$_GET['versions']) {
-	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made visible in the Dashboard.</p></div>'."\n";
+	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are currently only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made public in the Dashboard.</p></div>'."\n";
 }
 
 // Page is paywalled
