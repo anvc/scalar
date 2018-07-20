@@ -520,9 +520,13 @@ class Book extends MY_Controller {
 		$this->data['slug'] = substr($_SERVER['REQUEST_URI'], strrpos($_SERVER['REQUEST_URI'],'/')+1);
 		if (strpos($this->data['slug'],'?')) $this->data['slug'] = substr($this->data['slug'], 0, strpos($this->data['slug'],'?'));
 		if (empty($this->data['slug']) || 'criticalcommons'==$this->data['slug']) $this->data['slug'] = null;
-
-		if ('result'==$this->data['slug']) {
-			echo '<!DOCTYPE HTML><html lang="en"><head><meta charset="utf-8"><title>jQuery Iframe Transport Plugin Redirect Page</title></head><body><script>document.body.innerText=document.body.textContent=decodeURIComponent(window.location.search.slice(1));</script></body></html>';
+		
+		if ('/result'==substr(uri_string(), -7)) {
+			$this->data['redirect_to'] = $_SERVER['QUERY_STRING'];
+			echo '<script>'."\n";
+			echo 'var redirect_to="'.$this->data['redirect_to'].'";'."\n";
+			echo 'window.parent.has_redirected(redirect_to);'."\n";
+			echo '</script>'."\n";
 			$this->template_has_rendered = true;
 		}
 
