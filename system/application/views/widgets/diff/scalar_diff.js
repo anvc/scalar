@@ -350,8 +350,8 @@ var scalar_diff = {
 	'diff' : function(_old,_new, addNewLinePlaceholders, addMarkup){
         var htmlTokens = [];
         var htmlTokenRelationships = {};
-        _old.body = _old.body.replace(/<\/div>/g,'').replace(/<div>/g,'<p>');
-        _new.body = _new.body.replace(/<\/div>/g,'').replace(/<div>/g,'<p>');
+        _old.body = _old.body.replace(/<\/div>/g,'').replace(/(<div\s+).*?(>)/g,'<p>');
+        _new.body = _new.body.replace(/<\/div>/g,'').replace(/(<div\s+).*?(>)/g,'<p>');
 		if(addNewLinePlaceholders){
 			_old.body = scalar_diff._addNewLinePlaceholders(_old.body);
 			_new.body = scalar_diff._addNewLinePlaceholders(_new.body);
