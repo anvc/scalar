@@ -1222,7 +1222,8 @@
                     $node.find('.bodyContent').html(diff.body);
                     $node.find('.state_btn').tooltip({
                         "title": 'All changes must be resolved before changing state. Click on the "Open in page editor" button to process changes.',
-                        "trigger": "hover"
+                        "trigger": "hover",
+                        "template": '<div class="tooltip caption_font" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
                     });
                 } else if(!!base.node_state_flow[state]){
                     $node.find('.usageRights').removeAttr("disabled");
