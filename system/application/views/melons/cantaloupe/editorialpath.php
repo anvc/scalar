@@ -64,7 +64,7 @@
 		<div class="col-xs-12 col-md-9">
 			<heading class="heading_font" id="pathHeading">
 				<h1 class="clearboth heading_weight">Editorial Path</h1>
-				<p>This page presents a simplified view of all content in the book, designed to provide quick access for editing. You can <strong>directly edit any text below</strong> and changes will be saved immediately.</p>
+				<p>This page presents a simplified view of all content in the book, designed to provide quick access for editing. You can <strong>edit descriptions and body copy directly</strong> and changes will be saved immediately.</p>
 				<div id="pathOrderSelectionContainer">
 					<span class="text-muted">Content order: </span>
 					<div class="dropdown" id="contentOrderDropdown">
