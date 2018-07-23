@@ -107,7 +107,6 @@ header h5 {margin-bottom:14px;}
 .message { color: #686868; }
 .message-pane { border-radius: 5px; border: 1px solid #dedede; padding: 20px; font-size: 18px; color: #686868; line-height: 130%; }
 .message-pane.dark { background-color: #f9f9f9; }
-.editorial-summary .col-md-8 { padding-right: 0; }
 .editorial-gauge { width: 100%; }
 .editorial-fragment { 
 	height: 40px; 
