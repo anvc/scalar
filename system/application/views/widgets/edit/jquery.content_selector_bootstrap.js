@@ -1873,7 +1873,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					if ('undefined'!=typeof(item.uri) && -1 != item.uri.indexOf('/users/')) {
 						user_id = item.uri.substr(item.uri.lastIndexOf('/')+1);
 					};
-					var desc = (item.version && 'undefined' != typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
+					var desc = (item.version && 'undefined' != typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No description</em>';
 					
 					var rowHTML = '<tr data-content-id="'+content_id+'" data-version-id="'+version_id+'" data-user-id="'+user_id+'">';
 					if (isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox' == opts.rowSelectMethod) {
@@ -2147,7 +2147,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							};
 							replace += '</select>';
 							$cell.html(replace);
-						} else if ($cell.children('em').length && $cell.html().slice() == '<em>No Description</em>') {
+						} else if ($cell.children('em').length && $cell.html().slice() == '<em>No description</em>') {
 							value = '';
 							var replace = value.slice();
 							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" />');
@@ -2185,7 +2185,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							value = $cell.children('input:first').val();
 							var replace = value.slice();
 						};
-						if (!replace.length && $cell.attr('property') == 'description') replace = '<em>No Description</em>';
+						if (!replace.length && $cell.attr('property') == 'description') replace = '<em>No description</em>';
 						$cell.html(replace);
 						$cell.data('is-editing', false);
 						if ($cell.data('has-link')) $cell.find('a:first').click(function(e) {

@@ -973,7 +973,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							$tbody.html('');
 							for(var i = 0; i < data.length; i++){
 								var item = data[i];
-								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No Description</em>';
+								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No description</em>';
 								var $item = $('<tr><td class="col-xs-3">'+item.title+'</td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(e){
 									if(!allowMultiple){
 											if($(this).hasClass('bg-info') && (!allowMultiple || selectedNodes.length == 1)){
