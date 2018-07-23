@@ -318,21 +318,22 @@ var scalar_diff = {
                         }
                     }
                 }
-
+                
                 if(falsePositive){
                     $(this).replaceWith($new);
                 }
             }
-
+                
             //We don't need to show both versions of a media/widget link - hide the older one
             if($(this).find('span[data-diff]:last').find('a[data-widget],a[resource]').length > 0){
                 $(this).find('span[data-diff]:first').find('a[data-widget],a[resource]').addClass('hiddenVisual');
             }
-            $(this).find('span[data-diff]:not([data-diff="chunk"])').each(function(){
-                if($(this).find('div,p,br,.br_tag,.p_tag,.inline').length > 0){
-                    $(this).parent('span[data-diff]').addClass('withBlockElement');
-                }
-            });
+        });
+
+        $tempBody.find('span[data-diff="chunk"]').each(function(){
+            if($(this).find('div,p,br,.br_tag,.p_tag,.inline').length > 0){
+                $(this).addClass('withBlockElement');
+            }
         });
 
         cleanedHTML = $tempBody.html();
@@ -347,12 +348,14 @@ var scalar_diff = {
         }
 	},
 	'diff' : function(_old,_new, addNewLinePlaceholders, addMarkup){
+        var htmlTokens = [];
+        var htmlTokenRelationships = {};
+        _old.body = _old.body.replace(/<\/div>/g,'').replace(/<div>/g,'<p>');
+        _new.body = _new.body.replace(/<\/div>/g,'').replace(/<div>/g,'<p>');
 		if(addNewLinePlaceholders){
 			_old.body = scalar_diff._addNewLinePlaceholders(_old.body);
 			_new.body = scalar_diff._addNewLinePlaceholders(_new.body);
 		}
-		var htmlTokens = [];
-		var htmlTokenRelationships = {};
 
 		var $body = $('<div>'+_old.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
