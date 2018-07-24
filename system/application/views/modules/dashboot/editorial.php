@@ -529,8 +529,9 @@ STR;
     </div>
   </div>
   <div class="row">
-    <section class="col-xs-7">
-      <p><br><br><button class="btn btn-default" data-toggle="modal" data-target="#confirmEditorialWorkflow">Disable editorial workflow</button></p>
+    <section class="col-xs-12">
+      <hr>
+      <p><button class="btn btn-default pull-right" data-toggle="modal" data-target="#confirmEditorialWorkflow">Disable editorial workflow</button><br><br><br></p>
     </section>
   </div>
 </div>
