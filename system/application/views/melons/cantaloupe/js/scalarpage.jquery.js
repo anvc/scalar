@@ -925,7 +925,7 @@
 
                             if (page.containingPathIndex > 0) {
                                 $('#back-btn').parents('section').remove(); // remove the intra-path back button and its enclosing section
-                                back_button = $('<a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
+                                back_button = $('<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
                             }
                             section.append(links);
 
