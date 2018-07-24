@@ -959,13 +959,17 @@
                 }
 
                 setTimeout(function() {
-                    var cont_btn = $('.relationships .nav_btn.primary');
-                    var back_btn = cont_btn.parent().children('#back-btn');
-                    var temp = (back_btn.parent().parent().height() - back_btn.height()) / 2;
-                    back_btn.css('padding-top', temp);
-                    back_btn.css('padding-bottom', temp);
-                    back_btn.css('vertical-align', 'top');
-                    back_btn.css('height', '');
+                    var back_btn = $('#back-btn');
+                    if (back_btn.length > 0) {
+                        var cont_btn = back_btn.parent().parent().find('.nav_btn.primary');
+                        if (cont_btn.length > 0) {
+                            var temp = (back_btn.parent().parent().height() - back_btn.height()) / 2;
+                            back_btn.css('padding-top', temp);
+                            back_btn.css('padding-bottom', temp);
+                            back_btn.css('vertical-align', 'top');
+                            back_btn.css('height', '');
+                        }
+                    }
                 }, 10);
 
                 //Fix back button height on resize
