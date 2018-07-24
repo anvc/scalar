@@ -2363,7 +2363,11 @@
                 for (i=0; i<n; i++) {
                     node = contents[i];
                     if (node.current.mediaSource.name == 'KML') {
-                        var kmlLayer = new google.maps.KmlLayer(node.current.sourceFile);
+                        var path = node.current.sourceFile;
+                        if (path.substr(0, 4) != 'http') {
+                            path = scalarapi.model.urlPrefix + path;
+                        }
+                        var kmlLayer = new google.maps.KmlLayer(path);
                         kmlLayer.setMap(map);
                     }
                 }
