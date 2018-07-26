@@ -42,7 +42,7 @@
 		} else if ('undefined'!=typeof($.fn.modal)) {  // Bootstrap
 			bootstrap_enabled = true;
 	    	opts.width = parseInt($(window).width())*0.7;
-	    	opts.height = parseInt($(window).height())*0.6;			
+	    	opts.height = parseInt($(window).height())*0.7;			
 			bootbox.dialog({
 				message: '<div id="bootbox-content"></div>',
 				title: opts.title+'&nbsp; &nbsp; <span class="title-links" style="white-space:nowrap;"></span>',
@@ -82,7 +82,7 @@
 			$this.appendTo($('.add_metadata_bootbox #bootbox-content'));
 			$('.add_metadata_bootbox .modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
             $('.add_metadata_bootbox .bootbox-close-button').empty();
-			$('.add_metadata_bootbox .add_metadata_modal').height(opts.height).css('overflow', 'auto');
+			$('.add_metadata_bootbox .add_metadata_modal').height(opts.height).css('overflow-y', 'auto').css('overflow-x','hidden');
 			$('.add_metadata_bootbox').css('z-index', '1070');
 			$('.add_metadata_bootbox').next().css('z-index', '1060');
 		} else {
@@ -95,8 +95,8 @@
         	var has_title_links = ($title_links.length) ? true : false;
         	var title_links = [];
         	// Featured
-        	$('<h1 name="featured">Featured &nbsp; <small>Fields that have special uses in Scalar\'s interface</small></h1>').appendTo($div);
-        	title_links.push('<a href="javascript:void(null);">Featured</a>');
+        	$('<h1 name="featured">featured &nbsp; <small>Fields that have special uses in Scalar\'s interface &amp; layouts</small></h1>').appendTo($div);
+        	title_links.push('<a href="javascript:void(null);">featured</a>');
         	var $content = $('<div></div>').appendTo($div);
         	var featured = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
     		for (var j = 0; j < featured.length; j+=3) {
@@ -111,7 +111,9 @@
     			'art': 'ARTstor terms',
     			'iptc': 'Photo metadata',
     			'bibo': 'Bibliographic Ontology Specification',
-    			'id3': 'MP3 de facto metadata standard'
+    			'id3': 'MP3 de facto metadata standard',
+    			'dwc': 'Darwin Core terms',
+    			'vra': 'VRA Ontology representing entities in the VRA data model',
     		};
         	// Ontologies
         	for (var prefix in data) {

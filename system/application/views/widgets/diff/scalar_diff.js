@@ -350,8 +350,17 @@ var scalar_diff = {
 	'diff' : function(_old,_new, addNewLinePlaceholders, addMarkup){
         var htmlTokens = [];
         var htmlTokenRelationships = {};
-        _old.body = _old.body.replace(/<\/div>/g,'').replace(/(<div\s+).*?(>)/g,'<p>');
-        _new.body = _new.body.replace(/<\/div>/g,'').replace(/(<div\s+).*?(>)/g,'<p>');
+
+        $old = $('<div>'+_old.body+'</div>');
+        $new = $('<div>'+_new.body+'</div>');
+        
+        $old.add($new).find('div').each(function(){
+            $(this).replaceWith(this.childNodes);
+        });
+
+        _old.body = $old.html();
+        _new.body = $new.html();
+
 		if(addNewLinePlaceholders){
 			_old.body = scalar_diff._addNewLinePlaceholders(_old.body);
 			_new.body = scalar_diff._addNewLinePlaceholders(_new.body);
@@ -369,6 +378,7 @@ var scalar_diff = {
         $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
         $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
+
 		var newTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
@@ -392,6 +402,7 @@ var scalar_diff = {
 	        	'description' : descriptionDiff,
 	        	'tokens' : {'list' : htmlTokens, 'relationships' : htmlTokenRelationships}
 	        };
+            
 			if(addMarkup){
 				diff = scalar_diff._addMarkup(diff);
 			}
