@@ -1083,6 +1083,7 @@ aside { display: none; }
 /* bootstrap modal */
 button.close {
   background:url(../images/close_icon.png) no-repeat;
+  background-size: cover;
   width:30px;
   height:30px;
   margin-top:0;
