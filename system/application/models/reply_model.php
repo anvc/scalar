@@ -46,39 +46,39 @@ class Reply_model extends MY_Model {
 
 	}
 
-    public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $version_datetime=null) {
+	public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $id_array=null) {
 
-    	return parent::get_all($this->replies_table, $book_id, $type, $category, $is_live, $version_datetime);
+		return parent::get_all($this->replies_table, $book_id, $type, $category, $is_live, $id_array);
 
     }
 
-	public function get_parents($child_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+    public function get_parents($child_version_id=0, $orderby='', $orderdir='', $is_live=false, $id_array=null) {
 
 		if (empty($orderby)) $orderby = $this->replies_table.'.datetime';
 		if (empty($orderdir)) $orderdir = 'asc';
-		return parent::get_parents($this->replies_table, $child_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+		return parent::get_parents($this->replies_table, $child_version_id, $orderby, $orderdir, $is_live, $id_array);
 
 	}
 
 	// For comment tree
-    function get_parents_recursive($child_version_id=0, $maintain_version=false) {
+	function get_parents_recursive($child_version_id=0, $maintain_version=false, $id_array=null) {
 
-    	$parents = $this->get_parents($child_version_id, $maintain_version);
+    	$parents = $this->get_parents($child_version_id, $maintain_version, null, false, $id_array);
     	if (!count($parents)) return $parents;
 
     	foreach ($parents as $content_id => $row) {
-    		$parents[$content_id]->versions[0]->has_reply = $this->get_parents_recursive($parents[$content_id]->versions[0]->version_id, $maintain_version);
+    		$parents[$content_id]->versions[0]->has_reply = $this->get_parents_recursive($parents[$content_id]->versions[0]->version_id, $maintain_version, $id_array);
     	}
 
     	return $parents;
 
     }
 
-	public function get_children($parent_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+    public function get_children($parent_version_id=0, $orderby='', $orderdir='', $is_live=false, $id_array=null) {
 
 		if (empty($orderby)) $orderby = $this->replies_table.'.datetime';
 		if (empty($orderdir)) $orderdir = 'asc';
-		return parent::get_children($this->replies_table, $parent_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+		return parent::get_children($this->replies_table, $parent_version_id, $orderby, $orderdir, $is_live, $id_array);
 
 	}
 

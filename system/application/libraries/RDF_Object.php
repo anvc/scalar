@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -22,7 +22,7 @@
  * @projectDescription		Convert internal structures into RDF; includes two approaches -- one where the object is
  *                          non-hierarchical/recursive, the other nested -- based on arguments passed to book() or index()
  * @author					Craig Dietrich
- * @version					1.3
+ * @version					1.4
  */
 
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
@@ -43,31 +43,35 @@ class RDF_Object {
 	const PROVENANCE_NONE = null;
 	const USERS_ALL = 1;
 	const USERS_LISTED = 2;
+	const USE_VERSIONS_INCLUSIVE = 0;
+	const USE_VERSIONS_EXCLUSIVE = 1;
 	public $ns = array();
 	private $version_cache = array();
 	private $user_cache = array();
 	private $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
 	private $defaults = array(
-							 'books'		=> null,
-			                 'book'         => null,
-							 'users' 		=> null,
-			                 'content'      => null,
-			                 'base_uri'     => null,
-	 						 'method'		=> '',
-	                         'restrict'     => self::RESTRICT_NONE,
-							 'rel'          => self::REL_ALL,
-							 'sq'           => self::NO_SEARCH,
-							 'versions'     => self::VERSIONS_MOST_RECENT,
-						     'ref'          => self::REFERENCES_NONE,
-							 'prov'			=> self::PROVENANCE_NONE,
-	                         'pagination'   => self::NO_PAGINATION,
-	                         'max_recurses' => 0,
-	                         'num_recurses' => 0,
-							 'total'   		=> 0,
-							 'anon_name'	=> 'anonymous',
-							 'u_all'		=> self::USERS_LISTED,
-							 'editorial_state' => null
-							 );
+		'books'			=> null,
+		'book'			=> null,
+		'users'			=> null,
+		'content'		=> null,
+		'use_versions'	=> null,
+		'base_uri'		=> null,
+		'method'		=> '',
+		'restrict'		=> self::RESTRICT_NONE,
+		'rel'			=> self::REL_ALL,
+		'sq'			=> self::NO_SEARCH,
+		'versions'		=> self::VERSIONS_MOST_RECENT,
+		'ref'			=> self::REFERENCES_NONE,
+		'prov'			=> self::PROVENANCE_NONE,
+		'pagination'	=> self::NO_PAGINATION,
+		'use_versions_restriction' => self::USE_VERSIONS_INCLUSIVE,
+		'max_recurses'	=> 0,
+		'num_recurses'	=> 0,
+		'total'			=> 0,
+		'anon_name'		=> 'anonymous',
+		'u_all'			=> self::USERS_LISTED,
+		'editorial_state' => null
+	);
 
 	public function __construct() {
 
@@ -373,13 +377,14 @@ class RDF_Object {
 			if (self::VERSIONS_ALL === $settings['versions']) {
 				$row->versions = $CI->versions->get_all($row->content_id, null, null, $settings['sq']);
 			} else {
+				$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
+				if (false===$use_version_id && $settings['use_versions_restriction'] == self::USE_VERSIONS_EXCLUSIVE) return null;
 				$row->versions = array();
 				$row->versions[0] = $CI->versions->get_single(
-													   $row->content_id,
-													   ((is_int($settings['versions']))?null:$settings['versions']),
-													   $row->recent_version_id,
-													   $settings['sq']
-													      );
+					$row->content_id,
+					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
+					$settings['sq']
+				);
 			}
 		}
 
@@ -428,13 +433,14 @@ class RDF_Object {
 			if (self::VERSIONS_ALL === $settings['versions']) {
 				$versions = $CI->versions->get_all($row->content_id, null, null, $settings['sq']);
 			} else {
+				$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
+				if (false===$use_version_id && $settings['use_versions_restriction'] == self::USE_VERSIONS_EXCLUSIVE) return null;
 				$versions = array();
 				$version = $CI->versions->get_single(
-												     $row->content_id,
-												     ((is_int($settings['versions']))?null:$settings['versions']),
-												     $row->recent_version_id,
-												     $settings['sq']
-													);
+					$row->content_id,
+					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
+					$settings['sq']
+				);
 				if (!empty($version)) $versions[0] = $version;
 			}
 		} else {
@@ -462,11 +468,11 @@ class RDF_Object {
 			if (isset($versions[($key-1)])) $versions[$key]->replaced_by = $settings['base_uri'].$row->slug.'.'.$versions[($key-1)]->version_num;
 			// References
 			if ($settings['ref'] && $settings['num_recurses'] <= $settings['max_recurses']) {
-				$nodes = $CI->references->get_parents($version->version_id, null, null, null, true);
+				$nodes = $CI->references->get_parents($version->version_id, null, null, true);
 				foreach ($nodes as $node) {
 					$versions[$key]->has_reference[] = $settings['base_uri'].$node->parent_content_slug;
 				}
-				$nodes = $CI->references->get_children($version->version_id, null, null, null, true);
+				$nodes = $CI->references->get_children($version->version_id, null, null, true);
 				foreach ($nodes as $node) {
 					$versions[$key]->references[] = $settings['base_uri'].$node->child_content_slug;
 				}
@@ -752,7 +758,7 @@ class RDF_Object {
 		$ref_models = $CI->config->item('ref');
 		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');
 		if (!empty($ref_models)) $models = array_merge($models, $ref_models);
-
+		
 		for ($j = 0; $j < count($row->versions); $j++) {
 			$version_id = $row->versions[$j]->version_id;
 			foreach ($models as $model) {
@@ -762,7 +768,7 @@ class RDF_Object {
 				if ($settings['rel'] == self::REL_PARENTS_ONLY || $settings['rel'] == self::REL_ALL) {
 					$name = 'has_'.$model;
 					$row->versions[$j]->$name = array();
-					$nodes = $CI->$model->get_parents($version_id, null, null, null, 1);
+					$nodes = $CI->$model->get_parents($version_id, null, null, true, $settings['use_versions']);
 					foreach ($nodes as $node) {
 						array_push($row->versions[$j]->$name, $this->_annotation_parent($node, $settings));
 					}
@@ -770,7 +776,7 @@ class RDF_Object {
 				if ($settings['rel'] == self::REL_CHILDREN_ONLY || $settings['rel'] == self::REL_ALL) {
 					$name = $model_s.'_of';
 					$row->versions[$j]->$name = array();
-					$nodes = $CI->$model->get_children($version_id, null, null, null, 1);
+					$nodes = $CI->$model->get_children($version_id, null, null, true, $settings['use_versions']);
 					foreach ($nodes as $node) {
 						array_push($row->versions[$j]->$name, $this->_annotation_child($node, $settings));
 					}
@@ -804,13 +810,13 @@ class RDF_Object {
 				$model_s = singular($model);
 				if ('object'!=gettype($CI->$model)) $CI->load->model($model_s.'_model',$model);
 				if (empty($settings['rel']) || $settings['rel'] == self::REL_PARENTS_ONLY) {
-					$nodes = $CI->$model->get_parents($row->version_id, null, null, null, true);
+					$nodes = $CI->$model->get_parents($row->version_id, null, null, true, $settings['use_versions']);
 					foreach ($nodes as $node) {
 						$this->_annotation_parent_by_ref($return, $node, $uri, $settings);
 					}
 				}
 				if (empty($settings['rel']) || $settings['rel'] == self::REL_CHILDREN_ONLY) {
-					$nodes = $CI->$model->get_children($row->version_id, null, null, null, true);
+					$nodes = $CI->$model->get_children($row->version_id, null, null, true, $settings['use_versions']);
 					foreach ($nodes as $node) {
 						$this->_annotation_child_by_ref($return, $node, $uri, $settings);
 					}
@@ -848,6 +854,7 @@ class RDF_Object {
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if ('object'!=gettype($CI->annotations)) $CI->load->model('annotation_model','annotations');
 
+		// TODO: if in a edition this is outputting relational nodes for items that aren't displayed
 		$annotation->has_body = $settings['base_uri'].$annotation->parent_content_slug.'.'.$annotation->parent_version_num;
 		$annotation->has_target = $target_uri.$this->annotation_append($annotation);
 		$return[$annotation->urn] = $CI->annotations->rdf($annotation);
@@ -888,7 +895,8 @@ class RDF_Object {
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if ('object'!=gettype($CI->annotations)) $CI->load->model('annotation_model','annotations');
-
+		
+		// TODO: if in a edition this is outputting relational nodes for items that aren't displayed
 		$annotation->has_body = $body_uri;
 		$target_base = $settings['base_uri'].$annotation->child_content_slug.'.'.$annotation->child_version_num;
 		$annotation->has_target = $target_base.$this->annotation_append($annotation);
@@ -946,6 +954,14 @@ class RDF_Object {
 		}
 		return false;
 
+	}
+	
+	private function _use_version($use_versions, $content_id) {
+		
+		if (!is_array($use_versions)) return null;
+		if (!isset($use_versions[$content_id])) return false;
+		return (int) $use_versions[$content_id];
+		
 	}
 
 }

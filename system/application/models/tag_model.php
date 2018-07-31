@@ -42,27 +42,27 @@ class Tag_model extends MY_Model {
 
 	}
 
-    public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $version_datetime=null) {
+	public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $id_array=null) {
 
-    	return parent::get_all($this->tags_table, $book_id, $type, $category, $is_live, $sq, $version_datetime);
+		return parent::get_all($this->tags_table, $book_id, $type, $category, $is_live, $sq, $id_array);
 
     }
 
-	public function get_parents($child_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+    public function get_parents($child_version_id=0, $orderby='', $orderdir='', $is_live=false, $id_array=null) {
 
-		return parent::get_parents($this->tags_table, $child_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+    	return parent::get_parents($this->tags_table, $child_version_id, $orderby, $orderdir, $is_live, $id_array);
 
 	}
 
-	public function get_children($parent_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+	public function get_children($parent_version_id=0, $orderby='', $orderdir='', $is_live=false, $id_array=null) {
 
-		return parent::get_children($this->tags_table, $parent_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+		return parent::get_children($this->tags_table, $parent_version_id, $orderby, $orderdir, $is_live, $id_array);
 
 	}
 
     public function save_children($parent_version_id=0, $array=array()) {
 
-    	// Inser new relationships
+    	// Insert new relationships
     	foreach ($array as $version_urn) {
 
     		if (isURN($version_urn)) $version_id = $this->page_urn_to_content_id($version_urn);

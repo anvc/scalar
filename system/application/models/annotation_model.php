@@ -59,21 +59,21 @@ class Annotation_model extends MY_Model {
 
 	}
 
-    public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $version_datetime=null) {
+	public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $id_array=null) {
 
-    	return parent::get_all($this->annotations_table, $book_id, $type, $category, $is_live, $version_datetime);
+		return parent::get_all($this->annotations_table, $book_id, $type, $category, $is_live, $id_array);
 
     }
 
-	public function get_parents($child_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+    public function get_parents($child_version_id=0, $orderby='', $orderdir='', $is_live=false, $id_array=null) {
 
-		return parent::get_parents($this->annotations_table, $child_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+		return parent::get_parents($this->annotations_table, $child_version_id, $orderby, $orderdir, $is_live, $id_array);
 
 	}
 
-	public function get_children($parent_version_id=0, $orderby='', $orderdir='', $version_datetime=null, $is_live=false) {
+	public function get_children($parent_version_id=0, $orderby='', $orderdir='', $is_live=false, $id_array=null) {
 
-		return parent::get_children($this->annotations_table, $parent_version_id, $orderby, $orderdir, $version_datetime, $is_live);
+		return parent::get_children($this->annotations_table, $parent_version_id, $orderby, $orderdir, $is_live, $id_array);
 
 	}
 

@@ -66,27 +66,26 @@ class MY_Model extends CI_Model {
 
     public function get_all() {
 
-    	// Define arguments here to avoid E_STRICT warnings for mismatched arguments in functions of the same name in child classes
-    	list($table, $book_id, $type, $category, $is_live, $sq, $version_datetime) = array_pad(func_get_args(), 7, null);
+    	list($table, $book_id, $type, $category, $is_live, $id_array) = array_pad(func_get_args(), 6, null);
     	if (empty($table)) $table = '';
     	if (empty($book_id)) $book_id = 0;
     	if (empty($type)) $type = null;
     	if (empty($category)) $category = null;
     	if (false!==$is_live) $is_live = true;
     	if (empty($sq)) $sq = null;
-    	if (empty($version_datetime)) $version_datetime = null;
+    	if (empty($id_array)) $id_array= null;
 
     	// Get annotations that connect to the current book
     	$this->db->distinct();
     	$this->db->select($this->pages_table.'.*');
     	$this->db->select($this->pages_table.'.content_id AS parent_content_id');
     	$this->db->select($this->versions_table.'.version_num AS parent_version_num');
-    	if (!empty($version_datetime)) $this->db->where($this->versions_table.'.created <=', $version_datetime);
     	$this->db->from($table);
     	$this->db->join($this->versions_table, $this->versions_table.'.version_id='.$table.'.parent_version_id');
     	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
     	if (!empty($book_id)) $this->db->where($this->pages_table.'.book_id', $book_id);
     	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
+    	if (!empty($id_array)) $this->db->where_in($this->pages_table.'.content_id', $id_array);
     	$this->db->order_by($this->versions_table.'.version_num', 'desc');
     	$query = $this->db->get();
 		$result = $query->result();
@@ -101,17 +100,18 @@ class MY_Model extends CI_Model {
 			$content[$row->parent_content_id][] = $row;
 		}
 
-		// Remove where parent or child isn't the top version (TODO: remove is child isn't top version)
-		$remove = array();
-		foreach ($content as $content_id => $row) {
-			if (!empty($version_datetime)) continue;
-			if (!$this->is_top_version($row[0]->parent_content_id, $row[0]->parent_version_num)) {
-				$remove[] = $content_id;
+		// Remove if isn't the most recent version
+		if (empty($id_array)) {
+			$remove = array();
+			foreach ($content as $content_id => $row) {
+				if (!$this->is_top_version($row[0]->parent_content_id, $row[0]->parent_version_num)) {
+					$remove[] = $content_id;
+				}
 			}
+	    	foreach ($remove as $content_id) {
+	    		unset($content[$content_id]);
+	    	}
 		}
-    	foreach ($remove as $content_id) {
-    		unset($content[$content_id]);
-    	}
 
 		// Revert back to just a list of the content nodes
 		$result = array();
@@ -133,12 +133,11 @@ class MY_Model extends CI_Model {
 
 	public function get_parents() {
 
-		list($table, $child_version_id, $orderby, $orderdir, $version_datetime, $is_live) = array_pad(func_get_args(), 6, null);
+		list($table, $child_version_id, $orderby, $orderdir, $is_live, $id_array) = array_pad(func_get_args(), 6, null);
 		if (empty($table)) $table = '';
 		if (empty($child_version_id)) $child_version_id = 0;
 		if (empty($orderby)) $orderby = $this->versions_table.'.version_num';
 		if (empty($orderdir)) $orderdir = 'desc';
-		if (empty($version_datetime)) $version_datetime = null;
 		if (true!==$is_live) $is_live = false;
 
 		$this->db->select($this->versions_table.'.version_num AS parent_version_num');
@@ -148,7 +147,6 @@ class MY_Model extends CI_Model {
 		$this->db->select($this->pages_table.'.type AS parent_content_type');
 		$this->db->select($table.'.*');
 		$this->db->from($table);
-		if (!empty($version_datetime)) $this->db->where($this->versions_table.'.created <=', $version_datetime);
 		$this->db->join($this->versions_table, $this->versions_table.'.version_id='.$table.'.parent_version_id');
 		$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
 		$this->db->where($table.'.child_version_id', $child_version_id);
@@ -168,13 +166,15 @@ class MY_Model extends CI_Model {
     	foreach ($remove as $j) {
     		unset($result[$j]);
     	}
-    	// Remove rows if theey are not the most recent version in the DB
-    	$remove = array();
-    	foreach ($result as $j => $row) {
-    		if (!$this->is_top_version($result[$j]->parent_content_id, $result[$j]->parent_version_num)) $remove[] = $j;
-    	}
-    	foreach ($remove as $j) {
-    		unset($result[$j]);
+    	// Remove rows if they are not the most recent version in the DB
+    	if (empty($id_array)) {
+	    	$remove = array();
+	    	foreach ($result as $j => $row) {
+	    		if (!$this->is_top_version($result[$j]->parent_content_id, $result[$j]->parent_version_num)) $remove[] = $j;
+	    	}
+	    	foreach ($remove as $j) {
+	    		unset($result[$j]);
+	    	}
     	}
 		return $result;
 
@@ -187,12 +187,11 @@ class MY_Model extends CI_Model {
 
 	public function get_children() {
 
-		list($table, $parent_version_id, $orderby, $orderdir, $version_datetime, $is_live) = array_pad(func_get_args(), 6, null);
+		list($table, $parent_version_id, $orderby, $orderdir, $is_live, $id_array) = array_pad(func_get_args(), 6, null);
 		if (empty($table)) $table = '';
 		if (empty($parent_version_id)) $parent_version_id = 0;
 		if (empty($orderby)) $orderby = $this->versions_table.'.version_num';
 		if (empty($orderdir)) $orderdir = 'desc';
-		if (empty($version_datetime)) $version_datetime = null;
 		if (true!==$is_live) $is_live = false;		
 
 		$this->db->distinct();
@@ -203,7 +202,6 @@ class MY_Model extends CI_Model {
 		$this->db->select($this->pages_table.'.type AS child_content_type');
 		$this->db->select($table.'.*');
 		$this->db->from($table);
-		if (!empty($version_datetime)) $this->db->where($this->versions_table.'.created <=', $version_datetime);
 		$this->db->join($this->versions_table, $this->versions_table.'.version_id='.$table.'.child_version_id');
 		$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
 		$this->db->where($table.'.parent_version_id', $parent_version_id);
@@ -224,12 +222,14 @@ class MY_Model extends CI_Model {
     		unset($result[$j]);
     	}
     	// Remove rows if theey are not the most recent version in the DB
-    	$remove = array();
-    	foreach ($result as $j => $row) {
-    		if (!$this->is_top_version($result[$j]->child_content_id, $result[$j]->child_version_num)) $remove[] = $j;
-    	}
-    	foreach ($remove as $j) {
-    		unset($result[$j]);
+    	if (empty($id_array)) {
+	    	$remove = array();
+	    	foreach ($result as $j => $row) {
+	    		if (!$this->is_top_version($result[$j]->child_content_id, $result[$j]->child_version_num)) $remove[] = $j;
+	    	}
+	    	foreach ($remove as $j) {
+	    		unset($result[$j]);
+	    	}
     	}
 		return $result;
 

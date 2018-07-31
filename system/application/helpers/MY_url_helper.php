@@ -131,6 +131,19 @@
 
     }
     
+    function get_edition($uri) {
+    	
+    	if (!strstr($uri, '.')) return null;
+    	$uri = str_replace(base_url(), '', $uri);
+    	$array = explode('/',$uri);
+    	$seg = $array[0];
+    	if (!strstr($seg, '.')) return null;
+    	$array = explode('.',$seg);
+    	if (is_numeric($array[1])) return $array[1];
+    	return null;
+    	
+    }
+    
     function get_version($uri='') {
     	
     	$uri = no_ext($uri);
@@ -147,6 +160,31 @@
     	$candidate = $array[count($array)-1];
     	if (is_numeric($candidate)) return $candidate;
     	return null;
+    	
+    }
+    
+    function no_edition($uri) {
+    	
+    	if (!strstr($uri, '.')) return $uri;
+		$uri = str_replace(base_url(), '', $uri);
+    	$array = explode('/',$uri);
+    	for ($j = 0; $j < count($array); $j++) {
+    		if (strstr($array[$j], '.')) {
+    			$temp = explode('.',$array[$j]);
+    			$array[$j] = $temp[0];
+    		}
+    	}
+    	$uri = implode('/',$array);
+		return $uri;
+    	
+    }
+    
+    function array_no_edition($segments=array()) {
+    	
+    	foreach ($segments as $j => $segment) {
+    		$segments[$j] = no_edition($segments[$j]);
+    	}
+    	return $segments;
     	
     }
     

@@ -50,7 +50,7 @@ class Rdf extends MY_Controller {
 		// Determine the current book being asked for (if applicable)
 		$this->scope = (strtolower(get_class($this)) == strtolower($this->uri->segment('1'))) ? null : strtolower($this->uri->segment('1'));
 		// Load book beind asked for (if applicable)
-		$this->data['book'] = (!empty($this->scope)) ? $this->books->get_by_slug($this->scope) : null;
+		$this->data['book'] = (!empty($this->scope)) ? $this->books->get_by_slug(no_edition($this->scope)) : null;
 		if (empty($this->data['book'])) {  // Book couldn't be found
 			$this->data['base_uri'] = confirm_slash(base_url());
 		} else {  // Book was found
@@ -61,6 +61,7 @@ class Rdf extends MY_Controller {
 				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
 				exit;
 			};
+			$this->data['book']->edition_num = (!empty($this->data['book']->editions)) ? get_edition($this->scope) : null;
 		}
 		// Format (e.g., 'xml', 'json')
 		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle');
@@ -156,9 +157,26 @@ class Rdf extends MY_Controller {
 			exit;
 		}
 		try {
-			$slug = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
-			$slug = no_version(no_ext(str_replace($this->data['book']->slug.'/', '', $slug)));
+			$slug = implode('/',array_slice(array_no_edition($this->uri->segments), array_search(__FUNCTION__, array_no_edition($this->uri->segments))));
+			$slug = str_replace($this->data['book']->slug.'/', '', $slug);
 			$content = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
+			// Version being asked for
+			$version_num = (int) get_version($this->uri->uri_string());
+			$this->data['use_versions'] = 0;
+			if (!empty($version_num)) {
+				$version = $this->versions->get_by_version_num($content->content_id, $version_num);
+				if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin() && $this->pages->is_using_recent_version_id($this->data['book']->book_id)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				if (!empty($version)) $this->data['use_versions'] = array($content->content_id, $version->version_id);
+			}
+			// Edition being asked for
+			if (!empty($this->data['book']->edition_num) && isset($this->data['book']->editions[$this->data['book']->edition_num-1])) {
+				$this->data['edition'] = $this->data['book']->editions[$this->data['book']->edition_num-1];
+				// TODO: validate a previously-defined $version_num if present
+				$this->data['use_versions'] = $this->data['edition']['pages'];
+			}
 			// Don't throw an error here if $content is empty, let through to return empty RDF
 			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect
 			$this->rdf_object->index(
@@ -166,6 +184,7 @@ class Rdf extends MY_Controller {
 									   array(
 						                 'book'         => $this->data['book'],
 						                 'content'      => $content,
+									   	 'use_versions'	=> $this->data['use_versions'],
 						                 'base_uri'     => $this->data['base_uri'],
 									   	 'method'		=> __FUNCTION__.'/'.$slug,
 				                         'restrict'     => $this->data['restrict'],
@@ -250,8 +269,12 @@ class Rdf extends MY_Controller {
 					}
 			}
 
+			// If we're searching inside an edition
+			if (isset($this->data['book']->editions[$this->data['book']->edition_num-1]) && !empty($this->data['sq']) && 'pages'==$model && !$this->data['s_all']) {
+				// TODO
+				
 			// If there is a search, this is a much speadier search only on title and description based on the presence of recent_version_id
-			if (!empty($this->data['sq']) && 'pages'==$model && !$this->data['s_all']) {
+			} elseif (!empty($this->data['sq']) && 'pages'==$model && !$this->data['s_all']) {
 				$content = $this->$model->search_with_recent_version_id($this->data['book']->book_id, $this->data['sq'], $type, (($this->data['hidden'])?false:true));
 				if (!count($content) && !$this->$model->is_using_recent_version_id($this->data['book']->book_id)) {
 					$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));  // This is the same as the slow call below
@@ -260,7 +283,13 @@ class Rdf extends MY_Controller {
 				}
 			// All other gathering of content
 			} else {
-				$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, (($this->data['hidden'])?false:true));
+				$content = $this->$model->get_all(
+					$this->data['book']->book_id, 
+					$type, 
+					$category, 
+					(($this->data['hidden'])?false:true),
+					((isset($this->data['book']->editions[$this->data['book']->edition_num-1]))?array_keys($this->data['book']->editions[$this->data['book']->edition_num-1]['pages']):null)
+				);
 			}
 			if ('hidden'==$class) {
 				for ($j = count($content)-1; $j >= 0; $j--) {
@@ -273,6 +302,8 @@ class Rdf extends MY_Controller {
 			                         	 'book'			=> $this->data['book'],
 			                         	 'content'		=> $content,
 			                         	 'base_uri'		=> $this->data['base_uri'],
+			                           	 'use_versions' => isset($this->data['book']->editions[$this->data['book']->edition_num-1])?$this->data['book']->editions[$this->data['book']->edition_num-1]['pages']:null,
+			                             'use_versions_restriction' => RDF_Object::USE_VERSIONS_EXCLUSIVE,
 			                           	 'method'		=> __FUNCTION__.'/'.$class,
 			                         	 'restrict'		=> $this->data['restrict'],
 			                         	 'rel'			=> $rel,

@@ -122,24 +122,19 @@ class Version_model extends MY_Model {
 
     /**
      * Return the most recent version which can be cut off by a datetime
-     * If 3rd argument is passed, it'll either be the specific version ID or a request to save the result to content's recent_version_id
+     * If 2nd argument is passed, it'll either be the specific version ID or a request to save the result to content's recent_version_id
      */
-    public function get_single($content_id=0, $version_datetime=null, $version_id=null, $sq='') {
+    public function get_single($content_id=0, $version_id=null, $sq='') {
 
-		if (empty($version_datetime) && !empty($version_id)) {  // A version ID has been passed representing content's recent_version_id
+		if (!empty($version_id)) {
 			$result = self::get($version_id, $sq);
-			if (null!==$result) {
-				//echo 'USING self::get() result'."\n";
-				return $result;
-			}
+			if (null!==$result) return $result;
 		}
 
     	$ci =& get_instance();  // for use with the rdf_store
 
      	$this->db->where('content_id',$content_id);
     	$this->db->order_by('version_num', 'desc');
-    	if (!empty($version_datetime)) $this->db->where('created <=', $version_datetime);
-    	// Don't run $sq here because it might return an older version than the most recent
     	$this->db->limit(1);
     	$query = $this->db->get($this->versions_table);
     	if (!$query->num_rows()) return array();
@@ -155,7 +150,7 @@ class Version_model extends MY_Model {
         	$result[0]->citation = 'sq_matched='.implode(',',$matched);
         }
 
-		if (null===$version_datetime && null!==$version_id) {  // 0 is passed to version ID, requesting that the result be saved to content's recent_version_id
+		if (0===$version_id && empty($sq)) {  // 0 is passed to version ID; save result as content's recent_version_id
 			self::set_recent_version_id($content_id, $result[0]->version_id);
 		}
 
@@ -173,7 +168,6 @@ class Version_model extends MY_Model {
      	if (!empty($content_id)) $this->db->where('content_id',$content_id);
     	$this->db->order_by('version_num', 'desc');
     	if (!empty($version_datetime)) $this->db->where('created <=', $version_datetime);
-    	// Don't run $sq here because it might return an older version than the most recent
     	if (!empty($limit)) $this->db->limit($limit);
     	$query = $this->db->get($this->versions_table);
     	$result = $query->result();
@@ -634,7 +628,7 @@ class Version_model extends MY_Model {
     	$attribution = new stdClass;
     	$attribution->fullname = $fullname;
     	$attribution->ip = $ip;
-    	if($serialize) return serialize($attribution);
+    	if ($serialize) return serialize($attribution);
     	else return $attribution;
 
     }

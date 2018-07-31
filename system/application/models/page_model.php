@@ -49,7 +49,7 @@ class Page_model extends MY_Model {
 
     }
 
-    public function get_all($book_id=null, $type=null, $category=null, $is_live=true) {
+    public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $id_array=null) {
 
     	$this->db->distinct();
     	$this->db->select($this->pages_table.'.*');
@@ -58,6 +58,7 @@ class Page_model extends MY_Model {
      	if (!empty($category)) $this->db->where($this->pages_table.'.category',$category);
      	if (!empty($book_id)) $this->db->where($this->pages_table.'.book_id',$book_id);
      	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
+     	if (!empty($id_array)) $this->db->where_in($this->pages_table.'.content_id', $id_array);
     	$this->db->order_by($this->pages_table.'.slug', 'asc');
     	$query = $this->db->get();
     	$result = $query->result();

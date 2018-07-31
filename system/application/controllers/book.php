@@ -62,7 +62,7 @@ class Book extends MY_Controller {
 		$this->data['book'] = $this->data['page'] = null;
 		// Book being asked for
 		$this->scope = strtolower($this->uri->segment('1'));
-		$this->data['book'] = (!empty($this->scope)) ? $this->books->get_by_slug($this->scope) : null;
+		$this->data['book'] = (!empty($this->scope)) ? $this->books->get_by_slug(no_edition($this->scope)) : null;
 		if (empty($this->data['book'])) show_404();	// Book couldn't be found
 		$this->set_user_book_perms();
 		if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) {  // Protect book
@@ -72,8 +72,7 @@ class Book extends MY_Controller {
 				$this->require_login(1);
 			}
 		}
-		$this->data['book']->editions = (isset($this->data['book']->editions) && !empty($this->data['book']->editions)) ? json_decode($this->data['book']->editions) : null;
-		$this->data['book']->editions = (isset($this->data['book']->editions) && isset($this->data['book']->editorial_is_on)) ? $this->data['book']->editions->editions : null;
+		$this->data['book']->edition_num = (!empty($this->data['book']->editions)) ? get_edition($this->scope) : null;
 		$this->data['book']->contributors = $this->books->get_users($this->data['book']->book_id);
 		$this->data['book']->versions = $this->books->get_book_versions($this->data['book']->book_id, true); // TOC
 		$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
@@ -113,7 +112,7 @@ class Book extends MY_Controller {
 			if (empty($slug)) $this->fallback();
 
 			//Should we give a 404 response?
-			$isNotFound = false;
+			$page_not_found = false;
 
 			// Ajax login check
 			if ('login_status'==$slug_first_segment) return $this->login_status();
@@ -123,21 +122,42 @@ class Book extends MY_Controller {
 				// Protect
 				if (!$page->is_live) $this->protect_book('Reader');
 				// Version being asked for
-				$version_num = (int) get_version($this->uri->uri_string());
-				$this->data['version_datetime'] = null;
-				if (!empty($version_num)) {
-					$version = $this->versions->get_by_version_num($page->content_id, $version_num);
+				$this->data['version_num'] = (int) get_version($this->uri->uri_string());
+				$this->data['use_versions'] = null;
+				if (!empty($this->data['version_num'])) {
+					$version = $this->versions->get_by_version_num($page->content_id, $this->data['version_num']);
 					if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin() && $this->pages->is_using_recent_version_id($this->data['book']->book_id)) {
 						if ($version->version_id != $page->recent_version_id) $this->require_login(5);
 					}
-					if (!empty($version)) $this->data['version_datetime'] = $version->created;
+					if (!empty($version)) $this->data['use_versions'] = array($page->content_id => $version->version_id);
 				}
+				// Edition being asked for
+				if (!empty($this->data['book']->edition_num) && isset($this->data['book']->editions[$this->data['book']->edition_num-1])) {
+					$this->data['edition'] = $this->data['book']->editions[$this->data['book']->edition_num-1];
+					// TODO: validate a previously-defined $this->data['version_num'] if present
+					$this->data['use_versions'] = $this->data['edition']['pages'];
+				}
+				/*
+				$edition = array(
+					array(
+						'title'=>'My First Edition',
+						'timestamp'=>time(),
+						'pages'=>array(
+							1 => 38,  // content ID => version ID
+							22 => 30
+						)
+					)
+				);
+				echo serialize($edition);
+				exit;
+				*/
 				// Build (hierarchical) RDF object for the page's version(s)
 				$settings = array(
 								 	'book'         => $this->data['book'],
 									'content'      => $page,
+									'use_versions' => $this->data['use_versions'],
 									'base_uri'     => $this->data['base_uri'],
-									'versions'     => ((!empty($this->data['version_datetime']))?$this->data['version_datetime']:RDF_Object::VERSIONS_MOST_RECENT),
+									'versions'     => RDF_Object::VERSIONS_MOST_RECENT,
 									'ref'          => RDF_Object::REFERENCES_ALL,
 									'prov'		   => RDF_Object::PROVENANCE_ALL,
 							  		'max_recurses' => $this->max_recursions
@@ -155,7 +175,7 @@ class Book extends MY_Controller {
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
 			} else {
 				$this->data['slug'] = $slug; // Can visit a page even if it hasn't been created yet
-				$isNotFound = true;
+				$page_not_found = true;
 			}
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
 			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
@@ -169,11 +189,11 @@ class Book extends MY_Controller {
 
 			// URI segment method
 			if (method_exists($this, $slug_first_segment) && !array_key_exists($slug_first_segment, $this->data['views'])){
-				$isNotFound = false;
+				$page_not_found = false;
 				$this->$slug_first_segment();
 			}
 
-			if($isNotFound){
+			if($page_not_found) {
 				header("HTTP/1.1 404 Not Found");
 			}
 
@@ -334,10 +354,10 @@ class Book extends MY_Controller {
 
 		if (strlen($this->uri->segment(3))) return;
 		if ($this->data['mode'] == 'editing') return;
-		$this->data['book_tags'] = $this->tags->get_all($this->data['book']->book_id, null, null, true);
+		$this->data['book_tags'] = $this->tags->get_all($this->data['book']->book_id, null, null, true);  // TODO: editions
 		for ($j = 0; $j < count($this->data['book_tags']); $j++) {
 			$this->data['book_tags'][$j]->versions = array();
-			$this->data['book_tags'][$j]->versions[0] = $this->versions->get_single($this->data['book_tags'][$j]->content_id, null, $this->data['book_tags'][$j]->recent_version_id);
+			$this->data['book_tags'][$j]->versions[0] = $this->versions->get_single($this->data['book_tags'][$j]->content_id, $this->data['book_tags'][$j]->recent_version_id);
 			$this->data['book_tags'][$j]->versions[0]->tag_of = $this->tags->get_children($this->data['book_tags'][$j]->versions[0]->version_id);
 		}
 		$this->data['login_is_author'] = $this->login_is_book_admin();
@@ -353,7 +373,7 @@ class Book extends MY_Controller {
 		$this->data['book_content'] = $this->pages->get_all($this->data['book']->book_id, null, null, true);
 		for ($j = 0; $j < count($this->data['book_content']); $j++) {
 			$this->data['book_content'][$j]->versions = array();
-			$this->data['book_content'][$j]->versions[0] = $this->versions->get_single($this->data['book_content'][$j]->content_id, null, $this->data['book_content'][$j]->recent_version_id);
+			$this->data['book_content'][$j]->versions[0] = $this->versions->get_single($this->data['book_content'][$j]->content_id, $this->data['book_content'][$j]->recent_version_id);
 		}
 		$this->data['login_is_author'] = $this->login_is_book_admin();
 		$this->data['view'] = __FUNCTION__;
@@ -593,7 +613,7 @@ class Book extends MY_Controller {
 		$to_remove = array();
 		for ($j = 0; $j < count($this->data['book_media']); $j++) {
 			$this->data['book_media'][$j]->versions = array();
-			$this->data['book_media'][$j]->versions[0] = $this->versions->get_single($this->data['book_media'][$j]->content_id, null, $this->data['book_media'][$j]->recent_version_id);
+			$this->data['book_media'][$j]->versions[0] = $this->versions->get_single($this->data['book_media'][$j]->content_id, $this->data['book_media'][$j]->recent_version_id);
 		}
 
 	}
@@ -687,12 +707,9 @@ class Book extends MY_Controller {
 
 		$key = 0;
 		$version_num = get_version($this->uri->uri_string());
-		// If version_num is 0 then the version number was not in the uri (i.e. it is the current index)
-		if($version_num != 0) {
+		if ($version_num != 0) {
 			foreach ($this->data['page']->versions as $key => $version) {
-				if($version->version_num == $version_num) {
-					break;
-				}
+				if ($version->version_num == $version_num) break;
 			}
 		}
 		$this->data['page']->version_index = $key;
@@ -808,7 +825,7 @@ class Book extends MY_Controller {
 				$this->data['continue_to'] = $this->pages->get($this->data['page']->versions[$this->data['page']->version_index]->continue_to_content_id);
 				if (!empty($this->data['continue_to'])) {
 					$this->data['continue_to']->versions = array();
-					$this->data['continue_to']->versions[0] = $this->versions->get_single($this->data['continue_to']->content_id, null, $this->data['continue_to']->recent_version_id);
+					$this->data['continue_to']->versions[0] = $this->versions->get_single($this->data['continue_to']->content_id, $this->data['continue_to']->recent_version_id);
 					$this->data['continue_to']->version_index = 0;
 				}
 			}

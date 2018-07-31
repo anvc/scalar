@@ -238,6 +238,19 @@ class MY_Controller extends CI_Controller {
 		return $can;
 		
 	}
+	
+	/**
+	 * Test whether the editions can be turned on and/or used based on the database configuration
+	 * @return bool
+	 */
+	
+	protected function can_edition() {
+		
+		if (!$this->can_editorial()) return false;
+		if (!$this->db->field_exists('editions', 'books')) return false;
+		return true;
+		
+	}
 
 	/**
 	 * Return a redirect URL

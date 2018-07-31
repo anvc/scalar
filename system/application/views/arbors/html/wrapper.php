@@ -38,7 +38,7 @@ echo doctype('html5')."\n"
 <meta name="Description" content="<?=htmlspecialchars(strip_tags($description))?>" />
 <? endif ?>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<? if (!$book->display_in_index || $is_new || !empty($version_datetime)): ?>
+<? if (!$book->display_in_index || $is_new || !empty($version_num)): ?>
 <meta name="robots" content="noindex, nofollow">
 <? endif ?>
 <meta property="og:title" content="<?=((isset($book))?htmlspecialchars(trim(strip_tags($book->title))).': ':'').((isset($page->version_index))?htmlspecialchars(trim(strip_tags($title))):'Untitled')?>" />

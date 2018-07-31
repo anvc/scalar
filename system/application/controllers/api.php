@@ -85,7 +85,8 @@ Class Api extends CI_Controller {
  		//Session login first
  		if($this->data['native']==='true'){
  			$this->load->model('book_model', 'books');
- 			$this->data['book'] = $this->books->get_by_slug(strtolower($this->uri->segment(1)));   // TODO: can be more than one segment
+ 			$this->data['book'] = $this->books->get_by_slug(strtolower(no_edition($this->uri->segment(1))));
+ 			if (empty($this->data['book'])) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Could not find book');
  			$this->user = $this->api_users->do_session_login($this->data['book']->book_id);
  			if(!$this->user && $this->api_users->is_super()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this book');
  			if(!$this->user) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You are not logged in');
@@ -388,7 +389,7 @@ Class Api extends CI_Controller {
 		} else {  // e.g., my-first-scalar-page
 			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:urn']);
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not exist');
-			$version = $this->versions->get_single($page->content_id, null, $page->recent_version_id);
+			$version = $this->versions->get_single($page->content_id, $page->recent_version_id);
 			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:urn (page slug) does not have a version');
 			$this->data['version_id'] = $version->version_id;
 		}
@@ -402,7 +403,7 @@ Class Api extends CI_Controller {
 		} else {  // e.g., my-first-scalar-page
 			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:child_urn']);
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not exist');
-			$version = $this->versions->get_single($page->content_id, null, $page->recent_version_id);
+			$version = $this->versions->get_single($page->content_id, $page->recent_version_id);
 			if (empty($version)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not have a version');
 			$this->data['scalar:child_urn'] = $this->versions->urn($version->version_id);
 		}

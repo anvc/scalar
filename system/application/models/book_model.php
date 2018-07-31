@@ -89,8 +89,36 @@ class Book_model extends MY_Model {
     			$book->users = $this->get_users($book->book_id, true);
     		}
     	}
+    	if (isset($book->editions) && !empty($book->editions)) $book->editions = unserialize($book->editions);
     	return $book;
 
+    }
+    
+    public function get_by_slug($uri='') {
+    	
+    	$query = $this->db->get_where($this->books_table, array('slug'=>$uri));
+    	$result = $query->result();
+    	if (!isset($result[0])) return null;
+    	for ($j = 0; $j < count($result); $j++) {
+    		$result[$j]->urn = $this->urn($result[$j]->book_id);
+    		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
+    	}
+    	return $result[0];
+    	
+    }
+    
+    public function get_by_urn($urn='') {
+    	
+    	$pk = (int) $this->urn_to_pk($urn);
+    	$query = $this->db->get_where($this->books_table, array('page_id'=>$pk), 1);
+    	$result = $query->result();
+    	if (!isset($result[0])) return null;
+    	for ($j = 0; $j < count($result); $j++) {
+    		$result[$j]->urn = $this->urn($result[$j]->book_id);
+    		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
+    	}
+    	return $result[0];
+    	
     }
 
     public function get_by_content_id($content_id) {
@@ -160,6 +188,7 @@ class Book_model extends MY_Model {
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->users = $this->get_users($result[$j]->book_id, true, '');
+    		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
     	}
 
     	return $result;
@@ -188,6 +217,7 @@ class Book_model extends MY_Model {
     	$ci=&get_instance();
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->creator = $ci->users->get_by_user_id($result[$j]->user);
+    		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
     	}
 
     	return $result;
@@ -845,7 +875,7 @@ class Book_model extends MY_Model {
     	// Get most recent versions
     	$version_ids = array();
     	foreach ($result as $row) {
-    		$version = $this->versions->get_single($row->content_id, null, $row->recent_version_id);
+    		$version = $this->versions->get_single($row->content_id, $row->recent_version_id);
     		if (empty($version)) continue;
     		$version_ids[] = (int) $version->version_id;
     	}
@@ -886,31 +916,6 @@ class Book_model extends MY_Model {
     	$val = ($bool) ? 1 : 0;
     	$this->db->where('book_id', $book_id);
     	$this->db->update($this->books_table, array('editorial_is_on'=>$val));
-
-    }
-
-    public function get_by_slug($uri='') {
-
- 		$query = $this->db->get_where($this->books_table, array('slug'=>$uri));
-		$result = $query->result();
-		if (!isset($result[0])) return null;
-    	for ($j = 0; $j < count($result); $j++) {
-    		$result[$j]->urn = $this->urn($result[$j]->book_id);
-    	}
-		return $result[0];
-
-    }
-
-    public function get_by_urn($urn='') {
-
-    	$pk = (int) $this->urn_to_pk($urn);
-   		$query = $this->db->get_where($this->books_table, array('page_id'=>$pk), 1);
-		$result = $query->result();
-		if (!isset($result[0])) return null;
-    	for ($j = 0; $j < count($result); $j++) {
-    		$result[$j]->urn = $this->urn($result[$j]->book_id);
-    	}
-		return $result[0];
 
     }
 
