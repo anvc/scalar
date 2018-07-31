@@ -945,7 +945,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 button.attr('href', base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit'));
                                 break;
                                 case "Latest version":
-                                button.attr('href', scalarapi.stripVersion(window.location.href));
+                                button.attr('href', scalarapi.stripEditionAndVersion(window.location.href));
                                 break;
                             }
                         }

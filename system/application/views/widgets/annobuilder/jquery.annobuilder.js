@@ -1612,7 +1612,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			me.hideSpinner();
 			$.annobuilder.controller.loadAnnotations();
 			for (var property in json) { // this should only iterate once
-				me.newAnnotationURL = scalarapi.stripVersion(property);
+				me.newAnnotationURL = scalarapi.stripEditionAndVersion(property);
 			}
 		}
 		
@@ -1827,7 +1827,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			me.hideSpinner();
 			$.annobuilder.controller.loadAnnotations();
 			for (var property in json) { // this should only iterate once
-				me.newAnnotationURL = scalarapi.stripVersion(property);
+				me.newAnnotationURL = scalarapi.stripEditionAndVersion(property);
 			}
 		}
 		

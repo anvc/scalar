@@ -985,6 +985,26 @@ ScalarAPI.prototype.stripVersion = function(versionURI) {
 	var uri = tempA.join( '/' );
 	return uri;
 }
+
+ScalarAPI.prototype.stripEdition = function(editionURI) {
+	var tempA = editionURI.split( '/' );
+	if ( tempA[ tempA.length - 1 ] == '' ) {
+		tempA.pop();
+	}
+	var segment = tempA[ tempA.length - 2];
+	var tempB = segment.split('.');
+	if (tempB.length > 1) {
+		tempB.splice(tempB.length - 1, 1);
+		segment = tempB.join('.');
+	}
+	tempA[ tempA.length - 2 ] = segment;
+	var uri = tempA.join( '/' );
+	return uri;
+}
+
+ScalarAPI.prototype.stripEditionAndVersion = function(uri) {
+	return scalarapi.stripEdition(scalarapi.stripVersion(uri));
+}
  
 ScalarAPI.prototype.basename = function(path, suffix) {
     // Returns the filename component of the path  
@@ -1402,7 +1422,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			var node;
 			// this should only iterate once
 			for (var property in json) { 
-				node = scalarapi.model.nodesByURL[me.stripVersion(property)];
+				node = scalarapi.model.nodesByURL[me.stripEditionAndVersion(property)];
 			}
 			
 		    for (var version_uri in json) break;
@@ -2042,7 +2062,7 @@ ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = func
 		if (!this.loadCurrentPageStatus.isLoading) {
 			$.ajax({
 				type:"GET",
-				url:this.model.urlPrefix+'rdf/node/'+this.stripVersion(this.basepath(document.location.href))+'?'+queryString,
+				url:this.model.urlPrefix+'rdf/node/'+this.stripEditionAndVersion(this.basepath(document.location.href))+'?'+queryString,
 				dataType:"jsonp",
 				context:this,
 				success:[this.parseCurrentPage, successCallback],
@@ -2720,7 +2740,7 @@ ScalarModel.prototype.addNode = function(node) {
 		this.nodesByURL[node.url] = node;
 		this.nodesByURN[node.urn] = node;
 		
-		if (node.url == this.urlPrefix+scalarapi.basepath(scalarapi.stripVersion(scalarapi.stripAllExtensions(document.location.href)))) {
+		if (node.url == this.urlPrefix+scalarapi.basepath(scalarapi.stripEditionAndVersion(scalarapi.stripAllExtensions(document.location.href)))) {
 			this.currentPageNode = node;
 		}
 		
@@ -2887,7 +2907,7 @@ ScalarModel.prototype.getBookNode = function() {
  * @return				The current page node.
  */
 ScalarModel.prototype.getCurrentPageNode = function() {
-	return this.nodesByURL[unescape(scalarapi.stripVersion(scalarapi.stripAllExtensions(document.location.href)))];
+	return this.nodesByURL[unescape(scalarapi.stripEditionAndVersion(scalarapi.stripAllExtensions(document.location.href)))];
 }
 
 /**
@@ -3673,8 +3693,8 @@ function ScalarRelation(json, body, target, type) {
 		if (( json['http://www.openannotation.org/ns/hasBody'] != null ) && ( json['http://www.openannotation.org/ns/hasTarget'] != null )) {
 
 			this.id = scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasBody'][0].value)+scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value);
-			this.body = scalarapi.model.nodesByURL[scalarapi.stripVersion(json['http://www.openannotation.org/ns/hasBody'][0].value)];
-			this.target = scalarapi.model.nodesByURL[scalarapi.stripVersion(scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value))];
+			this.body = scalarapi.model.nodesByURL[scalarapi.stripEditionAndVersion(json['http://www.openannotation.org/ns/hasBody'][0].value)];
+			this.target = scalarapi.model.nodesByURL[scalarapi.stripEditionAndVersion(scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value))];
 			
 			// parse the relation type and populate extents (if any)
 			var anchorVars = scalarapi.getAnchorVars(json['http://www.openannotation.org/ns/hasTarget'][0].value);

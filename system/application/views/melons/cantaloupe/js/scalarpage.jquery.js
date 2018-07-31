@@ -2246,9 +2246,9 @@
                 var listItems = list.children('li');
                 listItems.sort(function(a, b) {
                     var versionUrl = $(a).find(scalarVersionUrlSelector).attr('href');
-                    var nodeA = scalarapi.getNode(scalarapi.stripVersion(versionUrl));
+                    var nodeA = scalarapi.getNode(scalarapi.stripEditionAndVersion(versionUrl));
                     versionUrl = $(b).find(scalarVersionUrlSelector).attr('href');
-                    var nodeB = scalarapi.getNode(scalarapi.stripVersion(versionUrl));
+                    var nodeB = scalarapi.getNode(scalarapi.stripEditionAndVersion(versionUrl));
                     if ((nodeA != null) && (nodeB != null)) {
                         var nameA = nodeA.getSortTitle().toLowerCase();
                         var nameB = nodeB.getSortTitle().toLowerCase();
@@ -2496,7 +2496,7 @@
     			$video.height(scale * $video.data('orig_h'));
         		$video.parent().scrollLeft( ($video.width() - $video.parent().width()) / 2 );
         		$video.parent().scrollTop( ($video.height() - $video.parent().height()) / 2 );  
-    		}            
+    		}           
             
             switch (viewType) {
 
