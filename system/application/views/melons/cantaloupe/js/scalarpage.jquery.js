@@ -961,7 +961,7 @@
                 setTimeout(function() {
                     var back_btn = $('#back-btn');
                     if (back_btn.length > 0) {
-                        var cont_btn = back_btn.parent().parent().find('.nav_btn.primary');
+                        var cont_btn = back_btn.parent().parent().find('.nav_btn').last();
                         if (cont_btn.length > 0) {
                             var temp = (back_btn.parent().parent().height() - back_btn.height()) / 2;
                             back_btn.css('padding-top', temp);
@@ -976,7 +976,7 @@
                 $(window).resize(function() {
                     var back_btn = $('#back-btn');
                     if (back_btn.length > 0) {
-                        var cont_btn = back_btn.parent().parent().find('.nav_btn.primary');
+                        var cont_btn = back_btn.parent().parent().find('.nav_btn').last();
                         if (cont_btn.length > 0) {
                             back_btn.css('padding-top', 0);
                             back_btn.css('padding-bottom', 0);
