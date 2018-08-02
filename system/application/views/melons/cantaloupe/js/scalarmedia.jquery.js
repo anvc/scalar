@@ -463,15 +463,19 @@
 				}
 			}
 
-			var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
-			detailsTab.click( function() {
-				media.options[ 'details' ].show( node );
-			} );
+			if ('undefined'==typeof(scalarMediaHideCitationsTab) || scalarMediaHideCitationsTab) {
+				var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
+				detailsTab.click( function() {
+					media.options[ 'details' ].show( node );
+				} );
+			}
 
-			var sourceTab = $( '<div class="media_tab">Source file</div>' ).appendTo( mediaTabs );
-			sourceTab.click( function() {
-				window.open( node.current.sourceFile, 'popout' );
-			} );
+			if ('undefined'==typeof(scalarMediaHideSourceFileTab) || scalarMediaHideSourceFileTab) {
+				var sourceTab = $( '<div class="media_tab">Source file</div>' ).appendTo( mediaTabs );
+				sourceTab.click( function() {
+					window.open( node.current.sourceFile, 'popout' );
+				} );
+			}
 
 			if (media.options.shy) {
 				var wrapped_slot = mediaTabs.parents('.slot').hasClass('wrapped_slot');

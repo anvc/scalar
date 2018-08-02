@@ -152,8 +152,9 @@
 					relations = mediaelement.model.node.getRelations('annotation', 'incoming', 'index');
 					var annotationWrap = $('<div class="media_sidebar caption_font"></div>').appendTo(mediaelement.model.element.parent());
 
-					$('<div class="citations"><a href="'+mediaelement.model.node.current.sourceFile+'" target="popout">Source file</a></div>').appendTo(annotationWrap);
-
+					var sourceFileLink = $('<div class="citations"><a href="'+mediaelement.model.node.current.sourceFile+'" target="popout">Source file</a></div>').appendTo(annotationWrap);
+					if ('undefined'!=typeof(scalarMediaDetailsSourceFileLink) && !scalarMediaDetailsSourceFileLink) sourceFileLink.hide();
+					
 					if (relations.length > 0) {
 						var annotationCitations = $('<div class="citations media_annotations"><h3>Annotations of this media</h3></div>').appendTo(annotationWrap);
 						annotationCitations.show();
