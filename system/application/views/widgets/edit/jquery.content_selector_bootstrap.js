@@ -2460,7 +2460,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var $edOptionList = $('<ul class="dropdown-menu"></ul>').appendTo($edOption);
 			for (var j = 0; j < opts.types.length; j++) {
 				if (opts.types[j].toLowerCase() == opts.defaultType.toLowerCase()) continue;
-				$edOptionList.append('<li><a href="javascript:void(null);">Move to <b>'+opts.types[j]+'</b> state</a></li>');
+				$edOptionList.append('<li class="'+(opts.types[j].replace(' ','_'))+'"><a href="javascript:void(null);">Move to <b>'+opts.types[j]+'</b> state</a></li>');
 			};
 			$edOption.find('a').click(function() {
 				var $this = $(this);
@@ -2568,11 +2568,53 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 		$type_selector.val(current_type);
 
+		var state_flow = {
+            'author' : {
+                'Draft' : [
+                    'Edit'
+                ],
+                'Edit_Review' : [
+                    'Clean'
+                ]
+            },
+            'editor' : {
+                'Edit' : [
+                    'Draft',
+                    'Edit_Review'
+                ],
+                'Clean' : [
+                    'Edit_Review',
+                    'Ready'
+                ],
+                'Ready' : [
+                    'Edit_Review',
+                    'Clean',
+                    'Published'
+                ]
+            }
+        };
+
+        state_flow = state_flow[user_type] || [];
+
 		var doTypeFilter = function() {
 			$dialogue_container.find('.filter_spinner .spinner_container').show();
 			$dialogue_container.find('.node_types .btn').prop('disabled', true).addClass('disabled');
+			
 			var opts = $dialogue_container.data('opts');
 			var typeName = $type_selector.find('option[value="' + current_type + '"]').text().toLowerCase();
+
+			if(isset(opts.editorialOptions) && opts.editorialOptions){
+				var className = current_type.replace(' ','_');
+				var canChange = typeof state_flow[className] !== 'undefined' && state_flow[className] != null && state_flow[className].length > 0;
+				
+				if(!canChange){
+					$dialogue_container.find('.panel-footer button').prop('disabled',true).addClass('disabled');
+				}else{
+					var changeOptionsSelector = '.'+(state_flow[className].join(',.'));
+					$dialogue_container.find('.panel-footer button').prop('disabled',false).removeClass('disabled');
+					$dialogue_container.find('.panel-footer .dropdown-menu li:not('+changeOptionsSelector+')').hide();
+				}
+			}
 
 			$dialogue_container.find('.node_search>input').attr('placeholder', 'Search ' + typeName + ' by title or description');
 
