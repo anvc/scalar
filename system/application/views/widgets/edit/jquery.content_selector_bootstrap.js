@@ -2568,38 +2568,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 		$type_selector.val(current_type);
 
-		var state_flow = {
-            'author' : {
-                'Draft' : [
-                    'Edit'
-                ],
-                'Edit_Review' : [
-                    'Clean'
-                ]
-            },
-            'editor' : {
-                'Edit' : [
-                    'Draft',
-                    'Edit_Review'
-                ],
-                'Clean' : [
-                    'Edit_Review',
-                    'Ready'
-                ],
-                'Ready' : [
-                    'Edit_Review',
-                    'Clean',
-                    'Published'
-                ]
-            }
-        };
-
-        state_flow = state_flow[user_type] || [];
+		if(isset(opts.editorialOptions) && opts.editorialOptions){
+			var state_flow = {};
+	        if(typeof user_type !== 'undefined' && user_type != null && (user_type === 'editor' || user_type === 'author')){
+	        	state_flow = user_type == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Clean']}:
+	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Edit_Review','Clean','Published']};
+	        }
+        }
 
 		var doTypeFilter = function() {
 			$dialogue_container.find('.filter_spinner .spinner_container').show();
 			$dialogue_container.find('.node_types .btn').prop('disabled', true).addClass('disabled');
-			
+
 			var opts = $dialogue_container.data('opts');
 			var typeName = $type_selector.find('option[value="' + current_type + '"]').text().toLowerCase();
 
