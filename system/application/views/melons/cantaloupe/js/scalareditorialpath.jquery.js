@@ -1137,7 +1137,7 @@
                     nodeItemHTML += '<div class="clearfix header_font viewWarning alert alert-warning text-center"><strong>Note:</strong> This page includes significant visual elements not shown here; <a href="'+node_url+'">View as reader</a> to see them.</div>';
                 }
                 nodeItemHTML +=      (hasContent?'<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font">'+node.current.content+'</div>':
-                                                             '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font noContent">[No Content]</div>')+
+                                                             '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font noContent">(This page has no content.)</div>')+
                                         '</div>';
 
                 var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
@@ -1191,7 +1191,7 @@
                 }
 
                 if(typeof node.current.description === 'undefined' || node.current.description == null){
-                    $node.find('.descriptionContent').text("(This page does not have a description.)").addClass('noDescription');
+                    $node.find('.descriptionContent').text("(This item has no description.)").addClass('noDescription');
                 }else{
                     $node.find('.descriptionContent').text(node.current.description);
                 }
