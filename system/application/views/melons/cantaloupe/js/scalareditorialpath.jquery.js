@@ -1233,9 +1233,15 @@
                         .addClass('editable')
                         .prop('contenteditable',true)
                         .on('focus', function() {
+                            if($(this).hasClass('noDescription')){
+                                $(this).removeClass('noDescription').text('');
+                            }
                             $(this).data('before', $(this).text());
                         })
                         .on('blur', function() {
+                            if($(this).hasClass('descriptionContent') && $(this).text() == ''){
+                                $(this).text("(This item has no description.)").addClass('noDescription');
+                            }
                             if ($(this).data('before') !== $(this).text()) {
                                 base.saveNode($node);
                             }
@@ -1253,10 +1259,6 @@
                                 if(!base.node_state_flow[$node.data('state')]){
                                     return false;
                                 }
-                                if($(this).hasClass('noDescription')){
-                                    $(this).removeClass('noDescription').text('');
-                                }
-                                
                                 if($(this).data('editor')==null){
                                     if($(this).find('.placeholder.opened').length > 0){
                                         base.closePlaceholders($(this));
