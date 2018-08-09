@@ -1103,9 +1103,7 @@
                 if (viewName != 'Basic') {
                     nodeItemHTML += '<span class="header_font badge view_badge">'+viewName+'</span>';
                 }
-                if (node.domType.singular != "page") {
-                    nodeItemHTML += '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>';
-                }
+                nodeItemHTML += '<span class="header_font badge type_badge">'+base.ucwords(node.domType.singular)+'</span>';
                 nodeItemHTML += '<span class="header_font badge '+(queryCount>0?'with_queries_badge':'no_queries_badge')+'">'+(queryCount>0?queryCount:'No')+' quer'+(queryCount!=1?'ies':'y')+'</span>'+
                                                     (!!base.node_state_flow[state]?'<a href="'+node_url+'.edit" class="edit_btn btn btn-sm btn-default">Open in page editor</a>':'')+
                                                 '</div>'+
