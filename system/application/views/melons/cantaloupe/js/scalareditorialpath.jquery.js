@@ -1500,11 +1500,11 @@
                 }
                 if(scalarapi.loadPage( slug, true, reload_node, null, 1, false, null, 0, 20) == "loaded") reload_node();
 
-                base.$saveNotice.fadeIn('fast',function(){
+                base.$saveNotice.text('"'+title+'" updated').fadeIn('fast',function(){
                     window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);
                 });
             },function(e){
-                base.$warningNotice.text('Error saving page: '+e+'</div>').fadeIn('fast',function(){
+                base.$warningNotice.text('Error saving "'+title+'": '+e+'</div>').fadeIn('fast',function(){
                    window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);    
                 });
             });
