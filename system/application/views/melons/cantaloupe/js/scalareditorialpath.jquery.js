@@ -141,11 +141,11 @@
         base.init = function(){
             base.options = $.extend({},$.scalarEditorialPath.defaultOptions, options);
             if(base.options.contents == null){
-            	console.error('Editorial path container not set!');
+                console.error('Editorial path container not set!');
             }else if(base.options.outline == null){
-            	console.error('Editorial path outline container not set!');
+                console.error('Editorial path outline container not set!');
             }else{
-            	base.setup();
+                base.setup();
             }
         };
         base.currentLoaderValue = 0;
@@ -172,11 +172,11 @@
         };
 
         base.setup = function(data){
-        	switch(base.stage){
-        		case 0:
+            switch(base.stage){
+                case 0:
 
                     $('body').on('pageLoadComplete, delayedResize',base.resize);
-        			//Do a little bit of preliminary setup...
+                    //Do a little bit of preliminary setup...
                     base.highestID = -1;
                     $(window).click(function(){
                         $('#editorialQueries').hide();
@@ -317,11 +317,11 @@
                         $(this).append(spinner.el);
                     });
 
-        			base.node_state_classes = [];
-        			for(var stateClass in base.node_states){
-        				base.node_state_classes.push(stateClass);
-        			}
-					base.node_state_string = base.node_state_classes.join(' ');
+                    base.node_state_classes = [];
+                    for(var stateClass in base.node_states){
+                        base.node_state_classes.push(stateClass);
+                    }
+                    base.node_state_string = base.node_state_classes.join(' ');
 
                     $('#contentFinder').submit(function(e){
                         e.stopPropagation();
@@ -516,13 +516,13 @@
                         }
                     });
 
-        			//Add the loader text for the content
-		        	base.$contentLoader = $('<div class="loader text-muted well text-center caption_font"><strong>Loading book content... Please wait, this might take a little while.</strong><br /><small class="info"></small></span>').appendTo(base.options.contents);
-		        	base.$contentLoaderInfo = base.$contentLoader.find('.info');
+                    //Add the loader text for the content
+                    base.$contentLoader = $('<div class="loader text-muted well text-center caption_font"><strong>Loading book content... Please wait, this might take a little while.</strong><br /><small class="info"></small></span>').appendTo(base.options.contents);
+                    base.$contentLoaderInfo = base.$contentLoader.find('.info');
 
-		        	base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Determining book size...').fadeIn('fast')});
+                    base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Determining book size...').fadeIn('fast')});
 
-		        	var loadedTypes = 0;
+                    var loadedTypes = 0;
                     var nodeLoadDeferred = $.Deferred();
 
                     nodeLoadDeferred.done(function(){
@@ -532,8 +532,8 @@
 
                     for(var type in base.nodeTypes){
                         (function(base, type){
-    			        	scalarapi.loadNodesByType(
-    							type, true, function(data){
+                            scalarapi.loadNodesByType(
+                                type, true, function(data){
                                     base.nodeList[type] = data;       
                                     if(++loadedTypes == base.nodeTypes.length){
                                         nodeLoadDeferred.resolve();
@@ -543,48 +543,48 @@
                         })(base, base.nodeTypes[type]);
                     }
 
-        			break;
-        		case 1:
+                    break;
+                case 1:
                     base.numPages['total'] = 0;
                     for(var type in base.nodeList){
                         if(typeof base.numPages[type] === 'undefined'){
                             var data = base.nodeList[type];
-    	        			for(var uri in data){
-        	        			var regex = /(?:\.)(\d+)\b/;
-        	        			var matches = null;
-        	        			if((matches = regex.exec(uri)) !== null){
-        	        				//We have a version node... Just lop off that version number so we can get the citation property
-        							uri = uri.slice(0, uri.lastIndexOf('.'));
-        	        			}
-        	        			var node = data[uri];
+                            for(var uri in data){
+                                var regex = /(?:\.)(\d+)\b/;
+                                var matches = null;
+                                if((matches = regex.exec(uri)) !== null){
+                                    //We have a version node... Just lop off that version number so we can get the citation property
+                                    uri = uri.slice(0, uri.lastIndexOf('.'));
+                                }
+                                var node = data[uri];
                                 if(typeof node == 'undefined'){
                                     continue;
                                 }
-        						var citationProp = node['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
-        						regex = /(?:.*methodNumNodes=(\d+))/;
-        						matches = null;
-        						if((matches = regex.exec(citationProp)) === null){
-        							continue;
-        						}else{
-        							base.numPages[type] = parseInt(matches[1]);
+                                var citationProp = node['http://scalar.usc.edu/2012/01/scalar-ns#citation'][0].value;
+                                regex = /(?:.*methodNumNodes=(\d+))/;
+                                matches = null;
+                                if((matches = regex.exec(citationProp)) === null){
+                                    continue;
+                                }else{
+                                    base.numPages[type] = parseInt(matches[1]);
                                     base.numPages['total'] += base.numPages[type];
                                     break;
-        						}
+                                }
                             }
                         }
                     }
-					base.stage = 2;
+                    base.stage = 2;
                     base.updateLoader(0);
-	        		base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 0%').fadeIn('fast')});
+                    base.$contentLoaderInfo.fadeOut('fast',function(){$(this).text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - 0%').fadeIn('fast')});
 
                     scalarapi.loadNodesByType(
                         base.nodeTypes[base.currentLoadType], true, base.setup,
                         null, null, null, null, (base.currentChunk++)*base.options.pagesPerChunk, base.options.pagesPerChunk
                     );
 
-        			break;
-        		case 2:
-        			//Parse the data!
+                    break;
+                case 2:
+                    //Parse the data!
                     var new_nodes = 0;
                     for(var uri in data){
                         var node = scalarapi.getNode( uri );
@@ -606,7 +606,7 @@
 
 
                     //Escape if we have loaded everything!
-        			if(base.currentChunk*base.options.pagesPerChunk > base.numPages[base.nodeTypes[base.currentLoadType]] || new_nodes <= 0){
+                    if(base.currentChunk*base.options.pagesPerChunk > base.numPages[base.nodeTypes[base.currentLoadType]] || new_nodes <= 0){
                        if(++base.currentLoadType >= base.nodeTypes.length){
                             base.updateLoader(100);
                             base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType-1]+' nodes - 100%');
@@ -629,7 +629,7 @@
                         null, 1, false, null, base.currentChunk*base.options.pagesPerChunk, base.options.pagesPerChunk
                     );
 
-        			break;
+                    break;
                 case 3:
                     //remove any duplicate nodes - since we are grabbing relationships, we will likely have some.
                     var uniqueNodes = [];
@@ -642,7 +642,7 @@
                     base.updateLists();
                     
                     base.propogateInitialPage();
-        		case 4:
+                case 4:
 
                     $('#editorialSidePanel>div').affix({
                       offset: {
@@ -650,13 +650,13 @@
                       }
                     });
 
-        			base.$nodeList.appendTo(base.options.contents);
+                    base.$nodeList.appendTo(base.options.contents);
 
                     $('body').scrollspy({ target: '#editorialOutline', offset: 69 });
                     base.$contentLoader.fadeOut('fast');
                     
                     base.resize();
-        	}
+            }
         };
 
         base.updateLists = function(){
@@ -1074,12 +1074,12 @@
             $('#editorialQueries').toggleClass('disabled',!canAddQueries).show();
         };
         base.addNode = function(node,callback){
-        	var currentVersion = node.current;
+            var currentVersion = node.current;
             var queries = currentVersion.editorialQueries?JSON.parse(currentVersion.editorialQueries).queries:[];
-        	var state = node.current.editorialState;
-        	var stateName = base.node_states[state].name;
+            var state = node.current.editorialState;
+            var stateName = base.node_states[state].name;
             var node_url = scalarapi.model.urlPrefix+node.slug;
-        	var nodeView = (typeof node.current.defaultView !== 'undefined' && node.current.defaultView != null) ? node.current.defaultView : 'plain';
+            var nodeView = (typeof node.current.defaultView !== 'undefined' && node.current.defaultView != null) ? node.current.defaultView : 'plain';
             var queryCount = 0;
 
             var diff = {};
@@ -1257,6 +1257,11 @@
                                 if(!base.node_state_flow[$node.data('state')]){
                                     return false;
                                 }
+
+                                if($(this).hasClass('noContent')){
+                                    $(this).removeClass('noContent').html('');
+                                }
+
                                 if($(this).data('editor')==null){
                                     if($(this).find('.placeholder.opened').length > 0){
                                         base.closePlaceholders($(this));
@@ -1334,8 +1339,16 @@
                                             base.updatePlaceholders($(this));
                                             //Save the current watcher then unload it.
                                             if(base.wasDirty){
+                                                if($(this).html() == '' || $(this).html() == '<br>'){
+                                                    $(this).addClass('noContent').html('(This page has no content.)');
+                                                }
+                                                
                                                 base.saveNode(base.currentEditNode);
                                                 base.wasDirty = false;
+                                            }else{
+                                                if($(this).html() == '' || $(this).html() == '<br>'){
+                                                    $(this).addClass('noContent').html('(This page has no content.)');
+                                                }
                                             }
                                             window.clearInterval(base.ckeditorWatcher);
                                             window.clearTimeout(base.ckeditorSaveTimeout);
@@ -1452,14 +1465,17 @@
             $('#editorialOutline a[data-node="'+node.slug+'"]').parent('li').removeClass().addClass(editorialState+' active');
 
             var $body = $node.find('.bodyContent');
-            var $body_copy = $body.clone();
-            $body_copy.find('.placeholder').remove();
-            $body_copy.find('a[data-linkid]').removeAttr('data-linkid');
-            $body_copy.find('a[data-cke-saved-href]').removeAttr('data-cke-saved-href');
-            var body = $body_copy.html();
-            if($body.hasClass('media')){
-                body = null;
+            
+            if($body.hasClass('noContent') || $body.hasClass('media')){
+                var body = null;    
+            }else{
+                var $body_copy = $body.clone();
+                $body_copy.find('.placeholder').remove();
+                $body_copy.find('a[data-linkid]').removeAttr('data-linkid');
+                $body_copy.find('a[data-cke-saved-href]').removeAttr('data-cke-saved-href');
+                var body = $body_copy.html();
             }
+
             var baseProperties =  {
                 'native': 1,
                 'id': userId,
@@ -1511,9 +1527,9 @@
         };
 
         base.resize = function(){
-	    	$('#editorialSidePanel>div,#editorialSidePanel>.scrollUp').width($('#editorialSidePanel').width());
+            $('#editorialSidePanel>div,#editorialSidePanel>.scrollUp').width($('#editorialSidePanel').width());
             $('#editorialSidePanel>div .collapse').css('max-height',$(window).height()-100);
-	    };
+        };
 
         base.closePlaceholders = function($node){
             $node.find('.placeholder.opened').each(function(){
@@ -1697,9 +1713,9 @@
     };
     
     $.scalarEditorialPath.defaultOptions = {
-    	contents : null,
-		outline : null,
-		pagesPerChunk : 100
+        contents : null,
+        outline : null,
+        pagesPerChunk : 100
     };
     
     $.fn.scalarEditorialPath = function(options){
@@ -1711,10 +1727,10 @@
 })(jQuery);
 
 $(function(){
-	editorialPath = $('#editorialPath').scalarEditorialPath({
-		contents : $('#editorialPathContents'),
-		outline : $('#editorialOutline')
-	});
+    editorialPath = $('#editorialPath').scalarEditorialPath({
+        contents : $('#editorialPathContents'),
+        outline : $('#editorialOutline')
+    });
 });
 
 CKEDITOR.disableAutoInline = true;
