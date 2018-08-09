@@ -992,12 +992,14 @@ ScalarAPI.prototype.stripEdition = function(editionURI) {
 		tempA.pop();
 	}
 	var segment = tempA[ tempA.length - 2];
-	var tempB = segment.split('.');
-	if (tempB.length > 1) {
-		tempB.splice(tempB.length - 1, 1);
-		segment = tempB.join('.');
+	if (segment != null) {
+		var tempB = segment.split('.');
+		if (tempB.length > 1) {
+			tempB.splice(tempB.length - 1, 1);
+			segment = tempB.join('.');
+		}
+		tempA[ tempA.length - 2 ] = segment;
 	}
-	tempA[ tempA.length - 2 ] = segment;
 	var uri = tempA.join( '/' );
 	return uri;
 }
