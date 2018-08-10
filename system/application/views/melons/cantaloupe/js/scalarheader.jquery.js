@@ -843,7 +843,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }).addClass('overflowCalculated');
             },base));
 
-            if(base.dataType == 'normal'){
+            if(base.dataType == 'normal' && base.editorialWorkflowEnabled){
                 base.setupEditorialBar();
             }
 

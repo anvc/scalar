@@ -1154,7 +1154,7 @@ button, .btn, input, optgroup, select, textarea {
 .clean-state { background-color: #2898b7; }
 .ready-state { background-color: #4da751; }
 .published-state { background-color: #147419; }*/
-.editorial-status-bar.draft-state { background-color: #b4b4b4; padding: 2.4rem; }
+.editorial-status-bar.draft-state, .editorial-status-bar.none-state { background-color: #b4b4b4; padding: 2.4rem; }
 .editorial-status-bar.edit-state { background-color: #ffa365; padding: 2.4rem; }
 .editorial-status-bar.editreview-state { background-color: #d75452; padding: 2.4rem; }
 .editorial-status-bar.clean-state { background-color: #5fc0dc; padding: 2.4rem; }
