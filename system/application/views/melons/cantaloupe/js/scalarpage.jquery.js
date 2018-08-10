@@ -2360,6 +2360,7 @@
                 }
 
                 // add kml layers for each content element
+                var bounds;
                 for (i=0; i<n; i++) {
                     node = contents[i];
                     if (node.current.mediaSource.name == 'KML') {
@@ -2369,6 +2370,14 @@
                         }
                         var kmlLayer = new google.maps.KmlLayer(path);
                         kmlLayer.setMap(map);
+                        google.maps.event.addListener(kmlLayer, "defaultviewport_changed", function() {
+                            if (!bounds) {
+                                bounds = this.getDefaultViewport();
+                            } else {
+                                bounds.union(this.getDefaultViewport());
+                            }
+                            map.fitBounds(bounds);
+                        });
                     }
                 }
 
