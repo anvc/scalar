@@ -153,21 +153,6 @@
 }
 
 .help_button {
-	display: inline-block;
-	width: 16px;
-	height: 16px;
-	line-height: 16px;
-	text-align: center;
-	border-radius: 8px;
-	font-size: 10px;
-	margin-left: 5px;
-	font-weight: bold;
-	color: white;
-	background: #858585;
-	cursor: pointer;
-}
-
-.help_button {
 	float: right;
 	position: relative;
 	display: inline-block;
