@@ -31,7 +31,8 @@ $config['namespaces'] = array(
 						'bibo'		=> 'http://purl.org/ontology/bibo/',
 						'id3'		=> 'http://id3.org/id3v2.4.0#',
 						'dwc'		=> 'http://rs.tdwg.org/dwc/terms/',
-						'vra'		=> 'http://purl.org/vra/'
+						'vra'		=> 'http://purl.org/vra/',
+						'cp'		=> 'http://scalar.cdla.oxycreates.org/commonplace/terms/'
 					   );
 
 // Internet Archive allowable filetypes when importing
@@ -594,5 +595,13 @@ $config['ontologies']['vra'] = array(
 		'weight',
 		'width',
 		'writer'
+);
+$config['ontologies']['cp'] = array(
+	'url',
+	'shortUrl',
+	'authors',
+	'institution',
+	'publisher',
+	'date'
 );
 ?>

@@ -114,6 +114,7 @@
     			'id3': 'MP3 de facto metadata standard',
     			'dwc': 'Darwin Core terms',
     			'vra': 'VRA Ontology representing entities in the VRA data model',
+    			'cp': 'CommonPlace terms for describing publications'
     		};
         	// Ontologies
         	for (var prefix in data) {
