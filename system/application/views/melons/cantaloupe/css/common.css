@@ -589,17 +589,22 @@ a:hover { text-decoration: underline; }
 .image_header.has_video {
 	position:relative;
 }
+.sp-block { padding: 0; }
 .visual_path .sp-block.has_video h1, .visual_path .sp-block.has_video .sp-block__content {
 	position:relative; z-index:1;
 }
 .visual_path .sp-block.has_video .video_wrapper {
-	z-index:0;
+	position: absolute;
+  	overflow: hidden;
+  	min-height: 400px;
+  	width: 100%;
 }
-.splash .video_wrapper, .image_header .video_wrapper, .visual_path .video_wrapper  {
+.splash .video_wrapper, .image_header .video_wrapper  {
   position: absolute;
   top: 0; right:0; bottom:0; left:0;
   overflow: hidden;
 }
+.visual_path .sp-block.has_video .video_wrapper video { display: none; }
 
 /* --- MEDIA --- */
 
@@ -1275,7 +1280,7 @@ body>.annotorious-popup{
 .sp-block {
 	max-width: 100%;
 	margin: 0 auto .6rem auto;
-	padding: 2rem;
+	padding: 0;
 	position: relative;
 	background-size: cover;
     min-height: 400px;
@@ -1289,9 +1294,9 @@ body>.annotorious-popup{
 }
 .sp-block h1 {
 	margin-top: 0;
-	margin-left: 0px;
+	margin-left: 7.2rem;
 	margin-bottom: 0;
-	padding-top: 0;
+	padding-top: 7.2rem;
 	padding-left: 0px;
 	line-height: 3.7rem;
 	max-width: 48rem;
@@ -1311,6 +1316,8 @@ body>.annotorious-popup{
 	font-size: 1.5rem;
 	max-width: 100%;
 	padding: 1.4rem;
+	margin-left: 7.2rem;
+	margin-bottom: 7.2rem;
 	line-height: 2rem;
 	display: inline-block;
 }  
@@ -1321,7 +1328,6 @@ body>.annotorious-popup{
 .sp-button a, .sp-button a:hover { text-decoration: none; color: #000; }
 @media only screen and (min-width: 520px) {
     #splash, .sp-block { position: static; background-attachment: fixed; }
-    .sp-block { padding: 7.2rem; }
     #splash {
 		background-size: cover;
 		background-position-y: 0px;
