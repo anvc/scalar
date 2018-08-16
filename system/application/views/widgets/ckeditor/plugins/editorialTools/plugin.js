@@ -411,9 +411,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             });
 
                         }).click(function(e){
-                            if(!$(this).hasClass('rejected') && !$(this).hasClass('accepted')){
-                                $(this).tooltip('show');
-                            }
+                            $(this).tooltip('show');
                             e.stopPropagation();
                         });
                     });
