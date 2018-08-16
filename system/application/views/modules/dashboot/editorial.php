@@ -471,7 +471,7 @@ STR;
 	$selector.height(height + 'px');
 	var types = ['content'];
 	for (var type in editorial_states) {
-		if ('hidden'==type.toLowerCase() || 'empty'==type.toLowerCase()) continue;
+		if ('empty'==type.toLowerCase()) continue;
 		types.push(editorial_states[type].name);
 	};
 	node_options = {  /* global */
