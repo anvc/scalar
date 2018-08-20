@@ -54,10 +54,11 @@ span[data-diff="chunk"].accepted a.inline, span[data-diff="chunk"].rejected a.in
 	border:solid 5px #bbbbbb; 
 }
 
-span[data-diff="chunk"].accepted, span[data-diff="chunk"].accepted span[data-diff],span[data-diff="chunk"].accepted span[data-diff]>*,
+span[data-diff="chunk"].accepted, span[data-diff="chunk"].accepted span[data-diff],span[data-diff="chunk"].accepted span[data-diff]>*{
+	background-color: #dff0d9;
+}
 span[data-diff="chunk"].rejected, span[data-diff="chunk"].rejected span[data-diff],span[data-diff="chunk"].rejected span[data-diff]>*{
-	background-color: transparent;
-	cursor: text;
+	background-color: #f1dede;
 }
 
 span[data-diff="chunk"].accepted span[data-diff]:first-child,span[data-diff="chunk"].rejected span[data-diff]:nth-child(2){

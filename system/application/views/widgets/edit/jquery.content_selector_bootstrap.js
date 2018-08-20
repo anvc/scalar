@@ -2592,7 +2592,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}else{
 					var changeOptionsSelector = '.'+(state_flow[className].join(',.'));
 					$dialogue_container.find('.panel-footer button').prop('disabled',false).removeClass('disabled');
-					$dialogue_container.find('.panel-footer .dropdown-menu li:not('+changeOptionsSelector+')').hide();
+					$dialogue_container.find('.panel-footer .dropdown-menu li').show().not(changeOptionsSelector).hide();
 				}
 			}
 
