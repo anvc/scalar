@@ -700,7 +700,7 @@ class System extends MY_Controller {
 				$this->data['book'] = $this->books->get_by_content_id($content_id);
 				$this->set_user_book_perms();
 				if (!$this->login_is_book_admin() && !$this->pages->is_owner($this->data['login']->user_id,$content_id)) die ("{'error':'Invalid permissions'}");
-				$this->data['content'] = $this->versions->get_all($content_id, null);
+				$this->data['content'] = $this->versions->get_all($content_id);
 				break;
 			case 'get_content':
 				$this->load->model('page_model', 'pages');
@@ -1015,15 +1015,31 @@ class System extends MY_Controller {
 				$this->versions->reorder_versions($content_id);
 				$this->data['content'] = $this->versions->get_all($content_id);
 				break;
-			case 'save_editions':
+			case 'create_edition':
 				$book_id =@ (int) $_REQUEST['book_id'];
 				$this->data['book'] = $this->books->get($book_id);
-				$editions = json_decode($_REQUEST['editions']);
-				if (empty($editions) || !isset($editions->editions)) die ('{"error":"Request not formatted correctly"}');
-				if (!isset($this->data['book']->editorial_is_on) || empty($this->data['book']->editorial_is_on)) die ('{"error":"Editorial Workflow is not active"}');
 				$this->set_user_book_perms();
-				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
-				$this->data['content'] = $this->books->save(array('book_id'=>$book_id, 'editions'=>$_REQUEST['editions']));
+				if (!$this->login_is_book_admin()) die('{"error":"Invalid permissions"}');
+				if (!$this->can_edition()) die('{"error":"Editions database fields are not in place"}');
+				$this->load->model('page_model', 'pages');
+				$this->load->model('version_model', 'versions');
+				$title =@ trim($_REQUEST['title']);
+				if (empty($title)) die('{"error":"Title is a required field"}');
+				$array = array();
+				$pages = $this->pages->get_all($book_id);
+				foreach ($pages as $page) {
+					$version = $this->versions->get_all($page->content_id, 1);
+					if (empty($version)) continue;
+					$array[$page->content_id] = $version[0]->version_id;
+				}
+				$this->data['book']->editions[] = array(
+					'title' => $title,
+					'timestamp' => time(),
+					'pages' => $array
+				);
+				$this->books->save(array('book_id'=>$book_id,'editions'=>$this->data['book']->editions));
+				$this->data['book'] = $this->books->get($book_id);
+				$this->data['content'] = $this->data['book']->editions;
 				break;
 			case 'save_editorial_state':
 				$version_id =@ $_REQUEST['version_id'];

@@ -256,8 +256,18 @@ STR;
 	});
   }
 
-  function createNewEdition() {
-    console.log('create new edition');
+  function createNewEdition(fields) {
+	if ('undefined'==typeof(fields) || $.isEmptyObject(fields) || 'undefined'==typeof(fields.title)) {
+		alert('Create new edition fields are formatted inccorrectly.');
+		return;
+	}
+	$.post($('link#sysroot').attr('href')+'system/api/create_edition', {book_id:book_id,title:fields.title}, function(data) {
+		if ('undefined'!=typeof(data.error) && data.error.length) {
+			alert('Something went wrong attempting to save: '+data.error);
+			return;
+		};
+		fields.callback(data);
+	}, 'json');
   }
 
   function calculateFragmentOverflow(){
@@ -397,25 +407,8 @@ STR;
 		$('.editions .btn').blur();
 		var $modal = $(this);
 		$body = $modal.find('.modal-body:first');
-		var do_save_editions = function(add) {
-			var json = {'editions':[]};
-			$body.find('.edition').each(function() {
-				if ($(this).hasClass('deleted')) return;
-				var obj = {'title':$(this).find('.title').html(),'millisecond_timestamp':parseInt($(this).find('.formatted').attr('title'))};
-				json.editions.push(obj);
-			});
-			if ('undefined'!=typeof(add)) {
-				json.editions.push({'title':add.title,'millisecond_timestamp':parseInt(add.millisecond_timestamp)});
-			};
-			$.post($('link#sysroot').attr('href')+'system/api/save_editions', {book_id:book_id,editions:JSON.stringify(json)}, function(data) {
-				if ('undefined'!=typeof(data.error) && data.error.length) {
-					alert('Something went wrong attempting to save: '+data.error);
-					return;
-				};
-				$('#manageEditions').trigger('show.bs.modal');
-			}, 'json');
-		};
-		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {	
+		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
+			if ('undefined'==typeof(json) || null === json) json = [];	
 			if (!Array.isArray(json)) {
 				alert('Something went wrong trying to get editions: the data returned was formatted incorrectly.');
 				return;
@@ -432,53 +425,54 @@ STR;
 				$body.empty();
 				// List of editions
 				$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
-				$table = $('<div class="table-responsive"></div>').appendTo($body);
-				$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Current</th><th>Title</th><th>Created</th><th></th><th></th></tr></thead><tbody></tbody></table>');
 				if ('undefined'!=typeof(json) && json.length) {
-					for (var j = 0; j < json.length; j++) {
+					$table = $('<div class="table-responsive"></div>').appendTo($body);
+					$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th style="text-align:center;">#</th><th>Title</th><th>Created</th><th style="text-align:center;">Pages</th><th></th><th></th></tr></thead><tbody></tbody></table>');
+					for (var j = json.length-1; j >= 0; j--) {
 						json[j].formatted = timeConverter(json[j].timestamp);
 						json[j].checked = (0==j) ? true : false;
 						json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
 					    $row = $('<tr></tr>').appendTo($table.find('tbody:first'));
-					    $row.append('<td style="padding-left:22px;vertical-align:middle;""><div class="radio" style="margin:0;"><label><input type="radio" name="current_'+j+'" value="1"'+((json[j].checked)?' checked':'')+'></label></div></td>');
+					    $row.append('<td style="vertical-align:middle;text-align:center;">'+(j+1)+'</td>');
 					    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
 					    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
+					    $row.append('<td style="vertical-align:middle;text-align:center;">'+Object.keys(json[j].pages).length+'</td>');
 					    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
 					    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
 					};
+					$table.find('tbody tr').mouseover(function() {
+						var $row = $(this);
+						$row.addClass('info');
+						$row.find('.showme').css('visibility','visible');
+					}).mouseout(function() {
+						var $row = $(this);
+						$row.removeClass('info');
+						$row.find('.showme').css('visibility','hidden');
+					});
+					$table.find('.edit_edition').click(function() {
+						alert('Coming soon');
+					});
+					$table.find('.delete_edition').click(function() {
+						var title = $(this).closest('tr').find('td:nth-of-type(2) a').text();
+						if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
+							alert('Coming soon');
+						};
+					});
 				} else {
 					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
 				};
-				$table.find('tbody tr').mouseover(function() {
-					var $row = $(this);
-					$row.addClass('info');
-					$row.find('.showme').css('visibility','visible');
-				}).mouseout(function() {
-					var $row = $(this);
-					$row.removeClass('info');
-					$row.find('.showme').css('visibility','hidden');
-				});
-				$table.find('.edit_edition').click(function() {
-					alert('Coming soon');
-				});
-				$table.find('.delete_edition').click(function() {
-					var title = $(this).closest('tr').find('td:nth-of-type(2) a').text();
-					if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
-						alert('Coming soon');
-					};
-				});
 				// Create new edition
 				var can_create_edition = true;
 				for (var type in count) {
-					if ('published'==type || 'hidden'==type || 'usagerights'==type) continue;
+					if ('ready'==type || 'hidden'==type || 'empty'==type) continue;
 					if (parseInt(count[type]) > 0) can_create_edition = false; 
 				};
 				$('<div class="row title"><div class="col-sm-12">Create</div></div>').appendTo($body);
 				if (!can_create_edition) {
-					$body.append('<p>Right now you can\'t create a new Edition.  All of your pages must be in <b>Published</b> state to create an Edition.</p>');
+					$body.append('<p>Right now you can\'t create a new Edition.  All of your pages must be in <b>Ready</b> state.</p>');
 					return;					
 				} else {
-					$body.append('<p>You can create a new Edition since all of your pages are in <b>Published</b> state.</p>');
+					$body.append('<p>You can create a new Edition since all of your pages are in <b>Ready</b> state.</p>');
 					var $fields_row = $('<form class="row fields"></form').appendTo($body);
 					$fields_row.append('<div class="col-sm-8"><div class="input-group"><input required type="text" class="form-control" placeholder="Edition title"><span class="input-group-btn"><button class="btn btn-primary" type="submit">Create</button></span></div>');
 					$fields_row.submit(function() {
@@ -488,9 +482,14 @@ STR;
 							alert('Title is a required field.');
 							return false;
 						};
-						$form.find('.btn:last').prop('disabled','disabled');
+						$form.find('.btn:last').prop('disabled',true);
 						// Create edition JSON
-						do_save_editions({title:title,millisecond_timestamp:(new Date().getTime())});
+						var callback = function(obj) {
+							$form.find('.btn:last').prop('disabled',false);
+							console.log(obj);
+							$('#manageEditions').trigger('show.bs.modal');
+						};
+						createNewEdition({title:title,callback:callback});
 						return false;
 					});
 				};

@@ -159,15 +159,14 @@ class Version_model extends MY_Model {
     }
 
 	/**
-	 * Return all versions given a content ID; the most recent version can be found by sending (content_id, null, 1)
+	 * Return version(s) given a content ID
 	 */
-    public function get_all($content_id=0, $version_datetime=null, $limit=null, $sq='') {
+    public function get_all($content_id=0, $limit=null, $sq='') {
 
 		$ci =& get_instance();  // for use with the rdf_store
 
      	if (!empty($content_id)) $this->db->where('content_id',$content_id);
     	$this->db->order_by('version_num', 'desc');
-    	if (!empty($version_datetime)) $this->db->where('created <=', $version_datetime);
     	if (!empty($limit)) $this->db->limit($limit);
     	$query = $this->db->get($this->versions_table);
     	$result = $query->result();

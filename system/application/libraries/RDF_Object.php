@@ -375,7 +375,7 @@ class RDF_Object {
 		// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
 			if (self::VERSIONS_ALL === $settings['versions']) {
-				$row->versions = $CI->versions->get_all($row->content_id, null, null, $settings['sq']);
+				$row->versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
 			} else {
 				$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
 				if (false===$use_version_id && $settings['use_versions_restriction'] == self::USE_VERSIONS_EXCLUSIVE) return null;
@@ -431,7 +431,7 @@ class RDF_Object {
     	// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
 			if (self::VERSIONS_ALL === $settings['versions']) {
-				$versions = $CI->versions->get_all($row->content_id, null, null, $settings['sq']);
+				$versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
 			} else {
 				$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
 				if (false===$use_version_id && $settings['use_versions_restriction'] == self::USE_VERSIONS_EXCLUSIVE) return null;

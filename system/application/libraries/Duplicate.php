@@ -85,7 +85,7 @@ class Duplicate {
 	 	for ($j = 0; $j < count($pages); $j++) {
 	 		// Get version
 	 		$pages[$j]->versions = array();
-	 		$pages[$j]->versions = $this->CI->versions->get_all($pages[$j]->content_id, null, 1);  // Most recent version
+	 		$pages[$j]->versions = $this->CI->versions->get_all($pages[$j]->content_id, 1);  // Most recent version
 	 		// Save new page
 	 		$page = $this->_scrub_page_fields($pages[$j], $book_id, array('prev_uri'=>$duplicated_uri,'uri'=>$uri));
 	 		$content_id = $this->CI->pages->create($page);
@@ -98,7 +98,7 @@ class Duplicate {
 	 	// Save relate (after all the pages have been created)
 	 	foreach ($pages as $page) {
 	 		$parent = $this->CI->pages->get_by_slug($book->book_id, $page->slug);  // Get the page from the new book's content
-			$parent->versions = $this->CI->versions->get_all($parent->content_id, null, 1);  // Most recent version	 		 		
+			$parent->versions = $this->CI->versions->get_all($parent->content_id, 1);  // Most recent version	 		 		
 	 		$this->_do_relate($book, $page, $parent);
 	 	}
 
@@ -128,7 +128,7 @@ class Duplicate {
 		$save['scalar:child_urn'] = $save['start_seconds'] = $save['end_seconds'] = $save['start_line_num'] = $save['end_line_num'] = $save['points'] = array();
     	foreach ($index->versions[0]->annotation_of as $annotation_of) {
     		$child 						= $this->CI->pages->get_by_slug($book->book_id, $annotation_of->slug);
-			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, 1);  // Most recent version
 			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
     		$save['start_seconds'][] 	= $annotation_of->versions[0]->start_seconds;
     		$save['end_seconds'][] 		= $annotation_of->versions[0]->end_seconds;
@@ -142,7 +142,7 @@ class Duplicate {
 		$j = 1;
     	foreach ($index->versions[0]->path_of as $path_of) {
     		$child 						= $this->CI->pages->get_by_slug($book->book_id, $path_of->slug);
-			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, 1);  // Most recent version
 			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
     		$save['sort_numbers'][] 	= $j;
     		$j++;
@@ -152,7 +152,7 @@ class Duplicate {
 		$save['scalar:child_urn'] = array();
     	foreach ($index->versions[0]->reference_of as $reference_of) {
     		$child 						= $this->CI->pages->get_by_slug($book->book_id, $reference_of->slug);
-			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, 1);  // Most recent version
 			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
     	}       	   	
    		$this->CI->references->save_children($parent_id, $save['scalar:child_urn'], $save['sort_numbers']);
@@ -160,7 +160,7 @@ class Duplicate {
 		$save['scalar:child_urn'] = $save['datetimes'] = array();
     	foreach ($index->versions[0]->reply_of as $reply_of) {
     		$child 						= $this->CI->pages->get_by_slug($book->book_id, $reply_of->slug);
-			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, 1);  // Most recent version
 			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
 			$save['datetimes'][] 		= $reply_of->versions[0]->datetime;
     	}       	   	
@@ -169,7 +169,7 @@ class Duplicate {
 		$save['scalar:child_urn'] = array();
     	foreach ($index->versions[0]->tag_of as $tag_of) {
     		$child 						= $this->CI->pages->get_by_slug($book->book_id, $tag_of->slug);
-			$child->versions 			= $this->CI->versions->get_all($child->content_id, null, 1);  // Most recent version
+			$child->versions 			= $this->CI->versions->get_all($child->content_id, 1);  // Most recent version
 			$save['scalar:child_urn'][] = $this->CI->versions->urn($child->versions[0]->version_id);
     	}       	   	
    		$this->CI->tags->save_children($parent_id, $save['scalar:child_urn'], $save['sort_numbers']);   		
