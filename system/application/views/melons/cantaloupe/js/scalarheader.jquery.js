@@ -332,11 +332,21 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Local media files</a>'+
-                                                        '</li>'+
-                                                        '<li class="dropdown">'+
-                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit?type=media&') + '">Internet media files</a>'+
-                                                        '</li>'+
+                                                        	'<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Files and URLs</a>'+
+                                                        	'<ul class="dropdown-menu" role="menu">'+
+		                                                        '<li class="dropdown">'+
+		                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Upload media files</a>'+
+		                                                        '</li>'+
+		                                                        '<li class="dropdown">'+
+		                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit?type=media&') + '">Link to media files</a>'+
+		                                                        '</li>'+
+		                                                        /*
+		                                                        '<li class="dropdown">'+
+	                                                        		'<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'criticalcommons') + '">Upload to Critical Commons</a>'+
+	                                                        	'</li>'+
+	                                                        	*/
+	                                                        '</ul>'+
+	                                                     '</li>'+
                                                     '</ul>'+
                                                 '</li>'
                                                 :'')+

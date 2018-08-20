@@ -866,6 +866,11 @@ class System extends MY_Controller {
 					}
 				}
 				break;
+			case 'get_resource':
+				$this->load->model('resource_model', 'resources');
+				$return = array('test'=>1);
+				$this->data['content'] = json_encode($return);
+				break;
 			case 'save_onomy':
 				$this->data['book'] = $this->books->get((int) $_REQUEST['book_id']);
 	 			$this->set_login_params();
@@ -893,7 +898,7 @@ class System extends MY_Controller {
 				} else {
 					$this->data['content'] = '{"error":"Invalid Version Number"}';
 				}
-			break;
+				break;
 			case 'user_search':
 				if (!$this->data['login']->is_logged_in) $this->kickout();
 				$fullname =@ $_REQUEST['fullname'];
