@@ -812,10 +812,9 @@ class System extends MY_Controller {
 			case 'get_editions':
 				$book_id = (isset($_REQUEST['book_id']) && !empty($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
 				$this->data['book'] = $this->books->get($book_id);
-				if (!isset($this->data['book']->editorial_is_on) || empty($this->data['book']->editorial_is_on)) die ('{"error":"Editorial Workflow is not active"}');
-				if (!isset($this->data['book']->editions)) die ('{"error":"Editions database field hasn\'t been set"}');
 				$this->set_user_book_perms();
 				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+				if (!isset($this->data['book']->editions)) die ('{"error":"Editions database update has not been made"}');
 				$this->data['content'] = $this->data['book']->editions;
 				break;
 			case 'get_editorial_count':

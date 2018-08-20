@@ -4,7 +4,6 @@ if (empty($book)) {
 	exit;
 }
 ?>
-<?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-dateformat.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/api/scalarapi.js')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
@@ -268,6 +267,19 @@ STR;
     });
   }
 
+  function timeConverter(UNIX_timestamp) {  // https://stackoverflow.com/questions/847185/convert-a-unix-timestamp-to-time-in-javascript
+	  var a = new Date(UNIX_timestamp * 1000);
+	  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+	  var year = a.getFullYear();
+	  var month = months[a.getMonth()];
+	  var date = a.getDate();
+	  var hour = a.getHours();
+	  var min = a.getMinutes();
+	  var sec = a.getSeconds();
+	  var time = month + ' ' + date + ' ' + year;
+	  return time;
+	}
+
   $(document).ready(function() {
 
     $.ajax({
@@ -380,6 +392,7 @@ STR;
       }
     }); // Ajax
 
+    // Manage editions modal
 	$('#manageEditions').on('show.bs.modal', function() {
 		$('.editions .btn').blur();
 		var $modal = $(this);
@@ -403,7 +416,10 @@ STR;
 			}, 'json');
 		};
 		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {	
-			if ('undefined'==typeof(json.editions) || !Array.isArray(json.editions)) json.editions = [];
+			if (!Array.isArray(json)) {
+				alert('Something went wrong trying to get editions: the data returned was formatted incorrectly.');
+				return;
+			};
 			if ('undefined'!=typeof(json.error) && json.error.length) {
 				alert('There was an error attempting to get Editions: '+json.error);
 				return;
@@ -414,28 +430,44 @@ STR;
 					return;
 				};
 				$body.empty();
+				// List of editions
 				$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
-				if ('undefined'!=typeof(json.editions) && json.editions.length) {
-					for (var j = 0; j < json.editions.length; j++) {
-						json.editions[j].formatted = $.format.date(json.editions[j].millisecond_timestamp, "ddd, MMMM D, yyyy");
-						$row = $('<div class="row edition"></div>').appendTo($body);
-						$('<div class="col-sm-2"><a class="glyphicon glyphicon-pencil" href="javascript:void(null);"></a> &nbsp; <a class="glyphicon glyphicon-remove text-danger" href="javascript:void(null);"></a></div>').appendTo($row);
-						$('<div class="col-sm-4 formatted" title="'+json.editions[j].millisecond_timestamp+'">'+json.editions[j].formatted+'</div>').appendTo($row);
-						$('<div class="col-sm-6"><b class="title">'+json.editions[j].title+'</b></div>').appendTo($row);
+				$table = $('<div class="table-responsive"></div>').appendTo($body);
+			    $table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Current</th><th>Title</th><th>Created</th><th></th><th></th></tr></thead><tbody></tbody></table>');
+				if ('undefined'!=typeof(json) && json.length) {
+					for (var j = 0; j < json.length; j++) {
+						json[j].formatted = timeConverter(json[j].timestamp);
+						json[j].checked = (0==j) ? true : false;
+						json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
+					    $row = $('<tr></tr>').appendTo($table.find('tbody:first'));
+					    $row.append('<td style="padding-left:22px;vertical-align:middle;""><div class="radio" style="margin:0;"><label><input type="radio" name="current_'+j+'" value="1"'+((json[j].checked)?' checked':'')+'></label></div></td>');
+					    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
+					    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
+					    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
+					    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
 					};
-					$('<div class="row"><div class="col-sm-12">&nbsp;</div></div>').appendTo($body);
-					$body.find('.edition a:nth-child(1)').click(function() {
-						alert('Pending...');
-					});
-					$body.find('.edition a:nth-child(2)').click(function() {
-						if (confirm('Are you sure you wish to DELETE this '+$(this).closest('.edition').find('.title').text()+'? This operation can not be undone.')) {
-							$(this).closest('.edition').addClass('deleted');
-							do_save_editions();
-						};
-					});
 				} else {
 					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
 				};
+				$table.find('tbody tr').mouseover(function() {
+					var $row = $(this);
+					$row.addClass('info');
+					$row.find('.showme').css('visibility','visible');
+				}).mouseout(function() {
+					var $row = $(this);
+					$row.removeClass('info');
+					$row.find('.showme').css('visibility','hidden');
+				});
+				$table.find('.edit_edition').click(function() {
+					alert('Coming soon');
+				});
+				$table.find('.delete_edition').click(function() {
+					var title = $(this).closest('tr').find('td:nth-of-type(2) a').text();
+					if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
+						alert('Coming soon');
+					};
+				});
+				// Create new edition
 				var can_create_edition = true;
 				for (var type in count) {
 					if ('published'==type || 'hidden'==type || 'usagerights'==type) continue;
@@ -493,7 +525,6 @@ STR;
 </script>
 
 <div class="container-fluid properties">
-  <? if (0): ?>
   <div class="row editions">
     <div class="col-sm-12">
       <h3 class="message">There are no editions of this <?=$book->scope?></h3>
@@ -509,7 +540,6 @@ STR;
 	  <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>
     </div>
   </div>
-  <? endif; ?>
   <div class="row editorial-summary">
     <div class="col-md-8">
       <div id="primary-message" class="message-pane">
