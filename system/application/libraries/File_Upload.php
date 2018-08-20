@@ -2,7 +2,7 @@
 
     class File_Upload {
 
-    	const THUMB_WIDTH = 200;
+    	const THUMB_WIDTH = 240;
     	const PDF_URL = 'https://upload.wikimedia.org/wikipedia/commons/e/ec/Pdf_by_mimooh.svg';
     	const DOC_URL = 'https://upload.wikimedia.org/wikipedia/commons/8/88/MS_word_DOC_icon.svg';
 
