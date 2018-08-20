@@ -433,7 +433,7 @@ STR;
 				// List of editions
 				$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
 				$table = $('<div class="table-responsive"></div>').appendTo($body);
-			    $table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Current</th><th>Title</th><th>Created</th><th></th><th></th></tr></thead><tbody></tbody></table>');
+				$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Current</th><th>Title</th><th>Created</th><th></th><th></th></tr></thead><tbody></tbody></table>');
 				if ('undefined'!=typeof(json) && json.length) {
 					for (var j = 0; j < json.length; j++) {
 						json[j].formatted = timeConverter(json[j].timestamp);

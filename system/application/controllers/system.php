@@ -814,7 +814,7 @@ class System extends MY_Controller {
 				$this->data['book'] = $this->books->get($book_id);
 				$this->set_user_book_perms();
 				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
-				if (!isset($this->data['book']->editions)) die ('{"error":"Editions database update has not been made"}');
+				if (!$this->can_edition()) die ('{"error":"Editions database update has not been made"}');
 				$this->data['content'] = $this->data['book']->editions;
 				break;
 			case 'get_editorial_count':
