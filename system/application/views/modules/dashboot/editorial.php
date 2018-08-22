@@ -415,6 +415,7 @@ STR;
 				alert('There was an error attempting to get Editions: '+json.error);
 				return;
 			}
+			$('#num_editions_str').text( ((1 == json.length)?'is 1 edition':'are '+json.length+' editions') );
 			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
 				if ('undefined'==typeof(count.published)) {
 					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
@@ -562,7 +563,13 @@ STR;
 <div class="container-fluid properties">
   <div class="row editions">
     <div class="col-sm-12">
-      <h3 class="message">There are no editions of this <?=$book->scope?></h3>
+      <h3 class="message">There <span id="num_editions_str"><?php 
+      if (1 == count($book->editions)) {
+      	echo 'is 1 edition';
+      } else {
+      	echo 'are '.count($book->editions).' editions';
+      }
+      ?></span> of this <?=$book->scope?></h3>
       <p class="message">You can create new editions that checkpoint the work you are doing.</p>
       <div class="btn-group">
 	    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
