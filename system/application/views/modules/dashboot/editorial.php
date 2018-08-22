@@ -9,6 +9,8 @@ if (empty($book)) {
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?php
 $css = <<<STR
+
+.input-xs {height:auto; padding:2px 5px; font-size:12px; border-radius:3px;}
 #cstitle {font-weight:bold; margin:22px 0px 22px 0px;}
 #cs .selector {padding-left:0px !important; padding-right:0px !important;}
 STR;
@@ -409,10 +411,6 @@ STR;
 		$body = $modal.find('.modal-body:first');
 		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
 			if ('undefined'==typeof(json) || null === json) json = [];	
-			if (!Array.isArray(json)) {
-				alert('Something went wrong trying to get editions: the data returned was formatted incorrectly.');
-				return;
-			};
 			if ('undefined'!=typeof(json.error) && json.error.length) {
 				alert('There was an error attempting to get Editions: '+json.error);
 				return;
@@ -432,7 +430,7 @@ STR;
 						json[j].formatted = timeConverter(json[j].timestamp);
 						json[j].checked = (0==j) ? true : false;
 						json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
-					    $row = $('<tr></tr>').appendTo($table.find('tbody:first'));
+					    $row = $('<tr data-index="'+j+'"></tr>').appendTo($table.find('tbody:first'));
 					    $row.append('<td style="vertical-align:middle;text-align:center;">'+(j+1)+'</td>');
 					    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
 					    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
@@ -446,16 +444,53 @@ STR;
 						$row.find('.showme').css('visibility','visible');
 					}).mouseout(function() {
 						var $row = $(this);
+						var $cell = $row.find('td:nth-of-type(2)');
+						if ($cell.data('is_editing')) return;
 						$row.removeClass('info');
 						$row.find('.showme').css('visibility','hidden');
 					});
 					$table.find('.edit_edition').click(function() {
-						alert('Coming soon');
+						var $btn = $(this);
+						var $cell = $(this).closest('tr').find('td:nth-of-type(2)');
+						if ($cell.data('is_editing')) {
+							if ($cell.data('is_saving')) return;
+							$cell.data('is_saving', true);
+							var index = parseInt($cell.closest('tr').data('index'));
+							var value = $cell.find('input').val();
+							var replace = value.slice();
+							$.post($('link#sysroot').attr('href')+'system/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
+								$cell.data('is_saving', false);	
+								if ('undefined'!=typeof(data.error) && data.error.length) {
+									alert(data.error);
+									return;
+								};
+								$btn.removeClass('btn-primary').addClass('btn-default').text('Edit row');
+								$cell.removeClass('collapse_padding');
+								$cell.data('is_editing', false);
+								replace = data[index].title;
+								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');							
+							}, 'json');
+						} else {
+							$cell.data('is_editing', true);
+							$btn.removeClass('btn-default').addClass('btn-primary').text('Save row');
+							$cell.addClass('collapse_padding');
+							$cell.data('href', $cell.find('a').attr('href'));
+							var value = $cell.find('a').html();
+							var replace = value.slice();
+							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
+						};
 					});
 					$table.find('.delete_edition').click(function() {
-						var title = $(this).closest('tr').find('td:nth-of-type(2) a').text();
+						var $cell = $(this).closest('tr').find('td:nth-of-type(2)');
+						var title = $cell.find('a').text();
 						if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
-							alert('Coming soon');
+							$cell.data('is_editing', true);
+							$cell.data('is_saving', true);
+							var index = parseInt($(this).closest('tr').data('index'));
+							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(data) {
+								console.log(data);
+								$('#manageEditions').trigger('show.bs.modal');
+							});
 						};
 					});
 				} else {
@@ -467,6 +502,7 @@ STR;
 					if ('ready'==type || 'hidden'==type || 'empty'==type) continue;
 					if (parseInt(count[type]) > 0) can_create_edition = false; 
 				};
+				can_create_edition = true;  // Temp
 				$('<div class="row title"><div class="col-sm-12">Create</div></div>').appendTo($body);
 				if (!can_create_edition) {
 					$body.append('<p>Right now you can\'t create a new Edition.  All of your pages must be in <b>Ready</b> state.</p>');

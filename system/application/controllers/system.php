@@ -815,7 +815,7 @@ class System extends MY_Controller {
 				$this->set_user_book_perms();
 				if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
 				if (!$this->can_edition()) die ('{"error":"Editions database update has not been made"}');
-				$this->data['content'] = $this->data['book']->editions;
+				$this->data['content'] = (empty($this->data['book']->editions)) ? array() : $this->data['book']->editions;
 				break;
 			case 'get_editorial_count':
 				$this->load->model('page_model', 'pages');
@@ -1032,11 +1032,26 @@ class System extends MY_Controller {
 					if (empty($version)) continue;
 					$array[$page->content_id] = $version[0]->version_id;
 				}
+				if (!is_array($this->data['book']->editions)) $this->data['book']->editions = array();
 				$this->data['book']->editions[] = array(
 					'title' => $title,
 					'timestamp' => time(),
 					'pages' => $array
 				);
+				$this->books->save(array('book_id'=>$book_id,'editions'=>$this->data['book']->editions));
+				$this->data['book'] = $this->books->get($book_id);
+				$this->data['content'] = $this->data['book']->editions;
+				break;
+			case 'edit_edition':
+				$book_id =@ (int) $_REQUEST['book_id'];
+				$this->data['book'] = $this->books->get($book_id);
+				$this->set_user_book_perms();
+				if (!$this->login_is_book_admin()) die('{"error":"Invalid permissions"}');
+				if (!$this->can_edition()) die('{"error":"Editions database fields are not in place"}');
+				$title =@ trim($_REQUEST['title']);
+				if (empty($title)) die('{"error":"Title is a required field"}');
+				$index =@ (int) $_REQUEST['index'];
+				$this->data['book']->editions[$index]['title'] = $title;
 				$this->books->save(array('book_id'=>$book_id,'editions'=>$this->data['book']->editions));
 				$this->data['book'] = $this->books->get($book_id);
 				$this->data['content'] = $this->data['book']->editions;
@@ -1172,6 +1187,18 @@ class System extends MY_Controller {
 				$this->data['content'] = array();
 				$this->data['content']['content'] = (count($content_ids)) ? $content_ids : array();
 				$this->data['content']['versions'] = (count($version_ids)) ? $version_ids : array();
+				break;
+			case 'delete_edition':
+				$book_id =@ (int) $_REQUEST['book_id'];
+				$this->data['book'] = $this->books->get($book_id);
+				$this->set_user_book_perms();
+				if (!$this->login_is_book_admin()) die('{"error":"Invalid permissions"}');
+				if (!$this->can_edition()) die('{"error":"Editions database fields are not in place"}');
+				$index =@ (int) $_REQUEST['index'];
+				array_splice($this->data['book']->editions, $index, 1);
+				$this->books->save(array('book_id'=>$book_id,'editions'=>$this->data['book']->editions));
+				$this->data['book'] = $this->books->get($book_id);
+				$this->data['content'] = (empty($this->data['book']->editions)) ? array(): $this->data['book']->editions;
 				break;
 
 		}

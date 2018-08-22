@@ -667,7 +667,11 @@ class Book_model extends MY_Model {
     	if (isset($array['remove_publisher_thumbnail']) && !empty($array['remove_publisher_thumbnail'])) $array['publisher_thumbnail'] = '';
     	unset($array['remove_publisher_thumbnail']);
     	// Editions
-    	if (isset($array['editions']) && !empty($array['editions'])) $array['editions'] = serialize($array['editions']); 
+    	if (isset($array['editions']) && !empty($array['editions'])) {
+    		$array['editions'] = serialize($array['editions']); 
+    	} elseif (isset($array['editions'])) {
+    		$array['editions'] = '';
+    	}
 
     	// Manage slug
     	if (isset($array['slug'])) {

@@ -75,7 +75,7 @@ class Book extends MY_Controller {
 		$this->data['book']->edition_num = (!empty($this->data['book']->editions)) ? get_edition($this->scope) : null;
 		$this->data['book']->contributors = $this->books->get_users($this->data['book']->book_id);
 		$this->data['book']->versions = $this->books->get_book_versions($this->data['book']->book_id, true); // TOC
-		$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
+		$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.((!empty($this->data['book']->edition_num))?'.'.$this->data['book']->edition_num:'').'/';
 		// Melon (skin)
 		$this->data['melon'] = $this->config->item('active_melon');
 		if (!$this->melon_exists($this->data['melon'])) $this->data['melon'] = null;
@@ -137,20 +137,6 @@ class Book extends MY_Controller {
 					// TODO: validate a previously-defined $this->data['version_num'] if present
 					$this->data['use_versions'] = $this->data['edition']['pages'];
 				}
-				/*
-				$edition = array(
-					array(
-						'title'=>'My First Edition',
-						'timestamp'=>time(),
-						'pages'=>array(
-							1 => 38,  // content ID => version ID
-							22 => 30
-						)
-					)
-				);
-				echo serialize($edition);
-				exit;
-				*/
 				// Build (hierarchical) RDF object for the page's version(s)
 				$settings = array(
 								 	'book'         => $this->data['book'],
@@ -193,7 +179,7 @@ class Book extends MY_Controller {
 				$this->$slug_first_segment();
 			}
 
-			if($page_not_found) {
+			if ($page_not_found) {
 				header("HTTP/1.1 404 Not Found");
 			}
 
