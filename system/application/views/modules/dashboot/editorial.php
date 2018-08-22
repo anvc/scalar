@@ -234,28 +234,35 @@ STR;
   }
 
   function moveAllContentToState(newState) {
-    $.ajax({
-      url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState,
-      success: function(data) {
-        location.reload();
-      },
-      error: function(error) {
-        location.reload();
-      }
-    });
+    if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
+      $.ajax({
+        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState,
+        success: function(data) {
+          location.reload();
+        },
+        error: function(error) {
+          location.reload();
+        }
+      });
+      return true;
+    } else {
+      return false;
+    }
   }
 
   function moveSomeContentToState(version_ids, newState) {
-	$.ajax({
-		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
-		data: {version_id:version_ids,state:newState},
-		success: function(data) {
-		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);
-		},
-		error: function(error) {
-	 	  alert('Something went wrong attemptiong to save: '+error);
-	 	}
-	});
+    if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
+    	$.ajax({
+    		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
+    		data: {version_id:version_ids,state:newState},
+    		success: function(data) {
+    		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);
+    		},
+    		error: function(error) {
+    	 	  alert('Something went wrong while attempting to save: '+error);
+    	 	}
+    	});
+    }
   }
 
   function createNewEdition(fields) {
@@ -389,8 +396,9 @@ STR;
           switch (current_messaging['next_task_ids'][index]) {
             case 'allToEdit':
             button.click(function() { 
-              button.prop('disabled', 'disabled');
-              moveAllContentToState('edit'); 
+              if (moveAllContentToState('edit')) {
+                button.prop('disabled', 'disabled');
+              }
             });
             break;
             case 'allToPublished':
