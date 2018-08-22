@@ -2909,7 +2909,7 @@ ScalarModel.prototype.getBookNode = function() {
  * @return				The current page node.
  */
 ScalarModel.prototype.getCurrentPageNode = function() {
-	return this.nodesByURL[unescape(scalarapi.stripEditionAndVersion(scalarapi.stripAllExtensions(document.location.href)))];
+	return this.nodesByURL[unescape(scalarapi.stripVersion(scalarapi.stripAllExtensions(document.location.href)))];
 }
 
 /**
