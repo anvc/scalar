@@ -250,6 +250,23 @@ STR;
     }
   }
 
+  function moveContentFromOneStateToAnother(oldState, newState) {
+    if (confirm("Are you sure you want to move all content in the "+editorial_states[oldState].name+" state to the "+editorial_states[newState].name+" state?")) {
+      $.ajax({
+        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&only_if_in_state='+oldState+'&state='+newState,
+        success: function(data) {
+          location.reload();
+        },
+        error: function(error) {
+          location.reload();
+        }
+      });
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function moveSomeContentToState(version_ids, newState) {
     if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
     	$.ajax({
@@ -396,13 +413,17 @@ STR;
           switch (current_messaging['next_task_ids'][index]) {
             case 'allToEdit':
             button.click(function() { 
-              if (moveAllContentToState('edit')) {
+              if (moveContentFromOneStateToAnother('draft', 'edit')) {
                 button.prop('disabled', 'disabled');
               }
             });
             break;
             case 'allToPublished':
-            button.click(function() { moveAllContentToState('published'); });
+            button.click(function() { 
+              if (moveAllContentToState('published')) {
+                button.prop('disabled', 'disabled');
+              }
+            });
             break;
             case 'newEdition':
             button.click(createNewEdition);
