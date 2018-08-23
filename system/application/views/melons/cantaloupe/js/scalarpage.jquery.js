@@ -1076,7 +1076,7 @@
                     if (noteOf.length) {
                     	noteOf.closest('.has_reference').find('li').hide();
                     	noteOf.closest('.has_reference').contents().unwrap().wrapAll('<ul class="has_reference"></ul>');
-                    	noteOf.closest('.has_reference').siblings('h1').text('This ' + selfType + ' is a note in:');
+                    	noteOf.closest('.has_reference').siblings('h1').text('This ' + selfType + ' is referenced by:');
                    	 	$(".relationships").eq(0).before($(this).closest('.has_reference').parent());
                    	 	noteOf.closest('.has_reference').parent().addClass('relationships').show(); 
 	                    noteOf.each(function() {
@@ -2507,7 +2507,7 @@
         		$video.parent().scrollLeft( ($video.width() - $video.parent().width()) * .5 );
         		$video.parent().scrollTop( ($video.height() - $video.parent().height()) * .5 );
                 $video.show();
-    		}           
+    		}         
             
             switch (viewType) {
 
