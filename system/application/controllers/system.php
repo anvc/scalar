@@ -1087,10 +1087,12 @@ class System extends MY_Controller {
 					}
 					$this->data['content'] = array('version_id'=>$version_id,'state'=>$state);
 				} else {  // Change all pages in the book to a state
+					$only_if_in_state = (isset($_REQUEST['only_if_in_state']) && !empty($_REQUEST['only_if_in_state'])) ? $_REQUEST['only_if_in_state'] : null;
+					if (!empty($only_if_in_state) && !in_array($only_if_in_state,$states)) die ("{'error':'Invalid only if in state'}");
 					$this->data['book'] = $this->books->get($book_id, false);
 					$this->set_user_book_perms();
 					if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
-					$version_ids = $this->books->save_editorial_states($book_id, $state);
+					$version_ids = $this->books->save_editorial_states($book_id, $state, true, $only_if_in_state);
 					$this->data['content'] = array('version_ids'=>$version_ids,'state'=>$state);
 				}
 				break;

@@ -864,7 +864,7 @@ class Book_model extends MY_Model {
 
     }
 
-    public function save_editorial_states($book_id=0, $state=null, $is_live=true) {
+    public function save_editorial_states($book_id=0, $state=null, $is_live=true, $only_if_in_state=null) {
 
     	$ci=&get_instance();
     	$ci->load->model("version_model","versions");
@@ -883,6 +883,7 @@ class Book_model extends MY_Model {
     	foreach ($result as $row) {
     		$version = $this->versions->get_single($row->content_id, $row->recent_version_id);
     		if (empty($version)) continue;
+    		if (!empty($only_if_in_state) && $version->editorial_state != $only_if_in_state) continue;
     		$version_ids[] = (int) $version->version_id;
     	}
     	if (empty($version_ids)) return $version_ids;
