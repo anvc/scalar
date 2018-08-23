@@ -462,6 +462,7 @@ $(window).ready(function() {
   		return false;
   	});
 
+  	// Cookie for clearing a notice
 	if ($('.scalarnotice').length) {
 		yepnope([
 		   {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/notice/jquery.scalarnotice.js'], complete:function() {
@@ -469,6 +470,11 @@ $(window).ready(function() {
            }},
 	    ]);
 	};
+	
+	// Accept posted messages (e.g., if in an iframe)
+	window.addEventListener('message', function(event) {
+		switch (event.data) {};
+	});
 
 	yepnope([
 
