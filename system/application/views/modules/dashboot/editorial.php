@@ -450,11 +450,11 @@ STR;
     }); // Ajax
 
     // Select edition to be viewing
-    $('#select_edition').find('a').click(function() {
-        if (!navigator.cookieEnabled) {
+    $(document).on("click", "#select_edition a", function() {
+		if (!navigator.cookieEnabled) {
 			alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
 			return; 
-        };
+		};
 		var $selected = $(this);
 		$selected.closest('.btn-group').find('li').removeClass('active');
 		$selected.parent().addClass('active');
@@ -469,10 +469,10 @@ STR;
 		} else {
 			document.cookie = "scalar_edition_index="+index;  // Cookie (not localStorage) so that PHP can get to it
 		};
-    });
-    if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
+	});
+	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
 		$('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').click();
-    };
+	};
 
     // Manage editions modal
 	$('#manageEditions').on('show.bs.modal', function() {
@@ -485,7 +485,7 @@ STR;
 				alert('There was an error attempting to get Editions: '+json.error);
 				return;
 			}
-			$('#num_editions_str').text( ((1 == json.length)?'is 1 edition':'are '+json.length+' editions') );
+			$('#num_editions_str').text( ((1 == json.length)?'is 1 edition':'are '+((json.length)?json.length:'no')+' editions') );
 			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
 				if ('undefined'==typeof(count.published)) {
 					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
@@ -539,7 +539,15 @@ STR;
 								$cell.removeClass('collapse_padding');
 								$cell.data('is_editing', false);
 								replace = data[index].title;
-								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');							
+								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
+								var $select_edition = $('#select_edition');
+								$select_edition.find('li.divider').nextAll().remove();
+								var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+							    for (var j = data.length-1; j >= 0; j--) {
+									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+(j+1)+'. &nbsp; '+data[j].title+'</a></li>').appendTo($select_edition);
+									$li.find('a').attr('data-title', data[j].title);
+								};
+								$select_edition.find('a[data-index="'+cindex+'"]').click();					
 							}, 'json');
 						} else {
 							$cell.data('is_editing', true);
@@ -549,6 +557,11 @@ STR;
 							var value = $cell.find('a').html();
 							var replace = value.slice();
 							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
+							$cell.find('input').click(function(event) {
+								event.stopPropagation();
+							}).keypress(function(e) {
+								if (e.which == 13) $(this).closest('tr').find('.edit_edition').click();
+							});
 						};
 					});
 					$table.find('.delete_edition').click(function() {
@@ -558,9 +571,18 @@ STR;
 							$cell.data('is_editing', true);
 							$cell.data('is_saving', true);
 							var index = parseInt($(this).closest('tr').data('index'));
-							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(data) {
-								console.log(data);
+							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
+								console.log(obj);
 								$('#manageEditions').trigger('show.bs.modal');
+								document.cookie = "scalar_edition_index=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+								var $select_edition = $('#select_edition');
+								$select_edition.find('li.divider').nextAll().remove();
+								var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+							    for (var j = obj.length-1; j >= 0; j--) {
+									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+(j+1)+'. &nbsp; '+obj[j].title+'</a></li>').appendTo($select_edition);
+									$li.find('a').attr('data-title', obj[j].title);
+								};
+								$select_edition.find('a:first').click();
 							});
 						};
 					});
@@ -595,6 +617,20 @@ STR;
 							$form.find('.btn:last').prop('disabled',false);
 							console.log(obj);
 							$('#manageEditions').trigger('show.bs.modal');
+							var $select_edition = $('#select_edition');
+							if (!$select_edition.find('li.divider').length) {
+								$select_edition.append('<li role="separator" class="divider"></li>');
+							} else {
+								$select_edition.find('li.divider').nextAll().remove();
+							};
+							var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+						    for (var j = obj.length-1; j >= 0; j--) {
+								var $li = $('<li'+((index!=='' && j==parseInt(index))?' class="active"':'')+'><a href="javascript:void(null);" data-index="'+j+'">'+(j+1)+'. &nbsp; '+obj[j].title+'</a></li>').appendTo($select_edition);
+								$li.find('a').attr('data-title', obj[j].title);
+							};
+							if (navigator.cookieEnabled && ''!==index) {
+								$('#select_edition').find('a[data-index="'+index+'"]').click();
+							};
 						};
 						createNewEdition({title:title,callback:callback});
 						return false;
@@ -633,11 +669,15 @@ STR;
 <div class="container-fluid properties">
   <div class="row editions">
     <div class="col-sm-12">
-      <h3 class="message">There <span id="num_editions_str"><?php 
-      if (1 == count($book->editions)) {
-      	echo 'is 1 edition';
+      <h3 class="message">There <span id="num_editions_str"><?php
+      if (!empty($book->editions)) {
+	      if (1 == count($book->editions)) {
+	      	echo 'is 1 edition';
+	      } else {
+	      	echo 'are '.count($book->editions).' editions';
+	      }
       } else {
-      	echo 'are '.count($book->editions).' editions';
+      	echo 'are no editions';
       }
       ?></span> of this <?=$book->scope?></h3>
       <p class="message">You can create new editions that checkpoint the work you are doing.</p>
@@ -646,13 +686,15 @@ STR;
 	      Seeing latest edits &nbsp; <span class="caret"></span>
 	    </button>
 	    <ul class="dropdown-menu" id="select_edition">
-	      <li class="active"><a href="javascript:void(null);" data-index="" data-title="latest edits"">Latest edits</a></li>
-	      <?php 
-	      if (count($book->editions)) echo '<li role="separator" class="divider"></li>'."\n";
-	      for ($j = 0; $j < count($book->editions); $j++) {
-	      	echo '<li>';
-	      	echo '<a href="javascript:void(null);" data-index="'.$j.'" data-title="'.htmlspecialchars($book->editions[$j]['title']).'">'.($j+1).'. &nbsp; '.$book->editions[$j]['title'].'</a>';
-	      	echo '</li>'."\n";
+	      <li class="active"><a href="javascript:void(null);" data-index="" data-title="latest edits">Latest edits</a></li>
+	      <?php
+	      if (!empty($book->editions)) {
+		      echo '<li role="separator" class="divider"></li>'."\n";
+		      for ($j = count($book->editions)-1; $j >= 0; $j--) {
+		      	echo '<li>';
+		      	echo '<a href="javascript:void(null);" data-index="'.$j.'" data-title="'.htmlspecialchars($book->editions[$j]['title']).'">'.($j+1).'. &nbsp; '.$book->editions[$j]['title'].'</a>';
+		      	echo '</li>'."\n";
+		      }
 	      }
 	      ?>
 	    </ul>
