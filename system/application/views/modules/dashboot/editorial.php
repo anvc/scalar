@@ -314,6 +314,22 @@ STR;
 	  var sec = a.getSeconds();
 	  var time = month + ' ' + date + ' ' + year;
 	  return time;
+  }
+
+  function getCookie(cname) {  // https://www.w3schools.com/js/js_cookies.asp
+	    var name = cname + "=";
+	    var decodedCookie = decodeURIComponent(document.cookie);
+	    var ca = decodedCookie.split(';');
+	    for(var i = 0; i <ca.length; i++) {
+	        var c = ca[i];
+	        while (c.charAt(0) == ' ') {
+	            c = c.substring(1);
+	        }
+	        if (c.indexOf(name) == 0) {
+	            return c.substring(name.length, c.length);
+	        }
+	    }
+	    return "";
 	}
 
   $(document).ready(function() {
@@ -432,6 +448,31 @@ STR;
         }
       }
     }); // Ajax
+
+    // Select edition to be viewing
+    $('#select_edition').find('a').click(function() {
+        if (!navigator.cookieEnabled) {
+			alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
+			return; 
+        };
+		var $selected = $(this);
+		$selected.closest('.btn-group').find('li').removeClass('active');
+		$selected.parent().addClass('active');
+		var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
+		var $btn = $selected.closest('.btn-group').find('button:first');
+		var btn_text = 'Seeing ' + $selected.data('title');
+		var btn_class = (null!==index) ? 'btn-success' : 'btn-primary';
+		$btn.html(btn_text+' &nbsp; <span class="caret"></span>');
+		$btn.removeClass('btn-success').removeClass('btn-primary').addClass(btn_class);
+		if (null===index) {
+			document.cookie = "scalar_edition_index=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+		} else {
+			document.cookie = "scalar_edition_index="+index;  // Cookie (not localStorage) so that PHP can get to it
+		};
+    });
+    if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
+		$('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').click();
+    };
 
     // Manage editions modal
 	$('#manageEditions').on('show.bs.modal', function() {
@@ -604,8 +645,16 @@ STR;
 	    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 	      Seeing latest edits &nbsp; <span class="caret"></span>
 	    </button>
-	    <ul class="dropdown-menu">
-	      <li><a href="#">Latest edits</a></li>
+	    <ul class="dropdown-menu" id="select_edition">
+	      <li class="active"><a href="javascript:void(null);" data-index="" data-title="latest edits"">Latest edits</a></li>
+	      <?php 
+	      if (count($book->editions)) echo '<li role="separator" class="divider"></li>'."\n";
+	      for ($j = 0; $j < count($book->editions); $j++) {
+	      	echo '<li>';
+	      	echo '<a href="javascript:void(null);" data-index="'.$j.'" data-title="'.htmlspecialchars($book->editions[$j]['title']).'">'.($j+1).'. &nbsp; '.$book->editions[$j]['title'].'</a>';
+	      	echo '</li>'."\n";
+	      }
+	      ?>
 	    </ul>
 	  </div> &nbsp; 
 	  <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>
