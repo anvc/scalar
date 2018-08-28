@@ -168,9 +168,9 @@ class User_model extends MY_Model {
         $basedn = $this->config->item('ldap_basedn');
         $uname_field = $this->config->item('ldap_uname_field');
 
-	if ( strlen(trim($password)) == 0 ) {
+		if ( strlen(trim($password)) == 0 ) {
            return false;
-	}
+		}
 
         $ldapCon = ldap_connect( $ldap_host, $ldap_port );
         if ( !$ldapCon) {

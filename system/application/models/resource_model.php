@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance 
  * with the License. You may obtain a copy of the License at
  * 
- * http://www.osedu.org/licenses /ECL-2.0 
+ * http://www.osedu.org/licenses/ECL-2.0 
  * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -21,7 +21,7 @@
 /**
  * @projectDescription		Helpful methods
  * @author					Craig Dietrich
- * @version					1.0
+ * @version					1.1
  */
 
 class Resource_model extends CI_Model {
@@ -43,40 +43,6 @@ class Resource_model extends CI_Model {
     	if ($query->num_rows==0) return null;
     	$result = $query->result();
     	return $result[0]->value;
-    	
-    }
-    
-    public function page_views() {
-    	
-		return array('plain' => 'Single column',
-					 'text' => 'Text emphasis',
-					 'media' => 'Media emphasis',
-					 'split' => 'Split emphasis',
-					 'par' => 'Media per paragraph', 
-					 'vis' => 'Visualization: Radial',
-					 'visindex' => 'Visualization: Index',
-					 'vispath' => 'Visualization: Paths',
-					 'vismedia' => 'Visualization: Media',
-					 'vistag' => 'Visualization: Tags',
-					 'versions' => 'History editor',
-					 'history' => 'History browser',
-					 'meta' => 'Metadata',
-					 'rdf' => 'RDF');  	
-    	
-    }
-    
-    public function file_views() {
-    	
-    	return array('file' => 'File',
-					 'versions' => 'History editor', 
-					 'meta' => 'Metadata',
-					 'rdf' => 'RDF',
-					 'vis' => 'Visualization: Radial',								
-					 'visindex' => 'Visualization: Index',
-					 'vispath' => 'Visualization: Paths',
-					 'vismedia' => 'Visualization: Media',
-					 'vistag' => 'Visualization: Tags',
-					 'manage_annotations' => 'Annotation editor');  
     	
     }
     

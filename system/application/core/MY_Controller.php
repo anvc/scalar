@@ -355,6 +355,11 @@ class MY_Controller extends CI_Controller {
 		}
 		
    	}
+   	
+   	/**
+   	 * Invoke the payway view
+   	 * @return null
+   	 */
 
    	protected function paywall() {
 
@@ -372,6 +377,25 @@ class MY_Controller extends CI_Controller {
 		} catch (Exception $e) {}
 
    	}
+   	
+	/**
+	 * Test whether TK Labels are enabled and, if so, return the TK Label array from the resources table
+	 * @return array or null
+	 */
+   	
+	protected function tklabels() {   		
+   		
+		if (empty($this->data['book']) || empty($this->data['book']->book_id)) return null;
+		$enable = $this->config->item('enable_tklabels');
+		if (!$enable) return null;
+		$namespaces = $this->config->item('namespaces');
+		if (!isset($namespaces['tk'])) return null;
+		$this->load->model('resource_model', 'resources');
+		$tklabels = $this->resources->get('tklabels_'.$this->data['book']->book_id);
+		if (!empty($tklabels)) $tklabels = unserialize($tklabels);
+		return $tklabels;
+   		
+	}
 
 }
 

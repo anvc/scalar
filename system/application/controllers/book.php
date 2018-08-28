@@ -146,7 +146,9 @@ class Book extends MY_Controller {
 									'versions'     => RDF_Object::VERSIONS_MOST_RECENT,
 									'ref'          => RDF_Object::REFERENCES_ALL,
 									'prov'		   => RDF_Object::PROVENANCE_ALL,
-							  		'max_recurses' => $this->max_recursions
+							  		'max_recurses' => $this->max_recursions,
+									'tklabeldata'  => $this->tklabels(),
+									'tklabels' 	   => RDF_Object::TKLABELS_ALL
 								 );
 				$index = $this->rdf_object->index($settings);
 			    if (!count($index)) throw new Exception('Problem getting page index');

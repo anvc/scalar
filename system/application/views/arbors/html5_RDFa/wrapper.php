@@ -39,8 +39,9 @@ if (isset($mode) && !empty($mode)) $background = null;
 $namespaces = $this->config->item('namespaces');
 $rdf_fields = $this->config->item('rdf_fields');
 if (!isset($rdf_fields['content'])) $rdf_fields['content'] = 'sioc:content';
-function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array(), $aria=false, $force_literal=array()) {
+function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array(), $aria=false, $force_literal=array(), $show=array()) {
 	$hide = array_merge($hide, array('rdf:type','dcterms:title','sioc:content','scalar:customStyle','scalar:customScript'));
+	if (is_array($show) && !empty($show)) $hide = array_diff($hide, $show);
 	$force_literal = array_merge($force_literal, array('dcterms:description'));
 	foreach ($rdf as $p => $values) {
 		if (in_array($p, $hide)) continue;
@@ -243,7 +244,15 @@ endif;
 		<span resource="<?=$page->versions[$page->version_index]->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($page->versions[$page->version_index]->user, $base_uri), 3, $ns); ?>
 		</span>
-<?
+<?		
+		if (isset($page->versions[$page->version_index]->tklabels) && !empty($page->versions[$page->version_index]->tklabels)):
+			foreach ($page->versions[$page->version_index]->tklabels as $tklabel):
+?>		<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
+<?		print_rdf($this->versions->rdf((object) $tklabel), 3, $ns, array(), false, array(), array('dcterms:title')); ?>
+		</span>
+<?		
+			endforeach;
+		endif;
 		if (isset($page->versions[$page->version_index]->continue_to)):
 			echo '		<a aria-hidden="true" rel="scalar:continue_to" href="'.$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num.'"></a>'."\n";
 ?>

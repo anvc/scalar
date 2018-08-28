@@ -174,8 +174,11 @@ class Version_model extends MY_Model {
         if (!empty($sq)) {
     		for ($j = (count($result)-1); $j >= 0; $j--) {
     			$matched = self::filter_result_i($result[$j], $sq);
-    			if (false===$matched) unset($result[$j]);
-    			$result[$j]->citation = 'sq_matched='.implode(',',$matched);
+    			if (false===$matched) {
+    				unset($result[$j]);
+    			} else {
+    				$result[$j]->citation = 'sq_matched='.implode(',',$matched);
+    			}
     		}
     	}
 

@@ -22,7 +22,7 @@
  * @projectDescription		Convert internal structures into RDF; includes two approaches -- one where the object is
  *                          non-hierarchical/recursive, the other nested -- based on arguments passed to book() or index()
  * @author					Craig Dietrich
- * @version					1.4
+ * @version					1.5
  */
 
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
@@ -41,6 +41,8 @@ class RDF_Object {
 	const NO_PAGINATION = null;
 	const PROVENANCE_ALL = 1;
 	const PROVENANCE_NONE = null;
+	const TKLABELS_ALL = 1;
+	const TKLABELS_NONE = 0;
 	const USERS_ALL = 1;
 	const USERS_LISTED = 2;
 	const USE_VERSIONS_INCLUSIVE = 0;
@@ -70,7 +72,9 @@ class RDF_Object {
 		'total'			=> 0,
 		'anon_name'		=> 'anonymous',
 		'u_all'			=> self::USERS_LISTED,
-		'editorial_state' => null
+		'editorial_state' => null,
+		'tklabeldata'	=> null,
+		'tklabels'		=> self::TKLABELS_NONE
 	);
 
 	public function __construct() {
@@ -358,6 +362,7 @@ class RDF_Object {
 			}
 
 			$this->_provenance_by_ref($return, $row, $this->version_cache[$row->content_id], $settings);
+			$this->_tklabels_by_ref($return, $row, $this->version_cache[$row->content_id], $settings);
 			$this->_relationships_by_ref($return, $this->version_cache[$row->content_id], $settings);
 			$count++;
 		}
@@ -400,6 +405,7 @@ class RDF_Object {
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
 
 		$row = $this->_relationships($row, $settings);
+		$row = $this->_tklabels($row, $settings);
 		$row = $this->_pagination($row, $settings);
 
 		return $row;
@@ -497,6 +503,19 @@ class RDF_Object {
 			if (isset($row->paywall) && 1 == $row->paywall && false===$settings['paywall_msg']) {
 				unset($versions[$key]->content);
 				unset($versions[$key]->url);
+			}
+			// TK Labels
+			if (isset($settings['tklabeldata']) && !empty($settings['tklabeldata']) && isset($settings['tklabeldata']['versions']) && isset($settings['tklabeldata']['versions'][$versions[$key]->version_id])) {
+				$tk_codes = $settings['tklabeldata']['versions'][$versions[$key]->version_id];
+				$versions[$key]->tklabels = array();
+				foreach ($tk_codes as $code) {
+					foreach ($settings['tklabeldata']['labels'] as $label) {
+						if ($label['code'] == $code) {
+							$versions[$key]->tklabels[] = $label;
+							break;
+						}
+					}
+				}
 			}
 		}
 
@@ -639,6 +658,59 @@ class RDF_Object {
 			}
 		}
 
+	}
+	
+	private function _tklabels($page, $settings) {
+		
+		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return $page;
+		$CI =& get_instance();
+		foreach ($page->versions as $key => $version) {
+			if (!array_key_exists($version->version_id, $settings['tklabeldata']['versions'])) continue;
+			$page->versions[$key]->tklabels = array();
+			$tk_codes = $settings['tklabeldata']['versions'][$version->version_id];
+			foreach ($tk_codes as $code) {
+				foreach ($settings['tklabeldata']['labels'] as $tklabel) {
+						if ($tklabel['code'] != $code) continue;
+						$arr = array(
+								'type' => $CI->versions->tk_type(),
+								'url' => $tklabel['image'],
+								'code' => $code,
+								'uri' => $CI->versions->tk_hasLabel($tklabel)
+						);
+						foreach ($tklabel['text'] as $text) {
+							if ($text['locale'] != $tklabel['defaultlocale']) continue;
+							$title = $text['title'];
+							$arr[$title] = $text['description'];
+						}
+						$page->versions[$key]->tklabels[] = $arr;
+				}
+			}
+		}
+		
+		return $page;
+		
+	}
+	
+	private function _tklabels_by_ref(&$return, $row, $versions, $settings) {
+		
+		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return;
+		$CI =& get_instance();
+		foreach ($versions as $version) {
+			if (isset($version->tklabels) && is_array($version->tklabels)) {
+				foreach ($version->tklabels as $tklabel) {
+					$uri = $CI->versions->tk_hasLabel($tklabel);
+					$tklabel['type'] = $CI->versions->tk_type();
+					$tklabel['url'] = $tklabel['image'];
+					foreach ($tklabel['text'] as $text) {
+						if ($text['locale'] != $tklabel['defaultlocale']) continue;
+						$title = $text['title'];
+						$tklabel[$title] = $text['description'];
+					}
+					if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->versions->rdf((object) $tklabel);
+				}
+			}
+		}
+		
 	}
 
 	private function _pagination($page, $settings) {

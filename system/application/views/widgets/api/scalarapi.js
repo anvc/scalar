@@ -3576,6 +3576,12 @@ ScalarVersion.prototype.parseData = function(data, node) {
 	}
 	
 	// populate auxiliary properties
+	var notAuxPropBecauseOfPrefix = function(uri) {
+		var prefixes = ['tk'];
+		var prefix = toNS(uri).split(':')[0];
+		if (prefixes.indexOf(prefix) != -1) return true;
+		return false;
+	};
 	var isVersionProperty = function(p) {
 		for (j = 0; j < scalarapi.model.versionPropertyMap.length; j++) {
 			if (scalarapi.model.versionPropertyMap[j].uri == p) return true;
@@ -3591,7 +3597,7 @@ ScalarVersion.prototype.parseData = function(data, node) {
 		return false;
 	};
 	for (var p in data.json) {
-		if (isVersionProperty(p) || !toNS(p)) continue;
+		if (isVersionProperty(p) || !toNS(p) || notAuxPropBecauseOfPrefix(p)) continue;
 		if (this.auxProperties[toNS(p)] == null) this.auxProperties[toNS(p)] = [];
 		for (j = 0; j < data.json[p].length; j++) {
 			this.auxProperties[toNS(p)].push(data.json[p][j].value);

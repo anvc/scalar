@@ -32,7 +32,8 @@ $config['namespaces'] = array(
 						'id3'		=> 'http://id3.org/id3v2.4.0#',
 						'dwc'		=> 'http://rs.tdwg.org/dwc/terms/',
 						'vra'		=> 'http://purl.org/vra/',
-						'cp'		=> 'http://scalar.cdla.oxycreates.org/commonplace/terms/'
+						'cp'		=> 'http://scalar.cdla.oxycreates.org/commonplace/terms/',
+						'tk'		=> 'http://localcontexts.org/tk/'  /* Temp */
 					   );
 
 // Internet Archive allowable filetypes when importing
@@ -97,7 +98,8 @@ $config['rdf_fields'] = array(
 		'thumbnail' => 				'art:thumbnail',
 		'publisher_thumbnail' =>	'art:thumbnail',
 		'has_body' => 				'oac:hasBody',
-		'has_target' =>				'oac:hasTarget'
+		'has_target' =>				'oac:hasTarget',
+		'tklabels' =>				'tk:hasLabel'
 );
 
 // Ontology fields available for custom metadata

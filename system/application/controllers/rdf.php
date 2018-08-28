@@ -87,6 +87,8 @@ class Rdf extends MY_Controller {
 		$this->data['s_all'] = (isset($_REQUEST['s_all']) && 1==$_REQUEST['s_all']) ? true : false;
 		// Provenance
 		$this->data['provenance'] = (isset($_REQUEST['prov']) && !empty($_REQUEST['prov'])) ? 1 : null;
+		// TK Labels
+		$this->data['tklabels'] = (isset($_REQUEST['tklabels']) && !empty($_REQUEST['tklabels'])) ? 1 : null;
 		// Show hidden content
 		$this->data['hidden'] = (isset($_REQUEST['hidden']) && !empty($_REQUEST['hidden'])) ? (int) $_REQUEST['hidden'] : 0;
 		$this->set_user_book_perms();
@@ -193,7 +195,9 @@ class Rdf extends MY_Controller {
 									     'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 				                         'pagination'   => $this->data['pagination'],
 				                         'max_recurses' => $this->data['recursion'],
-									   	 'paywall_msg'	=> $this->can_bypass_paywall()
+									   	 'paywall_msg'	=> $this->can_bypass_paywall(),
+									   	 'tklabeldata'	=> $this->tklabels(),
+									   	 'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE)
 									   )
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
@@ -314,7 +318,9 @@ class Rdf extends MY_Controller {
 			                         	 'pagination'   => $this->data['pagination'],
 			                         	 'max_recurses' => $this->data['recursion'],
 			                             'paywall_msg'	=> $this->can_bypass_paywall(),
-			                           	 'editorial_state' => ((isset($this->data['editorial_state']))?$this->data['editorial_state']:null)
+			                           	 'editorial_state' => ((isset($this->data['editorial_state']))?$this->data['editorial_state']:null),
+			                           	 'tklabeldata'	=> $this->tklabels(),
+			                           	 'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE)
 			                           )
 			                        );
 			$this->rdf_object->serialize($this->data['content'], $this->data['format']);

@@ -298,6 +298,20 @@ class MY_Model extends CI_Model {
 
 	}
 
+	public function tk_hasLabel($value) {
+		
+		$namespaces = $this->config->item('namespaces');
+		return $namespaces['tk'].$value['code'];
+		
+	}
+	
+	public function tk_type() {  // There won't be any "tk:type" rather this is a convenience method to return the TKLabel appended to the TK URL prefix
+		
+		$namespaces = $this->config->item('namespaces');
+		return $namespaces['tk'].'TKLabel';
+		
+	}
+	
 	public function foaf_homepage($value, $base_uri, $attribution=null) {  // TODO: temporary for legacy
 
 		if (isset($value->uri) && !empty($value->uri)) {
