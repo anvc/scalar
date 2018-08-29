@@ -327,6 +327,9 @@
 						me.mediaDetails.show($(this).data('node'));
 					//}
 				});
+
+				$('body').trigger('structuredGalleryThumbnailLoaded', [thumbnail]);
+				
 			},
 			
 			addMedia: function() {

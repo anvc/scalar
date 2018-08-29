@@ -1136,6 +1136,24 @@
                     commentDialog.data('plugin_scalarcomments').showComments(true);
                 }
             },
+            
+            addTKLabels: function() {
+            	
+            	var $labels = $('article header [typeof="tk:TKLabel"]');
+            	var hasLabels = ($labels.length) ? true : false;
+            	if (!hasLabels) return;
+            	$labels.each(function() {
+            		var $label = $(this);
+            		$label.css('display', 'inline-block');
+            		$label.children().show();
+            		var $url = $label.find('a[rel="art:url"]');
+            		var url = $url.attr('href');
+            		$url.replaceWith('<img rel="art:url" src="'+url+'" />');
+            		var $title = $label.find('[property="dcterms:title"]');
+            		$title.css('font-weight', 'bold');
+            	});
+            	
+            },
 
             addColophon: function() {
                 var currentNode = scalarapi.model.getCurrentPageNode();
@@ -2573,6 +2591,7 @@
                     page.addIncomingComments();
                     page.addAdditionalMetadata();
                     page.addExternalLinks();
+                    page.addTKLabels();
                     page.addColophon();
                     page.addNotes();
                     page.addContext();
@@ -2605,6 +2624,7 @@
                     page.addIncomingComments();
                     page.addAdditionalMetadata();
                     page.addExternalLinks();
+                    page.addTKLabels();
                     page.addColophon();
                     page.addNotes();
                     page.addContext();
@@ -2658,6 +2678,7 @@
                     page.addIncomingComments();
                     page.addAdditionalMetadata();
                     page.addExternalLinks();
+                    page.addTKLabels();
                     page.addColophon();
                     page.addNotes();
                     page.addContext();
@@ -3017,6 +3038,7 @@
                             showTags: false
                         });
                     }
+                    page.addTKLabels();
                     page.addColophon();
                     if (viewType != 'edit') {
                         page.addContext();
