@@ -30,7 +30,8 @@ STR;
     "editreview": {'id': "editreview", 'name': "Edit Review", 'next': 'clear' },
     "clean": {'id': "clean", 'name': "Clean", 'next': 'ready' },
     "ready": {'id': "ready", 'name': "Ready", 'next': 'published' },
-    "published": {'id': "published", 'name': "Published" },
+    "published": {'id': "published", 'name': "Published", 'next': 'published' },
+    "publishedWithEditions": {'id': "publishedWithEditions", 'name': "Published", 'next': 'published' },
     "empty": {'id': "empty", 'name': "empty"}
   };
   var editorial_quantifiers = {
@@ -125,10 +126,10 @@ STR;
       'publishedWithEditions': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Once an edition is created, its content cannot be changed. Any changes you make will be automatically moved to the <strong>Latest Edits</strong> edition.'
+          'next_task': 'Once an edition is created, its content cannot be changed. Any changes you make will be moved to the <strong>Latest edits</strong> edition for editorial review.'
         }
       },
-      'empty': {
+     'empty': {
         'all': {
           'current_task': 'Add some content to get started.',
           'next_task': 'Return here to check on your progress through editorial.'
@@ -195,33 +196,35 @@ STR;
       'ready': {
         'all': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Published</strong>','Create a new edition'],
-          'next_task_ids': ['allToPublished','newEdition']
+          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available.',
+          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Published</strong>'],
+          'next_task_ids': ['allToPublished']
         },
         'majority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
-          'next_task_ids': ['allToPublished','newEdition']
+          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>'],
+          'next_task_ids': ['allToPublished']
         },
         'minority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
-          'next_task_ids': ['allToPublished','newEdition']
+          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>'],
+          'next_task_ids': ['allToPublished']
         }
       },
       'published': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Any changes authors make to the '+project_type+' will be published automatically.'
+          'next_task': 'Any changes made to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'’s current state.',
+          'next_task_buttons': ['Create a new edition'],
+          'next_task_ids': ['newEdition']
         }
       },
       'publishedWithEditions': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Once an edition is created, its content cannot be changed. Any changes authors make will be automatically moved to the <strong>Latest Edits</strong> edition.'
+          'next_task': 'Once an edition is created, its content cannot be changed. Any changes will be moved to the <strong>Latest edits</strong> edition for editorial review.'
         }
       },
       'empty': {
@@ -367,10 +370,10 @@ STR;
           editorial_state = editorial_states[earliest_state.state];
         }
 
-        var has_editions = false; // TODO: make this real
+        var has_editions = $('.row.editions').length > 0;
         var proxy_editorial_state = editorial_state;
-        if (has_editions && editorial_state == 'published') {
-          proxy_editorial_state += 'WithEditions';
+        if (has_editions && editorial_state.id == 'published') {
+          proxy_editorial_state = editorial_states['publishedWithEditions'];
         }
 
         // figure out how to quantify the overall book state
@@ -510,6 +513,9 @@ STR;
         if (navigator.cookieEnabled && ''!==index) {
           $('#select_edition').find('a[data-index="'+index+'"]').click();
         };
+        if (obj.length == 1) {
+          location.reload();
+        }
       };
       createNewEdition({title:title,callback:callback});
       return false;
@@ -556,14 +562,14 @@ STR;
 						$row.find('.showme').css('visibility','visible');
 					}).mouseout(function() {
 						var $row = $(this);
-						var $cell = $row.find('td:nth-of-type(2)');
+						var $cell = $row.find('td:nth-of-type(1)');
 						if ($cell.data('is_editing')) return;
 						$row.removeClass('info');
 						$row.find('.showme').css('visibility','hidden');
 					});
 					$table.find('.edit_edition').click(function() {
 						var $btn = $(this);
-						var $cell = $(this).closest('tr').find('td:nth-of-type(2)');
+						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
 						if ($cell.data('is_editing')) {
 							if ($cell.data('is_saving')) return;
 							$cell.data('is_saving', true);
@@ -608,7 +614,7 @@ STR;
 						};
 					});
 					$table.find('.delete_edition').click(function() {
-						var $cell = $(this).closest('tr').find('td:nth-of-type(2)');
+						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
 						var title = $cell.find('a').text();
 						if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
 							$cell.data('is_editing', true);
@@ -620,6 +626,9 @@ STR;
 								document.cookie = "scalar_edition_index=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
 								var $select_edition = $('#select_edition');
 								$select_edition.find('li.divider').nextAll().remove();
+                if (obj.length == 0) {
+                  location.reload();
+                }
                 var latestEditionTitle = obj[obj.length-1].title;
                 $('.edition_title').text(latestEditionTitle);
 								var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
@@ -632,6 +641,7 @@ STR;
 						};
 					});
 				} else {
+          $body.empty();
 					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
 				};
 			});
@@ -643,7 +653,7 @@ STR;
 	$selector.height(height + 'px');
 	var types = ['content'];
 	for (var type in editorial_states) {
-		if ('empty'==type.toLowerCase()) continue;
+		if ('empty'==type.toLowerCase() || 'publishedwitheditions'==type.toLowerCase()) continue;
 		types.push(editorial_states[type].name);
 	};
 	node_options = {  /* global */
@@ -671,7 +681,7 @@ STR;
       echo '<div class="row editions">';
       echo '<div class="col-sm-12">';
       echo '<h3 class="message"><strong><span class="edition_title">'.$book->editions[$edition_count-1]['title'].'</span></strong> is the currently published edition of this '.$book->scope.'.</h3>';
-      echo '<p class="message">Published editions are read-only, and subsequent changes appear in <strong>Latest edits</strong>.</p><p class="message">Choose an edition to view:</p>';
+      echo '<p class="message">Choose an edition to view while browsing.</p>';
       echo '<div class="btn-group">';
       echo '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Latest edits &nbsp; <span class="caret"></span></button> &nbsp; ';
       echo '<ul class="dropdown-menu" id="select_edition">';
@@ -684,7 +694,9 @@ STR;
       }
       echo '</ul>';
       echo '</div>';
-      echo '&nbsp; <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>';
+      if ($user_level == 'Editor') {
+        echo '&nbsp; <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>';
+      }
       echo '</div>';
       echo '</div>';
     }
