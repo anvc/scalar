@@ -442,7 +442,9 @@ STR;
             });
             break;
             case 'newEdition':
-            button.click(createNewEdition);
+            button.click(function() {
+              $('#createEdition').modal();
+            });
             break;
           }
         }
@@ -460,10 +462,8 @@ STR;
 		$selected.parent().addClass('active');
 		var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
 		var $btn = $selected.closest('.btn-group').find('button:first');
-		var btn_text = 'Seeing ' + $selected.data('title');
-		var btn_class = (null!==index) ? 'btn-success' : 'btn-primary';
+		var btn_text = $selected.data('title');
 		$btn.html(btn_text+' &nbsp; <span class="caret"></span>');
-		$btn.removeClass('btn-success').removeClass('btn-primary').addClass(btn_class);
 		if (null===index) {
 			document.cookie = "scalar_edition_index=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
 		} else {
@@ -473,6 +473,48 @@ STR;
 	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
 		$('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').click();
 	};
+
+  $('#createEdition').on('show.bs.modal', function() {
+    $('.editions .btn').blur();
+    var $modal = $(this);
+    $body = $modal.find('.modal-body:first');
+    var $form = $body.parent();
+    $form.submit(function() {
+      var $form = $(this);
+      var title = $form.find('input[type="text"]:first').val();
+      if (!title.length) {
+        alert('Title is a required field.');
+        return false;
+      };
+      $body.find('.btn:last').prop('disabled',true);
+      // Create edition JSON
+      var callback = function(obj) {
+        $body.find('.btn:last').prop('disabled',false);
+        console.log(obj);
+        $('#createEdition').modal('hide');
+        var $select_edition = $('#select_edition');
+        if (!$select_edition.find('li.divider').length) {
+          $select_edition.append('<li role="separator" class="divider"></li>');
+        } else {
+          $select_edition.find('li.divider').nextAll().remove();
+        };
+
+        var latestEditionTitle = obj[obj.length-1].title;
+        $('.edition_title').text(latestEditionTitle);
+
+        var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+        for (var j = obj.length-1; j >= 0; j--) {
+          var $li = $('<li'+((index!=='' && j==parseInt(index))?' class="active"':'')+'><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
+          $li.find('a').attr('data-title', obj[j].title);
+        };
+        if (navigator.cookieEnabled && ''!==index) {
+          $('#select_edition').find('a[data-index="'+index+'"]').click();
+        };
+      };
+      createNewEdition({title:title,callback:callback});
+      return false;
+    });
+  });
 
     // Manage editions modal
 	$('#manageEditions').on('show.bs.modal', function() {
@@ -492,17 +534,16 @@ STR;
 					return;
 				};
 				$body.empty();
+        $body.append('<p>Roll over an edition to reveal editing options.</p>');
 				// List of editions
-				$('<div class="row title"><div class="col-sm-12">Editions</div></div>').appendTo($body);
 				if ('undefined'!=typeof(json) && json.length) {
 					$table = $('<div class="table-responsive"></div>').appendTo($body);
-					$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th style="text-align:center;">#</th><th>Title</th><th>Created</th><th style="text-align:center;">Pages</th><th></th><th></th></tr></thead><tbody></tbody></table>');
+					$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Title</th><th>Created</th><th style="text-align:center;">Pages</th><th></th><th></th></tr></thead><tbody></tbody></table>');
 					for (var j = json.length-1; j >= 0; j--) {
 						json[j].formatted = timeConverter(json[j].timestamp);
 						json[j].checked = (0==j) ? true : false;
 						json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
 					    $row = $('<tr data-index="'+j+'"></tr>').appendTo($table.find('tbody:first'));
-					    $row.append('<td style="vertical-align:middle;text-align:center;">'+(j+1)+'</td>');
 					    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
 					    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
 					    $row.append('<td style="vertical-align:middle;text-align:center;">'+Object.keys(json[j].pages).length+'</td>');
@@ -542,9 +583,11 @@ STR;
 								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
 								var $select_edition = $('#select_edition');
 								$select_edition.find('li.divider').nextAll().remove();
+                var latestEditionTitle = data[data.length-1].title;
+                $('.edition_title').text(latestEditionTitle);
 								var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
 							    for (var j = data.length-1; j >= 0; j--) {
-									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+(j+1)+'. &nbsp; '+data[j].title+'</a></li>').appendTo($select_edition);
+									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
 									$li.find('a').attr('data-title', data[j].title);
 								};
 								$select_edition.find('a[data-index="'+cindex+'"]').click();					
@@ -577,9 +620,11 @@ STR;
 								document.cookie = "scalar_edition_index=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
 								var $select_edition = $('#select_edition');
 								$select_edition.find('li.divider').nextAll().remove();
+                var latestEditionTitle = obj[obj.length-1].title;
+                $('.edition_title').text(latestEditionTitle);
 								var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
 							    for (var j = obj.length-1; j >= 0; j--) {
-									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+(j+1)+'. &nbsp; '+obj[j].title+'</a></li>').appendTo($select_edition);
+									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
 									$li.find('a').attr('data-title', obj[j].title);
 								};
 								$select_edition.find('a:first').click();
@@ -588,53 +633,6 @@ STR;
 					});
 				} else {
 					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
-				};
-				// Create new edition
-				var can_create_edition = true;
-				for (var type in count) {
-					if ('ready'==type || 'hidden'==type || 'empty'==type) continue;
-					if (parseInt(count[type]) > 0) can_create_edition = false; 
-				};
-				can_create_edition = true;  // Temp
-				$('<div class="row title"><div class="col-sm-12">Create</div></div>').appendTo($body);
-				if (!can_create_edition) {
-					$body.append('<p>Right now you can\'t create a new Edition.  All of your pages must be in <b>Ready</b> state.</p>');
-					return;					
-				} else {
-					$body.append('<p>You can create a new Edition since all of your pages are in <b>Ready</b> state.</p>');
-					var $fields_row = $('<form class="row fields"></form').appendTo($body);
-					$fields_row.append('<div class="col-sm-8"><div class="input-group"><input required type="text" class="form-control" placeholder="Edition title"><span class="input-group-btn"><button class="btn btn-primary" type="submit">Create</button></span></div>');
-					$fields_row.submit(function() {
-						var $form = $(this);
-						var title = $form.find('input[type="text"]:first').val();
-						if (!title.length) {
-							alert('Title is a required field.');
-							return false;
-						};
-						$form.find('.btn:last').prop('disabled',true);
-						// Create edition JSON
-						var callback = function(obj) {
-							$form.find('.btn:last').prop('disabled',false);
-							console.log(obj);
-							$('#manageEditions').trigger('show.bs.modal');
-							var $select_edition = $('#select_edition');
-							if (!$select_edition.find('li.divider').length) {
-								$select_edition.append('<li role="separator" class="divider"></li>');
-							} else {
-								$select_edition.find('li.divider').nextAll().remove();
-							};
-							var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
-						    for (var j = obj.length-1; j >= 0; j--) {
-								var $li = $('<li'+((index!=='' && j==parseInt(index))?' class="active"':'')+'><a href="javascript:void(null);" data-index="'+j+'">'+(j+1)+'. &nbsp; '+obj[j].title+'</a></li>').appendTo($select_edition);
-								$li.find('a').attr('data-title', obj[j].title);
-							};
-							if (navigator.cookieEnabled && ''!==index) {
-								$('#select_edition').find('a[data-index="'+index+'"]').click();
-							};
-						};
-						createNewEdition({title:title,callback:callback});
-						return false;
-					});
 				};
 			});
 		});
@@ -667,41 +665,30 @@ STR;
 </script>
 
 <div class="container-fluid properties">
-  <div class="row editions">
-    <div class="col-sm-12">
-      <h3 class="message">There <span id="num_editions_str"><?php
-      if (!empty($book->editions)) {
-	      if (1 == count($book->editions)) {
-	      	echo 'is 1 edition';
-	      } else {
-	      	echo 'are '.count($book->editions).' editions';
-	      }
-      } else {
-      	echo 'are no editions';
+  <?php
+    $edition_count = count($book->editions);
+    if (!empty($book->editions)) {
+      echo '<div class="row editions">';
+      echo '<div class="col-sm-12">';
+      echo '<h3 class="message"><strong><span class="edition_title">'.$book->editions[$edition_count-1]['title'].'</span></strong> is the currently published edition of this '.$book->scope.'.</h3>';
+      echo '<p class="message">Published editions are read-only, and subsequent changes appear in <strong>Latest edits</strong>.</p><p class="message">Choose an edition to view:</p>';
+      echo '<div class="btn-group">';
+      echo '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Latest edits &nbsp; <span class="caret"></span></button> &nbsp; ';
+      echo '<ul class="dropdown-menu" id="select_edition">';
+      echo '<li class="active"><a href="javascript:void(null);" data-index="" data-title="Latest edits">Latest edits</a></li>';
+      echo '<li role="separator" class="divider"></li>'."\n";
+      for ($j = count($book->editions)-1; $j >= 0; $j--) {
+        echo '<li>';
+        echo '<a href="javascript:void(null);" data-index="'.$j.'" data-title="'.htmlspecialchars($book->editions[$j]['title']).'">'.$book->editions[$j]['title'].'</a>';
+        echo '</li>'."\n";
       }
-      ?></span> of this <?=$book->scope?></h3>
-      <p class="message">You can create new editions that checkpoint the work you are doing.</p>
-      <div class="btn-group">
-	    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	      Seeing latest edits &nbsp; <span class="caret"></span>
-	    </button>
-	    <ul class="dropdown-menu" id="select_edition">
-	      <li class="active"><a href="javascript:void(null);" data-index="" data-title="latest edits">Latest edits</a></li>
-	      <?php
-	      if (!empty($book->editions)) {
-		      echo '<li role="separator" class="divider"></li>'."\n";
-		      for ($j = count($book->editions)-1; $j >= 0; $j--) {
-		      	echo '<li>';
-		      	echo '<a href="javascript:void(null);" data-index="'.$j.'" data-title="'.htmlspecialchars($book->editions[$j]['title']).'">'.($j+1).'. &nbsp; '.$book->editions[$j]['title'].'</a>';
-		      	echo '</li>'."\n";
-		      }
-	      }
-	      ?>
-	    </ul>
-	  </div> &nbsp; 
-	  <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>
-    </div>
-  </div>
+      echo '</ul>';
+      echo '</div>';
+      echo '&nbsp; <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>';
+      echo '</div>';
+      echo '</div>';
+    }
+  ?>
   <div class="row editorial-summary">
     <div class="col-md-8">
       <div id="primary-message" class="message-pane">
@@ -764,6 +751,25 @@ STR;
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="createEdition" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>Create an edition</h4>
+      </div>
+      <form>
+      <div class="modal-body caption_font">
+        <p>Enter the title of the new edition:</p>
+        <input required type="text" class="form-control">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit">Create edition</button>
       </div>
       </form>
     </div>
