@@ -120,13 +120,15 @@ STR;
       'published': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Any changes you make to the '+project_type+' will be published automatically.'
+          'next_task': 'Any changes you make to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'’s current state.',
+          'next_task_buttons': ['Create a new edition'],
+          'next_task_ids': ['newEdition']
         }
       },
       'publishedWithEditions': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Once an edition is created, its content cannot be changed. Any changes you make will be moved to the <strong>Latest edits</strong> edition for editorial review.'
+          'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.'
         }
       },
      'empty': {
@@ -224,7 +226,7 @@ STR;
       'publishedWithEditions': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Once an edition is created, its content cannot be changed. Any changes will be moved to the <strong>Latest edits</strong> edition for editorial review.'
+          'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.'
         }
       },
       'empty': {
@@ -694,9 +696,7 @@ STR;
       }
       echo '</ul>';
       echo '</div>';
-      if ($user_level == 'Editor') {
-        echo '&nbsp; <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>';
-      }
+      echo '&nbsp; <button class="btn btn-default" data-toggle="modal" data-target="#manageEditions">Manage editions</button>';
       echo '</div>';
       echo '</div>';
     }
