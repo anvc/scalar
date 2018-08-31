@@ -279,6 +279,7 @@ STR;
     		data: {version_id:version_ids,state:newState},
     		success: function(data) {
     		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);
+          $('body').trigger('statesChanged');
     		},
     		error: function(error) {
     	 	  alert('Something went wrong while attempting to save: '+error);
@@ -336,9 +337,7 @@ STR;
 	    }
 	    return "";
 	}
-
-  $(document).ready(function() {
-
+  function recalculate_graphs(){
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id,
       success: function(data) {
@@ -401,30 +400,38 @@ STR;
         var percentage;
         var key;
         var item_quantifier;
-        for (var index in editorial_state_array) {
-          key = editorial_state_array[index];
-          if (data[key] > 0) {
-            percentage = parseFloat(data[key]) / content_count * 100;
-            item_quantifier = (data[key] != 1) ? 'items' : 'item';
-            $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
+
+        $('.editorial-gauge').fadeOut('fast',function(){
+          $(this).html('');
+          for (var index in editorial_state_array) {
+            key = editorial_state_array[index];
+            if (data[key] > 0) {
+              percentage = parseFloat(data[key]) / content_count * 100;
+              item_quantifier = (data[key] != 1) ? 'items' : 'item';
+              $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
+            }
           }
-        }
-        $('.editorial-fragment').each(function() {
-          $(this).popover({ 
-            trigger: "hover click", 
-            html: true, 
-            template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+          $('.editorial-fragment').each(function() {
+            $(this).popover({ 
+              trigger: "hover click", 
+              html: true, 
+              template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+            });
           });
+
+          $('.editorial-gauge').fadeIn('fast');
         });
 
         $(window).resize(calculateFragmentOverflow);
         calculateFragmentOverflow();
-
         // build the usage rights gauge
         if (content_count > 0) {
-          usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
-          item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
-          $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a></div></span>');
+          $('.usage-rights-gauge').fadeOut('fast',function(){
+            $(this).html('');
+            usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
+            item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
+            $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a></div></span>').fadeIn('fast');
+          });
         }
 
         // build the next steps messaging
@@ -455,6 +462,11 @@ STR;
         }
       }
     }); // Ajax
+  }
+  var state_info_base_html;
+  $(document).ready(function() {
+    state_info_base_html = $('.editorial-summary').html();
+    $('body').on('statesChanged',recalculate_graphs).trigger('statesChanged');
 
     // Select edition to be viewing
     $(document).on("click", "#select_edition a", function() {
