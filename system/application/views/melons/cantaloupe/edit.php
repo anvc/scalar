@@ -640,7 +640,13 @@ switch($currentState){
 		break;
 	case 'ready':
 		if($currentRole == 'editor'){
-			$availableStates = array_slice($editorialStates,2,4);
+			$availableStates = array_slice($editorialStates,3,3);
+			$canChangeState = true;
+		}
+		break;
+	case 'published':
+		if($currentRole == 'editor'){
+			$availableStates = array_slice($editorialStates,-2,2);
 			$canChangeState = true;
 		}
 		break;
