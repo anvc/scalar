@@ -1166,6 +1166,14 @@
                 var $footer = $('#footer');
                 $footer.append('<div id="colophon" class="caption_font"><p id="scalar-credit"></p></div>');
                 var $par = $footer.find('#scalar-credit');
+                var editionNum = scalarapi.getEdition(document.location.href);
+                if (editionNum != -1) {
+                    var bookURL = $('link#parent').attr('href');
+                    bookURL = bookURL.substr(0, bookURL.length-1);
+                    var editionData = $('span[resource="'+bookURL+'"]');
+                    var editionName = editionData.find('span[property="dcterms:title"]').text();
+                    $par.append(editionName+' | ');
+                }
                 if (null !== currentNode.current.number) { // Make sure there is a version .. Added by Craig 6 December 2015
                     $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '" title="Go to permalink">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date(currentNode.current.created).toLocaleDateString() + ' ');
                     if ('undefined' != currentNode.paywall && 1 == parseInt(currentNode.paywall)) $par.append('&nbsp;<span class="glyphicon glyphicon-lock" aria-hidden="true" title="This page is protected by the paywall"></span> ');
@@ -3090,7 +3098,6 @@
             }
             page.setupScreenedBackground();
         }
-
 
         return page;
 
