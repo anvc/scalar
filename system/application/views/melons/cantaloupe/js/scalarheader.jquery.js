@@ -853,7 +853,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 }).addClass('overflowCalculated');
             },base));
 
-            if(base.dataType == 'normal' && base.editorialWorkflowEnabled){
+            if(base.dataType == 'normal' && base.editorialWorkflowEnabled && scalarapi.getEdition(document.location.href) == -1){
                 base.setupEditorialBar();
             }
 
