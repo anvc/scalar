@@ -1764,7 +1764,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var footer_height = $(this).find('.panel-footer').outerHeight();
 			
 			height -= (heading_height+body_height+footer_height);
-			height = Math.max(height, 50);
+			height = Math.max(height, 300);
 
 			$dialogue_container.find('.node_selector_table_body').height(height).find('table').show();
 
@@ -1842,11 +1842,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if (!isLazyLoad) {
 					$rows.html('');
 				} else {
-					start = $rows.find('tr').length;
 					$rows.find('.loadingRow').remove();
+					start = $rows.find('tr').length;
 				}
 
 				for (var i = start; i < data.length; i++) {
+					
 					var item = data[i];
 					var index = -1;
 					if (undefined !== $dialogue_container.data('nodes')) {
@@ -1864,6 +1865,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var content_urn = item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 						content_id = content_urn.substr(content_urn.lastIndexOf(':')+1);
 					};
+
+					if($('tr[data-content-id="'+content_id+'"]').length > 0) continue;
+
 					var version_id = 0;
 					if ('undefined'!=typeof(item.version) && 'undefined'!=typeof(item.version['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) {
 						var version_urn = item.version['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
@@ -2331,8 +2335,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$(this).find('.spinner_container').hide();
 			$(this).find('.node_types .btn').prop('disabled', false).removeClass('disabled');
 
-
+			//Get current scroll...
+			var oldScroll = $dialogue_container.find('.node_selector_table_body').scrollTop();
 			resize();
+			$dialogue_container.find('.node_selector_table_body').scrollTop(oldScroll);
 		}, $dialogue_container);
 
 		var updateSelectedCounter = $.proxy(function() {
