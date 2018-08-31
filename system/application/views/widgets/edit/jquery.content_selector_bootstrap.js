@@ -2600,6 +2600,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$dialogue_container.find('.panel-footer button').prop('disabled',false).removeClass('disabled');
 					$dialogue_container.find('.panel-footer .dropdown-menu li').show().not(changeOptionsSelector).hide();
 				}
+				$dialogue_container.data('nodes',[]);
+				$dialogue_container.find('.selected_node_count').text('No items selected');
 			}
 
 			$dialogue_container.find('.node_search>input').attr('placeholder', 'Search ' + typeName + ' by title or description');
