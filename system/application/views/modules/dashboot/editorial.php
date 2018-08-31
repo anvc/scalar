@@ -199,7 +199,7 @@ STR;
         'all': {
           'current_task': 'Publish it whenever the time is right.',
           'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available.',
-          'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Published</strong>'],
+          'next_task_buttons': ['Move all content to <strong>Published</strong>'],
           'next_task_ids': ['allToPublished']
         },
         'majority': {
