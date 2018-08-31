@@ -2289,6 +2289,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						push_row(post, function(data) {
 							if (data.error) return alert(data.error);
 							$this.prop('checked', ((parseInt(data.usage_rights))?true:false));
+
+    						$('body').trigger('updateGraph','usageOnly');
 						});
 					};
 				});

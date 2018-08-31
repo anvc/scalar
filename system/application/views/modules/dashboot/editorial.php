@@ -279,7 +279,7 @@ STR;
     		data: {version_id:version_ids,state:newState},
     		success: function(data) {
     		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);
-          $('body').trigger('statesChanged');
+          $('body').trigger('updateGraph','statesOnly');
     		},
     		error: function(error) {
     	 	  alert('Something went wrong while attempting to save: '+error);
@@ -337,7 +337,11 @@ STR;
 	    }
 	    return "";
 	}
-  function recalculate_graphs(){
+  function recalculate_graphs(e,scope){
+    if(typeof scope === 'undefined' || scope == null || scope == ''){
+      scope = 'all';
+    }
+    console.log(scope);
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id,
       success: function(data) {
@@ -400,42 +404,43 @@ STR;
         var percentage;
         var key;
         var item_quantifier;
-
-        $('.editorial-gauge').fadeOut('fast',function(){
-          $(this).html('');
-          for (var index in editorial_state_array) {
-            key = editorial_state_array[index];
-            if (data[key] > 0) {
-              percentage = parseFloat(data[key]) / content_count * 100;
-              item_quantifier = (data[key] != 1) ? 'items' : 'item';
-              $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
+        if(scope !== 'usageOnly'){
+          $('.editorial-gauge').fadeOut(100,function(){
+            $(this).html('');
+            for (var index in editorial_state_array) {
+              key = editorial_state_array[index];
+              if (data[key] > 0) {
+                percentage = parseFloat(data[key]) / content_count * 100;
+                item_quantifier = (data[key] != 1) ? 'items' : 'item';
+                $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
+              }
             }
-          }
-          $('.editorial-fragment').each(function() {
-            $(this).popover({ 
-              trigger: "hover click", 
-              html: true, 
-              template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+            $('.editorial-fragment').each(function() {
+              $(this).popover({ 
+                trigger: "hover click", 
+                html: true, 
+                template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+              });
             });
-          });
 
-          $('.editorial-gauge').fadeIn('fast');
-        });
+            $('.editorial-gauge').fadeIn(100);
+          });
+        }
 
         $(window).resize(calculateFragmentOverflow);
         calculateFragmentOverflow();
         // build the usage rights gauge
-        if (content_count > 0) {
-          $('.usage-rights-gauge').fadeOut('fast',function(){
+        if (content_count > 0 && scope !== 'statesOnly') {
+          $('.usage-rights-gauge').fadeOut(100,function(){
             $(this).html('');
             usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
             item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
-            $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a></div></span>').fadeIn('fast');
+            $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a></div></span>').fadeIn(100);
           });
         }
 
         // build the next steps messaging
-        $('#secondary-message').append('<p>'+current_messaging['next_task']+'</p>');
+        $('#secondary-message').html('').append('<p>'+current_messaging['next_task']+'</p>');
         for (var index in current_messaging['next_task_buttons']) {
           var button = $('<button class="btn btn-block btn-state '+editorial_state['next']+'-state">'+current_messaging['next_task_buttons'][index]+'</button>').appendTo($('#secondary-message'));
           switch (current_messaging['next_task_ids'][index]) {
@@ -466,7 +471,7 @@ STR;
   var state_info_base_html;
   $(document).ready(function() {
     state_info_base_html = $('.editorial-summary').html();
-    $('body').on('statesChanged',recalculate_graphs).trigger('statesChanged');
+    $('body').on('updateGraph',recalculate_graphs).trigger('updateGraph');
 
     // Select edition to be viewing
     $(document).on("click", "#select_edition a", function() {
