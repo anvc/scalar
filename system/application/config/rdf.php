@@ -91,6 +91,7 @@ $config['rdf_fields'] = array(
 		'editorial_queries' =>		'scalar:editorial_queries',
 		'citation' =>				'scalar:citation',
 		'category' =>               'scalar:category',
+		'has_edition' =>			'scalar:hasEdition',
 		'version_num' => 			'ov:versionnumber',
 		'content' => 				'sioc:content',
 		'users' =>					'sioc:has_owner',

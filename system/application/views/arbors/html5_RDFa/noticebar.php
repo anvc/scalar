@@ -4,11 +4,6 @@ if ($mode || empty($page) || !isset($page->user) || !isset($book->contributors) 
 // Is Editorial Workflow on?
 $editorial = (isset($book->editorial_is_on) && $book->editorial_is_on) ? true : false;
 
-// Is this in an edition?
-if (isset($book->editions[$book->edition_num-1])) {
-	echo '<div style="float:right;margin-right:20px;">'.$book->editions[$book->edition_num-1]['title'].'</div>';
-}
-
 // List of categories to point out in a notice
 $categories_display_notice = array('review', 'commentary');
 

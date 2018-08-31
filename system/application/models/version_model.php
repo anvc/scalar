@@ -68,6 +68,10 @@ class Version_model extends MY_Model {
   				//$row->url[$key] = linkencode($row->url[$key], true);
   			}
   		}
+  		// dcterms:created
+  		if (isset($row->timestamp) && !empty($row->timestamp)) {
+  			if (!isset($row->created) || empty($row->created)) $row->created = date("F j, Y, g:i a", $row->timestamp);
+  		}
   		
   		// Only show queries on edit page
   		if (isset($row->queries)) {

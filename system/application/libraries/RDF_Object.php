@@ -257,6 +257,14 @@ class RDF_Object {
 			$user_base = $settings['base_uri'].'users/'.$row->user_id;
 			$settings['book']->users[] = $user_base.$this->annotation_append($row);
 		}
+		
+		// Editions
+		if (isset($settings['book']->editions) && !empty($settings['book']->editions)) {
+			$settings['book']->has_edition = array();
+			for ($j = count($settings['book']->editions)-1; $j >= 0; $j--) {
+				$settings['book']->has_edition[] = rtrim($settings['base_uri'],'/').'.'.($j+1);
+			}
+		}
 
 		// Book node
 	 	$return[rtrim($settings['base_uri'],'/')] = $CI->books->rdf($settings['book'], $settings['base_uri']);
@@ -291,6 +299,14 @@ class RDF_Object {
 			$return[$settings['base_uri'].$row->slug] = $CI->pages->rdf($row, $settings['base_uri']);
 			foreach ($row->versions as $version) {
 				$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
+			}
+		}
+		
+		// Edition nodes
+		if (isset($settings['book']->editions) && !empty($settings['book']->editions)) {
+			for ($j = count($settings['book']->editions)-1; $j >= 0; $j--) {
+				$settings['book']->editions[$j]['type'] = 'Edition';
+				$return[rtrim($settings['base_uri'],'/').'.'.($j+1)] = $CI->versions->rdf((object) $settings['book']->editions[$j], $settings['base_uri']);
 			}
 		}
 

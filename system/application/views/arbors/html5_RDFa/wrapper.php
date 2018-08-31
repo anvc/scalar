@@ -182,7 +182,7 @@ endif;
 		<!-- Book -->
 		<span resource="<?=rtrim($base_uri,'/')?>" typeof="scalar:Book">
 			<span property="dcterms:title" content="<?=htmlspecialchars(strip_tags($book->title))?>"><a id="book-title" href="<?=$base_uri?>index"><?=$book->title?><?=(isset($book->subtitle)&&!empty($book->subtitle))?'<span class="subtitle">: '.$book->subtitle.'</span>':''?></a></span>
-<? if (isset($page->slug)) echo '			<a class="metadata" aria-hidden="true" rel="dcterms:hasPart" href="'.$base_uri.$page->slug.'"></a>'."\n"; ?>
+<? 			if (isset($page->slug)) echo '			<a class="metadata" aria-hidden="true" rel="dcterms:hasPart" href="'.$base_uri.$page->slug.'"></a>'."\n"; ?>
 			<a class="metadata" aria-hidden="true" rel="dcterms:tableOfContents" href="<?=$base_uri?>toc"></a>
 <?
 			foreach ($book->contributors as $contrib):
@@ -190,7 +190,14 @@ endif;
 				echo '			<a class="metadata" aria-hidden="true" rel="sioc:has_owner" href="'.$base_uri.'users/'.$contrib->user_id.$this->rdf_object->annotation_append($contrib).'"></a>'."\n";
 			endforeach;
 ?>
-<?=(($publisher||$publisher_thumbnail)?'			<a class="metadata" aria-hidden="true" rel="dcterms:publisher" href="'.$base_uri.'publisher"></a>'."\n":'')?>
+<?			echo (($publisher||$publisher_thumbnail) ? '			<a class="metadata" aria-hidden="true" rel="dcterms:publisher" href="'.$base_uri.'publisher"></a>'."\n" : '')?>
+<?
+			if (!empty($book->editions)):
+				for ($j = count($book->editions)-1; $j >= 0; $j--):
+					echo '			<a class="metadata" aria-hidden="true" rel="scalar:hasEdition" href="'.base_url().$book->slug.'.'.($j+1).'"></a>'."\n";
+				endfor;
+			endif;
+?>
 		</span>
 		<span aria-hidden="true" resource="<?=$base_uri?>toc" typeof="scalar:Page">
 			<span class="metadata" property="dcterms:title">Main Menu</span>
@@ -222,10 +229,19 @@ endif;
 ?>
 		<span aria-hidden="true" resource="<?=$base_uri?>publisher" typeof="scalar:Page">
 			<span class="metadata" property="dcterms:title"><?=$publisher?></span>
-<? if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
+<? 		if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
 		</span>
 <?		endif; ?>
-<?php if (isset($page) && !empty($page)): ?>
+<?
+		if (!empty($book->editions)):
+			for ($j = count($book->editions)-1; $j >= 0; $j--):
+				echo '		<span resource="'.base_url().$book->slug.'.'.($j+1).'" typeof="scalar:Edition">'."\n";
+				print_rdf($this->versions->rdf((object) $book->editions[$j], base_url().$book->slug.'.'.($j+1)), 3, $ns, array(), false, array(), array('dcterms:title'));
+				echo '		</span>'."\n";
+			endfor;
+		endif;	
+?>
+<? if (isset($page) && !empty($page)): ?>
 		<!-- Page -->
 		<h1 property="dcterms:title"><?=$title?></h1>
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
