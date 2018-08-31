@@ -266,6 +266,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 if($('body').hasClass('isReviewing')){
                     base.waitingForReview = false;
                     base.restoreEditor();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(1)').remove();
+                    base.$editsPanel.remove();
                     $('body').removeClass('isReviewing');
                 }
             });
