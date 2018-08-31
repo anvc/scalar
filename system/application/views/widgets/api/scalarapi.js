@@ -1004,6 +1004,22 @@ ScalarAPI.prototype.stripEdition = function(editionURI) {
 	return uri;
 }
 
+ScalarAPI.prototype.getEdition = function(editionURI) {
+	var editionNum = -1;
+	var tempA = editionURI.split( '/' );
+	if ( tempA[ tempA.length - 1 ] == '' ) {
+		tempA.pop();
+	}
+	var segment = tempA[ tempA.length - 2];
+	if (segment != null) {
+		var tempB = segment.split('.');
+		if (tempB.length > 1) {
+			editionNum = parseInt(tempB[tempB.length - 1]);
+		}
+	}
+	return editionNum;
+}
+
 ScalarAPI.prototype.stripEditionAndVersion = function(uri) {
 	return scalarapi.stripEdition(scalarapi.stripVersion(uri));
 }
