@@ -354,8 +354,9 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     $('span[data-diff="chunk"]').each(function(){
                         var container = 'body';
                         var this_chunkID = chunkID++;
-
+                        console.log($(this));
                         if($(this).find('span[data-diff]>a[data-widget],span[data-diff]>a[resource]').length > 1){
+
                             //Also build a list of changes...But only if we are replacing a visual element with another
                             var $old = $(this).children().first().children('a[data-widget],a[resource]');
                             var $new = $(this).children().last().children('a[data-widget],a[resource]');
@@ -369,6 +370,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 }).on('shown.bs.tooltip',function(){
                                     $chunk = $(this);
                                     $('.viewFormatting').off('click').click(function(){
+                                        console.log('test');
                                         $('#editorialReviewFormattingChangesList tr').hide();
                                         $('#editorialReviewFormattingChangesList tr[data-chunk="'+$chunk.data('chunk_id')+'"]').show();
 
@@ -554,7 +556,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         var listLength = attribute.value.split(',').length;
                         var value = '<span class="childNodeList">'+ listLength + ' item'+(listLength!=1?'s':'')+'</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>';
                     }
+                }else if(!!attribute){
+                    var value = attribute.value;
                 }else{
+                    var attribute = parsedNewAttr[a] = {value:"<em>(removed)</em>",changed:true}
                     var value = attribute.value;
                 }
                 changeHTML += '<div class="row"><div class="col-xs-4 attribute">'+a.replace('data-','')+'</div><div class="col-xs-8'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
@@ -571,19 +576,19 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $row.find('.btn-danger').click(function(e){
                 e.preventDefault();
                 $(this).parents('td').find('.btn-danger,.btn-success').hide();
-                $(this).parents('td').addClass('rejected');
+                $(this).parents('tr').addClass('rejected');
                 return false;
             });
             $row.find('.btn-success').click(function(e){
                 e.preventDefault();
                 $(this).parents('td').find('.btn-danger,.btn-success').hide();
-                $(this).parents('td').addClass('accepted');
+                $(this).parents('tr').addClass('accepted');
                 return false;
             });
             $row.find('.btn-default').click(function(e){
                 e.preventDefault();
                 $(this).parents('td').find('.btn-danger,.btn-success').show();
-                $(this).parents('td').removeClass('rejected accepted');
+                $(this).parents('tr').removeClass('rejected accepted');
                 return false;
             });
             $row.find('.showAll').click(function(e){
@@ -674,7 +679,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         };
 
         base.calculatePendingVisualChanges = function(){
-            var num_changes = $('#editorialReviewFormattingChangesList tr').length;
+            var num_changes = $('#editorialReviewFormattingChangesList tr:not(.accepted,.rejected)').length;
             $('#formatting_notice').toggle(num_changes > 0);
             $('#formatting_notice .plural').toggle(num_changes > 1);
             $('#formatting_notice .singular').toggle(num_changes == 1);
@@ -685,15 +690,15 @@ CKEDITOR.plugins.add( 'editorialTools', {
             if( (base.is_author && base.editorialState === "editreview") ||
                 (base.is_editor && base.editorialState === "clean") ){
                 $('#editorialReviewFormattingChangesCommit').click(function(){
-                    $('#editorialReviewFormattingChangesList td.accepted,#editorialReviewFormattingChangesList td.rejected').each(function(){
+                    $('#editorialReviewFormattingChangesList tr.accepted,#editorialReviewFormattingChangesList tr.rejected').each(function(){
                         if($(this).hasClass('rejected')){
                             $('span[data-diff="chunk"]').tooltip('hide');
-                            base.rejectEdit($(this).parent().data('$chunk'));
+                            base.rejectEdit($(this).data('$chunk'));
                         }else{
                             $('span[data-diff="chunk"]').tooltip('hide');
-                            base.acceptEdit($(this).parent().data('$chunk'));
+                            base.acceptEdit($(this).data('$chunk'));
                         }
-                        $(this).parent().remove();
+                        //$(this).parent().remove();
                     });
                     base.calculatePendingVisualChanges();
                     $('#editorialReviewFormattingChanges').modal('hide');

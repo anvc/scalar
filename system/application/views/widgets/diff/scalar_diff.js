@@ -326,7 +326,10 @@ var scalar_diff = {
                 
             //We don't need to show both versions of a media/widget link - hide the older one
             if($(this).find('span[data-diff]:last').find('a[data-widget],a[resource]').length > 0){
-                $(this).find('span[data-diff]:first').find('a[data-widget],a[resource]').addClass('hiddenVisual');
+                var $first = $(this).find('span[data-diff]:first').find('a[data-widget],a[resource]');
+                if($first.length > 0){
+                    $first.addClass('hiddenVisual').parents('span[data-diff="chunk"]').addClass('showSolo');
+                }
             }
         });
 

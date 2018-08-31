@@ -49,19 +49,27 @@ span.br_tag::before,span.p_tag::before{
 	top: 50%;
 }
 
-span[data-diff="chunk"].accepted a.inline, span[data-diff="chunk"].rejected a.inline{
-	background-color:#cccccc; 
-	border:solid 5px #bbbbbb; 
+span[data-diff="chunk"].accepted a.inline{
+	background-color: #449d44 !important;
+    border: solid 5px #398439;
+}
+span[data-diff="chunk"].rejected a.inline{
+    background-color: #c9302c !important;
+    border: solid 5px #ac2925;
 }
 
 span[data-diff="chunk"].accepted, span[data-diff="chunk"].accepted span[data-diff],span[data-diff="chunk"].accepted span[data-diff]>*{
-	background-color: #dff0d9;
+	background-color: #A1FFA5;
 }
 span[data-diff="chunk"].rejected, span[data-diff="chunk"].rejected span[data-diff],span[data-diff="chunk"].rejected span[data-diff]>*{
-	background-color: #f1dede;
+	background-color: #FFA4A1;
 }
 
 span[data-diff="chunk"].accepted span[data-diff]:first-child,span[data-diff="chunk"].rejected span[data-diff]:nth-child(2){
+	text-decoration-line: line-through;
+	-webkit-text-decoration-line: line-through;
+}
+span[data-diff="chunk"].accepted.showSolo span[data-diff]:first-child,span[data-diff="chunk"].rejected.showSolo span[data-diff]:nth-child(2){
 	display: none;
 }
 span[data-diff="chunk"].rejected span[data-diff="del"],span[data-diff="chunk"].rejected span[data-diff="placeholder"]:first-child{
@@ -70,4 +78,11 @@ span[data-diff="chunk"].rejected span[data-diff="del"],span[data-diff="chunk"].r
 
 span[data-diff="chunk"].rejected span[data-diff]:first-child > a.inline::after{
     display: none;
+}
+
+#editorialReviewFormattingChangesList tr.accepted{
+	background-color: #dff0d9
+}
+#editorialReviewFormattingChangesList tr.rejected{
+	background-color: #f1dede
 }
