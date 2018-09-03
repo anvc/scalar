@@ -2596,10 +2596,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var canChange = typeof state_flow[className] !== 'undefined' && state_flow[className] != null && state_flow[className].length > 0;
 				
 				if(!canChange){
-					$dialogue_container.find('.panel-footer button').prop('disabled',true).addClass('disabled');
+					$dialogue_container.find('.panel-footer button').prop('disabled',true).addClass('disabled').hide();
 				}else{
 					var changeOptionsSelector = '.'+(state_flow[className].join(',.'));
-					$dialogue_container.find('.panel-footer button').prop('disabled',false).removeClass('disabled');
+					$dialogue_container.find('.panel-footer button').prop('disabled',false).removeClass('disabled').show();
 					$dialogue_container.find('.panel-footer .dropdown-menu li').show().not(changeOptionsSelector).hide();
 				}
 				$dialogue_container.data('nodes',[]);
