@@ -515,6 +515,7 @@ a:hover { text-decoration: underline; }
 [typeof="tk:TKLabel"] {float:right; width:40px; margin-left:10px;}
 [typeof="tk:TKLabel"] > img {width:100%;}
 [typeof="tk:TKLabel"] > span {display:none;}
+[typeof="tk:TKLabel"].last {margin-right:7.2rem;}
 
 /* --- SPLASH --- */
 

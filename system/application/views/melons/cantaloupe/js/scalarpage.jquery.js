@@ -1142,6 +1142,7 @@
             	var $labels = $('article header [typeof="tk:TKLabel"]');
             	var hasLabels = ($labels.length) ? true : false;
             	if (!hasLabels) return;
+            	$labels.first().addClass('last');  // Because of float:right the first is actually the last
             	$labels.each(function() {
             		var $label = $(this);
             		$label.css('display', 'inline-block');

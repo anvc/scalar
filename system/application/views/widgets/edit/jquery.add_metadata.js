@@ -178,6 +178,7 @@
     	if ($insert_into.children().length) return;
     	opts = $.extend( {}, defaults, options )
     	var can_localstorage = 'localStorage' in window && window['localStorage'] !== null;
+    	var skip_prefix = ['tk'];
     	
     	var arr = null;
     	if (can_localstorage) {
@@ -187,12 +188,13 @@
     			if (!$.isEmptyObject(obj)) {
     				arr = [];
 	    			for (var j in obj) {
+	    				if (skip_prefix.indexOf( obj[j].name.split(':')[0] ) != -1) continue;
 	    				arr.push(obj[j].name);
 	    			};
     			};
     		};
     	};
-    	if (!arr) {
+    	if (!arr || !arr.length) {
     		arr = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
     	};
     	

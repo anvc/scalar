@@ -155,7 +155,7 @@ Class Api extends CI_Controller {
 		$this->_do_relate($this->data['version_id']);
 		
 		//tklabels
-		if (!empty($this->tklabels)) {
+		if (!empty($this->tklabels) && !empty($this->tklabels['versions']['_0'])) {
 			$this->tklabels['versions'][$this->data['version_id']] = $this->tklabels['versions']['_0'];
 			unset($this->tklabels['versions']['_0']);
 			$this->_tklabels($this->user->book_id, $this->tklabels);
@@ -215,7 +215,7 @@ Class Api extends CI_Controller {
 		$this->data['version_id'] = $this->versions->create($this->data['content_id'], $save_version);
 
 		//tklabels
-		if (!empty($this->tklabels)) {
+		if (!empty($this->tklabels) && !empty($this->tklabels['versions']['_0'])) {
 			$this->tklabels['versions'][$this->data['version_id']] = $this->tklabels['versions']['_0'];
 			unset($this->tklabels['versions']['_0']);
 			$this->_tklabels($this->user->book_id, $this->tklabels);
@@ -355,6 +355,7 @@ Class Api extends CI_Controller {
 				if (substr($key, 0, strlen($prefix))==$prefix) $this->data[$key] = $value;
 			}
 			if (!empty($this->tklabels) && 'tk:hasLabel' == $key) {
+				if (!is_array($value)) $value = array($value);
 				foreach ($value as $tk) {
 					$code = substr($tk, 3);  // $tk has tk prefix, too
 					for ($j = 0; $j < count($this->tklabels['labels']); $j++) {  // Make sure code exists
@@ -479,6 +480,7 @@ Class Api extends CI_Controller {
 				if (substr($key, 0, strlen($prefix))==$prefix) $this->data[$key] = $value;
 			}
 			if (!empty($this->tklabels) && 'tk:hasLabel' == $key) {
+				if (!is_array($value)) $value = array($value);
 				foreach ($value as $tk) {
 					$code = substr($tk, 3);  // $tk has tk prefix, too
 					for ($j = 0; $j < count($this->tklabels['labels']); $j++) {  // Make sure code exists

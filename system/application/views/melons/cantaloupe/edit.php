@@ -1266,23 +1266,25 @@ $nextState = end($availableStates);
 					<div class="form-horizontal">
 						<div id="metadata_rows">
 						<?
-						if (isset($page->version_index) && isset($page->versions[$page->version_index]->rdf) && !empty($page->versions[$page->version_index]->rdf)):
+						if (isset($page->version_index)):
 							$counter = 0;
-							foreach ($page->versions[$page->version_index]->rdf as $p => $values):
-								$p = toNS($p, $ns);
-								foreach ($values as $value) {
-									echo '<div class="form-group '.$p.'">';
-									echo '<label for="'.$p.'-input-'.$counter.'" class="col-sm-3 control-label">';
-									echo $p;
-									echo '</label>';
-									echo '<div class="col-sm-9">';
-									$o = trim($value['value']);
-									echo '<input id="'.$p.'-input-'.$counter.'" class="form-control" type="text" name="'.$p.'" value="'.htmlspecialchars($o).'" />';
-									echo '</div>';
-									echo "</div>\n";
-									$counter++;
-								}
-							endforeach;
+							if (isset($page->versions[$page->version_index]->rdf) && !empty($page->versions[$page->version_index]->rdf)):
+								foreach ($page->versions[$page->version_index]->rdf as $p => $values):
+									$p = toNS($p, $ns);
+									foreach ($values as $value) {
+										echo '<div class="form-group '.$p.'">';
+										echo '<label for="'.$p.'-input-'.$counter.'" class="col-sm-3 control-label">';
+										echo $p;
+										echo '</label>';
+										echo '<div class="col-sm-9">';
+										$o = trim($value['value']);
+										echo '<input id="'.$p.'-input-'.$counter.'" class="form-control" type="text" name="'.$p.'" value="'.htmlspecialchars($o).'" />';
+										echo '</div>';
+										echo "</div>\n";
+										$counter++;
+									}
+								endforeach;
+							endif;
 							if (!empty($tklabels) && isset($tklabels['versions'][$page->versions[$page->version_index]->version_id])):
 								foreach ($tklabels['versions'][$page->versions[$page->version_index]->version_id] as $code):
 									foreach ($tklabels['labels'] as $label):
