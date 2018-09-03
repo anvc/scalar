@@ -36,6 +36,9 @@ $this->template->add_js('var media_views='.json_encode( $this->config->item('med
 if ($this->config->item('predefined_css')) {
 	$this->template->add_js('var predefined_css='.json_encode($this->config->item('predefined_css')), 'embed');
 }
+if (!empty($tklabels)) {
+	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
+}
 $css = <<<END
 
 article > *:not(span) {display:none !important;}
@@ -377,7 +380,8 @@ $(document).ready(function() {
 	// Additional metadata
 	$('.add_additional_metadata:first').click(function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
-		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
+		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
+		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels});
 	});
 	$('#metadata_rows').populate_metadata_from_localstorage();
 	$('.populate_exif_fields:first').click(function() {
@@ -1279,6 +1283,22 @@ $nextState = end($availableStates);
 									$counter++;
 								}
 							endforeach;
+							if (!empty($tklabels) && isset($tklabels['versions'][$page->versions[$page->version_index]->version_id])):
+								foreach ($tklabels['versions'][$page->versions[$page->version_index]->version_id] as $code):
+									foreach ($tklabels['labels'] as $label):
+										if ($label['code'] != $code) continue;
+										echo '<div class="form-group tk:hasLabel">';
+										echo '<label for="tk:hasLabel-input-'.$counter.'" class="col-sm-3 control-label">';
+										echo 'tk:hasLabel';
+										echo '</label>';
+										echo '<div class="col-sm-9">';
+										echo '<input id="tk:hasLabel-input-'.$counter.'" class="form-control" type="text" name="tk:hasLabel" value="tk:'.$code.'" />';
+										echo '</div>';
+										echo "</div>\n";
+										$counter++;
+									endforeach;
+								endforeach;
+							endif;
 						endif;
 						?>
 						</div>

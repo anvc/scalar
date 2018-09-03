@@ -8,7 +8,8 @@
 			parser_url:'',
 			url:'',
 			row_class:'',
-			input_class:''
+			input_class:'',
+			tklabels:null
 	};  	
 	
     $.fn.add_metadata = function(options) {
@@ -28,7 +29,8 @@
 	    	           	  		var selected = $(this).find(':checked');
 	    	           	  		$.each(selected, function() {
 	    	           	  			var val = $(this).attr('name');
-	    	           	  			var $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="input_text" value="" /></td></tr>');
+	    	           	  			var input_val = ($(this).attr('value') != '1') ? $(this).attr('value') : '';
+	    	           	  			var $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="input_text" value="'+input_val+'" /></td></tr>');
 	    	           	  			$insert_into.append($insert);
 	    	           	  		});
 	    	           	  		$this.dialog('destroy');
@@ -64,13 +66,14 @@
 		    	  		var selected = $content.find('input:checked');
 		    	  		$.each(selected, function() {
 		    	  			var val = $(this).attr('name');
+		    	  			var input_val = ($(this).attr('value') != '1') ? $(this).attr('value') : '';
                             var $insert;
                             if ($insert_into.is('ul') || $insert_into.is('ol')) { // scalarimport
-                            	$insert = $('<li><span class="field">'+val+'</span><span class="value"><input type="text" name="'+val+'" value="" /></span></li>');
+                            	$insert = $('<li><span class="field">'+val+'</span><span class="value"><input type="text" name="'+val+'" value="'+input_val+'" /></span></li>');
                             } else if ( $( 'article' ).length ) { // cantaloupe
-                                $insert = $('<div class="form-group '+val+' '+((opts.row_class.length)?opts.row_class:'')+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control '+((opts.input_class.length)?opts.input_class:'')+'" value="" /></div></div>');
+                                $insert = $('<div class="form-group '+val+' '+((opts.row_class.length)?opts.row_class:'')+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control '+((opts.input_class.length)?opts.input_class:'')+'" value="'+input_val+'" /></div></div>');
                             } else {  // honeydew
-                                $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="" /></td></tr>');
+                                $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="'+input_val+'" /></td></tr>');
                             }
 		    	  			$insert_into.append($insert);
 		    	  		});
@@ -114,7 +117,8 @@
     			'id3': 'MP3 de facto metadata standard',
     			'dwc': 'Darwin Core terms',
     			'vra': 'VRA Ontology representing entities in the VRA data model',
-    			'cp': 'CommonPlace terms for describing publications'
+    			'cp': 'CommonPlace terms for describing publications',
+    			'tk': 'Traditional Knowledge labels'
     		};
         	// Ontologies
         	for (var prefix in data) {
@@ -134,6 +138,26 @@
             		$content.find('.cell').css('display','table-cell').css('padding-top','3px').css('padding-bottom','3px');
             	}
         	}
+        	// TK Labels
+        	if (opts.tklabels && 'undefined' != typeof(opts.tklabels.labels)) {
+        		var prefix = 'tk';
+        		var $header = $('<h1 name="'+prefix+'">'+prefix+' &nbsp; </h1>').appendTo($div);
+        		if ('undefined'!=typeof(descriptions[prefix])) $header.append('<small>'+descriptions[prefix]+'</small>'); 
+        		title_links.push('<a href="javascript:void(null);">'+prefix+'</a>');
+        		var $content = $('<div></div>').appendTo($div);
+        		for (var j = 0; j < opts.tklabels.labels.length; j+=3) {
+        			var $row = $('<div class="row"></div>').appendTo($content);
+        			if ('undefined'!=typeof(opts.tklabels.labels[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j].code+'" /> <img src="'+opts.tklabels.labels[j].image+'" style="height:16px;vertical-align:baseline" /> '+opts.tklabels.labels[j].title+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(opts.tklabels.labels[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j+1].code+'" /> <img src="'+opts.tklabels.labels[j+1].image+'" style="height:16px;vertical-align:baseline" /> '+opts.tklabels.labels[j+1].title+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(opts.tklabels.labels[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j+2].code+'" /> <img src="'+opts.tklabels.labels[j+2].image+'" style="height:16px;vertical-align:baseline" /> '+opts.tklabels.labels[j+2].title+'</label></div>').appendTo($row);
+        		}
+            	if (!bootstrap_enabled) {
+            		$content.css('display','table').css('width','100%');
+            		$content.children('.row').css('display','table-row');
+            		$content.find('.cell').css('display','table-cell').css('padding-top','3px').css('padding-bottom','3px');
+            	}
+        	}
+        	// Quick links
         	if (has_title_links) {
         		$title_links.append(title_links.join('&nbsp; '));
     			$('.add_metadata_bootbox .title-links').find('a').click(function() {

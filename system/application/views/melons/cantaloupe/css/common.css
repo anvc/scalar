@@ -496,7 +496,6 @@ a:hover { text-decoration: underline; }
 	background-color: #555 !important;
 }
 
-
 /*.slot_slider { position: relative; top: 0px; width: 100%; white-space: nowrap; overflow-x: auto; overflow-y: hidden; vertical-align: top; }
 .slot_slider .slot { display: inline-block; text-align: left; margin: 0; padding: 0; }*/
 .manual_slideshow {
@@ -510,6 +509,12 @@ a:hover { text-decoration: underline; }
 	-webkit-overflow-scrolling: touch;
 	width: 100%;
 }
+
+/* --- TK Labels --- */
+
+[typeof="tk:TKLabel"] {float:right; width:40px; margin-left:10px;}
+[typeof="tk:TKLabel"] > img {width:100%;}
+[typeof="tk:TKLabel"] > span {display:none;}
 
 /* --- SPLASH --- */
 

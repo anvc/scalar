@@ -243,6 +243,16 @@ endif;
 ?>
 <? if (isset($page) && !empty($page)): ?>
 		<!-- Page -->
+<?
+		if (isset($page->versions[$page->version_index]->tklabels) && !empty($page->versions[$page->version_index]->tklabels)):
+			foreach ($page->versions[$page->version_index]->tklabels as $tklabel):
+?>		<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
+<?		print_rdf($this->versions->rdf((object) $tklabel), 3, $ns, array(), false, array(), array('dcterms:title')); ?>
+		</span>
+<?		
+			endforeach;
+		endif;
+?>
 		<h1 property="dcterms:title"><?=$title?></h1>
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
 			<a class="metadata" aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
@@ -261,14 +271,6 @@ endif;
 <?		print_rdf($this->users->rdf($page->versions[$page->version_index]->user, $base_uri), 3, $ns); ?>
 		</span>
 <?		
-		if (isset($page->versions[$page->version_index]->tklabels) && !empty($page->versions[$page->version_index]->tklabels)):
-			foreach ($page->versions[$page->version_index]->tklabels as $tklabel):
-?>		<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
-<?		print_rdf($this->versions->rdf((object) $tklabel), 3, $ns, array(), false, array(), array('dcterms:title')); ?>
-		</span>
-<?		
-			endforeach;
-		endif;
 		if (isset($page->versions[$page->version_index]->continue_to)):
 			echo '		<a aria-hidden="true" rel="scalar:continue_to" href="'.$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num.'"></a>'."\n";
 ?>

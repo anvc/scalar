@@ -392,6 +392,14 @@ class MY_Controller extends CI_Controller {
 		if (!isset($namespaces['tk'])) return null;
 		$this->load->model('resource_model', 'resources');
 		$tklabels = $this->resources->get('tklabels_'.$this->data['book']->book_id);
+		if (empty($tklabels)) {  // For now go get a file called "tklabels.json" and insert it into the resources table
+			$json = FCPATH.$this->data['book']->slug.'/tklabels.json';
+			if (file_exists($json)) {
+				$json = json_decode(file_get_contents($json), true);
+				$save = array('versions'=>array(),'labels'=>$json);
+				$tklabels = $this->resources->put('tklabels_'.$this->data['book']->book_id, serialize($save));
+			}
+		}
 		if (!empty($tklabels)) $tklabels = unserialize($tklabels);
 		return $tklabels;
    		

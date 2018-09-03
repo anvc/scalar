@@ -838,6 +838,7 @@ class Book extends MY_Controller {
 		// Metadata terms
 		$this->data['ontologies'] = $this->config->item('ontologies');
 		$this->data['rdf_fields'] = $this->versions->rdf_fields;
+		$this->data['tklabels'] = $this->tklabels();
 
 		// List of images/audio
 		$this->data['book_images'] = $this->books->get_images($book_id);

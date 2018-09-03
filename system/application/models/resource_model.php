@@ -46,5 +46,28 @@ class Resource_model extends CI_Model {
     	
     }
     
+    public function put($field='', $value=null) {
+    	
+    	$this->db->select('value');
+    	$this->db->from($this->resource_table);
+    	$this->db->where('field', $field);
+    	$query = $this->db->get();
+    	if ($query->num_rows==0) {
+    		$data = array(
+    			'field' => $field,
+    			'value' => $value
+    		);
+    		$this->db->insert($this->resource_table, $data); 
+    	} else {
+    		$data = array(
+    			'value' => $value
+    		);
+    		$this->db->where('field', $field);
+    		$this->db->update($this->resource_table, $data); 
+    	}
+    	return $this->get($field);
+    	
+    }
+    
 }
 ?>

@@ -1145,7 +1145,6 @@
             	$labels.each(function() {
             		var $label = $(this);
             		$label.css('display', 'inline-block');
-            		$label.children().show();
             		var $url = $label.find('a[rel="art:url"]');
             		var url = $url.attr('href');
             		$url.replaceWith('<img rel="art:url" src="'+url+'" />');

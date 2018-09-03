@@ -101,6 +101,10 @@ Class Api extends CI_Controller {
  		foreach (array_keys($ontologies) as $key) {
  			array_push($this->allowable_metadata_prefixes, $key);
  		}
+ 		
+ 		// TKLabels if applicable
+ 		$this->tklabels = $this->_tklabels($this->user->book_id);
+ 		if (!isset($this->tklabels['versions']) || !isset($this->tklabels['labels'])) $this->tklabels = null;
 	}
 
 	/**
@@ -149,6 +153,13 @@ Class Api extends CI_Controller {
 
 		//establish the relationship to the passed child
 		$this->_do_relate($this->data['version_id']);
+		
+		//tklabels
+		if (!empty($this->tklabels)) {
+			$this->tklabels['versions'][$this->data['version_id']] = $this->tklabels['versions']['_0'];
+			unset($this->tklabels['versions']['_0']);
+			$this->_tklabels($this->user->book_id, $this->tklabels);
+		}
 
 		$row = $this->versions->get($this->data['version_id']);
 		$this->data['content'] = array($this->versions->get_uri($this->data['version_id'])=>$this->versions->rdf($row));
@@ -203,6 +214,13 @@ Class Api extends CI_Controller {
 		$save_version = $this->_array_remap_version($this->data['content_id']);
 		$this->data['version_id'] = $this->versions->create($this->data['content_id'], $save_version);
 
+		//tklabels
+		if (!empty($this->tklabels)) {
+			$this->tklabels['versions'][$this->data['version_id']] = $this->tklabels['versions']['_0'];
+			unset($this->tklabels['versions']['_0']);
+			$this->_tklabels($this->user->book_id, $this->tklabels);
+		}
+		
 		$row = $this->versions->get($this->data['version_id']);
 		$this->data['content'] = array($this->versions->get_uri($this->data['version_id'])=>$this->versions->rdf($row));
 
@@ -329,14 +347,25 @@ Class Api extends CI_Controller {
 
 		if(!in_array($this->data['scalar:child_rel'], $this->rel_types)) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Invalid scalar:child_rel value.');
 
+		if (!empty($this->tklabels)) $this->tklabels['versions']['_0'] = array();  // Don't know the version ID yet
+		
 		$all_post_data = $_POST;   // $this->input->post() is supposed to return the full array, but doesn't
 		foreach ($all_post_data as $key => $value) {
 			foreach ($this->allowable_metadata_prefixes as $prefix) {
 				if (substr($key, 0, strlen($prefix))==$prefix) $this->data[$key] = $value;
 			}
+			if (!empty($this->tklabels) && 'tk:hasLabel' == $key) {
+				foreach ($value as $tk) {
+					$code = substr($tk, 3);  // $tk has tk prefix, too
+					for ($j = 0; $j < count($this->tklabels['labels']); $j++) {  // Make sure code exists
+						if ($this->tklabels['labels'][$j]['code'] != $code) continue;
+						$this->tklabels['versions']['_0'][] = $code;
+					}
+				}
+			}
 		}
 
-		//branch for pages
+		// Check user permissions to edit book
 		if($this->data['scalar:child_type'] == $this->versions->rdf_type('book')){
 			$arr = explode(':', $this->data['scalar:child_urn']);  // Avoid E_STRICT pass by reference warning
 			$the_book = $this->books->get(array_pop($arr));
@@ -435,18 +464,29 @@ Class Api extends CI_Controller {
 			}
 		}
 
-		$all_post_data = $_POST;   // $this->input->post() is supposed to return the full array, but doesn't
-		foreach ($all_post_data as $key => $value) {
-			foreach ($this->allowable_metadata_prefixes as $prefix) {
-				if (substr($key, 0, strlen($prefix))==$prefix) $this->data[$key] = $value;
-			}
-		}
-
 		$arr = explode(':', $this->data['scalar:urn']);  // Avoid E_STRICT pass by reference warning
 		$this->data['version_id'] = array_pop($arr);
 
 		if($this->versions->get_book($this->data['version_id']) != $this->user->book_id){
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
+		}
+		
+		if (!empty($this->tklabels)) $this->tklabels['versions']['_0'] = array();  // Don't know the version ID yet
+		
+		$all_post_data = $_POST;   // $this->input->post() is supposed to return the full array, but doesn't
+		foreach ($all_post_data as $key => $value) {
+			foreach ($this->allowable_metadata_prefixes as $prefix) {
+				if (substr($key, 0, strlen($prefix))==$prefix) $this->data[$key] = $value;
+			}
+			if (!empty($this->tklabels) && 'tk:hasLabel' == $key) {
+				foreach ($value as $tk) {
+					$code = substr($tk, 3);  // $tk has tk prefix, too
+					for ($j = 0; $j < count($this->tklabels['labels']); $j++) {  // Make sure code exists
+						if ($this->tklabels['labels'][$j]['code'] != $code) continue;
+						$this->tklabels['versions']['_0'][] = $code;
+					}
+				}
+			}
 		}
 
 	}
@@ -637,7 +677,6 @@ Class Api extends CI_Controller {
 	* Serialize an RDF structure (e.g, to RDF-XML or RDF-JSON)
 	* TODO: Shared function with /rdf, move to model?
 	*/
-
 	private function _rdf_serialize(&$return, $prefix='') {
 
 		if (empty($return)) $this->_output_error(StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
@@ -650,6 +689,27 @@ Class Api extends CI_Controller {
 		}
 		$return = $this->rdf_store->serialize($output, $prefix, $this->data['format']);
 
+	}
+	
+	/**
+	 * Get or save TK Lables to the resources table if the feature is enabled
+	 */
+	private function _tklabels($book_id, $value=null) {
+		
+		$enable = $this->config->item('enable_tklabels');
+		if (!$enable) return null;
+		$namespaces = $this->config->item('namespaces');
+		if (!isset($namespaces['tk'])) return null;
+		$this->load->model('resource_model', 'resources');
+		
+		if (empty($value)) {
+			$tklabels = $this->resources->get('tklabels_'.$book_id);
+			if (!empty($tklabels)) $tklabels = unserialize($tklabels);
+		} else {
+			$tklabels = $this->resources->put('tklabels_'.$book_id, serialize($value));
+		}
+		return $tklabels;
+		
 	}
 }
 
