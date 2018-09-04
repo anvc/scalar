@@ -1864,19 +1864,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					if ('undefined'!=typeof(item.content) && 'undefined'!=typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) {
 						var content_urn = item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 						content_id = content_urn.substr(content_urn.lastIndexOf(':')+1);
-					};
-
-					if($('tr[data-content-id="'+content_id+'"]').length > 0) continue;
+					}
+					if (parseInt(content_id) > 0 && $('tr[data-content-id="'+content_id+'"]').length > 0) continue;
 
 					var version_id = 0;
 					if ('undefined'!=typeof(item.version) && 'undefined'!=typeof(item.version['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) {
 						var version_urn = item.version['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 						version_id = version_urn.substr(version_urn.lastIndexOf(':')+1);
 					};
+					
 					var user_id = 0;
 					if ('undefined'!=typeof(item.uri) && -1 != item.uri.indexOf('/users/')) {
 						user_id = item.uri.substr(item.uri.lastIndexOf('/')+1);
 					};
+					
 					var desc = (item.version && 'undefined' != typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No description</em>';
 					
 					var rowHTML = '<tr data-content-id="'+content_id+'" data-version-id="'+version_id+'" data-user-id="'+user_id+'">';
