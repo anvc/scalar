@@ -509,7 +509,7 @@ $(window).ready(function() {
 
 				// fallback method for determining the book URL; will fail if URL structure is non-standard
 				if ( scalarapi.model.urlPrefix == null ) {
-					scalarapi.model.urlPrefix = $( 'link[id="parent"]' ).attr( "href" );
+					scalarapi.setBook($('link#parent').attr('href'));
 				}
 
 				// use scalarapi to parse the JSON

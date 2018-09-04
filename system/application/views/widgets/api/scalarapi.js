@@ -986,36 +986,50 @@ ScalarAPI.prototype.stripVersion = function(versionURI) {
 	return uri;
 }
 
-ScalarAPI.prototype.stripEdition = function(editionURI) {
-	var tempA = editionURI.split( '/' );
-	if ( tempA[ tempA.length - 1 ] == '' ) {
-		tempA.pop();
+ScalarAPI.prototype.getInferredUrlPrefix = function() {
+	var prefix = this.model.urlPrefix;
+	if (prefix == null) {
+		prefix = $('link#parent').attr('href');
 	}
-	var segment = tempA[ tempA.length - 2];
-	if (segment != null) {
-		var tempB = segment.split('.');
-		if (tempB.length > 1) {
-			tempB.splice(tempB.length - 1, 1);
-			segment = tempB.join('.');
+	return prefix;
+}
+
+ScalarAPI.prototype.stripEdition = function(editionURI, bookURI) {
+	var uri = editionURI;
+	if (bookURI == null) {
+		bookURI = this.getInferredUrlPrefix();
+	}
+	if (bookURI != null && editionURI != null) {
+		if ('/' == bookURI.substr(bookURI.length-1)) bookURI = bookURI.substr(0, bookURI.lastIndexOf('/'));
+		var arrA = bookURI.split('/');
+		var bookSlug = bookSlugPlusEditionNum = arrA[arrA.length-1];  // Book slugs can't have a slash
+		if (bookSlugPlusEditionNum.indexOf('.') != -1) {
+			var arrB = bookSlugPlusEditionNum.split('.');
+			bookSlug = arrB[0];
 		}
-		tempA[ tempA.length - 2 ] = segment;
+		arrA.splice(arrA.length-1, 1);
+		var serverURI = arrA.join('/');
+		var slugPlusURI = editionURI.replace(serverURI, '');
+		var arrC = slugPlusURI.split('/');
+		arrC[1] = bookSlug;
+		uri = serverURI + arrC.join('/');
 	}
-	var uri = tempA.join( '/' );
 	return uri;
 }
 
-ScalarAPI.prototype.getEdition = function(editionURI) {
+ScalarAPI.prototype.getEdition = function(editionURI, bookURI) {
 	var editionNum = -1;
-	var tempA = editionURI.split( '/' );
-	if ( tempA[ tempA.length - 1 ] == '' ) {
-		tempA.pop();
+	if (bookURI == null) {
+		bookURI = this.getInferredUrlPrefix();
 	}
-	var segment = tempA[ tempA.length - 2];
-	if (segment != null) {
-		var tempB = segment.split('.');
-		if (tempB.length > 1) {
-			editionNum = parseInt(tempB[tempB.length - 1]);
-		}
+	if (bookURI != null && editionURI != null) {
+		if ('/' == bookURI.substr(bookURI.length-1)) bookURI = bookURI.substr(0, bookURI.lastIndexOf('/'));
+		editionURI = editionURI.replace(bookURI, '');
+		var arr = bookURI.split('/');
+		var book_slug = arr[arr.length-1];  // Book slugs can't have a slash
+		if (-1 == book_slug.indexOf('.')) return editionNum;  // Isn't an edition URL
+		var num = book_slug.substr(book_slug.lastIndexOf('.'));
+		editionNum = parseInt(num);
 	}
 	return editionNum;
 }
