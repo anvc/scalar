@@ -487,9 +487,9 @@ STR;
 		var btn_text = $selected.data('title');
 		$btn.html(btn_text+' &nbsp; <span class="caret"></span>');
 		if (null===index) {
-			document.cookie = "scalar_edition_index=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+			document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
 		} else {
-			document.cookie = "scalar_edition_index="+index;  // Cookie (not localStorage) so that PHP can get to it
+			document.cookie = "scalar_edition_index="+index+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
 		};
 	});
 	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
@@ -559,7 +559,7 @@ STR;
 					return;
 				};
 				$body.empty();
-        $body.append('<p>Roll over an edition to reveal editing options.</p>');
+        		$body.append('<p>Roll over an edition to reveal editing options.</p>');
 				// List of editions
 				if ('undefined'!=typeof(json) && json.length) {
 					$table = $('<div class="table-responsive"></div>').appendTo($body);
@@ -608,8 +608,8 @@ STR;
 								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
 								var $select_edition = $('#select_edition');
 								$select_edition.find('li.divider').nextAll().remove();
-                var latestEditionTitle = data[data.length-1].title;
-                $('.edition_title').text(latestEditionTitle);
+                				var latestEditionTitle = data[data.length-1].title;
+                				$('.edition_title').text(latestEditionTitle);
 								var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
 							    for (var j = data.length-1; j >= 0; j--) {
 									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
@@ -642,14 +642,14 @@ STR;
 							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
 								console.log(obj);
 								$('#manageEditions').trigger('show.bs.modal');
-								document.cookie = "scalar_edition_index=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+								document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
 								var $select_edition = $('#select_edition');
 								$select_edition.find('li.divider').nextAll().remove();
-                if (obj.length == 0) {
-                  location.reload();
-                }
-                var latestEditionTitle = obj[obj.length-1].title;
-                $('.edition_title').text(latestEditionTitle);
+                				if (obj.length == 0) {
+                  					location.reload();
+                				}
+               	 				var latestEditionTitle = obj[obj.length-1].title;
+                				$('.edition_title').text(latestEditionTitle);
 								var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
 							    for (var j = obj.length-1; j >= 0; j--) {
 									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
@@ -660,7 +660,7 @@ STR;
 						};
 					});
 				} else {
-          $body.empty();
+          			$body.empty();
 					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
 				};
 			});

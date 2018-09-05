@@ -21,7 +21,7 @@
 /**
  * @projectDescription		Book controller for outputting the HTML for Scalar's front-end
  * @author					Craig Dietrich
- * @version					2.5
+ * @version					2.6
  */
 
 function sortSearchResults($a, $b) {
@@ -36,7 +36,7 @@ class Book extends MY_Controller {
 	private $models = array('annotations', 'paths', 'tags', 'replies', 'references');
 	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
 	private $vis_views = array('vis', 'visindex', 'vispath', 'vismedia', 'vistag');
-	private $fallback_melon = 'honeydew';  // This is independant of the default melon set in the config, which is used for new book creation
+	private $fallback_melon = 'cantaloupe';  // This is independant of the default melon set in the config, which is used for new book creation
 	private $max_recursions = 2;  // Get relationships of the current page, and the relationships of those relationships (e.g., get this pages tags, and the pages those tags tag)
 
 	/**
@@ -72,10 +72,10 @@ class Book extends MY_Controller {
 				$this->require_login(1);
 			}
 		}
-		$this->data['book']->edition_num = (!empty($this->data['book']->editions)) ? get_edition($this->scope) : null;
+		// Authors
 		$this->data['book']->contributors = $this->books->get_users($this->data['book']->book_id);
+		// Table of contents
 		$this->data['book']->versions = $this->books->get_book_versions($this->data['book']->book_id, true); // TOC
-		$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.((!empty($this->data['book']->edition_num))?'.'.$this->data['book']->edition_num:'').'/';
 		// Melon (skin)
 		$this->data['melon'] = $this->config->item('active_melon');
 		if (!$this->melon_exists($this->data['melon'])) $this->data['melon'] = null;
@@ -103,40 +103,15 @@ class Book extends MY_Controller {
 	 */
 
 	public function _remap() {
-
+		
 		try {
-			// URI segment
-			$uri = explode('.',implode('/',array_slice($this->uri->segments, 1)));
-			$slug = $uri[0];
-			$slug_first_segment = (strpos($slug,'/')) ? substr($slug, 0, strpos($slug,'/')) : $slug;
-			if (empty($slug)) $this->fallback();
-
-			//Should we give a 404 response?
-			$page_not_found = false;
-
-			// Ajax login check
-			if ('login_status'==$slug_first_segment) return $this->login_status();
+			$this->set_url_params();
+			if ('login_status'==$this->data['url_params']['page_first_segment']) return $this->login_status();  // Ajax login check
 			// Load page based on slug
-			$page = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
+			$page = $this->pages->get_by_slug($this->data['book']->book_id, $this->data['slug']);
+			if ($page && !$page->is_live) $this->protect_book('Reader');
+			$page_not_found = false;
 			if (!empty($page)) {
-				// Protect
-				if (!$page->is_live) $this->protect_book('Reader');
-				// Version being asked for
-				$this->data['version_num'] = (int) get_version($this->uri->uri_string());
-				$this->data['use_versions'] = null;
-				if (!empty($this->data['version_num'])) {
-					$version = $this->versions->get_by_version_num($page->content_id, $this->data['version_num']);
-					if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin() && $this->pages->is_using_recent_version_id($this->data['book']->book_id)) {
-						if ($version->version_id != $page->recent_version_id) $this->require_login(5);
-					}
-					if (!empty($version)) $this->data['use_versions'] = array($page->content_id => $version->version_id);
-				}
-				// Edition being asked for
-				if (!empty($this->data['book']->edition_num) && isset($this->data['book']->editions[$this->data['book']->edition_num-1])) {
-					$this->data['edition'] = $this->data['book']->editions[$this->data['book']->edition_num-1];
-					// TODO: validate a previously-defined $this->data['version_num'] if present
-					$this->data['use_versions'] = $this->data['edition']['pages'];
-				}
 				// Build (hierarchical) RDF object for the page's version(s)
 				$settings = array(
 								 	'book'         => $this->data['book'],
@@ -162,23 +137,25 @@ class Book extends MY_Controller {
 				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
 				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
 			} else {
-				$this->data['slug'] = $slug; // Can visit a page even if it hasn't been created yet
 				$page_not_found = true;
 			}
+			
 			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
 			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
 			if (in_array($this->data['view'], $this->vis_views)) {
 				$this->data['viz_view'] = $this->data['view'];  // Keep a record of the specific viz view being asked for
 				$this->data['view'] = $this->vis_views[0];  // There's only one viz page (Javascript handles the specific viz types)
 			}
+			
 			// View-specific method
 			$method_name = $this->data['view'];
 			if (method_exists($this, $method_name)) $this->$method_name();
 
 			// URI segment method
-			if (method_exists($this, $slug_first_segment) && !array_key_exists($slug_first_segment, $this->data['views'])){
+			if (method_exists($this, $this->data['url_params']['page_first_segment']) && !array_key_exists($this->data['url_params']['page_first_segment'], $this->data['views'])){
 				$page_not_found = false;
-				$this->$slug_first_segment();
+				$method = $this->data['url_params']['page_first_segment'];
+				$this->$method();
 			}
 
 			if ($page_not_found) {

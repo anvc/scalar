@@ -122,6 +122,90 @@ class MY_Controller extends CI_Controller {
 		}
 
 	}
+	
+	/**
+	 * Find and validate URL parameters such as edition and version and set information about the current location
+	 * @requires $this->data
+	 * @return null
+	 */
+	
+	protected function set_url_params() {
+		
+		if (empty($this->data['book'])) return;
+		
+		$this->data['url_params'] = array();
+		$this->data['url_params']['uri'] = $this->uri->uri_string();
+		$this->data['url_params']['book_segment'] = no_edition(strtolower($this->uri->segment('1')));
+		$this->data['url_params']['edition_num'] = get_edition(strtolower($this->uri->segment('1')));
+		$this->data['url_params']['edition_num'] = (is_numeric($this->data['url_params']['edition_num'])) ? (int) $this->data['url_params']['edition_num']: null;
+		$this->data['url_params']['edition_index'] = ($this->data['url_params']['edition_num']) ? $this->data['url_params']['edition_num']- 1 : null;
+		$this->data['url_params']['page_segments'] = array_slice($this->uri->segments, 1);
+		for ($j = 0; $j < count($this->data['url_params']['page_segments']); $j++) $this->data['url_params']['page_segments'][$j] = no_version($this->data['url_params']['page_segments'][$j]);
+		$this->data['url_params']['version_num'] = get_version($this->uri->uri_string());
+		$this->data['url_params']['version_num'] = (is_numeric($this->data['url_params']['version_num'])) ? (int) $this->data['url_params']['version_num'] : null;
+		$this->data['url_params']['page_first_segment'] = (count($this->data['url_params']['page_segments']) > 0) ? no_version($this->data['url_params']['page_segments'][0]) : null;
+		
+		$this->data['slug'] = implode('/', $this->data['url_params']['page_segments']);
+		$this->data['use_versions'] = array();
+		
+		// The actual edition and version num based on various allowable hooks below
+		$edition_num = $version_num = null;
+		
+		// Check the asked-for edition
+		if ($this->can_edition() && !empty($this->data['book']->editions)) {
+			$edition_index = $this->data['url_params']['edition_index'];
+			$cookie_edition_index = (isset($_COOKIE['scalar_edition_index'])) ? (int) $_COOKIE['scalar_edition_index'] : null;
+			if (null !== $this->data['url_params']['edition_index']) {  // URL is asking for an edition
+				if (!isset($this->data['book']->editions[$edition_index])) $edition_index = count($this->data['book']->editions) - 1;
+			} elseif (null !== $cookie_edition_index) {  // Cookie is asking for an edition
+				if (isset($this->data['book']->editions[$cookie_edition_index])) {
+					$edition_index = $cookie_edition_index;
+				} else {
+					$edition_index = count($this->data['book']->editions) - 1;
+				}
+			} elseif (!$this->login_is_book_admin()) {  // User is not an author, must see most recent edition
+				$edition_index = count($this->data['book']->editions) - 1;
+			}
+			if (null !== $edition_index) {
+				$edition_num = $edition_index + 1;
+				$this->data['use_versions'] = $this->data['book']->editions[$edition_index]['pages'];
+			}
+		}
+		
+		// Check the asked-for version
+		if (!empty($this->data['url_params']['version_num'])) {
+			$pass = true;
+			$page = $this->pages->get_by_slug($this->data['book']->book_id, $this->data['slug']);
+			if (empty($page)) {
+				$pass = false;
+			} elseif (null !== $edition_num && !isset($this->data['use_versions'][$page->content_id])) {
+				$pass = false;
+			}
+			$version = ($pass) ? $this->versions->get_by_version_num($page->content_id, $this->data['url_params']['version_num']) : null;
+			if (empty($version)) {
+				$pass = false;
+			} elseif (null !== $edition_num && $version->version_id > $this->data['use_versions'][$page->content_id]) {
+				$pass = false;
+			}
+			if ($pass) {
+				$version_num = $this->data['url_params']['version_num'];
+				$this->data['use_versions'] = array($page->content_id => $version->version_id);
+			}
+		}
+		
+		// Redirect if the edition or version don't match what was requested
+		if ($edition_num != $this->data['url_params']['edition_num'] || $version_num != $this->data['url_params']['version_num'] || empty($this->data['url_params']['page_segments'])) {
+			$redirect_to = base_url().$this->data['url_params']['book_segment'];
+			$redirect_to .= ((null !== $edition_num) ? '.'.$edition_num : '') . '/';
+			$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
+			$redirect_to .= ((null !== $version_num) ? '.'.$version_num: '');
+			header('Location: '.$redirect_to);
+			exit;
+		}
+		
+		$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.((!empty($edition_num))?'.'.$edition_num:'').'/';
+
+	}
 
 	/**
 	 * Test a user level against logged-in status
