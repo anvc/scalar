@@ -1378,7 +1378,7 @@
             isLinkRelative: function(link) {
                 var href = $(link).attr("href");
                 if (href != null) {
-                    if ((href.indexOf("://") == -1) && (href.indexOf("javascript:") != 0)) {
+                    if ((href.indexOf("://") == -1) && (href.indexOf("javascript:") != 0) && (href.indexOf("mailto:") == -1)) {
                         return true;
                     }
                 }
