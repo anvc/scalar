@@ -21,7 +21,7 @@
 /**
  * @projectDescription		Base controller class to handle database and login tasks useful for all controllers
  * @author					Craig Dietrich
- * @version					2.2
+ * @version					2.3
  */
 
 class MY_Controller extends CI_Controller {
@@ -138,7 +138,7 @@ class MY_Controller extends CI_Controller {
 		$this->data['url_params']['book_segment'] = no_edition(strtolower($this->uri->segment('1')));
 		$this->data['url_params']['edition_num'] = get_edition(strtolower($this->uri->segment('1')));
 		$this->data['url_params']['edition_num'] = (is_numeric($this->data['url_params']['edition_num'])) ? (int) $this->data['url_params']['edition_num']: null;
-		$this->data['url_params']['edition_index'] = ($this->data['url_params']['edition_num']) ? $this->data['url_params']['edition_num']- 1 : null;
+		$this->data['url_params']['edition_index'] = ($this->data['url_params']['edition_num']) ? $this->data['url_params']['edition_num'] - 1 : null;
 		$this->data['url_params']['page_segments'] = array_slice($this->uri->segments, 1);
 		for ($j = 0; $j < count($this->data['url_params']['page_segments']); $j++) $this->data['url_params']['page_segments'][$j] = no_version($this->data['url_params']['page_segments'][$j]);
 		$this->data['url_params']['version_num'] = get_version($this->uri->uri_string());
@@ -166,7 +166,7 @@ class MY_Controller extends CI_Controller {
 			} elseif (!$this->login_is_book_admin()) {  // User is not an author, must see most recent edition
 				$edition_index = count($this->data['book']->editions) - 1;
 			}
-			if (null !== $edition_index) {
+			if (null !== $edition_index) {  // Valid edition
 				$edition_num = $edition_index + 1;
 				$this->data['use_versions'] = $this->data['book']->editions[$edition_index]['pages'];
 			}
@@ -176,18 +176,18 @@ class MY_Controller extends CI_Controller {
 		if (!empty($this->data['url_params']['version_num'])) {
 			$pass = true;
 			$page = $this->pages->get_by_slug($this->data['book']->book_id, $this->data['slug']);
-			if (empty($page)) {
+			if (empty($page)) {  // Page doesn't exist
 				$pass = false;
-			} elseif (null !== $edition_num && !isset($this->data['use_versions'][$page->content_id])) {
+			} elseif (null !== $edition_num && !isset($this->data['use_versions'][$page->content_id])) {  // Page doesn't exist in edition
 				$pass = false;
 			}
 			$version = ($pass) ? $this->versions->get_by_version_num($page->content_id, $this->data['url_params']['version_num']) : null;
-			if (empty($version)) {
+			if (empty($version)) {  // Version doesn't exist
 				$pass = false;
-			} elseif (null !== $edition_num && $version->version_id > $this->data['use_versions'][$page->content_id]) {
+			} elseif (null !== $edition_num && $version->version_id > $this->data['use_versions'][$page->content_id]) {  // Version is more recent than edition
 				$pass = false;
 			}
-			if ($pass) {
+			if ($pass) {  // Valid edition
 				$version_num = $this->data['url_params']['version_num'];
 				$this->data['use_versions'] = array($page->content_id => $version->version_id);
 			}
@@ -203,6 +203,7 @@ class MY_Controller extends CI_Controller {
 			exit;
 		}
 		
+		// Used through arbor HTML
 		$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.((!empty($edition_num))?'.'.$edition_num:'').'/';
 
 	}
