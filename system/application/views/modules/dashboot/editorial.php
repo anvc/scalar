@@ -341,7 +341,6 @@ STR;
     if(typeof scope === 'undefined' || scope == null || scope == ''){
       scope = 'all';
     }
-    console.log(scope);
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id,
       success: function(data) {
@@ -512,7 +511,6 @@ STR;
       // Create edition JSON
       var callback = function(obj) {
         $body.find('.btn:last').prop('disabled',false);
-        console.log(obj);
         $('#createEdition').modal('hide');
         var $select_edition = $('#select_edition');
         if (!$select_edition.find('li.divider').length) {
@@ -640,7 +638,6 @@ STR;
 							$cell.data('is_saving', true);
 							var index = parseInt($(this).closest('tr').data('index'));
 							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
-								console.log(obj);
 								$('#manageEditions').trigger('show.bs.modal');
 								document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
 								var $select_edition = $('#select_edition');
