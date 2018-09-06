@@ -2471,6 +2471,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if (opts.types[j].toLowerCase() == opts.defaultType.toLowerCase()) continue;
 				$edOptionList.append('<li class="'+(opts.types[j].replace(' ','_'))+'"><a href="javascript:void(null);">Move to <b>'+opts.types[j]+'</b> state</a></li>');
 			};
+			$('<div class="changeNotice btn-group"><div class="noFilter alert alert-info" style="display: block;">Please select an editorial state above in order to modify page states</div><div class="filtered  alert alert-warning text-warning" style="display: none">You do not have permission to modify pages in this editorial state</div></div>').appendTo($deleteOpts);
 			$edOption.find('a').click(function() {
 				var $this = $(this);
 				if (!$this.closest('.node_selector').find('tbody tr.current').length) {
@@ -2596,6 +2597,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var className = current_type.replace(' ','_');
 				var canChange = typeof state_flow[className] !== 'undefined' && state_flow[className] != null && state_flow[className].length > 0;
 				
+				$('.changeNotice').toggle(!canChange);
+				$('.changeNotice .noFilter').toggle(typeName === 'all');
+                $('.changeNotice .filtered').toggle(typeName !== 'all' && typeName !== 'hidden');
+
 				if(!canChange){
 					$dialogue_container.find('.panel-footer button').prop('disabled',true).addClass('disabled').hide();
 				}else{
