@@ -58,10 +58,14 @@ span[data-diff="chunk"].rejected a.inline{
     border: solid 5px #ac2925;
 }
 
-span[data-diff="chunk"].accepted, span[data-diff="chunk"].accepted span[data-diff],span[data-diff="chunk"].accepted span[data-diff]>*{
+span[data-diff="chunk"].accepted, 
+span[data-diff="chunk"].accepted span[data-diff],
+span[data-diff="chunk"].accepted span[data-diff]>*{
 	background-color: #A1FFA5;
 }
-span[data-diff="chunk"].rejected, span[data-diff="chunk"].rejected span[data-diff],span[data-diff="chunk"].rejected span[data-diff]>*{
+span[data-diff="chunk"].rejected, 
+span[data-diff="chunk"].rejected span[data-diff],
+span[data-diff="chunk"].rejected span[data-diff]>*{
 	background-color: #FFA4A1;
 }
 
@@ -78,11 +82,4 @@ span[data-diff="chunk"].rejected span[data-diff="del"],span[data-diff="chunk"].r
 
 span[data-diff="chunk"].rejected span[data-diff]:first-child > a.inline::after{
     display: none;
-}
-
-#editorialReviewFormattingChangesList tr.accepted{
-	background-color: #dff0d9
-}
-#editorialReviewFormattingChangesList tr.rejected{
-	background-color: #f1dede
 }

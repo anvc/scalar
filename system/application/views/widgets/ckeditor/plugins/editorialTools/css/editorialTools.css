@@ -361,14 +361,27 @@ body.isReviewing .tooltip-inner{
 	display: none;
 }
 .accepted .accepted_rejected,.rejected .accepted_rejected{
-	display: block;
+	display: inline;
 }
-.accepted .rejected{
+.accepted .accepted_rejected .rejected{
 	display: none;
 }
-.rejected .accepted{
+.rejected .accepted_rejected .accepted{
 	display: none;
 }
 .text-success{
 	color: #4cae4c;
+}
+#editorialReviewFormattingChangesList tr.accepted .new .changed{
+	background-color: #A1FFA5;
+}
+
+#editorialReviewFormattingChangesList tr.rejected .new .changed,
+#editorialReviewFormattingChangesList tr.accepted .old .changed{
+	text-decoration-line: line-through;
+	-webkit-text-decoration-line: line-through;
+}
+
+#editorialReviewFormattingChangesList tr.rejected .old .changed{
+	background-color: #FFA4A1;
 }

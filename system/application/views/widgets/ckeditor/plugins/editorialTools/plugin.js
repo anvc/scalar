@@ -446,6 +446,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
         }
 
+
         base.determineFormattingChanges = function($old,$new,chunkID){
             var oldWasHidden = $old.hasClass('hiddenVisual');
             $old.removeClass('hiddenVisual');
@@ -464,14 +465,17 @@ CKEDITOR.plugins.add( 'editorialTools', {
             for(var a in parsedOldAttr){
                 if(typeof parsedNewAttr[a] === "undefined"){
                     parsedOldAttr[a].changed = true;
+                    parsedNewAttr[a] = {value:"<em>(removed)</em>",changed:true};
                     numChanges++;
                 }else if(parsedOldAttr[a].value != parsedNewAttr[a].value){
+                    parsedOldAttr[a].changed = true;
                     parsedNewAttr[a].changed = true;
                     numChanges++;
                 }
             }
             for(var a in parsedNewAttr){
                 if(typeof parsedOldAttr[a] === "undefined"){
+                    parsedOldAttr[a] = {value:"<em>(not set)</em>",changed:true};
                     parsedNewAttr[a].changed = true;
                     numChanges++;
                 }
@@ -521,7 +525,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
 
             //Second Column: Old Attributes
-            changeHTML += '</td><td>';
+            changeHTML += '</td><td class="old">';
             var attrNames = Object.keys(parsedOldAttr).sort();
             for(var i in attrNames){
                 var a = attrNames[i];
@@ -543,7 +547,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
 
             //Third Column: New Attributes
-            changeHTML += '</td><td>';
+            changeHTML += '</td><td class="new">';
 
             attrNames = Object.keys(parsedOldAttr).sort();
             for(var i in attrNames){
@@ -559,17 +563,14 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         var listLength = attribute.value.split(',').length;
                         var value = '<span class="childNodeList">'+ listLength + ' item'+(listLength!=1?'s':'')+'</span> <a href="#" data-nodes="'+attribute.value+'" class="showAll">Show all</a>';
                     }
-                }else if(!!attribute){
-                    var value = attribute.value;
                 }else{
-                    var attribute = parsedNewAttr[a] = {value:"<em>(removed)</em>",changed:true}
                     var value = attribute.value;
                 }
                 changeHTML += '<div class="row"><div class="col-xs-4 attribute">'+a.replace('data-','')+'</div><div class="col-xs-8'+(attribute.changed?' changed':'')+'">'+value+'</div></div>';
             }
 
             //Final  Column: Buttons
-            changeHTML += '</td><td class="text-center"><button type="button" class="btn btn-sm btn-danger">Reject</button> <button type="button" class="btn btn-sm btn-success">Accept</button><div class="accepted_rejected"><strong class="accepted text-success">Accepted</strong><strong class="rejected text-danger">Rejected</strong> &nbsp; <button class="btn btn-default btn-sm">Cancel</button>';
+            changeHTML += '</td><td class="text-center"><button type="button" class="btn btn-sm btn-danger">Reject</button> <div class="accepted_rejected">&nbsp;<strong class="accepted text-success">Accepted</strong><strong class="rejected text-danger">Rejected</strong> &nbsp;</div> <button type="button" class="btn btn-sm btn-success">Accept</button>';
             changeHTML += '</td></tr>';
 
             var $chunk = $old.parents('[data-diff="chunk"]');
@@ -578,20 +579,18 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $row.data('$chunk',$chunk);
             $row.find('.btn-danger').click(function(e){
                 e.preventDefault();
-                $(this).parents('td').find('.btn-danger,.btn-success').hide();
+                $(this).parents('td').find('.btn-danger').hide();
+                $(this).parents('td').find('.btn-success').show();
+                $(this).parents('tr').removeClass('rejected accepted');
                 $(this).parents('tr').addClass('rejected');
                 return false;
             });
             $row.find('.btn-success').click(function(e){
                 e.preventDefault();
-                $(this).parents('td').find('.btn-danger,.btn-success').hide();
-                $(this).parents('tr').addClass('accepted');
-                return false;
-            });
-            $row.find('.btn-default').click(function(e){
-                e.preventDefault();
-                $(this).parents('td').find('.btn-danger,.btn-success').show();
+                $(this).parents('td').find('.btn-success').hide();
+                $(this).parents('td').find('.btn-danger').show();
                 $(this).parents('tr').removeClass('rejected accepted');
+                $(this).parents('tr').addClass('accepted');
                 return false;
             });
             $row.find('.showAll').click(function(e){
@@ -693,17 +692,15 @@ CKEDITOR.plugins.add( 'editorialTools', {
             if( (base.is_author && base.editorialState === "editreview") ||
                 (base.is_editor && base.editorialState === "clean") ){
                 $('#editorialReviewFormattingChangesCommit').click(function(){
-                    $('#editorialReviewFormattingChangesList tr.accepted,#editorialReviewFormattingChangesList tr.rejected').each(function(){
+                    $('span[data-diff="chunk"]').tooltip('hide');
+                    $('#editorialReviewFormattingChangesList tr').each(function(){
                         if($(this).hasClass('rejected')){
-                            $('span[data-diff="chunk"]').tooltip('hide');
                             base.rejectEdit($(this).data('$chunk'));
-                        }else{
-                            $('span[data-diff="chunk"]').tooltip('hide');
+                        }else if($(this).hasClass('accepted')){
                             base.acceptEdit($(this).data('$chunk'));
                         }
                         //$(this).parent().remove();
                     });
-                    base.calculatePendingVisualChanges();
                     $('#editorialReviewFormattingChanges').modal('hide');
                 });
                 base.waitingForReview = true;
