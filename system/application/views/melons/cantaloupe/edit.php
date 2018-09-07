@@ -452,7 +452,17 @@ $(document).ready(function() {
 	});
 
 	//Editorial state stuff:
-	has_edition = $('a.metadata[rel="scalar:hasEdition"]').length > 0;
+
+	has_edition = false;
+	if($('a.metadata[rel="scalar:hasEdition"]').length > 0){
+		if(version_date != null){
+			var edition_timestamp = new Date($('span[resource="'+$('a.metadata[rel="scalar:hasEdition"]').attr('href')+'"] span[property="dcterms:created"]').text());
+			var version_timestamp = new Date(version_date);
+			if(version_timestamp <= edition_timestamp){
+				has_edition = true;
+			}
+		}
+	}
 	if(has_edition && $('#editorial_state').val() == 'published'){
 		$('#editorial_state_button_container .ready').remove();
 	}
@@ -622,7 +632,12 @@ function badges() {
 };
 END;
 
-$js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'";';
+$page = (isset($page->version_index)) ? $page : null;
+$version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
+
+$js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'"; var version_date ="'.(isset($version)?date(DATE_ISO8601, strtotime($version->created)):'null').'";';
+
+$this->template->add_js($js, 'embed');
 
 $currentRole = 'author';
 foreach($book->contributors as $contributor){
@@ -631,10 +646,6 @@ foreach($book->contributors as $contributor){
 		break;
 	}
 }
-
-$this->template->add_js($js, 'embed');
-$page = (isset($page->version_index)) ? $page : null;
-$version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
 
 $editorialStates = array(
 	'draft' => 'Draft',
