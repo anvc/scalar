@@ -827,7 +827,7 @@ STR;
       </div>
       <div class="modal-body caption_font">
        	  <p><b>Are you sure you wish to enable the Editorial Workflow for this <?=$book->scope?>?</b><br /><br />
-       	   You can disable it later if you wish.</p>
+       	  This affects the <?=$book->scope?>’s public availability, editor features, editing permissions, and more. Be sure you’re familiar with <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">how the Editorial Workflow works</a> before proceeding.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
