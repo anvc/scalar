@@ -127,7 +127,7 @@ STR;
       },
       'publishedWithEditions': {
         'all': {
-          'current_task': 'Congratulations!',
+          'current_task': 'You may create new editions as needed.',
           'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.',
           'next_task_buttons': ['Create a new edition'],
           'next_task_ids': ['newEdition']
@@ -710,7 +710,7 @@ STR;
       echo '<div class="row editions">';
       echo '<div class="col-sm-12">';
       echo '<h3 class="message"><strong><span class="edition_title">'.$book->editions[$edition_count-1]['title'].'</span></strong> is the currently published edition of this '.$book->scope.'.</h3>';
-      echo '<p class="message">Choose an edition to view while browsing.</p>';
+      echo '<p class="message">Choose an edition to view while browsing (only visible to you).</p>';
       echo '<div class="btn-group">';
       echo '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Latest edits &nbsp; <span class="caret"></span></button> &nbsp; ';
       echo '<ul class="dropdown-menu" id="select_edition">';
