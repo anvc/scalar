@@ -147,8 +147,21 @@ class MY_Controller extends CI_Controller {
 		
 		$this->data['slug'] = implode('/', $this->data['url_params']['page_segments']);
 		$this->data['use_versions'] = array();
+
+		// If the Editorial Workflow is turned off then the URL can access everything as if there were no editions
+		if (!$this->editorial_is_on()) {
+			$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.'/';
+			if (!empty($this->data['url_params']['edition_num'])) {  // Edition URLs are no longer valid
+				$redirect_to = base_url().$this->data['url_params']['book_segment'].'/';
+				$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
+				$redirect_to .= ((null !== $this->data['url_params']['version_num']) ? '.'.$this->data['url_params']['version_num']: '');
+				header('Location: '.$redirect_to);
+				exit;
+			}
+			return;
+		}
 		
-		// The actual edition and version num based on various allowable hooks below
+		// The actual edition and version num based on the various forks below
 		$edition_num = $version_num = null;
 		
 		// Check the asked-for edition
@@ -199,11 +212,12 @@ class MY_Controller extends CI_Controller {
 			$redirect_to .= ((null !== $edition_num) ? '.'.$edition_num : '') . '/';
 			$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
 			$redirect_to .= ((null !== $version_num) ? '.'.$version_num: '');
+			//echo $redirect_to;
 			header('Location: '.$redirect_to);
 			exit;
 		}
 		
-		// Used through arbor HTML
+		// Used throughout arbor HTML
 		$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.((!empty($edition_num))?'.'.$edition_num:'').'/';
 
 	}
@@ -300,7 +314,6 @@ class MY_Controller extends CI_Controller {
 	
 	protected function editorial_is_on() {
 		
-		if (!$this->login_is_book_admin('Reviewer')) return false;
 		if (isset($this->data['book']) && isset($this->data['book']->editorial_is_on) && $this->data['book']->editorial_is_on) {
 			return true;
 		}
