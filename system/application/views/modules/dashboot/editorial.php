@@ -18,7 +18,7 @@ STR;
 <?$this->template->add_css($css,'embed')?>
 <?php if ($editorial_is_on): ?>
 <script>
-  var user_type = '<?echo($user_level);?>'.toLowerCase();
+  var user_type = '<?echo($user_level_as_defined);?>'.toLowerCase();
   var project_type = '<?echo($book->scope);?>';
 
   // editorial constants
