@@ -228,7 +228,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $(editor.container.$).find('iframe').show();
             editor.setData($placeholder.html());
 
-            $('#title_placeholder').hide();
             $placeholder.html($('#title_placeholder').html());
 
             $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
@@ -242,9 +241,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
                 $(this).replaceWith($newChunk.html());
             });
-            $('#title').val($placeholder.html()).show();
+            $('#title').val($placeholder.html());
 
-            $('#description_placeholder').hide();
             $placeholder.html($('#description_placeholder').html());
             $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
                 var $newChunk = $('<div>'+($(this).children('span[data-diff]').last().html())+'</div>');
@@ -257,13 +255,18 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
                 $(this).replaceWith($newChunk.html());
             });
-            $('#page_description').val($placeholder.html()).show();
+            $('#page_description').val($placeholder.html());
 
 
             $('.saveButtons .editingDisabled').removeClass('editingDisabled');
 
             $('body').on('savedPage',function(e){
                 if($('body').hasClass('isReviewing')){
+                    
+                    $('#title_placeholder').hide();
+                    $('#title').show();
+                    $('#description_placeholder').hide();
+                    $('#page_description').show();
                     base.waitingForReview = false;
                     base.restoreEditor();
                     base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
