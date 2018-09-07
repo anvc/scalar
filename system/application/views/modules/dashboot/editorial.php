@@ -235,6 +235,12 @@ STR;
           'next_task': 'Return here to check on the status of editorial.'
         }
       }
+    },
+    'unknown': {
+      'all': {
+        'current_task': '',
+        'next_task': 'Your editorial access to this '+project_type+' is limited since you are neither an author nor editor.'
+      }
     }
   }
 
@@ -390,7 +396,12 @@ STR;
           editorial_quantifier = 'minority';
         }
 
-        var current_messaging = editorial_messaging[user_type][proxy_editorial_state.id][editorial_quantifier];
+        user_type = null;
+
+        var current_messaging = editorial_messaging['unknown']['all'];
+        if (user_type != null && proxy_editorial_state != null && editorial_quantifier != null) {
+          current_messaging = editorial_messaging[user_type][proxy_editorial_state.id][editorial_quantifier];
+        }
 
         $('#primary-message > p').remove();
         if (editorial_state.id == 'empty') {
