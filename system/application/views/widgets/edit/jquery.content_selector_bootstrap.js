@@ -2581,8 +2581,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		if(isset(opts.editorialOptions) && opts.editorialOptions){
 			var state_flow = {};
 	        if(typeof user_type !== 'undefined' && user_type != null && (user_type === 'editor' || user_type === 'author')){
-	        	state_flow = user_type == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Clean']}:
-	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Edit_Review','Clean','Published']};
+	        	state_flow = user_type == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Edit','Clean']}:
+	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Clean','Published']};
 	        }
         }
 

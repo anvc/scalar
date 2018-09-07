@@ -86,8 +86,13 @@
                     'edit'
                 ],
                 'editreview' : [
+                    'edit',
                     'editreview',
                     'clean'
+                ],
+                'published' : [
+                    'ready',
+                    'published'
                 ]
             },
             'editor' : {
@@ -102,8 +107,11 @@
                     'ready'
                 ],
                 'ready' : [
-                    'editreview',
                     'clean',
+                    'ready',
+                    'published'
+                ],
+                'published' : [
                     'ready',
                     'published'
                 ]
@@ -1074,6 +1082,7 @@
             $('#editorialQueries').toggleClass('disabled',!canAddQueries).show();
         };
         base.addNode = function(node,callback){
+            console.log(node);
             var currentVersion = node.current;
             var queries = currentVersion.editorialQueries?JSON.parse(currentVersion.editorialQueries).queries:[];
             var state = node.current.editorialState;

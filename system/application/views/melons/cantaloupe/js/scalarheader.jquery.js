@@ -166,7 +166,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.isEditorialPathPage =  $('.editorialpath-page>#editorialPath').length > 0;
             base.okToAdd = (base.is_author || base.is_commentator);
             base.okToDelete = (base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']) && (base.editorialState != base.editorialStates['published']);
-            base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean'])) || (base.is_editor && ((base.editorialState == base.editorialStates['edit']) || (base.editorialState == base.editorialStates['clean']) || (base.editorialState == base.editorialStates['ready']))));
+            base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']) && (base.editorialState != base.editorialStates['ready'])) || (base.is_editor && ((base.editorialState != base.editorialStates['draft']) && (base.editorialState != base.editorialStates['editreview']))));
 
             //We should also grab the book ID from the RDF stuff
             base.bookId = parseInt($('link#book_id').attr('href'));

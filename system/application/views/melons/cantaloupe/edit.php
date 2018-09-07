@@ -113,10 +113,10 @@ p {margin-bottom: 1.2rem;}
 
 .state_dropdown .dropdown-menu a.active{background-color: rgba(0,0,0,.125); color: #fff;}
 .state_dropdown .dropdown-menu a.active:hover{background-color: rgba(0,0,0,.25);}
-#editorialStateConfirmation .modal-content{
+#editorialStateConfirmation .modal-content, #editorialNewDraftConfirmation .modal-content{
 	padding: 2rem;
 }
-#editorialStateConfirmationLabel{
+#editorialStateConfirmationLabel, #editorialNewDraftConfirmationLabel{
 	margin: 0;
 }
 
@@ -452,6 +452,10 @@ $(document).ready(function() {
 	});
 
 	//Editorial state stuff:
+	has_edition = $('a.metadata[rel="scalar:hasEdition"]').length > 0;
+	if(has_edition && $('#editorial_state').val() == 'published'){
+		$('#editorial_state_button_container .ready').remove();
+	}
 	if($('link#editorial_workflow').length > 0){
 		$('.state_dropdown li>a').click(function(e){
     		e.preventDefault();
@@ -481,6 +485,23 @@ $(document).ready(function() {
 			hasEditorialStateAlertCookie = true;
 		}
 		$('#editorialStateConfirmation').modal('hide');
+		initial_state = $('#editorial_state').val();
+		return false;
+	});
+	$('#editorialNewDraftConfirmationSave').click(function(e){
+		e.preventDefault();
+		$('#editorial_state').val('draft');
+		if(validate_edit_form($(this).data('$form'),$(this).data('no_action'))){
+			$('body').trigger('savedPage');
+			$('#editorial_state_button_container .dropdown-menu').html('<li class="draft"><a href="#" data-state="draft" class="active">Draft</a></li><li class="edit"><a href="#" data-state="edit" class="">Edit</a></li>');
+			$('#editorial_state_button_container button').removeClass('published').addClass('draft').find('.btn_text').text('Draft');
+			$('.form-horizontal, #edit_content, .tab-pane, .saveButtons').toggleClass('editingDisabled',is_editor);
+			$('#editorial_state_text .published').hide();
+			$('#editorial_state_text .draft').show();
+		}else{
+			$('#editorial_state').val('published');
+		}
+		$('#editorialNewDraftConfirmation').modal('hide');
 		initial_state = $('#editorial_state').val();
 		return false;
 	});
@@ -516,13 +537,13 @@ var editorialStates = {
 						},
 						'ready' :{
 							'name':'Ready',
-							'canEdit':true,
+							'canEdit':is_editor,
 							'changeEffect':"it will be publishable by authors and editors."
 						},
 						'published' :{
 							'name':'Published',
 							'canEdit':true,
-							'changeEffect':"it will no longer be editable within this book's edition, and will be made public."
+							'changeEffect':$('a.metadata[rel="scalar:hasEdition"]').length > 0?"it will no longer be editable within this book's edition, and will be made public.":"it will be made public."
 						}
 					};
 
@@ -532,19 +553,29 @@ function change_editorial_state_then_save($form){
 	confirm_editorial_state_then_save($form);
 }
 function confirm_editorial_state_then_save($form, no_action){
-	if($('#editorial_state').val() === initial_state || hasEditorialStateAlertCookie){
-		if(validate_edit_form($form,no_action)){
-			$('body').trigger('savedPage');
+	if(!no_action){
+		no_action = false;
+	}
+
+	var is_published = $('#editorial_state').val() == 'published';
+
+	if(!has_edition || !is_published){
+		if($('#editorial_state').val() === initial_state || hasEditorialStateAlertCookie){
+			if(validate_edit_form($form,no_action)){
+				$('body').trigger('savedPage');
+			}
+		}else{
+			$('#editorialStateConfirmation .new_state').text(editorialStates[$('#editorial_state').val()].name);
+			$('#editorialStateConfirmation .post_change_effect').text(editorialStates[$('#editorial_state').val()].changeEffect);
+			$('#editorialStateConfirmationSave').data('no_action',no_action);
+			$('#editorialStateConfirmationSave').data('$form',$form);
+			$('#editorialStateConfirmation').modal('show');
 		}
 	}else{
-		if(!no_action){
-			no_action = false;
-		}
-		$('#editorialStateConfirmation .new_state').text(editorialStates[$('#editorial_state').val()].name);
-		$('#editorialStateConfirmation .post_change_effect').text(editorialStates[$('#editorial_state').val()].changeEffect);
-		$('#editorialStateConfirmationSave').data('no_action',no_action);
-		$('#editorialStateConfirmationSave').data('$form',$form);
-		$('#editorialStateConfirmation').modal('show');
+		$('#editorialNewDraftConfirmation .post_change_effect').text('a new draft will be created and '+(is_author?'editors':'you')+' will no longer be allowed to peform edits.');
+		$('#editorialNewDraftConfirmationSave').data('no_action',no_action);
+		$('#editorialNewDraftConfirmationSave').data('$form',$form);
+		$('#editorialNewDraftConfirmation').modal('show');
 	}
 	return false;
 }
@@ -593,6 +624,14 @@ END;
 
 $js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'";';
 
+$currentRole = 'author';
+foreach($book->contributors as $contributor){
+	if($contributor->user_id == $login->user_id){
+		$currentRole = $contributor->relationship;
+		break;
+	}
+}
+
 $this->template->add_js($js, 'embed');
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
@@ -605,14 +644,6 @@ $editorialStates = array(
 	'ready' => 'Ready',
 	'published' => 'Published'
 );
-
-$currentRole = 'author';
-foreach($book->contributors as $contributor){
-	if($contributor->user_id == $login->user_id){
-		$currentRole = $contributor->relationship;
-		break;
-	}
-}
 $currentQueries = (isset($page->versions) && isset($page->versions[$page->version_index]->editorial_queries)) ? htmlspecialchars($page->versions[$page->version_index]->editorial_queries) : htmlspecialchars('{"queries":[]}');
 $currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
 $availableStates = array($currentState=>$editorialStates[$currentState]);
@@ -649,10 +680,8 @@ switch($currentState){
 		}
 		break;
 	case 'published':
-		if($currentRole == 'editor'){
-			$availableStates = array_slice($editorialStates,-2,2);
-			$canChangeState = true;
-		}
+		$availableStates = array_slice($editorialStates,-2,2);
+		$canChangeState = true;
 		break;
 }
 
@@ -720,6 +749,7 @@ $nextState = end($availableStates);
 		</div>
 	</div>
 	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'): ?>
+
 		<div class="form-group statusGroup<?=isset($page->version_index)?'':' editingDisabled'?>">
 			<label class="col-sm-2">Status</label>
 			<div class="col-sm-10">
@@ -774,7 +804,6 @@ $nextState = end($availableStates);
 	</div>
 <? endif ?>
 </div>
-
 <table>
 <tr id="edit_content" class="p type_composite<?=$canChangeState?'':' editingDisabled'?>">
 	<td colspan="2">
@@ -1381,6 +1410,22 @@ endif;
 		</div>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-primary" id="editorialStateConfirmationSave">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="editorialNewDraftConfirmation" tabindex="-1" role="dialog" aria-labelledby="editorialNewDraftConfirmationLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title heading_font heading_weight" id="editorialNewDraftConfirmationLabel">Create new draft</h4>
+      </div>
+      <div class="modal-body caption_font">
+        Once you save this <span class="content_type">page</span>, <span class="post_change_effect"></span> Are you sure you want to do this?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="editorialNewDraftConfirmationSave">Yes</button>
       </div>
     </div>
   </div>
