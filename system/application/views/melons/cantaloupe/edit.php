@@ -460,11 +460,12 @@ $(document).ready(function() {
 			var version_timestamp = new Date(version_date);
 			if(version_timestamp <= edition_timestamp){
 				has_edition = true;
+				
+				if($('#editorial_state').val() == 'published'){
+					$('#editorial_state_button_container .ready').remove();
+				}
 			}
 		}
-	}
-	if(has_edition && $('#editorial_state').val() == 'published'){
-		$('#editorial_state_button_container .ready').remove();
 	}
 	if($('link#editorial_workflow').length > 0){
 		$('.state_dropdown li>a').click(function(e){

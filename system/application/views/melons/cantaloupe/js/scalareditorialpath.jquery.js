@@ -76,7 +76,7 @@
                             'published' :{
                                 'id':5,
                                 'name':'Published',
-                                'changeEffect':"it will no longer be editable within this book's edition, and will be made public."
+                                'changeEffect':$('a.metadata[rel="scalar:hasEdition"]').length > 0?"it will no longer be editable within this book's edition, and will be made public.":"it will be made public."
                             }
                         };
         base.node_state_flow = {
@@ -1081,7 +1081,7 @@
 
             $('#editorialQueries').toggleClass('disabled',!canAddQueries).show();
         };
-        base.addNode = function(node,callback){
+        base.addNode = function(node,callback,$replace){
             var currentVersion = node.current;
             var queries = currentVersion.editorialQueries?JSON.parse(currentVersion.editorialQueries).queries:[];
             var state = node.current.editorialState;
@@ -1146,7 +1146,13 @@
                                                              '<div id="node_'+node.slug.replace(/\//g, '_')+'_body" class="clearfix bodyContent body_font noContent">(This page has no content.)</div>')+
                                         '</div>';
 
-                var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
+                if(typeof $replace !== 'undefined'){
+                    var $node = $(nodeItemHTML).hide();
+                    $replace.replaceWith($node);
+                    $node.fadeIn();
+                }else{
+                    var $node = $(nodeItemHTML).appendTo(base.$nodeList).hide().fadeIn();
+                }
                 if(!waitingForReview){
                     $node.find('.with_queries_badge, .no_queries_badge').click(function(e){
                         if($('#editorialQueries').is(':visible') && $('#editorialQueries').data('$currentNode') == $node){
@@ -1220,11 +1226,26 @@
                     },this));
                 });
 
+                var has_edition = false;
+                if($('a.metadata[rel="scalar:hasEdition"]').length > 0){
+                    var edition_timestamp = new Date($('span[resource="'+$('a.metadata[rel="scalar:hasEdition"]').attr('href')+'"] span[property="dcterms:created"]').text());
+                    var version_timestamp = new Date(node.current.created);
+                    if(version_timestamp <= edition_timestamp){
+                        has_edition = true;
+                        if(state == "published"){
+                            $node.find('.dropdown-menu .ready').remove();
+                            $node.find('.state_dropdown>button').addClass('btn-disabled').prop('disabled',true);
+                        }
+                    }
+                }
+
                 $node.data({
                     title : currentVersion.title,
                     slug : node.slug,
-                    state : state
+                    state : state,
+                    hasEdition : has_edition
                 });
+
                 if(waitingForReview){
                     $node.find('.bodyContent').html(diff.body);
                     $node.find('.state_btn').tooltip({
@@ -1458,6 +1479,12 @@
             var $description = $node.find('.descriptionContent');
             var description = $description.hasClass('noDescription')?'':$description.text();
             var editorialState = $node.data('state');
+            var replace_node = false;
+
+            if($node.data('hasEdition') && editorialState == 'published'){
+                editorialState = 'draft';
+                replace_node = true;
+            }
 
             if(!!base.node_state_flow[editorialState]){
                 $node.find('.descriptionContent,.additionalMetadata .fieldVal')
@@ -1520,8 +1547,13 @@
                             base.nodeList.unsorted[n] = node;
                         }
                     }
-                    base.updateLists();
+                    if(replace_node){
+                        base.addNode(node,base.updateLists,$node);
+                    }else{
+                        base.updateLists();
+                    }
                 }
+
                 if(scalarapi.loadPage( slug, true, reload_node, null, 1, false, null, 0, 20) == "loaded") reload_node();
 
                 base.$saveNotice.text('"'+title+'" updated').fadeIn('fast',function(){
