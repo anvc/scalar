@@ -748,16 +748,16 @@ STR;
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <input type="hidden" name="enable" value="0" />
       <div class="modal-header">
-      	<h4>Confirm</h4>
+      	<h4>Disable Editorial Workflow</h4>
       </div>
       <div class="modal-body caption_font">
-       	  <p><b>Turning off the Editorial Workflow will disable any Editions.</b> Your readers will see all pages in their most up-to-date
-       	  version. However, all data will be maintained in case you wish to turn the Editorial Workflow back on.<br /><br />
-       	  Are you sure you wish to turn off the Editorial Workflow for this <?=$book->scope?>?</p>
+       	  <p><b>Are you sure you wish to disable the Editorial Workflow for this <?=$book->scope?>?</b><br /><br />
+          Doing so will also disable any Editions. Your readers will see the latest versions of all pages and content, even if they were previously unpublished. All editorial data will be maintained should you wish to re-enable the Editorial Workflow later.<br />
+       	  </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Turn off</button>
+        <button type="submit" class="btn btn-primary">Disable</button>
       </div>
       </form>
     </div>
@@ -808,7 +808,7 @@ STR;
       <h3 style="margin-top:0px; padding-top:0px; margin-bottom:16px; padding-bottom:0px;">Editorial Workflow</h3>
       <p>
       Track the editorial state of each piece of content in your <?=$book->scope?>.  Enable editorial workflow on the current
-      <?=$book->scope?> by clicking the button below, or <a href="javascript:void(null);">learn more</a>.
+      <?=$book->scope?> by clicking the button below, or <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">learn more</a>.
       <br /><br />
       <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#confirmEditorialWorkflow">Enable editorial workflow</button>
       </p>
@@ -823,15 +823,15 @@ STR;
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <input type="hidden" name="enable" value="1" />
       <div class="modal-header">
-      	<h4>Confirm</h4>
+      	<h4>Enable Editorial Workflow</h4>
       </div>
       <div class="modal-body caption_font">
-       	  <p><b>There will be performance and user interface changes to every page in your <?=$book->scope?>.</b><br /><br />
-       	  Are you sure you wish to turn on the Editorial Workflow?</p>
+       	  <p><b>Are you sure you wish to enable the Editorial Workflow for this <?=$book->scope?>?</b><br /><br />
+       	   You can disable it later if you wish.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Turn on</button>
+        <button type="submit" class="btn btn-primary">Enable</button>
       </div>
       </form>
     </div>
@@ -844,7 +844,7 @@ STR;
       <h3 style="margin-top:0px; padding-top:0px; margin-bottom:16px; padding-bottom:0px;">Editorial Workflow</h3>
       <p>
       Track the editorial state of each piece of content in your <?=$book->scope?>.  Enable editorial workflow on the current
-      <?=$book->scope?> by clicking the button below, or <a href="javascript:void(null);">learn more</a>.
+      <?=$book->scope?> by clicking the button below, or <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">learn more</a>.
       </p>
       <p>
       <strong>The database for this Scalar install hasn't been updated to support Editorial Workflow features.</strong> 

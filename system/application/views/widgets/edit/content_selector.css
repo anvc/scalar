@@ -415,3 +415,5 @@ td[property="format"] img{
 .table-fixed thead th, .table-fixed tbody td{
 	display: inline-block;
 }
+
+.panel-footer .alert { margin-left: 0; }
