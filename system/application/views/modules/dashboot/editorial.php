@@ -128,7 +128,9 @@ STR;
       'publishedWithEditions': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.'
+          'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.',
+          'next_task_buttons': ['Create a new edition'],
+          'next_task_ids': ['newEdition']
         }
       },
      'empty': {
@@ -402,7 +404,9 @@ STR;
         }
 
         $('#primary-message > p').remove();
-        if (editorial_state.id == 'empty') {
+        if (has_editions && earliest_state.state != 'published') {
+          $('#primary-message').prepend('<p><strong>This '+project_type+' contains unpublished edits.</strong><br>'+current_messaging['current_task']+'</p>');
+        } else if (editorial_state.id == 'empty') {
           $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is '+editorial_state['name']+'.</strong><br>'+current_messaging['current_task']+'</p>');
         } else {
           $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
