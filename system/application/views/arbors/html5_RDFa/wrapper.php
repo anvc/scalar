@@ -437,7 +437,7 @@ if (!empty($has_references)):
 ?>
 	<section>
 		<h1>This page is referenced by:</h1>
-		<ol class="has_reference">
+		<ul class="has_reference">
 <? 		foreach ($has_references as $reference_item): ?>
 			<li>
 				<a aria-hidden="true" rel="dcterms:isReferencedBy" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
@@ -455,7 +455,7 @@ if (!empty($has_references)):
 ?>				</span>
 			</li>
 <? 		endforeach; ?>
-		</ol>
+		</ul>
 	</section>
 <? endif; ?>
 <?
@@ -464,7 +464,7 @@ if (!empty($reference_of)):
 ?>
 	<section>
 		<h1>This page references:</h1>
-		<ol class="reference_of">
+		<ul class="reference_of">
 <? 		foreach ($reference_of as $reference_item): ?>
 			<li>
 				<a rel="dcterms:references" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
@@ -482,7 +482,7 @@ if (!empty($reference_of)):
 ?>				</span>
 			</li>
 <? 		endforeach; ?>
-		</ol>
+		</ul>
 	</section>
 <? endif; ?>
 <?php endif; ?>

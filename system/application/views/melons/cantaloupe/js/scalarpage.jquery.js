@@ -1072,16 +1072,11 @@
                         $(".relationships").eq(0).before(hasTags.parent());
                         hasTags.parent().addClass('relationships').show(); 
                     };
-                    var noteOf = $('.has_reference').find('[typeof="scalar:Composite"]');  // Right now Scalar logs media links and class="note", so assume that a relationship to a page is a note
-                    if (noteOf.length) {
-                    	noteOf.closest('.has_reference').find('li').hide();
-                    	noteOf.closest('.has_reference').contents().unwrap().wrapAll('<ul class="has_reference"></ul>');
-                    	noteOf.closest('.has_reference').siblings('h1').text('This ' + selfType + ' is referenced by:');
-                   	 	$(".relationships").eq(0).before($(this).closest('.has_reference').parent());
-                   	 	noteOf.closest('.has_reference').parent().addClass('relationships').show(); 
-	                    noteOf.each(function() {
-	                    	$(this).closest('li').show();
-	                    });
+                    var hasReferences = $(".has_reference");
+                    if (hasReferences.children().length > 0) {
+                    	var is_composite = (-1 == $('link#primary_role').attr('href').indexOf('Media')) ? true : false;
+                    	hasReferences.siblings('h1').text('This ' + selfType + ' is '+((is_composite)?'a note in':'refenced by')+':');
+                    	hasReferences.parent().addClass('relationships').show(); 
                     };
                 }
 
