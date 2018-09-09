@@ -151,7 +151,7 @@ class MY_Controller extends CI_Controller {
 		// If the Editorial Workflow is turned off then the URL can access everything as if there were no editions
 		if (!$this->editorial_is_on()) {
 			$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.'/';
-			if (!empty($this->data['url_params']['edition_num'])) {  // Edition URLs are no longer valid
+			if (empty($this->data['url_params']['page_first_segment']) || !empty($this->data['url_params']['edition_num'])) {  // Edition URLs are no longer valid
 				$redirect_to = base_url().$this->data['url_params']['book_segment'].'/';
 				$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
 				$redirect_to .= ((null !== $this->data['url_params']['version_num']) ? '.'.$this->data['url_params']['version_num']: '');
