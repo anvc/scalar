@@ -319,7 +319,7 @@ class RDF_Object {
 		if (!is_array($settings['content'])) $settings['content'] = array($settings['content']);
 		if (!empty($settings['pagination']) && $settings['pagination']['start']>0) $settings['content'] = array_slice($settings['content'], $settings['pagination']['start']);
 		$count = 0;
-		// Don't cast $return, so a key won't be set if there is no $index returned below
+		$return = array();
 
 		foreach ($settings['content'] as $row) {
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
@@ -330,7 +330,7 @@ class RDF_Object {
 			}
 		}
 
-		return $return;
+		return (!empty($return)) ? $return : null;
 
     }
 

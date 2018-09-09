@@ -146,7 +146,7 @@ class MY_Controller extends CI_Controller {
 		$this->data['url_params']['page_first_segment'] = (count($this->data['url_params']['page_segments']) > 0) ? no_version($this->data['url_params']['page_segments'][0]) : null;
 		
 		$this->data['slug'] = implode('/', $this->data['url_params']['page_segments']);
-		$this->data['use_versions'] = array();
+		$this->data['use_versions'] = null;
 
 		// If the Editorial Workflow is turned off then the URL can access everything as if there were no editions
 		if (!$this->editorial_is_on()) {

@@ -117,6 +117,7 @@ class Book extends MY_Controller {
 								 	'book'         => $this->data['book'],
 									'content'      => $page,
 									'use_versions' => $this->data['use_versions'],
+									'use_versions_restriction' => RDF_Object::USE_VERSIONS_EXCLUSIVE,
 									'base_uri'     => $this->data['base_uri'],
 									'versions'     => RDF_Object::VERSIONS_MOST_RECENT,
 									'ref'          => RDF_Object::REFERENCES_ALL,
@@ -126,16 +127,20 @@ class Book extends MY_Controller {
 									'tklabels' 	   => RDF_Object::TKLABELS_ALL
 								 );
 				$index = $this->rdf_object->index($settings);
-			    if (!count($index)) throw new Exception('Problem getting page index');
-			    $this->data['page'] = $index[0];
-			    unset($index);
-				// Paywall
-				if (isset($page->paywall) && $page->paywall) $this->paywall();
-				// If a media page, overwrite the views with the media_views if applicable
-				if ('media'==$this->data['page']->type && !empty($this->data['media_views'])) $this->data['views'] = $this->data['media_views'];
-				// Set the view based on the page's default view
-				$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
-				if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
+				if (null !== $index) {
+				    if (is_array($index) && !count($index)) throw new Exception('Problem getting page index');
+				    $this->data['page'] = $index[0];
+				    unset($index);
+					// Paywall
+					if (isset($page->paywall) && $page->paywall) $this->paywall();
+					// If a media page, overwrite the views with the media_views if applicable
+					if ('media'==$this->data['page']->type && !empty($this->data['media_views'])) $this->data['views'] = $this->data['media_views'];
+					// Set the view based on the page's default view
+					$default_view = $this->data['page']->versions[$this->data['page']->version_index]->default_view;
+					if (array_key_exists($default_view, $this->data['views'])) $this->data['view'] = $default_view;
+				} else {
+					$page_not_found = true;
+				}
 			} else {
 				$page_not_found = true;
 			}

@@ -164,7 +164,7 @@ class Rdf extends MY_Controller {
 			$content = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
 			// Version being asked for
 			$version_num = (int) get_version($this->uri->uri_string());
-			$this->data['use_versions'] = 0;
+			$this->data['use_versions'] = null;
 			if (!empty($version_num)) {
 				$version = $this->versions->get_by_version_num($content->content_id, $version_num);
 				if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin() && $this->pages->is_using_recent_version_id($this->data['book']->book_id)) {
@@ -176,7 +176,6 @@ class Rdf extends MY_Controller {
 			// Edition being asked for
 			if (!empty($this->data['book']->edition_num) && isset($this->data['book']->editions[$this->data['book']->edition_num-1])) {
 				$this->data['edition'] = $this->data['book']->editions[$this->data['book']->edition_num-1];
-				// TODO: validate a previously-defined $version_num if present
 				$this->data['use_versions'] = $this->data['edition']['pages'];
 			}
 			// Don't throw an error here if $content is empty, let through to return empty RDF
@@ -187,6 +186,7 @@ class Rdf extends MY_Controller {
 						                 'book'         => $this->data['book'],
 						                 'content'      => $content,
 									   	 'use_versions'	=> $this->data['use_versions'],
+									   	 'use_versions_restriction' => RDF_Object::USE_VERSIONS_EXCLUSIVE,
 						                 'base_uri'     => $this->data['base_uri'],
 									   	 'method'		=> __FUNCTION__.'/'.$slug,
 				                         'restrict'     => $this->data['restrict'],
@@ -301,7 +301,7 @@ class Rdf extends MY_Controller {
 				}
 			}
 			$this->rdf_object->index(
-			                         $this->data['content'],
+			                           $this->data['content'],
 			                           array(
 			                         	 'book'			=> $this->data['book'],
 			                         	 'content'		=> $content,
