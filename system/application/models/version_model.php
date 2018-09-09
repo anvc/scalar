@@ -72,12 +72,22 @@ class Version_model extends MY_Model {
   		if (isset($row->timestamp) && !empty($row->timestamp)) {
   			if (!isset($row->created) || empty($row->created)) $row->created = date("F j, Y, g:i a", $row->timestamp);
   		}
-  		
-  		// Only show queries on edit page
-  		if (isset($row->queries)) {
-			if (!isset($this->data['mode']) || $this->data['mode'] != 'editing' || !isset($this->data['book']->editorial_is_on) || !$this->data['book']->editorial_is_on) {
-				unset($row->queries);
-			}
+
+  		// Only show Editorial Workflow fields on edit page and RDF API when an author or editor
+  		if (isset($this->data['book']->editorial_is_on)) {  // No access to MY_Controller->can_editorial()
+  			$unset = false;
+  			$am_in_book = ('book' == $this->router->fetch_class()) ? true : false;
+  			if (!$this->data['book']->editorial_is_on) {
+  				$unset = true;
+  			} elseif ($am_in_book && $this->data['mode'] != 'editing') {
+  				$unset = true;
+  			} elseif (!$am_in_book && 'author' != strtolower($this->data['user_level']) && 'editor' != strtolower($this->data['user_level'])) {
+  				$unset = true;	
+  			}
+  			if ($unset) {
+  				unset($row->usage_rights);
+  				unset($row->editorial_queries);
+  			}
   		}
 
   		$rdf = parent::rdf($row, $prefix);
