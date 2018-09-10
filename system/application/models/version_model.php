@@ -74,7 +74,7 @@ class Version_model extends MY_Model {
   		}
 
   		// Only show Editorial Workflow fields on edit page and RDF API when an author or editor
-  		if (isset($this->data['book']->editorial_is_on)) {  // No access to MY_Controller->can_editorial()
+  		if (isset($row->editorial_queries)) {  // No access to MY_Controller->can_editorial()
   			$unset = false;
   			$am_in_book = ('book' == $this->router->fetch_class()) ? true : false;
   			$am_in_api = ('api' == $this->router->fetch_class()) ? true : false;
