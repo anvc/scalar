@@ -1171,11 +1171,11 @@
 
                 $node.data('node',node);
                 
-                // Added by Craig
                 var additionalMetadataFields = {};
                 if ('undefined' != typeof(window['rdfFields']) && 'undefined' != typeof(window['namespaces'])) {
                     var isBuiltInField = function(pnode) {
                         for (var fieldname in window['rdfFields']) {
+                        	if ('tklabels' == fieldname) return false;  // Special case for TK Labels which are held in the Resources table
                             if (window['rdfFields'][fieldname] == pnode) return true;
                         }
                         return false;
@@ -1185,6 +1185,9 @@
                             if (-1 != uri.indexOf(window['namespaces'][prefix])) {
                                 pnode = uri.replace(window['namespaces'][prefix], prefix+':');
                                 if (isBuiltInField(pnode)) continue;
+                                for (var j = 0; j < node.current.properties[uri].length; j++) {
+                                	if ('string'==typeof(node.current.properties[uri][j].value)) node.current.properties[uri][j].value = node.current.properties[uri][j].value.replace(window['namespaces']['tk'], 'tk:');  // TK Labels values are output as URIs by the RDF API but saved as pnodes to the Save API
+                                };
                                 additionalMetadataFields[pnode] = node.current.properties[uri];
                             }
                         }
@@ -1192,9 +1195,11 @@
                     if (!$.isEmptyObject(additionalMetadataFields)) {
                         var $additionalMetadata = $('<div class="clearfix additionalMetadata" style="padding-bottom:2rem;"><h3>Additional Metadata</h3></div>').appendTo($node);
                         for (var pnode in additionalMetadataFields) {
-                            var $row = $('<div class="row"><div class="col-xs-4 fieldName"></div><div class="col-xs-8 fieldVal"></div></div>').appendTo($additionalMetadata);
-                            $row.find('.fieldName').text(pnode);
-                            $row.find('.fieldVal').text(additionalMetadataFields[pnode][0].value);
+                        	for (var j = 0; j < additionalMetadataFields[pnode].length; j++) {
+	                            var $row = $('<div class="row"><div class="col-xs-4 fieldName"></div><div class="col-xs-8 fieldVal"></div></div>').appendTo($additionalMetadata);
+	                            $row.find('.fieldName').text(pnode);
+	                            $row.find('.fieldVal').text(additionalMetadataFields[pnode][j].value);
+                        	};
                         };
                     }
                 };                   
@@ -1528,7 +1533,8 @@
 
             //Go through and add metadata to page data now:
             $node.find('.additionalMetadata .row').each(function(){
-                pageData[$(this).find('.fieldName').text()] = $(this).find('.fieldVal').text();    
+            	if ('undefined' == typeof(pageData[$(this).find('.fieldName').text()])) pageData[$(this).find('.fieldName').text()] = [];
+                pageData[$(this).find('.fieldName').text()].push($(this).find('.fieldVal').text());    
             });
             
             //Add the editorial queries in:
