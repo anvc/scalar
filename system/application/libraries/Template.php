@@ -49,6 +49,7 @@ class CI_Template {
    var $meta = array();
    var $link = array();
    var $html = array();
+   var $block = array();
    var $parser = 'parser';
    var $parser_method = 'parse';
    var $parse_template = FALSE;
@@ -434,6 +435,24 @@ class CI_Template {
    // --------------------------------------------------------------------
 
    /**
+    * Block a resource from being added
+    *
+    * Added by Craig Dietrich, 10 September 2018
+    *
+    * @access  public
+    * @param   string identifier to block
+    * @param   string the array to remove from (js, css, meta, link)
+    */
+   
+   function block($id, $from)
+   {
+   	if (!isset($this->block[$from])) $this->block[$from] = array();
+   	$this->block[$from][] = $id;
+   	
+   	return TRUE;
+   }
+   
+   /**
     * Dynamically include javascript in the template
     *
     * NOTE: This function does NOT check for existence of .js file
@@ -449,6 +468,8 @@ class CI_Template {
    {
       $success = TRUE;
       $js = NULL;
+      
+      if (isset($this->block['js']) && in_array($script, $this->block['js'])) return FALSE;
 
       $this->CI->load->helper('url');
 
@@ -508,14 +529,15 @@ class CI_Template {
    {
       $success = TRUE;
       $css = NULL;
-
+      
+      if (isset($this->block['css']) && in_array($style, $this->block['css'])) return FALSE;
+      
       $this->CI->load->helper('url');
       $filepath = base_url() . $style;
 
       switch ($type)
       {
          case 'link':
-
             $css = '<link type="text/css" rel="stylesheet" href="'. $filepath .'"';
             if ($media)
             {
@@ -565,6 +587,8 @@ class CI_Template {
       $success = TRUE;
       $meta = NULL;
 
+      if (isset($this->block['meta']) && in_array($name, $this->block['meta'])) return FALSE;
+      
       $this->CI->load->helper('url');
 
 	  $meta = '<meta name="'.$name.'" content="'.$content.'">';
@@ -594,6 +618,8 @@ class CI_Template {
    	$success = TRUE;
    	$link = NULL;
    
+   	if (isset($this->block['link']) && in_array($id, $this->block['link'])) return FALSE;
+   	
    	$this->CI->load->helper('url');
    
    	$link = '<link id="'.$id.'" href="'.$href.'">';
