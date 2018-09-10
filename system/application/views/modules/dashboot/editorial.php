@@ -301,17 +301,17 @@ STR;
   }
 
   function createNewEdition(fields) {
-	if ('undefined'==typeof(fields) || $.isEmptyObject(fields) || 'undefined'==typeof(fields.title)) {
-		alert('Create new edition fields are formatted inccorrectly.');
-		return;
-	}
-	$.post($('link#sysroot').attr('href')+'system/api/create_edition', {book_id:book_id,title:fields.title}, function(data) {
-		if ('undefined'!=typeof(data.error) && data.error.length) {
-			alert('Something went wrong attempting to save: '+data.error);
-			return;
-		};
-		fields.callback(data);
-	}, 'json');
+  	if ('undefined'==typeof(fields) || $.isEmptyObject(fields) || 'undefined'==typeof(fields.title)) {
+  		alert('Create new edition fields are formatted inccorrectly.');
+  		return;
+  	}
+  	$.post($('link#sysroot').attr('href')+'system/api/create_edition', {book_id:book_id,title:fields.title}, function(data) {
+  		if ('undefined'!=typeof(data.error) && data.error.length) {
+  			alert('Something went wrong attempting to save: '+data.error);
+  			return;
+  		};
+  		fields.callback(data);
+  	}, 'json');
   }
 
   function calculateFragmentOverflow(){
@@ -335,20 +335,21 @@ STR;
   }
 
   function getCookie(cname) {  // https://www.w3schools.com/js/js_cookies.asp
-	    var name = cname + "=";
-	    var decodedCookie = decodeURIComponent(document.cookie);
-	    var ca = decodedCookie.split(';');
-	    for(var i = 0; i <ca.length; i++) {
-	        var c = ca[i];
-	        while (c.charAt(0) == ' ') {
-	            c = c.substring(1);
-	        }
-	        if (c.indexOf(name) == 0) {
-	            return c.substring(name.length, c.length);
-	        }
-	    }
-	    return "";
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 	}
+
   function recalculate_graphs(e,scope){
     if(typeof scope === 'undefined' || scope == null || scope == ''){
       scope = 'all';
@@ -490,6 +491,23 @@ STR;
       }
     }); // Ajax
   }
+
+  function highlightSelectedEdition(editionLink) {
+    editionLink.closest('.btn-group').find('li').removeClass('active');
+    editionLink.parent().addClass('active');
+    var $btn = editionLink.closest('.btn-group').find('button:first');
+    var btn_text = editionLink.data('title');
+    $btn.html(btn_text+' &nbsp; <span class="caret"></span>');
+  }
+
+  function selectEditionByIndex(index) {
+      if (null===index) {
+        document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+      } else {
+        document.cookie = "scalar_edition_index="+index+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
+      };
+  }
+
   var state_info_base_html;
   $(document).ready(function() {
     state_info_base_html = $('.editorial-summary').html();
@@ -497,217 +515,210 @@ STR;
 
     // Select edition to be viewing
     $(document).on("click", "#select_edition a", function() {
-		if (!navigator.cookieEnabled) {
-			alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
-			return; 
-		};
-		var $selected = $(this);
-		$selected.closest('.btn-group').find('li').removeClass('active');
-		$selected.parent().addClass('active');
-		var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
-		var $btn = $selected.closest('.btn-group').find('button:first');
-		var btn_text = $selected.data('title');
-		$btn.html(btn_text+' &nbsp; <span class="caret"></span>');
-		if (null===index) {
-			document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
-		} else {
-			document.cookie = "scalar_edition_index="+index+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
-		};
-	});
-	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
-		$('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').click();
-	};
+  		if (!navigator.cookieEnabled) {
+  			alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
+  			return;
+  		};
+  		var $selected = $(this);
+      highlightSelectedEdition($selected);
+      var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
+      selectEditionByIndex(index);
+      window.open($('link#parent').attr('href'),'_self');
+  	});
+  	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
+      highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]'));
+  	};
 
-  $('#createEdition').on('show.bs.modal', function() {
-    $('.editions .btn').blur();
-    var $modal = $(this);
-    $body = $modal.find('.modal-body:first');
-    var $form = $body.parent();
-    $form.submit(function() {
-      var $form = $(this);
-      var title = $form.find('input[type="text"]:first').val();
-      if (!title.length) {
-        alert('Title is a required field.');
+    $('#createEdition').on('show.bs.modal', function() {
+      $('.editions .btn').blur();
+      var $modal = $(this);
+      $body = $modal.find('.modal-body:first');
+      var $form = $body.parent();
+      $form.submit(function() {
+        var $form = $(this);
+        var title = $form.find('input[type="text"]:first').val();
+        if (!title.length) {
+          alert('Title is a required field.');
+          return false;
+        };
+        $body.find('.btn:last').prop('disabled',true);
+        // Create edition JSON
+        var callback = function(obj) {
+          $body.find('.btn:last').prop('disabled',false);
+          $('#createEdition').modal('hide');
+          var $select_edition = $('#select_edition');
+          if (!$select_edition.find('li.divider').length) {
+            $select_edition.append('<li role="separator" class="divider"></li>');
+          } else {
+            $select_edition.find('li.divider').nextAll().remove();
+          };
+
+          var latestEditionTitle = obj[obj.length-1].title;
+          $('.edition_title').text(latestEditionTitle);
+
+          var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+          for (var j = obj.length-1; j >= 0; j--) {
+            var $li = $('<li'+((index!=='' && j==parseInt(index))?' class="active"':'')+'><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
+            $li.find('a').attr('data-title', obj[j].title);
+          };
+          if (navigator.cookieEnabled && ''!==index) {
+            $('#select_edition').find('a[data-index="'+index+'"]').click();
+          };
+          if (obj.length == 1) {
+            location.reload();
+          }
+        };
+        createNewEdition({title:title,callback:callback});
         return false;
-      };
-      $body.find('.btn:last').prop('disabled',true);
-      // Create edition JSON
-      var callback = function(obj) {
-        $body.find('.btn:last').prop('disabled',false);
-        $('#createEdition').modal('hide');
-        var $select_edition = $('#select_edition');
-        if (!$select_edition.find('li.divider').length) {
-          $select_edition.append('<li role="separator" class="divider"></li>');
-        } else {
-          $select_edition.find('li.divider').nextAll().remove();
-        };
-
-        var latestEditionTitle = obj[obj.length-1].title;
-        $('.edition_title').text(latestEditionTitle);
-
-        var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
-        for (var j = obj.length-1; j >= 0; j--) {
-          var $li = $('<li'+((index!=='' && j==parseInt(index))?' class="active"':'')+'><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
-          $li.find('a').attr('data-title', obj[j].title);
-        };
-        if (navigator.cookieEnabled && ''!==index) {
-          $('#select_edition').find('a[data-index="'+index+'"]').click();
-        };
-        if (obj.length == 1) {
-          location.reload();
-        }
-      };
-      createNewEdition({title:title,callback:callback});
-      return false;
+      });
     });
-  });
 
-    // Manage editions modal
-	$('#manageEditions').on('show.bs.modal', function() {
-		$('.editions .btn').blur();
-		var $modal = $(this);
-		$body = $modal.find('.modal-body:first');
-		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
-			if ('undefined'==typeof(json) || null === json) json = [];	
-			if ('undefined'!=typeof(json.error) && json.error.length) {
-				alert('There was an error attempting to get Editions: '+json.error);
-				return;
-			}
-			$('#num_editions_str').text( ((1 == json.length)?'is 1 edition':'are '+((json.length)?json.length:'no')+' editions') );
-			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
-				if ('undefined'==typeof(count.published)) {
-					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
-					return;
-				};
-				$body.empty();
-        		$body.append('<p>Roll over an edition to reveal editing options.</p>');
-				// List of editions
-				if ('undefined'!=typeof(json) && json.length) {
-					$table = $('<div class="table-responsive"></div>').appendTo($body);
-					$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Title</th><th>Created</th><th style="text-align:center;">Pages</th><th></th><th></th></tr></thead><tbody></tbody></table>');
-					for (var j = json.length-1; j >= 0; j--) {
-						json[j].formatted = timeConverter(json[j].timestamp);
-						json[j].checked = (0==j) ? true : false;
-						json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
-					    $row = $('<tr data-index="'+j+'"></tr>').appendTo($table.find('tbody:first'));
-					    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
-					    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
-					    $row.append('<td style="vertical-align:middle;text-align:center;">'+Object.keys(json[j].pages).length+'</td>');
-					    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
-					    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
-					};
-					$table.find('tbody tr').mouseover(function() {
-						var $row = $(this);
-						$row.addClass('info');
-						$row.find('.showme').css('visibility','visible');
-					}).mouseout(function() {
-						var $row = $(this);
-						var $cell = $row.find('td:nth-of-type(1)');
-						if ($cell.data('is_editing')) return;
-						$row.removeClass('info');
-						$row.find('.showme').css('visibility','hidden');
-					});
-					$table.find('.edit_edition').click(function() {
-						var $btn = $(this);
-						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
-						if ($cell.data('is_editing')) {
-							if ($cell.data('is_saving')) return;
-							$cell.data('is_saving', true);
-							var index = parseInt($cell.closest('tr').data('index'));
-							var value = $cell.find('input').val();
-							var replace = value.slice();
-							$.post($('link#sysroot').attr('href')+'system/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
-								$cell.data('is_saving', false);	
-								if ('undefined'!=typeof(data.error) && data.error.length) {
-									alert(data.error);
-									return;
-								};
-								$btn.removeClass('btn-primary').addClass('btn-default').text('Edit row');
-								$cell.removeClass('collapse_padding');
-								$cell.data('is_editing', false);
-								replace = data[index].title;
-								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
-								var $select_edition = $('#select_edition');
-								$select_edition.find('li.divider').nextAll().remove();
-                				var latestEditionTitle = data[data.length-1].title;
-                				$('.edition_title').text(latestEditionTitle);
-								var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
-							    for (var j = data.length-1; j >= 0; j--) {
-									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
-									$li.find('a').attr('data-title', data[j].title);
-								};
-								$select_edition.find('a[data-index="'+cindex+'"]').click();					
-							}, 'json');
-						} else {
-							$cell.data('is_editing', true);
-							$btn.removeClass('btn-default').addClass('btn-primary').text('Save row');
-							$cell.addClass('collapse_padding');
-							$cell.data('href', $cell.find('a').attr('href'));
-							var value = $cell.find('a').html();
-							var replace = value.slice();
-							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
-							$cell.find('input').click(function(event) {
-								event.stopPropagation();
-							}).keypress(function(e) {
-								if (e.which == 13) $(this).closest('tr').find('.edit_edition').click();
-							});
-						};
-					});
-					$table.find('.delete_edition').click(function() {
-						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
-						var title = $cell.find('a').text();
-						if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
-							$cell.data('is_editing', true);
-							$cell.data('is_saving', true);
-							var index = parseInt($(this).closest('tr').data('index'));
-							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
-								$('#manageEditions').trigger('show.bs.modal');
-								document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
-								var $select_edition = $('#select_edition');
-								$select_edition.find('li.divider').nextAll().remove();
-                				if (obj.length == 0) {
-                  					location.reload();
-                				}
-               	 				var latestEditionTitle = obj[obj.length-1].title;
-                				$('.edition_title').text(latestEditionTitle);
-								var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
-							    for (var j = obj.length-1; j >= 0; j--) {
-									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
-									$li.find('a').attr('data-title', obj[j].title);
-								};
-								$select_edition.find('a:first').click();
-							});
-						};
-					});
-				} else {
-          			$body.empty();
-					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
-				};
-			});
-		});
-	});
+      // Manage editions modal
+  	$('#manageEditions').on('show.bs.modal', function() {
+  		$('.editions .btn').blur();
+  		var $modal = $(this);
+  		$body = $modal.find('.modal-body:first');
+  		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
+  			if ('undefined'==typeof(json) || null === json) json = [];	
+  			if ('undefined'!=typeof(json.error) && json.error.length) {
+  				alert('There was an error attempting to get Editions: '+json.error);
+  				return;
+  			}
+  			$('#num_editions_str').text( ((1 == json.length)?'is 1 edition':'are '+((json.length)?json.length:'no')+' editions') );
+  			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
+  				if ('undefined'==typeof(count.published)) {
+  					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
+  					return;
+  				};
+  				$body.empty();
+          		$body.append('<p>Roll over an edition to reveal editing options.</p>');
+  				// List of editions
+  				if ('undefined'!=typeof(json) && json.length) {
+  					$table = $('<div class="table-responsive"></div>').appendTo($body);
+  					$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Title</th><th>Created</th><th style="text-align:center;">Pages</th><th></th><th></th></tr></thead><tbody></tbody></table>');
+  					for (var j = json.length-1; j >= 0; j--) {
+  						json[j].formatted = timeConverter(json[j].timestamp);
+  						json[j].checked = (0==j) ? true : false;
+  						json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
+  					    $row = $('<tr data-index="'+j+'"></tr>').appendTo($table.find('tbody:first'));
+  					    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
+  					    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
+  					    $row.append('<td style="vertical-align:middle;text-align:center;">'+Object.keys(json[j].pages).length+'</td>');
+  					    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
+  					    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
+  					};
+  					$table.find('tbody tr').mouseover(function() {
+  						var $row = $(this);
+  						$row.addClass('info');
+  						$row.find('.showme').css('visibility','visible');
+  					}).mouseout(function() {
+  						var $row = $(this);
+  						var $cell = $row.find('td:nth-of-type(1)');
+  						if ($cell.data('is_editing')) return;
+  						$row.removeClass('info');
+  						$row.find('.showme').css('visibility','hidden');
+  					});
+  					$table.find('.edit_edition').click(function() {
+  						var $btn = $(this);
+  						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
+  						if ($cell.data('is_editing')) {
+  							if ($cell.data('is_saving')) return;
+  							$cell.data('is_saving', true);
+  							var index = parseInt($cell.closest('tr').data('index'));
+  							var value = $cell.find('input').val();
+  							var replace = value.slice();
+  							$.post($('link#sysroot').attr('href')+'system/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
+  								$cell.data('is_saving', false);	
+  								if ('undefined'!=typeof(data.error) && data.error.length) {
+  									alert(data.error);
+  									return;
+  								};
+  								$btn.removeClass('btn-primary').addClass('btn-default').text('Edit row');
+  								$cell.removeClass('collapse_padding');
+  								$cell.data('is_editing', false);
+  								replace = data[index].title;
+  								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
+  								var $select_edition = $('#select_edition');
+  								$select_edition.find('li.divider').nextAll().remove();
+                  				var latestEditionTitle = data[data.length-1].title;
+                  				$('.edition_title').text(latestEditionTitle);
+  								var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+  							    for (var j = data.length-1; j >= 0; j--) {
+  									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
+  									$li.find('a').attr('data-title', data[j].title);
+  								};
+  								$select_edition.find('a[data-index="'+cindex+'"]').click();					
+  							}, 'json');
+  						} else {
+  							$cell.data('is_editing', true);
+  							$btn.removeClass('btn-default').addClass('btn-primary').text('Save row');
+  							$cell.addClass('collapse_padding');
+  							$cell.data('href', $cell.find('a').attr('href'));
+  							var value = $cell.find('a').html();
+  							var replace = value.slice();
+  							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
+  							$cell.find('input').click(function(event) {
+  								event.stopPropagation();
+  							}).keypress(function(e) {
+  								if (e.which == 13) $(this).closest('tr').find('.edit_edition').click();
+  							});
+  						};
+  					});
+  					$table.find('.delete_edition').click(function() {
+  						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
+  						var title = $cell.find('a').text();
+  						if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
+  							$cell.data('is_editing', true);
+  							$cell.data('is_saving', true);
+  							var index = parseInt($(this).closest('tr').data('index'));
+  							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
+  								$('#manageEditions').trigger('show.bs.modal');
+  								document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+  								var $select_edition = $('#select_edition');
+  								$select_edition.find('li.divider').nextAll().remove();
+                  				if (obj.length == 0) {
+                    					location.reload();
+                  				}
+                 	 				var latestEditionTitle = obj[obj.length-1].title;
+                  				$('.edition_title').text(latestEditionTitle);
+  								var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+  							    for (var j = obj.length-1; j >= 0; j--) {
+  									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
+  									$li.find('a').attr('data-title', obj[j].title);
+  								};
+  								$select_edition.find('a:first').click();
+  							});
+  						};
+  					});
+  				} else {
+            			$body.empty();
+  					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
+  				};
+  			});
+  		});
+  	});
 
-	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#cs');
-	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
-	$selector.height(height + 'px');
-	var types = ['content'];
-	for (var type in editorial_states) {
-		if ('empty'==type.toLowerCase() || 'publishedwitheditions'==type.toLowerCase()) continue;
-		types.push(editorial_states[type].name);
-	};
-	node_options = {  /* global */
-      fields:["visible","title","format","description","editorial_state","last_edited_by","date_edited","usage_rights"],
-      allowMultiple:true,
-      rowSelectMethod:'highlight',
-      rec:"0",
-      ref:"0",
-      editorialOptions:moveSomeContentToState,
-      defaultType:"content",
-      types:types,
-      isEdit:true,
-      refreshAfterFilter:true
-	};
-	$selector.node_selection_dialogue(node_options);
+  	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#cs');
+  	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
+  	$selector.height(height + 'px');
+  	var types = ['content'];
+  	for (var type in editorial_states) {
+  		if ('empty'==type.toLowerCase() || 'publishedwitheditions'==type.toLowerCase()) continue;
+  		types.push(editorial_states[type].name);
+  	};
+  	node_options = {  /* global */
+        fields:["visible","title","format","description","editorial_state","last_edited_by","date_edited","usage_rights"],
+        allowMultiple:true,
+        rowSelectMethod:'highlight',
+        rec:"0",
+        ref:"0",
+        editorialOptions:moveSomeContentToState,
+        defaultType:"content",
+        types:types,
+        isEdit:true,
+        refreshAfterFilter:true
+  	};
+  	$selector.node_selection_dialogue(node_options);
     
   }); // load
 
