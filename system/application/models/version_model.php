@@ -77,11 +77,12 @@ class Version_model extends MY_Model {
   		if (isset($this->data['book']->editorial_is_on)) {  // No access to MY_Controller->can_editorial()
   			$unset = false;
   			$am_in_book = ('book' == $this->router->fetch_class()) ? true : false;
+  			$am_in_api = ('api' == $this->router->fetch_class()) ? true : false;
   			if (!$this->data['book']->editorial_is_on) {
   				$unset = true;
   			} elseif ($am_in_book && $this->data['mode'] != 'editing') {
   				$unset = true;
-  			} elseif (!$am_in_book && 'author' != strtolower($this->data['user_level']) && 'editor' != strtolower($this->data['user_level'])) {
+  			} elseif (!$am_in_book && !$am_in_api && 'author' != strtolower($this->data['user_level']) && 'editor' != strtolower($this->data['user_level'])) {
   				$unset = true;	
   			}
   			if ($unset) {
