@@ -469,7 +469,7 @@ STR;
             });
             break;
             case 'allToPublished':
-            button.click(function() { 
+            button.click(function() {
               if (moveAllContentToState('published')) {
                 button.prop('disabled', 'disabled');
               }
@@ -786,7 +786,8 @@ STR;
       </div>
       <div class="modal-body caption_font">
        	  <p><b>Are you sure you wish to disable the Editorial Workflow for this <?=$book->scope?>?</b><br /><br />
-          Doing so will also disable any Editions. Your readers will see the latest versions of all pages and content, even if they were previously unpublished. All editorial data will be maintained should you wish to re-enable the Editorial Workflow later.<br />
+          Doing so will also disable any Editions. Your readers will see the latest versions of all pages and content, even if they were previously unpublished.<br /><br />
+          <b>Warning:</b> Making edits while the Editorial Workflow is disabled is not recommended if you plan to re-enable the Editorial Workflow later.<br />
        	  </p>
       </div>
       <div class="modal-footer">
