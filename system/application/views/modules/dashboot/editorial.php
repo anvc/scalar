@@ -200,21 +200,21 @@ STR;
       'ready': {
         'all': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>'],
-          'next_task_ids': ['allToPublished']
+          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task_ids': ['allToPublished','newEdition']
         },
         'majority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>'],
-          'next_task_ids': ['allToPublished']
+          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task_ids': ['allToPublished','newEdition']
         },
         'minority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>'],
-          'next_task_ids': ['allToPublished']
+          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task_ids': ['allToPublished','newEdition']
         }
       },
       'published': {
@@ -246,12 +246,16 @@ STR;
     }
   }
 
-  function moveAllContentToState(newState) {
+  function moveAllContentToState(newState, successHandler) {
     if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
       $.ajax({
         url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState,
         success: function(data) {
-          location.reload();
+          if (successHandler == null) {
+            location.reload();
+          } else {
+            successHandler();
+          }
         },
         error: function(error) {
           location.reload();
@@ -472,7 +476,13 @@ STR;
             break;
             case 'newEdition':
             button.click(function() {
-              $('#createEdition').modal();
+              if (earliest_state.state != 'published') {
+                moveAllContentToState('published', function() {
+                  $('#createEdition').modal();
+                });
+              } else {
+                $('#createEdition').modal();
+              }
             });
             break;
           }
