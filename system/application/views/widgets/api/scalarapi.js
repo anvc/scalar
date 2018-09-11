@@ -2094,7 +2094,7 @@ ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = func
 		if (!this.loadCurrentPageStatus.isLoading) {
 			$.ajax({
 				type:"GET",
-				url:this.model.urlPrefix+'rdf/node/'+this.stripEditionAndVersion(this.basepath(document.location.href))+'?'+queryString,
+				url:this.model.urlPrefix+'rdf/node/'+this.stripVersion(this.basepath(document.location.href))+'?'+queryString,
 				dataType:"jsonp",
 				context:this,
 				success:[this.parseCurrentPage, successCallback],
