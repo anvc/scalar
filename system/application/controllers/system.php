@@ -666,18 +666,8 @@ class System extends MY_Controller {
 			unset($_COOKIE['dashboard']);
 			setcookie('dashboard', null, -1);
 		}
-		
-		// Load Editorial tab
-		$this->data['editorial_tab'] = false;
-		// Check GET var and then cookie to see if we can turn the tab on
-		if (isset($_GET['editorial_tab'])) {
-			$this->data['editorial_tab']= (!empty($_GET['editorial_tab'])) ? true : false;
-			setcookie("editorial_tab", $this->data['editorial_tab'], time()+604800); // Seven days...
-		} elseif (isset($_COOKIE['editorial_tab'])){
-			$this->data['editorial_tab']= (!empty($_COOKIE['editorial_tab'])) ? true : false;
-		}
-
 		if (empty($dashboard) || !file_exists(APPPATH.'views/modules/'.$dashboard)) $dashboard = 'dashboard';
+		
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/'.$dashboard.'/content', $this->data);
 		$this->template->render();

@@ -145,14 +145,12 @@ class Book extends MY_Controller {
 				$page_not_found = true;
 			}
 			
-			// View and view-specific method (outside of the if/page context above, in case the page hasn't been created yet
+			// View methods
 			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
 			if (in_array($this->data['view'], $this->vis_views)) {
 				$this->data['viz_view'] = $this->data['view'];  // Keep a record of the specific viz view being asked for
 				$this->data['view'] = $this->vis_views[0];  // There's only one viz page (Javascript handles the specific viz types)
 			}
-			
-			// View-specific method
 			$method_name = $this->data['view'];
 			if (method_exists($this, $method_name)) $this->$method_name();
 

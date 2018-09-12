@@ -147,11 +147,11 @@ class MY_Controller extends CI_Controller {
 		
 		$this->data['slug'] = implode('/', $this->data['url_params']['page_segments']);
 		$this->data['use_versions'] = null;
-
-		// If the Editorial Workflow is turned off then the URL can access everything as if there were no editions
+		
+		// Standard state (Editorial Workflow is off)
 		if (!$this->editorial_is_on()) {
 			$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.'/';
-			if (empty($this->data['url_params']['page_first_segment']) || !empty($this->data['url_params']['edition_num'])) {  // Edition URLs are no longer valid
+			if (empty($this->data['url_params']['page_first_segment']) || !empty($this->data['url_params']['edition_num'])) {
 				$redirect_to = base_url().$this->data['url_params']['book_segment'].'/';
 				$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
 				$redirect_to .= ((null !== $this->data['url_params']['version_num']) ? '.'.$this->data['url_params']['version_num']: '');
@@ -161,63 +161,39 @@ class MY_Controller extends CI_Controller {
 			return;
 		}
 		
+		$is_editing = ('edit' == get_ext($this->uri->uri_string())) ? true : false;
+		$edition_index = $this->data['url_params']['edition_index'];
+		$cookie_edition_index = (isset($_COOKIE['scalar_edition_index'])) ? (int) $_COOKIE['scalar_edition_index'] : null;
+		
 		// The actual edition and version num based on the various forks below
-		$edition_num = $version_num = null;
+		$edition_num = $version_num = null;  
 		
-		// Check the asked-for edition
-		if ($this->can_edition() && !empty($this->data['book']->editions)) {
-			$edition_index = $this->data['url_params']['edition_index'];
-			$cookie_edition_index = (isset($_COOKIE['scalar_edition_index'])) ? (int) $_COOKIE['scalar_edition_index'] : null;
-			if (null !== $this->data['url_params']['edition_index']) {  // URL is asking for an edition
-				if (!isset($this->data['book']->editions[$edition_index])) $edition_index = count($this->data['book']->editions) - 1;
-			} elseif (null !== $cookie_edition_index) {  // Cookie is asking for an edition
-				if (isset($this->data['book']->editions[$cookie_edition_index])) {
-					$edition_index = $cookie_edition_index;
-				} else {
-					$edition_index = count($this->data['book']->editions) - 1;
-				}
-			} elseif (!$this->login_is_book_admin()) {  // User is not an author, must see most recent edition
-				$edition_index = count($this->data['book']->editions) - 1;
-			}
-			if (null !== $edition_index) {  // Valid edition
-				$edition_num = $edition_index + 1;
-				$this->data['use_versions'] = $this->data['book']->editions[$edition_index]['pages'];
+		// Author, Editor permissions
+		if ($this->login_is_book_admin()) {
+			if (null === $cookie_edition_index && null !== $edition_index) {  // Asking for an edition but Cookie set to Latest Edits
+				$edition_num = null;
+			} elseif (!$is_editing && null !== $edition_index && isset($this->data['book']->editions[$edition_index])) {  // Asking for an edition
+				$edition_num = $this->data['url_params']['edition_num'];
+			} elseif (!$is_editing && null !== $cookie_edition_index && isset($this->data['book']->editions[$cookie_edition_index]))  {  // Cookie asking for an edition
+				$edition_num = $cookie_edition_index + 1;
+			} 
+		// Reader permissions
+		} else {
+			if (null !== $edition_index && isset($this->data['book']->editions[$edition_index])) {  // Asking for an edition
+				$edition_num = $this->data['url_params']['edition_num'];
+			} elseif (!empty($this->data['book']->editions)) {  // Go to most recent edition if there are any
+				$edition_num = count($this->data['book']->editions);
 			}
 		}
 		
-		// Check the asked-for version
-		if (!empty($this->data['url_params']['version_num'])) {
-			$pass = true;
-			$page = $this->pages->get_by_slug($this->data['book']->book_id, $this->data['slug']);
-			if (empty($page)) {  // Page doesn't exist
-				$pass = false;
-			} elseif (null !== $edition_num && !isset($this->data['use_versions'][$page->content_id])) {  // Page doesn't exist in edition
-				$pass = false;
-			}
-			$version = ($pass) ? $this->versions->get_by_version_num($page->content_id, $this->data['url_params']['version_num']) : null;
-			if (empty($version)) {  // Version doesn't exist
-				$pass = false;
-			} elseif (null !== $edition_num && $version->version_id > $this->data['use_versions'][$page->content_id]) {  // Version is more recent than edition
-				$pass = false;
-			}
-			if ($pass) {  // Valid edition
-				$version_num = $this->data['url_params']['version_num'];
-				$this->data['use_versions'] = array($page->content_id => $version->version_id);
-			}
-		}
-		
-		// Redirect if the edition or version don't match what was requested
-		if ($edition_num != $this->data['url_params']['edition_num'] || $version_num != $this->data['url_params']['version_num'] || empty($this->data['url_params']['page_segments'])) {
+		if (empty($this->data['url_params']['page_segments']) || $edition_num != $this->data['url_params']['edition_num']) {
 			$redirect_to = base_url().$this->data['url_params']['book_segment'];
 			$redirect_to .= ((null !== $edition_num) ? '.'.$edition_num : '') . '/';
 			$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
-			$redirect_to .= ((null !== $version_num) ? '.'.$version_num: '');
-			//echo $redirect_to;
+			//$redirect_to .= ((null !== $version_num) ? '.'.$version_num: '');
 			header('Location: '.$redirect_to);
 			exit;
 		}
-		
-		// Used throughout arbor HTML
 		$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.((!empty($edition_num))?'.'.$edition_num:'').'/';
 
 	}

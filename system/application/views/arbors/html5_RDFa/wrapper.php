@@ -229,7 +229,7 @@ endif;
 ?>
 		<span aria-hidden="true" resource="<?=$base_uri?>publisher" typeof="scalar:Page">
 			<span class="metadata" property="dcterms:title"><?=$publisher?></span>
-<? 		if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, $base_uri).'"></a>'."\n"; endif; ?>
+<? 		if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, base_url().$book->slug).'"></a>'."\n"; endif; ?>
 		</span>
 <?		endif; ?>
 <?
