@@ -195,7 +195,10 @@ class MY_Controller extends CI_Controller {
 			exit;
 		}
 		$this->data['base_uri'] = confirm_slash(base_url()).$this->data['book']->slug.((!empty($edition_num))?'.'.$edition_num:'').'/';
-
+		if (null !== $edition_num && isset($this->data['book']->editions[$edition_num-1])) {
+			$this->data['use_versions'] = $this->data['book']->editions[$edition_num-1]['pages'];
+		}
+		
 	}
 
 	/**
