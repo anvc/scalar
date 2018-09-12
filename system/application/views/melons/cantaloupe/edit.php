@@ -454,6 +454,7 @@ $(document).ready(function() {
 	//Editorial state stuff:
 
 	has_edition = false;
+
 	if($('a.metadata[rel="scalar:hasEdition"]').length > 0){
 		if(version_date != null){
 			var edition_timestamp = new Date($('span[resource="'+$('a.metadata[rel="scalar:hasEdition"]').attr('href')+'"] span[property="dcterms:created"]').text());
@@ -636,7 +637,7 @@ END;
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
 
-$js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'"; var version_date ="'.(isset($version)?date(DATE_ISO8601, strtotime($version->created)):'null').'";';
+$js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'"; var version_date ='.((isset($version)?strtotime($version->created):0)*1000).';';
 
 $this->template->add_js($js, 'embed');
 
@@ -698,6 +699,17 @@ switch($currentState){
 }
 
 $nextState = end($availableStates);
+if($currentState == 'published'){
+	$edition = isset($book->editions)?end($book->editions):null;
+	$hasEdition = isset($edition);
+	$pageOlderThanCurrentEdition = $hasEdition?strtotime($version->created)<=$edition['timestamp']:false;
+	if($hasEdition && $pageOlderThanCurrentEdition){
+		$nextState = 'draft';
+	}else{
+		$nextState = null;
+	}
+}
+
 ?>
 <div id="script-confirm" class="modal fade">
   <div class="modal-dialog">
@@ -1381,7 +1393,7 @@ $nextState = end($availableStates);
 			}
 		?>
 		<?php 
-			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $canChangeState && isset($page->version_index)){
+			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $canChangeState && isset($page->version_index) && isset($nextState)){
 		?>
 			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower(str_replace(' ','',$nextState)); ?>" value="Save and move to <?= $nextState ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
 		<?php
