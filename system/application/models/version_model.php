@@ -70,7 +70,7 @@ class Version_model extends MY_Model {
   		}
   		// dcterms:created
   		if (isset($row->timestamp) && !empty($row->timestamp)) {
-  			if (!isset($row->created) || empty($row->created)) $row->created = date("F j, Y, g:i a", $row->timestamp);
+  			if (!isset($row->created) || empty($row->created)) $row->created = date("c", $row->timestamp);
   		}
 
   		// Only show Editorial Workflow fields on edit page and RDF API when an author or editor
