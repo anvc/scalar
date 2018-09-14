@@ -39,13 +39,16 @@ if (!count($page->versions)) {
 	if ($login_is_super || in_array($book->book_id, $login_book_ids)):
 		echo '<th></th>';
 	endif;
-	echo '<th>#</th><th style="width: 20rem;">Title</th><th>Content</th><th style="width: 10rem;">Creator</th><th style="width: 11rem;">Date</th></tr></thead>'."\n";
+	echo '<th>#</th><th style="width: 20rem;">Title</th><th>Content</th>';
+	if (isset($book->editorial_is_on) && $book->editorial_is_on) echo '<th>State</th>';
+	echo '<th style="width: 10rem;">Creator</th><th style="width: 11rem;">Date</th></tr></thead>'."\n";
 	echo '<tbody>'."\n";
 	foreach ($page->versions as $version):
 		$title = (strlen($version->title)) ? $version->title : '(No title)';
 		$page_uri = $base_uri.$page->slug;
 		$content = remove_HTML($version->content);
 		$date = date('j M Y, g:ia T', strtotime($version->created));
+		$state = (isset($book->editorial_is_on) && $book->editorial_is_on) ? $version->editorial_state : null;
 	?>
 		<?=($version->version_num == $page->versions[$page->version_index]->version_num)?' <tr class="success">':'<tr>'?>
 
@@ -53,7 +56,7 @@ if (!count($page->versions)) {
 		<td><input type="checkbox" name="delete_version[]" value="<?=$version->version_id?>" />&nbsp;</td>
 		<? endif; ?>
 
-		<td><b title="Version ID <?=$version->version_id?>"><?=$version->version_num?></b></td>
+		<td><b title="Version ID <?=$version->version_id?>" style="cursor:pointer;"><?=$version->version_num?></b></td>
 
 		<td><a href="<?=$page_uri.'.'.$version->version_num?>"><?=strip_tags($title)?></a>
 		<?=($version->version_num == $page->versions[0]->version_num)?' (<a href="'.$page_uri.'">Current</a>)':''?>
@@ -63,6 +66,14 @@ if (!count($page->versions)) {
 		<?=(!empty($content))?create_excerpt($content, 14).' <span style="color:#777777;">['.strlen($content).' chars]</span><br />':''?>
 		<?=(!empty($version->url))?'URL: <a href="'.abs_url($version->url,$base_uri).'">'.$version->url.'</a>':''?>
 		</td>
+		
+		<?
+		if (null!==$state):
+			echo '<td>';
+			echo ucwords($state);
+			echo '</td>';
+		endif;
+		?>
 
 		<?
 		echo '<td>';

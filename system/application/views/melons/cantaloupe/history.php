@@ -1,4 +1,4 @@
-<ul>
+<ul class="versionbrowser">
 <?
 $count = 1;
 $page->versions = array_reverse($page->versions);
@@ -14,8 +14,6 @@ foreach ($page->versions as $version) {
 	if (isset($version->user->uri)) echo '</a> on ';
 	echo '<a href="'.$version_uri.'">'.$date.'</a></span></p>';
 	echo '<div class="versionbrowser_content">'.nl2br(trim($version->content)).'</div>';
-	echo '<br clear="both" />';
-	echo '<hr>';
 	echo "</li>\n";
 	$count++;
 }

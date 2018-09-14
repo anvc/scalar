@@ -88,21 +88,19 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 	echo '</p></div>'."\n";
 }
 
-// Page isn't visible
+// Page or versions aren't visible
 if (isset($page->is_live) && !$page->is_live) {
-	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible in the page editor or in the Dashboard.</p></div>'."\n";
+	echo '		<div class="error notice-hidden"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible in the page editor or in the Dashboard.</p></div>'."\n";
 }
-
-// Page isn't visible
 if ($view == 'versions' && $hide_versions) {
-	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are currently only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made public in the Dashboard.</p></div>'."\n";
+	echo '		<div class="error notice-hidden"><p>Past versions are only viewable by '.$book->scope.' authors and editors.</p></div>'."\n";
 }
 if ($view == 'meta' && $hide_versions && isset($_GET['versions']) && 1==$_GET['versions']) {
-	echo '		<div class="error notice-hidden'.(($editorial)?' editorial_is_on':'').'"><p>Past versions are currently only viewable by '.$book->scope.' authors and editors.&nbsp; They can be made public in the Dashboard.</p></div>'."\n";
+	echo '		<div class="error notice-hidden"><p>Past versions are only viewable by '.$book->scope.' authors and editors.</p></div>'."\n";
 }
 
 // Page is paywalled
-// NOTE: this is removed, though hidden rather than commented out so that JS could bring it back if an author wishes to
+// NOTE: this is removed, though hidden rather than commented out so that JS could bring it back if an author wishes
 if (isset($page->paywall) && $page->paywall) {
 	echo '		<div class="notice notice-paywall" style="display:none;"><p>This page is behind a paywall, but is viewable due to your logged in credentials.</p></div>'."\n";
 }

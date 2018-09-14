@@ -700,7 +700,7 @@ switch($currentState){
 
 $nextState = end($availableStates);
 if($currentState == 'published'){
-	$edition = isset($book->editions)?end($book->editions):null;
+	$edition = (isset($book->editions) && !empty($book->editions))?end($book->editions):null;
 	$hasEdition = isset($edition);
 	$pageOlderThanCurrentEdition = $hasEdition?strtotime($version->created)<=$edition['timestamp']:false;
 	if($hasEdition && $pageOlderThanCurrentEdition){

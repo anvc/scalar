@@ -117,14 +117,15 @@ class Book extends MY_Controller {
 								 	'book'         => $this->data['book'],
 									'content'      => $page,
 									'use_versions' => $this->data['use_versions'],
-									'use_versions_restriction' => RDF_Object::USE_VERSIONS_EXCLUSIVE,
+									'use_versions_restriction' => ($this->editorial_is_on()) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_EXCLUSIVE,
 									'base_uri'     => $this->data['base_uri'],
 									'versions'     => RDF_Object::VERSIONS_MOST_RECENT,
 									'ref'          => RDF_Object::REFERENCES_ALL,
 									'prov'		   => RDF_Object::PROVENANCE_ALL,
 							  		'max_recurses' => $this->max_recursions,
 									'tklabeldata'  => $this->tklabels(),
-									'tklabels' 	   => RDF_Object::TKLABELS_ALL
+									'tklabels' 	   => RDF_Object::TKLABELS_ALL,
+									'is_book_admin'=> $this->login_is_book_admin()
 								 );
 				$index = $this->rdf_object->index($settings);
 				if (null !== $index) {
@@ -153,8 +154,6 @@ class Book extends MY_Controller {
 			}
 			$method_name = $this->data['view'];
 			if (method_exists($this, $method_name)) $this->$method_name();
-
-			// URI segment method
 			if (method_exists($this, $this->data['url_params']['page_first_segment']) && !array_key_exists($this->data['url_params']['page_first_segment'], $this->data['views'])){
 				$page_not_found = false;
 				$method = $this->data['url_params']['page_first_segment'];
@@ -632,6 +631,10 @@ class Book extends MY_Controller {
 	// List versions of the current page
 	private function versions() {
 
+		if (!isset($this->data['page'])) $this->fallback();
+		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
+		if ($this->data['hide_versions'] && !$this->login_is_book_admin()) $this->fallback();
+		
 		$action = (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 		if ($action == 'do_delete_versions') {
 			$this->load->model('version_model', 'versions');
@@ -654,7 +657,7 @@ class Book extends MY_Controller {
 			$redirect_to = $this->data['base_uri'].$this->data['page']->slug.'.versions?action=versions_reordered';
 			header('Location: '.$redirect_to);
 			exit;
-		}
+		}		
 
 		// Overwrite previous page array (which only has the most recent version)
 		$this->data['page']->user = (int) $this->data['page']->user->user_id;
@@ -682,15 +685,16 @@ class Book extends MY_Controller {
 		}
 		$this->data['page']->version_index = $key;
 
-		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
-		if ($this->data['hide_versions'] && !$this->login_is_book_admin()) $this->require_login(4);
-
 		$this->data['hide_edit_bar'] = true;
 
 	}
 
 	// List versions of the current page in a digest format
 	private function history() {
+		
+		if (!isset($this->data['page'])) $this->fallback();
+		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
+		if ($this->data['hide_versions'] && !$this->login_is_book_admin()) $this->fallback();
 
 		// Overwrite previous page array (which only has the most recent version)
 		$this->data['page']->user = (int) $this->data['page']->user->user_id;
@@ -711,17 +715,16 @@ class Book extends MY_Controller {
 		reset($this->data['page']->versions);
 		$this->data['page']->version_index = key($this->data['page']->versions);
 		$this->data['hide_edit_bar'] = true;
-		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
-		if ($this->data['hide_versions'] && !$this->login_is_book_admin()) $this->require_login(4);
 
 	}
 
 	// List metadata in a human-readable way
 	private function meta() {
 
+		if (!isset($this->data['page'])) $this->fallback();
 		$this->data['hide_versions'] = $this->books->is_hide_versions($this->data['book']);
 		$all = (isset($_GET['versions']) && 1==$_GET['versions']) ? true : false;
-		if ($all && $this->data['hide_versions'] && !$this->login_is_book_admin()) $this->require_login(4);
+		if ($all && $this->data['hide_versions'] && !$this->login_is_book_admin()) $this->fallback();
 		$this->data['is_book_admin'] = $this->login_is_book_admin();
 
 		if ($all) {  // Overwrite previous page's versions array (which only has the most recent version)
@@ -838,7 +841,7 @@ class Book extends MY_Controller {
 	// Editorial path
 	private function editorialpath() {
 
-		if (!$this->editorial_is_on()) $this->fallback();
+		if (!$this->editorial_is_on() || !$this->login_is_book_admin()) $this->fallback();
 		$this->data['view'] = __FUNCTION__;
 
 	}

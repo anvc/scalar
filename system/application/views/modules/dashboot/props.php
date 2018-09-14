@@ -280,7 +280,7 @@ function select_versions() {
 		  <input type="checkbox" id="joinable" value="1" style="display:none;">
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group form-group-bottom-margin">
         <label for="comments" class="col-sm-2 control-label">Comments</label>
         <div class="col-sm-10">
 		  <div class="checkbox">
@@ -303,6 +303,7 @@ function select_versions() {
 		  </div>
         </div>
       </div>
+      <!--
       <div class="form-group form-group-bottom-margin">
         <label for="comments" class="col-sm-2 control-label">Plugins</label>
         <div class="col-sm-10">
@@ -314,6 +315,7 @@ function select_versions() {
 		  </div>
         </div>
       </div>
+      -->
       <div class="form-group">
         <label for="toc" class="col-sm-2 control-label">Table of Contents</label>
         <div class="col-sm-5" id="toc-wrapper">

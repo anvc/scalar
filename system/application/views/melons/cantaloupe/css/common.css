@@ -510,6 +510,9 @@ a:hover { text-decoration: underline; }
 	width: 100%;
 }
 
+.versionbrowser {list-style-type:none;}
+.versionbrowser_item {border-top:solid 1px #aaaaaa; margin-top:34px;}
+
 /* --- TK Labels --- */
 
 [typeof="tk:TKLabel"] {float:right; width:40px; margin-left:10px;}

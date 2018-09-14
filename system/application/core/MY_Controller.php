@@ -124,7 +124,7 @@ class MY_Controller extends CI_Controller {
 	}
 	
 	/**
-	 * Find and validate URL parameters such as edition and version and set information about the current location
+	 * Set information about the current location (and validate editions if the editorial workflow is active)
 	 * @requires $this->data
 	 * @return null
 	 */
@@ -140,11 +140,12 @@ class MY_Controller extends CI_Controller {
 		$this->data['url_params']['edition_num'] = (is_numeric($this->data['url_params']['edition_num'])) ? (int) $this->data['url_params']['edition_num']: null;
 		$this->data['url_params']['edition_index'] = ($this->data['url_params']['edition_num']) ? $this->data['url_params']['edition_num'] - 1 : null;
 		$this->data['url_params']['page_segments'] = array_slice($this->uri->segments, 1);
+		$this->data['url_params']['ext'] = (!empty($this->data['url_params']['page_segments'])) ? get_ext($this->data['url_params']['page_segments'][count($this->data['url_params']['page_segments'])-1]) : '';
 		for ($j = 0; $j < count($this->data['url_params']['page_segments']); $j++) $this->data['url_params']['page_segments'][$j] = no_version($this->data['url_params']['page_segments'][$j]);
 		$this->data['url_params']['version_num'] = get_version($this->uri->uri_string());
 		$this->data['url_params']['version_num'] = (is_numeric($this->data['url_params']['version_num'])) ? (int) $this->data['url_params']['version_num'] : null;
 		$this->data['url_params']['page_first_segment'] = (count($this->data['url_params']['page_segments']) > 0) ? no_version($this->data['url_params']['page_segments'][0]) : null;
-		
+
 		$this->data['slug'] = implode('/', $this->data['url_params']['page_segments']);
 		$this->data['use_versions'] = null;
 		
@@ -155,6 +156,8 @@ class MY_Controller extends CI_Controller {
 				$redirect_to = base_url().$this->data['url_params']['book_segment'].'/';
 				$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
 				$redirect_to .= ((null !== $this->data['url_params']['version_num']) ? '.'.$this->data['url_params']['version_num']: '');
+				$redirect_to .= ((!empty($this->data['url_params']['ext'])) ? '.'.$this->data['url_params']['ext'] : '');
+				$redirect_to .= ((!empty($_SERVER['QUERY_STRING'])) ? '?'.$_SERVER['QUERY_STRING'] : '');
 				header('Location: '.$redirect_to);
 				exit;
 			}
@@ -165,7 +168,7 @@ class MY_Controller extends CI_Controller {
 		$edition_index = $this->data['url_params']['edition_index'];
 		$cookie_edition_index = (isset($_COOKIE['scalar_edition_index'])) ? (int) $_COOKIE['scalar_edition_index'] : null;
 		
-		// The actual edition and version num based on the various forks below
+		// The edition and version numbers to-be-routed-to based on the various forks below
 		$edition_num = $version_num = null;  
 		
 		// Author, Editor permissions
@@ -176,7 +179,7 @@ class MY_Controller extends CI_Controller {
 				$edition_num = $this->data['url_params']['edition_num'];
 			} elseif (!$is_editing && null !== $cookie_edition_index && isset($this->data['book']->editions[$cookie_edition_index]))  {  // Cookie asking for an edition
 				$edition_num = $cookie_edition_index + 1;
-			} 
+			}
 		// Reader permissions
 		} else {
 			if (null !== $edition_index && isset($this->data['book']->editions[$edition_index])) {  // Asking for an edition
@@ -190,7 +193,8 @@ class MY_Controller extends CI_Controller {
 			$redirect_to = base_url().$this->data['url_params']['book_segment'];
 			$redirect_to .= ((null !== $edition_num) ? '.'.$edition_num : '') . '/';
 			$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;
-			//$redirect_to .= ((null !== $version_num) ? '.'.$version_num: '');
+			$redirect_to .= ((!empty($this->data['url_params']['ext'])) ? '.'.$this->data['url_params']['ext'] : '');
+			$redirect_to .= ((!empty($_SERVER['QUERY_STRING'])) ? '?'.$_SERVER['QUERY_STRING'] : '');
 			header('Location: '.$redirect_to);
 			exit;
 		}
