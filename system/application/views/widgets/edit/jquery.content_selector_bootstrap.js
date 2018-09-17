@@ -2582,7 +2582,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var state_flow = {};
 	        if(typeof user_type !== 'undefined' && user_type != null && (user_type === 'editor' || user_type === 'author')){
 	        	state_flow = user_type == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Edit','Clean']}:
-	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Clean','Published']};
+	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Clean','Published'], 'Published' : ['Ready','Published']};
+	        	
+	        	//Check to see if we're using editions - if so, remove the published state from the flow.
+	        	if($('.row.editions').length > 0 && !!state_flow.Published){
+	        		delete state_flow.Published;
+	        	}
 	        }
         }
 
