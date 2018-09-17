@@ -30,6 +30,7 @@ STR;
     "editreview": {'id': "editreview", 'name': "Edit Review", 'next': 'clear' },
     "clean": {'id': "clean", 'name': "Clean", 'next': 'ready' },
     "ready": {'id': "ready", 'name': "Ready", 'next': 'published' },
+    "readyWithEditions": {'id': "readyWithEditions", 'name': "Ready", 'next': 'published' },
     "published": {'id': "published", 'name': "Published", 'next': 'published' },
     "publishedWithEditions": {'id': "publishedWithEditions", 'name': "Published", 'next': 'published' },
     "empty": {'id': "empty", 'name': "empty"}
@@ -104,6 +105,20 @@ STR;
         }
       },
       'ready': {
+        'all': {
+          'current_task': 'An editor will move content to the <strong>Published</strong> state when ready.',
+          'next_task': 'Please wait for an editor to publish the content of this '+project_type+'.'
+        },
+        'majority': {
+          'current_task': 'An editor will move content to the <strong>Published</strong> state when ready.',
+          'next_task': 'Please wait for an editor to publish the content of this '+project_type+'.'
+        },
+        'minority': {
+          'current_task': 'An editor will move content to the <strong>Published</strong> state when ready.',
+          'next_task': 'Please wait for an editor to publish the content of this '+project_type+'.'
+        }
+      },
+      'readyWithEditions': {
         'all': {
           'current_task': 'An editor will move content to the <strong>Published</strong> state when ready.',
           'next_task': 'Please wait for an editor to publish the content of this '+project_type+'.'
@@ -215,6 +230,26 @@ STR;
           'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
           'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
+        }
+      },
+      'readyWithEditions': {
+        'all': {
+          'current_task': 'Publish it whenever the time is right.',
+          'next_task': 'Move all content into the <strong>Published</strong> state and create a new public edition.',
+          'next_task_buttons': ['Create a new edition'],
+          'next_task_ids': ['newEdition']
+        },
+        'majority': {
+          'current_task': 'Publish it whenever the time is right.',
+          'next_task': 'Move all content into the <strong>Published</strong> state and create a new public edition.',
+          'next_task_buttons': ['Create a new edition'],
+          'next_task_ids': ['newEdition']
+        },
+        'minority': {
+          'current_task': 'Publish it whenever the time is right.',
+          'next_task': 'Move all content into the <strong>Published</strong> state and create a new public edition.',
+          'next_task_buttons': ['Create a new edition'],
+          'next_task_ids': ['newEdition']
         }
       },
       'published': {
@@ -389,8 +424,12 @@ STR;
 
         var has_editions = $('.row.editions').length > 0;
         var proxy_editorial_state = editorial_state;
-        if (has_editions && editorial_state.id == 'published') {
-          proxy_editorial_state = editorial_states['publishedWithEditions'];
+        if (has_editions) {
+          if (editorial_state.id == 'ready') {
+            proxy_editorial_state = editorial_states['readyWithEditions'];
+          } else if (editorial_state.id == 'published') {
+            proxy_editorial_state = editorial_states['publishedWithEditions'];
+          }
         }
 
         // figure out how to quantify the overall book state
@@ -564,9 +603,7 @@ STR;
           if (navigator.cookieEnabled && ''!==index) {
             $('#select_edition').find('a[data-index="'+index+'"]').click();
           };
-          if (obj.length == 1) {
-            location.reload();
-          }
+          location.reload();
         };
         createNewEdition({title:title,callback:callback});
         return false;
@@ -667,7 +704,7 @@ STR;
   					$table.find('.delete_edition').click(function() {
   						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
   						var title = $cell.find('a').text();
-  						if (confirm('Are you sure you wish to DELETE "'+title+'"? This can not be undone.')) {
+  						if (confirm('Are you sure you wish to delete the edition "'+title+'"? This cannot be undone, and will break any existing direct links to that edition from other websites.')) {
   							$cell.data('is_editing', true);
   							$cell.data('is_saving', true);
   							var index = parseInt($(this).closest('tr').data('index'));
