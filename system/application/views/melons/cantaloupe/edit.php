@@ -584,7 +584,7 @@ function confirm_editorial_state_then_save($form, no_action){
 			$('#editorialStateConfirmation').modal('show');
 		}
 	}else{
-		$('#editorialNewDraftConfirmation .post_change_effect').text('a new draft will be created and '+(is_author?'editors':'you')+' will no longer be allowed to peform edits.');
+		$('#editorialNewDraftConfirmation .post_change_effect').text('a new private draft will be created.');
 		$('#editorialNewDraftConfirmationSave').data('no_action',no_action);
 		$('#editorialNewDraftConfirmationSave').data('$form',$form);
 		$('#editorialNewDraftConfirmation').modal('show');
