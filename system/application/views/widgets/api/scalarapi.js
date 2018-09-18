@@ -3731,8 +3731,8 @@ function ScalarRelation(json, body, target, type) {
 		if (( json['http://www.openannotation.org/ns/hasBody'] != null ) && ( json['http://www.openannotation.org/ns/hasTarget'] != null )) {
 
 			this.id = scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasBody'][0].value)+scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value);
-			this.body = scalarapi.model.nodesByURL[scalarapi.stripEditionAndVersion(json['http://www.openannotation.org/ns/hasBody'][0].value)];
-			this.target = scalarapi.model.nodesByURL[scalarapi.stripEditionAndVersion(scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value))];
+			this.body = scalarapi.model.nodesByURL[scalarapi.stripVersion(json['http://www.openannotation.org/ns/hasBody'][0].value)];
+			this.target = scalarapi.model.nodesByURL[scalarapi.stripVersion(scalarapi.stripAllExtensions(json['http://www.openannotation.org/ns/hasTarget'][0].value))];
 			
 			// parse the relation type and populate extents (if any)
 			var anchorVars = scalarapi.getAnchorVars(json['http://www.openannotation.org/ns/hasTarget'][0].value);
