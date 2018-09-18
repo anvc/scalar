@@ -1152,11 +1152,14 @@
 
             addColophon: function() {
                 var currentNode = scalarapi.model.getCurrentPageNode();
+                var is_author_or_editor = false;
                 var can_show_versions = ($('.navbar-header .book-title').find('[data-hide-versions="true"]').length) ? false : true;
                 var $level = $('link#user_level');
                 if ($level.length) {
-                	if ('scalar:author' == $level.attr('href').toLowerCase()) can_show_versions = true;
-                	if ('scalar:editor' == $level.attr('href').toLowerCase()) can_show_versions = true;
+                	if ('scalar:author' == $level.attr('href').toLowerCase() || 'scalar:editor' == $level.attr('href').toLowerCase()) {
+                        can_show_versions = true;
+                        is_author_or_editor = true;
+                    }
                 }
                 var $footer = $('#footer');
                 $footer.append('<div id="colophon" class="caption_font"><p id="scalar-credit"></p></div>');
@@ -1168,9 +1171,14 @@
                     var editionData = $('span[resource="'+bookURL+'"]');
                     var editionName = editionData.find('span[property="dcterms:title"]').text();
                     $par.append(editionName+' | ');
+                    if (!is_author_or_editor) can_show_versions = false;
                 }
                 if (null !== currentNode.current.number) { // Make sure there is a version .. Added by Craig 6 December 2015
-                    $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '" title="Go to permalink">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date(currentNode.current.created).toLocaleDateString() + ' ');
+                    if (can_show_versions) {
+                        $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '" title="Go to permalink">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date(currentNode.current.created).toLocaleDateString() + ' ');
+                    } else {
+                        $par.append('Updated ' + new Date(currentNode.current.created).toLocaleDateString() + ' ');
+                    }
                     if ('undefined' != currentNode.paywall && 1 == parseInt(currentNode.paywall)) $par.append('&nbsp;<span class="glyphicon glyphicon-lock" aria-hidden="true" title="This page is protected by the paywall"></span> ');
                     $par.append(' | ');
                     if (can_show_versions) $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions" title="View all versions">All versions</a> | ');
