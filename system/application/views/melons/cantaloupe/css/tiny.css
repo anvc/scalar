@@ -54,6 +54,13 @@ article h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height:
 	margin-right: 0px !important;
 }
 
+/* tk labels */
+
+.popover.tk-help .supertitle { display: none; }
+.popover.tk-help h3 { font-size: 1.8rem; }
+.tk-help > .popover-content > img { display: none; }
+[typeof="tk:TKLabel"].last {margin-right:2rem;}
+
 /* editorial workflow */
 
 .editorial-status-bar {

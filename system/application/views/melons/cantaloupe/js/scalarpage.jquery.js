@@ -1131,23 +1131,27 @@
                     commentDialog.data('plugin_scalarcomments').showComments(true);
                 }
             },
-            
+
             addTKLabels: function() {
-            	
             	var $labels = $('article header [typeof="tk:TKLabel"]');
             	var hasLabels = ($labels.length) ? true : false;
             	if (!hasLabels) return;
+                var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
             	$labels.first().addClass('last');  // Because of float:right the first is actually the last
             	$labels.each(function() {
             		var $label = $(this);
             		$label.css('display', 'inline-block');
             		var $url = $label.find('a[rel="art:url"]');
             		var url = $url.attr('href');
-            		$url.replaceWith('<img rel="art:url" src="'+url+'" />');
-            		var $title = $label.find('[property="dcterms:title"]');
-            		$title.css('font-weight', 'bold');
+            		$url.replaceWith('<img rel="art:url" src="'+url+'" data-toggle="popover" data-placement="bottom" />');
+                    $label.find('img').popover( { 
+                        trigger: "click", 
+                        html: true, 
+                        template: popoverTemplate,
+                        container: 'body',
+                        content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
+                    } );
             	});
-            	
             },
 
             addColophon: function() {
