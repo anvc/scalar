@@ -1326,7 +1326,8 @@
                                         startupFocus: true,
                                         allowedContent: true,
                                         extraAllowedContent : 'code pre a[*]',
-                                        toolbar : 'ScalarInline'
+                                        toolbar : 'ScalarInline',
+                                        floatSpacePinnedOffsetY: 50
                                     } );
 
                                     if(typeof base.ckeditorWatcher != 'undefined' && base.ckeditorWatcher !== null){
