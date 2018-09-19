@@ -1396,7 +1396,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (-1 != opts.fields.indexOf('last_edited_by')) {
 				url += '&prov=1';
 			}
-			if (-1 != opts.fields.indexOf('edit') || (opts.editorialOptions !== false && type.replace(/\s+/g, '').toLowerCase()==='hidden')) {
+			if (-1 != opts.fields.indexOf('edit') || (opts.editorialOptions !== false && (type.replace(/\s+/g, '').toLowerCase()==='hidden' || type.replace(/\s+/g, '').toLowerCase()==='content'))) {
 				url += '&hidden=1';
 			};
 			if (doSearch) {
