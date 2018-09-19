@@ -631,13 +631,13 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }else if(versions.length == 2){
                 base.createInteractiveDiff(scalar_diff.diff(
                     {
-                        'body' : versions[1].content,
-                        'title' : versions[1].title,
+                        'body' : versions[1].content || '',
+                        'title' : versions[1].title || '',
                         'description' : versions[1].description || ''
                     },
                     {
-                        'body' : versions[0].content,
-                        'title' : versions[0].title,
+                        'body' : versions[0].content || '',
+                        'title' : versions[0].title || '',
                         'description' : versions[0].description || ''
                     },
                     true,

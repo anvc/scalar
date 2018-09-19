@@ -1451,13 +1451,13 @@
                         reviewVersions = [versions[0],old_version];
                         diff = scalar_diff.diff(
                             {
-                                'body' : reviewVersions[1].content,
-                                'title' : reviewVersions[1].title,
+                                'body' : reviewVersions[1].content || '',
+                                'title' : reviewVersions[1].title || '',
                                 'description' : reviewVersions[1].description || ''
                             },
                             {
-                                'body' : reviewVersions[0].content,
-                                'title' : reviewVersions[0].title,
+                                'body' : reviewVersions[0].content || '',
+                                'title' : reviewVersions[0].title || '',
                                 'description' : reviewVersions[0].description || ''
                             },
                             true,
