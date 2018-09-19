@@ -1530,6 +1530,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 		}
 		var fieldWidths = {
+			editorial_state_border: .25,
 			thumbnail: 2,
 			title: 4,
 			name: 4,
@@ -1735,6 +1736,20 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 		    return widthNoScroll - widthWithScroll;
 		}
+
+		if(isset(opts.useEditorialRules) && opts.useEditorialRules){
+			var state_flow = {};
+	        if(typeof opts.userType !== 'undefined' && opts.userType != null && (opts.userType === 'editor' || opts.userType === 'author')){
+	        	state_flow = opts.userType == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Edit','Clean']}:
+	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Clean','Published'], 'Published' : ['Ready','Published']};
+	        	
+	        	//Check to see if we're using editions - if so, remove the published state from the flow.
+	        	if($('.row.editions').length > 0 && !!state_flow.Published){
+	        		delete state_flow.Published;
+	        	}
+	        }
+        }
+
 		var scrollBarWidth = getScrollbarWidth();
 		var resize = $.proxy(function($dialogue_container) {
 			var pips_per_row = 0;
@@ -1775,6 +1790,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			} else {
 			    $dialogue_container.find('.panel-body>table').css('width','100%');
 			}
+
+			$rows.find('td[property="editorial_state_border"]').each(function(){
+				$(this).height($(this).parents('tr').outerHeight());
+			});
 		}, this, $dialogue_container);
 		var shorten_description = function(description) {
 			var max_chars = 200; // Magic number...
@@ -1967,8 +1986,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								dt = new Date(item.version["http://purl.org/dc/terms/created"][0].value);
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" title="' + createdStr + '">' + monthNames[dt.getMonth()] + ' ' + dt.getDate() + getSuffix(dt.getDate()) + ' ' + dt.getFullYear() + '</td>';
 								break;
+							case 'editorial_state_border':
+								rowHTML += '<td data-state="'+item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value+'" class="'+ item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value + ' ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"></td>';
+								break;
 							case 'editorial_state':
-								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">' + ucwords(item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value.replace('review',' review')) + '</a></td>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">' + ucwords(item.version['http://scalar.usc.edu/2012/01/scalar-ns#editorialState'][0].value.replace('review',' review')) + '</td>';
 								break;
 							case 'format':
 								if(typeof scalarapi !== "undefined"){
@@ -1993,7 +2015,30 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 					rowHTML += '</tr>';
-					var $item = $(rowHTML).appendTo($rows).data({ 'slug': item.slug, 'item': item });
+					
+					var $item = $(rowHTML).appendTo($rows).data({ 'slug': item.slug, 'item': item});
+
+					if(isset(opts.useEditorialRules) && opts.useEditorialRules){
+						var $borderRow = $item.find('td[property="editorial_state_border"]');
+						if($borderRow.length > 0){
+							var className = $borderRow.data('state').replace('review',' review').replace(/(^| )(\w)/g, function(x) {
+											    return x.toUpperCase();
+											}).replace(' ','_');
+							var canChange = typeof state_flow[className] !== 'undefined' && state_flow[className] != null && state_flow[className].length > 0;
+						}
+					}else{
+						canChange = true;
+					}
+
+					$item.data('item').canChange = canChange;
+
+					if(!canChange && !!opts.startEditTrigger && opts.startEditTrigger!='click'){
+						$editLink = $item.find(opts.startEditTrigger).addClass('notAllowed');
+						if(!$editLink.data('has_popover')){
+							$editLink.popover({content:'You do not have permission to modify content in this editorial state.',placement:'bottom',trigger:'hover'});
+							$editLink.data('has_popover',true);
+						}
+					}
 
 					if (hasChildSelector) {
 						$item.find('.select_children input[type="checkbox"]').click(function(e) {
@@ -2205,10 +2250,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$this.find('.editable').each(function() {
 							var $cell = $(this);
 							if ($cell.data('is-editing')) {
-								console.log('stop editing');
 								$.extend(to_save, doStopEditing($cell));
 							} else {
-								console.log('sstart editing');
 								doStartEditing($cell);
 							};
 						});
@@ -2241,21 +2284,50 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					};
 					if ('click' == opts.startEditTrigger) {
 						$rows.find('tr').click(function() {
-							invokeEditing($(this));
+							if(isset(opts.useEditorialRules) && opts.useEditorialRules){
+								var $borderRow = $this.find('td[property="editorial_state_border"]');
+								if($borderRow.length > 0){
+									var className = $borderRow.data('state').replace('review',' review').replace(/(^| )(\w)/g, function(x) {
+													    return x.toUpperCase();
+													}).replace(' ','_');
+									var canChange = typeof state_flow[className] !== 'undefined' && state_flow[className] != null && state_flow[className].length > 0;
+								}
+							}else{
+								canChange = true;
+							}
+							if(canChange){ 
+								invokeEditing($(this)); 
+							}
 						});
 					} else {
 						$el = $rows.find(opts.startEditTrigger);
 						$el.click(function(e) {
 							var $this = $(this);
-							invokeEditing($this.closest('tr'));
-							if ($this.hasClass('btn-default')) {
-								$this.removeClass('btn-default').addClass('btn-primary').text('Save row');
-								if ($this.closest('tr').hasClass('current')) e.stopPropagation();
-							} else {
-								$this.removeClass('btn-primary').addClass('btn-default').text('Edit row');
-								if (!$this.closest('tr').hasClass('current')) e.stopPropagation();
-							};
-							$this.blur();
+							var $row = $this.closest('tr');
+
+							if(isset(opts.useEditorialRules) && opts.useEditorialRules){
+								var $borderRow = $row.find('td[property="editorial_state_border"]');
+								if($borderRow.length > 0){
+									var className = $borderRow.data('state').replace('review',' review').replace(/(^| )(\w)/g, function(x) {
+													    return x.toUpperCase();
+													}).replace(' ','_');
+									var canChange = typeof state_flow[className] !== 'undefined' && state_flow[className] != null && state_flow[className].length > 0;
+								}
+							}else{
+								canChange = true;
+							}
+
+							if(canChange){ 
+								invokeEditing($row);
+								if ($this.hasClass('btn-default')) {
+									$this.removeClass('btn-default').addClass('btn-primary').text('Save row');
+									if ($this.closest('tr').hasClass('current')) e.stopPropagation();
+								} else {
+									$this.removeClass('btn-primary').addClass('btn-default').text('Edit row');
+									if (!$this.closest('tr').hasClass('current')) e.stopPropagation();
+								};
+								$this.blur();
+							}
 						});
 					};
 				};
@@ -2350,15 +2422,38 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			} else {
 				var $count = $(this).find('.selected_node_count');
 			}
+
 			if ($(this).data('nodes') == undefined) {
 				$(this).data('nodes', []);
 			}
 
-			var number_items = $(this).data('nodes').length;
+			var nodeList = $(this).data('nodes');
+			var number_items = nodeList.length;
+			var canChangeAllNodes = true;
+			for(var n = 0; n < number_items; n++){
+				if(typeof nodeList[n].canChange !== 'undefined' && nodeList[n].canChange === false){
+					canChangeAllNodes = false;
+					break;
+				}
+			}
+			$deleteButton = $dialogue_container.find('.deleteButton');
+			if(!canChangeAllNodes && (isset(opts.deleteOptions) && opts.deleteOptions)){
+				$deleteButton.addClass('notAllowed');
+				if(!$deleteButton.data('has_popover')){
+					$deleteButton.popover({content:'You do not have permission to modify content in this editorial state.',placement:'bottom',trigger:'hover'});
+				}
+			}else{
+				$deleteButton.removeClass('notAllowed');
+				$deleteButton.popover('destroy');
+				$deleteButton.data('has_popover',false);
+			}
+
+			console.log(canChangeAllNodes);
+
 			if ($(this).data('opts').allowChildren) {
 				//We are also including children if the user chooses, so we need to count them
-				for (var i in $(this).data('nodes')) {
-					var item = $(this).data('nodes')[i];
+				for (var i in nodeList) {
+					var item = nodeList[i];
 					if ('undefined' === typeof item.targets || 'undefined' === item.include_children || !item.include_children) { continue; }
 					number_items += item.targets.length;
 				}
@@ -2426,8 +2521,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$(this).blur();
 				});
 			};
-			var $deleteBtn = $('<button type="button" class="btn btn-default">'+opts.deleteButton+'</button>').appendTo($deleteOpts);
+			var $deleteBtn = $('<button type="button" class="btn btn-default deleteButton">'+opts.deleteButton+'</button>').appendTo($deleteOpts);
 			$deleteBtn.click(function() {
+				if($(this).hasClass('notAllowed')){
+					return false;
+				}
 				if ('function' == typeof(opts.deleteOptions)) {
 					var $selected = $(this).closest('.selector').find('.node_selector_table_body tr.current');
 					if (!$selected.length) {
@@ -2578,19 +2676,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 		$type_selector.val(current_type);
 
-		if(isset(opts.editorialOptions) && opts.editorialOptions){
-			var state_flow = {};
-	        if(typeof user_type !== 'undefined' && user_type != null && (user_type === 'editor' || user_type === 'author')){
-	        	state_flow = user_type == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Edit','Clean']}:
-	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Clean','Published'], 'Published' : ['Ready','Published']};
-	        	
-	        	//Check to see if we're using editions - if so, remove the published state from the flow.
-	        	if($('.row.editions').length > 0 && !!state_flow.Published){
-	        		delete state_flow.Published;
-	        	}
-	        }
-        }
-
 		var doTypeFilter = function() {
 			$dialogue_container.find('.filter_spinner .spinner_container').show();
 			$dialogue_container.find('.node_types .btn').prop('disabled', true).addClass('disabled');
@@ -2719,6 +2804,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">State</th>');
 				} else if (fields_to_display[f] == 'format') {
 					$fields.append('<th  data-width="'+fieldWidths[fields_to_display[f]]+'" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">Format</th>');
+				} else if (fields_to_display[f] == 'editorial_state_border') {
+					$fields.append('<th  data-width="'+fieldWidths[fields_to_display[f]]+'" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '"></th>');
 				} else {
 					$fields.append('<th data-width="' + fieldWidths[fields_to_display[f]] + '" data-field="' + fields_to_display[f].toLowerCase().replace(/ /g, "_") + '">' + toProperCase(fields_to_display[f].replace(/_/g, " ")) + '</th>');
 				}

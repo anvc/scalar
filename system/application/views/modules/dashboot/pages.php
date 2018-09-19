@@ -27,6 +27,15 @@ $(document).ready(function() {
 		editable:["title","description"],
 		startEditTrigger:'.editLink'
 	};
+	<?php
+		if($editorial_is_on && $can_editorial){
+	?>
+		node_options['fields'].unshift('editorial_state_border');
+		node_options['useEditorialRules'] = true;
+		node_options['userType'] = '<?echo($user_level_as_defined);?>'.toLowerCase();
+	<?php
+		}
+	?>
 	$selector.node_selection_dialogue(node_options);
 	$('#review-comments').click(function() {
 		$('.selector .node_types select:first').val('reply');

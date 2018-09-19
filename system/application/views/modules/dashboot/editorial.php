@@ -747,13 +747,15 @@ STR;
         fields:["visible","title","format","description","editorial_state","last_edited_by","date_edited","usage_rights"],
         allowMultiple:true,
         rowSelectMethod:'highlight',
+        userType: user_type,
         rec:"0",
         ref:"0",
         editorialOptions:moveSomeContentToState,
         defaultType:"content",
         types:types,
         isEdit:true,
-        refreshAfterFilter:true
+        refreshAfterFilter:true,
+        useEditorialRules:true
   	};
   	$selector.node_selection_dialogue(node_options);
     

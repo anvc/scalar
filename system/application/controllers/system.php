@@ -588,6 +588,8 @@ class System extends MY_Controller {
 		    	break;
 		    // Page-types follow, purposely at the bottom of the switch so that they fall into 'default'
 		    default:
+		    	$this->data['can_editorial'] = $this->can_editorial();
+		    	$this->data['editorial_is_on'] = $this->editorial_is_on();
 		    	if (!empty($this->data['book'])) {
 		    		$this->data['book']->has_paywall = $this->books->has_paywall($this->data['book']);
 		    	}
