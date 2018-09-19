@@ -1396,7 +1396,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (-1 != opts.fields.indexOf('last_edited_by')) {
 				url += '&prov=1';
 			}
-			if (-1 != opts.fields.indexOf('edit') || opts.editorialOptions !== false) {
+			if (-1 != opts.fields.indexOf('edit') || (opts.editorialOptions !== false && type.replace(/\s+/g, '').toLowerCase()==='hidden')) {
 				url += '&hidden=1';
 			};
 			if (doSearch) {
@@ -2447,8 +2447,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$deleteButton.popover('destroy');
 				$deleteButton.data('has_popover',false);
 			}
-
-			console.log(canChangeAllNodes);
 
 			if ($(this).data('opts').allowChildren) {
 				//We are also including children if the user chooses, so we need to count them
