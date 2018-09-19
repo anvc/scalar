@@ -740,7 +740,7 @@ STR;
   	$selector.height(height + 'px');
   	var types = ['content'];
   	for (var type in editorial_states) {
-  		if ('empty'==type.toLowerCase() || 'publishedwitheditions'==type.toLowerCase()) continue;
+  		if ('empty'==type.toLowerCase() || 'publishedwitheditions'==type.toLowerCase() || 'readywitheditions'==type.toLowerCase()) continue;
   		types.push(editorial_states[type].name);
   	};
   	node_options = {  /* global */
