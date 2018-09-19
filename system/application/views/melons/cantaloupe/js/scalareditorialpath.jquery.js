@@ -26,7 +26,7 @@
         // Access to jQuery and DOM versions of element
         base.$el = $(el);
         base.el = el;
-
+        base.ckeditorLoader = $('<div id="ckeditorLoader"></div>');
         base.nodeList = {};
         base.nodeEditorialStates = {};
 
@@ -169,8 +169,8 @@
                     base.currentLoaderValue = 0;
                     $(this).find('.inner').width(0);
                 });
-            }else if(!base.$loadingBar.is(':visible')){
-                base.$loadingBar.fadeIn('fast');
+            }else{
+                base.$loadingBar.show();
             }
             if(!!sidebarText){
                 $('.editorialSidePanelLoaderIndicator').attr('data-text',sidebarText);
@@ -183,6 +183,11 @@
             switch(base.stage){
                 case 0:
 
+                    CKEDITOR.on("instanceReady", function(event)
+                    {   
+                        $('.ckeditorLoading').removeClass('ckeditorLoading');
+                        base.ckeditorLoader.detach().hide();
+                    });
                     $('body').on('pageLoadComplete, delayedResize',base.resize);
                     //Do a little bit of preliminary setup...
                     base.highestID = -1;
@@ -282,13 +287,15 @@
                               base.updateLoader((loadedNodes/base.additional_nodes_to_load)*100);
                               var callback = function(){
                                 base.updateLoader((loadedNodes/base.additional_nodes_to_load)*100);
-                                var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
-                                if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || ++loadedNodes < base.additional_nodes_to_load)){
-                                    base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
-                                }else{
-                                    base.updateLoader(100);
-                                    $('body').scrollspy('refresh');
-                                }
+                                window.setTimeout(function(){
+                                    var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
+                                    if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || ++loadedNodes < base.additional_nodes_to_load)){
+                                        base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+                                    }else{
+                                        base.updateLoader(100);
+                                        $('body').scrollspy('refresh');
+                                    }
+                                },50);
                               }
                               loadedNodes++;
                               base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
@@ -317,13 +324,16 @@
                       hwaccel: false, // Whether to use hardware acceleration
                       className: 'spinner', // The CSS class to assign to the spinner
                       zIndex: 2e9, // The z-index (defaults to 2000000000)
-                      top: 'auto', // Top position relative to parent in px
-                      right: 'auto' // Left position relative to parent in px
+                      top: '50%', // Top position relative to parent in px
+                      right: '50%' // Left position relative to parent in px
                     };
                     var spinner = new Spinner(spinner_options).spin();
                     $('#editorialSidePanel .editorialSidePanelLoaderIndicator').find('.spinner_container').each(function(){
                         $(this).append(spinner.el);
                     });
+
+                    spinner = new Spinner(spinner_options).spin();
+                    base.ckeditorLoader.append(spinner.el);
 
                     base.node_state_classes = [];
                     for(var stateClass in base.node_states){
@@ -632,10 +642,12 @@
                         base.$contentLoaderInfo.text('Loading '+base.nodeTypes[base.currentLoadType]+' nodes - '+percent+'%');
                         base.currentChunk++;
                     }
-                    scalarapi.loadNodesByType(
-                        base.nodeTypes[base.currentLoadType], true, base.setup,
-                        null, 1, false, null, base.currentChunk*base.options.pagesPerChunk, base.options.pagesPerChunk
-                    );
+                    window.setTimeout(function(){
+                        scalarapi.loadNodesByType(
+                            base.nodeTypes[base.currentLoadType], true, base.setup,
+                            null, 1, false, null, base.currentChunk*base.options.pagesPerChunk, base.options.pagesPerChunk
+                        );
+                    },50);
 
                     break;
                 case 3:
@@ -769,18 +781,20 @@
             base.updateLoader(0);
             var callback = function(){
                 base.updateLoader("increment");
-                var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
-                if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || extraLoadedNodes < (base.additional_nodes_to_load-1))){
-                    if(nodeListBottom >= $(window).height()){
-                        extraLoadedNodes++;
+                window.setTimeout(function(){
+                    var nodeListBottom = base.$nodeList.height() + base.$nodeList.offset().top;
+                    if(base.nextNodeIndexToLoad < base.currentNodeList.length && (nodeListBottom < $(window).height() || extraLoadedNodes < (base.additional_nodes_to_load-1))){
+                        if(nodeListBottom >= $(window).height()){
+                            extraLoadedNodes++;
+                        }
+                        base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
+                    }else{
+                        base.updateLoader(100,"");
+                        $('body').scrollspy('refresh');
+                        base.stage = 4;
+                        base.setup();
                     }
-                    base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
-                }else{
-                    base.updateLoader(100,"");
-                    $('body').scrollspy('refresh');
-                    base.stage = 4;
-                    base.setup();
-                }
+                },50);
             }
             base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
             base.loadOutline();
@@ -830,27 +844,28 @@
                 var callback = function(){
                     percent += percentPerNode;
                     base.updateLoader(percent,"Loading page "+(++currentPage)+" of "+numNodes);
-
-                    if(base.nextNodeIndexToLoad >= base.currentNodeList.length || (base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug || extraLoadedNodes >= base.additional_nodes_to_load)){
-                        $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
-                        base.updateLoader(100);
-                        $('html, body').animate({
-                                scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 0 : 30)
-                        }, 1000);
-                        if(reloadOutline){
-                            base.loadOutline();
+                    window.setTimeout(function(){ //Do a timeout here to break node loading into its own asynchronous flow
+                        if(base.nextNodeIndexToLoad >= base.currentNodeList.length || (base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug || extraLoadedNodes >= base.additional_nodes_to_load)){
+                            $node = $('#node_'+nodeSlug.replace(/\//g, '_'));
+                            base.updateLoader(100);
+                            $('html, body').animate({
+                                    scrollTop: $node.offset().top - ($node.offset().top > $('body').scrollTop() ? 0 : 30)
+                            }, 1000);
+                            if(reloadOutline){
+                                base.loadOutline();
+                            }
+                            $('body').scrollspy('refresh');
+                            $('#editorialSidePanel').removeClass('loading_nodes');
+                        }else{
+                            if(base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
+                                foundNode = true;
+                            }
+                            if(foundNode){
+                                extraLoadedNodes++;
+                            }
+                            base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
                         }
-                        $('body').scrollspy('refresh');
-                        $('#editorialSidePanel').removeClass('loading_nodes');
-                    }else{
-                        if(base.currentNodeList[base.nextNodeIndexToLoad-1].slug == nodeSlug){
-                            foundNode = true;
-                        }
-                        if(foundNode){
-                            extraLoadedNodes++;
-                        }
-                        base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
-                    }
+                    },50);
                 }
                 base.addNode(base.currentNodeList[base.nextNodeIndexToLoad++],callback);
             }
@@ -1344,7 +1359,7 @@
 
 
                                     $(this).data('editor',editor);
-
+                                    base.ckeditorLoader.appendTo($(this).addClass('ckeditorLoading')).show();
 
                                     editor.on('focus', $.proxy(function(editor,base,ev) {
                                             editor.plugins['scalarbeta'].init(editor);
@@ -1428,7 +1443,6 @@
                 if(state == "clean"){
                     previousState = "editreview";
                 }
-
 
                 scalarapi.loadPage( node.slug, true, function(){
                     var versions = scalarapi.getNode(node.slug).versions;
