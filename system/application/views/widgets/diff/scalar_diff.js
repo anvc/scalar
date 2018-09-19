@@ -353,6 +353,9 @@ var scalar_diff = {
 	'diff' : function(_old,_new, addNewLinePlaceholders, addMarkup){
         var htmlTokens = [];
         var htmlTokenRelationships = {};
+        
+        if(!_old.body) _old.body = '';
+        if(!_new.body) _new.body = '';
 
         $old = $('<div>'+_old.body+'</div>');
         $new = $('<div>'+_new.body+'</div>');
