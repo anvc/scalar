@@ -1200,7 +1200,8 @@
 
                 // if we're in an edition, build edition menu
                 var editionNum = scalarapi.getEdition(document.location.href);
-                if (editionNum != -1) {
+                var versionNum = scalarapi.getVersionExtension(document.location.href);
+                if (editionNum != -1 && versionNum == '') {
                     var editions = $('span[typeof="scalar:Edition"]');
                     var editionList = $('<ul class="dropdown-menu aria-labelledby="edition-dropdown"></ul>');
                     var editionListItem;
