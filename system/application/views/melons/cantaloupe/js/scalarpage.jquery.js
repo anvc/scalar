@@ -1154,7 +1154,36 @@
             	});
             },
 
+            handleEditionSelect: function() {
+                if (!navigator.cookieEnabled) {
+                    alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
+                    return;
+                }
+                var editionData = $(this).data('edition');
+                var editionSourceUrl;
+                if (editionData == null) {
+                    editionSourceUrl = $('link#parent').attr('href');
+                } else {
+                    editionSourceUrl = $(editionData).attr('resource');
+                }
+                var temp = editionSourceUrl.split('.');
+                var editionNum = parseInt(temp[temp.length-1]);
+                var newUrl;
+                temp.pop();
+                var base_url = temp.join('.');
+                if (editionData == null) {
+                    document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+                    newUrl = base_url + '/' + scalarapi.model.getCurrentPageNode().slug;
+                } else {
+                    document.cookie = "scalar_edition_index="+(editionNum-1)+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
+                    var decodedCookie = decodeURIComponent(document.cookie);
+                    newUrl = base_url + '.' + editionNum + '/' + scalarapi.model.getCurrentPageNode().slug;
+                }
+                window.open(newUrl,'_self');
+            },
+
             addColophon: function() {
+                var decodedCookie = decodeURIComponent(document.cookie);
                 var currentNode = scalarapi.model.getCurrentPageNode();
                 var is_author_or_editor = false;
                 var can_show_versions = ($('.navbar-header .book-title').find('[data-hide-versions="true"]').length) ? false : true;
@@ -1168,15 +1197,39 @@
                 var $footer = $('#footer');
                 $footer.append('<div id="colophon" class="caption_font"><p id="scalar-credit"></p></div>');
                 var $par = $footer.find('#scalar-credit');
+
+                // if we're in an edition, build edition menu
                 var editionNum = scalarapi.getEdition(document.location.href);
                 if (editionNum != -1) {
+                    var editions = $('span[typeof="scalar:Edition"]');
+                    var editionList = $('<ul class="dropdown-menu aria-labelledby="edition-dropdown"></ul>');
+                    var editionListItem;
+                    if (is_author_or_editor) {
+                        editionListItem = $('<li><a href="javascript:;">Latest edits</a></li>');
+                        editionListItem.click(page.handleEditionSelect);
+                        editionList.append(editionListItem);
+                        editionList.append('<li role="separator" class="divider"></li>');
+                    }
+                    editions.each(function(index) {
+                        var reversedIndex = editions.length - index;
+                        editionListItem = $('<li><a href="javascript:;">'+$(this).find('span[property="dcterms:title"]').text()+'</a></li>');
+                        if (editionNum == reversedIndex) {
+                            editionListItem.addClass('active');
+                        }
+                        editionListItem.find('a').data('edition', this).click(page.handleEditionSelect);
+                        editionList.append(editionListItem);
+                    });
                     var bookURL = $('link#parent').attr('href');
                     bookURL = bookURL.substr(0, bookURL.length-1);
-                    var editionData = $('span[resource="'+bookURL+'"]');
-                    var editionName = editionData.find('span[property="dcterms:title"]').text();
-                    $par.append(editionName+' | ');
+                    var currentEditionData = $('span[resource="'+bookURL+'"]');
+                    var currentEditionName = currentEditionData.find('span[property="dcterms:title"]').text();
+                    var editionSelector = $('<div class="edition-selector dropdown"><a id="edition-dropdown" data-target="#" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">'+currentEditionName+'<span class="caret"></span></a></div>');
+                    editionSelector.append(editionList);
+                    $par.append(editionSelector);
+                    $par.append(' | ');
                     if (!is_author_or_editor) can_show_versions = false;
                 }
+
                 if (null !== currentNode.current.number) { // Make sure there is a version .. Added by Craig 6 December 2015
                     if (can_show_versions) {
                         $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.' + currentNode.current.number + '" title="Go to permalink">Version ' + currentNode.current.number + '</a> of this ' + currentNode.getDominantScalarType().singular + ', updated ' + new Date(currentNode.current.created).toLocaleDateString() + ' ');

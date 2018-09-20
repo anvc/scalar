@@ -872,6 +872,7 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 
 #colophon { color: #666; }
 #colophon img { margin-right: .3rem; }
+#colophon .edition-selector { display: inline-block; }
 #publisher-credit { margin-bottom: 1.2rem; line-height: 110%; vertical-align: top; }
 #publisher-credit img { margin-right: .6rem; vertical-align: bottom;  max-width: 12rem; max-height: 12rem; }
 #scalar-credit img { vertical-align: middle; margin-top: -.2rem; }
