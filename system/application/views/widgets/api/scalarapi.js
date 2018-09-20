@@ -1028,7 +1028,7 @@ ScalarAPI.prototype.getEdition = function(editionURI, bookURI) {
 		var arr = bookURI.split('/');
 		var book_slug = arr[arr.length-1];  // Book slugs can't have a slash
 		if (-1 == book_slug.indexOf('.')) return editionNum;  // Isn't an edition URL
-		var num = book_slug.substr(book_slug.lastIndexOf('.'));
+		var num = book_slug.substr(book_slug.lastIndexOf('.')+1);
 		editionNum = parseInt(num);
 	}
 	return editionNum;
