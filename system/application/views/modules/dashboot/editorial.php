@@ -562,7 +562,7 @@ STR;
       highlightSelectedEdition($selected);
       var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
       selectEditionByIndex(index);
-      window.open($('link#parent').attr('href'),'_self');
+      //window.open($('link#parent').attr('href'),'_self');
   	});
   	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
       highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]'));
