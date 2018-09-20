@@ -262,7 +262,7 @@ li.divider-above { border-top: 1px dotted #888; }
 	max-width: 104rem;
 	margin: 5rem auto 0 auto;
 	padding: 0 0 7.8rem 0;
-	min-height: calc(100% - 4.8rem);
+	min-height: 100%;
 	line-height: 2.4rem;
 	position: relative;
 	-webkit-transition: opacity .5s ease-in-out;
@@ -517,7 +517,7 @@ a:hover { text-decoration: underline; }
 
 .popover.tk-help .supertitle { font-size: 1rem; text-transform: uppercase; color: #666; padding: 0; margin: 0; }
 .popover.tk-help { font-size: 1.2rem; }
-.popover.tk-help h3 { padding-left: 0; padding-right: 0; font-size: 2rem; margin-top: 0; }
+.popover.tk-help h3 { padding-left: 0; padding-right: 0; font-size: 1.8rem; margin-top: 0; }
 .popover.tk-help p { margin-bottom: 1.2rem; }
 .popover.tk-help p:last-child { margin-bottom: 0; }
 
