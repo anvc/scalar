@@ -746,6 +746,12 @@ body.shortHeader #saveNotice, body.shortHeader #saveErrorNotice{
 	background-color: #f2f2f2;
     color: #777;
 }
+#editorialQueries .query {
+	font-size: 12px;
+}
+#editorialQueries .query > .body {
+	line-height: 120%;
+}
 #editorialQueries .query .query, #editorialQueries .query .newReply{
 	margin-top: .5rem;
 	padding-top: .5rem;

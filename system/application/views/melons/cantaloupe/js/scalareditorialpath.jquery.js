@@ -961,7 +961,7 @@
                 hour = 12;
             }
             var dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
-            var $query = $('<div class="query" id="query_'+query.id+'">'+
+            var $query = $('<div class="query caption_font" id="query_'+query.id+'">'+
                                 (!query.resolved?'<button class="btn btn-sm pull-right resolve">Resolve</button>':'')+
                                 '<strong class="user">'+query.user+'</strong>'+
                                 '<small class="date">'+dateString+'</small>'+
