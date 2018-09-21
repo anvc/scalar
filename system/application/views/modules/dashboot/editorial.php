@@ -320,7 +320,15 @@ STR;
   }
 
   function moveSomeContentToState(version_ids, newState) {
-    if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
+    var previousState = $('.node_types>select').val().replace(' ','').toLowerCase();
+    var changes_warning = '';
+    if(
+      (previousState == "editreview" && newState == "clean") ||
+      (previousState == "clean" && newState == "ready")
+    ){
+      changes_warning = 'Some of the selected '+editorial_states[previousState].name+' content may have pending changes - by moving this content to the '+editorial_states[newState].name+' state, you are accepting all changes. ';
+    }
+    if (confirm(changes_warning+"Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
     	$.ajax({
     		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
     		data: {version_id:version_ids,state:newState},
