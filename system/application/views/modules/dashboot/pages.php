@@ -6,14 +6,47 @@ if (empty($book)) {
 ?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
-<?$this->template->add_css('body {margin-bottom:0;}','embed')?>
+<?$this->template->add_css('body {margin-bottom:0;} #currentEditionViewText{padding-bottom: 2rem;float: left;width: 100%;}','embed')?>
 <?php
 if ($replies_not_live > 0):
 	echo '<div class="alert alert-danger awaiting-comments" role="alert">You have comments awaiting moderation. <a href="javascript:void(null);" id="review-comments">Review &raquo;</a></div>'."\n";
 endif;
 ?>
 <script>
+function getCookie(cname) {  // https://www.w3schools.com/js/js_cookies.asp
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
 $(document).ready(function() {
+	<?php if(count($book->editions) > 0){ ?>
+		var editions = {
+			<?php
+				if (!empty($book->editions)) {
+					for ($j = count($book->editions)-1; $j >= 0; $j--) {
+						echo '"'.$j.'": "'.$book->editions[$j]['title'].'",';
+					}
+				}
+			?>
+		};
+		var currentEdition = 'Latest Edits';
+		if(navigator.cookieEnabled && '' !== getCookie('scalar_edition_index')){
+			currentEdition = editions[getCookie('scalar_edition_index')];
+		}
+
+		var $currentEditionViewText = $('<h4 id="currentEditionViewText" class="container">You are viewing: <strong>'+currentEdition+'</h4>').appendTo('#tabs-pages');
+	<?php } ?>
+
 	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#tabs-pages');
 	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
 	$selector.height(height + 'px');
