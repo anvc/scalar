@@ -236,9 +236,6 @@
 #editorialToolsPanel .versionList tr:hover{
 	background-color: #f2fafe;
 }
-#editorialToolsPanel .versionList tr.current{
-	font-weight: bold;
-}
 #editorialToolsPanel .versionList tr td:first-child{
 	text-align: center;
 }
