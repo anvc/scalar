@@ -452,6 +452,6 @@ tbody.node_rows>tr.current>td[property="editorial_state_border"]{
     box-shadow: none;
     opacity: .65;
 }
-tbody.node_rows>tr.current>td>.popover, .botton_options_box>.popover{
+tbody.node_rows>tr>td>.popover, .botton_options_box>.popover{
 	font-size: 12px;
 }
