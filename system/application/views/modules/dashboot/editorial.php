@@ -215,20 +215,20 @@ STR;
       'ready': {
         'all': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'majority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'minority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         }
       },
