@@ -50,9 +50,9 @@
 		<h4 class="heading_font heading_weight">Queries</h4>
 		<button id="addNewQuery" class="pull-right btn">Add new</button>
 		<div id="addNewQueryForm" class="clearfix"><textarea placeholder="Enter query..." class="form-control" id="addNewQueryFormText"></textarea><button type="button" class="pull-right btn btn-sm">Submit</button></div>
-		<div class="queries">
+		<div class="queries caption_font">
 		</div>
-		<div class="resolvedQueries">
+		<div class="resolvedQueries caption_font">
 			<a class="queryDropdownToggle" href="#">
 				<small class="glyphicon glyphicon-triangle-right dropdownCaret" aria-hidden="true" data-toggle="collapse" data-target="#resolvedQueries" aria-expanded="false" aria-controls="resolvedQueries"></small> Resolved queries (<span class="queryCount">0</span>)
 			</a>
