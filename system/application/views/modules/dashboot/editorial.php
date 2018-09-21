@@ -497,7 +497,7 @@ STR;
         if (content_count > 0 && scope !== 'statesOnly') {
           $('.usage-rights-gauge').fadeOut(100,function(){
             $(this).html('');
-            usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
+            usage_rights_percentage = parseFloat(data['usagerights']) / non_hidden_content_count * 100;
             item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
             $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a></div></span>').fadeIn(100);
           });
