@@ -29,7 +29,8 @@ function getCookie(cname) {  // https://www.w3schools.com/js/js_cookies.asp
     return "";
 }
 $(document).ready(function() {
-	<?php if(count($book->editions) > 0){ ?>
+	<?php 
+	if(!empty($book->editions)){ ?>
 		var editions = {
 			<?php
 				if (!empty($book->editions)) {
