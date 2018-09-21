@@ -418,7 +418,7 @@ td[property="format"] img{
 
 .panel-footer .alert { margin-left: 0; }
 
-tbody.node_rows>tr>td[property="editorial_state_border"]{
+tbody.node_rows>tr>td[property="editorial_state_border"],thead>tr.node_fields>th[data-field="editorial_state_border"]{
 	padding: 0px;
 	border-left: .25rem solid;
 }
