@@ -394,11 +394,10 @@ STR;
 	}
 
   function recalculate_graphs(e,scope){
-    if(typeof scope === 'undefined' || scope == null || scope == ''){
-      scope = 'all';
-    }
+    if (typeof scope === 'undefined' || scope == null || scope == '') scope = 'all';
+    var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
     $.ajax({
-      url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id,
+      url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id+((''!==index)?'&edition_index='+index:''),
       success: function(data) {
 
         var content_count = 0;
@@ -557,9 +556,8 @@ STR;
 
   var state_info_base_html;
   $(document).ready(function() {
-    state_info_base_html = $('.editorial-summary').html();
+	state_info_base_html = $('.editorial-summary').html();
     $('body').on('updateGraph',recalculate_graphs).trigger('updateGraph');
-
     // Select edition to be viewing
     $(document).on("click", "#select_edition a", function() {
   		if (!navigator.cookieEnabled) {
@@ -567,10 +565,11 @@ STR;
   			return;
   		};
   		var $selected = $(this);
-      highlightSelectedEdition($selected);
-      var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
-      selectEditionByIndex(index);
-      //window.open($('link#parent').attr('href'),'_self');
+        highlightSelectedEdition($selected);
+        var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
+        selectEditionByIndex(index);
+        $('body').trigger('updateGraph');
+        // TODO: reload Content Selector content here
   	});
   	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
       highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]'));
@@ -629,117 +628,111 @@ STR;
   				alert('There was an error attempting to get Editions: '+json.error);
   				return;
   			}
-  			$('#num_editions_str').text( ((1 == json.length)?'is 1 edition':'are '+((json.length)?json.length:'no')+' editions') );
-  			$.getJSON($('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id, function(count) {
-  				if ('undefined'==typeof(count.published)) {
-  					alert('Something went wrong trying to get the editorial counts: the data returned was formatted incorrectly.');
-  					return;
+  			$body.empty();
+          	$body.append('<p>Roll over an edition to reveal editing options.</p>');
+  			// List of editions
+  			if ('undefined'!=typeof(json) && json.length) {
+  				$table = $('<div class="table-responsive"></div>').appendTo($body);
+  				$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Title</th><th>Created</th><th style="text-align:center;">Pages</th><th></th><th></th></tr></thead><tbody></tbody></table>');
+  				for (var j = json.length-1; j >= 0; j--) {
+  					json[j].formatted = timeConverter(json[j].timestamp);
+  					json[j].checked = (0==j) ? true : false;
+  					json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
+  				    $row = $('<tr data-index="'+j+'"></tr>').appendTo($table.find('tbody:first'));
+  				    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
+  				    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
+  				    $row.append('<td style="vertical-align:middle;text-align:center;">'+Object.keys(json[j].pages).length+'</td>');
+  				    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
+  				    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
   				};
-  				$body.empty();
-          		$body.append('<p>Roll over an edition to reveal editing options.</p>');
-  				// List of editions
-  				if ('undefined'!=typeof(json) && json.length) {
-  					$table = $('<div class="table-responsive"></div>').appendTo($body);
-  					$table.append('<table class="table table-condensed table-hover-custom"><thead><tr><th>Title</th><th>Created</th><th style="text-align:center;">Pages</th><th></th><th></th></tr></thead><tbody></tbody></table>');
-  					for (var j = json.length-1; j >= 0; j--) {
-  						json[j].formatted = timeConverter(json[j].timestamp);
-  						json[j].checked = (0==j) ? true : false;
-  						json[j].url = book_url.replace(/\/$/, "")+'.'+(j+1)+'/index';
-  					    $row = $('<tr data-index="'+j+'"></tr>').appendTo($table.find('tbody:first'));
-  					    $row.append('<td style="vertical-align:middle;"><a href="'+json[j].url+'">'+json[j].title+'</a></td>');
-  					    $row.append('<td style="vertical-align:middle;white-space:nowrap;">'+json[j].formatted+'</td>');
-  					    $row.append('<td style="vertical-align:middle;text-align:center;">'+Object.keys(json[j].pages).length+'</td>');
-  					    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
-  					    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
+  				$table.find('tbody tr').mouseover(function() {
+  					var $row = $(this);
+  					$row.addClass('info');
+  					$row.find('.showme').css('visibility','visible');
+  				}).mouseout(function() {
+  					var $row = $(this);
+  					var $cell = $row.find('td:nth-of-type(1)');
+  					if ($cell.data('is_editing')) return;
+  					$row.removeClass('info');
+  					$row.find('.showme').css('visibility','hidden');
+  				});
+  				$table.find('.edit_edition').click(function() {
+  					var $btn = $(this);
+  					var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
+  					if ($cell.data('is_editing')) {
+  						if ($cell.data('is_saving')) return;
+  						$cell.data('is_saving', true);
+  						var index = parseInt($cell.closest('tr').data('index'));
+  						var value = $cell.find('input').val();
+  						var replace = value.slice();
+  						$.post($('link#sysroot').attr('href')+'system/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
+  							$cell.data('is_saving', false);	
+  							if ('undefined'!=typeof(data.error) && data.error.length) {
+  								alert(data.error);
+  								return;
+  							};
+  							$btn.removeClass('btn-primary').addClass('btn-default').text('Edit row');
+  							$cell.removeClass('collapse_padding');
+  							$cell.data('is_editing', false);
+  							replace = data[index].title;
+  							$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
+  							var $select_edition = $('#select_edition');
+  							$select_edition.find('li.divider').nextAll().remove();
+               				var latestEditionTitle = data[data.length-1].title;
+               				$('.edition_title').text(latestEditionTitle);
+  							var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+  						    for (var j = data.length-1; j >= 0; j--) {
+  								var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
+  								$li.find('a').attr('data-title', data[j].title);
+  							};
+  							$select_edition.find('a[data-index="'+cindex+'"]').click();					
+  						}, 'json');
+  					} else {
+  						$cell.data('is_editing', true);
+  						$btn.removeClass('btn-default').addClass('btn-primary').text('Save row');
+  						$cell.addClass('collapse_padding');
+  						$cell.data('href', $cell.find('a').attr('href'));
+  						var value = $cell.find('a').html();
+  						var replace = value.slice();
+  						$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
+  						$cell.find('input').click(function(event) {
+  							event.stopPropagation();
+  						}).keypress(function(e) {
+  							if (e.which == 13) $(this).closest('tr').find('.edit_edition').click();
+  						});
   					};
-  					$table.find('tbody tr').mouseover(function() {
-  						var $row = $(this);
-  						$row.addClass('info');
-  						$row.find('.showme').css('visibility','visible');
-  					}).mouseout(function() {
-  						var $row = $(this);
-  						var $cell = $row.find('td:nth-of-type(1)');
-  						if ($cell.data('is_editing')) return;
-  						$row.removeClass('info');
-  						$row.find('.showme').css('visibility','hidden');
-  					});
-  					$table.find('.edit_edition').click(function() {
-  						var $btn = $(this);
-  						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
-  						if ($cell.data('is_editing')) {
-  							if ($cell.data('is_saving')) return;
-  							$cell.data('is_saving', true);
-  							var index = parseInt($cell.closest('tr').data('index'));
-  							var value = $cell.find('input').val();
-  							var replace = value.slice();
-  							$.post($('link#sysroot').attr('href')+'system/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
-  								$cell.data('is_saving', false);	
-  								if ('undefined'!=typeof(data.error) && data.error.length) {
-  									alert(data.error);
-  									return;
-  								};
-  								$btn.removeClass('btn-primary').addClass('btn-default').text('Edit row');
-  								$cell.removeClass('collapse_padding');
-  								$cell.data('is_editing', false);
-  								replace = data[index].title;
-  								$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
-  								var $select_edition = $('#select_edition');
-  								$select_edition.find('li.divider').nextAll().remove();
-                  				var latestEditionTitle = data[data.length-1].title;
-                  				$('.edition_title').text(latestEditionTitle);
-  								var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
-  							    for (var j = data.length-1; j >= 0; j--) {
-  									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
-  									$li.find('a').attr('data-title', data[j].title);
-  								};
-  								$select_edition.find('a[data-index="'+cindex+'"]').click();					
-  							}, 'json');
-  						} else {
-  							$cell.data('is_editing', true);
-  							$btn.removeClass('btn-default').addClass('btn-primary').text('Save row');
-  							$cell.addClass('collapse_padding');
-  							$cell.data('href', $cell.find('a').attr('href'));
-  							var value = $cell.find('a').html();
-  							var replace = value.slice();
-  							$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
-  							$cell.find('input').click(function(event) {
-  								event.stopPropagation();
-  							}).keypress(function(e) {
-  								if (e.which == 13) $(this).closest('tr').find('.edit_edition').click();
-  							});
-  						};
-  					});
-  					$table.find('.delete_edition').click(function() {
-  						var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
-  						var title = $cell.find('a').text();
-  						if (confirm('Are you sure you wish to delete the edition "'+title+'"? This cannot be undone, and will break any existing direct links to that edition from other websites.')) {
-  							$cell.data('is_editing', true);
-  							$cell.data('is_saving', true);
-  							var index = parseInt($(this).closest('tr').data('index'));
-  							$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
-  								$('#manageEditions').trigger('show.bs.modal');
-  								document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
-  								var $select_edition = $('#select_edition');
-  								$select_edition.find('li.divider').nextAll().remove();
-                  				if (obj.length == 0) {
-                    					location.reload();
-                  				}
-                 	 				var latestEditionTitle = obj[obj.length-1].title;
-                  				$('.edition_title').text(latestEditionTitle);
-  								var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
-  							    for (var j = obj.length-1; j >= 0; j--) {
-  									var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
-  									$li.find('a').attr('data-title', obj[j].title);
-  								};
-  								$select_edition.find('a:first').click();
-  							});
-  						};
-  					});
-  				} else {
-            			$body.empty();
-  					$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
-  				};
-  			});
+  				});
+  				$table.find('.delete_edition').click(function() {
+  					var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
+  					var title = $cell.find('a').text();
+  					if (confirm('Are you sure you wish to delete the edition "'+title+'"? This cannot be undone, and will break any existing direct links to that edition from other websites.')) {
+  						$cell.data('is_editing', true);
+  						$cell.data('is_saving', true);
+  						var index = parseInt($(this).closest('tr').data('index'));
+  						$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
+  							$('#manageEditions').trigger('show.bs.modal');
+  							document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+  							var $select_edition = $('#select_edition');
+  							$select_edition.find('li.divider').nextAll().remove();
+               				if (obj.length == 0) {
+               					location.reload();
+               					return;
+               				}
+             				var latestEditionTitle = obj[obj.length-1].title;
+               				$('.edition_title').text(latestEditionTitle);
+  							var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+  						    for (var j = obj.length-1; j >= 0; j--) {
+  								var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
+  								$li.find('a').attr('data-title', obj[j].title);
+  							};
+  							$select_edition.find('a:first').click();
+  						});
+  					};
+  				});
+  			} else {
+            		$body.empty();
+  				$('<p>No Editions have been created for this <?=$book->scope?>.</p>').appendTo($body);
+  			};
   		});
   	});
 

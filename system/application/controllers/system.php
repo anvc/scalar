@@ -828,15 +828,26 @@ class System extends MY_Controller {
 							'hidden' => 0,
 							'usagerights' => 0
 				);
-				$content = $this->pages->get_all($this->data['book']->book_id, null, null, false);
-				for ($j = 0; $j < count($content); $j++) {
-					if (isset($content[$j]->is_live) && empty($content[$j]->is_live)) {
-						$this->data['content']['hidden']++;
-						continue;
+				$edition_index = (isset($_GET['edition_index']) && is_numeric($_GET['edition_index'])) ? (int) $_GET['edition_index'] : null;
+				if (null !== $edition_index) {
+					if (!$this->can_edition()) die ('{"error":"Editions are not active"}');
+					if (!isset($this->data['book']->editions[$edition_index])) die ('{"error":"Invalid edition index"}');
+					foreach ($this->data['book']->editions[$edition_index]['pages'] as $version_id) {
+						$version = $this->versions->get($version_id);
+						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
+						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 					}
-					$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id);
-					if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
-					if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
+				} else {
+					$content = $this->pages->get_all($this->data['book']->book_id, null, null, false);
+					for ($j = 0; $j < count($content); $j++) {
+						if (isset($content[$j]->is_live) && empty($content[$j]->is_live)) {
+							$this->data['content']['hidden']++;
+							continue;
+						}
+						$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id);
+						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
+						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
+					}
 				}
 				$this->data['content'] = json_encode($this->data['content']);
 			case 'get_onomy':
