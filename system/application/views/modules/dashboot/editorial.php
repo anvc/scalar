@@ -215,20 +215,20 @@ STR;
       'ready': {
         'all': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'majority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'minority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move all content into the <strong>Published</strong> state to make it publicly available, or create a new public edition.',
-          'next_task_buttons': ['Move all content to <strong>Published</strong>','Create a new edition'],
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         }
       },
@@ -320,7 +320,15 @@ STR;
   }
 
   function moveSomeContentToState(version_ids, newState) {
-    if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
+    var previousState = $('.node_types>select').val().replace(' ','').toLowerCase();
+    var changes_warning = '';
+    if(
+      (previousState == "editreview" && newState == "clean") ||
+      (previousState == "clean" && newState == "ready")
+    ){
+      changes_warning = 'Some of the selected '+editorial_states[previousState].name+' content may have pending changes - by moving this content to the '+editorial_states[newState].name+' state, you are accepting all changes. ';
+    }
+    if (confirm(changes_warning+"Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
     	$.ajax({
     		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
     		data: {version_id:version_ids,state:newState},
@@ -489,7 +497,7 @@ STR;
         if (content_count > 0 && scope !== 'statesOnly') {
           $('.usage-rights-gauge').fadeOut(100,function(){
             $(this).html('');
-            usage_rights_percentage = parseFloat(data['usagerights']) / content_count * 100;
+            usage_rights_percentage = parseFloat(data['usagerights']) / non_hidden_content_count * 100;
             item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
             $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a></div></span>').fadeIn(100);
           });

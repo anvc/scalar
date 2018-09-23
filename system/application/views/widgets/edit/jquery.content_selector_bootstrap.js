@@ -1743,9 +1743,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 	        	state_flow = opts.userType == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Edit','Clean']}:
 	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Clean','Published'], 'Published' : ['Ready','Published']};
 	        	
-	        	//Check to see if we're using editions - if so, remove the published state from the flow.
+	        	//Check to see if we're using editions - if so, remove the published state from the flow, and prevent moving to published.
 	        	if($('.row.editions').length > 0 && !!state_flow.Published){
 	        		delete state_flow.Published;
+	        		if(!!state_flow.Ready){
+	        			var newReadyStates = [];
+	        			for(var i in state_flow.Ready){
+	        				if(state_flow.Ready[i] != "Published"){
+	        					newReadyStates.push(state_flow.Ready[i]);
+	        				}
+	        			}
+	        			state_flow.Ready = newReadyStates;
+	        		}
 	        	}
 	        }
         }
@@ -1781,7 +1790,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			height -= (heading_height+body_height+footer_height);
 			height = Math.max(height, 300);
 
-			$dialogue_container.find('.node_selector_table_body').height(height).find('table').show();
+			$dialogue_container.find('.node_selector_table_body').css('min-height',height+'px').find('table').show();
 
 			var body = $dialogue_container.find('.node_selector_table_body')[0];
 
