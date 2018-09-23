@@ -510,9 +510,15 @@ class Book extends MY_Controller {
 		
 		if ('/result'==substr(uri_string(), -7)) {
 			$this->data['redirect_to'] = $_SERVER['QUERY_STRING'];
+			$this->data['filename'] = '';
+			if (strpos($this->data['redirect_to'], '&filename=')) {
+				$this->data['filename'] = substr($this->data['redirect_to'], strpos($this->data['redirect_to'], '&filename=')+10);
+				$this->data['redirect_to'] = substr($this->data['redirect_to'], 0, strpos($this->data['redirect_to'], '&filename='));
+			}
 			echo '<script>'."\n";
 			echo 'var redirect_to="'.$this->data['redirect_to'].'";'."\n";
-			echo 'window.parent.has_redirected(redirect_to);'."\n";
+			echo 'var filename="'.str_replace('"', '\"', $this->data['filename']).'";'."\n";
+			echo 'window.parent.has_redirected(redirect_to, filename);'."\n";
 			echo '</script>'."\n";
 			$this->template_has_rendered = true;
 		}

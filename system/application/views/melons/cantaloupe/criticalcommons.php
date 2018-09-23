@@ -18,7 +18,8 @@ $this->template->add_css($css, 'embed');
 <h3 id="creating" class="text-success"><div id="spinner"></div>Creating Scalar media and commentary pages ...</h3>
 <iframe id="cc" src="http://www.criticalcommons.org/scpublisher?prev=<? echo base_url().$book->slug; ?>/criticalcommons/result"></iframe>
 <script>
-window.has_redirected = function(redirect_to) {
+window.has_redirected = function(redirect_to, filename) {
+	filename = ('undefined'!=typeof(filename) && null!==filename) ? decodeURIComponent(filename) : '';
 	var $cc = $('#cc');
 	$cc.prop('src', redirect_to);
 	$cc.off('load').load(function() {
@@ -66,15 +67,15 @@ window.has_redirected = function(redirect_to) {
 					  // Elements from <head>
 					  var head = xmlDoc.getElementsByTagName("head")[0];
 					  var $head = $(head);
-					  obj.description = $head.find('meta[name="description"]').attr('content');
-					  obj.subjects = $head.find('meta[name="keywords"]').attr('content').split(',');
+					  obj.description = ($head.find('meta[name="description"]').length) ? $head.find('meta[name="description"]').attr('content') : null;
+					  obj.subjects = ($head.find('meta[name="keywords"]').length) ? $head.find('meta[name="keywords"]').attr('content').split(',') : [];
 					  for (var j = 0; j < obj.subjects.length; j++) {
 						obj.subjects[j] = obj.subjects[j].trim().toLowerCase();
 					  }
-					  obj.format = $head.find('meta[name="DC.format"]').attr('content');
-					  obj.type = $head.find('meta[name="DC.type"]').attr('content');
-					  obj.created = $head.find('meta[name="DC.date.created"]').attr('content');
-					  obj.language = $head.find('meta[name="DC.language"]').attr('content');
+					  obj.format = ($head.find('meta[name="DC.format"]').length) ? $head.find('meta[name="DC.format"]').attr('content') : null;
+					  obj.type = ($head.find('meta[name="DC.type"]').length) ? $head.find('meta[name="DC.type"]').attr('content') : null;
+					  obj.created = ($head.find('meta[name="DC.date.created"]').length) ? $head.find('meta[name="DC.date.created"]').attr('content') : null;
+					  obj.language = ($head.find('meta[name="DC.language"]').length) ? $head.find('meta[name="DC.language"]').attr('content') : null;
 					  // Elements from the clip area
 					  var clip = xmlDoc.getElementById('clip-area');
 					  var $clip = $(clip);
@@ -97,8 +98,13 @@ window.has_redirected = function(redirect_to) {
 					  var $temp = $('<div></div>');
 					  $temp.append( $($content.find('span:first').html()) );
 					  obj.commentary.content = $temp.find('p:nth-of-type(2)').html().trim();
-					  // Wrap up
-					  console.log('second');			  
+					  // Thumbnail and media URLs
+					  var arr = redirect_to.split('/');
+					  obj.username = arr[4];
+					  obj.slug = arr[6];
+					  obj.thumbnail = 'http://www.criticalcommons.org/Members/'+obj.username+'/clips/'+obj.slug+'/thumbnailImage';
+					  console.log('filename: '+filename);
+					  obj.url = null;		  
 					  console.log(obj);
                 }
             },
