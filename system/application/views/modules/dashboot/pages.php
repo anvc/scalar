@@ -45,7 +45,7 @@ $(document).ready(function() {
 			currentEdition = editions[getCookie('scalar_edition_index')];
 		}
 
-		var $currentEditionViewText = $('<h4 id="currentEditionViewText" class="container">You are viewing: <strong>'+currentEdition+'</h4>').appendTo('#tabs-pages');
+		var $currentEditionViewText = $('<h4 id="currentEditionViewText" class="container">Currently viewing content from the  “<strong>'+currentEdition+'</strong>” edition.</h4>').appendTo('#tabs-pages');
 	<?php } ?>
 
 	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#tabs-pages');
