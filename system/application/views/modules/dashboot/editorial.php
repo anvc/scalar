@@ -33,6 +33,7 @@ STR;
     "readyWithEditions": {'id': "readyWithEditions", 'name': "Ready", 'next': 'published' },
     "published": {'id': "published", 'name': "Published", 'next': 'published' },
     "publishedWithEditions": {'id': "publishedWithEditions", 'name': "Published", 'next': 'published' },
+    "publishedWithEditionSet": {'id': "publishedWithEditionSet", 'name': "Published", 'next': 'published' },
     "empty": {'id': "empty", 'name': "empty"}
   };
   var editorial_quantifiers = {
@@ -142,10 +143,14 @@ STR;
       },
       'publishedWithEditions': {
         'all': {
-          'current_task': 'You may create new editions as needed.',
-          'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.',
-          'next_task_buttons': ['Create a new edition'],
-          'next_task_ids': ['newEdition']
+          'current_task': 'Congratulations!',
+          'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.'
+        }
+      },
+      'publishedWithEditionSet': {
+        'all': {
+          'current_task': 'Congratulations!',
+          'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.'
         }
       },
      'empty': {
@@ -264,6 +269,12 @@ STR;
         'all': {
           'current_task': 'Congratulations!',
           'next_task': 'Once an edition is created, its content cannot be changed. New edits will be added to the private <strong>Latest edits</strong> edition for editorial review.'
+        }
+      },
+      'publishedWithEditionSet': {
+        'all': {
+          'current_task': 'Congratulations!',
+          'next_task': 'Once an edition is created, its content cannot be changed. Switch to the <strong>Latest edits</strong> edition to see the '+project_type+'’s current state.'
         }
       },
       'empty': {
@@ -430,12 +441,18 @@ STR;
         }
 
         var has_editions = $('.row.editions').length > 0;
+        var edition_is_set = '' !== getCookie('scalar_edition_index');
+        var edition_name = $('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').text();
         var proxy_editorial_state = editorial_state;
         if (has_editions) {
           if (editorial_state.id == 'ready') {
             proxy_editorial_state = editorial_states['readyWithEditions'];
           } else if (editorial_state.id == 'published') {
-            proxy_editorial_state = editorial_states['publishedWithEditions'];
+            if (edition_is_set) {
+              proxy_editorial_state = editorial_states['publishedWithEditionSet'];
+            } else {
+              proxy_editorial_state = editorial_states['publishedWithEditions'];
+            }
           }
         }
 
@@ -459,6 +476,8 @@ STR;
           $('#primary-message').prepend('<p><strong>This '+project_type+' contains unpublished edits.</strong><br>'+current_messaging['current_task']+'</p>');
         } else if (editorial_state.id == 'empty') {
           $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is '+editorial_state['name']+'.</strong><br>'+current_messaging['current_task']+'</p>');
+        } else if (edition_is_set) {
+          $('#primary-message').prepend('<p><strong>The “'+edition_name+'” edition of this '+project_type+' is published.</strong><br>'+current_messaging['current_task']+'</p>');
         } else {
           $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
         }
@@ -498,7 +517,13 @@ STR;
             $(this).html('');
             usage_rights_percentage = parseFloat(data['usagerights']) / non_hidden_content_count * 100;
             item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
-            $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right"><a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a></div></span>').fadeIn(100);
+            var editorialOptions;
+            if (editorial_state.id == 'published') {
+              editorialOptions = '<a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a>';
+            } else {
+              editorialOptions = '<a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a>';
+            }
+            $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right">'+editorialOptions+'</span>').fadeIn(100);
           });
         }
 
@@ -771,7 +796,7 @@ STR;
       echo '<div class="row editions">';
       echo '<div class="col-sm-12">';
       echo '<h3 class="message"><strong><span class="edition_title">'.$book->editions[$edition_count-1]['title'].'</span></strong> is the currently published edition of this '.$book->scope.'.</h3>';
-      echo '<p class="message">Choose an edition to view while browsing (only visible to you).</p>';
+      echo '<p class="message">Choose another edition to work with below.</p>';
       echo '<div class="btn-group">';
       echo '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Latest edits &nbsp; <span class="caret"></span></button> &nbsp; ';
       echo '<ul class="dropdown-menu" id="select_edition">';
