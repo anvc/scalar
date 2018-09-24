@@ -394,22 +394,28 @@ class RDF_Object {
 		// Grab list of relationship models
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
+		$row->versions = array();
 
 		// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
+			$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
+			if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
 			if (self::VERSIONS_ALL === $settings['versions']) {
 				$row->versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
 			} else {
-				$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
-				if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
-				$row->versions = array();
 				$row->versions[0] = $CI->versions->get_single(
 					$row->content_id,
 					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
 					$settings['sq']
 				);
-				if ($settings['use_versions_restriction'] == self::USE_VERSIONS_EDITORIAL && 'published' != $row->versions[0]->editorial_state && !$settings['is_book_admin']) {
-					unset($row->versions[0]);	
+			}
+			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_EDITORIAL) {
+				for ($j = count($row->versions) - 1; $j >= 0; $j--) {
+					if (!empty($use_version_id) && $row->versions[$j]->version_id != $use_version_id) {
+						array_splice($row->versions, $j, 1);
+					} elseif (!$settings['is_book_admin'] && 'published' != $row->versions[$j]->editorial_state) {
+						array_splice($row->versions, $j, 1);
+					}
 				}
 			}
 		}
@@ -422,11 +428,10 @@ class RDF_Object {
 				unset($row->versions[$j]->editorial_state);
 			}
 		}
+		$row = $this->_tklabels($row, $settings);
 		if (!isset($settings['max_recurses'])) return $row;
 		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) return $row;
-
 		$row = $this->_relationships($row, $settings);
-		$row = $this->_tklabels($row, $settings);
 		$row = $this->_pagination($row, $settings);
 
 		return $row;
@@ -457,21 +462,25 @@ class RDF_Object {
 
     	// Versions attached to the content
 		if (!isset($row->versions) || empty($row->versions)) {
+			$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
+			if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
+			$versions = array();
 			if (self::VERSIONS_ALL === $settings['versions']) {
 				$versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
 			} else {
-				$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
-				if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
-				$versions = array();
-				$version = $CI->versions->get_single(
+				$versions[0] = $CI->versions->get_single(
 					$row->content_id,
 					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
 					$settings['sq']
 				);
-				if (!empty($version)) {
-					$versions[0] = $version;
-					if ($settings['use_versions_restriction'] == self::USE_VERSIONS_EDITORIAL && 'published' != $versions[0]->editorial_state && !$settings['is_book_admin']) {
-						unset($versions[0]);
+				if (empty($versions[0])) unset($versions[0]);
+			}
+			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_EDITORIAL) {
+				for ($j = count($versions) - 1; $j >= 0; $j--) {
+					if (!empty($use_version_id) && $versions[$j]->version_id != $use_version_id) {
+						array_splice($versions, $j, 1);
+					} elseif (!$settings['is_book_admin'] && 'published' != $versions[$j]->editorial_state) {
+						array_splice($versions, $j, 1);
 					}
 				}
 			}
@@ -687,7 +696,7 @@ class RDF_Object {
 	}
 	
 	private function _tklabels($page, $settings) {
-		
+
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return $page;
 		$CI =& get_instance();
 		foreach ($page->versions as $key => $version) {
@@ -932,9 +941,13 @@ class RDF_Object {
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 
 		$content = $CI->pages->get_by_slug($settings['book']->book_id, $annotation->parent_content_slug);
-		// Changed the versions param to VERSIONS_MOST_RECENT here; passing the incoming value through was causing problems
 		$settings['rel'] = self::REL_CHILDREN_ONLY;
 		$settings['versions'] = self::VERSIONS_MOST_RECENT;
+		if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->parent_content_id])) {
+			$settings['use_versions'][$annotation->parent_content_id] = $annotation->parent_version_id;
+		} elseif ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
+			return null;
+		}
 		++$settings['num_recurses'];
 		$content = $this->_content($content, $settings);
 		if (empty($content)) return null;
@@ -962,8 +975,15 @@ class RDF_Object {
 		// Target should already exist because it's what pulled its annotations
 		if (!$this->_uri_exists($return, $annotation->has_body)) {
 			$settings['content'] = $CI->pages->get_by_slug($settings['book']->book_id, $annotation->parent_content_slug);
-			++$settings['num_recurses'];
-			$this->_index_by_ref($return, $settings);
+			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->parent_content_id])) {
+				$settings['use_versions'][$annotation->parent_content_id] = $annotation->parent_version_id;
+			}
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
+				// Don't do anything
+			} else {
+				++$settings['num_recurses'];
+				$this->_index_by_ref($return, $settings);
+			}
 		}
 		if (!$this->_uri_exists($return, $annotation->has_body)) {  // Body is protected
 			unset($return[$annotation->urn]);
@@ -977,9 +997,13 @@ class RDF_Object {
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 
 		$content = $CI->pages->get_by_slug($settings['book']->book_id, $annotation->child_content_slug);
-		// Changed the versions param to VERSIONS_MOST_RECENT here; passing the incoming value through was causing problems
 		$settings['rel'] = self::REL_CHILDREN_ONLY;
 		$settings['versions'] = self::VERSIONS_MOST_RECENT;
+		if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->child_content_id])) {
+			$settings['use_versions'][$annotation->child_content_id] = $annotation->child_version_id;
+		} elseif ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
+			return null;
+		}
 		++$settings['num_recurses'];
 		$content = $this->_content($content, $settings);
 		if (empty($content)) return null;
@@ -1008,8 +1032,15 @@ class RDF_Object {
 		// Body should already exist because it's what pulled its annotations
 		if (!$this->_uri_exists($return, $target_base)) {
 			$settings['content'] = $CI->pages->get_by_slug($settings['book']->book_id, $annotation->child_content_slug);
-			++$settings['num_recurses'];
-			$this->_index_by_ref($return, $settings);
+			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->child_content_id])) {
+				$settings['use_versions'][$annotation->child_content_id] = $annotation->child_version_id;
+			}
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
+				// Don't do anything
+			} else {
+				++$settings['num_recurses'];
+				$this->_index_by_ref($return, $settings);
+			}
 		}
 		if (!$this->_uri_exists($return, $target_base)) {  // Target is protected
 			unset($return[$annotation->urn]);

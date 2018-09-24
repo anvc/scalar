@@ -169,7 +169,8 @@ class Rdf extends MY_Controller {
 					exit;
 				}
 				$version = $this->versions->get_by_version_num($content->content_id, $this->data['url_params']['version_num']);
-				if (!empty($version)) $this->data['use_versions'] = array($content->content_id, $version->version_id);
+				if (!empty($version) && null == $this->data['use_versions']) $this->data['use_versions'] = array();
+				if (!empty($version)) $this->data['use_versions'][$content->content_id] = $version->version_id;
 			}
 			// Don't throw an error here if $content is empty, let through to return empty RDF
 			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect
@@ -179,7 +180,7 @@ class Rdf extends MY_Controller {
 						                 'book'         => $this->data['book'],
 						                 'content'      => $content,
 									   	 'use_versions'	=> $this->data['use_versions'],
-									   	 'use_versions_restriction' => ($this->editorial_is_on()) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_EXCLUSIVE,
+									   	 'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
 						                 'base_uri'     => $this->data['base_uri'],
 									   	 'method'		=> __FUNCTION__.'/'.$this->data['slug'],
 				                         'restrict'     => $this->data['restrict'],
@@ -298,7 +299,7 @@ class Rdf extends MY_Controller {
 			                         	 'content'		=> $content,
 			                         	 'base_uri'		=> $this->data['base_uri'],
 			                           	 'use_versions' => $this->data['use_versions'],
-			                           	 'use_versions_restriction' => ($this->editorial_is_on()) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_EXCLUSIVE,
+			                           	 'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
 			                           	 'method'		=> __FUNCTION__.'/'.$class,
 			                         	 'restrict'		=> $this->data['restrict'],
 			                         	 'rel'			=> $rel,

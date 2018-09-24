@@ -50,6 +50,7 @@ foreach ($page->versions as $key => $version) {
 <?
 $all = (isset($_GET['versions'])&&1==$_GET['versions']) ? true : false;
 $can_view_all = (!$hide_versions || $is_book_admin) ? true : false;
+if ($book->editorial_is_on && !empty($book->editions) && isset($book->editions[$url_params['edition_index']])) $can_view_all = false;
 ?>
 	<? if ($can_view_all): ?>
 	<a class="btn btn-default<?=(($all)?' active':'')?>" href="<?=$base_uri.$page->slug?><?=($all)?'.meta':'.meta?versions=1'?>">Show all versions</a>

@@ -112,12 +112,19 @@ class Book extends MY_Controller {
 			if ($page && !$page->is_live) $this->protect_book('Reader');
 			$page_not_found = false;
 			if (!empty($page)) {
+				$use_versions_restriction = RDF_Object::USE_VERSIONS_EXCLUSIVE;
+				// Version being asked for
+				if (null !== $this->data['url_params']['version_num']) {
+					$version = $this->versions->get_by_version_num($page->content_id, $this->data['url_params']['version_num']);
+					if (!empty($version) && null == $this->data['use_versions']) $this->data['use_versions'] = array();
+					if (!empty($version)) $this->data['use_versions'][$page->content_id] = $version->version_id;
+				}
 				// Build (hierarchical) RDF object for the page's version(s)
 				$settings = array(
 								 	'book'         => $this->data['book'],
 									'content'      => $page,
 									'use_versions' => $this->data['use_versions'],
-									'use_versions_restriction' => ($this->editorial_is_on()) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_EXCLUSIVE,
+									'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
 									'base_uri'     => $this->data['base_uri'],
 									'versions'     => RDF_Object::VERSIONS_MOST_RECENT,
 									'ref'          => RDF_Object::REFERENCES_ALL,
@@ -675,8 +682,11 @@ class Book extends MY_Controller {
 							'versions'     => RDF_Object::VERSIONS_ALL,
 							'ref'          => RDF_Object::REFERENCES_NONE,
 							'prov'		   => RDF_Object::PROVENANCE_ALL,
-							'max_recurses' => 0
-								 );
+							'max_recurses' => 0,
+							'use_versions' => $this->data['use_versions'],
+							'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
+							'is_book_admin'=> ($this->login_is_book_admin() && null == $this->data['url_params']['edition_index']) ? 1 : 0 
+		);
 		$index = $this->rdf_object->index($settings);
 		if (!count($index)) throw new Exception('Problem getting page index');
 		$this->data['page'] = $index[0];
@@ -712,8 +722,11 @@ class Book extends MY_Controller {
 							'versions'     => RDF_Object::VERSIONS_ALL,
 							'ref'          => RDF_Object::REFERENCES_NONE,
 							'prov'		   => RDF_Object::PROVENANCE_ALL,
-							'max_recurses' => 0
-								 );
+							'max_recurses' => 0,
+							'use_versions' => $this->data['use_versions'],
+							'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
+							'is_book_admin'=> ($this->login_is_book_admin() && null == $this->data['url_params']['edition_index']) ? 1 : 0
+		);
 		$index = $this->rdf_object->index($settings);
 		if (!count($index)) throw new Exception('Problem getting page index');
 		$this->data['page'] = $index[0];
@@ -743,8 +756,13 @@ class Book extends MY_Controller {
 								'versions'     => RDF_Object::VERSIONS_ALL,
 								'ref'          => RDF_Object::REFERENCES_NONE,
 								'prov'		   => RDF_Object::PROVENANCE_ALL,
-								'max_recurses' => 0
-									 );
+								'max_recurses' => 0,
+								'use_versions' => $this->data['use_versions'],
+								'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
+								'is_book_admin'=> ($this->login_is_book_admin() && null == $this->data['url_params']['edition_index']) ? 1 : 0,
+								'tklabeldata'  => $this->tklabels(),
+								'tklabels' 	   => RDF_Object::TKLABELS_ALL,
+			);
 			$index = $this->rdf_object->index($settings);
 			if (!count($index)) throw new Exception('Problem getting page index');
 			$this->data['page'] = $index[0];

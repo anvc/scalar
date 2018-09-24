@@ -169,7 +169,8 @@ class MY_Controller extends CI_Controller {
 		$cookie_edition_index = (isset($_COOKIE['scalar_edition_index'])) ? (int) $_COOKIE['scalar_edition_index'] : null;
 		
 		// The edition and version numbers to-be-routed-to based on the various forks below
-		$edition_num = $version_num = null;  
+		$edition_num = null;
+		$version_num = $this->data['url_params']['version_num'];
 		
 		// Author, Editor permissions
 		if ($this->login_is_book_admin()) {
@@ -189,7 +190,10 @@ class MY_Controller extends CI_Controller {
 			}
 		}
 		
-		if (empty($this->data['url_params']['page_segments']) || $edition_num != $this->data['url_params']['edition_num']) {
+		// Never use an Edition URL if requesting a Version
+		if (null !== $edition_num && null !== $this->data['url_params']['version_num']) $version_num = null;
+		
+		if (empty($this->data['url_params']['page_segments']) || $edition_num != $this->data['url_params']['edition_num'] || $version_num != $this->data['url_params']['version_num']) {
 			$redirect_to = base_url().$this->data['url_params']['book_segment'];
 			$redirect_to .= ((null !== $edition_num) ? '.'.$edition_num : '') . '/';
 			$redirect_to .= (!empty($this->data['url_params']['page_segments'])) ? implode('/', $this->data['url_params']['page_segments']) : $this->fallback_page;

@@ -1,8 +1,13 @@
 <?
 if (isset($_GET['action']) && $_GET['action']=='deleted_versions') {
-	echo '<div class="error"><p>Delete successful <a style="float:right;" href="'.$base_uri.$page->slug.'.versions">clear</a></p></div><br />';
+	echo '<div class="error" style="margin-bottom:0;"><p>Delete successful <a style="float:right;" href="'.$base_uri.$page->slug.'.versions">clear</a></p></div><br />';
 } elseif (isset($_GET['action']) && $_GET['action']=='versions_reordered') {
-	echo '<div class="saved"><p>Versions have been re-ordered <a style="float:right;" href="'.$base_uri.$page->slug.'.versions">clear</a></p></div><br />';
+	echo '<div class="saved" style="margin-bottom:0;"><p>Versions have been re-ordered <a style="float:right;" href="'.$base_uri.$page->slug.'.versions">clear</a></p></div><br />';
+}
+
+if ($book->editorial_is_on && !empty($book->editions) && isset($book->editions[$url_params['edition_index']])) {
+	$login_is_super = false;
+	$login_book_ids = array();
 }
 ?>
 
@@ -36,9 +41,7 @@ if (!count($page->versions)) {
 } else {
 	echo '<table class="table table-striped caption_font small">'."\n";
 	echo '<thead><tr>';
-	if ($login_is_super || in_array($book->book_id, $login_book_ids)):
-		echo '<th></th>';
-	endif;
+	if ($login_is_super || in_array($book->book_id, $login_book_ids)) echo '<th></th>';
 	echo '<th>#</th><th style="width: 20rem;">Title</th><th>Content</th>';
 	if (isset($book->editorial_is_on) && $book->editorial_is_on) echo '<th>State</th>';
 	echo '<th style="width: 10rem;">Creator</th><th style="width: 11rem;">Date</th></tr></thead>'."\n";
@@ -53,7 +56,11 @@ if (!count($page->versions)) {
 		<?=($version->version_num == $page->versions[$page->version_index]->version_num)?' <tr class="success">':'<tr>'?>
 
 		<? if ($login_is_super || in_array($book->book_id, $login_book_ids)): ?>
-		<td><input type="checkbox" name="delete_version[]" value="<?=$version->version_id?>" />&nbsp;</td>
+		<td>
+		<? if ('published' != $state): ?>
+		<input type="checkbox" name="delete_version[]" value="<?=$version->version_id?>" />&nbsp;
+		<? endif; ?>
+		</td>
 		<? endif; ?>
 
 		<td><b title="Version ID <?=$version->version_id?>" style="cursor:pointer;"><?=$version->version_num?></b></td>

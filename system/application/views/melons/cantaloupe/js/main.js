@@ -516,8 +516,7 @@ $(window).ready(function() {
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
 				var currentNode = scalarapi.model.getCurrentPageNode();
-
-				//console.log(JSON.stringify(rdf_json));
+				
 				/*
 				console.log('------- Current page from RDFa ---------------');
 				console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
