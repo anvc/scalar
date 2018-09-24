@@ -2558,7 +2558,7 @@
                     viewType = currentNode.current.properties['http://scalar.usc.edu/2012/01/scalar-ns#defaultView'][0].value;
                 }
                 if (version != '') {
-                    $('h1[property="dcterms:title"]').append(' (Version ' + parseInt(version) + ')');
+                    $('h1[property="dcterms:title"]').append(' <small>Version ' + parseInt(version) + '</small>');
                 }
             } else {
                 // handle case where the extension specifies a version number to be viewed

@@ -112,7 +112,6 @@ class Book extends MY_Controller {
 			if ($page && !$page->is_live) $this->protect_book('Reader');
 			$page_not_found = false;
 			if (!empty($page)) {
-				$use_versions_restriction = RDF_Object::USE_VERSIONS_EXCLUSIVE;
 				// Version being asked for
 				if (null !== $this->data['url_params']['version_num']) {
 					$version = $this->versions->get_by_version_num($page->content_id, $this->data['url_params']['version_num']);
