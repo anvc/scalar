@@ -1,3 +1,5 @@
+/* PrismJS 1.15.0
+https://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript+c+csharp+cpp+ruby+markup-templating+java+php+python&plugins=line-highlight+line-numbers */
 /**
  * prism.js default theme for JavaScript, CSS and HTML
  * Based on dabblet (http://dabblet.com)
@@ -7,15 +9,15 @@
 code[class*="language-"],
 pre[class*="language-"] {
 	color: black;
+	background: none;
 	text-shadow: 0 1px white;
-	font-family: Consolas, Monaco, 'Andale Mono', monospace;
-	direction: ltr;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 	text-align: left;
 	white-space: pre;
 	word-spacing: normal;
 	word-break: normal;
 	word-wrap: normal;
-
+	line-height: 1.5;
 
 	-moz-tab-size: 4;
 	-o-tab-size: 4;
@@ -62,6 +64,7 @@ pre[class*="language-"] {
 :not(pre) > code[class*="language-"] {
 	padding: .1em;
 	border-radius: .3em;
+	white-space: normal;
 }
 
 .token.comment,
@@ -84,14 +87,17 @@ pre[class*="language-"] {
 .token.boolean,
 .token.number,
 .token.constant,
-.token.symbol {
+.token.symbol,
+.token.deleted {
 	color: #905;
 }
 
 .token.selector,
 .token.attr-name,
 .token.string,
-.token.builtin {
+.token.char,
+.token.builtin,
+.token.inserted {
 	color: #690;
 }
 
@@ -99,10 +105,9 @@ pre[class*="language-"] {
 .token.entity,
 .token.url,
 .language-css .token.string,
-.style .token.string,
-.token.variable {
-	color: #a67f59;
-	background: hsla(0,0%,100%,.5);
+.style .token.string {
+	color: #9a6e3a;
+	background: hsla(0, 0%, 100%, .5);
 }
 
 .token.atrule,
@@ -111,14 +116,23 @@ pre[class*="language-"] {
 	color: #07a;
 }
 
+.token.function,
+.token.class-name {
+	color: #DD4A68;
+}
 
 .token.regex,
-.token.important {
+.token.important,
+.token.variable {
 	color: #e90;
 }
 
-.token.important {
+.token.important,
+.token.bold {
 	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
 }
 
 .token.entity {
@@ -138,13 +152,10 @@ pre[data-line] {
 	margin-top: 1em; /* Same as .prism’s padding-top */
 
 	background: hsla(24, 20%, 50%,.08);
-	background: -moz-linear-gradient(left, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
-	background: -webkit-linear-gradient(left, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
-	background: -o-linear-gradient(left, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
-	background: linear-gradient(left, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
-	
+	background: linear-gradient(to right, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
+
 	pointer-events: none;
-	
+
 	line-height: inherit;
 	white-space: pre;
 }
@@ -157,7 +168,7 @@ pre[data-line] {
 		left: .6em;
 		min-width: 1em;
 		padding: 0 .5em;
-		/*background-color: hsla(24, 20%, 50%,.4); disabled to remove brown circles to left of lines in FF */
+		background-color: hsla(24, 20%, 50%,.4);
 		color: hsl(24, 20%, 95%);
 		font: bold 65%/1.5 sans-serif;
 		text-align: center;
@@ -166,20 +177,27 @@ pre[data-line] {
 		text-shadow: none;
 		box-shadow: 0 1px white;
 	}
-	
+
 	.line-highlight[data-end]:after {
 		content: attr(data-end);
 		top: auto;
 		bottom: .4em;
 	}
-pre.line-numbers {
+
+.line-numbers .line-highlight:before,
+.line-numbers .line-highlight:after {
+	content: none;
+}
+
+pre[class*="language-"].line-numbers {
 	position: relative;
 	padding-left: 3.8em;
 	counter-reset: linenumber;
 }
 
-pre.line-numbers > code {
+pre[class*="language-"].line-numbers > code {
 	position: relative;
+	white-space: inherit;
 }
 
 .line-numbers .line-numbers-rows {
@@ -212,3 +230,4 @@ pre.line-numbers > code {
 			padding-right: 0.8em;
 			text-align: right;
 		}
+
