@@ -1790,7 +1790,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			height -= (heading_height+body_height+footer_height);
 			height = Math.max(height, 300);
 
-			$dialogue_container.find('.node_selector_table_body').css('min-height',height+'px').find('table').show();
+			$dialogue_container.find('.node_selector_table_body').css('height',height+'px').find('table').show();
 
 			var body = $dialogue_container.find('.node_selector_table_body')[0];
 
