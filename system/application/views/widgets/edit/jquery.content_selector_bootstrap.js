@@ -1797,7 +1797,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 
 			height -= (heading_height+body_height+footer_height);
-			height = Math.max(height, 300);
+			height = Math.max(height, 400);
 
 			var newContainerHeight = height+(heading_height+body_height+footer_height);
 			if(usedContainerHeight && newContainerHeight>containerHeight){
