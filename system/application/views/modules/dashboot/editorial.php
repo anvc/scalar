@@ -404,159 +404,169 @@ STR;
     return "";
 	}
 
+  function clearEditionCookie() {
+    document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+  }
+
   function recalculate_graphs(e,scope){
     if (typeof scope === 'undefined' || scope == null || scope == '') scope = 'all';
     var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id+((''!==index)?'&edition_index='+index:''),
       success: function(data) {
+        if (data == '{"error":"Invalid edition index"}') {
+          clearEditionCookie();
+          recalculate_graphs();
 
-        var content_count = 0;
-        var non_hidden_content_count = 0;
-        var earliest_state = {'state':'published', 'count':0};
-
-        // initial data processing; figure out the overall book state
-        var currentIndex;
-        var newIndex;
-        for (var key in data) {
-          if (key != 'usagerights') {
-            currentIndex = editorial_state_array.indexOf(earliest_state.state);
-            newIndex = editorial_state_array.indexOf(key);
-            if (data[key] > 0 && newIndex <= currentIndex && newIndex != 0) {
-              earliest_state.state = key;
-              earliest_state.count = data[key];
-            }
-            if (newIndex != 0) {
-              non_hidden_content_count += data[key];
-            }
-            content_count += data[key];
-          }
-        }
-
-        var editorial_state;
-        if (non_hidden_content_count == 0) {
-          editorial_state = editorial_states['empty'];
         } else {
-          editorial_state = editorial_states[earliest_state.state];
-        }
 
-        var has_editions = $('.row.editions').length > 0;
-        var edition_is_set = '' !== getCookie('scalar_edition_index');
-        var edition_name = $('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').text();
-        var proxy_editorial_state = editorial_state;
-        if (has_editions) {
-          if (editorial_state.id == 'ready') {
-            proxy_editorial_state = editorial_states['readyWithEditions'];
-          } else if (editorial_state.id == 'published') {
-            if (edition_is_set) {
-              proxy_editorial_state = editorial_states['publishedWithEditionSet'];
-            } else {
-              proxy_editorial_state = editorial_states['publishedWithEditions'];
+          var content_count = 0;
+          var non_hidden_content_count = 0;
+          var earliest_state = {'state':'published', 'count':0};
+
+          // initial data processing; figure out the overall book state
+          var currentIndex;
+          var newIndex;
+          for (var key in data) {
+            if (key != 'usagerights') {
+              currentIndex = editorial_state_array.indexOf(earliest_state.state);
+              newIndex = editorial_state_array.indexOf(key);
+              if (data[key] > 0 && newIndex <= currentIndex && newIndex != 0) {
+                earliest_state.state = key;
+                earliest_state.count = data[key];
+              }
+              if (newIndex != 0) {
+                non_hidden_content_count += data[key];
+              }
+              content_count += data[key];
             }
           }
-        }
 
-        // figure out how to quantify the overall book state
-        var editorial_quantifier;
-        if (earliest_state.count == non_hidden_content_count) {
-          editorial_quantifier = 'all';
-        } else if (earliest_state.count >= non_hidden_content_count * .5) {
-          editorial_quantifier = 'majority';
-        } else {
-          editorial_quantifier = 'minority';
-        }
+          var editorial_state;
+          if (non_hidden_content_count == 0) {
+            editorial_state = editorial_states['empty'];
+          } else {
+            editorial_state = editorial_states[earliest_state.state];
+          }
 
-        var current_messaging = editorial_messaging['unknown']['all'];
-        if (user_type != null && proxy_editorial_state != null && editorial_quantifier != null) {
-          current_messaging = editorial_messaging[user_type][proxy_editorial_state.id][editorial_quantifier];
-        }
-
-        $('#primary-message > p').remove();
-        if (has_editions && earliest_state.state != 'published') {
-          $('#primary-message').prepend('<p><strong>This '+project_type+' contains unpublished edits.</strong><br>'+current_messaging['current_task']+'</p>');
-        } else if (editorial_state.id == 'empty') {
-          $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is '+editorial_state['name']+'.</strong><br>'+current_messaging['current_task']+'</p>');
-        } else if (edition_is_set) {
-          $('#primary-message').prepend('<p><strong>The “'+edition_name+'” edition of this '+project_type+' is published.</strong><br>'+current_messaging['current_task']+'</p>');
-        } else {
-          $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
-        }
-
-        // build the editorial state gauge
-        var percentage;
-        var key;
-        var item_quantifier;
-        if(scope !== 'usageOnly'){
-          $('.editorial-gauge').fadeOut(100,function(){
-            $(this).html('');
-            for (var index in editorial_state_array) {
-              key = editorial_state_array[index];
-              if (data[key] > 0) {
-                percentage = parseFloat(data[key]) / content_count * 100;
-                item_quantifier = (data[key] != 1) ? 'items' : 'item';
-                $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
-              }
-            }
-            $('.editorial-fragment').each(function() {
-              $(this).popover({ 
-                trigger: "hover click", 
-                html: true, 
-                template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
-              });
-            });
-
-            $('.editorial-gauge').fadeIn(100);
-          });
-        }
-
-        $(window).resize(calculateFragmentOverflow);
-        calculateFragmentOverflow();
-        // build the usage rights gauge
-        if (content_count > 0 && scope !== 'statesOnly') {
-          $('.usage-rights-gauge').fadeOut(100,function(){
-            $(this).html('');
-            usage_rights_percentage = parseFloat(data['usagerights']) / non_hidden_content_count * 100;
-            item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
-            var editorialOptions;
-            if (editorial_state.id == 'published') {
-              editorialOptions = '<a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a>';
-            } else {
-              editorialOptions = '<a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a>';
-            }
-            $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right">'+editorialOptions+'</span>').fadeIn(100);
-          });
-        }
-
-        // build the next steps messaging
-        $('#secondary-message').html('').append('<p>'+current_messaging['next_task']+'</p>');
-        for (var index in current_messaging['next_task_buttons']) {
-          var button = $('<button class="btn btn-block btn-state '+editorial_state['next']+'-state">'+current_messaging['next_task_buttons'][index]+'</button>').appendTo($('#secondary-message'));
-          switch (current_messaging['next_task_ids'][index]) {
-            case 'allToEdit':
-            button.click(function() { 
-              if (moveContentFromOneStateToAnother('draft', 'edit')) {
-                button.prop('disabled', 'disabled');
-              }
-            });
-            break;
-            case 'allToPublished':
-            button.click(function() {
-              if (moveAllContentToState('published')) {
-                button.prop('disabled', 'disabled');
-              }
-            });
-            break;
-            case 'newEdition':
-            button.click(function() {
-              if (earliest_state.state != 'published') {
-                moveAllContentToState('published', function() {
-                  $('#createEdition').modal();
-                });
+          var has_editions = $('.row.editions').length > 0;
+          var edition_is_set = '' !== getCookie('scalar_edition_index');
+          var edition_name = $('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').text();
+          var proxy_editorial_state = editorial_state;
+          if (has_editions) {
+            if (editorial_state.id == 'ready') {
+              proxy_editorial_state = editorial_states['readyWithEditions'];
+            } else if (editorial_state.id == 'published') {
+              if (edition_is_set) {
+                proxy_editorial_state = editorial_states['publishedWithEditionSet'];
               } else {
-                $('#createEdition').modal();
+                proxy_editorial_state = editorial_states['publishedWithEditions'];
               }
+            }
+          }
+
+          // figure out how to quantify the overall book state
+          var editorial_quantifier;
+          if (earliest_state.count == non_hidden_content_count) {
+            editorial_quantifier = 'all';
+          } else if (earliest_state.count >= non_hidden_content_count * .5) {
+            editorial_quantifier = 'majority';
+          } else {
+            editorial_quantifier = 'minority';
+          }
+
+          var current_messaging = editorial_messaging['unknown']['all'];
+          if (user_type != null && proxy_editorial_state != null && editorial_quantifier != null) {
+            current_messaging = editorial_messaging[user_type][proxy_editorial_state.id][editorial_quantifier];
+          }
+
+          $('#primary-message > p').remove();
+          if (has_editions && earliest_state.state != 'published') {
+            $('#primary-message').prepend('<p><strong>This '+project_type+' contains unpublished edits.</strong><br>'+current_messaging['current_task']+'</p>');
+          } else if (editorial_state.id == 'empty') {
+            $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is '+editorial_state['name']+'.</strong><br>'+current_messaging['current_task']+'</p>');
+          } else if (edition_is_set) {
+            $('#primary-message').prepend('<p><strong>The “'+edition_name+'” edition of this '+project_type+' is published.</strong><br>'+current_messaging['current_task']+'</p>');
+          } else {
+            $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
+          }
+
+          // build the editorial state gauge
+          var percentage;
+          var key;
+          var item_quantifier;
+          if(scope !== 'usageOnly'){
+            $('.editorial-gauge').fadeOut(100,function(){
+              $(this).html('');
+              for (var index in editorial_state_array) {
+                key = editorial_state_array[index];
+                if (data[key] > 0) {
+                  percentage = parseFloat(data[key]) / content_count * 100;
+                  item_quantifier = (data[key] != 1) ? 'items' : 'item';
+                  $('.editorial-gauge').append('<a href="#" class="'+key+'-state editorial-fragment" style="width: '+percentage+'%" data-toggle="popover" role="button" data-placement="bottom" title="'+editorial_states[key]['name']+'" data-content="'+Math.round(percentage)+'% / '+data[key]+' '+item_quantifier+'">&nbsp;&nbsp;<strong>'+editorial_states[key]['name']+'</strong>&nbsp;&nbsp;</a>');
+                }
+              }
+              $('.editorial-fragment').each(function() {
+                $(this).popover({ 
+                  trigger: "hover click", 
+                  html: true, 
+                  template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+                });
+              });
+
+              $('.editorial-gauge').fadeIn(100);
             });
-            break;
+          }
+
+          $(window).resize(calculateFragmentOverflow);
+          calculateFragmentOverflow();
+          // build the usage rights gauge
+          if (content_count > 0 && scope !== 'statesOnly') {
+            $('.usage-rights-gauge').fadeOut(100,function(){
+              $(this).html('');
+              usage_rights_percentage = parseFloat(data['usagerights']) / non_hidden_content_count * 100;
+              item_quantifier = (data['usagerights'] != 1) ? 'items' : 'item';
+              var editorialOptions;
+              if (editorial_state.id == 'published') {
+                editorialOptions = '<a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a>';
+              } else {
+                editorialOptions = '<a href="'+$('link#parent').attr('href')+'editorialpath">Open editorial path</a> | <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">About editorial features</a>';
+              }
+              $('.usage-rights-gauge').append('<div class="usage-rights-fragment" style="width: '+usage_rights_percentage+'%"></div><span>Usage rights: '+Math.round(usage_rights_percentage)+'% / '+data['usagerights']+' '+item_quantifier+'</span><span class="pull-right">'+editorialOptions+'</span>').fadeIn(100);
+            });
+          }
+
+          // build the next steps messaging
+          $('#secondary-message').html('').append('<p>'+current_messaging['next_task']+'</p>');
+          for (var index in current_messaging['next_task_buttons']) {
+            var button = $('<button class="btn btn-block btn-state '+editorial_state['next']+'-state">'+current_messaging['next_task_buttons'][index]+'</button>').appendTo($('#secondary-message'));
+            switch (current_messaging['next_task_ids'][index]) {
+              case 'allToEdit':
+              button.click(function() { 
+                if (moveContentFromOneStateToAnother('draft', 'edit')) {
+                  button.prop('disabled', 'disabled');
+                }
+              });
+              break;
+              case 'allToPublished':
+              button.click(function() {
+                if (moveAllContentToState('published')) {
+                  button.prop('disabled', 'disabled');
+                }
+              });
+              break;
+              case 'newEdition':
+              button.click(function() {
+                if (earliest_state.state != 'published') {
+                  moveAllContentToState('published', function() {
+                    $('#createEdition').modal();
+                  });
+                } else {
+                  $('#createEdition').modal();
+                }
+              });
+              break;
+            }
           }
         }
       }
@@ -573,7 +583,7 @@ STR;
 
   function selectEditionByIndex(index) {
       if (null===index) {
-        document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+        clearEditionCookie();
       } else {
         document.cookie = "scalar_edition_index="+index+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
       };
