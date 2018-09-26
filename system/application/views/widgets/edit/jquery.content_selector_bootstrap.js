@@ -1787,12 +1787,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var body_height = $(this).find('.panel-body').outerHeight();
 			var footer_height = $(this).find('.panel-footer').outerHeight();
 			
-			height -= (heading_height+body_height+footer_height);
-			height = Math.max(height, 300);
-
 			if(!!self[0].style.height){
 				height = parseInt(self[0].style.height) || height;
 			}
+			
+			height -= (heading_height+body_height+footer_height);
+			height = Math.max(height, 300);
 
 			$dialogue_container.find('.node_selector_table_body').css('height',height+'px').find('table').show();
 
