@@ -2732,15 +2732,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var rec = opts.rec;
 			var ref = opts.ref;
 
-			$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow empty"><td class="text-center" colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr>');
-
-			load_node_list({
-				"type": current_type,
-				"rec": rec,
-				"ref": ref,
-				"promise": promise,
-				"page": 0
-			});
+			$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow text-muted empty"><td class="text-center" colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr>');
+			window.setTimeout(function(){
+				load_node_list({
+					"type": current_type,
+					"rec": rec,
+					"ref": ref,
+					"promise": promise,
+					"page": 0
+				});
+			},200);
 		};
 
 		$type_filter_button.click(function() {
