@@ -696,7 +696,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (head < 60) head = 60; // Magic number
 			var window_height = parseInt($(window).height());
 			var val = window_height - head - (margin * 2);
-			val -= $widget_selector_bootbox.find('.modal-body').outerHeight() - $widget_selector_bootbox.find('.node_selection').outerHeight();
 			$widget_selector_bootbox.find('.node_selection').height(val).trigger('doResize');
 		};
 
@@ -1789,19 +1788,19 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var body_height = $(this).find('.panel-body').outerHeight();
 			var footer_height = $(this).find('.panel-footer').outerHeight();
 			var usedContainerHeight = false;
-			var containerHeight = parseInt(self[0].style.height) || 0;
 
-			if(containerHeight > 0){
-				height = containerHeight;
-				usedContainerHeight = true;
+			if(parseInt(self[0].style.height)){
+				var containerHeight = $(self).height();
 			}
 
 			height -= (heading_height+body_height+footer_height);
 			height = Math.max(height, 400);
 
-			var newContainerHeight = height+(heading_height+body_height+footer_height);
-			if(usedContainerHeight && newContainerHeight>containerHeight){
-				self.height(newContainerHeight);
+			if(usedContainerHeight){
+				var newContainerHeight = height+(heading_height+body_height+footer_height);
+				if(newContainerHeight>containerHeight){
+					self.height(newContainerHeight);
+				}
 			}
 
 			$dialogue_container.find('.node_selector_table_body').css('height',height+'px').find('table').show();
