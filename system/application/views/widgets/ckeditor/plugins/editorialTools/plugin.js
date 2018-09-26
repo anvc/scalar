@@ -270,7 +270,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.waitingForReview = false;
                     base.restoreEditor();
                     base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
-                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(1)').remove();
+                    base.$editorialToolsPanelHeaderDropdown.find('li.edits').remove();
                     base.$editsPanel.remove();
                     $('body').removeClass('isReviewing');
                 }
@@ -353,7 +353,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.waitingForReview = false;
                     base.restoreEditor();
                     base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
-                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(1)').remove();
+                    base.$editorialToolsPanelHeaderDropdown.find('li.edits').remove();
                     base.$editsPanel.remove();
                     $('.cke_button.cke_button__editorialtools').click();
                 }else{
@@ -675,8 +675,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.waitingForReview = false;
                     base.restoreEditor();
                     base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
-
-                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(1)').remove();
+                    base.$editorialToolsPanelHeaderDropdown.find('li.edits').remove();
                     base.$editsPanel.remove();
                     $('.cke_button.cke_button__editorialtools').click();
                 }
@@ -740,7 +739,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     if( (base.is_author && base.editorialState === "editreview") ||
                         (base.is_editor && base.editorialState === "clean") ){
                         //Build out the edits panel...
-                        base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Edits</a></li>');
+                        base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li class="edits"><a href="#">Edits</a></li>');
                         base.$editsPanel = $('<div class="editsPanel panel"> \
                                                     <p><strong>This page has been edited.</strong></p> \
                                                     <p>Visible changes are <span data-diff="example">highlighted in yellow</span>, and must be accepted or rejected before the page can be saved.</p> \
@@ -780,7 +779,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     $('input[value="Save"]').click(function(){
                         $('#unsavedQueryWarning').hide().attr('aria-hidden','true');
                     });
-                    base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Queries</a></li>');
+                    base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li class="queries"><a href="#">Queries</a></li>');
                     if($('#editorial_queries').length > 0){
                         var queries = JSON.parse($('#editorial_queries').val()).queries;
                     }else{
@@ -857,7 +856,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     }
 
                 //Versions
-                base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li><a href="#">Versions</a></li>');
+                base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li class="versions"><a href="#">Versions</a></li>');
                 base.$versionsPanel = $('<div class="versionsPanel panel"><p>Select two versions to compare the differences between them.</div>').appendTo(base.$editorialToolsPanelBody);
                 base.$versionList = $('<div class="versionList"><table><tbody><tr class="loading"><td col-span="3">Loading...</span></td></tr></tbody></table></div>').appendTo(base.$versionsPanel);
                 base.$versionListBody = base.$versionList.find('tbody');
@@ -866,6 +865,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     //build the version tab...
                     base.$versionList.find('.loading').remove();
                     var node = scalarapi.getNode(page_slug);
+
+                    if(!node || !node.versions){
+                        base.$editorialToolsPanelHeaderDropdown.find('li:first-child a').click();
+                        base.$editorialToolsPanelHeaderDropdown.find('li.versions').remove();
+                        return false;
+                    }
                     base.versionsList = node.versions;
 
                     base.versionsList.sort(function(a,b){
