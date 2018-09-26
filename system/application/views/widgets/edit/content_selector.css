@@ -179,6 +179,7 @@
 }
 .node_selector .loadingRow td, .node_selector tr.empty td{
 	padding-top: 1.5rem;
+	width: 100%;
 }
 #nodeSelectorDropdown{
     width: 100%;

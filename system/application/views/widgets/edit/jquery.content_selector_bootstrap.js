@@ -1620,7 +1620,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																		</table> \
 																		<div class="node_selector_table_body" style="overflow: auto"> \
 																			<table class="table table-fixed">  \
-																				<tbody class="node_rows"><tr class="loadingRow"><td class="text-center" colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr></tbody> \
+																				<tbody class="node_rows"><tr class="text-muted loadingRow"><td class="text-center" colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr></tbody> \
 																			</table> \
 																		</div> \
 																	</div> \
@@ -1876,7 +1876,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				if (lastLoadType != "search") {
 					$dialogue_container.find('.node_search input, .node_search button').prop('disabled', true);
 				}
-				$rows.html('<tr class="empty"><td colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '" class="text-center empty">' + (lastLoadType == "search" ? 'There are no items that match your search' : 'There are no items of the selected type') + '</td></tr>');
+				$rows.html('<tr class="empty text-warning"><td colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '" class="text-center empty">' + (lastLoadType == "search" ? 'There are no items that match your search' : 'There are no items of the selected type') + '</td></tr>');
 			} else {
 				$dialogue_container.find('.node_search input, .node_search button').prop('disabled', false);
 				var start = 0;
@@ -2766,7 +2766,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var $dialogue_container = $(this).parents('.node_selector');
 				var opts = $dialogue_container.data('opts');
 				if ($dialogue_container.find('.node_rows .loadingRow').length == 0) {
-					$dialogue_container.find('.node_rows').append('<tr class="loadingRow"><td class="text-center" colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '">Loading more results&hellip;</td></tr>');
+					$dialogue_container.find('.node_rows').append('<tr class="text-muted loadingRow"><td class="text-center" colspan="' + (opts.fields.length + (opts.allowMultiple ? 1 : 0)) + '">Loading more results&hellip;</td></tr>');
 				}
 				$.when(promise).then(function() { updateNodeList(true) });
 				var data = lastLoadCriteria;
@@ -2799,7 +2799,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var $type_selector = $dialogue_container.find('.node_filter select');
 				var rec = this_opts.rec;
 				var ref = this_opts.ref;
-				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="loadingRow"><td class="text-center" colspan="' + (this_opts.fields.length + (this_opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr>');
+				$dialogue_container.find('.node_selector_table_body .node_rows').html('<tr class="text-muted loadingRow"><td class="text-center" colspan="' + (this_opts.fields.length + (this_opts.allowMultiple ? 1 : 0)) + '">Loading&hellip;</td></tr>');
 				load_node_list({
 					"type": current_type,
 					"search": $dialogue_container.find('.node_search input').val(),
