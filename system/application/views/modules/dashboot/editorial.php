@@ -762,8 +762,6 @@ STR;
   	});
 
   	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#cs');
-  	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
-  	$selector.height(height + 'px');
   	var types = ['content'];
   	for (var type in editorial_states) {
   		if ('empty'==type.toLowerCase() || 'publishedwitheditions'==type.toLowerCase() || 'publishedwitheditionset'==type.toLowerCase() || 'readywitheditions'==type.toLowerCase()) continue;
