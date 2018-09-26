@@ -1772,6 +1772,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$(this).css('width',100*($(this).data('width')/pips_per_row)+'%');
 			});
 
+			$rows.find('td[property="editorial_state_border"]').hide();
+
 			$dialogue_container.show().find('.node_selector_table_body table').hide();
 			$dialogue_container.find('.node_selector_table_body').css('height','auto');
 			var height = $(this).height();
@@ -1813,7 +1815,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 
 			$rows.find('td[property="editorial_state_border"]').each(function(){
-				$(this).height($(this).parents('tr').outerHeight());
+				$(this).height($(this).parents('tr').outerHeight()).show();
 			});
 		}, this, $dialogue_container);
 		var shorten_description = function(description) {
