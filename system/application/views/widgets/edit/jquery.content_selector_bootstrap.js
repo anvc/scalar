@@ -1786,15 +1786,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			
 			var body_height = $(this).find('.panel-body').outerHeight();
 			var footer_height = $(this).find('.panel-footer').outerHeight();
-			
-			if(!!self[0].style.height){
-				height = parseInt(self[0].style.height) || height;
+			var usedContainerHeight = false;
+			var containerHeight = parseInt(self[0].style.height) || 0;
+
+			if(containerHeight > 0){
+				height = containerHeight;
+				usedContainerHeight = true;
 			}
 
 			height -= (heading_height+body_height+footer_height);
 			height = Math.max(height, 300);
 
-			console.table({'container height':parseInt(self[0].style.height),'heading height':heading_height,'body height':body_height,'footer height':footer_height,'calculated new body height':height});
+			var newContainerHeight = height+(heading_height+body_height+footer_height);
+			if(usedContainerHeight && newContainerHeight>containerHeight){
+				self.height(newContainerHeight);
+			}
 
 			$dialogue_container.find('.node_selector_table_body').css('height',height+'px').find('table').show();
 
