@@ -179,6 +179,19 @@
             }
         };
 
+        base.findGetParameter = function(parameterName) {
+            var result = null,
+                tmp = [];
+            location.search
+                .substr(1)
+                .split("&")
+                .forEach(function (item) {
+                  tmp = item.split("=");
+                  if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+                });
+            return result;
+        };
+
         base.setup = function(data){
             switch(base.stage){
                 case 0:
@@ -194,6 +207,15 @@
                             location.reload();
                         });
                         $('#pathOrderSelectionContainer').replaceWith($resetCookieButton);
+                        return;
+                    }
+
+                    if(!!base.findGetParameter("test")){
+                        $('#editorialSidePanel').siblings('div').removeClass('col-md-9');
+                        $('#editorialSidePanel').remove();
+                        $('#pathOrderSelectionContainer').remove();
+                        $('#pathHeading>p').html('<div id="ckeditorTest" contenteditable="true" style="width:100%; height: 500px; background-color: #fafaff"></div>');
+                        var editor = CKEDITOR.inline( "ckeditorTest");
                         return;
                     }
 
