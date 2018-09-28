@@ -878,7 +878,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         }
                     }
 
-                    //If we are currently using an edition, remove the cookie temporarily...
+                    //If we are currently using an edition, remove the cookie...
                     if(!!editionCookieValue){
                         document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
                     }
@@ -966,11 +966,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             })
                             .appendTo(base.$versionListBody);
                         prevAuthor = authorID;
-
-                        //If we were looking at an edition, set the cookie again...
-                        if(!!editionCookieValue){
-                            document.cookie = "scalar_edition_index="+editionCookieValue+"; path=/;";  // Set cookie
-                        }
                     }
 
 
