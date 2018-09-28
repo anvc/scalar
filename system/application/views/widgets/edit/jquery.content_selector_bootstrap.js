@@ -1796,6 +1796,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					var containerHeight = $(self).height();
 				}
 				height = containerHeight;
+				usedContainerHeight= true;
 			}
 
 			height -= (heading_height+body_height+footer_height);
