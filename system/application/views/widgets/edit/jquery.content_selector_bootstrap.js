@@ -696,6 +696,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (head < 60) head = 60; // Magic number
 			var window_height = parseInt($(window).height());
 			var val = window_height - head - (margin * 2);
+			val -= $widget_selector_bootbox.find('.modal-body').outerHeight() - $widget_selector_bootbox.find('.node_selection').outerHeight();
 			$widget_selector_bootbox.find('.node_selection').height(val).trigger('doResize');
 		};
 
@@ -1794,7 +1795,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var footer_height = $(this).find('.panel-footer').outerHeight();
 			var usedContainerHeight = false;
 
-			if(self[0].style.height){ //Check if we are explicitly setting the height on the container
+			if(self[0].style.height && self[0].style.height!=='100%'){ //Check if we are explicitly setting the height on the container
 				if(self[0].style.height.indexOf('px')!==-1){
 					var containerHeight = parseInt(self[0].style.height) || 0;
 				}else{
