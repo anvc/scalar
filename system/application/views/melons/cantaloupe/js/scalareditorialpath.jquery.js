@@ -1335,7 +1335,7 @@
                                     //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
                                     var editor = CKEDITOR.inline( $(this).attr('id'), {
                                         // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                                        removePlugins: 'scalar, codemirror, removeformat',
+                                        removePlugins: 'scalar, codemirror, pastetext, pastefromword',
                                         extraPlugins: 'scalarbeta',
                                         startupFocus: true,
                                         allowedContent: true,
