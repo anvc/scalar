@@ -344,7 +344,7 @@ STR;
     		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
     		data: {version_id:version_ids,state:newState},
     		success: function(data) {
-    		  $('.selector').html('<h5 class="loading">Loading...</h5>').node_selection_dialogue(node_options);
+    		  $('.selector').data('node_selection_dialogue').refresh_nodes();
           $('body').trigger('updateGraph','statesOnly');
     		},
     		error: function(error) {
@@ -595,17 +595,17 @@ STR;
     $('body').on('updateGraph',recalculate_graphs).trigger('updateGraph');
     // Select edition to be viewing
     $(document).on("click", "#select_edition a", function() {
-  		if (!navigator.cookieEnabled) {
-  			alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
-  			return;
-  		};
-  		var $selected = $(this);
-        highlightSelectedEdition($selected);
-        var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
-        selectEditionByIndex(index);
-        $('body').trigger('updateGraph');
-        // TODO: reload Content Selector content here
-  	});
+      if (!navigator.cookieEnabled) {
+        alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
+        return;
+      };
+      var $selected = $(this);
+      highlightSelectedEdition($selected);
+      var index = (''!==$selected.data('index')) ? parseInt($selected.data('index')) : null;
+      selectEditionByIndex(index);
+      $('body').trigger('updateGraph');
+      $('.selector').data('node_selection_dialogue').refresh_nodes();
+    });
   	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
       highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]'));
   	};
