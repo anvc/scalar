@@ -864,6 +864,26 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 scalarapi.loadPage( page_slug, true, function(){
                     //build the version tab...
                     base.$versionList.find('.loading').remove();
+
+                    var editionCookieName = "scalar_edition_index=";
+                    console.log(document.cookie);
+                    var editionCookieValue = null;
+                    var ca = decodeURIComponent(document.cookie).split(';');
+                    for(var i = 0; i <ca.length; i++) {
+                        var c = ca[i];
+                        while (c.charAt(0) == ' ') {
+                            c = c.substring(1);
+                        }
+                        if (c.indexOf(editionCookieName) == 0) {
+                            editionCookieValue = c.substring(editionCookieName.length, c.length);
+                        }
+                    }
+
+                    //If we are currently using an edition, remove the cookie temporarily...
+                    if(!!editionCookieValue){
+                        document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+                    }
+
                     var node = scalarapi.getNode(page_slug);
 
                     if(!node || !node.versions){
@@ -947,6 +967,11 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             })
                             .appendTo(base.$versionListBody);
                         prevAuthor = authorID;
+
+                        //If we were looking at an edition, set the cookie again...
+                        if(!!editionCookieValue){
+                            document.cookie = "scalar_edition_index="+editionCookieValue+"; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+                        }
                     }
 
 
