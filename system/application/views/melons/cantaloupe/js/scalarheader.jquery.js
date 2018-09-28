@@ -118,7 +118,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     "text": "<strong>This $contentType is in the $editorialState state<span class=\"query-msg\"> and has $openQueryCount open queries</span>.</strong><br/>Move it to the <strong>$nextEditorialState</strong> state to make it publicly available.",
                     "previousEditorialState": "clean",
                     "nextEditorialState": "published",
-                    "actions": ["Edit $contentType","Dashboard"]
+                    "actions": ["Dashboard"]
                 },
                 "published": null,
                 "pastVersion": {
@@ -166,7 +166,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             base.isEditorialPathPage =  $('.editorialpath-page>#editorialPath').length > 0;
             base.okToAdd = (base.is_author || base.is_commentator);
             base.okToDelete = (base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']) && (base.editorialState != base.editorialStates['published']);
-            base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']) && (base.editorialState != base.editorialStates['ready'])) || (base.is_editor && ((base.editorialState != base.editorialStates['draft']) && (base.editorialState != base.editorialStates['editreview']))));
+            base.okToCopyEdit = (((base.is_author || base.is_commentator) && (base.editorialState != base.editorialStates['edit']) && (base.editorialState != base.editorialStates['clean']) && (base.editorialState != base.editorialStates['ready'])) || (base.is_editor && ((base.editorialState != base.editorialStates['draft']) && (base.editorialState != base.editorialStates['editreview']) && (base.editorialState != base.editorialStates['ready']))));
 
             //We should also grab the book ID from the RDF stuff
             base.bookId = parseInt($('link#book_id').attr('href'));
