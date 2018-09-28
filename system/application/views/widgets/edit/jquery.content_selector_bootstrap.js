@@ -1759,6 +1759,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
         }
 
 		var scrollBarWidth = getScrollbarWidth();
+		var resizeEditorialBorder = $.proxy(function(){
+			$dialogue_container.find('td[property="editorial_state_border"]').hide().each(function(){
+				$(this).height($(this).parents('tr').outerHeight()).show();
+			});
+		}, this, $dialogue_container);
 		var resize = $.proxy(function($dialogue_container) {
 			var pips_per_row = 0;
 			$dialogue_container.find('thead th').each(function(){
@@ -1771,7 +1776,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$(this).css('width',100*($(this).data('width')/pips_per_row)+'%');
 			});
 
-			$rows.find('td[property="editorial_state_border"]').hide();
+			$dialogue_container.find('td[property="editorial_state_border"]').hide();
 
 			$dialogue_container.show().find('.node_selector_table_body table').hide();
 			$dialogue_container.find('.node_selector_table_body').css('height','auto');
@@ -1819,9 +1824,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			    $dialogue_container.find('.panel-body>table').css('width','100%');
 			}
 
-			$rows.find('td[property="editorial_state_border"]').each(function(){
-				$(this).height($(this).parents('tr').outerHeight()).show();
-			});
+			resizeEditorialBorder();
 		}, this, $dialogue_container);
 		var shorten_description = function(description) {
 			var max_chars = 200; // Magic number...
@@ -2045,6 +2048,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					rowHTML += '</tr>';
 					
 					var $item = $(rowHTML).appendTo($rows).data({ 'slug': item.slug, 'item': item});
+
+					//As we load images, make sure the editorial border matches the height of the row
+					if($item.find('img').length > 0){
+						$item.find('img').each(function(){
+							$(this).on('load',function(){
+								resizeEditorialBorder();
+							});
+						});
+					}
 
 					if(isset(opts.useEditorialRules) && opts.useEditorialRules){
 						var $borderRow = $item.find('td[property="editorial_state_border"]');
