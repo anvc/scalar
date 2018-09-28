@@ -866,7 +866,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.$versionList.find('.loading').remove();
 
                     var editionCookieName = "scalar_edition_index=";
-                    console.log(document.cookie);
                     var editionCookieValue = null;
                     var ca = decodeURIComponent(document.cookie).split(';');
                     for(var i = 0; i <ca.length; i++) {
@@ -970,7 +969,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
                         //If we were looking at an edition, set the cookie again...
                         if(!!editionCookieValue){
-                            document.cookie = "scalar_edition_index="+editionCookieValue+"; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+                            document.cookie = "scalar_edition_index="+editionCookieValue+"; path=/;";  // Set cookie
                         }
                     }
 
