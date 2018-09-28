@@ -1789,8 +1789,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			var footer_height = $(this).find('.panel-footer').outerHeight();
 			var usedContainerHeight = false;
 
-			if(parseInt(self[0].style.height)){
-				var containerHeight = $(self).height();
+			if(self[0].style.height){ //Check if we are explicitly setting the height on the container
+				if(self[0].style.height.indexOf('px')!==-1){
+					var containerHeight = parseInt(self[0].style.height) || 0;
+				}else{
+					var containerHeight = $(self).height();
+				}
+				height = containerHeight;
 			}
 
 			height -= (heading_height+body_height+footer_height);
