@@ -1854,7 +1854,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				  url: 'api/save_row',
 				  data: post,
 				  success: function(data) {
-					  data.error = false;
+				  	  if(!!data && !data.error){
+				  	  	data.error = false;	
+				  	  }else if(!!data.error){
+				  	  	data.error = "Something went wrong while trying to save: "+data.error;
+				  	  }
 					  $('#saving').hide();
 					  callback(data);
 				  },
