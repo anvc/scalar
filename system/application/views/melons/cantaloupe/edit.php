@@ -467,6 +467,9 @@ $(document).ready(function() {
 				}
 			}
 		}
+		if($('#editorial_state').val() == 'ready'){
+			$('#editorial_state_button_container .published').remove();
+		}
 	}
 	if($('link#editorial_workflow').length > 0){
 		$('.state_dropdown li>a').click(function(e){

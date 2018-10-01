@@ -1293,6 +1293,9 @@
                             $node.find('.state_dropdown>button').addClass('btn-disabled').prop('disabled',true);
                         }
                     }
+                    if(state == 'ready'){
+                        $node.find('.dropdown-menu .published').remove();
+                    }
                 }
 
                 $node.data({
