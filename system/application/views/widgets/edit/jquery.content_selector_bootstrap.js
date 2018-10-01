@@ -2384,6 +2384,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							if (data.error) return alert(data.error);
 							var visibleThumbUrl = (1==data.is_live) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';
 							$this.find('.glyphicon').removeClass('glyphicon-eye-open glyphicon-eye-close').addClass(visibleThumbUrl);
+							$('body').trigger('updateGraph','statesOnly');
 						});
 					} else if (opts.isEdit && $this.hasClass('visibilityLink') && 'list_in_index'==$this.parent().attr('property')) {
 						var user_id = $this.closest('tr').data('user-id');
