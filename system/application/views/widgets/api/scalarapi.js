@@ -1339,7 +1339,7 @@ ScalarAPI.prototype.saveRelate = function(data, successCallback, errorCallback) 
 		data['id'] = jQuery.trim(data['id']);
 		data['scalar:fullname'] = jQuery.trim(data['scalar:fullname']);
 		data['api_key'] = jQuery.trim(data['api_key']);
-		if (!data['id'].length) throw "Empty required user field 'id'";
+		if (!data['native'] && !data['id'].length) throw "Empty required user field 'id'";
 		if (!data['native'] && !tosend['api_key'].length) throw "Empty required user field 'api_key'";
 	
 		$.ajax({
