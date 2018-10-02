@@ -1840,7 +1840,7 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 		tosend['native'] = (parseInt(data['native'])) ? true : false;
 		tosend['id'] = jQuery.trim(data['id']);
 		tosend['api_key'] = jQuery.trim(data['api_key']);
-		if (tosend['native'] && !tosend['id'].length) throw "Empty required user field 'id'";
+		//if (tosend['native'] && !tosend['id'].length) throw "Empty required user field 'id'";
 		if (!tosend['native'] && !tosend['api_key'].length) throw "Empty required user field 'api_key'";			
 		if ('http://'==data['scalar:url'] || 'https://'==data['scalar:url']) data['scalar:url'] = '';  // default value
 		
