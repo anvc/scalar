@@ -1439,6 +1439,7 @@
                                                 CKEDITOR.instances[$(this).data('editor').name].focusManager.blur(true);
                                                 CKEDITOR.instances[$(this).data('editor').name].removeAllListeners();
                                                 CKEDITOR.instances[$(this).data('editor').name].destroy(true);
+                                                $('.cke_top,.cke_float').remove();
                                                 $(this).data('editor',null);
                                             }
                                     },this,$node,base));
