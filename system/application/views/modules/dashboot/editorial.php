@@ -593,6 +593,7 @@ STR;
   $(document).ready(function() {
 	state_info_base_html = $('.editorial-summary').html();
     $('body').on('updateGraph',recalculate_graphs).trigger('updateGraph');
+    
     // Select edition to be viewing
     $(document).on("click", "#select_edition a", function() {
       if (!navigator.cookieEnabled) {
@@ -606,9 +607,17 @@ STR;
       $('body').trigger('updateGraph');
       $('.selector').data('node_selection_dialogue').refresh_nodes();
     });
+
   	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
       highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]'));
   	};
+
+  	$('#confirmEditorialWorkflow').find('form').submit(function(event) {
+  		if (!parseInt($(this).find('[name="enable"]').val())) {
+  			selectEditionByIndex(null);	
+  		};
+  		return true;
+  	});
 
     $('#createEdition').on('show.bs.modal', function() {
       $('.editions .btn').blur();
