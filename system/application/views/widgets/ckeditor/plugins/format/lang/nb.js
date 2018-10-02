@@ -3,7 +3,7 @@ Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'format', 'nb', {
-	label: 'Format',
+	label: 'H1',
 	panelTitle: 'Avsnittsformat',
 	tag_address: 'Adresse',
 	tag_div: 'Normal (DIV)',
