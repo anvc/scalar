@@ -190,7 +190,6 @@ CKEDITOR._scalarbeta = {
 				isEdit = true;
 
 				if($(element.$).data('selectOptions').type!=null&&$(element.$).data('selectOptions').type=="widget"){
-					console.log($(element.$).data('selectOptions'));
 					CKEDITOR._scalarbeta.selectWidget($(element.$).data('selectOptions'));
 				}else{
 					CKEDITOR._scalarbeta.selectcontent($(element.$).data('selectOptions'));

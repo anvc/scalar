@@ -1374,7 +1374,6 @@
                                     window.setTimeout(function(){
                                         editor.resetDirty();
                                         base.ckeditorWatcher = window.setInterval($.proxy(function(){
-                                            console.log(editor.checkDirty());
                                             if(editor.checkDirty()){
                                                 base.wasDirty = true;
                                                 editor.resetDirty();
