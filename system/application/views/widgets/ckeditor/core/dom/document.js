@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -262,7 +262,7 @@ CKEDITOR.tools.extend( CKEDITOR.dom.document.prototype, {
 	 * @param {String} html The HTML defining the document content.
 	 */
 	write: function( html ) {
-		// Don't leave any history log in IE. (#5657)
+		// Don't leave any history log in IE. (http://dev.ckeditor.com/ticket/5657)
 		this.$.open( 'text/html', 'replace' );
 
 		// Support for custom document.domain in IE.

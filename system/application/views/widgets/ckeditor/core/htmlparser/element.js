@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -35,7 +35,7 @@ CKEDITOR.htmlParser.element = function( name, attributes ) {
 	 */
 	this.children = [];
 
-	// Reveal the real semantic of our internal custom tag name (#6639),
+	// Reveal the real semantic of our internal custom tag name (http://dev.ckeditor.com/ticket/6639),
 	// when resolving whether it's block like.
 	var realName = name || '',
 		prefixed = realName.match( /^cke:(.*)/ );
@@ -56,7 +56,7 @@ CKEDITOR.htmlParser.element = function( name, attributes ) {
 };
 
 /**
- * Object presentation of CSS style declaration text.
+ * Object presentation of the CSS style declaration text.
  *
  * @class
  * @constructor Creates a `cssStyle` class instance.
@@ -421,7 +421,7 @@ CKEDITOR.htmlParser.cssStyle = function() {
 		 *
 		 * @since 4.3
 		 * @param {Number} index Index at which the element will be split &mdash; `0` means the beginning,
-		 * `1` after first child node, etc.
+		 * `1` after the first child node, etc.
 		 * @returns {CKEDITOR.htmlParser.element} The new element following this one.
 		 */
 		split: function( index ) {
@@ -442,6 +442,38 @@ CKEDITOR.htmlParser.cssStyle = function() {
 			this.parent.add( clone, this.getIndex() + 1 );
 
 			return clone;
+		},
+
+		/**
+		 * Searches through the current node children to find nodes matching the `criteria`.
+		 *
+		 * @param {String/Function} criteria Tag name or evaluator function.
+		 * @param {Boolean} [recursive=false]
+		 * @returns {CKEDITOR.htmlParser.node[]}
+		 */
+		find: function( criteria, recursive ) {
+			if ( recursive === undefined ) {
+				recursive = false;
+			}
+
+			var ret = [],
+				i;
+
+			for	( i = 0; i < this.children.length; i++ ) {
+				var curChild = this.children[ i ];
+
+				if ( typeof criteria == 'function' && criteria( curChild ) ) {
+					ret.push( curChild );
+				} else if ( typeof criteria == 'string' && curChild.name === criteria ) {
+					ret.push( curChild );
+				}
+
+				if ( recursive && curChild.find ) {
+					ret = ret.concat( curChild.find( criteria, recursive ) );
+				}
+			}
+
+			return ret;
 		},
 
 		/**
@@ -513,8 +545,8 @@ CKEDITOR.htmlParser.cssStyle = function() {
 
 			if ( !ctx.nonEditable && this.attributes.contenteditable == 'false' )
 				changes.push( 'nonEditable', true );
-			// A context to be given nestedEditable must be nonEditable first (by inheritance) (#11372, #11698).
-			// Special case: #11504 - filter starts on <body contenteditable=true>,
+			// A context to be given nestedEditable must be nonEditable first (by inheritance) (http://dev.ckeditor.com/ticket/11372, http://dev.ckeditor.com/ticket/11698).
+			// Special case: http://dev.ckeditor.com/ticket/11504 - filter starts on <body contenteditable=true>,
 			// so ctx.nonEditable has not been yet set to true.
 			else if ( ctx.nonEditable && !ctx.nestedEditable && this.attributes.contenteditable == 'true' )
 				changes.push( 'nestedEditable', true );

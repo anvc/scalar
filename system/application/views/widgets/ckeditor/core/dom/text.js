@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -12,9 +12,9 @@
  * Represents a DOM text node.
  *
  *		var nativeNode = document.createTextNode( 'Example' );
- *		var text = CKEDITOR.dom.text( nativeNode );
+ *		var text = new CKEDITOR.dom.text( nativeNode );
  *
- *		var text = CKEDITOR.dom.text( 'Example' );
+ *		var text = new CKEDITOR.dom.text( 'Example' );
  *
  * @class
  * @extends CKEDITOR.dom.node
@@ -106,7 +106,7 @@ CKEDITOR.tools.extend( CKEDITOR.dom.text.prototype, {
 				retval.insertAfter( this );
 			} else {
 				// IE BUG: IE8+ does not update the childNodes array in DOM after splitText(),
-				// we need to make some DOM changes to make it update. (#3436)
+				// we need to make some DOM changes to make it update. (http://dev.ckeditor.com/ticket/3436)
 				var workaround = doc.createText( '' );
 				workaround.insertAfter( retval );
 				workaround.remove();

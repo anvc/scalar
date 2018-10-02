@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -20,7 +20,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 	 * Replaces a `<textarea>` or a DOM element (`<div>`) with a CKEditor
 	 * instance. For textareas, the initial value in the editor will be the
 	 * textarea value. For DOM elements, their `innerHTML` will be used
-	 * instead. We recommend using `<textarea>` and `<div>` elements only.
+	 * instead. It is recommended to use `<textarea>` and `<div>` elements only.
 	 *
 	 *		<textarea id="myfield" name="myfield"></textarea>
 	 *		...
@@ -79,10 +79,10 @@ CKEDITOR.replaceClass = 'ckeditor';
 	 *		// Replace all <textarea class="myClassName"> elements in the page.
 	 *		CKEDITOR.replaceAll( 'myClassName' );
 	 *
-	 *		// Selectively replace <textarea> elements, based on custom assertions.
+	 *		// Selectively replace <textarea> elements, based on a custom evaluation function.
 	 *		CKEDITOR.replaceAll( function( textarea, config ) {
-	 *			// An assertion function that needs to be evaluated for the <textarea>
-	 *			// to be replaced. It must explicitely return "false" to ignore a
+	 *			// A function that needs to be evaluated for the <textarea>
+	 *			// to be replaced. It must explicitly return "false" to ignore a
 	 *			// specific <textarea>.
 	 *			// You can also customize the editor instance by having the function
 	 *			// modify the "config" parameter.
@@ -109,7 +109,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 	 *		</html>
 	 *
 	 * @param {String} [className] The `<textarea>` class name.
-	 * @param {Function} [function] An assertion function that must return `true` for a `<textarea>`
+	 * @param {Function} [evaluator] An evaluation function that must return `true` for a `<textarea>`
 	 * to be replaced with the editor. If the function returns `false`, the `<textarea>` element
 	 * will not be replaced.
 	 */
@@ -133,7 +133,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 				if ( !classRegex.test( textarea.className ) )
 					continue;
 			} else if ( typeof arguments[ 0 ] == 'function' ) {
-				// An assertion function could be passed as the function parameter.
+				// An evaluation function could be passed as the function parameter.
 				// It must explicitly return "false" to ignore a specific <textarea>.
 				config = {};
 				if ( arguments[ 0 ]( textarea, config ) === false )
@@ -280,28 +280,37 @@ CKEDITOR.replaceClass = 'ckeditor';
 			outer = container;
 		}
 
-		// Set as border box width. (#5353)
+		// Set as border box width. (http://dev.ckeditor.com/ticket/5353)
 		outer.setSize( 'width', width, true );
 
-		// WebKit needs to refresh the iframe size to avoid rendering issues. (1/2) (#8348)
+		// WebKit needs to refresh the iframe size to avoid rendering issues. (1/2) (http://dev.ckeditor.com/ticket/8348)
 		contentsFrame && ( contentsFrame.style.width = '1%' );
 
 		// Get the height delta between the outer table and the content area.
-		// If we're setting the content area's height, then we don't need the delta.
-		var delta = isContentHeight ? 0 : ( outer.$.offsetHeight || 0 ) - ( contents.$.clientHeight || 0 );
-		contents.setStyle( 'height', Math.max( height - delta, 0 ) + 'px' );
+		var contentsOuterDelta = ( outer.$.offsetHeight || 0 ) - ( contents.$.clientHeight || 0 ),
 
-		// WebKit needs to refresh the iframe size to avoid rendering issues. (2/2) (#8348)
+		// If we're setting the content area's height, then we don't need the delta.
+			resultContentsHeight = Math.max( height - ( isContentHeight ? 0 : contentsOuterDelta ), 0 ),
+			resultOuterHeight = ( isContentHeight ? height + contentsOuterDelta : height );
+
+		contents.setStyle( 'height', resultContentsHeight + 'px' );
+
+		// WebKit needs to refresh the iframe size to avoid rendering issues. (2/2) (http://dev.ckeditor.com/ticket/8348)
 		contentsFrame && ( contentsFrame.style.width = '100%' );
 
 		// Emit a resize event.
-		this.fire( 'resize' );
+		this.fire( 'resize', {
+			outerHeight: resultOuterHeight,
+			contentsHeight: resultContentsHeight,
+			// Sometimes width is not provided.
+			outerWidth: width || outer.getSize( 'width' )
+		} );
 	};
 
 	/**
 	 * Gets the element that can be used to check the editor size. This method
-	 * is mainly used by the `resize` plugin, which adds a UI handle that can be used
-	 * to resize the editor.
+	 * is mainly used by the [Editor Resize](http://ckeditor.com/addon/resize) plugin, which adds
+	 * a UI handle that can be used to resize the editor.
 	 *
 	 * @param {Boolean} forContents Whether to return the "contents" part of the theme instead of the container.
 	 * @returns {CKEDITOR.dom.element} The resizable element.
@@ -328,7 +337,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 			// replacement will be done later in the editor creation lifecycle.
 			element.setStyle( 'visibility', 'hidden' );
 
-			// #8031 Remember if textarea was required and remove the attribute.
+			// http://dev.ckeditor.com/ticket/8031 Remember if textarea was required and remove the attribute.
 			editor._.required = element.hasAttribute( 'required' );
 			element.removeAttribute( 'required' );
 		}
@@ -413,7 +422,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 			topHtml: topHtml ? '<span id="' + editor.ui.spaceId( 'top' ) + '" class="cke_top cke_reset_all" role="presentation" style="height:auto">' + topHtml + '</span>' : '',
 			contentId: editor.ui.spaceId( 'contents' ),
 			bottomHtml: bottomHtml ? '<span id="' + editor.ui.spaceId( 'bottom' ) + '" class="cke_bottom cke_reset_all" role="presentation">' + bottomHtml + '</span>' : '',
-			outerEl: CKEDITOR.env.ie ? 'span' : 'div'	// #9571
+			outerEl: CKEDITOR.env.ie ? 'span' : 'div'	// http://dev.ckeditor.com/ticket/9571
 		} ) );
 
 		if ( elementMode == CKEDITOR.ELEMENT_MODE_REPLACE ) {
@@ -424,6 +433,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 		}
 
 		editor.container = container;
+		editor.ui.contentsElement = editor.ui.space( 'contents' );
 
 		// Make top and bottom spaces unelectable, but not content space,
 		// otherwise the editable area would be affected.
@@ -441,7 +451,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 		// Disable browser context menu for editor's chrome.
 		container.disableContextMenu();
 
-		// Redirect the focus into editor for webkit. (#5713)
+		// Redirect the focus into editor for webkit. (http://dev.ckeditor.com/ticket/5713)
 		CKEDITOR.env.webkit && container.on( 'focus', function() {
 			editor.focus();
 		} );
@@ -457,7 +467,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 
 /**
  * The current editing mode. An editing mode basically provides
- * different ways of editing or viewing the contents.
+ * different ways of editing or viewing the editor content.
  *
  *		alert( CKEDITOR.instances.editor1.mode ); // (e.g.) 'wysiwyg'
  *
@@ -482,6 +492,10 @@ CKEDITOR.config.startupMode = 'wysiwyg';
  *
  * @event resize
  * @param {CKEDITOR.editor} editor This editor instance.
+ * @param {Object} data Available since CKEditor 4.5.
+ * @param {Number} data.outerHeight The height of the entire area that the editor covers.
+ * @param {Number} data.contentsHeight Editable area height in pixels.
+ * @param {Number} data.outerWidth The width of the entire area that the editor covers.
  */
 
 /**
