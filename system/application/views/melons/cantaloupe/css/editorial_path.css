@@ -452,6 +452,7 @@ body.shortHeader #editorialSidePanel>.affix{
 .placeholder>.content .placeholder_thumbnail{
 	max-width: 240px;
 	max-height: 240px;
+	width: 100%;
 	display: block;
 	margin: auto;
 }

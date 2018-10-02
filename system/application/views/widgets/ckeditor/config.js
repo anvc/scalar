@@ -177,3 +177,5 @@ CKEDITOR.editorConfig = function( config ) {
 		};
 
 };
+CKEDITOR.dtd.$removeEmpty['a'] = false;
+CKEDITOR.dtd.$removeEmpty['i'] = false;

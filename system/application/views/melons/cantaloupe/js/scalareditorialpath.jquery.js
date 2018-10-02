@@ -1369,33 +1369,27 @@
                                         floatSpacePinnedOffsetY: 50
                                     } );
 
-                                    if(typeof base.ckeditorWatcher != 'undefined' && base.ckeditorWatcher !== null){
-                                        if(base.wasDirty){
-                                            base.wasDirty = false;
-                                            base.saveCurrentEditor(base.currentEditNode);
-                                        }
-                                        window.clearInterval(base.ckeditorWatcher);
-                                        window.clearTimeout(base.ckeditorSaveTimeout); 
-                                    }
-
                                     base.currentEditNode = $(this).parents('.editorial_node');
                                     base.wasDirty = false;
-
-                                    base.ckeditorWatcher = window.setInterval($.proxy(function(){
-                                        if(editor.checkDirty()){
-                                            base.wasDirty = true;
-                                            editor.resetDirty();
-                                            if(base.ckeditorSaveTimeout !== null){
-                                                window.clearTimeout(base.ckeditorSaveTimeout);
-                                            }
-                                            /*base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
-                                                if(base.wasDirty){
-                                                    base.wasDirty = false;
-                                                    base.saveNode(base.currentEditNode);
+                                    window.setTimeout(function(){
+                                        editor.resetDirty();
+                                        base.ckeditorWatcher = window.setInterval($.proxy(function(){
+                                            console.log(editor.checkDirty());
+                                            if(editor.checkDirty()){
+                                                base.wasDirty = true;
+                                                editor.resetDirty();
+                                                if(base.ckeditorSaveTimeout !== null){
+                                                    window.clearTimeout(base.ckeditorSaveTimeout);
                                                 }
-                                            },this),1000);*/
-                                        }
-                                    },editor),500);
+                                                /*base.ckeditorSaveTimeout = window.setTimeout($.proxy(function(){
+                                                    if(base.wasDirty){
+                                                        base.wasDirty = false;
+                                                        base.saveNode(base.currentEditNode);
+                                                    }
+                                                },this),1000);*/
+                                            }
+                                        },editor),500);
+                                    },500);
 
 
                                     $(this).data('editor',editor);
@@ -1443,6 +1437,8 @@
                                             window.clearTimeout(base.ckeditorSaveTimeout);
 
                                             if($(this).data('editor')!=null){
+                                                CKEDITOR.instances[$(this).data('editor').name].focusManager.blur(true);
+                                                CKEDITOR.instances[$(this).data('editor').name].removeAllListeners();
                                                 CKEDITOR.instances[$(this).data('editor').name].destroy(true);
                                                 $(this).data('editor',null);
                                             }
@@ -1713,6 +1709,9 @@
                 }
                 
                 $(this).attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
+                if(!!$(this).text() || $(this).text() == ''){
+                    $(this).html('&nbsp;')
+                }
                 $placeholder.attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
 
                 if($(this).is('[resource]')){
@@ -1804,6 +1803,11 @@
         };
 
         base.stripPlaceholders = function($el){
+            $el.find('a.inline').each(function(){
+                if($(this).html() == '&nbsp;'){
+                    $(this).html('');
+                }
+            });
             $el.find('.placeholder').remove();
         }
 

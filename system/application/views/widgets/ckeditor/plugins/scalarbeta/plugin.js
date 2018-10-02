@@ -160,9 +160,8 @@ CKEDITOR._scalarbeta = {
 		var frameScroll = inline?0:$('.cke_contents>iframe').contents().scrollTop();
 		var pageScroll = $(window).scrollTop();
 		var inlineOffset = -50;
-		var additionalOffsetLeft = (inline&&$placeholder.parent().data('align')=='left'?10:0);
 		var topPos = inline?$placeholder.offset().top+inlineOffset:framePosition.top+position.top-frameScroll;
-		var leftPos = additionalOffsetLeft+framePosition.left+position.left+parseInt($placeholder.css('margin-left'))+parseInt($placeholder.css('padding-left'));
+		var leftPos = framePosition.left+position.left+parseInt($placeholder.css('margin-left'))+parseInt($placeholder.css('padding-left'));
 		if(!CKEDITOR._scalarbeta.editor.editable().isInline() && frameScroll > position.top){
 			topPos = framePosition.top;
 		}
@@ -405,8 +404,6 @@ CKEDITOR._scalarbeta = {
 					element.data('cke-saved-href',href);
 				}
 				element.setAttribute('resource', node.slug);
-
-
 				var inline = CKEDITOR._scalarbeta.editor.editable().isInline();
 				if(!isEdit){
 					CKEDITOR._scalarbeta.editor.insertElement(element);
