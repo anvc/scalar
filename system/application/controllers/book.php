@@ -123,7 +123,7 @@ class Book extends MY_Controller {
 								 	'book'         => $this->data['book'],
 									'content'      => $page,
 									'use_versions' => $this->data['use_versions'],
-									'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
+									'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
 									'base_uri'     => $this->data['base_uri'],
 									'versions'     => RDF_Object::VERSIONS_MOST_RECENT,
 									'ref'          => RDF_Object::REFERENCES_ALL,
@@ -683,7 +683,7 @@ class Book extends MY_Controller {
 							'prov'		   => RDF_Object::PROVENANCE_ALL,
 							'max_recurses' => 0,
 							'use_versions' => $this->data['use_versions'],
-							'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
+							'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
 							'is_book_admin'=> ($this->login_is_book_admin() && null == $this->data['url_params']['edition_index']) ? 1 : 0 
 		);
 		$index = $this->rdf_object->index($settings);
@@ -723,7 +723,7 @@ class Book extends MY_Controller {
 							'prov'		   => RDF_Object::PROVENANCE_ALL,
 							'max_recurses' => 0,
 							'use_versions' => $this->data['use_versions'],
-							'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
+							'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
 							'is_book_admin'=> ($this->login_is_book_admin() && null == $this->data['url_params']['edition_index']) ? 1 : 0
 		);
 		$index = $this->rdf_object->index($settings);
@@ -757,7 +757,7 @@ class Book extends MY_Controller {
 								'prov'		   => RDF_Object::PROVENANCE_ALL,
 								'max_recurses' => 0,
 								'use_versions' => $this->data['use_versions'],
-								'use_versions_restriction' => ($this->editorial_is_on() && null!==$this->data['url_params']['edition_index']) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
+								'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
 								'is_book_admin'=> ($this->login_is_book_admin() && null == $this->data['url_params']['edition_index']) ? 1 : 0,
 								'tklabeldata'  => $this->tklabels(),
 								'tklabels' 	   => RDF_Object::TKLABELS_ALL,
