@@ -575,6 +575,7 @@ class RDF_Object {
 						$settings['rel'] = self::REL_CHILDREN_ONLY;
 						$settings['pagination'] = self::NO_PAGINATION;
 						if (!empty($ref_content)) $this->_content_by_ref($return, $ref_content, $settings);
+						$this->_tklabels_by_ref($return, $ref_content, $this->version_cache[$ref_content->content_id], $settings);
 					}
 				}
 				if (isset($version->references)) {
@@ -585,6 +586,7 @@ class RDF_Object {
 						$settings['rel'] = self::REL_CHILDREN_ONLY;
 						$settings['pagination'] = self::NO_PAGINATION;
 						if (!empty($ref_content)) $this->_content_by_ref($return, $ref_content, $settings);
+						$this->_tklabels_by_ref($return, $ref_content, $this->version_cache[$ref_content->content_id], $settings);
 					}
 				}
 			}

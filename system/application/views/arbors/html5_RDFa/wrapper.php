@@ -453,6 +453,16 @@ if (!empty($has_references)):
 		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns);
 		if ($output_references_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$reference_item->versions[$reference_item->version_index]->content.'</span>'."\n";
 ?>				</span>
+<?
+		if (isset($reference_item->versions[$reference_item->version_index]->tklabels) && !empty($reference_item->versions[$reference_item->version_index]->tklabels)):
+			foreach ($reference_item->versions[$reference_item->version_index]->tklabels as $tklabel):
+?>				<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
+<?				print_rdf($this->versions->rdf((object) $tklabel), 5, $ns, array(), false, array(), array('dcterms:title')); ?>
+				</span>
+<?		
+			endforeach;
+		endif;
+?>
 			</li>
 <? 		endforeach; ?>
 		</ul>
@@ -480,6 +490,16 @@ if (!empty($reference_of)):
 		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns);
 		if ($output_reference_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$reference_item->versions[$reference_item->version_index]->content.'</span>'."\n";
 ?>				</span>
+<?
+		if (isset($reference_item->versions[$reference_item->version_index]->tklabels) && !empty($reference_item->versions[$reference_item->version_index]->tklabels)):
+			foreach ($reference_item->versions[$reference_item->version_index]->tklabels as $tklabel):
+?>				<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
+<?				print_rdf($this->versions->rdf((object) $tklabel), 5, $ns, array(), false, array(), array('dcterms:title')); ?>
+				</span>
+<?		
+			endforeach;
+		endif;
+?>
 			</li>
 <? 		endforeach; ?>
 		</ul>
