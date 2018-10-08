@@ -1134,12 +1134,14 @@
 
             addTKLabels: function() {
             	var $labels = $('article header [typeof="tk:TKLabel"]');
+                $labels.wrapAll('<div class="tklabels"></div>');
             	var hasLabels = ($labels.length) ? true : false;
             	if (!hasLabels) return;
                 var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
-            	$labels.first().addClass('last');  // Because of float:right the first is actually the last
+            	$labels.last().addClass('last');
             	$labels.each(function() {
             		var $label = $(this);
+                    $label.parent().prepend($label);
             		$label.css('display', 'inline-block');
             		var $url = $label.find('a[rel="art:url"]');
             		var url = $url.attr('href');
