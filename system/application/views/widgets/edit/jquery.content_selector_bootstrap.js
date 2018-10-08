@@ -1594,7 +1594,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																			<div class="col-sm-5 col-md-4 node_filter"> \
 																				<div class="node_types"> \
 																					<select class="btn btn-default generic_button large"></select> \
-																					<button class="btn btn-default" type="button">Filter results</button> \
 																					<div class="filter_spinner form-control"><div class="spinner_container"></div></div> \
 																					<br class="visible-xs"> \
 																				</div> \
@@ -2519,6 +2518,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		}, $dialogue_container);
 
 		var $filter = $dialogue_container.find('.node_filter');
+
+
+		$filter.find('select').change(function(){
+			performDropdownFilter();
+		});
+
 		var $search = $dialogue_container.find('.node_search');
 
 		if (isset(opts.nodeCountContainer)) {
@@ -2699,7 +2704,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		var fields_to_display = [];
 
 		var $type_selector = $filter.find('select');
-		var $type_filter_button = $filter.find('button');
 
 		for (var t in opts.types) {
 
@@ -2768,10 +2772,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				});
 			},200);
 		};
-
-		$type_filter_button.click(function() {
+		var performDropdownFilter = function() {
 			lastLoadType = "filter";
-			var $dialogue_container = $(this).parents('.node_selector');
 			var $type_selector = $dialogue_container.find('.node_filter select');
 			var $search = $dialogue_container.find('.node_search');
 			$search.find('input').val('');
@@ -2783,7 +2785,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			current_type = $type_selector.val();
 			doTypeFilter();
 			$type_selector.siblings('button').blur();
-		});
+		};
 
 		$nodeSelectorTableBody.on('scroll', function() {
 			if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight && !lastPage) {
@@ -2886,7 +2888,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		var init_selector = $.proxy(function($dialogue_container, opts, resize) {
 			$dialogue_container.data('opts', opts);
 			updateSelectedCounter();
-			$dialogue_container.find('.node_filter button').click();
+			performDropdownFilter();
 			$(this).append($dialogue_container);
 		}, this, $dialogue_container, opts, resize);
 
