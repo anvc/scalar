@@ -357,7 +357,7 @@
 
 				// add TK labels
             	var labels = node.current.properties['http://localcontexts.org/tk/hasLabel'];
-            	if (labels.length > 0) {
+            	if (labels != null) {
 	                var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 	                var labelWrapper = $('<div class="tk-labels-media"></div>').appendTo(descriptionPane);
 	                var $label, $img, labelNode, url, labelDescription;
