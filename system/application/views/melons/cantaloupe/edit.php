@@ -129,6 +129,25 @@ END;
 $this->template->add_css($css, 'embed');
 
 $js = <<<'END'
+
+var editionCookieName = "scalar_edition_index=";
+var editionCookieValue = null;
+var ca = decodeURIComponent(document.cookie).split(';');
+for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+    }
+    if (c.indexOf(editionCookieName) == 0) {
+        editionCookieValue = c.substring(editionCookieName.length, c.length);
+    }
+}
+
+//If we are currently using an edition, remove the cookie...
+if(!!editionCookieValue){
+    document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+}
+
 $(document).ready(function() {
 	CKEDITOR.instances['sioc:content'] = CKEDITOR.replace( 'editor', {
 		extraPlugins: ($('link#editorial_workflow').length > 0)?'widget,editorialTools':'',
