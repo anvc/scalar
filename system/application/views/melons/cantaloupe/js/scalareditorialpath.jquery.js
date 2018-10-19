@@ -210,15 +210,6 @@
                         return;
                     }
 
-                    if(!!base.findGetParameter("test")){
-                        $('#editorialSidePanel').siblings('div').removeClass('col-md-9');
-                        $('#editorialSidePanel').remove();
-                        $('#pathOrderSelectionContainer').remove();
-                        $('#pathHeading>p').html('<div id="ckeditorTest" contenteditable="true" style="width:100%; height: 500px; background-color: #fafaff"></div>');
-                        var editor = CKEDITOR.inline( "ckeditorTest");
-                        return;
-                    }
-
                     CKEDITOR.on("instanceReady", function(event)
                     {   
                         $('.ckeditorLoading').removeClass('ckeditorLoading');
