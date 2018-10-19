@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -29,7 +29,7 @@
 		// Call the CKEDITOR.event constructor to initialize this instance.
 		CKEDITOR.event.call( this );
 
-		// Make a clone of the config object, to avoid having it touched by our code. (http://dev.ckeditor.com/ticket/9636)
+		// Make a clone of the config object, to avoid having it touched by our code. (https://dev.ckeditor.com/ticket/9636)
 		instanceConfig = instanceConfig && CKEDITOR.tools.clone( instanceConfig );
 
 		// if editor is created off one page element.
@@ -170,7 +170,16 @@
 
 		// Handle startup focus.
 		this.on( 'instanceReady', function() {
-			this.config.startupFocus && this.focus();
+			if ( this.config.startupFocus ) {
+				if ( this.config.startupFocus === 'end' ) {
+					var range = this.createRange();
+					range.selectNodeContents( this.editable() );
+					range.shrink( CKEDITOR.SHRINK_ELEMENT, true );
+					range.collapse();
+					this.getSelection().selectRanges( [ range ] );
+				}
+				this.focus();
+			}
 		} );
 
 		CKEDITOR.fire( 'instanceCreated', null, this );
@@ -223,7 +232,7 @@
 	function updateCommandsContext( editor, path, forceRefresh ) {
 		// Commands cannot be refreshed without a path. In edge cases
 		// it may happen that there's no selection when this function is executed.
-		// For example when active filter is changed in http://dev.ckeditor.com/ticket/10877.
+		// For example when active filter is changed in https://dev.ckeditor.com/ticket/10877.
 		if ( !path )
 			return;
 
@@ -270,7 +279,7 @@
 		} else {
 			// Load the custom configuration file.
 			// To resolve customConfig race conflicts, use scriptLoader#queue
-			// instead of scriptLoader#load (http://dev.ckeditor.com/ticket/6504).
+			// instead of scriptLoader#load (https://dev.ckeditor.com/ticket/6504).
 			CKEDITOR.scriptLoader.queue( customConfig, function() {
 				// If the CKEDITOR.editorConfig function has been properly
 				// defined in the custom configuration file, cache it.
@@ -483,20 +492,20 @@
 
 	function loadPlugins( editor ) {
 		var config = editor.config,
-			plugins = config.plugins,
-			extraPlugins = config.extraPlugins,
-			removePlugins = config.removePlugins;
+			plugins = parsePluginsOption( config.plugins ),
+			extraPlugins = parsePluginsOption( config.extraPlugins ),
+			removePlugins = parsePluginsOption( config.removePlugins );
 
 		if ( extraPlugins ) {
 			// Remove them first to avoid duplications.
-			var extraRegex = new RegExp( '(?:^|,)(?:' + extraPlugins.replace( /\s*,\s*/g, '|' ) + ')(?=,|$)', 'g' );
+			var extraRegex = new RegExp( '(?:^|,)(?:' + extraPlugins.replace( /,/g, '|' ) + ')(?=,|$)', 'g' );
 			plugins = plugins.replace( extraRegex, '' );
 
 			plugins += ',' + extraPlugins;
 		}
 
 		if ( removePlugins ) {
-			var removeRegex = new RegExp( '(?:^|,)(?:' + removePlugins.replace( /\s*,\s*/g, '|' ) + ')(?=,|$)', 'g' );
+			var removeRegex = new RegExp( '(?:^|,)(?:' + removePlugins.replace( /,/g, '|' ) + ')(?=,|$)', 'g' );
 			plugins = plugins.replace( removeRegex, '' );
 		}
 
@@ -515,21 +524,7 @@
 			// The list of URLs to language files.
 			var languageFiles = [];
 
-			/**
-			 * An object that contains references to all plugins used by this
-			 * editor instance.
-			 *
-			 *		alert( editor.plugins.dialog.path ); // e.g. 'http://example.com/ckeditor/plugins/dialog/'
-			 *
-			 *		// Check if a plugin is available.
-			 *		if ( editor.plugins.image ) {
-			 *			...
-			 *		}
-			 *
-			 * @readonly
-			 * @property {Object}
-			 */
-			editor.plugins = plugins;
+			editor.plugins = CKEDITOR.tools.extend( {}, editor.plugins, plugins );
 
 			// Loop through all plugins, to build the list of language
 			// files to get loaded.
@@ -625,6 +620,20 @@
 				CKEDITOR.fire( 'instanceLoaded', null, editor );
 			} );
 		} );
+
+		// Parse *plugins option into a string (#1802).
+		function parsePluginsOption( option ) {
+			if ( !option ) {
+				return '';
+			}
+
+			if ( CKEDITOR.tools.isArray( option ) ) {
+				option = option.join( ',' );
+			}
+
+			// We have to remove whitespaces (#1712).
+			return option.replace( /\s/g, '' );
+		}
 	}
 
 	// Send to data output back to editor's associated element.
@@ -655,7 +664,7 @@
 	}
 
 	// Create DocumentFragment from specified ranges. For now it handles only tables
-	// and returns DocumentFragment from the 1. range for other cases. (http://dev.ckeditor.com/ticket/13884)
+	// and returns DocumentFragment from the 1. range for other cases. (https://dev.ckeditor.com/ticket/13884)
 	function createDocumentFragmentFromRanges( ranges, editable ) {
 		var docFragment = new CKEDITOR.dom.documentFragment(),
 			tableClone,
@@ -722,8 +731,58 @@
 
 	CKEDITOR.tools.extend( CKEDITOR.editor.prototype, {
 		/**
+		 * An object that contains references to all plugins used by this
+		 * editor instance.
+		 *
+		 *		alert( editor.plugins.dialog.path ); // e.g. 'http://example.com/ckeditor/plugins/dialog/'
+		 *
+		 *		// Check if a plugin is available.
+		 *		if ( editor.plugins.image ) {
+		 *			...
+		 *		}
+		 *
+		 * @readonly
+		 * @property {CKEDITOR.editor.plugins}
+		 */
+		plugins: {
+			/**
+			 * Checks the plugin for conflicts with other plugins.
+			 *
+			 * If a conflict occurs, this function will send a {@link CKEDITOR#warn console warning}
+			 * with the `editor-plugin-conflict` error code. The order of the `conflicted` names is respected
+			 * where the first conflicted plugin has the highest priority and will be used in a warning
+			 * message.
+			 *
+			 * ```js
+			 * editor.plugins.detectConflict( 'image', [ 'image2', 'easyimage' ] );
+			 * ```
+			 *
+			 * @member CKEDITOR.editor.plugins
+			 * @since 4.10.1
+			 * @param {String} plugin Current plugin name.
+			 * @param {String[]} conflicted Names of plugins that conflict with the current plugin.
+			 * @return {Boolean} Returns `true` if there is a conflict. Returns `false` otherwise.
+			 */
+			detectConflict: function( plugin, conflicted ) {
+				for ( var i = 0; i < conflicted.length; i++ ) {
+					var pluginName = conflicted[ i ];
+
+					if ( this[ pluginName ] ) {
+						CKEDITOR.warn( 'editor-plugin-conflict', {
+							plugin: plugin,
+							replacedWith: pluginName
+						} );
+
+						return true;
+					}
+				}
+
+				return false;
+			}
+		},
+		/**
 		 * Adds a command definition to the editor instance. Commands added with
-		 * this function can be executed later with the <code>{@link #execCommand}</code> method.
+		 * this function can be executed later with the {@link #execCommand} method.
 		 *
 		 * 		editorInstance.addCommand( 'sample', {
 		 * 			exec: function( editor ) {
@@ -731,18 +790,20 @@
 		 * 			}
 		 * 		} );
 		 *
+		 * Since 4.10.0 this method also accepts a {@link CKEDITOR.command} instance as a parameter.
+		 *
 		 * @param {String} commandName The indentifier name of the command.
-		 * @param {CKEDITOR.commandDefinition} commandDefinition The command definition.
+		 * @param {CKEDITOR.commandDefinition/CKEDITOR.command} commandDefinition The command definition or a `CKEDITOR.command` instance.
 		 */
 		addCommand: function( commandName, commandDefinition ) {
 			commandDefinition.name = commandName.toLowerCase();
-			var cmd = new CKEDITOR.command( this, commandDefinition );
+			var cmd = commandDefinition instanceof CKEDITOR.command ? commandDefinition : new CKEDITOR.command( this, commandDefinition );
 
 			// Update command when mode is set.
 			// This guarantees that commands added before first editor#mode
 			// aren't immediately updated, but waits for editor#mode and that
 			// commands added later are immediately refreshed, even when added
-			// before instanceReady. http://dev.ckeditor.com/ticket/10103, http://dev.ckeditor.com/ticket/10249
+			// before instanceReady. https://dev.ckeditor.com/ticket/10103, https://dev.ckeditor.com/ticket/10249
 			if ( this.mode )
 				updateCommand( this, cmd );
 
@@ -786,7 +847,7 @@
 						} );
 					}
 
-					// Remove 'submit' events registered on form element before destroying.(http://dev.ckeditor.com/ticket/3988)
+					// Remove 'submit' events registered on form element before destroying.(https://dev.ckeditor.com/ticket/3988)
 					editor.on( 'destroy', function() {
 						form.removeListener( 'submit', onSubmit );
 					} );
@@ -796,7 +857,7 @@
 			function onSubmit( evt ) {
 				editor.updateElement();
 
-				// http://dev.ckeditor.com/ticket/8031 If textarea had required attribute and editor is empty fire 'required' event and if
+				// https://dev.ckeditor.com/ticket/8031 If textarea had required attribute and editor is empty fire 'required' event and if
 				// it was cancelled, prevent submitting the form.
 				if ( editor._.required && !element.getValue() && editor.fire( 'required' ) === false ) {
 					// When user press save button event (evt) is undefined (see save plugin).
@@ -992,7 +1053,7 @@
 				}
 				else {
 					// If we don't have a proper element, set data to an empty string,
-					// as this method is expected to return a string. (http://dev.ckeditor.com/ticket/13385)
+					// as this method is expected to return a string. (https://dev.ckeditor.com/ticket/13385)
 					data = '';
 				}
 			}
@@ -1094,7 +1155,7 @@
 				this.readOnly = isReadOnly;
 
 				// Block or release BACKSPACE key according to current read-only
-				// state to prevent browser's history navigation (http://dev.ckeditor.com/ticket/9761).
+				// state to prevent browser's history navigation (https://dev.ckeditor.com/ticket/9761).
 				this.keystrokeHandler.blockedKeystrokes[ 8 ] = +isReadOnly;
 
 				this.editable().setReadOnly( isReadOnly );
@@ -1441,7 +1502,7 @@
 		 * However, the dynamic Enter modes can be changed during runtime by using this method, to reflect the selection context.
 		 * For example, if selection is moved to the {@link CKEDITOR.plugins.widget widget}'s nested editable which
 		 * is a {@link #blockless blockless one}, then the active Enter modes should be changed to {@link CKEDITOR#ENTER_BR}
-		 * (in this case [Widget System](#!/guide/dev_widgets) takes care of that).
+		 * (in this case {@glink guide/dev_widgets Widget System} takes care of that).
 		 *
 		 * **Note:** This method should not be used to configure the editor &ndash; use {@link CKEDITOR.config#enterMode} and
 		 * {@link CKEDITOR.config#shiftEnterMode} instead. This method should only be used to dynamically change
@@ -1476,7 +1537,7 @@
 		/**
 		 * Shows a notification to the user.
 		 *
-		 * If the [Notification](http://ckeditor.com/addons/notification) plugin is not enabled, this function shows
+		 * If the [Notification](https://ckeditor.com/cke4/addon/notification) plugin is not enabled, this function shows
 		 * a normal alert with the given `message`. The `type` and `progressOrDuration` parameters are supported
 		 * only by the Notification plugin.
 		 *
@@ -1552,8 +1613,8 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  * If `true`, makes the editor start in read-only state. Otherwise, it will check
  * if the linked `<textarea>` element has the `disabled` attribute.
  *
- * Read more in the [documentation](#!/guide/dev_readonly)
- * and see the [SDK sample](http://sdk.ckeditor.com/samples/readonly.html).
+ * Read more in the {@glink guide/dev_readonly documentation}
+ * and see the [SDK sample](https://sdk.ckeditor.com/samples/readonly.html).
  *
  *		config.readOnly = true;
  *
@@ -1566,9 +1627,19 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
 /**
  * Whether an editable element should have focus when the editor is loading for the first time.
  *
+ *		// Focus at the beginning of the editable.
  *		config.startupFocus = true;
  *
- * @cfg {Boolean} [startupFocus=false]
+ * Since CKEditor 4.9.0, `startupFocus` can be explicitly set to either the `start` or the `end`
+ * of the editable:
+ *
+ *		// Focus at the beginning of the editable.
+ *		config.startupFocus = 'start';
+ *
+ *		// Focus at the end of the editable.
+ *		config.startupFocus = 'end';
+ *
+ * @cfg {String/Boolean} [startupFocus=false]
  * @member CKEDITOR.config
  */
 

@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 /**
@@ -136,7 +136,7 @@ if ( !CKEDITOR.env ) {
 				var domain = document.domain,
 					hostname = window.location.hostname;
 
-				return domain != hostname && domain != ( '[' + hostname + ']' ); // IPv6 IP support (http://dev.ckeditor.com/ticket/5434)
+				return domain != hostname && domain != ( '[' + hostname + ']' ); // IPv6 IP support (https://dev.ckeditor.com/ticket/5434)
 			},
 
 			/**
@@ -284,7 +284,7 @@ if ( !CKEDITOR.env ) {
 		 * It became too complicated to check in which new environments CKEditor is going to work.
 		 *
 		 * In order to enable CKEditor 4.4.x and below in unsupported environments see the
-		 * [Enabling CKEditor in Unsupported Environments](#!/guide/dev_unsupported_environments) article.
+		 * {@glink guide/dev_unsupported_environments Enabling CKEditor in Unsupported Environments} article.
 		 *
 		 *		if ( CKEDITOR.env.isCompatible )
 		 *			alert( 'Your browser is not known to be incompatible with CKEditor!' );

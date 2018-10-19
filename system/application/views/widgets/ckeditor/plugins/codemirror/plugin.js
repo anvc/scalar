@@ -1,4 +1,4 @@
-/*
+﻿/*
 *  The "codemirror" plugin. It's indented to enhance the
 *  "sourcearea" editing mode, which displays the xhtml source code with
 *  syntax highlight and line numbers.
@@ -168,7 +168,7 @@
                             foldGutter: true,
                             gutters: ["CodeMirror-linenumbbers", "CodeMirror-foldgutter"]
                         });
-       
+
 
                         var holderHeight = height + "px";
                         var holderWidth = width + "px";
@@ -272,7 +272,7 @@
                                     var parts = event.sender.parts;
                                     var title = parts.title;
                                     var footer = parts.footer;
-                                    
+
                                     var holderHeight = (event.data.height - title.$.offsetHeight - footer.$.offsetHeight) + "px";
                                     var holderWidth = event.data.width + "px";
 

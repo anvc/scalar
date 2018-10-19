@@ -14,7 +14,7 @@
 
 	CKEDITOR.plugins.add( 'widget', {
 		// jscs:disable maximumLineLength
-		lang: 'af,ar,az,bg,ca,cs,cy,da,de,de-ch,el,en,en-au,en-gb,eo,es,es-mx,eu,fa,fi,fr,gl,he,hr,hu,id,it,ja,km,ko,ku,lv,nb,nl,no,oc,pl,pt,pt-br,ro,ru,sk,sl,sq,sv,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+		lang: 'af,ar,az,bg,ca,cs,cy,da,de,de-ch,el,en,en-au,en-gb,eo,es,es-mx,et,eu,fa,fi,fr,gl,he,hr,hu,id,it,ja,km,ko,ku,lv,nb,nl,no,oc,pl,pt,pt-br,ro,ru,sk,sl,sq,sv,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
 		// jscs:enable maximumLineLength
 		requires: 'lineutils,clipboard,widgetselection',
 		onLoad: function() {
@@ -1115,11 +1115,42 @@
 		 * @param {Boolean} [offline] See {@link #method-destroy} method.
 		 */
 		destroyEditable: function( editableName, offline ) {
-			var editable = this.editables[ editableName ];
+			var editable = this.editables[ editableName ],
+				canDestroyFilter = true;
 
 			editable.removeListener( 'focus', onEditableFocus );
 			editable.removeListener( 'blur', onEditableBlur );
 			this.editor.focusManager.remove( editable );
+
+			// Destroy filter if it's no longer used by other editables (#1722).
+			if ( editable.filter ) {
+				for ( var widgetName in this.repository.instances ) {
+					var widget = this.repository.instances[ widgetName ];
+
+					if ( !widget.editables ) {
+						continue;
+					}
+
+					var widgetEditable = widget.editables[ editableName ];
+
+					if ( !widgetEditable || widgetEditable === editable ) {
+						continue;
+					}
+
+					if ( editable.filter === widgetEditable.filter ) {
+						canDestroyFilter = false;
+					}
+				}
+
+				if ( canDestroyFilter ) {
+					editable.filter.destroy();
+
+					var filters = this.repository._.filters[ this.name ];
+					if ( filters ) {
+						delete filters[ editableName ];
+					}
+				}
+			}
 
 			if ( !offline ) {
 				this.repository.destroyAll( false, editable );
@@ -1902,15 +1933,17 @@
 		editor.addCommand( widgetDef.name, {
 			exec: function( editor, commandData ) {
 				var focused = editor.widgets.focused;
-				// If a widget of the same type is focused, start editing.
-				if ( focused && focused.name == widgetDef.name )
+				if ( focused && focused.name == widgetDef.name ) {
+					// If a widget of the same type is focused, start editing.
 					focused.edit();
-				// Otherwise...
-				// ... use insert method is was defined.
-				else if ( widgetDef.insert )
-					widgetDef.insert();
-				// ... or create a brand-new widget from template.
-				else if ( widgetDef.template ) {
+				} else if ( widgetDef.insert ) {
+					// ... use insert method is was defined.
+					widgetDef.insert( {
+						editor: editor,
+						commandData: commandData
+					} );
+				} else if ( widgetDef.template ) {
+					// ... or create a brand-new widget from template.
 					var defaults = typeof widgetDef.defaults == 'function' ? widgetDef.defaults() : widgetDef.defaults,
 						element = CKEDITOR.dom.element.createFromHtml( widgetDef.template.output( defaults ) ),
 						instance,
@@ -4041,6 +4074,9 @@
  * * The widget element will be inserted into DOM.
  *
  * @property {Function} insert
+ * @param {Object} options Options object added in **4.11.0**.
+ * @param {CKEDITOR.editor} options.editor Editor where the widget is going to be inserted to.
+ * @param {Object} [options.commandData] Command data passed to the invoking command, if any.
  */
 
 /**
@@ -4253,7 +4289,7 @@
  */
 
 /**
- * The [Advanced Content Filter](#!/guide/dev_advanced_content_filter) rules
+ * The {@glink guide/dev_advanced_content_filter Advanced Content Filter} rules
  * which will be used to limit the content allowed in this nested editable.
  * This option is similar to {@link CKEDITOR.config#allowedContent} and one can
  * use it to limit the editor features available in the nested editable.
@@ -4265,7 +4301,7 @@
  */
 
 /**
- * The [Advanced Content Filter](#!/guide/dev_advanced_content_filter) rules
+ * The {@glink guide/dev_advanced_content_filter Advanced Content Filter} rules
  * which will be used to blacklist elements within this nested editable.
  * This option is similar to {@link CKEDITOR.config#disallowedContent}.
  *

@@ -1,6 +1,6 @@
 ﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 ( function() {
@@ -30,7 +30,11 @@
 	} );
 
 	var whitespaces = CKEDITOR.dom.walker.whitespaces(),
-		bookmark = CKEDITOR.dom.walker.bookmark();
+		bookmark = CKEDITOR.dom.walker.bookmark(),
+		plugin,
+		enterBr,
+		enterBlock,
+		headerTagRegex;
 
 	CKEDITOR.plugins.enterkey = {
 		enterBlock: function( editor, mode, range, forceMode ) {
@@ -43,7 +47,7 @@
 				return;
 
 			// When range is in nested editable, we have to replace range with this one,
-			// which have root property set to closest editable, to make auto paragraphing work. (#12162)
+			// which have root property set to closest editable, to make auto paragraphing work. (https://dev.ckeditor.com/ticket/12162)
 			range = replaceRangeWithClosestEditableRoot( range );
 
 			var doc = range.document;
@@ -58,9 +62,9 @@
 
 				newBlock;
 
-			// Exit the list when we're inside an empty list item block. (#5376)
+			// Exit the list when we're inside an empty list item block. (https://dev.ckeditor.com/ticket/5376)
 			if ( atBlockStart && atBlockEnd ) {
-				// Exit the list when we're inside an empty list item block. (#5376)
+				// Exit the list when we're inside an empty list item block. (https://dev.ckeditor.com/ticket/5376)
 				if ( block && ( block.is( 'li' ) || block.getParent().is( 'li' ) ) ) {
 					// Make sure to point to the li when dealing with empty list item.
 					if ( !block.is( 'li' ) )
@@ -112,29 +116,36 @@
 						//      </li>                    =>          </li>
 						//  </ul>                        =>      </ul>
 
-						if ( firstChild || lastChild )
-							block[ firstChild ? 'insertBefore' : 'insertAfter' ]( blockGrandParent );
+						if ( firstChild || lastChild ) {
 
-						// If the empty block is neither first nor last child
-						// then split the list and the block as an element
-						// of outer list.
-						//
-						//                              =>      <ul>
-						//                              =>          <li>
-						//  <ul>                        =>              <ul>
-						//      <li>                    =>                  <li>x</li>
-						//          <ul>                =>              </ul>
-						//              <li>x</li>      =>          </li>
-						//              <li>^</li>      =>          <li>^</li>
-						//              <li>y</li>      =>          <li>
-						//          </ul>               =>              <ul>
-						//      </li>                   =>                  <li>y</li>
-						//  </ul>                       =>              </ul>
-						//                              =>          </li>
-						//                              =>      </ul>
+							// If it's only child, we don't want to keep perent ul anymore.
+							if ( firstChild && lastChild ) {
+								blockParent.remove();
+							}
 
-						else
+							block[lastChild ? 'insertAfter' : 'insertBefore']( blockGrandParent );
+
+							// If the empty block is neither first nor last child
+							// then split the list and the block as an element
+							// of outer list.
+							//
+							//                              =>      <ul>
+							//                              =>          <li>
+							//  <ul>                        =>              <ul>
+							//      <li>                    =>                  <li>x</li>
+							//          <ul>                =>              </ul>
+							//              <li>x</li>      =>          </li>
+							//              <li>^</li>      =>          <li>^</li>
+							//              <li>y</li>      =>          <li>
+							//          </ul>               =>              <ul>
+							//      </li>                   =>                  <li>y</li>
+							//  </ul>                       =>              </ul>
+							//                              =>          </li>
+							//                              =>      </ul>
+
+						} else {
 							block.breakParent( blockGrandParent );
+						}
 					}
 
 					else if ( !needsBlock ) {
@@ -286,7 +297,7 @@
 
 			var node;
 
-			// If this is a block under a list item, split it as well. (#1647)
+			// If this is a block under a list item, split it as well. (https://dev.ckeditor.com/ticket/1647)
 			if ( nextBlock ) {
 				node = nextBlock.getParent();
 				if ( node.is( 'li' ) ) {
@@ -299,14 +310,13 @@
 				range.moveToElementEditStart( node );
 				previousBlock.move( previousBlock.getPrevious() );
 			}
-
 			// If we have both the previous and next blocks, it means that the
 			// boundaries were on separated blocks, or none of them where on the
 			// block limits (start/end).
 			if ( !isStartOfBlock && !isEndOfBlock ) {
 				// If the next block is an <li> with another list tree as the first
 				// child, we'll need to append a filler (<br>/NBSP) or the list item
-				// wouldn't be editable. (#1420)
+				// wouldn't be editable. (https://dev.ckeditor.com/ticket/1420)
 				if ( nextBlock.is( 'li' ) ) {
 					var walkerRange = range.clone();
 					walkerRange.selectNodeContents( nextBlock );
@@ -323,12 +333,18 @@
 				// Move the selection to the end block.
 				if ( nextBlock )
 					range.moveToElementEditStart( nextBlock );
+			}
+			// Handle differently when content of table cell was erased by pressing enter (#1816).
+			// We don't want to add new block, because it was created with range.splitBlock().
+			else if ( preventExtraLineInsideTable( mode ) ) {
+				range.moveToElementEditStart( range.getTouchedStartNode() );
 			} else {
+
 				var newBlockDir;
 
 				if ( previousBlock ) {
 					// Do not enter this block if it's a header tag, or we are in
-					// a Shift+Enter (#77). Create a new block element instead
+					// a Shift+Enter (https://dev.ckeditor.com/ticket/77). Create a new block element instead
 					// (later in the code).
 					if ( previousBlock.is( 'li' ) || !( headerTagRegex.test( previousBlock.getName() ) || previousBlock.is( 'pre' ) ) ) {
 						// Otherwise, duplicate the previous block.
@@ -339,7 +355,7 @@
 				}
 
 				if ( !newBlock ) {
-					// We have already created a new list item. (#6849)
+					// We have already created a new list item. (https://dev.ckeditor.com/ticket/6849)
 					if ( node && node.is( 'li' ) )
 						newBlock = node;
 					else {
@@ -377,8 +393,8 @@
 				if ( !newBlock.getParent() )
 					range.insertNode( newBlock );
 
-				// list item start number should not be duplicated (#7330), but we need
-				// to remove the attribute after it's onto the DOM tree because of old IEs (#7581).
+				// list item start number should not be duplicated (https://dev.ckeditor.com/ticket/7330), but we need
+				// to remove the attribute after it's onto the DOM tree because of old IEs (https://dev.ckeditor.com/ticket/7581).
 				newBlock.is( 'li' ) && newBlock.removeAttribute( 'value' );
 
 				// This is tricky, but to make the new block visible correctly
@@ -398,6 +414,42 @@
 
 			range.select();
 			range.scrollIntoView();
+
+			// ===== HELPERS =====
+			function preventExtraLineInsideTable( mode ) {
+				// #1816
+				// We want to have behaviour after pressing enter like this:
+				// 1. <td>^</td> -> <td><p> </p></td>
+				// 2. <td>Foo^</td> -> <td><p>Foo</p><p> </p></td>
+				// 3. <td>Foo^Bar</td> -> <td><p>Foo</p><p>Bar</p></td>
+				// We need to separate 1. case to not add extra line. Like it happen for 2nd or 3rd option.
+
+				var innerElement,
+					bogus;
+
+				if ( mode === CKEDITOR.ENTER_BR ) {
+					return false;
+				}
+
+				if ( CKEDITOR.tools.indexOf( [ 'td', 'th' ], path.lastElement.getName() ) === -1 ) {
+					return false;
+				}
+				if ( path.lastElement.getChildCount() !== 1 ) {
+					return false;
+				}
+
+				innerElement = path.lastElement.getChild( 0 ).clone( true );
+				bogus = innerElement.getBogus();
+				if ( bogus ) {
+					bogus.remove();
+				}
+
+				if ( innerElement.getText().length ) {
+					return false;
+				}
+
+				return true;
+			}
 		},
 
 		enterBr: function( editor, mode, range, forceMode ) {
@@ -446,7 +498,7 @@
 			} else {
 				var lineBreak;
 
-				// IE<8 prefers text node as line-break inside of <pre> (#4711).
+				// IE<8 prefers text node as line-break inside of <pre> (https://dev.ckeditor.com/ticket/4711).
 				if ( startBlockTag == 'pre' && CKEDITOR.env.ie && CKEDITOR.env.version < 8 )
 					lineBreak = doc.createText( '\r' );
 				else
@@ -488,15 +540,15 @@
 		}
 	};
 
-	var plugin = CKEDITOR.plugins.enterkey,
-		enterBr = plugin.enterBr,
-		enterBlock = plugin.enterBlock,
-		headerTagRegex = /^h[1-6]$/;
+	plugin = CKEDITOR.plugins.enterkey;
+	enterBr = plugin.enterBr;
+	enterBlock = plugin.enterBlock;
+	headerTagRegex = /^h[1-6]$/;
 
 	function shiftEnter( editor ) {
 		// On SHIFT+ENTER:
 		// 1. We want to enforce the mode to be respected, instead
-		// of cloning the current block. (#77)
+		// of cloning the current block. (https://dev.ckeditor.com/ticket/77)
 		return enter( editor, editor.activeShiftEnterMode, 1 );
 	}
 
@@ -514,7 +566,8 @@
 		// Check path block specialities:
 		// 1. Cannot be a un-splittable element, e.g. table caption;
 		var path = editor.elementPath();
-		if ( !path.isContextFor( 'p' ) ) {
+
+		if ( path && !path.isContextFor( 'p' ) ) {
 			mode = CKEDITOR.ENTER_BR;
 			forceMode = 1;
 		}

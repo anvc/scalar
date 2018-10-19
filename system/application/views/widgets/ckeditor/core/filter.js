@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 ( function() {
@@ -53,7 +53,7 @@
 	 *	* `'div'` &ndash; for {@link CKEDITOR#ENTER_DIV},
 	 *	* `'br'` &ndash; for {@link CKEDITOR#ENTER_BR}.
 	 *
-	 * **Read more** about the Advanced Content Filter in [guides](#!/guide/dev_advanced_content_filter).
+	 * **Read more** about the Advanced Content Filter in {@glink guide/dev_advanced_content_filter guides}.
 	 *
 	 * Filter may also be used as a standalone instance by passing
 	 * {@link CKEDITOR.filter.allowedContentRules} instead of {@link CKEDITOR.editor}
@@ -212,7 +212,7 @@
 		/**
 		 * Adds allowed content rules to the filter.
 		 *
-		 * Read about rules formats in [Allowed Content Rules guide](#!/guide/dev_allowed_content_rules).
+		 * Read about rules formats in {@glink guide/dev_allowed_content_rules Allowed Content Rules guide}.
 		 *
 		 *		// Add a basic rule for custom image feature (e.g. 'MyImage' button).
 		 *		editor.filter.allow( 'img[!src,alt]', 'MyImage' );
@@ -300,7 +300,7 @@
 					if ( el.attributes[ 'data-cke-filter' ] == 'off' )
 						return false;
 
-					// (http://dev.ckeditor.com/ticket/10260) Don't touch elements like spans with data-cke-* attribute since they're
+					// (https://dev.ckeditor.com/ticket/10260) Don't touch elements like spans with data-cke-* attribute since they're
 					// responsible e.g. for placing markers, bookmarks, odds and stuff.
 					// We love 'em and we don't wanna lose anything during the filtering.
 					// '|' is to avoid tricky joints like data-="foo" + cke-="bar". Yes, they're possible.
@@ -347,7 +347,7 @@
 				if ( !element.parent )
 					continue;
 
-				// Handle custom elements as inline elements (http://dev.ckeditor.com/ticket/12683).
+				// Handle custom elements as inline elements (https://dev.ckeditor.com/ticket/12683).
 				parentDtd = DTD[ element.parent.name ] || DTD.span;
 
 				switch ( check.check ) {
@@ -421,7 +421,7 @@
 		/**
 		 * Adds disallowed content rules to the filter.
 		 *
-		 * Read about rules formats in the [Allowed Content Rules guide](#!/guide/dev_allowed_content_rules).
+		 * Read about rules formats in the {@glink guide/dev_allowed_content_rules Allowed Content Rules guide}.
 		 *
 		 *		// Disallow all styles on the image elements.
 		 *		editor.filter.disallow( 'img{*}' );
@@ -686,11 +686,22 @@
 		 *
 		 * Second `check()` call returned `false` because `src` is required.
 		 *
+		 * When an array of rules is passed as the `test` argument, the filter
+		 * returns `true` if at least one of the passed rules is allowed.
+		 *
+		 * For example:
+		 *
+		 * ```js
+		 * // Rule: 'img'
+		 * filter.check( [ 'img', 'div' ] ) // -> true
+		 * filter.check( [ 'p', 'div' ] ) // -> false
+		 * ```
+		 *
 		 * **Note:** The `test` argument is of {@link CKEDITOR.filter.contentRule} type, which is
 		 * a limited version of {@link CKEDITOR.filter.allowedContentRules}. Read more about it
 		 * in the {@link CKEDITOR.filter.contentRule}'s documentation.
 		 *
-		 * @param {CKEDITOR.filter.contentRule} test
+		 * @param {CKEDITOR.filter.contentRule/CKEDITOR.filter.contentRule[]} test
 		 * @param {Boolean} [applyTransformations=true] Whether to use registered transformations.
 		 * @param {Boolean} [strictCheck] Whether the filter should check if an element with exactly
 		 * these properties is allowed.
@@ -753,11 +764,19 @@
 			// Element has been marked for removal.
 			if ( toBeRemoved.length > 0 ) {
 				result = false;
-			// Compare only left to right, because clone may be only trimmed version of original element.
-			} else if ( !CKEDITOR.tools.objectCompare( element.attributes, clone.attributes, true ) ) {
-				result = false;
-			} else {
-				result = true;
+			}
+			else {
+				// We need to compare class alphabetically, because cloned element is created in such way (#727).
+				var originClassNames = element.attributes[ 'class' ];
+				if ( originClassNames ) {
+					element.attributes[ 'class' ] = element.attributes[ 'class' ].split( ' ' ).sort().join( ' ' );
+				}
+
+				result = CKEDITOR.tools.objectCompare( element.attributes, clone.attributes, true );
+
+				if ( originClassNames ) {
+					element.attributes[ 'class' ] = originClassNames;
+				}
 			}
 
 			// Cache result of this test - we can build cache only for string tests.
@@ -1714,11 +1733,8 @@
 		switch ( element.name ) {
 			case 'a':
 				// Code borrowed from htmlDataProcessor, so ACF does the same clean up.
-				if ( !( element.children.length || element.attributes.name ) )
-					// Upated by Craig Dietrich 6 May 2015
-					// This, along with filter.onElement, removes empty <a> tags
-					//return false;
-					return true;
+				if ( !( element.children.length || element.attributes.name || element.attributes.id ) )
+					return false;
 				break;
 			case 'img':
 				if ( !element.attributes.src )
@@ -2163,35 +2179,19 @@
 				return;
 			}
 
-			var widths = element.styles.border.match( /([\.\d]+\w+)/g ) || [ '0px' ];
-			switch ( widths.length ) {
-				case 1:
-					element.styles[ 'border-width' ] = widths[0];
-					break;
-				case 2:
-					mapStyles( [ 0, 1, 0, 1 ] );
-					break;
-				case 3:
-					mapStyles( [ 0, 1, 2, 1 ] );
-					break;
-				case 4:
-					mapStyles( [ 0, 1, 2, 3 ] );
-					break;
-			}
+			var borderSplittedStyles = CKEDITOR.tools.style.parse.border( element.styles.border );
 
-			element.styles[ 'border-style' ] = element.styles[ 'border-style' ] ||
-				( element.styles.border.match( /(none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset|initial|inherit)/ ) || [] )[ 0 ];
-			if ( !element.styles[ 'border-style' ] )
-				delete element.styles[ 'border-style' ];
+			if ( borderSplittedStyles.color ) {
+				element.styles[ 'border-color' ] = borderSplittedStyles.color;
+			}
+			if ( borderSplittedStyles.style ) {
+				element.styles[ 'border-style' ] = borderSplittedStyles.style;
+			}
+			if ( borderSplittedStyles.width ) {
+				element.styles[ 'border-width' ] = borderSplittedStyles.width;
+			}
 
 			delete element.styles.border;
-
-			function mapStyles( map ) {
-				element.styles['border-top-width'] = widths[ map[0] ];
-				element.styles['border-right-width'] = widths[ map[1] ];
-				element.styles['border-bottom-width'] = widths[ map[2] ];
-				element.styles['border-left-width'] = widths[ map[3] ];
-			}
 		},
 
 		listTypeToStyle: function( element ) {
@@ -2321,7 +2321,7 @@
  *	* {@link CKEDITOR.filter.allowedContentRules} &ndash; defined rules will be added
  *	to the {@link CKEDITOR.editor#filter}.
  *	* `true` &ndash; will disable the filter (data will not be filtered,
- *	all features will be activated). Reading [security best practices](#!/guide/dev_best_practices) before setting `true` is recommended.
+ *	all features will be activated). Reading {@glink guide/dev_best_practices security best practices} before setting `true` is recommended.
  *	* default &ndash; the filter will be configured by loaded features
  *	(toolbar items, commands, etc.).
  *
@@ -2348,8 +2348,8 @@
  * useful when you want to "trim down" the content allowed by default by
  * editor features. To do that, use the {@link #disallowedContent} option.
  *
- * Read more in the [documentation](#!/guide/dev_acf)
- * and see the [SDK sample](http://sdk.ckeditor.com/samples/acf.html).
+ * Read more in the {@glink guide/dev_acf documentation}
+ * and see the [SDK sample](https://sdk.ckeditor.com/samples/acf.html).
  *
  * @since 4.1
  * @cfg {CKEDITOR.filter.allowedContentRules/Boolean} [allowedContent=null]
@@ -2379,8 +2379,8 @@
  *			}
  *		} );
  *
- * Read more in the [documentation](#!/guide/dev_acf-section-automatic-mode-and-allow-additional-tags%2Fproperties)
- * and see the [SDK sample](http://sdk.ckeditor.com/samples/acf.html).
+ * Read more in the [documentation](#!/guide/dev_acf-section-automatic-mode-and-allow-additional-tagsproperties)
+ * and see the [SDK sample](https://sdk.ckeditor.com/samples/acf.html).
  * See also {@link CKEDITOR.config#allowedContent} for more details.
  *
  * @since 4.1
@@ -2390,10 +2390,10 @@
 
 /**
  * Disallowed content rules. They have precedence over {@link #allowedContent allowed content rules}.
- * Read more in the [Disallowed Content guide](#!/guide/dev_disallowed_content).
+ * Read more in the {@glink guide/dev_disallowed_content Disallowed Content guide}.
  *
- * Read more in the [documentation](#!/guide/dev_acf-section-automatic-mode-but-disallow-certain-tags%2Fproperties)
- * and see the [SDK sample](http://sdk.ckeditor.com/samples/acf.html).
+ * Read more in the [documentation](#!/guide/dev_acf-section-automatic-mode-but-disallow-certain-tagsproperties)
+ * and see the [SDK sample](https://sdk.ckeditor.com/samples/acf.html).
  * See also {@link CKEDITOR.config#allowedContent} and {@link CKEDITOR.config#extraAllowedContent}.
  *
  * @since 4.4
@@ -2409,7 +2409,7 @@
  *
  * This event is useful when testing whether the {@link CKEDITOR.config#allowedContent}
  * setting is sufficient and correct for a system that is migrating to CKEditor 4.1
- * (where the [Advanced Content Filter](#!/guide/dev_advanced_content_filter) was introduced).
+ * (where the {@glink guide/dev_advanced_content_filter Advanced Content Filter} was introduced).
  *
  * @since 4.1
  * @event dataFiltered
@@ -2418,12 +2418,12 @@
  */
 
 /**
- * Virtual class which is the [Allowed Content Rules](#!/guide/dev_allowed_content_rules) formats type.
+ * Virtual class which is the {@glink guide/dev_allowed_content_rules Allowed Content Rules} formats type.
  *
  * Possible formats are:
  *
- *	* the [string format](#!/guide/dev_allowed_content_rules-section-2),
- *	* the [object format](#!/guide/dev_allowed_content_rules-section-3),
+ *	* the [string format](#!/guide/dev_allowed_content_rules-section-string-format),
+ *	* the [object format](#!/guide/dev_allowed_content_rules-section-object-format),
  *	* a {@link CKEDITOR.style} instance &ndash; used mainly for integrating plugins with Advanced Content Filter,
  *	* an array of the above formats.
  *
@@ -2440,7 +2440,7 @@
  * Only the string format and object format are accepted. Required properties
  * are not allowed in this format.
  *
- * Read more in the [Disallowed Content guide](#!/guide/dev_disallowed_content).
+ * Read more in the {@glink guide/dev_disallowed_content Disallowed Content guide}.
  *
  * @since 4.4
  * @class CKEDITOR.filter.disallowedContentRules
@@ -2495,7 +2495,7 @@
  * then it registers allowed content rules required by this feature (see {@link #allowedContent}) along
  * with two kinds of transformations: {@link #contentForms} and {@link #contentTransformations}.
  *
- * By default all buttons that are included in [toolbar layout configuration](#!/guide/dev_toolbar)
+ * By default all buttons that are included in {@glink guide/dev_toolbar toolbar layout configuration}
  * are checked and registered with {@link CKEDITOR.editor#addFeature}, all styles available in the
  * 'Format' and 'Styles' drop-down lists are checked and registered too and so on.
  *
