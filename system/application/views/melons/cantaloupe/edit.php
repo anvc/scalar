@@ -487,7 +487,7 @@ $(document).ready(function() {
 			}
 		}
 		if($('#editorial_state').val() == 'ready'){
-			$('#editorial_state_button_container .published').remove();
+			$('#editorial_state_button_container .published, .saveAndMove.published').remove();
 		}
 	}
 	if($('link#editorial_workflow').length > 0){
