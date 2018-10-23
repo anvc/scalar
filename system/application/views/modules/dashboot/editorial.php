@@ -45,20 +45,20 @@ STR;
     'author': {
       'draft': {
         'all': {
-          'current_task': 'Continue working until you\'re ready to submit it for editing.',
-          'next_task': 'When you\'re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
+          'current_task': 'Continue working until you&rsquo;re ready to submit it for editing.',
+          'next_task': 'When you&rsquo;re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
           'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
           'next_task_ids': ['allToEdit']
         },
         'majority': {
-          'current_task': 'Continue working on the <strong>Draft</strong> portions until you\'re ready to submit them for editing.',
-          'next_task': 'When you\'re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
+          'current_task': 'Continue working on the <strong>Draft</strong> portions until you&rsquo;re ready to submit them for editing.',
+          'next_task': 'When you&rsquo;re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
           'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
           'next_task_ids': ['allToEdit']
         },
         'minority': {
-          'current_task': 'Continue working on the <strong>Draft</strong> portions until you\'re ready to submit them for editing.',
-          'next_task': 'When you\'re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
+          'current_task': 'Continue working on the <strong>Draft</strong> portions until you&rsquo;re ready to submit them for editing.',
+          'next_task': 'When you&rsquo;re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
           'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
           'next_task_ids': ['allToEdit']
         }
@@ -136,7 +136,7 @@ STR;
       'published': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Any changes you make to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'\'s current state.',
+          'next_task': 'Any changes you make to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'&rsquo;s current state.',
           'next_task_buttons': ['Create a new edition'],
           'next_task_ids': ['newEdition']
         }
@@ -220,19 +220,19 @@ STR;
       'ready': {
         'all': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'\'s current state as well, create an edition.',
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'&rsquo;s current state as well, create an edition.',
           'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'majority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'\'s current state as well, create an edition.',
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'&rsquo;s current state as well, create an edition.',
           'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'minority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'\'s current state as well, create an edition.',
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'&rsquo;s current state as well, create an edition.',
           'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         }
@@ -260,7 +260,7 @@ STR;
       'published': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Any changes made to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'\'s current state.',
+          'next_task': 'Any changes made to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'&rsquo;s current state.',
           'next_task_buttons': ['Create a new edition'],
           'next_task_ids': ['newEdition']
         }
@@ -274,7 +274,7 @@ STR;
       'publishedWithEditionSet': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Once an edition is created, its content cannot be changed. Switch to the <strong>Latest edits</strong> edition to see the '+project_type+'\'s current state.'
+          'next_task': 'Once an edition is created, its content cannot be changed. Switch to the <strong>Latest edits</strong> edition to see the '+project_type+'&rsquo;s current state.'
         }
       },
       'empty': {
@@ -486,7 +486,7 @@ STR;
           } else if (editorial_state.id == 'empty') {
             $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is '+editorial_state['name']+'.</strong><br>'+current_messaging['current_task']+'</p>');
           } else if (edition_is_set) {
-            $('#primary-message').prepend('<p><strong>The "'+edition_name+'" edition of this '+project_type+' is published.</strong><br>'+current_messaging['current_task']+'</p>');
+            $('#primary-message').prepend('<p><strong>The &ldquo;'+edition_name+'&rdquo; edition of this '+project_type+' is published.</strong><br>'+current_messaging['current_task']+'</p>');
           } else {
             $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
           }
@@ -507,9 +507,9 @@ STR;
                 }
               }
               $('.editorial-fragment').each(function() {
-                $(this).popover({ 
-                  trigger: "hover click", 
-                  html: true, 
+                $(this).popover({
+                  trigger: "hover click",
+                  html: true,
                   template: '<div class="popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
                 });
               });
@@ -542,7 +542,7 @@ STR;
             var button = $('<button class="btn btn-block btn-state '+editorial_state['next']+'-state">'+current_messaging['next_task_buttons'][index]+'</button>').appendTo($('#secondary-message'));
             switch (current_messaging['next_task_ids'][index]) {
               case 'allToEdit':
-              button.click(function() { 
+              button.click(function() {
                 if (moveContentFromOneStateToAnother('draft', 'edit')) {
                   button.prop('disabled', 'disabled');
                 }
@@ -593,11 +593,11 @@ STR;
   $(document).ready(function() {
 	state_info_base_html = $('.editorial-summary').html();
     $('body').on('updateGraph',recalculate_graphs).trigger('updateGraph');
-    
+
     // Select edition to be viewing
     $(document).on("click", "#select_edition a", function() {
       if (!navigator.cookieEnabled) {
-        alert('Your browser doesn\'t have cookies enabled. Your edition selection will not be preserved.');
+        alert('Your browser doesn&rsquo;t have cookies enabled. Your edition selection will not be preserved.');
         return;
       };
       var $selected = $(this);
@@ -614,7 +614,7 @@ STR;
 
   	$('#confirmEditorialWorkflow').find('form').submit(function(event) {
   		if (!parseInt($(this).find('[name="enable"]').val())) {
-  			selectEditionByIndex(null);	
+  			selectEditionByIndex(null);
   		};
   		return true;
   	});
@@ -667,7 +667,7 @@ STR;
   		var $modal = $(this);
   		$body = $modal.find('.modal-body:first');
   		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
-  			if ('undefined'==typeof(json) || null === json) json = [];	
+  			if ('undefined'==typeof(json) || null === json) json = [];
   			if ('undefined'!=typeof(json.error) && json.error.length) {
   				alert('There was an error attempting to get Editions: '+json.error);
   				return;
@@ -710,7 +710,7 @@ STR;
   						var value = $cell.find('input').val();
   						var replace = value.slice();
   						$.post($('link#sysroot').attr('href')+'system/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
-  							$cell.data('is_saving', false);	
+  							$cell.data('is_saving', false);
   							if ('undefined'!=typeof(data.error) && data.error.length) {
   								alert(data.error);
   								return;
@@ -719,7 +719,7 @@ STR;
   							$cell.removeClass('collapse_padding');
   							$cell.data('is_editing', false);
   							replace = data[index].title;
-  							$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');		
+  							$cell.html('<a href="'+$cell.data('href')+'">'+replace+'</a>');
   							var $select_edition = $('#select_edition');
   							$select_edition.find('li.divider').nextAll().remove();
                				var latestEditionTitle = data[data.length-1].title;
@@ -729,7 +729,7 @@ STR;
   								var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
   								$li.find('a').attr('data-title', data[j].title);
   							};
-  							$select_edition.find('a[data-index="'+cindex+'"]').click();					
+  							$select_edition.find('a[data-index="'+cindex+'"]').click();
   						}, 'json');
   					} else {
   						$cell.data('is_editing', true);
@@ -803,7 +803,7 @@ STR;
         useEditorialRules:true
   	};
   	$selector.node_selection_dialogue(node_options);
-    
+
   }); // load
 
 </script>
@@ -862,7 +862,7 @@ STR;
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
-      <input type="hidden" name="book_id" value="<?=$book->book_id?>" />  
+      <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <input type="hidden" name="enable" value="0" />
       <div class="modal-header">
@@ -886,7 +886,7 @@ STR;
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="return false;">
-      <input type="hidden" name="book_id" value="<?=$book->book_id?>" />  
+      <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <div class="modal-header">
       	<h4>Manage editions</h4>
@@ -938,7 +938,7 @@ STR;
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
-      <input type="hidden" name="book_id" value="<?=$book->book_id?>" />  
+      <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <input type="hidden" name="enable" value="1" />
       <div class="modal-header">
@@ -966,10 +966,10 @@ STR;
       <?=$book->scope?> by clicking the button below, or <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">learn more</a>.
       </p>
       <p>
-      <strong>The database for this Scalar install hasn't been updated to support Editorial Workflow features.</strong> 
+      <strong>The database for this Scalar install hasn't been updated to support Editorial Workflow features.</strong>
       </p>
       <p>
-      Contact a system administrator to <a href="https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time" target="_blank">update Scalar's database</a>. 
+      Contact a system administrator to <a href="https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time" target="_blank">update Scalar's database</a>.
       </p>
     </section>
   </div>
