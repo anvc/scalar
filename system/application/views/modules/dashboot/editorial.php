@@ -45,20 +45,20 @@ STR;
     'author': {
       'draft': {
         'all': {
-          'current_task': 'Continue working until you’re ready to submit it for editing.',
-          'next_task': 'When you’re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
+          'current_task': 'Continue working until you\'re ready to submit it for editing.',
+          'next_task': 'When you\'re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
           'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
           'next_task_ids': ['allToEdit']
         },
         'majority': {
-          'current_task': 'Continue working on the <strong>Draft</strong> portions until you’re ready to submit them for editing.',
-          'next_task': 'When you’re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
+          'current_task': 'Continue working on the <strong>Draft</strong> portions until you\'re ready to submit them for editing.',
+          'next_task': 'When you\'re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
           'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
           'next_task_ids': ['allToEdit']
         },
         'minority': {
-          'current_task': 'Continue working on the <strong>Draft</strong> portions until you’re ready to submit them for editing.',
-          'next_task': 'When you’re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
+          'current_task': 'Continue working on the <strong>Draft</strong> portions until you\'re ready to submit them for editing.',
+          'next_task': 'When you\'re ready, click the button below to move all <strong>Draft</strong> content into the <strong>Edit</strong> state so it can be reviewed.',
           'next_task_buttons': ['Move all <strong>Draft</strong> content to <strong>Edit</strong>'],
           'next_task_ids': ['allToEdit']
         }
@@ -136,7 +136,7 @@ STR;
       'published': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Any changes you make to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'’s current state.',
+          'next_task': 'Any changes you make to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'\'s current state.',
           'next_task_buttons': ['Create a new edition'],
           'next_task_ids': ['newEdition']
         }
@@ -220,19 +220,19 @@ STR;
       'ready': {
         'all': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'\'s current state as well, create an edition.',
           'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'majority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'\'s current state as well, create an edition.',
           'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         },
         'minority': {
           'current_task': 'Publish it whenever the time is right.',
-          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'’s current state as well, create an edition.',
+          'next_task': 'Move content into the <strong>Published</strong> state to make it public. If you need to preserve the '+project_type+'\'s current state as well, create an edition.',
           'next_task_buttons': ['Move all content to <strong>Published</strong>','Move content to <strong>Published</strong> and<br/>create a new edition'],
           'next_task_ids': ['allToPublished','newEdition']
         }
@@ -260,7 +260,7 @@ STR;
       'published': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Any changes made to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'’s current state.',
+          'next_task': 'Any changes made to the '+project_type+' will be published automatically. Create an edition to preserve the '+project_type+'\'s current state.',
           'next_task_buttons': ['Create a new edition'],
           'next_task_ids': ['newEdition']
         }
@@ -274,7 +274,7 @@ STR;
       'publishedWithEditionSet': {
         'all': {
           'current_task': 'Congratulations!',
-          'next_task': 'Once an edition is created, its content cannot be changed. Switch to the <strong>Latest edits</strong> edition to see the '+project_type+'’s current state.'
+          'next_task': 'Once an edition is created, its content cannot be changed. Switch to the <strong>Latest edits</strong> edition to see the '+project_type+'\'s current state.'
         }
       },
       'empty': {
@@ -402,7 +402,7 @@ STR;
         }
     }
     return "";
-	}
+  }
 
   function clearEditionCookie() {
     document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
@@ -486,7 +486,7 @@ STR;
           } else if (editorial_state.id == 'empty') {
             $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is '+editorial_state['name']+'.</strong><br>'+current_messaging['current_task']+'</p>');
           } else if (edition_is_set) {
-            $('#primary-message').prepend('<p><strong>The “'+edition_name+'” edition of this '+project_type+' is published.</strong><br>'+current_messaging['current_task']+'</p>');
+            $('#primary-message').prepend('<p><strong>The "'+edition_name+'" edition of this '+project_type+' is published.</strong><br>'+current_messaging['current_task']+'</p>');
           } else {
             $('#primary-message').prepend('<p><strong>'+editorial_quantifiers[editorial_quantifier]+' '+project_type+' is in the '+editorial_state['name']+' state.</strong><br>'+current_messaging['current_task']+'</p>');
           }
@@ -496,7 +496,7 @@ STR;
           var key;
           var item_quantifier;
           if(scope !== 'usageOnly'){
-            $('.editorial-gauge').fadeOut(100,function(){
+            $('.editorial-gauge').fadeOut(100,function() {
               $(this).html('');
               for (var index in editorial_state_array) {
                 key = editorial_state_array[index];
@@ -946,7 +946,7 @@ STR;
       </div>
       <div class="modal-body caption_font">
        	  <p><b>Are you sure you wish to enable the Editorial Workflow for this <?=$book->scope?>?</b><br /><br />
-       	  This affects the <?=$book->scope?>’s public availability, editor features, editing permissions, and more. Be sure you’re familiar with <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">how the Editorial Workflow works</a> before proceeding.</p>
+       	  This affects the <?=$book->scope?>'s public availability, editor features, editing permissions, and more. Be sure you're familiar with <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">how the Editorial Workflow works</a> before proceeding.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
