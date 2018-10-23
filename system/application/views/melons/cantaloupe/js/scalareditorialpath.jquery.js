@@ -197,13 +197,14 @@
                 case 0:
                     //Check to see if we have an edition cookie (and that it matches the current list of editions) - if so, put up a message and stop setup!
                     var editionName = $('span[typeof="scalar:Edition"][resource="'+$('a[rel="scalar:hasEdition"]').attr('href')+'"] .metadata[property="dcterms:title"]').text();
-                    if(!!editionName && document.cookie.match(/^(.*;)?\s*scalar_edition_index\s*=\s*[^;]+(.*)?$/)){
+                    var regex = new RegExp("^(.*;)?\s*"+editionCookieName()+"\s*=\s*[^;]+(.*)?$");
+                    if(!!editionName && document.cookie.match(regex)){
                         $('#editorialSidePanel').siblings('div').removeClass('col-md-9');
                         $('#editorialSidePanel').remove();
                         $('#pathHeading>p').text('The editorial path is currently inaccessible because you are viewing the published edition, \"'+editionName+'\"');
                         var $resetCookieButton = $('<button class="btn btn-primary">Go to Latest Edits</button>').click(function(e){
                             e.preventDefault();
-                            document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+                            document.cookie = editionCookieName()+"=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
                             location.reload();
                         });
                         $('#pathOrderSelectionContainer').replaceWith($resetCookieButton);

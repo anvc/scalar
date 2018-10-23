@@ -405,12 +405,12 @@ STR;
   }
 
   function clearEditionCookie() {
-    document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+    document.cookie = editionCookieName()+"=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
   }
 
   function recalculate_graphs(e,scope){
     if (typeof scope === 'undefined' || scope == null || scope == '') scope = 'all';
-    var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+    var index = (navigator.cookieEnabled) ? getCookie(editionCookieName()) : '';
     $.ajax({
       url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id+((''!==index)?'&edition_index='+index:''),
       success: function(data) {
@@ -450,8 +450,8 @@ STR;
           }
 
           var has_editions = $('.row.editions').length > 0;
-          var edition_is_set = '' !== getCookie('scalar_edition_index');
-          var edition_name = $('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]').text();
+          var edition_is_set = '' !== getCookie(editionCookieName());
+          var edition_name = $('#select_edition').find('a[data-index="'+getCookie(editionCookieName())+'"]').text();
           var proxy_editorial_state = editorial_state;
           if (has_editions) {
             if (editorial_state.id == 'ready') {
@@ -585,7 +585,7 @@ STR;
       if (null===index) {
         clearEditionCookie();
       } else {
-        document.cookie = "scalar_edition_index="+index+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
+        document.cookie = editionCookieName()+"="+index+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
       };
   }
 
@@ -608,8 +608,8 @@ STR;
       $('.selector').data('node_selection_dialogue').refresh_nodes();
     });
 
-  	if (navigator.cookieEnabled && ''!==getCookie('scalar_edition_index')) {
-      highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie('scalar_edition_index')+'"]'));
+  	if (navigator.cookieEnabled && ''!==getCookie(editionCookieName())) {
+      highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie(editionCookieName())+'"]'));
   	};
 
   	$('#confirmEditorialWorkflow').find('form').submit(function(event) {
@@ -646,7 +646,7 @@ STR;
           var latestEditionTitle = obj[obj.length-1].title;
           $('.edition_title').text(latestEditionTitle);
 
-          var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+          var index = (navigator.cookieEnabled) ? getCookie(editionCookieName()) : '';
           for (var j = obj.length-1; j >= 0; j--) {
             var $li = $('<li'+((index!=='' && j==parseInt(index))?' class="active"':'')+'><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
             $li.find('a').attr('data-title', obj[j].title);
@@ -724,7 +724,7 @@ STR;
   							$select_edition.find('li.divider').nextAll().remove();
                				var latestEditionTitle = data[data.length-1].title;
                				$('.edition_title').text(latestEditionTitle);
-  							var cindex = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+  							var cindex = (navigator.cookieEnabled) ? getCookie(editionCookieName()) : '';
   						    for (var j = data.length-1; j >= 0; j--) {
   								var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
   								$li.find('a').attr('data-title', data[j].title);
@@ -755,7 +755,7 @@ STR;
   						var index = parseInt($(this).closest('tr').data('index'));
   						$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
   							$('#manageEditions').trigger('show.bs.modal');
-  							document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+  							document.cookie = editionCookieName()+"=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
   							var $select_edition = $('#select_edition');
   							$select_edition.find('li.divider').nextAll().remove();
                				if (obj.length == 0) {
@@ -764,7 +764,7 @@ STR;
                				}
              				var latestEditionTitle = obj[obj.length-1].title;
                				$('.edition_title').text(latestEditionTitle);
-  							var index = (navigator.cookieEnabled) ? getCookie('scalar_edition_index') : '';
+  							var index = (navigator.cookieEnabled) ? getCookie(editionCookieName()) : '';
   						    for (var j = obj.length-1; j >= 0; j--) {
   								var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
   								$li.find('a').attr('data-title', obj[j].title);

@@ -33,6 +33,12 @@ $(window).on('scroll',function() {
     $(window).off('scroll');
   }, 5);
 });
+// The edition cookie is asked for on more than one page
+function editionCookieName() {
+  var url = book_url;
+  if (url.slice(-1) == '/') url = url.substr(0, url.length-1);
+  return 'scalar_edition_index_'+url.replace(/^(https?:|)\/\//, '').replace(/[/]/g, '_').replace(/\W/g, '');
+}
 </script>
 
 <div class="bgcolor">

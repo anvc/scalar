@@ -166,7 +166,8 @@ class MY_Controller extends CI_Controller {
 		
 		$is_editing = ('edit' == get_ext($this->uri->uri_string())) ? true : false;
 		$edition_index = $this->data['url_params']['edition_index'];
-		$cookie_edition_index = (isset($_COOKIE['scalar_edition_index'])) ? (int) $_COOKIE['scalar_edition_index'] : null;
+		$cookie_name = edition_cookie_name(base_url().$this->data['book']->slug);
+		$cookie_edition_index = (isset($_COOKIE[$cookie_name])) ? (int) $_COOKIE[$cookie_name] : null;
 		
 		// The edition and version numbers to-be-routed-to based on the various forks below
 		$edition_num = null;

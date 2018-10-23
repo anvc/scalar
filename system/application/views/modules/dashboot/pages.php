@@ -41,11 +41,11 @@ $(document).ready(function() {
 			?>
 		};
 		var currentEdition = 'Latest Edits';
-		if(navigator.cookieEnabled && '' !== getCookie('scalar_edition_index')){
-			currentEdition = editions[getCookie('scalar_edition_index')];
+		if(navigator.cookieEnabled && '' !== getCookie(editionCookieName())){
+			currentEdition = editions[getCookie(editionCookieName())];
 		}
 
-		var $currentEditionViewText = $('<h4 id="currentEditionViewText" class="container">Currently viewing content from the  “<strong>'+currentEdition+'</strong>” edition.</h4>').appendTo('#tabs-pages');
+		var $currentEditionViewText = $('<h4 id="currentEditionViewText" class="container">Currently viewing content from the "<strong>'+currentEdition+'</strong>" edition.</h4>').appendTo('#tabs-pages');
 	<?php } ?>
 
 	var $selector = $('<div class="selector" style="width: 100%; margin-top:-10px; padding-left:15px; padding-right:15px;"></div>').appendTo('#tabs-pages');

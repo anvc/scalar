@@ -18,10 +18,10 @@
  */
 
 /**
- * @projectDescription  Boot Scalar Javascript/jQuery using yepnope.js
+ * @projectDescription  Boot Scalar Javascript/jQuery using yepnope.js + some global functions
  * @author              Erik Loyer
  * @author				Craig Dietrich
- * @version             Cantaloupe 1.1
+ * @version             Cantaloupe
  */
 
 var ViewState = {
@@ -347,6 +347,12 @@ function getAuthorCredit() {
     return authorString;
 }
 
+function editionCookieName() {
+	var url = $('link#parent').attr('href');
+	if (url.slice(-1) == '/') url = url.substr(0, url.length-1);
+	if (url.indexOf('.') != -1) url = url.substr(0, url.lastIndexOf('.'));
+	return 'scalar_edition_index_'+url.replace(/^(https?:|)\/\//, '').replace(/[/]/g, '_').replace(/\W/g, '');
+}
 
 /**
  * Create a slot and attach to a tag (ported from honeydew slot manager)

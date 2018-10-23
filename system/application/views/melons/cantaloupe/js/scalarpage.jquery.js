@@ -1174,10 +1174,10 @@
                 temp.pop();
                 var base_url = temp.join('.');
                 if (editionData == null) {
-                    document.cookie = "scalar_edition_index=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
+                    document.cookie = editionCookieName()+"=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
                     newUrl = base_url + '/' + scalarapi.model.getCurrentPageNode().slug;
                 } else {
-                    document.cookie = "scalar_edition_index="+(editionNum-1)+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
+                    document.cookie = editionCookieName()+"="+(editionNum-1)+"; path=/";  // Cookie (not localStorage) so that PHP can get to it
                     var decodedCookie = decodeURIComponent(document.cookie);
                     newUrl = base_url + '.' + editionNum + '/' + scalarapi.model.getCurrentPageNode().slug;
                 }

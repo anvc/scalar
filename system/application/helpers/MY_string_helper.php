@@ -19,6 +19,15 @@ function search_split_terms($terms){
 	return $out;
 }
 
+function edition_cookie_name($url) {  // This mimics cookieName() in javascript
+	
+	$url= preg_replace('#^https?://#', '', $url);
+	$url = str_replace('/', '_', $url);
+	$url= preg_replace("/[^a-zA-Z0-9_]+/", "", $url);
+	return 'scalar_edition_index_'.$url;
+	
+}
+
 // http://www.phpro.org/examples/Find-Position-Of-Nth-Occurrence-Of-String.html
 function strposOffset($search, $string, $offset) {
     $arr = explode($search, $string);
