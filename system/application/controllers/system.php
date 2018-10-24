@@ -1104,6 +1104,7 @@ class System extends MY_Controller {
 					if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
 					$version_ids = $this->books->save_editorial_states($book_id, $state, true, $only_if_in_state, $user_id);
 					$this->data['content'] = array('version_ids'=>$version_ids,'state'=>$state);
+					if (null!==$user_id) $this->data['content']['user_id'] = $user_id;
 				}
 				break;
 			case 'delete_content_path_links':
