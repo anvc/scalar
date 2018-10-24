@@ -20,6 +20,8 @@ STR;
 <script>
   var user_type = '<?echo($user_level_as_defined);?>'.toLowerCase();
   var project_type = '<?echo($book->scope);?>';
+	var user_data = null;
+	getUserData();
 
   // editorial constants
   var editorial_state_array = ['hidden','draft','edit','editreview','clean','ready','published'];
@@ -292,10 +294,19 @@ STR;
     }
   }
 
+	function getUserData() {
+		$.ajax({
+			url: $('link#parent').attr('href')+'login_status',
+			success: function(data) {
+				user_data = data;
+			}
+		});
+	}
+
   function moveAllContentToState(newState, successHandler) {
     if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
       $.ajax({
-        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState,
+        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState+(user_data != null?'&user_id='+user_data.user_id:''),
         success: function(data) {
           if (successHandler == null) {
             location.reload();
@@ -316,7 +327,7 @@ STR;
   function moveContentFromOneStateToAnother(oldState, newState) {
     if (confirm("Are you sure you want to move all content in the "+editorial_states[oldState].name+" state to the "+editorial_states[newState].name+" state?")) {
       $.ajax({
-        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&only_if_in_state='+oldState+'&state='+newState,
+        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&only_if_in_state='+oldState+'&state='+newState+(user_data != null?'&user_id='+user_data.user_id:''),
         success: function(data) {
           location.reload();
         },
@@ -340,9 +351,13 @@ STR;
       changes_warning = 'Some of the selected '+editorial_states[previousState].name+' content may have pending changes - by moving this content to the '+editorial_states[newState].name+' state, you are accepting all changes. ';
     }
     if (confirm(changes_warning+"Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
+			var data = {version_id:version_ids,state:newState};
+			if (user_data != null) {
+				data.user_id = user_data.user_id;
+			}
     	$.ajax({
     		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
-    		data: {version_id:version_ids,state:newState},
+    		data: data,
     		success: function(data) {
     		  $('.selector').data('node_selection_dialogue').refresh_nodes();
           $('body').trigger('updateGraph','statesOnly');
