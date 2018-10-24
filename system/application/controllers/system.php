@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -21,7 +21,7 @@
 /**
  * @projectDescription		System controller for displaying book index and handling admin tasks such as login and dashboard area
  * @author					Craig Dietrich
- * @version					2.2
+ * @version					2.3
  */
 
 class System extends MY_Controller {
@@ -1066,6 +1066,7 @@ class System extends MY_Controller {
 				if (empty($book_id) && empty($version_id)) die ("{'error':'Invalid request'}");
 				$states = array('draft','edit','editreview','clean','ready','published');
 				if (empty($state) || !in_array($state,$states)) die ("{'error':'Invalid state'}");
+				$user_id = (isset($_REQUEST['user_id'])) ? (int) $_REQUEST['user_id'] : null;
 				if (is_int($version_id)) {  // Change a single page to a state
 					$this->load->model('page_model', 'pages');
 					$this->load->model('version_model', 'versions');
@@ -1074,8 +1075,11 @@ class System extends MY_Controller {
 					$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 					$this->set_user_book_perms();
 					if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
-					$this->versions->save(array('id'=>$version_id,'editorial_state'=>$state));
+					$save = array('id'=>$version_id,'editorial_state'=>$state);
+					if (null!==$user_id) $save['user'] = $user_id;
+					$this->versions->save($save);
 					$this->data['content'] = array('version_id'=>$version_id,'state'=>$state);
+					if (null!==$user_id) $this->data['content']['user_id'] = $user_id;
 				} elseif (is_array($version_id)) {  // Save some pages to a state
 					$this->load->model('page_model', 'pages');
 					$this->load->model('version_model', 'versions');
@@ -1086,16 +1090,19 @@ class System extends MY_Controller {
 						$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 						$this->set_user_book_perms();
 						if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
-						$this->versions->save(array('id'=>$id,'editorial_state'=>$state));
+						$save = array('id'=>$id,'editorial_state'=>$state);
+						if (null!==$user_id) $save['user'] = $user_id;
+						$this->versions->save($save);
 					}
 					$this->data['content'] = array('version_id'=>$version_id,'state'=>$state);
+					if (null!==$user_id) $this->data['content']['user_id'] = $user_id;
 				} else {  // Change all pages in the book to a state
 					$only_if_in_state = (isset($_REQUEST['only_if_in_state']) && !empty($_REQUEST['only_if_in_state'])) ? $_REQUEST['only_if_in_state'] : null;
 					if (!empty($only_if_in_state) && !in_array($only_if_in_state,$states)) die ("{'error':'Invalid only if in state'}");
 					$this->data['book'] = $this->books->get($book_id, false);
 					$this->set_user_book_perms();
 					if (!$this->login_is_book_admin()) die ("{'error':'Invalid permissions'}");
-					$version_ids = $this->books->save_editorial_states($book_id, $state, true, $only_if_in_state);
+					$version_ids = $this->books->save_editorial_states($book_id, $state, true, $only_if_in_state, $user_id);
 					$this->data['content'] = array('version_ids'=>$version_ids,'state'=>$state);
 				}
 				break;

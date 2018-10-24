@@ -864,7 +864,7 @@ class Book_model extends MY_Model {
 
     }
 
-    public function save_editorial_states($book_id=0, $state=null, $is_live=true, $only_if_in_state=null) {
+    public function save_editorial_states($book_id=0, $state=null, $is_live=true, $only_if_in_state=null, $user_id=null) {
 
     	$ci=&get_instance();
     	$ci->load->model("version_model","versions");
@@ -890,7 +890,9 @@ class Book_model extends MY_Model {
 
     	// Set states
     	foreach ($version_ids as $version_id) {
-    		$this->versions->save(array('id'=>$version_id,'editorial_state'=>$state));
+    		$save = array('id'=>$version_id,'editorial_state'=>$state);
+    		if (null!==$user_id) $save['user'] = $user_id;
+    		$this->versions->save($save);
     	}
     	return $version_ids;
 
