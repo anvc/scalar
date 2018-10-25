@@ -476,10 +476,6 @@
                           }else if(mediaType.type=='imageblank'){
                             delete entry.media;
                           }
-                          
-                          if(node.slug == 'nycdh-award'){
-                            console.log(node,entry);
-                          }
                         }else if(typeof node.thumbnail !== 'undefined' && node.thumbnail != null && node.thumbnail != '') {
                           entry.media = {
                             url : thumbnail_url,
@@ -599,7 +595,6 @@
                                 '<a href="' + node.url + '" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
-                        console.log(link,mediaContainer,galleryHeight);
                         page.addMediaElementForLink(link, mediaContainer, galleryHeight, {vcenter: true});
                     }
                };
