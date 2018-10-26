@@ -679,45 +679,50 @@ $editorialStates = array(
 	'ready' => 'Ready',
 	'published' => 'Published'
 );
+$canChangeState = (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?false:true;
 $currentQueries = (isset($page->versions) && isset($page->versions[$page->version_index]->editorial_queries)) ? htmlspecialchars($page->versions[$page->version_index]->editorial_queries) : htmlspecialchars('{"queries":[]}');
 $currentState = isset($page->versions)&&isset($page->versions[$page->version_index]->editorial_state)?$page->versions[$page->version_index]->editorial_state:'draft';
 $availableStates = array($currentState=>$editorialStates[$currentState]);
-$canChangeState = false;
-switch($currentState){
-	case 'draft':
-		if($currentRole == 'author'){
-			$availableStates = array_slice($editorialStates,0,2);
+if(!$canChangeState && $currentRole == 'commentator' && !isset($page->versions)){
+	$canChangeState = true;
+}
+if(!$canChangeState){
+	switch($currentState){
+		case 'draft':
+			if($currentRole == 'author'){
+				$availableStates = array_slice($editorialStates,0,2);
+				$canChangeState = true;
+			}
+			break;
+		case 'edit':
+			if($currentRole == 'editor'){
+				$availableStates = array_slice($editorialStates,0,3);
+				$canChangeState = true;
+			}
+			break;
+		case 'editreview':
+			if($currentRole == 'author'){
+				$availableStates = array_slice($editorialStates,1,3);
+				$canChangeState = true;
+			}
+			break;
+		case 'clean':
+			if($currentRole == 'editor'){
+				$availableStates = array_slice($editorialStates,2,3);
+				$canChangeState = true;
+			}
+			break;
+		case 'ready':
+			if($currentRole == 'editor'){
+				$availableStates = array_slice($editorialStates,3,3);
+				$canChangeState = true;
+			}
+			break;
+		case 'published':
+			$availableStates = $currentRole == 'editor'?array_slice($editorialStates,-2,2):array_slice($editorialStates,-1,1);
 			$canChangeState = true;
-		}
-		break;
-	case 'edit':
-		if($currentRole == 'editor'){
-			$availableStates = array_slice($editorialStates,0,3);
-			$canChangeState = true;
-		}
-		break;
-	case 'editreview':
-		if($currentRole == 'author'){
-			$availableStates = array_slice($editorialStates,1,3);
-			$canChangeState = true;
-		}
-		break;
-	case 'clean':
-		if($currentRole == 'editor'){
-			$availableStates = array_slice($editorialStates,2,3);
-			$canChangeState = true;
-		}
-		break;
-	case 'ready':
-		if($currentRole == 'editor'){
-			$availableStates = array_slice($editorialStates,3,3);
-			$canChangeState = true;
-		}
-		break;
-	case 'published':
-		$availableStates = $currentRole == 'editor'?array_slice($editorialStates,-2,2):array_slice($editorialStates,-1,1);
-		$canChangeState = true;
-		break;
+			break;
+	}
 }
 
 $nextState = end($availableStates);
@@ -730,6 +735,10 @@ if($currentState == 'published'){
 	}else{
 		$nextState = null;
 	}
+}
+
+if($currentRole == 'commentator'){
+	$nextState = null;
 }
 
 ?>
@@ -794,7 +803,7 @@ if($currentState == 'published'){
 			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>"<?=$canChangeState?'':' disabled'?> />
 		</div>
 	</div>
-	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1'): ?>
+	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $currentRole != 'commentator'): ?>
 
 		<div class="form-group statusGroup<?=isset($page->version_index)?'':' editingDisabled'?>">
 			<label class="col-sm-2">Status</label>
