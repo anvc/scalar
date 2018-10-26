@@ -1,6 +1,3 @@
-#cke_40 .cke_toolgroup{
-	padding: 0px;
-}
 .cke_button.cke_button__editorialtools{
 	padding: 2px 4px;
 }
@@ -321,7 +318,7 @@ a.inline.inlineWidget[data-widget="summary"] {
 body.isReviewing span[data-diff="chunk"]{
 	cursor: pointer;
 }
-.editingDisabled:not(#edit_content),.disabled,body.isReviewing .cke_button__source,#edit_content.editingDisabled .cke_toolbar:not(#cke_40){
+.editingDisabled:not(#edit_content),.disabled,body.isReviewing .cke_button__source,#edit_content.editingDisabled .cke_toolbar:not(#cke_40, #cke_41){
 	filter: gray;
 	filter: grayscale(100%);
 	pointer-events: none;
