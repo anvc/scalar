@@ -40,7 +40,8 @@ if (!empty($tklabels)) {
 	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
 }
 $css = <<<END
-
+.cke_button.cke_button__removeformat{border: 1px solid rgba(200,50,50,.25); background-color: rgba(200,50,50,.125); box-shadow: 0 0 10px rgba(255,0,0,.125) inset;border: none;}
+.cke_button.cke_button__removeformat:hover{box-shadow: none;}
 article > *:not(span) {display:none !important;}
 .ci-template-html {font-family:Georgia,Times,serif !important; padding-left:7.2rem; padding-right:7.2rem;}
 .body_copy {max-width:100% !important;}
