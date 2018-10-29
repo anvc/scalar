@@ -40,7 +40,7 @@ if (!empty($tklabels)) {
 	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
 }
 $css = <<<END
-.cke_button.cke_button__removeformat{border: 1px solid rgba(200,50,50,.25); background-color: rgba(200,50,50,.125); box-shadow: 0 0 10px rgba(255,0,0,.125) inset;border: none;}
+.cke_button.cke_button__removeformat{border: 1px solid rgba(200,50,50,.3); background-color: rgba(200,50,50,.2); box-shadow: 0 0 10px rgba(255,0,0,.2) inset;border: none;}
 .cke_button.cke_button__removeformat:hover{box-shadow: none;}
 article > *:not(span) {display:none !important;}
 .ci-template-html {font-family:Georgia,Times,serif !important; padding-left:7.2rem; padding-right:7.2rem;}
@@ -481,7 +481,7 @@ $(document).ready(function() {
 			var version_timestamp = new Date(version_date);
 			if(version_timestamp <= edition_timestamp){
 				has_edition = true;
-				
+
 				if($('#editorial_state').val() == 'published'){
 					$('#editorial_state_button_container .ready').remove();
 				}
@@ -884,7 +884,7 @@ if($currentRole == 'commentator'){
 		endif;
 		?>
 		</textarea>
-		
+
 	</td>
 </tr>
 </table>
@@ -1412,19 +1412,19 @@ if($currentRole == 'commentator'){
 		<div id="saving_text" class="text-warning" style="display:inline-block;visibility:hidden;padding-right:12px;"></div>
 		<div id="spinner_wrapper" style="width:30px;display:inline-block;">&nbsp;</div> &nbsp;
 		<a href="javascript:;" class="btn btn-default" onclick="if (confirm('Are you sure you wish to cancel edits?  Any unsaved data will be lost.')) {document.location.href='<?=$base_uri?><?=@$page->slug?>'} else {return false;}">Cancel</a>&nbsp; &nbsp;
-		<?php 
+		<?php
 			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1'){
 				echo '<div class="'.(!$canChangeState?'editingDisabled ':'').'saveButtons">';
 			}
 		?>
 		<input type="button" class="btn btn-default" value="Save" onclick="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($('#edit_form'),true);" />&nbsp; &nbsp;
 		<input type="submit" class="btn btn-primary" value="Save and view" />
-		<?php 
+		<?php
 			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && !$canChangeState){
 				echo '</div>';
 			}
 		?>
-		<?php 
+		<?php
 			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $canChangeState && isset($page->version_index) && isset($nextState)){
 		?>
 			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower(str_replace(' ','',$nextState)); ?>" value="Save and move to <?= $nextState ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
