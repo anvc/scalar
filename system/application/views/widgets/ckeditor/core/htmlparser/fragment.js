@@ -61,8 +61,13 @@ CKEDITOR.htmlParser.fragment = function() {
 		if ( node.attributes[ 'data-cke-survive' ] )
 			return false;
 
-		// Empty link is to be removed when empty but not anchor. (https://dev.ckeditor.com/ticket/7894)
-		return node.name == 'a' && node.attributes.href || CKEDITOR.dtd.$removeEmpty[ node.name ];
+		// Empty link is to be removed when empty but not anchor. (http://dev.ckeditor.com/ticket/7894)
+
+		if(node.name == 'a'){
+			return false;
+		}
+
+		return CKEDITOR.dtd.$removeEmpty[ node.name ];
 	}
 
 	/**
