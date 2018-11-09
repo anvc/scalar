@@ -9,7 +9,10 @@
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboard/tabs.js')?>
 
-<? if (!empty($this->config->item('active_dashboard'))): ?>
+<?
+$active_dashboard = $this->config->item('active_dashboard');
+if (!empty($active_dashboard)): 
+?>
 <div style="position:absolute; top:0px; left:0px; width:100%;">
 	<div style="background-color:#f3f7b1; color:#444444; font-size:0.85rem; width:400px; border-radius:5px; margin:2px auto 0px auto; text-align:center; padding-top:4px; padding-bottom:4px;">
 		We're testing a new Dashboard! Want to <a href="?dashboard=dashboot&book_id=<?=((!empty($book))?$book->book_id:0)?>&zone=style#tabs-style" style="text-decoration:underline;">try it out</a>?
