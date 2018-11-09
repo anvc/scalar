@@ -537,7 +537,7 @@
 
                 // create the slot where the media will be added
                 slot = link.slotmanager_create_slot(width, height, options);
-
+                
                 // if the slot was successfully created,
                 if (slot) {
 
@@ -588,7 +588,11 @@
                     } else if (size != 'full') {
 
                         // put the media before its linking text, and align it appropriately
-                        parent.before(slotDOMElement);
+                    	if (parent.prevAll('.acc').length) {  // an assist to some custom JS ~Craig
+                    		parent.prevAll('.acc').eq(0).before(slotDOMElement);
+                    	} else {
+                    		parent.before(slotDOMElement);
+                    	};
                         slotDOMElement.addClass(align);
 
                         // if this is the top-most linked media, then align it with the top of its paragraph
