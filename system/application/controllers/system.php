@@ -661,7 +661,7 @@ class System extends MY_Controller {
 		// Check GET var and then cookie to see if we have a preferred dashboard 
 		if (isset($_GET['dashboard']) && in_array($_GET['dashboard'],array('dashboard','dashboot'))){
 			$dashboard = $_GET['dashboard'];
-			setcookie("dashboard", $dashboard, time()+604800); // Seven days...
+			setcookie("dashboard", $dashboard, strtotime('+60 days')); // Per cookie spec there is no "don't expire" so set for two months
 		} elseif (isset($_COOKIE['dashboard']) && in_array($_COOKIE['dashboard'],array('dashboard','dashboot'))){
 			$dashboard = $_COOKIE['dashboard'];
 		} elseif (isset($_COOKIE['dashboard'])) {  // We have something invalid in our cookie - get rid of it
