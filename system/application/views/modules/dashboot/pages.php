@@ -72,8 +72,7 @@ $(document).ready(function() {
 	?>
 	$selector.node_selection_dialogue(node_options);
 	$('#review-comments').click(function() {
-		$('.selector .node_types select:first').val('reply');
-		$('.selector .node_types button:first').click();
+		$('.selector .node_types select:first').val('reply').change();
 	});
 });
 function deleteOptions($content) {
