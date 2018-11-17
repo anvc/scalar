@@ -5,7 +5,7 @@ if (isset($_GET['action']) && $_GET['action']=='deleted_versions') {
 	echo '<div class="saved" style="margin-bottom:0;"><p>Versions have been re-ordered <a style="float:right;" href="'.$base_uri.$page->slug.'.versions">clear</a></p></div><br />';
 }
 
-if ($book->editorial_is_on && !empty($book->editions) && isset($book->editions[$url_params['edition_index']])) {
+if (isset($book->editorial_is_on) && $book->editorial_is_on && isset($book->editions) && !empty($book->editions) && isset($book->editions[$url_params['edition_index']])) {
 	$login_is_super = false;
 	$login_book_ids = array();
 }
