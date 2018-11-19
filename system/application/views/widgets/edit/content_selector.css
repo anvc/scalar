@@ -148,6 +148,9 @@
 .node_selector_table_body tbody>tr.empty{
 	    cursor: default;
 }
+.node_selector_table_body>tr,.node_selector_table_body tbody>tr{
+	display: block;
+}
 .node_selector_table_body>tr.current, .node_selector_table_body tbody>tr.current{
 	background-color: #c7e6f6 !important;
 	cursor: pointer
