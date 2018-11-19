@@ -503,7 +503,7 @@ $(document).ready(function() {
 	}
 	initial_state = $('#editorial_state').val();
 	$('body').on('savedPage',function(e){
-		$('.form-horizontal, #edit_content, .tab-pane, .saveButtons').toggleClass('editingDisabled',!editorialStates[$('#editorial_state').val()].canEdit);
+		$('.form-horizontal, #edit_content, .tab-pane, .saveButtons, #editorialToolsPanel .btn').toggleClass('editingDisabled',!editorialStates[$('#editorial_state').val()].canEdit);
 	});
 	$('#editorialStateConfirmationSave').click(function(e){
 		e.preventDefault();
@@ -530,7 +530,7 @@ $(document).ready(function() {
 			$('body').trigger('savedPage');
 			$('#editorial_state_button_container .dropdown-menu').html('<li class="draft"><a href="#" data-state="draft" class="active">Draft</a></li><li class="edit"><a href="#" data-state="edit" class="">Edit</a></li>');
 			$('#editorial_state_button_container button').removeClass('published').addClass('draft').find('.btn_text').text('Draft');
-			$('.form-horizontal, #edit_content, .tab-pane, .saveButtons').toggleClass('editingDisabled',is_editor);
+			$('.form-horizontal, #edit_content, .tab-pane, .saveButtons, #editorialToolsPanel .btn').toggleClass('editingDisabled',is_editor);
 			$('#editorial_state_text .published').hide();
 			$('#editorial_state_text .draft').show();
 		}else{

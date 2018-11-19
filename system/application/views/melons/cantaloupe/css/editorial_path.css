@@ -314,8 +314,16 @@ body.shortHeader #editorialSidePanel>.affix{
 #editorialPathContents .editorial_node .badge.with_queries_badge:hover{
 	background-color: #ee955d
 }
-#editorialPathContents .editorial_node .badge.no_queries_badge:hover{
+#editorialPathContents .editorial_node .badge.no_queries_badge:not(.disabled):hover{
 	background-color: #a3a3a3	
+}
+#editorialPathContents .editorial_node .badge.no_queries_badge.disabled{
+	color:#eee;
+	filter: gray;
+	filter: grayscale(100%);
+	pointer-events: none;
+	opacity: .75;
+	cursor: not-allowed;
 }
 #editorialPathContents .editorial_node .editable{
 	cursor: pointer;
@@ -515,12 +523,11 @@ body.shortHeader #editorialSidePanel>.affix{
 	padding-bottom: 10px;
 }
 
-#editorialQueries.disabled #addNewQuery, #editorialQueries.disabled .newReply, #editorialQueries.disabled .resolve{
+#editorialQueries.disabled #addNewQuery, #editorialQueries.disabled .newReply, #editorialQueries.disabled #addNewQueryForm, #editorialQueries.disabled .resolve{
 	cursor: not-allowed;
 	display: none;
 	pointer-events: none;
 }
-
 .cke_chrome.cke_reset_all{
 	margin-top: -50px;
 }
