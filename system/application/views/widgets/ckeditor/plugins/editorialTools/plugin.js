@@ -433,6 +433,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         base.acceptEdit = function($chunk,skipSaveCheck){
             $chunk.removeClass('rejected').addClass('accepted');
             $chunk.find('.wasHidden').removeClass('wasHidden').addClass('hiddenVisual');
+            $('#acceptRejectAll .btn-danger').removeClass('disabled');
             if(!!skipSaveCheck){
                 return;
             }else if($('span[data-diff="chunk"]:not(.accepted,.rejected)').length == 0){
@@ -442,6 +443,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         base.rejectEdit = function($chunk,skipSaveCheck){
             $chunk.removeClass('accepted').addClass('rejected');
             $chunk.find('.hiddenVisual').removeClass('hiddenVisual').addClass('wasHidden');
+            $('#acceptRejectAll .btn-success').removeClass('disabled');
             if(!!skipSaveCheck){
                 return;
             }else if($('span[data-diff="chunk"]:not(.accepted,.rejected)').length == 0){
