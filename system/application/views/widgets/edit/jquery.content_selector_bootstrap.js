@@ -2921,6 +2921,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$dialogue_container.data('nodes', []);
 						for (var i in slugs) {
 							//Build node list for content selector
+							if(typeof slugs[i].data == undefined || !slugs[i].data){
+								continue;
+							}
 							var slug_data = slugs[i].data;
 							var item = {};
 							item.uri = slug_data.url;
