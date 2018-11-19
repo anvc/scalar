@@ -299,6 +299,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
             editor.setReadOnly(false);
             $('.editingDisabled').removeClass('editingDisabled');
+            $('body').removeClass('isReviewing');
         }
         base.disableEditor = function(reviewMode){
             editor.setReadOnly(true);
@@ -981,7 +982,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }
                 
             }else{
-                $editorialToolsPanel.height($(editor.container.$).find('.cke_contents').height());
+                base.$editorialToolsPanel.height($(editor.container.$).find('.cke_contents').height());
             }
         });
 
