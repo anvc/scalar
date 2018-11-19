@@ -1475,7 +1475,7 @@
                 (base.is_editor && state === "clean") ){
                 waitingForReview = true;
 
-                var previousState = "edit";
+                var previousState = ["edit","clean"];
                 if(state == "clean"){
                     previousState = "editreview";
                 }
@@ -1489,11 +1489,10 @@
 
                     var old_version = null;
                     for(var v in versions){
-                        if(versions[v].editorialState == previousState){
+                        if(previousState.indexOf(versions[v].editorialState) > -1){
                             old_version = versions[v];
                         }
-
-                        if((v > 0 && versions[v].editorialState == state) || (old_version != null && versions[v].editorialState != previousState)){
+                        if((v > 0 && versions[v].editorialState == state) || (old_version != null && previousState.indexOf(versions[v].editorialState) == -1)){
                             break;
                         }
                     }
