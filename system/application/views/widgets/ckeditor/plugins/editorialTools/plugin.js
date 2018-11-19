@@ -360,7 +360,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     $('span[data-diff="chunk"]').each(function(){
                         var container = 'body';
                         var this_chunkID = chunkID++;
-                        console.log($(this));
                         if($(this).find('span[data-diff]>a[data-widget],span[data-diff]>a[resource]').length > 1){
 
                             //Also build a list of changes...But only if we are replacing a visual element with another
@@ -934,19 +933,11 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 }else{
                                     return false;
                                 }
-                                currentlySelected = base.$versionListBody.find('.selected');
-                                if(currentlySelected.length == 1 && currentlySelected.first().hasClass('current')){
-                                    $('.state_dropdown').prop('disabled',base.currentPageInfo.canChangeState);
-                                    $('#title').prop('disabled',false).val(base.currentPageInfo.title);
-                                    $('#page_description').prop('disabled',false).val(base.currentPageInfo.description);
-                                    base.hideVersions();
-                                }else{
-                                    var versions = [];
-                                    currentlySelected.each(function(){
-                                        versions.push($(this).data('version'));
-                                    });
-                                    base.displayVersions(versions);
-                                }
+                                var versions = [];
+                                base.$versionListBody.find('.selected').each(function(){
+                                    versions.push($(this).data('version'));
+                                });
+                                base.displayVersions(versions);
                             })
                             .appendTo(base.$versionListBody);
                         prevAuthor = authorID;
