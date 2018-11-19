@@ -973,6 +973,11 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         }else if(base.$editorialToolsPanel.hasClass('edits')){
                             $('body').addClass('isReviewing');
                         }
+                        if($(this).text().toLowerCase() == 'edits'){
+                            if(base.$reviewEditor.find('span[data-diff="chunk"]:not(.accepted,.rejected)').length == 0){
+                                base.enableSave(base.$reviewEditor.html());
+                            }
+                        }
                         e.preventDefault();
                         base.$editorialToolsPanel.removeClass($(this).parents('ul').find('a.active').removeClass('active').text().toLowerCase());
                         $(this).addClass('active');
