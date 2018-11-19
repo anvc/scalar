@@ -318,7 +318,7 @@ a.inline.inlineWidget[data-widget="summary"] {
 body.isReviewing span[data-diff="chunk"]{
 	cursor: pointer;
 }
-.editingDisabled:not(#edit_content),.disabled,body.isReviewing .cke_button__source,#edit_content.editingDisabled .cke_toolbar:not(#cke_40, #cke_41){
+.editingDisabled:not(#edit_content),.disabled,body.isReviewing .cke_button__source,#edit_content.editingDisabled .cke_toolbar a:not(#cke_button__editorialtools){
 	filter: gray;
 	filter: grayscale(100%);
 	pointer-events: none;
