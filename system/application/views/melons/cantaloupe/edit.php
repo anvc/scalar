@@ -1427,7 +1427,7 @@ if($currentRole == 'commentator'){
 		<?php
 			if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $canChangeState && isset($page->version_index) && isset($nextState)){
 		?>
-			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower(str_replace(' ','',$nextState)); ?>" value="Save and move to <?= $nextState ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
+			&nbsp; &nbsp;<input type="button" class="btn saveAndMove <?= strtolower(str_replace(' ','',$nextState)); ?>" value="Save and move to <?= ucwords($nextState) ?> state" onClick="change_editorial_state_then_save($('#edit_form'))" />
 		<?php
 			}
 		?>
