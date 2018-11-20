@@ -404,7 +404,7 @@
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
                     if (!isMobile && mediaelement.model.mediaSource.contentType == 'image') {
                         mediaelement.model.element.find('.mediaObject').click(function() {
-                            if ($('.media_details').css('display') == 'none') {                                    
+                            if ($('.media_details').css('display') == 'none') {
                                 page.mediaDetails.show(mediaelement.model.node);
                             }
                         }).css('cursor', 'pointer');
@@ -507,7 +507,7 @@
                     size = "full";
                     width = page.pageWidth;
                 }
-                
+
                 if (size == 'large' && (align == 'left' || inline)) {
                   // we want 'large' inline or left-aligned media to be as wide as the text
                   width = page.bodyCopyWidth;
@@ -537,7 +537,7 @@
 
                 // create the slot where the media will be added
                 slot = link.slotmanager_create_slot(width, height, options);
-                
+
                 // if the slot was successfully created,
                 if (slot) {
 
@@ -661,8 +661,8 @@
                         contextCount = 0;
 
                     $('.context.popover').remove();
-     
-                    relations = currentNode.getRelations('referee', 'incoming'); 
+
+                    relations = currentNode.getRelations('referee', 'incoming');
                     for (i in relations) {
                         relation = relations[i];
                         if (relation.body.current.content != null) {
@@ -680,7 +680,7 @@
                             contextCount++;
                         }
                     }
-                    
+
                     // show containing paths
                     relations = currentNode.getRelations('path', 'incoming', 'index');
                     for (i in relations) {
@@ -688,7 +688,7 @@
                         contextCount++;
                         contextMarkup += '<p class="citation"><a href="' + currentNode.url + '?path=' + relation.body.slug + '">Step ' + relation.index + '</a> of the <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a> path</p>';
                     }
-                    
+
                     // show tags
                     relations = currentNode.getRelations('tag', 'incoming');
                     for (i in relations) {
@@ -719,7 +719,7 @@
                     $('[data-toggle="popover"],[data-original-title]').each(function () {
                         //the 'is' for buttons that trigger popups
                         //the 'has' for icons within a button that triggers a popup
-                        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {                
+                        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
                             (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
                         }
 
@@ -851,7 +851,7 @@
                     section = $('<section class="relationships"></section>');
 
                     //page.addPathButton('up', page.containingPath, page.containingPath);
- 
+
 					if (page.containingPathNodes.length > 1) {
                         if (page.containingPathIndex < (page.containingPathNodes.length - 1)) {
 
@@ -875,7 +875,7 @@
                                 }
                           		var nextNodeOnPath = page.containingPathNodes[page.containingPathIndex + 1];
                           		page.addPathButton('right', nextNodeOnPath, page.containingPath);
- 
+
                                 // back button
                                 if (page.containingPathIndex > 0) {
                                     var back_button = $('<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
@@ -1074,13 +1074,13 @@
                     if (hasTags.children().length > 0) {
                         hasTags.siblings('h1').text('This ' + selfType + ' is tagged by:');
                         $(".relationships").eq(0).before(hasTags.parent());
-                        hasTags.parent().addClass('relationships').show(); 
+                        hasTags.parent().addClass('relationships').show();
                     };
                     var hasReferences = $(".has_reference");
                     if (hasReferences.children().length > 0) {
                     	var is_composite = (-1 == $('link#primary_role').attr('href').indexOf('Media')) ? true : false;
                     	hasReferences.siblings('h1').text('This ' + selfType + ' is '+((is_composite)?'a note in':'refenced by')+':');
-                    	hasReferences.parent().addClass('relationships').show(); 
+                    	hasReferences.parent().addClass('relationships').show();
                     };
                 }
 
@@ -1150,9 +1150,9 @@
             		var $url = $label.find('a[rel="art:url"]');
             		var url = $url.attr('href');
             		$url.replaceWith('<img rel="art:url" src="'+url+'" data-toggle="popover" data-placement="bottom" />');
-                    $label.find('img').popover( { 
-                        trigger: "click", 
-                        html: true, 
+                    $label.find('img').popover( {
+                        trigger: "click",
+                        html: true,
                         template: popoverTemplate,
                         container: 'body',
                         content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
@@ -2588,7 +2588,7 @@
             }
 
             page.getContainingPathInfo();
-            
+
     		var cover_video = function() {  // Have <video> tag mimic background-size:cover
     			$video = $(this);
     			var scale_h = parseInt($video.parent().width()) / $video.data('orig_w');
@@ -2600,8 +2600,8 @@
         		$video.parent().scrollLeft( ($video.width() - $video.parent().width()) * .5 );
         		$video.parent().scrollTop( ($video.height() - $video.parent().height()) * .5 );
                 $video.show();
-    		}         
-            
+    		}
+
             switch (viewType) {
 
                 case 'splash':
@@ -2753,7 +2753,6 @@
                     page.addIncomingComments();
                     page.addAdditionalMetadata();
                     page.addExternalLinks();
-                    page.addTKLabels();
                     page.addColophon();
                     page.addNotes();
                     page.addContext();
@@ -2958,7 +2957,7 @@
                                             }
 
                                             tempdata.events.push(entry);
-                                            
+
                                         }
                                     }
                                 }
@@ -3034,7 +3033,7 @@
 
                         case 'visual_path':
                             // original concept for this layout by Alicia Peaker, Bryn Mawr College
-                            $('article').addClass('visual_path');  
+                            $('article').addClass('visual_path');
                             //Find out how long the path is and collect the slugs for each item on the path
                             var pathContents = currentNode.getRelatedNodes("path", "outgoing", "false");
                             // load HTML
@@ -3079,9 +3078,9 @@
                                     if (description.length) $("."+slugProxy).css("background-color", "#fff");
                                     $("#"+slugProxy).append('<div style="visibility:hidden; clear:both; height:1px; overflow:hidden;"></div>');
                                 }
-                            }    
-                            okToAddExtras = false;                                      
-                            break;  
+                            }
+                            okToAddExtras = false;
+                            break;
                     }
 
                     page.setupScreenedBackground();
