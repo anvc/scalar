@@ -525,7 +525,8 @@ header [typeof="tk:TKLabel"] { float:right; }
 header [typeof="tk:TKLabel"].last { margin-right:7.2rem; }
 header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 [typeof="tk:TKLabel"] { margin-right:6px; }
-[typeof="tk:TKLabel"] > img {height:2.4rem; cursor: pointer;}
+[typeof="tk:TKLabel"] > img {height:2.4rem; cursor: pointer; }
+.image_header > .tklabels { float: right; margin: 3.6rem 7.2rem 0 0; }
 .tk-help > .popover-content > img { height:3rem; float: left; margin-right: .8rem; margin-top: .3rem; }
 [typeof="tk:TKLabel"] > span {display:none;}
 
@@ -1296,8 +1297,8 @@ body>.annotorious-popup{
 	background-position-y: 0px; /*Changes which vertical portion of the image appears in view box*/
 	background-position-x: 0px; /*Changes which horizontal portion of the image appears in view box*/
 	margin-bottom: 30px;
-}  
-#splash img { max-width: 100%; } 
+}
+#splash img { max-width: 100%; }
 .sp-block {
 	max-width: 100%;
 	margin: 0 auto .6rem auto;
@@ -1308,9 +1309,9 @@ body>.annotorious-popup{
     background-color: #e5e5e5;
     clear: both;
 }
-.padded-multiline { 
-  line-height: 1.4; 
-  padding: 0; 
+.padded-multiline {
+  line-height: 1.4;
+  padding: 0;
   margin: 20px auto;
 }
 .sp-block h1 {
@@ -1324,9 +1325,9 @@ body>.annotorious-popup{
 	text-transform: uppercase;
 	font-size: 2.4rem;
 }
-.padded-multiline a { 
+.padded-multiline a {
   background-color: black;
-  color: #fff; 
+  color: #fff;
   display: inline;
   padding: .4rem 1.2rem;
   text-decoration: none;
@@ -1341,7 +1342,7 @@ body>.annotorious-popup{
 	margin-bottom: 7.2rem;
 	line-height: 2rem;
 	display: inline-block;
-}  
+}
 .sp-block .nav_btn { margin-top: 1.2rem; }
 .mediaelement { height: auto; }
 .sp-block .mediaContainer div img { width: auto !important; }
@@ -1366,7 +1367,4 @@ body>.annotorious-popup{
     .sp-block__content .slot .mediaelement { display: none; }
     .sp-block-people .sp-block__content .slot .mediaelement { display: unset; }
   }
-}  
-
-
-
+}

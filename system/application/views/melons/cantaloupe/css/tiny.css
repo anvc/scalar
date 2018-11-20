@@ -59,15 +59,16 @@ article h1 { margin-top: 0; margin-bottom: 2.4rem; font-size: 4rem; line-height:
 .popover.tk-help .supertitle { display: none; }
 .popover.tk-help h3 { font-size: 1.8rem; }
 .tk-help > .popover-content > img { display: none; }
-[typeof="tk:TKLabel"].last {margin-right:2rem;}
+header [typeof="tk:TKLabel"].last {margin-right:2rem;}
+.image_header > .tklabels { margin-top: 1.8rem; margin-right: 2rem; }
 
 /* editorial workflow */
 
-.editorial-status-bar {
+/*.editorial-status-bar {
   margin-bottom: 2rem;
-}
+}*/
 
-.editorial-status-bar.draft-state, .editorial-status-bar.edit-state, .editorial-status-bar.editReview-state, .editorial-status-bar.clean-state, .editorial-status-bar.ready-state, .editorial-status-bar.published-state { 
+.editorial-status-bar.draft-state, .editorial-status-bar.edit-state, .editorial-status-bar.editReview-state, .editorial-status-bar.clean-state, .editorial-status-bar.ready-state, .editorial-status-bar.published-state {
   padding: 1.2rem;
 }
 

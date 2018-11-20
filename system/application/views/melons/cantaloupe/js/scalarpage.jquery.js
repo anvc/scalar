@@ -1138,7 +1138,7 @@
 
             addTKLabels: function() {
             	var $labels = $('article header [typeof="tk:TKLabel"]');
-                $labels.wrapAll('<div class="tklabels"></div>');
+              $labels.wrapAll('<div class="tklabels"></div>');
             	var hasLabels = ($labels.length) ? true : false;
             	if (!hasLabels) return;
                 var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
@@ -1158,6 +1158,8 @@
                         content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
                     } );
             	});
+              // move labels to image header if present
+              $('.image_header').prepend($labels.parent());
             },
 
             handleEditionSelect: function() {
@@ -2753,6 +2755,7 @@
                     page.addIncomingComments();
                     page.addAdditionalMetadata();
                     page.addExternalLinks();
+                    page.addTKLabels();
                     page.addColophon();
                     page.addNotes();
                     page.addContext();
