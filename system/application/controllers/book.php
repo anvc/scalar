@@ -160,7 +160,7 @@ class Book extends MY_Controller {
 			}
 			$method_name = $this->data['view'];
 			if (method_exists($this, $method_name)) $this->$method_name();
-			if (method_exists($this, $this->data['url_params']['page_first_segment']) && !array_key_exists($this->data['url_params']['page_first_segment'], $this->data['views'])){
+			if (method_exists($this, $this->data['url_params']['page_first_segment']) && !array_key_exists($this->data['url_params']['page_first_segment'], $this->data['views'])) {
 				$page_not_found = false;
 				$method = $this->data['url_params']['page_first_segment'];
 				$this->$method();
@@ -399,9 +399,9 @@ class Book extends MY_Controller {
 		$this->data['prev'] = htmlspecialchars(filter_var(strip_tags($this->data['prev']),FILTER_SANITIZE_URL));
 		if (empty($this->data['link']) || empty($this->data['prev'])) $this->kickout();
 		if (!stristr($this->data['prev'], base_url())) $this->kickout();
-		
+
 		// Make sure the link is contained in the text body of the prev page
-		$slug = str_replace(base_url().$this->data['book']->slug.'/', '', $this->data['prev']);
+		$slug = str_replace(base_url().$this->data['book']->slug.'/', '', abs_url(no_edition($this->data['prev']),base_url()));
 		if (strpos($slug, '?')) $slug = substr($slug, 0, strpos($slug, '?'));
 		$page = $this->pages->get_by_slug($this->data['book']->book_id, $slug);
 		if (empty($page)) $this->kickout();
@@ -414,7 +414,7 @@ class Book extends MY_Controller {
 			}
 		}
 		if (!$has_link) $this->kickout();
-		
+
 		// Bypass if configured to do so... the front-end shouldn't be pointing to /external at all, though, if setting is true
 		if (true === $this->config->item('external_direct_hyperlink')) {
 			header('Location: '.$this->data['link']);
