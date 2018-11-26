@@ -1001,16 +1001,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
             }
         });
 
-        editor.widgets.add( 'edit', {
-            init: function() {
-                // ...
-            }
-        });
-
         editor.ui.addButton( 'editorialTools', {
             label: 'Editorial Tools',
             command: 'toggleEditorialTools',
-            toolbar: 'formatting'
+            toolbar: 'editorial'
         });
     }
 });
