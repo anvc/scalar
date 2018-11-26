@@ -2687,7 +2687,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$importOpts.append('<optgroup label="Files, URLs">');
 			$importOpts.append('<option value="' + parent + 'upload">Upload file</option>');
 			$importOpts.append('<option value="' + parent + 'new.edit#type=media">Internet URL</option>');
-			$importOpts.append('<option value="' + parent + 'criticalcommons">Upload to Critical Commons</option>');
+			//$importOpts.append('<option value="' + parent + 'criticalcommons">Upload to Critical Commons</option>');
 			$importOpts.append('</optgroup>');
 			$importOpts.change(function() {
 				var url = $(this).find('option:selected').val();

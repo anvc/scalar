@@ -340,9 +340,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 		                                                        '<li class="dropdown">'+
 		                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit?type=media&') + '">Link to media files</a>'+
 		                                                        '</li>'+
+		                                                        /*
 		                                                        '<li class="dropdown">'+
 	                                                        		'<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'criticalcommons') + '">Upload to Critical Commons</a>'+
 	                                                        	'</li>'+
+	                                                        	*/
 	                                                        '</ul>'+
 	                                                     '</li>'+
                                                     '</ul>'+
