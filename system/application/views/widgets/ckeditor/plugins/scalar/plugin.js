@@ -490,7 +490,6 @@ CKEDITOR._scalar = {
 
 			var topPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().top-pageScroll+30:framePosition.top+position.top-frameScroll-pageScroll+30;
 			var leftPos = CKEDITOR._scalar.editor.editable().isInline()?$(this).offset().left:framePosition.left+position.left+($(this).width()/2)-50;
-			console.log($(this).offset(),$(this).position());
 			var data = {
 				element : element,
 				type : 'widget',
