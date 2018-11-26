@@ -104,9 +104,9 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'document', items : [ 'Source' ] },
 		/* { name: 'size', items : [ 'Maximize' ] }, */
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
-		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor', 'Format' ] },
+		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
 		{ name: 'clear', items : [ 'RemoveFormat' ] },
-		{ name: 'formatting', items : [ 'NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
+		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
 		{ name: 'editorial', items:['editorialTools']}
 	];
@@ -115,9 +115,9 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'document', items : [ 'Source' ] },
 		/* { name: 'size', items : [ 'Maximize' ] }, */
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
-		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor','Format'] },
+		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor'] },
 		{ name: 'clear', items : [ 'RemoveFormat' ] },
-		{ name: 'formatting', items : [ 'NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
+		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ]},
 		'/',
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] }
 		
