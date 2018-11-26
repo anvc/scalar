@@ -2903,6 +2903,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				slugs.push({ id: slug, children: include_children, loaded: false });
 			}
 
+
 			var parent_url = $('link#parent').attr('href');
 
 			for (var i in slugs) {
@@ -2921,7 +2922,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						$dialogue_container.data('nodes', []);
 						for (var i in slugs) {
 							//Build node list for content selector
-							if(typeof slugs[i].data == undefined || !slugs[i].data){
+							if(typeof slugs[i] || !slugs[i] || typeof slugs[i].data === 'undefined' || !slugs[i].data){
 								continue;
 							}
 							var slug_data = slugs[i].data;
@@ -2948,8 +2949,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 						promise.resolve();
 					};
-
-					if (scalarapi.loadPage(slug.id, true, handleNode, null, 1, false, null, 0, 20) == "loaded") { handleNode(); }
+					var apiResponse = scalarapi.loadPage(slug.id, true, handleNode, null, 1, false, null, 0, 20);
+					if (apiResponse == "loaded" || apiResponse == "queued") { 
+						// The page should only be queued if the API can't find it; if that's the case, we'll just skip it in handleNode()
+						handleNode();
+					}
 
 				})(slugs[i], init_promise, slugs, $dialogue_container);
 			}
