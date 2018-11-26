@@ -367,7 +367,7 @@ function send_form_no_action($form, additional_values) {
 	    	send_form_relationships($form, version_urn, function() {
 	    		send_form_hide_loading();
 	    		var $saved_text = $('#saved_text');
-	    		$saved_text.html('Saved "'+title+'" version '+version_num+' &nbsp;<a href="javascript:void(null);">view</a>').fadeIn().delay(5000).fadeOut('slow');
+	    		$saved_text.html('Saved "'+title+'" version '+version_num+' &nbsp;<a href="javascript:void(null);">view</a>').animate({opacity:1},'slow').delay(5000).animate({opacity:0},'slow');
 	    		$saved_text.find('a').click(function(event) {
 	    			event.stopPropagation();
 	    			var popup = window.open(redirect_url, "_blank"); 
