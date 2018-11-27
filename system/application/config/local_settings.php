@@ -12,6 +12,9 @@ $config['active_book_list'] = 'book_list';
 // Default cover module 
 $config['active_cover'] = 'cover';
 
+// Default dashboard ("dashboard", "dashboot") ... setting to "dashboard" will keep the current dashboard but will add an "opt-in" link to dashboot
+$config['active_dashboard'] = 'dashboard';
+
 // SALT, any string you want as long as it is complicated
 $config['shasalt'] = (getenv('SCALAR_SHASALT') ? getenv('SCALAR_SHASALT') : '');
 
