@@ -1107,7 +1107,6 @@
         base.populateQueries = function($parentNodeElement){
             var canAddQueries = base.node_state_flow[$parentNodeElement.data('state')];
             var currentNode = $parentNodeElement.data('node').current;
-            console.log(JSON.parse(currentNode.editorialQueries).queries);
             var queries = currentNode.editorialQueries?JSON.parse(currentNode.editorialQueries).queries:[];
             $('#editorialQueries').data('$currentNode',$parentNodeElement);
             $('#editorialQueries .queries').html('');
