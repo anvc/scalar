@@ -2376,7 +2376,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					};
 				};
 
-				$rows.find('a:not(.btn), [name="usage_rights"]').click(function(e) {
+				$rows.find('a:not(.btn), [name="usage_rights"]').off('click').click(function(e) {
 					e.stopPropagation();
 					var $this = $(this);
 					if (opts.isEdit && $this.hasClass('visibilityLink') && 'is_live'==$this.parent().attr('property')) {
@@ -2413,7 +2413,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					};
 				});
 				
-				$rows.find('.contributionsLink').click(function(e) {
+				$rows.find('.contributionsLink').off('click').click(function(e) {
 					//e.stopPropagation();
 					var $this = $(this);
 					if (!opts.contributionsOptions) return alert("Couldn't find the contributions callback");
