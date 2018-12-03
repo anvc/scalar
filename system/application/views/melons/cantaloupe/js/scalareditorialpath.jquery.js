@@ -30,6 +30,14 @@
         base.nodeList = {};
         base.nodeEditorialStates = {};
 
+        base.book_id = $('#book_id').attr('href');
+        $.ajax({
+            url: $('link#parent').attr('href')+'login_status',
+            success: function(data) {
+                base.user_data = data;
+            }
+        });
+
         base.nodeTypes = ['page', 'media'];
 
         base.$nodeList = $('<div>');
@@ -964,7 +972,7 @@
                  .removeClass('with_queries_badge,no_queries_badge')
                  .addClass(queryCount>0?'with_queries_badge':'no_queries_badge')
                  .text((queryCount>0?queryCount:'No')+' Quer'+(queryCount!=1?'ies':'y'));
-            base.saveNode($node);
+            base.saveNode($node,false);
         };
 
         base.sortResolved = function(){
@@ -1277,7 +1285,7 @@
                         $(this).parents('ul').find('a.active').removeClass('active');
                         $(this).addClass('active');
                         $(this).parents('.state_dropdown').find('.state_btn').removeClass(base.node_state_string).addClass($(this).data('state')).find('.btn_text').text($(this).text());
-                        base.saveNode($(this).parents('.editorial_node').data('state',$(this).data('state')));
+                        base.saveNode($(this).parents('.editorial_node').data('state',$(this).data('state')),true);
                     },this));
                 });
 
@@ -1328,7 +1336,7 @@
                                 $(this).text("(This item has no description.)").addClass('noDescription');
                             }
                             if ($(this).data('before') !== $(this).text()) {
-                                base.saveNode($node);
+                                base.saveNode($node,false);
                             }
                         }).on('keydown', function(e) {
                           if (e.which == 13) {
@@ -1424,7 +1432,7 @@
                                                     $(this).addClass('noContent').html('(This page has no content.)');
                                                 }
                                                 
-                                                base.saveNode(base.currentEditNode);
+                                                base.saveNode(base.currentEditNode,false);
                                                 base.wasDirty = false;
                                             }else{
                                                 if($(this).html() == '' || $(this).html() == '<br>'){
@@ -1456,7 +1464,7 @@
                 }           
                 
                 $node.find('.usageRights').change(function(){
-                    base.saveNode($node);
+                    base.saveNode($node,false);
                 });
 
                 base.updateLinks($node);
@@ -1525,7 +1533,7 @@
             }
         };
 
-        base.saveNode = function($node){
+        base.saveNode = function($node, onlyUpdateState){
             var node = $node.data('node');
             var notice = $('<div class="alert" role="alert">Saving...</div>').hide().appendTo($node.find('.notice').html('')).fadeIn('fast');
             var title = $node.find('.title').text();
@@ -1533,67 +1541,9 @@
             var description = $description.hasClass('noDescription')?'':$description.text();
             var editorialState = $node.data('state');
             var replace_node = false;
-
-            if($node.data('hasEdition') && editorialState == 'published'){
-                editorialState = 'draft';
-                replace_node = true;
-            }
-
-            if(!!base.node_state_flow[editorialState]){
-                $node.find('.descriptionContent,.additionalMetadata .fieldVal')
-                        .addClass('editable')
-                        .prop('contenteditable',true);
-            }else{
-                $node.find('.descriptionContent,.additionalMetadata .fieldVal')
-                        .removeClass('editable')
-                        .prop('contenteditable',false);
-            }
-
-
-            $('#editorialOutline a[data-node="'+node.slug+'"]').parent('li').removeClass().addClass(editorialState+' active');
-
-            var $body = $node.find('.bodyContent');
-            
-            if($body.hasClass('noContent') || $body.hasClass('media')){
-                var body = null;    
-            }else{
-                var $body_copy = $body.clone();
-                $body_copy.find('.placeholder').remove();
-                $body_copy.find('a[data-linkid]').removeAttr('data-linkid');
-                $body_copy.find('a[data-cke-saved-href]').removeAttr('data-cke-saved-href');
-                var body = $body_copy.html();
-            }
-
-            var baseProperties =  {
-                'native': 1,
-                'id': userId,
-                'api_key':''
-            };
-
-            var pageData = {
-                'action': 'UPDATE',
-                'uriSegment': scalarapi.basepath(node.url),
-                'dcterms:title': title,
-                'dcterms:description': description,
-                'sioc:content': body,
-                'scalar:editorial_state': editorialState
-            };
-
-            //Go through and add metadata to page data now:
-            $node.find('.additionalMetadata .row').each(function(){
-            	if ('undefined' == typeof(pageData[$(this).find('.fieldName').text()])) pageData[$(this).find('.fieldName').text()] = [];
-                pageData[$(this).find('.fieldName').text()].push($(this).find('.fieldVal').text());    
-            });
-            
-            //Add the editorial queries in:
-            if(node.current.editorialQueries){
-                pageData["scalar:editorial_queries"] = node.current.editorialQueries;
-            }
-
-            //Add usage rights:
-            pageData["scalar:usage_rights"] = $node.find('.usageRights').prop('checked')?1:0;
             var slug = node.slug;
-            scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
+
+            var pageSaved = function(){
                 var reload_node = function(){
                     var node = scalarapi.getNode(slug);
                     for(var n in base.nodeList.unsorted){
@@ -1613,11 +1563,92 @@
                 base.$saveNotice.text('"'+title+'" updated').fadeIn('fast',function(){
                     window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);
                 });
-            },function(e){
-                base.$warningNotice.text('Error saving "'+title+'": '+e+'</div>').fadeIn('fast',function(){
-                   window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);    
+            };
+
+            if(!!onlyUpdateState){
+                var data = {version_id:[node.current.urn.substr(node.current.urn.lastIndexOf(':')+1)],state:editorialState};
+                if (base.user_data != null) {
+                    data.user_id = base.user_data.user_id;
+                }
+                $.ajax({
+                    url: $('link#approot').attr('href').replace('system/application','system/api/save_editorial_state'),
+                    data: data,
+                    success: function(data) {
+                      pageSaved();
+                    },
+                    error: function(e) {
+                        base.$warningNotice.text('Error saving "'+title+'": '+e+'</div>').fadeIn('fast',function(){
+                           window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);    
+                        });
+                    }
                 });
-            });
+            }else{
+                if($node.data('hasEdition') && editorialState == 'published'){
+                    editorialState = 'draft';
+                    replace_node = true;
+                }
+
+                if(!!base.node_state_flow[editorialState]){
+                    $node.find('.descriptionContent,.additionalMetadata .fieldVal')
+                            .addClass('editable')
+                            .prop('contenteditable',true);
+                }else{
+                    $node.find('.descriptionContent,.additionalMetadata .fieldVal')
+                            .removeClass('editable')
+                            .prop('contenteditable',false);
+                }
+
+
+                $('#editorialOutline a[data-node="'+node.slug+'"]').parent('li').removeClass().addClass(editorialState+' active');
+
+                var $body = $node.find('.bodyContent');
+                
+                if($body.hasClass('noContent') || $body.hasClass('media')){
+                    var body = null;    
+                }else{
+                    var $body_copy = $body.clone();
+                    $body_copy.find('.placeholder').remove();
+                    $body_copy.find('a[data-linkid]').removeAttr('data-linkid');
+                    $body_copy.find('a[data-cke-saved-href]').removeAttr('data-cke-saved-href');
+                    var body = $body_copy.html();
+                }
+
+                var baseProperties =  {
+                    'native': 1,
+                    'id': userId,
+                    'api_key':''
+                };
+
+                var pageData = {
+                    'action': 'UPDATE',
+                    'uriSegment': scalarapi.basepath(node.url),
+                    'dcterms:title': title,
+                    'dcterms:description': description,
+                    'sioc:content': body,
+                    'scalar:editorial_state': editorialState
+                };
+
+                //Go through and add metadata to page data now:
+                $node.find('.additionalMetadata .row').each(function(){
+                    if ('undefined' == typeof(pageData[$(this).find('.fieldName').text()])) pageData[$(this).find('.fieldName').text()] = [];
+                    pageData[$(this).find('.fieldName').text()].push($(this).find('.fieldVal').text());    
+                });
+                
+                //Add the editorial queries in:
+                if(node.current.editorialQueries){
+                    pageData["scalar:editorial_queries"] = node.current.editorialQueries;
+                }
+
+                //Add usage rights:
+                pageData["scalar:usage_rights"] = $node.find('.usageRights').prop('checked')?1:0;
+                scalarapi.modifyPageAndRelations(baseProperties,pageData,undefined,function(e){
+                    pageSaved();
+                },function(e){
+                    base.$warningNotice.text('Error saving "'+title+'": '+e+'</div>').fadeIn('fast',function(){
+                       window.setTimeout($.proxy(function(){$(this).fadeOut('fast');},this),2000);    
+                    });
+                });
+            }
         };
 
         base.resize = function(){
@@ -1769,7 +1800,7 @@
                                     break;
 
                                     default:
-                                        if(!!node.current && node.current.description){
+                                        if(!!node && !!node.current && node.current.description){
                                             description = node.current.description;
                                         }else{
                                             description = '<p><i>No description available.</i></p>';
