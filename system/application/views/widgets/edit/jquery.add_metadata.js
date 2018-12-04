@@ -9,7 +9,9 @@
 			url:'',
 			row_class:'',
 			input_class:'',
-			tklabels:null
+			tklabels:null,
+			active: 'featured',
+			scope: 'book'
 	};  	
 	
     $.fn.add_metadata = function(options) {
@@ -47,7 +49,7 @@
 	    	opts.height = parseInt($(window).height())*0.7;			
 			bootbox.dialog({
 				message: '<div id="bootbox-content"></div>',
-				title: opts.title+'&nbsp; &nbsp; <span class="title-links" style="white-space:nowrap;"></span>',
+				title: opts.title,
 				animate: true,
 				className: 'add_metadata_bootbox',
 				buttons: {
@@ -94,43 +96,49 @@
     	
     	$.getJSON(opts.ontologies_url, function( data ) {  // Propagate with ontologies from the RDF config
         	$div.empty();
-        	var $title_links = $('.add_metadata_bootbox .title-links');
-        	var has_title_links = ($title_links.length) ? true : false;
-        	var title_links = [];
+        	$div.append('<div style="font-size:16px;margin-bottom:25px;"><span style="float:left;padding:6px 12px 0px 0px">Select a field set:</span><div class="btn-group title-links"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size:16px;"><span class="title" style="display:inline-block;min-width:110px;text-align:left;"></span> &nbsp; <span class="caret"></span></button><ul class="dropdown-menu"></div></div>');
+        	var $title_links = $div.find('.title-links');
+        	var $title_links_btn = $title_links.find('button:first');
+        	var $title_links_list = $title_links.find('ul:first');
         	// Featured
-        	$('<h1 name="featured">featured &nbsp; <small>Fields that have special uses in Scalar\'s interface &amp; layouts</small></h1>').appendTo($div);
-        	title_links.push('<a href="javascript:void(null);">featured</a>');
+        	$('<div name="featured" class="description">Fields that have special uses in Scalar\'s interface, layouts, and widgets:</div>').appendTo($div);
         	var $content = $('<div></div>').appendTo($div);
         	var featured = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
     		for (var j = 0; j < featured.length; j+=3) {
     			var $row = $('<div class="row"></div>').appendTo($content);
-    			if ('undefined'!=typeof(featured[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j]+'" value="1" /> '+featured[j]+'</label></div>').appendTo($row);
-    			if ('undefined'!=typeof(featured[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+1]+'" value="1" /> '+featured[j+1]+'</label></div>').appendTo($row);
-    			if ('undefined'!=typeof(featured[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+2]+'" value="1" /> '+featured[j+2]+'</label></div>').appendTo($row);
+    			if ('undefined'!=typeof(featured[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j]+'" value="1" />&nbsp; '+featured[j]+'</label></div>').appendTo($row);
+    			if ('undefined'!=typeof(featured[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+1]+'" value="1" />&nbsp; '+featured[j+1]+'</label></div>').appendTo($row);
+    			if ('undefined'!=typeof(featured[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+2]+'" value="1" />&nbsp; '+featured[j+2]+'</label></div>').appendTo($row);
     		}
+    		$title_links_btn.children('.title').text('Featured fields');
+    		$title_links_list.append('<li><a href="javascript:void(null);" name="featured">Featured fields</a></li>');
     		// Hard-coded descriptions for certain ontology prefixes
     		var descriptions = {
-    			'dcterms':'Dublin Core terms',
-    			'art': 'ARTstor terms',
-    			'iptc': 'Photo metadata',
-    			'bibo': 'Bibliographic Ontology Specification',
-    			'id3': 'MP3 de facto metadata standard',
-    			'dwc': 'Darwin Core terms',
-    			'vra': 'VRA Ontology representing entities in the VRA data model',
-    			'cp': 'CommonPlace terms for describing publications',
-    			'tk': 'Traditional Knowledge labels'
+    			'dcterms':{'short':'Dublin Core','long':'Dublin Core terms'},
+    			'art': {'short':'ARTstor','long':'ARTstor terms'},
+    			'iptc': {'short':'IPTC','long':'Photo metadata'},
+    			'bibo': {'short':'BIBO','long':'Bibliographic Ontology Specification'},
+    			'id3': {'short':'ID3','long':'MP3 de facto metadata standard'},
+    			'dwc': {'short':'Darwin Core','long':'Darwin Core terms'},
+    			'vra': {'short':'VRA Ontology','long':'VRA Ontology representing entities in the VRA data model'},
+    			'cp': {'short':'CommonPlace','long':'Terms for describing publications'},
+    			'tk': {'short':'TK Labels','long':'Traditional Knowledge labels'}
     		};
         	// Ontologies
         	for (var prefix in data) {
-        		var $header = $('<h1 name="'+prefix+'">'+prefix+' &nbsp; </h1>').appendTo($div);
-        		if ('undefined'!=typeof(descriptions[prefix])) $header.append('<small>'+descriptions[prefix]+'</small>'); 
-        		title_links.push('<a href="javascript:void(null);">'+prefix+'</a>');
+        		if ('undefined' != typeof(descriptions[prefix])) {
+        			var $header = $('<div name="'+prefix+'" class="description">'+descriptions[prefix].long+':</div>').appendTo($div); 
+        			$title_links_list.append('<li><a href="javascript:void(null);" name="'+prefix+'">'+descriptions[prefix].short+'</a></li>');
+        		} else {
+        			var $header = $('<div name="'+prefix+'" class="description">'+prefix+'</div>').appendTo($div); 
+        			$title_links_list.append('<li><a href="javascript:void(null);" name="'+prefix+'">'+prefix+'</a></li>');        			
+        		}
         		var $content = $('<div></div>').appendTo($div);
         		for (var j = 0; j < data[prefix].length; j+=3) {
         			var $row = $('<div class="row"></div>').appendTo($content);
-        			if ('undefined'!=typeof(data[prefix][j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j]+'" value="1" /> '+data[prefix][j]+'</label></div>').appendTo($row);
-        			if ('undefined'!=typeof(data[prefix][j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+1]+'" value="1" /> '+data[prefix][j+1]+'</label></div>').appendTo($row);
-        			if ('undefined'!=typeof(data[prefix][j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+2]+'" value="1" /> '+data[prefix][j+2]+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(data[prefix][j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j]+'" value="1" />&nbsp; '+data[prefix][j]+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(data[prefix][j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+1]+'" value="1" />&nbsp; '+data[prefix][j+1]+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(data[prefix][j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':'+data[prefix][j+2]+'" value="1" />&nbsp; '+data[prefix][j+2]+'</label></div>').appendTo($row);
         		}
             	if (!bootstrap_enabled) {
             		$content.css('display','table').css('width','100%');
@@ -141,15 +149,14 @@
         	// TK Labels
         	if (opts.tklabels && 'undefined' != typeof(opts.tklabels.labels)) {
         		var prefix = 'tk';
-        		var $header = $('<h1 name="'+prefix+'">'+prefix+' &nbsp; </h1>').appendTo($div);
-        		if ('undefined'!=typeof(descriptions[prefix])) $header.append('<small>'+descriptions[prefix]+'</small>'); 
-        		title_links.push('<a href="javascript:void(null);">'+prefix+'</a>');
+        		var $header = $('<div name="'+prefix+'" class="description">Traditional Knowledge (TK) Labels available for use in this '+opts.scope+':</div>').appendTo($div);
+        		$title_links_list.append('<li><a href="javascript:void(null);" name="'+prefix+'">TK Labels</a></li>');
         		var $content = $('<div></div>').appendTo($div);
         		for (var j = 0; j < opts.tklabels.labels.length; j+=3) {
         			var $row = $('<div class="row"></div>').appendTo($content);
-        			if ('undefined'!=typeof(opts.tklabels.labels[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j].code+'" /> <img src="'+opts.tklabels.labels[j].image+'" style="height:16px;vertical-align:baseline" /> '+opts.tklabels.labels[j].title+'</label></div>').appendTo($row);
-        			if ('undefined'!=typeof(opts.tklabels.labels[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j+1].code+'" /> <img src="'+opts.tklabels.labels[j+1].image+'" style="height:16px;vertical-align:baseline" /> '+opts.tklabels.labels[j+1].title+'</label></div>').appendTo($row);
-        			if ('undefined'!=typeof(opts.tklabels.labels[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j+2].code+'" /> <img src="'+opts.tklabels.labels[j+2].image+'" style="height:16px;vertical-align:baseline" /> '+opts.tklabels.labels[j+2].title+'</label></div>').appendTo($row);
+        			if ('undefined'!=typeof(opts.tklabels.labels[j])) $('<div class="cell col-xs-12 col-sm-4" style="padding-bottom:12px;"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j].code+'" /><img src="'+opts.tklabels.labels[j].image+'" style="height:40px;vertical-align:middle;margin-left:12px;margin-bottom:6px;" /><br /><span style="padding-left:24px;">'+opts.tklabels.labels[j].title+'</span><br /><small style="display:inline-block;margin-left:24px;line-height:1.35;">'+opts.tklabels.labels[j].text.property2.description+'</small></label></div>').appendTo($row);
+        			if ('undefined'!=typeof(opts.tklabels.labels[j+1])) $('<div class="cell col-xs-12 col-sm-4" style="padding-bottom:12px;"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j+1].code+'" /><img src="'+opts.tklabels.labels[j+1].image+'" style="height:40px;vertical-align:middle;margin-left:12px;margin-bottom:6px;" /><br /><span style="padding-left:24px;">'+opts.tklabels.labels[j+1].title+'</span><br /><small style="display:inline-block;margin-left:24px;line-height:1.35;">'+opts.tklabels.labels[j+1].text.property2.description+'</small></label></div>').appendTo($row);
+        			if ('undefined'!=typeof(opts.tklabels.labels[j+2])) $('<div class="cell col-xs-12 col-sm-4" style="padding-bottom:12px;"><label><input type="checkbox" name="'+prefix+':hasLabel" value="'+prefix+':'+opts.tklabels.labels[j+2].code+'" /><img src="'+opts.tklabels.labels[j+2].image+'" style="height:40px;vertical-align:middle;margin-left:12px;margin-bottom:6px;" /><br /><span style="padding-left:24px;">'+opts.tklabels.labels[j+2].title+'</span><br /><small style="display:inline-block;margin-left:24px;line-height:1.35;">'+opts.tklabels.labels[j+2].text.property2.description+'</small></label></div>').appendTo($row);
         		}
             	if (!bootstrap_enabled) {
             		$content.css('display','table').css('width','100%');
@@ -157,17 +164,51 @@
             		$content.find('.cell').css('display','table-cell').css('padding-top','3px').css('padding-bottom','3px');
             	}
         	}
-        	// Quick links
-        	if (has_title_links) {
-        		$title_links.append(title_links.join('&nbsp; '));
-    			$('.add_metadata_bootbox .title-links').find('a').click(function() {
-    				var name = $(this).text().toLowerCase();
-    				var $content = $('.add_metadata_bootbox .add_metadata_modal');
-    				$content.scrollTop(0);
-    				var top = $content.find('[name="'+name+'"]').position().top;
-    				$content.scrollTop(top-20); // Magic number
-    			});        		
-        	}
+        	// Selector actions
+        	$div.find('.description').each(function() {
+        		var $this = $(this);
+        		$this.css('margin-bottom','15px');
+        		if (opts.active != $this.attr('name')) $this.hide().next().hide();
+        	});
+        	$title_links_list.find('a[name="'+opts.active+'"]').parent().addClass('active');
+        	$title_links_btn.find('.title').text( $title_links_list.find('a[name="'+opts.active+'"]').text() );
+        	$title_links.find('a').click(function() {
+        		var $this = $(this);
+        		$this.closest('ul').find('.active').removeClass('active');
+        		$this.parent().addClass('active');
+        		var name = $this.attr('name');
+            	$div.find('.description').each(function() {
+            		var $this = $(this);
+            		$this.hide().next().hide();
+            	});
+            	$div.find('.description[name="'+name+'"]').show().next().show();
+            	$title_links_btn.find('.title').text( $title_links_list.find('a[name="'+name+'"]').text() );
+            	if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
+            		$title_links_list.children().css('text-decoration','none');
+            		$title_links_list.children('.active').css('text-decoration','underline');
+            	};
+        	});
+        	if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
+        		$title_links.find('ul:first').insertBefore($title_links.parent());
+        		$title_links.parent().hide();
+        		$title_links_list.find('a').css('color','#026697');
+        		$title_links_list.find('a[name="'+opts.active+'"]').parent().css('text-decoration','underline');
+        		$title_links_list.css({
+        			'list-style-type':'none',
+        			'margin':'8px 0px 12px 0px',
+        			'padding':'0px'
+        		});
+        		$title_links_list.children().css({
+        			'display':'inline',
+        			'padding':'0px',
+        			'margin-right':'12px'
+        		});
+        		$div.find('.description').css({
+        			'background':'none',
+        			'margin-left':'0px',
+        			'padding-left':'0px'
+        		});
+        	};
     	});
     	
     };
@@ -239,7 +280,7 @@
     	var $insert_into = $(this);
     	opts = $.extend( {}, defaults, options );
     	if ($(opts.button).data('active')) return;
-    	$(opts.button).data('active', true);
+    	$(opts.button).data('active', true).prop('disabled', 'disabled');
     	
     	// Get image metadata on the resource
     	$.getJSON(opts.parser_url+'?url='+opts.url, function( data ) {
@@ -264,7 +305,7 @@
         			$insert_into.append($insert);
         		};
         	};
-        	$(opts.button).data('active', false);
+        	$(opts.button).data('active', false).prop('disabled', false);
     	});
     	
     };   

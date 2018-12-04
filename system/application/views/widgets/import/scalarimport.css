@@ -36,7 +36,7 @@
 /* Importing */
 
 .custom_meta {position:relative;}
-.custom_meta .directions {margin:6px 0px 6px 0px;}
+.custom_meta .directions {margin:6px 0px 12px 0px;}
 .custom_meta .subtitle {font-weight:normal;}
 .custom_meta ul {display:table; width:96%; margin-left:0px; padding-left:0px;}
 .custom_meta ul li {display:table-row;}
@@ -48,6 +48,7 @@
 .custom_meta ul li .value > textarea {width:97%; height:60px; margin:0;}
 .custom_meta sup, .custom_meta .asterisk {color:red; padding-left:3px; font-weight:bold;}
 .custom_meta .invalid_input {border:solid 1px red;}
+.custom_meta .custom_meta_content h4 {margin-bottom:12px;}
 .custom_meta .custom_meta_footer {text-align:right;margin-top:12px;}
 .custom_meta .custom_meta_footer .reload {color:#026697; font-size:smaller; float:left; padding-top:4px;}
 

@@ -497,6 +497,7 @@ class Book extends MY_Controller {
 				if (empty($archive_api_key)) $archive_api_key = $this->config->item($id.'_id');
 				$this->data['archive_api_key'] = (!empty($archive_api_key)) ? trim($archive_api_key) : null;
 				$this->data['view'] = __FUNCTION__;
+				$this->data['tklabels'] = $this->tklabels();
 
 		}
 
@@ -586,14 +587,14 @@ class Book extends MY_Controller {
 			exit;
 
 		} // if
-
-		// List of media pages
-		$this->data['book_media'] = $this->pages->get_all($this->data['book']->book_id, 'media', null, false);
+		
+		$this->data['book_media'] = $this->pages->get_all($this->data['book']->book_id, 'media', null, false);  // List of media pages
 		$to_remove = array();
 		for ($j = 0; $j < count($this->data['book_media']); $j++) {
 			$this->data['book_media'][$j]->versions = array();
 			$this->data['book_media'][$j]->versions[0] = $this->versions->get_single($this->data['book_media'][$j]->content_id, $this->data['book_media'][$j]->recent_version_id);
 		}
+		$this->data['tklabels'] = $this->tklabels();
 
 	}
 

@@ -6,6 +6,9 @@ else:
 $this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');
 $this->template->add_css('system/application/views/widgets/import/scalarimport.css');
 $this->template->add_js('system/application/views/widgets/import/jquery.scalarimport.js');
+if (!empty($tklabels)) {
+	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
+}
 $js = <<<EOT
 
 $(document).ready(function() {
@@ -16,6 +19,7 @@ $(document).ready(function() {
 });
 
 EOT;
+$js .= 'var scope = "'.$book->scope.'";'."\n";
 $this->template->add_js($js, 'embed');
 $css = <<<END
 

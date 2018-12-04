@@ -531,7 +531,7 @@ if ('undefined'==typeof(escape_html)) {
 			$('.custom_meta, .bootbox, .modal-backdrop').remove();
 			var $div = $('<div class="custom_meta"></div>').appendTo('body');
 			var $content = $('<div class="custom_meta_content" style="overflow:scroll;overflow-x:hidden;"></div>').appendTo($div);
-			var $buttons = $('<div class="custom_meta_footer"><a href="javascript:void(null);" class="reload">Reload original metadata</a><a class="btn btn-default import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="btn btn-primary import_btn generic_button large default">Continue</a></div>').appendTo($div);	
+			var $buttons = $('<div class="custom_meta_footer"><!--<a href="javascript:void(null);" class="reload">Reload original metadata</a>--><a class="btn btn-default import_btn generic_button large">Cancel</a>&nbsp; &nbsp;<a class="btn btn-primary import_btn generic_button large default">Continue</a></div>').appendTo($div);	
 			
 			// Buttons
 			$buttons.find('a:first').click(function() {  // Reload
@@ -613,7 +613,7 @@ if ('undefined'==typeof(escape_html)) {
 					$li.append('<span class="field">'+j+'</span><span class="value"><input type="text" name="'+j+'" value="'+value+'" /></span>');
 				}
 			}			
-			$other.append('<a class="btn btn-default btn-sm generic_button border_radius" id="additional_metadata" href="javascript:void(null);">Add additional metadata</a>');
+			$other.append('<a class="btn btn-default generic_button border_radius" id="additional_metadata" href="javascript:void(null);">Add additional metadata</a>');
 			
 			// Create the modal
 			var width = (parseInt($(window).width()) * 0.8);
@@ -648,7 +648,8 @@ if ('undefined'==typeof(escape_html)) {
 				var approot = $('link#approot').attr('href');
 				$.getScript(approot+'views/widgets/edit/jquery.add_metadata.js', function() {
 					var ontologies_url = approot.replace('/system/application/','')+'/system/ontologies';
-					$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
+					var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
+					$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope});
 				});
 				return false;
 			});

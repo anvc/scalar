@@ -401,15 +401,20 @@ $(document).ready(function() {
 	$('.add_additional_metadata:first').click(function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
-		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels});
+		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope});
+	});
+	$('.add_additional_tklabels:first').click(function() {
+		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
+		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
+		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels,active:'tk',scope:scope});
 	});
 	$('#metadata_rows').populate_metadata_from_localstorage();
 	$('.populate_exif_fields:first').click(function() {
 		if (!confirm('This feature will find any IPTC or ID3 metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files, and ID3 in MP3 fles, by external applications. Do you wish to continue?')) return;
 		var url = $('input[name="scalar:url"]').val();
-		if (!url.length) {
-			alert('Media File URL is empty');
-			return;
+		if (!url.length || url == 'http://') {
+			alert('Media file URL is empty');
+			return false;
 		}
 		if (-1==url.indexOf('://')) {
 			url = $('link#parent').attr('href')+url;
@@ -660,7 +665,9 @@ END;
 $page = (isset($page->version_index)) ? $page : null;
 $version = (isset($page->version_index)) ? $page->versions[$page->version_index] : null;
 
-$js .= ' var page_slug = "'.((isset($page->slug))?$page->slug:'').'"; var version_date ='.((isset($version)?strtotime($version->created):0)*1000).';';
+$js .= "\n".'var page_slug = "'.((isset($page->slug))?$page->slug:'').'";'."\n";
+$js .= 'var version_date = '.((isset($version)?strtotime($version->created):0)*1000).';'."\n";
+$js .= 'var scope = "'.$book->scope.'";'."\n";
 
 $this->template->add_js($js, 'embed');
 
@@ -1390,10 +1397,15 @@ if($currentRole == 'commentator'){
 						?>
 						</div>
 						<div class="form-group">
-						 	<label class="col-sm-3 control-label" id="metadata_fields_label"><?=((isset($counter) && $counter)?'':'Metadata fields')?></label>
+						 	<label class="col-sm-3 control-label" id="metadata_fields_label"></label>
 						 	<div class="col-sm-9">
-								<a href="javascript:;" class="btn btn-primary add_additional_metadata" role="button">Add additional metadata</a>&nbsp;
-								<a href="javascript:;" class="btn btn-default populate_exif_fields" role="button">Auto-populate fields from file</a>
+								<button type="button" class="btn btn-primary add_additional_metadata" role="button">Add additional metadata</button>&nbsp;
+								<? if ($tklabels): ?>
+								<button type="button" class="btn btn-info add_additional_tklabels" role="button">Traditional Knowledge Labels</button>&nbsp;
+								<? endif; ?>
+								<? if ($is_file || (isset($_GET['type']) && 'media'==$_GET['type'])): ?>
+								<button type="button" class="btn btn-default populate_exif_fields" role="button">Auto-populate fields from file</button>
+								<? endif; ?>
 							</div>
 						</div>
 					</div>

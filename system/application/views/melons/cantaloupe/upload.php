@@ -1,6 +1,9 @@
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
 <?
+if (!empty($tklabels)) {
+	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
+}
 $js = <<<END
 
 // The following handles the "replace" functionality
@@ -26,7 +29,8 @@ $( document ).ready(function() {
 	$('.add_additional_metadata:first').click(function() {
 		$('#metadata_rows_parent').show();
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
-		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,input_class:'input-sm'});
+		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
+		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,input_class:'input-sm',tklabels:tklabels,scope:scope});
 	});
 });
 // http://stackoverflow.com/questions/11920697/how-to-get-hash-value-in-a-url-in-js
@@ -142,6 +146,7 @@ function custom_file_input(el) {
 }
 
 END;
+$js .= 'var scope = "'.$book->scope.'";'."\n";
 $this->template->add_js($js, 'embed');
 $css = <<<END
 h2 {margin-top:0; padding-top:0; margin-left:0; padding-left:0; margin-right:0; padding-right:0;}
@@ -248,7 +253,7 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	</td></tr>
 	<tr><td class="field">Metadata</td><td>
 		<a href="javascript:;" class="btn btn-default add_additional_metadata" role="button">Add additional metadata</a>&nbsp; 
-		<small>Any IPTC or ID3 fields embedded in the file will auto-populate during upload</small>	
+		<small>IPTC or ID3 fields embedded in the file will auto-populate during upload</small>	
 	</td></tr>
 	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
 	<tr><td class="field">Choose file</td><td>
