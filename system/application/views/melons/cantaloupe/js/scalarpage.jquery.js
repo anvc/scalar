@@ -1138,7 +1138,7 @@
 
             addTKLabels: function() {
             	var $labels = $('article header [typeof="tk:TKLabel"]');
-              $labels.wrapAll('<div class="tklabels"></div>');
+            	$labels.wrapAll('<div class="tklabels"></div>');
             	var hasLabels = ($labels.length) ? true : false;
             	if (!hasLabels) return;
                 var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
@@ -2050,8 +2050,10 @@
                         $('.annotorious-item, .annotorious-popup').remove();
                         anno.removeAll();
                         page.handleMediaResize();
+                        $('body').trigger('mediaResizeComplete');
                     }
-                }
+                };
+                $('body').trigger('delayedResizeComplete');
             },
 
             handleMediaResize: function() {
