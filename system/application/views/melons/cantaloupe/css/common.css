@@ -740,6 +740,7 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	line-height: 1.7rem;
 	color: #666;
 	text-align: left;
+	word-wrap: break-word;
 }
 
 #additionalMetadata { display: none; }
