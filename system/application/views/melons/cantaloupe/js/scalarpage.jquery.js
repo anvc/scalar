@@ -1142,7 +1142,12 @@
             	var hasLabels = ($labels.length) ? true : false;
             	if (!hasLabels) return;
                 var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
-            	$labels.last().addClass('last');
+                var user_level = ($('link#user_level').length) ? $('link#user_level').attr('href').toLowerCase() : '';
+                if (-1!=user_level.indexOf('editor')||-1!=user_level.indexOf('author')) {
+            		$labels.last().addClass('last').after('<img id="tk-add" />');
+            	} else {
+            		$labels.last().addClass('last');
+            	};
             	$labels.each(function() {
             		var $label = $(this);
                     $label.parent().prepend($label);

@@ -527,9 +527,12 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 [typeof="tk:TKLabel"] { margin-right:6px; }
 [typeof="tk:TKLabel"] > img {height:2.4rem; cursor: pointer; }
 .image_header > .tklabels { float: right; margin: 3.6rem 7.2rem 0 0; }
-.tk-help > .popover-content > img { height:3rem; float: left; margin-right: .8rem; margin-top: .3rem; }
+.tk-help > .popover-content > img {height:3rem; float: left; margin-right: .8rem; margin-top: .3rem; }
 [typeof="tk:TKLabel"] > span {display:none;}
-
+#tk-add {
+	display:none; height:2.4rem; width:3rem; position:absolute; right:3rem; border-radius:5px; margin-top:2px; cursor:pointer;
+	background-image:url(../images/edit_icon.png); background-position:center center; background-size:contain; background-repeat:no-repeat;
+}
 .tk-labels-media { margin-bottom: .6rem; }
 
 /* --- SPLASH --- */
@@ -1367,5 +1370,6 @@ body>.annotorious-popup{
     .sp-block-people .sp-block__content .body_copy { padding-left: 0px; }
     .sp-block__content .slot .mediaelement { display: none; }
     .sp-block-people .sp-block__content .slot .mediaelement { display: unset; }
+    #tk-add {display:inline-block;}
   }
 }
