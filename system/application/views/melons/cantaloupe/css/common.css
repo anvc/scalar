@@ -895,6 +895,7 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 	padding-left: 4rem;
 	float: left;
 	cursor: pointer;
+	background-size: 31px 26px;
 }
 
 .comment { margin-bottom: 3rem; max-width: 85.4rem; }
