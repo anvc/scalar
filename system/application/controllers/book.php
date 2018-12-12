@@ -111,6 +111,7 @@ class Book extends MY_Controller {
 			$page = $this->pages->get_by_slug($this->data['book']->book_id, $this->data['slug']);
 			if ($page && !$page->is_live) $this->protect_book('Reader');
 			$page_not_found = false;
+			$this->data['tklabels'] = $this->tklabels();
 			if (!empty($page)) {
 				// Version being asked for
 				if (null !== $this->data['url_params']['version_num']) {
@@ -129,7 +130,7 @@ class Book extends MY_Controller {
 									'ref'          => RDF_Object::REFERENCES_ALL,
 									'prov'		   => RDF_Object::PROVENANCE_ALL,
 							  		'max_recurses' => $this->max_recursions,
-									'tklabeldata'  => $this->tklabels(),
+									'tklabeldata'  => $this->data['tklabels'],
 									'tklabels' 	   => RDF_Object::TKLABELS_ALL,
 									'is_book_admin'=> $this->login_is_book_admin()
 								 );

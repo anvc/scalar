@@ -27,6 +27,7 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarstructuredgallery.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarwidgets.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
+<? if (!empty($tklabels)) $this->template->add_js('var tklabels='.json_encode($tklabels),'embed'); ?>
 <?
 if (isset($plugins['thoughtmesh'])) {
 	$plugins['thoughtmesh']->get();

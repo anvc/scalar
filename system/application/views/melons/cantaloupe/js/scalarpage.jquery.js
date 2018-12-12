@@ -1140,11 +1140,20 @@
             	var $labels = $('article header [typeof="tk:TKLabel"]');
             	$labels.wrapAll('<div class="tklabels"></div>');
             	var hasLabels = ($labels.length) ? true : false;
-            	if (!hasLabels) return;
+            	if (!hasLabels) return;  // TODO: let this pass through so quick edit button is drawn even if there are no labels
                 var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
                 var user_level = ($('link#user_level').length) ? $('link#user_level').attr('href').toLowerCase() : '';
                 if (-1!=user_level.indexOf('editor')||-1!=user_level.indexOf('author')) {
             		$labels.last().addClass('last').after('<img id="tk-add" />');
+            		$.getScript($('link#approot').attr('href')+'views/widgets/edit/jquery.add_metadata.js');
+            		$.getScript($('link#approot').attr('href')+'views/melons/cantaloupe/js/bootbox.min.js');
+            		$labels.parent().find('#tk-add').click(function() {
+            			var scope = 'book';
+            			var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
+            			var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
+            			var $blank = $('<div style="display:none;"></div>').appendTo('body');
+            			$blank.add_metadata({title:'Manage TK Labels',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope,active:'tk',active_only:true});
+            		});
             	} else {
             		$labels.last().addClass('last');
             	};

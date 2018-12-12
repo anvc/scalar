@@ -11,6 +11,7 @@
 			input_class:'',
 			tklabels:null,
 			active: 'featured',
+			active_only: false,
 			scope: 'book'
 	};  	
 	
@@ -172,6 +173,7 @@
         	});
         	$title_links_list.find('a[name="'+opts.active+'"]').parent().addClass('active');
         	$title_links_btn.find('.title').text( $title_links_list.find('a[name="'+opts.active+'"]').text() );
+        	if (true == opts.active_only) $div.children().first().hide();
         	$title_links.find('a').click(function() {
         		var $this = $(this);
         		$this.closest('ul').find('.active').removeClass('active');
@@ -188,7 +190,8 @@
             		$title_links_list.children('.active').css('text-decoration','underline');
             	};
         	});
-        	if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
+        	// jQuery UI
+        	if ('undefined'!=typeof($.fn.dialog)) {
         		$title_links.find('ul:first').insertBefore($title_links.parent());
         		$title_links.parent().hide();
         		$title_links_list.find('a').css('color','#026697');
