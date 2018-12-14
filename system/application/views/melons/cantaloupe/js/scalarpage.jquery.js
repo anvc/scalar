@@ -1148,11 +1148,22 @@
             		$.getScript($('link#approot').attr('href')+'views/widgets/edit/jquery.add_metadata.js');
             		$.getScript($('link#approot').attr('href')+'views/melons/cantaloupe/js/bootbox.min.js');
             		$labels.parent().find('#tk-add').click(function() {
+            			var data = [];
+            			$('div.tklabels').children('[typeof="tk:TKLabel"]').each(function() {
+            				var pnode = $(this).attr('resource').replace('http://localcontexts.org/tk/','tk:');
+            				data.push(pnode);
+            			});
             			var scope = 'book';
             			var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
             			var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
             			var $blank = $('<div style="display:none;"></div>').appendTo('body');
-            			$blank.add_metadata({title:'Manage TK Labels',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope,active:'tk',active_only:true});
+            			$blank.add_metadata({title:'Update TK Labels',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope,active:'tk',active_only:true,add_fields_btn_text:'Update Labels',data:data,callback:function() {
+            				var selected = [];
+            				$blank.find('input[value]').each(function() {
+            					selected.push($(this).attr('value'));
+            				});
+            				// TODO: recurse back to this function to redraw labels
+            			}});
             		});
             	} else {
             		$labels.last().addClass('last');

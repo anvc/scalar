@@ -12,7 +12,9 @@
 			tklabels:null,
 			active: 'featured',
 			active_only: false,
-			scope: 'book'
+			scope: 'book',
+			add_fields_btn_text: 'Add fields',
+			callback: null
 	};  	
 	
     $.fn.add_metadata = function(options) {
@@ -28,7 +30,7 @@
 		if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
 	    	opts['buttons'] = [ 
 	    	           	    { text: "Cancel", class: "generic_button", click: function() { $this.dialog( "destroy" ); $this.remove(); } },
-	    	           	  	{ text: "Add selected fields", class: "generic_button default", click: function() { 
+	    	           	  	{ text: opts.add_fields_btn_text, class: "generic_button default", click: function() { 
 	    	           	  		var selected = $(this).find(':checked');
 	    	           	  		$.each(selected, function() {
 	    	           	  			var val = $(this).attr('name');
@@ -62,7 +64,7 @@
 				      }
 				    },
 				    add: {
-				      label: "Add fields",
+				      label: opts.add_fields_btn_text,
 				      className: "btn-primary",
 				      callback: function() {
 				    	var $content = $('.add_metadata_bootbox #bootbox-content:first');
@@ -81,6 +83,7 @@
 		    	  			$insert_into.append($insert);
 		    	  		});
 		    	  		$('.add_metadata_bootbox').modal('hide').data('bs.modal', null);  
+		    	  		if (null !== opts.callback) opts.callback();
 				      }
 				    },
 				}				
@@ -190,6 +193,12 @@
             		$title_links_list.children('.active').css('text-decoration','underline');
             	};
         	});
+        	// Check and boxes based on opts.data
+        	if (null != opts.data && opts.data.length) {
+        		for (var j = 0; j < opts.data.length; j++) {
+        			$div.find('[value="'+opts.data[j]+'"]').prop('checked',true);
+        		}
+        	}
         	// jQuery UI
         	if ('undefined'!=typeof($.fn.dialog)) {
         		$title_links.find('ul:first').insertBefore($title_links.parent());
