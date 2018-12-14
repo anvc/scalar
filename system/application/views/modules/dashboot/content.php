@@ -72,7 +72,12 @@ function editionCookieName() {
     <nav class="col-xs-12 col-sm-6">
       <h5>
         <a href="http://scalar.usc.edu">About Scalar</a> | 
-        <a href="?dashboard=dashboard&book_id=<?=((!empty($book))?$book->book_id:0)?>&zone=style#tabs-style">Revert Dashboard</a> | 
+        <?
+		$active_dashboard = $this->config->item('active_dashboard');
+		if ('dashboard'==$active_dashboard): 
+		?>
+        <a href="?dashboard=dashboard&book_id=<?=((!empty($book))?$book->book_id:0)?>&zone=style#tabs-style">Revert Dashboard</a> |
+        <? endif; ?> 
         <a href="http://scalar.usc.edu/works/guide2">User's Guide</a> 
         <img class="scalar_logo small" src="<?=$app_root.'views/modules/dashboot/images/scalar-avatar.png'?>" alt="Small Scalar logo" />
       </h5>
