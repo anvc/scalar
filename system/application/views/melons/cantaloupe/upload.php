@@ -1,9 +1,6 @@
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
 <?
-if (!empty($tklabels)) {
-	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
-}
 $js = <<<END
 
 // The following handles the "replace" functionality

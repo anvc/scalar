@@ -1137,37 +1137,59 @@
             },
 
             addTKLabels: function() {
+            	if ('undefined' == typeof(window['tklabels'])) return;
             	var $labels = $('article header [typeof="tk:TKLabel"]');
-            	$labels.wrapAll('<div class="tklabels"></div>');
-            	var hasLabels = ($labels.length) ? true : false;
-            	if (!hasLabels) return;  // TODO: let this pass through so quick edit button is drawn even if there are no labels
-                var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
-                var user_level = ($('link#user_level').length) ? $('link#user_level').attr('href').toLowerCase() : '';
-                if (-1!=user_level.indexOf('editor')||-1!=user_level.indexOf('author')) {
-            		$labels.last().addClass('last').after('<img id="tk-add" />');
-            		$.getScript($('link#approot').attr('href')+'views/widgets/edit/jquery.add_metadata.js');
-            		$.getScript($('link#approot').attr('href')+'views/melons/cantaloupe/js/bootbox.min.js');
-            		$labels.parent().find('#tk-add').click(function() {
-            			var data = [];
-            			$('div.tklabels').children('[typeof="tk:TKLabel"]').each(function() {
-            				var pnode = $(this).attr('resource').replace('http://localcontexts.org/tk/','tk:');
-            				data.push(pnode);
-            			});
-            			var scope = 'book';
-            			var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
-            			var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
-            			var $blank = $('<div style="display:none;"></div>').appendTo('body');
-            			$blank.add_metadata({title:'Update TK Labels',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope,active:'tk',active_only:true,add_fields_btn_text:'Update Labels',data:data,callback:function() {
-            				var selected = [];
-            				$blank.find('input[value]').each(function() {
-            					selected.push($(this).attr('value'));
-            				});
-            				// TODO: recurse back to this function to redraw labels
-            			}});
-            		});
-            	} else {
-            		$labels.last().addClass('last');
+            	$labels.last().addClass('last');
+            	if (!$labels.length) {
+            		$('<div class="tklabels"></div>').insertBefore('article header h1:first');
+            	} else if (!$labels.parent('.tklabels').length) {
+	            	$labels.wrapAll('<div class="tklabels"></div>');
             	};
+            	// Add a quick edit feature if logged in
+	            var user_level = ($('link#user_level').length) ? $('link#user_level').attr('href').toLowerCase() : '';
+	            if (-1!=user_level.indexOf('editor')||-1!=user_level.indexOf('author')) {
+	            	var $wrapper = $('article header .tklabels');
+	            	$wrapper.append('<img id="tk-add" title="Update TK Labels for this page" '+((!$labels.length)?'class="desciptor"':'')+' />');
+	            	$.getScript($('link#approot').attr('href')+'views/widgets/edit/jquery.add_metadata.js');
+	            	$.getScript($('link#approot').attr('href')+'views/melons/cantaloupe/js/bootbox.min.js');
+	            	$wrapper.find('#tk-add').click(function() {
+	            		var data = [];
+	            		$wrapper.children('[typeof="tk:TKLabel"]').each(function() {
+	            			var pnode = $(this).attr('resource').replace('http://localcontexts.org/tk/','tk:');
+	            			data.push(pnode);
+	            		});
+	            		var scope = 'book';
+	            		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
+	            		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
+	            		var $blank = $('<div style="display:none;"></div>').appendTo('body');
+	            		$blank.add_metadata({title:'Update TK Labels',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope,active:'tk',active_only:true,add_fields_btn_text:'Update Labels',data:data,callback:function() {
+	            			var selected = [];
+	            			$blank.find('input[value]').each(function() {
+	            				selected.push($(this).attr('value'));
+	            			});
+	            			$wrapper.empty();
+	            			for (var j = 0; j < selected.length; j++) {
+	            				for (var k = 0; k < window['tklabels'].labels.length; k++) {
+	            					if ('tk:'+window['tklabels'].labels[k].code == selected[j]) {
+			            				var url = window['tklabels'].labels[k].image; 
+			            				var title = window['tklabels'].labels[k].title;
+			            				var description = window['tklabels'].labels[k].text.property2.description;
+				           				var label_template = '';
+				           				label_template += '<span resource="'+selected[j].replace('tk:','http://localcontexts.org/tk/')+'" typeof="tk:TKLabel">';
+				           				label_template += '<a class="metadata" aria-hidden="true" rel="art:url" href="'+url+'"></a>';
+				           				label_template += '<span class="metadata" aria-hidden="true" property="dcterms:title">'+title+'</span>';
+				           				label_template += '<span class="metadata" aria-hidden="true" property="dcterms:description">'+description+'</span>';
+				           				label_template += '</span>';
+				           				$wrapper.append(label_template);	 
+	            					};
+	            				};
+	            			};
+	            			page.addTKLabels();
+	            		}});
+	            	});
+	            };
+	            // Info popup about each label
+            	var popover_template = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
             	$labels.each(function() {
             		var $label = $(this);
                     $label.parent().prepend($label);
@@ -1178,13 +1200,13 @@
                     $label.find('img').popover( {
                         trigger: "click",
                         html: true,
-                        template: popoverTemplate,
+                        template: popover_template,
                         container: 'body',
                         content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
                     } );
             	});
-              // move labels to image header if present
-              $('.image_header').prepend($labels.parent());
+            	// Move labels to image header if present
+            	if ($('.image_header').length) $('.image_header').prepend($labels.parent());
             },
 
             handleEditionSelect: function() {

@@ -36,9 +36,6 @@ $this->template->add_js('var media_views='.json_encode( $this->config->item('med
 if ($this->config->item('predefined_css')) {
 	$this->template->add_js('var predefined_css='.json_encode($this->config->item('predefined_css')), 'embed');
 }
-if (!empty($tklabels)) {
-	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
-}
 $css = <<<END
 .cke_button.cke_button__removeformat{border: 1px solid rgba(200,50,50,.3); background-color: rgba(200,50,50,.2); box-shadow: 0 0 10px rgba(255,0,0,.2) inset;border: none;}
 .cke_button.cke_button__removeformat:hover{box-shadow: none;}

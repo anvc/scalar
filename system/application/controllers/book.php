@@ -498,7 +498,6 @@ class Book extends MY_Controller {
 				if (empty($archive_api_key)) $archive_api_key = $this->config->item($id.'_id');
 				$this->data['archive_api_key'] = (!empty($archive_api_key)) ? trim($archive_api_key) : null;
 				$this->data['view'] = __FUNCTION__;
-				$this->data['tklabels'] = $this->tklabels();
 
 		}
 
@@ -595,7 +594,6 @@ class Book extends MY_Controller {
 			$this->data['book_media'][$j]->versions = array();
 			$this->data['book_media'][$j]->versions[0] = $this->versions->get_single($this->data['book_media'][$j]->content_id, $this->data['book_media'][$j]->recent_version_id);
 		}
-		$this->data['tklabels'] = $this->tklabels();
 
 	}
 
@@ -761,7 +759,7 @@ class Book extends MY_Controller {
 								'use_versions' => $this->data['use_versions'],
 								'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_Object::USE_VERSIONS_INCLUSIVE,
 								'is_book_admin'=> ($this->login_is_book_admin() && null == $this->data['url_params']['edition_index']) ? 1 : 0,
-								'tklabeldata'  => $this->tklabels(),
+								'tklabeldata'  => $this->data['tklabels'],
 								'tklabels' 	   => RDF_Object::TKLABELS_ALL,
 			);
 			$index = $this->rdf_object->index($settings);
@@ -846,7 +844,6 @@ class Book extends MY_Controller {
 		// Metadata terms
 		$this->data['ontologies'] = $this->config->item('ontologies');
 		$this->data['rdf_fields'] = $this->versions->rdf_fields;
-		$this->data['tklabels'] = $this->tklabels();
 
 		// List of images/audio
 		$this->data['book_images'] = $this->books->get_images($book_id);
