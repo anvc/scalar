@@ -534,18 +534,10 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	background-image:url(../images/edit_icon.png); background-position:center center; background-size:contain; background-repeat:no-repeat;
 }
 #tk-add.desciptor::after { 
-  content: "TK Labels";
-  color: #777777;
-  font-weight: normal;
-  font-size:11px;
-  float:right;
-  line-height:1.0;
-  position:relative;
-  left:-4.4rem;
-  top: 1px;
-  font-family: 'Lato', Arial, sans-serif !important;
+  	content: "TK Labels"; color: #777777; font-weight: normal; font-size:10px;
+  	float:right; line-height:1.0; position:relative; left:-4.4rem; top: 2px; font-family: 'Lato', Arial, sans-serif !important;
 }
-.tk-labels-media { margin-bottom: .6rem; }
+.tk-labels-media {margin-bottom:.6rem;}
 
 /* --- SPLASH --- */
 

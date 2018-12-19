@@ -1137,6 +1137,7 @@
             },
 
             addTKLabels: function() {
+            	// Cosmetics but only if TK Labels are turned on for this book
             	if ('undefined' == typeof(window['tklabels'])) return;
             	var $labels = $('article header [typeof="tk:TKLabel"]');
             	$labels.last().addClass('last');
@@ -1185,6 +1186,16 @@
 	            				};
 	            			};
 	            			page.addTKLabels();
+	            			var version_urn = $('link#urn').attr('href');
+	            			var version_id = version_urn.substr(version_urn.lastIndexOf(':')+1);
+	            			var url = $('link#approot').attr('href').replace('system/application/','')+'system/api/save_tklabels';
+	            			$wrapper.find('#tk-add').addClass('bg-warning');
+	            			$.post(url, {version_id:version_id,'tk:hasLabel':selected},function(data) {
+	            				if ('undefined' != typeof(data.error) && data.error.length) {
+	            					alert('There was an error attempting to save TK Labels: '+data.error);
+	            				}
+	            				$wrapper.find('#tk-add').removeClass('bg-warning');
+	            			},'json');
 	            		}});
 	            	});
 	            };
