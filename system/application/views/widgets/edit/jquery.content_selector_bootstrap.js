@@ -2382,7 +2382,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					if (opts.isEdit && $this.hasClass('visibilityLink') && 'is_live'==$this.parent().attr('property')) {
 						var content_id = $this.closest('tr').data('content-id');
 						var is_live = $this.find('.glyphicon-eye-open').length > 0 ? true : false;
-						var post = {section:'pages',id:content_id,is_live:((is_live)?0:1)};
+						var post = {section:'pages',id:content_id,book_id:book_id,is_live:((is_live)?0:1)};
 						push_row(post, function(data) {
 							if (data.error) return alert(data.error);
 							var visibleThumbUrl = (1==data.is_live) ? 'glyphicon-eye-open' : 'glyphicon-eye-close';

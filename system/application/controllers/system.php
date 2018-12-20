@@ -951,6 +951,7 @@ class System extends MY_Controller {
 				$section =@ $_POST['section'];
 				if (empty($id) || empty($section)) die('{}');
 				$book_id = (isset($_REQUEST['book_id']) && !empty($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
+				if (!$this->data['login_is_super'] && !$book_id) die ('{"error":"Missing the book ID"}');
 				$this->data['book'] = $this->books->get($book_id);
 				$this->set_user_book_perms();
 				if ('users'==$section) {  // All users
