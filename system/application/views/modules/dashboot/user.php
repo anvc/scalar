@@ -41,7 +41,7 @@ $(document).ready(function() {
 				for (var j = 0; j < data.length; j++) {
 	    			var str = data[j].title.replace(/<.*?>/g, '');
 	    			if (data[j].subtitle!=null && data[j].subtitle.length) str += ': '+data[j].subtitle.replace(/<.*?>/g, '');
-					var $row = $('<tr data-id="'+data[j].book_id+'"><td>'+str+'</td></tr>').appendTo($content); 
+					var $row = $('<tr data-id="'+data[j].book_id+'"><td>'+str+'</td></tr>').appendTo($content);
 				};
 				$duplicateBookModal.find('tbody tr').each(function() {
 					var $this = $(this);
@@ -112,7 +112,7 @@ $(document).ready(function() {
 	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" id="user_form">
 	    <input type="hidden" name="action" value="do_save_user" />
 	    <input type="hidden" name="id" value="<?=$login->user_id?>" />
-	    <input type="hidden" name="book_id" value="<?=@$book_id?>" />      
+	    <input type="hidden" name="book_id" value="<?=@$book_id?>" />
         <div class="form-group">
           <label for="fullname" class="col-sm-4 control-label">Full name</label>
           <div class="col-sm-8">
@@ -135,14 +135,14 @@ $(document).ready(function() {
         <div class="form-group">
           <label class="col-sm-4 control-label">Admin status</label>
           <label class="col-sm-8 control-label label-text">You are an admin</label>
-        </div>     
-<?php endif; ?>   
+        </div>
+<?php endif; ?>
         <!-- Avatar? -->
         <div class="form-group">
           <div class="col-sm-offset-4 col-sm-8">
             <small>To change your password enter the following values:</small>
           </div>
-        </div>          
+        </div>
         <div class="form-group">
           <label for="old_password" class="col-sm-4 control-label">Current password</label>
           <div class="col-sm-8">
@@ -160,19 +160,19 @@ $(document).ready(function() {
           <div class="col-sm-8">
             <input type="password" class="form-control" id="password_2" name="password_2">
           </div>
-        </div>    
+        </div>
         <div class="page-header">&nbsp;</div>
         <div class="form-group">
           <div class="col-sm-12">
             <button type="submit" class="btn btn-primary pull-right">Save changes</button>
           </div>
-        </div>                    
+        </div>
 	  </form>
     </section>
     <section class="col-xs-12 col-sm-6">
       <div class="page-header"><h4>Books</h4></div>
       <div class="form-inline">
-      	<button class="btn btn-default" data-toggle="modal" data-target="#createBookModal">Create new book</button> &nbsp; 
+      	<button class="btn btn-default" data-toggle="modal" data-target="#createBookModal">Create new book</button> &nbsp;
       	<button class="btn btn-default" data-toggle="modal" data-target="#duplicateBookModal">Duplicate existing book</button>
       </div>
       <div class="page-v-spacer"></div>
@@ -185,7 +185,7 @@ $(document).ready(function() {
               <th></th>
             </tr>
           </thead>
-          <tbody><?php 
+          <tbody><?php
 	    	  foreach ($my_books as $my_book) {
 	    	  	$role = '(No role)';
 	    	  	foreach ($my_book->users as $my_user) {
@@ -208,7 +208,7 @@ $(document).ready(function() {
           ?></tbody>
         </table>
       </div>
-    </section>    
+    </section>
   </div>
 </div>
 
@@ -217,7 +217,7 @@ $(document).ready(function() {
     <div class="modal-content">
       <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
       <input type="hidden" name="action" value="do_add_book" />
-      <input type="hidden" name="user_id" value="<?=$login->user_id?>" />    
+      <input type="hidden" name="user_id" value="<?=$login->user_id?>" />
       <div class="modal-body">
         <div class="page-header"><h4>Create new book</h4></div>
         <div class="form-group">
@@ -244,7 +244,7 @@ $(document).ready(function() {
           <div class="col-sm-6">
             <small>For cosmetic purposes only&mdash;will be displayed throughout the interface</small>
           </div>
-        </div>        	  
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -266,7 +266,7 @@ $(document).ready(function() {
       	<div class="page-header"><h4>Duplicate a book</h4></div>
       	<div class="loading">Loading...</div>
       	<div class="no-rows alert alert-danger">There are no books presently set to be duplicatable in this Scalar install.</div>
-      	<div class="rows" class="table-responsive">
+      	<div class="rows" class="table-responsive" style="max-height: 300px; overflow: auto;">
           <table class="table table-condensed table-hover">
             <thead>
               <tr><th>Book to duplicate</th></tr>
@@ -281,7 +281,7 @@ $(document).ready(function() {
             <input type="text" class="form-control" id="title" name="title" placeholder="New book title">
           </div>
         </div>
-      </div>    
+      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="submit" class="btn btn-primary">Duplicate</button>
