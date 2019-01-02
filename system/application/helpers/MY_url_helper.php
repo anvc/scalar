@@ -192,6 +192,7 @@
     	
     	if (!strstr($uri, '.')) return $uri;
     	$uri = no_ext($uri);
+    	if (!strstr($uri, '.')) return $uri;
     	$array = explode('.',$uri);
     	$candidate = $array[count($array)-1];
     	if (is_numeric($candidate)) {
@@ -202,12 +203,14 @@
     }
     
     function no_version_ext($uri) {
+    	
     	$array = explode('.',$uri);
     	$candidate = $array[count($array)-2];
     	if (is_numeric($candidate)) {
     		array_splice($array, count($array)-2, 1);
     	}
     	return implode('.',$array);
+    	
     }    
 
     function get_dir($uri='') {

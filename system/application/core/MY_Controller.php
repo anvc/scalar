@@ -132,7 +132,7 @@ class MY_Controller extends CI_Controller {
 	protected function set_url_params() {
 		
 		if (empty($this->data['book'])) return;
-		
+
 		$this->data['url_params'] = array();
 		$this->data['url_params']['uri'] = $this->uri->uri_string();
 		$this->data['url_params']['book_segment'] = no_edition(strtolower($this->uri->segment('1')));

@@ -103,7 +103,7 @@ class Book extends MY_Controller {
 	 */
 
 	public function _remap() {
-		
+
 		try {
 			$this->set_url_params();
 			if ('login_status'==$this->data['url_params']['page_first_segment']) return $this->login_status();  // Ajax login check
