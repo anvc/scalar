@@ -369,7 +369,7 @@ class Book extends MY_Controller {
 
 		$this->load->helper('text');
 		$this->data['can_edit'] = false;
-		$this->data['sq'] =@ $_GET['sq'];;
+		$this->data['sq'] =@ $_GET['sq'];
 		$this->data['terms'] = search_split_terms($this->data['sq']);
 		$this->data['result'] = $this->pages->search($this->data['book']->book_id, $this->data['terms']);
 		usort($this->data['result'], "sortSearchResults");
