@@ -19,6 +19,7 @@ STR;
 <?php if ($editorial_is_on): ?>
 <script>
   var user_type = '<?echo($user_level_as_defined);?>'.toLowerCase();
+	if (user_type == '') user_type = null;
   var project_type = '<?echo($book->scope);?>';
 	var user_data = null;
 	getUserData();
