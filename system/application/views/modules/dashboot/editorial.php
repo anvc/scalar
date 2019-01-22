@@ -981,12 +981,12 @@ STR;
       Track the editorial state of each piece of content in your <?=$book->scope?>.  Enable editorial workflow on the current
       <?=$book->scope?> by clicking the button below, or <a target="_blank" href="http://scalar.usc.edu/works/guide2/editorial-workflow">learn more</a>.
       </p>
-      <p>
-      <strong>The database for this Scalar install hasn't been updated to support Editorial Workflow features.</strong>
-      </p>
-      <p>
-      Contact a system administrator to <a href="https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time" target="_blank">update Scalar's database</a>.
-      </p>
+<?php if ('honeydew'==$book->template): ?>
+      <p>This <?php echo $book->scope?> is set to render in the Scalar 1 template.</p><p><strong>The Editorial Workflow requires Scalar 2, the default for new Scalar books.</strong></p>
+<?php else: ?>
+      <p><strong>The database for this Scalar install hasn't been updated to support Editorial Workflow features.</strong></p>
+      <p>Contact a system administrator to <a href="https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time" target="_blank">update Scalar's database</a>.</p>
+<?php endif; ?>
     </section>
   </div>
 </div>

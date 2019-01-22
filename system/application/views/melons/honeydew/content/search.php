@@ -8,9 +8,9 @@
 
 <?
 if (!empty($sq) && empty($result)) {
-	echo 'Could not find results for the query <b>'.$sq.'</b>';
+	echo 'Could not find results for the query <b>'.htmlspecialchars($sq).'</b>';
 } elseif (!empty($result)) {
-	echo 'Found <strong>'.count($result).'</strong> results for <strong>'.$sq.'</strong><br />'."\n";
+	echo 'Found <strong>'.count($result).'</strong> results for <strong>'.htmlspecialchars($sq).'</strong><br />'."\n";
 }
 ?>
 
