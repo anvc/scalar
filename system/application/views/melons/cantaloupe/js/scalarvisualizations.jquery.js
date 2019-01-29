@@ -2353,9 +2353,7 @@
 					.on( 'click', function(d) {
 						if (d3.event.defaultPrevented) return; // ignore drag
 						d3.event.stopPropagation();
-						if ( self.location != d.node.url ) {
-							return self.location = d.node.url;
-						}
+            window.open(d.node.url, '_blank');
 					});
 
 					// Transition nodes to their new position.
@@ -2600,7 +2598,7 @@
 					// double-click a node
 					.on("dblclick", function(d) {
 						if (d.node) {
-							return self.location = d.node.url;
+              window.open(d.node.url, '_blank');
 						}
 					})
 
@@ -2797,7 +2795,7 @@
 				        })
 						.on("click", function(d) {
 							if (d.node) {
-								return self.location = d.node.url;
+								window.open(d.node.url, '_blank');
 							}
 						})
 				        .text(function(d) { return base.getShortenedString( d.node.getDisplayTitle( true ), labelCharCount ); })
