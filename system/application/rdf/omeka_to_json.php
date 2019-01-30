@@ -75,7 +75,7 @@ elseif ($parsed_uri['scheme'] != 'http' &&
         $parsed_uri['scheme'] != 'https') {
     die('{}');
 }
-if (substr($parsed_uri['path'], -1, 1) == '/') {
+if (isset($parsed_uri['path']) && substr($parsed_uri['path'], -1, 1) == '/') {
     $parsed_uri['path'] = substr($parsed_uri['path'], 0, -1);
 }
 unset($parsed_uri['query']);
