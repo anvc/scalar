@@ -810,7 +810,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                       callback: function(isTruncated, fullText){
                         var mobileTitle = base.$el.find('.title_wrapper.visible-xs');
                         if (isTruncated && !mobileTitle.hasClass('withTooltip')) {
-                          var titleHtml = $('#desktopTitleWrapper').text().split(' by ');
+                          var titleHtml = $('#desktopTitleWrapper').text().split('by ');
                           titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
 
                           mobileTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'})
@@ -838,11 +838,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                   wrap: 'letter',
                   height: 50,
                   callback: function(isTruncated, fullText){
+                    console.log(fullText);
                     //Check if author text is overflowed - if so, add a bootstrap tooltip.
                     var base = $('#scalarheader.navbar').data('scalarheader');
                     var desktopTitle = base.$el.find('#desktopTitleWrapper');
                     if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
-                      var titleHtml = fullText.text().split(' by ');
+                      var titleHtml = fullText.text().split('by ');
                       titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
 
                       desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
@@ -1172,7 +1173,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
                     var node = scalarapi.getNode($(this).data('slug'));
                     var splitList = $('<ul></ul>');
-                    
+
                     var path_of = node.getRelatedNodes('path', 'outgoing');
                     var features = node.getRelatedNodes('referee', 'outgoing');
                     var tag_of = node.getRelatedNodes('tag', 'incoming');
