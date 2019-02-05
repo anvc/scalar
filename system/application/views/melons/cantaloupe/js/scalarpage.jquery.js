@@ -1172,7 +1172,7 @@
 	            			for (var j = 0; j < selected.length; j++) {
 	            				for (var k = 0; k < window['tklabels'].labels.length; k++) {
 	            					if ('tk:'+window['tklabels'].labels[k].code == selected[j]) {
-			            				var url = window['tklabels'].labels[k].image; 
+			            				var url = window['tklabels'].labels[k].image;
 			            				var title = window['tklabels'].labels[k].title;
 			            				var description = window['tklabels'].labels[k].text.property2.description;
 				           				var label_template = '';
@@ -1181,7 +1181,7 @@
 				           				label_template += '<span class="metadata" aria-hidden="true" property="dcterms:title">'+title+'</span>';
 				           				label_template += '<span class="metadata" aria-hidden="true" property="dcterms:description">'+description+'</span>';
 				           				label_template += '</span>';
-				           				$wrapper.append(label_template);	 
+				           				$wrapper.append(label_template);
 	            					};
 	            				};
 	            			};
@@ -2401,9 +2401,13 @@
                 var listItems = list.children('li');
                 listItems.sort(function(a, b) {
                     var versionUrl = $(a).find(scalarVersionUrlSelector).attr('href');
-                    var nodeA = scalarapi.getNode(scalarapi.stripEditionAndVersion(versionUrl));
+                    if (versionUrl != null) {
+                      var nodeA = scalarapi.getNode(scalarapi.stripEditionAndVersion(versionUrl));
+                    }
                     versionUrl = $(b).find(scalarVersionUrlSelector).attr('href');
-                    var nodeB = scalarapi.getNode(scalarapi.stripEditionAndVersion(versionUrl));
+                    if (versionUrl != null) {
+                      var nodeB = scalarapi.getNode(scalarapi.stripEditionAndVersion(versionUrl));
+                    }
                     if ((nodeA != null) && (nodeB != null)) {
                         var nameA = nodeA.getSortTitle().toLowerCase();
                         var nameB = nodeB.getSortTitle().toLowerCase();
