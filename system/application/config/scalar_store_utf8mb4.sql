@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `scope` enum('book','article','project') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'book',
   `publisher` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `publisher_thumbnail` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `editions` text COLLATE utf8mb4_general_ci DEFAULT NULL,
   `user` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`book_id`)
@@ -113,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_users` (
 CREATE TABLE IF NOT EXISTS `scalar_db_user_books` (
   `user_id` int(10) unsigned NOT NULL DEFAULT '0',
   `book_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `relationship` enum('author','commentator','reviewer','reader') COLLATE utf8mb4_general_ci NOT NULL,
+  `relationship` enum('author','editor','commentator','reviewer','reader') COLLATE utf8mb4_general_ci NOT NULL,
   `list_in_index` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `sort_number` int(10) unsigned NOT NULL DEFAULT '0',
   `api_key` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -141,6 +142,9 @@ CREATE TABLE IF NOT EXISTS `scalar_db_versions` (
   `default_view` varchar(64) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'plain',
   `continue_to_content_id` int(10) NOT NULL DEFAULT '0',
   `sort_number` smallint(2) unsigned NOT NULL DEFAULT '0',
+  `editorial_state` enum('draft','edit','editreview','clean','ready','published') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'draft',
+  `usage_rights` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `editorial_queries` TEXT DEFAULT NULL,
   `user` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
   `created` datetime NOT NULL,
   `attribution` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
