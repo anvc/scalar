@@ -33,3 +33,5 @@ a.inline.inlineWidget[data-widget="summary"] {
 	background-size: auto 75%;
 	background-image:url(../../../../../melons/cantaloupe/images/widget_image_summary.png);
 }
+
+ol,ul,dl { padding: 0 18px; }
