@@ -34,16 +34,17 @@ $(document).ready(function() {
 });
 function contributions($row, bool) {
 	var do_contributions = function($contrib, data, user_id) {
+		var parent = $('link#parent').attr('href');
 		var $table = $('<table style="width:100%;"><tbody></tbody></table>').appendTo($contrib.find('td:first').empty());
 		var $tbody = $table.find('tbody:first');
 		for (var content_id in data) {
-			$('<tr class="no-hover page-title"><td colspan="3"><a href="'+data[content_id].slug+'">'+data[content_id].versions[0].title+'</a></td></tr>').appendTo($tbody);
+			$('<tr class="no-hover page-title"><td colspan="3"><a href="'+parent+data[content_id].slug+'">'+data[content_id].versions[0].title+'</a></td></tr>').appendTo($tbody);
 			for (var j = 0; j < data[content_id].versions.length; j++) {
 				if ( data[content_id].versions[j].user != user_id) continue;
 				var content = data[content_id].versions[j].content;
 				var content_length = content.length;
 				if (content.length > 70) content = content.substr(0, 70);  // Magic number
-				$('<tr class="no-hover"><td style="white-space:nowrap;" valign="top"><a href="'+data[content_id].slug+'.'+data[content_id].versions[j].version_num+'">Version '+data[content_id].versions[j].version_num+'</a></td><td valign="top">'+data[content_id].versions[j].title+'</td><td valign="top">'+content+' <span style="color:#777777;">['+content_length+' chars]</span></td></tr>').appendTo($tbody);
+				$('<tr class="no-hover"><td style="white-space:nowrap;" valign="top"><a href="'+parent+data[content_id].slug+'.'+data[content_id].versions[j].version_num+'">Version '+data[content_id].versions[j].version_num+'</a></td><td valign="top">'+data[content_id].versions[j].title+'</td><td valign="top">'+content+' <span style="color:#777777;">['+content_length+' chars]</span></td></tr>').appendTo($tbody);
 			};
 			$('<tr class="spacer"><td>&nbsp;</td></tr>').appendTo($tbody);
 		};
