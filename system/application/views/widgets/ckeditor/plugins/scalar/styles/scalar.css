@@ -34,4 +34,4 @@ a.inline.inlineWidget[data-widget="summary"] {
 	background-image:url(../../../../../melons/cantaloupe/images/widget_image_summary.png);
 }
 
-ol,ul,dl { padding: 0 18px; }
+.cke_editable ol, .cke_editable ul, .cke_editable dl { padding: 0 18px; }
