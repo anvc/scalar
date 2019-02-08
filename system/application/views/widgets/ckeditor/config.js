@@ -6,25 +6,33 @@
 /**
  * Convert \n to <br /> when pasting into the 'source' mode
  * @author 	Craig Dietrich
- * @version	1.0
+ * @version	1.1 (refactor \n => <br /> on paste due to changes in CKEditor's bubbling
  */
-$(document).on('paste', 'textarea', function (e, c) {  // Text is cut-and-paste into 'source' mode
-	if ('undefined'!=typeof(codemirror_cke_1)) {
-		var orig = codemirror_cke_1.getValue();
-		if (orig != '' && orig.length > 0) return;  // If there is existing text don't run this since it will add line breaks to text that has already been processed
-		var myFunc = function(obj1, obj2) {
-			codemirror_cke_1.off('change', myFunc);
-			var val = codemirror_cke_1.getValue();
-			val = val.replace(/^\s+|\s+$/g, '');  // Trim line breaks from beginning and end
-			if (-1 == val.indexOf('<br')) {  // Already has break tags, e.g., cutting and pasting from another page's 'source' mode
-				val = val.replace(new RegExp('\r?\n','g'), "<br />\n");  // Convert line breaks to <br />
-			};
-			setTimeout(function() {
-				codemirror_cke_1.setValue(val);
-			},10);
-		};
-		codemirror_cke_1.on('change', myFunc);
-	}
+
+var codemirror_cke_1_previous_changes = [];  // Global
+$(document).on('paste', 'textarea', function (e, c) {
+	if ('undefined' == typeof(codemirror_cke_1) || !codemirror_cke_1) return;  // Not in Source view
+	if (codemirror_cke_1_previous_changes.length >= 2 && codemirror_cke_1_previous_changes[0].length) return;  // There is existing text
+	var val = codemirror_cke_1.getValue();
+	val = val.replace(/^\s+|\s+$/g, '');  // Trim line breaks from beginning and end
+	if (-1 == val.indexOf('<br')) {  // Already has break tags
+		val = val.replace(new RegExp('\r?\n','g'), "<br />\n");
+	};
+	setTimeout(function() {
+		codemirror_cke_1.setValue(val);
+	}, 10);
+});
+CKEDITOR.on('instanceReady', function(evt){
+	var editor = evt.editor;
+	editor.on('mode', function() {
+		codemirror_cke_1_previous_changes = [];
+	});
+	editor.on('change', function(e) {
+		if ('undefined' == typeof(codemirror_cke_1) || !codemirror_cke_1) return;  // Not in Source view
+		var value = codemirror_cke_1.getValue();
+		codemirror_cke_1_previous_changes.push(value);
+		if (codemirror_cke_1_previous_changes.length > 2) codemirror_cke_1_previous_changes.shift();
+	});
 });
 
 //TODO: Remove this after editor changes are live
