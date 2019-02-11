@@ -305,16 +305,13 @@ CKEDITOR._scalar = {
 		var $element = $(element.$);
 
 		cke_loadedScalarInline.push(element);
-		var thumbnail = node.thumbnail;
+		var thumbnail = node.thumbnail || $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 
-		if(thumbnail == null){
-			thumbnail = $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
-		}
-
-			var cssElement = '<style>'+
-								'a[resource="'+slug+'"].inline,a[href$="#'+slug+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+thumbnail+');}'+
-							 '</style>';
-			$('.cke_contents>iframe').contents().find('head').append(cssElement);
+		var cssElement = '<style>'+
+							'a[resource="'+slug+'"].inline,a[href$="#'+slug+'"].inline{ background-size: contain; background-repeat: no-repeat; background-position: center center; background-image: url('+thumbnail+');}'+
+						 '</style>';
+		$('.cke_contents>iframe').contents().find('head').append(cssElement);
+		
 		$element.data({
 			element: element,
 			type: 'media'
