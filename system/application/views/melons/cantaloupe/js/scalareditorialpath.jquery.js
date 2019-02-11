@@ -1367,7 +1367,7 @@
                                     //TODO: Remove scalarbeta and replace with scalar, once editor changes are released
                                     var editor = CKEDITOR.inline( $(this).attr('id'), {
                                         // Remove scalar plugin for description - also remove codeMirror, as it seems to have issues with inline editing
-                                        removePlugins: 'scalar, codemirror, pastetext, pastefromword, colorbutton, format',
+                                        removePlugins: 'scalar, codemirror, pastetext, pastefromword',
                                         extraPlugins: 'scalarbeta',
                                         startupFocus: true,
                                         allowedContent: true,
@@ -1411,6 +1411,9 @@
                                         editor.focus();
                                     });
                                     $(this).on('blur', $.proxy(function($parent,base,ev) {
+                                            if($('.cke_panel:visible').length > 0){ //We have a ckeditor panel currently open
+                                                return false;
+                                            }
                                             if($(ev.originalEvent.relatedTarget).hasClass('editLink') || $(ev.originalEvent.relatedTarget).hasClass('deleteLink')){
                                                 return false;
                                             }
