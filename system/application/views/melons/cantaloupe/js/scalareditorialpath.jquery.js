@@ -1611,6 +1611,11 @@
                 }else{
                     var $body_copy = $body.clone();
                     $body_copy.find('.placeholder').remove();
+
+                    $body_copy.find('.tempWrapper').each(function(){
+                        $(this).before($(this).html()).remove(); 
+                    });
+
                     $body_copy.find('a[data-linkid]').removeAttr('data-linkid');
                     $body_copy.find('a[data-cke-saved-href]').removeAttr('data-cke-saved-href');
                     var body = $body_copy.html();
@@ -1727,17 +1732,11 @@
                 if($(this).hasClass('inline')){
                     $(this).after($placeholder.addClass('inline'));
                 }else{
-                    if($(this).siblings('.placeholder').length > 0){
-                        $(this).siblings('.placeholder').last().after($placeholder);
-                    }else if($(this).parent().is('p, div')){
-                        $(this).parent().prepend($placeholder);
-                    }else if($(this).parents('br, div, p, h1, h2, h3, h4, h5, h6, h7').length > 0){
-                        $(this).parents('br, div, p, h1, h2, h3, h4, h5, h6, h7').first().prepend($placeholder);
-                    }else if($(this).prev('br, div, p, h1, h2, h3, h4, h5, h6, h7').length > 0){
-                        $(this).prev('br, div, p, h1, h2, h3, h4, h5, h6, h7').last().after($placeholder);
-                    }else{
-                        $(this).parents('.bodyContent').prepend($placeholder);
+                    console.log($(this).find('.tempWrapper').length);
+                    if($(this).parents('.bodyContent').find('.tempWrapper').length == 0){
+                        $(this).parents('.bodyContent').wrapInner('<p class="tempWrapper">');
                     }
+                    $(this).parents('.bodyContent').find('.tempWrapper').before($placeholder);
                 }
                 
                 $(this).attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
