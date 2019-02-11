@@ -2000,7 +2000,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								var fullname = '';
 								var prov_uri = item.version["http://www.w3.org/ns/prov#wasAttributedTo"][0].value;
 								for (var o in $this.data('_data')) {
-									if (prov_uri != o) continue;
+									if (prov_uri != o || !$this.data('_data')[o]["http://xmlns.com/foaf/0.1/name"]) continue;
 									fullname = $this.data('_data')[o]["http://xmlns.com/foaf/0.1/name"][0].value;
 								}
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><a href="' + prov_uri + '">' + fullname + '</a></td>';
