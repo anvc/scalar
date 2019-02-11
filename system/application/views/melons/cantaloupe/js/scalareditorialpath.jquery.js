@@ -1741,8 +1741,8 @@
                 }
                 
                 $(this).attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
-                if(!!$(this).text() || $(this).text() == ''){
-                    $(this).html('&nbsp;')
+                if(!$(this).text() || $(this).text() == ''){
+                    $(this).text('&nbsp;')
                 }
                 $placeholder.attr('data-linkid',$(this).parents('.bodyContent').attr('id')+'_'+linkCount);
 
