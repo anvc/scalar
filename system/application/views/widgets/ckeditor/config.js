@@ -92,6 +92,7 @@ CKEDITOR.editorConfig = function( config ) {
             'fakeobjects,'+
             'iframe,'+
             'codemirror,'+
+            'scalarunlink,'+
             (getUrlParameter("useBetaEditor")?'scalarbeta,':'scalar,')+
             'floatingspace';
 	config.skin = 'bootstrapck';
@@ -113,7 +114,7 @@ CKEDITOR.editorConfig = function( config ) {
 		/* { name: 'size', items : [ 'Maximize' ] }, */
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
-		{ name: 'clear', items : [ 'RemoveFormat' ] },
+		{ name: 'clear', items : [ 'RemoveFormat','Unlink' ] },
 		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
 		{ name: 'editorial', items:['editorialTools']}
