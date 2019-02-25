@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
@@ -54,9 +54,6 @@ var getUrlParameter = function getUrlParameter(sParam) {
 
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
-	
-	//Prevent creation of extra paragraph tags when content is pasted in
-	config.autoParagraph = false;
 
     config.plugins = 
             'dialogui,'+
