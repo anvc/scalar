@@ -206,3 +206,7 @@ a > img {
 	max-height: 1080px;
 	margin:0 auto;
 }
+a[resource],a[data-widget]{
+	text-decoration: none;
+	border-bottom: 1px dashed rgb(7, 130, 193);
+}
