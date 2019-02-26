@@ -30,6 +30,7 @@ h1.visualization { margin-bottom: 1.2rem; }
 	margin-bottom: 10px;
 	background-color: #fff;
 	min-height: 300px;
+	overflow: auto;
 }
 
 .scalarvis.bounded {
