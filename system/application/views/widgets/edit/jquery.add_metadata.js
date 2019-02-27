@@ -14,7 +14,8 @@
 			active_only: false,
 			scope: 'book',
 			add_fields_btn_text: 'Add fields',
-			callback: null
+			callback: null,
+			show_featured: true
 	};  	
 	
     $.fn.add_metadata = function(options) {
@@ -75,8 +76,8 @@
                             var $insert;
                             if ($insert_into.is('ul') || $insert_into.is('ol')) { // scalarimport
                             	$insert = $('<li><span class="field">'+val+'</span><span class="value"><input type="text" name="'+val+'" value="'+input_val+'" /></span></li>');
-                            } else if ( $( 'article' ).length ) { // cantaloupe
-                                $insert = $('<div class="form-group '+val+' '+((opts.row_class.length)?opts.row_class:'')+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" class="form-control '+((opts.input_class.length)?opts.input_class:'')+'" value="'+input_val+'" /></div></div>');
+                            } else if ( $( 'article' ).length || $('#set_profiles').length ) { // cantaloupe & tensor
+                                $insert = $('<div class="form-group '+val+' '+((opts.row_class.length)?opts.row_class:'')+'"><label class="col-sm-3 control-label">'+val+'</label><div class="col-sm-9"><input type="text" name="'+val+'" '+(($('#set_profiles').length)?'id="'+val+'"':'')+' class="form-control '+((opts.input_class.length)?opts.input_class:'')+'" value="'+input_val+'" /></div></div>');
                             } else {  // honeydew
                                 $insert = $('<tr class="'+val+'"><td class="field">'+val+'</td><td class="value"><input type="text" name="'+val+'" class="form-control" value="'+input_val+'" /></td></tr>');
                             }
@@ -105,17 +106,19 @@
         	var $title_links_btn = $title_links.find('button:first');
         	var $title_links_list = $title_links.find('ul:first');
         	// Featured
-        	$('<div name="featured" class="description">Fields that have special uses in Scalar\'s interface, layouts, and widgets:</div>').appendTo($div);
-        	var $content = $('<div></div>').appendTo($div);
-        	var featured = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
-    		for (var j = 0; j < featured.length; j+=3) {
-    			var $row = $('<div class="row"></div>').appendTo($content);
-    			if ('undefined'!=typeof(featured[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j]+'" value="1" />&nbsp; '+featured[j]+'</label></div>').appendTo($row);
-    			if ('undefined'!=typeof(featured[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+1]+'" value="1" />&nbsp; '+featured[j+1]+'</label></div>').appendTo($row);
-    			if ('undefined'!=typeof(featured[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+2]+'" value="1" />&nbsp; '+featured[j+2]+'</label></div>').appendTo($row);
-    		}
-    		$title_links_btn.children('.title').text('Featured fields');
-    		$title_links_list.append('<li><a href="javascript:void(null);" name="featured">Featured fields</a></li>');
+        	if (opts.show_featured) {
+	        	$('<div name="featured" class="description">Fields that have special uses in Scalar\'s interface, layouts, and widgets:</div>').appendTo($div);
+	        	var $content = $('<div></div>').appendTo($div);
+	        	var featured = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
+	    		for (var j = 0; j < featured.length; j+=3) {
+	    			var $row = $('<div class="row"></div>').appendTo($content);
+	    			if ('undefined'!=typeof(featured[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j]+'" value="1" />&nbsp; '+featured[j]+'</label></div>').appendTo($row);
+	    			if ('undefined'!=typeof(featured[j+1])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+1]+'" value="1" />&nbsp; '+featured[j+1]+'</label></div>').appendTo($row);
+	    			if ('undefined'!=typeof(featured[j+2])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j+2]+'" value="1" />&nbsp; '+featured[j+2]+'</label></div>').appendTo($row);
+	    		}
+	    		$title_links_btn.children('.title').text('Featured fields');
+	    		$title_links_list.append('<li><a href="javascript:void(null);" name="featured">Featured fields</a></li>');
+        	};
     		// Hard-coded descriptions for certain ontology prefixes
     		var descriptions = {
     			'dcterms':{'short':'Dublin Core','long':'Dublin Core terms'},
@@ -199,6 +202,10 @@
         			$div.find('[value="'+opts.data[j]+'"]').prop('checked',true);
         		}
         	}
+        	// Default item
+        	if (!opts.show_featured) {
+        		$title_links.find('a:first').click();
+        	};
         	// jQuery UI
         	if ('undefined'!=typeof($.fn.dialog)) {
         		$title_links.find('ul:first').insertBefore($title_links.parent());
