@@ -3,7 +3,8 @@ $this->template->add_js('system/application/views/widgets/spinner/spin.min.js');
 $css = <<<END
 
 .ci-template-html {font-family:Georgia,Times,serif !important;}
-h2, h3 {padding-left:92px !important; padding-right:0px !important; padding-bottom:20px;}
+h2 {margin-top:0; padding-top:0; margin-left:0; padding-left:7.2rem !important; margin-right:0; padding-right:7.2rem !important;}
+p {padding-left:7.2rem; padding-right:7.2rem;}
 #creating {margin-top:-10px; margin-bottom:30px; display:none;}
 #spinner {display:inline-block; margin:0px 24px 0px 12px;}
 #spinner > div {top:-7px !important;}
@@ -11,9 +12,16 @@ h2, h3 {padding-left:92px !important; padding-right:0px !important; padding-bott
 END;
 $this->template->add_css($css, 'embed');
 ?>
-<h2 class="heading_font">Critical Commons Inline Importer</h2>
+<span property="sioc:content">
+<div class="ci-template-html import-page">
+<h2 class="heading_font">Critical Commons Media Uploader</h2>
+<p>This tool allows you to upload media to <a href="http://criticalcommons.org">Critical Commons</a> and then import it automatically into Scalar. You may need to log in to your Critical Commons account first; once logged in, a form will appear below which you can use to upload your media.</p>
+<hr/>
 <h3 id="creating" class="alert alert-warning"><div id="spinner"></div>Creating Scalar pages for your uploaded media and commentary ...</h3>
 <iframe id="cc" src="http://www.criticalcommons.org/scpublisher?prev=<? echo base_url().$book->slug; ?>/criticalcommons/result"></iframe>
+<hr/>
+</div>
+</span>
 <script>
 window.has_redirected = function(redirect_to, filename) {
 	filename = ('undefined'!=typeof(filename) && null!==filename) ? decodeURIComponent(filename) : '';
@@ -69,7 +77,7 @@ window.parse_html_page = function(data, page_url, filename) {
 	var parser, xmlDoc;
 	parser = new DOMParser();
 	var xmlDoc = parser.parseFromString(data,"text/html");
-	
+
 	// Elements from <head>
 	var head = xmlDoc.getElementsByTagName("head")[0];
 	var $head = $(head);
@@ -82,7 +90,7 @@ window.parse_html_page = function(data, page_url, filename) {
 	obj.type = ($head.find('meta[name="DC.type"]').length) ? $head.find('meta[name="DC.type"]').attr('content') : null;
 	obj.created = ($head.find('meta[name="DC.date.created"]').length) ? $head.find('meta[name="DC.date.created"]').attr('content') : null;
 	obj.language = ($head.find('meta[name="DC.language"]').length) ? $head.find('meta[name="DC.language"]').attr('content') : null;
-	
+
 	// Elements from the clip area
 	var clip = xmlDoc.getElementById('clip-area');
 	var $clip = $(clip);
@@ -99,7 +107,7 @@ window.parse_html_page = function(data, page_url, filename) {
 			obj.publisher = $(this).text().replace('Distributor: ','');
 		}
 	});
-	
+
 	// Commentary
 	var content = xmlDoc.getElementById('content');
 	var $content = $(content);
@@ -109,7 +117,7 @@ window.parse_html_page = function(data, page_url, filename) {
 	var $temp = $('<div></div>');
 	$temp.append( $($content.find('span:first').html()) );
 	obj.commentary.content = $temp.find('p:nth-of-type(2)').html().trim();
-	
+
 	// Thumbnail and media URLs
 	var arr = page_url.split('/');
 	obj.username = arr[4];
@@ -124,7 +132,7 @@ window.parse_html_page = function(data, page_url, filename) {
 		obj.encoded_filename = obj.filename.trim().toLowerCase().replace(/\W+/g, "-");  // Best guess for how FFmpeg encodes filenames
 		obj.url = 'http://videos.criticalcommons.org/transcoded/http/www.criticalcommons.org/Members/'+obj.username+'/clips/'+obj.slug+'/video_file/mp4-high/'+obj.encoded_filename+'.mp4';
 	};
-	
+
 	create_media_page(obj);
 };
 window.create_media_page = function(obj) {
@@ -154,7 +162,7 @@ window.create_media_page = function(obj) {
 		var media_urn = returnObj[url]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 		var media_slug = url.substr(0, url.lastIndexOf('.'));
 		media_slug = media_slug.substr(media_slug.lastIndexOf('/')+1);
-		create_page(obj, media_urn, media_slug);	
+		create_page(obj, media_urn, media_slug);
 	}, function(error) {
 		console.log(error);
 		alert('Something went wrong trying to save the media-page: '+error);
@@ -179,7 +187,7 @@ window.create_page = function(obj, media_urn, media_slug) {
 		for (var url in returnObj) break;
 		var urn = returnObj[url]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 		var url = url.substr(0, url.lastIndexOf('.'));
-		create_relationship(urn, media_urn, url);	
+		create_relationship(urn, media_urn, url);
 	}, function(error) {
 		console.log(error);
 		alert('Something went wrong trying to save the commentary page: '+error);
@@ -207,6 +215,6 @@ window.create_relationship = function(urn, media_urn, url) {
 $(document).ready(function() {
 	$cc = $('#cc');
 	var height = 1100;  // The static height of the CC page
-	$cc.height(height);	
+	$cc.height(height);
 });
 </script>
