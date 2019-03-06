@@ -44,7 +44,7 @@
 				}
 			}
 
-			var style = new CKEDITOR.style( { element: 'a:not([resource],[data-widget])', type: CKEDITOR.STYLE_INLINE, alwaysRemoveElement: 1 } );
+			var style = new CKEDITOR.style( { element: 'a', type: CKEDITOR.STYLE_INLINE, alwaysRemoveElement: 1 } );
 			editor.removeStyle( style );
 
 			if ( bookmark ) {

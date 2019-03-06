@@ -1173,7 +1173,7 @@
 	            				for (var k = 0; k < window['tklabels'].labels.length; k++) {
 	            					if ('tk:'+window['tklabels'].labels[k].code == selected[j]) {
 			            				var url = window['tklabels'].labels[k].image;
-			            				var title = window['tklabels'].labels[k].title;
+			            				var title = window['tklabels'].labels[k].text.property1.description;
 			            				var description = window['tklabels'].labels[k].text.property2.description;
 				           				var label_template = '';
 				           				label_template += '<span resource="'+selected[j].replace('tk:','http://localcontexts.org/tk/')+'" typeof="tk:TKLabel">';
