@@ -583,7 +583,9 @@ $(window).ready(function() {
 				$( '[property="art:url"]' ).css( 'display', 'none' );
 
 				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
-
+				if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
+				$('body').addClass(currentNode.slug)
+				  
 				var timeout;
 				$( window ).resize( function() {
 					clearTimeout( timeout );
