@@ -1249,6 +1249,11 @@
             },
 
             addColophon: function() {
+		if (typeof(window['customColophon']) !== 'undefined') {
+			customColophon(); 
+			return;
+		}
+		    
                 var decodedCookie = decodeURIComponent(document.cookie);
                 var currentNode = scalarapi.model.getCurrentPageNode();
                 var is_author_or_editor = false;
