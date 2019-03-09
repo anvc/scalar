@@ -361,7 +361,7 @@ class RDF_Object {
 				}
 			}
 			
-			if (!empty($settings['pagination']) && $settings['pagination']['start']>$skips) {
+			if (!empty($settings['pagination']) && $settings['pagination']['start'] > $skips) {
 				$settings['total']--;
 				$skips++;
 				continue;
@@ -984,6 +984,7 @@ class RDF_Object {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];
+				$settings['pagination'] = self::NO_PAGINATION;
 				$this->_index_by_ref($return, $settings);
 			}
 		}
@@ -1041,6 +1042,7 @@ class RDF_Object {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];
+				$settings['pagination'] = self::NO_PAGINATION;
 				$this->_index_by_ref($return, $settings);
 			}
 		}
