@@ -354,13 +354,6 @@
                         });
 
                     } else {
-
-                        // -- will this ever happen?
-                        // make sure the tags are aligned left with the body copy
-                        // if ( size == "full" ) {
-                        // mediaelement.view.footer.addClass( "body_copy" );
-                        // }
-
                         // add the tabs
                         $.scalarmedia(mediaelement, mediaelement.view.footer, {
                             'shy': (!isMobile && !link.hasClass('media-page-link')),

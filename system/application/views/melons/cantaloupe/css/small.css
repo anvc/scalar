@@ -1,3 +1,5 @@
 #header .leaves { display: none; }
 #sidebar-nav { display: none; }
 .results_list td:nth-child(2) { display: none; }
+.media_sidebar { width:100%;padding-bottom:2rem;padding-left:1rem;}
+.media_sidebar h2 {text-align:center;}

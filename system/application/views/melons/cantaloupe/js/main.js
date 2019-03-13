@@ -354,6 +354,57 @@ function editionCookieName() {
 	return 'scalar_edition_index_'+url.replace(/^(https?:|)\/\//, '').replace(/[/]/g, '_').replace(/\W/g, '');
 }
 
+function linkify(inputText) {  // http://stackoverflow.com/questions/37684/how-to-replace-plain-urls-with-links
+    if (-1!=inputText.indexOf('<a')) return inputText;
+  var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;  // URLs starting with http://, https://, or ftp://
+    var replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+    var replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;  // URLs starting with www. (without // before it, or it'd re-link the ones done above)
+    var replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+    var replacePattern3 = /(\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6})/gim;  // Change email addresses to mailto:: links
+    var replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+    var replacePattern4 = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/;  // lat/lng, link to a map
+    var replacedText = replacedText.replace(replacePattern4, '<a href="https://www.google.com/maps?q=$1,$3" target="_blank">$1,$3</a>');
+    var maxLength = 95;  // Trim the length of a URL so it doesn't run off side of panel in some cases
+    if ($('<div>'+replacedText+'</div>').find('a').length && $('<div>'+replacedText+'</div>').find('a:first').text().length > maxLength) {
+      var text = $('<div>'+replacedText+'</div>').find('a:first').text().substr(0,maxLength)+'...';
+      var $obj = $('<div>'+replacedText+'</div>');
+      $obj.find('a:first').text(text);
+      var replacedText = $obj.html();
+    };
+    return replacedText;
+};
+
+function addMetadataTableForNodeToElement(node, element) {
+  // custom method if applicable
+  if ('undefined'!=typeof(window['customAddMetadataTableForNodeToElement'])) {
+    customAddMetadataTableForNodeToElement(node, element, linkify);
+    return;
+  }
+  // basic Scalar properties
+  var table = $( '<table></table>' ).appendTo(element);
+  table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
+  table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'" target="_blank">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
+  table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
+  if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+linkify(node.current.description)+'</td></tr>');
+  if (null!=node.current.source) {
+    if ('undefined'!=typeof(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line']) && node.current.source == node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value) {
+      table.append('<tr><td>iptc:By-line</td><td>'+linkify(node.current.source)+'</td></tr>');
+    } else if ('undefined'!=typeof(node.current.properties['http://purl.org/dc/terms/source']) && node.current.source == node.current.properties['http://purl.org/dc/terms/source'][0].value) {
+      table.append('<tr><td>dcterms:source</td><td>'+linkify(node.current.source)+'</td></tr>');
+    }
+  }
+  if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td>'+linkify(node.current.sourceLocation)+'</td></tr>');
+  // auxiliary properties
+  for ( prop in node.current.auxProperties ) {
+    for ( i in node.current.auxProperties[ prop ] ) {
+      value = node.current.auxProperties[ prop ][ i ];
+      table.append( '<tr><td>' + prop + '</td><td>' + linkify(value) + '</td></tr>');
+    }
+  }
+  // API links
+  table.append('<tr><td>View as</td><td><a href="'+node.url+'.rdfxml">RDF-XML</a>, <a href="'+node.url+'.rdfjson">RDF-JSON</a>, or <a href="'+node.url+'.meta">HTML</a></td></tr>');
+}
+
 /**
  * Create a slot and attach to a tag (ported from honeydew slot manager)
  *
@@ -476,7 +527,7 @@ $(window).ready(function() {
            }},
 	    ]);
 	};
-	
+
 	// Accept posted messages (e.g., if in an iframe)
 	window.addEventListener('message', function(event) {
 		switch (event.data) {};
@@ -522,7 +573,7 @@ $(window).ready(function() {
 				scalarapi.model.parseNodes(rdf_json);
 				scalarapi.model.parseRelations(rdf_json);
 				var currentNode = scalarapi.model.getCurrentPageNode();
-				
+
 				/*
 				console.log('------- Current page from RDFa ---------------');
 				console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
@@ -585,7 +636,7 @@ $(window).ready(function() {
 				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
 				if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
 				$('body').addClass('page-' + currentNode.slug)
-				  
+
 				var timeout;
 				$( window ).resize( function() {
 					clearTimeout( timeout );
