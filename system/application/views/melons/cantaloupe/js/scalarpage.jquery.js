@@ -1009,14 +1009,6 @@
                                 section.find('h1').hide();
                                 section.find('ul').hide();
                             }
-
-                            // "visit random" button
-                            if ((pathOptionCount == 0) && options.showChildNav) {
-                                nodes = currentNode.getRelatedNodes('tag', 'outgoing');
-                                if (nodes.length > 1) {
-                                    section.append('<p><a class="nav_btn" href="' + nodes[Math.floor(Math.random() * nodes.length)].url + '?tag=' + currentNode.slug + '">Visit a random tagged page</a></p>');
-                                }
-                            }
                         }
                     });
                 }
@@ -1249,12 +1241,12 @@
             },
 
             addColophon: function() {
-            	
+
 				if (typeof(window['customColophon']) !== 'undefined') {
-					customColophon(); 
+					customColophon();
 					return;
 				}
-		    
+
                 var decodedCookie = decodeURIComponent(document.cookie);
                 var currentNode = scalarapi.model.getCurrentPageNode();
                 var is_author_or_editor = false;
