@@ -1135,7 +1135,7 @@
 	            var user_level = ($('link#user_level').length) ? $('link#user_level').attr('href').toLowerCase() : '';
 	            if (-1!=user_level.indexOf('editor')||-1!=user_level.indexOf('author')) {
 	            	var $wrapper = $('article header .tklabels');
-	            	$wrapper.append('<img id="tk-add" title="Update TK Labels for this page" '+((!$labels.length)?'class="desciptor"':'')+' />');
+	            	$wrapper.append('<div id="tk-add" title="Update TK Labels for this page" '+((!$labels.length)?'class="desciptor"':'')+'></div>');
 	            	$.getScript($('link#approot').attr('href')+'views/widgets/edit/jquery.add_metadata.js');
 	            	$.getScript($('link#approot').attr('href')+'views/melons/cantaloupe/js/bootbox.min.js');
 	            	$wrapper.find('#tk-add').click(function() {
