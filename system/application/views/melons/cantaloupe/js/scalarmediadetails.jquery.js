@@ -155,7 +155,7 @@
 					relations = mediaelement.model.node.getRelations('annotation', 'incoming', 'index');
 					var annotationWrap = $('<div class="media_sidebar caption_font"></div>').appendTo(mediaelement.model.element.parent());
 
-					var sourceFileLink = $('<div class="citations"><a href="'+mediaelement.model.node.current.sourceFile+'" target="popout">Source file</a></div>').appendTo(annotationWrap);
+					var sourceFileLink = $('<div class="citations"><a class="btn btn-primary btn-sm" href="'+mediaelement.model.node.current.sourceFile+'" target="popout">View source file</a></div>').appendTo(annotationWrap);
 					if ('undefined'!=typeof(scalarMediaDetailsSourceFileLink) && !scalarMediaDetailsSourceFileLink) sourceFileLink.hide();
 
 					if (relations.length > 0) {
@@ -181,7 +181,6 @@
 					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(annotationWrap);
 
 					// show media references with excerpts
-					// Edited by Craig, 1 January 2014
 					relations = mediaelement.model.node.getRelations('referee', 'incoming');
 					for (i in relations) {
 						relation = relations[i];
@@ -192,7 +191,7 @@
 							if (is_inline) {
 								citingContent = '<i>Inline media</i>';
 							} else {
-								citingContent = '&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html()+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
+								citingContent = '&ldquo;'+temp.find('a[resource*="'+relation.target.slug+'"]').parent().html().replace(/(<br>\s*)+$/,'')+'&rdquo;';  // Media page could have been edited since the link was established, making 'mediaelement.model.node.current' not-found
 							}
 							citations.append('<blockquote>'+citingContent+'</blockquote><p class="attribution">&mdash;from <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 							temp.remove();
@@ -212,7 +211,11 @@
 						relation = relations[i];
 						citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 					}
-
+					
+					// No citations
+					if (!citations.children(':not(h3)').length) {
+						citations.append('<i>There are no citations of this media.</i>');
+					}
 
 					/*for (i in relations) {
 						relation = relations[i];
@@ -227,8 +230,10 @@
 						}
 					}
 
-          var metadata = $('<div class="citations citations_metadata"><h3>Metadata</h3></div>').appendTo(annotationWrap);
-          addMetadataTableForNodeToElement(mediaelement.model.node, metadata);
+					// additional metadata list
+					var metadata = $('<div class="citations citations_metadata"><h3>Additional metadata</h3></div>').appendTo(annotationWrap);
+					addMetadataTableForNodeToElement(mediaelement.model.node, metadata);
+					
 				}
 			}
 		};

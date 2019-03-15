@@ -790,10 +790,16 @@ a.media_info {
 
 .mediainfo h4 { font-size: 1.2rem; margin: 0 0 1rem 0; line-height: 1.6rem; padding: 0 .4rem 0 0; }
 
-.media_annotations table, .citations_metadata table {
+.media_annotations table {
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
 	font-size: 1.2rem;
+}
+.citations_metadata table {
+	font-size: 1.2rem;
+	border-left:none !important;
+	border-right:none !important;
+	margin-bottom:30px;
 }
 .media_annotations td, .current_annotation td, .citations_metadata td {
 	padding-left: .8rem !important;
@@ -1033,7 +1039,7 @@ a.nav_btn:hover {
 	background-color: #333;
 	color: #b2b3b6;
 	font-size: 1.8rem;
-	padding-top: 8.2rem;
+	padding-top: 7rem;
 	left: 0;
 	right: 0;
 	top: 0;
