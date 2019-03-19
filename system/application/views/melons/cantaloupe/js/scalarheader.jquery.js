@@ -1636,6 +1636,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             base.expandMenu(target_toc_item,0);
                             var menu = $( '.mainMenu>.dropdown-menu .body>ol>li.active').removeClass('active');
                             $(this).parent().addClass('active');
+				
+                            $("#mainMenuSubmenus").removeClass (function (index, className) {
+                                return (className.match (/(^|\s)submenu-\S+/g) || []).join(' ');
+                            });
+                            $('#mainMenuSubmenus').addClass('submenu-' + target_toc_item.slug)
+				
                             e.preventDefault();
                             return false;
                         })
