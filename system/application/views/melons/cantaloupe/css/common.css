@@ -801,16 +801,24 @@ a.media_info {
 	border-right:none !important;
 	margin-bottom:30px;
 }
-.media_annotations td, .current_annotation td, .citations_metadata td {
+.media_annotations td, .current_annotation td {
 	padding-left: .8rem !important;
+	word-break: break-all;
+}
+.citations_metadata td {
+	padding-left: 0 !important;
 	word-break: break-all;
 }
 .media_annotations td:first-child, .current_annotation td:first-child, .citations_metadata td:first-child {
 	width: 10rem;
 	font-weight: bold;
 }
-.media_annotations td:last-child, .citations_metadata td:last-child, .current_annotation td:last-child {
+.media_annotations td:last-child, .current_annotation td:last-child {
 	padding-right: .8rem;
+}
+.citations_metadata td:last-child {
+	padding-right: 0 !important;
+	padding-left:.8rem !important;
 }
 
 .mini-tag-bar { margin-top: 1rem; margin-bottom: 1rem; }

@@ -231,7 +231,7 @@
 					}
 
 					// additional metadata list
-					var metadata = $('<div class="citations citations_metadata"><h3>Additional metadata</h3></div>').appendTo(annotationWrap);
+					var metadata = $('<div class="citations citations_metadata"><h3>Details</h3></div>').appendTo(annotationWrap);
 					addMetadataTableForNodeToElement(mediaelement.model.node, metadata);
 					
 				}
