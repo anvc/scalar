@@ -1903,6 +1903,7 @@
                         case "book_splash":
                         case "versions":
                         case "history":
+                        case "curriculum_explorer":
                             // these views don't get media
                             break;
 
@@ -2764,7 +2765,6 @@
 
                 case 'blank':
                     $('h1').hide();
-                    // hide continue_to metadata
                     $('[rel="scalar:continue_to"]').each(function() {
                         var href = $(this).attr('href');
                         $('span[resource="' + href + '"]').hide();
