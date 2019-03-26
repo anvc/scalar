@@ -3088,6 +3088,120 @@
                         case "toc":
                             $("ol.toc").before('<h3 class="heading_font heading_weight">Table of Contents</h3>');
                             break;
+                            
+                        case "curriculum_explorer":
+                        	$('article h1').css('margin-bottom','1.0rem').css('font-size','3.5rem');
+                        	var $wrapper = $('<div class="curriculum_explorer"><div style="text-align:center;">Loading...</div></div>').appendTo("span[property='sioc:content']");
+                        	$wrapper.css('padding-left','6.2rem').css('padding-right','6.2rem');
+                        	var node = scalarapi.model.getCurrentPageNode();
+                        	if (!node.current.sourceFile || !node.current.sourceFile.length) {
+                        		alert('A JSON file needs to be present as the page\'s Media URL for this view to work properly.');
+                        		return;
+                        	};
+                        	var base = $('link#parent').attr('href');
+                        	var paths = ['territory','colonialism','community','wellness'];  // TODO
+                        	$.getJSON(node.current.sourceFile, function(json) {
+                        		if ('undefined'==typeof(json.connections) || !json.connections.length) {
+                        			alert('The JSON file kept in the Media URL for this page is improperly formatted.');
+                        			return;
+                        		};
+                        		$wrapper.html('<div class="container-fluid"></div>');
+                        		var html = '';
+                        		html += '<div class="row">';
+                        		html += '<div class="col-xs-12 col-md-3">';
+                        		html += '<div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">1. Select grade level and subjects to filter related book content.</strong></div></div>';
+                        		html += '<label class="small"><b>Grade level</b></label><br />';
+                        		html += '<div class="btn-group">';
+                        		html += '<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-grade">Select a grade</span> <span class="caret"></span></button>';
+                        		html += '<ul id="ce-grades" class="dropdown-menu" aria-labelledby="dropdownMenu1"></ul>';
+                        		html += '</div><br />';
+                        		html += '<label class="small" style="margin-top:10px;"><b>Subject</b></label>';
+                        		html += '<div id="ce-subjects" class="form-group">';
+                        		html += '</div>';
+                        		html += '</div>';
+                        		html += '<div class="col-xs-12 col-md-9">';
+                        		html += '<div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">2. Select a book section and page to see related teaching goals.</strong></div></div>';
+                        		html += '<label class="small"><b>Book content</b></label><br />';
+                        		html += '<div class="btn-group btn-group-inline">';
+                        		html += '<button class="btn btn-default dropdown-toggle" style="width:130px;text-align:left;" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-path">Select a path</span> <span class="caret" style="position:absolute;right:12px;top:45%;"></span></button>';
+                        		html += '<ul id="ce-paths" class="dropdown-menu" aria-labelledby="dropdownMenu1"></ul>';
+                        		html += '</div>&nbsp; &nbsp; ';
+                        		html += '<div class="btn-group btn-group-inline">';
+                        		html += '<button class="btn btn-default dropdown-toggle" style="width:400px;text-align:left;" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-page">Select a page in the path</span> <span class="caret" style="position:absolute;right:12px;top:45%;"></span></button>';
+                        		html += '<ul id="ce-pages" class="dropdown-menu" aria-labelledby="dropdownMenu1"></ul>';
+                        		html += '</div><br /><br />';
+                        		html += '<div id="ce-content">';
+                        		html += '<img src="" alt="" id="ce-content-image" class="img-thumbnail" style="width:190px;height:165px;margin-right:20px;" align="left">';
+                        		html += '<h4 style="margin-top:0px;"><a href="" id="ce-content-title"></a></h4>';
+                        		html += '<div id="ce-content-desc" style="font-size:14px;line-height:1.45;"></div>';
+                        		html += '<a id="ce-content-button" class="btn btn-default btn-sm" style="margin-top:12px;display:none;" href="">Go to page</a>';
+                        		html += '</div>';
+                        		html += '</div>';
+                        		html += '</div>';
+                        		html += '<div class="row">';
+                        		html += '<div class="col-xs-12">';
+                        		html += '<div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">3. Review related teaching goals.</strong></div></div>';
+                        		html += '</div>';
+                        		html += '</div>';
+                        		$wrapper.find('.container-fluid').html(html);
+                        		// UI
+                        		$wrapper.find('.row:first .panel-heading:last').css('min-height', $wrapper.find('.row:first .panel-heading:first').innerHeight());
+                        		// Propagate
+                        		for (var j = 0; j < json.grades.length; j++) {
+                        			$('#ce-grades').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+json.grades[j]+'</a></li>');
+                        		};
+                        		for (var j = 0; j < json.subjects.length; j++) {
+                        			$('#ce-subjects').append('<div class="checkbox"style="margin:0px 0px 0px 0px;"><label class="small"><input type="checkbox" name="subjects" value="'+j+'">'+json.subjects[j]+'</label></div>');
+                        		};
+                        		for (var j = 0; j < paths.length; j++) {
+                        			$('#ce-paths').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+paths[j].charAt(0).toUpperCase()+paths[j].slice(1)+'</a></li>');
+                        		};
+                        		// Actions
+                        		$('#ce-paths').find('a').click(function() {
+                        			var path_index = parseInt($(this).data('index'));
+                        			commit_path(path_index);
+                        		});
+                        		var commit_path = function(path_index) {
+                        			$('#ce-select-path').text(paths[path_index].charAt(0).toUpperCase()+paths[path_index].slice(1));
+                        			$('#ce-paths').find('li').removeClass('active').eq(path_index).addClass('active');
+                        			$('#ce-pages').empty();
+                        			$('#ce-select-page').text('Loading pages...');
+                        			$('#ce-content-image').prop('src', '');
+                        			$('#ce-content-title').empty();
+                        			$('#ce-content-desc').empty();
+                        			$('#ce-content-button').hide();
+                            		$.getJSON(base+'rdf/node/'+paths[path_index]+'.rdfjson?rec=1&res=path', function(pages) {
+                            			$('#ce-select-page').text('Select a page in the path');
+		                        		for (var uri in pages) {
+		                        			if ('undefined' == typeof(pages[uri]['http://purl.org/dc/terms/isVersionOf'])) continue;
+		                        			var obj = {};
+		                        			obj.version_uri = uri;
+		                        			obj.content_uri = pages[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+		                        			obj.slug = obj.content_uri.replace(base,'');
+		                        			if (-1 != paths.indexOf(obj.slug)) continue;  // Is the path page
+		                        			obj.title = pages[uri]['http://purl.org/dc/terms/title'][0].value;
+		                        			obj.description = ('undefined' != typeof(pages[uri]['http://purl.org/dc/terms/description'])) ? pages[uri]['http://purl.org/dc/terms/description'][0].value : '';
+		                        			obj.content = ('undefined' != typeof(pages[uri]['http://rdfs.org/sioc/ns#content'])) ? pages[uri]['http://rdfs.org/sioc/ns#content'][0].value : '';
+		                        			obj.banner = ('undefined' != typeof(pages[obj.content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#banner'])) ? pages[obj.content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
+		                        			var $el = $('<li data-slug="'+obj.slug+'"><a href="javascript:void(null);" data-slug="'+obj.slug+'">'+obj.title.replace(/(<([^>]+)>)/ig,"")+'</a></li>').appendTo('#ce-pages');
+		                        			$el.data('fields', obj);
+		                        		};
+		                        		$('#ce-pages').find('a').click(function() {
+		                        			$('#ce-select-page').html($(this).html());
+		                        			var fields = $(this).parent().data('fields');
+		                        			$('#ce-content-image').prop('src', fields.banner);
+		                        			$('#ce-content-title').html(fields.title.replace(/(<([^>]+)>)/ig,"")).attr('href', fields.content_uri);
+		                        			var desc = (fields.description.length > fields.content.length) ? fields.description.replace(/(<([^>]+)>)/ig,"") : fields.content.replace(/(<([^>]+)>)/ig,"");
+		                        			if (desc.length > 250) desc = desc.substr(0, 250) + '...';
+		                        			$('#ce-content-desc').html(desc);
+		                        			$('#ce-content-button').show().attr('href', fields.content_uri);
+		                        		});
+                            		});
+                        		};
+                        		commit_path(0);
+                        	});
+                        	okToAddExtras = false;
+                        	break;
 
                         case 'visual_path':
                             // original concept for this layout by Alicia Peaker, Bryn Mawr College
