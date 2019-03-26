@@ -386,12 +386,11 @@ function addMetadataTableForNodeToElement(node, element) {
   table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'" target="_blank">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
   table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
   if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+linkify(node.current.description)+'</td></tr>');
-  if (null!=node.current.source) {
-    if ('undefined'!=typeof(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line']) && node.current.source == node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value) {
-      table.append('<tr><td>iptc:By-line</td><td>'+linkify(node.current.source)+'</td></tr>');
-    } else if ('undefined'!=typeof(node.current.properties['http://purl.org/dc/terms/source']) && node.current.source == node.current.properties['http://purl.org/dc/terms/source'][0].value) {
-      table.append('<tr><td>dcterms:source</td><td>'+linkify(node.current.source)+'</td></tr>');
-    }
+  if ('undefined'!=typeof(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'])) {
+    table.append('<tr><td>iptc:By-line</td><td>'+linkify(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value)+'</td></tr>');
+  }
+  if ('undefined'!=typeof(node.current.properties['http://purl.org/dc/terms/source'])) {
+    table.append('<tr><td>dcterms:source</td><td>'+linkify(node.current.properties['http://purl.org/dc/terms/source'][0].value)+'</td></tr>');
   }
   if (null!=node.current.sourceLocation) table.append('<tr><td>art:sourceLocation</td><td>'+linkify(node.current.sourceLocation)+'</td></tr>');
   // auxiliary properties
