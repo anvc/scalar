@@ -3113,7 +3113,7 @@
                         		html += '<label class="small"><b>Grade level</b></label><br />';
                         		html += '<div class="btn-group">';
                         		html += '<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-grade">Select a grade</span> <span class="caret"></span></button>';
-                        		html += '<ul id="ce-grades" class="dropdown-menu" aria-labelledby="dropdownMenu1"></ul>';
+                        		html += '<ul id="ce-grades" class="dropdown-menu" aria-labelledby="dropdownMenu1"><li data-index=""><a href="javascript:void(null);" data-index="">Select a grade</a></li></ul>';
                         		html += '</div><br />';
                         		html += '<label class="small" style="margin-top:10px;"><b>Subject</b></label>';
                         		html += '<div id="ce-subjects" class="form-group">';
@@ -3141,6 +3141,8 @@
                         		html += '<div class="row">';
                         		html += '<div class="col-xs-12">';
                         		html += '<div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">3. Review related teaching goals.</strong></div></div>';
+                        		html += '<label id="ce-goals-title" class="small" style="margin-bottom:0px;"></label><br />';
+                        		html += '<div id="ce-goals" style="font-size:14px;line-height:1.45;"></div>';
                         		html += '</div>';
                         		html += '</div>';
                         		$wrapper.find('.container-fluid').html(html);
@@ -3157,6 +3159,13 @@
                         			$('#ce-paths').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+paths[j].charAt(0).toUpperCase()+paths[j].slice(1)+'</a></li>');
                         		};
                         		// Actions
+                        		$('#ce-grades').find('a').click(function() {
+                        			$('#ce-select-grade').html($(this).html()).data('index', $(this).data('index'));
+                        			set_goals();
+                        		});
+                        		$('#ce-subjects').find('input[type="checkbox"]').change(function() {
+                        			set_goals();
+                        		});
                         		$('#ce-paths').find('a').click(function() {
                         			var path_index = parseInt($(this).data('index'));
                         			commit_path(path_index);
@@ -3165,6 +3174,7 @@
                         			$('#ce-select-path').text(paths[path_index].charAt(0).toUpperCase()+paths[path_index].slice(1));
                         			$('#ce-paths').find('li').removeClass('active').eq(path_index).addClass('active');
                         			$('#ce-pages').empty();
+                        			$('#ce-goals-title, #ce-goals').empty();
                         			$('#ce-select-page').text('Loading pages...');
                         			$('#ce-content-image').prop('src', '');
                         			$('#ce-content-title').empty();
@@ -3178,6 +3188,7 @@
 		                        			obj.version_uri = uri;
 		                        			obj.content_uri = pages[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
 		                        			obj.slug = obj.content_uri.replace(base,'');
+		                        			if ('index' == obj.slug) continue;
 		                        			if (-1 != paths.indexOf(obj.slug)) continue;  // Is the path page
 		                        			obj.title = pages[uri]['http://purl.org/dc/terms/title'][0].value;
 		                        			obj.description = ('undefined' != typeof(pages[uri]['http://purl.org/dc/terms/description'])) ? pages[uri]['http://purl.org/dc/terms/description'][0].value : '';
@@ -3187,16 +3198,56 @@
 		                        			$el.data('fields', obj);
 		                        		};
 		                        		$('#ce-pages').find('a').click(function() {
-		                        			$('#ce-select-page').html($(this).html());
 		                        			var fields = $(this).parent().data('fields');
+		                        			$('#ce-select-page').html($(this).html()).data('slug', fields.slug);
 		                        			$('#ce-content-image').prop('src', fields.banner);
 		                        			$('#ce-content-title').html(fields.title.replace(/(<([^>]+)>)/ig,"")).attr('href', fields.content_uri);
+		                        			$('#ce-goals-title').html('<b>Teaching goals for "'+fields.title+'"</b>');
 		                        			var desc = (fields.description.length > fields.content.length) ? fields.description.replace(/(<([^>]+)>)/ig,"") : fields.content.replace(/(<([^>]+)>)/ig,"");
 		                        			if (desc.length > 250) desc = desc.substr(0, 250) + '...';
 		                        			$('#ce-content-desc').html(desc);
 		                        			$('#ce-content-button').show().attr('href', fields.content_uri);
+		                        			set_goals();
 		                        		});
                             		});
+                        		};
+                        		var set_goals = function() {
+                        			var slug = $('#ce-select-page').data('slug');
+                        			var gradeIndex = parseInt($('#ce-select-grade').data('index'));
+                        			var subjectIndexes = [];
+                        			$('#ce-subjects').find('input[type="checkbox"]:checked').each(function() {
+                        				subjectIndexes.push(parseInt($(this).val()));
+                        			});
+                        			if ('undefined' == typeof(slug) || !slug.length) {
+                        				$('#ce-goals').empty();
+                        				return;
+                        			}
+                        			var obj = {};
+                        			for (var j = 0; j < json.connections.length; j++) {
+                        				if (json.connections[j].slug != slug) continue;
+                        				if (!isNaN(gradeIndex) && json.connections[j].gradeIndex != gradeIndex) continue;
+                        				if (subjectIndexes.length && -1==subjectIndexes.indexOf(json.connections[j].subjectIndex)) continue;
+                        				var teachingIndex = json.connections[j].teachingGoalIndex;
+                        				var teaching = json.teachingGoals[teachingIndex];
+                        				var subjectIndex = json.connections[j].subjectIndex;
+                        				var subject = json.subjects[subjectIndex];
+                        				if ('undefined' == typeof(obj[subject])) obj[subject] = {};
+                        				if ('undefined' == typeof(obj[subject][teachingIndex])) obj[subject][teachingIndex] = teaching;
+                        			};
+                        			if ($.isEmptyObject(obj)) {
+                        				$('#ce-goals').html('<br /><i>There are no teaching goals for the current selections.</i>');
+                        			} else {
+                        				var str = '';
+                        				for (var subject in obj) {
+                        					str += '<h6 style="font-size:14px;padding-left:0px;padding-right:0px;margin-top:2rem;margin-bottom:1rem;">'+subject+'</h6>';
+                        					str += '<ul>';
+                        					for (var j in obj[subject]) {
+                        						str += '<li>'+obj[subject][j]+'</li>';
+                        					};
+                        					str += '</ul>';
+                        				};
+                        				$('#ce-goals').html(str);
+                        			};
                         		};
                         		commit_path(0);
                         	});
