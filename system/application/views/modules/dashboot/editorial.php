@@ -492,7 +492,7 @@ STR;
           }
 
           var current_messaging = editorial_messaging['unknown']['all'];
-          if (user_type != null && proxy_editorial_state != null && editorial_quantifier != null) {
+          if (user_type != null && proxy_editorial_state != null && editorial_quantifier != null && editorial_messaging[user_type] != null) {
             current_messaging = editorial_messaging[user_type][proxy_editorial_state.id][editorial_quantifier];
           }
 
