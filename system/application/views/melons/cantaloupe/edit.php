@@ -609,7 +609,7 @@ function confirm_editorial_state_then_save($form, no_action){
 			$('#editorialStateConfirmation').modal('show');
 		}
 	}else{
-		$('#editorialNewDraftConfirmation .post_change_effect').text('a new private draft will be created.');
+		$('#editorialNewDraftConfirmation .post_change_effect').text('a new private draft will be created, which will need to proceed through the editorial workflow before it can be published in a new edition. The previous version will remain published in the current edition.');
 		$('#editorialNewDraftConfirmationSave').data('no_action',no_action);
 		$('#editorialNewDraftConfirmationSave').data('$form',$form);
 		$('#editorialNewDraftConfirmation').modal('show');
