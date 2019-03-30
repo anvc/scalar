@@ -1471,6 +1471,20 @@
                 return link;
             },
 
+            makeRelativeImagesAbsolute: function() {
+                var absoluteURLRoot = scalarapi.stripEdition($('link#parent').attr('href'));
+                page.bodyContentImages().each(function() {
+                    if (page.isImageRelative(this)) {
+                        var src = $(this).attr("src");
+                        if (src[0] == "#") {
+                            $(this).attr("src", window.location.href + src);
+                        } else {
+                            $(this).attr("src", absoluteURLRoot + src);
+                        }
+                    }
+                });
+            },
+
             makeRelativeLinksAbsolute: function() {
                 var absoluteURLRoot = $('link#parent').attr('href');
                 page.bodyContentLinks().each(function() {
@@ -1497,6 +1511,20 @@
                 var href = $(link).attr("href");
                 if (href != null) {
                     if ((href.indexOf("://") == -1) && (href.indexOf("javascript:") != 0) && (href.indexOf("mailto:") == -1)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+
+            bodyContentImages: function() {
+                return page.bodyContent().find('img');
+            },
+
+            isImageRelative: function(link) {
+                var src = $(link).attr("src");
+                if (src != null) {
+                    if (src.indexOf("://") == -1) {
                         return true;
                     }
                 }
@@ -2643,6 +2671,7 @@
             // this prevents scrolling within in the WYSIWYG from locking up on Safari
             if (viewType != 'edit') {
                 page.makeRelativeLinksAbsolute();
+                page.makeRelativeImagesAbsolute();
             }
 
             page.getContainingPathInfo();
@@ -3088,7 +3117,7 @@
                         case "toc":
                             $("ol.toc").before('<h3 class="heading_font heading_weight">Table of Contents</h3>');
                             break;
-                            
+
                         case "curriculum_explorer":
                         	$('article h1').css('margin-bottom','1.0rem').css('font-size','3.5rem');
                         	var $wrapper = $('<div class="curriculum_explorer"><div style="text-align:center;">Loading...</div></div>').appendTo("span[property='sioc:content']");

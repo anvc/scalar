@@ -836,7 +836,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                   wrap: 'letter',
                   height: 50,
                   callback: function(isTruncated, fullText){
-                    console.log(fullText);
                     //Check if author text is overflowed - if so, add a bootstrap tooltip.
                     var base = $('#scalarheader.navbar').data('scalarheader');
                     var desktopTitle = base.$el.find('#desktopTitleWrapper');
@@ -1636,12 +1635,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             base.expandMenu(target_toc_item,0);
                             var menu = $( '.mainMenu>.dropdown-menu .body>ol>li.active').removeClass('active');
                             $(this).parent().addClass('active');
-				
+
                             $("#mainMenuSubmenus").removeClass (function (index, className) {
                                 return (className.match (/(^|\s)submenu-\S+/g) || []).join(' ');
                             });
                             $('#mainMenuSubmenus').addClass('submenu-' + target_toc_item.slug)
-				
+
                             e.preventDefault();
                             return false;
                         })
