@@ -206,7 +206,7 @@ fieldset[disabled] .btn-grey.active {
 END;
 $this->template->add_css($css, 'embed');
 ?>
-<h2 class="heading_font">Import Local Media File</h2>
+<h2 class="heading_font">Upload Media File</h2>
 <?=(!empty($content)) ? $content.'<br /><br />' : ''?>
 Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than <?=ini_get('upload_max_filesize')?> in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).<br /><br />
 Recommended formats (most compatible): css, gif, html, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml<br />
