@@ -150,6 +150,11 @@
 				if ( okToProceed ) {
 					var overlay = $('<div class="media_sidebar caption_font" style="min-height:initial;"><h2><a href="' + mediaelement.model.node.url + '">'+mediaelement.model.node.getDisplayTitle()+'</a></h2></div>').prependTo(mediaelement.model.element.parent());
 					var i, relation, relations;
+					
+					// show description
+					if ('undefined'!=typeof(scalarMediaDetailsAddDescription) && scalarMediaDetailsAddDescription && mediaelement.model.node.current.description != null) {
+						overlay.append('<div style="padding-top:12px;">' + mediaelement.model.node.current.description + '</div>');
+					}
 
 					// show annotations
 					relations = mediaelement.model.node.getRelations('annotation', 'incoming', 'index');
