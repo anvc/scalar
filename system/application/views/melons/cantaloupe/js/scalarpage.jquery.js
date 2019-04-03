@@ -1394,7 +1394,8 @@
                         var height = parseInt(noteViewer.css('max-height')) - noteViewer.innerHeight() - 50;
 
                         var temp = $('<div>' + node.current.content + '</div>').appendTo(noteViewer);
-
+                        if (temp.children('p:last').is(':last-child')) temp.children('p:last').css('margin-bottom','0px');
+                        
                         $(page.getMediaLinks(temp)).each(function() {
                             if ($(this).hasClass('inline')) {
                                 $(this).wrap('<div></div>').hide().removeClass('inline');
@@ -1426,7 +1427,7 @@
                         var link = $('<a href="' + node.current.sourceFile + '" data-annotations="[]" data-align="center" resource="' + node.slug + '" class="inline"></a>').hide().appendTo(parent);
                         page.addNoteOrAnnotationMedia(link, parent, width, height);
                     }
-                    noteViewer.append('<br/><br/> <a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>');
+                    noteViewer.append('<br /><a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>');
                 }
             },
 
