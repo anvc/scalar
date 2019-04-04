@@ -1,5 +1,8 @@
 <?php
-if (!file_exists(confirm_slash(APPPATH).'views/melons/honeydew/content/'.$view.'.php')) show_404();
+if (!file_exists(confirm_slash(APPPATH).'views/melons/honeydew/content/'.$view.'.php')) {
+	reset($views);
+	$view = key($views);
+}
 $this->template->add_css(path_from_file(__FILE__).'../../modules/cover/login.css');
 $this->template->add_css(path_from_file(__FILE__).'../../modules/cover/title.css');
 $this->template->add_css(path_from_file(__FILE__).'content.css');

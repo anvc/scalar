@@ -152,7 +152,7 @@ class Book extends MY_Controller {
 			} else {
 				$page_not_found = true;
 			}
-			
+
 			// View methods
 			if (array_key_exists(get_ext($this->uri->uri_string()), $this->data['views'])) $this->data['view'] = get_ext($this->uri->uri_string());
 			if (in_array($this->data['view'], $this->vis_views)) {
