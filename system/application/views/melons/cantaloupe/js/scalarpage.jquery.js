@@ -1395,7 +1395,7 @@
 
                         var temp = $('<div>' + node.current.content + '</div>').appendTo(noteViewer);
                         if (temp.children('p:last').is(':last-child')) temp.children('p:last').css('margin-bottom','0px');
-                        
+
                         $(page.getMediaLinks(temp)).each(function() {
                             if ($(this).hasClass('inline')) {
                                 $(this).wrap('<div></div>').hide().removeClass('inline');
@@ -1833,6 +1833,8 @@
                             page.mediaCarousel = $('#gallery');
                             var wrapper = $('<div class="carousel-inner" role="listbox"></div>').appendTo(page.mediaCarousel);
 
+                            page.mediaDetails = $.scalarmediadetails($('<div></div>').appendTo('body'));
+
                             n = nodes.length;
                             for (var i = 0; i < n; i++) {
 
@@ -1869,13 +1871,18 @@
                                     }
                                     description = description.replace(new RegExp("\"", "g"), '&quot;');
                                     item.append('<div class="carousel-caption caption_font"><span>' +
-                                        '<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace('"', '&quot;') + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + (i + 1) + '/' + n + ')' +
+                                        '<a href="javascript:;" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace('"', '&quot;') + '" data-content="' + description + '">' + node.getDisplayTitle() + '</a> (' + (i + 1) + '/' + n + ')' +
                                         '</span></div>');
                                 } else {
                                     item.append('<div class="carousel-caption caption_font"><span>' +
-                                        '<a href="' + node.url + '" >' + node.getDisplayTitle() + '</a> (' + (i + 1) + '/' + n + ')' +
+                                        '<a href="javascript:;" >' + node.getDisplayTitle() + '</a> (' + (i + 1) + '/' + n + ')' +
                                         '</span></div>');
                                 }
+                                item.find('a').data('node', node).click(function() {
+                                    if ($('.media_details').css('display') == 'none') {
+                                        page.mediaDetails.show($(this).data('node'));
+                                    }
+                                });
 
                                 page.addMediaElementForLink(link, mediaContainer, galleryHeight);
 

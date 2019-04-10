@@ -599,7 +599,7 @@
                           if ($('.media_details').css('display') == 'none') {
                               page.mediaDetails.show($(this).data('node'));
                           }
-                        })
+                        });
                         page.addMediaElementForLink(link, mediaContainer, galleryHeight, {vcenter: true});
                     }
                };
