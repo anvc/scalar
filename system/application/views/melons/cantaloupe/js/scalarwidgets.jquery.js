@@ -235,7 +235,7 @@
                if(base.loadedNodes.indexOf(slug) > -1){
                     handleNode();
                }else if(typeof base.pendingNodeLoads[slug] == 'undefined'){
-                
+
                   base.pendingNodeLoads[slug] = [];
                   base.pendingNodeLoads[slug].push(handleNode);
                   (function(include_children,slug,base){
@@ -254,7 +254,7 @@
                }else{
                   base.pendingNodeLoads[slug].push(handleNode);
                }
-               
+
              }
            }
          }
@@ -470,7 +470,7 @@
 
                           var mediaType = TL.MediaType(entry.media);
 
-                          
+
                           if(mediaType.type=='imageblank' && thumbnail_url != null){
                             entry.media.url = thumbnail_url;
                           }else if(mediaType.type=='imageblank'){
@@ -504,7 +504,7 @@
                 $(this).data('timeline',tempdata);
 
               }
-              
+
               prepareTimelineContainer($(this));
 
             },$widget));
@@ -538,7 +538,7 @@
                  }else{
                   var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                  }
-                 
+
                  if($widget.data('container').data('size') == 'full'){
                     galleryHeight += 100;
                  }
@@ -588,13 +588,18 @@
                             description = description.replace(new RegExp("\"", "g"), '&quot;');
 
                             item.append('<div class="carousel-caption caption_font"><span>' +
-                                '<a href="' + node.url + '" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace('"', '&quot;') + '" data-content="' + description + '"><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
+                                '<a href="javascript:;" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="' + node.getDisplayTitle().replace('"', '&quot;') + '" data-content="' + description + '"><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         } else {
                             item.append('<div class="carousel-caption caption_font"><span>' +
-                                '<a href="' + node.url + '" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
+                                '<a href="javascript:;" ><strong>' + node.getDisplayTitle() + '</strong></a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
+                        item.find('a').data('node', node).click(function() {
+                          if ($('.media_details').css('display') == 'none') {
+                              page.mediaDetails.show($(this).data('node'));
+                          }
+                        })
                         page.addMediaElementForLink(link, mediaContainer, galleryHeight, {vcenter: true});
                     }
                };
@@ -832,7 +837,7 @@
            var $parent = $widget.data('parent');
            var size = $widget.data('size');
            var height = $widget.data('height');
-           
+
            var inline = $widget.data('inline');
            var align = $widget.data('align');
 
@@ -873,7 +878,7 @@
                vcenter = true;
              }
            }
-           
+
            if (size == 'large' && (align == 'left' || inline)) {
              // we want 'large' inline or left-aligned widgets to be as wide as the text
              width = page.bodyCopyWidth;
@@ -895,7 +900,7 @@
 
            if ( inline ) {
 
-            
+
              $slot.addClass(align+'_slot');
              $widget.after( $slot );
              $widget.hide();
