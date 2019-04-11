@@ -26,6 +26,8 @@
 				 base.pendingWidgets = {};
          base.pendingNodeLoads = {};
          base.loadedNodes = [];
+         base.carouselCount = 0;
+
          // Access to jQuery and DOM versions of element
          base.$el = $(el);
          base.el = el;
@@ -524,8 +526,9 @@
 
              $widget.on('slotCreated',function(){
                //Carousel rendering content
-
-               var $carousel = $('<div class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
+               base.carouselCount++;
+               var carouselId = "carousel-" + base.carouselCount;
+               var $carousel = $('<div id="' + carouselId + '" class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
                var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
                if ( page.adaptiveMedia == "mobile" ) {
@@ -605,10 +608,10 @@
                };
 
                if(media_nodes.length > 0){
-                  parseNodes(media_nodes,galleryHeight,$widget.data('container').data('size'));
+                 parseNodes(media_nodes,galleryHeight,$widget.data('container').data('size'));
                  if ( page.adaptiveMedia != "mobile" ) {
       							$wrapper.find( '[data-toggle="popover"]' ).popover( {
-      								container: '#gallery',
+      								container: '#' + carouselId,
                       html: true,
       								template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title heading_font heading_weight"></h3><div class="popover-content caption_font"></div></div>'
       							} );
