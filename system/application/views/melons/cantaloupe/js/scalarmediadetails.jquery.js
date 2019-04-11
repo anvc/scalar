@@ -150,7 +150,7 @@
 				if ( okToProceed ) {
 					var overlay = $('<div class="media_sidebar caption_font" style="min-height:initial;"><h2><a href="' + mediaelement.model.node.url + '">'+mediaelement.model.node.getDisplayTitle()+'</a></h2></div>').prependTo(mediaelement.model.element.parent());
 					var i, relation, relations;
-					
+
 					// show description
 					if ('undefined'!=typeof(scalarMediaDetailsAddDescription) && scalarMediaDetailsAddDescription && mediaelement.model.node.current.description != null) {
 						overlay.append('<div style="padding-top:12px;">' + mediaelement.model.node.current.description + '</div>');
@@ -216,10 +216,10 @@
 						relation = relations[i];
 						citations.append('<p>Tagged by <a href="'+relation.body.url+'">&ldquo;'+relation.body.getDisplayTitle()+'&rdquo;</a></p>');
 					}
-					
+
 					// No citations
 					if (!citations.children(':not(h3)').length) {
-						citations.append('<i>There are no citations of this media.</i>');
+            citations.remove();
 					}
 
 					/*for (i in relations) {
@@ -238,7 +238,7 @@
 					// additional metadata list
 					var metadata = $('<div class="citations citations_metadata"><h3>Details</h3></div>').appendTo(annotationWrap);
 					addMetadataTableForNodeToElement(mediaelement.model.node, metadata);
-					
+
 				}
 			}
 		};
