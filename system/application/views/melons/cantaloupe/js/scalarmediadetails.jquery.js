@@ -219,7 +219,8 @@
 
 					// No citations
 					if (!citations.children(':not(h3)').length) {
-            citations.remove();
+						citations.append('<i>There are no citations of this media.</i>');
+						if ('undefined'!=typeof(scalarMediaDetailsHideCitationsSectionIfNoCitations) && scalarMediaDetailsHideCitationsSectionIfNoCitations) citations.remove();
 					}
 
 					/*for (i in relations) {
