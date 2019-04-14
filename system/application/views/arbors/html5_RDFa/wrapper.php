@@ -47,9 +47,9 @@ function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array(), $aria=false, $forc
 		if (in_array($p, $hide)) continue;
 		foreach ($values as $value) {
 			if (isURL($value['value']) && !in_array(toNS($p,$ns), $force_literal)) {
-				$str = '<a class="metadata" aria-hidden="'.(($aria)?'false':'true').'" rel="'.toNS($p,$ns).'" href="'.$value['value'].'"></a>'."\n";
+				$str = '<a class="metadata" aria-hidden="'.(($aria)?'false':'true').'" rel="'.toNS($p,$ns).'" href="'.htmlspecialchars($value['value']).'"></a>'."\n";
 			} else {
-				$str = '<span class="metadata" aria-hidden="'.(($aria)?'false':'true').'" property="'.toNS($p,$ns).'">'.$value['value'].'</span>'."\n";
+				$str = '<span class="metadata" aria-hidden="'.(($aria)?'false':'true').'" property="'.toNS($p,$ns).'">'.htmlspecialchars($value['value'], ENT_NOQUOTES).'</span>'."\n";
 			}
 			for ($j = 0; $j < $tabs; $j++) {$str = "\t".$str;}
 			echo $str;
