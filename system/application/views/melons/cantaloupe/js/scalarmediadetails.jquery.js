@@ -161,7 +161,7 @@
 					var annotationWrap = $('<div class="media_sidebar caption_font"></div>').appendTo(mediaelement.model.element.parent());
 
 					var sourceFileLink = $('<div class="citations"><a class="btn btn-primary btn-sm" href="'+mediaelement.model.node.current.sourceFile+'" target="popout">View source file</a></div>').appendTo(annotationWrap);
-					if ('undefined'!=typeof(scalarMediaDetailsSourceFileLink) && !scalarMediaDetailsSourceFileLink) sourceFileLink.hide();
+					if ('undefined'!=typeof(scalarMediaDetailsHideSourceFileLink) && scalarMediaDetailsHideSourceFileLink) sourceFileLink.hide();
 
 					if (relations.length > 0) {
 						var annotationCitations = $('<div class="citations media_annotations"><h3>Annotations of this media</h3></div>').appendTo(annotationWrap);

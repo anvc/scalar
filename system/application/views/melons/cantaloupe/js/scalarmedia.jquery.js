@@ -434,14 +434,14 @@
 				}
 			}
 
-			if ('undefined'==typeof(scalarMediaHideCitationsTab) || scalarMediaHideCitationsTab) {
+			if ('undefined'==typeof(scalarMediaHideCitationsTab) || !scalarMediaHideCitationsTab) {
 				var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
 				detailsTab.click( function() {
 					media.options[ 'details' ].show( node );
 				} );
 			}
 
-			if ('undefined'==typeof(scalarMediaHideSourceFileTab) || scalarMediaHideSourceFileTab) {
+			if ('undefined'==typeof(scalarMediaHideSourceFileTab) || !scalarMediaHideSourceFileTab) {
 				var sourceTab = $( '<div class="media_tab">Source file</div>' ).appendTo( mediaTabs );
 				sourceTab.click( function() {
 					window.open( node.current.sourceFile, 'popout' );
