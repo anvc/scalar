@@ -135,6 +135,8 @@
            if(typeof fullReload == "undefined" || fullReload!==true){
              fullReload = false;
            }
+
+
            if($widget.attr('resource') == undefined && $widget.data('nodes') == undefined){
              //Use the current node, if it has related chronological nodes
              $widget.data('node',base.currentNode);
@@ -155,7 +157,6 @@
                   slugs.push({id : slug, children: include_children, loaded : false});
                }
                $widget.removeData('node');
-
                var handleNodes = $.proxy(function(slugs,promise){
                  if(this.data('node')!=undefined){
                    return;
@@ -216,7 +217,7 @@
              else{
      					 var include_children = slug.indexOf('*')>-1;
      					 var slug = slug.replace(/\*/g, '');
-               var handleNode = $.proxy(function(slugs,promise,include_children){
+               var handleNode = $.proxy(function(slug,promise,include_children){
                 if(include_children){
                    var node = jQuery.extend(true, {}, scalarapi.getNode(slug));
                    node.children = {};
@@ -237,9 +238,7 @@
                if(base.loadedNodes.indexOf(slug) > -1){
                     handleNode();
                }else if(typeof base.pendingNodeLoads[slug] == 'undefined'){
-
-                  base.pendingNodeLoads[slug] = [];
-                  base.pendingNodeLoads[slug].push(handleNode);
+                  base.pendingNodeLoads[slug] = [handleNode];
                   (function(include_children,slug,base){
                      if(scalarapi.loadPage( slug, fullReload, function(){
                           base.loadedNodes.push(slug);
@@ -247,7 +246,7 @@
                             base.pendingNodeLoads[slug][i]();
                           }
                      }, null, 1, false, null, 0, 20) == "loaded"){
-                      base.loadedNodes.push(slug.id);
+                      base.loadedNodes.push(slug);
                       for(var i in base.pendingNodeLoads[slug]){
                         base.pendingNodeLoads[slug][i]();
                       }
@@ -386,7 +385,6 @@
                 $widget.trigger('slotCreated');
               }
             }, $widget));
-
             base.getTargetNode($widget, gmapPromise);
 				 };
 
