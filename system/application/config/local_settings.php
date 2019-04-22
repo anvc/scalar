@@ -97,6 +97,14 @@ $config['default_stylesheet'] = 'minimal';
 // Number of history records per user
 $config['user_history_max_records'] = 20; 
 
+// On the Edit page the first tab, Layout, is the default opened tab; this will allow an override to another tab per book
+$config['override_edit_page_default_tab'] = array(
+		'book_0' => array(  // replace 0 with the book's ID
+				'composite' => '#metadata-pane',  // text pages
+				'media' => '#metadata-pane'  // media pages
+		)
+);
+
 //EOF
 
 ?>
