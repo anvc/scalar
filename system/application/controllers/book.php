@@ -849,6 +849,14 @@ class Book extends MY_Controller {
 		$this->data['book_images'] = $this->books->get_images($book_id);
 		$this->data['book_images_and_mp4'] = $this->books->get_images($book_id, array('mp4','video'));
 		$this->data['book_audio'] = $this->books->get_audio($book_id);
+		
+		// Default tab
+		$this->data['default_tabs'] = array();
+		$default_tabs_config = $this->config->item('override_edit_page_default_tab');
+		if (!empty($default_tabs_config) && isset($default_tabs_config['book_'.$this->data['book']->book_id])) {
+			if (isset($default_tabs_config['book_'.$this->data['book']->book_id]['composite'])) $this->data['default_tabs']['composite'] = $default_tabs_config['book_'.$this->data['book']->book_id]['composite'];
+			if (isset($default_tabs_config['book_'.$this->data['book']->book_id]['media'])) $this->data['default_tabs']['media'] = $default_tabs_config['book_'.$this->data['book']->book_id]['media'];
+		}
 
 	}
 
