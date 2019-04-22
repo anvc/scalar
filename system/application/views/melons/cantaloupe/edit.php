@@ -36,9 +36,6 @@ $this->template->add_js('var media_views='.json_encode( $this->config->item('med
 if ($this->config->item('predefined_css')) {
 	$this->template->add_js('var predefined_css='.json_encode($this->config->item('predefined_css')), 'embed');
 }
-if (!empty($default_tabs)) {
-	$this->template->add_js('var default_tabs='.json_encode($default_tabs), 'embed');
-}
 $css = <<<END
 .cke_button.cke_button__removeformat{border: 1px solid rgba(200,50,50,.3); background-color: rgba(200,50,50,.2); box-shadow: 0 0 10px rgba(255,0,0,.2) inset;border: none;}
 .cke_button.cke_button__removeformat:hover{box-shadow: none;}
@@ -344,6 +341,7 @@ $(document).ready(function() {
 		    });
 		}
 	});
+
 	// Thumbnail
 	var choose_thumb = $('#choose_thumbnail');
 	var thumbnail = $('input[name="scalar:thumbnail"]');
@@ -465,6 +463,7 @@ $(document).ready(function() {
 			});
 		});
 	};
+
 	//Added to prevent accidental navigation away from edit/add page - matches all anchor tags
 	//with an href attribute that doesn't start with # or javascript:
 	$(document).on('click', 'a[href]:not([href=""], [href^="#"], [href^="javascript"], [target="_blank"])', function(e){
@@ -473,17 +472,11 @@ $(document).ready(function() {
 			return false;
 		}
 	});
-	// Default tabs
-	if ('undefined' != typeof(default_tabs)) {
-		var selected =  $("input:radio[name='rdf:type']:checked").val();
-		if (selected.indexOf('Composite')!=-1 && 'undefined'!=typeof(default_tabs['composite'])) {
-			if ($('a[href="'+default_tabs['composite']+'"]').length) $('a[href="'+default_tabs['composite']+'"]').click();
-        } else if (selected.indexOf('Media')!=-1 && 'undefined'!=typeof(default_tabs['media'])) {
-			if ($('a[href="'+default_tabs['media']+'"]').length) $('a[href="'+default_tabs['media']+'"]').click();
-        }
-    };
-	// Editorial state:
+
+	//Editorial state stuff:
+
 	has_edition = false;
+
 	if($('a.metadata[rel="scalar:hasEdition"]').length > 0){
 		if(version_date != null){
 			var edition_timestamp = new Date($('span[resource="'+$('a.metadata[rel="scalar:hasEdition"]').attr('href')+'"] span[property="dcterms:created"]').text());
