@@ -50,9 +50,10 @@ function insert_rel_fields(current_urn, current_slug) {
   $.getJSON(content_uri+'.rdfjson?ref=1&rec=1', function(data) {
   	var current_uri = data[content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#version'][0].value;
 	// Metadata 
-    var skip = ['ov:versionnumber','dcterms:title','dcterms:description','art:url','prov:wasAttributedTo','dcterms:created','dcterms:isVersionOf','rdf:type'];
+    var skip = ['dcterms:isReferencedBy','art:sourceLocation','ov:versionnumber','dcterms:title','dcterms:description','art:url','prov:wasAttributedTo','dcterms:created','dcterms:isVersionOf','rdf:type'];
 	var description = ('undefined'!=typeof(data[current_uri]['http://purl.org/dc/terms/description'])) ? data[current_uri]['http://purl.org/dc/terms/description'][0].value : null;
 	$('input[name="dcterms:description"]').val(description);
+	$('#metadata_rows').empty();
 	for (var subject in data[current_uri]) {
       for (var prefix in namespaces) {
         if ('scalar' == prefix) continue;
