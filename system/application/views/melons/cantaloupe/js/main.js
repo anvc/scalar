@@ -634,7 +634,7 @@ $(window).ready(function() {
 
 				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
 				if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
-				$('body').addClass('page-' + currentNode.slug)
+				if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
 
 				var timeout;
 				$( window ).resize( function() {
