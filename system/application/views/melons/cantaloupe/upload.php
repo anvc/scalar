@@ -1,10 +1,11 @@
 <?$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>
+<?$this->template->add_js('var namespaces='.json_encode($ns), 'embed');?>
 <?
 $js = <<<END
 
-// The following handles the "replace" functionality
 $( document ).ready(function() {
+	// "replace" functionality
 	$('select[name="replace"]').change(function() {
 		$('#loading').show();
 		document.getElementById('submit_button').disabled = true;
@@ -36,6 +37,11 @@ function getHashValue(key) {
 	return location.hash.match(new RegExp(key+'=([^&]*)'))[1];
 }
 function insert_rel_fields(current_urn, current_slug) {
+  if (!current_slug.length) {
+    $('#loading').hide();
+	$('input[name="dcterms:description"]').val('');
+    return;
+  };
   var parent = $('link#parent').attr('href');
   var content_uri = parent+current_slug;
   var insert_into = $('#relations');
@@ -43,6 +49,24 @@ function insert_rel_fields(current_urn, current_slug) {
   var fields = [];
   $.getJSON(content_uri+'.rdfjson?ref=1&rec=1', function(data) {
   	var current_uri = data[content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#version'][0].value;
+	// Metadata 
+    var skip = ['ov:versionnumber','dcterms:title','dcterms:description','art:url','prov:wasAttributedTo','dcterms:created','dcterms:isVersionOf','rdf:type'];
+	var description = ('undefined'!=typeof(data[current_uri]['http://purl.org/dc/terms/description'])) ? data[current_uri]['http://purl.org/dc/terms/description'][0].value : null;
+	$('input[name="dcterms:description"]').val(description);
+	for (var subject in data[current_uri]) {
+      for (var prefix in namespaces) {
+        if ('scalar' == prefix) continue;
+        if (subject.indexOf(namespaces[prefix]) != -1) {
+		  $('#metadata_rows_parent').show();
+          var pnode = subject.replace(namespaces[prefix], prefix+':');
+          if (skip.indexOf(pnode) != -1) continue;
+          for (var j = 0; j < data[current_uri][subject].length; j++) {
+             $('#metadata_rows').append('<div class="form-group '+pnode+'"><label class="col-sm-3 control-label">'+pnode+'</label><div class="col-sm-9"><input type="text" name="'+pnode+'" class="form-control input-sm" value="'+escapeHtml(data[current_uri][subject][j].value)+'"></div></div>');
+          };
+        }
+      }
+    }
+    // Relations
     for (var s in data) {
       // Paths
       if (-1!=s.indexOf('urn:scalar:path')) {
@@ -141,6 +165,16 @@ function custom_file_input(el) {
   filename = filename.substr(filename.lastIndexOf('/')+1);
   $('#upload-file-info').html(filename);
 }
+function escapeHtml(text) {
+  var map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
 
 END;
 $js .= 'var scope = "'.$book->scope.'";'."\n";
@@ -149,6 +183,7 @@ $css = <<<END
 h2 {margin-top:0; padding-top:0; margin-left:0; padding-left:0; margin-right:0; padding-right:0;}
 .ci-template-html {font-family:Georgia,Times,serif !important; padding-left:7.2rem; padding-right:7.2rem;}
 #centered-message {display:none;}
+#loading {font-size:1.4rem;}
 .upload-page table label {margin-bottom:0;}
 .upload-page table tr td:first-of-type {font-family:"Lato",Arial,sans-serif !important; padding-right:20px; white-space:nowrap;}
 .upload-page table td {vertical-align:middle !important; padding-bottom:12px;}

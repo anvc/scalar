@@ -20,11 +20,12 @@
             $name = $_FILES['source_file']['name'];
             if (!$this->is_allowed($name)) throw new Exception('Can not upload file with that pattern');
             if (!empty($_POST['replace']) && !empty($versions)) {
-                $version_id = array_pop(explode(':',$_POST['replace']));  // replace is an urn
-                $version = $versions->get($version_id);
-                $name = $version->url;
-                if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
-                if (!$this->is_allowed($name)) throw new Exception('Invalid replacement name');
+				$arr = explode(':',$_POST['replace']);  // replace is an urn
+				$version_id = array_pop($arr);
+				$version = $versions->get($version_id);
+				$name = $version->url;
+				if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
+				if (!$this->is_allowed($name)) throw new Exception('Invalid replacement name');
             }
             $targetFile = rtrim($targetPath,'/') . '/' . $name;
             $this->upload($tempFile,$targetFile,$chmodMode);
