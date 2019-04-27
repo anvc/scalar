@@ -99,8 +99,7 @@ $config['rdf_fields'] = array(
 		'thumbnail' => 				'art:thumbnail',
 		'publisher_thumbnail' =>	'art:thumbnail',
 		'has_body' => 				'oac:hasBody',
-		'has_target' =>				'oac:hasTarget',
-		'tklabels' =>				'tk:hasLabel'
+		'has_target' =>				'oac:hasTarget'
 );
 
 // Ontology fields available for custom metadata
