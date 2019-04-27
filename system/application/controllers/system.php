@@ -1109,28 +1109,30 @@ class System extends MY_Controller {
 				}
 				break;
 			case 'save_tklabels':
+				$this->load->model('version_model', 'versions');
 				$version_id = (int) $_REQUEST['version_id'];
 				$this->data['book'] = $this->books->get_by_version_id($version_id);
 				if (empty($this->data['book'])) die('{"error":"Invalid book"}');
 				$this->set_user_book_perms();
 				if (!$this->login_is_book_admin()) die('{"error":"Invalid permissions"}');
 				$tklabels = $this->tklabels();
-				if (empty($tklabels)) die('{"error":"TK Labels not active"}');
+				if (empty($tklabels) || !isset($tklabels['labels'])) die('{"error":"TK Labels not active or needs to be refreshed"}');
+				$urn = $this->versions->urn($version_id);
 				$tosave = array();
 				$requested = isset($_REQUEST['tk:hasLabel']) ? $_REQUEST['tk:hasLabel'] : null;
 				if (null !== $requested && !is_array($requested)) $requested = array($requested);
 				if (null !== $requested) {
 					for ($j = 0; $j < count($requested); $j++) {
-						$code = substr($requested[$j],3);  // Remove "tk:"
-						foreach ($tklabels['labels'] as $label) {
-							if ($label['code'] == $code) $tosave[] = $code;
-						}
+						$tosave[] = array('value' => toURL($requested[$j], $this->config->item('namespaces')), 'type' => 'uri');
 					}
 				}
-				$this->load->model('resource_model', 'resources');
-				$tklabels['versions'][$version_id] = $tosave;
-				$this->resources->put('tklabels_'.$this->data['book']->book_id, serialize($tklabels));
-				$this->data['content'] = array('version_id'=>$version_id,'codes'=>$tosave);
+				$subject = toURL('tk:hasLabel', $this->config->item('namespaces'));
+				$meta = $this->rdf_store->get_by_urn($urn);
+				if (isset($meta[$subject])) unset($meta[$subject]);
+				if (!empty($tosave)) $meta[$subject] = $tosave;
+				$this->rdf_store->delete_urn($urn);
+				$this->rdf_store->save_by_urn($urn, $meta);
+				$this->data['content'] = array('version_id'=>$version_id,'tk:hasLabel'=>$tosave);
 				break;
 			case 'delete_content_path_links':
 				$version_ids = (array) $_POST['version_ids'];

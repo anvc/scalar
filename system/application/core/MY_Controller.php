@@ -487,7 +487,7 @@ class MY_Controller extends CI_Controller {
 			$json = FCPATH.$this->data['book']->slug.'/tklabels.json';
 			if (file_exists($json)) {
 				$json = json_decode(file_get_contents($json), true);
-				$save = array('versions'=>array(),'labels'=>$json);
+				$save = array('labels'=>$json);
 				$tklabels = $this->resources->put('tklabels_'.$this->data['book']->book_id, serialize($save));
 			}
 		} elseif (!empty($tklabels) && $flush) {  // Replace the texts
@@ -495,7 +495,7 @@ class MY_Controller extends CI_Controller {
 			if (file_exists($json)) {
 				$tklabels = unserialize($tklabels);
 				$json = json_decode(file_get_contents($json), true);
-				$save = array('versions'=>$tklabels['versions'],'labels'=>$json);
+				$save = array('labels'=>$json);
 				$tklabels = $this->resources->put('tklabels_'.$this->data['book']->book_id, serialize($save));
 			}
 		}

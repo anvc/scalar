@@ -539,19 +539,6 @@ class RDF_Object {
 				unset($versions[$key]->content);
 				unset($versions[$key]->url);
 			}
-			// TK Labels
-			if (isset($settings['tklabeldata']) && !empty($settings['tklabeldata']) && isset($settings['tklabeldata']['versions']) && isset($settings['tklabeldata']['versions'][$versions[$key]->version_id])) {
-				$tk_codes = $settings['tklabeldata']['versions'][$versions[$key]->version_id];
-				$versions[$key]->tklabels = array();
-				foreach ($tk_codes as $code) {
-					foreach ($settings['tklabeldata']['labels'] as $label) {
-						if ($label['code'] == $code) {
-							$versions[$key]->tklabels[] = $label;
-							break;
-						}
-					}
-				}
-			}
 		}
 
 		// Place into object for use later in relationship building
@@ -702,24 +689,27 @@ class RDF_Object {
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return $page;
 		$CI =& get_instance();
 		foreach ($page->versions as $key => $version) {
-			if (!array_key_exists($version->version_id, $settings['tklabeldata']['versions'])) continue;
-			$page->versions[$key]->tklabels = array();
-			$tk_codes = $settings['tklabeldata']['versions'][$version->version_id];
-			foreach ($tk_codes as $code) {
-				foreach ($settings['tklabeldata']['labels'] as $tklabel) {
-						if ($tklabel['code'] != $code) continue;
-						$arr = array(
-								'type' => $CI->versions->tk_type(),
-								'url' => $tklabel['image'],
-								'code' => $code,
-								'uri' => $CI->versions->tk_hasLabel($tklabel)
-						);
-						foreach ($tklabel['text'] as $text) {
-							if ($text['locale'] != $tklabel['defaultlocale']) continue;
+			$has_labels = array();
+			$has_label_uri = toURL('tk:hasLabel', $this->ns);
+			if (isset($version->rdf['tk:hasLabel'])) {
+				$has_labels = $version->rdf['tk:hasLabel'];
+			} elseif (isset($version->rdf[$has_label_uri])) {
+				$has_labels = $version->rdf[$has_label_uri];
+			}
+			foreach ($has_labels as $tklabel) {
+				$tklabel['type'] = 'tk:TKLabel';
+				$tklabel['uri'] = (isNS($tklabel['value'])) ? toURL($tklabel['value'], $this->ns) : $tklabel['value'];
+				$tklabel['code'] = explode('/', $tklabel['uri']);
+				$tklabel['code'] = array_pop($tklabel['code']);
+				foreach ($settings['tklabeldata']['labels'] as $label) {
+						if ($tklabel['code']!= $label['code']) continue;
+						$tklabel['url'] = $label['image'];
+						foreach ($label['text'] as $text) {
+							if ($text['locale'] != $label['defaultlocale']) continue;
 							$title = $text['title'];
-							$arr[$title] = $text['description'];
+							$tklabel[$title] = $text['description'];
 						}
-						$page->versions[$key]->tklabels[] = $arr;
+						$page->versions[$key]->tklabels[] = $tklabel;
 				}
 			}
 		}
@@ -729,22 +719,34 @@ class RDF_Object {
 	}
 	
 	private function _tklabels_by_ref(&$return, $row, $versions, $settings) {
-		
+
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return;
 		$CI =& get_instance();
-		foreach ($versions as $version) {
-			if (isset($version->tklabels) && is_array($version->tklabels)) {
-				foreach ($version->tklabels as $tklabel) {
-					$uri = $CI->versions->tk_hasLabel($tklabel);
-					$tklabel['type'] = $CI->versions->tk_type();
-					$tklabel['url'] = $tklabel['image'];
-					foreach ($tklabel['text'] as $text) {
-						if ($text['locale'] != $tklabel['defaultlocale']) continue;
+		foreach ($versions as $key => $version) {
+			$has_labels = array();
+			$has_label_uri = toURL('tk:hasLabel', $this->ns);
+			if (isset($version->rdf['tk:hasLabel'])) {
+				$has_labels = $version->rdf['tk:hasLabel'];
+			} elseif (isset($version->rdf[$has_label_uri])) {
+				$has_labels = $version->rdf[$has_label_uri];
+			}
+			foreach ($has_labels as $tklabel) {
+				$tklabel['type'] = 'tk:TKLabel';
+				$value = $tklabel['value'];
+				$tklabel['value'] = toURL($tklabel['value'], $this->ns);
+				$uri = $tklabel['value'];
+				$tklabel['code'] = explode(':',$value);
+				$tklabel['code'] = $tklabel['code'][1];
+				foreach ($settings['tklabeldata']['labels'] as $label) {
+					if ($label['code'] != $tklabel['code'] ) continue;
+					$tklabel['url'] = $label['image'];
+					foreach ($label['text'] as $text) {
+						if ($text['locale'] != $label['defaultlocale']) continue;
 						$title = $text['title'];
 						$tklabel[$title] = $text['description'];
 					}
-					if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->versions->rdf((object) $tklabel);
 				}
+				if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->versions->rdf((object) $tklabel);
 			}
 		}
 		

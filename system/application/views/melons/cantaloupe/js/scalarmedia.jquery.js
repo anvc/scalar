@@ -306,16 +306,16 @@
 
 				// add TK labels
             	var labels = node.current.properties['http://localcontexts.org/tk/hasLabel'];
-            	if (labels != null) {
+            	if ('undefined' != typeof(window['tklabels']) && labels != null) {
 	                var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
 	                var labelWrapper = $('<div class="tk-labels-media"></div>').appendTo(descriptionPane);
 	                var $label, $img, labelNode, url, labelDescription;
 	            	$(labels).each(function() {
-	            		$label = $('<span resource="'+this.value+'" typeof="tk:TKLabel" style="display:inline-block;"></span>').appendTo(labelWrapper);
-	            		labelNode = scalarapi.model.nodesByURL[this.value];
-	            		url = labelNode.properties['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
-	            		labelDescription = labelNode.properties['http://purl.org/dc/terms/description'][0].value;
-	            		$img = $('<img rel="art:url" src="'+url+'" data-toggle="popover" data-placement="top" />').appendTo($label);
+	            		var $label = $('<span resource="'+this.value+'" typeof="tk:TKLabel" style="display:inline-block;"></span>').appendTo(labelWrapper);
+	            		var labelNode = scalarapi.model.nodesByURL[this.value];
+	            		var url = labelNode.properties['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+	            		var labelDescription = labelNode.properties['http://purl.org/dc/terms/description'][0].value;
+	            		var $img = $('<img rel="art:url" src="'+url+'" data-toggle="popover" data-placement="top" />').appendTo($label);
 	                    $img.popover({
 	                        trigger: "click",
 	                        html: true,

@@ -100,6 +100,11 @@ class Version_model extends MY_Model {
 	  				// TODO: Not sure we should allow a collision between the semantic and relational tables? For now, don't.
 	  			} else {
 	  				$rdf[$p] = $values;
+	  				foreach ($rdf[$p] as $key => $value) {  // If the type is URI and the value is a NS, try to convert the value to a URI
+	  					if (isset($value['value']) && isset($value['type']) && 'uri'==$value['type'] && isNS($value['value'])) {
+	  						$rdf[$p][$key]['value'] = toURL($rdf[$p][$key]['value'], $this->config->item('namespaces'));
+	  					}
+	  				}
 	  			}
 	  		}
   		}

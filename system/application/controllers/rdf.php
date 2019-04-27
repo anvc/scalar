@@ -86,7 +86,7 @@ class Rdf extends MY_Controller {
 		$this->data['s_all'] = (isset($_REQUEST['s_all']) && 1==$_REQUEST['s_all']) ? true : false;
 		// Provenance
 		$this->data['provenance'] = (isset($_REQUEST['prov']) && !empty($_REQUEST['prov'])) ? 1 : null;
-		// TK Labels
+		// Show tk:TKLabel nodes
 		$this->data['tklabels'] = (isset($_REQUEST['tklabels']) && !empty($_REQUEST['tklabels'])) ? 1 : null;
 		// Show hidden content
 		$this->data['hidden'] = (isset($_REQUEST['hidden']) && !empty($_REQUEST['hidden'])) ? (int) $_REQUEST['hidden'] : 0;
