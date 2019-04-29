@@ -574,8 +574,8 @@ function YouTubeGetID(url){
 					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
 						pendingDeferredMedia.SoundCloud = [];
 						$.when(
-							$.getScript(widgets_uri+'/mediaelement/soundcloudapi.js'),
-							$.getScript(widgets_uri+'/mediaelement/soundcloudsdk.js')
+              $.getScript('https://connect.soundcloud.com/sdk/sdk-3.3.2.js'),
+              $.getScript('https://w.soundcloud.com/player/api.js')
 						).then(function(){
 							for(var i = 0; i < pendingDeferredMedia.SoundCloud.length; i++){
 									pendingDeferredMedia.SoundCloud[i].resolve();
@@ -751,7 +751,6 @@ function YouTubeGetID(url){
 
 					// initialize the SoundCloud API if we haven't already
 					} else if (this.model.mediaSource.name == 'SoundCloud') {
-
 						if(!soundCloudInitialized){
 							SC.initialize({client_id: $('#soundcloud_id').attr('href')});
 							soundCloudInitialized = true;
@@ -1906,7 +1905,7 @@ function YouTubeGetID(url){
 			if(typeof imagesWithAnnotations[me.model.filename + '-' + this.mediaObjectView.model.id + '-' + annotation.id] != 'undefined'){
 				anno.highlightAnnotation( imagesWithAnnotations[me.model.filename + '-' + this.mediaObjectView.model.id + '-' + annotation.id] );
 			}else{
-				anno.highlightAnnotation( annotation.data );	
+				anno.highlightAnnotation( annotation.data );
 			}
 
 			if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
@@ -2392,7 +2391,7 @@ function YouTubeGetID(url){
 					};
 
 					$el.attr('id',this.model.filename + '-' + this.model.id);
-					
+
 					var currentData = {};
 					if($el.data('annotations') != undefined){
 						var currentData = $el.data('annotations');
@@ -4788,15 +4787,12 @@ function YouTubeGetID(url){
 		 * Creates the media object.
 		 */
 		jQuery.SoundCloudAudioObjectView.prototype.createObject = function() {
-
 			me.mediaObject = $('<div class="mediaObject"><div id="soundcloud'+me.model.filename+'_'+me.model.id+'"></div></div>').appendTo(this.parentView.mediaContainer);
-			SC.oEmbed(this.model.path, {auto_play: true, download: true,show_comments:false,liking:false,buying:false,hide_related:true}, function(oembed){
- 				if ( oembed != null ) {
+			SC.oEmbed(this.model.path, {auto_play: true, download: true,show_comments:false,liking:false,buying:false,hide_related:true}).then(function(oembed){
+        if ( oembed != null ) {
 					oembed.height = me.parentView.resizedDim.y;
 					me.parentView.controllerHeight = oembed.height;
-
 					$(oembed.html).css('height',oembed.height).appendTo(me.mediaObject.children()[0]);
-
 					me.widget = SC.Widget($(me.mediaObject).find('iframe')[0]);
 					// All Sound Cloud Event listeners are extremely unreliable when triggered programatically.
 					// This motivates the code below as any attempt to exercise fine tuned control over the order
