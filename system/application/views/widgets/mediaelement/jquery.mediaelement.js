@@ -2379,7 +2379,7 @@ function YouTubeGetID(url){
 
 					var annodata = {
 						src: this.image.src + '-' + this.model.id,
-						text: '<a data-src="'+this.image.src + '-' + this.model.id+'" href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content : "" ),
+						text: '<div class="image-annotation-wrapper"><a data-src="'+this.image.src + '-' + this.model.id+'" href="' + annotation.body.url + '"><b>' + annotation.body.getDisplayTitle() + "</b></a> " + (( annotation.body.current.content != null ) ? annotation.body.current.content+"</div>" : "</div>" ),
 						editable: editable,
 						shapes: [{
 							type: "rect",
