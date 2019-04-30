@@ -4,7 +4,6 @@
 	white-space: normal;
 	line-height:100%;
 	position:relative; top:0px; left:0px;
-	z-index:7;
 }
 .annotorious-popup-text .mediaelement, .current_annotation .mediaelement { z-index: auto; }
 .image-annotation-wrapper { width: 30rem; }
