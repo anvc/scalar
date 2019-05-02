@@ -1107,7 +1107,7 @@ function YouTubeGetID(url){
 					player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
 				}
 
-				if (this.model.node.current.auxProperties['dcterms:accessRights'] == 'culturally-sensitive') {
+				if (this.model.node.current.auxProperties['dcterms:accessRights'].indexOf('culturally-sensitive') != -1) {
 					this.mediaObjectView = new $.CulturallySensitiveObjectView(this.model, this);
 
 				} else {
