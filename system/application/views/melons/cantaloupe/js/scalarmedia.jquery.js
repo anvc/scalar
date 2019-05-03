@@ -276,12 +276,12 @@
 			switch ( media.options.caption ) {
 
 				case 'title':
-				description = node.getDisplayTitle();
+				description = '<a class="citations-link" href="javascript:;">' + node.getDisplayTitle() + '</a>';
 				break;
 
 				case 'title-and-description':
 				if ( node.current.description != null ) {
-					description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+					description = '<a class="citations-link" href="javascript:;"><strong>' + node.getDisplayTitle() + '</strong></a><br>' + node.current.description;
 				} else {
 					description = node.getDisplayTitle();
 				}
@@ -333,6 +333,9 @@
 					}
 				}
 				descriptionPane.append(description);
+        descriptionPane.find('a.citations-link').click( function() {
+					media.options[ 'details' ].show( node );
+				} );
 				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
 				descriptionTab.click(function() {
 					$(this).parent().parent().find('.pane').hide();
