@@ -1540,7 +1540,6 @@
                 mediaLinks = [];
 
                 $(element).find('a').each(function() {
-
                     if ((($(this).attr('resource') != null) || // linked media
                             ($(this).find('[property="art:url"]').length > 0) || // inline media
                             (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0)) || // annotated media
@@ -1553,10 +1552,6 @@
                                 $(this).addClass('widget_link');
                             }
                         } else {
-                            if ($(this).parents('.widget_slot').length > 0) {
-                                $(this).remove();
-                                return;
-                            }
                             $(this).addClass('media_link');
                         }
                         mediaLinks.push($(this));
@@ -1723,6 +1718,7 @@
                             anno.hasPopupShownHandler = true;
                             var height = null;
                             $('.annotorious-popup').each(function() {
+                              if ($.contains(annotation.element, this)) {
                                 var width = $(this).width();
                                 if (annotation.isMedia) {
                                     var parent = $(this).find('.annotorious-popup-text');
@@ -1730,17 +1726,14 @@
                                     var link = $('<a href="' + node.current.sourceFile + '" data-annotations="[]" data-align="center" resource="' + node.slug + '" class="inline"></a>').hide().appendTo(parent);
                                     page.addNoteOrAnnotationMedia(link, parent, width, height);
                                 } else {
-                                    $(page.getMediaLinks($(this))).each(function() {
+                                    $(page.getMediaLinks($(this), true)).each(function() {
                                         if ($(this).hasClass('inline')) {
                                             $(this).wrap('<div></div>').hide().removeClass('inline');
                                         }
                                     });
-
                                     wrapOrphanParagraphs($(this));
-
                                     $(this).children('p:not(:last-child),div:not(:last-child)').wrap('<div class="paragraph_wrapper"></div>');
-
-                                    $(page.getMediaLinks($(this))).each(function() {
+                                    $(page.getMediaLinks($(this), true)).each(function() {
                                         $(this).attr({
                                             'data-align': '',
                                             'data-size': '',
@@ -1782,6 +1775,7 @@
                                     }
                                     $(this).css('max-width',winwidth-48);
                                 }
+                              }
                             });
                         });
                     }
