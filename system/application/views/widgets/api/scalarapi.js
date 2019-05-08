@@ -616,7 +616,7 @@ function ScalarAPI() {
 				'Safari': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Chrome': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
 				'Android': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false},
-				'Other': {extensions:['wav'], format:'WAV', player:'jPlayer', specifiesDimensions:false}
+				'Other': {extensions:['wav'], format:'WAV', player:'native', specifiesDimensions:false}
 			}},
 		'WebM': {
 			name:'WebM',
