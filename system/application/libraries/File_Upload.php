@@ -18,7 +18,7 @@
             if (!file_exists($targetPath)) mkdir($targetPath, $chmodMode, true);
             $tempFile = $_FILES['source_file']['tmp_name'];
             $name = $_FILES['source_file']['name'];
-            if (!$this->is_allowed($name)) throw new Exception('Can not upload file with that pattern');
+            if (!$this->is_allowed($name)) throw new Exception('Can not upload a file with that filename. The filename contains protected characters, has a disallowed file extension, or has no file extension.');
             if (!empty($_POST['replace']) && !empty($versions)) {
 				$arr = explode(':',$_POST['replace']);  // replace is an urn
 				$version_id = array_pop($arr);
@@ -71,7 +71,7 @@
             $tempFile = $_FILES['source_file']['tmp_name'];
             $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
            	$name = $_FILES['source_file']['name'];
-           	if (!$this->is_allowed($name)) throw new Exception('Can not upload thumbnail with that pattern');
+           	if (!$this->is_allowed($name)) throw new Exception('Can not upload a file with that filename. The filename contains protected characters, has a disallowed file extension, or has no file extension.');
             $targetName = substr_replace($name, "_thumb", strrpos($name, "."),0);
             $targetFile = $targetPath.'/'.$targetName;
             $this->upload($tempFile,$targetFile,$chmodMode);
@@ -87,7 +87,7 @@
         // Thumbnail for a book
         public function uploadThumb($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-            if (!$this->is_allowed($_FILES['upload_thumb']['name'])) throw new Exception('Can not upload thumbnail with that pattern');
+            if (!$this->is_allowed($_FILES['upload_thumb']['name'])) throw new Exception('Can not upload a file with that filename. The filename contains protected characters, has a disallowed file extension, or has no file extension.');
             $tempFile = $_FILES['upload_thumb']['tmp_name'];
             $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
             $ext = pathinfo($_FILES['upload_thumb']['name'], PATHINFO_EXTENSION);
@@ -106,7 +106,7 @@
         // Thumbnail for the publisher of the book
         public function uploadPublisherThumb($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-            if (!$this->is_allowed($_FILES['upload_publisher_thumb']['name'])) throw new Exception('Can not upload thumbnail with that pattern');
+            if (!$this->is_allowed($_FILES['upload_publisher_thumb']['name'])) throw new Exception('Can not upload a file with that filename. The filename contains protected characters, has a disallowed file extension, or has no file extension.');
             $tempFile = $_FILES['upload_publisher_thumb']['tmp_name'];
             $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
             $ext = pathinfo($_FILES['upload_publisher_thumb']['name'], PATHINFO_EXTENSION);
