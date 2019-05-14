@@ -142,7 +142,7 @@
 			if ('html' == $ext || 'html' == substr($ext, 0, 4)) return false;
 			if (stristr($file, '.html')) return false;
 			if ('zip' == $ext) return false;
-			if (preg_match('/[\'^�$%&}{<>]/', $file)) return false; // Control characters
+			if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
 			return true;
 
         }
