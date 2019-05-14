@@ -82,8 +82,8 @@
             	return false;
             }
             return 'media/'.$targetName;
-        }        
-        
+        }
+
         // Thumbnail for a book
         public function uploadThumb($slug,$chmodMode) {
             if (empty($_FILES)) throw new Exception('Could not find uploaded file');
@@ -124,7 +124,7 @@
 
 		// Disallow certain files
 		private function is_allowed($file) {
-        	
+
 			if (stristr($file, '../')) return false;
 			if (stristr($file, './')) return false;
 			if ('.'==substr($file, 0, 1)) return false;
@@ -133,12 +133,20 @@
 			if (empty($ext)) return false; // Require a file extension
 			if ('php' == $ext || 'php' == substr($ext, 0, 3)) return false;
 			if (stristr($file, '.php')) return false;
+			if ('sh' == $ext || 'sh' == substr($ext, 0, 2)) return false;
+			if (stristr($file, '.sh')) return false;
+			if ('xml' == $ext || 'xml' == substr($ext, 0, 3)) return false;
+			if (stristr($file, '.xml')) return false;
+			if ('htm' == $ext || 'htm' == substr($ext, 0, 3)) return false;
+			if (stristr($file, '.htm')) return false;
+			if ('html' == $ext || 'html' == substr($ext, 0, 4)) return false;
+			if (stristr($file, '.html')) return false;
 			if ('zip' == $ext) return false;
-			if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
+			if (preg_match('/[\'^ï¿½$%&}{<>]/', $file)) return false; // Control characters
 			return true;
-        	
+
         }
-        
+
         // Upload the file (move from temp folder)
         private function upload($tempFile,$targetFile,$chmodMode) {
             if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file is likely larger than the system\'s max upload size ('.$this->getMaximumFileUploadSize().').');
