@@ -1,215 +1,259 @@
-<?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-    class File_Upload {
+class File_Upload {
 
-    	const THUMB_WIDTH = 240;
-    	const PDF_URL = 'https://upload.wikimedia.org/wikipedia/commons/e/ec/Pdf_by_mimooh.svg';
-    	const DOC_URL = 'https://upload.wikimedia.org/wikipedia/commons/8/88/MS_word_DOC_icon.svg';
+    /**
+     * Storage object used to store files.
+     *
+     * @var Scalar_Storage
+     */
+    public $storage;
 
-        public function __construct() {}
+    /**
+     * Holds the book "slug" which is used for storing files in the appropriate folder.
+     *
+     * @var string
+     */
+    public $slug;
 
-        // Upload a file (e.g., "Loocal Media Files")
-        public function uploadMedia($slug,$chmodMode,$versions=null) {
-            if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-            $prepends = array('', 'media');
-            $path =@ $_POST['slug_prepend'];
-            if (!in_array($path, $prepends)) throw new Exception('Invalid prepend');
-            $targetPath = confirm_slash(FCPATH).$slug.$path;
-            if (!file_exists($targetPath)) mkdir($targetPath, $chmodMode, true);
-            $tempFile = $_FILES['source_file']['tmp_name'];
-            $name = $_FILES['source_file']['name'];
-            if (!$this->is_allowed($name)) throw new Exception('Can not upload file with that pattern');
-            if (!empty($_POST['replace']) && !empty($versions)) {
-				$arr = explode(':',$_POST['replace']);  // replace is an urn
-				$version_id = array_pop($arr);
-				$version = $versions->get($version_id);
-				$name = $version->url;
-				if (substr($name, 0, 6)=='media/') $name = substr($name, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
-				if (!$this->is_allowed($name)) throw new Exception('Invalid replacement name');
+    const THUMB_WIDTH = 240;
+    const PDF_URL = 'https://upload.wikimedia.org/wikipedia/commons/e/ec/Pdf_by_mimooh.svg';
+    const DOC_URL = 'https://upload.wikimedia.org/wikipedia/commons/8/88/MS_word_DOC_icon.svg';
+    const FILE_NAME_NOT_ALLOWED = 'Can not upload a file with that filename. The filename contains protected characters, has a disallowed file extension, or has no file extension.';
+
+    public function __construct($params) {
+        $this->slug = $params['slug'];
+        $this->storage = $this->getStorage($params['slug'], $params['adapter'], $params['adapterOptions']);
+        $this->storage->setUp();
+    }
+
+    // Raises an exception if the file upload is invalid
+    public function assertValidFileUpload($file) {
+        if (empty($file)) {
+            throw new Exception('File upload is missing.');
+        }
+        if (!$this->is_allowed($file['name'])) {
+            throw new Exception(FILE_NAME_NOT_ALLOWED);
+        }
+    }
+
+    // Upload media file and its thumbnail image
+    public function uploadMedia($file, $versions = null) {
+        $this->assertValidFileUpload($file);
+
+        // check the path that is prepended to the source file name is valid (no prepend or "media")
+        $path = @ $_POST['slug_prepend'];
+        if (!in_array($path, array('', 'media'))) {
+            throw new Exception("Invalid path prepend: $path");
+        }
+
+        // determine the file name to use, depending on whether the user is replacing an existing file or not
+        $sourceFile = $file['tmp_name'];
+        $sourceName = $file['name'];
+        if (!empty($_POST['replace']) && !empty($versions)) {
+            $arr = explode(':', $_POST['replace']);  // replace is an urn
+            $version_id = array_pop($arr);
+            $version = $versions->get($version_id);
+            $sourceName = $version->url;
+            if (substr($sourceName, 0, 6) == 'media/') $sourceName = substr($sourceName, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
+            if (!$this->is_allowed($sourceName)) {
+                throw new Exception(FILE_NAME_NOT_ALLOWED);
             }
-            $targetFile = rtrim($targetPath,'/') . '/' . $name;
-            $this->upload($tempFile,$targetFile,$chmodMode);
-            $url = ((!empty($path))?confirm_slash($path):'').$name;
-            return $url;
         }
 
-        // Create a thumbnail for an uploaded image
-        public function createMediaThumb($slug, $url, $chmod_mode) {
-        	if (empty($_FILES)) return false;  // Error thrown by uploadMedia
-            $sourcePath = confirm_slash(FCPATH).$slug.$url;
-            $targetPath = confirm_slash(FCPATH).$slug.$url;
-            $sourceName = basename($sourcePath);
-            $targetName = substr_replace($sourceName, "_thumb", strrpos($sourceName, "."),0);  // Don't depend on tmp_name because it could be changed by 'replace' feature
-            $sourcePath = dirname($sourcePath).'/'.$sourceName;
-            $targetPath = dirname($targetPath).'/'.$targetName;
-            if (!file_exists($sourcePath)) throw new Exception('Problem creating thumbnail. Source file not found.');
-            copy($sourcePath,$targetPath);
-            chmod($targetPath, $chmod_mode);
-            try {
-                $this->resize($targetPath,self::THUMB_WIDTH);
-            } catch (Exception $e) {
-                unlink($targetPath);
-                $parts = pathinfo($targetPath);
-                if (!empty($parts['extension'])) {
-	                switch (strtolower($parts['extension'])) {
-	                	case 'pdf':
-	                		return self::PDF_URL;
-	                	case 'doc':
-	                	case 'docx':
-	                		return self::DOC_URL;
-	                }
-                }
-                return false;
-            }
-            $path = substr($targetPath, (strpos($targetPath, $slug)+strlen($slug)));
-            return $path;
+        // upload thumb
+        $thumbName = $this->getThumbName($sourceName);
+        $thumbUrl = $this->uploadThumb($file, $thumbName);
+        if (!$thumbUrl) {
+            $thumbUrl = $this->getIconUrl($sourceFile);
         }
 
-        // Thumbnail for a page
-        public function uploadPageThumb($slug,$chmodMode) {  // Note that this feature is offline for now, since the iframe method was causing logouts
-            if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-            $tempFile = $_FILES['source_file']['tmp_name'];
-            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
-           	$name = $_FILES['source_file']['name'];
-           	if (!$this->is_allowed($name)) throw new Exception('Can not upload thumbnail with that pattern');
-            $targetName = substr_replace($name, "_thumb", strrpos($name, "."),0);
-            $targetFile = $targetPath.'/'.$targetName;
-            $this->upload($tempFile,$targetFile,$chmodMode);
-            try {
-            	$this->resize($targetFile,self::THUMB_WIDTH);
-            } catch (Exception $e) {
-            	unlink($targetFile);
-            	return false;
-            }
-            return 'media/'.$targetName;
-        }        
-        
-        // Thumbnail for a book
-        public function uploadThumb($slug,$chmodMode) {
-            if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-            if (!$this->is_allowed($_FILES['upload_thumb']['name'])) throw new Exception('Can not upload thumbnail with that pattern');
-            $tempFile = $_FILES['upload_thumb']['tmp_name'];
-            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
-            $ext = pathinfo($_FILES['upload_thumb']['name'], PATHINFO_EXTENSION);
-            $targetName = 'book_thumbnail.'.strtolower($ext);
-            $targetFile = $targetPath.'/'.$targetName;
-            $this->upload($tempFile,$targetFile,$chmodMode);
-            try {
-            	$this->resize($targetFile,self::THUMB_WIDTH);
-            } catch (Exception $e) {
-            	unlink($targetFile);
-            	return false;
-            }
-            return 'media/'.$targetName;
+        // upload source
+        $targetFile = "$path/$sourceName";
+        $sourceUrl = $this->upload($sourceFile, $targetFile);
+
+        return array('url' => $sourceUrl, 'thumbUrl' => $thumbUrl);
+    }
+
+    // Thumbnail for a page
+    public function uploadPageThumb($file) {  // Note that this feature is offline for now, since the iframe method was causing logouts
+        $this->assertValidFileUpload($file);
+        $thumbName = $this->_getThumbName($file['name']);
+        $thumbUrl = $this->uploadThumb($file, $thumbName);
+        return $thumbUrl;
+    }
+
+    // Thumbnail for a book
+    public function uploadBookThumb($file) {
+        $this->assertValidFileUpload($file);
+        $thumbName = "book_thumbnail." . $this->getFileExtension($file['name']);
+        $thumbUrl = $this->uploadThumb($file, $thumbName);
+        return $thumbUrl;
+    }
+
+    // Thumbnail for the publisher of the book
+    public function uploadPublisherThumb($file) {
+        $this->assertValidFileUpload($file);
+        $thumbName = "publisher_thumbnail." . $this->getFileExtension($file['name']);
+        $thumbUrl = $this->uploadThumb($file, $thumbName);
+        return $thumbUrl;
+    }
+
+    // Upload a thumbnail
+    private function uploadThumb($file, $thumbName) {
+        $targetFile = "media/$thumbName";
+
+        // upload the thumbnail
+        try {
+            $thumbFile = $this->resize($file['tmp_name'], self::THUMB_WIDTH);
+            $thumbUrl = $this->upload($thumbFile, $targetFile);
+            @unlink($thumbFile);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return false;
         }
 
-        // Thumbnail for the publisher of the book
-        public function uploadPublisherThumb($slug,$chmodMode) {
-            if (empty($_FILES)) throw new Exception('Could not find uploaded file');
-            if (!$this->is_allowed($_FILES['upload_publisher_thumb']['name'])) throw new Exception('Can not upload thumbnail with that pattern');
-            $tempFile = $_FILES['upload_publisher_thumb']['tmp_name'];
-            $targetPath = confirm_slash(FCPATH).confirm_slash($slug).'media';
-            $ext = pathinfo($_FILES['upload_publisher_thumb']['name'], PATHINFO_EXTENSION);
-            $targetName = 'publisher_thumbnail.'.strtolower($ext);
-            $targetFile = $targetPath.'/'.$targetName;
-            $this->upload($tempFile,$targetFile,$chmodMode);
-            try {
-            	$this->resize($targetFile,self::THUMB_WIDTH);
-            } catch (Exception $e) {
-            	unlink($targetFile);
-            	return false;
-            }
-            return 'media/'.$targetName;
-        }
+        return $thumbUrl;
+    }
 
-		// Disallow certain files
-		private function is_allowed($file) {
-        	
-			if (stristr($file, '../')) return false;
-			if (stristr($file, './')) return false;
-			if ('.'==substr($file, 0, 1)) return false;
-			if ('google'==substr($file, 0, 6)) return false;
-			$ext = pathinfo($file, PATHINFO_EXTENSION);
-			if (empty($ext)) return false; // Require a file extension
-			if ('php' == $ext || 'php' == substr($ext, 0, 3)) return false;
-			if (stristr($file, '.php')) return false;
-			if ('zip' == $ext) return false;
-			if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
-			return true;
-        	
+    // Upload the file given a temporary file (local) and a target path to a file, which may or may not be local
+    private function upload($tempFile, $targetFile) {
+        try {
+            $this->storage->store($tempFile, $targetFile);
+        } catch (Scalar_Storage_Exception $e) {
+            throw new Exception('Problem moving temp file. The file is likely larger than the system\'s max upload size (' . $this->getMaximumFileUploadSize() . ').');
         }
-        
-        // Upload the file (move from temp folder)
-        private function upload($tempFile,$targetFile,$chmodMode) {
-            if (!move_uploaded_file($tempFile,$targetFile)) throw new Exception('Problem moving temp file. The file is likely larger than the system\'s max upload size ('.$this->getMaximumFileUploadSize().').');
-            @chmod($targetFile, $chmodMode);
-        }
+        return $this->storage->getUri($targetFile);
+    }
 
-        // Resize an already uploaded image
-        private function resize($targetFile,$newwidth) {
-        	list($width, $height, $type) = getimagesize($targetFile);
-        	if (!$width || !$height) throw new Exception('Image not of proper type');
-        	$r = $width / $height;
-        	$newheight = $newwidth/$r;
-        	switch ($type) {
-        		case 1:
-        			$src = imagecreatefromgif($targetFile);
-        			break;
-        		case 2:
-        			$src = imagecreatefromjpeg($targetFile);
-        			break;
-        		case 3:
-        			$src = imagecreatefrompng($targetFile);
-        			break;
-        		default:
-        			throw new Exception('Image not of proper type');
-        	}
-        	$dst = imagecreatetruecolor($newwidth, $newheight);
-        	imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-        	switch ($type) {
-        		case 1:
-        			imagegif($dst, $targetFile);
-        			break;
-        		case 2:
-        			imagejpeg($dst, $targetFile);
-        			break;
-        		case 3:
-        			imagepng($dst, $targetFile);
-        			break;
-        	}
-        }
+    // Disallow certain files
+    private function is_allowed($file) {
 
-        // Display formatted, e.g., max upload size
-		private function convertPHPSizeToBytes($sSize)  {  // http://stackoverflow.com/questions/13076480/php-get-actual-maximum-upload-size
-		    if ( is_numeric( $sSize) ) {
-		   		return $sSize;
-		    }
-		    $sSuffix = substr($sSize, -1);
-		    $iValue = substr($sSize, 0, -1);
-		    switch(strtoupper($sSuffix)){
-			    case 'P':
-			        $iValue *= 1024;
-			    case 'T':
-			        $iValue *= 1024;
-			    case 'G':
-			        $iValue *= 1024;
-			    case 'M':
-			        $iValue *= 1024;
-			    case 'K':
-			        $iValue *= 1024;
-			        break;
-		    }
-		    return $iValue;
-		}
-
-		// Get the max upload size from PHP
-		private function getMaximumFileUploadSize()  {  // http://stackoverflow.com/questions/13076480/php-get-actual-maximum-upload-size
-    		$size = min($this->convertPHPSizeToBytes(ini_get('post_max_size')), $this->convertPHPSizeToBytes(ini_get('upload_max_filesize')));
-    		$base = log($size) / log(1024);
-			$suffixes = array("", "k", "M", "G", "T");
-			$suffix = $suffixes[floor($base)];
-			return pow(1024, $base - floor($base)) . $suffix;
-		}
+        if (stristr($file, '../')) return false;
+        if (stristr($file, './')) return false;
+        if ('.' == substr($file, 0, 1)) return false;
+        if ('google' == substr($file, 0, 6)) return false;
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        if (empty($ext)) return false; // Require a file extension
+        if ('php' == $ext || 'php' == substr($ext, 0, 3)) return false;
+        if (stristr($file, '.php')) return false;
+        if ('zip' == $ext) return false;
+        if (preg_match('/[\'^Â£$%&}{<>]/', $file)) return false; // Control characters
+        return true;
 
     }
+
+    // Resizes an image returning a new file
+    private function resize($file, $newwidth) {
+        list($width, $height, $type) = getimagesize($file);
+        if (!$width || !$height) throw new Exception('Image not of proper type');
+        $r = $width / $height;
+        $newheight = $newwidth / $r;
+        switch ($type) {
+            case 1:
+                $src_im = imagecreatefromgif($file);
+                break;
+            case 2:
+                $src_im = imagecreatefromjpeg($file);
+                break;
+            case 3:
+                $src_im = imagecreatefrompng($file);
+                break;
+            default:
+                throw new Exception('Image not of proper type');
+        }
+
+        $dst_im = imagecreatetruecolor($newwidth, $newheight);
+        imagecopyresampled($dst_im, $src_im, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+
+        $resized_file = tempnam(sys_get_temp_dir(), 'scalarimage');
+        switch ($type) {
+            case 1:
+                imagegif($dst_im, $resized_file);
+                break;
+            case 2:
+                imagejpeg($dst_im, $resized_file);
+                break;
+            case 3:
+                imagepng($dst_im, $resized_file);
+                break;
+        }
+        imagedestroy($dst_im); // free memory
+
+        return $resized_file;
+    }
+
+    // Display formatted, e.g., max upload size
+    private function convertPHPSizeToBytes($sSize) {  // http://stackoverflow.com/questions/13076480/php-get-actual-maximum-upload-size
+        if (is_numeric($sSize)) {
+            return $sSize;
+        }
+        $sSuffix = substr($sSize, -1);
+        $iValue = substr($sSize, 0, -1);
+        switch (strtoupper($sSuffix)) {
+            case 'P':
+                $iValue *= 1024;
+            case 'T':
+                $iValue *= 1024;
+            case 'G':
+                $iValue *= 1024;
+            case 'M':
+                $iValue *= 1024;
+            case 'K':
+                $iValue *= 1024;
+                break;
+        }
+        return $iValue;
+    }
+
+    // Get the max upload size from PHP
+    private function getMaximumFileUploadSize() {  // http://stackoverflow.com/questions/13076480/php-get-actual-maximum-upload-size
+        $size = min($this->convertPHPSizeToBytes(ini_get('post_max_size')), $this->convertPHPSizeToBytes(ini_get('upload_max_filesize')));
+        $base = log($size) / log(1024);
+        $suffixes = array("", "k", "M", "G", "T");
+        $suffix = $suffixes[floor($base)];
+        return pow(1024, $base - floor($base)) . $suffix;
+    }
+
+    // Returns a filename with "_thumb" appended before the file extension
+    private function getThumbName($filename) {
+        return substr_replace($filename, "_thumb", strrpos($filename, "."), 0);
+    }
+
+    // Returns the lowercase file extension
+    private function getFileExtension($filename) {
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        if ($ext === NULL) {
+            $ext = '';
+        }
+        return strtolower($ext);
+    }
+
+    // Returns a URL to an icon based on a filename's extension
+    private function getIconUrl($filename) {
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        if (!$ext) {
+            return false;
+        }
+        switch (strtolower($ext)) {
+            case 'pdf':
+                return self::PDF_URL;
+            case 'doc':
+            case 'docx':
+                return self::DOC_URL;
+        }
+        return false;
+    }
+
+    // Returns storage
+    private function getStorage($bookSlug, $adapter, $adapterOptions) {
+        require_once 'Scalar/Storage.php';
+        return new Scalar_Storage(array(
+            'folder' => $bookSlug,
+            'adapter' => $adapter,
+            'adapterOptions' => $adapterOptions,
+        ));
+    }
+}
+
 ?>

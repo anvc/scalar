@@ -18,8 +18,23 @@ $config['active_dashboard'] = 'dashboard';
 // SALT, any string you want as long as it is complicated
 $config['shasalt'] = (getenv('SCALAR_SHASALT') ? getenv('SCALAR_SHASALT') : '');
 
-// chmod permissions when the system creates directories or places uploaded files (e.g., 0775)
-$config['chmod_mode'] = 0775;
+// Default storage to use for uploaded files. 
+// File system storage is the default.
+$config['storage_adapter'] = 'Scalar_Storage_Adapter_Filesystem';
+$config['storage_adapter_options'] = array(
+    'fileMode' => 0664,   // file permissions for uploads (default: 0664)
+    'dirMode'  => 0775,   // directory permissions for uploads (default: 0775)
+    'localDir' => '',     // path to directory on local filesystem for uploads (default: FCPATH)
+);
+//$config['storage_adapter'] = 'Scalar_Storage_Adapter_S3';
+//$config['storage_adapter_options'] = array(
+//    'awsAccessKey' => (getenv('SCALAR_AWS_ACCESS_KEY_ID') ? getenv('SCALAR_AWS_ACCESS_KEY_ID') : ''),
+//    'awsSecretKey' => (getenv('SCALAR_AWS_SECRET_ACCESS_KEY') ? getenv('SCALAR_AWS_SECRET_ACCESS_KEY') : ''),
+//    'bucket'       => (getenv('SCALAR_S3_BUCKET') ? getenv('SCALAR_S3_BUCKET') : ''),
+//    'hostname'     => (getenv('SCALAR_S3_HOSTNAME') ? getenv('SCALAR_S3_HOSTNAME') : ''),
+//    'forceSSL'     => (bool) (getenv('SCALAR_S3_FORCE_SSL') ? getenv('SCALAR_S3_FORCE_SSL') : ''),
+//);
+
 
 // ReCAPTCHA key (leave blank for no ReCAPTCHA)
 $config['recaptcha_public_key'] = (getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') ? getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') : '');
