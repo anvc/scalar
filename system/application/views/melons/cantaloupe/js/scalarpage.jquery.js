@@ -3130,6 +3130,7 @@
                         	};
                         	var base = $('link#parent').attr('href');
                         	var paths = ['territory','colonialism','community','wellness'];  // TODO
+                        	var empty_img = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
                         	$.ajax({
                         	  dataType: "json",
                         	  url: node.current.sourceFile,
@@ -3170,14 +3171,14 @@
                         		html += '      <ul id="ce-pages" class="dropdown-menu" aria-labelledby="dropdownMenu1"></ul>';
                         		html += '    </div><br />';
                         		html += '    <div id="ce-content" style="margin-top:18px;">';
-                        		html += '      <img src="" alt="" id="ce-content-image" class="img-thumbnail" style="width:190px;height:165px;margin-right:20px;" align="left">';
+                        		html += '      <img src="'+empty_img+'" alt="" id="ce-content-image" class="img-thumbnail" style="width:190px;height:165px;margin-right:20px;" align="left">';
                         		html += '      <h4 style="margin-top:0px;margin-bottom:8px;"><a href="" id="ce-content-title">&nbsp;</a></h4>';
                         		html += '      <div id="ce-content-desc" style="font-size:14px;line-height:1.45;"></div>';
                         		html += '      <a id="ce-content-button" class="btn btn-default btn-sm" style="margin-top:12px;display:none;" href="">Go to page</a>';
                         		html += '    </div>';
                         		html += '  </div>';
                         		html += '</div>';
-                        		// Section 3: 
+                        		// Section 3: goal
                         		html += '<div class="row">';
                         		html += '  <div class="col-xs-12">';
                         		html += '    <div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">3. View curriculum connections.</strong></div></div>';
@@ -3191,98 +3192,79 @@
                         		for (var j = 0; j < json.grades.length; j++) {
                         			$('#ce-grades').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+json.grades[j]+'</a></li>');
                         		};
+                        		var num_to_asterisk = 2;
                         		for (var j = 0; j < json.subjects.length; j++) {
                         			$('#ce-subjects').append('<div class="checkbox" style="margin:0px 0px 0px 0px;"><label class="small"><input type="checkbox" name="subjects" value="'+j+'">'+json.subjects[j]+'</label></div>');
+                        			if ((j+1) <= num_to_asterisk) $('#ce-subjects').find('label:last').append('<span>*</span>');
+                        			if ((j+1) == num_to_asterisk) $('<hr style="background-color:#cccccc;color:#cccccc;height:1px;overflow:hidden;margin:7px 0px 6px 0px;padding:0px;border:0;" />').insertAfter($('#ce-subjects').find('label:last'));
                         		};
+                        		$('#ce-subjects').append('<div style="margin:6px 0px 0px 0px;font-size:10px;line-height:1.2;">*Curriculum connections for these subjects are provided in extensive detail. Connections with other subjects are more suggestive than exhaustive.</div>');
                         		for (var j = 0; j < paths.length; j++) {
                         			$('#ce-paths').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+paths[j].charAt(0).toUpperCase()+paths[j].slice(1)+'</a></li>');
                         		};
-                        		// Actions
+                        		// Events
                         		$('#ce-grades').find('a').click(function() {
                         			var $this = $(this);
                         			$('#ce-select-grade').html( $this.html()).data('index', $(this).data('index') );
                         			$('#ce-grades').find('li').removeClass('active');
                         			$this.parent().addClass('active');
                         			set_subjects();
+                        			set_pages();
                         			set_goals();
                         		});
                         		$('#ce-subjects').find('input[type="checkbox"]').change(function() {
+                        			set_pages();
                         			set_goals();
                         		});
                         		$('#ce-paths').find('a').click(function() {
                         			var path_index = parseInt($(this).data('index'));
                         			commit_path(path_index);
                         		});
+                        		// Actions
                         		var set_subjects = function() {
                         			var grade_index = parseInt($('#ce-select-grade').data('index'));
-                        			$('#ce-subjects').find('input[type="checkbox"]').removeProp('disabled');
-                        			$('#ce-subjects').find('label').css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+                        			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Enable all subjects
+                        				$(this).removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+                        			});
                         			if (isNaN(grade_index)) return;
-                        			$('#ce-subjects').find('input[type="checkbox"]').each(function() {
+                        			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Disable all subjects
                         				$(this).prop('disabled',true).parent().css('color','#aaaaaa').css('cursor','not-allowed').css('-webkit-text-fill-color','#aaaaaa');
                         			});
-                        			for (var j = 0; j < json.connections.length; j++) {
+                        			for (var j = 0; j < json.connections.length; j++) {  // Enable subjects connected to the chosen grade
                         				if (grade_index != json.connections[j].gradeIndex) continue;
                         				$('#ce-subjects').find('input[type="checkbox"][value="'+json.connections[j].subjectIndex+'"]').removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
                         			};
+                        			$('#ce-subjects').find('input[type="checkbox"][disabled]').removeProp('checked');
                         		}
-                        		var commit_path = function(path_index) {
-                        			var path_ucwords = paths[path_index].charAt(0).toUpperCase()+paths[path_index].slice(1);
-                        			$('#ce-select-path').text(path_ucwords);
-                        			$('#ce-paths').find('li').removeClass('active').eq(path_index).addClass('active');
-                        			$('#ce-pages').empty();
-                        			$('#ce-select-page').text('Loading pages...');
-                        			$('#ce-content-image').prop('src', '');
-                        			$('#ce-content-title, #ce-content-desc').html('&nbsp;');
-                        			$('#ce-content-button').hide();
-                        			$('#ce-goals').empty();
-                            		$.getJSON(base+'rdf/node/'+paths[path_index]+'.rdfjson?rec=1&res=path', function(pages) {
-                            			$('#ce-pages').append('<li data-slug=""><a href="javascript:void(null);" data-slug="">All pages</a></li>').find('li').eq(0).addClass('active');
-                            			$('#ce-select-page').text( $('#ce-pages').find('li:first a').text() );
-                            			for (var uri in pages) {
-		                        			if ('undefined' == typeof(pages[uri]['http://purl.org/dc/terms/isVersionOf'])) continue;
-		                        			var obj = {};
-		                        			obj.version_uri = uri;
-		                        			obj.content_uri = pages[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
-		                        			obj.slug = obj.content_uri.replace(base,'');
-		                        			if ('index' == obj.slug) continue;
-		                        			obj.title = pages[uri]['http://purl.org/dc/terms/title'][0].value;
-		                        			if (-1 != paths.indexOf(obj.slug)) obj.title += ' home page';
-		                        			obj.description = ('undefined' != typeof(pages[uri]['http://purl.org/dc/terms/description'])) ? pages[uri]['http://purl.org/dc/terms/description'][0].value : '';
-		                        			obj.content = ('undefined' != typeof(pages[uri]['http://rdfs.org/sioc/ns#content'])) ? pages[uri]['http://rdfs.org/sioc/ns#content'][0].value : '';
-		                        			obj.banner = ('undefined' != typeof(pages[obj.content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#banner'])) ? pages[obj.content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
-		                        			var $el = $('<li data-slug="'+obj.slug+'"><a href="javascript:void(null);" data-slug="'+obj.slug+'">'+obj.title.replace(/(<([^>]+)>)/ig,"")+'</a></li>').appendTo('#ce-pages');
-		                        			$el.data('fields', obj);
-		                        		};
-		                        		set_goals();
-		                        		$('#ce-pages').find('a').click(function() {
-		                        			$('#ce-content-image').prop('src', '');
-		                        			var $this = $(this);
-		                        			$('#ce-pages').find('li').removeClass('active');
-		                        			$this.parent().addClass('active');
-		                        			var fields = $this.parent().data('fields');
-		                        			if ('undefined' == typeof(fields)) {
-		                            			$('#ce-select-page').text('All pages');
-		                            			$('#ce-content-image').prop('src', '');
-		                            			$('#ce-content-title, #ce-content-desc').html('&nbsp;');
-		                            			$('#ce-content-button').hide();
-		                        			} else {
-		                        				$('#ce-select-page').html($this.html()).data('slug', fields.slug);
-		                        				$('#ce-content-image').prop('src', fields.banner);
-		                        				$('#ce-content-title').html(fields.title.replace(/(<([^>]+)>)/ig,"")).attr('href', fields.content_uri);
-		                        				var desc = (fields.description.length > fields.content.length) ? fields.description.replace(/(<([^>]+)>)/ig,"") : fields.content.replace(/(<([^>]+)>)/ig,"");
-		                        				if (desc.length > 250) desc = desc.substr(0, 250) + '...';
-		                        				$('#ce-content-desc').html(desc);
-		                        				$('#ce-content-button').show().attr('href', fields.content_uri);
-		                        			};
-		                        			set_goals();
-		                        		});
-                            		});
+                        		var set_pages = function() {
+                        			$('#ce-pages').find('li').removeClass('disabled');
+                        			var subjectIndexes = [];
+                        			$('#ce-subjects').find('input[type="checkbox"]:checked').each(function() {
+                        				subjectIndexes.push(parseInt($(this).val()));
+                        			});
+                        			if (!subjectIndexes.length) return;
+                        			$('#ce-pages').find('li').addClass('disabled').each(function() {  // Disable pages that don't match the selected subject
+                        				var $this = $(this);
+                        				var slug = $this.data('slug');
+                        				if (!slug.length) {
+                        					$this.removeClass('disabled');
+                        					return;
+                        				};
+                        				var passed = [];
+                        				for (n = 0; n < json.connections.length; n++) {
+                        					if (slug != json.connections[n].slug) continue;
+                        					if (-1 == subjectIndexes.indexOf(json.connections[n].subjectIndex)) continue;
+                        					$this.removeClass('disabled');
+                        				};
+                        			});
+                        			var $disabled_and_active = $('#ce-pages').find('li.disabled.active');  // If an active page becomes disabled, revert to All
+                        			if ($disabled_and_active.length) {
+                        				$('#ce-pages').find('a:first').click();
+                        			}
                         		};
                         		var set_goals = function() {
-                        			var $goals = $('#ce-goals');
-                        			$goals.empty();
-                        			var slug = $('#ce-pages').find('li.active').data('slug');
+                        			var $goals = $('#ce-goals').empty();
+                        			var slug = $('#ce-pages').find('li.active').data('slug');  // Chosen page
                         			if ('undefined' != typeof(slug) && slug.length) {
                         				var slugs = [slug];
                         			} else {
@@ -3292,7 +3274,7 @@
                         					if ($this.data('slug').length) slugs.push($this.data('slug')); 
                         				});
                         			};
-                        			var gradeIndex = parseInt($('#ce-select-grade').data('index'));
+                        			var gradeIndex = parseInt($('#ce-select-grade').data('index'));  // Chosen grade
                         			if (!isNaN(gradeIndex)) {
                         				var gradeIndexes = [gradeIndex];
                         			} else {
@@ -3302,7 +3284,7 @@
                         					if (!isNaN(parseInt($this.data('index')))) gradeIndexes.push(parseInt($this.data('index'))); 
                             			});                     				
                         			};
-                        			var subjectIndexes = [];
+                        			var subjectIndexes = [];  // Chosen subjects
                         			$('#ce-subjects').find('input[type="checkbox"]:checked').each(function() {
                         				subjectIndexes.push(parseInt($(this).val()));
                         			});
@@ -3310,26 +3292,9 @@
                         			console.log(slugs);
                         			console.log(gradeIndexes);
                         			console.log(subjectIndexes);
-                        			$('#ce-pages').find('li').removeClass('disabled');
                         			if (!subjectIndexes.length) return;  // Must have at least one subject
                         			var alphabetized_subjects = json.subjects.slice();
                         			alphabetized_subjects.sort();
-                        			// Disable pages that don't match grade/subject connections
-                        			$('#ce-pages').find('li').addClass('disabled').each(function() {
-                        				var $this = $(this);
-                        				var slug = $this.data('slug');
-                        				if (!slug.length) {
-                        					$this.removeClass('disabled');
-                        					return;
-                        				};
-                        				for (n = 0; n < json.connections.length; n++) {
-                        					if (slug != json.connections[n].slug) continue;
-                        					if (-1 == gradeIndexes.indexOf(json.connections[n].gradeIndex)) continue;
-                        					if (-1 == subjectIndexes.indexOf(json.connections[n].subjectIndex)) continue;
-                        					$this.removeClass('disabled');
-                        					return;
-                        				};
-                        			});
                         			// Level 1: Grades
                         			var obj = {};
                         			for (var j = 0; j < gradeIndexes.length; j++) {
@@ -3388,10 +3353,67 @@
                         								$list.append('<li style="font-size:14px;padding:0px 0px 0px 0px;margin:0px 0px 0px 0px;">'+goal+'</li>');
                         							};
                         						};
-                        						$goals.append('<h5 style="font-weight:normal;margin:0px 0px -8px 0px;padding:0px;">&nbsp;</h5>');
+                        						$goals.append('<h5 style="font-weight:normal;margin:0px 0px -8px 0px;padding:0px;">&nbsp;</h5>');  // Spacer
                         					};
                         				};
+                        				$goals.append('<h5 style="font-weight:normal;margin:0px 0px 0px 0px;padding:0px;">&nbsp;</h5>');  // Spacer
                         			};
+                        		};
+                        		var commit_path = function(path_index) {
+                        			var path_ucwords = paths[path_index].charAt(0).toUpperCase()+paths[path_index].slice(1);
+                        			$('#ce-select-path').text(path_ucwords);
+                        			$('#ce-paths').find('li').removeClass('active').eq(path_index).addClass('active');
+                        			$('#ce-pages').empty();
+                        			$('#ce-select-page').text('Loading pages...');
+                        			$('#ce-content-image').prop('src', empty_img);
+                        			$('#ce-content-title, #ce-content-desc').html('&nbsp;');
+                        			$('#ce-content-button').hide();
+                        			$('#ce-goals').empty();
+                            		$.getJSON(base+'rdf/node/'+paths[path_index]+'.rdfjson?rec=1&res=path', function(pages) {
+                            			$('#ce-pages').append('<li data-slug=""><a href="javascript:void(null);" data-slug="">All pages</a></li>').find('li').eq(0).addClass('active');
+                            			$('#ce-select-page').text( $('#ce-pages').find('li:first a').text() );
+                            			for (var uri in pages) {
+		                        			if ('undefined' == typeof(pages[uri]['http://purl.org/dc/terms/isVersionOf'])) continue;
+		                        			var obj = {};
+		                        			obj.version_uri = uri;
+		                        			obj.content_uri = pages[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+		                        			obj.slug = obj.content_uri.replace(base,'');
+		                        			if ('index' == obj.slug) continue;
+		                        			obj.title = pages[uri]['http://purl.org/dc/terms/title'][0].value;
+		                        			if (-1 != paths.indexOf(obj.slug)) obj.title += ' home page';
+		                        			obj.description = ('undefined' != typeof(pages[uri]['http://purl.org/dc/terms/description'])) ? pages[uri]['http://purl.org/dc/terms/description'][0].value : '';
+		                        			obj.content = ('undefined' != typeof(pages[uri]['http://rdfs.org/sioc/ns#content'])) ? pages[uri]['http://rdfs.org/sioc/ns#content'][0].value : '';
+		                        			obj.banner = ('undefined' != typeof(pages[obj.content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#banner'])) ? pages[obj.content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#banner'][0].value : '';
+		                        			var $el = $('<li data-slug="'+obj.slug+'"><a href="javascript:void(null);" data-slug="'+obj.slug+'">'+obj.title.replace(/(<([^>]+)>)/ig,"")+'</a></li>').appendTo('#ce-pages');
+		                        			$el.data('fields', obj);
+		                        		};
+		                        		set_pages();
+		                        		set_goals();
+		                        		$('#ce-pages').find('a').click(function() {
+		                        			var $this = $(this);
+		                        			if ($this.parent().hasClass('disabled')) return;
+		                        			$('#ce-content-image').prop('src', empty_img);
+		                        			$('#ce-pages').find('li').removeClass('active');
+		                        			$this.parent().addClass('active');
+		                        			var fields = $this.parent().data('fields');
+		                        			if ('undefined' == typeof(fields)) {
+		                            			$('#ce-select-page').text('All pages');
+		                            			$('#ce-content-image').prop('src', empty_img);
+		                            			$('#ce-content-title, #ce-content-desc').html('&nbsp;');
+		                            			$('#ce-content-button').hide();
+		                        			} else {
+		                        				$('#ce-select-page').html($this.html()).data('slug', fields.slug);
+		                        				$('#ce-content-image').prop('src', fields.banner);
+		                        				$('#ce-content-title').html(fields.title.replace(/(<([^>]+)>)/ig,"")).attr('href', fields.content_uri);
+		                        				var desc = (fields.description.length > fields.content.length) ? fields.description.replace(/(<([^>]+)>)/ig,"") : fields.content.replace(/(<([^>]+)>)/ig,"");
+		                        				if (desc.length > 250) desc = desc.substr(0, 250) + '...';
+		                        				$('#ce-content-desc').html(desc);
+		                        				$('#ce-content-button').show().attr('href', fields.content_uri);
+		                        			};
+		                        			set_pages();
+		                        			set_goals();
+		                        		});
+                            		});
                         		};
                                 commit_path(0);
                                 var ucwords = function(str) {  // http://locutus.io/php/ucwords/
