@@ -1053,7 +1053,7 @@
                     });
                 }
 
-                // show items that tag this page
+                // show items that tag and reference this page
                 if (options.showParentNav) {
                     var hasTags = $(".has_tags");
                     if (hasTags.children().length > 0) {
@@ -1064,7 +1064,7 @@
                     var hasReferences = $(".has_reference");
                     if (hasReferences.children().length > 0) {
                     	var is_composite = (-1 == $('link#primary_role').attr('href').indexOf('Media')) ? true : false;
-                    	hasReferences.siblings('h1').text('This ' + selfType + ' is '+((is_composite)?'a note in':'refenced by')+':');
+                    	hasReferences.siblings('h1').text('This ' + selfType + ' is '+((is_composite)?'a note in':'referenced by')+':');
                     	hasReferences.parent().addClass('relationships').show();
                     };
                 }
