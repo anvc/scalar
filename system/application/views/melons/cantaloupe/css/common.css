@@ -409,8 +409,8 @@ a:hover { text-decoration: underline; }
 #gallery { margin-bottom: 4.8rem; }
 .carousel-control.right, #gallery .carousel-control.left { background-image: none; }
 .carousel-control { top: 50%; width: 10%; bottom: inherit; }
-.carousel-caption { padding-bottom: 0; padding-top: 0; text-shadow: none; text-align: left; top: .2rem; left: 7.2rem; bottom: inherit; font-size: 1.4rem; color: #888; }
-.carousel-caption span { background-color: white; margin-bottom: 0; padding: .5rem 2rem 0.75rem 2rem; }
+.carousel-caption { padding-bottom: .4rem; padding-top: 0; text-shadow: none; text-align: left; top: 0; left: 7.2rem; bottom: inherit; font-size: 1.4rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.carousel-caption span { background-color: white; margin-bottom: 0; padding: .5rem 2rem 0.75rem 2rem;}
 #gallery .popover, .carousel > .popover { color: black; font-size: 1.2rem; text-shadow: none; color: #666; line-height: 140%; }
 .popover > h3 { margin: 0; padding: 8px 14px !important; }
 #gallery .item { background-color: #444; }
