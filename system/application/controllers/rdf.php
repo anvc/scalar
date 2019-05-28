@@ -235,6 +235,7 @@ class Rdf extends MY_Controller {
 				case 'media':
 					$model = 'pages';
 					$type = 'media';
+					$rel = RDF_Object::REL_ALL;
 					break;
  				case 'review':
 				case 'commentary':
