@@ -29,7 +29,7 @@ class Tensor {
 		$html .= '#tensor_iframe {border:0; position:absolute; top:52px; left:0px; width:100%; min-height:300px;}'."\n";
 		$html .= '</style>'."\n";
 		$html .= '<iframe id="tensor_iframe" src="';
-		$html .=  $this->plugin_path.'wb/pegboard?parser=scalar&parent='.urlencode(confirm_slash(base_url()).$this->book->slug).'&title='.urlencode($this->book->title); 
+		$html .=  $this->plugin_path.'wb/pegboard?parser=scalar&parent='.rawurlencode(confirm_slash(base_url()).$this->book->slug).'&title='.rawurlencode(strip_tags($this->book->title)); 
 		$html .= '"></iframe>'."\n";
 		$html .= '<script>'."\n";
 		$html .= "  $('iframe#tensor_iframe').height( parseInt($(window).height())-52 );\n";
