@@ -1382,14 +1382,7 @@ function YouTubeGetID(url){
 		jQuery.MediaElementView.prototype.calculateMediaSize = function() {
 			// if this is liquid media, always make it the maximum size
 			if (this.mediaObjectView.isLiquid) {
-				this.intrinsicDim.x = this.containerDim.x;
-				if ( this.intrinsicDim.x < 650 ) {
-					// don't let the height of liquid items exceed 75% of the width (this prevents pillarboxing in full width cantaloupe sizes)
-					this.intrinsicDim.y = Math.min( this.containerDim.y, this.containerDim.x * .75 );
-				} else {
-					// let large items expand to full size
-					this.intrinsicDim.y = this.containerDim.y;
-				}
+				this.intrinsicDim = this.containerDim;
 			}
 
 			if (this.intrinsicDim.x == 0) {
@@ -4997,6 +4990,7 @@ function YouTubeGetID(url){
 				id: "openseadragon" + this.model.id,
 				prefixUrl: approot + "views/widgets/mediaelement/openseadragon/images/",
 				showNavigator: true,
+        navigationControlAnchor: OpenSeadragon.ControlAnchor.BOTTOM_RIGHT,
 				tileSources: path
 			} );
 
