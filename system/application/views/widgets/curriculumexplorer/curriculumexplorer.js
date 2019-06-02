@@ -2,8 +2,7 @@
 
 function curriculumexplorer(node) {
 	
-	$('article h1').css('font-size','3.5rem');
-	var $wrapper = $('<div class="curriculum_explorer paragraph_wrapper"><div style="text-align:center;">Loading...</div></div>').appendTo("span[property='sioc:content']");
+	var $wrapper = $('<div class="curriculum_explorer paragraph_wrapper"><div class="loading">Loading...</div></div>').appendTo("span[property='sioc:content']");
 	if (!node.current.sourceFile || !node.current.sourceFile.length) {
 		alert('A JSON file needs to be present as the page\'s Media URL for this view to operate.');
 		return;
@@ -20,49 +19,50 @@ function curriculumexplorer(node) {
 	  },
 	  success: function(json) {
   		if ('undefined'==typeof(json.connections) || !json.connections.length) {
+  			$wrapper.html('<div class="container-fluid"></div>');
 			alert('The JSON file kept in the Media URL for this page is improperly formatted.');
 			return;
 		};
-		$wrapper.html('<div class="container-fluid" style="padding-left:0px;padding-right:0px;"></div>');
+		$wrapper.html('<div class="container-fluid"></div>');
 		var html = '';
 		html += '<div class="row">';
 		// Section 1: grade and subject
 		html += '  <div class="col-xs-12 col-md-3">';
-		html += '    <div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">1. Choose a grade level and subject(s).</strong></div></div>';
-		html += '    <label class="small"><b>Grade level</b></label><br />';
+		html += '    <div class="panel panel-default"><div class="panel-heading">1. Choose a grade level and subject(s).</div></div>';
+		html += '    <label>Grade level</label><br />';
 		html += '    <div class="btn-group">';
-		html += '      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-grade">Select a grade</span> <span class="caret"></span></button>';
-		html += '      <ul id="ce-grades" class="dropdown-menu" aria-labelledby="dropdownMenu1"><li data-index=""><a href="javascript:void(null);" data-index="">Select a grade</a></li></ul>';
+		html += '      <button class="btn btn-default dropdown-toggle select_grade_btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-grade">Select a grade</span> <span class="caret"></span></button>';
+		html += '      <ul id="ce-grades" class="dropdown-menu"><li data-index=""><a href="javascript:void(null);" data-index="">Select a grade</a></li></ul>';
 		html += '    </div><br />';
-		html += '    <label class="small" style="margin-top:10px;"><b>Subject</b></label>';
+		html += '    <label class="subject_label">Subject</label>';
 		html += '    <div id="ce-subjects" class="form-group">';
 		html += '    </div>';
 		html += '  </div>';
 		// Section 2: path and page
 		html += '  <div class="col-xs-12 col-md-9">';
-		html += '    <div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">2. Choose a chapter and page(s) to see related curriculum.</strong></div></div>';
-		html += '    <label class="small"><b>Book content</b></label><br />';
+		html += '    <div class="panel panel-default"><div class="panel-heading">2. Choose a chapter and page(s) to see related curriculum.</div></div>';
+		html += '    <label>Book content</label><br />';
 		html += '    <div class="btn-group btn-group-inline">';
-		html += '      <button class="btn btn-default dropdown-toggle" style="width:130px;text-align:left;" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-path">Select a path</span> <span class="caret" style="position:absolute;right:12px;top:45%;"></span></button>';
-		html += '      <ul id="ce-paths" class="dropdown-menu" aria-labelledby="dropdownMenu1"></ul>';
+		html += '      <button class="btn btn-default dropdown-toggle select_path_btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-path">Select a path</span> <span class="caret"></span></button>';
+		html += '      <ul id="ce-paths" class="dropdown-menu"></ul>';
 		html += '    </div>&nbsp; &nbsp; ';
 		html += '    <div class="btn-group btn-group-inline">';
-		html += '      <button class="btn btn-default dropdown-toggle" style="width:400px;text-align:left;" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-page">All pages</span> <span class="caret" style="position:absolute;right:12px;top:45%;"></span></button>';
-		html += '      <ul id="ce-pages" class="dropdown-menu" aria-labelledby="dropdownMenu1"></ul>';
+		html += '      <button class="btn btn-default dropdown-toggle select_page_btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-page">Select a page</span> <span class="caret"></span></button>';
+		html += '      <ul id="ce-pages" class="dropdown-menu"></ul>';
 		html += '    </div><br />';
 		html += '    <div id="ce-content" style="margin-top:18px;">';
-		html += '      <img src="'+empty_img+'" alt="" id="ce-content-image" class="img-thumbnail" style="width:190px;height:165px;margin-right:20px;" align="left">';
-		html += '      <h4 style="margin-top:0px;margin-bottom:8px;"><a href="" id="ce-content-title">&nbsp;</a></h4>';
-		html += '      <div id="ce-content-desc" style="font-size:14px;line-height:1.45;"></div>';
-		html += '      <a id="ce-content-button" class="btn btn-default btn-sm" style="margin-top:12px;display:none;" href="">Go to page</a>';
+		html += '      <img src="'+empty_img+'" alt="" id="ce-content-image" class="img-thumbnail" align="left">';
+		html += '      <h4><a href="" id="ce-content-title">&nbsp;</a></h4>';
+		html += '      <div id="ce-content-desc"></div>';
+		html += '      <a id="ce-content-button" class="btn btn-default btn-sm" href="">Go to page</a>';
 		html += '    </div>';
 		html += '  </div>';
 		html += '</div>';
 		// Section 3: goal
 		html += '<div class="row">';
 		html += '  <div class="col-xs-12">';
-		html += '    <div class="panel panel-default"><div class="panel-heading" style="line-height:1.25;"><strong class="small">3. View curriculum connections.</strong></div></div>';
-		html += '    <div id="ce-goals" style="line-height:1.45;"></div>';
+		html += '    <div class="panel panel-default"><div class="panel-heading">3. View curriculum connections.</div></div>';
+		html += '    <div id="ce-goals"></div>';
 		html += '  </div>';
 		html += '</div>';
 		$wrapper.find('.container-fluid').html(html);
@@ -72,13 +72,14 @@ function curriculumexplorer(node) {
 		for (var j = 0; j < json.grades.length; j++) {
 			$('#ce-grades').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+json.grades[j]+'</a></li>');
 		};
+		$('#ce-grades').find('li:first').addClass('active');
 		var num_to_asterisk = 2;
 		for (var j = 0; j < json.subjects.length; j++) {
-			$('#ce-subjects').append('<div class="checkbox" style="margin:0px 0px 0px 0px;"><label class="small"><input type="checkbox" name="subjects" value="'+j+'">'+json.subjects[j]+'</label></div>');
+			$('#ce-subjects').append('<div class="checkbox"><label class="small"><input type="checkbox" name="subjects" value="'+j+'">'+json.subjects[j]+'</label></div>');
 			if ((j+1) <= num_to_asterisk) $('#ce-subjects').find('label:last').append('<span>*</span>');
-			if ((j+1) == num_to_asterisk) $('<hr style="background-color:#cccccc;color:#cccccc;height:1px;overflow:hidden;margin:7px 0px 6px 0px;padding:0px;border:0;" />').insertAfter($('#ce-subjects').find('label:last'));
+			if ((j+1) == num_to_asterisk) $('<hr />').insertAfter($('#ce-subjects').find('label:last'));
 		};
-		$('#ce-subjects').append('<div style="margin:6px 0px 0px 0px;font-size:10px;line-height:1.2;">*Curriculum connections for these subjects are provided in extensive detail. Connections with other subjects are more suggestive than exhaustive.</div>');
+		$('#ce-subjects').append('<div class="helper_text">*Curriculum connections for these subjects are provided in extensive detail. Connections with other subjects are more suggestive than exhaustive.</div>');
 		for (var j = 0; j < paths.length; j++) {
 			$('#ce-paths').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+paths[j].charAt(0).toUpperCase()+paths[j].slice(1)+'</a></li>');
 		};
@@ -137,17 +138,18 @@ function curriculumexplorer(node) {
 					$this.removeClass('disabled');
 				};
 			});
-			var $disabled_and_active = $('#ce-pages').find('li.disabled.active');  // If an active page becomes disabled, revert to All
+			var $disabled_and_active = $('#ce-pages').find('li.disabled.active');  // If an active page becomes disabled, revert to first item
 			if ($disabled_and_active.length) {
 				$('#ce-pages').find('a:first').click();
 			}
 		};
 		var set_goals = function() {
 			var $goals = $('#ce-goals').empty();
-			var slug = $('#ce-pages').find('li.active').data('slug');  // Chosen page
+			var slug = $('#ce-pages').find('li.active').data('slug');  // The chosen page
+			if ('undefined' == typeof(slug) || !slug.length) return;  // A page must be chosen (deprecates "All pages" option)
 			if ('undefined' != typeof(slug) && slug.length) {
 				var slugs = [slug];
-			} else {
+			} else {  // "All pages"
 				var slugs = [];
 				$('#ce-pages').find('li').each(function() {
 					var $this = $(this);
@@ -168,10 +170,6 @@ function curriculumexplorer(node) {
 			$('#ce-subjects').find('input[type="checkbox"]:checked').each(function() {
 				subjectIndexes.push(parseInt($(this).val()));
 			});
-			console.log('-----');
-			console.log(slugs);
-			console.log(gradeIndexes);
-			console.log(subjectIndexes);
 			if (!subjectIndexes.length) return;  // Must have at least one subject
 			var alphabetized_subjects = json.subjects.slice();
 			alphabetized_subjects.sort();
@@ -213,30 +211,30 @@ function curriculumexplorer(node) {
 				};
 				if (!pass) continue;
 				var grade = json.grades[gradeIndex];
-				$goals.append('<h3 style="font-weight:normal;margin:0px;padding:0.5rem 0px 1rem 0px;">'+grade+'</h3>');
+				$goals.append('<h3>'+grade+'</h3>');
 				for (var a = 0; a < alphabetized_subjects.length; a++) {
 					var subject = alphabetized_subjects[a];
 					if ('undefined' == typeof(obj[gradeIndex][subject])) continue;
 					if ($.isEmptyObject(obj[gradeIndex][subject])) continue;
-					$goals.append('<h4 style="font-weight:bold;margin:0px;padding:0px 0px 1.5rem 0px;">'+subject+'</h4>');
+					$goals.append('<h4>'+subject+'</h4>');
 					var courses_alphabetized = Object.keys(obj[gradeIndex][subject]).sort();
 					for (var b = 0; b < courses_alphabetized.length; b++) {
 						var course = courses_alphabetized[b];
 						if ('undefined' == typeof(obj[gradeIndex][subject][course])) continue;
-						if (course.length) $goals.append('<h5 style="font-weight:bold;margin:0px;padding:0rem 0px 1.25rem 0px;">Course: "'+course+'"</h5>');
+						if (course.length) $goals.append('<h5 class="course">Course: "'+course+'"</h5>');
 						for (categoryIndex in obj[gradeIndex][subject][course]) {
 							var category = json.categories[categoryIndex];
-							$goals.append('<h5 style="font-weight:normal;font-style:italic;margin:0px 0px 1rem 0px;padding:0px 0px 4px 0px;border-bottom:solid 1px #000000;">'+ucwords(category)+'</h5>');
+							$goals.append('<h5 class="category">'+ucwords(category)+'</h5>');
 							var $list = $('<ul></ul>').appendTo($goals);
 							for (var j = 0; j < obj[gradeIndex][subject][course][categoryIndex].length; j++) {
 								var goal = obj[gradeIndex][subject][course][categoryIndex][j];
-								$list.append('<li style="font-size:14px;padding:0px 0px 0px 0px;margin:0px 0px 0px 0px;">'+goal+'</li>');
+								$list.append('<li class="goal">'+goal+'</li>');
 							};
 						};
-						$goals.append('<h5 style="font-weight:normal;margin:0px 0px -8px 0px;padding:0px;">&nbsp;</h5>');  // Spacer
+						$goals.append('<h5 class="spacer">&nbsp;</h5>');  // Spacer
 					};
 				};
-				$goals.append('<h5 style="font-weight:normal;margin:0px 0px 0px 0px;padding:0px;">&nbsp;</h5>');  // Spacer
+				$goals.append('<h5 class="spacer">&nbsp;</h5>');  // Spacer
 			};
 		};
 		var commit_path = function(path_index) {
@@ -250,7 +248,7 @@ function curriculumexplorer(node) {
 			$('#ce-content-button').hide();
 			$('#ce-goals').empty();
     		$.getJSON(base+'rdf/node/'+paths[path_index]+'.rdfjson?rec=1&res=path', function(pages) {
-    			$('#ce-pages').append('<li data-slug=""><a href="javascript:void(null);" data-slug="">All pages</a></li>').find('li').eq(0).addClass('active');
+    			$('#ce-pages').append('<li data-slug=""><a href="javascript:void(null);" data-slug="">Select a page</a></li>').find('li').eq(0).addClass('active');
     			$('#ce-select-page').text( $('#ce-pages').find('li:first a').text() );
     			for (var uri in pages) {
         			if ('undefined' == typeof(pages[uri]['http://purl.org/dc/terms/isVersionOf'])) continue;
@@ -277,7 +275,7 @@ function curriculumexplorer(node) {
         			$this.parent().addClass('active');
         			var fields = $this.parent().data('fields');
         			if ('undefined' == typeof(fields)) {
-            			$('#ce-select-page').text('All pages');
+            			$('#ce-select-page').text('Select a page');
             			$('#ce-content-image').prop('src', empty_img);
             			$('#ce-content-title, #ce-content-desc').html('&nbsp;');
             			$('#ce-content-button').hide();

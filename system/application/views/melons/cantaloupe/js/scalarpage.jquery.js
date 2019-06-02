@@ -3121,6 +3121,11 @@
                             break;
 
                         case "curriculum_explorer":
+                        	$('<link>').appendTo('head').attr({
+                        		type: 'text/css', 
+                        	    rel: 'stylesheet',
+                        	    href: $('link#approot').attr('href')+'views/widgets/curriculumexplorer/curriculumexplorer.css'
+                        	});
                         	$.getScript($('link#approot').attr('href')+'views/widgets/curriculumexplorer/curriculumexplorer.js', function() {
                             	var node = scalarapi.model.getCurrentPageNode();
                             	curriculumexplorer(node);
