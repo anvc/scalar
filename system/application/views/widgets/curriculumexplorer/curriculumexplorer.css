@@ -1,0 +1,44 @@
+/*
+ * The book that this was developed for contained a lot of custom style, so some of the styles 
+ * here include selectors that override those custom styles (e.g., #article#article)
+ */
+
+article header, #article#article header {margin-bottom:3rem; padding-top:3rem;}
+article header h1, #article#article header h1 {font-size:3.5rem;}
+#article ul {padding-left:0px; margin-bottom:10px; list-style-position:inside;}
+#article li {margin-left:0px; font-size:100%; line-height:normal;}
+.page-curriculum-explorer header h1[property="dcterms:title"] {margin-bottom:10px !important;}
+.page-curriculum-explorer header .tklabels {display:none;}
+
+.curriculum_explorer > .loading {text-align:center;}
+.curriculum_explorer > .container-fluid {padding-left:0px; padding-right:0px;}
+.curriculum_explorer .panel-heading {line-height:1.25; font-weight:bold; font-size:95%;}
+.curriculum_explorer label {font-size:85%;}
+.curriculum_explorer .col-xs-12 > label {font-weight:bold;}
+.curriculum_explorer label.subject_label {margin-top:10px;}
+.curriculum_explorer button .caret {position:absolute; right:12px; top:45%;}
+.curriculum_explorer .select_grade_btn {width:115px; text-align:left;}
+.curriculum_explorer .select_path_btn {width:130px; text-align:left;}
+.curriculum_explorer .select_page_btn {width:400px; text-align:left;}
+
+.curriculum_explorer .dropdown-menu > .active > a, 
+.curriculum_explorer .dropdown-menu > .active > a:focus, 
+.curriculum_explorer .dropdown-menu > .active > a:hover {background-color:#9badca;}
+.curriculum_explorer .dropdown-menu > .disabled > a, 
+.curriculum_explorer .dropdown-menu > .disabled > a:focus, 
+.curriculum_explorer .dropdown-menu > .disabled > a:hover {color:#aaaaaa; -webkit-text-fill-color:#aaaaaa;}
+
+#ce-subjects .checkbox {margin:0px 0px 0px 0px;}
+#ce-subjects hr {background-color:#cccccc; color:#cccccc; height:1px; overflow:hidden; margin:7px 0px 6px 0px; padding:0px; border:0;}
+#ce-subjects .helper_text {margin:6px 0px 0px 0px; font-size:10px; line-height:1.2;}
+#ce-content-image {width:190px; height:165px; margin-right:20px;}
+#ce-content > h4 {margin-top:0px; margin-bottom:8px;}
+#ce-content-desc {font-size:14px; line-height:1.45; padding-bottom:12px;}
+#ce-content-button {display:none;}
+#ce-goals {line-height:1.45;}
+#ce-goals h3 {font-weight:normal; margin:0px; padding:0.5rem 0px 1rem 0px;}
+#ce-goals h4 {font-weight:bold; margin:0px; padding:0px 0px 1.5rem 0px;}
+#ce-goals h5.course {font-weight:bold; margin:0px; padding:0rem 0px 1.25rem 0px;}
+#ce-goals h5.category {font-weight:normal; font-style:italic; margin:0px 0px 1rem 0px; padding:0px 0px 4px 0px; border-bottom:solid 1px #000000;}
+#ce-goals li.goal {font-size:14px; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+#ce-goals h5.spacer {font-weight:normal; margin:0px 0px -8px 0px; padding:0px;}

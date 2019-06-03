@@ -409,8 +409,8 @@ a:hover { text-decoration: underline; }
 #gallery { margin-bottom: 4.8rem; }
 .carousel-control.right, #gallery .carousel-control.left { background-image: none; }
 .carousel-control { top: 50%; width: 10%; bottom: inherit; }
-.carousel-caption { padding-bottom: 0; padding-top: 0; text-shadow: none; text-align: left; top: .2rem; left: 7.2rem; bottom: inherit; font-size: 1.4rem; color: #888; }
-.carousel-caption span { background-color: white; margin-bottom: 0; padding: .5rem 2rem 0.75rem 2rem; }
+.carousel-caption { padding-bottom: .4rem; padding-top: 0; text-shadow: none; text-align: left; top: 0; left: 7.2rem; bottom: inherit; font-size: 1.4rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.carousel-caption span { background-color: white; margin-bottom: 0; padding: .5rem 2rem 0.75rem 2rem;}
 #gallery .popover, .carousel > .popover { color: black; font-size: 1.2rem; text-shadow: none; color: #666; line-height: 140%; }
 .popover > h3 { margin: 0; padding: 8px 14px !important; }
 #gallery .item { background-color: #444; }
@@ -462,16 +462,15 @@ a:hover { text-decoration: underline; }
 	display: none;
 	-webkit-font-smoothing: subpixel-antialiased;
  }
-.media_details .blackout { background: black; position: fixed; top:0px; left:0px; right:0px; height: 100%; /*opacity: 0.7;*/ }
-/*.media_details .content { position: absolute; top: 8.2rem; right: 3.6rem; left: 3.6rem; background: white; padding: 3.6rem 3.6rem 4.4rem 3.6rem; }*/
-.media_details .content { position: absolute; /*padding: 8.2rem 3.6rem 3.6rem 3.6rem;*/ width: 100%; height: 100%; /*top: 8.2rem; right: 3.6rem; left: 3.6rem;*/ background: #333; color: white; }
-.media_sidebar a { color: #b5d5ff; }
-
-.media_details hr { border-color: #666; }
-
-.media_details .citations { margin-top: 3rem; }
-.citations p { margin-bottom: .1rem; }
-#media_details_buffer{width:108px;}
+.media_details .blackout {background: black; position: fixed; top:0px; left:0px; right:0px; height: 100%; /*opacity: 0.7;*/ }
+/*.media_details .content {position: absolute; top: 8.2rem; right: 3.6rem; left: 3.6rem; background: white; padding: 3.6rem 3.6rem 4.4rem 3.6rem; }*/
+.media_details .content {position: absolute; /*padding: 8.2rem 3.6rem 3.6rem 3.6rem;*/ width: 100%; height: 100%; /*top: 8.2rem; right: 3.6rem; left: 3.6rem;*/ background: #333; color: white;}
+.media_sidebar a {color: #b5d5ff;}
+.media_details hr {border-color: #666;}
+.media_details .citations {margin-top: 3rem;}
+.media_details .citations.source_buttons {margin-top: 1.25rem;}
+.citations p {margin-bottom: .1rem;}
+#media_details_buffer {width:108px;}
 
 .media_sidebar { clear:left;width: 30%; color: #b2b3b6; margin-right: 3.6rem; text-align: left; float: left; min-height: 50rem; }
 .media_sidebar h2,.media_sidebar h3 { margin: 0 0 .2rem 0; padding: 0; line-height: 100%; color: white; }

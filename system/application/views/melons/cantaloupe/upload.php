@@ -49,7 +49,7 @@ function insert_rel_fields(current_urn, current_slug) {
   var fields = [];
   $.getJSON(content_uri+'.rdfjson?ref=1&rec=1', function(data) {
   	var current_uri = data[content_uri]['http://scalar.usc.edu/2012/01/scalar-ns#version'][0].value;
-	// Metadata 
+	// Metadata
     var skip = ['dcterms:isReferencedBy','art:sourceLocation','ov:versionnumber','dcterms:title','dcterms:description','art:url','prov:wasAttributedTo','dcterms:created','dcterms:isVersionOf','rdf:type'];
 	var description = ('undefined'!=typeof(data[current_uri]['http://purl.org/dc/terms/description'])) ? data[current_uri]['http://purl.org/dc/terms/description'][0].value : null;
 	$('input[name="dcterms:description"]').val(description);
@@ -198,46 +198,46 @@ h2 {margin-top:0; padding-top:0; margin-left:0; padding-left:0; margin-right:0; 
 #metadata_rows input {box-shadow:none; -webkit-box-shadow:none;}
 #upload-file-info {color:#333333;}
 /* http://blog.koalite.com/bbg/ */
-.btn-grey { 
-  color: #000000; 
-  background-color: #CFCFCF; 
-  border-color: #B3B3B3; 
-} 
-.btn-grey:hover, 
-.btn-grey:focus, 
-.btn-grey:active, 
-.btn-grey.active, 
-.open .dropdown-toggle.btn-grey { 
-  color: #000000; 
-  background-color: #B3B3B3; 
-  border-color: #B3B3B3; 
-} 
-.btn-grey:active, 
-.btn-grey.active, 
-.open .dropdown-toggle.btn-grey { 
-  background-image: none; 
-} 
-.btn-grey.disabled, 
-.btn-grey[disabled], 
-fieldset[disabled] .btn-grey, 
-.btn-grey.disabled:hover, 
-.btn-grey[disabled]:hover, 
-fieldset[disabled] .btn-grey:hover, 
-.btn-grey.disabled:focus, 
-.btn-grey[disabled]:focus, 
-fieldset[disabled] .btn-grey:focus, 
-.btn-grey.disabled:active, 
-.btn-grey[disabled]:active, 
-fieldset[disabled] .btn-grey:active, 
-.btn-grey.disabled.active, 
-.btn-grey[disabled].active, 
-fieldset[disabled] .btn-grey.active { 
-  background-color: #CFCFCF; 
-  border-color: #B3B3B3; 
-} 
-.btn-grey .badge { 
-  color: #CFCFCF; 
-  background-color: #000000; 
+.btn-grey {
+  color: #000000;
+  background-color: #CFCFCF;
+  border-color: #B3B3B3;
+}
+.btn-grey:hover,
+.btn-grey:focus,
+.btn-grey:active,
+.btn-grey.active,
+.open .dropdown-toggle.btn-grey {
+  color: #000000;
+  background-color: #B3B3B3;
+  border-color: #B3B3B3;
+}
+.btn-grey:active,
+.btn-grey.active,
+.open .dropdown-toggle.btn-grey {
+  background-image: none;
+}
+.btn-grey.disabled,
+.btn-grey[disabled],
+fieldset[disabled] .btn-grey,
+.btn-grey.disabled:hover,
+.btn-grey[disabled]:hover,
+fieldset[disabled] .btn-grey:hover,
+.btn-grey.disabled:focus,
+.btn-grey[disabled]:focus,
+fieldset[disabled] .btn-grey:focus,
+.btn-grey.disabled:active,
+.btn-grey[disabled]:active,
+fieldset[disabled] .btn-grey:active,
+.btn-grey.disabled.active,
+.btn-grey[disabled].active,
+fieldset[disabled] .btn-grey.active {
+  background-color: #CFCFCF;
+  border-color: #B3B3B3;
+}
+.btn-grey .badge {
+  color: #CFCFCF;
+  background-color: #000000;
 }
 END;
 $this->template->add_css($css, 'embed');
@@ -245,7 +245,7 @@ $this->template->add_css($css, 'embed');
 <h2 class="heading_font">Upload Media File</h2>
 <?=(!empty($content)) ? $content.'<br /><br />' : ''?>
 Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than <?=ini_get('upload_max_filesize')?> in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).<br /><br />
-Recommended formats (most compatible): css, gif, html, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml<br />
+Recommended formats (most compatible): css, gif, java, js, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav<br />
 Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 <span style="color:#c90000;">Files will overwrite.</span> Uploading the same file to the same place will overwrite an existing file of the same name.<br /><br />
 <form target="hidden_upload" id="file_upload_form" method="post" enctype="multipart/form-data" action="<?=$base_uri?>upload" class="panel" onsubmit="return validate_upload_form_file($(this));">
@@ -285,8 +285,8 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	  ?></select>
 	</td></tr>
 	<tr><td class="field">Metadata</td><td>
-		<a href="javascript:;" class="btn btn-default add_additional_metadata" role="button">Add additional metadata</a>&nbsp; 
-		<small>IPTC or ID3 fields embedded in the file will auto-populate during upload</small>	
+		<a href="javascript:;" class="btn btn-default add_additional_metadata" role="button">Add additional metadata</a>&nbsp;
+		<small>IPTC or ID3 fields embedded in the file will auto-populate during upload</small>
 	</td></tr>
 	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
 	<tr><td class="field">Choose file</td><td>
