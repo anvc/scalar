@@ -402,7 +402,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             //Convert our navbar html into a jquery element
             var navbar = $(navbar_html);
-
+            
+            // Any custom menu items?
+            if ('undefined' != typeof(customScalarHeaderMenuLeftItems) && Array.isArray(customScalarHeaderMenuLeftItems)) {
+            	for (var c = 0; c < customScalarHeaderMenuLeftItems.length; c++) {
+            		customnavbaritem = $('<li class="customMenuItem">'+customScalarHeaderMenuLeftItems[c]+'</li>');
+            		navbar.find('#ScalarHeaderMenuLeft').append(customnavbaritem);
+            	}
+            }
 
             //We don't always want all of the edit buttons for alternate data
             //type requests (ex: meta or versions) - remove these as necessary
@@ -1399,7 +1406,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 title_width -= 120;
             }else{
                 title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 52; // 30 for the margin on the title, 2px for the border on the user menu items, then 20 for scrollbar
-
+                
+                $('#ScalarHeaderMenu>ul>li.customMenuItem').each(function() {
+                	title_width -= $(this).outerWidth();
+                });
 
                 if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
                     title_width -= 190;
