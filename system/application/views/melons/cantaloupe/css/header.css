@@ -26,6 +26,10 @@ body.in_menu{
 .navbar a, #mobileMainMenuSubmenus a{
 	cursor: pointer;
 }
+.navbar .customMenuItem{
+	max-height: 5rem;
+	overflow: hidden;
+}
 a.headerIcon{
 	height: 5rem;
 	width: 5rem;
