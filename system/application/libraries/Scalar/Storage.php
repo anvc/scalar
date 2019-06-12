@@ -13,6 +13,14 @@ require_once 'Storage/Adapter/S3.php';
 class Scalar_Storage {
 
     /**
+     * Default adapter to use if none is specified.
+     * Note that default options should be specified in the adapter itself.
+     *
+     * @var string
+     */
+    public $defaultAdapter = 'Scalar_Storage_Adapter_Filesystem';
+
+    /**
      * Adapter instance.
      *
      * @var Scalar_Storage_Adapter_AdapterInterface
@@ -26,6 +34,7 @@ class Scalar_Storage {
      */
     private $_tempDir;
 
+
     /**
      * Scalar_Storage constructor.
      *
@@ -34,9 +43,10 @@ class Scalar_Storage {
      * @param null $options
      */
     public function __construct($options = null) {
-        if (isset($options)) {
-            $this->setOptions($options);
+        if(!isset($options)) {
+            $options = array();
         }
+        $this->setOptions($options);
     }
 
     /**
@@ -106,16 +116,21 @@ class Scalar_Storage {
      * @uses Scalar_Storage::setAdapter()
      */
     public function setOptions($options) {
-        if(isset($options['adapter'])) {
-            $adapterOptions = array();
-            if(isset($options['adapterOptions'])) {
-                $adapterOptions = $options['adapterOptions'];
-            }
-            if (isset($options['folder'])) {
-                $adapterOptions['folder'] = $options['folder'];
-            }
-            $this->setAdapter($options['adapter'], $adapterOptions);
+        $adapter = $this->defaultAdapter;
+        if(isset($options['adapter']) && $options['adapter']) {
+            $adapter = $options['adapter'];
         }
+
+        $adapterOptions = array();
+        if(isset($options['adapterOptions']) && $options['adapterOptions']) {
+            $adapterOptions = $options['adapterOptions'];
+        }
+        if (isset($options['folder']) && $options['folder']) {
+            $adapterOptions['folder'] = $options['folder'];
+        }
+
+        $this->setAdapter($adapter, $adapterOptions);
+
         if(isset($options['tempDir'])) {
             $this->setTempDir($options['tempDir']);
         }
