@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+use ReCaptcha\ReCaptcha;
+
 /**
  * @projectDescription	Model for book database table
  * @author				Craig Dietrich
@@ -471,12 +473,10 @@ class Book_model extends MY_Model {
  		$book_user = (empty($user_id)&&isset($CI->data['login'])) ? (int) $CI->data['login']->user_id : $user_id;
     	$template = (isset($array['template'])&&!empty($array['template'])) ? $array['template'] : null;
     	$stylesheet = (isset($array['stylesheet'])&&!empty($array['stylesheet'])) ? $array['stylesheet'] : $this->default_stylesheet;
-		$chmod_mode = $this->config->item('chmod_mode');
 
     	if (empty($title)) throw new Exception('Could not resolve title');
     	$active_melon = $this->config->item('active_melon');
     	if (empty($template) && !empty($active_melon)) $template = trim($active_melon);  // Otherwise use MySQL default
-    	if (empty($chmod_mode)) $chmod_mode = 0777;
 
     	if ($captcha) {
 	    	// ReCAPTCHA version 1
@@ -496,7 +496,7 @@ class Book_model extends MY_Model {
 	    	// Validate ReCAPTCHA
 	    	if (!empty($recaptcha2_site_key)) {
 	    		if (!isset($_POST['g-recaptcha-response'])) throw new Exception('invalid_captcha_1');
-	    		$recaptcha = new \ReCaptcha\ReCaptcha($recaptcha2_secret_key);
+			    $recaptcha = new ReCaptcha($recaptcha2_secret_key);
 	    		$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 	    		if ($resp->isSuccess()):
 	    			// Success
@@ -516,16 +516,6 @@ class Book_model extends MY_Model {
  			$count++;
  		}
 
- 		if (!mkdir($uri)) {
- 			throw new Exception('no_dir_created');
- 		}
- 		if (!mkdir(confirm_slash($uri).'media')) {
- 			throw new Exception('no_media_dir_created');
- 		}
-
-    	@chmod($uri, $chmod_mode);
-    	@chmod(confirm_slash($uri).'media', $chmod_mode);
-
     	// Required fields
 		$data = array('title' => $title, 'slug' =>$uri, 'user'=>$book_user, 'created'=>$mysqldate = date('Y-m-d H:i:s'), 'stylesheet'=>$stylesheet);
 		// Optional fields
@@ -540,6 +530,13 @@ class Book_model extends MY_Model {
 		if (isset($array['scope']) && !empty($array['scope'])) 				$data['scope'] = $array['scope'];
 		if (isset($array['publisher']) && !empty($array['publisher'])) 		$data['publisher'] = $array['publisher'];
 		if (isset($array['publisher_thumbnail']) && !empty($array['publisher_thumbnail'])) $data['publisher_thumbnail'] = $array['publisher_thumbnail'];
+
+		try {
+			$this->getStorage($data['slug'])->setUp();
+		} catch (Scalar_Storage_Exception $e) {
+			error_log($e->getMessage());
+			throw new Exception('no_dir_created');
+		}
 
 		$this->db->insert($this->books_table, $data);
 		$book_id = $this->db->insert_id();
@@ -576,7 +573,7 @@ class Book_model extends MY_Model {
 			// Validate ReCAPTCHA
 			if (!empty($recaptcha2_site_key)) {
 				if (!isset($_POST['g-recaptcha-response'])) throw new Exception('invalid_captcha_1');
-				$recaptcha = new \ReCaptcha\ReCaptcha($recaptcha2_secret_key);
+				$recaptcha = new ReCaptcha($recaptcha2_secret_key);
 				$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 				if ($resp->isSuccess()):
 					// Success
@@ -615,7 +612,12 @@ class Book_model extends MY_Model {
 		$slug = $result[0]->slug;
 		if (empty($slug)) die('Could not determine slug.');
 
- 		if (file_exists($slug) && !recursive_remove_directory($slug)) die('Could not remove directory from file structure.');
+ 		try {
+			$storage = $this->getStorage($slug)->destroy();
+		} catch(Scalar_Storage_Exception $e) {
+ 			error_log($e->getMessage());
+ 			throw new Exception("Error removing directory from file structure.");
+		}
 
    		$CI =& get_instance();
     	$CI->load->model('page_model','pages');  // NOTE: loading a model within a model
@@ -649,34 +651,39 @@ class Book_model extends MY_Model {
 
     public function save($array=array()) {
 
-        $this->load->library('File_Upload','file_upload');
-    	// Get ID
-    	$book_id =@ $array['book_id'];
-    	if (empty($book_id)) throw new Exception('Invalid book ID');
-    	unset($array['book_id']);
-    	unset($array['section']);
-    	unset($array['id']);
+	    $this->load->library('File_Upload', array(
+		    'slug' => $this->data['book']->slug,
+		    'adapter' => $this->config->item('storage_adapter'),
+		    'adapterOptions' => $this->config->item('storage_adapter_options'),
+		));
+
+	    // Get ID
+	    $book_id = @ $array['book_id'];
+	    if (empty($book_id)) throw new Exception('Invalid book ID');
+	    unset($array['book_id']);
+	    unset($array['section']);
+	    unset($array['id']);
 
 		// Remove background
-    	if (isset($array['remove_background']) && !empty($array['remove_background'])) $array['background'] = '';
-    	unset($array['remove_background']);
+	    if (isset($array['remove_background']) && !empty($array['remove_background'])) $array['background'] = '';
+	    unset($array['remove_background']);
 		// Remove thumbnail
-    	if (isset($array['remove_thumbnail']) && !empty($array['remove_thumbnail'])) $array['thumbnail'] = '';
-    	unset($array['remove_thumbnail']);
-    	// Remove publisher thumbnail
-    	if (isset($array['remove_publisher_thumbnail']) && !empty($array['remove_publisher_thumbnail'])) $array['publisher_thumbnail'] = '';
-    	unset($array['remove_publisher_thumbnail']);
-    	// Editions
-    	if (isset($array['editions']) && !empty($array['editions'])) {
-    		$array['editions'] = serialize($array['editions']); 
-    	} elseif (isset($array['editions'])) {
-    		$array['editions'] = '';
-    	}
+	    if (isset($array['remove_thumbnail']) && !empty($array['remove_thumbnail'])) $array['thumbnail'] = '';
+	    unset($array['remove_thumbnail']);
+	    // Remove publisher thumbnail
+	    if (isset($array['remove_publisher_thumbnail']) && !empty($array['remove_publisher_thumbnail'])) $array['publisher_thumbnail'] = '';
+	    unset($array['remove_publisher_thumbnail']);
+	    // Editions
+	    if (isset($array['editions']) && !empty($array['editions'])) {
+		    $array['editions'] = serialize($array['editions']);
+	    } elseif (isset($array['editions'])) {
+		    $array['editions'] = '';
+	    }
 
-    	// Manage slug
-    	if (isset($array['slug'])) {
+	    // Manage slug
+	    if (isset($array['slug'])) {
 
-	    	// Get previous slug
+		    // Get previous slug
 			$this->db->select('slug');
 			$this->db->from($this->books_table);
 			$this->db->where('book_id', $book_id);
@@ -685,14 +692,14 @@ class Book_model extends MY_Model {
 			if (!isset($result[0])) throw new Exception('Could not find book');
 			$slug = $result[0]->slug;
 
-    		// Scrub slug
-    	    if (!function_exists('safe_name')) {
+		    // Scrub slug
+		    if (!function_exists('safe_name')) {
   				$ci = get_instance();
 				$ci->load->helper('url');
-    		}
-    		$array['slug'] = safe_name($array['slug'], false);  // Don't allow forward slashes
+		    }
+		    $array['slug'] = safe_name($array['slug'], false);  // Don't allow forward slashes
 
-			// If slug has changed, rename folder on filesystem and update text content URLs
+			// If slug has changed, rename folder and update text content URLs
 			if ($array['slug'] != $slug) {
 				$dbprefix = $this->db->dbprefix;  // Since we're using a custom MySQL query below
 				if (empty($dbprefix)) die('Could not resolve DB prefix. Nothing has been saved. Please try again');
@@ -703,8 +710,13 @@ class Book_model extends MY_Model {
 					$array['slug'] = create_suffix($orig_slug, $count);
 					$count++;
 				}
-				// Rename folder on the filesystem
-				if (false === @rename(confirm_slash(FCPATH).$slug, confirm_slash(FCPATH).$array['slug'])) throw new Exception('The destination folder already exists or the source folder doesn\'t exist.');
+
+				// Rename folder
+				$storage = $this->getStorage($this->data['book']->slug);
+				if (false === $storage->transferTo($array['slug'])) {
+					throw new Exception('The destination folder already exists or the source folder doesn\'t exist.');
+				}
+
 				// Update hard URLs in version contet + thumbnail and background fields
 				$old = confirm_slash(base_url()).confirm_slash($slug);
 				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
@@ -737,40 +749,16 @@ class Book_model extends MY_Model {
 				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
 			}
 
-    	}
+	    }
 
 		// File -- save thumbnail
 		if (isset($_FILES['upload_thumb'])&&$_FILES['upload_thumb']['size']>0) {
-			try {
-                $chmod_mode = $this->config->item('chmod_mode');
-                if (empty($chmod_mode)) $chmod_mode = 0777;
-                if (isset($array['slug'])) {
-                	$slug = $array['slug'];
-                } else {
-               		$book = $this->get($book_id);
-                	$slug = $book->slug;
-                }
-                $array['thumbnail'] = $this->file_upload->uploadThumb($slug,$chmod_mode);
-			} catch (Exception $e) {
-   				throw new Exception($e->getMessage());
-			}
+			$array['thumbnail'] = $this->file_upload->uploadBookThumb($_FILES['upload_thumb']);
 		}
 
 		// File -- save publisher thumbnail
 		if (isset($_FILES['upload_publisher_thumb'])&&$_FILES['upload_publisher_thumb']['size']>0) {
-			try {
-                $chmod_mode = $this->config->item('chmod_mode');
-                if (empty($chmod_mode)) $chmod_mode = 0777;
-			    if (isset($array['slug'])) {
-                	$slug = $array['slug'];
-                } else {
-               		$book = $this->get($book_id);
-                	$slug = $book->slug;
-                }
-                $array['publisher_thumbnail'] = $this->file_upload->uploadPublisherThumb($slug,$chmod_mode);
-			} catch (Exception $e) {
-   			 	throw new Exception($e->getMessage());
-			}
+			$array['publisher_thumbnail'] = $this->file_upload->uploadPublisherThumb($_FILES['upload_publisher_thumb']);
 		}
 
 		// Remove book versions (ie, main menu), which is handled by save_versions()
@@ -906,19 +894,12 @@ class Book_model extends MY_Model {
     }
 
     public function create_directory_from_slug($slug='') {
-
- 		if (!mkdir($slug)) {
- 			throw new Exception('There was a problem creating the '.$slug.' folder on the filesystem.');
- 		}
- 		if (!mkdir(confirm_slash($slug).'media')) {
- 			echo 'Alert: could not create media folder for '.$slug.'.';
- 		}
-
-    	chmod($slug, 0777);
-    	chmod(confirm_slash($slug).'media', 0777);
-
-
-    }
+		try {
+			$this->getStorage($slug)->setUp();
+		} catch(Scalar_Storage_Exception $e) {
+			throw new Exception('There was a problem creating the '.$slug.' folder.');
+		}
+	}
 
     public function enable_editorial_workflow($book_id, $bool) {
 
@@ -955,5 +936,13 @@ class Book_model extends MY_Model {
 
     }
 
+	private function getStorage($bookSlug) {
+		require_once APPPATH . 'libraries/Scalar/Storage.php';
+		return new Scalar_Storage(array(
+			'folder' => $bookSlug,
+			'adapter' => $this->config->item('storage_adapter'),
+			'adapterOptions' => $this->config->item('storage_adapter_options'),
+		));
+	}
 }
 ?>

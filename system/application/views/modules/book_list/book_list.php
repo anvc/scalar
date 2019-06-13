@@ -14,16 +14,19 @@ function print_books($books, $is_large=false) {
 		$uri 		   = confirm_slash(base_url()).$row->slug;
 		$title		   = trim($row->title);
 		$book_id       = (int) $row->book_id;
-		$thumbnail     = (!empty($row->thumbnail)) ? confirm_slash($row->slug).$row->thumbnail : null;
+		if (empty($row->thumbnail)) { 
+			$thumbnail = path_from_file(__FILE__).'default_book_logo.png'; 
+		} else {
+			$thumbnail = abs_url($row->thumbnail, "/{$row->slug}");
+		}
 		$is_live       = ($row->display_in_index) ? true : false;
-		if (empty($thumbnail) || !file_exists($thumbnail)) $thumbnail = path_from_file(__FILE__).'default_book_logo.png';
 		$authors = array();
 		foreach ($row->users as $user) {
 			if ($user->relationship!=strtolower('author')) continue;
 			if (!$user->list_in_index) continue;
 			$authors[] = $user->fullname;
 		}
-		echo '<li><a href="'.$uri.'"><img class="book_icon'.(($is_large)?'':' small').'" src="'.confirm_base($thumbnail).'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
+		echo '<li><a href="'.$uri.'"><img class="book_icon'.(($is_large)?'':' small').'" src="'.$thumbnail.'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
 		if (count($authors)) {
 			echo implode(', ',$authors);
 			echo "<br />";

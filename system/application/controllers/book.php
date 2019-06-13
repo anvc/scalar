@@ -535,12 +535,13 @@ class Book extends MY_Controller {
 	// Upload a file and create its thumbnail
 	// This uploads a file only and returns its URL; all other operations to create a media page are through the Save API
 	private function upload() {
-
-		$this->load->library('File_Upload', 'file_upload');
-
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
-		$chmod_mode = $this->config->item('chmod_mode');
-		if (empty($chmod_mode)) $chmod_mode = 0777;
+
+		$this->load->library('File_Upload', array(
+			'slug' => $this->data['book']->slug,
+			'adapter' => $this->config->item('storage_adapter'),
+			'adapterOptions' => $this->config->item('storage_adapter_options'),
+		));
 
 		if (!$this->login_is_book_admin('Commentator')) {
 			if ($action == 'add') {
@@ -559,30 +560,35 @@ class Book extends MY_Controller {
 			exit;
 
 		} elseif ($action == 'add' || $action == 'replace') {
-
 			$return = array();
+			$image_metadata = null;
+			$source_file = $_FILES['source_file'];
 
 			try {
-	            $slug = confirm_slash($this->data['book']->slug);
-				$url = $this->file_upload->uploadMedia($slug, $chmod_mode, $this->versions);
-				$path = confirm_slash(FCPATH).confirm_slash($this->data['book']->slug).$url;
-				$thumbUrl = $this->file_upload->createMediaThumb($slug, $url, $chmod_mode);
-			} catch (Exception $e) {
-				$return['error'] =  $e->getMessage();
-				echo json_encode($return);
-				exit;
-			}
-
-			try {
-				$this->load->library('Image_Metadata', 'image_metadata');
-				$return[$url] = $this->image_metadata->get($path, Image_Metadata::FORMAT_NS);
+				$this->load->library('Image_Metadata');
+				$image_metdadata = $this->image_metadata->get($source_file['tmp_name'], Image_Metadata::FORMAT_NS);
 			} catch (Exception $e) {
 				// Don't throw exception since this isn't critical
 			}
 
-			if (false!==$thumbUrl) {
-				$return[$url]['scalar:thumbnail'] = (strstr($thumbUrl,'//')) ? $thumbUrl : confirm_slash(base_url()).$slug.$thumbUrl;
+			try {
+				$result = $this->file_upload->uploadMedia($source_file, $this->versions);
+				$url = $result['url'];
+				$thumb_url = $result['thumbUrl'];
+			} catch (Exception $e) {
+				$return['error'] = $e->getMessage();
+				echo json_encode($return);
+				exit;
 			}
+
+			$return[$url] = array();
+			if($image_metadata) {
+				$return[$url] = $image_metadata;
+			}
+			if ($thumb_url) {
+				$return[$url]['scalar:thumbnail'] = $thumb_url;
+			}
+
 			echo json_encode($return);
 			exit;
 
@@ -602,10 +608,12 @@ class Book extends MY_Controller {
 	private function upload_thumb() {
 
 		$browser_redirect_to = base_url().$this->data['book']->slug.'/upload';
-		$this->load->library('File_Upload', 'file_upload');
+		$this->load->library('File_Upload', array(
+			'slug' => $this->data['book']->slug,
+			'adapter' => $this->config->item('storage_adapter'),
+			'adapterOptions' => $this->config->item('storage_adapter_options'),
+		));
 		$action = (isset($_POST['action'])) ? strtolower($_POST['action']) : null;
-		$chmod_mode = $this->config->item('chmod_mode');
-		if (empty($chmod_mode)) $chmod_mode = 0777;
 
 		if (!$this->login_is_book_admin()) {
 			header('Location: '.$browser_redirect_to);
@@ -613,7 +621,6 @@ class Book extends MY_Controller {
 		}
 
 		if (empty($_FILES) && empty($_POST) && isset($_SERVER['REQUEST_METHOD']) && 'post'==strtolower($_SERVER['REQUEST_METHOD'])) {
-
 			echo json_encode( array('error'=>'The file is larger than the server\'s max upload size') );
 			exit;
 
@@ -621,10 +628,11 @@ class Book extends MY_Controller {
 
 			$return = array();
 			try {
-	            $slug = confirm_slash($this->data['book']->slug);
-				$thumbUrl = $this->file_upload->uploadPageThumb($slug, $chmod_mode);
-				if (false===$thumbUrl) throw new Exception ('Something went wrong creating a thumbnail from the file upload');
-				$return['scalar:thumbnail'] = confirm_slash(base_url()).$slug.$thumbUrl;
+				$thumbUrl = $this->file_upload->uploadPageThumb($_FILES['source_file']);
+				if (!$thumbUrl) {
+					throw new Exception ('Something went wrong creating a thumbnail from the file upload');
+				}
+				$return['scalar:thumbnail'] = $thumbUrl;
 			} catch (Exception $e) {
 				$return['error'] =  $e->getMessage();
 				echo json_encode($return);
