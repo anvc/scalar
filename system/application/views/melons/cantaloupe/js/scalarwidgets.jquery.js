@@ -544,7 +544,6 @@
                     galleryHeight += 100;
                  }
                }
-               galleryHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
                $carousel.css('min-height',galleryHeight+'px');
                var media_nodes = [];
                var index = 0;
