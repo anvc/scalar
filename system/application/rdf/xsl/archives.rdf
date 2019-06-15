@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<rdf:RDF 
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -10,16 +10,16 @@
 	xmlns:sioc="http://rdfs.org/sioc/ns#"
 	xmlns:sioctypes="http://rdfs.org/sioc/types#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/"
-	xmlns:owl="http://www.w3.org/2002/07/owl#">	
-	
+	xmlns:owl="http://www.w3.org/2002/07/owl#">
+
 	<rdf:Description rdf:about="http://criticalcommons.org/cc/playlist">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Critical Commons</dc:title>
 		<dcterms:description><![CDATA[Critical Commons is a non-profit advocacy coalition that supports the use of media for scholarship, reasearch and teaching, providing resources, information and tools for scholars, students, educators and creators. (From <a href="http://criticalcommons.org">Critical Commons</a>)<br />Note: Please allow at least a half hour for media imported into Critical Commons to appear here.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/critical_commons_2.xsl" />
 		<scalar:getStr><![CDATA[SearchableText=$1]]></scalar:getStr>
-	</rdf:Description>		
-		
+	</rdf:Description>
+
 	<rdf:Description rdf:about="system/application/rdf/omeka_to_json.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Omeka</dc:title>
@@ -27,16 +27,16 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/omeka.xsl" />
 		<scalar:getStr><![CDATA[uri=$1&page=$2]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>		
-		
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://www.archive.org/advancedsearch.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Internet Archive</dc:title>
 		<dcterms:description><![CDATA[The Internet Archive is a non-profit digital library with the stated mission: "universal access to all knowledge." It offers permanent storage and access to collections of digitized materials, including websites, music, moving images, and books. The Internet Archive was founded by Brewster Kahle in 1996. (From Wikipedia)<br />Note: Please allow at least a half hour for media imported into the Internet Archive to appear here.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/internet_archive.xsl" />
 		<scalar:getStr><![CDATA[q=$1&fl[]=avg_rating&fl[]=call_number&fl[]=collection&fl[]=contributor&fl[]=coverage&fl[]=creator&fl[]=date&fl[]=description&fl[]=downloads&fl[]=foldoutcount&fl[]=format&fl[]=headerImage&fl[]=identifier&fl[]=imagecount&fl[]=language&fl[]=licenseurl&fl[]=mediatype&fl[]=month&fl[]=num_reviews&fl[]=oai_updatedate&fl[]=publicdate&fl[]=publisher&fl[]=rights&fl[]=scanningcentre&fl[]=source&fl[]=subject&fl[]=title&fl[]=type&fl[]=volume&fl[]=week&fl[]=year&sort[]=&sort[]=&sort[]=&rows=50&page=$2&callback=callback&output=xml#raw]]></scalar:getStr>
-	</rdf:Description>			
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="https://www.googleapis.com/youtube/v3/search">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>YouTube</dc:title>
@@ -44,16 +44,16 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/youtube_2.xsl" />
 		<scalar:getStr><![CDATA[part=snippet&q=$1&type=video&maxResults=50]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>		
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://vimeo.com/api/v2/$1/videos.xml">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Vimeo</dc:title>
 		<dcterms:description><![CDATA[<b style="color:#760000;">Note that the Vimeo import tool will only search by Vimeo user ID.</b><br />Your Vimeo user ID can be found in the URL of your user's video page. For example, the <a href="http://vimeo.com/iml/videos">IML</a>'s Vimeo user ID is bolded in the following URL: http://vimeo.com/<b>iml</b>/videos<br />Videos must be public to be viewable in the search results.<br />Only three pages of results can be retrieved using the Vimeo Simple API.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/vimeo.xsl" />
 		<scalar:getStr><![CDATA[page=$2]]></scalar:getStr>
-	</rdf:Description>					
-		
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://search.prezi.com/explore/">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Prezi</dc:title>
@@ -62,16 +62,16 @@
 		<scalar:getStr><![CDATA[search=$1&order_by=relevance&limit=12&offset=$2]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
 		<scalar:availability>unavailable</scalar:availability>
-	</rdf:Description>		
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://hidvl.nyu.edu/search/">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Hemispheric Institute</dc:title>
 		<dcterms:description><![CDATA[The <a href="http://hemi.nyu.edu/hidvl/index.html">Hemispheric Institute Digital Video Library</a> (HIDVL) brings together in one place materials that have been available only in small, little-known archives that are inaccessible to scholars and that lack the resources to properly care for and provide access to these extraordinary cultural documents.<br /><br />Please note that HIDVL content cannot be viewed on iOS devices at this time.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/hemispheric_institute.xsl" />
 		<scalar:getStr><![CDATA[fq=&q=$1&start=$2(50)]]></scalar:getStr>
-	</rdf:Description>		
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://hypercities.ats.ucla.edu/provider/collections/$1.kml?t=collection">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>HyperCities</dc:title>
@@ -82,8 +82,8 @@
 		<scalar:keep_hash_var>object</scalar:keep_hash_var>
 		<scalar:remove_hash_vars>1</scalar:remove_hash_vars>
 		<scalar:description>Search HyperCities Collections</scalar:description>
-	</rdf:Description>		
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://vhaonline.usc.edu/WebServices/ScalarService.asmx/Project">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Shoah Foundation VHA Online</dc:title>
@@ -91,8 +91,8 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/shoah_foundation_vha_online.xsl" />
 		<scalar:getStr><![CDATA[$1]]></scalar:getStr>
 		<scalar:match><![CDATA[^.*\?(.*)$]]></scalar:match>
-	</rdf:Description>	
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://vha.usc.edu/WebServices/ScalarService.asmx/Project">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Shoah Foundation VHA</dc:title>
@@ -100,8 +100,8 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/shoah_foundation_vha.xsl" />
 		<scalar:getStr><![CDATA[$1]]></scalar:getStr>
 		<scalar:match><![CDATA[^.*\?(.*)$]]></scalar:match>
-	</rdf:Description>				
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://api.soundcloud.com/tracks">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>SoundCloud</dc:title>
@@ -109,18 +109,8 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/soundcloud_2.xsl" />
 		<scalar:getStr><![CDATA[q=$1&limit=50&offset=$2&consumer_key=$api_key]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>		
-	
-	<rdf:Description rdf:about="http://www.play.annenberginnovationlab.org/play2.0/api/search.php">
-		<rdf:type rdf:resource="scalar:External" />
-		<dc:title>PLAY! (Annenberg Innovation Lab)</dc:title>
-		<dcterms:identifier>play</dcterms:identifier>
-		<dcterms:description><![CDATA[Import PLAY! preview objects]]></dcterms:description>
-		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/play.xsl" />
-		<scalar:getStr><![CDATA[tags=$1]]></scalar:getStr>
-		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>	
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://api.dp.la/v2/items">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Digital Public Library of America</dc:title>
@@ -129,8 +119,8 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/dpla.xsl" />
 		<scalar:getStr><![CDATA[q=$1&page_size=25&page=$2&api_key=$api_key]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>	
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://ctda.library.miami.edu/objsearch/">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Cuban Theater Digital Archive</dc:title>
@@ -138,8 +128,8 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/cuban_theater_digital_archive.xsl" />
 		<scalar:getStr><![CDATA[q=$1]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>							
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://www.metmuseum.org/api/collection/collectionlisting">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>The Metropolitan Museum of Art</dc:title>
@@ -147,8 +137,8 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/metropolitan_museum_of_art_2.xsl" />
 		<scalar:getStr><![CDATA[q=$1&artist=&department=&era=&geolocation=&material=&page=$2&showOnly=&sortBy=Relevance&sortOrder=asc]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
-	</rdf:Description>	
-	
+	</rdf:Description>
+
 	<rdf:Description rdf:about="http://api.repo.nypl.org/api/v1/items/search.xml">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>NYPL</dc:title>
@@ -156,6 +146,6 @@
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/nypl.xsl" />
 		<scalar:getStr><![CDATA[q=$1&publicDomainOnly=true&per_page=50&page=$2]]></scalar:getStr>
 		<scalar:header>Authorization: Token token=$api_key</scalar:header>
-	</rdf:Description>	
-	
-</rdf:RDF>	
+	</rdf:Description>
+
+</rdf:RDF>

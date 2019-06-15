@@ -1122,6 +1122,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						} else if ($(this).attr('name') == "numbering") {
 							if ($(this).val() == 'hide_slide_numbers') {
 								widget.attrs['data-hide_numbering'] = true;
+							} else {
+								delete widget.attrs['data-hide_numbering'];
 							}
 						} else {
 							widget.attrs['data-' + $(this).attr('name')] = $(this).val();
@@ -1466,7 +1468,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 											item[user_var[0]] = user_var[1];
 										};
 										item.content = _data[item.uri];
-										
+
 										if(typeof loaded_nodeLists == "undefined"){
 											loaded_nodeLists = {};
 										}
@@ -1585,7 +1587,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		if(opts.types.indexOf(current_type) === -1){
 			opts.defaultType = current_type = opts.types[0];
 		}
-		
+
 		var init_promise = $.Deferred();
 
 		var dialogue_container = '<div class="panel-default node_selector"> \
@@ -1726,7 +1728,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		    // add innerdiv
 		    var inner = document.createElement("div");
 		    inner.style.width = "100%";
-		    outer.appendChild(inner);        
+		    outer.appendChild(inner);
 
 		    var widthWithScroll = inner.offsetWidth;
 
@@ -1741,7 +1743,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 	        if(typeof opts.userType !== 'undefined' && opts.userType != null && (opts.userType === 'editor' || opts.userType === 'author')){
 	        	state_flow = opts.userType == 'author'?{'Draft' : ['Edit'], 'Edit_Review' : ['Edit','Clean']}:
 	        										   {'Edit' : ['Draft','Edit_Review'], 'Clean' : ['Edit_Review','Ready'], 'Ready' : ['Clean','Published'], 'Published' : ['Ready','Published']};
-	        	
+
 	        	//Check to see if we're using editions - if so, remove the published state from the flow, and prevent moving to published.
 	        	if($('.row.editions').length > 0 && !!state_flow.Published){
 	        		delete state_flow.Published;
@@ -1789,7 +1791,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				$dialogue_container.find('.panel-heading').show();
 				var heading_height = $(this).find('.panel-heading').outerHeight();
 			}
-			
+
 			var body_height = $(this).find('.panel-body').outerHeight();
 			var footer_height = $(this).find('.panel-footer').outerHeight();
 			var usedContainerHeight = false;
@@ -1854,7 +1856,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				  data: post,
 				  success: function(data) {
 				  	  if(!!data && !data.error){
-				  	  	data.error = false;	
+				  	  	data.error = false;
 				  	  }else if(!!data.error){
 				  	  	data.error = "Something went wrong while trying to save: "+data.error;
 				  	  }
@@ -1867,7 +1869,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					  callback(data);
 				  },
 				  dataType: 'json'
-				});	
+				});
 		};
 
 		var updateNodeList = $.proxy(function(isLazyLoad) {
@@ -1901,7 +1903,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 
 				for (var i = start; i < data.length; i++) {
-					
+
 					var item = data[i];
 					var index = -1;
 					if (undefined !== $dialogue_container.data('nodes')) {
@@ -1913,7 +1915,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							}
 						}
 					}
-					
+
 					var content_id = 0;
 					if ('undefined'!=typeof(item.content) && 'undefined'!=typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) {
 						var content_urn = item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
@@ -1926,21 +1928,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						var version_urn = item.version['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 						version_id = version_urn.substr(version_urn.lastIndexOf(':')+1);
 					};
-					
+
 					var user_id = 0;
 					if ('undefined'!=typeof(item.uri) && -1 != item.uri.indexOf('/users/')) {
 						user_id = item.uri.substr(item.uri.lastIndexOf('/')+1);
 					};
-					
+
 					var desc = (item.version && 'undefined' != typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No description</em>';
-					
+
 					var rowHTML = '<tr data-content-id="'+content_id+'" data-version-id="'+version_id+'" data-user-id="'+user_id+'">';
 					if (isset(opts.allowMultiple) && opts.allowMultiple && 'checkbox' == opts.rowSelectMethod) {
 						rowHTML += '<td class="text-center select_row" style="height: 50px;" data-width="1"><input type="checkbox" ' + (index > -1 ? 'checked' : '') + '></td>';
 					}
 
 					var hasChildSelector = false;
-					
+
 					for (var n in opts.fields) {
 						var col = opts.fields[n];
 						switch (col) {
@@ -2037,7 +2039,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							case 'usage_rights':
 								var is_checked = ('undefined' != typeof(item.version['http://scalar.usc.edu/2012/01/scalar-ns#usageRights']) && 1 == parseInt(item.version['http://scalar.usc.edu/2012/01/scalar-ns#usageRights'][0].value)) ? true : false;
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'" style="text-align:left;padding-left:38px;"><input type="checkbox" name="'+col+'" value="1" '+((is_checked)?'checked':'')+' /></td>';
-								break;								
+								break;
 							case 'versions':
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" align="center"><a href="' + item.uri + '.versions">&nbsp;' + item.version["http://open.vocab.org/terms/versionnumber"][0].value + '&nbsp;</a></td>';
 								break;
@@ -2050,7 +2052,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 					rowHTML += '</tr>';
-					
+
 					var $item = $(rowHTML).appendTo($rows).data({ 'slug': item.slug, 'item': item});
 
 					//As we load images, make sure the editorial border matches the height of the row
@@ -2324,7 +2326,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									console.log(data);
 								});
 							};
-						};						
+						};
 					};
 					if ('click' == opts.startEditTrigger) {
 						$rows.find('tr').click(function() {
@@ -2339,8 +2341,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							}else{
 								canChange = true;
 							}
-							if(canChange){ 
-								invokeEditing($(this)); 
+							if(canChange){
+								invokeEditing($(this));
 							}
 						});
 					} else {
@@ -2361,7 +2363,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								canChange = true;
 							}
 
-							if(canChange){ 
+							if(canChange){
 								invokeEditing($row);
 								if ($this.hasClass('btn-default')) {
 									$this.removeClass('btn-default').addClass('btn-primary').text('Save row');
@@ -2412,7 +2414,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						});
 					};
 				});
-				
+
 				$rows.find('.contributionsLink').off('click').click(function(e) {
 					//e.stopPropagation();
 					var $this = $(this);
@@ -2587,7 +2589,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				alert('Could not find deleteOptions function');
 			});
 		};
-		
+
 		if (isset(opts.editorialOptions) && opts.editorialOptions) {
 			if ('undefined' == typeof($deleteOpts)) {
 				$dialogue_container.find('.selected_node_count').css('float', 'right').css('margin-left', 0);
@@ -2673,7 +2675,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$importOpts.append('<option value="' + parent + 'import/cuban_theater_digital_archive">Cuban Theater Digital Archive</option>');
 			$importOpts.append('<option value="' + parent + 'import/hemispheric_institute">Hemispheric Institute</option>');
 			$importOpts.append('<option value="' + parent + 'import/internet_archive">Internet Archive</option>');
-			$importOpts.append('<option value="' + parent + 'import/play">PLAY!</option>');
 			$importOpts.append('<option value="' + parent + 'import/shoah_foundation_vha_online">VHA Online</option>');
 			$importOpts.append('<option value="' + parent + 'import/shoah_foundation_vha">VHA</option>');
 			$importOpts.append('</optgroup>');
@@ -2694,7 +2695,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				document.location.href = url;
 			});
 		};
-		
+
 		if ('undefined'!=typeof($deleteOpts)) {
 			$deleteOpts.append('<span id="saving" class="alert alert-warning">Saving...</span>');
 		}
@@ -2735,7 +2736,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if(isset(opts.editorialOptions) && opts.editorialOptions){
 				var className = current_type.replace(' ','_');
 				var canChange = typeof state_flow[className] !== 'undefined' && state_flow[className] != null && state_flow[className].length > 0;
-				
+
 				$('.changeNotice').toggle(!canChange);
 				$('.changeNotice .noFilter').toggle(typeName === 'all');
                 $('.changeNotice .filtered').toggle(typeName !== 'all' && typeName !== 'hidden');
@@ -2950,7 +2951,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						promise.resolve();
 					};
 					var apiResponse = scalarapi.loadPage(slug.id, true, handleNode, null, 1, false, null, 0, 20);
-					if (apiResponse == "loaded" || apiResponse == "queued") { 
+					if (apiResponse == "loaded" || apiResponse == "queued") {
 						// The page should only be queued if the API can't find it; if that's the case, we'll just skip it in handleNode()
 						handleNode();
 					}

@@ -315,7 +315,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/cuban_theater_digital_archive') + '">Cuban Theater Digital Archive</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/hemispheric_institute') + '">Hemispheric Institute Digital Video Library</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/internet_archive') + '">Internet Archive</a></li>'+
-                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/play') + '">PLAY!</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online') + '">Shoah Foundation VHA Online</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/shoah_foundation_vha') + '">Shoah Foundation VHA (partner site)</a></li>'+
                                                             '</ul>'+
@@ -402,7 +401,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             //Convert our navbar html into a jquery element
             var navbar = $(navbar_html);
-            
+
             // Any custom menu items?
             if ('undefined' != typeof(customScalarHeaderMenuLeftItems) && Array.isArray(customScalarHeaderMenuLeftItems)) {
             	for (var c = 0; c < customScalarHeaderMenuLeftItems.length; c++) {
@@ -1406,7 +1405,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 title_width -= 120;
             }else{
                 title_width -= ($('#ScalarHeaderMenu>ul>li:not(.visible-xs)>a.headerIcon').length * 50) + 52; // 30 for the margin on the title, 2px for the border on the user menu items, then 20 for scrollbar
-                
+
                 $('#ScalarHeaderMenu>ul>li.customMenuItem').each(function() {
                 	title_width -= $(this).outerWidth();
                 });
