@@ -162,7 +162,6 @@
 
 				var content, tag, tags, tagBar, tagItem, labelClass, i, n;
 
-
 				// add the title
 				var header = $('<h4 class="heading_weight"><a href="' + annotation.url + '">'+ annotation.getDisplayTitle() +'</a></h4>');
 				container.append(header);

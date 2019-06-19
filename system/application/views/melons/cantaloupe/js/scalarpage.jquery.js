@@ -2795,7 +2795,7 @@
                     break;
 
                 case 'blank':
-                    $('h1').hide();
+                    $('[property="dcterms:title"]').hide();
                     $('[rel="scalar:continue_to"]').each(function() {
                         var href = $(this).attr('href');
                         $('span[resource="' + href + '"]').hide();
@@ -3122,7 +3122,7 @@
 
                         case "curriculum_explorer":
                         	$('<link>').appendTo('head').attr({
-                        		type: 'text/css', 
+                        		type: 'text/css',
                         	    rel: 'stylesheet',
                         	    href: $('link#approot').attr('href')+'views/widgets/curriculumexplorer/curriculumexplorer.css'
                         	});
