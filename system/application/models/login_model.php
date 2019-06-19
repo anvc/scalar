@@ -59,7 +59,6 @@ class Login_model extends User_model {
     public function do_logout($force=false) {
 
     	// Run user logout (if applicable)
-
     	$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
     	if ($force || $action == 'do_logout') {
     		$this->session->unset_userdata($this->login_basename);
@@ -76,6 +75,7 @@ class Login_model extends User_model {
 		if ($force || $action == 'do_login') {
 
 			$email = trim($_POST['email']);
+			log_message('debug', 'Scalar: User '.$email.' logged in.');
 			$password = trim($_POST['password']);
             $result = false;
 
