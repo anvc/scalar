@@ -79,7 +79,7 @@
 		<? endif; ?>
 		Add new user: 
 		<input tabindex="1" type="text" name="email" value="" placeholder="Email address" style="width:170px;" />&nbsp;
-		<input tabindex="2" type="text" name="fullname" value="" placeholder="Full nane" style="width:170px;" />&nbsp;
+		<input tabindex="2" type="text" name="fullname" value="" placeholder="Full name" style="width:170px;" />&nbsp;
 		<input tabindex="3" type="password" name="password_1" value="" placeholder="Password" style="width:170px;" />&nbsp;
 		<input tabindex="4" type="password" name="password_2" value="" placeholder="Retype password" style="width:170px;" />&nbsp;
 		<input tabindex="5" style="padding:3px 8px 1px 8px !important" type="submit" value="Add" class="generic_button default" />
