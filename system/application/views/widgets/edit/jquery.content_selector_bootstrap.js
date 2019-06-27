@@ -2309,6 +2309,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							if (parseInt($this.data('version-id'))) {
 								to_save.section = 'versions';
 								to_save.id = $this.data('version-id');
+								to_save.book_id = book_id;
 							} else if (parseInt($this.data('user-id'))) {
 								to_save.section = 'user_books';
 								to_save.id = $this.data('user-id');
