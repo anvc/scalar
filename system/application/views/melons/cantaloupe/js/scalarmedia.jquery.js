@@ -332,7 +332,7 @@
 					}
 				}
 				descriptionPane.append(description);
-        descriptionPane.find('a.citations-link').click( function() {
+				descriptionPane.find('a.citations-link').click( function() {
 					media.options[ 'details' ].show( node );
 				} );
 				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
@@ -491,6 +491,8 @@
 			element.addClass('caption_font');
 			element.addClass('mediainfo');
 		  	$('.media_metadata').addClass('caption_font');
+		  	
+		  	$('body').trigger('scalarMediaReady', [mediaelement.view])
 		}
 
 	}
