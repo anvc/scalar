@@ -14,8 +14,8 @@ function print_books($books, $is_large=false) {
 		$uri 		   = confirm_slash(base_url()).$row->slug;
 		$title		   = trim($row->title);
 		$book_id       = (int) $row->book_id;
-		if (empty($row->thumbnail)) { 
-			$thumbnail = path_from_file(__FILE__).'default_book_logo.png'; 
+		if (empty($row->thumbnail)) {
+			$thumbnail = path_from_file(__FILE__).'default_book_logo.png';
 		} else {
 			$thumbnail = abs_url($row->thumbnail, "/{$row->slug}");
 		}
@@ -26,7 +26,7 @@ function print_books($books, $is_large=false) {
 			if (!$user->list_in_index) continue;
 			$authors[] = $user->fullname;
 		}
-		echo '<li><a href="'.$uri.'"><img class="book_icon'.(($is_large)?'':' small').'" src="'.$thumbnail.'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
+		echo '<li><a href="'.$uri.'"><img class="book_icon'.(($is_large)?'':' small').'" src="'.confirm_base($thumbnail).'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
 		if (count($authors)) {
 			echo implode(', ',$authors);
 			echo "<br />";
@@ -83,7 +83,7 @@ if (isset($book_list_search_error)) {
 }
 ?>
 <br clear="both" />
-<? 
+<?
 if (count($other_books) > 0) print_books($other_books);
 endif;
 echo '</div>'."\n";
