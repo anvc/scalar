@@ -24,7 +24,15 @@
 | Modified by Craig Dietrich (Feb 2011) to make dynamic, code from http://codeigniter.com/wiki/Automatic_configbase_url/
 | Modified by Craig Dietrich (Nov 2015) to add is_https variable for use inside the application
 */
-$config['is_https'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? true : false;
+if ((isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] === true))
+    || (isset($_SERVER['HTTP_SCHEME']) && $_SERVER['HTTP_SCHEME'] == 'https')
+    || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+) {
+    $config['is_https'] = true;
+} else {
+    $config['is_https'] = false;
+}
 
 $config['base_url'] = 'http'.(($config['is_https']) ? 's' : '').'://'.$_SERVER['HTTP_HOST'].str_replace('//','/',dirname($_SERVER['SCRIPT_NAME']).'/');
 
