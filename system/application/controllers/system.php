@@ -338,7 +338,7 @@ class System extends MY_Controller {
 					unset($array['password']);
 		 			unset($array['old_password']);
 		 			unset($array['password_2']);
-					log_message('error', 'Scalar: User saved profile with email '.$array['email'].' (not an error).');
+					log_message('error', 'Scalar: User saved their profile, with email '.$array['email'].'.');
 		 			$this->users->save($array);
 		 			$this->set_login_params();
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
