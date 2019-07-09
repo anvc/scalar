@@ -75,7 +75,7 @@ class Login_model extends User_model {
 		if ($force || $action == 'do_login') {
 
 			$email = trim($_POST['email']);
-			log_message('debug', 'Scalar: User '.$email.' logged in.');
+			log_message('error', 'Scalar: User '.$email.' logged in (not an error).');
 			$password = trim($_POST['password']);
             $result = false;
 
