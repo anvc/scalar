@@ -413,7 +413,6 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	$tag = $(this);
 	//if ($tag.hasClass('inline')) return;
 	$tag.data( 'slot', $('<div class="slot"></div>') );
-	var url = null;
 
 	// Get URL
 

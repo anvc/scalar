@@ -523,8 +523,6 @@
                     } else {
                         options.vcenter = true;
                     }
-                    var parent_temp = $('link#parent').attr('href');
-                    var mediaNode = scalarapi.getNode(parent_temp + link.attr('resource'));
                 }
                 options.size = size;
 

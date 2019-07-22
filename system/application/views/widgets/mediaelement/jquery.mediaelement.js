@@ -420,6 +420,7 @@ function YouTubeGetID(url){
 			me.model.node = scalarapi.getNode( me.model.meta );
 
 			if ( me.model.node != null ) {
+        me.model.path = me.model.node.current.sourceFile;
 				me.model.mediaSource = me.model.node.current.mediaSource;
 				me.view.beginSetup();
 
@@ -1526,7 +1527,7 @@ function YouTubeGetID(url){
 				this.mediaMargins.horz--;
 			}
 
-			//console.log('margins '+this.mediaMargins.horz+' '+this.mediaMargins.vert);
+			//console.log(this.model.path + ' margins '+this.mediaMargins.horz+' '+this.mediaMargins.vert);
 
 			if ( !this.model.isChromeless ) {
 				if ( this.model.mediaSource.name == "KML" ) { // exception for Google Maps, since padding just makes the map larger
@@ -1536,7 +1537,7 @@ function YouTubeGetID(url){
 					this.mediaContainer.find('.mediaObject').css('padding-right', Math.floor(this.mediaMargins.horz + additive));
 				}
 			}
-			if ( !this.model.isChromeless || ( model.options.vcenter === true )) {
+			if ( !this.model.isChromeless || ( this.model.options.vcenter === true )) {
 				if ( this.model.mediaSource.name == "KML" ) { // exception for Google Maps, since padding just makes the map larger
 					this.mediaContainer.find('.mediaObject').css('margin-top', Math.floor(this.mediaMargins.vert));
 				} else {
