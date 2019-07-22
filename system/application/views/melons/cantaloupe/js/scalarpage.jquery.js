@@ -2102,7 +2102,7 @@
                     // Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
                     'image': $(window).height() * 1.3,
                     // The default for media should be to limit their size to fit within the bounds of the window
-                    'default': $(window).height() * 0.75,
+                    'default': Math.max($(window).height() * 0.75, 650),
                 };
             },
 

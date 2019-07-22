@@ -1365,7 +1365,7 @@ function YouTubeGetID(url){
 
 			}
 
-			if ( this.model.mediaSource.contentType != 'image') {
+			if (this.model.mediaSource.contentType != 'image' && !full_size && !native_size) {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
 			} else if ( scalarapi.getFileExtension( window.location.href ) == "annotation_editor" ) {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 350 );
@@ -1385,7 +1385,6 @@ function YouTubeGetID(url){
 			if (this.mediaObjectView.isLiquid) {
 				this.intrinsicDim = this.containerDim;
 			}
-
 			if (this.intrinsicDim.x == 0) {
 
 				// intrinsic dim unknown; assume 640x480
@@ -1437,12 +1436,12 @@ function YouTubeGetID(url){
 						}
 					}
 				});
-
 				if (typeof maxHeight != 'undefined') {
 					if (mediaAR > containerAR) {
 						// Must limit width in order to get the right height limit
 						tempDims.x = Math.min(maxHeight * mediaAR,tempDims.x);
 					} else {
+
 						tempDims.y = Math.min(maxHeight, tempDims.y);
 					}
 				}
