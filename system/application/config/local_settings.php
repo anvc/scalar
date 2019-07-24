@@ -86,6 +86,8 @@ $config['ldap_uname_field'] = (getenv('SCALAR_LDAP_UNAME_FIELD') ? getenv('SCALA
 // Emails
 $config['email_replyto_address'] = (getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') ? getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') : ''); 
 $config['email_replyto_name'] = (getenv('SCALAR_EMAIL_REPLYTO_NAME') ? getenv('SCALAR_EMAIL_REPLYTO_NAME') : '');
+$config['email_from_address'] = (getenv('SCALAR_EMAIL_FROM_ADDRESS') ? getenv('SCALAR_EMAIL_FROM_ADDRESS') : '');
+
 // SMTP (leave smtp_host field empty to use phpmailer instead). If using Gmail, you may need to enable access in security settings.
 $config['smtp_host'] = (getenv('SCALAR_SMTP_HOST') ? getenv('SCALAR_SMTP_HOST') : ''); 
 $config['smtp_auth'] = true; 
