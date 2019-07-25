@@ -68,20 +68,7 @@ class MY_Controller extends CI_Controller {
 		$this->data['app_root'] = base_url().'system/application/';
 		$this->data['ns'] = $this->config->item('namespaces');
 
-		// Authentication
-		try {
-			if ($this->login->do_logout()) {
-				header('Location: '.$this->redirect_url());
-				exit;
-			} elseif ($this->login->do_login()) {
-				header('Location: '.$this->redirect_url());
-				exit;
-			}
-			$this->set_login_params();
-		} catch (Exception $e) {
-			$this->data['login_error'] =  $e->getMessage();
-		}
-
+		$this->set_login_params();
 	}
 
 	/**
