@@ -14,7 +14,7 @@ class SendMail {
     public function reset_password($email='', $reset_string='') {
 
     	$arr = array();
-    	$arr['from'] = 'no-reply@'.$this->domain_name();
+    	$arr['from'] = $this->from_address();
     	$arr['fromName'] = $this->install_name();
     	$arr['to'] = $email;
     	$arr['replyTo'] = $this->replyto_address();
@@ -133,7 +133,15 @@ class SendMail {
     	if (empty($install_name)) $install_name = 'Test';
     	return $install_name;
 
-    }
+	}
+	
+	private function from_address() {
+		$from_address = $this->CI->config->item('email_from_address');
+		if($from_address) {
+			return $from_address;
+		}
+		return 'no-reply@'.$this->domain_name(); // fallback if none is provided (backward compatibility)
+	}
 
     private function replyto_address() {
 
