@@ -200,10 +200,52 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }
             }
         };
+        // combine adjacent tags which have the same attributes (this can happen
+        // when a change is detected inside a tag and scalar_diff generates
+        // additional closing/opening tags to compensate)
+        base.removeAdjacentDuplicates = function(html) {
+          var lastElement, lastAttributes, currentAttributes, isIdentical;
+          var nodeTypesToIgnore = ['#text','BR'];
+          $(html).contents().each(function() {
+            isIdentical = true;
+            // if this node is of a different type than the last one, don't worry about checking
+            if (lastElement != null) {
+              if (this.nodeName != lastElement.nodeName || nodeTypesToIgnore.indexOf(this.nodeName) != -1) {
+                isIdentical = false;
+              }
+            }
+            currentAttributes = {};
+            $(this.attributes).each(function() {
+              if(this.specified) {
+                currentAttributes[this.name] = this.value;
+              }
+            });
+            // if it is the same type, check to see if all the attributes are identical
+            if (isIdentical) {
+              if (lastAttributes != null) {
+                for (var k in currentAttributes) {
+                  if (currentAttributes[k] != lastAttributes[k]) {
+                    isIdentical = false;
+                    break;
+                  }
+                }
+              }
+            }
+            // everything matches; combine the tags
+            if (isIdentical) {
+              $(this).prepend($(lastElement).html());
+              $(lastElement).remove();
+            }
+            lastElement = this;
+            lastAttributes = currentAttributes;
+          });
+          $(html).contents().each(function() {
+            base.removeAdjacentDuplicates(this);
+          })
+        };
         base.enableSave = function(newHtml){
 
             var $placeholder = $('<div>'+newHtml+'</div>');
-
 
             $placeholder.find('.br_tag').each(function(){
                 $(this).replaceWith('<br />');
@@ -222,8 +264,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $placeholder.find('span[data-diff="chunk"].rejected').each(function(){
                 var $newChunk = $('<div>'+($(this).children('span[data-diff]').first().html())+'</div>');
                 $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
-                $(this).replaceWith($newChunk.html());    
+                $(this).replaceWith($newChunk.html());
             });
+
+            $placeholder = $('<div>'+$placeholder.html()+'</div>');
+
+            base.removeAdjacentDuplicates($placeholder);
 
             $(editor.container.$).find('iframe').show();
             editor.setData($placeholder.html());
@@ -247,22 +293,22 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
                 var $newChunk = $('<div>'+($(this).children('span[data-diff]').last().html())+'</div>');
                 $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
-                $(this).replaceWith($newChunk.html());    
+                $(this).replaceWith($newChunk.html());
             });
-            
+
             $placeholder.find('span[data-diff="chunk"].rejected').each(function(){
                 var $newChunk = $('<div>'+($(this).children('span[data-diff]').first().html())+'</div>');
                 $newChunk.find('.hiddenVisual').removeClass('hiddenVisual');
                 $(this).replaceWith($newChunk.html());
             });
-            $('#page_description').val($placeholder.html());
+            $('#page_description').val($placeholder.html());var lastElement;
 
 
             $('.saveButtons .editingDisabled').removeClass('editingDisabled');
 
             $('body').on('savedPage',function(e){
                 if($('body').hasClass('isReviewing')){
-                    
+
                     $('#title_placeholder').hide();
                     $('#title').show();
                     $('#description_placeholder').hide();
@@ -294,7 +340,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $(editor.container.$).find('iframe').show();
 
             if($('#editor').data("readonly")){
-                return;   
+                return;
             }
 
             editor.setReadOnly(false);
@@ -376,7 +422,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 }).on('shown.bs.tooltip',function(){
                                     $chunk = $(this);
                                     $('.viewFormatting').off('click').click(function(){
-                                        console.log('test');
                                         $('#editorialReviewFormattingChangesList tr').hide();
                                         $('#editorialReviewFormattingChangesList tr[data-chunk="'+$chunk.data('chunk_id')+'"]').show();
 
@@ -504,7 +549,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 var numNodes = !!parsedOldAttr['data-nodes']?parsedOldAttr['data-nodes'].value.split(',').length:0;
                 var oldSubtext = numNodes>0?numNodes + (numNodes!=1?'items':'item'):'';
             }
-            
+
             var newMethod = $new.hasClass('inline')?'Inline':'Linked';
             var newType = (!!parsedNewAttr['data-widget'])?'Widget':'Media';
 
@@ -650,7 +695,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
         $('head').append('<link rel="stylesheet" href="'+this.path + 'css/editorialTools.css" type="text/css" />');
         editor.addContentsCss( this.path + 'css/editorialToolsInner.css' );
-	    
+
         base.loadEditsPanel = function(){
             var previousState = null;
             if(base.editorialState == "editreview"){
@@ -776,7 +821,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             $('#acceptRejectAll .btn-success').addClass('disabled');
                             $('#acceptRejectAll .btn-danger').removeClass('disabled');
                         });
-                    }   
+                    }
                 //Queries
                     $('input[value="Save"]').click(function(){
                         $('#unsavedQueryWarning').hide().attr('aria-hidden','true');
@@ -907,7 +952,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             }
                             dateString = hour+':'+(('0' + date.getMinutes()).slice(-2))+' '+suffix+' '+base.monthNames[date.getMonth()]+' '+date.getDate();
                         }
-                        
+
                         $version
                             .html('<td>'+versionNumber+'</td><td>'+authorName+'</td><td>'+dateString+'</td>')
                             .data('version',version)
@@ -980,7 +1025,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     base.$editorialToolsPanelHeaderDropdown.find('button').prop('disabled',true).find('.caret').hide();
                 }
-                
+
             }else{
                 base.$editorialToolsPanel.height($(editor.container.$).find('.cke_contents').height());
             }

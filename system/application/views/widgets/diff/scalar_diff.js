@@ -73,7 +73,7 @@ var scalar_diff = {
 
 	            for(var i = 0; i < combinedTag.length; i++){
 	                var regex = new RegExp(combinedTag[i].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), "g");
-	                newHTML = newHTML.replace(regex, ' \r\n'+tokens[i]+'\r\n ');
+	                newHTML = newHTML.replace(regex, '\r\n'+tokens[i]+'\r\n');
 	            }
 	        }
 	    }
@@ -88,7 +88,7 @@ var scalar_diff = {
         }
 	},
 	'_addMarkup' : function(diff){
-		var titleText = '';
+			var titleText = '';
         for(var d = 0; d<diff.title.length; d++){
             var thisDiff = diff.title[d];
             var nextDiff = diff.title[d+1];
@@ -99,11 +99,11 @@ var scalar_diff = {
                 titleText += '<span data-diff="chunk">';
                     var thisText = thisDiff[1].replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
                     if(thisDiff[0]==1){
-                        titleText += '<span data-diff="placeholder"></span>';    
+                        titleText += '<span data-diff="placeholder"></span>';
                     }
                     titleText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
                     if(thisDiff[0]==-1){
-                        titleText += '<span data-diff="placeholder"></span>';    
+                        titleText += '<span data-diff="placeholder"></span>';
                     }
                 titleText += '</span>';
             }else{
@@ -129,11 +129,11 @@ var scalar_diff = {
                 descriptionText += '<span data-diff="chunk">';
                     var thisText = thisDiff[1].replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
                     if(thisDiff[0]==1){
-                        descriptionText += '<span data-diff="placeholder"></span>';    
+                        descriptionText += '<span data-diff="placeholder"></span>';
                     }
                     descriptionText += '<span data-diff="'+(thisDiff[0]==-1?'del':'ins')+'">'+thisText+'</span>';
                     if(thisDiff[0]==-1){
-                        descriptionText += '<span data-diff="placeholder"></span>';    
+                        descriptionText += '<span data-diff="placeholder"></span>';
                     }
                 descriptionText += '</span>';
             }else{
@@ -151,10 +151,51 @@ var scalar_diff = {
         //Now onto the body! First, build a tree...
         var html = [];
 
+				// take care of cases where the diff resulted in chunks that occur between tags
+				var chunk, unclosedTags, char, o;
+				unclosedTags = [];
+				// loop through all of the diff chunks
+				for (var d in diff.body) {
+					chunk = diff.body[d][1];
+					var n = chunk.length;
+					// loop through each character in the chunk
+					for (var i=0; i<n; i++) {
+						// if we have lefover unclosed tags from the previous chunk, reopen them here
+						if (i == 0 && unclosedTags.length > 0) {
+							o = unclosedTags.length;
+							for (var j=0; j<o; j++) {
+								diff.body[d][1] = unclosedTags[j] + diff.body[d][1];
+							}
+						}
+						char = chunk[i];
+						// found an opening tag; keep track of it
+						if (diff.tokens.relationships[char] != null && diff.tokens.relationships[char].endTag != null) {
+							unclosedTags.push(char);
+						} else if (unclosedTags.length > 0) {
+							// found a closing tag; stop tracking it
+							if (diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].endTag == char) {
+								unclosedTags.pop();
+							}
+						}
+						// if we're at the end of the chunk, close any unclosed tags
+						// (we'll open them again at the start of the next chunk)
+						if (i == (n-1)) {
+							o = unclosedTags.length;
+							for (var j=o-1; j>=0; j--) {
+								diff.body[d][1] += diff.tokens.relationships[unclosedTags[j]].endTag;
+							}
+						}
+					}
+				}
+
         //Clean up some white space
         for(var d in diff.body){
             diff.body[d][1] = diff.body[d][1].replace(/\n/g, '').replace(/\r/g, '');
-            diff.body[d][2] = diff.body[d][1].trim();
+						if (diff.body[d][1].trim().length != 0) {
+							diff.body[d][2] = diff.body[d][1].trim();
+						} else {
+							diff.body[d][2] = diff.body[d][1];
+						}
         }
 
         var waitingTags = [];
@@ -257,10 +298,11 @@ var scalar_diff = {
                 }
             }
         }
+
         //Just clean up any insertions/deletions without a matching deletion/insertion...
         var cleanedHTML = [];
         for(var s = 0; s < html.length; s++){
-            
+
             var segment = html[s].html;
             var $segment = $('<div>'+segment+'</div>').children().first();
 
@@ -287,6 +329,7 @@ var scalar_diff = {
                 cleanedHTML = cleanedHTML.replace(regex, tokenSet.combinedTag[t]);
             }
         }
+
         //Look for false positives and clean up widgets/media links
         var $tempBody = $('<div>'+cleanedHTML+'</div>')
         $tempBody.find('span[data-diffType="swap"]').each(function(){
@@ -305,11 +348,12 @@ var scalar_diff = {
                 for(var a in newAttr){
                     parsedNewAttr[newAttr[a].name] = newAttr[a].nodeValue;
                 }
-
                 //First check to see if we have the same number of attributes...
-                var falsePositive = oldAttr.length == newAttr.length;
-
+                var falsePositive = (oldAttr.length == newAttr.length && oldAttr.length > 0);
                 //If so, check each attribute in the old element to see if they equal the new element
+								if ($old.html() != $new.html()) {
+									falsePositive = false;
+								}
                 if(falsePositive){
                     for(var a in parsedOldAttr){
                         if(typeof parsedNewAttr[a] === "undefined" || parsedOldAttr[a] != parsedNewAttr[a]){
@@ -318,12 +362,12 @@ var scalar_diff = {
                         }
                     }
                 }
-                
+
                 if(falsePositive){
                     $(this).replaceWith($new);
                 }
             }
-                
+
             //We don't need to show both versions of a media/widget link - hide the older one
             if($(this).find('span[data-diff]:last').find('a[data-widget],a[resource]').length > 0){
                 var $first = $(this).find('span[data-diff]:first').find('a[data-widget],a[resource]');
@@ -340,6 +384,7 @@ var scalar_diff = {
         });
 
         cleanedHTML = $tempBody.html();
+
         var chunkCount = $tempBody.find('span[data-diff="chunk"]').length;
         $tempBody.remove();
 
@@ -351,15 +396,16 @@ var scalar_diff = {
         }
 	},
 	'diff' : function(_old,_new, addNewLinePlaceholders, addMarkup){
+
         var htmlTokens = [];
         var htmlTokenRelationships = {};
-        
+
         if(!_old.body) _old.body = '';
         if(!_new.body) _new.body = '';
 
         $old = $('<div>'+_old.body+'</div>');
         $new = $('<div>'+_new.body+'</div>');
-        
+
         $old.add($new).find('div').each(function(){
             $(this).replaceWith(this.childNodes);
         });
@@ -380,7 +426,7 @@ var scalar_diff = {
 			htmlTokens,
 			htmlTokenRelationships
 		);
-		
+
         $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
         $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
@@ -394,12 +440,12 @@ var scalar_diff = {
 		if(typeof diff_match_patch !== 'undefined' && !!diff_match_patch){
 			var dmp = new diff_match_patch();
 
-	        var bodyDiff = dmp.diff_main(oldTokenizedBody,newTokenizedBody);
-	        dmp.diff_cleanupSemantic(bodyDiff);
-	        var titleDiff = dmp.diff_main(_old.title,_new.title);  
-	        dmp.diff_cleanupSemantic(titleDiff);
-	        
-	        var descriptionDiff = dmp.diff_main(_old.description,_new.description);
+      var bodyDiff = dmp.diff_main(oldTokenizedBody,newTokenizedBody);
+      dmp.diff_cleanupSemantic(bodyDiff);
+      var titleDiff = dmp.diff_main(_old.title,_new.title);
+      dmp.diff_cleanupSemantic(titleDiff);
+
+      var descriptionDiff = dmp.diff_main(_old.description,_new.description);
 			dmp.diff_cleanupSemantic(descriptionDiff);
 
 			var diff = {
@@ -408,7 +454,7 @@ var scalar_diff = {
 	        	'description' : descriptionDiff,
 	        	'tokens' : {'list' : htmlTokens, 'relationships' : htmlTokenRelationships}
 	        };
-            
+
 			if(addMarkup){
 				diff = scalar_diff._addMarkup(diff);
 			}
