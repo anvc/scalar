@@ -3,24 +3,29 @@ var scalar_diff = {
     // First entry in Unicode's Private Use Area; will roll over into supplemental Private Use Areas if needed...
     // See: https://www.unicode.org/versions/Unicode6.0.0/ch16.pdf
 	'_currentToken' : 57344,
+	'_decodeEntities' : function(encodedString) {
+	  var textArea = document.createElement('textarea');
+	  textArea.innerHTML = encodedString;
+	  return textArea.value;
+	},
 	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships){
 		//Actually do the tokenization - don't call this directly!
 	    var childNodes = $content.find('*');
 	    if(childNodes.length > 0){
-            for(var i = 0; i < childNodes.length; i++){
-                scalar_diff._tokenizeHTML($(childNodes[i]),htmlTokens,htmlTokenRelationships);
-            }
+          for(var i = 0; i < childNodes.length; i++){
+              scalar_diff._tokenizeHTML($(childNodes[i]),htmlTokens,htmlTokenRelationships);
+          }
 	    }
 	    if($content.data('diffContainer')){
 	        return $content.text();
 	    }
-        if($content.html() != ''){
-            var tags = $content[0].outerHTML.split($content.html());
-        }else{
-            var tags = [$content[0].outerHTML];
-        }
-	    var newHTML = $content[0].outerHTML;
-	    var openingTag = null;
+      if($content.html() != ''){
+          var tags = $content[0].outerHTML.split($content.html());
+      }else{
+          var tags = [$content[0].outerHTML];
+      }
+	    var newHTML = scalar_diff._decodeEntities($content[0].outerHTML); // prevents html entities from being encoded multiple times inside nested tags
+    	var openingTag = null;
 	    for(var i in tags){
 	        var tag = tags[i];
 	        if(i==0 && tags.length == 2){
@@ -308,12 +313,8 @@ var scalar_diff = {
 
             if(!!$segment && !!$segment.data('diff')){
                 if(!html[s+1] || (html[s].content != html[s+1].content && !(html[s].dir == -1 && html[s+1].dir == 1))){
-                        if(html[s].content === ' ' || html[s].content === ''){  //Sometimes we get diffs from tiny whitespace changes that originate from CKEditor
-                            cleanedHTML.push(html[s].content);
-                        }else{
-                            var new_segment = '<span data-diff="placeholder"></span>';
-                            cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+new_segment):(new_segment+segment))+'</span>');
-                        }
+                    var new_segment = '<span data-diff="placeholder"></span>';
+                    cleanedHTML.push('<span data-diff="chunk">'+((html[s].dir==-1)?(segment+new_segment):(new_segment+segment))+'</span>');
                 }else{
                     cleanedHTML.push('<span data-diff="chunk" data-diffType="swap">'+segment+html[++s].html+'</span>');
                 }
