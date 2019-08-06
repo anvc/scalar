@@ -87,7 +87,7 @@ var scalar_diff = {
 	},
 	'_addNewLinePlaceholders' : function(html){
         if (!!html) { //Just make sure HTML isn't null or empty or anything...
-            return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag"></span>');
+            return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag open"></span>').replace(/<\s?\/p\s?\/?>(<\/?\s?\/p\s?>)?/g,'<span class="p_tag close"></span>');
         } else {
             return html;
         }
@@ -379,7 +379,7 @@ var scalar_diff = {
         });
 
         $tempBody.find('span[data-diff="chunk"]').each(function(){
-            if($(this).find('div,p,br,.br_tag,.p_tag,.inline').length > 0){
+            if($(this).find('div,p,br,.br_tag,.p_tag.open,.inline').length > 0){
                 $(this).addClass('withBlockElement');
             }
         });
@@ -440,7 +440,6 @@ var scalar_diff = {
 
 		if(typeof diff_match_patch !== 'undefined' && !!diff_match_patch){
 			var dmp = new diff_match_patch();
-
       var bodyDiff = dmp.diff_main(oldTokenizedBody,newTokenizedBody);
       dmp.diff_cleanupSemantic(bodyDiff);
       var titleDiff = dmp.diff_main(_old.title,_new.title);

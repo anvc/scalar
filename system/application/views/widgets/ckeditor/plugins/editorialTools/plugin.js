@@ -205,7 +205,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         // additional closing/opening tags to compensate)
         base.removeAdjacentDuplicates = function(html) {
           var lastElement, lastAttributes, currentAttributes, isIdentical;
-          var nodeTypesToIgnore = ['#text','BR'];
+          var nodeTypesToIgnore = ['#text','BR','P','DIV'];
           $(html).contents().each(function() {
             isIdentical = true;
             // if this node is of a different type than the last one, don't worry about checking
@@ -245,14 +245,12 @@ CKEDITOR.plugins.add( 'editorialTools', {
         };
         base.enableSave = function(newHtml){
 
+            newHtml = newHtml.replace(/<span class="p_tag open"><\/span>/g, '<p>').replace(/<span class="p_tag close"><\/span>/g, '</p>')
+
             var $placeholder = $('<div>'+newHtml+'</div>');
 
             $placeholder.find('.br_tag').each(function(){
                 $(this).replaceWith('<br />');
-            });
-
-            $placeholder.find('.p_tag').each(function(){
-                $(this).replaceWith('<p />');
             });
 
             $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
@@ -302,7 +300,6 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $(this).replaceWith($newChunk.html());
             });
             $('#page_description').val($placeholder.html());var lastElement;
-
 
             $('.saveButtons .editingDisabled').removeClass('editingDisabled');
 
