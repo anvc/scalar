@@ -644,7 +644,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             base.buildUserMenu(base.$el.find('#ScalarHeaderMenuUserList'));
 
-            navbar.find('#header_authors').text(getAuthorCredit());
+            navbar.find('#header_authors').html(getAuthorCredit());
 
             var helpElement = $('<div></div>').appendTo('body');
             base.help = $( helpElement ).scalarhelp( { root_url: modules_uri + '/cantaloupe' } );
