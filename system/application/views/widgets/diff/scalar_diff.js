@@ -8,6 +8,16 @@ var scalar_diff = {
 	  textArea.innerHTML = encodedString;
 	  return textArea.value;
 	},
+	'_areTagStringsEquivalent' : function(stringA, stringB) {
+		var tokensA = stringA.substring(1, stringA.length - 1).split(' ');
+		var tokensB = stringB.substring(1, stringA.length - 1).split(' ');
+		for (var i in tokensA) {
+			if (tokensB.indexOf(tokensA[i]) == -1) {
+				return false;
+			}
+		}
+		return true;
+	},
 	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships){
 		//Actually do the tokenization - don't call this directly!
 	    var childNodes = $content.find('*');
@@ -46,7 +56,10 @@ var scalar_diff = {
 	            var tokens = [];
 	            for(var t in htmlTokens){
 	                var existing_combinedTag = htmlTokens[t].combinedTag;
-	                if(existing_combinedTag[0] != combinedTag[0] || existing_combinedTag.length != combinedTag.length){
+									tagsAreEquivalent = scalar_diff._areTagStringsEquivalent(existing_combinedTag[0], combinedTag[0]);
+									if (scalar_diff._areTagStringsEquivalent(existing_combinedTag[0], combinedTag[0])) {
+											// nothing; foundMatch will be set to true
+									}else if(existing_combinedTag[0] != combinedTag[0] || existing_combinedTag.length != combinedTag.length){
 	                    continue;
 	                }else if(combinedTag.length == 2 && existing_combinedTag[1] != combinedTag[1]){
 	                    continue;
@@ -421,16 +434,16 @@ var scalar_diff = {
 
 		var $body = $('<div>'+_old.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
-        $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
+    $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
 		var oldTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
 			htmlTokenRelationships
 		);
 
-        $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
+    $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
-        $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
+    $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
 
 		var newTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
