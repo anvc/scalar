@@ -174,7 +174,7 @@ var scalar_diff = {
         //Now onto the body! First, build a tree...
         var html = [];
 
-				if (debug) console.log(diff);
+				if (debug) console.log(diff); // here's what the diff algorithm says needs changing
 
 				// take care of cases where the diff resulted in chunks that occur between tags
 				var chunk, unclosedTags, char, o, action;
@@ -193,7 +193,7 @@ var scalar_diff = {
 					}
 					if (debug) {
 						debugStr = chunk;
-						console.log('------ ' + action);
+						console.log('------ ' + action); // what kind of chunk this is: ins/del/leave alone
 					}
 					var n = chunk.length;
 					// loop through each character in the chunk
@@ -228,7 +228,7 @@ var scalar_diff = {
 							}
 						}
 					}
-					if (debug) console.log(debugStr);
+					if (debug) console.log(debugStr); // the chunk, modified to include any extra needed tag openings and closings to make legit HTML
 				}
 
         //Clean up some white space
@@ -361,7 +361,7 @@ var scalar_diff = {
             }
         }
 
-				if (debug) console.log(cleanedHTML);
+				if (debug) console.log(cleanedHTML); // the fully marked up diff, before token replacement
 
         cleanedHTML = cleanedHTML.join('');
         for(var h in diff.tokens.list){
@@ -372,7 +372,7 @@ var scalar_diff = {
             }
         }
 
-				if (debug) console.log(cleanedHTML);
+				if (debug) console.log(cleanedHTML); // the fully marked up diff, after token replacement
 
         //Look for false positives and clean up widgets/media links
         var $tempBody = $('<div>'+cleanedHTML+'</div>')
