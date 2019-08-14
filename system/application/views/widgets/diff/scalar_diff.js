@@ -77,6 +77,8 @@ var scalar_diff = {
 	                htmlTokenRelationships[t] = {endTag:null};
 	                if(combinedTag.length == 2){
 	                    htmlTokenRelationships[t].endTag = String.fromCharCode(scalar_diff._currentToken++);
+											htmlTokenRelationships[t].htmlTag = combinedTag[0];
+											htmlTokenRelationships[t].htmlEndTag = combinedTag[1];
 	                    if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
 	                        //Move over to Supplementary Private Use Area-A - will roll over to set B if needed...
 	                        scalar_diff._currentToken = 983040;
@@ -100,12 +102,15 @@ var scalar_diff = {
 	},
 	'_addNewLinePlaceholders' : function(html){
         if (!!html) { //Just make sure HTML isn't null or empty or anything...
-            return html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>').replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag open"></span>').replace(/<\s?\/p\s?\/?>(<\/?\s?\/p\s?>)?/g,'<span class="p_tag close"></span>');
+					html = html.replace(/<\s?br\s?\/?>/g,'<span class="br_tag"></span>');
+					html = html.replace(/<\s?p\s?\/?>(<\/?\s?p\s?>)?/g,'<span class="p_tag open"></span>').replace(/<\s?\/p\s?\/?>(<\/?\s?\/p\s?>)?/g,'<span class="p_tag close"></span>');
+					html = html.replace(/<\s?blockquote\s?\/?>(<\/?\s?blockquote\s?>)?/g,'<span class="blockquote_tag open"></span>').replace(/<\s?\/blockquote\s?\/?>(<\/?\s?\/blockquote\s?>)?/g,'<span class="blockquote_tag close"></span>');
+          return html;
         } else {
             return html;
         }
 	},
-	'_addMarkup' : function(diff){
+	'_addMarkup' : function(diff, debug = false){
 			var titleText = '';
         for(var d = 0; d<diff.title.length; d++){
             var thisDiff = diff.title[d];
@@ -169,26 +174,44 @@ var scalar_diff = {
         //Now onto the body! First, build a tree...
         var html = [];
 
+				if (debug) console.log(diff);
+
 				// take care of cases where the diff resulted in chunks that occur between tags
-				var chunk, unclosedTags, char, o;
-				unclosedTags = [];
+				var chunk, unclosedTags, char, o, action;
+				unclosedPreservedTags = [];
 				// loop through all of the diff chunks
 				for (var d in diff.body) {
 					chunk = diff.body[d][1];
+					unclosedDeletedTags = []; // deleted tags are closed locally; all others persist across chunks
+					action = '';
+					unclosedTags = unclosedPreservedTags;
+					if (diff.body[d][0] == 1) {
+						action = "INS";
+					} else if (diff.body[d][0] == -1) {
+						action = "DEL";
+						unclosedTags = unclosedDeletedTags;
+					}
+					if (debug) {
+						debugStr = chunk;
+						console.log('------ ' + action);
+					}
 					var n = chunk.length;
 					// loop through each character in the chunk
 					for (var i=0; i<n; i++) {
 						// if we have lefover unclosed tags from the previous chunk, reopen them here
 						if (i == 0 && unclosedTags.length > 0) {
 							o = unclosedTags.length;
-							for (var j=0; j<o; j++) {
+							for (var j=o-1; j>=0; j--) {
 								diff.body[d][1] = unclosedTags[j] + diff.body[d][1];
+								if (debug) debugStr = diff.tokens.relationships[unclosedTags[j]].htmlTag + debugStr;
 							}
 						}
 						char = chunk[i];
 						// found an opening tag; keep track of it
-						if (diff.tokens.relationships[char] != null && diff.tokens.relationships[char].endTag != null) {
-							unclosedTags.push(char);
+						if (diff.tokens.relationships[char] != null) {
+							if (diff.tokens.relationships[char].endTag != null) {
+								unclosedTags.push(char);
+							}
 						} else if (unclosedTags.length > 0) {
 							// found a closing tag; stop tracking it
 							if (diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].endTag == char) {
@@ -200,10 +223,12 @@ var scalar_diff = {
 						if (i == (n-1)) {
 							o = unclosedTags.length;
 							for (var j=o-1; j>=0; j--) {
+								if (debug) debugStr += diff.tokens.relationships[unclosedTags[j]].htmlEndTag;
 								diff.body[d][1] += diff.tokens.relationships[unclosedTags[j]].endTag;
 							}
 						}
 					}
+					if (debug) console.log(debugStr);
 				}
 
         //Clean up some white space
@@ -335,6 +360,9 @@ var scalar_diff = {
                 cleanedHTML.push(segment);
             }
         }
+
+				if (debug) console.log(cleanedHTML);
+
         cleanedHTML = cleanedHTML.join('');
         for(var h in diff.tokens.list){
             var tokenSet = diff.tokens.list[h];
@@ -343,6 +371,8 @@ var scalar_diff = {
                 cleanedHTML = cleanedHTML.replace(regex, tokenSet.combinedTag[t]);
             }
         }
+
+				if (debug) console.log(cleanedHTML);
 
         //Look for false positives and clean up widgets/media links
         var $tempBody = $('<div>'+cleanedHTML+'</div>')
@@ -392,7 +422,7 @@ var scalar_diff = {
         });
 
         $tempBody.find('span[data-diff="chunk"]').each(function(){
-            if($(this).find('div,p,br,.br_tag,.p_tag.open,.inline').length > 0){
+            if($(this).find('div,p,br,.blockquote_tag.open,.br_tag,.p_tag.open,.inline').length > 0){
                 $(this).addClass('withBlockElement');
             }
         });
@@ -469,7 +499,7 @@ var scalar_diff = {
 	        };
 
 			if(addMarkup){
-				diff = scalar_diff._addMarkup(diff);
+				diff = scalar_diff._addMarkup(diff, false);
 			}
 
 	        return diff;

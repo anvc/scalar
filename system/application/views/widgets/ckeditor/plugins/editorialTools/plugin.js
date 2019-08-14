@@ -243,15 +243,21 @@ CKEDITOR.plugins.add( 'editorialTools', {
             base.removeAdjacentDuplicates(this);
           })
         };
-        base.enableSave = function(newHtml){
+        base.enableSave = function(newHtml, debug = false){
 
-            newHtml = newHtml.replace(/<span class="p_tag open"><\/span>/g, '<p>').replace(/<span class="p_tag close"><\/span>/g, '</p>')
+            newHtml = newHtml.replace(/<span class="p_tag open"><\/span>/g, '<p>').replace(/<span class="p_tag close"><\/span>/g, '</p>');
+            newHtml = newHtml.replace(/<span class="blockquote_tag open"><\/span>/g, '<blockquote>').replace(/<span class="blockquote_tag close"><\/span>/g, '</blockquote>');
+
+            if (debug) console.log(newHtml);
 
             var $placeholder = $('<div>'+newHtml+'</div>');
 
             $placeholder.find('.br_tag').each(function(){
                 $(this).replaceWith('<br />');
             });
+
+            if (debug) console.log($placeholder.html());
+            if (debug) console.log($placeholder.find('span[data-diff="chunk"].accepted'));
 
             $placeholder.find('span[data-diff="chunk"].accepted').each(function(){
                 var $newChunk = $('<div>'+($(this).children('span[data-diff]').last().html())+'</div>');
@@ -267,6 +273,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
             $placeholder = $('<div>'+$placeholder.html()+'</div>');
 
+            if (debug) console.log($placeholder);
             base.removeAdjacentDuplicates($placeholder);
 
             $(editor.container.$).find('iframe').show();
