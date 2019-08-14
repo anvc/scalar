@@ -213,9 +213,17 @@ var scalar_diff = {
 								unclosedTags.push(char);
 							}
 						} else if (unclosedTags.length > 0) {
-							// found a closing tag; stop tracking it
+							// found the closing tag we're looking for; stop tracking it
 							if (diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].endTag == char) {
 								unclosedTags.pop();
+							}
+						} else if (action == 'DEL') {
+							// found a closing tag in a deleted chunk; add the opening tag to the start of the chunk
+							for (var k in diff.tokens.list) {
+								if (diff.tokens.list[k].tokens.indexOf(char) == 1) {
+									diff.body[d][1] = diff.tokens.list[k].tokens[0] + diff.body[d][1];
+									if (debug) debugStr = diff.tokens.list[k].combinedTag[0] + debugStr;
+								}
 							}
 						}
 						// if we're at the end of the chunk, close any unclosed tags
