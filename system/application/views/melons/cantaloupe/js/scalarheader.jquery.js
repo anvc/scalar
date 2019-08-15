@@ -190,7 +190,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             index_url = index_url.substr(0, index_url.lastIndexOf('/'))+'/';
 
             //We might not have the current page loaded, but we can still get the slug; strip the book URL and the GET params from the current URL
-            base.current_slug = window.location.href.split("?")[0].replace(book_url,'');
+            base.current_slug = window.location.href.split("?")[0].split("#")[0].replace(book_url,'');
 
             //Pop the title link DOM element off for a minute - we'll use this again later on.
             var title_link = base.$el.find('#book-title').addClass('navbar-link').detach().attr('id','').addClass('book-title');
