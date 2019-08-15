@@ -50,7 +50,7 @@ $(document).ready(function() {
 			BootstrapDialog.show({
 				type: 'type-warning',
 				title: 'Warning',
-	            message: 'Changing the URL segment of the book will change its location on the web, which will make the old book URL unavailable.  Do you wish to continue?',
+	            message: 'Changing the URL segment of the project will change its location on the web, which will make its old URLs, any uploaded media, and any existing bookmarks inaccessible. Do you wish to continue?',
 	            buttons: [{
 	                label: 'Cancel',
 	                cssClass: 'btn-default',
@@ -370,4 +370,3 @@ function select_versions() {
     </section>
   </div>
 </div>
-
