@@ -1108,12 +1108,16 @@ function YouTubeGetID(url){
 					player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
 				}
 
+        var isCulturallySensitive = false;
+
 				if (this.model.node.current.auxProperties['dcterms:accessRights'] != null) {
           if (this.model.node.current.auxProperties['dcterms:accessRights'].indexOf('culturally-sensitive') != -1) {
+            isCulturallySensitive = true;
             this.mediaObjectView = new $.CulturallySensitiveObjectView(this.model, this);
           }
+        }
 
-				} else {
+				if (!isCulturallySensitive) {
 
 					switch (this.model.mediaSource.contentType) {
 
