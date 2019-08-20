@@ -75,13 +75,9 @@ elseif ($parsed_uri['scheme'] != 'http' &&
 		$parsed_uri['scheme'] != 'https') {
 	die('{}');
 }
-<<<<<<< HEAD
-if (isset($parsed_uri['path']) && substr($parsed_uri['path'], -1, 1) == '/') {
-    $parsed_uri['path'] = substr($parsed_uri['path'], 0, -1);
-=======
+
 if (substr($parsed_uri['path'], -1, 1) == '/') {
 	$parsed_uri['path'] = substr($parsed_uri['path'], 0, -1);
->>>>>>> anvc/scalar#62: naïvely adding Omeka S JSON output to results.
 }
 unset($parsed_uri['query']);
 unset($parsed_uri['fragment']);
