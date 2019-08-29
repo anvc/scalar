@@ -853,7 +853,7 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 			source = this.mediaSources['MPEG-3'];
 		} else if (uri.indexOf('birds.cornell.edu') != -1 && uri.indexOf('/video') != -1) {
 			source = this.mediaSources['MPEG-4'];
-			
+
 		} else if (uri.indexOf('image_wrapper.php?visual_still_id') != -1) {  // Disability History Museum
 			source = this.mediaSources['JPEG'];
 
@@ -897,7 +897,8 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
  * @return	The anchor portion of the uri.
  */
 ScalarAPI.prototype.getAnchorSegment = function(uri) {
-	var temp = uri.split('#');
+  var temp = uri.split('?')[0];
+	temp = temp.split('#');
 	if (temp.length > 1) {
 		return temp[temp.length - 1];
 	}
