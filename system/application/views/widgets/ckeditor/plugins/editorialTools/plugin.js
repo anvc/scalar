@@ -223,11 +223,8 @@ CKEDITOR.plugins.add( 'editorialTools', {
             // if it is the same type, check to see if all the attributes are identical
             if (isIdentical) {
               if (lastAttributes != null) {
-                for (var k in currentAttributes) {
-                  if (currentAttributes[k] != lastAttributes[k]) {
-                    isIdentical = false;
-                    break;
-                  }
+                if (!$(this).hasClass('generated_tag')) {
+                  isIdentical = false;
                 }
               }
             }
@@ -557,12 +554,13 @@ CKEDITOR.plugins.add( 'editorialTools', {
             var newMethod = $new.hasClass('inline')?'Inline':'Linked';
             var newType = (!!parsedNewAttr['data-widget'])?'Widget':'Media';
 
+            var newSubtext = '';
             if(newType=="Media"){
                 var targetNode = scalarapi.getNode(parsedNewAttr['resource'].value);
-                var newSubtext = targetNode.getDisplayTitle();
+                if (targetNode != null) newSubtext = targetNode.getDisplayTitle();
             }else{
                 var numNodes = !!parsedNewAttr['data-nodes']?parsedNewAttr['data-nodes'].value.split(',').length:0;
-                var newSubtext = numNodes>0?numNodes + (numNodes!=1?'items':'item'):'';
+                newSubtext = numNodes>0?numNodes + (numNodes!=1?'items':'item'):'';
             }
             if(oldMethod != newMethod || oldType != newType){
                 changeHTML += '<s><strong>'+oldMethod+' '+oldType+'</strong><br />'+oldSubtext+'</s><br />';

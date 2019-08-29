@@ -18,12 +18,33 @@ var scalar_diff = {
 		}
 		return true;
 	},
-	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships){
+	'_incrementToken' : function() {
+		scalar_diff._currentToken++;
+		if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
+				//Move over to supplemental unicode set A - will roll over to set B if needed...
+				scalar_diff._currentToken = 983040; //This should probably never happen - but if somehow someone has more than 6,400 changed tags...
+		}
+		return scalar_diff._currentToken;
+	},
+	'_generateTag' : function(originalTag) {
+		var generatedTag;
+		var tempA = originalTag.split('class="');
+		var tempB = originalTag.split("class='");
+		if (tempA.length > 1) {
+			generatedTag = tempA[0] + 'class="generated_tag ' + tempA[1];
+		} else if (tempB.length > 1) {
+			generatedTag = tempB[0] + "class='generated_tag " + tempB[1];
+		} else {
+			generatedTag = originalTag.substr(0, originalTag.length - 1) + ' class="generated_tag">';
+		}
+		return generatedTag;
+	},
+	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships,debug){
 		//Actually do the tokenization - don't call this directly!
 	    var childNodes = $content.find('*');
 	    if(childNodes.length > 0){
           for(var i = 0; i < childNodes.length; i++){
-              scalar_diff._tokenizeHTML($(childNodes[i]),htmlTokens,htmlTokenRelationships);
+              scalar_diff._tokenizeHTML($(childNodes[i]),htmlTokens,htmlTokenRelationships,debug);
           }
 	    }
 	    if($content.data('diffContainer')){
@@ -35,9 +56,12 @@ var scalar_diff = {
           var tags = [$content[0].outerHTML];
       }
 	    var newHTML = scalar_diff._decodeEntities($content[0].outerHTML); // prevents html entities from being encoded multiple times inside nested tags
+			if (debug) console.log(newHTML);
+			//var newHTML = $content[0].outerHTML;
     	var openingTag = null;
 	    for(var i in tags){
 	        var tag = tags[i];
+					if (debug) console.log(tag);
 	        if(i==0 && tags.length == 2){
 	            openingTag = {
 	                html : tag,
@@ -66,35 +90,45 @@ var scalar_diff = {
 	                }
 	                foundMatch = true;
 	                tokens = htmlTokens[t].tokens;
+									combinedTag = existing_combinedTag;
 	            }
+							if (debug) console.log(foundMatch);
 	            if(!foundMatch){
-	                var t = String.fromCharCode(scalar_diff._currentToken++);
-	                if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
-	                    //Move over to supplemental unicode set A - will roll over to set B if needed...
-	                    scalar_diff._currentToken = 983040; //This should probably never happen - but if somehow someone has more than 6,400 changed tags...
-	                }
+	                var t = String.fromCharCode(scalar_diff._incrementToken());
 	                tokens.push(t);
-	                htmlTokenRelationships[t] = {endTag:null};
+	                htmlTokenRelationships[t] = {generatedTag:null, endTag:null};
 	                if(combinedTag.length == 2){
-	                    htmlTokenRelationships[t].endTag = String.fromCharCode(scalar_diff._currentToken++);
-											htmlTokenRelationships[t].htmlTag = combinedTag[0];
-											htmlTokenRelationships[t].htmlEndTag = combinedTag[1];
-	                    if(scalar_diff._currentToken > 63743 && scalar_diff._currentToken < 983040){
-	                        //Move over to Supplementary Private Use Area-A - will roll over to set B if needed...
-	                        scalar_diff._currentToken = 983040;
-	                    }
+
+											htmlTokenRelationships[t].generatedTag = String.fromCharCode(scalar_diff._incrementToken());
+
+	                    htmlTokenRelationships[t].endTag = String.fromCharCode(scalar_diff._incrementToken());
 	                    tokens.push(htmlTokenRelationships[t].endTag);
+
+											htmlTokenRelationships[t].htmlTag = combinedTag[0];
+											htmlTokenRelationships[t].htmlGeneratedTag = scalar_diff._generateTag(combinedTag[0]);
+											htmlTokenRelationships[t].htmlEndTag = combinedTag[1];
+
+											tokens.splice(1, 0, htmlTokenRelationships[t].generatedTag);
+											combinedTag.splice(1, 0, htmlTokenRelationships[t].htmlGeneratedTag);
 	                }
 	                htmlTokens.push({
 	                    'combinedTag' : combinedTag,
 	                    'tokens' : tokens
 	                });
-	            }
+							}
 
+							if (debug) console.log('------');
+							if (debug) console.log(combinedTag);
+							if (debug) console.log(newHTML);
 	            for(var i = 0; i < combinedTag.length; i++){
 	                var regex = new RegExp(combinedTag[i].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), "g");
-	                newHTML = newHTML.replace(regex, '\r\n'+tokens[i]+'\r\n');
+									if (debug) console.log(i+' - '+escape(tokens[i]));
+									if (debug) console.log(regex);
+									if (debug) console.log(newHTML.match(regex));
+									newHTML = newHTML.replace(regex, '\r\n'+tokens[i]+'\r\n');
 	            }
+							if (debug) console.log(newHTML);
+
 	        }
 	    }
 	    newHTML = newHTML;
@@ -202,11 +236,12 @@ var scalar_diff = {
 						if (i == 0 && unclosedTags.length > 0) {
 							o = unclosedTags.length;
 							for (var j=o-1; j>=0; j--) {
-								diff.body[d][1] = unclosedTags[j] + diff.body[d][1];
-								if (debug) debugStr = diff.tokens.relationships[unclosedTags[j]].htmlTag + debugStr;
+								diff.body[d][1] = diff.tokens.relationships[unclosedTags[j]].generatedTag + diff.body[d][1];
+								if (debug) debugStr = diff.tokens.relationships[unclosedTags[j]].htmlGeneratedTag + debugStr;
 							}
 						}
 						char = chunk[i];
+						if (debug) console.log(escape(char));
 						// found an opening tag; keep track of it
 						if (diff.tokens.relationships[char] != null) {
 							if (diff.tokens.relationships[char].endTag != null) {
@@ -215,14 +250,15 @@ var scalar_diff = {
 						} else if (unclosedTags.length > 0) {
 							// found the closing tag we're looking for; stop tracking it
 							if (diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].endTag == char) {
+								if (debug) console.log('found a closing tag: '+diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].htmlEndTag)
 								unclosedTags.pop();
 							}
 						} else if (action == 'DEL') {
 							// found a closing tag in a deleted chunk; add the opening tag to the start of the chunk
 							for (var k in diff.tokens.list) {
-								if (diff.tokens.list[k].tokens.indexOf(char) == 1) {
-									diff.body[d][1] = diff.tokens.list[k].tokens[0] + diff.body[d][1];
-									if (debug) debugStr = diff.tokens.list[k].combinedTag[0] + debugStr;
+								if (diff.tokens.list[k].tokens.indexOf(char) == 2) {
+									diff.body[d][1] = diff.tokens.list[k].tokens[1] + diff.body[d][1];
+									if (debug) debugStr = diff.tokens.list[k].combinedTag[1] + debugStr;
 								}
 							}
 						}
@@ -473,10 +509,12 @@ var scalar_diff = {
 		var $body = $('<div>'+_old.body+'</div>').data('diffContainer',true);
 		$body.find('[name="cke-scalar-empty-anchor"]').attr('name',null);
     $body.find('[data-cke-saved-name]').attr('data-cke-saved-name',null);
+
 		var oldTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
-			htmlTokenRelationships
+			htmlTokenRelationships,
+			false
 		);
 
     $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
@@ -486,7 +524,8 @@ var scalar_diff = {
 		var newTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
-			htmlTokenRelationships
+			htmlTokenRelationships,
+			false
 		);
 
 		if(typeof diff_match_patch !== 'undefined' && !!diff_match_patch){
@@ -495,7 +534,6 @@ var scalar_diff = {
       dmp.diff_cleanupSemantic(bodyDiff);
       var titleDiff = dmp.diff_main(_old.title,_new.title);
       dmp.diff_cleanupSemantic(titleDiff);
-
       var descriptionDiff = dmp.diff_main(_old.description,_new.description);
 			dmp.diff_cleanupSemantic(descriptionDiff);
 
