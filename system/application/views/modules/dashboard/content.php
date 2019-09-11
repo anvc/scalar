@@ -4,7 +4,7 @@
 <?$this->template->add_css('system/application/views/modules/cover/title.css')?>
 <?$this->template->add_css('system/application/views/modules/cover/login.css')?>
 <?$this->template->add_css('system/application/views/modules/dashboard/tabs.css')?>
-<?$this->template->add_js('system/application/views/arbors/admin/jquery-1.12.4.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-2.2.4.min.js')?>
 <?$this->template->add_js('system/application/views/arbors/admin/jquery-ui-1.8.12.custom.min.js')?>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboard/tabs.js')?>

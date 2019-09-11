@@ -2119,7 +2119,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							}
 						});
 						if (index > -1 && $dialogue_container.data('nodes')[index].include_children) {
-							$item.find('.select_children input[type="checkbox"]').attr('checked', true);
+							$item.find('.select_children input[type="checkbox"]').prop('checked', true);
 						}
 					}
 
@@ -2134,7 +2134,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 					if (index > -1) {
 						$item.addClass('current');
-						$item.find('.select_row input[type="checkbox"]').attr('checked', true);
+						$item.find('.select_row input[type="checkbox"]').prop('checked', true);
 					}
 
 					if (opts.allowMultiple) {
@@ -2178,7 +2178,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 										}
 									}
 									// End not sure what this does
-									$childSelector.find('input[type="checkbox"]').attr('checked', true);
+									$childSelector.find('input[type="checkbox"]').prop('checked', true);
 									$dialogue_container.data('nodes')[index].include_children = true;
 								}
 							} else {  // Item is being unchecked
@@ -2186,11 +2186,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								$dialogue_container.data('nodes').splice(index, 1);
 								$(this).removeClass('current');
 								if (hasChildSelector) {
-									$childSelector.find('input[type="checkbox"]').attr('checked', false);
+									$childSelector.find('input[type="checkbox"]').prop('checked', false);
 								}
 								if ($(this).find("td.edit_col .btn:first:contains('Save')").length) $(this).find('.btn:first').click();
 							}
-							$(this).find('.select_row > input[type="checkbox"]').attr('checked', ((checked) ? false : true));
+							$(this).find('.select_row > input[type="checkbox"]').prop('checked', ((checked) ? false : true));
 							updateSelectedCounter();
 						});
 					} else {
@@ -2203,13 +2203,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								$(this).removeClass('current');
 								$dialogue_container.data('nodes', []);
 								if (hasChildSelector) {
-									$childSelector.find('input[type="checkbox"]').attr('checked', false);
+									$childSelector.find('input[type="checkbox"]').prop('checked', false);
 								}
 							} else {
-								$(this).addClass('current').siblings('.current').removeClass('current').find('input[type="checkbox"]').attr('checked', false);
+								$(this).addClass('current').siblings('.current').removeClass('current').find('input[type="checkbox"]').prop('checked', false);
 								$dialogue_container.data('nodes', [item]);
 								if (item.hasRelations && hasChildSelector) {
-									$childSelector.find('input[type="checkbox"]').attr('checked', true);
+									$childSelector.find('input[type="checkbox"]').prop('checked', true);
 									$dialogue_container.data('nodes')[0].include_children = true;
 								}
 							}

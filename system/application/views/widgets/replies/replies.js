@@ -143,7 +143,7 @@ function ajaxComment() {
 function popoutContent(title, content) {   // help from http://www.javascripter.net/faq/writingt.htm 
 	var basesheet = $('link[href*="content.css"]').attr('href');
 	var stylesheet = $('link[href*="minimal.css"], link[href*="denim.css"], link[href*="slate.css"]').attr('href');
-	var jquery = $('script[src*="jquery-1.12.4.min.js"]').attr('src');
+	var jquery = $('script[src*="jquery-2.2.4.min.js"]').attr('src');
 	var repliesjs = $('script[src*="replies.js"]').attr('src');
  	consoleRef=window.open('','myconsole',
   		'width=600,height=600'
