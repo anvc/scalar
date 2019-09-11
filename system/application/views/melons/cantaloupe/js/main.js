@@ -37,7 +37,7 @@ var ViewState = {
 var script_uri = '';
 $('script[src]').each(function() {  // Certain hotel wifi are injecting spam <script> tags into the page
   var $this = $(this);
-  if ($this.attr('src').indexOf('jquery-1.7.min.js') != -1) {
+  if ($this.attr('src').indexOf('jquery-1.12.4.min.js') != -1) {
     script_uri = $this.attr('src');
     return false;
   }
