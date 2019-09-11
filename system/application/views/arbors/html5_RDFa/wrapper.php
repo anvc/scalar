@@ -153,9 +153,10 @@ if (isset($page->version_index)) {
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-1.7.min.js')."\n"?>
+<script src="http://code.jquery.com/jquery-migrate-1.4.1.js"></script>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.3-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'js/html5shiv/dist/html5shiv.js')."\n" // Keep thus UNDER jQuery, etc., otherwise things go haywire?>
+<?=template_script_tag_relative(__FILE__, 'js/html5shiv.js')."\n" // Keep thus UNDER jQuery, etc., otherwise things go haywire?>
 <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
 <? if (!empty($_scripts)) echo $_scripts?>
 <?
@@ -205,7 +206,8 @@ endif;
 			<a class="metadata" rel="dcterms:references" href="<?=$base_uri.$book->versions[$j]->slug?>#index=<?=($j+1)?>"></a>
 <?	 		endfor;?>
 		</span>
-<?		for ($j = 0; $j < count($book->versions); $j++):
+<?  for ($j = 0; $j < count($book->versions); $j++):
+			if (empty($book->versions[$j]->content_id) || empty(@$page->content_id)) continue;
 			if ($book->versions[$j]->content_id == @$page->content_id) continue;
 ?>
 		<span aria-hidden="true" resource="<?=$base_uri.$book->versions[$j]->slug?>" typeof="scalar:<?=('media'==$book->versions[$j]->type)?'Media':'Composite'?>">
@@ -239,7 +241,7 @@ endif;
 				print_rdf($this->versions->rdf((object) $book->editions[$j], base_url().$book->slug.'.'.($j+1)), 3, $ns, array(), false, array(), array('dcterms:title'));
 				echo '		</span>'."\n";
 			endfor;
-		endif;	
+		endif;
 ?>
 <? if (isset($page) && !empty($page)): ?>
 		<!-- Page -->
@@ -249,7 +251,7 @@ endif;
 ?>		<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
 <?		print_rdf($this->versions->rdf((object) $tklabel), 3, $ns, array(), false, array(), array('dcterms:title')); ?>
 		</span>
-<?		
+<?
 			endforeach;
 		endif;
 ?>
@@ -270,7 +272,7 @@ endif;
 		<span resource="<?=$page->versions[$page->version_index]->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($page->versions[$page->version_index]->user, $base_uri), 3, $ns); ?>
 		</span>
-<?		
+<?
 		if (isset($page->versions[$page->version_index]->continue_to)):
 			echo '		<a aria-hidden="true" rel="scalar:continue_to" href="'.$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num.'"></a>'."\n";
 ?>
@@ -459,7 +461,7 @@ if (!empty($has_references)):
 ?>				<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
 <?				print_rdf($this->versions->rdf((object) $tklabel), 5, $ns, array(), false, array(), array('dcterms:title')); ?>
 				</span>
-<?		
+<?
 			endforeach;
 		endif;
 ?>
@@ -496,7 +498,7 @@ if (!empty($reference_of)):
 ?>				<span resource="<?=$tklabel['uri']?>" typeof="tk:TKLabel">
 <?				print_rdf($this->versions->rdf((object) $tklabel), 5, $ns, array(), false, array(), array('dcterms:title')); ?>
 				</span>
-<?		
+<?
 			endforeach;
 		endif;
 ?>
