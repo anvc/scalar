@@ -12,7 +12,7 @@ if (!empty($book->publisher_thumbnail)) {
 <link href="<?=$view_url?>melons/cantaloupe/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 <link href="<?=$view_url?>melons/cantaloupe/css/reset.css" rel="stylesheet" type="text/css">
 <link href="<?=$view_url?>melons/cantaloupe/css/common.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="<?=$view_url?>arbors/html5_RDFa/js/jquery-2.2.4.min.js"></script>
+<script type="text/javascript" src="<?=$view_url?>arbors/html5_RDFa/js/jquery-3.4.1.min.js"></script>
 <script type="text/javascript" src="<?=$view_url?>melons/cantaloupe/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://code.tinypass.com/tinypass.js"></script>
 <style>

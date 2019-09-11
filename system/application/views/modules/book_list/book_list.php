@@ -3,7 +3,7 @@
 <?$this->template->add_css('system/application/views/modules/cover/title.css')?>
 <?$this->template->add_css('system/application/views/modules/cover/login.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'book_list.css')?>
-<?$this->template->add_js('system/application/views/arbors/admin/jquery-2.2.4.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js')?>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <div class="system_wrapper">
 	<div class="content">

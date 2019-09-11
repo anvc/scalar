@@ -2548,7 +2548,7 @@
     }
   };
 
-  $.extend($.expr[':'], {
+  $.extend($.expr.pseudos, {
 
     about: function (a, i, m) {
       var j = $(a),

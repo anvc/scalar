@@ -1,7 +1,7 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_meta('viewport','width=device-width');?>
 <?$this->template->add_css('system/application/views/arbors/admin/admin.css')?>
-<?$this->template->add_js('system/application/views/arbors/admin/jquery-2.2.4.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js')?>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <div class="system_wrapper">
 <div class="content">
