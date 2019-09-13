@@ -54,6 +54,7 @@ table .p > td {padding-top:12px;}
 table .b > td:first-of-type {padding-top:10px;}
 div.p {padding-top:8px;}
 .content_selector .howto {font-size:16px !important;}
+#edit_content { overflow: hidden; }
 #edit_content td {padding-right:9px;} /* CKEditor extends to the right */
 #edit_content .cke_combo_text {width:18px !important;} /* Header pulldown */
 tr#select_view td, tr#relationships td, tr#styling td, tr#metadata td {vertical-align:top;}
