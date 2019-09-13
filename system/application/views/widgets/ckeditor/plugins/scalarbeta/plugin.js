@@ -32,7 +32,7 @@ CKEDITOR._scalarbeta = {
 
 		var deferred = jQuery.Deferred();
 		var promise = deferred.promise();
-		
+
 		var createPlaceholder = $.proxy(function(inLoader,deferred){
 			var element = this;
 			if(inLoader){
@@ -107,7 +107,7 @@ CKEDITOR._scalarbeta = {
         	createPlaceholder();
         }
 
-        return promise;		
+        return promise;
 	},
 	populatePlaceholderData : function(e,newPlaceholder){
 		var addContentOptions = function(placeholder){
@@ -221,14 +221,14 @@ CKEDITOR._scalarbeta = {
 			});
 		}
 
-		$placeholder.off('hover').hover(function(e){
+		$placeholder.off('mouseenter').off('mouseleave').on('mouseenter', function(e){
 			CKEDITOR._scalarbeta.$editorMenu.show().width($(this).width()).data({
 				link:$(this).data('link'),
 				placeholder:$(this)
 			});
 			CKEDITOR._scalarbeta.updateEditMenuPosition(editor);
 			window.clearTimeout(CKEDITOR._scalarbeta.editMenuTimeout);
-		},function(e){
+		}).on('mouseleave', function(e){
 			window.clearTimeout(CKEDITOR._scalarbeta.editMenuTimeout);
 			CKEDITOR._scalarbeta.editMenuTimeout = window.setTimeout(function(){
 				CKEDITOR._scalarbeta.$editorMenu.hide();
@@ -367,7 +367,7 @@ CKEDITOR._scalarbeta = {
 
 				var placeholder = $element.data('placeholder');
 				$element.data('placeholder',null);
-				
+
 				$.each(element.$.attributes,function(i,a){
 		        	if(typeof a != 'undefined' && a.name.substring(0,5) == 'data-'){
 		        		$element.removeAttr(a.name);
@@ -419,7 +419,7 @@ CKEDITOR._scalarbeta = {
 
 		var placeholder = $element.data('placeholder');
 		$element.data('placeholder',null);
-		
+
 		var contentOptionsCallback = $element.data('contentOptionsCallback');
 		var selectOptions = $element.data('selectOptions');
 		var element = selectOptions.element;
@@ -531,7 +531,7 @@ CKEDITOR._scalarbeta = {
 									    		break;
 							    			}
 							    		}
-							    		
+
 							    		if(!link){
 							    			console.log("Could not find matching link for placeholder:",placeholder);
 							    		}
@@ -597,7 +597,7 @@ CKEDITOR.plugins.add( 'scalarbeta', {
 	    var pluginDirectory = this.path;
 
 	    CKEDITOR._scalarbeta.editor.addContentsCss( pluginDirectory + 'styles/scalar.css' );
-	    
+
         CKEDITOR._scalarbeta.editor.addCommand( 'insertScalarKeyboard', {  // Keyboard
             exec: function( editor ) {
             	CKEDITOR._scalarbeta.editor = editor;
@@ -608,8 +608,8 @@ CKEDITOR.plugins.add( 'scalarbeta', {
 					left: (parseInt($(window).width()) - parseInt($keyboard.outerWidth()) - 20) + 'px'
 				});
             }
-        });	    
-	    
+        });
+
         CKEDITOR._scalarbeta.editor.addCommand( 'insertScalar1', {
             exec: function( editor ) {
             				CKEDITOR._scalarbeta.editor = editor;

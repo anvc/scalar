@@ -1426,7 +1426,7 @@
                                             if($(this).data('unloading')){
                                                 return false;
                                             }
-                                            $(this).find('.placeholder').off('hover');
+                                            $(this).find('.placeholder').off('mouseenter').off('mouseleave');
                                             $(this).prop('contenteditable',false);
                                             base.updatePlaceholders($(this));
                                             //Save the current watcher then unload it.

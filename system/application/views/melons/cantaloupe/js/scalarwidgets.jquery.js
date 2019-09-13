@@ -47,7 +47,7 @@
              base.currentNode = scalarapi.model.getCurrentPageNode();
              //60% of (page height minus header and H1 height)
              maxWidgetHeight = Math.floor((window.innerHeight-179)*.6);
-             $(window).resize(function(){
+             $(window).on('resize', function(){
                maxWidgetHeight = Math.floor((window.innerHeight-179)*.6);
              });
          };

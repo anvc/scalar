@@ -76,18 +76,18 @@
 		this.searchMetadata = this.modal.find('input[name="s_all"][value="1"]');
 		this.searchForm = this.modal.find('form');
 
-		this.searchForm.submit(function(event) {
+		this.searchForm.on('submit', function(event) {
 			event.preventDefault();
 			me.doSearch(me.searchField.val());
 		});
 
 		// upate main search field
-		this.searchField.keyup(function(event) {
+		this.searchField.on('keyup', function(event) {
 			$('#search').val($(this).val());
 		})
-		
+
 		// tabbing forward from close button brings focus to search field
-		this.modal.find( '.close' ).keydown( function(e) {
+		this.modal.find( '.close' ).on('keydown',  function(e) {
 			var keyCode = e.keyCode || e.which;
 			if( keyCode == 9 ) {
 				if( !e.shiftKey ) {
@@ -96,9 +96,9 @@
 			    }
 		    }
 		} );
-		
+
 		// tabbing backwards from search field link brings focus to close button
-		this.searchField.keydown( function(e) {
+		this.searchField.on('keydown',  function(e) {
 			var keyCode = e.keyCode || e.which;
 			if( keyCode == 9 ) {
 				if( e.shiftKey ) {

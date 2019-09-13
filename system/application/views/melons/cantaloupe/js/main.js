@@ -509,7 +509,7 @@ $(window).ready(function() {
 	}
 
 	// Trash button
-  	$('.hide_page_link').click(function() {
+  	$('.hide_page_link').on('click', function() {
   		var uri = document.location.href;
   		if (uri.indexOf('?')!=-1) uri = uri.substr(0, uri.indexOf('?'));
   		if (uri.indexOf('#')!=-1) uri = uri.substr(0, uri.indexOf('#'));
@@ -636,7 +636,7 @@ $(window).ready(function() {
 				if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
 
 				var timeout;
-				$( window ).resize( function() {
+				$( window ).on('resize',  function() {
 					clearTimeout( timeout );
 					timeout = setTimeout( handleDelayedResize, 300 );
 				});

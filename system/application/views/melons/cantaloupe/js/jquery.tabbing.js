@@ -24,7 +24,7 @@
  */
 $.fn.onTab = function(callback) {
   return this.each(function(i, el) {
-    $(el).keydown( function(e) {
+    $(el).on('keydown',  function(e) {
       var keyCode = e.keyCode || e.which;
       if( keyCode == 9 && !e.shiftKey ) {
         e.preventDefault();
@@ -35,7 +35,7 @@ $.fn.onTab = function(callback) {
 };
 $.fn.onTabBack = function(callback) {
   return this.each(function(i, el) {
-    $(el).keydown( function(e) {
+    $(el).on('keydown',  function(e) {
       var keyCode = e.keyCode || e.which;
       if( keyCode == 9 && e.shiftKey ) {
           e.preventDefault();

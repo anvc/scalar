@@ -2272,7 +2272,7 @@ function YouTubeGetID(url){
 				'data-original': url + '-' + this.model.id // needed to support annotorious if the same image appears on the page more than once
 			});
 
-			$(this.image).load(function() {
+			$(this.image).on('load', function() {
 				me.doImageSetup(this);
 			});
 
@@ -2286,11 +2286,7 @@ function YouTubeGetID(url){
 			this.parentView.removeLoadingMessage();
 
 			// Make visible
-			if ($.browser.msie) {
-				$(image).css('display','inline');
-			} else {
-				$(image).fadeIn();
-			}
+			$(image).hide().fadeIn();
 
 			if (this.annotations != null) {
 				this.setupAnnotations(this.annotations);
@@ -2857,7 +2853,7 @@ function YouTubeGetID(url){
 				this.image = new Image();
 
 				// setup actions to be taken on image load
-				$(this.image).load(function() {
+				$(this.image).on('load', function() {
 					var $this = $(this);
 					me.video.attr('poster', $this.attr('src'));
 				}).attr('src', thumbnailURL);

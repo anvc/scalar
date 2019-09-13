@@ -55,7 +55,7 @@
 
 								row.data('relation', relation);
 								row.data('media',mediaelement);
-								row.click(function( event ) {
+								row.on('click', function( event ) {
 									// only clicks on the background should cue up the annotation
 									if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
 										var relation = $(this).data('relation');
@@ -217,7 +217,7 @@
 
 					// when a tag button is clicked, toggle it on and all the others off,
 					// and show its content below
-					tagItem.click( function( event ) {
+					tagItem.on('click',  function( event ) {
 						event.preventDefault();
 						var me = $( this );
 						if ( me.hasClass( 'btn-primary' ) ) {
@@ -332,11 +332,11 @@
 					}
 				}
 				descriptionPane.append(description);
-				descriptionPane.find('a.citations-link').click( function() {
+				descriptionPane.find('a.citations-link').on('click',  function() {
 					media.options[ 'details' ].show( node );
 				} );
 				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
-				descriptionTab.click(function() {
+				descriptionTab.on('click', function() {
 					$(this).parent().parent().find('.pane').hide();
 					media.minimizeAnnotationPane();
 					descriptionPane.show();
@@ -372,7 +372,7 @@
 
 			if (annotations.length > 0) {
 				var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
-				annotationTab.click(function() {
+				annotationTab.on('click', function() {
 					$(this).parent().parent().find('.pane').hide();
 					annotationPane.show();
 					$(this).parent().find('.media_tab').removeClass('select');
@@ -390,7 +390,7 @@
 					row = $('<tr><td>'+annotation.startString+'</td><td><p>'+annotation.body.getDisplayTitle()+'</p></td></tr>').appendTo(table);
 					row.data('relation', annotation);
 					row.data('media',mediaelement);
-					row.click(function( event ) {
+					row.on('click', function( event ) {
 						// only clicks on the background should cue up the annotation
 						if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
 							var relation = $(this).data('relation');
@@ -418,7 +418,7 @@
 			if (media.options.caption != 'metadata') {
 				var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
 				var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
-				metadataTab.click(function() {
+				metadataTab.on('click', function() {
 					$(this).parent().parent().find('.pane').hide();
 					media.minimizeAnnotationPane();
 					metadataPane.show();
@@ -438,21 +438,21 @@
 
 			if ('undefined'==typeof(scalarMediaHideCitationsTab) || !scalarMediaHideCitationsTab) {
 				var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
-				detailsTab.click( function() {
+				detailsTab.on('click',  function() {
 					media.options[ 'details' ].show( node );
 				} );
 			}
 
 			if ('undefined'==typeof(scalarMediaHideSourceFileTab) || !scalarMediaHideSourceFileTab) {
 				var sourceTab = $( '<div class="media_tab">Source file</div>' ).appendTo( mediaTabs );
-				sourceTab.click( function() {
+				sourceTab.on('click',  function() {
 					window.open( node.current.sourceFile, 'popout' );
 				} );
 			}
 
 			if (media.options.shy) {
 				var wrapped_slot = mediaTabs.parents('.slot').hasClass('wrapped_slot');
-				mediaelement.model.element.mouseenter(function() {
+				mediaelement.model.element.on('mouseenter', function() {
 					var timeout = $(this).data('timeout');
 					if (timeout != null) {
 						clearTimeout(timeout);
@@ -475,7 +475,7 @@
 				mediaTabs.show();
 			}
 
-			mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
+			mediaelement.view.footer.find('.media_info').on('mouseenter', function(e) {
 				var position = $(e.currentTarget).parent().parent().parent().offset();
 				metadata.css({
 					'right': (parseInt($(window).width()) - position.left + 10)+'px',
@@ -484,14 +484,14 @@
 				metadata.fadeIn();
 			})
 
-			$('body').bind('show_annotation', media.showAnnotation);
+			$('body').on('show_annotation', media.showAnnotation);
 
-			$('body').bind('hide_annotation', media.hideAnnotation);
+			$('body').on('hide_annotation', media.hideAnnotation);
 
 			element.addClass('caption_font');
 			element.addClass('mediainfo');
 		  	$('.media_metadata').addClass('caption_font');
-		  	
+
 		  	$('body').trigger('scalarMediaReady', [mediaelement.view])
 		}
 
