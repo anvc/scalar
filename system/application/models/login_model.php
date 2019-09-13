@@ -69,13 +69,26 @@ class Login_model extends User_model {
 
     }
 
+	public function getUserIpAddr() {
+	    if(!empty($_SERVER['HTTP_CLIENT_IP'])){
+	        //ip from share internet
+	        $ip = $_SERVER['HTTP_CLIENT_IP'];
+	    }elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+	        //ip pass from proxy
+	        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	    }else{
+	        $ip = $_SERVER['REMOTE_ADDR'];
+	    }
+	    return $ip;
+	}
+
 	public function do_login($force=false) {
 
 		$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 		if ($force || $action == 'do_login') {
 
 			$email = trim($_POST['email']);
-			log_message('error', 'Scalar: Login attempt from '.$email.'.');
+			log_message('error', 'Scalar: Login attempt by '.$email.', from '.$this->getUserIpAddr().'.');
 			$password = trim($_POST['password']);
             $result = false;
 
