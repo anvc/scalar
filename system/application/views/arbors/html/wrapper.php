@@ -85,7 +85,7 @@ echo doctype('html5')."\n"
 <? endif ?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
-<?=template_script_tag_relative(__FILE__, 'jquery-1.7.min.js')."\n"?>
+<?=template_script_tag_relative(__FILE__, 'jquery-3.4.1.min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'common.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudsdk.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudapi.js')."\n"?>

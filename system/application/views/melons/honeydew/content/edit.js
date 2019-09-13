@@ -1,21 +1,21 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * @projectDescription		Provide interactions for the page editor
@@ -34,28 +34,28 @@ $(window).ready(function() {
     if ($.browser.msie) $('#ie_warning').show();
 
 	// If the type is passed via GET
-	checkTypeSelect();  
+	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
-		$("#type_text").removeAttr('checked'); 
-		$("#type_media").attr("checked", "checked"); 
+		$("#type_text").removeAttr('checked');
+		$("#type_media").attr("checked", "checked");
 		checkTypeSelect();
-	}	
-	
+	}
+
 	// Layout options
-	$('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});    
-    
+	$('#select_view td:nth-child(2)').select_view({data:views,default_value:$('link#default_view').attr('href')});
+
 	// Relationships (path, comment, annotation, tag)
 	$(document).on('click', '#relationships .remove a', function() {  // Delegated
 		if (!confirm('Are you sure you wish to remove this relationship?')) return;
 		$(this).closest('li').remove();
-	}); 	
+	});
 	if ($('#path_of').find('li').length) {
 		$('.path_of_msg').show();
 		$('.path_of_continue_msg').show();
 	}
 	var $path_of_continue_msg = $('.path_of_continue_msg');
 	$path_of_continue_msg.find('a:first').click(function() {
-		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){	
+		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
 			var title = node.version["http://purl.org/dc/terms/title"][0].value;
@@ -65,7 +65,7 @@ $(window).ready(function() {
 	});
 	$path_of_continue_msg.find('a:last').click(function() {
 		$path_of_continue_msg.find('input[name="scalar:continue_to_content_id"]').val('');
-		$path_of_continue_msg.find('.title').html('none');		
+		$path_of_continue_msg.find('.title').html('none');
 	});
 	$('.path_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
@@ -92,10 +92,10 @@ $(window).ready(function() {
 				$('.reply_of_msg').show();
 			}
 		}});
-	});	
+	});
 	if ($('#annotation_of').find('li').length) {
 		$('.annotation_of_msg').show();
-	}	
+	}
 	$('.annotation_of_msg').find('a').click(function() {
 		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
@@ -104,7 +104,7 @@ $(window).ready(function() {
 				var url = nodes[j].version["http://simile.mit.edu/2003/10/ontologies/artstor#url"][0].value;
 				var annotation_type = scalarapi.parseMediaSource(url).contentType;
 				var $annotation = $('<li><input type="hidden" name="annotation_of" value="'+urn+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
-				switch (annotation_type) { 
+				switch (annotation_type) {
 					case "audio":
 					case "video":
 						var str = 'Start seconds: <input type="text" style="width:75px;" name="annotation_of_start_seconds" value="" />';
@@ -118,30 +118,30 @@ $(window).ready(function() {
 					case "text":
 					case "document":
 						var str = 'Start line #: <input type="text" style="width:75px;" name="annotation_of_start_line_num" value="" />';
-						str += '&nbsp; End line #: <input type="text" style="width:75px;" name="annotation_of_end_line_num" value="" />';	
+						str += '&nbsp; End line #: <input type="text" style="width:75px;" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
-						str += '<input type="hidden" name="annotation_of_points" value="" />';	
+						str += '<input type="hidden" name="annotation_of_points" value="" />';
 						$annotation.append('<div>'+str+'</div>');
 						break;
 					case "image":
-						var str = 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="annotation_of_points" value="0,0,0,0" />';	
+						var str = 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="annotation_of_points" value="0,0,0,0" />';
 						str += '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
-						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';	
+						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 						$annotation.append('<div>'+str+'</div>');
 						break;
 					default:
 						alert('A selected media ('+title+') is of a type not presently supported for annotation.');
-						return false;						
+						return false;
 				}
 				$('.annotation_of_msg:first').html('<b>This <span class="content_type">page</span> is also a annotation</b> which annotates:');
 				$('.annotation_of_msg').show();
 			}
 		}});
-	});	
+	});
 	if ($('#tag_of').find('li').length) {
 		$('.tag_of_msg').show();
 	}
@@ -158,7 +158,7 @@ $(window).ready(function() {
 	});
 	if ($('#has_tag').find('li').length) {
 		$('.has_tag_msg').show();
-	}	
+	}
 	$('.has_tag_msg').find('a').click(function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
@@ -201,7 +201,7 @@ $(window).ready(function() {
 				});
 			}
 		}
-	});	
+	});
 	// Taxonomies for title typeahead
 	var fcroot = document.getElementById("approot").href.replace('/system/application/','');
 	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
@@ -232,7 +232,7 @@ $(window).ready(function() {
 		})
 		$('#title').autocomplete({source:suggestions});
 	});
-	
+
 	// Additional metadata
 	$('#metadata_rows').nextAll('.add_additional_metadata:first').click(function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
@@ -251,7 +251,7 @@ $(window).ready(function() {
 		var image_metadata_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/image_metadata';
 		$('#metadata_rows').find_and_add_exif_metadata({parser_url:image_metadata_url,url:url,button:this});
 	});
-	
+
 	// WYSIWYG
 	var can_use_wysiwyg = (isIOS()) ? false : true;
 	editor_wysiwyg = null;
@@ -259,11 +259,11 @@ $(window).ready(function() {
 		if ($.isFunction($.fn.wysiwyg)) {
 			var w_opts = {css:$('link#approot').attr('href')+'views/widgets/wysiwyg/wysiwyg.css'};
 			editor_wysiwyg = $('.wysiwyg').wysiwyg(w_opts); // global
-		}		
+		}
 	} else {
 		$('.wysiwyg_options').html('<div class="error">Scalar does not currently support the full range of editing and linking features on your device.</div>');
 	}
-	
+
 	// Thumbnail
 	var $choose_thumb = $('#choose_thumbnail');
 	var $thumbnail = $('input[name="scalar:thumbnail"]');
@@ -273,13 +273,13 @@ $(window).ready(function() {
 	$choose_thumb.change(function() {
 		$thumbnail.val($(this).find('option:selected').val());
 		$(this).parent().find('.thumb_preview').remove();
-		$(this).parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');		
+		$(this).parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');
 	});
 	$thumbnail.change(function() {
 		$(this).parent().find('.thumb_preview').remove();
 		$(this).parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');
 	});
-	
+
 	// Color Picker (in editor)
 	if ($.isFunction($.fn.spectrum)) {
 		var $color_select = $('#color_select');
@@ -287,18 +287,18 @@ $(window).ready(function() {
 		$color_select.spectrum({
 	        color: color
 	    });
-	}	
-	
+	}
+
 	// Protect links from moving away from the edit page
 	$('a').not('form a').click(function() {
 		if (!confirm('Are you sure you wish to leave this page? Any unsaved changes will be lost.')) {
 			return false;
 		}
 	});
-	
-	// Sortable lists    
-	$(".sortable").sortable(); 	
-	
+
+	// Sortable lists
+	$(".sortable").sortable();
+
 	// Hide certain zones (e.g., style, metadata, etc)
 	$('#other .edit_page_arrow, #add_meta .edit_page_arrow, #styling .edit_page_arrow').toggle_zone().click(function() {
 		$(this).toggle_zone();
@@ -329,7 +329,7 @@ function checkTypeSelect() {
  */
 
 (function($){
-    $.fn.extend({ 
+    $.fn.extend({
         toggle_zone: function() {
             return this.each(function() {
             	var $arrow = $(this);
@@ -343,10 +343,10 @@ function checkTypeSelect() {
             	$parent.children(':nth-child(2)').toggle();
             });
         }
-    });  
+    });
 })(jQuery);
 
-/** 
+/**
  * Escape the last URI segment (the filename)
  */
 
@@ -381,10 +381,10 @@ function dash_to_space(str) {
  * Lazy load the book's content via the API to make available for the content selector box
  */
 
-function load_content(content_type, $div, $list, _insert_func, default_type, only_default_type, select_single) {               
-	
+function load_content(content_type, $div, $list, _insert_func, default_type, only_default_type, select_single) {
+
 	$('.content_loading').fadeIn('fast');
-	
+
 	var debth_chart = {
 	        		'page':0,
 	        		'media':0,
@@ -392,12 +392,12 @@ function load_content(content_type, $div, $list, _insert_func, default_type, onl
 	        		'tag':1,
 	        		'annotation':1,
 	        		'reply':1
-					  };	
-	
+					  };
+
 	scalarapi.loadPagesByType(content_type, true, function() {
 		listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single);
 		$('.content_loading').hide();
-	}, null, debth_chart[content_type]);	
+	}, null, debth_chart[content_type]);
 
 }
 
@@ -406,16 +406,16 @@ function load_content(content_type, $div, $list, _insert_func, default_type, onl
  */
 
 function search_for_content(sq, $div, $list, _insert_func, default_type, only_default_type, select_single) {
-		
+
 	$('.content_loading').fadeIn('fast');
-	
+
 	scalarapi.nodeSearch(sq, function() {
-		content_array_complete_types = ['page','media','path','tag','annotation','reply']; // global	
-		content_array_complete = true; // global		
+		content_array_complete_types = ['page','media','path','tag','annotation','reply']; // global
+		content_array_complete = true; // global
 		listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single);
 		$('.content_loading').hide();
-	});	
-	
+	});
+
 }
 
 /**
@@ -447,7 +447,7 @@ function validate_form($form, ignoreViewCheck) {
 		if (slug.length==0) {
 			alert('Page URL is a required field.  Please enter a URL segment in the Metadata tab at the bottom of the page.');
 			return false;
-		}	
+		}
 	}
 	if (!ignoreViewCheck) {
 		// If default view is 'plain', send warning if media has been linked in the WYSIWYG
@@ -462,9 +462,9 @@ function validate_form($form, ignoreViewCheck) {
 				});
 			} catch(e) {
 	    	    if (!confirm(confirm_default_view_msg)) return false;
-	    	}	
+	    	}
 		}
-	
+
 		// If no media has been linked, send warning (ie, media-emphasis view)
 		var media_views = ['text','media','split','par','revpar'];
 		if (media_views.indexOf(default_view_value)!=-1) {
@@ -472,7 +472,7 @@ function validate_form($form, ignoreViewCheck) {
 			var textarea_content = $('#edit_content textarea:first').val();
 			if (!$('<div>'+textarea_content+'</div>').find('a:not(.inline)').length) {
 				if (!confirm(confirm_default_view_msg)) return false;
-			}	
+			}
 		}
 	}
 	// Commit color
@@ -524,7 +524,7 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 		var content_type = $(this).val();
 		load_content(content_type, $div, $list, _insert_func, default_type, only_default_type, select_single);
 	});
-	$div.append($filters);	
+	$div.append($filters);
 	listeditor_filter_reset($div);
 	// Content wrapper (for overflow)
 	var $content_wrapper = $('<div class="content_wrapper"><br />Select a content type or search above</div>');
@@ -534,7 +534,7 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	var $link = $('<a href="javascript:;" class="generic_button large">Cancel</a>');
 	$link.click(function() {
 		$(this).parent().parent().remove();
-	});	
+	});
 	$add_options.append($link);
 	if (!select_single) {
 		var $add_selected = $('<a class="generic_button large default" style="margin-left:5px;" href="javascript:;">Add selected</a>');
@@ -551,48 +551,48 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 		$new.find('a:last').click(function() {
 			listeditor_createnew($list, insert_func);
 			return false;
-		});		
+		});
 		$new.find('a:first').toggle_zone().click(function() {
 			$(this).toggle_zone();
 			listeditor_position($content_wrapper, $div);
 		});
 	}
 	// Reposition box
-	listeditor_position($content_wrapper, $div);	
+	listeditor_position($content_wrapper, $div);
 	// Invoke a radio button if appropriate
 	if (default_type) {
-		$filters.find('input[value="'+default_type+'"]').attr('checked',true);
+		$filters.find('input[value="'+default_type+'"]').prop('checked',true);
 		if (only_default_type) $filters.find(':not(input[value="'+default_type+'"])').attr('disabled',true);
 		load_content(default_type, $div, $list, _insert_func, default_type, only_default_type, select_single);
-	}	
+	}
 
 }
 
 function listeditor_position($content_wrapper, $div) {
-	
+
 	if ('undefined'!=typeof($content_wrapper)&&$content_wrapper) {
 		var vert_margin = 140; // Magic number
 		$div.children().not('.'+$content_wrapper.attr('class')).each(function() {
 			vert_margin = vert_margin + parseInt($(this).outerHeight());
-		});		
-		$content_wrapper.height( parseInt($(window).height())-vert_margin ); 	
+		});
+		$content_wrapper.height( parseInt($(window).height())-vert_margin );
 	}
 	$div.css('top', (parseInt($(window).height())/2 - $div.innerHeight()/2 + $(window).scrollTop()) );
-	$div.css('left', (parseInt($(window).width())/2 - $div.innerWidth()/2) );	
-	
+	$div.css('left', (parseInt($(window).width())/2 - $div.innerWidth()/2) );
+
 }
 
 function listeditor_filter_reset($div) {
-	
-	var $filters = $div.find('.filters');	
+
+	var $filters = $div.find('.filters');
 	$filters.find('input').attr("checked", false);
 	scalarapi.model.removeNodes();
-	
+
 }
 
-function listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single) {		
-	
-	listeditor_fill_table($div, $list, _insert_func, default_type, only_default_type, select_single);	
+function listeditor_filter_options($div, $list, _insert_func, default_type, only_default_type, select_single) {
+
+	listeditor_fill_table($div, $list, _insert_func, default_type, only_default_type, select_single);
 
 }
 
@@ -609,7 +609,7 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 	// Table to contain the content
 	$div.find('.content_wrapper').empty();
 	var $table = $('<table class="content" cellspacing="0" cellpadding="0"><thead><tr class="head">'+((!select_single)?'<th>&nbsp;</th>':'')+'<th>Title</th><th>Description</th><th>&nbsp;</th></tr></thead><tbody></tbody></table>');
-	$div.find('.content_wrapper').append($table);	
+	$div.find('.content_wrapper').append($table);
 	// Propogate table
 	for (j = 0; j < nodes.length; j++) {
 		var type = nodes[j].getDominantScalarType().id;
@@ -622,11 +622,11 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 		$tr.append('<td class="title_col">'+((nodes[j].getDisplayTitle())?nodes[j].getDisplayTitle():nodes[j].url.substr(parent.length))+'</td>');
 		$tr.append('<td class="descr desc_col collapse_expand">'+((nodes[j].current.description)?nodes[j].current.description:'(No description)')+'</td>');
 		$tr.append('<td class="preview_col"><a class="generic_button preview_button" href="'+nodes[j].url+'" style="white-space:nowrap;">Preview</a></td>');
-	}	
+	}
 	// Sort table
 	$div.find('table:first').tablesorter({
 		sortList: [[0,0],[1,0]]
-	});	
+	});
 	// Add events
 	$div.find('#search_count').html('Found '+$table.find('tr').length+'&nbsp;');
 	$table.find('.preview_button').click(function(e) {
@@ -643,14 +643,14 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 		if (select_single) {
 			listeditor_save($list, _insert_func, $tr, select_single);
 		} else {
-			var is_checked = $tr.find("input[type='checkbox']:first").attr('checked') ? true : false;
-			$tr.find("input[type='checkbox']:first").attr('checked', !is_checked);
+			var is_checked = $tr.find("input[type='checkbox']:first").prop('checked') ? true : false;
+			$tr.find("input[type='checkbox']:first").prop('checked', !is_checked);
 		}
 	});
 	$table.find('.collapse_expand').each(function() {
 		var $this = $(this);
-		var maxlen = 60; 
-		if ($this.html().length > maxlen) { 
+		var maxlen = 60;
+		if ($this.html().length > maxlen) {
 			var $expanded = $('<span class="expand" style="display:none;">'+$this.html()+' &nbsp;<a class="toggle_collapse_expand" href="javascript:void(null);">&lt;&lt;</a></span>');
 			var $collapsed = $('<span class="expand">'+$this.html().substr(0, maxlen)+' ... <a class="toggle_collapse_expand" href="javascript:void(null);">&gt;&gt;</a></span>');
 			$this.empty();
@@ -664,7 +664,7 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 		}
 	});
 
-} 
+}
 
 function listeditor_search(sq) {
 	var count = 0;
@@ -681,9 +681,9 @@ function listeditor_search(sq) {
 		});
 		if (show) {
 			$row.show();
-			count++;			
+			count++;
 		}
-	});	
+	});
 	$('#search_count').html('Found '+count+'&nbsp;<span class="clear_link"><a href="javascript:;">clear search</a></span>');
 	$('#search_count').find('.clear_link').click(function() {
 		var count = 0;
@@ -693,17 +693,17 @@ function listeditor_search(sq) {
 			if ($row.hasClass('filtered')) return;
 			$row.show();
 			count++;
-		});	
-		$('#search_count').html('Found '+count+'&nbsp;');		
+		});
+		$('#search_count').html('Found '+count+'&nbsp;');
 	});
 }
 
 function listeditor_save($list, insert_func, $row, select_single) {
 	// Multiple items selected
-	if ('undefined'==typeof($row)) { 
+	if ('undefined'==typeof($row)) {
 		$(".content_wrapper tr input[type='checkbox']:checked").each(function() {
 			var $row = $(this).closest('tr');
-			listeditor_commit_save($list, insert_func, $row.data('node'));	
+			listeditor_commit_save($list, insert_func, $row.data('node'));
 		});
 	// Single item selected
 	} else {
@@ -762,10 +762,10 @@ function listeditor_commit_save($list, insert_func, node, data_fields) {
 		if (!insert_func($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields)) return;
 	} else {
 		if (!window[insert_func]($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields)) return;
-	}		
+	}
 }
 
-function listeditor_createnew($list, insert_func) { 
+function listeditor_createnew($list, insert_func) {
 	var $wrapper = $('#listeditor_editbox .create_new');
 	var to_send = {};
 	// Form fields
@@ -777,19 +777,19 @@ function listeditor_createnew($list, insert_func) {
 	to_send['dcterms:description'] = desc;
 	var content = $wrapper.find('.new_content').val();
 	if (content == 'New page content') content = '';
-	to_send['sioc:content'] = content;	
+	to_send['sioc:content'] = content;
 	// API fields
 	var user_id = $('#edit_form').find('input[name="id"]').val();
 	var book_urn = $('#edit_form').find('input[name="urn:scalar:book"]').val();
-	to_send['action'] = 'add';	
+	to_send['action'] = 'add';
 	to_send['rdf:type'] = 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
-	to_send['native'] = 1;	
-	to_send['id'] = user_id;		
-	to_send['scalar:urn'] = '';	
-	to_send['api_key'] = '';	
-	to_send['scalar:child_urn'] = book_urn;	
-	to_send['scalar:child_type'] = 'http://scalar.usc.edu/2012/01/scalar-ns#Book';	
-	to_send['scalar:child_rel'] = 'page';		
+	to_send['native'] = 1;
+	to_send['id'] = user_id;
+	to_send['scalar:urn'] = '';
+	to_send['api_key'] = '';
+	to_send['scalar:child_urn'] = book_urn;
+	to_send['scalar:child_type'] = 'http://scalar.usc.edu/2012/01/scalar-ns#Book';
+	to_send['scalar:child_rel'] = 'page';
 	// Save
 	var success = function(version) {
 		var parent = $('link#parent').attr('href');
@@ -854,7 +854,7 @@ function add_annotation_of_item($list, title, scalar_url, source_url, content_ur
 	str += '<input type="hidden" name="annotation_of" value="'+version_urn+'" />';
 	str += title+'<br />';
 	// Important to put in hidden inputs for the 'other' annotation types for each to maintain array indexes for when there is more than one annotation present
-	switch (annotation_type) { 
+	switch (annotation_type) {
 		case "audio":
 		case "video":
 			str += 'Start seconds: <input type="text" style="width:75px;" name="annotation_of_start_seconds" value="" />';
@@ -867,22 +867,22 @@ function add_annotation_of_item($list, title, scalar_url, source_url, content_ur
 		case "text":
 		case "document":
 			str += 'Start line #: <input type="text" style="width:75px;" name="annotation_of_start_line_num" value="" />';
-			str += '&nbsp; End line #: <input type="text" style="width:75px;" name="annotation_of_end_line_num" value="" />';	
+			str += '&nbsp; End line #: <input type="text" style="width:75px;" name="annotation_of_end_line_num" value="" />';
 			str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 			str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
-			str += '<input type="hidden" name="annotation_of_points" value="" />';			
+			str += '<input type="hidden" name="annotation_of_points" value="" />';
 			break;
 		case "image":
-			str += 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="annotation_of_points" value="0,0,0,0" />';	
+			str += 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="annotation_of_points" value="0,0,0,0" />';
 			str += '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 			str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
 			str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
-			str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';	
+			str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 			str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 			break;
 		default:
 			alert('One or more selected media are of a type not presently supported for annotation.');
-			return false;						
+			return false;
 	}
 	str += '&nbsp; <span class="remove">(<a href="javascript:;" onclick="if (confirm(\'Are you sure you wish to remove this relationship?\')) $(this).closest(\'li\').remove();">remove</a>)</span>';
 	str += '</li>';
@@ -903,7 +903,7 @@ function add_has_tag_item($list, title, scalar_url, source_url, content_urn, ver
 	$list.append($li);
 	$list.parent().find('#has_tag_msg').html('<b>This <span class="content_type">page</span> is tagged by</b> the following tags:');
 	$list.parent().find('#has_tag_add_content').show();
-	return true;	
+	return true;
 }
 
 function add_tag_of_item($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url) {
@@ -931,24 +931,24 @@ function add_continue_to($list, title, scalar_url, source_url, content_urn, vers
 /**
  * Functions called from the main page to add/remove content
  */
- 
+
  function clear_continue_to() {
- 
+
 	var $div = $('#path_continue_to');
 	$div.find('input:first').val(0);
 	$div.find('span:first').html('none');
 	$div.find('a').blur();
-		
+
 }
 
 function add_meta_row(predicate) {
 
 	$meta_table = $('#metadata_rows');
-	
+
 	var $tr = $('<tr class="'+predicate+'"></tr>');
 	$tr.append('<td class="field">'+predicate+'</td>');
 	$tr.append('<td class="value"><input type="text" name="'+predicate+'" class="input_text" value="" /></td>');
-	
+
 	if ($meta_table.find("tr[class='"+predicate+"']").length > 0) {
 		$meta_table.find("tr[class='"+predicate+"']:last").after($tr);
 	} else {

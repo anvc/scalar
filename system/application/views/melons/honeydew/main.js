@@ -29,7 +29,7 @@
 var script_uri = '';
 var scripts = document.getElementsByTagName("script");
 for (var j = 0; j < scripts.length; j++) {  // Certain hotel wifi are injecting spam <script> tags into the page
-	if (scripts[j].src.indexOf('jquery-1.7.min.js') != -1) {
+	if (scripts[j].src.indexOf('jquery-3.4.1.min.js') != -1) {
 		script_uri = scripts[j].src;
 		break;
 	}
