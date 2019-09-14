@@ -2285,6 +2285,14 @@ function YouTubeGetID(url){
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
 
+			// Test for 360 image
+			// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
+			// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
+			if (2 == this.parentView.intrinsicDim.x / this.parentView.intrinsicDim.y) {
+				console.log('Is 360 image');
+				// TODO: switch to 360ObjectView
+			}
+			
 			// Make visible
 			$(image).hide().fadeIn();
 

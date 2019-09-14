@@ -487,6 +487,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     $(this).addClass('open').trigger('show.bs.dropdown');
                 }
             }).on('mouseleave', function(e){
+            	// TODO: this is the area that is causing Win10 touch problems ~Craig
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
                     $(this).removeClass('open').trigger('hide.bs.dropdown');
