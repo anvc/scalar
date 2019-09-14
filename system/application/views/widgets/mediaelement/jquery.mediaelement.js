@@ -2289,8 +2289,10 @@ function YouTubeGetID(url){
 			// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
 			// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
 			if (2 == this.parentView.intrinsicDim.x / this.parentView.intrinsicDim.y) {
-				console.log('Is 360 image');
-				// TODO: switch to 360ObjectView
+				this.parentView.mediaContainer.empty();
+				this.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
+				this.parentView.mediaObjectView.createObject();
+				return;
 			}
 			
 			// Make visible
@@ -2455,8 +2457,83 @@ function YouTubeGetID(url){
 		}
 
 
-	}
+	} // !image
 
+	/**
+	 * View for 360 images and video, using Google's vrview.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.I360ObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.hasLoaded = false;					// has the image loaded?
+		this.annotations = null;				// vrview hotspots
+		this.annotatedImage = null;				// hotspotted image object
+
+		/**
+		 * Creates the 360 media object.
+		 */
+ 		jQuery.I360ObjectView.prototype.createObject = function() {
+
+			this.wrapper = $('<div class="mediaObject" id="vrview"></div>');
+			this.wrapper.height(300);  // TODO: How do other media types determine a static height?
+			$(this.wrapper).appendTo(this.parentView.mediaContainer);
+
+			var url = this.model.path;
+			var path = $('link#approot').attr('href')+'views/widgets/vrview/build/';
+			var obj = {
+					image: url,
+					script_path: path
+				};
+		    $.getScript( path+'vrview.js' , function() {
+		    	vrView = new VRView.Player('#vrview', obj);  // Global
+		    	$('#vrview').find('iframe').css('width','100%').css('height','100%');
+		    });
+
+    	}
+
+		// These functions are basically irrelevant for images
+		jQuery.I360ObjectView.prototype.play = function() { }
+		jQuery.I360ObjectView.prototype.pause = function() { }
+		jQuery.I360ObjectView.prototype.seek = function(time) { }
+		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; } // we depend on images returning true here to handle annotation cueing
+
+		/**
+		 * Resizes the image to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the image.
+		 * @param {Number} height		The new height of the image.
+		 */
+		jQuery.I360ObjectView.prototype.resize = function(width, height) {
+			console.log('RESIZE');
+			if ((this.model.containerLayout == 'horizontal') && (this.model.options.width != null)) {
+				/*if ((width < this.model.options.width) && (width > (1040 - 144))) {
+					var scaleFactor = (1040 - 144) / width;
+					width *= scaleFactor;
+					height *= scaleFactor;
+				}*/
+
+			}
+			$(this.image).parent().width(width+'px');
+			$(this.image).parent().height(height+'px');
+			if (this.hasLoaded) {
+				$(this.image).closest( '.mediaObject' ).width( '' );
+				$(this.image).closest( '.mediaObject' ).height( '' );
+				$(this.image).width(width+'px');
+				$(this.image).height(height+'px');
+			}
+		}
+
+
+	}  // !360	
+	
 	/**
 	 * View for the QuickTime player.
 	 * @constructor
