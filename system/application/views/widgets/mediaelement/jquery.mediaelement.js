@@ -2478,12 +2478,14 @@ function YouTubeGetID(url){
 		 * Creates the 360 media object.
 		 */
  		jQuery.I360ObjectView.prototype.createObject = function() {
- 			
+ 			this.hasLoaded = true;
+			//this.parentView.intrinsicDim.x = 6000;
+			//this.parentView.intrinsicDim.y = 3000;
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
 			
  			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
-			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'"></div>');
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'" style="width:100%;height:100%;"></div>');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
 
 			var url = this.model.path;
@@ -2508,14 +2510,14 @@ function YouTubeGetID(url){
 		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
 
 		/**
-		 * Resizes the vrview wrapper (mediaObject) to the specified dimensions.
+		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
 		 *
-		 * @param {Number} width		The new width of the image.
-		 * @param {Number} height		The new height of the image.
+		 * @param {Number} width		The new width of the area.
+		 * @param {Number} height		The new height of the area.
 		 */
 		jQuery.I360ObjectView.prototype.resize = function(width, height) {
-			$(this.wrapper).parent().width(width+'px');
-			$(this.wrapper).parent().height(height+'px');
+			$(me.parentView.mediaContainer).width(width+'px');
+			$(me.parentView.mediaContainer).height(height+'px');
 		}		
 		
 	}  // !360	
