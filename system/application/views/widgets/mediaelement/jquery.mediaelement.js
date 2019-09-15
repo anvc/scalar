@@ -2273,6 +2273,14 @@ function YouTubeGetID(url){
 			});
 
 			$(this.image).on('load', function() {
+				// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
+				// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
+				if (2 == this.width / this.height) {  // Test for 360 image
+					me.parentView.mediaContainer.empty();
+					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
+					me.parentView.mediaObjectView.createObject();
+					return;
+				}
 				me.doImageSetup(this);
 			});
 
@@ -2285,16 +2293,6 @@ function YouTubeGetID(url){
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
 
-			// Test for 360 image
-			// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
-			// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
-			if (2 == this.parentView.intrinsicDim.x / this.parentView.intrinsicDim.y) {
-				this.parentView.mediaContainer.empty();
-				this.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
-				this.parentView.mediaObjectView.createObject();
-				return;
-			}
-			
 			// Make visible
 			$(image).hide().fadeIn();
 
@@ -2480,58 +2478,46 @@ function YouTubeGetID(url){
 		 * Creates the 360 media object.
 		 */
  		jQuery.I360ObjectView.prototype.createObject = function() {
-
-			this.wrapper = $('<div class="mediaObject" id="vrview"></div>');
-			this.wrapper.height(300);  // TODO: How do other media types determine a static height?
+ 			
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+			
+ 			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'"></div>');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
 
 			var url = this.model.path;
 			var path = $('link#approot').attr('href')+'views/widgets/vrview/build/';
 			var obj = {
-					image: url,
-					script_path: path
-				};
+				image: url,
+				script_path: path
+			};
 		    $.getScript( path+'vrview.js' , function() {
-		    	vrView = new VRView.Player('#vrview', obj);  // Global
-		    	$('#vrview').find('iframe').css('width','100%').css('height','100%');
+		    	vrView = new VRView.Player('#vrview_'+vrviews, obj);  // Global
+		    	$('#vrview_'+vrviews).find('iframe').css('width','100%').css('height','100%');
+			    vrviews++;
 		    });
-
+		    
     	}
 
-		// These functions are basically irrelevant for images
+		// TODO: vrview has an API for these for videos
 		jQuery.I360ObjectView.prototype.play = function() { }
 		jQuery.I360ObjectView.prototype.pause = function() { }
 		jQuery.I360ObjectView.prototype.seek = function(time) { }
 		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
-		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; } // we depend on images returning true here to handle annotation cueing
+		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
 
 		/**
-		 * Resizes the image to the specified dimensions.
+		 * Resizes the vrview wrapper (mediaObject) to the specified dimensions.
 		 *
 		 * @param {Number} width		The new width of the image.
 		 * @param {Number} height		The new height of the image.
 		 */
 		jQuery.I360ObjectView.prototype.resize = function(width, height) {
-			console.log('RESIZE');
-			if ((this.model.containerLayout == 'horizontal') && (this.model.options.width != null)) {
-				/*if ((width < this.model.options.width) && (width > (1040 - 144))) {
-					var scaleFactor = (1040 - 144) / width;
-					width *= scaleFactor;
-					height *= scaleFactor;
-				}*/
-
-			}
-			$(this.image).parent().width(width+'px');
-			$(this.image).parent().height(height+'px');
-			if (this.hasLoaded) {
-				$(this.image).closest( '.mediaObject' ).width( '' );
-				$(this.image).closest( '.mediaObject' ).height( '' );
-				$(this.image).width(width+'px');
-				$(this.image).height(height+'px');
-			}
-		}
-
-
+			$(this.wrapper).parent().width(width+'px');
+			$(this.wrapper).parent().height(height+'px');
+		}		
+		
 	}  // !360	
 	
 	/**
