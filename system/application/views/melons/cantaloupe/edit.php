@@ -381,10 +381,10 @@ $(document).ready(function() {
 		if (chosen_banner.length) {
 			if ((chosen_banner.indexOf('://') == -1) && (chosen_banner != '')) { chosen_banner = $('link[id="parent"]').attr('href') + chosen_banner; }
 			$(this).parent().parent().append('<div class="well"><img src="'+chosen_banner+'" class="thumb_preview" /></div>');
-			$(this).parent().parent().find('.thumb_preview').load(function() {
+			$(this).parent().parent().find('.thumb_preview').on('load', function() {
 				// ...
-			}).error(function() {
-				$(this).replaceWith('<span>Item is a MP4 video, now experimentally supported as a Key Image. The video might not play as expected across all platforms.</span>');
+			}).on('error', function() {
+				$(this).replaceWith('<span>Item is an MP4 video, now experimentally supported as a Key Image. The video might not play as expected across all platforms.</span>');
 			});
 		};
 	});
@@ -445,7 +445,7 @@ $(document).ready(function() {
 	// Slug
 	var $slug = $('[name="scalar:slug"]');
 	if ($slug.val().length) {
-		$slug.data('orig',$slug.val()).keydown(function() {
+		$slug.data('orig',$slug.val()).on('keydown', function() {
 			var $this = $(this);
 			if ($this.data('confirmed')) return true;
 			if ($this.data('is_open')) return true;

@@ -595,7 +595,7 @@
                                 '<a href="javascript:;" >' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
-                        item.find('a').data('node', node).click(function() {
+                        item.find('a').data('node', node).on('click', function() {
                           if ($('.media_details').css('display') == 'none') {
                               page.mediaDetails.show($(this).data('node'));
                           }
@@ -625,7 +625,7 @@
        							'</a>' );
 
                   $carousel.carousel( { interval: false } );
-                  $carousel.find('.carousel-control').click(function(e){
+                  $carousel.find('.carousel-control').on('click', function(e){
                     e.stopPropagation();
                     e.preventDefault();
                     $carousel = $(this).parents('.carousel');
@@ -1029,7 +1029,7 @@
             //$(window).on('resize',$.proxy(function(){widgets.calculateSize($(this));},$widget));
             base.calculateSize($widget);
 
-            $widget.click(function(){
+            $widget.on('click', function(){
 
               var scroll_buffer = 100;
               var scroll_time = 750;
