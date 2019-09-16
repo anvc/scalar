@@ -2273,6 +2273,14 @@ function YouTubeGetID(url){
 			});
 
 			$(this.image).on('load', function() {
+				// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
+				// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
+				if (2 == this.width / this.height) {  // Test for 360 image
+					me.parentView.mediaContainer.empty();
+					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
+					me.parentView.mediaObjectView.createObject();
+					return;
+				}
 				me.doImageSetup(this);
 			});
 
@@ -2447,8 +2455,73 @@ function YouTubeGetID(url){
 		}
 
 
-	}
+	} // !image
 
+	/**
+	 * View for 360 images and video, using Google's vrview.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.I360ObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.hasLoaded = false;					// has the image loaded?
+		this.annotations = null;				// vrview hotspots
+		this.annotatedImage = null;				// hotspotted image object
+
+		/**
+		 * Creates the 360 media object.
+		 */
+ 		jQuery.I360ObjectView.prototype.createObject = function() {
+ 			this.hasLoaded = true;
+			//this.parentView.intrinsicDim.x = 6000;
+			//this.parentView.intrinsicDim.y = 3000;
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+			
+ 			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'" style="width:100%;height:100%;"></div>');
+			$(this.wrapper).appendTo(this.parentView.mediaContainer);
+
+			var url = this.model.path;
+			var path = $('link#approot').attr('href')+'views/widgets/vrview/build/';
+			var obj = {
+				image: url,
+				script_path: path
+			};
+		    $.getScript( path+'vrview.js' , function() {
+		    	vrView = new VRView.Player('#vrview_'+vrviews, obj);  // Global
+		    	$('#vrview_'+vrviews).find('iframe').css('width','100%').css('height','100%');
+			    vrviews++;
+		    });
+		    
+    	}
+
+		// TODO: vrview has an API for these for videos
+		jQuery.I360ObjectView.prototype.play = function() { }
+		jQuery.I360ObjectView.prototype.pause = function() { }
+		jQuery.I360ObjectView.prototype.seek = function(time) { }
+		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
+
+		/**
+		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the area.
+		 * @param {Number} height		The new height of the area.
+		 */
+		jQuery.I360ObjectView.prototype.resize = function(width, height) {
+			$(me.parentView.mediaContainer).width(width+'px');
+			$(me.parentView.mediaContainer).height(height+'px');
+		}		
+		
+	}  // !360	
+	
 	/**
 	 * View for the QuickTime player.
 	 * @constructor

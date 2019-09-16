@@ -542,7 +542,7 @@ $config['ontologies']['vra'] = array(
 		'height',
 		'imageOf',
 		'inventoryLevel',
-		'isRelatedRo',
+		'isRelatedTo',
 		'largerContextFor',
 		'length',
 		'locationOf',
