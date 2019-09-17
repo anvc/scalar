@@ -1,21 +1,21 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * @projectDescription  A horiozontal bar with slots for content
@@ -44,14 +44,14 @@
 			$this.append($nav);
 
 			// Listen for tag clicks, and run play or pause actions
-			
+
 			$('body').bind('texteoTagClicked', function(event, $link, clickEvent) {
-			
+
 				if (!$link.data('texteo_resource_link')) return;
 
 				clickEvent.preventDefault()
-				clickEvent.stopPropagation();	
-			
+				clickEvent.stopPropagation();
+
 				unhighlight_all($this.data('tags'));
 				if (!$slider.data('current_slot') != $link.data('slot')) {
 					$link.slotmanager_move_to($this.data('tags'), $this, $nav);
@@ -63,8 +63,8 @@
 					$link.slotmanager_highlight();
 					$link.slotmanager_play();
 				}
-				
-			});	
+
+			});
 
 			// Listen for tags, and create or update the status of each tag's slot
 
@@ -75,12 +75,12 @@
 				for (var j = 0; j < $tags.length; j++) {
 
 					// Create slot if it doesn't already exist
-					
+
 					if (!$tags[j].data('slot')) {
 						var slot = $tags[j].slotmanager_create_slot(options);
 						if (!slot) continue;
 						$slider.append(slot);
-						
+
 						$this.data('tags').push($tags[j]);
 					}
 
@@ -94,92 +94,92 @@
 				// Move to first element
 
 				for (var j = 0; j < $tags.length; j++) {
-					if ($tags[j].data('mediaelement')) {					
+					if ($tags[j].data('mediaelement')) {
 						$tags[j].slotmanager_move_to($tags, $this, $nav);
 						break;
 					}
 				}
 
-			});	
+			});
 
 		});
 
 	}
-	
+
 	/*
 	 * $.fn.slotmanager_is_playing
 	 * Determine if a slot if playing.  Also is a safety to make sure data('is_playing') is set.
-     */		
-	
+     */
+
 	$.fn.slotmanager_is_playing = function() {
-	
+
 		var $tag = $(this);
 		if (!$tag.data('mediaelement')) return false;
 		return $tag.data('mediaelement').is_playing();
-	}	
-	
+	}
+
 	/*
 	 * $.fn.slotmanager_play
 	 * Play a slot's mediaelement
-     */		
-	
+     */
+
 	$.fn.slotmanager_play = function() {
 
 		var $tag = $(this);
 		if (!$tag.data('mediaelement')) return false;
 		$tag.data('mediaelement').play();
-	
+
 	}
-	
+
 	/*
 	 * $.fn.slotmanager_pause
 	 * Pause a slot's mediaelement
-     */			
-	
+     */
+
 	$.fn.slotmanager_pause = function() {
-	
+
 		var $tag = $(this);
 		if (!$tag.data('mediaelement')) return false;
 		$tag.data('mediaelement').pause();
-	
-	}	
-	
+
+	}
+
 	/*
 	 * $.fn.slotmanager_unhighlight
 	 * Unhlighlight a tag
-     */		
-	
+     */
+
 	$.fn.slotmanager_unhighlight = function() {
-	
+
 		$tag = $(this);
 		$tag.data('slot').find('.mediaElementHeader:first').css('background-color', '');
 		$tag.data('slot').find('.mediaElementHeader:first').css('padding', '');
 		//$tag.data('slot').find('.mediaElementFooter:first').css('background-color', '');
 		$tag.css('background-color', '');
-	
+
 	}
-	
+
 	/*
 	 * $.fn.slotmanager_highlight
 	 * Hlighlight a tag
-     */			
-	
+     */
+
 	$.fn.slotmanager_highlight = function() {
-	
+
 		$tag = $(this);
 		$tag.data('slot').find('.mediaElementHeader:first').css('background-color', '#c5dceb');
 		$tag.data('slot').find('.mediaElementHeader:first').css('padding', '0px 4px 0px 7px');
 		//$tag.data('slot').find('.mediaElementFooter:first').css('background-color', '#c5dceb');
 		$tag.css('background-color', '#c5dceb');
-	
-	}		
+
+	}
 
 	/*
 	 * $.fn.slotmanager_move_to
 	 * Move the slider to a certain tag's slot
 	 * @param obj $slot_container the wrapper element
 	 * @param obj $nav that nav bar
-     */		
+     */
 
 	$.fn.slotmanager_move_to = function($tags, $slot_container, $nav) {
 
@@ -209,15 +209,15 @@
   		});
 
 	}
-	
+
 	var get_slot_index = function(tags, $tag) {
-	
+
 		for (var j = 0; j < tags.length; j++) {
 			if (!tags[j].data('mediaelement')) continue;
 			if (tags[j].data('slot') == $tag.data('slot')) return j;
 		}
 		return 0;
-				
+
 	}
 
 	/*
@@ -246,38 +246,38 @@
 		if (!url) return;
 
 		// Seperate seek hash if present
-		
+
 		var annotation_url = null;
 		var uri_components = url.split('#');
-		
+
 		// TODO: Special case for hypercities #, until we correctly variable-ify #'s
 		if (uri_components.length>1 && uri_components[0].toLowerCase().indexOf('hypercities')!=-1) {
 			// keep URL as it is
 		} else if (uri_components.length>1) {
 			var url = uri_components[0];
-			annotation_url = uri_components[1];	
-			//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;	
+			annotation_url = uri_components[1];
+			//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;
 			// modified by Erik below to remove duplicated 'annotations/' in url
-			if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;	
+			if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;
 		}
-	
+
 		// Metadata resource
 		var resource = $tag.attr('resource');
 
 		// Create media element object
-		
+
 		var opts = {height:((is_file)?'500px':'375px')}; // hack
 		opts.player_dir = $('link#approot').attr('href')+'static/players/';
 		opts.base_dir = dirname(document.location.href)+'/';
 		opts.seek = annotation_url;
 		//opts.header = 'nav_bar';
 		//opts.show_annotations = true;
-		//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);	
+		//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
 		$tag.data('path', url);
 		//alert($tag.data('path'));
 		$tag.data('meta', resource);
 		$tag.mediaelement(opts);
-		
+
 		// Inser media element's embed markup
 		if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
 		$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
@@ -287,14 +287,14 @@
 	}
 
 	var slotmanager_set_buttons = function($tags, $slot_container, $nav, index) {
-	
+
 		// Sort prev/current/next links
 		var html;
 		if ($slot_container.data('tags')[index-1]) {
 			// html = ($slot_container.data('tags')[index-1].hasClass('hide_caption')) ? '' : jQuery.trim($slot_container.data('tags')[index-1].html());
 			html = '';
 			var $prev = $('<a href="javascript:;">&laquo; '+((html.length)?html:'Previous')+'</a>');
-			$prev.click(function() { $slot_container.data('tags')[index-1].slotmanager_move_to($tags, $slot_container, $nav); });
+			$prev.on('click', function() { $slot_container.data('tags')[index-1].slotmanager_move_to($tags, $slot_container, $nav); });
 			$nav.find('.prev').html($prev);
 		} else {
 			$nav.find('.prev').html('&nbsp;');
@@ -303,61 +303,61 @@
 			//html = ($slot_container.data('tags')[index+1].hasClass('hide_caption')) ? '' : jQuery.trim($slot_container.data('tags')[index+1].html());
 			html = '';
 			var $next = $('<a href="javascript:;">'+((html.length)?html:'Next')+' &raquo;</a>');
-			$next.click(function() { $slot_container.data('tags')[index+1].slotmanager_move_to($tags, $slot_container, $nav); });
+			$next.on('click', function() { $slot_container.data('tags')[index+1].slotmanager_move_to($tags, $slot_container, $nav); });
 			$nav.find('.next').html($next);
 		} else {
 			$nav.find('.next').html('&nbsp;');
-		}				
+		}
 		if ($slot_container.data('tags').length==1) {
 			$nav.hide();
 		} else {
 			$nav.show();
-		}	
-	
+		}
+
 	}
 
 	/*
 	 * hide_problem_formats
-	 * Hide the embed markup of media types (e.g., quicktime) that have problems with the animation effect 
+	 * Hide the embed markup of media types (e.g., quicktime) that have problems with the animation effect
 	 * @param arr $tags a list of jQuery tags
-     */	
+     */
 
 	var hide_problem_formats = function($tags) {
-	
+
 		var do_hide;
 		for (var j = 0; j < $tags.length; j++) {
 			do_hide = ($tags[j].data('slot') && $tags[j].data('slot').find('embed').length > 0) ? true : false;
 			if (do_hide) $tags[j].data('slot').find('.mediaContainer').css('visibility', 'hidden');
-		}	
-	
+		}
+
 	}
 
 	/*
 	 * unhighlight_all
 	 * Unhlighlight an array of tags
 	 * @param arr $tags a list of jQuery tags
-     */		
-	
+     */
+
 	var unhighlight_all = function($tags) {
-	
+
 		for (var j = 0; j < $tags.length; j++) {
 			$tags[j].slotmanager_unhighlight();
 		}
-	
-	}	
+
+	}
 
 	/*
 	 * stop_playing_all
 	 * Stop playing an array of tags
 	 * @param arr $tags a list of jQuery tags
-     */		
-	
+     */
+
 	var stop_playing_all = function($tags) {
-	
+
 		for (var j = 0; j < $tags.length; j++) {
 			$tags[j].slotmanager_pause();
-		}	
-	
+		}
+
 	}
 
 	/*
@@ -378,4 +378,3 @@
 	}
 
 })(jQuery);
-

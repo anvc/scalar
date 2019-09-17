@@ -39,7 +39,7 @@
 				$div.css('top', ((parseInt($(window).height())/2) - ($div.height()/2) + parseInt($(window).scrollTop()) + 'px') );
 				$div.show();
 				$('#connect_book_user_link').html(prev_text);
-				$div.find('a').click(function() {
+				$div.find('a').on('click', function() {
 					var $clicked = $(this);
 					var user_id = parseInt($clicked.attr('title'));
 					$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
@@ -66,7 +66,7 @@
 					$.get('api/user_search', {fullname:fullname}, function(data) {
 						if (!data.length) {
 							$div.find('.results').html('No users were found with the provided full name');
-							$div.find('input:submit').removeAttr("disabled");
+							$div.find('input:submit').prop("disabled", false);
 							return false;
 						}
 						$div.find('.results').html('<div style="padding-bottom:10px;">Please select a user below to link them to your book:</div>');
@@ -77,8 +77,8 @@
 							$div.find('.results').append($row);
 							$row.append($link);
 						}
-						$div.find('input:submit').removeAttr("disabled");
-						$div.find('a').click(function() {
+						$div.find('input:submit').prop("disabled", false);
+						$div.find('a').on('click', function() {
 							var user_id = parseInt($(this).data('user_id'));
 							$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
 								window.location.reload();

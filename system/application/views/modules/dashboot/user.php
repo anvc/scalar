@@ -11,10 +11,10 @@ $(document).ready(function() {
 		$row.removeClass('info');
 		$row.find('.showme').css('visibility','hidden');
 	});
-	$('.table-row-click').find('a').click(function(e) {
+	$('.table-row-click').find('a').on('click', function(e) {
 		e.stopPropagation();
 	});
-	$('.table-row-click').find('tr').click(function() {
+	$('.table-row-click').find('tr').on('click', function() {
 		var url = $(this).find('a:first').attr('href');
 		document.location.href = url;
 	});
@@ -45,8 +45,8 @@ $(document).ready(function() {
 				};
 				$duplicateBookModal.find('tbody tr').each(function() {
 					var $this = $(this);
-					$this.removeClass('active').removeClass('info').unbind('click');
-					$this.click(function() {
+					$this.removeClass('active').removeClass('info').off('click');
+					$this.on('click', function() {
 						var $row = $(this);
 						var book_id = parseInt($row.data('id'));
 						$row.addClass('active').addClass('info').siblings().removeClass('active').removeClass('info');

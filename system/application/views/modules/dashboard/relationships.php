@@ -22,7 +22,7 @@
 
 			rel_type = $('#formRelType').find('[name="relType"] option:selected').val();  // Global
 
-			$('#check_all').click(function() {
+			$('#check_all').on('click', function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});

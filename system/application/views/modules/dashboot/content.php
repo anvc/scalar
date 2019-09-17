@@ -16,7 +16,7 @@ $(document).ready(function() {
   }, 100);
   // Tab is selected in the URL
   if (window.location.hash) {
-     $('a[href="'+window.location.hash+'"]').click();
+     $('a[href="'+window.location.hash+'"]').trigger('click');
   };
   // Reload page when a new tab is selected
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -49,14 +49,14 @@ function editionCookieName() {
       <h4>
         <a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=user#tabs-user" class="<?=(('user'==$zone)?'active':'')?>">
           <img class="avatar small" src="<?=$app_root.'views/modules/dashboot/images/generic-avatar.png'?>" alt="User avatar" />
-          <?=$login->fullname?> 
+          <?=$login->fullname?>
         </a>
 <?php if ('user'!=$zone): ?>
-        <span class="s">/</span> 
+        <span class="s">/</span>
         <div class="dropdown">
           <a href="javascript:void(null);" data-toggle="dropdown"><?=(!empty($book))?$book->title:'My books'?></a>
           <span class="caret"></span>
-          <ul class="dropdown-menu"><?php 
+          <ul class="dropdown-menu"><?php
 	    	  foreach ($my_books as $my_book) {
 	    		echo '<li>';
 	    		echo '<a href="?book_id='.$my_book->book_id.'&zone=style#tabs-style" class="'.(($my_book->book_id==$book_id)?'active':'').'">';
@@ -64,32 +64,32 @@ function editionCookieName() {
 	    		echo '</a>';
 	    		echo '</li>';
 	    	  }
-          ?></ul>              
+          ?></ul>
         </div>
 <?php endif; ?>
       </h4>
     </div>
     <nav class="col-xs-12 col-sm-6">
       <h5>
-        <a href="http://scalar.usc.edu">About Scalar</a> | 
+        <a href="http://scalar.usc.edu">About Scalar</a> |
         <?
 		$active_dashboard = $this->config->item('active_dashboard');
-		if ('dashboard'==$active_dashboard): 
+		if ('dashboard'==$active_dashboard):
 		?>
         <a href="?dashboard=dashboard&book_id=<?=((!empty($book))?$book->book_id:0)?>&zone=style#tabs-style">Revert Dashboard</a> |
-        <? endif; ?> 
-        <a href="http://scalar.usc.edu/works/guide2">User's Guide</a> 
+        <? endif; ?>
+        <a href="http://scalar.usc.edu/works/guide2">User's Guide</a>
         <img class="scalar_logo small" src="<?=$app_root.'views/modules/dashboot/images/scalar-avatar.png'?>" alt="Small Scalar logo" />
       </h5>
-    </nav>    
+    </nav>
   </div>
 </header>
 
-<?php 
-if ('user'==$zone): 
+<?php
+if ('user'==$zone):
 
   $this->load->view('modules/dashboot/user');
-  
+
 else: ?>
 <nav class="container-fluid">
   <div class="row">
@@ -104,7 +104,7 @@ else: ?>
 	    <?php if (!empty($book)): ?>
 	    <li role="presentation" class="right-tab"><a href="<?=((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':'')?>" title="Return to <?=(!empty($book))?htmlspecialchars(strip_tags($book->title)):''?>">Return to book &raquo;</a></li>
 	    <?php endif; ?>
-	  </ul>  
+	  </ul>
 	</div>
   </div>
 </nav>
@@ -116,7 +116,7 @@ else: ?>
   <div role="tabpanel" class="tab-pane<?=(('pages'==$zone)?' active':'')?>" id="tabs-pages"><? if ('pages'==$zone) { $this->load->view('modules/dashboot/pages'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('users'==$zone)?' active':'')?>" id="tabs-users"><? if ('users'==$zone) { $this->load->view('modules/dashboot/users'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
   <div role="tabpanel" class="tab-pane<?=(('utils'==$zone||'all-users'==$zone||'all-books'==$zone)?' active':'')?>" id="tabs-utils"><? if ('utils'==$zone||'all-users'==$zone||'all-books'==$zone) { $this->load->view('modules/dashboot/utils'); } else {echo '<h5 class="loading">Loading...</h5>';}?></div>
-</section>	
+</section>
 <?php endif; ?>
 
 </div>

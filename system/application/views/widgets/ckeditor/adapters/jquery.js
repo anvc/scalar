@@ -234,8 +234,8 @@
 
 								// Unbind when editor destroyed.
 								$element.bind( 'destroy.ckeditor', function() {
-									$( element.form ).unbind( 'submit', onSubmit );
-									$( element.form ).unbind( 'form-pre-serialize', onSubmit );
+									$( element.form ).off( 'submit', onSubmit );
+									$( element.form ).off( 'form-pre-serialize', onSubmit );
 								} );
 							}
 

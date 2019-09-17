@@ -797,7 +797,7 @@ function YouTubeGetID(url){
 		    		this.header.append(tabs);
 
 		    		// Media button: maximize the media
-					this.header.find('#max_file_button').click(function() {
+					this.header.find('#max_file_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -811,7 +811,7 @@ function YouTubeGetID(url){
 					});
 
 					// Description button: open the title|description panel
-					this.header.find('#max_desc_button').click(function() {
+					this.header.find('#max_desc_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -831,7 +831,7 @@ function YouTubeGetID(url){
 					});
 
 					// Annotation button: open the annotation panel
-					this.header.find('#max_anno_button').click(function() {
+					this.header.find('#max_anno_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -851,7 +851,7 @@ function YouTubeGetID(url){
 					});
 
 					// Metadata button: open the meta panel
-					this.header.find('#max_meta_button').click(function() {
+					this.header.find('#max_meta_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -871,12 +871,12 @@ function YouTubeGetID(url){
 					});
 
 					// Permalink button: take user to file page
-					this.header.find('#max_perm_button').data('meta',this.model.meta).click(function() {
+					this.header.find('#max_perm_button').data('meta',this.model.meta).on('click', function() {
 						window.location.href = $(this).data('meta');
 					});
 
 					// Source button: open the file in a new browser window
-					this.header.find('#max_popout_button').data('path',this.model.path).click(function() {
+					this.header.find('#max_popout_button').data('path',this.model.path).on('click', function() {
 						window.open($(this).data('path'), 'popout', 'width='+(parseInt($(window).width())-100)+',height='+(parseInt($(window).height())-100));
 					});
 
@@ -885,14 +885,14 @@ function YouTubeGetID(url){
 					var close_span = $('<span class="close_link"></span>');
 					close_span.append(close_link);
 					this.header.append(close_span);
-					close_link.click(function() {
+					close_link.on('click', function() {
 						$(this).parents('.maximize').remove();
 						$('.vert_slots').find('.slot').find('object, embed').css('visibility','visible');
 					});
 					$slot.find('.mediaElementAlignRight').remove();
 
 					// makes the description tab the default on open
-					this.header.find('#max_desc_button').click();
+					this.header.find('#max_desc_button').trigger('click');
 
 		    	// Simple header
 		    	} else {
@@ -914,7 +914,7 @@ function YouTubeGetID(url){
 						var cntrllr = this.controller;
 						this.annotationLink = $('<a href="javascript:;">Annotations</a>');
 						this.annotationLink.data('cntrllr', cntrllr);
-						this.annotationLink.click(function() {
+						this.annotationLink.on('click', function() {
 							$(this).data('cntrllr').toggleAnnotations();
 						});
 						var temp = $('<p class="mediaElementAlignRight annotationToggle"></p>');
@@ -1050,7 +1050,7 @@ function YouTubeGetID(url){
 					maximizeButton.siblings('.mediaElementAlignLeft').addClass('mediaElementAlignLeftDetails');
 
 					// opens original media file (for HTML pages and PDFs only)
-					maximizeButton.find('a#viewPageLink').data('me', this).click(function() {
+					maximizeButton.find('a#viewPageLink').data('me', this).on('click', function() {
 						var $this = $(this);
 						var base_dir = scalarapi.model.urlPrefix;
 						var path = $this.data('me').model.path;
@@ -1060,7 +1060,7 @@ function YouTubeGetID(url){
 					});
 
 					// maximize link (now called 'Details' in the interface)
-					maximizeButton.find('a#maximizeLink').data('link', this.link).data('me', this).click(function() {
+					maximizeButton.find('a#maximizeLink').data('link', this.link).data('me', this).on('click', function() {
 						if (!$.isFunction($.fn.scalarmaximize)) return alert('Could not find maximize script.');
 
 						// pause all playing mediaelement instances
@@ -2078,7 +2078,7 @@ function YouTubeGetID(url){
 						// Seek on the view
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
-						annotationChip.click( function() {
+						annotationChip.on('click',  function() {
 							var $me = $(this).data('me');
 							// don't cache the play command for YouTube videos since they play automatically on seeking anyway
 							if ( local_me.model.mediaSource.name != "YouTube" ) {
@@ -2101,7 +2101,7 @@ function YouTubeGetID(url){
 						annotationChip.append('<p class="annotationExtents"><a href="javascript:;">'+annotation.startString+annotation.separator+annotation.endString+'</a></p>');
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
-						annotationChip.click( function() {
+						annotationChip.on('click',  function() {
 							$(this).data('me').cachedPlayCommand = true;
 							$(this).data('me').seek($(this).data('annotation'));
 							// don't show live annotations if we're in the annotation editor or the maximize view
@@ -2118,7 +2118,7 @@ function YouTubeGetID(url){
 						// Seek on the view
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
-						annotationChip.click( function(e) {
+						annotationChip.on('click',  function(e) {
 							$(this).data('me').model.seekAnnotation = null;
 							$(this).data('me').seek($(this).data('annotation'));
 							$(this).data('me').play();
@@ -2411,7 +2411,7 @@ function YouTubeGetID(url){
 
 	 			}
 
-	 			$(".annotorious-popup").click(function(e) {
+	 			$(".annotorious-popup").on('click', function(e) {
 					e.stopPropagation();
 					return true;
 				}).css('z-index',999);
@@ -2483,7 +2483,7 @@ function YouTubeGetID(url){
 			//this.parentView.intrinsicDim.y = 3000;
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-			
+
  			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
 			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'" style="width:100%;height:100%;"></div>');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
@@ -2499,7 +2499,7 @@ function YouTubeGetID(url){
 		    	$('#vrview_'+vrviews).find('iframe').css('width','100%').css('height','100%');
 			    vrviews++;
 		    });
-		    
+
     	}
 
 		// TODO: vrview has an API for these for videos
@@ -2518,10 +2518,10 @@ function YouTubeGetID(url){
 		jQuery.I360ObjectView.prototype.resize = function(width, height) {
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
-		}		
-		
-	}  // !360	
-	
+		}
+
+	}  // !360
+
 	/**
 	 * View for the QuickTime player.
 	 * @constructor
@@ -4211,7 +4211,7 @@ function YouTubeGetID(url){
 					if (((index+1) >= annotation.properties.start) && ((index+1) <= annotation.properties.end)) {
 						$(value).addClass(style);
 						$(value).data('annotation', annotation);
-						$(value).click(function() {
+						$(value).on('click', function() {
 							var anno = $(this).data('annotation');
 							me.currentLine = index + 1;
 							me.textIsPlaying = true;
@@ -4385,7 +4385,7 @@ function YouTubeGetID(url){
 			}
 			this.object.append( temp );
 
-			this.object.click( function( e ) {
+			this.object.on('click',  function( e ) {
 
 				var i, n, htop, hbottom, highlight,
 		            posY = e.pageY - $(this).offset().top,

@@ -3,7 +3,7 @@
 
 <script>
 $(window).ready(function() {
-    $('.save_changes').next('a').click(function() {
+    $('.save_changes').next('a').on('click', function() {
     	$('#user_form').submit();
     	return false;
     });

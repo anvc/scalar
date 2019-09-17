@@ -192,7 +192,7 @@
 			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td><td class="matched hidden-xs hidden-sm">'+matched+'</td></tr>' ).appendTo( this.resultsTable );
 
 			row.data( 'node', node );
-			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
+			row.on('click',  function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
 		}
 
 		this.pagination.empty();
@@ -212,7 +212,7 @@
 			if ( this.currentPage > 1 ) {
 				tabindex++;
 				prev = $('<li><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-				prev.find('a').click( function() { me.previousPage(); } );
+				prev.find('a').on('click',  function() { me.previousPage(); } );
 			} else {
 				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 			}
@@ -223,14 +223,14 @@
 				if ( i == this.currentPage ) {
 					pageBtn.addClass( 'active' );
 				}
-				pageBtn.click( function() {
+				pageBtn.on('click',  function() {
 					me.goToPage( $( this ).data( 'page' ) );
 				} );
 			}
 			if ( nodes.length == this.resultsPerPage ) {
 				tabindex++;
 				next = $( '<li><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-				next.find('a').click( function() { me.nextPage(); } );
+				next.find('a').on('click',  function() { me.nextPage(); } );
 			} else {
 				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 			}

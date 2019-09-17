@@ -20,7 +20,7 @@ CKEDITOR._scalarbeta = {
 			CKEDITOR._scalarbeta.editor.destroy(true);
 			$editableBody.prop('contenteditable',false).data('editor',null);
 			$('#editorialPath').data('editorialPath').updateLinks($editableBody.parent());
-            $editableBody.click();
+            $editableBody.trigger('click');
 		}else{
         	CKEDITOR._scalarbeta.addPlaceholders();
 		}
@@ -182,7 +182,7 @@ CKEDITOR._scalarbeta = {
 						CKEDITOR._scalarbeta.$editorMenu.hide();
 					},50);
 				});
-			CKEDITOR._scalarbeta.$editorMenu.find('.editLink').click(function(e){
+			CKEDITOR._scalarbeta.$editorMenu.find('.editLink').on('click', function(e){
 				e.preventDefault();
 				e.stopPropagation();
 				CKEDITOR._scalarbeta.$editorMenu.hide();
@@ -195,7 +195,7 @@ CKEDITOR._scalarbeta = {
 					CKEDITOR._scalarbeta.selectcontent($(element.$).data('selectOptions'));
 				}
 			});
-			CKEDITOR._scalarbeta.$editorMenu.find('.deleteLink').click(function(e){
+			CKEDITOR._scalarbeta.$editorMenu.find('.deleteLink').on('click', function(e){
 				e.preventDefault();
 				e.stopPropagation();
 				CKEDITOR._scalarbeta.$editorMenu.hide();
@@ -215,7 +215,7 @@ CKEDITOR._scalarbeta = {
 					CKEDITOR.instances[$editableBody.data('editor').name].destroy(true);
 					$editableBody.prop('contenteditable',false).data('editor',null);
 					$('#editorialPath').data('editorialPath').updateLinks($editableBody.parent());
-		            $editableBody.click();
+		            $editableBody.trigger('click');
 				}
 				return false;
 			});
@@ -278,7 +278,7 @@ CKEDITOR._scalarbeta = {
 					if (sel.getRanges()[0].collapsed) {
 						alert('Please select text to transform into a link');
 					    ckCancel = this._.buttons['cancel'],
-					    ckCancel.click();
+					    ckCancel.trigger('click');
 						return;
 					}
 					this.element = editor.document.createElement('a');

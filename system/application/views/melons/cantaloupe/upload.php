@@ -24,7 +24,7 @@ $( document ).ready(function() {
 		}
 	}
 	// Additional metadata
-	$('.add_additional_metadata:first').click(function() {
+	$('.add_additional_metadata:first').on('click', function() {
 		$('#metadata_rows_parent').show();
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;

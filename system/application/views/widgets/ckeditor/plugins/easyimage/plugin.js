@@ -527,7 +527,7 @@
 						} );
 					}
 				} );
-				hiddenUploadElement.$.click();
+				hiddenUploadElement.$.trigger('click');
 			}
 		} );
 	}

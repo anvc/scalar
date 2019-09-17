@@ -135,14 +135,14 @@ function userOptions() {
 				var $row = $('<tr><td>'+data[j].fullname+'</td></tr>').appendTo($tbody);
 				$row.data('user_id', data[j].user_id);
 			};
-			$tbody.find('tr').click(function() {
+			$tbody.find('tr').on('click', function() {
 				var $this = $(this);
 				$this.addClass('active').addClass('info').siblings().removeClass('active').removeClass('info');
 			});
 		});
 
 	});
-	$userOptionsModal.find('.glyphicon-remove').click(function() {
+	$userOptionsModal.find('.glyphicon-remove').on('click', function() {
 		$(this).closest('div').find('input').val('').focus();
 	});
 	$userOptionsModal.find('.modal-footer button:last').off('click').on('click', function() {

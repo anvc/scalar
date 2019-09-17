@@ -104,7 +104,7 @@ function select_interface(melon) {
 	$wrapper.empty();
     var $template = $('<span><select style="width:auto;margin-right:8px;float:left;" class="form-control" name="template"></select></span>').appendTo($wrapper);
     var $whats_this = $('<label style="margin-right:12px;" class="control-label label-text"><small><a class="whatsthis" href="javascript:void(null);">What\'s this?</a></small></label>').appendTo($template);
-	$whats_this.find('a').click(function() {
+	$whats_this.find('a').on('click', function() {
 		var $modal = $('#selectInterfaceModal');
 		if (!$modal.data('propagated')) {
 			$modal.data('propagated',true);
@@ -114,10 +114,10 @@ function select_interface(melon) {
 				$div.append('<img class="img-responsive" src="'+$('#approot').attr('href')+interfaces[j].meta.thumb_app_path+'" />');
 				$div.append('<div class="radio"><label><input type="radio" name="interfaceOptions" value="'+interfaces[j]['meta']['slug']+'"'+((melon==interfaces[j]['meta']['slug'])?' checked':'')+((!interfaces[j]['meta']['is_selectable'])?' disabled':'')+'> <strong>'+interfaces[j]['meta']['name']+'</strong><br />'+interfaces[j]['meta']['description']+'</label></div>');
 			};
-			$modal.find('img').click(function() {
-				$(this).parent().find('input[type="radio"]').click();
+			$modal.find('img').on('click', function() {
+				$(this).parent().find('input[type="radio"]').trigger('click');
 			});
-			$modal.find('button:last').click(function() {
+			$modal.find('button:last').on('click', function() {
 				var checked = $modal.find("input[type='radio']:checked").val();
 				$('select[name="template"]').val(checked).change();
 				$modal.modal('hide');

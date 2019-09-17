@@ -294,7 +294,7 @@
 
 			// home link
 			this.home_link = $('<div class="icon_link home"></div>').appendTo(this.model.element);
-			this.home_link.click(this.controller.goHome);
+			this.home_link.on('click', this.controller.goHome);
 
 			// body content
 			this.body = $('<div class="body"></div>').appendTo(this.model.element);
@@ -353,7 +353,7 @@
 					$(this).data('view').showModeView($(this).data('mode'));
 					setTimeout($(this).data('view').hideMenu, 500);
 				};
-				menuItem.click(clickFunc);
+				menuItem.on('click', clickFunc);
 				menuItem.bind('touchend', clickFuncTouch);
 			}
 
@@ -421,7 +421,7 @@
 				var clickFunc = function(event) {
 					document.location.href = $(this).data('uri');
 				};
-				menuItem.click(clickFunc);
+				menuItem.on('click', clickFunc);
 				menuItem.bind('touchend', clickFunc);
 			}
 
@@ -821,7 +821,7 @@
 				// add editing buttons if the user has the right privileges
 				if (((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) && (window.location.href.substr(window.location.href.length - 5) != '.edit')) {
 					this.element = this.element.add('<div class="utility"><p><a class="utility_button" href="'+scalarapi.model.urlPrefix+'/new.edit">New</a> <a class="utility_button" href="'+this.node.url+'.edit">Edit</a> <a class="utility_button" href="javascript:;">Hide</a> </p></div>').appendTo(this.model.element);
-					this.element.find('.utility_button').eq(2).click(this.handleDelete);
+					this.element.find('.utility_button').eq(2).on('click', this.handleDelete);
 				}
 
 				// show a spinner if we're still loading data
@@ -913,7 +913,7 @@
 
 								// show a colored box for paths
 								if (node.scalarTypes.path) {
-									button.append('<div class="box" style="background-color:'+node.color+';"></div>').click(function() {window.location=node.url;});
+									button.append('<div class="box" style="background-color:'+node.color+';"></div>').on('click', function() {window.location=node.url;});
 									link = $('<p class="boxItem"><a href="'+node.url+'"><b>'+node.getDisplayTitle()+'</b></a></p>').appendTo(button);
 
 								// show an icon for everything else
@@ -929,7 +929,7 @@
 							// if this button displays comments on the current page, alter link so it brings up the comment viewer
 							if ((type == 'reply') && (direction == 'outgoing')) {
 								link.find('a').attr('href', '#');
-								link.click(function() {$('#reply_list #comments').fadeIn('fast')});
+								link.on('click', function() {$('#reply_list #comments').fadeIn('fast')});
 							}
 						}
 						buttonProxy = button.find('.subhead');
@@ -942,7 +942,7 @@
 					buttonProxy.data('relation', type+direction);
 					buttonProxy.data('open', this.buttons[type+direction].open);
 					buttonProxy.data('view', this.parent);
-					buttonProxy.click(function() { $(this).data('view').currentModeView.buttons[$(this).data('relation')].open = !$(this).data('open'); $(this).data('view').updateModeView(); });
+					buttonProxy.on('click', function() { $(this).data('view').currentModeView.buttons[$(this).data('relation')].open = !$(this).data('open'); $(this).data('view').updateModeView(); });
 				}
 
 			}
@@ -1021,13 +1021,13 @@
 			// acknowledgements button
 			var ackBtn = $('<div class="button"><p><b>Acknowledgements</b></p></div>');
 			ackBtn.data('url', scalarapi.model.urlPrefix+'acknowledgements');
-			ackBtn.click(function() { window.location = $(this).data('url'); });
+			ackBtn.on('click', function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(ackBtn);
 
 			// works cited button
 			var worksBtn = $('<div class="button"><p><b>Works Cited</b></p></div>');
 			worksBtn.data('url', scalarapi.model.urlPrefix+'workscited');
-			worksBtn.click(function() { window.location = $(this).data('url'); });
+			worksBtn.on('click', function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(worksBtn);
 
 			// the button proxy is where events get attached; for closed buttons it's the entire
@@ -1088,7 +1088,7 @@
 					buttonProxy.data('open', this[personType+'Btn'].open);
 					buttonProxy.data('view', this.parent);
 					buttonProxy.data('personType',personType);
-					buttonProxy.click(function() { $(this).data('view').currentModeView[$(this).data('personType')+'Btn'].open = !$(this).data('open'); $(this).data('view').updateModeView(); });
+					buttonProxy.on('click', function() { $(this).data('view').currentModeView[$(this).data('personType')+'Btn'].open = !$(this).data('open'); $(this).data('view').updateModeView(); });
 
 				}
 
@@ -1130,20 +1130,20 @@
 			// visualization button
 			var visBtn = $('<div class="button"><p><b>Visualization</b></p></div>');
 			visBtn.data('url', scalarapi.model.urlPrefix+'resources.visindex');
-			visBtn.click(function() { window.location = $(this).data('url'); });
+			visBtn.on('click', function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(visBtn);
 
 			// tag cloud button
 			var tagBtn = $('<div class="button"><p><b>Tag Cloud</b></p></div>');
 			tagBtn.data('url', scalarapi.model.urlPrefix+'tags');
-			tagBtn.click(function() { window.location = $(this).data('url'); });
+			tagBtn.on('click', function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(tagBtn);
 
 			// user's guide button, only shown to those with authoring privileges
 			if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
 				var guideBtn = $('<div class="button"><p><b>User\'s Guide</b></p></div>');
 				guideBtn.data('url', 'http://scalar.usc.edu/works/guide/');
-				guideBtn.click(function() { window.open($(this).data('url'), '_blank'); });
+				guideBtn.on('click', function() { window.open($(this).data('url'), '_blank'); });
 				this.element = this.element.add(guideBtn);
 			}
 
@@ -1200,7 +1200,7 @@
 			// set up data and interaction
 			buttonProxy.data('open', this.archivesBtn.open);
 			buttonProxy.data('view', this.parent);
-			buttonProxy.click(function() { $(this).data('view').currentModeView.archivesBtn.open = !$(this).data('open'); $(this).data('view').updateModeView(); });
+			buttonProxy.on('click', function() { $(this).data('view').currentModeView.archivesBtn.open = !$(this).data('open'); $(this).data('view').updateModeView(); });
 
 			this.element = this.element.add(button);
 
@@ -1234,20 +1234,20 @@
 			// set up data and interaction
 			buttonProxy.data('open', this.otherBtn.open);
 			buttonProxy.data('view', this.parent);
-			buttonProxy.click(function() { $(this).data('view').currentModeView.otherBtn.open = !$(this).data('open'); $(this).data('view').updateModeView(); });
+			buttonProxy.on('click', function() { $(this).data('view').currentModeView.otherBtn.open = !$(this).data('open'); $(this).data('view').updateModeView(); });
 
 			this.element = this.element.add(button);
 
 			// local media files button
 			var localFilesBtn = $('<div class="button"><p><b>Local media files</b></p></div>');
 			localFilesBtn.data('url', scalarapi.model.urlPrefix+'upload');
-			localFilesBtn.click(function() { window.location = $(this).data('url'); });
+			localFilesBtn.on('click', function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(localFilesBtn);
 
 			// internet media files button
 			var internetFilesBtn = $('<div class="button"><p><b>Internet media files</b></p></div>');
 			internetFilesBtn.data('url', scalarapi.model.urlPrefix+'new.edit#type=media');
-			internetFilesBtn.click(function() { window.location = $(this).data('url'); });
+			internetFilesBtn.on('click', function() { window.location = $(this).data('url'); });
 			this.element = this.element.add(internetFilesBtn);
 
 		}
@@ -1294,7 +1294,7 @@
 				if (!this.fullIndexRequested) {
 					this.element = this.element.add('<p>This is a partial index. <a id="load_index_link" href="javascript:;">Load the full index.</a></p>');
 					this.element.find('#load_index_link').data('index_view', this);
-					this.element.find('#load_index_link').click(function() {
+					this.element.find('#load_index_link').on('click', function() {
 						var indexView = $(this).data('index_view');
 						indexView.fullIndexRequested = true;
 						indexView.element = indexView.element.add('<div class="loader_anim"></div>');
@@ -1425,7 +1425,7 @@
 
 										// show a colored box for paths
 										if (node.scalarTypes.path) {
-											button.append('<div class="box" style="background-color:'+node.color+';"></div>').click(function() {window.location=node.url;});
+											button.append('<div class="box" style="background-color:'+node.color+';"></div>').on('click', function() {window.location=node.url;});
 											button.append('<p class="boxItem"><a href="'+node.url+'"><b>'+node.getDisplayTitle()+'</b></a></p>');
 
 										// show an icon for everything else
@@ -1437,7 +1437,7 @@
 									} else {
 										// show a colored box for paths
 										if (node.scalarTypes.path) {
-											button.append('<div class="box" style="background-color:'+node.color+';"></div>').click(function() {window.location=node.url;});
+											button.append('<div class="box" style="background-color:'+node.color+';"></div>').on('click', function() {window.location=node.url;});
 											button.append('<p class="boxItem"><a href="'+node.url+'"><b>'+node.getDisplayTitle()+'</b></a></p>');
 										} else {
 											button.append('<p class="item"><a href="'+node.url+'"><b>'+node.getDisplayTitle()+'</b></a></p>');
@@ -1467,7 +1467,7 @@
 			buttonProxy.data('type', type);
 			buttonProxy.data('open', this.buttons[type].open);
 			buttonProxy.data('view', this.parent);
-			buttonProxy.click(function(event) {
+			buttonProxy.on('click', function(event) {
 				$(this).data('view').currentModeView.buttons[$(this).data('type')].open = !$(this).data('open');
 				$(this).data('view').updateModeView();
 			});
@@ -1591,7 +1591,7 @@
 
 						// show a colored box for paths
 						if (node.shortType == 'path') {
-							$(button[0]).append('<div class="box" style="background-color:'+node.color+';"></div>').click(function() {window.location=node.url;});
+							$(button[0]).append('<div class="box" style="background-color:'+node.color+';"></div>').on('click', function() {window.location=node.url;});
 							$(button[0]).append('<p class="boxItem"><a href="'+node.url+'"><b>'+node.getDisplayTitle()+'</b></a></p>');
 						} else {
 							$(button[0]).append('<p class="item"><a href="'+node.url+'"><b>'+node.getDisplayTitle()+'</b></a></p>');

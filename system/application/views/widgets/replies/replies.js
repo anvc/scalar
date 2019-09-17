@@ -1,21 +1,21 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * @projectDescription  Handle the display of the comment box
@@ -31,7 +31,7 @@ function commentFormDisplayForm() {
 	$comments.fadeIn('fast');
 	window.scrollTo(0,parseInt($comments.offset().top));
 	// Close button
-	$('#comments #close_link').click(function() {
+	$('#comments #close_link').on('click', function() {
 		document.location.hash='';
 		$('#comments').hide();
 	});
@@ -46,7 +46,7 @@ function commentFormDisplayForm() {
 			$commenter_logged_in = $('#commenter_logged_in');
 			$commenter_logged_in.fadeIn('fast');
 			$commenter_logged_in.find('[title="Your user page"]').attr('href', parent+'users/'+data.user_id).html(data.fullname);
-			$commenter_logged_in.find('[title="Logout"]').click(function() {
+			$commenter_logged_in.find('[title="Logout"]').on('click', function() {
 				var url = document.location.href;
 				if (url.indexOf('#')!=-1) url = url.substr(0, url.indexOf('#'));
 				var url_append = 'action=do_logout&redirect_url='+encodeURIComponent(url+'#comments');
@@ -54,10 +54,10 @@ function commentFormDisplayForm() {
 					url += '&'+url_append;
 				} else {
 					url += '?'+url_append;
-				}				
+				}
 				document.location.href=url;
 				return false;
-			});			
+			});
 			$('#comment_your_name').hide();
 			$('#comment_captcha').hide();
 		} else {
@@ -74,7 +74,7 @@ function commentFormDisplayForm() {
 				if (recaptcha2_site_key.length) {
 			        grecaptcha.render("comment_captcha_wrapper", {
 			            'sitekey' : recaptcha2_site_key
-			          });						
+			          });
 				} else if (recaptcha_public_key.length) {
 					Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", { theme: "white" });
 				}
@@ -83,7 +83,7 @@ function commentFormDisplayForm() {
 		$('#comment_form_wrapper').fadeIn('fast');
 	});
 }
-function popoutComments() {  
+function popoutComments() {
 	var title = strip_tags($('#comments .comments .content_title:first').html());
 	var content = $('#comments .comments').html();
 	var $content = $('<div>'+content+'</div>');
@@ -92,14 +92,14 @@ function popoutComments() {
 	popoutContent(title, content);
 	document.location.hash='';
 	$('#comments').fadeOut();
-	
+
 }
 function commentCheckPermalink(the_link) {
 	var $link = $(the_link);
 	if ('undefined'!=typeof(window.opener) && window.opener) {
 		var url = $link.attr('href');
 		window.opener.location.href = url;
-		return false;		
+		return false;
 	}
 	return true;
 }
@@ -140,7 +140,7 @@ function ajaxComment() {
 	});
 	return false;
 }
-function popoutContent(title, content) {   // help from http://www.javascripter.net/faq/writingt.htm 
+function popoutContent(title, content) {   // help from http://www.javascripter.net/faq/writingt.htm
 	var basesheet = $('link[href*="content.css"]').attr('href');
 	var stylesheet = $('link[href*="minimal.css"], link[href*="denim.css"], link[href*="slate.css"]').attr('href');
 	var jquery = $('script[src*="jquery-3.4.1.min.js"]').attr('src');

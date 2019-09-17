@@ -116,7 +116,7 @@ $(document).ready(function() {
 	// Main menu
 	book_versions = JSON.parse($("#book_versions").text());  // global
 	set_versions(book_versions);
-	$('#toc-wrapper').find('button').click(function() {
+	$('#toc-wrapper').find('button').on('click', function() {
 		select_versions();
 	});
 });
@@ -140,7 +140,7 @@ function set_versions(nodes) {
 	if (!$versions.length) $versions = $('<ul class="list-group"></ul>').prependTo($wrapper);
 	$versions.empty();
 	var ids = [];
-	$versions.find('li').unbind("mouseover").each(function() {
+	$versions.find('li').off("mouseover").each(function() {
 		ids.push($(this).data('version_id'));
 	});
 	for (var j = 0; j < nodes.length; j++) {
@@ -150,7 +150,7 @@ function set_versions(nodes) {
 		var $input = $('<input type="hidden" name="book_version_'+nodes[j].versions[0].version_id+'" value="1" />').appendTo($item);
 		$item.data('version_id', nodes[j].versions[0].version_id);
 		$item.data('node', nodes[j]);
-		$close.click(function() {
+		$close.on('click', function() {
 			$(this).closest('li').remove();
 			set_version_numbers();
 		});

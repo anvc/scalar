@@ -157,7 +157,7 @@ $(document).ready(function() {
 	// If the type is passed via GET
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
-		$("#type_text").removeAttr('checked');
+		$("#type_text").prop('checked', false);
 		$("#type_media").attr("checked", "checked");
 		checkTypeSelect();
 	}

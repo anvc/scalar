@@ -118,7 +118,7 @@
     				var $component_select_wrapper = $('<span style="display:table-cell;white-space:nowrap;"><select name="" class="component generic_button large"></select></span>').appendTo($component_wrapper);
     				if (value.components[component_key].multi) {
     					$addanother = $('<span class="addanother"><a href="javascript:void(null);" style="font-weight:bold;font-size:bigger;text-decoration:none;"> + </a></span>').appendTo($component_select_wrapper);
-    					$addanother.click(function() { add_another(this); });
+    					$addanother.on('click', function() { add_another(this); });
     				}
     				$component_wrapper.append('<span style="display:table-cell;" class="component_desc"></span>');
     				$component_select = $component_wrapper.find('select:first');

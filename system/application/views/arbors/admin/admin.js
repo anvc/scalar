@@ -1,21 +1,21 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * Save a row based on metadata kept in the HTML <tr> and <td> tags
@@ -53,13 +53,13 @@ function edit_row($row) {
 				var end = class_str.lastIndexOf('}');
 				var enum_values = class_str.substr((begin+1), (end-begin-1));
 				var enum_arr = enum_values.split(',');
-				var values = [''];  
+				var values = [''];
 				for (var j = 0; j < enum_arr.length; j++) {
 					var the_value = enum_arr[j];
 					if (the_value.substr(0,1)=="'") the_value = the_value.substr(1);
 					if (the_value.substr( (the_value.length-1) ,1)=="'") the_value = the_value.substr(0, (the_value.length-1));
 					if (the_value.substr(0,1)=='"') the_value = the_value.substr(1);
-					if (the_value.substr( (the_value.length-1) ,1)=='"') the_value = the_value.substr(0, (the_value.length-1));					
+					if (the_value.substr( (the_value.length-1) ,1)=='"') the_value = the_value.substr(0, (the_value.length-1));
 					values.push(the_value);
 				}
 				input_type='enum';
@@ -86,7 +86,7 @@ function edit_row($row) {
 					var $remove_link = $('<a href="javascript:;" onclick=""><small>remove</small></a>');;
 					$li.append('&nbsp;');
 					$li.append($remove_link);
-					$remove_link.click(function() {
+					$remove_link.on('click', function() {
 						var $link = $(this);
 						$link.parent().find('input:first').val(0);
 						$link.parent().css('color','#aaaaaa');
@@ -166,7 +166,7 @@ function edit_row($row) {
 					"Cancel":function() {
 						$(this).dialog("close");
 						$row.find('[property="slug"] input').val(originals['slug']);
-					},	
+					},
 					"Continue":function() {
 						$(this).dialog("close");
 						push_row($row,post);
@@ -224,13 +224,13 @@ function push_row(row,post) {
 		var str = (row.data('edit_button')) ? row.data('edit_button') : 'Edit';
 		row.find('a:first').html(str);
 		row.find('a:first').removeClass('default');
-		row.find('a:first').blur();		 
+		row.find('a:first').blur();
 		var version_id = row.data('most_recent_version');
 		if ('undefined'!=typeof(version_id) && version_id) {
 			$('body').trigger("contentUpdated",{version_id:version_id});
 		}
 		$('body').trigger("rowSaved");
-	});		
+	});
 }
 
 function getUrlVars() {
@@ -258,7 +258,7 @@ function htmlspecialchars (string, quote_style, charset, double_encode) {
         string = string.replace(/&/g, '&amp;');
     }
     string = string.replace(/</g, '&lt;').replace(/>/g, '&gt;');
- 
+
     var OPTS = {
         'ENT_NOQUOTES': 0,
         'ENT_HTML_QUOTE_SINGLE' : 1,
@@ -289,7 +289,7 @@ function htmlspecialchars (string, quote_style, charset, double_encode) {
     if (!noquotes) {
         string = string.replace(/"/g, '&quot;');
     }
- 
+
     return string;
 }
 
@@ -325,7 +325,7 @@ function strip_tags (input, allowed) {
 var th = ['','thousand','million', 'billion','trillion'];
 // uncomment this line for English Number System
 // var th = ['','thousand','million', 'milliard','billion'];
-var dg = ['zero','one','two','three','four', 'five','six','seven','eight','nine']; var tn = ['ten','eleven','twelve','thirteen', 'fourteen','fifteen','sixteen', 'seventeen','eighteen','nineteen']; var tw = ['twenty','thirty','forty','fifty', 'sixty','seventy','eighty','ninety']; 
+var dg = ['zero','one','two','three','four', 'five','six','seven','eight','nine']; var tn = ['ten','eleven','twelve','thirteen', 'fourteen','fifteen','sixteen', 'seventeen','eighteen','nineteen']; var tw = ['twenty','thirty','forty','fifty', 'sixty','seventy','eighty','ninety'];
 function toWords(s){s = s.toString(); s = s.replace(/[\, ]/g,''); if (s != parseFloat(s)) return 'not a number'; var x = s.indexOf('.'); if (x == -1) x = s.length; if (x > 15) return 'too big'; var n = s.split(''); var str = ''; var sk = 0; for (var i=0; i < x; i++) {if ((x-i)%3==2) {if (n[i] == '1') {str += tn[Number(n[i+1])] + ' '; i++; sk=1;} else if (n[i]!=0) {str += tw[n[i]-2] + ' ';sk=1;}} else if (n[i]!=0) {str += dg[n[i]] +' '; if ((x-i)%3==0) str += 'hundred ';sk=1;} if ((x-i)%3==1) {if (sk) str += th[(x-i-1)/3] + ' ';sk=0;}} if (x != s.length) {var y = s.length; str += 'point '; for (var i=x+1; i<y; i++) str += dg[n[i]] +' ';} return str.replace(/\s+/g,' ');}
 
 function ucwords (str) {

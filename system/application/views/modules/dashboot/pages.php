@@ -29,7 +29,7 @@ function getCookie(cname) {  // https://www.w3schools.com/js/js_cookies.asp
     return "";
 }
 $(document).ready(function() {
-	<?php 
+	<?php
 	if(!empty($book->editions)){ ?>
 		var editions = {
 			<?php
@@ -71,7 +71,7 @@ $(document).ready(function() {
 		}
 	?>
 	$selector.node_selection_dialogue(node_options);
-	$('#review-comments').click(function() {
+	$('#review-comments').on('click', function() {
 		$('.selector .node_types select:first').val('reply').change();
 	});
 });

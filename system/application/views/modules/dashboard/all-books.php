@@ -33,7 +33,7 @@
 				return false;
 			});
 
-			$('.value_select_trigger').click(function() {
+			$('.value_select_trigger').on('click', function() {
 				var $this = $(this);
 				var multiple = $this.hasClass('multiple');
 				var resource = $this.attr('resource');

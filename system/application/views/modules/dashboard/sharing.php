@@ -3,7 +3,7 @@
 <script>
 $(window).ready(function() {
 
-    $('.save_changes').next('a').click(function() {
+    $('.save_changes').next('a').on('click', function() {
     	$('#sharing_form').submit();
     	return false;
     });

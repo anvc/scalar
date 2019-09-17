@@ -96,7 +96,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                 '<div class="body">'+query.body+'</div>'+
                            '</div>').attr('data-time',date.getTime());
             $query.data('query',query);
-            $query.find('.resolve').click(function(){
+            $query.find('.resolve').on('click', function(){
                 base.$resolvedQueries.show();
                 var $query = $(this).parents('.query');
                 $query.prependTo(base.$resolvedQueries.find('#resolvedQueries'));
@@ -120,7 +120,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                             '</div>'+
                                         '</form>'+
                                   '</div>').appendTo($query);
-                $newReply.find('button').click(function(e){
+                $newReply.find('button').on('click', function(e){
                     e.preventDefault();
                     var $newReply = $(this).parents('.newReply');
                     var bodyText = $newReply.find('.replyText').focus().val();
@@ -316,7 +316,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     $('#page_description').show();
                     base.waitingForReview = false;
                     base.restoreEditor();
-                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').trigger('click');
                     base.$editorialToolsPanelHeaderDropdown.find('li.edits').remove();
                     base.$editsPanel.remove();
                     $('body').removeClass('isReviewing');
@@ -386,7 +386,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             $viewport.html(diff.body);
 
             if(reviewMode){
-                $viewport.find('a').click(function(e){
+                $viewport.find('a').on('click', function(e){
                     e.preventDefault();
                     e.stopPropagation();
                     $(this).parents('span[data-diff="chunk"]').tooltip('show');
@@ -394,16 +394,16 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 });
                 var chunkID = 0;
                 //If we're in review mode, we have a few more things we need to do...
-                $viewport.click(function(e){
+                $viewport.on('click', function(e){
                     $('span[data-diff="chunk"]').tooltip('hide');
                 });
                 if(diff.chunkCount == 0){
                     base.waitingForReview = false;
                     base.restoreEditor();
-                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').trigger('click');
                     base.$editorialToolsPanelHeaderDropdown.find('li.edits').remove();
                     base.$editsPanel.remove();
-                    $('.cke_button.cke_button__editorialtools').click();
+                    $('.cke_button.cke_button__editorialtools').trigger('click');
                 }else{
                     $('span[data-diff="chunk"]').each(function(){
                         var container = 'body';
@@ -422,7 +422,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                     "container": container
                                 }).on('shown.bs.tooltip',function(){
                                     $chunk = $(this);
-                                    $('.viewFormatting').off('click').click(function(){
+                                    $('.viewFormatting').off('click').on('click', function(){
                                         $('#editorialReviewFormattingChangesList tr').hide();
                                         $('#editorialReviewFormattingChangesList tr[data-chunk="'+$chunk.data('chunk_id')+'"]').show();
 
@@ -457,14 +457,14 @@ CKEDITOR.plugins.add( 'editorialTools', {
                             $('span[data-diff="chunk"]').not(this).tooltip('hide');
                         }).on('shown.bs.tooltip',function(){
                             var chunkID = $(this).attr('id');
-                            $('.tooltip-inner .btn-danger').off('click').click(function(){
+                            $('.tooltip-inner .btn-danger').off('click').on('click', function(){
                                 base.rejectEdit($('#'+chunkID).tooltip('hide'));
                             });
-                            $('.tooltip-inner .btn-success').off('click').click(function(){
+                            $('.tooltip-inner .btn-success').off('click').on('click', function(){
                                 base.acceptEdit($('#'+chunkID).tooltip('hide'))
                             });
 
-                        }).click(function(e){
+                        }).on('click', function(e){
                             $(this).tooltip('show');
                             e.stopPropagation();
                         });
@@ -629,7 +629,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
             var $row = $(changeHTML).appendTo('#editorialReviewFormattingChangesList');
             $row.data('$chunk',$chunk);
-            $row.find('.btn-danger').click(function(e){
+            $row.find('.btn-danger').on('click', function(e){
                 e.preventDefault();
                 $(this).parents('td').find('.btn-danger').hide();
                 $(this).parents('td').find('.btn-success').show();
@@ -637,7 +637,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $(this).parents('tr').addClass('rejected');
                 return false;
             });
-            $row.find('.btn-success').click(function(e){
+            $row.find('.btn-success').on('click', function(e){
                 e.preventDefault();
                 $(this).parents('td').find('.btn-success').hide();
                 $(this).parents('td').find('.btn-danger').show();
@@ -645,7 +645,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 $(this).parents('tr').addClass('accepted');
                 return false;
             });
-            $row.find('.showAll').click(function(e){
+            $row.find('.showAll').on('click', function(e){
                 e.preventDefault();
                 var $list = $(this).parent().find('.childNodeList');
                 if(!$(this).hasClass('open')){
@@ -723,10 +723,10 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 }else{
                     base.waitingForReview = false;
                     base.restoreEditor();
-                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').click();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:nth-child(2) a').trigger('click');
                     base.$editorialToolsPanelHeaderDropdown.find('li.edits').remove();
                     base.$editsPanel.remove();
-                    $('.cke_button.cke_button__editorialtools').click();
+                    $('.cke_button.cke_button__editorialtools').trigger('click');
                 }
             }
         };
@@ -770,7 +770,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                                                     <div class="col-xs-12 col-md-6"><button type="button" class="btn btn-success">Accept all</button></div> \
                                                 </div>\
                                           </div>').appendTo(base.$editorialToolsPanelBody);
-                    base.$editsPanel.find('#view_visual_changes_link').click(function(e){
+                    base.$editsPanel.find('#view_visual_changes_link').on('click', function(e){
                         e.preventDefault();
                         $('#editorialReviewFormattingChangesList tr').show();
                         $('#editorialReviewFormattingChanges caption .page_caption').show();
@@ -778,7 +778,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         $('#editorialReviewFormattingChanges').modal('show');
                         return false;
                     });
-                    $('#acceptRejectAll .btn-danger').click(function(){
+                    $('#acceptRejectAll .btn-danger').on('click', function(){
                         $('span[data-diff="chunk"]').tooltip('hide').each(function(){
                             base.rejectEdit($(this),true);
                         });
@@ -786,7 +786,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         $('#acceptRejectAll .btn-danger').addClass('disabled');
                         $('#acceptRejectAll .btn-success').removeClass('disabled');
                     });
-                    $('#acceptRejectAll .btn-success').click(function(){
+                    $('#acceptRejectAll .btn-success').on('click', function(){
                         $('span[data-diff="chunk"]').tooltip('hide').each(function(){
                             base.acceptEdit($(this),true);
                         });
@@ -796,7 +796,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     });
                 }
             //Queries
-                $('input[value="Save"]').click(function(){
+                $('input[value="Save"]').on('click', function(){
                     $('#unsavedQueryWarning').hide().attr('aria-hidden','true');
                 });
                 base.$editorialToolsPanelHeaderDropdown.find('.dropdown-menu').append('<li class="queries"><a href="#">Queries</a></li>');
@@ -808,7 +808,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
                 base.$queriesPanel = $('<div class="queriesPanel panel"></div>').appendTo(base.$editorialToolsPanelBody);
                 base.$addNewQueryForm = $('<div id="addNewQueryForm" class="clearfix"><textarea placeholder="Enter query..." class="form-control" id="addNewQueryFormText"></textarea><button type="button" class="pull-right btn btn-sm">Add</button></div>').prependTo(base.$queriesPanel).hide();
-                base.$addNewQueryForm.find('button').click(function(e){
+                base.$addNewQueryForm.find('button').on('click', function(e){
                     var id = ++base.highestID;
                     var query = {
                         id : id,
@@ -827,7 +827,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 });
 
                 base.$addNewQueryButton = $('<button id="addNewQuery" class="pull-right btn btn-sm">Add new</button>').prependTo(base.$editorialToolsPanelHeader);
-                base.$addNewQueryButton.click(function(e){
+                base.$addNewQueryButton.on('click', function(e){
                     $('#addNewQueryForm').show().find('#addNewQueryFormText').focus();
                     base.$queriesPanel.animate({
                         scrollTop: $('#addNewQueryForm').offset().top-base.$queriesPanel.offset().top
@@ -845,7 +845,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
 
                 base.$resolvedQueries = $(resolvedQueriesHTML).appendTo(base.$queriesPanel).hide();
 
-                base.$resolvedQueries.find('.queryDropdownToggle').click(function(e){
+                base.$resolvedQueries.find('.queryDropdownToggle').on('click', function(e){
                     $(this).parents('.resolvedQueries').find('.collapse').collapse('toggle');
                     e.stopPropagation();
                     return false;
@@ -888,7 +888,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                 var node = scalarapi.getNode(page_slug);
 
                 if(!node || !node.versions){
-                    base.$editorialToolsPanelHeaderDropdown.find('li:first-child a').click();
+                    base.$editorialToolsPanelHeaderDropdown.find('li:first-child a').trigger('click');
                     base.$editorialToolsPanelHeaderDropdown.find('li.versions').remove();
                     return false;
                 }
@@ -929,7 +929,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     $version
                         .html('<td>'+versionNumber+'</td><td>'+authorName+'</td><td>'+dateString+'</td>')
                         .data('version',version)
-                        .click(function(e){
+                        .on('click', function(e){
                             e.preventDefault();
                             e.stopPropagation();
                             var version = $(this).data('version');
@@ -975,7 +975,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             base.$editorialToolsPanelHeaderDropdown.find('button .text').text(base.$editorialToolsPanelHeaderDropdown.find('li>a').first().addClass('active').text());
             base.$editorialToolsPanel.addClass(base.$editorialToolsPanelHeaderDropdown.find('li>a').first().addClass('active').text().toLowerCase());
             if(base.$editorialToolsPanelHeaderDropdown.find('li>a').length > 1){
-                base.$editorialToolsPanelHeaderDropdown.find('li>a').click(function(e){
+                base.$editorialToolsPanelHeaderDropdown.find('li>a').on('click', function(e){
                     if(base.$editorialToolsPanel.hasClass('versions')){
                         $('.state_dropdown').prop('disabled',base.currentPageInfo.canChangeState);
                         $('#title').prop('disabled',false).val(base.currentPageInfo.title);
@@ -1014,7 +1014,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
         editor.on('instanceReady',function(e){
             if( (base.is_author && base.editorialState === "editreview") ||
                 (base.is_editor && base.editorialState === "clean") ){
-                $('#editorialReviewFormattingChangesCommit').click(function(){
+                $('#editorialReviewFormattingChangesCommit').on('click', function(){
                     $('span[data-diff="chunk"]').tooltip('hide');
                     $('#editorialReviewFormattingChangesList tr').each(function(){
                         if($(this).hasClass('rejected')){

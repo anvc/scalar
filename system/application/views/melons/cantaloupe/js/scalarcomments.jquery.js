@@ -148,9 +148,9 @@
 		} );
 		$( '.comment_form' ).find( "input[type='submit']" ).attr( 'tabindex', ++ti );
 	}
-	
+
 	ScalarComments.prototype.setupCommentForm = function() {
-	
+
 		var me = this,
 			currentNode = scalarapi.model.getCurrentPageNode();
 
@@ -181,7 +181,7 @@
 				$commenter_logged_in = $('#commenter_logged_in');
 				$commenter_logged_in.fadeIn('fast');
 				$commenter_logged_in.find('[title="Your user page"]').attr('href', 'javascript:;').html(data.fullname);
-				$commenter_logged_in.find('[title="Logout"]').click(function() {
+				$commenter_logged_in.find('[title="Logout"]').on('click', function() {
 					var url = document.location.href;
 					if (url.indexOf('#')!=-1) url = url.substr(0, url.indexOf('#'));
 					var url_append = 'action=do_logout&redirect_url='+encodeURIComponent(url+'#comments');
@@ -196,20 +196,20 @@
 				$('#comment_your_name').hide();
 				$('#comment_captcha').hide();
 				$( '.comment_form' ).find( "input[type='submit']" ).attr( 'tabindex', ++me.tabIndex );
-				
+
 				// handle tab back on first link
 				$( '#commenter_logged_in' ).find( 'a:eq(0)' ).onTabBack(function() {
-				
+
 					// tab back to close button if no comments are visible
 					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
 						me.modal.find('.close').focus();
-						
+
 					// otherwise tab back to the last comment
 					} else {
 						me.bodyContent.find('.comment:last h3 a').focus();
 					}
 				});
-				
+
 			} else {  // note logged in
 				$('#commenter_anonymous').fadeIn('fast');
 				$('#comment_your_name').show();
@@ -224,20 +224,20 @@
 					if (recaptcha2_site_key.length) {
 				        grecaptcha.render("comment_captcha_wrapper", {
 				            'sitekey' : recaptcha2_site_key
-				          });						
+				          });
 					} else if (recaptcha_public_key.length) {
 						Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", { theme: "white", tabindex: ++me.tabIndex });
 					}
 					setTimeout( me.updateTabIndexForReCaptcha, 500 );
 				}
-				
+
 				// handle tab back on first link
 				$( '#commenter_anonymous' ).find( 'a:eq(0)' ).onTabBack(function() {
-				
+
 					// tab back to close button if no comments are visible
 					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
 						me.modal.find('.close').focus();
-						
+
 					// otherwise tab back to the last comment
 					} else {
 						me.bodyContent.find('.comment:last h3 a').focus();

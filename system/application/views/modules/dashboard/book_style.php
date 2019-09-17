@@ -22,7 +22,7 @@ function select_interface(melon) {
     $('#interface').empty();
     var $template = $('<span id="select_template"><select name="template"></select>&nbsp; </span>').appendTo('#interface');
     var $whats_this = $('<a class="whatsthis" href="javascript:void(null);">What\'s this?</a>').appendTo($template);
-    $whats_this.click(function() {
+    $whats_this.on('click', function() {
 		$('<div></div>').melondialog({
 			data:JSON.parse($("#interfaces").text()),
 			select:$(this).siblings('select:first'),
@@ -112,7 +112,7 @@ function select_versions() {
 function set_versions(nodes, init) {
 	if ('undefined'==init) init = false;
 	var $versions = $('#versions');
-	$versions.find('a').unbind( "click" );
+	$versions.find('a').off( "click" );
 	$versions.find('input[value="0"]').closest('li').remove();
 	var book_version_ids = [];
 	$versions.find('input[type="hidden"]').each(function() {
@@ -123,7 +123,7 @@ function set_versions(nodes, init) {
 		var $node = $('<li><input type="hidden" name="book_version_'+nodes[j].versions[0].version_id+'" value="1" />'+nodes[j].versions[0].title+' <small>(<a href="javascript:void(null);">remove</a>)</small></li>').appendTo($versions);
 		$node.data('node', nodes[j]);
 	}
-	$versions.find('a').click(function() {
+	$versions.find('a').on('click', function() {
 		var $li = $(this).closest('li');
 		$li.addClass('removed');
 		$li.find('input').attr('value', 0);
@@ -164,7 +164,7 @@ $(window).ready(function() {
 		}
 	});
 
-    $('.save_changes').next('a').click(function() {
+    $('.save_changes').next('a').on('click', function() {
 		$('#style_form').submit();
     	return false;
     });
@@ -177,7 +177,7 @@ $(window).ready(function() {
     $('#versions').sortable();
     var book_versions = JSON.parse($("#book_versions").text());
     set_versions(book_versions, true);
-    $('#versions_add_another').click(function() {
+    $('#versions_add_another').on('click', function() {
 		select_versions();
     });
 
@@ -211,14 +211,14 @@ $(window).ready(function() {
 		}
 	});
 
-	$("#tax_search").click(function() {
+	$("#tax_search").on('click', function() {
 		var keys = $("#tax_keys").val();
 		$.getJSON("http://onomy.org/taxonomy/findDTP?sSearch="+keys+"&iDisplayLength=10&iDisplayStart=0&iSortCol_0=0&mDataProp_0=name&format=json&callback=?",
 			function(data) {
 				for(index in data['aaData']) {
 					$("#tax_results").after('<tr><td></td><td colspan="2"><span class="tax_name">'+data['aaData'][index]['name']+'</span><a class="generic_button add_tax" version="'+data['aaData'][index]['currentVersion']+'">Add</a></td></tr>')
 				}
-				$('.add_tax').click(function() {
+				$('.add_tax').on('click', function() {
 					$.ajax({
 						type:'post',
 						url:'api/save_onomy',

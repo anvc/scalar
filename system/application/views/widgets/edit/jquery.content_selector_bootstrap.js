@@ -406,7 +406,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			opts.sq = val;
 			opts.start = 0;
 			$this.find('input[type="radio"]').prop('checked', false);
-			$this.find('.content').unbind('scroll').scrollTop(0);
+			$this.find('.content').off('scroll').scrollTop(0);
 			go();
 		};
 		// Set the height of the content area (only needed for Boostrap mode); TODO: very messy

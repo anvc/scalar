@@ -1,4 +1,4 @@
-/**
+.on('click', /**
  * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
@@ -36,7 +36,7 @@ $(window).ready(function() {
 	// If the type is passed via GET
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
-		$("#type_text").removeAttr('checked');
+		$("#type_text").prop('checked', false);
 		$("#type_media").attr("checked", "checked");
 		checkTypeSelect();
 	}
@@ -54,7 +54,7 @@ $(window).ready(function() {
 		$('.path_of_continue_msg').show();
 	}
 	var $path_of_continue_msg = $('.path_of_continue_msg');
-	$path_of_continue_msg.find('a:first').click(function() {
+	$path_of_continue_msg.find('a:first').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
@@ -63,11 +63,11 @@ $(window).ready(function() {
 			$path_of_continue_msg.find('.title').html(title);
 		}});
 	});
-	$path_of_continue_msg.find('a:last').click(function() {
+	$path_of_continue_msg.find('a:last').on('click', function() {
 		$path_of_continue_msg.find('input[name="scalar:continue_to_content_id"]').val('');
 		$path_of_continue_msg.find('.title').html('none');
 	});
-	$('.path_of_msg').find('a').click(function() {
+	$('.path_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
@@ -82,7 +82,7 @@ $(window).ready(function() {
 	if ($('#reply_of').find('li').length) {
 		$('.reply_of_msg').show();
 	}
-	$('.reply_of_msg').find('a').click(function() {
+	$('.reply_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be commented on',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
@@ -96,7 +96,7 @@ $(window).ready(function() {
 	if ($('#annotation_of').find('li').length) {
 		$('.annotation_of_msg').show();
 	}
-	$('.annotation_of_msg').find('a').click(function() {
+	$('.annotation_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
@@ -145,7 +145,7 @@ $(window).ready(function() {
 	if ($('#tag_of').find('li').length) {
 		$('.tag_of_msg').show();
 	}
-	$('.tag_of_msg').find('a').click(function() {
+	$('.tag_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be tagged',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
@@ -159,7 +159,7 @@ $(window).ready(function() {
 	if ($('#has_tag').find('li').length) {
 		$('.has_tag_msg').show();
 	}
-	$('.has_tag_msg').find('a').click(function() {
+	$('.has_tag_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var urn = nodes[j].version["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
@@ -234,11 +234,11 @@ $(window).ready(function() {
 	});
 
 	// Additional metadata
-	$('#metadata_rows').nextAll('.add_additional_metadata:first').click(function() {
+	$('#metadata_rows').nextAll('.add_additional_metadata:first').on('click', function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url});
 	});
-	$('#metadata_rows').nextAll('.populate_exif_fields:first').click(function() {
+	$('#metadata_rows').nextAll('.populate_exif_fields:first').on('click', function() {
 		if (!confirm('This feature will find any IPTC metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files by external applications. Do you wish to continue?')) return;
 		var url = $('input[name="scalar:url"]').val();
 		if (!url.length) {
@@ -290,7 +290,7 @@ $(window).ready(function() {
 	}
 
 	// Protect links from moving away from the edit page
-	$('a').not('form a').click(function() {
+	$('a').not('form a').on('click', function() {
 		if (!confirm('Are you sure you wish to leave this page? Any unsaved changes will be lost.')) {
 			return false;
 		}
@@ -300,7 +300,7 @@ $(window).ready(function() {
 	$(".sortable").sortable();
 
 	// Hide certain zones (e.g., style, metadata, etc)
-	$('#other .edit_page_arrow, #add_meta .edit_page_arrow, #styling .edit_page_arrow').toggle_zone().click(function() {
+	$('#other .edit_page_arrow, #add_meta .edit_page_arrow, #styling .edit_page_arrow').toggle_zone().on('click', function() {
 		$(this).toggle_zone();
 	});
 
@@ -520,7 +520,7 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	});
 	// Filters
 	var $filters = $('<div class="filters"><span class="loading_complete page"><input type="radio" name="filter" value="page" id="pages" /> <label for="pages">Pages</label>&nbsp; &nbsp; </span><span class="loading_complete media"><input type="radio" name="filter" value="media" id="media" /> <label for="media">Media</label>&nbsp; &nbsp; </span><span class="loading_complete path"><input type="radio" name="filter" value="path" id="paths" /> <label for="paths">Paths</label>&nbsp; &nbsp; </span><span class="loading_complete tag"><input type="radio" name="filter" value="tag" id="tags" /> <label for="tags">Tags</label>&nbsp; &nbsp; </span><span class="loading_complete annotation"><input type="radio" name="filter" value="annotation" id="annotations" /> <label for="annotations">Annotations</label>&nbsp; &nbsp; </span><span class="loading_complete reply"><input type="radio" name="filter" value="reply" id="replies" /> <label for="replies">Comments</label></span>&nbsp; &nbsp; <span class="content_loading">Content loading</span></div>');
-	$filters.find('input').click(function() {
+	$filters.find('input').on('click', function() {
 		var content_type = $(this).val();
 		load_content(content_type, $div, $list, _insert_func, default_type, only_default_type, select_single);
 	});
@@ -532,13 +532,13 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	// Cancel, Add
 	var $add_options = $('<div class="add_selected_wrapper"></div>');
 	var $link = $('<a href="javascript:;" class="generic_button large">Cancel</a>');
-	$link.click(function() {
+	$link.on('click', function() {
 		$(this).parent().parent().remove();
 	});
 	$add_options.append($link);
 	if (!select_single) {
 		var $add_selected = $('<a class="generic_button large default" style="margin-left:5px;" href="javascript:;">Add selected</a>');
-		$add_selected.click(function() {
+		$add_selected.on('click', function() {
 			listeditor_save($list, insert_func);
 		});
 		$add_options.append($add_selected);
@@ -548,11 +548,11 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	if (default_type!='media'||!only_default_type) {
 		var $new = $('<div class="create_new"><a class="edit_page_arrow edit_page_arrow_down"><b>Or, create a new page on the fly</b></a><div><div style="height:4px;overflow:hidden;"></div><input type="text" class="new_title" value="New page title" onfocus="if (this.value==\'New page title\') this.value=\'\';" /> <input type="text" class="new_desc" value="New page description" onfocus="if (this.value==\'New page description\') this.value=\'\';" /><br /><textarea class="new_content" onfocus="if (this.value==\'New page content\') this.value=\'\';">New page content</textarea><br/><a href="javascript:;" style="float:right;" class="generic_button">Create new page</a></div></div>');
 		$div.append($new);
-		$new.find('a:last').click(function() {
+		$new.find('a:last').on('click', function() {
 			listeditor_createnew($list, insert_func);
 			return false;
 		});
-		$new.find('a:first').toggle_zone().click(function() {
+		$new.find('a:first').toggle_zone().on('click', function() {
 			$(this).toggle_zone();
 			listeditor_position($content_wrapper, $div);
 		});
@@ -629,15 +629,15 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 	});
 	// Add events
 	$div.find('#search_count').html('Found '+$table.find('tr').length+'&nbsp;');
-	$table.find('.preview_button').click(function(e) {
+	$table.find('.preview_button').on('click', function(e) {
 		e.stopPropagation();
 		window.open($(this).attr('href'), 'preview_window', 'width=1000,height=800');
 		return false;
 	});
-	$table.find("input[type='checkbox']").click(function(e) {
+	$table.find("input[type='checkbox']").on('click', function(e) {
 		e.stopPropagation();
 	});
-	$table.find('tr:not(".head")').click(function() {
+	$table.find('tr:not(".head")').on('click', function() {
 		var $tr = $(this);
 		if ($tr.parent().is('thead')) return;
 		if (select_single) {
@@ -656,7 +656,7 @@ function listeditor_fill_table($div, $list, _insert_func, default_type, only_def
 			$this.empty();
 			$this.append($expanded);
 			$this.append($collapsed);
-			$this.find('a.toggle_collapse_expand').click(function() {
+			$this.find('a.toggle_collapse_expand').on('click', function() {
 				$(this).parent().toggle();
 				$(this).parent().siblings().toggle();
 				return false;
@@ -685,7 +685,7 @@ function listeditor_search(sq) {
 		}
 	});
 	$('#search_count').html('Found '+count+'&nbsp;<span class="clear_link"><a href="javascript:;">clear search</a></span>');
-	$('#search_count').find('.clear_link').click(function() {
+	$('#search_count').find('.clear_link').on('click', function() {
 		var count = 0;
 		$(".content_wrapper tr").each(function() {
 			var $row = $(this);
@@ -722,7 +722,7 @@ function listeditor_save($list, insert_func, $row, select_single) {
 			}
 			$options_div.append('<p><br /><input type="button" class="generic_button large" value="Cancel" />&nbsp; <input type="button" class="generic_button large default" value="Continue" /><br clear="both" /></p>');
 			var node_data = $row.data('node');
-			$options_div.find('input:first').click(function() {
+			$options_div.find('input:first').on('click', function() {
 				$options_div.remove();
 			});
 			$options_div.find('input:last').bind('click', {$list:$list,insert_func:insert_func,node_data:node_data}, function() {

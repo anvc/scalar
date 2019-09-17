@@ -23,7 +23,7 @@
 
 		$(document).ready(function() {
 
-			$('#check_all').click(function() {
+			$('#check_all').on('click', function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
@@ -51,7 +51,7 @@
    	   			return false;
    			});
 
-   			$('#formSearch').find('a').click(function() {
+   			$('#formSearch').find('a').on('click', function() {
    	   			start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
 				$(this).parent().find('input:first').val('Search for a page');
@@ -112,11 +112,11 @@
 				$('.pagination').html('<b>'+(prev+1)+'</b> - <b>'+(next)+'</b> of ');
 				var $prev = $('<a href="javascript:;">'+((prev>0)?'Previous':'')+'</a>').appendTo('.prev');
 				var $next = $('<a href="javascript:;">'+((next<total)?'Next':'')+'</a>').appendTo('.next');
-				$prev.click(function() {
+				$prev.on('click', function() {
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 					start = _prev;
 				});
-				$next.click(function() {
+				$next.on('click', function() {
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 					start = _next;
 				});
@@ -268,7 +268,7 @@
 					    }
 						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Reset version numbers</a></td><td colspan="2"</td></tr>');
 						$data_row.after($reorder);
-						$reorder.find('a:first').click(function() {
+						$reorder.find('a:first').on('click', function() {
 							if (!confirm('Are you sure you wish to reset version numbers? This might break links to specific versions in your book.')) return false;
 							$.get('api/reorder_versions', {content_id:content_id}, function(data) {
 								get_versions(content_id, the_link);  // close

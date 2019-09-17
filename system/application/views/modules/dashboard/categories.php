@@ -25,7 +25,7 @@
 
 			rel_type = $('#formRelType').find('[name="relType"] option:selected').val();  // Global
 
-			$('#check_all').click(function() {
+			$('#check_all').on('click', function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
@@ -46,7 +46,7 @@
    	   			$this.closest('form').submit();
    	   			$this.blur();
    			});
-   			$('#formRelTypeReload a').click(function() {
+   			$('#formRelTypeReload a').on('click', function() {
    	   			var $this = $(this);
    	   			$this.closest('form').submit();
    	   			$this.blur();
@@ -56,7 +56,7 @@
 				pagination();
    			});
 
-   			$('#add_term_btn').click(function() {
+   			$('#add_term_btn').on('click', function() {
    				$('<div></div>').content_selector({parent:book_uri,changeable:true,multiple:true,onthefly:true,msg:'Selected pages will be added to the <b>'+rel_type+'</b> category',callback:function(nodes){
    					console.log(nodes);
    					$('.table_wrapper:first').html('<div id="loading">Saving</div>');
@@ -137,7 +137,7 @@
 					    }
 						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Reset version numbers</a></td><td colspan="2"</td></tr>');
 						$data_row.after($reorder);
-						$reorder.find('a:first').click(function() {
+						$reorder.find('a:first').on('click', function() {
 							if (!confirm('Are you sure you wish to reset version numbers? This might break links to specific versions in your book.')) return false;
 							$.get('api/reorder_versions', {content_id:content_id}, function(data) {
 								get_versions(content_id, the_link);  // close

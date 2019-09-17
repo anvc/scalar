@@ -1,21 +1,21 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 function validate_upload_form_file($form) {
 
@@ -25,23 +25,23 @@ function validate_upload_form_file($form) {
 		alert('Title is a required field.  Please enter a title at the top of the form.');
 		return false;
 	}
-	
+
 	// Make sure file is present
 	var slug = $form.find('input[name="source_file"]').val();
 	if (slug.length==0) {
 		alert('Please choose a file to upload.');
 		return false;
-	}		
-	
+	}
+
 	send_form_show_loading();
-	
+
 	// Save using standard POST to the system, then route to the save API for creating the page
 	$form.find('#hidden_upload').load(function() {
 		validate_upload_form_file_return($form);
 	});
-	
+
 	return true;
-	
+
 }
 
 function validate_upload_form_file_return($form) {
@@ -51,26 +51,26 @@ function validate_upload_form_file_return($form) {
 	try {
 		var obj = jQuery.parseJSON(content);
 	} catch(err) {
-		$(iframe).unbind();
+		$(iframe).off();
 		$(iframe).attr('src', '');
 		send_form_hide_loading();
 		alert('There was an error saving the file: '+err);
 		return;
 	}
 	if ('undefined'!=typeof(obj) && 'undefined'!=typeof(obj.error) && obj.error.length) {
-		$(iframe).unbind();
+		$(iframe).off();
 		$(iframe).attr('src', '');
 		send_form_hide_loading();
 		alert('There was an error saving the file: '+obj.error);
 		return;
 	}
-	
+
 	validate_upload_form($form, obj);
 
 }
 
 function validate_upload_form($form, obj) {
-	
+
 	for (var url in obj) break;
 	var metadata = obj[url];
 
@@ -81,14 +81,14 @@ function validate_upload_form($form, obj) {
 		alert('Title is a required field.  Please enter a title at the top of the form.');
 		return false;
 	}
-	
+
 	// Make sure URL is present
 	if ('undefined'==typeof(url) || url.length==0) {
 		send_form_hide_loading();
 		alert('Could not resolve the file URL for creating the new page.');
 		return false;
-	}	
-	
+	}
+
 	var values = {};
 	values['scalar:url'] = url;
 	if (!jQuery.isEmptyObject(metadata)) $.extend( values, metadata );
@@ -103,7 +103,7 @@ function validate_upload_form($form, obj) {
 		var slug_prepend = $form.find('input[name="slug_prepend"]:checked').val();
 		var slug = (slug_prepend.length) ? slug_prepend+'/' : '';
 		slug += title;
-		values['scalar:slug'] = slug;		
+		values['scalar:slug'] = slug;
 	}
 
 	// Set scalar:urn if 'replace' is present (e.g., update vs add)
@@ -134,8 +134,8 @@ function send_form($form, additional_values, success) {
 		} else {
 			values[field.name] = field.value;
 		}
-	});	
-	
+	});
+
 	if ('undefined'!=typeof(additional_values) && !$.isEmptyObject(additional_values)) {
 		for (var field in additional_values) {
 			if ('undefined'!=typeof(values[field.name])) {
@@ -145,7 +145,7 @@ function send_form($form, additional_values, success) {
 				values[field].push(additional_values[field]);
 			} else {
 				values[field] = additional_values[field];
-			}	
+			}
 		}
 	}
 
@@ -154,10 +154,10 @@ function send_form($form, additional_values, success) {
 		    for (var version_uri in version) break;
 		    if ('undefined'==typeof(redirect_url)) redirect_url = version_uri.substr(0, version_uri.lastIndexOf('.'));
 		    var version_urn = version[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
-			send_form_relationships($form, version_urn, redirect_url);     
+			send_form_relationships($form, version_urn, redirect_url);
 		}
 	}
-	
+
 	var error = function(message) {
 		alert('Something went wrong while attempting to save: '+message);
 		send_form_hide_loading();
@@ -168,8 +168,8 @@ function send_form($form, additional_values, success) {
 
 }
 
-function send_form_relationships($form, version_urn, redirect_url) {		
-	
+function send_form_relationships($form, version_urn, redirect_url) {
+
 	var values = {};
 	// The version just saved
 	values['scalar:urn'] = version_urn;
@@ -178,8 +178,8 @@ function send_form_relationships($form, version_urn, redirect_url) {
 	values['native'] = $('input[name="native"]').val();
 	values['id'] = $('input[name="id"]').val();
 	values['api_key'] = '';
-	
-	// Container of 
+
+	// Container of
 	values['container_of'] = $('input[name="container_of"]');
 	// Reply of
 	values['reply_of'] = $('input[name="reply_of"]');
@@ -203,27 +203,27 @@ function send_form_relationships($form, version_urn, redirect_url) {
 		values['references'].push($('<input value="'+resource+'" />'));
 		// TODO: reference_text
 	});
-	
+
 	// Has container
 	values['has_container'] = $('input[name="has_container"]');
 	values['has_container_sort_number'] = $('input[name="has_container_sort_number"]');
 	// Has reply
 	values['has_reply'] = $('input[name="has_reply"]');
-	values['has_reply_paragraph_num'] = $('input[name="has_reply_paragraph_num"]');	
-	values['has_reply_datetime'] = $('input[name="has_reply_datetime"]');	
+	values['has_reply_paragraph_num'] = $('input[name="has_reply_paragraph_num"]');
+	values['has_reply_datetime'] = $('input[name="has_reply_datetime"]');
 	// Has Annotation
 	values['has_annotation'] = $('input[name="has_annotation"]');
 	values['has_annotation_start_seconds'] = $('input[name="has_annotation_start_seconds"]');
 	values['has_annotation_end_seconds'] = $('input[name="has_annotation_end_seconds"]');
 	values['has_annotation_start_line_num'] = $('input[name="has_annotation_start_line_num"]');
 	values['has_annotation_end_line_num'] = $('input[name="has_annotation_end_line_num"]');
-	values['has_annotation_points'] = $('input[name="has_annotation_points"]');	
+	values['has_annotation_points'] = $('input[name="has_annotation_points"]');
 	// Has Tag
-	values['has_tag'] = $('input[name="has_tag"]');	
+	values['has_tag'] = $('input[name="has_tag"]');
 	// Has reference
-	values['has_reference'] = $('input[name="has_reference"]');	
-	values['has_reference_reference_text'] = $('input[name="has_reference_reference_text"]');		
-	
+	values['has_reference'] = $('input[name="has_reference"]');
+	values['has_reference_reference_text'] = $('input[name="has_reference_reference_text"]');
+
 	// Save relationships
 	var success = function() {
 		var get_str = '';
@@ -231,8 +231,8 @@ function send_form_relationships($form, version_urn, redirect_url) {
 		if (path.length) get_str = 'path='+path;  // Maintain current path
 		get_str += ((get_str.length)?'&':'') + 't=' + (new Date).getTime();  // Override cache (so, e.g., replaced images are properly displayed)
 		document.location.href=redirect_url + '?' + get_str;
-	} 
-	scalarapi.saveManyRelations(values, success);   	
+	}
+	scalarapi.saveManyRelations(values, success);
 
 }
 
@@ -265,8 +265,8 @@ function send_form_show_loading() {
 
 function send_form_hide_loading() {
 
-	$('input[type="submit"]').removeAttr("disabled");
-	
+	$('input[type="submit"]').prop("disabled", false);
+
 	if (window['Spinner']) {
 		$('.spinner').remove();
 	}
@@ -308,7 +308,7 @@ function basename(path) {
 	if ('undefined'==typeof(path) || !path.length) return '';
     return path.replace(/\\/g,'/').replace( /.*\//, '' );
 }
- 
+
 function dirname(path) {
 	if ('undefined'==typeof(path) || !path.length) return '';
     return path.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');;
@@ -348,7 +348,7 @@ function getUrlVars() {
 // http://phpjs.org/functions/in_array
 function in_array (needle, haystack, argStrict) {
     var key = '', strict = !!argStrict;
- 
+
     if (strict) {
         for (key in haystack) {
             if (haystack[key] === needle) {
@@ -413,7 +413,7 @@ function htmlspecialchars (string, quote_style, charset, double_encode) {
         string = string.replace(/&/g, '&amp;');
     }
     string = string.replace(/</g, '&lt;').replace(/>/g, '&gt;');
- 
+
     var OPTS = {
         'ENT_NOQUOTES': 0,
         'ENT_HTML_QUOTE_SINGLE' : 1,
@@ -444,7 +444,7 @@ function htmlspecialchars (string, quote_style, charset, double_encode) {
     if (!noquotes) {
         string = string.replace(/"/g, '&quot;');
     }
- 
+
     return string;
 }
 
@@ -487,11 +487,10 @@ function ucwords(str) {
 var th = ['','thousand','million', 'billion','trillion'];
 // uncomment this line for English Number System
 // var th = ['','thousand','million', 'milliard','billion'];
-var dg = ['zero','one','two','three','four', 'five','six','seven','eight','nine']; var tn = ['ten','eleven','twelve','thirteen', 'fourteen','fifteen','sixteen', 'seventeen','eighteen','nineteen']; var tw = ['twenty','thirty','forty','fifty', 'sixty','seventy','eighty','ninety']; 
+var dg = ['zero','one','two','three','four', 'five','six','seven','eight','nine']; var tn = ['ten','eleven','twelve','thirteen', 'fourteen','fifteen','sixteen', 'seventeen','eighteen','nineteen']; var tw = ['twenty','thirty','forty','fifty', 'sixty','seventy','eighty','ninety'];
 function toWords(s){s = s.toString(); s = s.replace(/[\, ]/g,''); if (s != parseFloat(s)) return 'not a number'; var x = s.indexOf('.'); if (x == -1) x = s.length; if (x > 15) return 'too big'; var n = s.split(''); var str = ''; var sk = 0; for (var i=0; i < x; i++) {if ((x-i)%3==2) {if (n[i] == '1') {str += tn[Number(n[i+1])] + ' '; i++; sk=1;} else if (n[i]!=0) {str += tw[n[i]-2] + ' ';sk=1;}} else if (n[i]!=0) {str += dg[n[i]] +' '; if ((x-i)%3==0) str += 'hundred ';sk=1;} if ((x-i)%3==1) {if (sk) str += th[(x-i-1)/3] + ' ';sk=0;}} if (x != s.length) {var y = s.length; str += 'point '; for (var i=x+1; i<y; i++) str += dg[n[i]] +' ';} return str.replace(/\s+/g,' ');}
 
 // http://phpjs.org/functions/is_numeric:449
 function is_numeric (mixed_var) {
     return (typeof(mixed_var) === 'number' || typeof(mixed_var) === 'string') && mixed_var !== '' && !isNaN(mixed_var);
 }
-	

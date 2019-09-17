@@ -33,7 +33,7 @@
    			$(window).resize(function() { resizeList(); });
    			resizeList();
 
-   			$('#register_key').click(function() {
+   			$('#register_key').on('click', function() {
    	   			var $this = $(this);
    	   			$this.replaceWith('<span style="padding-left:20px;padding-top:2px;float:right;"><b>key'+(($this.data('key').toString().indexOf(' OR ')!=-1)?'s':'')+'</b>: '+$this.data('key').toString()+'</span>');
    			});
@@ -52,7 +52,7 @@
 			if (book_title.val() == 'title of first book (optional)') book_title.val('');
 		}
 		</script>
-		
+
 		<? if (isset($_GET['error']) && $_GET['error']==1): ?>
 		<div class="error" style="max-width:none; margin-bottom:16px;">You left out a required field<a style="float:right;" href="?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users#tabs-all-users">clear</a></div>
 		<? endif; ?>
@@ -77,7 +77,7 @@
 		<? else: ?>
 		<span style="padding-left:20px; padding-top:2px; float:right; color:#777777;">No registration key</span>
 		<? endif; ?>
-		Add new user: 
+		Add new user:
 		<input tabindex="1" type="text" name="email" value="" placeholder="Email address" style="width:170px;" />&nbsp;
 		<input tabindex="2" type="text" name="fullname" value="" placeholder="Full name" style="width:170px;" />&nbsp;
 		<input tabindex="3" type="password" name="password_1" value="" placeholder="Password" style="width:170px;" />&nbsp;

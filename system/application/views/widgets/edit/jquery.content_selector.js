@@ -97,7 +97,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$media_preview.find('.mediaThumbnail').remove();
 			$media_preview.find('.right').removeClass('col-sm-8 col-md-9');
 		}
-		$('<a href="#">Change Selected Media</a>').data('element',opts.element).click(function(e){
+		$('<a href="#">Change Selected Media</a>').data('element',opts.element).on('click', function(e){
 			e.preventDefault();
 			e.stopPropagation();
 			var element = $(this).data('element');
@@ -134,7 +134,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 																				'</div></div><div class="featuredAnnotation"><div class="form-group"><div class="col-xs-12">Choose an annotation to be highlighted when the page loads, or select \'None\'.</div>'+
 																				'<label class="col-sm-3 control-label">Featured Annotation:</label><div class="col-sm-9"><select><option value="none" class="none">None</option></select></div></div>');
 
-        $annotationSelection.find('.annotationSelectionShowAll').click(function(e){
+        $annotationSelection.find('.annotationSelectionShowAll').on('click', function(e){
 					e.preventDefault();
 					e.stopPropagation();
 					var $featuredAnnotation = $(this).parents('.annotationContainer').find('.featuredAnnotation');
@@ -168,7 +168,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									var rel = annotated_by[n];
 									var title = rel.getDisplayTitle();
 									$featuredAnnotation.append('<option style="display: none;" disabled value="'+rel.slug+'">'+title+'</option>');
-									$annotations[rel.slug] = $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).click(function(){
+									$annotations[rel.slug] = $('<tr data-slug="'+rel.slug+'"><td class="col-xs-3 text-center">&nbsp;&nbsp;<a class="annotationSelectionShow"><i class="glyphicon glyphicon-eye-close text-muted"></a></td><td class="col-xs-9 annotationTitle">'+title+'</td></tr>').appendTo($body).on('click', function(){
 										var $featuredAnnotation = $(this).parents('.annotationContainer').find('.featuredAnnotation');
 										if($(this).hasClass('info')){
 											$(this).removeClass('info').find('.glyphicon-eye-open').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close text-muted');
@@ -251,10 +251,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 
 	    $this.append('<div class="clearfix visible-xs-block"></div><p class="buttons"><input type="button" class="btn btn-default generic_button" value="Cancel" />&nbsp; <input type="button" class="btn btn-primary generic_button default continueButton" value="Continue" /></p>');
-	    $this.find('.close').click(function() {
+	    $this.find('.close').on('click', function() {
 		    	$this.remove();
 			});
-	    $this.find('.continueButton').click(function() {
+	    $this.find('.continueButton').on('click', function() {
 				var data_fields = {};
 				data_fields.node = opts.node
 				for (var option_name in opts.data) {
@@ -385,7 +385,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		opts.sq = val;
     		opts.start = 0;
     		$this.find('input[type="radio"]').prop('checked', false);
-    		$this.find('.content').unbind('scroll').scrollTop(0);
+    		$this.find('.content').off('scroll').scrollTop(0);
     		go();
     	};
     	// Set the height of the content area (only needed for Boostrap mode); TODO: very messy
@@ -482,7 +482,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		}
     		// Behaviors
     		$footer.hide();  // Default
-    		$footer.find('a:first').click(function() {  // On-the-fly
+    		$footer.find('a:first').on('click', function() {  // On-the-fly
     			$footer.hide();
     			var $screen = $('<div class="create_screen"></div>').appendTo($wrapper);
     			var $onthefly = $('<div class="create_onthefly" style="position:absolute;"><div>Clicking "Save and link" will create the new page then establish the selected relationship in the page editor.</div><form class="form-horizontal"></form></div>').appendTo($wrapper);
@@ -525,10 +525,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				onthefly_reset();
     				return;
     			}
-    			$buttons.find('a:first').click(function() {
+    			$buttons.find('a:first').on('click', function() {
     				onthefly_reset();
     			});
-    			$buttons.find('a:last').click(function() {
+    			$buttons.find('a:last').on('click', function() {
     				var $self = $(this);
     				if ($self.data('clicked')) return false;
     				$self.data('clicked', true);
@@ -582,7 +582,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				opts.type = val;
     				opts.sq = null;
     				opts.start = 0;
-    				$this.find('.content').unbind('scroll').scrollTop(0);
+    				$this.find('.content').off('scroll').scrollTop(0);
     				go();
     			});
     		}
@@ -594,16 +594,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     		if (opts.multiple) {  // Can choose multiple rows
     			$footer.show();
 					$footer.find('label').show();  // Check all
-					$footer.find('input[type="checkbox"]:first').click(function() {
+					$footer.find('input[type="checkbox"]:first').on('click', function() {
 						var active = $(this).data('active');
 						$wrapper.find('input[type="checkbox"]').each(function() {
      					var $this = $(this);
-     					if (active && $this.is(':checked')) $this.closest('tr').click();
-     					if (!active && !$this.is(':checked')) $this.closest('tr').click();
+     					if (active && $this.is(':checked')) $this.closest('tr').trigger('click');
+     					if (!active && !$this.is(':checked')) $this.closest('tr').trigger('click');
      				});
 						$(this).data('active', ((active)?false:true));
 					});
-        		$footer.find('a').eq(1).click(function() {  // Cancel button
+        		$footer.find('a').eq(1).on('click', function() {  // Cancel button
         			if ($(this).closest('.content_selector_bootbox').length) {
         				$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
         			}
@@ -612,7 +612,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
         			$('.tt').remove();
         		});
     			$footer.find('div:last').append('<a href="javascript:void(null);" class="btn btn-primary btn-sm generic_button default">Add Selected</a>');
-    			$footer.find('a:last').click(function() {
+    			$footer.find('a:last').on('click', function() {
     				if (!opts.queue.length) {
     					alert('Please select one or more items');
     					return;
@@ -684,7 +684,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 	    			var $loadmore = $('<tr><td class="loadmore" colspan="'+($this.find('th').length)+'">Loading more content ...</td></tr>').appendTo($tbody);
 	    			$loadmore.appendTo($tbody);
 	    			$loadmore.hide();
-		    		$this.find('.content').unbind('scroll').scroll(function() {
+		    		$this.find('.content').off('scroll').scroll(function() {
 		    			if ($loadmore.find('td').hasClass('loading')) return;
 		    			$loadmore.show();
 		    			var $this = $(this);
@@ -695,18 +695,18 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		    		});
     			};
     		};
-    		$this.find('tr').find('a').unbind('click').click(function(event) {  // Preview|Visit button
+    		$this.find('tr').find('a').off('click').on('click', function(event) {  // Preview|Visit button
     			event.stopPropagation();
     			return true;
     		});
-    		$this.find('tr').find('input[type="checkbox"]').unbind('click').click(function(event) {  // Clicking a <tr> checks the checkbox; this allows it to work properly if checkbox itself is checked
+    		$this.find('tr').find('input[type="checkbox"]').off('click').on('click', function(event) {  // Clicking a <tr> checks the checkbox; this allows it to work properly if checkbox itself is checked
     			var $this = $(this);
     			var checked = $this.is(":checked");
     			$this.prop('checked', ((checked)?false:true));
     			return true;
     		});
     		if (!opts.multiple) {  // Select a single row
-    			$this.find('tr').unbind('click').click(function() {
+    			$this.find('tr').off('click').on('click', function() {
     				var node = $(this).data('node');
     				if ($(this).closest('.content_selector_bootbox').length) {
     					$(this).closest('.content_selector_bootbox').modal( 'hide' ).data( 'bs.modal', null );
@@ -718,7 +718,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$('.tt').remove();
     			});
     		} else {  // Select multiple rows
-    			$this.find('tr').unbind('click').click(function() {
+    			$this.find('tr').off('click').on('click', function() {
     				var $this = $(this);
     				var checked = $this.find('input[type="checkbox"]').is(":checked");
     				$(this).find('input[type="checkbox"]').prop('checked', ((checked)?false:true));
@@ -731,7 +731,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				}
     			});
     		}
-    		$('.thumb').parent().unbind('mouseover').mouseover(function() {  // Expand thumbnail
+    		$('.thumb').parent().off('mouseover').mouseover(function() {  // Expand thumbnail
     			var $this = $(this).children('.thumb:first');
     			var offset = $this.offset();
     			var $div = $('<div class="tt"></div>');
@@ -743,7 +743,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     				$div.remove();
     			});
     		});
-    		$('.anno').parent().unbind('mouseover').mouseover(function() {  // Show item that is annotated
+    		$('.anno').parent().off('mouseover').mouseover(function() {  // Show item that is annotated
     			var $this = $(this).children('.anno:first');
     			var str = '<i>Could not find target of this annotation</i>';
     			var targets = $this.closest('tr').data('node').targets;
@@ -974,7 +974,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							for(var i = 0; i < data.length; i++){
 								var item = data[i];
 								var desc = ('undefined'!=typeof(item.version['http://purl.org/dc/terms/description'])) ? item.version['http://purl.org/dc/terms/description'][0].value : '<em>No description</em>';
-								var $item = $('<tr><td class="col-xs-3">'+item.title+'</td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).click(function(e){
+								var $item = $('<tr><td class="col-xs-3">'+item.title+'</td><td class="col-xs-4">'+desc+'</td><td class="col-xs-2">.../'+item.slug+'</td><td class="text-center col-xs-2"><a href="'+item.uri+'" target="_blank">Preview</a></td><td class="text-center col-xs-1"><i class="glyphicon glyphicon-unchecked"></td></tr>').appendTo($tbody).on('click', function(e){
 									if(!allowMultiple){
 											if($(this).hasClass('bg-info') && (!allowMultiple || selectedNodes.length == 1)){
 											  $(this).removeClass('bg-info').find('.glyphicon-check').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
@@ -1392,14 +1392,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					$('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+widget_type+' '+get_config_description_for_widget_type(widget_type)).fadeIn('fast');});
 
 					$content.append('<hr />');
-					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).on('click', function(){
 					 $('#bootbox-content-selector-content').find('.widgetOptions').fadeOut('fast',function(){
 						 $(this).remove();
 						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select a widget').fadeIn('fast');});
 						 $('#bootbox-content-selector-content').find('.widgetList').fadeIn('fast');
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($content).click(submitAction).data("isEdit",isEdit);
+					$('<a class="btn btn-primary pull-right">Continue to formatting</a>').appendTo($content).on('click', submitAction).data("isEdit",isEdit);
 					$content.append('<div class="clearfix"></div>');
 				});
 			}
@@ -1486,14 +1486,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					});
 
-					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).click(function(){
+					$('<a class="btn btn-default">&laquo; Back<a>').appendTo($content).on('click', function(){
 					 $('#bootbox-content-selector-content').find('.widgetFormatting').fadeOut('fast',function(){
 						 $(this).remove();
 						 $('.bootbox').find( '.modal-title' ).fadeOut('fast',function(){$(this).text('Select '+options.type+' '+get_config_description_for_widget_type(options.type)).fadeIn('fast');});
 						 $('#bootbox-content-selector-content').find('.widgetOptions').fadeIn('fast');
 					 });
 					})
-					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($content).click(submitAction);
+					$('<a class="btn btn-primary pull-right">Insert '+options.type+' widget</a>').appendTo($content).on('click', submitAction);
 					$content.append('<div class="clearfix"></div>');
 					if(isEdit){
 						$('#bootbox-content-selector-content').find('.widgetFormatting select').each(function(){
@@ -1587,7 +1587,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			for(var i = 0; i < widget_types.length; i++){
 				var widget = widget_types[i];
 				var $widget = $('<div class="widget_type"><img class="pull-left" src="'+icon_base_url+widget.icon+'"><a class="uppercase"><strong>'+widget.name+'</strong></a><br />'+widget.description+'</div>').data('type',widget.name);
-				$widget.click(function(e){
+				$widget.on('click', function(e){
 					select_widget_options($(this).data('type').toLowerCase(),false);
 					e.preventDefault();
 					e.stopPropagation();

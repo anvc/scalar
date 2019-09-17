@@ -98,7 +98,7 @@ $(window).ready(function() {
 
 		  // Scalar API
 		  {load: [widgets_uri+'/api/scalarapi.js'], complete:function() {
-		  	$('.hide_page_link').click(function() {
+		  	$('.hide_page_link').on('click', function() {
 		  		var uri = document.location.href;
 		  		if (uri.indexOf('?')!=-1) uri = uri.substr(0, uri.indexOf('?'));
 		  		if (uri.indexOf('#')!=-1) uri = uri.substr(0, uri.indexOf('#'));
@@ -194,7 +194,7 @@ $(window).ready(function() {
 				yepnope({load: [widgets_uri+'/spinner/spin.min.js']});
 		 	}
 		  	// Title
-		  	$('.cover_title').click(function() {
+		  	$('.cover_title').on('click', function() {
 		  		var parent = $('link#parent').attr('href');
 		  		if (!parent.length) return;
 		  		document.location.href=parent;
@@ -211,7 +211,7 @@ $(window).ready(function() {
 
 		  // Link content preview
 		  {load: [widgets_uri+'/contentpreview/jquery.scalarcontentpreview.js'], complete:function() {
-		    $('body').bind('texteoTagMouseOver', function(event, $link, mouseOverEvent) {  
+		    $('body').bind('texteoTagMouseOver', function(event, $link, mouseOverEvent) {
 		      if ($link.data('content_preview')) return;
 		      $link.scalarcontentpreview();
 		    });
@@ -219,12 +219,12 @@ $(window).ready(function() {
 
 		  // Maximize + comments + additional metadata
 		  {load: [widgets_uri+'/maximize/maximize.css',widgets_uri+'/maximize/jquery.scalarmaximize.js','//www.google.com/recaptcha/api.js',widgets_uri+'/replies/replies.js',widgets_uri+'/modals/jquery.additionalmetadata.js'], complete:function() {
-			$('.reply_link').click(function() {
+			$('.reply_link').on('click', function() {
 		    	commentFormDisplayForm();
 		    	return false;
 		    });
 			if (document.location.hash.indexOf('comment')!=-1) commentFormDisplayForm();
-			$('.meta_link').find('a:first').click(function() {
+			$('.meta_link').find('a:first').on('click', function() {
 				$(this).additionalmetadata({data:additional_metadata,ns:ns});
 			});
 		  }},

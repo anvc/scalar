@@ -1375,7 +1375,7 @@ CKEDITOR.DIALOG_STATE_BUSY = 2;
 		 * @param {String} id The id of the button.
 		 */
 		click: function( id ) {
-			return this._.buttons[ id ].click();
+			return this._.buttons[ id ].trigger('click');
 		},
 
 		/**
