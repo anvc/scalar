@@ -672,7 +672,7 @@ $(window).ready(function() {
 		  }},
 
 		  // Maximize + comments
-		  {load: ['//www.google.com/recaptcha/api/js/recaptcha_ajax.js',
+		  {load: ['//www.google.com/recaptcha/api.js',
 		          widgets_uri+'/replies/replies.js'], complete:function() {}
 		  },
 
