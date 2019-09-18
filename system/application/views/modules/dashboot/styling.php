@@ -63,7 +63,7 @@ $(document).ready(function() {
 							dialog.close();
 							$this.data('open', false);
 							$this.val($this.data('orig-value'));
-							$this.blur();
+							$this.trigger('blur');
 		                }
 		            }, {
 		                label: 'Continue',
@@ -72,7 +72,7 @@ $(document).ready(function() {
 							$this.data('confirmed',true);
 							dialog.close();
 							$this.data('open', false);
-							$this.focus();
+							$this.trigger('focus');
 		                }
 		            }]
 		        });

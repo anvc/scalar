@@ -40,7 +40,7 @@
    			$('#formRelType').find('[name="relType"]').on('change', function() {
    	   			var $this = $(this);
    	   			$this.closest('form').trigger('submit');
-   	   			$this.blur();
+   	   			$this.trigger('blur');
    			});
 
    			$('body').on('rowSaved', function() {
@@ -127,14 +127,14 @@
 						}
 					}
 					$the_link.html('Hide');
-					$the_link.blur();
+					$the_link.trigger('blur');
 					$the_link.data('is_open',true);
 				});
 			} else {
 				$('#'+rel_type+'_of_row_'+version_id).remove();
 				$the_link.html('View');
 				$the_link.data('is_open',false);
-				$the_link.blur();
+				$the_link.trigger('blur');
 			}
 		}
 

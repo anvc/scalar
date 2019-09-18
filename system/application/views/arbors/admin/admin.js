@@ -108,7 +108,7 @@ function edit_row($row) {
 		if ($row.find('.edit_button').length) $row.data('edit_button',$row.find('.edit_button').parent().html());
 		$row.find('a:first').html('Save');
 		$row.find('a:first').addClass('default');
-		$row.find('a:first').blur();
+		$row.find('a:first').trigger('blur');
 		$row.data('originals',originals);
 	} else {
 		var originals = $row.data('originals');
@@ -160,7 +160,7 @@ function edit_row($row) {
 				height:'auto',
 				modal:true,
 				open:function() {
-					$('.ui-dialog :button').blur();
+					$('.ui-dialog :button').trigger('blur');
 				},
 				buttons: {
 					"Cancel":function() {
@@ -224,7 +224,7 @@ function push_row(row,post) {
 		var str = (row.data('edit_button')) ? row.data('edit_button') : 'Edit';
 		row.find('a:first').html(str);
 		row.find('a:first').removeClass('default');
-		row.find('a:first').blur();
+		row.find('a:first').trigger('blur');
 		var version_id = row.data('most_recent_version');
 		if ('undefined'!=typeof(version_id) && version_id) {
 			$('body').trigger("contentUpdated",{version_id:version_id});

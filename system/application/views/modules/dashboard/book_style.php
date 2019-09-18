@@ -146,7 +146,7 @@ $(window).ready(function() {
 					height:'auto',
 					modal:true,
 					open:function() {
-						$('.ui-dialog :button').blur();
+						$('.ui-dialog :button').trigger('blur');
 					},
 					buttons: {
 						"Cancel":function() {
@@ -193,18 +193,18 @@ $(window).ready(function() {
 				height:'auto',
 				modal:true,
 				open:function() {
-					$('.ui-dialog :button').blur();
+					$('.ui-dialog :button').trigger('blur');
 				},
 				buttons: {
 					"Cancel":function() {
 						$this.data('confirmed',false);
 						$(this).dialog("close");
-						$this.blur();
+						$this.trigger('blur');
 					},
 					"Continue":function() {
 						$this.data('confirmed',true);
 						$(this).dialog("close");
-						$this.focus();
+						$this.trigger('focus');
 					}
 				}
 			});

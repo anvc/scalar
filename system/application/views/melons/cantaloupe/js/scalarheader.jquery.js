@@ -497,10 +497,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var subdropdowns_open = $(this).find('li.dropdown.open');
                     if(subdropdowns_open.length > 0){
                         subdropdowns_open.removeClass('open').trigger('hide.bs.dropdown');
-                        subdropdowns_open.first().children('a').focus();
+                        subdropdowns_open.first().children('a').trigger('focus');
                     }else{
                         $(this).removeClass('open').trigger('hide.bs.dropdown');
-                        $(this).children('a').focus();
+                        $(this).children('a').trigger('focus');
                     }
                     e.stopPropagation();
                     e.preventDefault();
@@ -543,12 +543,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 if($(this).children('a').first().is(':focus') && !base.usingMobileView){
                     if(e.which == 38){
                         //up
-                        $(this).prev().children('a').focus();
+                        $(this).prev().children('a').trigger('focus');
                         e.stopPropagation();
                         return false;
                     }else if(e.which == 40){
                         //down
-                        $(this).next().children('a').focus();
+                        $(this).next().children('a').trigger('focus');
                         e.stopPropagation();
                         return false;
                     }
@@ -709,7 +709,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 base.handleResize();
                             }
                         });
-                        $('#ScalarHeaderMenuSearchForm input').first().val('').focus().blur(function(e){
+                        $('#ScalarHeaderMenuSearchForm input').first().val('').trigger('focus').on('blur', function(e){
                             if($('#ScalarHeaderMenuSearch').hasClass('search_open')){
                                 $('#ScalarHeaderMenuSearch a').trigger('click');
                             }
@@ -742,7 +742,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     }
                     $('#ScalarHeaderMenuSearch').removeClass('search_open');
                 }else{
-                    $('#ScalarHeaderMenuSearchForm form input').focus();
+                    $('#ScalarHeaderMenuSearchForm form input').trigger('focus');
                 }
 
                 e.stopPropagation();
@@ -1072,9 +1072,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 });
 
                 if(expanded_menu.find('.expandedPage').length > 0){
-                    expanded_menu.find('.expandedPage').last().find('li.active').removeClass('active').find('.expand').focus();
+                    expanded_menu.find('.expandedPage').last().find('li.active').removeClass('active').find('.expand').trigger('focus');
                 }else{
-                    $('.mainMenuDropdown li.active .expand').focus();
+                    $('.mainMenuDropdown li.active .expand').trigger('focus');
                 }
 
                 currentMenuWidth += (expanded_menu.find('.expandedPage').length * (base.remToPx*38));
@@ -1312,7 +1312,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         };
         base.focusExpandedPage = function(container){
             if(container != null && typeof container !== 'undefined'){
-                container.find('a').attr('tabindex','-1').first().focus();
+                container.find('a').attr('tabindex','-1').first().trigger('focus');
             }
         }
         base.handleResize = function(extra_offset){
@@ -1467,7 +1467,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         li.removeClass('open');
                         li.parents('.dropdown').removeClass('open');
                     }else if(e.which == 37){
-                        a.focus();
+                        a.trigger('focus');
                         li.removeClass('open');
                     }
                     $('body').off('keyup');

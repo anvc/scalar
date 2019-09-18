@@ -103,7 +103,7 @@
 			if( keyCode == 9 ) {
 				if( e.shiftKey ) {
 			    	e.preventDefault();
-					me.modal.find( '.close' )[ 0 ].focus();
+					me.modal.find( '.close' )[ 0 ].trigger('focus');
 			    }
 		    }
 		} );
@@ -200,7 +200,7 @@
 			row = $( '<tr><td style="width:30%">No results found.</td><td></td></tr>' ).appendTo( this.resultsTable );
 
 			this.modal.on('shown.bs.modal', function(e) {
-				me.modal.find('button.close').focus();
+				me.modal.find('button.close').trigger('focus');
 			});
 		} else {
 			this.modal.on('shown.bs.modal', function(e) {
@@ -240,7 +240,7 @@
 	}
 
 	ScalarSearch.prototype.firstFocus = function() {
-		this.searchField.focus();
+		this.searchField.trigger('focus');
 	}
 
 
@@ -267,7 +267,7 @@
 	}
 
 	ScalarSearch.prototype.focusOnCurrentPage = function() {
-		this.pagination.find('a[data-page="'+this.currentPage+'"]').focus();
+		this.pagination.find('a[data-page="'+this.currentPage+'"]').trigger('focus');
 	}
 
     $.fn[pluginName] = function ( options ) {

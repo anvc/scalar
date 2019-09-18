@@ -208,7 +208,7 @@
 			// Get versions
 			if (!$the_link.data('is_open')) {
 				$the_link.data('orig_html', $the_link.html());
-				$the_link.blur();
+				$the_link.trigger('blur');
 				var $the_row = $('#row_'+content_id)
 				$.get('api/get_versions', {content_id:content_id}, function(data) {
 					var $next = $the_link.parent().parent().next();
@@ -243,7 +243,7 @@
 							});
 						});
 						$the_link.html('Hide');
-						$the_link.blur();
+						$the_link.trigger('blur');
 						$the_link.data('is_open',true);
 					}
 					$('body').on("contentUpdated",function(e,update_opts) {
@@ -272,7 +272,7 @@
 				if ($next.hasClass('version_wrapper')) $next.remove();
 				$the_link.data('is_open',false);
 				$the_link.html('View');
-				$the_link.blur();
+				$the_link.trigger('blur');
 			}
 		}
 

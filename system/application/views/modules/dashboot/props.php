@@ -59,7 +59,7 @@ $(document).ready(function() {
 						$this.data('confirmed',false);
 						dialog.close();
 						$this.val($this.data('orig-value'));
-						$this.blur();
+						$this.trigger('blur');
 	                }
 	            }, {
 	                label: 'Continue',
@@ -68,7 +68,7 @@ $(document).ready(function() {
 	                	$this.data('active',false);
 						$this.data('confirmed',true);
 						dialog.close();
-						$this.focus();
+						$this.trigger('focus');
 	                }
 	            }]
 	        });

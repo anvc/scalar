@@ -244,7 +244,7 @@
                         $(this).parents('.resolvedQueries').find('.queryDropdownToggle small').removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
                     });
                     $('#addNewQuery').on('click', function(){
-                        $('#addNewQueryForm').show().find('#addNewQueryFormText').focus();
+                        $('#addNewQueryForm').show().find('#addNewQueryFormText').trigger('focus');
                         $('#editorialQueries').animate({
                             scrollTop: 0
                         }, 200);
@@ -1063,7 +1063,7 @@
                     }, 200);
 
                     $reply.data('query',newReply);
-                    $(this).siblings('.replyText').focus();
+                    $(this).siblings('.replyText').trigger('focus');
                     base.serializeQueries();
                 });
             }
@@ -1341,7 +1341,7 @@
                             }
                         }).on('keydown', function(e) {
                           if (e.which == 13) {
-                            $(this).blur();
+                            $(this).trigger('blur');
                             return false;
                           }
                         });
@@ -1409,7 +1409,7 @@
                                         return false;
                                     });
                                     $(window).off('hidden.bs.modal').on("hidden.bs.modal", function() {
-                                        editor.focus();
+                                        editor.trigger('focus');
                                     });
                                     $(this).on('blur', $.proxy(function($parent,base,ev) {
                                             if($('.cke_panel:visible').length > 0){ //We have a ckeditor panel currently open

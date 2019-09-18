@@ -111,7 +111,7 @@ function userOptions() {
 	};
 	$userOptionsModal = $('#userOptionsModal');
 	$userOptionsModal.on('shown.bs.modal', function (e) {
-		$(this).find('#fullname').val('').focus();
+		$(this).find('#fullname').val('').trigger('focus');
 	});
 	$userOptionsModal.modal();
 	var last_sent = '';
@@ -143,7 +143,7 @@ function userOptions() {
 
 	});
 	$userOptionsModal.find('.glyphicon-remove').on('click', function() {
-		$(this).closest('div').find('input').val('').focus();
+		$(this).closest('div').find('input').val('').trigger('focus');
 	});
 	$userOptionsModal.find('.modal-footer button:last').off('click').on('click', function() {
 		var $btn = $(this);

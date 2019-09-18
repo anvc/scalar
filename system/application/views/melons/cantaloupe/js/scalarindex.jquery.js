@@ -104,12 +104,12 @@
 
 		// tabbing forward from close button brings focus to path tab
 		header.find( '.close' ).onTab(function() {
-			pathBtn.find( 'a' )[ 0 ].focus();
+			pathBtn.find( 'a' )[ 0 ].trigger('focus');
 		});
 
 		// tabbing backwards from path tab brings focus to close button
 		pathBtn.find('a').onTabBack(function() {
-			header.find( '.close' )[ 0 ].focus();
+			header.find( '.close' )[ 0 ].trigger('focus');
 		});
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
@@ -299,7 +299,7 @@
 	}
 
 	ScalarIndex.prototype.focusOnCurrentPage = function() {
-		this.pagination.find('a[data-page="'+this.currentPage+'"]').focus();
+		this.pagination.find('a[data-page="'+this.currentPage+'"]').trigger('focus');
 	}
 
     $.fn[pluginName] = function ( options ) {

@@ -82,9 +82,9 @@
 
 	ScalarComments.prototype.firstFocus = function() {
 		if ( this.bodyContent.find( '.comment' ).length > 0 ) {
-			this.bodyContent.find('.comment:eq(0) h3 a').focus();
+			this.bodyContent.find('.comment:eq(0) h3 a').trigger('focus');
 		} else {
-			this.bodyContent.find( 'p:visible > a:eq(0)' ).focus();
+			this.bodyContent.find( 'p:visible > a:eq(0)' ).trigger('focus');
 		}
 	}
 
@@ -130,7 +130,7 @@
 
 		var me = this;
 		this.bodyContent.find('.comment:eq(0) h3 a').onTabBack(function() {
-			me.modal.find('.close').focus();
+			me.modal.find('.close').trigger('focus');
 		});
 
 	}
@@ -202,11 +202,11 @@
 
 					// tab back to close button if no comments are visible
 					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
-						me.modal.find('.close').focus();
+						me.modal.find('.close').trigger('focus');
 
 					// otherwise tab back to the last comment
 					} else {
-						me.bodyContent.find('.comment:last h3 a').focus();
+						me.bodyContent.find('.comment:last h3 a').trigger('focus');
 					}
 				});
 
@@ -236,11 +236,11 @@
 
 					// tab back to close button if no comments are visible
 					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
-						me.modal.find('.close').focus();
+						me.modal.find('.close').trigger('focus');
 
 					// otherwise tab back to the last comment
 					} else {
-						me.bodyContent.find('.comment:last h3 a').focus();
+						me.bodyContent.find('.comment:last h3 a').trigger('focus');
 					}
 				});
 			}

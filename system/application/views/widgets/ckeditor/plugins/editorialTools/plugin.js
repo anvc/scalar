@@ -448,8 +448,11 @@ CKEDITOR.plugins.add( 'editorialTools', {
                         }
                         $(this).attr('id','chunk_'+chunkID);
                         //For each chunk, make a tooltip...
+                        var moddedWhiteList = $.fn.tooltip.Constructor.DEFAULTS.whiteList;
+                        moddedWhiteList.button = ['type'];
                         $(this).tooltip({
                             "html": true,
+                            "whiteList": moddedWhiteList,
                             "title": '<button type="button" class="btn btn-sm btn-danger">Reject</button> <button type="button" class="btn btn-sm btn-success">Accept</button>',
                             "trigger": "manual",
                             "container": container

@@ -185,7 +185,7 @@ $(window).ready(function() {
 					height:'auto',
 					modal:true,
 					open:function() {
-						$('.ui-dialog :button').blur();
+						$('.ui-dialog :button').trigger('blur');
 					},
 					buttons: {
 						"Cancel":function() {
@@ -937,7 +937,7 @@ function add_continue_to($list, title, scalar_url, source_url, content_urn, vers
 	var $div = $('#path_continue_to');
 	$div.find('input:first').val(0);
 	$div.find('span:first').html('none');
-	$div.find('a').blur();
+	$div.find('a').trigger('blur');
 
 }
 

@@ -636,7 +636,7 @@ STR;
   	});
 
     $('#createEdition').on('show.bs.modal', function() {
-      $('.editions .btn').blur();
+      $('.editions .btn').trigger('blur');
       var $modal = $(this);
       $body = $modal.find('.modal-body:first');
       var $form = $body.parent();
@@ -679,7 +679,7 @@ STR;
 
       // Manage editions modal
   	$('#manageEditions').on('show.bs.modal', function() {
-  		$('.editions .btn').blur();
+  		$('.editions .btn').trigger('blur');
   		var $modal = $(this);
   		$body = $modal.find('.modal-body:first');
   		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
