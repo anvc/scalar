@@ -459,7 +459,7 @@
 					}
 					mediaTabs.slideDown();
 				})
-				mediaelement.model.element.mouseleave(function() {
+				mediaelement.model.element.on('mouseleave', function() {
 					if ( window.innerWidth > 480 ) {
 						var timeout = $(this).data('timeout');
 						if (timeout != null) {

@@ -159,7 +159,7 @@
 					element.focus();
 				},
 				execute: function() {
-					this.button.on('click',  editor );
+					this.button.click( editor );
 				},
 				attach: function( editor ) {
 					this.button.attach( editor );

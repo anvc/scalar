@@ -244,7 +244,7 @@ CKEDITOR.plugins.add( 'dialogui', {
 					me.getInputElement().on( 'keyup', function( evt ) {
 						if ( evt.data.getKeystroke() == 13 && keyPressedOnMe ) {
 							dialog.getButton( 'ok' ) && setTimeout( function() {
-								dialog.getButton( 'ok' ).trigger('click');
+								dialog.getButton( 'ok' ).click();
 							}, 0 );
 							keyPressedOnMe = false;
 						}
@@ -536,14 +536,14 @@ CKEDITOR.plugins.add( 'dialogui', {
 
 					( function() {
 						element.on( 'click', function( evt ) {
-							me.trigger('click');
+							me.click();
 							// https://dev.ckeditor.com/ticket/9958
 							evt.data.preventDefault();
 						} );
 
 						element.on( 'keydown', function( evt ) {
 							if ( evt.data.getKeystroke() in { 32: 1 } ) {
-								me.trigger('click');
+								me.click();
 								evt.data.preventDefault();
 							}
 						} );
@@ -969,7 +969,7 @@ CKEDITOR.plugins.add( 'dialogui', {
 			 * the button.
 			 */
 			accessKeyUp: function() {
-				this.trigger('click');
+				this.click();
 			},
 
 			/**

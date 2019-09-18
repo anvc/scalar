@@ -234,23 +234,27 @@ var scalar_diff = {
 					for (var i=0; i<n; i++) {
 						// if we have lefover unclosed tags from the previous chunk, reopen them here
 						if (i == 0 && unclosedTags.length > 0) {
+							if (debug) console.log('loop unclosed tags: '+unclosedTags.length);
 							o = unclosedTags.length;
 							for (var j=o-1; j>=0; j--) {
 								diff.body[d][1] = diff.tokens.relationships[unclosedTags[j]].generatedTag + diff.body[d][1];
+								if (debug) console.log('reopen a tag: '+diff.tokens.relationships[unclosedTags[j]].htmlGeneratedTag);
 								if (debug) debugStr = diff.tokens.relationships[unclosedTags[j]].htmlGeneratedTag + debugStr;
 							}
 						}
 						char = chunk[i];
-						if (debug) console.log(escape(char));
+						//if (debug) console.log(escape(char));
 						// found an opening tag; keep track of it
 						if (diff.tokens.relationships[char] != null) {
 							if (diff.tokens.relationships[char].endTag != null) {
+								if (debug) console.log('track an opening tag: '+diff.tokens.relationships[char].htmlTag);
 								unclosedTags.push(char);
+								if (debug) console.log('now unclosed tags: '+unclosedTags.length);
 							}
 						} else if (unclosedTags.length > 0) {
 							// found the closing tag we're looking for; stop tracking it
 							if (diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].endTag == char) {
-								if (debug) console.log('found a closing tag: '+diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].htmlEndTag)
+								if (debug) console.log('found a closing tag: '+diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].htmlEndTag);
 								unclosedTags.pop();
 							}
 						} else if (action == 'DEL') {

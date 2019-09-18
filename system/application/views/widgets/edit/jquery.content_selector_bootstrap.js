@@ -1916,6 +1916,14 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						}
 					}
 
+					var thumbnailUrl = null;
+					if (item.thumbnail != null) {
+						thumbnailUrl = item.thumbnail;
+						if (thumbnailUrl.indexOf('://') == -1 && $('link[id="parent"]').attr('href') != null) {
+							thumbnailUrl = $('link[id="parent"]').attr('href') + thumbnailUrl;
+						}
+					}
+
 					var content_id = 0;
 					if ('undefined'!=typeof(item.content) && 'undefined'!=typeof(item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) {
 						var content_urn = item.content['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
@@ -1952,7 +1960,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 									continue;
 								}
 								$(this).find('th[data-field="thumbnail"]').show();
-								rowHTML += '<td class="node_thumb ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><img class="img-responsive center-block" style="max-height: 50px;" src="' + item.thumbnail + '"></td>';
+								rowHTML += '<td class="node_thumb ' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'"><img class="img-responsive center-block" style="max-height: 50px;" src="' + thumbnailUrl + '"></td>';
 								break;
 							case 'title':
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><a href="' + item.uri + '"' + (($rows.closest('.modal').length) ? ' target="_blank"' : '') + '>' + item.title + '</a></td>';
