@@ -211,7 +211,7 @@ $(window).ready(function() {
 
 		  // Link content preview
 		  {load: [widgets_uri+'/contentpreview/jquery.scalarcontentpreview.js'], complete:function() {
-		    $('body').bind('texteoTagMouseOver', function(event, $link, mouseOverEvent) {
+		    $('body').on('texteoTagMouseOver', function(event, $link, mouseOverEvent) {
 		      if ($link.data('content_preview')) return;
 		      $link.scalarcontentpreview();
 		    });
@@ -237,7 +237,7 @@ $(window).ready(function() {
 
 		  // Live annotations
 		  {load: [widgets_uri+'/liveannotations/jquery.scalarliveannotations.js'], complete:function() {
-			$('body').bind('show_annotation', function(event, annotation, mediaelement) {
+			$('body').on('show_annotation', function(event, annotation, mediaelement) {
 				if (!mediaelement.isPlaying()) return;	// Guard against the Live Annotatiob being re-created every second or more
 				$('<div></div>').appendTo('body').live_annotation({
 					annotation:annotation,
@@ -247,7 +247,7 @@ $(window).ready(function() {
 					content_id:'content'
 				});
 			});
-			$('body').bind('hide_annotation', function(event) {});
+			$('body').on('hide_annotation', function(event) {});
 		  }}
 
 	]);  // !yepnope

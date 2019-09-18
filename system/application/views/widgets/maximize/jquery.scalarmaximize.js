@@ -90,7 +90,7 @@
 			$link.data('path', url);
 			$link.data('meta', resource);
 
-			$('body').bind('mediaElement_wrapperCreated', function(event, $wrapper) {
+			$('body').on('mediaElement_wrapperCreated', function(event, $wrapper) {
 			   $slot.html( $wrapper );
 			});
 

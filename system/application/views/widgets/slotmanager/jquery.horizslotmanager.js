@@ -45,7 +45,7 @@
 
 			// Listen for tag clicks, and run play or pause actions
 
-			$('body').bind('texteoTagClicked', function(event, $link, clickEvent) {
+			$('body').on('texteoTagClicked', function(event, $link, clickEvent) {
 
 				if (!$link.data('texteo_resource_link')) return;
 
@@ -68,7 +68,7 @@
 
 			// Listen for tags, and create or update the status of each tag's slot
 
-			$('body').bind(options['tag_event'], function(event, $tags) {
+			$('body').on(options['tag_event'], function(event, $tags) {
 
 				// Setup slots
 

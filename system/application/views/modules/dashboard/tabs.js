@@ -17,7 +17,7 @@ $(document).ready(function() {
 
     // Reload the page when a tab is selected so PHP can load its content in the controller
 
-	$('.tabs').bind('tabsselect', function(event, ui) {
+	$('.tabs').on('tabsselect', function(event, ui) {
 
 		$('#page_load_time').hide();
 

@@ -105,7 +105,7 @@ if ('undefined'==typeof(escape_html)) {
 						$.fn.scalarimport('reset', options);
 						$.fn.scalarimport('multi_custom_meta', $(options.results_el), form_data, options);
 					});
-					$(options.results_el).bind(options.multi_custom_meta_complete, function(event, form_data, options) {
+					$(options.results_el).on(options.multi_custom_meta_complete, function(event, form_data, options) {
 						$(options.results_el).scalarimport('import', function(versions) {
 							$.fn.scalarimport('imported', versions, options);
 						}, form_data, options);

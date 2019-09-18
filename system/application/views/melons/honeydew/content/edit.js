@@ -725,7 +725,7 @@ function listeditor_save($list, insert_func, $row, select_single) {
 			$options_div.find('input:first').on('click', function() {
 				$options_div.remove();
 			});
-			$options_div.find('input:last').bind('click', {$list:$list,insert_func:insert_func,node_data:node_data}, function() {
+			$options_div.find('input:last').on('click', {$list:$list,insert_func:insert_func,node_data:node_data}, function() {
 				var data_fields = {};
 				for (var option_name in window['reference_options'][insert_func_name]) {
 					data_fields[option_name] = $options_div.find('select[name="'+option_name+'"] option:selected"').val();

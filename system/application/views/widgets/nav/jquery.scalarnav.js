@@ -354,7 +354,7 @@
 					setTimeout($(this).data('view').hideMenu, 500);
 				};
 				menuItem.on('click', clickFunc);
-				menuItem.bind('touchend', clickFuncTouch);
+				menuItem.on('touchend', clickFuncTouch);
 			}
 
 		}
@@ -422,7 +422,7 @@
 					document.location.href = $(this).data('uri');
 				};
 				menuItem.on('click', clickFunc);
-				menuItem.bind('touchend', clickFunc);
+				menuItem.on('touchend', clickFunc);
 			}
 
 		}

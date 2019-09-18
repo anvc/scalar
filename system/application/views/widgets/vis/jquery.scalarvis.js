@@ -7,7 +7,7 @@
   var IS_IOS = /iphone|ipad/i.test(navigator.userAgent);
   $.fn.nodoubletapzoom = function() {
     if (IS_IOS)
-      $(this).bind('touchstart', function preventZoom(e) {
+      $(this).on('touchstart', function preventZoom(e) {
         var t2 = e.timeStamp
           , t1 = $(this).data('lastTouch') || t2
           , dt = t2 - t1

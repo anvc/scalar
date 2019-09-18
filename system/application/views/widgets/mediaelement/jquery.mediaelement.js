@@ -423,13 +423,6 @@ function YouTubeGetID(url){
         me.model.path = me.model.node.current.sourceFile;
 				me.model.mediaSource = me.model.node.current.mediaSource;
 				me.view.beginSetup();
-
-				// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
-				// will take care of displaying the annotations)
-				if ((me.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
-					me.view.parseAnnotations();
-				}
-
 			}
 
 			$('body').trigger('mediaElementMetadataHandled', [$(link)]);
@@ -674,6 +667,12 @@ function YouTubeGetID(url){
 
 			$.when(promise).then($.proxy(function(){
 				this.parseMediaType();
+
+				// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
+				// will take care of displaying the annotations)
+				if ((this.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
+					this.parseAnnotations();
+				}
 
 				this.header = $('<div class="mediaElementHeader"></div>').appendTo(this.model.element);
 	  			this.annotationSidebar = $('<div class="mediaElementAnnotationSidebar"></div>').appendTo(this.model.element);
@@ -3978,9 +3977,9 @@ function YouTubeGetID(url){
 				cssSelectorAncestor:'#jp_interface_'+this.model.id
 			});
 
-			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.pause, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.endTimer(); });
-			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.play, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.startTimer(); $(this).jPlayer("pauseOthers"); });
-			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.timeupdate, function(e) { me.currentTime = e.jPlayer.status.currentTime; });
+			$('#jplayer'+this.model.filename+'_'+this.model.id).on($.jPlayer.event.pause, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.endTimer(); });
+			$('#jplayer'+this.model.filename+'_'+this.model.id).on($.jPlayer.event.play, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.startTimer(); $(this).jPlayer("pauseOthers"); });
+			$('#jplayer'+this.model.filename+'_'+this.model.id).on($.jPlayer.event.timeupdate, function(e) { me.currentTime = e.jPlayer.status.currentTime; });
 
 			this.parentView.controllerOnly = true;
 			this.parentView.controllerHeight = 80;
@@ -4101,7 +4100,7 @@ function YouTubeGetID(url){
 
 			this.frame = obj.find('#'+this.frameId)[0];
 
-			$(this.frame).bind("load", function () {
+			$(this.frame).on("load", function () {
 				me.codeToList();
 			   	me.hasFrameLoaded = true;
 			   	me.highlightAnnotatedLines();
@@ -4642,7 +4641,7 @@ function YouTubeGetID(url){
 
 			this.frame = obj.find('#'+this.frameId)[0];
 
-			$(this.frame).bind("load", function () {
+			$(this.frame).on("load", function () {
 			   	me.hasFrameLoaded = true;
 			});
 
@@ -4865,7 +4864,7 @@ function YouTubeGetID(url){
 					// All Sound Cloud Event listeners are extremely unreliable when triggered programatically.
 					// This motivates the code below as any attempt to exercise fine tuned control over the order
 					// of events is unadvisable
-					me.widget.bind(SC.Widget.Events.READY, function() {
+					me.widget.on(SC.Widget.Events.READY, function() {
 						me.widget.isPaused(function() {
 							if(!me.initialPauseDone) {
 								if ( !me.model.options.autoplay ) {
@@ -4875,23 +4874,23 @@ function YouTubeGetID(url){
 							}
 						});
 					});
-					me.widget.bind(SC.Widget.Events.PLAY, function() {
+					me.widget.on(SC.Widget.Events.PLAY, function() {
 						if(me.initialPauseDone) {
 		 					me.parentView.startTimer();
 							me.isAudioPlaying = true;
 						}
 					});
-					me.widget.bind(SC.Widget.Events.PAUSE, function() {
+					me.widget.on(SC.Widget.Events.PAUSE, function() {
 						if(me.initialPauseDone) {
 							me.parentView.endTimer();
 							me.isAudioPlaying = false;
 						}
 					});
-					me.widget.bind(SC.Widget.Events.FINISH, function() {
+					me.widget.on(SC.Widget.Events.FINISH, function() {
 						me.parentView.endTimer();
 						me.isAudioPlaying = false;
 					});
-					me.widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(e) {
+					me.widget.on(SC.Widget.Events.PLAY_PROGRESS, function(e) {
 						me.currentTime = e.currentPosition / 1000.0;
 					});
 					me.parentView.removeLoadingMessage();

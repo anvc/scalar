@@ -33,7 +33,7 @@ jQuery.fn.annobuilder = function(options) {
 		if ($.annobuilder.model.mediaElement.model.node != null) {
 			$.annobuilder.controller.init();
 		} else {
-			$('body').bind('mediaElementMetadataHandled', $.annobuilder.controller.init);
+			$('body').on('mediaElementMetadataHandled', $.annobuilder.controller.init);
 		}
 
 		if ($.annobuilder.model.isTesting) console.log(options);
@@ -200,7 +200,11 @@ jQuery.AnnoBuilderController = function() {
 	jQuery.AnnoBuilderController.prototype.init = function() {
 		if ( $.annobuilder.model.node == null ) {
 			$.annobuilder.model.setup();
-			me.setup();
+      $('body').on('mediaElementMediaLoaded', function(event, link) {
+        if ($.annobuilder.model.mediaElement == link.data('mediaelement')) {
+          $.annobuilder.controller.setup();
+        }
+      });
 		}
 	}
 
@@ -208,7 +212,7 @@ jQuery.AnnoBuilderController = function() {
 	 * Sets up the controller.
 	 */
 	jQuery.AnnoBuilderController.prototype.setup = function() {
-		this.loadAnnotations();
+		$.annobuilder.controller.loadAnnotations();
 		$.annobuilder.view.setup();
 	}
 
@@ -223,6 +227,7 @@ jQuery.AnnoBuilderController = function() {
 			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
 		}
 		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
+      console.log($.annobuilder.model.mediaElement.view.mediaObjectView);
  			anno.removeAll( $.annobuilder.model.mediaElement.view.mediaObjectView.image.src + '-0' );
 		}
 }
